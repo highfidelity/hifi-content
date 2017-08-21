@@ -8,14 +8,14 @@ If you prefer to build from source, you can find the codebase for High Fidelity 
 
 hifi-content
 ========
-In this repository you'll find our content projects built for worlds that run on the High Fidelity platform. We welcome community contributions and you can find ongoing projects at [Worklist.net](https://worklist.net).
+In this repository you'll find our content projects built for worlds that run on the High Fidelity platform. We welcome community contributions and you can find ongoing projects at [Worklist.net](https://worklist.net). You can find specific information about where specific content is used in the subdirectory readme files.
 
 If you find a small bug and have a fix, pull requests are welcome. If you'd 
 like to get paid for your work, make sure you report the bug via a job on Worklist.
 
 Documentation
 =========
-Documentation is available at [docs.highfidelity.com]. If you're just getting started with the platform, check out some of these pages to learn more:
+Documentation is available at [docs.highfidelity.com](https://docs.highfidelity.com). If you're just getting started with the platform, check out some of these pages to learn more:
 * [What is High Fidelity?](https://docs.highfidelity.com/get-started/what-is-high-fidelity)
 * [Get Started: Installation](https://docs.highfidelity.com/get-started/installation)
 * [Set up your Domain](https://docs.highfidelity.com/learn-with-us/setup-your-domain-to-build)
