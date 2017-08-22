@@ -1,8 +1,0 @@
-{
-    "gameName": "dice",
-    "matURL": "assets/mats/Felt.jpg",
-    "spawnStyle": "pile",
-    "howMany": 5,
-    "identicalPieces": true,
-    "pieces": ["assets/dice/dice.json"]
-}
