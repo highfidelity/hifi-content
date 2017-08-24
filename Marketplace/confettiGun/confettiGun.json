@@ -1,0 +1,25 @@
+{
+  "Entities": [{
+
+    "shapeType": "compound",
+    "compoundShapeURL": "http://mpassets.highfidelity.com/a5f42695-f15a-4f44-9660-14b4f8ca2b29-v1/collision.obj",
+    "type": "Model",
+    "dimensions": {
+      "x": 0.095084793865680695,
+      "y": 0.18743343651294708,
+      "z": 0.22344860434532166
+    },
+    "gravity": {
+      "x": 0,
+      "y": -1,
+      "z": 0
+    },
+    "dynamic": true,
+    "lifetime": 3600,
+    "modelURL": "http://mpassets.highfidelity.com/a5f42695-f15a-4f44-9660-14b4f8ca2b29-v1/ConfettiGun.fbx",
+    "script": "https://hifi-content.s3.amazonaws.com/liv/dev/updated_mkplace/confettiGun.js",
+    "scriptTimestamp": 1494608239196,
+    "userData": "{\"grabbableKey\":{\"grabbable\":true,\"invertSolidWhileHeld\":true},\"wearable\":{\"joints\":{\"RightHand\":[{\"x\":0.02,\"y\":0.16,\"z\":0.04},{\"x\":0.5,\"y\":0.5,\"z\":-0.5,\"w\":0.5}],\"LeftHand\":[{\"x\":-0.02,\"y\":0.16,\"z\":0.04},{\"x\":0.5,\"y\":-0.5,\"z\":0.5,\"w\":0.5}]}}}"
+  }],
+  "Version": 69
+}
