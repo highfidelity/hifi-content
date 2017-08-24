@@ -1,0 +1,591 @@
+{
+    "Entities": [
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "dimensions": {
+                "x": 0.1116928830742836,
+                "y": 0.13345099985599518,
+                "z": 0.13117514550685883
+            },
+            "id": "{bfaa8b2a-077a-404b-aa89-d3248f95e3ce}",
+            "lastEdited": 1499448475786031,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/apple.fbx",
+            "name": "Apple.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.1938323974609375,
+                "y": 0.571990966796875,
+                "z": 0.46356201171875
+            },
+            "queryAACube": {
+                "scale": 0.21792519092559814,
+                "x": 0.084869801998138428,
+                "y": 0.46302837133407593,
+                "z": 0.35459941625595093
+            },
+            "rotation": {
+                "w": 0.997589111328125,
+                "x": -4.57763671875e-05,
+                "y": -7.62939453125e-05,
+                "z": 0.069230198860168457
+            },
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"canReceiveScripts\":true}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "dimensions": {
+                "x": 0.1116928830742836,
+                "y": 0.13345099985599518,
+                "z": 0.13117514550685883
+            },
+            "id": "{7880d023-8222-4f13-8da2-0023815ccf25}",
+            "lastEdited": 1499448477708191,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Fruit-Apple-2.fbx",
+            "name": "Pear.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.14319229125976562,
+                "y": 0.5615234375,
+                "z": 0.253570556640625
+            },
+            "queryAACube": {
+                "scale": 0.21792519092559814,
+                "x": 0.034229695796966553,
+                "y": 0.45256084203720093,
+                "z": 0.14460796117782593
+            },
+            "rotation": {
+                "w": 0.99755859375,
+                "x": -4.57763671875e-05,
+                "y": -7.62939453125e-05,
+                "z": 0.069413304328918457
+            },
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"canReceiveScripts\":true}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "dimensions": {
+                "x": 0.17363440990447998,
+                "y": 0.24628490209579468,
+                "z": 0.033839233219623566
+            },
+            "id": "{25262869-85b1-45a9-9437-b12bf673d9ff}",
+            "lastEdited": 1499448491348382,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Book-F2-IA.fbx",
+            "name": "Book.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 1.7183475494384766,
+                "y": 0.520263671875,
+                "z": 0.76019287109375
+            },
+            "queryAACube": {
+                "scale": 0.30323299765586853,
+                "x": 1.5667310953140259,
+                "y": 0.36864715814590454,
+                "z": 0.60857635736465454
+            },
+            "rotation": {
+                "w": -0.56844437122344971,
+                "x": -0.55880063772201538,
+                "y": -0.43611812591552734,
+                "z": 0.41765463352203369
+            },
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"canReceiveScripts\":true}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "dimensions": {
+                "x": 0.43931344151496887,
+                "y": 0.032170284539461136,
+                "z": 0.45252567529678345
+            },
+            "id": "{e2942e69-796b-465d-95bf-0df8e885c281}",
+            "lastEdited": 1499448354729603,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/pizza.fbx",
+            "name": "Pizza.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 1.6299991607666016,
+                "y": 0.5138397216796875,
+                "z": 0.390655517578125
+            },
+            "queryAACube": {
+                "scale": 0.63151460886001587,
+                "x": 1.314241886138916,
+                "y": 0.19808241724967957,
+                "z": 0.074898213148117065
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"canReceiveScripts\":true}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "dimensions": {
+                "x": 2.1868999004364014,
+                "y": 1,
+                "z": 1.0937000513076782
+            },
+            "id": "{7db119ba-663a-4566-a937-f8b36a7d9f28}",
+            "lastEdited": 1499445761455880,
+            "lastEditedBy": "{6e3132e9-c3c4-45e2-a6b4-81bf75c85660}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/table-semicircle.fbx",
+            "name": "Table_Semicircle.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.87270355224609375,
+                "y": 0,
+                "z": 0.308990478515625
+            },
+            "queryAACube": {
+                "scale": 2.6417250633239746,
+                "x": -0.44815897941589355,
+                "y": -1.3208625316619873,
+                "z": -1.0118720531463623
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "shapeType": "static-mesh",
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "static,dynamic,kinematic,",
+            "collisionMask": 7,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "density": 4000,
+            "dimensions": {
+                "x": 0.155117467045784,
+                "y": 0.30255860090255737,
+                "z": 0.16309989988803864
+            },
+            "id": "{a29d2f29-7fbe-4c19-9f0f-8c95ff43efef}",
+            "lastEdited": 1499448484880881,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Script-Wand-4-green.fbx?1",
+            "name": "Wand_Green.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 1.0378398895263672,
+                "y": 0.673187255859375,
+                "z": 0.0387420654296875
+            },
+            "queryAACube": {
+                "scale": 0.37710040807723999,
+                "x": 0.8492896556854248,
+                "y": 0.484637051820755,
+                "z": -0.1498081386089325
+            },
+            "restitution": 0,
+            "rotation": {
+                "w": 0.028915882110595703,
+                "x": 0.0004119873046875,
+                "y": 0.99957275390625,
+                "z": -0.0005645751953125
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/AttachableScript.js",
+            "shapeType": "box",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"scriptURL\":\"https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Break.js\"}"
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "static,dynamic,kinematic,",
+            "collisionMask": 7,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "density": 4000,
+            "dimensions": {
+                "x": 0.155117467045784,
+                "y": 0.32368761301040649,
+                "z": 0.16309989988803864
+            },
+            "id": "{b08e09a8-ea06-4519-92a9-d629a468df53}",
+            "lastEdited": 1499448486729806,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Script-Wand-4-orange.fbx?1",
+            "name": "Wand_Yellow.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 1.3417797088623047,
+                "y": 0.6834259033203125,
+                "z": 0.1172943115234375
+            },
+            "queryAACube": {
+                "scale": 0.39425459504127502,
+                "x": 1.1446523666381836,
+                "y": 0.48629862070083618,
+                "z": -0.079832985997200012
+            },
+            "restitution": 0,
+            "rotation": {
+                "w": -0.15617609024047852,
+                "x": 0.0001373291015625,
+                "y": 0.9877011775970459,
+                "z": 0.0004119873046875
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/AttachableScript.js",
+            "shapeType": "box",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"scriptURL\":\"https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Float.js\"}"
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "static,dynamic,kinematic,",
+            "collisionMask": 7,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "density": 4000,
+            "dimensions": {
+                "x": 0.155117467045784,
+                "y": 0.30698782205581665,
+                "z": 0.16309989988803864
+            },
+            "id": "{7c190c33-91fc-41b2-974e-799535295aea}",
+            "lastEdited": 1499448483448983,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Script-Wand-4-red.fbx?1",
+            "name": "Wand_Red.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.718597412109375,
+                "y": 0.67529296875,
+                "z": 0.046661376953125
+            },
+            "queryAACube": {
+                "scale": 0.38066327571868896,
+                "x": 0.52826577425003052,
+                "y": 0.48496133089065552,
+                "z": -0.14367026090621948
+            },
+            "restitution": 0,
+            "rotation": {
+                "w": -0.11955446004867554,
+                "x": 0.0003509521484375,
+                "y": 0.99282824993133545,
+                "z": -0.0005340576171875
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/AttachableScript.js",
+            "shapeType": "box",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"scriptURL\":\"https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Edible.js\"}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "dimensions": {
+                "x": 0.28897443413734436,
+                "y": 0.040592171251773834,
+                "z": 0.28897440433502197
+            },
+            "id": "{150d2fac-0610-4da7-90f5-16ee1509779d}",
+            "lastEdited": 1499445761456151,
+            "lastEditedBy": "{6e3132e9-c3c4-45e2-a6b4-81bf75c85660}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Wand-Base-Edible.fbx",
+            "name": "Edible_Podium.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.70961380004882812,
+                "y": 0.51861572265625,
+                "z": 0
+            },
+            "queryAACube": {
+                "scale": 0.4106825590133667,
+                "x": 0.50427252054214478,
+                "y": 0.31327444314956665,
+                "z": -0.20534127950668335
+            },
+            "rotation": {
+                "w": 0.99450671672821045,
+                "x": -4.57763671875e-05,
+                "y": 0.10450899600982666,
+                "z": -1.52587890625e-05
+            },
+            "shapeType": "box",
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "dimensions": {
+                "x": 0.28897443413734436,
+                "y": 0.040592171251773834,
+                "z": 0.28897440433502197
+            },
+            "id": "{b345401e-4f3d-456a-b8a7-b2b5e5fcf68e}",
+            "lastEdited": 1499445761455211,
+            "lastEditedBy": "{6e3132e9-c3c4-45e2-a6b4-81bf75c85660}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Wand-Base-Float.fbx",
+            "name": "Float_Podium.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 1.3385772705078125,
+                "y": 0.51861572265625,
+                "z": 0.101593017578125
+            },
+            "queryAACube": {
+                "scale": 0.4106825590133667,
+                "x": 1.1332359313964844,
+                "y": 0.31327444314956665,
+                "z": -0.10374826192855835
+            },
+            "rotation": {
+                "w": 0.9656367301940918,
+                "x": -1.52587890625e-05,
+                "y": -0.25981539487838745,
+                "z": -4.57763671875e-05
+            },
+            "shapeType": "box",
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "dimensions": {
+                "x": 0.12876385450363159,
+                "y": 0.12876379489898682,
+                "z": 0.12876385450363159
+            },
+            "id": "{59d52ee9-0683-4eea-8abf-dc51cbde7196}",
+            "lastEdited": 1499448473087633,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Glo-Block-g.fbx",
+            "name": "Glow_Box.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.054141998291015625,
+                "y": 0.5864105224609375,
+                "z": 0.471710205078125
+            },
+            "queryAACube": {
+                "scale": 0.22302551567554474,
+                "x": -0.057370759546756744,
+                "y": 0.47489777207374573,
+                "z": 0.36019745469093323
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"canReceiveScripts\":true}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "dimensions": {
+                "x": 0.2725292444229126,
+                "y": 0.11536315828561783,
+                "z": 0.03871145099401474
+            },
+            "id": "{7c046298-9ef9-4950-befb-8698dbeed0a1}",
+            "lastEdited": 1499448471005206,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Fish-2.fbx",
+            "name": "Purple_Fish.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0,
+                "y": 0.5689544677734375,
+                "z": 0.66070556640625
+            },
+            "queryAACube": {
+                "scale": 0.29846176505088806,
+                "x": -0.14923088252544403,
+                "y": 0.41972357034683228,
+                "z": 0.51147466897964478
+            },
+            "rotation": {
+                "w": 0.9510490894317627,
+                "x": -4.57763671875e-05,
+                "y": 0.30897998809814453,
+                "z": -1.52587890625e-05
+            },
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"canReceiveScripts\":true}"
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "static,dynamic,kinematic,",
+            "collisionMask": 7,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "density": 4000,
+            "dimensions": {
+                "x": 0.155117467045784,
+                "y": 0.30342477560043335,
+                "z": 0.16309989988803864
+            },
+            "id": "{f6214941-2250-4a7d-9240-41494143b794}",
+            "lastEdited": 1499448480746627,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Script-Wand-4-blue.fbx?1",
+            "name": "Wand_Blue.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.40828704833984375,
+                "y": 0.67962646484375,
+                "z": 0.1260528564453125
+            },
+            "queryAACube": {
+                "scale": 0.37779569625854492,
+                "x": 0.21938920021057129,
+                "y": 0.49072861671447754,
+                "z": -0.062844991683959961
+            },
+            "restitution": 0,
+            "rotation": {
+                "w": 0.73461508750915527,
+                "x": -0.032608509063720703,
+                "y": 0.67730224132537842,
+                "z": -0.023208975791931152
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/AttachableScript.js",
+            "shapeType": "box",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"scriptURL\":\"https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Bounce.js\"}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "damping": 0.80000001192092896,
+            "dimensions": {
+                "x": 0.2725292444229126,
+                "y": 0.11536315828561783,
+                "z": 0.03871145099401474
+            },
+            "id": "{6aba9817-9e78-493b-8366-be7db85acc4e}",
+            "lastEdited": 1499448468018669,
+            "lastEditedBy": "{46c2634d-cbd3-4df7-acb4-12f2371639ef}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Fish-1.fbx",
+            "name": "Yellow_Fish.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.085824966430664062,
+                "y": 0.5689544677734375,
+                "z": 0.731781005859375
+            },
+            "queryAACube": {
+                "scale": 0.29846176505088806,
+                "x": -0.063405916094779968,
+                "y": 0.41972357034683228,
+                "z": 0.58255010843276978
+            },
+            "rotation": {
+                "w": 0.89102005958557129,
+                "x": -7.62939453125e-05,
+                "y": 0.45394062995910645,
+                "z": -1.52587890625e-05
+            },
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"cloneLifetime\":300,\"cloneLimit\":0,\"cloneable\":true,\"cloneDynamic\":true},\"canReceiveScripts\":true}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "dimensions": {
+                "x": 0.28897443413734436,
+                "y": 0.040592171251773834,
+                "z": 0.28897440433502197
+            },
+            "id": "{93ff9bbe-82d1-44eb-be23-502ce6128de7}",
+            "lastEdited": 1499445761456683,
+            "lastEditedBy": "{6e3132e9-c3c4-45e2-a6b4-81bf75c85660}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Wand-Base-shatter.fbx",
+            "name": "Break_Podium.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 1.0404491424560547,
+                "y": 0.51861572265625,
+                "z": 0
+            },
+            "queryAACube": {
+                "scale": 0.4106825590133667,
+                "x": 0.83510786294937134,
+                "y": 0.31327444314956665,
+                "z": -0.20534127950668335
+            },
+            "rotation": {
+                "w": 0.99444568157196045,
+                "x": -1.52587890625e-05,
+                "y": -0.10496681928634644,
+                "z": -4.57763671875e-05
+            },
+            "shapeType": "box",
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-07-07T16:42:03Z",
+            "dimensions": {
+                "x": 0.28897443413734436,
+                "y": 0.040592171251773834,
+                "z": 0.28897440433502197
+            },
+            "id": "{79062f0b-086e-46d7-81df-02fba692fe1e}",
+            "lastEdited": 1499445761454606,
+            "lastEditedBy": "{6e3132e9-c3c4-45e2-a6b4-81bf75c85660}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/Script_Combiner_Assets/Wand-Base-bounce.fbx",
+            "name": "Bounce_Podium.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.40122413635253906,
+                "y": 0.51861572265625,
+                "z": 0.115203857421875
+            },
+            "queryAACube": {
+                "scale": 0.4106825590133667,
+                "x": 0.19588285684585571,
+                "y": 0.31327444314956665,
+                "z": -0.09013742208480835
+            },
+            "rotation": {
+                "w": 0.94262611865997314,
+                "x": -7.62939453125e-05,
+                "y": 0.33376061916351318,
+                "z": -1.52587890625e-05
+            },
+            "shapeType": "box",
+            "type": "Model"
+        }
+    ],
+    "Version": 70
+}
