@@ -79,7 +79,7 @@
             debugPrint('Message received: ' + message);
             if (data.action === 'create') {
                 if (_lastCreatedAttachments[sender] !== undefined) {
-                    var creationTime = _lastCreatedAttachments[sender].createAt;
+                    var creationTime = _lastCreatedAttachments[sender].createdAt;
                     var timespanSinceCreation = Date.now() - creationTime;
                     if (timespanSinceCreation < (MILLISECONDS_PER_SECOND * MIN_CREATION_TIMEOUT)) {
                         debugPrint('Throttling creation of attachment, another attachment has already been created for this session in the period of ' + MIN_CREATION_TIMEOUT + ' seconds.');
@@ -87,16 +87,13 @@
                     }
                 }
 
-
                 debugPrint('trying to create entity');
                 var newProperties = Entities.getEntityProperties(_entityID);
 
-                var localPosition = Vec3.multiplyQbyV(Quat.inverse(newProperties.rotation),
-                    Vec3.subtract(data.handPosition, newProperties.position));
-
-                var localRotation = Quat.inverse(newProperties.rotation);
+                var localPosition = Vec3.multiplyQbyV(Quat.inverse(data.handRotation), Vec3.subtract(newProperties.position, data.handPosition));
+                var localRotation = Quat.multiply(Quat.inverse(data.handRotation), newProperties.rotation);
                 
-                newProperties.position = Vec3.sum(data.handPosition, localPosition);
+                newProperties.position = Vec3.sum(data.handPosition, Vec3.multiplyQbyV(data.handRotation, localPosition));
                 newProperties.rotation = Quat.multiply(data.handRotation, localRotation);
                 newProperties.lifetime = TOTAL_HOLD_LIFETIME;
 
@@ -196,7 +193,4 @@
         debugPrint(_entityID + ': Disconnecting messageHandler.');
         Messages.messageReceived.disconnect(messageHandler);
     };
-
-
 })
-

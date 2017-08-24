@@ -369,12 +369,11 @@
     };
 
     this.startNearTrigger = function(entityID, args) {
-        var handJointName = args[0] === 'left' ? 'LeftHand': 'RightHand';
         Messages.sendMessage(_listeningChannel, JSON.stringify({
             action: 'create',
             hand: args[0],
-            handPosition: MyAvatar.getJointPosition(handJointName),
-            handRotation: MyAvatar.getJointRotation(handJointName)
+            handPosition: args[0] === 'left' ? MyAvatar.getLeftPalmPosition() : MyAvatar.getRightPalmPosition(),
+            handRotation: args[0] === 'left' ? MyAvatar.getLeftPalmRotation() : MyAvatar.getRightPalmRotation()
         }));
     };
 
