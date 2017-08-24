@@ -1,0 +1,222 @@
+<html>
+    <head>
+        <title>NPC Nav</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" "="" rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                width: 100%;
+                font-family: 'Raleway', sans-serif;
+                color: white;
+                background: linear-gradient(#2b2b2b, #0f212e);
+            }
+
+            .top-bar {
+                height: 90px;
+                background: linear-gradient(#2b2b2b, #1e1e1e);
+                font-weight: bold;
+                padding-left: 30px;
+                padding-right: 30px;
+                display: flex;
+                align-items: center;
+                position: fixed;
+                width: 480px;
+                top: 0;
+                z-index: 1;
+            }
+
+            .content {
+                margin-top: 90px;
+                padding: 30px;
+            }
+
+            input[type=button] {
+                font-family: 'Raleway';
+                font-weight: bold;
+                font-size: 13px;
+                text-transform: uppercase;
+                vertical-align: top;
+                height: 28px;
+                min-width: 120px;
+                padding: 0px 18px;
+                margin-right: 6px;
+                border-radius: 5px;
+                border: none;
+                color: #fff;
+                background-color: #000;
+                background: linear-gradient(#343434 20%, #000 100%);
+                cursor: pointer;
+            }
+
+            input[type=button].red {
+                color: #fff;
+                background-color: #94132e;
+                background: linear-gradient(#d42043 20%, #94132e 100%);
+            }
+            input[type=button].blue {
+                color: #fff;
+                background-color: #1080b8;
+                background: linear-gradient(#00b4ef 20%, #1080b8 100%);
+            }
+            input[type=button].white {
+                color: #121212;
+                background-color: #afafaf;
+                background: linear-gradient(#fff 20%, #afafaf 100%);
+            }
+
+            input[type=button]:enabled:hover {
+                background: linear-gradient(#000, #000);
+                border: none;
+            }
+            input[type=button].red:enabled:hover {
+                background: linear-gradient(#d42043, #d42043);
+                border: none;
+            }
+            input[type=button].blue:enabled:hover {
+                background: linear-gradient(#00b4ef, #00b4ef);
+                border: none;
+            }
+            input[type=button].white:enabled:hover {
+                background: linear-gradient(#fff, #fff);
+                border: none;
+            }
+
+            input[type=button]:active {
+                background: linear-gradient(#343434, #343434);
+            }
+            input[type=button].red:active {
+                background: linear-gradient(#94132e, #94132e);
+            }
+            input[type=button].blue:active {
+                background: linear-gradient(#1080b8, #1080b8);
+            }
+            input[type=button].white:active {
+                background: linear-gradient(#afafaf, #afafaf);
+            }
+
+            input[type=button]:disabled {
+                color: #252525;
+                background: linear-gradient(#575757 20%, #252525 100%);
+            }
+
+            input[type=button][pressed=pressed] {
+                color: #00b4ef;
+            }
+            .textboxclass {
+                width: 60px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="top-bar">
+            <label>NPC Navagation</label>
+        </div>
+        <div class="content">
+            <p>Set number of beacons (at most 8):</p>
+            <p></p>
+            <p><input type="button" class="beacon-button white" value="Place Beacon"></p>
+            <p><input type="button" class="clear-button white" value="Clear Beacons"></p>
+            <form name="myForm" action="" method="GET">
+                <p>Set model and animations (model will appear at last beacon point). Idle animation will play at beacons (Time: secs).</p>
+                <p>Press Preview after any change.</p>
+                <input name= "Model" type="text" placeholder="Model Path" id="Model">
+                <p></p>
+                <input name= "Anim_Idle" type="text" placeholder="Idle Animation Path" id="Anim_Idle">
+                <input name= "Idle_Time" type="text" placeholder="Idle Time" class="textboxclass" id="Idle_Time">
+                <p></p>
+                <input name= "Anim_Mov" type="text" placeholder="Moving animation path" id="Anim_Mov">
+                <input name= "Speed" type="text" placeholder="Speed" class="textboxclass" id="Speed">
+                <p></p>
+            <input type="button" id="Submit" value="Preview" onclick="results(this.form)">
+            <input type="button" id="Sample" value="Sample Animations" onclick="fillValuesInTextBoxes()">
+            </form>
+            <p><input type="button" class="done-button red" value="DONE"></p>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script>
+            var beaconNum = 0;
+            visible = true;
+
+            function fillValuesInTextBoxes() {
+                document.getElementById("Model").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/blue_suited.fbx";
+                document.getElementById("Anim_Idle").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/fighting_idle.fbx";
+                document.getElementById("Idle_Time").value = 3;
+                document.getElementById("Anim_Mov").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/running_inPlace.fbx";
+                document.getElementById("Speed").value = 10;
+
+            }
+
+            function results(form) {
+                var id = form.Anim_Mov.value;
+                var check1 = id.substr(id.length - 3);
+                var id = form.Anim_Idle.value;
+                var check2 = id.substr(id.length - 3);
+                var id = form.Idle_Time.value;
+                var check3 = id;
+                var id = form.Speed.value;
+                var check4 = id;
+                var id = form.Model.value;
+                var check5 = id.substr(id.length - 3);;
+
+                if (((check1 == ("fbx")) || (check1 == ("obj")) || (check1 == ("FBX"))) && ((check2 == ("fbx")) || (check2 == ("obj")) || (check2 == ("FBX"))) && (!(isNaN(check3))) && (!(isNaN(check4))) && ((check5 == ("fbx")) || (check5 == ("obj")) || (check5 == ("FBX")))) {
+                    // Send an event to gemstoneApp.js when the page loads and is ready to get things rolling
+                    console.log("document ready");
+                    var readyEvent = {
+                        "type": document.getElementById("Submit").value,
+                        "Model_URL": form.Model.value,
+                        "Idle_Animation_URL": form.Anim_Idle.value,
+                        "Moving_Animation_URL": form.Anim_Mov.value,
+                        "Idle_time": form.Idle_Time.value,
+                        "Speed": form.Speed.value
+                    };
+                    // The event bridge handles event represented as a string the best. So here we first create a Javascript object, then convert to stirng
+                    EventBridge.emitWebEvent(JSON.stringify(readyEvent));
+                } else {
+                    if (beaconNum < 2) {
+                        window.alert("must have at least two beacons placed");
+                    } else {
+                        window.alert("not a valid path");
+                    }
+                }
+            }
+
+            // Send an event when user click on each of the gemstone buttons
+            $(".beacon-button").click(function() {
+                beaconNum++;
+                if (beaconNum == 9) {
+                    window.alert("Too many beacons");
+                } else {
+                    console.log(this.value + " button click");
+                    var clickEvent = {
+                        "type": "click",
+                        "data": this.value
+                };
+                EventBridge.emitWebEvent(JSON.stringify(clickEvent));
+                }
+            });
+
+            // Send an event when user click on each of the gemstone buttons
+            $(".clear-button").click(function() {
+                beaconNum = 0;
+                console.log(this.value + " button click");
+                var clickEvent = {
+                    "type": "click",
+                    "data": this.value
+                };
+                EventBridge.emitWebEvent(JSON.stringify(clickEvent));
+            });
+
+            // Send an event when user click on each of the gemstone buttons
+            $(".done-button").click(function() {
+                beaconNum = 0;
+                var end = "DONE";
+                EventBridge.emitWebEvent(JSON.stringify(end));
+            });
+
+            $(document).ready(main);
+        </script>
+    </body>
+</html>
