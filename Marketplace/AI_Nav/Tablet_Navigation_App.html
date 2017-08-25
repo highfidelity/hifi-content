@@ -142,10 +142,10 @@
             visible = true;
 
             function fillValuesInTextBoxes() {
-                document.getElementById("model").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/blue_suited.fbx";
-                document.getElementById("animIdle").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/fighting_idle.fbx";
+                document.getElementById("model").value = Script.resolvePath("./blue_suited.fbx");
+                document.getElementById("animIdle").value = Script.resolvePath("./fighting_idle.fbx");
                 document.getElementById("idleTime").value = 3;
-                document.getElementById("animMov").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/running_inPlace.fbx";
+                document.getElementById("animMov").value = Script.resolvePath("./running_inPlace.fbx");
                 document.getElementById("speed").value = 10;
 
             }
