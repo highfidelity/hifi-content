@@ -48,13 +48,13 @@
     // "Install" your cool new app to the tablet
     // The following lines create a button on the tablet's menu screen
     var button = tablet.addButton({
-    icon: APP_ICON,
-    text: APP_NAME
+        icon: APP_ICON,
+        text: APP_NAME
     });
 
     // When user click the app button, we'll display our app on the tablet screen
     function onClicked() {
-    tablet.gotoWebScreen(APP_URL);
+        tablet.gotoWebScreen(APP_URL);
     }
     button.clicked.connect(onClicked);
 
@@ -222,13 +222,13 @@
         }
 
         //makes the model move from beacon to beacon
-        if(move) {
+        if (move) {
             //make object go to first beacon placed if its currently at the last beacon
-            if((next) == numBeacons)
+            if ((next) == numBeacons)
             {
                 next = 0;
             //will be else if distance is less than some number I will change target to next beacon
-            } else if(dist < .25) {
+            } else if (dist < .25) {
                 Script.update.disconnect(MakeMove);
                 var modelProperties = {
                     velocity: {
