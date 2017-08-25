@@ -122,13 +122,13 @@
             <form name="myForm" action="" method="GET">
                 <p>Set model and animations (model will appear at last beacon point). Idle animation will play at beacons (Time: secs).</p>
                 <p>Press Preview after any change.</p>
-                <input name= "Model" type="text" placeholder="Model Path" id="Model">
+                <input name= "model" type="text" placeholder="model Path" id="model">
                 <p></p>
-                <input name= "Anim_Idle" type="text" placeholder="Idle Animation Path" id="Anim_Idle">
-                <input name= "Idle_Time" type="text" placeholder="Idle Time" class="textboxclass" id="Idle_Time">
+                <input name= "animIdle" type="text" placeholder="Idle Animation Path" id="animIdle">
+                <input name= "idleTime" type="text" placeholder="Idle Time" class="textboxclass" id="idleTime">
                 <p></p>
-                <input name= "Anim_Mov" type="text" placeholder="Moving animation path" id="Anim_Mov">
-                <input name= "Speed" type="text" placeholder="Speed" class="textboxclass" id="Speed">
+                <input name= "animMov" type="text" placeholder="Moving animation path" id="animMov">
+                <input name= "speed" type="text" placeholder="speed" class="textboxclass" id="speed">
                 <p></p>
             <input type="button" id="Submit" value="Preview" onclick="results(this.form)">
             <input type="button" id="Sample" value="Sample Animations" onclick="fillValuesInTextBoxes()">
@@ -137,28 +137,28 @@
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
-            var beaconNum = 0;
+            var numBeacons = 0;
             visible = true;
 
             function fillValuesInTextBoxes() {
-                document.getElementById("Model").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/blue_suited.fbx";
-                document.getElementById("Anim_Idle").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/fighting_idle.fbx";
-                document.getElementById("Idle_Time").value = 3;
-                document.getElementById("Anim_Mov").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/running_inPlace.fbx";
-                document.getElementById("Speed").value = 10;
+                document.getElementById("model").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/blue_suited.fbx";
+                document.getElementById("animIdle").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/fighting_idle.fbx";
+                document.getElementById("idleTime").value = 3;
+                document.getElementById("animMov").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/running_inPlace.fbx";
+                document.getElementById("speed").value = 10;
 
             }
 
             function results(form) {
-                var id = form.Anim_Mov.value;
+                var id = form.animMov.value;
                 var check1 = id.substr(id.length - 3);
-                var id = form.Anim_Idle.value;
+                var id = form.animIdle.value;
                 var check2 = id.substr(id.length - 3);
-                var id = form.Idle_Time.value;
+                var id = form.idleTime.value;
                 var check3 = id;
-                var id = form.Speed.value;
+                var id = form.speed.value;
                 var check4 = id;
-                var id = form.Model.value;
+                var id = form.model.value;
                 var check5 = id.substr(id.length - 3);;
 
                 if (((check1 == ("fbx")) || (check1 == ("obj")) || (check1 == ("FBX"))) && ((check2 == ("fbx")) || (check2 == ("obj")) || (check2 == ("FBX"))) && (!(isNaN(check3))) && (!(isNaN(check4))) && ((check5 == ("fbx")) || (check5 == ("obj")) || (check5 == ("FBX")))) {
@@ -166,16 +166,16 @@
                     console.log("document ready");
                     var readyEvent = {
                         "type": document.getElementById("Submit").value,
-                        "Model_URL": form.Model.value,
-                        "Idle_Animation_URL": form.Anim_Idle.value,
-                        "Moving_Animation_URL": form.Anim_Mov.value,
-                        "Idle_time": form.Idle_Time.value,
-                        "Speed": form.Speed.value
+                        "modelURL": form.model.value,
+                        "idleAnimationURL": form.animIdle.value,
+                        "movingAnimationURL": form.animMov.value,
+                        "idleTime": form.idleTime.value,
+                        "speed": form.speed.value
                     };
                     // The event bridge handles event represented as a string the best. So here we first create a Javascript object, then convert to stirng
                     EventBridge.emitWebEvent(JSON.stringify(readyEvent));
                 } else {
-                    if (beaconNum < 2) {
+                    if (numBeacons < 2) {
                         window.alert("must have at least two beacons placed");
                     } else {
                         window.alert("not a valid path");
@@ -185,8 +185,8 @@
 
             // Send an event when user click on each of the gemstone buttons
             $(".beacon-button").click(function() {
-                beaconNum++;
-                if (beaconNum == 9) {
+                numBeacons++;
+                if (numBeacons == 9) {
                     window.alert("Too many beacons");
                 } else {
                     console.log(this.value + " button click");
@@ -200,7 +200,7 @@
 
             // Send an event when user click on each of the gemstone buttons
             $(".clear-button").click(function() {
-                beaconNum = 0;
+                numBeacons = 0;
                 console.log(this.value + " button click");
                 var clickEvent = {
                     "type": "click",
@@ -211,7 +211,7 @@
 
             // Send an event when user click on each of the gemstone buttons
             $(".done-button").click(function() {
-                beaconNum = 0;
+                numBeacons = 0;
                 var end = "DONE";
                 EventBridge.emitWebEvent(JSON.stringify(end));
             });

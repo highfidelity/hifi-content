@@ -12,7 +12,7 @@
 //
 (function() {
     //holds # of beacons
-    var beaconNum = 0;
+    var numBeacons = 0;
     //holds id's of beacons
     var beacons = [];
     //controls whether the object moves or not
@@ -26,10 +26,10 @@
     //set speed
     var speed;
     //idle set
-    var Idle_time;
-    var Idle_Anim;
-    var Moving_Anim;
-    var Character_Model;
+    var idleTime;
+    var idleAnim;
+    var movingAnim;
+    var characterModel;
     //variables that only worked when global
     var dim;
     var dist;
@@ -40,19 +40,19 @@
         model = entityID;
         var props = Entities.getEntityProperties(_this.entityID);
         var properties = JSON.parse(props.userData);
-        beaconNum = properties.beaconNum;
+        numBeacons = properties.numBeacons;
         speed = properties.speed;
-        Idle_time = properties.Idle_time;
-        Idle_Anim = properties.Idle_Anim;
-        Moving_Anim = properties.Moving_Anim;
-        Character_Model = properties.Character_Model;
+        idleTime = properties.idleTime;
+        idleAnim = properties.idleAnim;
+        movingAnim = properties.movingAnim;
+        characterModel = properties.characterModel;
         dim = Entities.getEntityProperties(entityID).dimensions;
         for (i = 0; i < properties.positions.length; i++) {
             beacons[i] = properties.positions[i];
         }
         var animProperties = {
             animation: {
-                url: Moving_Anim
+                url: movingAnim
             }
         };
         Entities.editEntity(entityID, animProperties);
@@ -64,19 +64,19 @@
         //Added this section of code again because when you press reload all content it breaks the model since preload isnt called
         var props = Entities.getEntityProperties(_this.entityID);
         var properties = JSON.parse(props.userData);
-        beaconNum = properties.beaconNum;
+        numBeacons = properties.numBeacons;
         speed = properties.speed;
-        Idle_time = properties.Idle_time;
-        Idle_Anim = properties.Idle_Anim;
-        Moving_Anim = properties.Moving_Anim;
-        Character_Model = properties.Character_Model;
+        idleTime = properties.idleTime;
+        idleAnim = properties.idleAnim;
+        movingAnim = properties.movingAnim;
+        characterModel = properties.characterModel;
         dim = Entities.getEntityProperties(_this.entityID).dimensions;
         for (i = 0; i < properties.positions.length; i++) {
             beacons[i] = properties.positions[i];
         }
 
         //makes the model move from beacon to beacon
-        if ((next != beaconNum) && move) {
+        if ((next != numBeacons) && move) {
             var modelPosition = Entities.getEntityProperties(model).position;
             //get the length between model and next beacon
             var beaconPosition = {
@@ -101,7 +101,7 @@
         //make object go to first beacon placed if its currently at the last beacon
         if (move) {
             //If youve reached the end of the beacons array then start over at 0
-            if (next == beaconNum) {
+            if (next == numBeacons) {
                 next = 0;
             //If distance is less than some number then change target to next beacon (After Idle animation and wait time)
             } else if (dist < 1) {
@@ -113,12 +113,12 @@
                             z: 0
                         },
                         animation: {
-                            url: Idle_Anim
+                            url: idleAnim
                         },
                         damping: 1
                     };
                 Entities.editEntity(model, stopProperties);
-                Script.setTimeout(Wait, (Idle_time * 1000));
+                Script.setTimeout(Wait, (idleTime * 1000));
                 next++;
             }
         }
@@ -132,7 +132,7 @@
         //change to its moving animation. 
         var modelProperties = {
                     animation: {
-                        url: Moving_Anim
+                        url: movingAnim
                     },
                     damping: .9
                 };
