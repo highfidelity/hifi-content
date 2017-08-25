@@ -110,16 +110,16 @@
             } else if (dist < 1) {
                 move = false;
                 var stopProperties = {
-                        gravity: {
-                            x: 0,
-                            y: 0,
-                            z: 0
-                        },
-                        animation: {
-                            url: idleAnim
-                        },
-                        damping: 1
-                    };
+                    gravity: {
+                        x: 0,
+                        y: 0,
+                        z: 0
+                    },
+                    animation: {
+                        url: idleAnim
+                    },
+                    damping: 1
+                };
                 Entities.editEntity(model, stopProperties);
                 Script.setTimeout(Wait, (idleTime * 1000));
                 next++;
