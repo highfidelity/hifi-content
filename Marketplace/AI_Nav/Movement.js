@@ -87,14 +87,13 @@
                 "y": beacons[next].y,
                 "z": beacons[next].z
             };
-            var raise = (beacons[next].y + (dim.y / 2))
             //get distance between model and beacon
             var dx = beacons[next].x - modelPosition.x;
-            var dy = raise - modelPosition.y;
+            var dy = beacons[next].y - modelPosition.y;
             var dz = beacons[next].z - modelPosition.z;
             dist = getDistance(dx, dy, dz);
             //rotate model so it appears to look at next beacon
-            var rot = getRotation(beaconPosition, modelPosition, raise);
+            var rot = getRotation(beaconPosition, modelPosition);
             //Make move
             var newProperties = getVelocity(dx, dy, dz, dist, rot);
             Entities.editEntity(model, newProperties);
@@ -156,10 +155,9 @@
         return vectorProperties;
     }
 
-    function getRotation(pointA, pointB, raise) {
+    function getRotation(pointA, pointB) {
         // suppose we have a laser turret that we want to point at a
         // known target location
-        pointA.y = raise;
         var eye = pointB;
         var center = pointA;
         var up = Vec3.UP; // world-frame's up
