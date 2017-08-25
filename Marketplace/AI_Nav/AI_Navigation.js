@@ -12,7 +12,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 (function() {
-    
     // Every great app starts with a great name (keep it short so that it can fit in the tablet button)
     var APP_NAME = "NPC NAV";
     // Link to your app's HTML file
@@ -122,7 +121,7 @@
             };
             Entities.editEntity(model, modelProperties);
         } else if ((info.type =="Preview") && ((numBeacons > 8) || (numBeacons < 2))) {
-            Window.alert("Must be 2-8 beacons");    
+            print("not enough beacons");   
         } else if ((info.type == "click") && (info.data == "Place Beacon") && (numBeacons < 8)) {
             //increase the beacon amount
             ++numBeacons;
@@ -186,20 +185,20 @@
         //makes the model move from beacon to beacon
         if ((next != numBeacons) && (numBeacons >= 2) && (model != undefined) && (move)) {
             try {
-            //get the length between model and next beacon
-            var beaconPosition = Entities.getEntityProperties(beacons[next]).position;
-            var modelPosition = Entities.getEntityProperties(model).position;
-            var raise = (beaconPosition.y + (modelDim.y / 2));
-            //get distance between model and beacon
-            var dx = beaconPosition.x - modelPosition.x;
-            var dy = raise - modelPosition.y;
-            var dz = beaconPosition.z - modelPosition.z;
-            dist = getDistance(dx, dy, dz);
-            //rotate model so it appears to look at next beacon
-            var rot = getRotation(beaconPosition, modelPosition, raise);
-            //Make move
-            var newProperties = getVelocity(dx, dy, dz, dist, rot);
-            Entities.editEntity(model, newProperties);
+                //get the length between model and next beacon
+                var beaconPosition = Entities.getEntityProperties(beacons[next]).position;
+                var modelPosition = Entities.getEntityProperties(model).position;
+                var raise = (beaconPosition.y + (modelDim.y / 2));
+                //get distance between model and beacon
+                var dx = beaconPosition.x - modelPosition.x;
+                var dy = raise - modelPosition.y;
+                var dz = beaconPosition.z - modelPosition.z;
+                dist = getDistance(dx, dy, dz);
+                //rotate model so it appears to look at next beacon
+                var rot = getRotation(beaconPosition, modelPosition, raise);
+                //Make move
+                var newProperties = getVelocity(dx, dy, dz, dist, rot);
+                Entities.editEntity(model, newProperties);
             } catch (err) {
                 print("You deleted something in world");
                 print("array was length " + beacons.length);
@@ -249,10 +248,10 @@
 
     function Wait() {
         var modelProperties = {
-                animation: {
-                    url: movingAnim
-                }
-            };
+            animation: {
+                url: movingAnim
+            }
+        };
         Entities.editEntity(model, modelProperties);
         Script.update.connect(MakeMove);
     }
@@ -291,11 +290,11 @@
 
     // Helper function that gives us a position right in front of the user 
     function getPositionToCreateEntity() {
-      var direction = Quat.getFront(MyAvatar.orientation);
-      var distance = 0.3;
-      var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
-      position.y -= 1;
-      return position;
+        var direction = Quat.getFront(MyAvatar.orientation);
+        var distance = 0.3;
+        var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
+        position.y -= 1;
+        return position;
     }
 
     // Provide a way to "uninstall" the app
