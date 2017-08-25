@@ -22,7 +22,7 @@
     // Get a reference to the tablet
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     //holds # of beacons
-    var beaconNum = 0;
+    var numBeacons = 0;
     //holds id's of beacons
     var beacons = [];
     //holds id of the model
@@ -34,10 +34,10 @@
     //holds the entities speed
     var speed;
     //holds the time the idle animation plays between beacons
-    var Idle_time;
-    var Idle_Anim;
-    var Moving_Anim;
-    var Character_Model;
+    var idleTime;
+    var idleAnim;
+    var movingAnim;
+    var characterModel;
     //holds the information of the event recieved
     var info;
     //distance between beacon and model
@@ -63,14 +63,14 @@
         print("AI_Navigation_App.js received web event: " + event);
         // Converts string event to object
         info = JSON.parse(event);
-        if ((info.type =="Preview") && ((beaconNum <= 8) && (beaconNum > 1)) && (model == undefined)) {
+        if ((info.type =="Preview") && ((numBeacons <= 8) && (numBeacons > 1)) && (model == undefined)) {
             Script.update.connect(MakeMove);
             //set idle 
-            Character_Model = info.Model_URL;
-            Idle_time = info.Idle_time;
-            Idle_Anim = info.Idle_Animation_URL;
-            Moving_Anim = info.Moving_Animation_URL;
-            speed = info.Speed;
+            characterModel = info.modelURL;
+            idleTime = info.idleTime;
+            idleAnim = info.idleAnimationURL;
+            movingAnim = info.movingAnimationURL;
+            speed = info.speed;
             //get index of last beacon added to domain
             var lastBeaconIndex = beacons.length - 1;
             //Create the model
@@ -84,11 +84,11 @@
                 "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
                 animation: {
                     running: true,
-                    url: info.Moving_Animation_URL
+                    url: info.movingAnimationURL
                 },
 
                 collidesWith: "",
-                modelURL: info.Model_URL,
+                modelURL: info.modelURL,
                 dynamic: true,
                 grabbable: false,
                 shapeType: "compound"
@@ -106,26 +106,26 @@
             Entities.editEntity(model, raiseModel);
             //Allows model to begin moving
             move = true;
-        } else if ((info.type =="Preview") && (beaconNum <= 8) && (beaconNum > 1) && (model != undefined)) {
+        } else if ((info.type =="Preview") && (numBeacons <= 8) && (numBeacons > 1) && (model != undefined)) {
             //if a model is already created this allows it to get changed instantly
-            Character_Model = info.Model_URL;
-            Idle_time = info.Idle_time;
-            Idle_Anim = info.Idle_Animation_URL;
-            Moving_Anim = info.Moving_Animation_URL;
-            speed = info.Speed;
+            characterModel = info.modelURL;
+            idleTime = info.idleTime;
+            idleAnim = info.idleAnimationURL;
+            movingAnim = info.movingAnimationURL;
+            speed = info.speed;
             move = true;
             var modelProperties = {
                 animation: {
-                    url: info.Moving_Animation_URL
+                    url: info.movingAnimationURL
                 },
-                modelURL: info.Model_URL
+                modelURL: info.modelURL
             };
             Entities.editEntity(model, modelProperties);
-        } else if ((info.type =="Preview") && ((beaconNum > 8) || (beaconNum < 2))) {
+        } else if ((info.type =="Preview") && ((numBeacons > 8) || (numBeacons < 2))) {
             Window.alert("Must be 2-8 beacons");    
-        } else if ((info.type == "click") && (info.data == "Place Beacon") && (beaconNum < 8)) {
+        } else if ((info.type == "click") && (info.data == "Place Beacon") && (numBeacons < 8)) {
             //increase the beacon amount
-            ++beaconNum;
+            ++numBeacons;
             //Create the beacon
             var beaconProperties = {
                 "type": "Model",
@@ -137,7 +137,7 @@
                 "angularDamping": .9,
                 //"visible": false, //changed for testing
                 "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
-                name: "NAV-Beacon_" + beaconNum,
+                name: "NAV-Beacon_" + numBeacons,
                 "registrationPoint": {
                     x: .5,
                     y: 0,
@@ -157,7 +157,7 @@
             model = undefined;
             move = false;
             next = 0;
-            beaconNum = 0;
+            numBeacons = 0;
             Script.update.disconnect(MakeMove);
         }
         //End the preview
@@ -170,7 +170,7 @@
                     z: 0
                 },
                 animation: {
-                    url: Idle_Anim
+                    url: idleAnim
                 }
             };
             Entities.editEntity(model, modelProperties);
@@ -184,7 +184,7 @@
 
     function MakeMove() {
         //makes the model move from beacon to beacon
-        if ((next != beaconNum) && (beaconNum >= 2) && (model != undefined) && (move)) {
+        if ((next != numBeacons) && (numBeacons >= 2) && (model != undefined) && (move)) {
             try {
             //get the length between model and next beacon
             var beaconPosition = Entities.getEntityProperties(beacons[next]).position;
@@ -206,13 +206,13 @@
                 //removes beacon from array
                 beacons.splice(next, 1);
                 next = 0;
-                --beaconNum;
+                --numBeacons;
                 print("new array is length " + beacons.length);
                 //if there is only one beacon left then clear everything (must have at least two for app)
                 if (beacons.length == 1) {
                     move = false;
                     next = 0;
-                    beaconNum = 0;
+                    numBeacons = 0;
                     Entities.deleteEntity(beacons[0]);
                     beacons = [];
                     Entities.deleteEntity(model);
@@ -224,7 +224,7 @@
         //makes the model move from beacon to beacon
         if(move) {
             //make object go to first beacon placed if its currently at the last beacon
-            if((next) == beaconNum)
+            if((next) == numBeacons)
             {
                 next = 0;
             //will be else if distance is less than some number I will change target to next beacon
@@ -237,12 +237,12 @@
                         z: 0
                     },
                     animation: {
-                        url: Idle_Anim
+                        url: idleAnim
                     }
                 };
                 Entities.editEntity(model, modelProperties);
                 next++;
-                Script.setTimeout(Wait, (Idle_time * 1000));
+                Script.setTimeout(Wait, (idleTime * 1000));
             }
         }
     }
@@ -250,7 +250,7 @@
     function Wait() {
         var modelProperties = {
                 animation: {
-                    url: Moving_Anim
+                    url: movingAnim
                 }
             };
         Entities.editEntity(model, modelProperties);
@@ -313,12 +313,12 @@
         //set userdata properties
         var set1 = {
             "positions": pos,
-            "beaconNum": beaconNum,
+            "numBeacons": numBeacons,
             "speed": speed,
-            "Character_Model": Character_Model,
-            "Idle_time": Idle_time,
-            "Idle_Anim": Idle_Anim,
-            "Moving_Anim": Moving_Anim
+            "characterModel": characterModel,
+            "idleTime": idleTime,
+            "idleAnim": idleAnim,
+            "movingAnim": movingAnim
         };
         //send to model
         Entities.editEntity(model, { userData: JSON.stringify(set1) });
@@ -338,7 +338,7 @@
         model = undefined;
         move = false;
         next = 0;
-        beaconNum = 0;
+        numBeacons = 0;
         Script.update.disconnect(MakeMove);
     }
 
