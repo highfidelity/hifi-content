@@ -16,15 +16,13 @@
     //holds id's of beacons
     var beacons = [];
     //controls whether the object moves or not
-    var move = true;
+    var move;
     //holds id of the model
     var model;
     //holds location of next beacon for movement
-    var next = 0;
+    var next;
     //Holds reference to the entity its on
     var _this = this;
-    //checks if script is set up
-    var checkIfSet = true;
     //set speed
     var speed;
     //idle set
@@ -58,9 +56,25 @@
             }
         };
         Entities.editEntity(entityID, animProperties);
+        next = 0;
+        move = true;
     }
 
     var MakeMove = Script.setInterval(function() {
+
+        var props = Entities.getEntityProperties(_this.entityID);
+        var properties = JSON.parse(props.userData);
+        beaconNum = properties.beaconNum;
+        speed = properties.speed;
+        Idle_time = properties.Idle_time;
+        Idle_Anim = properties.Idle_Anim;
+        Moving_Anim = properties.Moving_Anim;
+        Character_Model = properties.Character_Model;
+        dim = Entities.getEntityProperties(_this.entityID).dimensions;
+        for (i = 0; i < properties.positions.length; i++) {
+            beacons[i] = properties.positions[i];
+        }
+
         //makes the model move from beacon to beacon
         if ((next != beaconNum) && move) {
             var modelPosition = Entities.getEntityProperties(model).position;
@@ -76,7 +90,6 @@
             var dy = raise - modelPosition.y;
             var dz = beacons[next].z - modelPosition.z;
             dist = getDistance(dx, dy, dz);
-            print(dist);
             //rotate model so it appears to look at next beacon
             var rot = getRotation(beaconPosition, modelPosition, raise);
             //Make move
