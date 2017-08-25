@@ -1,0 +1,23 @@
+{
+    "Entities": [{
+        "name": "Flaregun",
+        "type": "Model",
+        "modelURL": "http://mpassets.highfidelity.com/df227a80-069b-4d01-9aec-d016fbc1fbe3-v1/models/flaregun.fbx",
+        "shapeType": "compound",
+        "compoundShapeURL": "http://mpassets.highfidelity.com/df227a80-069b-4d01-9aec-d016fbc1fbe3-v1/models/flaregun_physics.obj",
+        "script": "https://hifi-content.s3.amazonaws.com/liv/dev/updated_mkplace/flaregun.js",
+        "dimensions": {
+            "x": 0.0396,
+            "y": 0.20248,
+            "z": 0.30496
+        },
+        "gravity": {
+            "x": 0,
+            "y": -9,
+            "z": 0
+        },
+        "dynamic": true,
+        "userData": "{\"grabbableKey\":{\"invertSolidWhileHeld\":true},\"wearable\":{\"joints\":{\"RightHand\":[{\"x\":0.02,\"y\":0.16,\"z\":0.04},{\"x\":0.5,\"y\":0.5,\"z\":-0.5,\"w\":0.5}],\"LeftHand\":[{\"x\":-0.02,\"y\":0.16,\"z\":0.04},{\"x\":0.5,\"y\":-0.5,\"z\":0.5,\"w\":0.5}]}}}"
+        }],
+    "Version": 61
+}
