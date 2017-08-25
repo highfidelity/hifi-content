@@ -61,6 +61,10 @@
     }
 
     var MakeMove = Script.setInterval(function() {
+        //this makes it so that when you press reload all content the npc still runs
+        if (move == undefined) {
+            move = true;
+        }
         //Added this section of code again because when you press reload all content it breaks the model since preload isnt called
         var props = Entities.getEntityProperties(_this.entityID);
         var properties = JSON.parse(props.userData);
@@ -74,7 +78,6 @@
         for (i = 0; i < properties.positions.length; i++) {
             beacons[i] = properties.positions[i];
         }
-
         //makes the model move from beacon to beacon
         if ((next != numBeacons) && move) {
             var modelPosition = Entities.getEntityProperties(model).position;
