@@ -226,7 +226,7 @@
     }
 
     var messageHandler = function(channel, message, sender, localOnly) {
-        if (channel !== _listeningChannel || localOnly) {
+        if (channel !== _listeningChannel || sender === MyAvatar.sessionUUID) {
             return;
         }
 
@@ -257,10 +257,7 @@
 
                     _virtualHoldController = new VirtualHoldController(data.hand, data.entityID, data.localPosition, data.localRotation);
                     _virtualHoldController.onRelease = function() {
-                        Messages.sendMessage(_listeningChannel, JSON.stringify({
-                            action: 'release',
-                            entityID: data.entityID
-                        }));
+                        debugPrint('Virtual hold controller released.');
                     };
                 };
                 attachAttemptInterval = Script.setInterval(attachOnEntityFound, 100);
@@ -287,8 +284,10 @@
         }
     }
 
-    function attachmentAction(joint) {
-        var attachmentData = getAttachmentData();
+    function attachmentAction(joint, attachmentData) {
+        if (attachmentData === undefined) {
+            attachmentData = getAttachmentData();
+        }
         if (attachmentData === null) {
             return;
         }
@@ -365,16 +364,30 @@
     }
 
     this.startFarTrigger = function(entityID, args) {
-        attachmentAction();
+        var attachmentData = getAttachmentData();
+        // Only allow far-grab for the clear signs
+        if (attachmentData.action === 'clear') {
+            attachmentAction(undefined, attachmentData);
+        }
     };
 
     this.startNearTrigger = function(entityID, args) {
-        Messages.sendMessage(_listeningChannel, JSON.stringify({
-            action: 'create',
-            hand: args[0],
-            handPosition: args[0] === 'left' ? MyAvatar.getLeftPalmPosition() : MyAvatar.getRightPalmPosition(),
-            handRotation: args[0] === 'left' ? MyAvatar.getLeftPalmRotation() : MyAvatar.getRightPalmRotation()
-        }));
+        var attachmentData = getAttachmentData();
+        if (attachmentData.action === 'attach') {
+            // The ESS doesn't always have the proper position of the entity, so we fetch it in the client:
+            var entityProperties = Entities.getEntityProperties(entityID, ['position', 'rotation']);
+            Messages.sendMessage(_listeningChannel, JSON.stringify({
+                action: 'create',
+                hand: args[0],
+                entityPosition: entityProperties.position,
+                entityRotation: entityProperties.rotation,
+                handPosition: args[0] === 'left' ? MyAvatar.getLeftPalmPosition() : MyAvatar.getRightPalmPosition(),
+                handRotation: args[0] === 'left' ? MyAvatar.getLeftPalmRotation() : MyAvatar.getRightPalmRotation()
+            }));
+
+        } else if (attachmentData.action === 'clear') {
+            attachmentAction(undefined, attachmentData);
+        }
     };
 
     this.startNearGrab = function(entityID, args) {
@@ -434,10 +447,23 @@
             _isGrabbing = false;
             debugPrint('ReleaseGrab ' + JSON.stringify(args));
 
-            // legacy behavior:
             var name = getEntityProperty(entityID, 'name');
             if (name !== undefined && name.toLowerCase().indexOf('clone') !== -1) {
+                // Simply delete on release if it is a clone:
                 Entities.deleteEntity(_entityID);
+            } else {
+                // If it's not a clone, then it is an ESS created entity, so we will send a release message to the ESS
+                try {
+                    var attachmentServer = JSON.parse(getEntityProperty(entityID, 'userData')).attachmentServer;
+                    if (attachmentServer !== undefined) {
+                        Messages.sendMessage(attachmentServer, JSON.stringify({
+                            action: 'release',
+                            entityID: entityID
+                        }));
+                    }
+                } catch (e) {
+                    // e
+                }
             }
         }
     };

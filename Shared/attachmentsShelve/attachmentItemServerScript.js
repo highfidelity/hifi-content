@@ -23,7 +23,7 @@
     // Can only create one entity per client in the period of MIN_CREATION_TIMEOUT in seconds
     var MIN_CREATION_TIMEOUT = 5; // seconds
 
-    var LIFETIME_FROM_RELEASE = 2; // seconds
+    var LIFETIME_FROM_RELEASE = 4; // seconds
 
     var TOTAL_HOLD_LIFETIME = 60; // seconds
 
@@ -87,20 +87,33 @@
                     }
                 }
 
+                var localPosition = Vec3.multiplyQbyV(Quat.inverse(data.handRotation), Vec3.subtract(data.entityPosition, data.handPosition));
+                var localRotation = Quat.multiply(Quat.inverse(data.handRotation), data.entityRotation);
+
                 debugPrint('trying to create entity');
                 var newProperties = Entities.getEntityProperties(_entityID);
-
-                var localPosition = Vec3.multiplyQbyV(Quat.inverse(data.handRotation), Vec3.subtract(newProperties.position, data.handPosition));
-                var localRotation = Quat.multiply(Quat.inverse(data.handRotation), newProperties.rotation);
+                debugPrint('received properties from ' + _entityID + ': ' + JSON.stringify(newProperties));
                 
                 newProperties.position = Vec3.sum(data.handPosition, Vec3.multiplyQbyV(data.handRotation, localPosition));
                 newProperties.rotation = Quat.multiply(data.handRotation, localRotation);
                 newProperties.lifetime = TOTAL_HOLD_LIFETIME;
 
                 // delete some unused properties
+                delete newProperties.id;
+                delete newProperties.lastEdited;
+                delete newProperties.lastEditedBy;
                 delete newProperties.created;
                 delete newProperties.age;
                 delete newProperties.ageAsText;
+                delete newProperties.naturalDimensions;
+                delete newProperties.naturalPosition;
+                delete newProperties.boundingBox;
+                delete newProperties.actionData;
+
+
+                // collisionMask is already set:
+                delete newProperties.collidesWith;
+
                 if (newProperties.locked !== undefined) {
                     delete newProperties.locked;
                 }
@@ -109,8 +122,20 @@
                     delete newProperties.renderInfo;
                 }
 
+                if (newProperties.angularVelocity !== undefined) {
+                    delete newProperties.angularVelocity;
+                }
+
                 delete newProperties.localRotation;
                 delete newProperties.localPosition;
+
+                delete newProperties.parentID;
+                delete newProperties.parentJointIndex;
+                delete newProperties.queryAACube;
+                delete newProperties.originalTextures;
+                delete newProperties.animation;
+                delete newProperties.owningAvatarID;
+                delete newProperties.clientOnly;
                 
                 // We only want the server-side script in the locked item
                 if (newProperties.serverScripts !== undefined) {
@@ -135,8 +160,8 @@
                     // must have dynamic shapeType for hold action:
                     newProperties.shapeType = 'box';
                 }
-
                 var entityID = Entities.addEntity(newProperties);
+                debugPrint('created ' + entityID + ' with properties: ' + JSON.stringify(newProperties));
                 Messages.sendMessage(_listeningChannel, JSON.stringify({
                     action: 'attach',
                     entityID: entityID,
