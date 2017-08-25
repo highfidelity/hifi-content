@@ -176,7 +176,7 @@
             Entities.editEntity(model, modelProperties);
             cleanup();
         //Check to see if no model
-        } else if((info == "DONE") && model == undefined) {
+        } else if ((info == "DONE") && model == undefined) {
             print("didnt meet criteria, please fill in all spaces provided.");
         }
     }
