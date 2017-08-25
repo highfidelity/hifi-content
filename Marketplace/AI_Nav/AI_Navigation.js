@@ -339,18 +339,14 @@
         move = false;
         next = 0;
         beaconNum = 0;
-        if (info == "DONE") {
-            Script.update.disconnect(MakeMove);
-        } else {
-            tablet.removeButton(button);
-        }
+        Script.update.disconnect(MakeMove);
     }
 
     //Added this because sometimes I was seeing two buttons on reload
-    _this.unload = function() {
+    function removeButton() {
         print("cleaning up");
         tablet.removeButton(button);
-    };
+    }
 
-    Script.scriptEnding.connect(cleanup);
+    Script.scriptEnding.connect(removeButton);
 }());

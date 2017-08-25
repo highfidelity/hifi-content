@@ -61,7 +61,7 @@
     }
 
     var MakeMove = Script.setInterval(function() {
-
+        //Added this section of code again because when you press reload all content it breaks the model since preload isnt called
         var props = Entities.getEntityProperties(_this.entityID);
         var properties = JSON.parse(props.userData);
         beaconNum = properties.beaconNum;
