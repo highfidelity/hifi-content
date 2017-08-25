@@ -134,11 +134,11 @@
         Script.setTimeout( function() {
         //change to its moving animation. 
         var modelProperties = {
-                    animation: {
-                        url: movingAnim
-                    },
-                    damping: .9
-                };
+            animation: {
+                url: movingAnim
+            },
+            damping: .9
+        };
         Entities.editEntity(model, modelProperties);
         }, 800);
     }
@@ -147,7 +147,7 @@
         var vectorProperties = {
             gravity: {
                 x: (dx/dist) * speed,
-                y: 0,
+                y: (dy/dist) * speed,
                 z: (dz/dist) * speed
             },
             rotation: rot

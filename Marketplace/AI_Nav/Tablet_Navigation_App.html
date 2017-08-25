@@ -135,6 +135,7 @@
             </form>
             <p>Model will move to first placed beacon then begin route</p>
             <p><input type="button" class="done-button red" value="DONE"></p>
+            <output name="status" id="status"></output>
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
@@ -147,7 +148,6 @@
                 document.getElementById("idleTime").value = 3;
                 document.getElementById("animMov").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/running_inPlace.fbx";
                 document.getElementById("speed").value = 10;
-
             }
 
             function results(form) {
@@ -162,7 +162,13 @@
                 var id = form.model.value;
                 var check5 = id.substr(id.length - 3);;
 
-                if (((check1 == ("fbx")) || (check1 == ("obj")) || (check1 == ("FBX"))) && ((check2 == ("fbx")) || (check2 == ("obj")) || (check2 == ("FBX"))) && (!(isNaN(check3))) && (!(isNaN(check4))) && ((check5 == ("fbx")) || (check5 == ("obj")) || (check5 == ("FBX")))) {
+                if (((check1 == ("fbx")) || (check1 == ("obj")) || (check1 == ("FBX"))) && 
+                    ((check2 == ("fbx")) || (check2 == ("obj")) || (check2 == ("FBX"))) && 
+                    (!(isNaN(check3))) && (!(isNaN(check4))) && 
+                    ((check5 == ("fbx")) || (check5 == ("obj")) || (check5 == ("FBX"))) && 
+                    (numBeacons >= 2)) {
+                    //Empty the status just in case its active from a previous mistake
+                    document.getElementById("status").value = "";
                     // Send an event to gemstoneApp.js when the page loads and is ready to get things rolling
                     console.log("document ready");
                     var readyEvent = {
@@ -177,9 +183,9 @@
                     EventBridge.emitWebEvent(JSON.stringify(readyEvent));
                 } else {
                     if (numBeacons < 2) {
-                        window.alert("must have at least two beacons placed");
+                        document.getElementById("status").value = "WARNING: MUST HAVE AT LEAST TWO BEACONS PLACED";
                     } else {
-                        window.alert("not a valid path");
+                        document.getElementById("status").value = "WARNING: NOT A VALID PATH";
                     }
                 }
             }
@@ -188,7 +194,7 @@
             $(".beacon-button").click(function() {
                 numBeacons++;
                 if (numBeacons == 9) {
-                    window.alert("Too many beacons");
+                    document.getElementById("status").value = "WARNING: TOO MANY BEACONS";
                 } else {
                     console.log(this.value + " button click");
                     var clickEvent = {
