@@ -176,7 +176,7 @@
     }
 
     Entities.deletingEntity.connect(function(entityID){
-        try{
+        try {
             Script.clearInterval(MakeMove);
         } catch (err) {
             print("already disconnected");
