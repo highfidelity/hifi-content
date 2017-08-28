@@ -11,10 +11,10 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 /* globals utils,SHOPPING_ENTITIES, TEMPLATES:true */
-Script.include('https://hifi-content.s3.amazonaws.com/jedon/Script_Combiner/spawnSetupScriptShopping.js');
-Script.include('https://raw.githubusercontent.com/highfidelity/hifi/5b599391952198a2d57b74e78e58450891ef0692/unpublishedScripts/marketplace/shortbow/utils.js');
+Script.include(Script.resolvePath("./spawnSetupScriptShopping.js") + "?" + Date.now());
+Script.include(Script.resolvePath("./utils.js") + "?" + Date.now());
 TEMPLATES = SHOPPING_ENTITIES.Entities;
-//holds temporary position values
+//holds temporary templates and position values
 var tem;
 var pos;
 //These variables will be used to store the ids of the objects being spawned

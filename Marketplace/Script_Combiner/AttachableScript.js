@@ -4,20 +4,20 @@
     //used to see if entities touched each other 
     var entitiesTouched = true;
     //used to see if entites are being held together
-    var entitiesTogether
+    var entitiesTogether;
     //particle effect
     var MAKING_CONNECTION_PARTICLE_PROPS;
     //positions of both objects will be stored
     var posA;
     var posB;
     //Sounds
-    var HANDSHAKE_SOUND_URL = "https://s3-us-west-1.amazonaws.com/hifi-content/davidkelly/production/audio/4beat_sweep.wav";
-    var SUCCESSFUL_HANDSHAKE_SOUND_URL = "https://s3-us-west-1.amazonaws.com/hifi-content/davidkelly/production/audio/3rdbeat_success_bell.wav";
+    var COMBINING_SOUND_URL = "https://s3-us-west-1.amazonaws.com/hifi-content/davidkelly/production/audio/4beat_sweep.wav";
+    var SUCCESSFUL_COMBINING_SOUND_URL = "https://s3-us-west-1.amazonaws.com/hifi-content/davidkelly/production/audio/3rdbeat_success_bell.wav";
     //Variables to hold sounds
-    var handshakeInjector;
-    var successfulHandshakeInjector;
+    var combiningInjector;
+    var successfulCombiningInjector;
     //particle effect holder
-    var particles //If this dosent work then remember to look back at code
+    var particles;
     
     _this.preload = function(entityID) {
         _this.entityID = entityID;
@@ -25,11 +25,9 @@
         print("Loading attachable script properties");
     }
 
-    function stopHandshakeSound() {
-        if (handshakeInjector) {
-            handshakeInjector.stop();
-            handshakeInjector = null;
-        }
+    function stopCombiningSound() {
+        combiningInjector.stop();
+        combiningInjector = null;
     }
 
     _this.collisionWithEntity = function(idA, idB, collision) {
@@ -39,7 +37,9 @@
         print(Entities.getEntityProperties(idA).dynamic);
         var isDynamic = 1;
         //Checks to see if its a receiveable object and makes sure its not the stationary model with a dynamic check
-        if((JSON.parse(check1).canReceiveScripts == true) && (isDynamic == Entities.getEntityProperties(idA).dynamic) && (isDynamic == Entities.getEntityProperties(idB).dynamic)) {
+        if ((JSON.parse(check1).canReceiveScripts == true) && 
+            (isDynamic == Entities.getEntityProperties(idA).dynamic) && 
+            (isDynamic == Entities.getEntityProperties(idB).dynamic)) {
             //Get position of both objects then make particle effect 
             //play around them by finding midpoint between the two
             posA = Entities.getEntityProperties(idA).position;
@@ -52,24 +52,22 @@
                 y: y1,
                 z: z1
             };
-            print("Found midpoint: x= " + particlePosition.x + ", y= " +
-                particlePosition.y + ", z= " + particlePosition.z);
         
             //makes sure only one particle effect appears at a time
-            if(entitiesTouched == true) {
+            if (entitiesTouched == true) {
                 entitiesTouched = false;
                 //starts particle animation. Gives it a little time to play so you can know it didnt work if you separate them
                 playJoiningParticleEffect(particlePosition, idA);
                 
-                //Play sound if none
-                if (!handshakeInjector) {
-                    handshakeInjector = Audio.playSound(handshakeSound, {
-                    position: particlePosition,
+                //Play combining music
+                if (!combiningInjector) {
+                    combiningInjector = Audio.playSound(combiningSound, {
+                    position: MyAvatar.position,
                     volume: 0.8,
                     localOnly: true
-                    });
+                });
                 } else {
-                    handshakeInjector.restart();
+                    combiningInjector.restart();
                 }
 
                 //this checks to see if distance between objects has grown. 
@@ -82,45 +80,45 @@
                     posA = Entities.getEntityProperties(idA).position;
                     posB = Entities.getEntityProperties(idB).position;
                     var distance = getDistance(posA, posB);
-                    print(distance);
 
                     //made 25 so that all together its 3 seconds (counting the prevois 500 miliseconds) 
                     //which is the animation length
-                    if(counter === 5) {
+                    if (counter === 5) {
                         //attach Float script to other entity
                         AttachScript(idA, idB);
 
                         //stop laoding sound
-                        stopHandshakeSound();
+                        stopCombiningSound();
 
                         //Play success music
-                        if (!successfulHandshakeInjector) {
-                            successfulHandshakeInjector = Audio.playSound(successfulHandshakeSound, {
+                        if (!successfulCombiningInjector) {
+                            successfulCombiningInjector = Audio.playSound(successfulCombiningSound, {
                             position: particlePosition,
                             volume: 0.8,
                             localOnly: true
                         });
                         } else {
-                            successfulHandshakeInjector.restart();
+                            successfulCombiningInjector.restart();
                         }
                         //exit interval
                         Script.clearInterval(isValidDistance);
                     //if the player separates their arms you delete the animation and reset
-                    } else if(distance > .25) {
+                    } else if (distance > .25) {
                         print("transfer of scripts have been cancelled");
                         Entities.deleteEntity(particles);
                         //print(MAKING_CONNECTION_PARTICLE_PROPS.entityID);
                         entitiesTouched = true;
                         counter = 0;
-                        stopHandshakeSound();
+                        stopCombiningSound();
                         Script.clearInterval(isValidDistance);
                     } else {
                         counter++;
                     }
                 }, 200)
             }
-        } else
+        } else {
             print("Entity not script receivable");
+        }
     }
 
     function AttachScript(idA, idB) {
@@ -147,75 +145,43 @@
     function playJoiningParticleEffect(pos, idA) {
         print("creating particle effect");
         MAKING_CONNECTION_PARTICLE_PROPS = {
-
             position: pos,
-
-            parentID: idA,
-            
+            parentID: idA,      
             "alpha": 0.07,
-
             "alphaStart": 0.011,
-
             "alphaSpread": 0,
-
             "alphaFinish": 0,
-
             "azimuthFinish": Math.PI,
-
             "azimuthStart": -1 * Math.PI,
-
             "emitRate": 3000,
-
             "emitSpeed": 0.0,
-
             "emitterShouldTrail": 1,
-
             "isEmitting": 1,
-
             "lifespan": 2.0,
-
             "maxParticles": 4000,
-
             "particleRadius": 0.2,
-
             "polarStart": 0,
-
             "polarFinish": 1,
-
             "radiusFinish": 0.3,
-
             "radiusStart": 0.04,
-
             "speedSpread": 0.03,
-
             "radiusSpread": 0.9,
-
             "textures": "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Bokeh-Particle.png",
-
             "color": {"red": 200, "green": 170, "blue": 255},
-
             "colorFinish": {"red": 0, "green": 134, "blue": 255},
-
             "colorStart": {"red": 185, "green": 222, "blue": 255},
-
             "emitOrientation": {"w": -0.71, "x": 0.0, "y": 0.0, "z": 0.71},
-
             "emitAcceleration": {"x": 0.0, "y": 0.0, "z": 0.0},
-
             "accelerationSpread": {"x": 0.0, "y": 0.0, "z": 0.0},
-
             "dimensions": {"x": 0.05, "y": 0.05, "z": 0.05},
-
             "type": "ParticleEffect",
-
             "lifetime": 3  //particle last for 3 seconds
-
         };
         particles = Entities.addEntity(MAKING_CONNECTION_PARTICLE_PROPS);
         print("particle ID: " + particles);
     }
 
     // load the sounds when the script loads
-    handshakeSound = SoundCache.getSound(HANDSHAKE_SOUND_URL);
-    successfulHandshakeSound = SoundCache.getSound(SUCCESSFUL_HANDSHAKE_SOUND_URL);
+    combiningSound = SoundCache.getSound(COMBINING_SOUND_URL);
+    successfulCombiningSound = SoundCache.getSound(SUCCESSFUL_COMBINING_SOUND_URL);
 })

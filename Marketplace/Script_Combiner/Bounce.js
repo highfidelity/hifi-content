@@ -14,10 +14,8 @@
     var _this = this;
     
     _this.preload = function (entityID) {
-        _this.entityID = entityID;
+        print("Loading Bounce properties");
         var props = Entities.getEntityProperties(entityID);
-        Entities.editEntity(entityID, {"dynamic" : true});
-        print("Dynamic True");
         var newProperties = {
             dynamic: true,
             //since -9.8 is gravity I changed it to positive 2
@@ -26,11 +24,8 @@
             restitution: 0.9,
             //change both linear and angular damping for increased bounce
             damping: 0.0,
-            angularDamping: 0.0
+            angularDamping: 0.2
         };
         Entities.editEntity(entityID, newProperties);
-    }
-
-    _this.unload = function (entityID) {
     }
 })

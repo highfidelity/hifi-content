@@ -12,16 +12,14 @@
 //
 (function () {
     var _this = this;
+    //the distance from our head that is close enough to "eat"
+    var close;
 
     _this.preload = function (entityID) {
+        print("Loading Edible properties");
         _this.entityID = entityID;
-        var props = Entities.getEntityProperties(entityID);
         Entities.editEntity(entityID, {"collisionless" : true});
-        print("Loading properties");
-    }
-
-    _this.unload = function (entityID) {
-
+        close = .15;
     }
 
     var checkIfNearHead = function () {
@@ -111,7 +109,7 @@
 
     // Helper function to see if the object is close to us
     var isWithin10cm = function (val1, val2) {
-        if (Math.abs(Math.abs(val1) - Math.abs(val2)) <= .15)
+        if (Math.abs(Math.abs(val1) - Math.abs(val2)) <= close)
             return true;
 
         return false;

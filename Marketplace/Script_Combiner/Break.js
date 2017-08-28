@@ -14,10 +14,10 @@
     var _this = this;
     
     _this.preload = function (entityID) {
+        print("Loading Break properties");
         _this.entityID = entityID;
-        var props = Entities.getEntityProperties(entityID);
+        //make dynamic for collisions
         Entities.editEntity(entityID, {"dynamic" : true});
-        print("Loading properties");
     }
 
     _this.unload = function (entityID) {
