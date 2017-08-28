@@ -174,10 +174,12 @@
     }
 
     Entities.deletingEntity.connect(function(entityID){
-        try {
-            Script.clearInterval(MakeMove);
-        } catch (err) {
-            print("already disconnected");
+        if (entityID == _this.entityID) {
+            try {
+                Script.clearInterval(MakeMove);
+            } catch (err) {
+                print("already disconnected");
+            }
         }
     });
 });
