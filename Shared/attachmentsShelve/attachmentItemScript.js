@@ -225,55 +225,9 @@
         return getEntityProperty(_entityID, 'scriptTimestamp');
     }
 
-    var messageHandler = function(channel, message, sender, localOnly) {
-        if (channel !== _listeningChannel || sender === MyAvatar.sessionUUID) {
-            return;
-        }
-
-        try {
-            var data = JSON.parse(message);
-            print('receivedData: ' + JSON.stringify(data));
-            if (data.sessionUUID !== MyAvatar.sessionUUID) {
-                print('Session UUID does not match');
-                return;
-            }
-            if (data.action === 'attach') {
-                var attempts = 0;
-                var MAX_ATTEMPTS = 10;
-                var attachAttemptInterval = null;
-                var attachOnEntityFound = function() {
-                    if (Object.keys(Entities.getEntityProperties(data.entityID, 'position')).length === 0) {
-                        attempts++;
-                        if (attempts >= MAX_ATTEMPTS) {
-                            Script.clearInterval(attachAttemptInterval);
-                        }
-                        return;
-                    }
-                    Script.clearInterval(attachAttemptInterval);
-                    if (_virtualHoldController !== null) {
-                        _virtualHoldController.cleanup();
-                        _virtualHoldController = null;
-                    }
-
-                    _virtualHoldController = new VirtualHoldController(data.hand, data.entityID, data.localPosition, data.localRotation);
-                    _virtualHoldController.onRelease = function() {
-                        debugPrint('Virtual hold controller released.');
-                    };
-                };
-                attachAttemptInterval = Script.setInterval(attachOnEntityFound, 100);
-            }
-        } catch (e) {
-
-        }
-    };
-
     this.preload = function(entityID) {
         _entityID = entityID;
         debugPrint('loaded ' + entityID);
-        _listeningChannel = ATTACHMENT_CHANNEL_PREFIX + entityID;
-        Messages.subscribe(_listeningChannel);
-
-        Messages.messageReceived.connect(messageHandler);
     };
 
     this.unload = function() {
@@ -374,17 +328,111 @@
     this.startNearTrigger = function(entityID, args) {
         var attachmentData = getAttachmentData();
         if (attachmentData.action === 'attach') {
-            // The ESS doesn't always have the proper position of the entity, so we fetch it in the client:
+            var hand = args[0];
             var entityProperties = Entities.getEntityProperties(entityID, ['position', 'rotation']);
-            Messages.sendMessage(_listeningChannel, JSON.stringify({
-                action: 'create',
-                hand: args[0],
-                entityPosition: entityProperties.position,
-                entityRotation: entityProperties.rotation,
-                handPosition: args[0] === 'left' ? MyAvatar.getLeftPalmPosition() : MyAvatar.getRightPalmPosition(),
-                handRotation: args[0] === 'left' ? MyAvatar.getLeftPalmRotation() : MyAvatar.getRightPalmRotation()
-            }));
+            var handPosition = hand === 'left' ? MyAvatar.getLeftPalmPosition() : MyAvatar.getRightPalmPosition();
+            var handRotation = hand === 'left' ? MyAvatar.getLeftPalmRotation() : MyAvatar.getRightPalmRotation();
 
+            var localPosition = Vec3.multiplyQbyV(Quat.inverse(handRotation), Vec3.subtract(entityProperties.position, handPosition));
+            var localRotation = Quat.multiply(Quat.inverse(handRotation), entityProperties.rotation);
+
+            debugPrint('trying to create entity');
+            var newProperties = Entities.getEntityProperties(_entityID);
+            debugPrint('received properties from ' + _entityID + ': ' + JSON.stringify(newProperties));
+            
+            newProperties.position = Vec3.sum(handPosition, Vec3.multiplyQbyV(handRotation, localPosition));
+            newProperties.rotation = Quat.multiply(handRotation, localRotation);
+            newProperties.lifetime = TOTAL_HOLD_LIFETIME;
+
+            // delete some unused properties
+            delete newProperties.id;
+            delete newProperties.lastEdited;
+            delete newProperties.lastEditedBy;
+            delete newProperties.created;
+            delete newProperties.age;
+            delete newProperties.ageAsText;
+            delete newProperties.naturalDimensions;
+            delete newProperties.naturalPosition;
+            delete newProperties.boundingBox;
+            delete newProperties.actionData;
+
+
+            // collisionMask is already set:
+            delete newProperties.collidesWith;
+
+            if (newProperties.locked !== undefined) {
+                delete newProperties.locked;
+            }
+
+            if (newProperties.renderInfo !== undefined) {
+                delete newProperties.renderInfo;
+            }
+
+            if (newProperties.angularVelocity !== undefined) {
+                delete newProperties.angularVelocity;
+            }
+
+            delete newProperties.localRotation;
+            delete newProperties.localPosition;
+
+            delete newProperties.parentID;
+            delete newProperties.parentJointIndex;
+            delete newProperties.queryAACube;
+            delete newProperties.originalTextures;
+            delete newProperties.animation;
+            delete newProperties.owningAvatarID;
+            delete newProperties.clientOnly;
+            
+            // We only want the server-side script in the locked item
+            if (newProperties.serverScripts !== undefined) {
+                delete newProperties.serverScripts;
+            }
+
+            try {
+                // attempt to modify the userData
+                var userData = JSON.parse(newProperties.userData);
+                userData.grabbableKey.wantsTrigger = false;
+                userData.grabbableKey.grabbable = true;
+                // userData.attachmentServer = _listeningChannel;
+                newProperties.userData = JSON.stringify(userData);
+            } catch (e) {
+                debugPrint('Something went wrong while trying to modify the userData.');
+            }
+
+            // must be dynamic for hold action:
+            newProperties.dynamic = true;
+
+            if (newProperties.shapeType === undefined || newProperties.shapeType === 'none') {
+                // must have dynamic shapeType for hold action:
+                newProperties.shapeType = 'box';
+            }
+            var entityID = Entities.addEntity(newProperties, true);
+            debugPrint('created ' + entityID + ' with properties: ' + JSON.stringify(newProperties));
+
+            // We don't need this attempts system down here anymore, but it works:
+            var attempts = 0;
+            var MAX_ATTEMPTS = 10;
+            var attachAttemptInterval = null;
+            var attachOnEntityFound = function() {
+                if (Object.keys(Entities.getEntityProperties(entityID, 'position')).length === 0) {
+                    attempts++;
+                    if (attempts >= MAX_ATTEMPTS) {
+                        Script.clearInterval(attachAttemptInterval);
+                    }
+                    return;
+                }
+                Script.clearInterval(attachAttemptInterval);
+                if (_virtualHoldController !== null) {
+                    _virtualHoldController.cleanup();
+                    _virtualHoldController = null;
+                }
+
+                _virtualHoldController = new VirtualHoldController(hand, entityID, localPosition, localRotation);
+                _virtualHoldController.onRelease = function() {
+                    debugPrint('Virtual hold controller released.');
+                };
+            };
+            attachAttemptInterval = Script.setInterval(attachOnEntityFound, 100);
         } else if (attachmentData.action === 'clear') {
             attachmentAction(undefined, attachmentData);
         }
@@ -394,21 +442,10 @@
         debugPrint('NearGrabStarting ' + JSON.stringify(args));
         _isGrabbing = true;
         _attachmentData = getAttachmentData();
-
-        // send grab message if possible, to extend lifetime of object, after switching hand or giving attachment to other user:
-        try {
-            var attachmentServer = JSON.parse(getEntityProperty(entityID, 'userData')).attachmentServer;
-            if (attachmentServer !== undefined) {
-                Messages.sendMessage(attachmentServer, JSON.stringify({action: 'grab', entityID: entityID}));
-            }
-        } catch (e) {
-            // e
-        }
     };
 
     this.continueNearGrab = function(entityID, args) {
         if (_isGrabbing && _attachmentData !== null) {
-            // debugPrint('NearGrabHappening ' + JSON.stringify(args));
             var snapDistance = _attachmentData.snapDistance !== undefined ? _attachmentData.snapDistance :
                 DEFAULT_SNAP_DISTANCE;
             var entityPosition = Entities.getEntityProperties(entityID, 'position').position;
@@ -445,26 +482,7 @@
     this.releaseGrab = function(entityID, args) {
         if (_isGrabbing) {
             _isGrabbing = false;
-            debugPrint('ReleaseGrab ' + JSON.stringify(args));
-
-            var name = getEntityProperty(entityID, 'name');
-            if (name !== undefined && name.toLowerCase().indexOf('clone') !== -1) {
-                // Simply delete on release if it is a clone:
-                Entities.deleteEntity(_entityID);
-            } else {
-                // If it's not a clone, then it is an ESS created entity, so we will send a release message to the ESS
-                try {
-                    var attachmentServer = JSON.parse(getEntityProperty(entityID, 'userData')).attachmentServer;
-                    if (attachmentServer !== undefined) {
-                        Messages.sendMessage(attachmentServer, JSON.stringify({
-                            action: 'release',
-                            entityID: entityID
-                        }));
-                    }
-                } catch (e) {
-                    // e
-                }
-            }
+            Entities.deleteEntity(_entityID);
         }
     };
 
