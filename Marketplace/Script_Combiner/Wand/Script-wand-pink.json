@@ -1,0 +1,165 @@
+{
+    "Entities": [
+        {
+            "accelerationSpread": {
+                "x": 0,
+                "y": 0.27000001072883606,
+                "z": 0
+            },
+            "alpha": 0.10000000149011612,
+            "alphaFinish": 0.10000000149011612,
+            "alphaStart": 0.10000000149011612,
+            "clientOnly": 0,
+            "color": {
+                "blue": 125,
+                "green": 0,
+                "red": 184
+            },
+            "colorFinish": {
+                "blue": 125,
+                "green": 0,
+                "red": 184
+            },
+            "colorStart": {
+                "blue": 125,
+                "green": 0,
+                "red": 184
+            },
+            "created": "2017-06-28T22:46:01Z",
+            "dimensions": {
+                "x": 0.53324669599533081,
+                "y": 0.53324669599533081,
+                "z": 0.53324669599533081
+            },
+            "emitAcceleration": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "emitOrientation": {
+                "w": 0.70690834522247314,
+                "x": -0.70730513334274292,
+                "y": -1.5258869098033756e-05,
+                "z": -1.5258869098033756e-05
+            },
+            "emitRate": 756,
+            "emitSpeed": 0,
+            "id": "{c6210eae-5158-48bc-a19e-103333b468d7}",
+            "lastEdited": 1498858297830583,
+            "lastEditedBy": "{a9b42238-6c64-4b50-9881-afba9e7cb580}",
+            "lifespan": 1.0099999904632568,
+            "maxParticles": 10000,
+            "name": "Wand-Pink-Particles",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{f465b495-83b4-4b51-99dd-367582f1ea1d}",
+            "particleRadius": 0.019999999552965164,
+            "polarFinish": 1.8675023317337036,
+            "polarStart": 1.2740904092788696,
+            "position": {
+                "x": 0.010074534453451633,
+                "y": 0.054321449249982834,
+                "z": 0.0047973785549402237
+            },
+            "queryAACube": {
+                "scale": 19.822280883789062,
+                "x": -9.7566652297973633,
+                "y": 1991.1256103515625,
+                "z": -8.3375282287597656
+            },
+            "radiusFinish": 0.019999999552965164,
+            "radiusStart": 0.019999999552965164,
+            "rotation": {
+                "w": 0.23821413516998291,
+                "x": 0.004601591732352972,
+                "y": -0.2595219612121582,
+                "z": -0.93587243556976318
+            },
+            "speedSpread": 0.090000003576278687,
+            "textures": "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Bokeh-Particle.png",
+            "type": "ParticleEffect"
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "static,dynamic,kinematic,",
+            "collisionMask": 7,
+            "collisionsWillMove": 1,
+            "created": "2017-06-30T21:04:45Z",
+            "density": 4000,
+            "dimensions": {
+                "x": 0.1337219625711441,
+                "y": 0.35004782676696777,
+                "z": 0.14060336351394653
+            },
+            "dynamic": 1,
+            "gravity": {
+                "x": 0,
+                "y": -1,
+                "z": 0
+            },
+            "id": "{f465b495-83b4-4b51-99dd-367582f1ea1d}",
+            "lastEdited": 1498858275508734,
+            "lastEditedBy": "{a9b42238-6c64-4b50-9881-afba9e7cb580}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/alan/dev/Script-Wand-3.fbx?1",
+            "name": "Wand-Pink",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 0.40023037791252136,
+                "x": -0.20011518895626068,
+                "y": -0.20011518895626068,
+                "z": -0.20011518895626068
+            },
+            "rotation": {
+                "w": 0.29552149772644043,
+                "x": -0.0013885498046875,
+                "y": 0.9553215503692627,
+                "z": -0.0006256103515625
+            },
+            "shapeType": "simple-hull",
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "collisionsWillMove": 1,
+            "color": {
+                "blue": 255,
+                "green": 77,
+                "red": 255
+            },
+            "created": "2017-05-18T02:06:01Z",
+            "cutoff": 90,
+            "dimensions": {
+                "x": 1.218866229057312,
+                "y": 1.218866229057312,
+                "z": 1.218866229057312
+            },
+            "dynamic": 1,
+            "falloffRadius": 10,
+            "id": "{ed2a98a0-38c5-4088-b22b-1342b3a94086}",
+            "intensity": 55,
+            "lastEdited": 1498858100985224,
+            "lastEditedBy": "{a9b42238-6c64-4b50-9881-afba9e7cb580}",
+            "name": "Wand-Pink-Lamp",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{f465b495-83b4-4b51-99dd-367582f1ea1d}",
+            "position": {
+                "x": 0.00068683660356327891,
+                "y": 0.12438949942588806,
+                "z": 0.0056535801850259304
+            },
+            "queryAACube": {
+                "scale": 215.40878295898438,
+                "x": -105.59308624267578,
+                "y": 1892.4354248046875,
+                "z": -103.67591094970703
+            },
+            "rotation": {
+                "w": 0.7191617488861084,
+                "x": 0.34252804517745972,
+                "y": -0.22843329608440399,
+                "z": -0.55969685316085815
+            },
+            "type": "Light"
+        }
+    ],
+    "Version": 70
+}
