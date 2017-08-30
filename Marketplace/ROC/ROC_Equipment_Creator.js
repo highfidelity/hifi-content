@@ -75,6 +75,7 @@
     };
 
     function resetArena(message) {
+        print("deleting old swords, creating new ones");
         //grab new sword Ids
         var signID = JSON.parse(message);
         var props = Entities.getEntityProperties(signID[0]);
@@ -221,6 +222,7 @@
     };
 
     function createEquipment(message) {
+        print("creating equipment");
         data = JSON.parse(message);
         //Someone grabbed a sword so increase player count
         players++;
