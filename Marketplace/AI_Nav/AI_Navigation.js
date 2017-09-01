@@ -59,7 +59,6 @@
 
     // Handle the events we're recieving from the web UI
     function onWebEventReceived(event) {
-        print("AI_Navigation_App.js received web event: " + event);
         // Converts string event to object
         info = JSON.parse(event);
         if ((info.type =="Preview") && ((numBeacons <= 8) && (numBeacons > 1)) && (model == undefined)) {
