@@ -140,7 +140,8 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
             var numBeacons = 0;
-            visible = true;
+            var visible = true;
+            var previewPressed = false;
 
             function fillValuesInTextBoxes() {
                 document.getElementById("model").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/blue_suited.fbx";
@@ -148,6 +149,7 @@
                 document.getElementById("idleTime").value = 3;
                 document.getElementById("animMov").value = "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/AI_Nav/running_inPlace.fbx";
                 document.getElementById("speed").value = 10;
+                document.getElementById("status").value = "";
             }
 
             function results(form) {
@@ -167,6 +169,7 @@
                     (!(isNaN(check3))) && (!(isNaN(check4))) && 
                     ((check5 == ("fbx")) || (check5 == ("obj")) || (check5 == ("FBX"))) && 
                     (numBeacons >= 2)) {
+                    previewPressed = true;
                     //Empty the status just in case its active from a previous mistake
                     document.getElementById("status").value = "";
                     // Send an event to gemstoneApp.js when the page loads and is ready to get things rolling
@@ -194,15 +197,17 @@
             $(".beacon-button").click(function() {
                 numBeacons++;
                 if (numBeacons > 8) {
-                    document.getElementById("status").value = "WARNING: TOO MANY BEACONS";
-                } else {
+                    document.getElementById("status").value = "WARNING: CAN NOT PLACE MORE THAN 8 BEACONS";
+                    numBeacons = 8;
+                } else if (numBeacons >= 0 && numBeacons <= 8) {
+                    document.getElementById("status").value = "";
                     console.log(this.value + " button click");
                     var clickEvent = {
                         "type": "click",
                         "data": this.value
-                };
-                EventBridge.emitWebEvent(JSON.stringify(clickEvent));
-                }
+                    };
+                    EventBridge.emitWebEvent(JSON.stringify(clickEvent));
+                } 
             });
 
             // Send an event when user click on each of the gemstone buttons
@@ -219,9 +224,14 @@
 
             // Send an event when user click on each of the gemstone buttons
             $(".done-button").click(function() {
-                numBeacons = 0;
-                var end = "DONE";
-                EventBridge.emitWebEvent(JSON.stringify(end));
+                var previewButton = document.getElementById("Submit");
+                previewButton.click();
+                if (previewPressed == true) {
+                    previewPressed = false;
+                    numBeacons = 0;
+                    var end = "DONE";
+                    EventBridge.emitWebEvent(JSON.stringify(end));
+                } 
             });
 
             $(document).ready(main);
