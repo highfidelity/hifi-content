@@ -193,7 +193,7 @@
             // Send an event when user click on each of the gemstone buttons
             $(".beacon-button").click(function() {
                 numBeacons++;
-                if (numBeacons == 9) {
+                if (numBeacons > 8) {
                     document.getElementById("status").value = "WARNING: TOO MANY BEACONS";
                 } else {
                     console.log(this.value + " button click");
@@ -208,6 +208,7 @@
             // Send an event when user click on each of the gemstone buttons
             $(".clear-button").click(function() {
                 numBeacons = 0;
+                document.getElementById("status").value = "";
                 console.log(this.value + " button click");
                 var clickEvent = {
                     "type": "click",

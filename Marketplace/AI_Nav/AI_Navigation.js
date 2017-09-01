@@ -120,8 +120,10 @@
                 modelURL: info.modelURL
             };
             Entities.editEntity(model, modelProperties);
-        } else if ((info.type =="Preview") && ((numBeacons > 8) || (numBeacons < 2))) {
+        } else if ((info.type =="Preview") &&  (numBeacons < 2)) {
             print("not enough beacons");   
+        } else if ((info.type =="Preview") &&  (numBeacons > 8)) {
+            print("too many beacons");   
         } else if ((info.type == "click") && (info.data == "Place Beacon") && (numBeacons < 8)) {
             //increase the beacon amount
             ++numBeacons;
