@@ -91,7 +91,7 @@
     ];
 
     var returnSound, ringSound;
-    var pinJointPosition, ballJointPosition;
+    var pinJointPosition, ballJointPosition, pinJointRotation;
 
     // See https://en.wikipedia.org/wiki/Triangular_number for Triangle numbers (T1 = 1, T2 = 3, T3 = 6 ... etc)
     var getPinPositions = function(maxWidth, triangleNumber) {
@@ -234,7 +234,6 @@
         if (channel === "BowlingGameChannel") {
             message = JSON.parse(message);
             var type = message['type'];
-            print(JSON.stringify("Message Type: " + type));
             switch(type) {
                 case 'reset-hit' :
                     _this.doTheRez();
@@ -244,6 +243,9 @@
                     break;
                 case 'get-ball-location' :
                     ballJointPosition = message['location'];
+                    break;
+                case 'get-pin-rotation' :
+                    pinJointRotation = message['rotation'];
                     break;
                 default :
                     print("Unknown message");
@@ -262,7 +264,6 @@
             _this.bowlingAlleyID = Entities.getEntityProperties(_this.resetConsoleID, ['parentID']).parentID; // get the bowling alley's parent ID     
             ringSound = SoundCache.getSound(BELL_SOUND_URL);
             returnSound = SoundCache.getSound(RETURN_SOUND_URL);
-            print("bowling alley id: " + _this.bowlingAlleyID);
             Messages.subscribe("BowlingGameChannel");
             Messages.messageReceived.connect(messageHandler);
         }, 
@@ -311,6 +312,9 @@
             Messages.sendMessage("BowlingGameChannel", JSON.stringify({
                 type: "resend-ball"
             }));
+            Messages.sendMessage("BowlingGameChannel", JSON.stringify({
+                type: "send-rotation"
+            }));
             // Reset pins
             var entProperties = Entities.getEntityProperties(_this.bowlingAlleyID);
             _this.clearPins();
@@ -321,7 +325,7 @@
             getPinPositions(TRIANGLE_WIDTH, TRIANGLE_NUMBER_OF_PINS).forEach(function(pinPosition) {
                 createPin({
                     position: Vec3.sum(pinJointPosition, pinHeightOffset),
-                    rotation: entProperties.rotation
+                    rotation: pinJointRotation
                 }, {
                     position: pinPosition
                 }, _this.bowlingAlleyID);

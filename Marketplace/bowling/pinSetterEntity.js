@@ -13,14 +13,19 @@
     }
 
     var messageHandler = function(channel, message, sender) {
-        if(channel === "BowlingGameChannel") {
+        if (channel === "BowlingGameChannel") {
             message = JSON.parse(message);
-            switch(message['type']) {
+            switch (message['type']) {
                 case 'resend-pin' :
                     _this.getPinJointLocation();
                     break;
                 case 'resend-ball' :
                     _this.getBallJointLocation();
+                    break;
+                case 'send-rotation':
+                    _this.getRotation();
+                    break;
+                default:
                     break;
             }
         }
@@ -41,7 +46,7 @@
                 type: "get-pin-location", 
                 location: jointLocInWorld 
             }));
-            print("Sent pin location: " + jointLocInWorld);
+            print("Sent pin location: " + JSON.stringify(jointLocInWorld));
         },
         getBallJointLocation: function() {
             var entProperties = Entities.getEntityProperties(_this.bowlingAlleyID, ['position', 'rotation']);              
@@ -54,7 +59,15 @@
                 type: "get-ball-location",
                 location: jointLocInWorld
             }));
-            print("Sent ball location: " + jointLocInWorld);    
+            print("Sent ball location: " + JSON.stringify(jointLocInWorld));    
+        },
+        getRotation: function() {
+            var entProperties = Entities.getEntityProperties(_this.bowlingAlleyID, ['position', 'rotation']);  
+            Messages.sendMessage("BowlingGameChannel", JSON.stringify({
+                type: "get-pin-rotation", 
+                rotation: entProperties.rotation
+            }));
+            print("Sent pin rotation: " + JSON.stringify(entProperties.rotation));
         },
         preload: function(entityID) {
             _this.entityID = entityID;
@@ -62,10 +75,9 @@
             _this.bowlingAlleyID = Entities.getEntityProperties(_this.resetConsoleID, ['parentID']).parentID;
             print('preload(' + entityID + ')');
             Messages.subscribe("BowlingGameChannel");
-            Script.setTimeout(function(){
-                _this.getPinJointLocation();
-                _this.getBallJointLocation();
-            }, 2000);
+            _this.getPinJointLocation();
+            _this.getBallJointLocation();
+            _this.getRotation();
             Messages.messageReceived.connect(messageHandler);
 
         },
