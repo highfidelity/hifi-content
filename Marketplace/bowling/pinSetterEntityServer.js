@@ -7,6 +7,9 @@
 (function() {
     var _this;
 
+    var TIMEOUT = 10000;
+    var canReset = true;
+
     var WANT_DEBUG = true;
     var debugPrint = function(message) {};
     if (WANT_DEBUG) {
@@ -228,7 +231,7 @@
     }
 
     var messageHandler = function(channel, message, senderID){
-        if (channel == "BowlingGameChannel") {
+        if (channel === "BowlingGameChannel") {
             message = JSON.parse(message);
             var type = message['type'];
             print(JSON.stringify("Message Type: " + type));
@@ -262,15 +265,11 @@
             print("bowling alley id: " + _this.bowlingAlleyID);
             Messages.subscribe("BowlingGameChannel");
             Messages.messageReceived.connect(messageHandler);
-            Entities.callEntityMethod(_this.entityID, 'getPinJointLocation', null);
-            Entities.callEntityMethod(_this.entityID, 'getBallJointLocation', null);
         }, 
         unload: function() {
             Messages.messageReceived.disconnect(messageHandler);
         },
         clearPins: function() {
-            Entities.callEntityMethod(_this.entityID, 'getPinJointLocation', null);
-            Entities.callEntityMethod(_this.entityID, 'getBallJointLocation', null);
             Entities.findEntities(Entities.getEntityProperties(_this.entityID, ['position']), 1000).forEach(function(entity) {
                 try {
                     var userData = JSON.parse(Entities.getEntityProperties(entity, ['userData']).userData);
@@ -301,7 +300,17 @@
             }); 
         },
         doTheRez: function() {
+            if (!canReset) {
+                return;
+            }
+            canReset = false;
             debugPrint("START BOWLING RESET TRIGGER");
+            Messages.sendMessage("BowlingGameChannel", JSON.stringify({
+                type: "resend-pin"
+            }));
+            Messages.sendMessage("BowlingGameChannel", JSON.stringify({
+                type: "resend-ball"
+            }));
             // Reset pins
             var entProperties = Entities.getEntityProperties(_this.bowlingAlleyID);
             _this.clearPins();
@@ -336,6 +345,11 @@
                 position: Entities.getEntityProperties(_this.entityID, ['position']).position,
                 volume: 0.5
             });
+
+            // Set limit on triggering reset
+            Script.setTimeout(function() {
+                canReset = true;
+            }, TIMEOUT);
         }
     }
     return new ResetButton();

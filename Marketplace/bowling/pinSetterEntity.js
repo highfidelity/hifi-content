@@ -6,12 +6,24 @@
 //
 
 (function() { 
-    var TIMEOUT = 7000;
     var _this;
-    var _canRez = true;
 
     function ResetButton() {
         _this = this;
+    }
+
+    var messageHandler = function(channel, message, sender) {
+        if(channel === "BowlingGameChannel") {
+            message = JSON.parse(message);
+            switch(message['type']) {
+                case 'resend-pin' :
+                    _this.getPinJointLocation();
+                    break;
+                case 'resend-ball' :
+                    _this.getBallJointLocation();
+                    break;
+            }
+        }
     }
 
     ResetButton.prototype = {
@@ -54,6 +66,7 @@
                 _this.getPinJointLocation();
                 _this.getBallJointLocation();
             }, 2000);
+            Messages.messageReceived.connect(messageHandler);
 
         },
         unload: function() {
@@ -61,15 +74,10 @@
             //    _this.clearPins();
         },
         startNearTrigger: function(entityID) {
-            if (_canRez) {
-                _canRez = false;
                 Messages.sendMessage("BowlingGameChannel", JSON.stringify({
                     type: "reset-hit",
                     entityID: this.entityID 
                 }));
-            }
-            Script.setTimeout(function(){_canRez = true}, TIMEOUT);
-           
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
             if (mouseEvent.isLeftButton) {
