@@ -11,7 +11,7 @@
     var debugPrint = function(message) {};
     if (WANT_DEBUG) {
         debugPrint = function(message) {
-            print(_entityID + ': ' + message);
+            print('pinSetterEntityServer.js: ' + message);
         }
     }
 
@@ -88,6 +88,7 @@
     ];
 
     var returnSound, ringSound;
+    var pinJointPosition, ballJointPosition;
 
     // See https://en.wikipedia.org/wiki/Triangular_number for Triangle numbers (T1 = 1, T2 = 3, T3 = 6 ... etc)
     var getPinPositions = function(maxWidth, triangleNumber) {
@@ -226,32 +227,70 @@
         _this = this;
     }
 
+    var messageHandler = function(channel, message, senderID){
+        if (channel == "BowlingGameChannel") {
+            message = JSON.parse(message);
+            var type = message['type'];
+            print(JSON.stringify("Message Type: " + type));
+            switch(type) {
+                case 'reset-hit' :
+                    _this.doTheRez();
+                    break;
+                case 'get-pin-location' : 
+                    pinJointPosition = message['location'];
+                    break;
+                case 'get-ball-location' :
+                    ballJointPosition = message['location'];
+                    break;
+                default :
+                    print("Unknown message");
+                    break;
+            }
+        }
+    }
+
     ResetButton.prototype = {
+        entityID: null,
+        resetConsoleID: null,
+        bowlingAlleyID: null,
         preload: function(entityID) {
+            _this.entityID = entityID;
+            _this.resetConsoleID  = Entities.getEntityProperties(_this.entityID, ['parentID']).parentID;
+            _this.bowlingAlleyID = Entities.getEntityProperties(_this.resetConsoleID, ['parentID']).parentID; // get the bowling alley's parent ID     
             ringSound = SoundCache.getSound(BELL_SOUND_URL);
             returnSound = SoundCache.getSound(RETURN_SOUND_URL);
+            print("bowling alley id: " + _this.bowlingAlleyID);
             Messages.subscribe("BowlingGameChannel");
-            print("Listening to BowlingGameChannel");
-            Messages.messageReceived.connect(this, doTheRez());
+            Messages.messageReceived.connect(messageHandler);
+            Entities.callEntityMethod(_this.entityID, 'getPinJointLocation', null);
+            Entities.callEntityMethod(_this.entityID, 'getBallJointLocation', null);
         }, 
         unload: function() {
-
+            Messages.messageReceived.disconnect(messageHandler);
         },
         clearPins: function() {
-
+            Entities.callEntityMethod(_this.entityID, 'getPinJointLocation', null);
+            Entities.callEntityMethod(_this.entityID, 'getBallJointLocation', null);
+            Entities.findEntities(Entities.getEntityProperties(_this.entityID, ['position']), 1000).forEach(function(entity) {
+                try {
+                    var userData = JSON.parse(Entities.getEntityProperties(entity, ['userData']).userData);
+                    if (userData.isBowlingPin && userData.bowlingAlley === _this.bowlingAlleyID) {
+                        print("Found pin, deleting it: " + entity);
+                        Entities.deleteEntity(entity);
+                    }
+                } catch(e) {}
+            }); 
         },
         createRandomBallInRetractor: function() {
-            var entProperties = Entities.getEntityProperties(_this.bowlingAlleyID, ['position', 'rotation']);
-            var jointIndex = Entities.getJointIndex(_this.bowlingAlleyID, 'ballLocatorJoint');
-            var jointLocInObjectFrame = Entities.getAbsoluteJointTranslationInObjectFrame(_this.bowlingAlleyID, jointIndex);
-            var jointLocInWorld = Vec3.sum(entProperties.position, Vec3.multiplyQbyV(entProperties.rotation, jointLocInObjectFrame));   
+            Entities.callEntityMethod(_this.entityID, 'getBallJointLocation');
+            var entProperties = Entities.getEntityProperties(_this.bowlingAlleyID, ['position', 'rotation']);  
             createBall({
-                position: jointLocInWorld,
+                position: ballJointPosition,
                 rotation: entProperties.rotation
             }, BOWLING_BALLS[Math.floor(BOWLING_BALLS.length * Math.random())],  _this.bowlingAlleyID);
         },
         clearBalls: function() {
-            Entities.findEntities(MyAvatar.position, 1000).forEach(function(entity) {
+            Entities.findEntities(Entities.getEntityProperties(_this.entityID, ['position']), 1000).forEach(function(entity) {
                 try {
                     var userData = JSON.parse(Entities.getEntityProperties(entity, ['userData']).userData);
                     if (userData.isBowlingBall && userData.bowlingAlley === _this.bowlingAlleyID) {
@@ -265,14 +304,6 @@
             debugPrint("START BOWLING RESET TRIGGER");
             // Reset pins
             var entProperties = Entities.getEntityProperties(_this.bowlingAlleyID);
-            var jointNames = Entities.getJointNames(_this.bowlingAlleyID);
-            //print("Joint Names " + jointNames);
-            var jointIndex = Entities.getJointIndex(_this.bowlingAlleyID, 'pinLocatorJoint');
-            //print("JOINT INDEX IS " + jointIndex);
-            var jointLocInObjectFrame = Entities.getAbsoluteJointTranslationInObjectFrame(_this.bowlingAlleyID, jointIndex);
-            var jointLocInWorld = Vec3.sum(entProperties.position, Vec3.multiplyQbyV(entProperties.rotation, jointLocInObjectFrame));   
-            //print("LOCATION IS " + JSON.stringify(jointLocInWorld));
-            
             _this.clearPins();
 
             //print("ADDING NEW PINS");
@@ -280,7 +311,7 @@
             var pinHeightOffset = {y: PIN_DIMENSIONS.y / 2};
             getPinPositions(TRIANGLE_WIDTH, TRIANGLE_NUMBER_OF_PINS).forEach(function(pinPosition) {
                 createPin({
-                    position: Vec3.sum(jointLocInWorld, pinHeightOffset),
+                    position: Vec3.sum(pinJointPosition, pinHeightOffset),
                     rotation: entProperties.rotation
                 }, {
                     position: pinPosition

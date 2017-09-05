@@ -62,7 +62,7 @@
                 "y": 0.91439491510391235,
                 "z": -0.12925027310848236
             },
-            "script": "http://mpassets.highfidelity.com/f01af088-7410-40e2-a331-310e9a0d068e-v1/pinSetterEntity.js",
+            "script": "https://hifi-content.s3.amazonaws.com/liv/dev/bowling/pinSetterEntity.js",
             "serverScripts" : "https://hifi-content.s3.amazonaws.com/liv/dev/bowling/pinSetterEntityServer.js", 
             "type": "Sphere",
             "userData": "{\"grabbableKey\":{\"wantsTrigger\":true}}",
