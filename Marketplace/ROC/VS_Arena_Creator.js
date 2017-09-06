@@ -130,6 +130,13 @@
             "type": "Model", 
             parentID: arena,
             "lifetime": -1, 
+            userData: JSON.stringify({
+                grabbableKey: {
+                    grabbable: false,
+                    ignoreIK: false
+                },
+                "swordDrawn": false
+            }),
             "position": getPositionToCreateRockandSword1(false),
             "collisionless": true,
             "dimensions": {
@@ -140,7 +147,8 @@
             "collidesWith": "",
             name: "ROC-Rock",
             modelURL: Script.resolvePath("./SwordGameAssets/rock.fbx"),
-            shapeType: "compound"
+            shapeType: "compound",
+            "serverScripts": Script.resolvePath("./VS_Blank.js") + "?" + Date.now() //used so my server script can see the rock
         };
         
         rock1 = Entities.addEntity(rockProperties1);
@@ -186,7 +194,8 @@
                     }
                 }],
                 "noGear": true,
-                "reset": resetArea
+                "reset": resetArea,
+                "rockID": rock1
             }),
             "dimensions": {
                 x: .2440,
@@ -206,6 +215,13 @@
             "type": "Model", 
             parentID: arena,
             "lifetime": -1, 
+            userData: JSON.stringify({
+                grabbableKey: {
+                    grabbable: false,
+                    ignoreIK: false
+                },
+                "swordDrawn": false
+            }),
             "position": getPositionToCreateRockandSword2(false),
             "collisionless": true,
             "dimensions": {
@@ -216,7 +232,8 @@
             "collidesWith": "",
             name: "ROC-Rock",
             modelURL: Script.resolvePath("./SwordGameAssets/rock.fbx"),
-            shapeType: "compound"
+            shapeType: "compound",
+            "serverScripts": Script.resolvePath("./VS_Blank.js") + "?" + Date.now() //used so my server script can see the rock
         };
         rock2 = Entities.addEntity(rockProperties2);
 
@@ -261,7 +278,8 @@
                     }
                 }],
                 "noGear": true,
-                "reset": resetArea
+                "reset": resetArea,
+                "rockID": rock2
             }),
             "dimensions": {
                 x: .2440,
@@ -328,11 +346,11 @@
             },
             "dynamic": false, 
             userData: JSON.stringify({
-                        grabbableKey: {
-                            grabbable: false,
-                            ignoreIK: false
-                        }
-                    }),
+                grabbableKey: {
+                    grabbable: false,
+                    ignoreIK: false
+                }
+            }),
             name: "ROC-Gate",
             modelURL: Script.resolvePath("./SwordGameAssets/twoKnights.fbx"),
             shapeType: "static-mesh",
@@ -398,6 +416,8 @@
             },
             "sword1ID": sword1,
             "sword2ID": sword2,
+            "rock1ID": rock1,
+            "rock2ID": rock2,
             "signID": sign,
             "swordPosition1": pos1, 
             "swordPosition2": pos2,

@@ -26,6 +26,8 @@
     var swordPos2;
     var swordRot;
     var sign;
+    var rock1;
+    var rock2;
     //holds id's hearts that float above your head. Index 0 is not a heart but instead an invisible object the others are parented to.
     var hearts = [];
     var focalPoint;
@@ -51,6 +53,8 @@
         swordPos1 = properties.swordPosition1;
         swordPos2 = properties.swordPosition2;
         swordRot = properties.swordRotation;
+        rock1 = properties.rock1ID;
+        rock2 = properties.rock2ID;
         equipChannel1 = "equip-channel-ROC-Sword1".concat(entityID);
         equipChannel2 = "equip-channel-ROC-Sword2".concat(entityID);
         equipChannel3 = "equip-channel-ROC-Sign".concat(entityID);
@@ -124,7 +128,8 @@
                     }
                 }],
                 "noGear": true,
-                "reset": _this.entityID
+                "reset": _this.entityID,
+                "rockID": rock1
             }),
             "dimensions": {
                 x: .2440,
@@ -177,7 +182,8 @@
                     }
                 }],
                 "noGear": true,
-                "reset": _this.entityID
+                "reset": _this.entityID,
+                "rockID": rock2
             }),
             "dimensions": {
                 x: .2440,
@@ -213,12 +219,29 @@
         for (i = 0; i < objectArray.length; i++) {
             Entities.deleteEntity(objectArray[i]);
         }
+        players = 0;
+        shield = undefined;
+        body = undefined;
+        head = undefined;
+        gameData = [];
         objectArray = [];
         data = [];
         hearts = [];
         sword1 = newSword1;
         sword2 = newSword2;
         sign = signID[0];
+
+        var rockProps = Entities.getEntityProperties(_this.entityID);
+        var rockProperties = JSON.parse(rockProps.userData);
+        var resetRocks = {
+            grabbableKey: {
+                grabbable: false,
+                ignoreIK: false
+            },
+            "swordDrawn": false
+        };
+        Entities.editEntity(rockProperties.rock1ID, { userData: JSON.stringify(resetRocks) });
+        Entities.editEntity(rockProperties.rock2ID, { userData: JSON.stringify(resetRocks) });
     };
 
     function createEquipment(message) {
@@ -375,18 +398,24 @@
         gameData.push(data[11]); //sword entity id who sent message
         gameData.push(data[4]); //Avatar ID who sent message
         if (players == 2) {
-            players = 0;
-            Script.setTimeout(function() {
-                //pass data to both sword
-                var gameName1 = "game-channel-"+ gameData[4];
-                Messages.sendMessage(gameName1, JSON.stringify(gameData));
-                var gameName2 = "game-channel-"+ gameData[10];
-                Messages.sendMessage(gameName2, JSON.stringify(gameData));
-                gameData = [];
-                shield = undefined;
-                body = undefined;
-                head = undefined;
-            }, 3000);
+            //makes sure above message finished before the new one starts
+            var messageChecker = Script.setInterval(function() {
+                var props1 = Entities.getEntityProperties(rock1);
+                var properties1 = JSON.parse(props1.userData);
+                var props2 = Entities.getEntityProperties(rock2);
+                var properties2 = JSON.parse(props2.userData);
+                print(JSON.stringify(properties1.swordDrawn));
+                print(JSON.stringify(properties2.swordDrawn));
+                if ((properties1.swordDrawn == true) && (properties2.swordDrawn == true)) {
+                    print("sending messages");
+                    //pass data to both sword
+                    var gameName1 = "game-channel-"+ gameData[4];
+                    Messages.sendMessage(gameName1, JSON.stringify(gameData));
+                    var gameName2 = "game-channel-"+ gameData[10];
+                    Messages.sendMessage(gameName2, JSON.stringify(gameData));
+                    Script.clearInterval(messageChecker);
+                }
+            }, 2000);
         }
     };
 

@@ -14,6 +14,8 @@
     var _this = this;
     //holds id of sword
     var sword;
+    //holds id of rock sword is in
+    var rock
     //holds id of shield
     var shield;
     //holds id's of hit areas
@@ -28,8 +30,8 @@
     //holds current health
     var health = 5;
     //makes sure it dosent count a bunch of hits
-    var firstHit = true;
-     var firstBlock = true;
+    var firstHit;
+    var firstBlock;
     //swordHand
     var hand;
     //holds id's hearts that float above your head. Index 0 is not a heart but instead an invisible object the others are parented to.
@@ -37,11 +39,9 @@
     var enemyHearts = [];
     var focalPoint;
     //sounds
-    var blockSound;
-    var hitSound;
     var swishSound;
     var equipSound;
-    //holds id of rock
+    //holds id of reset
     var resetArea;
     //channels
     var swordChannel;
@@ -54,6 +54,8 @@
     _this.preload = function(entityID) {
         print("Loading battle script");
         _this.entityID = entityID;
+        firstHit = true;
+        firstBlock = true;
         var name = Entities.getEntityProperties(entityID).name;
         //makes sure each sword has a unique channel
         swordChannel = ("sword-channel-" + name).concat(entityID);
@@ -61,10 +63,12 @@
         hitChannel = "hit-channel";
         blockedChannel = "blocked-channel";
         sword = entityID;
-        blockSound = SoundCache.getSound(Script.resolvePath("./SwordGameSounds/Blocked.wav"));
-        hitSound = SoundCache.getSound(Script.resolvePath("./SwordGameSounds/Hit.wav"));
         swishSound = SoundCache.getSound(Script.resolvePath("./SwordGameSounds/Sword_collide.wav"));
         equipSound = SoundCache.getSound(Script.resolvePath("./SwordGameSounds/equipSound.wav"));
+        //get ID of rock
+        var props = Entities.getEntityProperties(entityID);
+        var properties = JSON.parse(props.userData);
+        rock = properties.rockID
     }
 
     _this.onReceivedMessage = function(channel, message, senderID) {
@@ -83,7 +87,7 @@
 
             var currentID = MyAvatar.sessionUUID;
             //play equipping sound
-            Audio.playSound(equipSound, { loop: false, position: MyAvatar.position, volume: .2 });
+            Audio.playSound(equipSound, { loop: false, position: MyAvatar.position, volume: .3 });
             
             //needed to add a short timeout because the functions below happened faster than the message could unpackage the data
             Script.setTimeout(function() {
@@ -124,17 +128,28 @@
                 Entities.editEntity(focalPoint, parentHeartArmor);
                 Entities.editEntity(shield, visibleShield);
 
+                var swordIsDrawn = {
+                    grabbableKey: {
+                        grabbable: false,
+                        ignoreIK: false
+                    },
+                    "swordDrawn": true
+                };
+                //send to model
+                Entities.editEntity(rock, { userData: JSON.stringify(swordIsDrawn) });
+
                 //Attaching everything
                 Script.setTimeout(function() {
                     Messages.sendLocalMessage('Hifi-Hand-Grab', JSON.stringify({
                     hand: switchLeftRight(hand),
                     entityID: shield
                     }));
-                }, 500);
+                }, 700);
             }, 4000);
         } 
 
         if ((channel == gameChannel) && (MyAvatar.sessionUUID == equipData[5])) {
+            print("enemy player 2");
             enemyShield = equipData[6];
             enemyBody = equipData[7];
             enemyHead = equipData[8];
@@ -143,6 +158,7 @@
         } 
         
         if ((channel == gameChannel) && (MyAvatar.sessionUUID == equipData[11])) {
+            print("enemy player 1");
             enemyShield = equipData[0];
             enemyBody = equipData[1];
             enemyHead = equipData[2];
@@ -208,7 +224,8 @@
                 }
             }],
             "noGear": false,
-            "reset": resetArea
+            "reset": resetArea,
+            "rockID": rock
             };
             //send to model
             Entities.editEntity(sword, { userData: JSON.stringify(set1) });
@@ -219,17 +236,19 @@
         //if the sword hits the enemy shield then I disable collisions
         if ((enemyShield == otherID) && firstBlock) {
             firstBlock = false;
+            //send message to game handler with needed information
             var data = [sword, MyAvatar.position];
             Messages.sendMessage(blockedChannel, JSON.stringify(data));
             //let player know they've been blocked and receive haptic feedback
             hand == 'left' ? Controller.triggerHapticPulse(.9, 3100, 0) : Controller.triggerHapticPulse(.9, 3100, 1);
             //Since it would happen 60 times a second I set a wait time 
-            Script.setTimeout(Wait, 3000);
+            Script.setTimeout(reactivateSword, 3000);
         //if the sword hits the enemy players body then I do damage. firstHit is used to control collision speed.
-        } else if (((enemyBody == otherID) || (enemyHead == otherID)) && firstHit) { 
+        } else if (((enemyBody == otherID) || (enemyHead == otherID)) && firstHit && firstBlock) { 
             firstHit = false;
             //deal damage
-            health--;
+            --health;
+            //send message to game handler with needed information
             var data = [sword, MyAvatar.position, health, focalPoint, enemyHearts, enemySword, enemyShield];
             Messages.sendMessage(hitChannel, JSON.stringify(data));
             //let player know they've been hit or had a hit through haptic feedback
@@ -258,6 +277,11 @@
     //function used to reenable sword after disabled from sword hitting a shield
     function Wait() {
         firstHit = true;
+    }
+
+    //function used to reenable sword after disabled from sword hitting a shield
+    function reactivateSword() {
+        firstBlock = true;
     }
 
     Entities.deletingEntity.connect(function(entityID){
