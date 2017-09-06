@@ -159,7 +159,7 @@
 
             var NEAR_GRABBING_ACTION_TIMEFRAME = 0.05;
             var NEAR_GRABBING_KINEMATIC = true;
-            var NEAR_GRABBING_IGNORE_IK = false;
+            var NEAR_GRABBING_IGNORE_IK = true;
             _this.holdAction = Entities.addAction('hold', _this.holdableEntity, {
                 hand: _this.hand,
                 timeScale: NEAR_GRABBING_ACTION_TIMEFRAME,
@@ -271,12 +271,15 @@
         }
     }
 
-    function attachmentAction(joint, attachmentData) {
+    function attachmentAction(joint, attachmentData, isBeingAttachedByHand) {
         if (attachmentData === undefined) {
             attachmentData = getAttachmentData();
         }
         if (attachmentData === null) {
             return;
+        }
+        if (isBeingAttachedByHand === undefined) {
+            isBeingAttachedByHand = false;
         }
         var otherJoint = null;
         if (joint === undefined) {
@@ -314,15 +317,34 @@
                     newAttachment[key] = attachmentData.options[key];
                 }
             }
+            if (isBeingAttachedByHand) {
+                var attachJointIndex = MyAvatar.getJointIndex(joint);
+                if (attachJointIndex !== -1) {
+                    debugPrint('about to set rotation');
+                    
+                    var jointWorldRotation = MyAvatar.jointToWorldRotation({}, attachJointIndex);
 
-            var attachJointIndex = MyAvatar.getJointIndex(joint);
-            if (attachJointIndex !== -1) {
-                print('about to set rotation');
-                newAttachment['rotation'] = Quat.safeEulerAngles(
-                        Quat.multiply(Entities.getEntityProperties(_entityID, 'rotation').rotation, Quat.inverse(MyAvatar.jointToWorldRotation({}, attachJointIndex)))
-                    );
+                    debugPrint('joint rotation: ' + JSON.stringify(jointWorldRotation));
+                    debugPrint('avatar orientation: ' + JSON.stringify(MyAvatar.orientation));
 
-                print('set rotation to ' + JSON.stringify(newAttachment['rotation']));
+                    
+                    var entityTransform = Entities.getEntityProperties(_entityID, ['position','rotation']);
+                    var localRotation = Quat.multiply(entityTransform.rotation, Quat.inverse(jointWorldRotation));
+
+
+                    newAttachment['rotation'] = Quat.safeEulerAngles(localRotation);
+
+                    var localPosition;
+                    if (attachmentData.experimentalPositionOffset) {
+                        localPosition = attachmentData.options['position'] !== undefined ? Vec3.multiplyQbyV(localRotation, attachmentData.options['position']) : {x: 0, y: 0, z: 0};
+                    } else {
+                        var jointWorldPosition = MyAvatar.worldToJointPoint({}, attachJointIndex);
+                        localPosition = Vec3.multiplyQbyV(Quat.inverse(jointWorldRotation), Vec3.subtract(entityTransform.position, jointWorldPosition));
+                    }
+                    newAttachment['position'] = localPosition;
+
+                    debugPrint('set rotation to ' + JSON.stringify(newAttachment['rotation']));
+                }
             }
 
             newAttachments.push(newAttachment);
@@ -536,7 +558,7 @@
             var closestJoint = this.getClosestJoint(entityID);
             if (closestJoint !== null) {
                 debugPrint('attach' + closestJoint.name);
-                attachmentAction(closestJoint.name);
+                attachmentAction(closestJoint.name, undefined, true);
                 Controller.triggerShortHapticPulse(0.5, args[0] === 'left' ? HAND_LEFT : HAND_RIGHT);
             }
 
