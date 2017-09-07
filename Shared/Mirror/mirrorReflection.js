@@ -1,15 +1,36 @@
-(function () {
-    var reflectionAreaId = "{a8adb4fd-9127-40f4-973f-f440828c317f}";
-    var mirrorID = "{f6ee91c2-f287-42da-886f-169fd543e160}";
+//This script acts on the reflection box in front of the mirror so that when and avatar
+//enters the area, the mirror will reflect an image via the spectator camera
 
+(function () {
+    print("Starting reflection script...............");
+    var mirrorID, reflectionAreaID;
+   //get id of reflection area and mirror
+    this.preload = function(entityID) {
+        reflectionAreaID = entityID;
+        mirrorID = Entities.getEntityProperties(reflectionAreaID, 'parentID').parentID;
+        print("Reflection area ID is : " + reflectionAreaID);
+        print("Mirror area ID is : " + mirrorID);
+  };
+
+    //when avatar enters reflection area, begin reflecting
     this.enterEntity = function(entityID){
         
-        Entities.callEntityMethod(mirrorID, 'mirrorOverlayOn');
-        print("Mirror is now reflecting.");
+      // var mirrorOverlayOn = function() {
+        //if(mirrorID.mirrorOverlayRunning == false) {
+            Entities.callEntityMethod(mirrorID, 'toggleMirrorOverlay');
+            print("Mirror is now reflecting.");
+      //  }
+      // }
     }
 
+    //when avatar leaves reflection area, stop reflecting
     this.leaveEntity = function (entityID) {
-        Entities.callEntityMethod(mirrorID, 'mirrorOverlayOff');
-        print("Mirror is NOT reflecting anymore.");
+      //  var mirrorOverlayOff = function() {
+        //if(mirrorID.mirrorOverlayRunning == true) {
+            Entities.callEntityMethod(mirrorID, 'toggleMirrorOverlay');
+            print("Mirror is NOT reflecting anymore.");
+       // }
+            
+       // }
     }
 })
