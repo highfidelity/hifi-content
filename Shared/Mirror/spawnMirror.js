@@ -1,20 +1,26 @@
-// JavaScript source code
+//
+//  spawnMirror.js
+//
+//  Created by Rebecca Stankus on 8/30/17.
+//  Copyright 2017 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//  This script creates a mirror that reflects when an avatar walks in front of it
 
-/**
-This script creates a mirror that reflects when an avatar walks in front of it
-*/
 
-//get position in front of avatar for mirror
+// get position in front of avatar for mirror
 function getPosition() {
     var direction = Quat.getFront(MyAvatar.orientation);
     var distance = 5;
     var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
-    position.y += .4;
+    position.y += 0.4;
     return position;
 }
 
 var reflectionAreaPosition = getPosition();
-//reflectionAreaPosition.y += .4;
+reflectionAreaPosition.y -= 0.4;
 reflectionAreaPosition.z += 1.5;
 
 var mirror = Entities.addEntity({
@@ -25,7 +31,7 @@ var mirror = Entities.addEntity({
         z: 0.01
     },
     modelURL: "https://hifi-content.s3.amazonaws.com/patrickmanalich/mirrorFolder/models/mirror.fbx",
-    "position": getPosition(),
+    position: getPosition(),
     rotation: {
         w: 1,
         x: 0,
@@ -66,7 +72,3 @@ var reflection = Entities.addEntity({
     collisionless: true,
     "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
 });
-
-
-
-
