@@ -16,4 +16,7 @@
     _this.preload = function(entityID) {
         print("Loading blank script");  
     };
+
+    _this.unload = function () {
+    };
 })

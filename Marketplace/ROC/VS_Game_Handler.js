@@ -53,7 +53,7 @@
                 textures: '{ "normal": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/VS/SwordGameAssets/broadsword_01.fbx/broadsword_01.fbm/color-atlas-1.jpg"}'
             };
             Entities.editEntity(data[0], usability);
-        }, 3000);
+        }, 1000);
     }
 
     function Hit(message) {
@@ -107,4 +107,7 @@
             Entities.editEntity(data[6], lifeLeft);
         }
     }
+
+    _this.unload = function () {
+    };
 })

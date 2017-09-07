@@ -12,6 +12,8 @@
 //
 (function() {
     var _this = this;
+    //name of sword
+    var name;
     //holds id of sword
     var sword;
     //holds id of rock sword is in
@@ -48,27 +50,33 @@
     var gameChannel;
     var hitChannel;
     var blockedChannel;
+    var equipChannel;
     //data that will hold equipment info
     var equipData;
+    //holds id of resetArea
+    var resetArea;
 
     _this.preload = function(entityID) {
         print("Loading battle script");
         _this.entityID = entityID;
+        //make sure entities can be hit
         firstHit = true;
         firstBlock = true;
-        var name = Entities.getEntityProperties(entityID).name;
+        //get necessary properties
+        var props = Entities.getEntityProperties(entityID);
+        var properties = JSON.parse(props.userData);
+        name = props.name;
+        rock = properties.rockID
+        resetArea = properties.reset;
         //makes sure each sword has a unique channel
         swordChannel = ("sword-channel-" + name).concat(entityID);
         gameChannel = ("game-channel-").concat(entityID);
         hitChannel = "hit-channel";
         blockedChannel = "blocked-channel";
+        equipChannel = "equip-channel-" + name + resetArea;
         sword = entityID;
         swishSound = SoundCache.getSound(Script.resolvePath("./SwordGameSounds/Sword_collide.wav"));
         equipSound = SoundCache.getSound(Script.resolvePath("./SwordGameSounds/equipSound.wav"));
-        //get ID of rock
-        var props = Entities.getEntityProperties(entityID);
-        var properties = JSON.parse(props.userData);
-        rock = properties.rockID
     }
 
     _this.onReceivedMessage = function(channel, message, senderID) {
@@ -145,7 +153,7 @@
                     entityID: shield
                     }));
                 }, 700);
-            }, 4000);
+            }, 3000);
         } 
 
         if ((channel == gameChannel) && (MyAvatar.sessionUUID == equipData[5])) {
@@ -173,6 +181,9 @@
         Messages.subscribe(hitChannel);
         Messages.subscribe(blockedChannel);
         Messages.messageReceived.connect(_this, _this.onReceivedMessage);
+        //get current entity properties
+        var props = Entities.getEntityProperties(entityID);
+        var properties = JSON.parse(props.userData);
         //get hand
         hand = args[0];
         //play grabbed sword sound
@@ -180,23 +191,16 @@
         //holds all important body data (used for equipment placing later)
         var neckPos = MyAvatar.getJointPosition("Neck");
         var hipPos = MyAvatar.getJointPosition("Hips");
+        var torso = getDistance(neckPos, hipPos);
         var spine = MyAvatar.getJointPosition("Spine2");
-        var jointIndexSpine = MyAvatar.getJointIndex("Spine2");
-        var jointIndexHead = MyAvatar.getJointIndex("RightEye");
         var me = MyAvatar.sessionUUID;
         var avatarRot = MyAvatar.orientation;
         var head = MyAvatar.getHeadPosition();
-        var hips = MyAvatar.getJointIndex("Hips");
-        //get name of sword (used for passing back the message in ROC_Equipment_Creator)
-        var props = Entities.getEntityProperties(entityID);
-        var properties = JSON.parse(props.userData);
         //place all info in data and get channel name
-        var data = [neckPos, hipPos, spine, jointIndexSpine, me, jointIndexHead, entityID, head, hips, hand, props.name, sword, avatarRot];
-        resetArea = properties.reset;
-        var name = "equip-channel-" + props.name + properties.reset;
+        var data = [torso, spine, me, entityID, head, name, sword, avatarRot];
         //make sure sword is not already in use by someone
         if (properties.noGear) {
-            Messages.sendMessage(name, JSON.stringify(data));
+            Messages.sendMessage(equipChannel, JSON.stringify(data));
             //set userdata properties in sword so sword cant be used by multiple people at once 
             var set1 = {
                 grabbableKey: {
@@ -242,7 +246,7 @@
             //let player know they've been blocked and receive haptic feedback
             hand == 'left' ? Controller.triggerHapticPulse(.9, 3100, 0) : Controller.triggerHapticPulse(.9, 3100, 1);
             //Since it would happen 60 times a second I set a wait time 
-            Script.setTimeout(reactivateSword, 3000);
+            Script.setTimeout(reactivateSword, 1000);
         //if the sword hits the enemy players body then I do damage. firstHit is used to control collision speed.
         } else if (((enemyBody == otherID) || (enemyHead == otherID)) && firstHit && firstBlock) { 
             firstHit = false;
@@ -254,7 +258,7 @@
             //let player know they've been hit or had a hit through haptic feedback
             Controller.triggerShortHapticPulse(.9, 2);
             //Since it would happen 60 times a second I set a wait time 
-            Script.setTimeout(Wait, 1250);
+            Script.setTimeout(Wait, 500);
         }
     };
 
@@ -284,16 +288,26 @@
         firstBlock = true;
     }
 
-    Entities.deletingEntity.connect(function(entityID){
-        try{
+    function getDistance(pointA, pointB) {
+        var dx = pointB.x - pointA.x;
+        var dy = pointB.y - pointA.y;
+        var dz = pointB.z - pointA.z;
+    
+        var dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2));
+    
+        return dist;
+    }
+
+    _this.unload = function () {
+        try {
             print("unsubscribing to channels")
             Messages.unsubscribe(swordChannel);
             Messages.unsubscribe(gameChannel);
             Messages.unsubscribe(hitChannel);
             Messages.unsubscribe(blockedChannel);
         } catch (err) {
-            print("Never subscribed to channels");
+            //e
         }
-    });
+    };
 
 })

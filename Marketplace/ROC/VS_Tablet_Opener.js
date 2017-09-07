@@ -42,4 +42,7 @@
         }
     }
 
+    _this.unload = function () {
+    };
+
 })

@@ -40,4 +40,7 @@
         //let player know they've hit the sign through haptic feedback
         Controller.triggerShortHapticPulse(.9, 2);
     };
+
+    _this.unload = function () {
+    };
 })

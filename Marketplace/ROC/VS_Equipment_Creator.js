@@ -254,8 +254,8 @@
         var shieldProperties = {
             "type": "Model", 
             "lifetime": 600, 
-            "position": getPositionToCreateShield(data[7], data[12]),
-            "rotation": data[12],
+            "position": getPositionToCreateShield(data[4], data[7]),
+            "rotation": data[7],
             "collisionless": false,
             "visible": false,
             "collidesWith": "dynamic, otherAvatar",
@@ -303,14 +303,8 @@
 
         //Create hitpoints
         //HITPOINTS WORK BEST FOR knight AVATARS. NOTE: if you get rid of -.08 in body position, game will then work best for mannequin model
-        //get dimensions of torso for model
-        var neckPos = data[0];
-        var hipPos = data[1];
-        var torso = getDistance(neckPos, hipPos);
         //get position of spine
-        var spine = data[2];
-        //get joint index for rotation of model
-        var jointIndexSpine = data[3];
+        var spine = data[1];
         var bodyProperties = {
             "type": "Model", 
             "lifetime": 600, //10 minutes
@@ -319,7 +313,7 @@
                 y: spine.y - .08,
                 z: spine.z
             },
-            "rotation": data[12],
+            "rotation": data[4],
             "collisionless": false,
             "collidesWith": "dynamic, otherAvatar",
             "dynamic": false,
@@ -328,7 +322,7 @@
             "dimensions": {
                 x: .3,
 
-                y: torso,
+                y: data[0],
 
                 z: .3
             },
@@ -340,14 +334,12 @@
         body = Entities.addEntity(bodyProperties);
         objectArray.push(body);
 
-        //get joint index for rotation of model
-        var jointIndexHead = data[5];
-        var headPos = data[7];
+        var headPos = data[4];
         var headProperties = {
             "type": "Model",
             "lifetime": 600, //10 minutes
             "position": headPos,
-            "rotation": data[12],
+            "rotation": data[7],
             "collisionless": false,
             "collidesWith": "dynamic, otherAvatar",
             "dynamic": false, 
@@ -369,7 +361,7 @@
         objectArray.push(head);
 
         //create the players health (shown above their head)
-        createHearts(head, data[12]);
+        createHearts(head, data[7]);
 
         //Place necessary userdata for head and body. Used in ROC_Battle_Simulator to detect hits/blocks
         var newUserData = {
@@ -379,15 +371,14 @@
             },
             "shieldID": shield,
             "heartsArray": hearts,
-            "swordID": data[6]  
+            "swordID": data[3]  
         }
         Entities.editEntity(body, { userData: JSON.stringify(newUserData) });
         Entities.editEntity(head, { userData: JSON.stringify(newUserData) });
 
-        //data which will be passed back. data[4] is ID of user who sent the message
-        var newData = [shield, body, head, sign, hearts, focalPoint, data[4]];
-        data[10];
-        var name = "sword-channel-" + data[10] + data[11];
+        //data which will be passed back. data[2] is ID of user who sent the message
+        var newData = [shield, body, head, sign, hearts, focalPoint, data[2]];
+        var name = "sword-channel-" + data[5] + data[6];
         Messages.sendMessage(name, JSON.stringify(newData));
 
         //save player equipment for game
@@ -395,8 +386,8 @@
         gameData.push(body);
         gameData.push(head);
         gameData.push(hearts);
-        gameData.push(data[11]); //sword entity id who sent message
-        gameData.push(data[4]); //Avatar ID who sent message
+        gameData.push(data[6]); //sword entity id who sent message
+        gameData.push(data[2]); //Avatar ID who sent message
         if (players == 2) {
             //makes sure above message finished before the new one starts
             var messageChecker = Script.setInterval(function() {
@@ -423,8 +414,6 @@
         //find position above your head
         var headPos = Entities.getEntityProperties(head).position;
         headPos.y = headPos.y + .5;
-        //get joint index for rotation of model
-        var jointIndexHips = data[8];
         var hipProperties = {
             "type": "Model", 
             userData: JSON.stringify({
@@ -535,4 +524,7 @@
         var degreeRot = Quat.multiply(origRot, Quat.angleAxis(90, {x: -.4, y: 1, z: -.2}));
         return degreeRot;
     }
+
+    _this.unload = function () {
+    };
 })
