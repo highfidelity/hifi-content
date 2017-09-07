@@ -65,10 +65,9 @@ var reflection = Entities.addEntity({
     script: "https://hifi-content.s3.amazonaws.com/rebecca/mirrorReflection.js",
     shapeType: "box",
     parentID: mirror,
-    type: "Box",
+    type: "Zone",
     dynamic: false,
     locked: true,
     visible: false,
-    collisionless: true,
-    "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+    collisionless: true
 });
