@@ -23,13 +23,13 @@
 
     // when avatar enters reflection area, begin reflecting
     this.enterEntity = function(entityID){
-        Entities.callEntityMethod(mirrorID, 'toggleMirrorOverlay');
+        Entities.callEntityMethod(mirrorID, 'mirrorOverlayOn');
         print("Mirror is now reflecting.");
     };
 
     // when avatar leaves reflection area, stop reflecting
     this.leaveEntity = function (entityID) {
-        Entities.callEntityMethod(mirrorID, 'toggleMirrorOverlay');
+        Entities.callEntityMethod(mirrorID, 'mirrorOverlayOff');
         print("Mirror is NOT reflecting anymore.");
     };
 });

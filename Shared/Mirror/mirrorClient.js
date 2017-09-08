@@ -221,7 +221,7 @@
             serverToClientChannel = "serverToClientChannel".concat(_this.entityID);
             Messages.subscribe(editorToClientChannel);
             Messages.subscribe(serverToClientChannel);
-            Messages.messageReceived.connect(_this, _this.onReceivedMessage);
+            // Messages.messageReceived.connect(_this, _this.onReceivedMessage);
             intervalID = Script.setInterval(checkAvatarDistance, 500);
 			
             if (debug) {
@@ -256,16 +256,7 @@
             }
         }, 1000);
     };
-	
-    // Toggle the mirror overlay on and off
-    _this.toggleMirrorOverlay = function (entityID, data) {
-        if (!mirrorOverlayRunning) {
-            mirrorOverlayOn();
-        } else {
-            mirrorOverlayOff();
-        }
-    };
-	
+		
     _this.startNearGrab = function(entityID, data) {
         Messages.sendMessage(clientToServerChannel, JSON.stringify({ serverFunction: "setAllInvisible"}));
     };
@@ -281,7 +272,7 @@
         Overlays.deleteOverlay(mirrorToggleOverlayID);	
         Messages.unsubscribe(editorToClientChannel);
         Messages.subscribe(serverToClientChannel);
-        Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);
+        // Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);
         if (debug) {
             Entities.deleteEntity(debugSpectatorCameraID);
             Entities.deleteEntity(debugNearClipPlaneID);			
