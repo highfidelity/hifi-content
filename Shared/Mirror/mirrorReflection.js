@@ -17,8 +17,6 @@
     this.preload = function(entityID) {
         reflectionAreaID = entityID;
         mirrorID = Entities.getEntityProperties(reflectionAreaID, 'parentID').parentID;
-        print("Reflection area ID is : " + reflectionAreaID);
-        print("Mirror area ID is : " + mirrorID);
     };
 
     // when avatar enters reflection area, begin reflecting
