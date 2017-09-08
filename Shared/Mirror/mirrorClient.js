@@ -174,7 +174,8 @@
     }
 	
     // Calls 'updateMirrorOverlay' once to set up mirror overlay, then connects 'updateSpectatorCamera' and starts rendering
-    function mirrorOverlayOn() {
+    _this.mirrorOverlayOn = function() {
+        print("inside mirrorOverlayOn");
         mirrorOverlayRunning = true;	// SHOULD THIS BE OUTSIDE IF STATEMENT
         if (!spectatorCameraConfig.attachedEntityId) {
             updateMirrorOverlay(4);
@@ -187,10 +188,11 @@
         } else {
             print("Cannot turn on mirror if spectator camera is already in use");
         }
-    }
+    };
 	
     // Deletes the mirror overlay and disconnects 'updateSpectatorCamera' and rendering
-    function mirrorOverlayOff() {
+    _this.mirrorOverlayOff = function() {
+        print("inside mirrorOverlayOff");
         if (!spectatorCameraConfig.attachedEntityId) {
             spectatorCameraConfig.enableSecondaryCameraRenderConfigs(false);
             if (mirrorOverlayRunning) {
@@ -206,7 +208,7 @@
             print("Cannot turn off mirror if spectator camera is already in use");
         }
         mirrorOverlayRunning = false;	// SHOULD THIS BE OUTSIDE IF STATEMENT
-    }
+    };
 	
     // ENTITY FUNCTIONS
 	
@@ -221,7 +223,6 @@
             serverToClientChannel = "serverToClientChannel".concat(_this.entityID);
             Messages.subscribe(editorToClientChannel);
             Messages.subscribe(serverToClientChannel);
-            // Messages.messageReceived.connect(_this, _this.onReceivedMessage);
             intervalID = Script.setInterval(checkAvatarDistance, 500);
 			
             if (debug) {
@@ -268,11 +269,10 @@
     _this.unload = function(entityID) {
         print("unload mirror client");
         Script.clearInterval(intervalID);
-        mirrorOverlayOff();
+        _this.mirrorOverlayOff();
         Overlays.deleteOverlay(mirrorToggleOverlayID);	
         Messages.unsubscribe(editorToClientChannel);
         Messages.subscribe(serverToClientChannel);
-        // Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);
         if (debug) {
             Entities.deleteEntity(debugSpectatorCameraID);
             Entities.deleteEntity(debugNearClipPlaneID);			
