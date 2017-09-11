@@ -19,7 +19,6 @@ function getPosition() {
 }
 
 var reflectionAreaPosition = getPosition();
-// reflectionAreaPosition.y += .4;
 reflectionAreaPosition.z += 1.5;
 
 var mirror = Entities.addEntity({
