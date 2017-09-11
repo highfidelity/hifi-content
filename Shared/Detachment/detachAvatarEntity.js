@@ -11,11 +11,13 @@
 
 (function () {
     var _entityID, entityPosition, parentJointIndex, parentPosition, checkDetach;
+    
 
     this.preload = function(entityID) {
         _entityID = entityID;
-        entityPosition = Entities.getEntityProperties(_entityID, 'position').position;
-        parentJointIndex = Entities.getEntityProperties(_entityID, 'parentJointIndex').parentJointIndex;
+        var properties = Entities.getEntityProperties(_entityID, ["position", "parentJointIndex"]);
+        entityPosition = properties.position;
+        parentJointIndex = properties.parentJointIndex;
         parentPosition = MyAvatar.getJointPosition(parentJointIndex);
     };
     
