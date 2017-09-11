@@ -12,7 +12,6 @@
 (function () {
     var _entityID, entityPosition, parentJointIndex, parentPosition, checkDetach;
 
-    // get id of reflection area and mirror
     this.preload = function(entityID) {
         _entityID = entityID;
         entityPosition = Entities.getEntityProperties(_entityID, 'position').position;
