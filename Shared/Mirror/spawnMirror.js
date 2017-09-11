@@ -29,7 +29,7 @@ var mirror = Entities.addEntity({
         z: 0.01
     },
     modelURL: "https://hifi-content.s3.amazonaws.com/patrickmanalich/mirrorFolder/models/mirror.fbx",
-    "position": getPosition(),
+    position: getPosition(),
     rotation: {
         w: 1,
         x: 0,
@@ -42,13 +42,13 @@ var mirror = Entities.addEntity({
     dynamic: false,
     locked: true,
     collisionless: true,
-    "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+    userData: "{\"grabbableKey\":{\"grabbable\":true}}"
 });
 
 var reflection = Entities.addEntity({
     shape: "Cube",
     name: "mirrorReflectionArea",
-    "position": reflectionAreaPosition,
+    position: reflectionAreaPosition,
     dimensions: {
         x: 0.8,
         y: 1.6,
