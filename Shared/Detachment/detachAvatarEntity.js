@@ -19,18 +19,10 @@
         _entityID = entityID;
         entityPosition = Entities.getEntityProperties(_entityID, 'position').position;
         parentJointIndex = Entities.getEntityProperties(_entityID, 'parentJointIndex').parentJointIndex;
-        // print("Attachment ID is : " + _entityID);
-        // print("Parent joint index is : " + parentJointIndex);
-        //  parentJointName = MyAvatar.getJointNames()[parentJointIndex];
-        //  print("Parent joint name is : " + parentJointName);
         parentPosition = MyAvatar.getJointPosition(parentJointIndex);
-        // print("Entity position is : " + JSON.stringify(entityPosition));
-        // print("Parent position is : " + JSON.stringify(parentPosition));
     };
-
-    // distanceToParent = Vec3.distance(entityPosition, parentPosition);
-    // print("Distance to parent joint is : " + distanceToParent);
     
+    // continuously check distance between parent joint and attachment entity. remove parent relationship when moved beyond a certain distance
     checkDetach = Script.setInterval(function() {
         entityPosition = Entities.getEntityProperties(_entityID, 'position').position;
         var distanceToParent = Vec3.distance(entityPosition, parentPosition);
