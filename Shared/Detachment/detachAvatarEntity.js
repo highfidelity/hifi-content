@@ -10,8 +10,6 @@
 // This script detaches an avatar entity from the parent joint when it is moved beyond a certain distance from its parent joint
 
 (function () {
-    print("Starting detachment script...............");
-
     var _entityID, entityPosition, parentJointIndex, parentPosition, checkDetach;
 
     // get id of reflection area and mirror
@@ -26,12 +24,9 @@
     checkDetach = Script.setInterval(function() {
         entityPosition = Entities.getEntityProperties(_entityID, 'position').position;
         var distanceToParent = Vec3.distance(entityPosition, parentPosition);
-        print("Distance to parent joint is : " + distanceToParent);
-        if (distanceToParent > 0.6) {
-            print("I am no longer in setInterval...goodbye");
+        var detachDistance = 0.6;
+        if (distanceToParent > detachDistance) {
             Entities.editEntity(_entityID, {parentID: "{00000000-0000-0000-0000-000000000000}"});
-            print (Entities.getEntityProperties(_entityID, 'parentJointIndex').parentJointIndex);
-            print("Detaching....Distance to parent joint is : " + distanceToParent);
             Script.clearInterval(checkDetach);
         } 
     }, 100);
