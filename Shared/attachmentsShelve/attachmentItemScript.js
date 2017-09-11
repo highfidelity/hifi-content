@@ -61,12 +61,9 @@
     var _isGrabbing = false;
     var _attachmentData = null;
     var _leftRightAttachToggle = false;
-    var _listeningChannel = null;
     var _virtualHoldController = null;
     
     var WANT_DEBUG = true;
-
-    var ATTACHMENT_CHANNEL_PREFIX = 'attachmentItem-';
 
     var TOTAL_HOLD_LIFETIME = 60; // seconds
     
@@ -85,7 +82,7 @@
     if (WANT_DEBUG) {
         debugPrint = function(message) {
             print(message);
-        }
+        };
     }
 
     var getEntityProperty = function(entityID, property) {
@@ -151,11 +148,12 @@
                     _this.release();
                 }
             };
+
             var gripButtonCheck = function(value) {
                 if (value > GRIP_BUTTON_ACTIVE_THRESHOLD) {
                     _this.release();
                 }
-            }
+            };
 
             var NEAR_GRABBING_ACTION_TIMEFRAME = 0.05;
             var NEAR_GRABBING_KINEMATIC = true;
@@ -247,10 +245,6 @@
         return userDataObject.Attachment;
     };
 
-    var getScriptTimestamp = function() {
-        return getEntityProperty(_entityID, 'scriptTimestamp');
-    }
-
     this.preload = function(entityID) {
         _entityID = entityID;
         debugPrint('loaded ' + entityID);
@@ -269,7 +263,7 @@
         if (_virtualHoldController !== null) {
             _virtualHoldController.cleanup();
         }
-    }
+    };
 
     function attachmentAction(joint, attachmentData, isBeingAttachedByHand) {
         if (attachmentData === undefined) {
@@ -326,24 +320,27 @@
 
                     debugPrint('joint rotation: ' + JSON.stringify(jointWorldRotation));
                     debugPrint('avatar orientation: ' + JSON.stringify(MyAvatar.orientation));
-
                     
                     var entityTransform = Entities.getEntityProperties(_entityID, ['position','rotation']);
                     var localRotation = Quat.multiply(entityTransform.rotation, Quat.inverse(jointWorldRotation));
 
-
                     newAttachment['rotation'] = Quat.safeEulerAngles(localRotation);
 
+                    debugPrint('about to set position');
                     var localPosition;
                     if (attachmentData.experimentalPositionOffset) {
-                        localPosition = attachmentData.options['position'] !== undefined ? Vec3.multiplyQbyV(localRotation, attachmentData.options['position']) : {x: 0, y: 0, z: 0};
+                        debugPrint('EXPERIMENTAL experimentalPositionOffset');
+                        localPosition = attachmentData.options['translation'] !== undefined ? Vec3.multiplyQbyV(localRotation, attachmentData.options['translation']) : {x: 0, y: 0, z: 0};
                     } else {
-                        var jointWorldPosition = MyAvatar.worldToJointPoint({}, attachJointIndex);
+                        var jointWorldPosition = MyAvatar.getJointPosition(attachJointIndex); // MyAvatar.worldToJointPoint({}, attachJointIndex);
                         localPosition = Vec3.multiplyQbyV(Quat.inverse(jointWorldRotation), Vec3.subtract(entityTransform.position, jointWorldPosition));
+                        debugPrint('joint position: ' + JSON.stringify(jointWorldPosition));
+                        debugPrint('avatar position: ' + JSON.stringify(MyAvatar.position));
                     }
-                    newAttachment['position'] = localPosition;
-
+                    newAttachment['translation'] = localPosition;
+                    
                     debugPrint('set rotation to ' + JSON.stringify(newAttachment['rotation']));
+                    debugPrint('set position to ' + JSON.stringify(newAttachment['translation']));
                 }
             }
 
@@ -416,6 +413,7 @@
             delete newProperties.created;
             delete newProperties.age;
             delete newProperties.ageAsText;
+            var naturalDimensions = newProperties.naturalDimensions;
             delete newProperties.naturalDimensions;
             delete newProperties.naturalPosition;
             delete newProperties.boundingBox;
@@ -458,7 +456,10 @@
                 var userData = JSON.parse(newProperties.userData);
                 userData.grabbableKey.wantsTrigger = false;
                 userData.grabbableKey.grabbable = true;
-                // userData.attachmentServer = _listeningChannel;
+
+                var scale = userData.Attachment.options.scale !== undefined ? userData.Attachment.options.scale : 1.0;
+                newProperties.dimensions = Vec3.multiply(naturalDimensions, scale);
+
                 newProperties.userData = JSON.stringify(userData);
             } catch (e) {
                 debugPrint('Something went wrong while trying to modify the userData.');
@@ -471,15 +472,15 @@
                 // must have dynamic shapeType for hold action:
                 newProperties.shapeType = 'box';
             }
-            var entityID = Entities.addEntity(newProperties, true);
-            debugPrint('created ' + entityID + ' with properties: ' + JSON.stringify(newProperties));
+            var newEntityID = Entities.addEntity(newProperties, true);
+            debugPrint('created ' + newEntityID + ' with properties: ' + JSON.stringify(newProperties));
 
             // We don't need this attempts system down here anymore, but it works:
             var attempts = 0;
             var MAX_ATTEMPTS = 10;
             var attachAttemptInterval = null;
             var attachOnEntityFound = function() {
-                if (Object.keys(Entities.getEntityProperties(entityID, 'position')).length === 0) {
+                if (Object.keys(Entities.getEntityProperties(newEntityID, 'position')).length === 0) {
                     attempts++;
                     if (attempts >= MAX_ATTEMPTS) {
                         Script.clearInterval(attachAttemptInterval);
@@ -492,7 +493,7 @@
                     _virtualHoldController = null;
                 }
 
-                _virtualHoldController = new VirtualHoldController(hand, entityID, localPosition, localRotation);
+                _virtualHoldController = new VirtualHoldController(hand, newEntityID, localPosition, localRotation);
                 _virtualHoldController.onRelease = function() {
                     debugPrint('Virtual hold controller released.');
                 };
