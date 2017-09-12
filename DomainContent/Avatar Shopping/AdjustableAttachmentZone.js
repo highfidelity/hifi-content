@@ -51,15 +51,27 @@
     };
 
     var createAttachmentFromAvatarEntity = function(avatarEntityProperties) {
+        var userDataProperties = JSON.parse(avatarEntityProperties.userData).Attachment;
+        var naturalDimensions = avatarEntityProperties.naturalDimensions;
+        var adjustedScale = Vec3.multiply(naturalDimensions, userDataProperties.options.scale !== undefined ? 
+            userDataProperties.options.scale : 1.0);
+
+        var attachToJointName = entityJointIndexToAttachmentJoint(avatarEntityProperties.parentJointIndex);
+        var attachToJointIndex = MyAvatar.getJointIndex(attachToJointName);
+        var jointWorldRotation = MyAvatar.jointToWorldRotation({}, attachToJointIndex);
+
+        var localRotation = Quat.multiply(avatarEntityProperties.rotation, Quat.inverse(jointWorldRotation));
+        var localPosition = userDataProperties.options['translation'] !== undefined ? Vec3.multiplyQbyV(localRotation, 
+            userDataProperties.options['translation']) : {x: 0, y: 0, z: 0};
+        
         var attachmentProperties = {
             modelURL: avatarEntityProperties.modelURL,
-            jointName: entityJointIndexToAttachmentJoint(avatarEntityProperties.parentJointIndex),
-            translation: {x: 0, y: 0, z:0},
-            rotation: avatarEntityProperties.rotation,
-            scale: 1,
+            jointName: attachToJointName,
+            translation: localPosition,
+            rotation: Quat.safeEulerAngles(localRotation),
+            scale: adjustedScale,
             isSoft: false
         };
-        print(JSON.stringify(attachmentProperties));
         MyAvatar.attach(attachmentProperties.modelURL,
             attachmentProperties.jointName,
             attachmentProperties.translation,
