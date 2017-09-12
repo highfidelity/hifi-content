@@ -22,15 +22,35 @@
     };
     
     // continuously check distance between parent joint and attachment entity. remove parent relationship when moved beyond a certain distance
-    checkDetach = Script.setInterval(function() {
-        entityPosition = Entities.getEntityProperties(_entityID, 'position').position;
-        var distanceToParent = Vec3.distance(entityPosition, parentPosition);
-        var detachDistance = 0.6;
-        if (distanceToParent > detachDistance) {
-            Entities.editEntity(_entityID, {parentID: "{00000000-0000-0000-0000-000000000000}"});
-            Script.clearInterval(checkDetach);
-        } 
-    }, 100);
+    this.continueNearGrab = function(){
+        checkDetach = Script.setInterval(function() {
+            entityPosition = Entities.getEntityProperties(_entityID, 'position').position;
+            var distanceToParent = Vec3.distance(entityPosition, parentPosition);
+            var detachDistance = 0.6;
+            if (distanceToParent > detachDistance) {
+                Entities.editEntity(_entityID, {parentID: "{00000000-0000-0000-0000-000000000000}"});
+                Script.clearInterval(checkDetach);
+            } 
+        }, 100);
+    };
+
+    this.releaseGrab = function(){
+        if (checkDetach){
+            try {
+                Script.clearInterval(checkDetach);
+            } catch (e) {
+                print("Error stopping interval.");
+            }
+        }
+    };
     
-// exit script
+    this.unload = function(){
+        if (checkDetach){
+            try {
+                Script.clearInterval(checkDetach);
+            } catch (e) {
+                print("Error stopping interval.");
+            }
+        }
+    };
 });
