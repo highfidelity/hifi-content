@@ -25,9 +25,7 @@
     var zeroRot = { w: 1, x: 0, y: 0, z: 0 };	// Constant quaternion for a rotation of 0
     var mirrorToggleOverlayID;	// The entity ID of the mirror toggle overlay
     var intervalID;	// The ID of the interval timer used for clearing in unload
-    var editorToClientChannel;	// The channel where mirrorScaler.js sends messages to mirrorClient.js
     var clientToServerChannel;	// The channel where mirrorClient.js sends messages to mirrorServer.js
-    var serverToClientChannel;	// The channel where mirrorServer.js sends messages to mirrorClient.js
     var avatarDistanceThreshold = 2;	// The minimum distance the avatar must be from the mirror to reveal mirror editors
     var spectatorCameraConfig = Render.getConfig("SecondaryCamera");	// Render configuration for the spectator camera
     var debugSpectatorCameraID;	// The spectator camera entity ID that represents the spectator camera
@@ -175,7 +173,6 @@
 	
     // Calls 'updateMirrorOverlay' once to set up mirror overlay, then connects 'updateSpectatorCamera' and starts rendering
     _this.mirrorOverlayOn = function() {
-        print("inside mirrorOverlayOn");
         mirrorOverlayRunning = true;	// SHOULD THIS BE OUTSIDE IF STATEMENT
         if (!spectatorCameraConfig.attachedEntityId) {
             updateMirrorOverlay(4);
@@ -192,7 +189,6 @@
 	
     // Deletes the mirror overlay and disconnects 'updateSpectatorCamera' and rendering
     _this.mirrorOverlayOff = function() {
-        print("inside mirrorOverlayOff");
         if (!spectatorCameraConfig.attachedEntityId) {
             spectatorCameraConfig.enableSecondaryCameraRenderConfigs(false);
             if (mirrorOverlayRunning) {
