@@ -1,5 +1,5 @@
 //
-//  AttachmentStatusServer.js
+//  AttachmentAdjustableZone.js
 //
 //  This script attaches to a zone that converts attachments to avatar entities
 //  Created by Liv Erickson 9/7/2017

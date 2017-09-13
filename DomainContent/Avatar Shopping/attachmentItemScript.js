@@ -1,29 +1,26 @@
+//
+//  attachmentItemScript.js
+//
+//  This script is a simplified version of the original attachmentItemScript.js 
+//  Copyright 2017 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
 (function() {
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
-    var ATTACH_DISTANCE = 0.3;
+    var ATTACH_DISTANCE = 0.35;
+    var DETACH_DISTANCE = 0.5;
 
     var _this, _entityID;
     var _attachmentData;
     var _supportedJoints = [];
+    var isAttached = false;
 
     function AttachableItem() {
         _this = this;
     }
     AttachableItem.prototype = {
-        checkProximityToJoint : function(entityID, joint) {
-            print("Checking joint proximity...");
-            var position = Entities.getEntityProperties(entityID, ['position']).position;
-            _supportedJoints.forEach(function(joint) {
-                var jointPosition = MyAvatar.getJointPosition(joint);
-                if (Vec3.distance(position, jointPosition) <= ATTACH_DISTANCE) {
-                    Entities.getEntity(entityID, {
-                        parentID: MyAvatar.sessionUUID,
-                        parentJointIndex: MyAvatar.getJointIndex(joint)
-                    });
-                    Script.clearInterval(_this.checkProximityToJoint);
-                }
-            });
-        },
         preload : function(entityID) {
             print("Loading attachmentItemScript.js");
             _entityID = entityID;
@@ -39,15 +36,37 @@
             }
             print(JSON.stringify(_supportedJoints));            
         },
-        continueNearGrab: function() {
-            Script.setInterval(_this.checkProximityToJoint, 300);            
+        startNearGrab: function() {
+            this.intervalFunc = Script.setInterval(function(){
+                var position = Entities.getEntityProperties(_entityID, ['position']).position;
+                _supportedJoints.forEach(function(joint) {
+                    var jointPosition = MyAvatar.getJointPosition(joint);
+                    // TODO: make this less dumb
+                    if (! isAttached) {
+                        if (Vec3.distance(position, jointPosition) <= ATTACH_DISTANCE) {
+                            isAttached = true;
+                            Entities.editEntity(_entityID, {
+                                parentID: MyAvatar.sessionUUID,
+                                parentJointIndex: MyAvatar.getJointIndex(joint)
+                            });
+                        }
+                    } else {
+                    // We're attached, need to check to remove
+                        if (Vec3.distance(position, jointPosition) >= DETACH_DISTANCE) {
+                            isAttached = false;
+                            Entities.editEntity(_entityID, {
+                                parentID: "{00000000-0000-0000-0000-000000000000}"
+                            });
+                        }
+                    }
+                });
+            }, 300);
         },
         releaseGrab: function() {
             // We do not care about attaching/detaching if we are not being held
-            Script.clearInterval(_this.checkProximityToJoint);
+            print("Releasing grab");
+            Script.clearInterval(this.intervalFunc);
         }
-
-
     };
     return new AttachableItem(); 
 });
