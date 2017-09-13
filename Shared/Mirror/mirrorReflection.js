@@ -11,7 +11,6 @@
 // enters the area, the mirror will reflect an image via the spectator camera
 
 (function () {
-    print("Starting reflection script...............");
     var mirrorID, reflectionAreaID;
     // get id of reflection area and mirror
     this.preload = function(entityID) {
@@ -22,12 +21,10 @@
     // when avatar enters reflection area, begin reflecting
     this.enterEntity = function(entityID){
         Entities.callEntityMethod(mirrorID, 'mirrorOverlayOn');
-        print("Mirror is now reflecting.");
     };
 
     // when avatar leaves reflection area, stop reflecting
     this.leaveEntity = function (entityID) {
         Entities.callEntityMethod(mirrorID, 'mirrorOverlayOff');
-        print("Mirror is NOT reflecting anymore.");
     };
 });
