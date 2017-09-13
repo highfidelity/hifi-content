@@ -9,10 +9,10 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 (function(){
+    var ATTACHMENT_SCRIPT_URL = Script.resolvePath('attachmentItemScript.js');
     var _this, _entityID;
     var attachments;
     var attachmentsAsAvatarEntities;
-
     var attachmentJointToEntityJointIndex = function(attachmentJointName) {
         return MyAvatar.getJointIndex(attachmentJointName);
     };
@@ -35,6 +35,8 @@
                 grabbable: true
             }
         });
+
+        var jointPosition = MyAvatar.getJointPosition;
         var avatarEntityProperties = {
             type : "Model",
             dynamic : true,
@@ -43,33 +45,37 @@
             parentID: MyAvatar.sessionUUID,
             parentJointIndex: attachmentJointToEntityJointIndex(attachment.jointName),
             rotation : attachment.rotation,
-            position : MyAvatar.getJointPosition(attachment.jointName),
-            script : "https://cdn.rawgit.com/thoys/hifi-content-1/38f817fc61ee979c7250df294a3e2d38a1f06dc0/Shared/attachmentsShelve/attachmentItemScript.js"
+            position : {x: jointPosition.x + attachment.translation.x,
+                y: jointPosition.y + attachment.translation.y,
+                z: jointPosition.z + attachment.translation.z}
         };
+        var newEntity = Entities.addEntity(avatarEntityProperties, true);
+        var newDimensions = Entities.getEntityProperties(newEntity, ['dimensions']).dimensions;
+        newDimensions = Vec3.multiply(newDimensions, attachment.scale);
+        Entities.editEntity(newEntity, {dimensions : newDimensions, script : ATTACHMENT_SCRIPT_URL});
         MyAvatar.detachOne(attachment.modelURL, attachment.jointName);
-        attachmentsAsAvatarEntities.push(Entities.addEntity(avatarEntityProperties, true));
+        attachmentsAsAvatarEntities.push(newEntity);
     };
 
     var createAttachmentFromAvatarEntity = function(avatarEntityProperties) {
         var userDataProperties = JSON.parse(avatarEntityProperties.userData).Attachment;
-        var naturalDimensions = avatarEntityProperties.naturalDimensions;
-        var adjustedScale = Vec3.multiply(naturalDimensions, userDataProperties.options.scale !== undefined ? 
-            userDataProperties.options.scale : 1.0);
+        var scale = userDataProperties.options['scale'] !== undefined ? userDataProperties.options['scale'] : 1.0;
 
         var attachToJointName = entityJointIndexToAttachmentJoint(avatarEntityProperties.parentJointIndex);
         var attachToJointIndex = MyAvatar.getJointIndex(attachToJointName);
         var jointWorldRotation = MyAvatar.jointToWorldRotation({}, attachToJointIndex);
 
         var localRotation = Quat.multiply(avatarEntityProperties.rotation, Quat.inverse(jointWorldRotation));
-        var localPosition = userDataProperties.options['translation'] !== undefined ? Vec3.multiplyQbyV(localRotation, 
-            userDataProperties.options['translation']) : {x: 0, y: 0, z: 0};
+        var localPosition = avatarEntityProperties.localPosition;
+
+        print(JSON.stringify(scale));
         
         var attachmentProperties = {
             modelURL: avatarEntityProperties.modelURL,
             jointName: attachToJointName,
             translation: localPosition,
-            rotation: Quat.safeEulerAngles(localRotation),
-            scale: adjustedScale,
+            rotation: Quat.safeEulerAngles(Quat.fromVec3Degrees(localRotation)),
+            scale: scale,
             isSoft: false
         };
         MyAvatar.attach(attachmentProperties.modelURL,
