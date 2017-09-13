@@ -72,10 +72,11 @@
     };
 
     _this.onReceivedMessage = function(channel, message, senderID) {
-        if ((channel == equipChannel1) || (channel == equipChannel2))
+        if ((channel == equipChannel1) || (channel == equipChannel2)) {
             createEquipment(message);
-        if (channel == equipChannel3)
+        } else if (channel == equipChannel3) {
             resetArena(message);
+        }
     };
 
     function resetArena(message) {
@@ -258,7 +259,7 @@
             "rotation": data[7],
             "collisionless": false,
             "visible": false,
-            "collidesWith": "dynamic, otherAvatar",
+            "collidesWith": "dynamic,otherAvatar",
             "dynamic": false, 
             "damping": .9,
             "angularDamping": .9,
@@ -315,7 +316,7 @@
             },
             "rotation": data[4],
             "collisionless": false,
-            "collidesWith": "dynamic, otherAvatar",
+            "collidesWith": "dynamic,otherAvatar",
             "dynamic": false,
             "damping": .9,
             "angularDamping": .9,
@@ -341,7 +342,7 @@
             "position": headPos,
             "rotation": data[7],
             "collisionless": false,
-            "collidesWith": "dynamic, otherAvatar",
+            "collidesWith": "dynamic,otherAvatar",
             "dynamic": false, 
             "damping": .9,
             "angularDamping": .9,

@@ -59,6 +59,7 @@
     _this.preload = function(entityID) {
         print("Loading battle script");
         _this.entityID = entityID;
+        sword = entityID;
         //make sure entities can be hit
         firstHit = true;
         firstBlock = true;
@@ -66,7 +67,7 @@
         var props = Entities.getEntityProperties(entityID);
         var properties = JSON.parse(props.userData);
         name = props.name;
-        rock = properties.rockID
+        rock = properties.rockID;
         resetArea = properties.reset;
         //makes sure each sword has a unique channel
         swordChannel = ("sword-channel-" + name).concat(entityID);
@@ -74,7 +75,12 @@
         hitChannel = "hit-channel";
         blockedChannel = "blocked-channel";
         equipChannel = "equip-channel-" + name + resetArea;
-        sword = entityID;
+        Messages.subscribe(swordChannel);
+        Messages.subscribe(gameChannel);
+        Messages.subscribe(hitChannel);
+        Messages.subscribe(blockedChannel);
+        Messages.messageReceived.connect(_this, _this.onReceivedMessage);
+        //get sounds
         swishSound = SoundCache.getSound(Script.resolvePath("./SwordGameSounds/Sword_collide.wav"));
         equipSound = SoundCache.getSound(Script.resolvePath("./SwordGameSounds/equipSound.wav"));
     }
@@ -82,11 +88,13 @@
     _this.onReceivedMessage = function(channel, message, senderID) {
         //since its an entity script every player recieves the message so I need to make sure the message is only run for the player with the sword
         try {
+            print("unpacking");
             equipData = JSON.parse(message);
         } catch (err) {
             // e
         }
         if ((channel == swordChannel) && (MyAvatar.sessionUUID == equipData[6])) {
+            print("equipping all armor");
             shield = equipData[0];
             body = equipData[1];
             head = equipData[2];
@@ -163,9 +171,7 @@
             enemyHead = equipData[8];
             enemyHearts = equipData[9];
             enemySword = equipData[10];
-        } 
-        
-        if ((channel == gameChannel) && (MyAvatar.sessionUUID == equipData[11])) {
+        } else if ((channel == gameChannel) && (MyAvatar.sessionUUID == equipData[11])) {
             print("enemy player 1");
             enemyShield = equipData[0];
             enemyBody = equipData[1];
@@ -176,11 +182,6 @@
     }
 
     _this.startEquip = function(entityID, args) {
-        Messages.subscribe(swordChannel);
-        Messages.subscribe(gameChannel);
-        Messages.subscribe(hitChannel);
-        Messages.subscribe(blockedChannel);
-        Messages.messageReceived.connect(_this, _this.onReceivedMessage);
         //get current entity properties
         var props = Entities.getEntityProperties(entityID);
         var properties = JSON.parse(props.userData);
