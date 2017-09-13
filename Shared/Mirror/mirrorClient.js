@@ -214,11 +214,7 @@
             print("preload mirror client");
             _this.entityID = entityID;
             mirrorOverlayRunning = false;
-            editorToClientChannel = "editorToClientChannel".concat(_this.entityID);
             clientToServerChannel = "clientToServerChannel".concat(_this.entityID);
-            serverToClientChannel = "serverToClientChannel".concat(_this.entityID);
-            Messages.subscribe(editorToClientChannel);
-            Messages.subscribe(serverToClientChannel);
             intervalID = Script.setInterval(checkAvatarDistance, 500);
 			
             if (debug) {
@@ -266,9 +262,7 @@
         print("unload mirror client");
         Script.clearInterval(intervalID);
         _this.mirrorOverlayOff();
-        Overlays.deleteOverlay(mirrorToggleOverlayID);	
-        Messages.unsubscribe(editorToClientChannel);
-        Messages.subscribe(serverToClientChannel);
+        Overlays.deleteOverlay(mirrorToggleOverlayID);
         if (debug) {
             Entities.deleteEntity(debugSpectatorCameraID);
             Entities.deleteEntity(debugNearClipPlaneID);			
