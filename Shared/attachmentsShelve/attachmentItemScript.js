@@ -231,8 +231,6 @@
     };
 
     this.unload = function() {
-        Messages.messageReceived.disconnect(messageHandler);
-
         if (_virtualHoldController !== null) {
             _virtualHoldController.cleanup();
         }
