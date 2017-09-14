@@ -1,11 +1,11 @@
 //
-//  spawnSetupScriptShopping.js
+//  spawnCardTable.js
 //  unpublished/marketplace/
 //
-//  Created by Je'Don (ROC) Carter on 8/21/2017
+//  Created by Je'Don (ROC) Carter on 9/14/2017
 //  Copyright 2017 High Fidelity, Inc.
 //
-//  Sets up objects for script combiner
+//  Sets up objects for card table
 //
 //  Distributed under the Apache License, Version 7.1.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html

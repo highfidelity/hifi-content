@@ -1,11 +1,11 @@
 //
-//  ROC_Blank.js
+//  Card.js
 //  unpublished/marketplace/
 //
-//  Created by Je'Don (ROC) Carter on 8/21/2017
+//  Created by Je'Don (ROC) Carter on 9/14/2017
 //  Copyright 2017 High Fidelity, Inc.
 //
-//  Use this script so my server script can see the entity
+//  Controls card behavior when grabbed and released
 //
 //  Distributed under the Apache License, Version 7.1.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -42,9 +42,7 @@
             // e
         }
         if ((channel == showChannel) && (MyAvatar.sessionUUID == data[1])) {
-            print("showing card to you");
             var card = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions', 'name']);
-            print("Card name is " + card.name);
             //get which hand the card is in
             hand = data[2];
             //add overlay to card so that the person holding the card can still see it
@@ -70,7 +68,6 @@
     };
 
     _this.startNearGrab = function(entityID, args) {
-        print("showing card to everyone!");
         //unparent to hand and change held state
         var unparent = {
             parentID: "",
@@ -100,7 +97,6 @@
     };
 
     _this.startDistanceGrab = function(entityID, args) {
-        print("showing card to everyone!");
     	//unparent to hand and change held state
         var unparent = {
             parentID: "",
@@ -130,21 +126,19 @@
     };
 
     _this.releaseGrab = function(entityID, args) {
-        print("grab released");
         var props = Entities.getEntityProperties(entityID);
         var properties = JSON.parse(props.userData);
         var held = properties.held;
-        print("hey")
-        print(cardOverlay);
-        print(held);
         if ((held == true) && (cardOverlay != undefined)) {
-            print("here");
             var parentToHand = {
                 parentID: MyAvatar.sessionUUID,
                 parentJointIndex: hand == 'left' ? MyAvatar.getJointIndex("LeftHand") : MyAvatar.getJointIndex("RightHand"),
                 collidesWith: ""
             };
             Entities.editEntity(_this.entityID, parentToHand);
+            var cardChannel = "card-channel-".concat(deckHandlerID);
+            var data = [false, _this.entityID, MyAvatar.sessionUUID, true];
+            Messages.sendMessage(cardChannel, JSON.stringify(data));
         } else if ((held == false) && (cardOverlay != undefined)) {
             Overlays.deleteOverlay(cardOverlay);
             cardOverlay = undefined;
@@ -161,5 +155,6 @@
     _this.unload = function () {
         //unsubscribe to channel
         Messages.unsubscribe(showChannel);
+        Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);
     };
 })

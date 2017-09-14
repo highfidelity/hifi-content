@@ -1,11 +1,11 @@
 //
-//  ROC_Blank.js
+//  Deck_Handler.js
 //  unpublished/marketplace/
 //
-//  Created by Je'Don (ROC) Carter on 8/21/2017
+//  Created by Je'Don (ROC) Carter on 9/14/2017
 //  Copyright 2017 High Fidelity, Inc.
 //
-//  Use this script so my server script can see the entity
+//  Server script that controls some card visibility behavior by swapping textures and creating cards
 //
 //  Distributed under the Apache License, Version 7.1.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -26,13 +26,15 @@
     var lastCard;
     //holds names of cards for shuffle
     var cards = [];
+    var deckLocation;
+    var deckRotation;
 
     _this.preload = function(entityID) {
         print("Loading Deck Handler script."); 
         _this.entityID = entityID;
         //position of deck handler
-        var deckLocation = Entities.getEntityProperties(entityID).position;
-        var deckRotation = Entities.getEntityProperties(entityID).rotation;
+        deckLocation = Entities.getEntityProperties(entityID).position;
+        deckRotation = Entities.getEntityProperties(entityID).rotation;
         //create zone
         var zoneProperties = {
             "type": "Box", 
@@ -62,119 +64,131 @@
             cards.push(i);
         }
         cards = Shuffle(cards);
-        //create 51 cards
-        for (i = 0; i < 52; i++) {
-            if (i == 51) {
-                var cardProperties = {
-                    "type": "Model", 
-                    "lifetime": -1, 
-                    "dynamic": true,
-                    "damping": 0.98,
-                    "angularDamping": 0.98,
-                    "gravity": {
-                        x: 0,
-                        y: -9.8,
-                        z: 0
-                    },
-                    "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[i] + '.jpg"}',
-                    "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
-                    "dimensions": {
-                        x: .055,
-                        y: .1,
-                        z: .003
-                    },
-                    userData: JSON.stringify({
-                        grabbableKey: {
-                            grabbable: true,
-                            ignoreIK: false
-                        },
-                        "held": false,
-                        "card": true,
-                        "deckHandlerID": entityID
-                    }),
-                    "position": {
-                        x: deckLocation.x,
-                        y: deckLocation.y + (.003 * i),
-                        z: deckLocation.z
-                    },
-                    "collisionless": false,
-                    "collidesWith": "static,dynamic",
-                    "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
-                    name: "CARD_" + cards[i],
-                    shapeType: "box",
-                    "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
-                };
-                cardIDs.push(Entities.addEntity(cardProperties));
-            } else {
-                var cardProperties = {
-                    "type": "Model", 
-                    "lifetime": -1, 
-                    "dynamic": false,
-                    "damping": 0.98,
-                    "angularDamping": 0.98,
-                    "gravity": {
-                        x: 0,
-                        y: -9.8,
-                        z: 0
-                    },
-                    "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + (cards[i]) + '.jpg"}',
-                    "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
-                    "dimensions": {
-                        x: .055,
-                        y: .1,
-                        z: .003
-                    },
-                    userData: JSON.stringify({
-                        grabbableKey: {
-                            grabbable: true,
-                            ignoreIK: false
-                        },
-                        "held": false,
-                        "card": true,
-                        "deckHandlerID": entityID
-                    }),
-                    "position": {
-                        x: deckLocation.x,
-                        y: deckLocation.y + (.003 * i),
-                        z: deckLocation.z
-                    },
-                    "collisionless": false,
-                    "collidesWith": "static,dynamic",
-                    "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
-                    name: "CARD_" + (cards[i]),
-                    shapeType: "box",
-                    "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
-                };
-                cardIDs.push(Entities.addEntity(cardProperties));
-            }
-        }
-
-        //make last card dynamic
-        //Do this so you can grab top card without deck falling apart
-        lastCard = 51;
+        //create a single card
+        var cardProperties = {
+            "type": "Model", 
+            "lifetime": -1, 
+            "dynamic": true,
+            "damping": 0.98,
+            "angularDamping": 0.98,
+            "gravity": {
+                x: 0,
+                y: -4,
+                z: 0
+            },
+            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[51] + '.jpg"}',
+            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
+            "dimensions": {
+                x: .07,
+                y: .12,
+                z: .006
+            },
+            userData: JSON.stringify({
+                grabbableKey: {
+                    grabbable: true,
+                    ignoreIK: false
+                },
+                "held": false,
+                "card": true,
+                "deckHandlerID": entityID
+            }),
+            "position": {
+                x: deckLocation.x,
+                y: deckLocation.y + (.053 + .003),
+                z: deckLocation.z
+            },
+            "collisionless": false,
+            "collidesWith": "static,dynamic",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
+            name: "CARD_" + cards[51],
+            shapeType: "box",
+            "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
+        };
+        cardIDs.push(Entities.addEntity(cardProperties));
+        //make the deck (used for decoration, makes them think cards are coming from the deck)
+        var cardDeckProperties = {
+            "type": "Model", 
+            "lifetime": -1, 
+            "dynamic": false,
+            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_0.jpg"}',
+            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
+            "dimensions": {
+                x: .07,
+                y: .12,
+                z: .1
+            },
+            userData: JSON.stringify({
+                grabbableKey: {
+                    grabbable: false,
+                    ignoreIK: false
+                },
+            }),
+            "position": deckLocation,
+            "collisionless": false,
+            "collidesWith": "dynamic",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
+            name: "CARD_DECK",
+            shapeType: "box",
+        };
+        Entities.addEntity(cardDeckProperties);
+        //find right of deck
+        var direction = Quat.getRight(deckRotation);
+        var distance = .7;
+        var resetPosition = Vec3.sum(deckLocation, Vec3.multiply(direction, distance));
+        //Make reset button
+        var resetButtonProperties = {
+            "type": "Model", 
+            "lifetime": -1, 
+            "dynamic": false,
+            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
+            "dimensions": {
+                x: .07,
+                y: .12,
+                z: .1
+            },
+            userData: JSON.stringify({
+                grabbableKey: {
+                    grabbable: false,
+                    ignoreIK: false,
+                    wantsTrigger: true
+                },
+                "deckHandlerID": entityID
+            }),
+            "position": resetPosition,
+            "collisionless": false,
+            "collidesWith": "",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Assets/Basic_Cube.fbx",
+            name: "CARD_Reset_Button",
+            shapeType: "box",
+            "script": Script.resolvePath("./Reset_Button.js") + "?" + Date.now()
+        };
+        Entities.addEntity(resetButtonProperties);
+        //set last card number
+        lastCard = 52;
         
         //get all channels
         gloveChannel = "glove-channel".concat(entityID); 
         cardChannel = "card-channel-".concat(entityID);
+        resetChannel = "reset-channel-".concat(entityID);
         zoneChannel = "zone-channel-".concat(zoneID);
         Messages.subscribe(gloveChannel);
         Messages.subscribe(cardChannel);
+        Messages.subscribe(resetChannel);
         Messages.messageReceived.connect(_this, _this.onReceivedMessage);
     };
 
     _this.onReceivedMessage = function(channel, message, senderID) {
         if (channel == gloveChannel) {
-            print("glove channel");
             createGlove(message);
         } else if (channel == cardChannel) {
             showOrHideCard(message);
+        } else if (channel == resetChannel) {
+            resetDeck();
         }
     };
 
     function createGlove(message) {
-        print("creating glove!!");
         var avatarData = JSON.parse(message);
-        print(avatarData[0]);
         //create deck handler
         var gloveProperties = {
             "type": "Model",
@@ -217,7 +231,6 @@
             "script": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/Glove.js" + "?" + Date.now() 
         };
         var gloveID = Entities.addEntity(gloveProperties);
-        print(gloveID);
         //add to list of gloves
         gloves.push(gloveID);
         //pass back glove ID
@@ -228,24 +241,55 @@
     function showOrHideCard(message) {
         var data = JSON.parse(message);
         if (data[0] == true) {
-            print("showing card to everyone");
             var cardName = Entities.getEntityProperties(data[1]).name;
             var usability = {
                textures: '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/' + cardName + '.jpg"}',
             };
             Entities.editEntity(data[1], usability);
-            //check to see if the card that was just grabbed is also on the top of the pile.
-            var last2 = cardName.slice(-2);
-            if(cards[lastCard] == last2) {
-                print("last card to be grabbed is " + cards[lastCard]);
+            if ((("CARD_" + cards[lastCard - 1]) == cardName) && (lastCard != 0)) {
                 --lastCard;
-                var changeDynamic = {
-                    dynamic: true
+                var cardProperties = {
+                    "type": "Model", 
+                    "lifetime": -1, 
+                    "dynamic": true,
+                    "damping": 0.98,
+                    "angularDamping": 0.98,
+                    "gravity": {
+                        x: 0,
+                        y: -4,
+                        z: 0
+                    },
+                    "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[lastCard - 1] + '.jpg"}',
+                    "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
+                    "dimensions": {
+                        x: .07,
+                        y: .12,
+                        z: .006
+                    },
+                    userData: JSON.stringify({
+                        grabbableKey: {
+                            grabbable: true,
+                            ignoreIK: false
+                        },
+                        "held": false,
+                        "card": true,
+                        "deckHandlerID": _this.entityID
+                    }),
+                    "position": {
+                        x: deckLocation.x,
+                        y: deckLocation.y + (.053 + .003),
+                        z: deckLocation.z
+                    },
+                    "collisionless": false,
+                    "collidesWith": "static,dynamic",
+                    "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
+                    name: "CARD_" + cards[lastCard - 1],
+                    shapeType: "box",
+                    "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
                 };
-                Entities.editEntity(cardIDs[(lastCard)], changeDynamic);
+                cardIDs.push(Entities.addEntity(cardProperties));
             }
         } else if (data[0] == false) {
-            print("hiding card from everyone!");
             var usability = {
                 textures: '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_0.jpg"}'
             };
@@ -253,6 +297,50 @@
             var showChannel = "show-channel".concat(data[1]); 
             var dataToPassBack = [data[2], data[3], data[4]];
             Messages.sendMessage(showChannel, JSON.stringify(dataToPassBack));
+            var cardName = Entities.getEntityProperties(data[1]).name;
+            if ((("CARD_" + cards[lastCard - 1]) == cardName) && (lastCard != 0) && (data[3] == true)) {
+                --lastCard;
+                var cardProperties = {
+                    "type": "Model", 
+                    "lifetime": -1, 
+                    "dynamic": true,
+                    "damping": 0.98,
+                    "angularDamping": 0.98,
+                    "gravity": {
+                        x: 0,
+                        y: -4,
+                        z: 0
+                    },
+                    "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[lastCard - 1] + '.jpg"}',
+                    "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
+                    "dimensions": {
+                        x: .07,
+                        y: .12,
+                        z: .006
+                    },
+                    userData: JSON.stringify({
+                        grabbableKey: {
+                            grabbable: true,
+                            ignoreIK: false
+                        },
+                        "held": false,
+                        "card": true,
+                        "deckHandlerID": _this.entityID
+                    }),
+                    "position": {
+                        x: deckLocation.x,
+                        y: deckLocation.y + (.053 + .003),
+                        z: deckLocation.z
+                    },
+                    "collisionless": false,
+                    "collidesWith": "static,dynamic",
+                    "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
+                    name: "CARD_" + cards[lastCard - 1],
+                    shapeType: "box",
+                    "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
+                };
+                cardIDs.push(Entities.addEntity(cardProperties));
+            }
         }
 
     }
@@ -273,8 +361,64 @@
         return array;
     }
 
+    function resetDeck() {
+        //shuffle deck
+        Shuffle(cards);
+        //delete all cards
+        for (i = 0; i < 52; i++) {
+            Entities.deleteEntity(cardIDs[i]);
+        }
+        cardIDs = [];
+        //create a single card
+        var cardProperties = {
+            "type": "Model", 
+            "lifetime": -1, 
+            "dynamic": true,
+            "damping": 0.98,
+            "angularDamping": 0.98,
+            "gravity": {
+                x: 0,
+                y: -4,
+                z: 0
+            },
+            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[51] + '.jpg"}',
+            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
+            "dimensions": {
+                x: .07,
+                y: .12,
+                z: .006
+            },
+            userData: JSON.stringify({
+                grabbableKey: {
+                    grabbable: true,
+                    ignoreIK: false
+                },
+                "held": false,
+                "card": true,
+                "deckHandlerID": _this.entityID
+            }),
+            "position": {
+                x: deckLocation.x,
+                y: deckLocation.y + (.053 + .003),
+                z: deckLocation.z
+            },
+            "collisionless": false,
+            "collidesWith": "static,dynamic",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
+            name: "CARD_" + cards[51],
+            shapeType: "box",
+            "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
+        };
+        cardIDs.push(Entities.addEntity(cardProperties));
+        //change last card
+        lastCard = 52;
+
+    }
+
     _this.unload = function () {
         Messages.unsubscribe(cardChannel);
         Messages.unsubscribe(gloveChannel);
+        Messages.unsubscribe(resetChannel);
+        Messages.messageReceived.connect(_this, _this.onReceivedMessage);
     };
 })

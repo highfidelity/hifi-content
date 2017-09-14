@@ -2,10 +2,10 @@
 //  Glove.js
 //  unpublished/marketplace/
 //
-//  Created by Je'Don (ROC) Carter on 9/6/2017
+//  Created by Je'Don (ROC) Carter on 9/14/2017
 //  Copyright 2017 High Fidelity, Inc.
 //
-//  This script places an invisible ball on the players hand that is used as a pivot point for the cards
+//  This script places an invisible ball on the players hand that is used as a point of reference for the cards
 //
 //  Distributed under the Apache License, Version 7.1.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -66,7 +66,6 @@
             var held = properties.held;
             var deckHandlerID = properties.deckHandlerID;
             if ((checkIfCard == true) && (held == false) && (hand == "right")) {
-                print("is a card");
                 Controller.triggerShortHapticPulse(.9, 1);
                 //place card and change held state
                 var placement = {
@@ -92,7 +91,6 @@
                 //make it so the ball can check to see if an object is a card again
                 Script.setTimeout(canCheckAgain, 100);
             } else if ((checkIfCard == true) && (held == false) && (hand == "left")) {
-                print("is a card");
                 Controller.triggerShortHapticPulse(.9, 0);
                 //place card and change held state
                 var placement = {
@@ -117,11 +115,7 @@
                 Messages.sendMessage(cardChannel, JSON.stringify(data));
                 //make it so the ball can check to see if an object is a card again
                 Script.setTimeout(canCheckAgain, 100);
-            } else {
-                print("not a card");
-                //make it so the ball can check to see if an object is a card again
-                Script.setTimeout(canCheckAgain, 100);
-            }
+            } 
         }
     };
 

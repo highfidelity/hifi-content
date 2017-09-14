@@ -1,11 +1,11 @@
 //
-//  ROC_Blank.js
+//  Equip_Zone.js
 //  unpublished/marketplace/
 //
-//  Created by Je'Don (ROC) Carter on 8/21/2017
+//  Created by Je'Don (ROC) Carter on 9/14/2017
 //  Copyright 2017 High Fidelity, Inc.
 //
-//  Use this script so my server script can see the entity
+//  Zone that attaches a "glove" to your hand when you enter it
 //
 //  Distributed under the Apache License, Version 7.1.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -39,7 +39,6 @@
             // e
         }
         if ((channel == zoneChannel) && (MyAvatar.sessionUUID == data[1])) {
-        	print("about to attach");
         	glove = data[0];
 	    	//Attaching everything
 	        Script.setTimeout(function() {
@@ -53,17 +52,16 @@
     };
 
     _this.enterEntity = function(entityID) {
-        print("Entering entity!"); 
         var data = [MyAvatar.sessionUUID];
         Messages.sendMessage(gloveChannel, JSON.stringify(data)); 
     };
 
     _this.leaveEntity = function(entityID) {
-        print("Leaving entity!");  
         Entities.deleteEntity(glove);
     };
 
     _this.unload = function () {
         Messages.unsubscribe(zoneChannel);
+        Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);
     };
 })
