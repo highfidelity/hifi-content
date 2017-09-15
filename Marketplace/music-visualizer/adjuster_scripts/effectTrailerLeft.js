@@ -1,6 +1,6 @@
 //  
-//  effectTrailerRight.js
-//  An entity script to track right trigger holds to create trails in a particle effect
+//  effectTrailerLeft.js
+//  An entity script to track left trigger holds to create trails in a particle effect
 //  
 //  Author: Elisa Lupin-Jimenez
 //  Copyright High Fidelity 2017
@@ -16,7 +16,7 @@
     var _this = this;
 
     _this.preload = function(entityID) {
-        print("Right trailer script has loaded");
+        print("Left trailer script has loaded");
         _this.entityID = entityID;
     };
 

@@ -104,8 +104,8 @@ module.exports = {
                 "z": 1
             },
             "alpha": 1,
-            "alphaFinish": 1,
-            "alphaSpread": 0,
+            "alphaFinish": 0,
+            "alphaSpread": 0.5,
             "alphaStart": 1,
             "clientOnly": 0,
             "color": {
@@ -114,19 +114,19 @@ module.exports = {
                 "red": 14
             },
             "colorFinish": {
-                "blue": 235,
-                "green": 38,
-                "red": 25
+                "blue": 240,
+                "green": 33,
+                "red": 14
             },
             "colorSpread": {
-                "blue": 214,
-                "green": 158,
-                "red": 73
+                "blue": 240,
+                "green": 97,
+                "red": 14
             },
             "colorStart": {
-                "blue": 240,
-                "green": 229,
-                "red": 19
+                "blue": 237,
+                "green": 230,
+                "red": 26
             },
             "dimensions": {
                 "x": 0.5574941039085388,
@@ -135,12 +135,12 @@ module.exports = {
             },
             "emitAcceleration": {
                 "x": 0,
-                "y": 4,
+                "y": -2,
                 "z": 0
             },
             "emitDimensions": {
-                "x": 0.2,
-                "y": 0.2,
+                "x": 0,
+                "y": 1,
                 "z": 0
             },
             "emitOrientation": {
@@ -153,9 +153,9 @@ module.exports = {
             "emitterShouldTrail": true,
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
-            "lifespan": 0.5,
+            "lifespan": 1.5,
             "lifetime": -1,
-            "maxParticles": 100,
+            "maxParticles": 10,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
             "queryAACube": {
@@ -164,8 +164,8 @@ module.exports = {
                 "y": -0.4828040599822998,
                 "z": -0.4828040599822998
             },
-            "radiusFinish": 0.07,
-            "radiusStart": 0.05,
+            "radiusFinish": 0.25,
+            "radiusStart": 0.0,
             "rotation": {
                 "w": 1,
                 "x": -1.52587890625e-05,
@@ -174,7 +174,7 @@ module.exports = {
             },
             "script": "",
             "speedSpread": 0,
-            "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
+            "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/rain.png",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
             "name": "water"
