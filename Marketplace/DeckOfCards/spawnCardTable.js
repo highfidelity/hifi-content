@@ -53,7 +53,7 @@ CARD_ENTITIES = {
                 "y": -1.52587890625e-05,
                 "z": -1.52587890625e-05
             },
-            "serverScripts": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/Deck_Handler.js" + "?" + Date.now(),
+            "serverScripts": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/Deck_Handler.js" + "?" + Date.now(),
             "shape": "Hexagon",
             "type": "Shape",
             "userData": "{\"grabbableKey\":{\"grabbable\":false}}"

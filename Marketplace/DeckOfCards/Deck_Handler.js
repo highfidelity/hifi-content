@@ -13,13 +13,7 @@
 (function() { 
     var _this = this;
     //channels
-    var gloveChannel;
     var cardChannel;
-    var zoneChannel;
-    //holds id of all gloves
-    var gloves = [];
-    //holds id of player zone
-    var zoneID;
     //holds ID of all cards
     var cardIDs = [];
     //holds number of the last card grabbed
@@ -35,31 +29,6 @@
         //position of deck handler
         deckLocation = Entities.getEntityProperties(entityID).position;
         deckRotation = Entities.getEntityProperties(entityID).rotation;
-        //create zone
-        var zoneProperties = {
-            "type": "Box", 
-            "lifetime": -1, 
-            userData: JSON.stringify({
-                grabbableKey: {
-                    grabbable: false,
-                    ignoreIK: false
-                },
-                "deckHandlerID": entityID
-            }),
-            "position": deckLocation,
-            "collisionless": false,
-            "visible": false,
-            "dimensions": {
-                x: 6,
-                y: 3,
-                z: 6
-            },
-            "collidesWith": "",
-            name: "CARD-Equip_Zone",
-            shapeType: "box",
-            "script": Script.resolvePath("./Equip_Zone.js") + "?" + Date.now() 
-        };
-        zoneID = Entities.addEntity(zoneProperties);
         for (i = 1; i <= 52; i++) {
             cards.push(i);
         }
@@ -167,76 +136,20 @@
         lastCard = 52;
         
         //get all channels
-        gloveChannel = "glove-channel".concat(entityID); 
         cardChannel = "card-channel-".concat(entityID);
         resetChannel = "reset-channel-".concat(entityID);
-        zoneChannel = "zone-channel-".concat(zoneID);
-        Messages.subscribe(gloveChannel);
         Messages.subscribe(cardChannel);
         Messages.subscribe(resetChannel);
         Messages.messageReceived.connect(_this, _this.onReceivedMessage);
     };
 
     _this.onReceivedMessage = function(channel, message, senderID) {
-        if (channel == gloveChannel) {
-            createGlove(message);
-        } else if (channel == cardChannel) {
+        if (channel == cardChannel) {
             showOrHideCard(message);
         } else if (channel == resetChannel) {
             resetDeck();
         }
     };
-
-    function createGlove(message) {
-        var avatarData = JSON.parse(message);
-        //create deck handler
-        var gloveProperties = {
-            "type": "Model",
-            "position": Entities.getEntityProperties(_this.entityID).position,
-            "name": "Card-Pivot-Point",
-            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/VS/SwordGameAssets/ball.fbx",
-            "collidesWith": "dynamic",
-            "dimensions": {
-                "x": 0.05,
-                "y": 0.05,
-                "z": 0.05
-            },
-            "shapeType": "sphere",
-            userData: JSON.stringify({
-                grabbableKey: {
-                    grabbable: true,
-                    ignoreIK: false
-                },
-                equipHotspots: [{
-                    position: {x: 0, y: 0, z: 0},
-                    radius: 0.13,
-                    joints: { //x and y .15 increase
-                        RightHand: [
-                            {x: -0.02, y: 0.07, z: 0.03},
-                            {x: 0.2807741165161133, y: 0.6332069635391235, z: 0.2997693121433258, w: -0.6557632088661194}
-                        ],
-                        LeftHand: [
-                            {x: 0.02, y: 0.07, z: 0.03},
-                            {x: -0.32700979709625244, y: 0.623619794845581, z: 0.28943854570388794, w: 0.6483823657035828}
-                        ]
-                    },
-                    modelURL: Script.resolvePath("./DeckOfCardsAssets/equip-Fresnel-3.fbx"),
-                    modelScale: {
-                        x: 1,
-                        y: 1,
-                        z: 1
-                    }
-                }]
-            }),
-            "script": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/Glove.js" + "?" + Date.now() 
-        };
-        var gloveID = Entities.addEntity(gloveProperties);
-        //add to list of gloves
-        gloves.push(gloveID);
-        //pass back glove ID
-        var data = [gloveID, avatarData[0]];
-        Messages.sendMessage(zoneChannel, JSON.stringify(data));
-    }
 
     function showOrHideCard(message) {
         var data = JSON.parse(message);
@@ -290,56 +203,55 @@
                 cardIDs.push(Entities.addEntity(cardProperties));
             }
         } else if (data[0] == false) {
-            var usability = {
-                textures: '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_0.jpg"}'
-            };
-            Entities.editEntity(data[1], usability);
             var showChannel = "show-channel".concat(data[1]); 
-            var dataToPassBack = [data[2], data[3], data[4]];
+            var dataToPassBack = [data[2], data[3]];
             Messages.sendMessage(showChannel, JSON.stringify(dataToPassBack));
             var cardName = Entities.getEntityProperties(data[1]).name;
-            if ((("CARD_" + cards[lastCard - 1]) == cardName) && (lastCard != 0) && (data[3] == true)) {
+            if ((("CARD_" + cards[lastCard - 1]) == cardName) && (lastCard != 0)) {
                 --lastCard;
-                var cardProperties = {
-                    "type": "Model", 
-                    "lifetime": -1, 
-                    "dynamic": true,
-                    "damping": 0.98,
-                    "angularDamping": 0.98,
-                    "gravity": {
-                        x: 0,
-                        y: -4,
-                        z: 0
-                    },
-                    "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[lastCard - 1] + '.jpg"}',
-                    "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
-                    "dimensions": {
-                        x: .07,
-                        y: .12,
-                        z: .006
-                    },
-                    userData: JSON.stringify({
-                        grabbableKey: {
-                            grabbable: true,
-                            ignoreIK: false
+                //give them time to pickup the card before you spawn a new one
+                Script.setTimeout( function() {
+                    var cardProperties = {
+                        "type": "Model", 
+                        "lifetime": -1, 
+                        "dynamic": true,
+                        "damping": 0.98,
+                        "angularDamping": 0.98,
+                        "gravity": {
+                            x: 0,
+                            y: -4,
+                            z: 0
                         },
-                        "held": false,
-                        "card": true,
-                        "deckHandlerID": _this.entityID
-                    }),
-                    "position": {
-                        x: deckLocation.x,
-                        y: deckLocation.y + (.053 + .003),
-                        z: deckLocation.z
-                    },
-                    "collisionless": false,
-                    "collidesWith": "static,dynamic",
-                    "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
-                    name: "CARD_" + cards[lastCard - 1],
-                    shapeType: "box",
-                    "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
-                };
-                cardIDs.push(Entities.addEntity(cardProperties));
+                        "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[lastCard - 1] + '.jpg"}',
+                        "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
+                        "dimensions": {
+                            x: .07,
+                            y: .12,
+                            z: .006
+                        },
+                        userData: JSON.stringify({
+                            grabbableKey: {
+                                grabbable: true,
+                                ignoreIK: false
+                            },
+                            "held": false,
+                            "card": true,
+                            "deckHandlerID": _this.entityID
+                        }),
+                        "position": {
+                            x: deckLocation.x,
+                            y: deckLocation.y + (.053 + .003),
+                            z: deckLocation.z
+                        },
+                        "collisionless": false,
+                        "collidesWith": "static,dynamic",
+                        "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
+                        name: "CARD_" + cards[lastCard - 1],
+                        shapeType: "box",
+                        "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
+                    };
+                    cardIDs.push(Entities.addEntity(cardProperties));
+                }, 1000);
             }
         }
 
@@ -417,7 +329,6 @@
 
     _this.unload = function () {
         Messages.unsubscribe(cardChannel);
-        Messages.unsubscribe(gloveChannel);
         Messages.unsubscribe(resetChannel);
         Messages.messageReceived.connect(_this, _this.onReceivedMessage);
     };
