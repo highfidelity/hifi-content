@@ -7,6 +7,7 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+/* globals utils, Selection */
 (function() {
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var ATTACH_DISTANCE = 0.35;
@@ -16,6 +17,7 @@
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached = false;
+    var previousHighlightID = 0;
 
     function AttachableItem() {
         _this = this;
@@ -61,11 +63,19 @@
                     }
                 });
             }, 300);
+            if (previousHighlightID !== _entityID) {
+                Selection.addToSelectedItemsList("contextOverlayHighlightList", "entity", _entityID);
+                previousHighlightID = _entityID;
+            }
         },
         releaseGrab: function() {
             // We do not care about attaching/detaching if we are not being held
             print("Releasing grab");
             Script.clearInterval(this.intervalFunc);
+            if (previousHighlightID !== 0) {
+                Selection.removeFromSelectedItemsList("contextOverlayHighlightList", "entity", previousHighlightID);
+                previousHighlightID = 0;
+            }
         }
     };
     return new AttachableItem(); 
