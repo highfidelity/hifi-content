@@ -343,6 +343,334 @@ module.exports = {
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
             "name": "air"        	
         },
+        snow: {
+            "accelerationSpread": {
+                "x": 0.5,
+                "y": 1,
+                "z": 0.5
+            },
+            "alpha": 1,
+            "alphaFinish": 0,
+            "alphaSpread": 0.5,
+            "alphaStart": 1,
+            "clientOnly": 0,
+            "color": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorFinish": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorSpread": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorStart": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "dimensions": {
+                "x": 0.5574941039085388,
+                "y": 0.5574941039085388,
+                "z": 0.5574941039085388
+            },
+            "emitAcceleration": {
+                "x": 0,
+                "y": -2,
+                "z": 0
+            },
+            "emitDimensions": {
+                "x": 0.2,
+                "y": 1,
+                "z": 0.2
+            },
+            "emitOrientation": {
+                "w": 0.7018997073173523,
+                "x": -0.7122758030891418,
+                "y": 0,
+                "z": 0
+            },
+            "emitRate": 10,
+            "emitterShouldTrail": true,
+            "emitSpeed": 0.05000000074505806,
+            "isEmitting": true,
+            "lifespan": 1,
+            "lifetime": -1,
+            "maxParticles": 10,
+            "particleRadius": 0.25,
+            "polarFinish": 0.6981316804885864,
+            "queryAACube": {
+                "scale": 0.9656081199645996,
+                "x": -0.4828040599822998,
+                "y": -0.4828040599822998,
+                "z": -0.4828040599822998
+            },
+            "radiusFinish": 0.25,
+            "radiusStart": 0.0,
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "script": "",
+            "speedSpread": 0,
+            "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/snow.jpg",
+            "type": "ParticleEffect",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
+            "name": "snow"
+        },
+        rainbow: {
+            "accelerationSpread": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            },
+            "alpha": 1,
+            "alphaFinish": 0,
+            "alphaSpread": 0,
+            "alphaStart": 1,
+            "clientOnly": 0,
+            "color": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorFinish": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorSpread": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorStart": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "dimensions": {
+                "x": 0.5574941039085388,
+                "y": 0.5574941039085388,
+                "z": 0.5574941039085388
+            },
+            "emitAcceleration": {
+                "x": 0,
+                "y": 1.5,
+                "z": 0
+            },
+            "emitDimensions": {
+                "x": 0.2,
+                "y": 0.2,
+                "z": 0
+            },
+            "emitOrientation": {
+                "w": 0.7018997073173523,
+                "x": -0.7122758030891418,
+                "y": 0,
+                "z": 0
+            },
+            "emitRate": 5,
+            "emitterShouldTrail": true,
+            "emitSpeed": 0.05000000074505806,
+            "isEmitting": true,
+            "lifespan": 0.5,
+            "lifetime": -1,
+            "maxParticles": 100,
+            "particleRadius": 0.25,
+            "polarFinish": 0.6981316804885864,
+            "queryAACube": {
+                "scale": 0.9656081199645996,
+                "x": -0.4828040599822998,
+                "y": -0.4828040599822998,
+                "z": -0.4828040599822998
+            },
+            "radiusFinish": 0.15,
+            "radiusStart": 0.15,
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "script": "",
+            "speedSpread": 0,
+            "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/rainbows.png",
+            "type": "ParticleEffect",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
+            "name": "rainbow"
+        },
+        lightning: {
+            "accelerationSpread": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            },
+            "alpha": 1,
+            "alphaFinish": 1,
+            "alphaSpread": 0,
+            "alphaStart": 1,
+            "clientOnly": 0,
+            "color": {
+                "blue": 250,
+                "green": 212,
+                "red": 197
+            },
+            "colorFinish": {
+                "blue": 240,
+                "green": 181,
+                "red": 175
+            },
+            "colorSpread": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorStart": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "dimensions": {
+                "x": 0.5574941039085388,
+                "y": 0.5574941039085388,
+                "z": 0.5574941039085388
+            },
+            "emitAcceleration": {
+                "x": 0.5,
+                "y": 4,
+                "z": 0.5
+            },
+            "emitDimensions": {
+                "x": 0.2,
+                "y": 0.2,
+                "z": 0.2
+            },
+            "emitOrientation": {
+                "w": 0.7018997073173523,
+                "x": -0.7122758030891418,
+                "y": 0,
+                "z": 0
+            },
+            "emitRate": 20,
+            "emitterShouldTrail": true,
+            "emitSpeed": 0.05000000074505806,
+            "isEmitting": true,
+            "lifespan": 0.5,
+            "lifetime": -1,
+            "maxParticles": 100,
+            "particleRadius": 0.25,
+            "polarFinish": 0.6981316804885864,
+            "queryAACube": {
+                "scale": 0.9656081199645996,
+                "x": -0.4828040599822998,
+                "y": -0.4828040599822998,
+                "z": -0.4828040599822998
+            },
+            "radiusFinish": 0.07,
+            "radiusStart": 0.05,
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "script": "",
+            "speedSpread": 0,
+            "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/lightning.jpg",
+            "type": "ParticleEffect",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
+            "name": "lightning"
+        },
+        love: {
+            "accelerationSpread": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            },
+            "alpha": 1,
+            "alphaFinish": 0,
+            "alphaSpread": 0,
+            "alphaStart": 1,
+            "clientOnly": 0,
+            "color": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorFinish": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorSpread": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "colorStart": {
+                "blue": 255,
+                "green": 255,
+                "red": 255
+            },
+            "dimensions": {
+                "x": 0.5574941039085388,
+                "y": 0.5574941039085388,
+                "z": 0.5574941039085388
+            },
+            "emitAcceleration": {
+                "x": 0,
+                "y": 1,
+                "z": 0
+            },
+            "emitDimensions": {
+                "x": 0.2,
+                "y": 0.2,
+                "z": 0
+            },
+            "emitOrientation": {
+                "w": 0.7018997073173523,
+                "x": -0.7122758030891418,
+                "y": 0,
+                "z": 0
+            },
+            "emitRate": 5,
+            "emitterShouldTrail": true,
+            "emitSpeed": 0.05000000074505806,
+            "isEmitting": true,
+            "lifespan": 0.75,
+            "lifetime": -1,
+            "maxParticles": 100,
+            "particleRadius": 0.25,
+            "polarFinish": 0.6981316804885864,
+            "queryAACube": {
+                "scale": 0.9656081199645996,
+                "x": -0.4828040599822998,
+                "y": -0.4828040599822998,
+                "z": -0.4828040599822998
+            },
+            "radiusFinish": 0.15,
+            "radiusStart": 0.15,
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "script": "",
+            "speedSpread": 0,
+            "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/hearts.png",
+            "type": "ParticleEffect",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
+            "name": "love"
+        },
         invisible: {
             "collisionsWillMove": 1,
             "color": {
@@ -378,13 +706,6 @@ module.exports = {
             "visible": 1,
             "name": "invisible"
         }
-        // water: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/fireworks.json?" + Date.now(),
-        // earth: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/flower.json?" + Date.now(),
-        // air: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/heart.json?" + Date.now(),
-        // snow: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/monster.json?" + Date.now(),
-        // rainbow: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/pickle.json?" + Date.now(),
-        // static: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/pizza.json?" + Date.now(),
-        // love: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/poo.json?" + Date.now()
     },
 
     getEffect: function(name, library) {
