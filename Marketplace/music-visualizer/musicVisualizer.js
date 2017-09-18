@@ -86,7 +86,8 @@ var TRAIL_RIGHT_SCRIPT = Script.resolvePath("adjuster_scripts/effectTrailerRight
         if (micSync) {
             effectJSON.script = MIC_SYNC_SCRIPT;
             print("attached script: " + effectJSON.script);
-        } else if (audioFile !== "" || audioFile !== null) {
+        } else if (audioFile) {
+            print("ze file is:" + audioFile + ".");
             effectJSON.userData = JSON.stringify({
                 grabbableKey: {
                     grabbable: true,
