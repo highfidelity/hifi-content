@@ -666,7 +666,7 @@ module.exports = {
             },
             "script": "",
             "speedSpread": 0,
-            "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/hearts.png",
+            "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/hearts_v2.png",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
             "name": "love"
