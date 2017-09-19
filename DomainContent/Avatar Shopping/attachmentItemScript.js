@@ -14,6 +14,10 @@
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var ATTACH_DISTANCE = 0.35;
     var DETACH_DISTANCE = 0.5;
+    var AUDIO_VOLUME_LEVEL = 0.2;
+
+    var TRIGGER_INTENSITY = 1.0;
+    var TRIGGER_TIME = 0.2;
 
     var _this, _entityID;
     var _attachmentData;
@@ -39,7 +43,8 @@
             }
             print(JSON.stringify(_supportedJoints));            
         },
-        startNearGrab: function() {
+        startNearGrab: function(entityID, args) {
+            var hand = args[0] === "left" ? 0 : 1;
             this.intervalFunc = Script.setInterval(function(){
                 var position = Entities.getEntityProperties(_entityID, ['position']).position;
                 _supportedJoints.forEach(function(joint) {
@@ -55,10 +60,11 @@
                             if (ATTACH_SOUND.downloaded) {
                                 Audio.playSound(ATTACH_SOUND, {
                                     position: MyAvatar.position,
-                                    volume: 0.2,
+                                    volume: AUDIO_VOLUME_LEVEL,
                                     localOnly: true
                                 });
                             }
+                            Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                         }
                     } else {
                     // We're attached, need to check to remove
@@ -70,10 +76,12 @@
                             if (DETACH_SOUND.downloaded) {
                                 Audio.playSound(DETACH_SOUND, {
                                     position: MyAvatar.position,
-                                    volume: 0.2,
+                                    volume:AUDIO_VOLUME_LEVEL,
                                     localOnly: true
                                 });
                             }
+                            Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
+                            
                         }
                     }
                 });
