@@ -18,10 +18,13 @@ var AUDIO_SYNC_SCRIPT = Script.resolvePath("adjuster_scripts/audioFileSync.js?" 
 var TRAIL_LEFT_SCRIPT = Script.resolvePath("adjuster_scripts/effectTrailerLeft.js?" + Date.now());
 var TRAIL_RIGHT_SCRIPT = Script.resolvePath("adjuster_scripts/effectTrailerRight.js?" + Date.now());
 
+var CLEAR_SELECTION_TEXT = "Clear selection";
+
 (function() {
 
     var APP_NAME = "MUSIC VISUALIZER";
-    var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/musicVisualizerUI.html?" + Date.now();
+    var APP_URL = "C:/Users/elisa/Documents/hifi-content/Marketplace/music-visualizer/musicVisualizerUI.html";
+    //var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/musicVisualizerUI.html?" + Date.now();
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/icons/emoji-i.svg";
     var APP_ICON_ACTIVE = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/icons/emoji-a.svg";
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
@@ -198,21 +201,27 @@ var TRAIL_RIGHT_SCRIPT = Script.resolvePath("adjuster_scripts/effectTrailerRight
             createParticle(effectName, micSync, behavior, file);
         // Handles audio file browsing event
         } else if (htmlEvent.type === "chooseAudioFile") {
-            audioFile = Window.browse("Choose an audio file");
-            if (audioFile !== null) {
-                if (audioFile.indexOf(".wav") === -1) {
-                    Window.alert("Must be a .wav file type");
+            if (htmlEvent.value !== CLEAR_SELECTION_TEXT) {
+                audioFile = Window.browse("Choose an audio file");
+                if (audioFile !== null) {
+                    if (audioFile.indexOf(".wav") === -1) {
+                        Window.alert("Must be a .wav file type");
+                        audioFile = "";
+                        sendToHTML("");
+                        return;
+                    }
+                    var filenameArr = audioFile.split("/");
+                    var filename = filenameArr[filenameArr.length - 1];
+                    sendToHTML(filename);
+                } else {
                     audioFile = "";
                     sendToHTML("");
-                    return;
                 }
-                var filenameArr = audioFile.split("/");
-                var filename = filenameArr[filenameArr.length - 1];
-                sendToHTML(filename);
             } else {
                 audioFile = "";
                 sendToHTML("");
             }
+            
         // Resets saved audio file when contradiction present
         } else if (htmlEvent.type === "contradiction") {
             audioFile = "";

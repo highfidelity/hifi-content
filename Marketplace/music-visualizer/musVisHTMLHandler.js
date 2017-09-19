@@ -13,10 +13,13 @@
 //  
 
 var NO_SELECTION_TEXT = "No file selected";
+var CLEAR_SELECTION_TEXT = "Clear selection";
+var CHOOSE_FILE_TEXT = "Choose audio file";
 
 function chooseAudioFile() {
     EventBridge.emitWebEvent(JSON.stringify({
-        type: "chooseAudioFile"
+        type: "chooseAudioFile",
+        value: $(".blueButton").val()
     }));
 }
 
@@ -67,8 +70,10 @@ function main() {
             var filename = JSON.parse(message).file;
             if (filename !== "") {
                 $('.filename').html(filename);
+                $(".blueButton").prop("value", CLEAR_SELECTION_TEXT);
             } else {
                 $('.filename').html(NO_SELECTION_TEXT);
+                $(".blueButton").prop("value", CHOOSE_FILE_TEXT);
             }
             if (filename !== "" && $(".mic-check").is(":checked")) {
                 $(".mic-check").prop('checked', false);
