@@ -23,8 +23,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
 (function() {
 
     var APP_NAME = "MUSIC VISUALIZER";
-    var APP_URL = "C:/Users/elisa/Documents/hifi-content/Marketplace/music-visualizer/musicVisualizerUI.html";
-    //var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/musicVisualizerUI.html?" + Date.now();
+    var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/musicVisualizerUI.html?" + Date.now();
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/icons/emoji-i.svg";
     var APP_ICON_ACTIVE = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/icons/emoji-a.svg";
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
