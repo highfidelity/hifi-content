@@ -177,12 +177,14 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
         }
 
         // clears audio file selection
-        audioFile = "";
-        sendToHTML("");
+        updateSelection("");
     }
 
     // to modify HTML page's listed filename
-    function sendToHTML(filename) {
+    function updateSelection(filename) {
+        if (filename === "") {
+            audioFile = "";
+        }
         tablet.emitScriptEvent(JSON.stringify({
             "file": filename
         }));
@@ -206,26 +208,22 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
                 if (audioFile !== null) {
                     if (audioFile.indexOf(".wav") === -1) {
                         Window.alert("Must be a .wav file type");
-                        audioFile = "";
-                        sendToHTML("");
+                        updateSelection("");
                         return;
                     }
                     var filenameArr = audioFile.split("/");
                     var filename = filenameArr[filenameArr.length - 1];
-                    sendToHTML(filename);
+                    updateSelection(filename);
                 } else {
-                    audioFile = "";
-                    sendToHTML("");
+                    updateSelection("");
                 }
             } else {
-                audioFile = "";
-                sendToHTML("");
+                updateSelection("");
             }
             
         // Resets saved audio file when contradiction present
         } else if (htmlEvent.type === "contradiction") {
-            audioFile = "";
-            sendToHTML("");
+            updateSelection("");
         }
     }
 
