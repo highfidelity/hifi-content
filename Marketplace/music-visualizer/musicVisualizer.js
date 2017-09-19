@@ -145,6 +145,28 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
             var effectLeft = Entities.addEntity(effectJSON);
             var effectRight = Entities.addEntity(effectJSON);
 
+            // an overlay that only the user sees to know when they have equipped finger trails
+            var equipLeft = Overlays.addOverlay("sphere", {
+                localPosition: {x:0, y:0, z:0},
+                parentID: effectLeft,
+                parentJointIndex: MyAvatar.getJointIndex("LeftHand"),
+                size: 0.05,
+                color: { red: 200, green: 200, blue: 200 },
+                alpha: 0.5,
+                solid: true,
+                visible: false
+            });
+            var equipRight = Overlays.addOverlay("sphere", {
+                localPosition: {x:0, y:0, z:0},
+                parentID: effectRight,
+                parentJointIndex: MyAvatar.getJointIndex("RightHand"),
+                size: 0.05,
+                color: { red: 200, green: 200, blue: 200 },
+                alpha: 0.5,
+                solid: true,
+                visible: false
+            });
+
             // allow time for equip
             Script.setTimeout(function() {
                 Messages.sendLocalMessage('Hifi-Hand-Grab', JSON.stringify({
@@ -156,12 +178,20 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
                     entityID: effectRight
                 }));
 
-                var effectLeftProps = Entities.getEntityProperties(effectLeft);
-                var effectRightProps = Entities.getEntityProperties(effectRight);
+                var effectLeftProps = Entities.getEntityProperties(effectLeft, "script");
+                var effectRightProps = Entities.getEntityProperties(effectRight, "script");
                 effectLeftProps.script = TRAIL_LEFT_SCRIPT;
                 effectRightProps.script = TRAIL_RIGHT_SCRIPT;
                 Entities.editEntity(effectLeft, effectLeftProps);
                 Entities.editEntity(effectRight, effectRightProps);
+
+                var equipLeftProps = Entities.getEntityProperties(equipLeft, "visible");
+                var equipRightProps = Entities.getEntityProperties(equipRight, "visible");
+                equipLeftProps.visible = true;
+                equipRightProps.visible = true;
+                Overlays.editOverlay(equipLeft, equipLeftProps);
+                Overlays.editOverlay(equipRight, equipRightProps);
+
             }, 700);
 
             // once particles are equipped tablet must be auto closed
