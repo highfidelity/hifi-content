@@ -22,10 +22,10 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
 
 (function() {
 
-    var APP_NAME = "MUSIC VISUALIZER";
+    var APP_NAME = "MUS VIS";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/musicVisualizerUI.html?" + Date.now();
-    var APP_ICON = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/icons/emoji-i.svg";
-    var APP_ICON_ACTIVE = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/icons/emoji-a.svg";
+    var APP_ICON = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/icons/particles-i-01.svg";
+    var APP_ICON_ACTIVE = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/icons/particles-a-01.svg";
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 
     var audioFile = "";
