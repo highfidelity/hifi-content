@@ -23,7 +23,6 @@
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached = false;
-    var isClone = false;
 
     function AttachableItem() {
         _this = this;
@@ -40,10 +39,6 @@
                 _supportedJoints.push("Right".concat(baseJoint));
             } else {
                 _supportedJoints.push(_attachmentData.joint);
-            }
-            if (properties.name.indexOf("clone") !== -1) {
-                // This is a clone, we want to set a timeout if not grabbed
-                isClone = true;
             }
         },
         startNearGrab: function(entityID, args) {
