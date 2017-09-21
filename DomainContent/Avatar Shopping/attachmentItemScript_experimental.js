@@ -19,18 +19,21 @@
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
 
+    var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+    var messageChannel;
+    
     var _this, _entityID;
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached = false;
-    var isClone = false;
+    var firstGrab = true;
 
     function AttachableItem() {
         _this = this;
     }
     AttachableItem.prototype = {
         preload : function(entityID) {
-            print("Loading attachmentItemScript.js");
+            print("Loading Experimental attachmentItemScript.js");
             _entityID = entityID;
             var properties = Entities.getEntityProperties(entityID);
             _attachmentData = JSON.parse(properties.userData).Attachment;
@@ -41,12 +44,18 @@
             } else {
                 _supportedJoints.push(_attachmentData.joint);
             }
-            if (properties.name.indexOf("clone") !== -1) {
-                // This is a clone, we want to set a timeout if not grabbed
-                isClone = true;
-            }
+            messageChannel = MESSAGE_CHANNEL_BASE + properties.parentID;
+            Messages.subscribe(messageChannel);
         },
         startNearGrab: function(entityID, args) {
+            print("Start grab fired -- firstGrab: " + firstGrab);
+            if (firstGrab) {
+                firstGrab = false;
+                Entities.editEntity(_entityID, {visible: true, parentID:"{00000000-0000-0000-0000-000000000000}"});
+                Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
+                Messages.unsubscribe(messageChannel);
+                print("Restock message sent!: " + messageChannel);
+            }
             var hand = args[0] === "left" ? 0 : 1;
             this.intervalFunc = Script.setInterval(function(){
                 var position = Entities.getEntityProperties(_entityID, ['position']).position;
