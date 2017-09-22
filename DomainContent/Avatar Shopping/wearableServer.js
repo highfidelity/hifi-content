@@ -15,8 +15,6 @@
     var spawnMoreChildren;
     var properties; 
 
-    // var availableToWear = []; 
-
     var Wearable = function() {
 
     };
@@ -35,7 +33,8 @@
                 parentID: entityID,
                 modelURL : properties.modelURL,
                 script: Script.resolvePath("attachmentItemScript_experimental.js?v3"),
-                lifetime: 300
+                lifetime: 300,
+                visible: false
             };
 
             messageHandler = Messages.messageReceived.connect(function(channel, data, sender) {
