@@ -25,7 +25,8 @@
                 Messages.sendMessage(_attachmentZoneChannel, JSON.stringify({
                     action: ATTACHMENT_ZONE_CHANNEL_ACTIONS.CREATED_ATTACHMENT_ENTITY,
                     entityID: entityID,
-                    avatarEntityID: avatarEntityID
+                    avatarEntityID: avatarEntityID,
+                    avatarSessionUUID: sender
                 }));
             } else if (data.action === ATTACHMENT_ZONE_CHANNEL_ACTIONS.CREATED_ATTACHMENT_ENTITY) {
                 // received own sent message, ignore.
