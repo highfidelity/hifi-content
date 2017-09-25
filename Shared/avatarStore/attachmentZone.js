@@ -26,6 +26,9 @@
         if (channel === _attachmentZoneChannel) {
             var data = JSON.parse(message);
             if (data.action === ATTACHMENT_ZONE_CHANNEL_ACTIONS.CREATED_ATTACHMENT_ENTITY) {
+                if (data.avatarSessionUUID !== MyAvatar.sessionUUID) {
+                    return;
+                }
                 var avatarEntityID = data.avatarEntityID; // for reference
                 var entityID = data.entityID;
                 var newTransformProperties = Entities.getEntityProperties(avatarEntityID, ['localPosition', 'localRotation']);
