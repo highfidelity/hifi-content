@@ -20,17 +20,26 @@
 
 
     var onMessageReceived = function(channel, message, sender, localOnly) {
+        if (sender === MyAvatar.sessionUUID) {
+            return;
+        }
         if (channel === _attachmentZoneChannel) {
             var data = JSON.parse(message);
             if (data.action === ATTACHMENT_ZONE_CHANNEL_ACTIONS.CREATED_ATTACHMENT_ENTITY) {
                 var avatarEntityID = data.avatarEntityID; // for reference
                 var entityID = data.entityID;
                 var newTransformProperties = Entities.getEntityProperties(avatarEntityID, ['localPosition', 'localRotation']);
+                print('newTransformProperties = ' + JSON.stringify(newTransformProperties));
+                var createdProperies = Entities.getEntityProperties(entityID, ['position']);
+                print('createdProperies = ' + JSON.stringify(createdProperies));
+                if (Object.keys(createdProperies).length === 0) {
+                    print('Object does not yet exist for our viewer.');
+                }
                 Entities.editEntity(entityID, {
                     localPosition: newTransformProperties.localPosition,
                     localRotation: newTransformProperties.localRotation
                 });
-                Entities.delete(avatarEntityID);
+                Entities.deleteEntity(avatarEntityID);
                 print('KAPOOOWWWW');
             } else {
                 print('Unknown action in message ' + message);

@@ -27,6 +27,9 @@
                     entityID: entityID,
                     avatarEntityID: avatarEntityID
                 }));
+            } else if (data.action === ATTACHMENT_ZONE_CHANNEL_ACTIONS.CREATED_ATTACHMENT_ENTITY) {
+                // received own sent message, ignore.
+                return;
             } else {
                 print('Unknown action in message ' + message);
             }
