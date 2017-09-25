@@ -39,7 +39,7 @@ module.exports = {
     },
     removeUnnecessaryProperties: function(entityProperties) {
         var unnecessaryProperties = ['id', 'lastEdited', 'lastEditedBy', 'created', 'age', 'ageAsText', 'naturalDimensions',
-            'naturalPosition', 'boundingBox', 'actionData', 'clientOnly', 'owningAvatarID'];
+            'naturalPosition', 'boundingBox', 'actionData', 'clientOnly', 'owningAvatarID', 'locked', 'renderInfo', 'queryAACube'];
         unnecessaryProperties.forEach(function(unnecessaryProperty) {
             delete entityProperties[unnecessaryProperty];
         });
@@ -57,6 +57,6 @@ module.exports = {
     touchJSONUserData: touchJSONUserData,
     ATTACHMENT_ZONE_CHANNEL_ACTIONS: {
         CREATE_ATTACHMENT_ENTITY: 'createAttachmentEntity',
-
+        CREATED_ATTACHMENT_ENTITY: 'createdAttachmentEntity'
     }
 };
