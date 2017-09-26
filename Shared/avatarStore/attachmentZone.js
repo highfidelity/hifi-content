@@ -18,7 +18,6 @@
 
     var _attachmentZoneChannel = null;
 
-
     var onMessageReceived = function(channel, message, sender, localOnly) {
         if (sender === MyAvatar.sessionUUID) {
             return;
@@ -31,19 +30,44 @@
                 }
                 var avatarEntityID = data.avatarEntityID; // for reference
                 var entityID = data.entityID;
-                var newTransformProperties = Entities.getEntityProperties(avatarEntityID, ['localPosition', 'localRotation']);
+                print('avatar entity ID = ' + avatarEntityID);
+                var newTransformProperties = Entities.getEntityProperties(avatarEntityID, [
+                    'localPosition', 'localRotation', 'parentID', 'parentJointIndex'
+                ]);
                 print('newTransformProperties = ' + JSON.stringify(newTransformProperties));
-                var createdProperies = Entities.getEntityProperties(entityID, ['position']);
-                print('createdProperies = ' + JSON.stringify(createdProperies));
-                if (Object.keys(createdProperies).length === 0) {
-                    print('Object does not yet exist for our viewer.');
-                }
-                Entities.editEntity(entityID, {
-                    localPosition: newTransformProperties.localPosition,
-                    localRotation: newTransformProperties.localRotation
-                });
-                Entities.deleteEntity(avatarEntityID);
-                print('KAPOOOWWWW');
+                
+                
+                var interval = null;
+                var maxRuns = 50;
+                var runs = 0;
+                interval = Script.setInterval(function() {
+                    runs++;
+                    
+                    var createdProperies = Entities.getEntityProperties(entityID, ['position']);
+                    print('createdProperies = ' + JSON.stringify(createdProperies));
+                    
+                    if (Object.keys(createdProperies).length === 0) {
+                        print('Object does not yet exist for our viewer.');
+
+                        if (runs >= maxRuns) {
+                            print('Could not find created entity in time, giving up.');
+                            Script.clearInterval(interval);
+                        }
+                        return;
+                    }
+
+                    Entities.editEntity(entityID, {
+                        localPosition: newTransformProperties.localPosition,
+                        localRotation: newTransformProperties.localRotation,
+                        parentID: newTransformProperties.parentID,
+                        parentJointIndex: newTransformProperties.parentJointIndex
+                    });
+                    // delete the avatar-entity after the regular-entity has been created.
+                    Entities.deleteEntity(avatarEntityID);
+                    print('KAPOOOWWWW');
+                    Script.clearInterval(interval);
+                    
+                }, 100);
             } else {
                 print('Unknown action in message ' + message);
             }
@@ -67,10 +91,6 @@
         // in case its empty try to restore attachments from ATTACHMENT_SETTINGS_KEY
         shared.getAvatarChildEntities(MyAvatar).forEach(function(entityID) {
             var entityProperties = Entities.getEntityProperties(entityID, ['clientOnly', 'owningAvatarID', 'parentID']);
-            
-            print(entityID + ' ' + entityProperties.parentID + ' ' + entityProperties.clientOnly + ' ' + entityProperties.owningAvatarID);
-
-            // TODO: ask the server for creation of the entities, and delete the avatar-entity after the entity has been created.
             if (entityProperties.clientOnly) {
                 var newEntityProperties = Entities.getEntityProperties(entityID);
                 shared.removeUnnecessaryProperties(newEntityProperties);
@@ -99,9 +119,6 @@
     this.leaveEntity = function() {
         shared.getAvatarChildEntities(MyAvatar).forEach(function(entityID) {
             var entityProperties = Entities.getEntityProperties(entityID, ['clientOnly', 'owningAvatarID', 'parentID']);
-
-            print(entityID + ' ' + entityProperties.parentID + ' ' + entityProperties.clientOnly + ' ' + entityProperties.owningAvatarID);
-
             if (!entityProperties.clientOnly) {
                 var newEntityProperties = Entities.getEntityProperties(entityID);
                 shared.removeUnnecessaryProperties(newEntityProperties);

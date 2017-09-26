@@ -21,7 +21,15 @@
             if (data.action === ATTACHMENT_ZONE_CHANNEL_ACTIONS.CREATE_ATTACHMENT_ENTITY) {
                 var avatarEntityID = data.avatarEntityID; // for reference
                 var entityProperties = data.entityProperties;
+
+                // EXPERIMENTAL: remove parenting properties from attachment while its being created
+                delete entityProperties.localPosition;
+                delete entityProperties.localRotation;
+                delete entityProperties.parentID;
+                delete entityProperties.parentJointIndex;
+
                 var entityID = Entities.addEntity(entityProperties, false);
+
                 Messages.sendMessage(_attachmentZoneChannel, JSON.stringify({
                     action: ATTACHMENT_ZONE_CHANNEL_ACTIONS.CREATED_ATTACHMENT_ENTITY,
                     entityID: entityID,
