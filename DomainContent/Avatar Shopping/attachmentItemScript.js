@@ -34,7 +34,7 @@
     }
     AttachableItem.prototype = {
         preload : function(entityID) {
-            print("Loading Experimental attachmentItemScript.js");
+            print("Loading attachmentItemScript.js");
             _entityID = entityID;
             var properties = Entities.getEntityProperties(entityID);
             _attachmentData = JSON.parse(properties.userData).Attachment;
