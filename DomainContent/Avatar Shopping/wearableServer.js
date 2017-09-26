@@ -22,9 +22,7 @@
 
         preload: function(entityID){
             properties = Entities.getEntityProperties(entityID);    
-            print(JSON.stringify(Entities.getEntityProperties(entityID).userData));
             messageChannel = MESSAGE_CHANNEL_BASE + entityID;
-            print("Listening on channel: " + messageChannel);
             Messages.subscribe(messageChannel);
             var newEntityProperties = {
                 type: 'Model',
@@ -32,26 +30,25 @@
                 userData: properties.userData,
                 parentID: entityID,
                 modelURL : properties.modelURL,
-                script: Script.resolvePath("attachmentItemScript_experimental.js?v3"),
-                lifetime: 300,
-                visible: false
+                script: Script.resolvePath("attachmentItemScript_experimental.js"),
+                lifetime: 60, // TODO: Change back when not in testing
+                visible: false,
+                shapeType: "box"
             };
-
-            messageHandler = Messages.messageReceived.connect(function(channel, data, sender) {
-                print("wearableServer.js received a message on channel: " + channel + " : " + data);
+            messageHandler = function(channel, data, sender) {
                 if (channel === messageChannel) {
-                    print("Creating replacement entity");
                     Entities.addEntity(newEntityProperties);   
                 }    
-            });
+            };
+            Messages.messageReceived.connect(messageHandler);
             spawnMoreChildren = Script.setInterval(function() {
-                print(JSON.stringify(Entities.getChildrenIDs(entityID)));
                 if (Entities.getChildrenIDs(entityID).length === 0) {
                     Entities.addEntity(newEntityProperties);            
                 }
             }, 1000);
         },
         unload: function() {
+            Messages.messageReceived.disconnect(messageHandler);
             Script.clearInterval(spawnMoreChildren);
         }
     };
