@@ -11,24 +11,14 @@
 //  laundry basket to get rid of attachments after trying them on.
 
 (function () {
-    print("Enter the laundry zone......finish it");
     var _this = this;
 
     _this.collisionWithEntity = function (thisID, otherID, collisionInfo) {
         var otherUserData = JSON.stringify(Entities.getEntityProperties(otherID).userData);
-        print(otherUserData);
-        var matchWord = "Attachment";
-        var isAttachment = otherUserData.match(matchWord);
-        if (isAttachment != null) {
-            print("The item is an attachment...delete it!");
+        var isAttachment = otherUserData.indexOf("Attachment");
+        var isAttached = otherUserData.indexOf("attached\\\":true");
+        if (isAttachment !== -1 && isAttached === -1) {
             Entities.deleteEntity(otherID);
-        } else {
-            print("NOT an attachment!");
         }
     };
-
-
-
-
-
 });
