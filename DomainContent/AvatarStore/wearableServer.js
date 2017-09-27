@@ -23,7 +23,7 @@
     };
     Wearable.prototype = {
         preload: function(entityID){
-            properties = Entities.getEntityProperties(entityID);    
+            properties = Entities.getEntityProperties(entityID, ['dimensions', 'userData', 'modelURL']);
             messageChannel = MESSAGE_CHANNEL_BASE + entityID;
             Messages.subscribe(messageChannel);
             var newEntityProperties = {
