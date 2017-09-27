@@ -27,6 +27,7 @@
                 delete entityProperties.localRotation;
                 delete entityProperties.parentID;
                 delete entityProperties.parentJointIndex;
+                delete entityProperties.velocity;
 
                 print('TEST: output entity properties: ' + JSON.stringify(entityProperties));
 
