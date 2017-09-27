@@ -130,7 +130,7 @@
                 var jointPosition = (properties.parentID === MyAvatar.sessionUUID) ? 
                     MyAvatar.getJointPosition(properties.parentJointIndex) : 
                     AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
-                if ( Vec3.distance(position, jointPosition) > DETACH_DISTANCE) {
+                if (Vec3.distance(position, jointPosition) > DETACH_DISTANCE) {
                     var newDetachEntityProperties = Entities.getEntityProperties(entityID);
                     touchJSONUserData(newDetachEntityProperties, function(userData) {
                         userData.Attachment.attached = false;
