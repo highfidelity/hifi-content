@@ -61,12 +61,9 @@
     var _isGrabbing = false;
     var _attachmentData = null;
     var _leftRightAttachToggle = false;
-    var _listeningChannel = null;
     var _virtualHoldController = null;
     
     var WANT_DEBUG = true;
-
-    var ATTACHMENT_CHANNEL_PREFIX = 'attachmentItem-';
 
     var TOTAL_HOLD_LIFETIME = 60; // seconds
     
@@ -79,11 +76,13 @@
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/attach_sound_1.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/detach.wav'));
 
+    var modifierHandHaptics = null;
+
     var debugPrint = function(message) {};
     if (WANT_DEBUG) {
         debugPrint = function(message) {
             print(message);
-        }
+        };
     }
 
     var getEntityProperty = function(entityID, property) {
@@ -91,6 +90,30 @@
     };
 
     var _this;
+
+    function HandHaptics(hand, updateTimeout, strength) {
+        _this = this;
+        _this.hand = hand;
+        _this.updateTimeout = updateTimeout;
+        _this.strength = strength;
+        _this.interval = Script.setInterval(_this.update, updateTimeout);
+
+    }
+
+    HandHaptics.prototype = {
+        hand: null,
+        updateTimeout: null,
+        strength: null,
+        interval: null,
+        update: function() {
+            Controller.triggerHapticPulse(_this.strength, _this.updateTimeout, _this.hand);
+        },
+        cleanup: function() {
+            Script.clearInterval(_this.interval);
+        }
+    };
+
+    
     function VirtualHoldController(hand, holdableEntity, localPosition, localRotation) {
         _this = this;
         _this.hand = hand;
@@ -125,15 +148,16 @@
                     _this.release();
                 }
             };
+
             var gripButtonCheck = function(value) {
                 if (value > GRIP_BUTTON_ACTIVE_THRESHOLD) {
                     _this.release();
                 }
-            }
+            };
 
             var NEAR_GRABBING_ACTION_TIMEFRAME = 0.05;
             var NEAR_GRABBING_KINEMATIC = true;
-            var NEAR_GRABBING_IGNORE_IK = false;
+            var NEAR_GRABBING_IGNORE_IK = true;
             _this.holdAction = Entities.addAction('hold', _this.holdableEntity, {
                 hand: _this.hand,
                 timeScale: NEAR_GRABBING_ACTION_TIMEFRAME,
@@ -221,27 +245,35 @@
         return userDataObject.Attachment;
     };
 
-    var getScriptTimestamp = function() {
-        return getEntityProperty(_entityID, 'scriptTimestamp');
-    }
-
     this.preload = function(entityID) {
         _entityID = entityID;
         debugPrint('loaded ' + entityID);
     };
 
+
+    var cleanupModifierHandHaptics = function() {
+        if (modifierHandHaptics !== null) {
+            modifierHandHaptics.cleanup();
+            modifierHandHaptics = null;
+        }
+    };
+
     this.unload = function() {
+        cleanupModifierHandHaptics();
         if (_virtualHoldController !== null) {
             _virtualHoldController.cleanup();
         }
-    }
+    };
 
-    function attachmentAction(joint, attachmentData) {
+    function attachmentAction(joint, attachmentData, isBeingAttachedByHand) {
         if (attachmentData === undefined) {
             attachmentData = getAttachmentData();
         }
         if (attachmentData === null) {
             return;
+        }
+        if (isBeingAttachedByHand === undefined) {
+            isBeingAttachedByHand = false;
         }
         var otherJoint = null;
         if (joint === undefined) {
@@ -277,6 +309,38 @@
             for (var key in attachmentData.options) {
                 if (attachmentData.options.hasOwnProperty(key)) {
                     newAttachment[key] = attachmentData.options[key];
+                }
+            }
+            if (isBeingAttachedByHand) {
+                var attachJointIndex = MyAvatar.getJointIndex(joint);
+                if (attachJointIndex !== -1) {
+                    debugPrint('about to set rotation');
+                    
+                    var jointWorldRotation = MyAvatar.jointToWorldRotation({}, attachJointIndex);
+
+                    debugPrint('joint rotation: ' + JSON.stringify(jointWorldRotation));
+                    debugPrint('avatar orientation: ' + JSON.stringify(MyAvatar.orientation));
+                    
+                    var entityTransform = Entities.getEntityProperties(_entityID, ['position','rotation']);
+                    var localRotation = Quat.multiply(entityTransform.rotation, Quat.inverse(jointWorldRotation));
+
+                    newAttachment['rotation'] = Quat.safeEulerAngles(localRotation);
+
+                    debugPrint('about to set position');
+                    var localPosition;
+                    if (attachmentData.experimentalPositionOffset) {
+                        debugPrint('EXPERIMENTAL experimentalPositionOffset');
+                        localPosition = attachmentData.options['translation'] !== undefined ? Vec3.multiplyQbyV(localRotation, attachmentData.options['translation']) : {x: 0, y: 0, z: 0};
+                    } else {
+                        var jointWorldPosition = MyAvatar.getJointPosition(attachJointIndex); // MyAvatar.worldToJointPoint({}, attachJointIndex);
+                        localPosition = Vec3.multiplyQbyV(Quat.inverse(jointWorldRotation), Vec3.subtract(entityTransform.position, jointWorldPosition));
+                        debugPrint('joint position: ' + JSON.stringify(jointWorldPosition));
+                        debugPrint('avatar position: ' + JSON.stringify(MyAvatar.position));
+                    }
+                    newAttachment['translation'] = localPosition;
+                    
+                    debugPrint('set rotation to ' + JSON.stringify(newAttachment['rotation']));
+                    debugPrint('set position to ' + JSON.stringify(newAttachment['translation']));
                 }
             }
 
@@ -349,6 +413,7 @@
             delete newProperties.created;
             delete newProperties.age;
             delete newProperties.ageAsText;
+            var naturalDimensions = newProperties.naturalDimensions;
             delete newProperties.naturalDimensions;
             delete newProperties.naturalPosition;
             delete newProperties.boundingBox;
@@ -391,7 +456,10 @@
                 var userData = JSON.parse(newProperties.userData);
                 userData.grabbableKey.wantsTrigger = false;
                 userData.grabbableKey.grabbable = true;
-                // userData.attachmentServer = _listeningChannel;
+
+                var scale = userData.Attachment.options.scale !== undefined ? userData.Attachment.options.scale : 1.0;
+                newProperties.dimensions = Vec3.multiply(naturalDimensions, scale);
+
                 newProperties.userData = JSON.stringify(userData);
             } catch (e) {
                 debugPrint('Something went wrong while trying to modify the userData.');
@@ -404,15 +472,15 @@
                 // must have dynamic shapeType for hold action:
                 newProperties.shapeType = 'box';
             }
-            var entityID = Entities.addEntity(newProperties, true);
-            debugPrint('created ' + entityID + ' with properties: ' + JSON.stringify(newProperties));
+            var newEntityID = Entities.addEntity(newProperties, true);
+            debugPrint('created ' + newEntityID + ' with properties: ' + JSON.stringify(newProperties));
 
             // We don't need this attempts system down here anymore, but it works:
             var attempts = 0;
             var MAX_ATTEMPTS = 10;
             var attachAttemptInterval = null;
             var attachOnEntityFound = function() {
-                if (Object.keys(Entities.getEntityProperties(entityID, 'position')).length === 0) {
+                if (Object.keys(Entities.getEntityProperties(newEntityID, 'position')).length === 0) {
                     attempts++;
                     if (attempts >= MAX_ATTEMPTS) {
                         Script.clearInterval(attachAttemptInterval);
@@ -425,7 +493,7 @@
                     _virtualHoldController = null;
                 }
 
-                _virtualHoldController = new VirtualHoldController(hand, entityID, localPosition, localRotation);
+                _virtualHoldController = new VirtualHoldController(hand, newEntityID, localPosition, localRotation);
                 _virtualHoldController.onRelease = function() {
                     debugPrint('Virtual hold controller released.');
                 };
@@ -440,39 +508,46 @@
         debugPrint('NearGrabStarting ' + JSON.stringify(args));
         _isGrabbing = true;
         _attachmentData = getAttachmentData();
+        cleanupModifierHandHaptics();
+    };
+
+    this.getClosestJoint = function(entityID) {
+        var snapDistance = _attachmentData.snapDistance !== undefined ? _attachmentData.snapDistance :
+            DEFAULT_SNAP_DISTANCE;
+        var entityPosition = Entities.getEntityProperties(entityID, 'position').position;
+
+        var joints = [];
+        var closestJoint = null;
+        if (_attachmentData.joint.indexOf(LEFT_RIGHT_PLACEHOLDER) !== -1) {
+            joints.push(_attachmentData.joint.replace(LEFT_RIGHT_PLACEHOLDER, 'Left'));
+            joints.push(_attachmentData.joint.replace(LEFT_RIGHT_PLACEHOLDER, 'Right'));
+        } else {
+            joints.push(_attachmentData.joint);
+        }
+
+        joints.forEach(function(joint) {
+            var targetJointPosition = MyAvatar.getJointPosition(joint);
+            var distance = Vec3.distance(entityPosition, targetJointPosition);
+            if (distance < snapDistance && (closestJoint === null || distance < closestJoint.distance)) {
+                closestJoint = {
+                    name: joint,
+                    distance: distance
+                };
+            }
+        });
+        return closestJoint;
     };
 
     this.continueNearGrab = function(entityID, args) {
         if (_isGrabbing && _attachmentData !== null) {
-            var snapDistance = _attachmentData.snapDistance !== undefined ? _attachmentData.snapDistance :
-                DEFAULT_SNAP_DISTANCE;
-            var entityPosition = Entities.getEntityProperties(entityID, 'position').position;
-
-            var joints = [];
-            var closestJoint = null;
-            if (_attachmentData.joint.indexOf(LEFT_RIGHT_PLACEHOLDER) !== -1) {
-                joints.push(_attachmentData.joint.replace(LEFT_RIGHT_PLACEHOLDER, 'Left'));
-                joints.push(_attachmentData.joint.replace(LEFT_RIGHT_PLACEHOLDER, 'Right'));
-            } else {
-                joints.push(_attachmentData.joint);
-            }
-
-            joints.forEach(function(joint) {
-                var targetJointPosition = MyAvatar.getJointPosition(joint);
-                var distance = Vec3.distance(entityPosition, targetJointPosition);
-                if (distance < snapDistance && (closestJoint === null || distance < closestJoint.distance)) {
-                    closestJoint = {
-                        name: joint,
-                        distance: distance
-                    };
-                }
-            });
+            var closestJoint = this.getClosestJoint(entityID);
 
             if (closestJoint !== null) {
-                debugPrint('attach' + closestJoint.name);
-                attachmentAction(closestJoint.name);
-                Controller.triggerShortHapticPulse(0.3, args[0] === 'left' ? HAND_LEFT : HAND_RIGHT);
-                Entities.deleteEntity(_entityID);
+                if (modifierHandHaptics === null) {
+                    modifierHandHaptics = new HandHaptics(args[0] === 'left' ? HAND_LEFT : HAND_RIGHT, 100, 0.3);
+                }
+            } else if (modifierHandHaptics !== null) {
+                cleanupModifierHandHaptics();
             }
         }
     };
@@ -480,6 +555,16 @@
     this.releaseGrab = function(entityID, args) {
         if (_isGrabbing) {
             _isGrabbing = false;
+
+            var closestJoint = this.getClosestJoint(entityID);
+            if (closestJoint !== null) {
+                debugPrint('attach' + closestJoint.name);
+                attachmentAction(closestJoint.name, undefined, true);
+                Controller.triggerShortHapticPulse(0.5, args[0] === 'left' ? HAND_LEFT : HAND_RIGHT);
+            }
+
+            cleanupModifierHandHaptics();
+            
             Entities.deleteEntity(_entityID);
         }
     };
