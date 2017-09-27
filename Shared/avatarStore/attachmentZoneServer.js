@@ -28,6 +28,8 @@
                 delete entityProperties.parentID;
                 delete entityProperties.parentJointIndex;
 
+                print('TEST: output entity properties: ' + JSON.stringify(entityProperties));
+
                 var entityID = Entities.addEntity(entityProperties, false);
 
                 Messages.sendMessage(_attachmentZoneChannel, JSON.stringify({
