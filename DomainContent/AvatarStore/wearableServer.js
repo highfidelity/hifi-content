@@ -9,6 +9,9 @@
 //
 (function() {
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+    var CLONE_LIFETIME = 300;
+    var UPDATE_INTERVAL = 1000;
+
     var messageChannel;
 
     var messageHandler;
@@ -19,7 +22,6 @@
 
     };
     Wearable.prototype = {
-
         preload: function(entityID){
             properties = Entities.getEntityProperties(entityID);    
             messageChannel = MESSAGE_CHANNEL_BASE + entityID;
@@ -31,7 +33,7 @@
                 parentID: entityID,
                 modelURL : properties.modelURL,
                 script: Script.resolvePath("attachmentItemScript.js"),
-                lifetime: 60, // TODO: Change back when not in testing
+                lifetime: CLONE_LIFETIME,
                 visible: false,
                 shapeType: "box",
                 collidesWith: "dynamic,"
@@ -46,7 +48,7 @@
                 if (Entities.getChildrenIDs(entityID).length === 0) {
                     Entities.addEntity(newEntityProperties);            
                 }
-            }, 1000);
+            }, UPDATE_INTERVAL);
         },
         unload: function() {
             Messages.messageReceived.disconnect(messageHandler);

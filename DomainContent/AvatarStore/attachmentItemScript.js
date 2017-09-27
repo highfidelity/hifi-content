@@ -19,6 +19,8 @@
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
 
+    var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
+
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
     var messageChannel;
     
@@ -58,7 +60,7 @@
         preload : function(entityID) {
             _entityID = entityID;
             var properties = Entities.getEntityProperties(entityID);
-            // Set up the joint data so we know where we can attach
+
             _attachmentData = JSON.parse(properties.userData).Attachment;
             if (_attachmentData.joint.indexOf(LEFT_RIGHT_PLACEHOLDER) !== -1) {
                 var baseJoint = _attachmentData.joint.substring(4);
@@ -67,10 +69,9 @@
             } else {
                 _supportedJoints.push(_attachmentData.joint);
             }
-            // Check if it's already attached or available
+
             isAttached = _attachmentData.attached;
 
-            // Subscribe to channel if it's still parented to the shelf item
             if (Entities.getNestableType(properties.parentID) !== "avatar" && !isAttached) {
                 messageChannel = MESSAGE_CHANNEL_BASE + properties.parentID;
                 Messages.subscribe(messageChannel);
@@ -79,7 +80,6 @@
         startNearGrab: function(entityID, args) {
             if (firstGrab) {
                 var properties = Entities.getEntityProperties(entityID);  
-                // This is the first time we've grabbed this entity, make it visible
                 if (!properties.visible) {
                     Entities.editEntity(entityID, {visible: true});
                 } 
@@ -88,16 +88,13 @@
         },
             
         releaseGrab: function(entityID, args) {
-            print("Releasing grab");
             var hand = args[0] === "left" ? 0 : 1;
             var properties = Entities.getEntityProperties(entityID);
 
             if (Entities.getNestableType(properties.parentID) === "entity") {
-                // This is the first time we unparent from our shelf item
-                print("Removing item " + entityID);
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
                 Messages.unsubscribe(messageChannel); 
-                Entities.editEntity(entityID, {parentID: "{00000000-0000-0000-0000-000000000000}"});
+                Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
             }
 
             var userData = properties.userData;
@@ -105,7 +102,6 @@
             var attachmentData = JSON.parse(userData).Attachment;
             isAttached = attachmentData.attached;
 
-            // We are not attached
             if (!isAttached) {
                 _supportedJoints.forEach(function(joint) {
                     var jointPosition = MyAvatar.getJointPosition(joint);
@@ -135,13 +131,12 @@
                     MyAvatar.getJointPosition(properties.parentJointIndex) : 
                     AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
                 if ( Vec3.distance(position, jointPosition) > DETACH_DISTANCE) {
-                    // We are attached, need to remove if far away
                     var newDetachEntityProperties = Entities.getEntityProperties(entityID);
                     touchJSONUserData(newDetachEntityProperties, function(userData) {
                         userData.Attachment.attached = false;
                     });
                     Entities.editEntity(_entityID, {
-                        parentID: "{00000000-0000-0000-0000-000000000000}",
+                        parentID: EMPTY_PARENT_ID,
                         lifetime: Entities.getEntityProperties(_entityID, ["age"]).age + 60,
                         userData: newDetachEntityProperties.userData
                     });
