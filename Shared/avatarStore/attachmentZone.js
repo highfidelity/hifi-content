@@ -31,12 +31,8 @@
                 var avatarEntityID = data.avatarEntityID; // for reference
                 var entityID = data.entityID;
                 print('avatar entity ID = ' + avatarEntityID);
-                var newTransformProperties = Entities.getEntityProperties(avatarEntityID, [
-                    'localPosition', 'localRotation', 'parentID', 'parentJointIndex'
-                ]);
-                print('newTransformProperties = ' + JSON.stringify(newTransformProperties));
-                
-                
+
+
                 var interval = null;
                 var maxRuns = 50;
                 var runs = 0;
@@ -56,17 +52,25 @@
                         return;
                     }
 
-                    Entities.editEntity(entityID, {
-                        localPosition: newTransformProperties.localPosition,
-                        localRotation: newTransformProperties.localRotation,
-                        parentID: newTransformProperties.parentID,
-                        parentJointIndex: newTransformProperties.parentJointIndex
+
+                    var transformKeys = ['position', 'rotation', 'localPosition', 'localRotation', 'parentID', 'parentJointIndex'];
+                    var tempTransformProperties = Entities.getEntityProperties(avatarEntityID, transformKeys);
+                    var newTransformProperties = {};
+                    transformKeys.forEach(function(transformKey) {
+                        newTransformProperties[transformKey] = tempTransformProperties[transformKey];
                     });
+
+                    newTransformProperties.velocity = {x: 0, y: 0, z: 0};
+    
+                    print('newTransformProperties = ' + JSON.stringify(newTransformProperties));
+
+                    Entities.editEntity(entityID, newTransformProperties);
+                    print('Entities.editEntity("' + entityID + '", \'' + JSON.stringify(newTransformProperties) + '\');');
                     // delete the avatar-entity after the regular-entity has been created.
                     Entities.deleteEntity(avatarEntityID);
+                    print('Entities.deleteEntity("' + avatarEntityID + '");');
                     print('KAPOOOWWWW');
                     Script.clearInterval(interval);
-                    
                 }, 100);
             } else {
                 print('Unknown action in message ' + message);
@@ -81,8 +85,7 @@
     };
 
     this.enterEntity = function() {
-        // TODO: convert to entities
-
+        // this is where we convert the avatarEntities to regular entities
         if (Object.keys(MyAvatar.getAvatarEntityData()).length === 0) {
             MyAvatar.setAvatarEntityData(Settings.getValue(ATTACHMENTS_SETTINGS_KEY, {}));
         }
