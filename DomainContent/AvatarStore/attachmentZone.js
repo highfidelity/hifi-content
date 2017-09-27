@@ -39,10 +39,10 @@
                 interval = Script.setInterval(function() {
                     runs++;
                     
-                    var createdProperies = Entities.getEntityProperties(entityID, ['position']);
-                    print('createdProperies = ' + JSON.stringify(createdProperies));
+                    var createdProperties = Entities.getEntityProperties(entityID, 'position');
+                    print('createdProperties = ' + JSON.stringify(createdProperties));
                     
-                    if (Object.keys(createdProperies).length === 0) {
+                    if (Object.keys(createdProperties).length === 0) {
                         print('Object does not yet exist for our viewer.');
 
                         if (runs >= maxRuns) {
@@ -53,7 +53,7 @@
                     }
 
 
-                    var transformKeys = [/*'position', 'rotation', */'localPosition', 'localRotation', 'parentID', 'parentJointIndex'];
+                    var transformKeys = ['localPosition', 'localRotation', 'parentID', 'parentJointIndex'];
                     var tempTransformProperties = Entities.getEntityProperties(avatarEntityID, transformKeys);
                     var newTransformProperties = {};
                     transformKeys.forEach(function(transformKey) {
@@ -62,6 +62,8 @@
 
                     newTransformProperties.velocity = {x: 0, y: 0, z: 0};
     
+                    // make the entity visible (the ESS creates an invisible entity)
+                    newTransformProperties.visible = true;
                     print('newTransformProperties = ' + JSON.stringify(newTransformProperties));
 
                     Entities.editEntity(entityID, newTransformProperties);
