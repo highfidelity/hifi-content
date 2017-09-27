@@ -15,6 +15,7 @@
     var ATTACH_DISTANCE = 0.35;
     var DETACH_DISTANCE = 0.5;
     var AUDIO_VOLUME_LEVEL = 0.2;
+    var RELEASE_LIFETIME = 60;
 
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
@@ -24,7 +25,7 @@
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
     var messageChannel;
     
-    var _this, _entityID;
+    var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached;
@@ -54,12 +55,12 @@
      */
 
     function AttachableItem() {
-        _this = this;
+
     }
     AttachableItem.prototype = {
         preload : function(entityID) {
             _entityID = entityID;
-            var properties = Entities.getEntityProperties(entityID);
+            var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
 
             _attachmentData = JSON.parse(properties.userData).Attachment;
             if (_attachmentData.joint.indexOf(LEFT_RIGHT_PLACEHOLDER) !== -1) {
@@ -79,8 +80,7 @@
         },
         startNearGrab: function(entityID, args) {
             if (firstGrab) {
-                var properties = Entities.getEntityProperties(entityID);  
-                if (!properties.visible) {
+                if (!Entities.getEntityProperties(entityID, 'visible').visible) {
                     Entities.editEntity(entityID, {visible: true});
                 } 
                 firstGrab = false;
@@ -89,7 +89,7 @@
             
         releaseGrab: function(entityID, args) {
             var hand = args[0] === "left" ? 0 : 1;
-            var properties = Entities.getEntityProperties(entityID);
+            var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
 
             if (Entities.getNestableType(properties.parentID) === "entity") {
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
@@ -106,7 +106,7 @@
                 _supportedJoints.forEach(function(joint) {
                     var jointPosition = MyAvatar.getJointPosition(joint);
                     if (Vec3.distance(position, jointPosition) <= ATTACH_DISTANCE) {
-                        var newEntityProperties = Entities.getEntityProperties(_entityID);
+                        var newEntityProperties = Entities.getEntityProperties(_entityID, 'userData');
                         touchJSONUserData(newEntityProperties, function(userData) {
                             userData.Attachment.attached = true;
                         });
@@ -126,7 +126,7 @@
                         Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                     }
                 }); 
-            } else if ( isAttached) {
+            } else if (isAttached) {
                 var jointPosition = (properties.parentID === MyAvatar.sessionUUID) ? 
                     MyAvatar.getJointPosition(properties.parentJointIndex) : 
                     AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
@@ -137,7 +137,7 @@
                     });
                     Entities.editEntity(_entityID, {
                         parentID: EMPTY_PARENT_ID,
-                        lifetime: Entities.getEntityProperties(_entityID, ["age"]).age + 60,
+                        lifetime: Entities.getEntityProperties(_entityID, 'age').age + RELEASE_LIFETIME,
                         userData: newDetachEntityProperties.userData
                     });
                     if (DETACH_SOUND.downloaded) {
