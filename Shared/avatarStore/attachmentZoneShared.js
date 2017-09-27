@@ -38,8 +38,11 @@ module.exports = {
         return ATTACHMENT_ZONE_CHANNEL_PREFIX + entityID;
     },
     removeUnnecessaryProperties: function(entityProperties) {
-        var unnecessaryProperties = ['id', 'lastEdited', 'lastEditedBy', 'created', 'age', 'ageAsText', 'naturalDimensions',
-            'naturalPosition', 'boundingBox', 'actionData', 'clientOnly', 'owningAvatarID', 'locked', 'renderInfo', 'queryAACube'];
+        var unnecessaryProperties = [
+            'id', 'lastEdited', 'lastEditedBy', 'created', 'age', 'ageAsText', 'naturalDimensions', 'naturalPosition',
+            'boundingBox', 'actionData', 'clientOnly', 'owningAvatarID', 'locked', 'renderInfo', 'queryAACube',
+            'originalTextures'
+        ];
         unnecessaryProperties.forEach(function(unnecessaryProperty) {
             delete entityProperties[unnecessaryProperty];
         });
