@@ -53,7 +53,7 @@
                     }
 
 
-                    var transformKeys = ['position', 'rotation', 'localPosition', 'localRotation', 'parentID', 'parentJointIndex'];
+                    var transformKeys = [/*'position', 'rotation', */'localPosition', 'localRotation', 'parentID', 'parentJointIndex'];
                     var tempTransformProperties = Entities.getEntityProperties(avatarEntityID, transformKeys);
                     var newTransformProperties = {};
                     transformKeys.forEach(function(transformKey) {
@@ -65,6 +65,9 @@
                     print('newTransformProperties = ' + JSON.stringify(newTransformProperties));
 
                     Entities.editEntity(entityID, newTransformProperties);
+                    Script.setTimeout(function() {
+                        Entities.editEntity(entityID, newTransformProperties);
+                    }, 1000);
                     print('Entities.editEntity("' + entityID + '", \'' + JSON.stringify(newTransformProperties) + '\');');
                     // delete the avatar-entity after the regular-entity has been created.
                     Entities.deleteEntity(avatarEntityID);
