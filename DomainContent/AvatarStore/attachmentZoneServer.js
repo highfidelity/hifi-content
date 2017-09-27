@@ -29,9 +29,12 @@
                 delete entityProperties.parentJointIndex;
                 delete entityProperties.velocity;
 
+                // EXPERIMENTAL: make object invisible, and have the client make it visible
+                entityProperties.visible = false;
+
                 print('TEST: output entity properties: ' + JSON.stringify(entityProperties));
 
-                var entityID = Entities.addEntity(entityProperties, false);
+                var entityID = Entities.addEntity(entityProperties);
 
                 Messages.sendMessage(_attachmentZoneChannel, JSON.stringify({
                     action: ATTACHMENT_ZONE_CHANNEL_ACTIONS.CREATED_ATTACHMENT_ENTITY,
