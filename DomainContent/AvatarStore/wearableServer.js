@@ -30,10 +30,11 @@
                 userData: properties.userData,
                 parentID: entityID,
                 modelURL : properties.modelURL,
-                script: Script.resolvePath("attachmentItemScript_experimental.js"),
+                script: Script.resolvePath("attachmentItemScript.js"),
                 lifetime: 60, // TODO: Change back when not in testing
                 visible: false,
-                shapeType: "box"
+                shapeType: "box",
+                collidesWith: "dynamic,"
             };
             messageHandler = function(channel, data, sender) {
                 if (channel === messageChannel) {
