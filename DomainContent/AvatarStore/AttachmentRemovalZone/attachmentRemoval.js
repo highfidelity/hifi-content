@@ -14,7 +14,7 @@
     var _this = this;
     _this.enterEntity = function (entityID) {
         shared.getAvatarChildEntities(MyAvatar).forEach(function (entityID) {
-            var childUserData = JSON.stringify(Entities.getEntityProperties(entityID).userData);
+            var childUserData = Entities.getEntityProperties(entityID).userData;
             var isAttachment = childUserData.indexOf("Attachment");
             if (isAttachment !== -1) {
                 Entities.deleteEntity(entityID);
