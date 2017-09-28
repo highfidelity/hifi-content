@@ -30,8 +30,6 @@
                 }
                 var avatarEntityID = data.avatarEntityID; // for reference
                 var entityID = data.entityID;
-                print('avatar entity ID = ' + avatarEntityID);
-
 
                 var interval = null;
                 var maxRuns = 50;
@@ -39,19 +37,15 @@
                 interval = Script.setInterval(function() {
                     runs++;
                     
-                    var createdProperties = Entities.getEntityProperties(entityID, 'position');
-                    print('createdProperties = ' + JSON.stringify(createdProperties));
-                    
+                    var createdProperties = Entities.getEntityProperties(entityID, 'position');                    
                     if (Object.keys(createdProperties).length === 0) {
-                        print('Object does not yet exist for our viewer.');
 
                         if (runs >= maxRuns) {
-                            print('Could not find created entity in time, giving up.');
+                            print('Error. Could not find created entity in time, giving up.');
                             Script.clearInterval(interval);
                         }
                         return;
                     }
-
 
                     var transformKeys = ['localPosition', 'localRotation', 'parentID', 'parentJointIndex'];
                     var tempTransformProperties = Entities.getEntityProperties(avatarEntityID, transformKeys);
@@ -61,24 +55,21 @@
                     });
 
                     newTransformProperties.velocity = {x: 0, y: 0, z: 0};
-    
-                    // make the entity visible (the ESS creates an invisible entity)
-                    newTransformProperties.visible = true;
-                    print('newTransformProperties = ' + JSON.stringify(newTransformProperties));
 
-                    Entities.editEntity(entityID, newTransformProperties);
-                    Script.setTimeout(function() {
-                        Entities.editEntity(entityID, newTransformProperties);
-                    }, 1000);
-                    print('Entities.editEntity("' + entityID + '", \'' + JSON.stringify(newTransformProperties) + '\');');
-                    // delete the avatar-entity after the regular-entity has been created.
-                    Entities.deleteEntity(avatarEntityID);
-                    print('Entities.deleteEntity("' + avatarEntityID + '");');
-                    print('KAPOOOWWWW');
                     Script.clearInterval(interval);
+                    Entities.editEntity(entityID, newTransformProperties);
+
+                    Script.setTimeout(function() {
+                        // make the entity visible (the ESS creates an invisible entity)
+                        newTransformProperties.visible = true;
+                        Entities.editEntity(entityID, newTransformProperties);
+
+                        // delete the avatar-entity after the regular-entity has been created.
+                        Entities.deleteEntity(avatarEntityID);
+                    }, 500);
                 }, 100);
             } else {
-                print('Unknown action in message ' + message);
+                print('Error. Unknown action in message ' + message);
             }
         }
     };
@@ -111,15 +102,11 @@
                     }
                     userData.Attachment.attached = true;
                 });
-                print(JSON.stringify(newEntityProperties));
                 Messages.sendMessage(_attachmentZoneChannel, JSON.stringify({
                     action: ATTACHMENT_ZONE_CHANNEL_ACTIONS.CREATE_ATTACHMENT_ENTITY,
                     entityProperties: newEntityProperties,
                     avatarEntityID: entityID
                 }));
-                // Entities.addEntity(newEntityProperties, false);
-                // // remove the shops entity
-                // Entities.deleteEntity(entityID);
             }
         });
     };
@@ -134,7 +121,6 @@
                 shared.touchJSONUserData(newEntityProperties, function(userData) {
                     userData.grabbableKey.grabbable = false;
                 });
-                print(JSON.stringify(newEntityProperties));
                 Entities.addEntity(newEntityProperties, true);
                 // remove the shops entity
                 Entities.deleteEntity(entityID);
