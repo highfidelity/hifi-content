@@ -1,5 +1,5 @@
 //
-//  laundry.js
+//  spawnLaundryBasket.js
 //
 //  Created by Rebecca Stankus on 9/28/17.
 //  Copyright 2017 High Fidelity, Inc.
