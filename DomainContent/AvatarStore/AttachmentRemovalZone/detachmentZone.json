@@ -1,0 +1,165 @@
+{
+    "Entities": [
+        {
+            "clientOnly": 0,
+            "compoundShapeURL": "http://hifi-content.s3.amazonaws.com/alan/dev/EZ--Ramp3.obj",
+            "created": "2017-09-27T20:42:55Z",
+            "dimensions": {
+                "x": 0.7100114226341248,
+                "y": 0.29731911420822144,
+                "z": 0.632770836353302
+            },
+            "gravity": {
+                "x": 0,
+                "y": -8,
+                "z": 0
+            },
+            "id": "{424e4ea0-3392-437f-af9a-6b919e595574}",
+            "lastEdited": 1506545343570304,
+            "lastEditedBy": "{4f4112e4-dd25-44b9-b9f4-7268172f0640}",
+            "marketplaceID": "816d3dbd-5f8d-47d9-a7c4-2b00b067aa2a",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jimi/welcome_Area/blocks/rampRevis2.fbx",
+            "name": "Naked Ramp to Platform",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0,
+                "y": 0.00347900390625,
+                "z": 0.9492878913879395
+            },
+            "queryAACube": {
+                "scale": 0.9964506030082703,
+                "x": -0.49822530150413513,
+                "y": -0.49474629759788513,
+                "z": 0.4510625898838043
+            },
+            "rotation": {
+                "w": -0.09440755844116211,
+                "x": -0.0004119873046875,
+                "y": -0.9955443739891052,
+                "z": 0.0030975341796875
+            },
+            "shapeType": "compound",
+            "type": "Model",
+            "userData": "{}"
+        },
+        {
+            "clientOnly": 0,
+            "collisionless": 1,
+            "created": "2017-09-27T18:47:09Z",
+            "dimensions": {
+                "x": 0.27328217029571533,
+                "y": 0.20905762910842896,
+                "z": 0.009999999776482582
+            },
+            "id": "{310d8952-a67e-4240-8455-06b9da611bc4}",
+            "ignoreForCollisions": 1,
+            "lastEdited": 1506545264685055,
+            "lastEditedBy": "{4f4112e4-dd25-44b9-b9f4-7268172f0640}",
+            "lineHeight": 0.05999999865889549,
+            "name": "Naked sign",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.18154048919677734,
+                "y": 0.98028564453125,
+                "z": 0
+            },
+            "queryAACube": {
+                "scale": 0.34422120451927185,
+                "x": 0.009429886937141418,
+                "y": 0.8081750273704529,
+                "z": -0.17211060225963593
+            },
+            "rotation": {
+                "w": 0.995394766330719,
+                "x": -3.805815504165366e-05,
+                "y": -0.0958607941865921,
+                "z": -2.966476859000977e-05
+            },
+            "text": "Step up to remove all items",
+            "textColor": {
+                "blue": 156,
+                "green": 205,
+                "red": 247
+            },
+            "type": "Text",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 19,
+                "green": 25,
+                "red": 28
+            },
+            "created": "2017-09-27T20:38:33Z",
+            "dimensions": {
+                "x": 0.6815733909606934,
+                "y": 0.3127632737159729,
+                "z": 0.6645658016204834
+            },
+            "id": "{1632d793-c0c8-4240-95cd-b751b1a1ba14}",
+            "lastEdited": 1506545263954802,
+            "lastEditedBy": "{4f4112e4-dd25-44b9-b9f4-7268172f0640}",
+            "name": "Naked Box Platform",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.12150740623474121,
+                "y": 0,
+                "z": 0.3121771812438965
+            },
+            "queryAACube": {
+                "scale": 1.0020034313201904,
+                "x": -0.379494309425354,
+                "y": -0.5010017156600952,
+                "z": -0.18882453441619873
+            },
+            "rotation": {
+                "w": 0.9942625761032104,
+                "x": 0.0017242431640625,
+                "y": -0.10695046186447144,
+                "z": -0.0008392333984375
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "clientOnly": 0,
+            "collisionSoundURL": "https://hifi-content.s3.amazonaws.com/rebecca/detachment%20Zone/chimes.wav",
+            "created": "2017-09-27T18:05:38Z",
+            "dimensions": {
+                "x": 0.6758866906166077,
+                "y": 1.7865022420883179,
+                "z": 0.6521665453910828
+            },
+            "id": "{f7691a07-c931-4678-9d36-137707767929}",
+            "lastEdited": 1506545267757611,
+            "lastEditedBy": "{4f4112e4-dd25-44b9-b9f4-7268172f0640}",
+            "name": "Naked Zone",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.11944198608398438,
+                "y": 0.801513671875,
+                "z": 0.3063230514526367
+            },
+            "queryAACube": {
+                "scale": 2.0183494091033936,
+                "x": -0.8897327184677124,
+                "y": -0.20766103267669678,
+                "z": -0.7028516530990601
+            },
+            "rotation": {
+                "w": 0.6223597526550293,
+                "x": 1.3178689641790697e-06,
+                "y": -0.7827313542366028,
+                "z": -4.823452763957903e-05
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/rebecca/detachment%20Zone/attachmentRemoval.js",
+            "scriptTimestamp": 1506469082931,
+            "shapeType": "box",
+            "type": "Zone",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        }
+    ],
+    "Version": 73
+}
