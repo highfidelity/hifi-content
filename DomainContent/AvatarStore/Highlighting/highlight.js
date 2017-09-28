@@ -29,17 +29,4 @@
             prevID = 0;
         }
     };
-
-
-    var cleanup = function(){
-        Entities.findEntities(MyAvatar.position, 1000).forEach(function(entity) {
-            try {
-                Selection.removeListFromMap(listName);
-            } catch (e) {
-                print("Error cleaning up.");
-            }
-        }); 
-    };
-
-    Script.scriptEnding.connect(cleanup);
 });
