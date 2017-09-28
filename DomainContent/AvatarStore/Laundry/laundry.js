@@ -14,7 +14,7 @@
     var _this = this;
 
     _this.collisionWithEntity = function (thisID, otherID, collisionInfo) {
-        var otherUserData = Entities.getEntityProperties(otherID).userData;
+        var otherUserData = Entities.getEntityProperties(otherID,'userData').userData;
         var isAttachment = otherUserData.indexOf("Attachment");
         var isAttached = otherUserData.indexOf("attached\\\":true");
         if (isAttachment !== -1 && isAttached === -1) {

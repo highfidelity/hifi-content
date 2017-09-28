@@ -19,15 +19,14 @@
         var direction = Quat.getFront(MyAvatar.orientation);
         var distance = 5;
         var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
-        position.y -= 0.78;
+        var distanceToFloor = 0.78;
+        position.y -= distanceToFloor;
         return position;
     }
 
     // import JSON data and lock items
     var entityTree = _entityImport.importEntitiesJSON(jsonUrl, {
         position: getPosition()
-    }, {
-        locked: true,
     });
 
     var laundryBasketParts = _entityImport.createEntitiesFromTree([
