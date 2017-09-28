@@ -10,10 +10,8 @@
 //  This script creates a zone where avatar entities will be deleted if they are attached.
 
 (function () {
-    var _entityImport = Script.require('https://hifi-content.s3.amazonaws.com/rebecca/entityImport.js');
-
-
-    var jsonUrl = "https://hifi-content.s3.amazonaws.com/rebecca/attachmentRemovalZone/detachmentZone.json";
+    var ENTITY_IMPORT = Script.require('https://hifi-content.s3.amazonaws.com/rebecca/entityImport.js');
+    var JSON_URL = "https://hifi-content.s3.amazonaws.com/rebecca/attachmentRemovalZone/detachmentZone.json";
 
     // get position in front of avatar for laundry basket
     function getPosition() {
@@ -26,13 +24,11 @@
     }
 
     // import JSON data and lock items
-    var entityTree = _entityImport.importEntitiesJSON(jsonUrl, {
+    var entityTree = _entityImport.importEntitiesJSON(JSON_URL, {
         position: getPosition()
     });
 
-    var laundryBasketParts = _entityImport.createEntitiesFromTree([
-        entityTree
-    ])[0].childEntities;
+    var laundryBasketParts = _entityImport.createEntitiesFromTree([entityTree])[0].childEntities;
 
     Script.scriptEnding.connect(cleanup);
 })();
