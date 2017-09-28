@@ -1,0 +1,79 @@
+{
+    "Entities": [
+        {
+            "angularDamping": 1,
+            "clientOnly": 0,
+            "collidesWith": "static,dynamic,kinematic,",
+            "collisionMask": 7,
+            "collisionsWillMove": 1,
+            "created": "2017-09-25T19:22:53Z",
+            "damping": 1,
+            "dimensions": {
+                "x": 0.4213150441646576,
+                "y": 0.8954291939735413,
+                "z": 0.5355010628700256
+            },
+            "dynamic": 1,
+            "id": "{95eb06f6-6901-424d-8eec-a2a38a2f6b01}",
+            "lastEdited": 1506443383095127,
+            "lastEditedBy": "{1872d5d3-2e51-4226-b542-4ff3bce79f1a}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/rebecca/Laundry/Hamper.obj",
+            "name": "Laundry Hamper",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{ca358284-de7b-4acc-b0c9-b3a7ad51b628}",
+            "position": {
+                "x": 0.059201717376708984,
+                "y": 0.049216270446777344,
+                "z": 0.01233530044555664
+            },
+            "queryAACube": {
+                "scale": 3.375581741333008,
+                "x": -11.109221458435059,
+                "y": -11.414290428161621,
+                "z": -5.104009628295898
+            },
+            "rotation": {
+                "w": 0.6804150342941284,
+                "x": -0.0010833740234375,
+                "y": -0.7328450679779053,
+                "z": -0.0017242431640625
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/rebecca/Laundry/laundry.js",
+            "scriptTimestamp": 1506442804304,
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-09-25T19:22:53Z",
+            "dimensions": {
+                "x": 0.406145840883255,
+                "y": 1.0263642072677612,
+                "z": 0.38194119930267334
+            },
+            "filterURL": "https://hifi-content.s3.amazonaws.com/rebecca/Laundry/laundryZone.js",
+            "id": "{ca358284-de7b-4acc-b0c9-b3a7ad51b628}",
+            "lastEdited": 1506388635825245,
+            "lastEditedBy": "{bf243266-3d3f-448c-8164-ee896c3a7dd5}",
+            "name": "LaundryZone",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 1.1680141687393188,
+                "x": -0.5840070843696594,
+                "y": -0.5840070843696594,
+                "z": -0.5840070843696594
+            },
+            "rotation": {
+                "w": 0.9396963119506836,
+                "x": -7.62939453125e-05,
+                "y": 0.34200048446655273,
+                "z": -1.52587890625e-05
+            },
+            "shapeType": "box",
+            "type": "Zone",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        }
+    ],
+    "Version": 73
+}
