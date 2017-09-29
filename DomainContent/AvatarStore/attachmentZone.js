@@ -92,10 +92,10 @@
 
                     if (userData.Attachment === undefined) {
                         userData.Attachment = {};
-                        if (entityProperties.parentJointIndex > -1 &&
-                            entityProperties.parentJointIndex < MyAvatar.jointNames.length) {
+                        if (newEntityProperties.parentJointIndex > -1 &&
+                            newEntityProperties.parentJointIndex < MyAvatar.jointNames.length) {
 
-                            userData.Attachment.joint = MyAvatar.jointNames[entityProperties.parentJointIndex];
+                            userData.Attachment.joint = MyAvatar.jointNames[newEntityProperties.parentJointIndex];
                         }
                     }
                     userData.Attachment.attached = true;
