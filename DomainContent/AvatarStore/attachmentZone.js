@@ -10,9 +10,7 @@
 
 (function() {
     var shared = Script.require('./attachmentZoneShared.js');
-    // TODO: how to identify that the avatar entity is an attachment?! Userdata?
 
-    var ATTACHMENTS_SETTINGS_KEY = 'io.highfidelity.attachments';
     var ATTACHMENT_ENTITY_SCRIPT = 'https://hifi-content.s3.amazonaws.com/liv/avatar_shopping_demo/attachmentItemScript_experimental.js';
     var ATTACHMENT_ZONE_CHANNEL_ACTIONS = shared.ATTACHMENT_ZONE_CHANNEL_ACTIONS;
 
@@ -66,7 +64,7 @@
 
                         // delete the avatar-entity after the regular-entity has been created.
                         Entities.deleteEntity(avatarEntityID);
-                    }, 500);
+                    }, 1000);
                 }, 100);
             } else {
                 print('Error. Unknown action in message ' + message);
@@ -81,16 +79,11 @@
     };
 
     this.enterEntity = function() {
-        // this is where we convert the avatarEntities to regular entities
-        if (Object.keys(MyAvatar.getAvatarEntityData()).length === 0) {
-            MyAvatar.setAvatarEntityData(Settings.getValue(ATTACHMENTS_SETTINGS_KEY, {}));
-        }
 
         // see JSON.stringify(MyAvatar.getAvatarEntityData())
         // in case its empty try to restore attachments from ATTACHMENT_SETTINGS_KEY
         shared.getAvatarChildEntities(MyAvatar).forEach(function(entityID) {
-            var entityProperties = Entities.getEntityProperties(entityID, ['clientOnly', 'owningAvatarID', 'parentID']);
-            if (entityProperties.clientOnly) {
+            if (Entities.getEntityProperties(entityID, 'clientOnly').clientOnly) {
                 var newEntityProperties = Entities.getEntityProperties(entityID);
                 shared.removeUnnecessaryProperties(newEntityProperties);
                 newEntityProperties.script = ATTACHMENT_ENTITY_SCRIPT;
@@ -99,6 +92,11 @@
 
                     if (userData.Attachment === undefined) {
                         userData.Attachment = {};
+                        if (entityProperties.parentJointIndex > -1 &&
+                            entityProperties.parentJointIndex < MyAvatar.jointNames.length) {
+
+                            userData.Attachment.joint = MyAvatar.jointNames[entityProperties.parentJointIndex];
+                        }
                     }
                     userData.Attachment.attached = true;
                 });
@@ -113,8 +111,7 @@
 
     this.leaveEntity = function() {
         shared.getAvatarChildEntities(MyAvatar).forEach(function(entityID) {
-            var entityProperties = Entities.getEntityProperties(entityID, ['clientOnly', 'owningAvatarID', 'parentID']);
-            if (!entityProperties.clientOnly) {
+            if (!Entities.getEntityProperties(entityID, 'clientOnly').clientOnly) {
                 var newEntityProperties = Entities.getEntityProperties(entityID);
                 shared.removeUnnecessaryProperties(newEntityProperties);
                 delete newEntityProperties.script;
@@ -126,7 +123,6 @@
                 Entities.deleteEntity(entityID);
             }
         });
-        Settings.setValue(ATTACHMENTS_SETTINGS_KEY, MyAvatar.getAvatarEntityData());
     };
 
     this.unload = function() {
