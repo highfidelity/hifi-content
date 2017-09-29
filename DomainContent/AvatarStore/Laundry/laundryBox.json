@@ -1,0 +1,73 @@
+{
+    "Entities": [
+        {
+            "clientOnly": 0,
+            "created": "2017-09-29T17:40:49Z",
+            "dimensions": {
+                "x": 0.3446076810359955,
+                "y": 0.9950522184371948,
+                "z": 0.3214074671268463
+            },
+            "filterURL": "https://hifi-content.s3.amazonaws.com/rebecca/Laundry/laundryZone.js",
+            "id": "{4915d1e6-dc58-4781-b0c9-66eabb41e3aa}",
+            "lastEdited": 1506707502035425,
+            "lastEditedBy": "{9174b41b-971c-4426-860e-4bf12dec69ff}",
+            "name": "LaundryZone",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.009658336639404297,
+                "y": 0,
+                "z": 0.0066013336181640625
+            },
+            "queryAACube": {
+                "scale": 1.100993275642395,
+                "x": -0.5408383011817932,
+                "y": -0.5504966378211975,
+                "z": -0.5438953042030334
+            },
+            "rotation": {
+                "w": 0.9396963119506836,
+                "x": -7.62939453125e-05,
+                "y": 0.34200048446655273,
+                "z": -1.52587890625e-05
+            },
+            "shapeType": "box",
+            "type": "Zone",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-09-29T17:40:49Z",
+            "dimensions": {
+                "x": 0.5026441216468811,
+                "y": 0.9853221774101257,
+                "z": 0.5279572010040283
+            },
+            "id": "{77fc9530-59c5-419e-ac04-8185d5ff0cd2}",
+            "lastEdited": 1506707438568238,
+            "lastEditedBy": "{9174b41b-971c-4426-860e-4bf12dec69ff}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/rebecca/Laundry/Basket-hi.obj",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0,
+                "y": 0.0380859375,
+                "z": 0
+            },
+            "queryAACube": {
+                "scale": 1.2256629467010498,
+                "x": -0.6128314733505249,
+                "y": -0.5747455358505249,
+                "z": -0.6128314733505249
+            },
+            "rotation": {
+                "w": 0.9125353097915649,
+                "x": -1.52587890625e-05,
+                "y": 0.40895700454711914,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        }
+    ],
+    "Version": 73
+}
