@@ -12,7 +12,7 @@
     var shared = Script.require('./attachmentZoneShared.js');
 
     var ATTACHMENTS_BECOME_ENTITIES_ON_ENTRY = false;
-    var ATTACHMENT_ENTITY_SCRIPT = 'https://hifi-content.s3.amazonaws.com/liv/avatar_shopping_demo/attachmentItemScript_experimental.js';
+    var ATTACHMENT_ENTITY_SCRIPT = 'https://hifi-content.s3.amazonaws.com/liv/avatar_shopping_demo/attachmentItemScript.js';
     var ATTACHMENT_ZONE_CHANNEL_ACTIONS = shared.ATTACHMENT_ZONE_CHANNEL_ACTIONS;
 
     var _attachmentZoneChannel = null;
