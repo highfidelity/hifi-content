@@ -30,5 +30,4 @@
 
     var laundryBasketParts = ENTITY_IMPORT.createEntitiesFromTree([entityTree])[0].childEntities;
 
-    Script.scriptEnding.connect(cleanup);
 })();
