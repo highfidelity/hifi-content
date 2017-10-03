@@ -13,6 +13,7 @@ AnimatedHueBrushClass.prototype.ANIMATED_BRUSH_INCREMENT = 0.5; //linear increme
 AnimatedHueBrushClass.prototype.NAME = "animatedHueBrush"; 
 
 AnimatedHueBrushClass.prototype.onUpdate = function(deltaSeconds, entityID) {
+	print( "My animation brushes are updating ");
     this.hsvColor.hue = this.hsvColor.hue + ((deltaSeconds * this.ANIMATED_BRUSH_INCREMENT)/this.ANIMATED_BRUSH_TIME);
     this.hsvColor.hue = this.hsvColor.hue >= 360 ? 0 : this.hsvColor.hue; //restart hue cycle
     this.animatedColor = hsv2rgb(this.hsvColor);

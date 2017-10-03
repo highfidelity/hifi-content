@@ -36,7 +36,7 @@
         ANIMATION_SCRIPT_PATH = Script.resolvePath("content/animatedBrushes/animatedBrushScript.js"),
         APP_URL = CONTENT_PATH + "/html/main.html";
 
-    Script.include("../libraries/controllers.js");
+    Script.include("/~/system/libraries/controllers.js");
     Script.include("content/js/ColorUtils.js");
     Script.include("content/animatedBrushes/animatedBrushesList.js");
 
@@ -993,7 +993,7 @@
                 if (prevUserData.animations == null) {
                     prevUserData.animations = {};
                 }
-
+  
                 prevUserData.animations[animationName] = animatedBrushFactory(animationName, 
                     AnimatedBrushesInfo[animationName].settings, entityID);
 
