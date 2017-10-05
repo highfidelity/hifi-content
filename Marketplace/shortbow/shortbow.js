@@ -60,7 +60,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "backgroundColor": {
@@ -101,7 +102,8 @@ SHORTBOW_ENTITIES =
             },
             "text": "0",
             "type": "Text",
-            "userData": "{\"displayType\":\"score\"}"
+            "userData": "{\"displayType\":\"score\"}",
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -138,7 +140,8 @@ SHORTBOW_ENTITIES =
             "script": Script.resolvePath("startGameButtonClientEntity.js"),
             "shapeType": "static-mesh",
             "type": "Model",
-            "userData": "{\"grabbableKey\":{\"wantsTrigger\":true}}"
+            "userData": "{\"grabbableKey\":{\"wantsTrigger\":true}}",
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "backgroundColor": {
@@ -179,7 +182,8 @@ SHORTBOW_ENTITIES =
             },
             "text": "0",
             "type": "Text",
-            "userData": "{\"displayType\":\"highscore\"}"
+            "userData": "{\"displayType\":\"highscore\"}",
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "backgroundColor": {
@@ -220,7 +224,8 @@ SHORTBOW_ENTITIES =
             },
             "text": "0",
             "type": "Text",
-            "userData": "{\"displayType\":\"wave\"}"
+            "userData": "{\"displayType\":\"wave\"}",
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "backgroundColor": {
@@ -261,7 +266,8 @@ SHORTBOW_ENTITIES =
             },
             "text": "0",
             "type": "Text",
-            "userData": "{\"displayType\":\"lives\"}"
+            "userData": "{\"displayType\":\"lives\"}",
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -305,7 +311,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -349,7 +356,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -393,7 +401,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -437,7 +446,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -481,7 +491,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -525,7 +536,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -569,7 +581,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -613,7 +626,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -657,7 +671,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -701,7 +716,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -745,7 +761,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -780,7 +797,8 @@ SHORTBOW_ENTITIES =
                 "z": -1.52587890625e-05
             },
             "shapeType": "static-mesh",
-            "type": "Model"
+            "type": "Model",
+            "serverScripts": Script.resolvePath("empty.js")
         },
         {
             "clientOnly": 0,
@@ -851,7 +869,8 @@ SHORTBOW_ENTITIES =
             },
             "shape": "Cube",
             "type": "Box",
-            "visible": 0
+            "visible": 0,
+            "serverScripts": Script.resolvePath("empty.js")
         }
     ],
     "Version": 68
