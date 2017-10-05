@@ -21,29 +21,17 @@
     };
     
     var NUM_FISH = 20;
-    //var TANK_WIDTH = 3.0; 
-   // var TANK_HEIGHT = 1.0;  
-   // var FISH_WIDTH = 0.3;
-   // var FISH_LENGTH = 0.3; 
-   // var MAX_SIGHT_DISTANCE = 0.8;
-   // var MIN_SEPARATION = 0.40;
-   // var AVOIDANCE_FORCE = 0.4;
-   // var COHESION_FORCE = 0.05;
-   //// var ALIGNMENT_FORCE = 1.05;
-   // var SWIMMING_FORCE = 0.05;
-  //  var SWIMMING_SPEED = 1.5;
-
-var TANK_WIDTH = 3.0; 
-var TANK_HEIGHT = 1.0;  
-var FISH_WIDTH = 0.13;
-var FISH_LENGTH = 0.25; 
-var MAX_SIGHT_DISTANCE = 0.8;
-var MIN_SEPARATION = 0.20;
-var AVOIDANCE_FORCE = 0.2;
-var COHESION_FORCE = 0.05;
-var ALIGNMENT_FORCE = 0.05;
-var SWIMMING_FORCE = 0.05;
-var SWIMMING_SPEED = 0.6;
+    var TANK_WIDTH = 3.0; 
+    var TANK_HEIGHT = 1.0;  
+    var FISH_WIDTH = 0.13;
+    var FISH_LENGTH = 0.25; 
+    var MAX_SIGHT_DISTANCE = 0.8;
+    var MIN_SEPARATION = 0.20;
+    var AVOIDANCE_FORCE = 0.2;
+    var COHESION_FORCE = 0.05;
+    var ALIGNMENT_FORCE = 0.05;
+    var SWIMMING_FORCE = 0.05;
+    var SWIMMING_SPEED = 0.6;
  
     var fishLoaded = false; 
     var fish = [];
@@ -76,10 +64,6 @@ var SWIMMING_SPEED = 0.6;
     });
     
     button.clicked.connect(onClicked);
-        
-    function randomVector(scale) {
-        return { x: Math.random() * scale - scale / 2.0, y: Math.random() * scale - scale / 2.0, z: Math.random() * scale - scale / 2.0 };
-    }
 
     function updateFish(deltaTime) {
         if (!Entities.serversExist() || !Entities.canRez()) {
@@ -106,8 +90,6 @@ var SWIMMING_SPEED = 0.6;
 
         var averageVelocity = { x: 0, y: 0, z: 0 };
         var averagePosition = { x: 0, y: 0, z: 0 };
-        var birdPositionsCounted = 0;
-        var birdVelocitiesCounted = 0;
 
         // First pre-load an array with properties  on all the other fish so our per-fish loop
         // isn't doing it. 
@@ -203,16 +185,17 @@ var SWIMMING_SPEED = 0.6;
     }
 
     Script.scriptEnding.connect(function() {
-            cleanupFish();
-            button.clicked.disconnect(onClicked);
-            tablet.removeButton(button);
+        cleanupFish();
+        button.clicked.disconnect(onClicked);
+        tablet.removeButton(button);
     });
 
-    //  Delete our little friends and the aquarium if the function/script is stopped
     function cleanupFish() {
+        // Delete all of the fish
         for (var i = 0; i < fish.length; i++) {
             Entities.deleteEntity(fish[i].entityId);
         }
+        // Delete the Aquarium
         Entities.deleteEntity(aquariumModel);
     }
     
@@ -231,17 +214,15 @@ var SWIMMING_SPEED = 0.6;
 
         fish.push({
             entityId: Entities.addEntity({
-                        type: "Model",
-                        position: position,
-                        rotation: { x: 0, y: 0, z: 0, w: 1 },
-                        dimensions: { x: FISH_WIDTH, y: FISH_WIDTH, z: FISH_LENGTH },
-                        velocity: { x: SWIMMING_SPEED, y: SWIMMING_SPEED, z: SWIMMING_SPEED },
-                        damping: 0.0,
-                        dynamic: false,
-                        modelURL: "https://s3-eu-west-1.amazonaws.com/cainkilgore-prod/files/goldfishNonShiny3.fbx",
-                        shapeType: "sphere",
-                        collisionless: 1,
-                        collisionMask: 0
+                type: "Model",
+                position: position,
+                rotation: { x: 0, y: 0, z: 0, w: 1 },
+                dimensions: { x: FISH_WIDTH, y: FISH_WIDTH, z: FISH_LENGTH },
+                velocity: { x: SWIMMING_SPEED, y: SWIMMING_SPEED, z: SWIMMING_SPEED },
+                damping: 0.0,
+                dynamic: false,
+                modelURL: "http://mpassets.highfidelity.com/4535b57c-f35a-4d9d-a3ee-1233c457dc8e-v1/goldfish.fbx",
+                shapeType: "sphere"
             })
           });
         }
