@@ -114,7 +114,7 @@ SHORTBOW_ENTITIES =
             "id": "{04288f77-64df-4323-ac38-9c1960a393a5}",
             "lastEdited": 1487893058314990,
             "lastEditedBy": "{fce8028a-4bac-43e8-96ff-4c7286ea4ab3}",
-            "modelURL": "file:///c:/Users/ryanh/dev/hifi/unpublishedScripts/marketplace/shortbow/models/shortbow-button.baked.fbx",
+            "modelURL": Script.resolvePath("models/shortbow-button.baked.fbx"),
             "name": "SB.StartButton",
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "parentID": "{0cd1f1f7-53b9-4c15-bf25-42c0760d16f0}",
@@ -135,7 +135,7 @@ SHORTBOW_ENTITIES =
                 "y": 1.52587890625e-05,
                 "z": 1.52587890625e-05
             },
-            "script": "file:///c:/Users/ryanh/dev/hifi/unpublishedScripts/marketplace/shortbow/startGameButtonClientEntity.js",
+            "script": Script.resolvePath("startGameButtonClientEntity.js"),
             "shapeType": "static-mesh",
             "type": "Model",
             "userData": "{\"grabbableKey\":{\"wantsTrigger\":true}}"
@@ -758,7 +758,7 @@ SHORTBOW_ENTITIES =
             "id": "{d4c8f577-944d-4d50-ac85-e56387c0ef0a}",
             "lastEdited": 1487892440231278,
             "lastEditedBy": "{91f193dd-829a-4b33-ab27-e9a26160634a}",
-            "modelURL": "file:///c:/Users/ryanh/dev/hifi/unpublishedScripts/marketplace/shortbow/models/shortbow-platform.baked.fbx",
+            "modelURL": Script.resolvePath("models/shortbow-platform.baked.fbx"),
             "name": "SB.Platform",
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "parentID": "{0cd1f1f7-53b9-4c15-bf25-42c0760d16f0}",
@@ -794,7 +794,7 @@ SHORTBOW_ENTITIES =
             "id": "{0cd1f1f7-53b9-4c15-bf25-42c0760d16f0}",
             "lastEdited": 1487892440231832,
             "lastEditedBy": "{91f193dd-829a-4b33-ab27-e9a26160634a}",
-            "modelURL": "file:///c:/Users/ryanh/dev/hifi/unpublishedScripts/marketplace/shortbow/models/shortbow-scoreboard.baked.fbx",
+            "modelURL": Script.resolvePath("models/shortbow-scoreboard.baked.fbx"),
             "name": "SB.Scoreboard",
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "queryAACube": {
@@ -809,7 +809,7 @@ SHORTBOW_ENTITIES =
                 "y": -1.52587890625e-05,
                 "z": -1.52587890625e-05
             },
-            "serverScripts": "file:///c:/Users/ryanh/dev/hifi/unpublishedScripts/marketplace/shortbow/shortbowServerEntity.js",
+            "serverScripts": Script.resolvePath("shortbowServerEntity.js"),
             "shapeType": "static-mesh",
             "type": "Model"
         },
