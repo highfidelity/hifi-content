@@ -9,7 +9,6 @@
 //
 //  This zone will provide an area at which a user may purchase an item. When the avatar enters the zone wearing a marketplace item, 
 //  the tablet will open to the marketplace home page for that item, allowing the user to quickly make the purchase.
-/* global overlayLAserInput, getEnabledModuleByName, Controller */
 (function () {
     print("Begin the checkout zone script take 3");
     print("myavatarid is " + MyAvatar.sessionUUID);
@@ -95,6 +94,7 @@
                     overlay = {
                         position: spawnPosition,
                         name: marketplaceID,
+                        userData: "checkout",
                         color: {
                             red: 255,
                             green: 255,
@@ -117,14 +117,19 @@
                     spawnPosition.z -= TABLE_PADDING;
                 }
             }
+
+            Overlays.mousePressOnOverlay.connect(function(overlayID, event){
+                var overlayTag = Overlays.getProperty(overlayID, 'userData');
+                print("OverlayTag is " + overlayTag);
+                if (overlayTag === "checkout") {
+                    var goToURL = "https://metaverse.highfidelity.com/marketplace/items/" + Overlays.getProperty(overlayID, 'name');
+                    var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
+                    tablet.gotoWebScreen(goToURL);
+                }
+            });
         });
     });
-    Overlays.mousePressOnOverlay.connect(function(overlayID, event){
-        var goToURL = "https://metaverse.highfidelity.com/marketplace/items/" + Overlays.getProperty(overlayID, 'name');
-        var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-        tablet.gotoWebScreen(goToURL);
-    });
-
+    
     /* _this.findRayIntersection = (function(pickRay) {
         var result = Overlays.findRayIntersection(pickRay);
         if (result.intersects) {
