@@ -1,3 +1,13 @@
+//
+// dodgeball.js
+//
+// Copyright 2017 High Fidelity, Inc.
+//
+// Simple game of dodgeball
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 (function () {
     var FORCE_DROP_CHANNEL = "Hifi-Hand-Drop";
 
@@ -7,10 +17,14 @@
     var _entityID;
 
     var lightTimer = 0,
-        lightTimeoutID = undefined,
-        LIGHT_UPDATE_INTERVAL = 50,
         spotlight = null,
+        MIN_SPOTLIGHT_INTENSITY = 5,
+        MIN_SPOTLIGHT_FALLOFF_RADIUS = 5,
+        SPOTLIGHT_INTENSITY = 50,
+        SPOTLIGHT_FALLOFF_RADIUS = 10,
+        LIGHT_UPDATE_INTERVAL = 50,
         LIGHT_LIFETIME = 200;
+
 
     var BALL_SOUNDS = [];
 
@@ -72,8 +86,8 @@
             spotlight = null;
         } else {
             Entities.editEntity(spotlight, {
-                intensity: 5 + Math.random() * 50,
-                falloffRadius:  5 + Math.random() * 10
+                intensity: MIN_SPOTLIGHT_INTENSITY + Math.random() * SPOTLIGHT_INTENSITY,
+                falloffRadius:  MIN_SPOTLIGHT_FALLOFF_RADIUS + Math.random() * SPOTLIGHT_FALLOFF_RADIUS
             });
             lightTimeoutID = Script.setTimeout(updateLight, LIGHT_UPDATE_INTERVAL);
         }
