@@ -17,7 +17,7 @@
     var ITEM_HEIGHT = 0.2;
     
     var _this = this;
-    var tableProperties, tableHeight, tableLength, spawnPosition;
+    var tableProperties, tableHeight, tableLength, tableID,  spawnPosition, spawnHeight, spawnZ;
     var zoneID, overlay;
     var overlayList = [];
     var replicaList = [];
@@ -37,10 +37,12 @@
             if (name === "Checkout Table") {
                 // print("Found the checkout table .......");
                 tableProperties = Entities.getEntityProperties(childID, ['id','position', 'dimensions', 'rotation']);
+                tableID = tableProperties.id;
                 tableHeight = tableProperties.dimensions.y;
                 tableLength = tableProperties.dimensions.x;
                 spawnPosition = tableProperties.position;
                 spawnPosition.y += ((0.5 * tableHeight) + (0.5 * ITEM_HEIGHT));
+                spawnHeight = spawnPosition.y;
                 spawnPosition.z += ((0.5 * tableLength) + TABLE_PADDING);
                 // print("Returning spawn position for checkout item");
                 return;
@@ -54,7 +56,9 @@
         var properties = Entities.getEntityProperties(entityID, ['name','modelURL','type','dimensions','marketplaceID']);
         var oldName = properties.name;
         properties.name = "Checkout Item " + oldName;
-        properties.position = spawnPosition;
+        properties.parentID = tableID;
+        properties.localPosition = {"x":0,"y":((0.5 * tableHeight) + (0.5 * ITEM_HEIGHT)),"z":-spawnZ};
+        properties.localRotation = {"x":0,"y":0,"z":0};
         properties.rotation = tableProperties.rotation;
         properties.userData = "{\"grabbableKey\":{\"cloneable\":false,\"grabbable\":false}}";
         var scale = (ITEM_HEIGHT / properties.dimensions.y);
@@ -70,12 +74,14 @@
             properties.dimensions.x *= scale;
             properties.dimensions.z *= scale;
         }
+        print("properties: " + JSON.stringify(properties));
         Entities.addEntity(properties);
     });
 
     _this.enterEntity = (function (entityID) {
         // print("You've entered the checkout zone");
         getCheckoutStandPosition();
+        spawnZ = -((0.5 * tableLength) + ITEM_HEIGHT);
         // print("got checkout stand position");
         SHARED.getAvatarChildEntities(MyAvatar).forEach(function (entityID) {
             // print("Getting avatar child entiites...");
@@ -90,9 +96,11 @@
                 if (isAttachment !== -1) {
                 // print("Found an attachment from the marketplace.");
                     spawnItem(entityID); // put a copy of the item on the table
-                    spawnPosition.x += TABLE_PADDING; // move spawn position to in front of item
                     overlay = {
-                        position: spawnPosition,
+                        type: "text",
+                        parentID: tableID,
+                        localPosition: {"x":ITEM_HEIGHT,"y":((0.5 * tableHeight) + (0.5 *ITEM_HEIGHT)),"z":-spawnZ},
+                        localRotation: {"x":0,"y":0,"z":0},
                         name: marketplaceID,
                         userData: "checkout",
                         color: {
@@ -113,15 +121,13 @@
                     };
                     var tempOverlay = Overlays.addOverlay("cube", overlay); // add an overlay price tag
                     overlayList.push(tempOverlay);
-                    spawnPosition.x -= TABLE_PADDING; // move spawn position back to item and over to the next empty spot
-                    spawnPosition.z -= TABLE_PADDING;
+                    // move spawn position over to the next empty spot
+                    spawnZ += TABLE_PADDING;
                 }
             }
 
             Overlays.mousePressOnOverlay.connect(function(overlayID, event){
-                var overlayTag = Overlays.getProperty(overlayID, 'userData');
-                print("OverlayTag is " + overlayTag);
-                if (overlayTag === "checkout") {
+                if (overlayList.indexOf(overlayID) !== -1) {
                     var goToURL = "https://metaverse.highfidelity.com/marketplace/items/" + Overlays.getProperty(overlayID, 'name');
                     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
                     tablet.gotoWebScreen(goToURL);
