@@ -1,8 +1,13 @@
-// makeDodgeball.js
 //
-//  Distributed under the Apache License, Version 2.0.
-//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+// dodgeball.js
 //
+// Copyright 2017 High Fidelity, Inc.
+//
+// Simple game of dodgeball - Make file
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 var NAME = "dodgeball";
 var SIZE = 0.2;
 var TYPE = "Model";
