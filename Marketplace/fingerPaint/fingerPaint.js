@@ -77,8 +77,7 @@
             _isUvModeStretch = _savedSettings.currentTexture.brushType == "stretch",
             MIN_STROKE_LENGTH = 0.005,  // m
             MIN_STROKE_INTERVAL = 66,  // ms
-            MAX_POINTS_PER_LINE = 52;  // Quick fix for polyline points disappearing issue.
-                
+            MAX_POINTS_PER_LINE = 52;  // Quick fix for polyline points disappearing issue.     
         function calculateStrokeNormal() {
             if (!_isMouseDrawing) {
                 var controllerPose = _isLeftHandDominant 
@@ -389,8 +388,9 @@
         function tearDown() {
             cancelLine();
         }
-
+        
         return {
+            name: name,
             startLine: startLine,
             drawLine: drawLine,
             finishLine: finishLine,
@@ -599,6 +599,9 @@
     }
     
     function updateHandAnimations(){
+        if (_leftBrush == null) {
+            return;
+        }
         var ANIM_URL = (_isLeftHandDominant? LEFT_ANIM_URL: RIGHT_ANIM_URL );
         var ANIM_OPEN = (_isLeftHandDominant? LEFT_ANIM_URL_OPEN: RIGHT_ANIM_URL_OPEN );
         var handLiteral = (_isLeftHandDominant? "left": "right" );
@@ -627,6 +630,7 @@
         Messages.sendLocalMessage("Hifi-Hand-Disabler", handLiteral);
         
         //update ink Source
+
         var strokeColor = _leftBrush.getStrokeColor();
         var strokeWidth = _leftBrush.getStrokeWidth()*0.06;
         if (_inkSourceOverlay == null){
@@ -688,6 +692,7 @@
     }
 
     function pauseProcessing() {
+        print("INFO: Pause Processing");
         Messages.sendLocalMessage("Hifi-Hand-Disabler", "none");
         Messages.unsubscribe(HIFI_POINT_INDEX_MESSAGE_CHANNEL);
         Messages.unsubscribe(HIFI_GRAB_DISABLE_MESSAGE_CHANNEL);
@@ -697,6 +702,7 @@
     }
 
      function resumeProcessing() {
+        print("INFO: Resume Processing");
         //Change to finger paint hand animation
         updateHandAnimations();
         
@@ -707,10 +713,14 @@
     }
     
     function enableProcessing() {
+        print("INFO: Star Processing");
         // Connect controller API to handController objects.
         _leftHand = handController("left");
         _rightHand = handController("right");
-        
+
+        if (_savedSettings == null) {
+            restoreLastValues();
+        }
           // Connect handController outputs to paintBrush objects.
         _leftBrush = paintBrush("left");
         _leftHand.setUp(_leftBrush.startLine, _leftBrush.drawLine, _leftBrush.finishLine, _leftBrush.eraseClosestLine);
@@ -738,6 +748,7 @@
     }
 
     function disableProcessing() {
+        print("INFO: Disable Processing");
         if (_leftHand && _rightHand) {
             Script.update.disconnect(_leftHand.onUpdate);
             Script.update.disconnect(_rightHand.onUpdate);
@@ -843,8 +854,7 @@
         var TABLET_SCREEN_WEB = "Web";
             
         _isTabletDisplayed = type !== TABLET_SCREEN_CLOSED;
-        _isFingerPainting = type === TABLET_SCREEN_WEB && url.indexOf("fingerPaint/html/main.html") > -1;
-        
+        _isFingerPainting = type === TABLET_SCREEN_WEB && url.indexOf("html/main.html") > -1;
         if (!_isFingerPainting) {
             disableProcessing();
             updateHandFunctions();
@@ -858,7 +868,12 @@
         if (typeof event === "string") {
             event = JSON.parse(event);
         }
-
+        
+        if (_leftBrush == null ) {
+            print("ERROR: Painting not enabled.");
+            return;
+        }
+        
         switch (event.type) {
             case "appReady":
                 _isTabletFocused = false; //make sure we can set the focus on the tablet again
@@ -874,23 +889,28 @@
                 break;
 
             case "changeColor":
-                if (!_isBrushColored) {
-                    var setStrokeColorEvent = {type: "changeStrokeColor", value: event};
-                    tablet.emitScriptEvent(JSON.stringify(setStrokeColorEvent));
-                    
-                    Settings.setValue("currentColor", event);
-                    _leftBrush.setStrokeColor(event.red, event.green, event.blue);
-                    _rightBrush.setStrokeColor(event.red, event.green, event.blue);
-                    Overlays.editOverlay(_inkSourceOverlay, {
-                        color: {red: event.red, green: event.green, blue: event.blue} 
-                    });
-                } 
+                if (_leftBrush != null && _rightBrush != null) {
+                    if (!_isBrushColored) {
+                        var setStrokeColorEvent = {type: "changeStrokeColor", value: event};
+                        tablet.emitScriptEvent(JSON.stringify(setStrokeColorEvent));
+                        
+                        Settings.setValue("currentColor", event);
+                        _leftBrush.setStrokeColor(event.red, event.green, event.blue);
+                        _rightBrush.setStrokeColor(event.red, event.green, event.blue);
+                        
+                        Overlays.editOverlay(_inkSourceOverlay, {
+                            color: {red: event.red, green: event.green, blue: event.blue} 
+                        });
+                    } 
+                }
                 break;
 
             case "switchTriggerPressureWidth":
-                Settings.setValue("currentTriggerWidthEnabled", event.enabled);
-                _leftBrush.setIsTriggerWidthEnabled(event.enabled);
-                _rightBrush.setIsTriggerWidthEnabled(event.enabled);
+                if (_leftBrush != null && _rightBrush != null) {
+                    Settings.setValue("currentTriggerWidthEnabled", event.enabled);
+                    _leftBrush.setIsTriggerWidthEnabled(event.enabled);
+                    _rightBrush.setIsTriggerWidthEnabled(event.enabled);
+                }
                 break;
 
             case "addCustomColor":
@@ -909,39 +929,45 @@
                 break;
 
             case "changeBrush":
-                Settings.setValue("currentTexture", event);
-                Settings.setValue("currentIsBrushColored", event.isColored);
+                if (_leftBrush != null && _rightBrush != null) {
+                    Settings.setValue("currentTexture", event);
+                    Settings.setValue("currentIsBrushColored", event.isColored);
 
-                if (event.brushType === "repeat") {
-                    _leftBrush.setUVMode(false);
-                    _rightBrush.setUVMode(false);
+                    if (event.brushType === "repeat") {
+                        _leftBrush.setUVMode(false);
+                        _rightBrush.setUVMode(false);
 
-                } else if (event.brushType === "stretch") {
-                    _leftBrush.setUVMode(true);
-                    _rightBrush.setUVMode(true);
-                } 
+                    } else if (event.brushType === "stretch") {
+                        _leftBrush.setUVMode(true);
+                        _rightBrush.setUVMode(true);
+                    } 
 
-                _isBrushColored = event.isColored;
-                event.brushName = CONTENT_PATH + "/" + event.brushName;
-                _leftBrush.setTexture(event.brushName);
-                _rightBrush.setTexture(event.brushName);
+                    _isBrushColored = event.isColored;
+                    event.brushName =  Script.resolvePath(event.brushName);
+                    _leftBrush.setTexture(event.brushName);
+                    _rightBrush.setTexture(event.brushName);
+                }
                 break;
 
             case "changeLineWidth":
-                Settings.setValue("currentStrokeWidth", event.brushWidth);
-                var dim = event.brushWidth * 2 + 0.1;
-                _leftBrush.setStrokeWidthMultiplier(dim);
-                _rightBrush.setStrokeWidthMultiplier(dim);
-                Overlays.editOverlay(_inkSourceOverlay, {
-                    size: dim * 0.06 
-                });
+                if (_leftBrush != null && _rightBrush != null) {
+                    Settings.setValue("currentStrokeWidth", event.brushWidth);
+                    var dim = event.brushWidth * 2 + 0.1;
+                    _leftBrush.setStrokeWidthMultiplier(dim);
+                    _rightBrush.setStrokeWidthMultiplier(dim);
+                    Overlays.editOverlay(_inkSourceOverlay, {
+                        size: dim * 0.06 
+                    });
+                }    
                 break;
 
             case "undo":
                 //The undo is called only on the right brush because the undo stack is global, meaning that
                 //calling undo on both the left and right brush would cause the stack to pop twice.
                 //Using the leftBrush instead of the rightBrush would have the exact same effect.
-                _rightBrush.undo();
+                if (_leftBrush != null && _rightBrush != null) {
+                    _rightBrush.undo();
+                }
                 break;
 
             case "changeBrushHand":
