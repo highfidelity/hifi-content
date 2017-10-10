@@ -285,4 +285,8 @@
         clearProxCheck();
     };
 
+    this.unload = function () {
+        clearProxCheck();
+    };
+
 });
