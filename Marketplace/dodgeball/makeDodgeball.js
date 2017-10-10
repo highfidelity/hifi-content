@@ -3,7 +3,7 @@
 //
 //  Simple game of dodgeball - Make file
 //  Created by Midnight Rift on 10/01/2017
-//  Modified by Philip Rosdale and Milad Nazeri
+//  Modified by Philip Rosedale and Milad Nazeri
 //  Copyright 2017 High Fidelity, Inc.
 //
 // Distributed under the Apache License, Version 2.0.
