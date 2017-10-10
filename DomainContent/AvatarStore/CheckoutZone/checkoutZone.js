@@ -17,7 +17,7 @@
     var ITEM_HEIGHT = 0.2;
     
     var _this = this;
-    var tableProperties, tableHeight, tableLength, tableID,  spawnPosition, spawnHeight, spawnZ;
+    var tableProperties, tableHeight, tableLength, tableID, spawnPosition, spawnZ;
     var zoneID, overlay;
     var overlayList = [];
     var replicaList = [];
@@ -42,7 +42,6 @@
                 tableLength = tableProperties.dimensions.x;
                 spawnPosition = tableProperties.position;
                 spawnPosition.y += ((0.5 * tableHeight) + (0.5 * ITEM_HEIGHT));
-                spawnHeight = spawnPosition.y;
                 spawnPosition.z += ((0.5 * tableLength) + TABLE_PADDING);
                 // print("Returning spawn position for checkout item");
                 return;
