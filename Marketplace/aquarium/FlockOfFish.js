@@ -127,7 +127,9 @@
                             othersCounted++;
                         }
                         if (separation < MIN_SEPARATION) {
-                            var pushAway = Vec3.multiply(Vec3.normalize(Vec3.subtract(properties.position, otherProps.position)), AVOIDANCE_FORCE);
+                            var pushSubtract = Vec3.subtract(properties.position, otherProps.position);
+                            var pushNormalize = Vec3.normalize(pushSubtract, AVOIDANCE_FORCE);
+                            var pushAway = Vec3.multiply(pushNormalize, AVOIDANCE_FORCE);
                             velocity = Vec3.sum(velocity, pushAway);
                         }
                     }
@@ -136,11 +138,15 @@
                 if (othersCounted > 0) {
                     averageVelocity = Vec3.multiply(averageVelocity, 1.0 / othersCounted);
                     averagePosition = Vec3.multiply(averagePosition, 1.0 / othersCounted);
+                    
+                    var multiplyVelocity = Vec3.multiply(Vec3.normalize(averageVelocity), Vec3.length(velocity));
                     //  Alignment: Follow group's direction and speed
-                    velocity = Vec3.mix(velocity, Vec3.multiply(Vec3.normalize(averageVelocity), Vec3.length(velocity)), ALIGNMENT_FORCE);
+                    velocity = Vec3.mix(velocity, multiplyVelocity, ALIGNMENT_FORCE);
                     // Cohesion: Steer towards center of flock
                     var towardCenter = Vec3.subtract(averagePosition, position);
-                    velocity = Vec3.mix(velocity, Vec3.multiply(Vec3.normalize(towardCenter), Vec3.length(velocity)), COHESION_FORCE);
+                    var centerMultiply = Vec3.multiply(Vec3.normalize(towardCenter), Vec3.length(velocity));
+                    
+                    velocity = Vec3.mix(velocity, centerMultiply, COHESION_FORCE);
                 }
 
                 //  Try to swim at a constant speed
@@ -176,9 +182,20 @@
                 //  Only update properties if they have changed, to save bandwidth
                 var MIN_POSITION_CHANGE_FOR_UPDATE = 0.001;
                 if (Vec3.distance(properties.position, position) < MIN_POSITION_CHANGE_FOR_UPDATE) {
-                    Entities.editEntity(fish[i].entityId, { velocity: velocity, rotation: Quat.mix(properties.rotation, rotation, VELOCITY_FOLLOW_RATE) });
+                    Entities.editEntity(
+                        fish[i].entityId, {
+                            velocity: velocity,
+                            rotation: Quat.mix(properties.rotation, rotation, VELOCITY_FOLLOW_RATE)
+                        }
+                    );
                 } else {
-                    Entities.editEntity(fish[i].entityId, { position: position, velocity: velocity, rotation: Quat.slerp(properties.rotation, rotation, VELOCITY_FOLLOW_RATE) });
+                    Entities.editEntity(
+                        fish[i].entityId, { 
+                            position: position,
+                            velocity: velocity,
+                            rotation: Quat.slerp(properties.rotation, rotation, VELOCITY_FOLLOW_RATE)
+                        }
+                    );
                 }
             }
         }
@@ -205,11 +222,15 @@
       lowerCorner = { x: center.x - TANK_WIDTH / 2, y: center.y, z: center.z - TANK_WIDTH / 2 };
       upperCorner = { x: center.x + TANK_WIDTH / 2, y: center.y + TANK_HEIGHT, z: center.z + TANK_WIDTH / 2 };
       
+      var minusCornerX = upperCorner.x - lowerCorner.x;
+      var minusCornerY = upperCorner.y - lowerCorner.y;
+      var minusCornerZ = upperCorner.z - lowerCorner.z;
+      
       for (var i = 0; i < howMany; i++) {
         var position = { 
-            x: lowerCorner.x + (upperCorner.x - lowerCorner.x) / 2.0 + (Math.random() - 0.5) * (upperCorner.x - lowerCorner.x) * STARTING_FRACTION, 
-            y: lowerCorner.y + (upperCorner.y - lowerCorner.y) / 2.0 + (Math.random() - 0.5) * (upperCorner.y - lowerCorner.y) * STARTING_FRACTION, 
-            z: lowerCorner.z + (upperCorner.z - lowerCorner.x) / 2.0 + (Math.random() - 0.5) * (upperCorner.z - lowerCorner.z) * STARTING_FRACTION
+            x: lowerCorner.x + minusCornerX / 2.0 + (Math.random() - 0.5) * minusCornerX * STARTING_FRACTION, 
+            y: lowerCorner.y + minusCornerY / 2.0 + (Math.random() - 0.5) * minusCornerY * STARTING_FRACTION, 
+            z: lowerCorner.z + minusCornerZ / 2.0 + (Math.random() - 0.5) * minusCornerZ * STARTING_FRACTION
         }; 
 
         fish.push({
@@ -228,4 +249,3 @@
         }
     }
 }());
-
