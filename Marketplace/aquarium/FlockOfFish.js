@@ -104,7 +104,7 @@
                 // Get only the properties we need, because that is faster
                 var properties = flockProperties[i];
                 //  If fish has been deleted, bail
-                if (properties.id != fish[i].entityId) {
+                if (properties.id !== fish[i].entityId) {
                     fish[i].entityId = false;
                     return;
                 }
@@ -117,7 +117,7 @@
 
                 var othersCounted = 0;
                 for (var j = 0; j < fish.length; j++) {
-                    if (i != j) {
+                    if (i !== j) {
                         // Get only the properties we need, because that is faster
                         var otherProps = flockProperties[j];
                         var separation = Vec3.distance(properties.position, otherProps.position);
@@ -218,34 +218,35 @@
     
     var STARTING_FRACTION = 0.25; 
     function loadFish(howMany) {
-      var center = Vec3.sum(MyAvatar.position, Vec3.multiply(Quat.getFront(MyAvatar.orientation), 2 * TANK_WIDTH));
-      lowerCorner = { x: center.x - TANK_WIDTH / 2, y: center.y, z: center.z - TANK_WIDTH / 2 };
-      upperCorner = { x: center.x + TANK_WIDTH / 2, y: center.y + TANK_HEIGHT, z: center.z + TANK_WIDTH / 2 };
+        var center = Vec3.sum(MyAvatar.position, Vec3.multiply(Quat.getFront(MyAvatar.orientation), 2 * TANK_WIDTH));
+        lowerCorner = { x: center.x - TANK_WIDTH / 2, y: center.y, z: center.z - TANK_WIDTH / 2 };
+        upperCorner = { x: center.x + TANK_WIDTH / 2, y: center.y + TANK_HEIGHT, z: center.z + TANK_WIDTH / 2 };
       
-      var minusCornerX = upperCorner.x - lowerCorner.x;
-      var minusCornerY = upperCorner.y - lowerCorner.y;
-      var minusCornerZ = upperCorner.z - lowerCorner.z;
-      
-      for (var i = 0; i < howMany; i++) {
-        var position = { 
-            x: lowerCorner.x + minusCornerX / 2.0 + (Math.random() - 0.5) * minusCornerX * STARTING_FRACTION, 
-            y: lowerCorner.y + minusCornerY / 2.0 + (Math.random() - 0.5) * minusCornerY * STARTING_FRACTION, 
-            z: lowerCorner.z + minusCornerZ / 2.0 + (Math.random() - 0.5) * minusCornerZ * STARTING_FRACTION
-        }; 
+        var minusCornerX = upperCorner.x - lowerCorner.x;
+        var minusCornerY = upperCorner.y - lowerCorner.y;
+        var minusCornerZ = upperCorner.z - lowerCorner.z;
+        
+        for (var i = 0; i < howMany; i++) {
+            var position = { 
+                x: lowerCorner.x + minusCornerX / 2.0 + (Math.random() - 0.5) * minusCornerX * STARTING_FRACTION, 
+                y: lowerCorner.y + minusCornerY / 2.0 + (Math.random() - 0.5) * minusCornerY * STARTING_FRACTION, 
+                z: lowerCorner.z + minusCornerZ / 2.0 + (Math.random() - 0.5) * minusCornerZ * STARTING_FRACTION
+            }; 
 
-        fish.push({
-            entityId: Entities.addEntity({
-                type: "Model",
-                position: position,
-                rotation: { x: 0, y: 0, z: 0, w: 1 },
-                dimensions: { x: FISH_WIDTH, y: FISH_WIDTH, z: FISH_LENGTH },
-                velocity: { x: SWIMMING_SPEED, y: SWIMMING_SPEED, z: SWIMMING_SPEED },
-                damping: 0.0,
-                dynamic: false,
-                modelURL: "http://mpassets.highfidelity.com/4535b57c-f35a-4d9d-a3ee-1233c457dc8e-v1/goldfish.fbx",
-                shapeType: "sphere"
-            })
-          });
+            fish.push({
+                    entityId: Entities.addEntity({
+                        type: "Model",
+                        position: position,
+                        rotation: { x: 0, y: 0, z: 0, w: 1 },
+                        dimensions: { x: FISH_WIDTH, y: FISH_WIDTH, z: FISH_LENGTH },
+                        velocity: { x: SWIMMING_SPEED, y: SWIMMING_SPEED, z: SWIMMING_SPEED },
+                        damping: 0.0,
+                        dynamic: false,
+                        modelURL: "http://mpassets.highfidelity.com/4535b57c-f35a-4d9d-a3ee-1233c457dc8e-v1/goldfish.fbx",
+                        shapeType: "sphere"
+                    })
+                }
+            );
         }
     }
 }());
