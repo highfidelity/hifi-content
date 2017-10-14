@@ -37,7 +37,7 @@
                 visible: false,
                 shapeType: "box",
                 collidesWith: "dynamic,"
-				serverScripts: Script.resolvePath("empty.js")
+                serverScripts: Script.resolvePath("empty.js")
             };
             messageHandler = function(channel, data, sender) {
                 if (channel === messageChannel) {
