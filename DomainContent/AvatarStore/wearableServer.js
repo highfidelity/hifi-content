@@ -36,7 +36,8 @@
                 lifetime: CLONE_LIFETIME,
                 visible: false,
                 shapeType: "box",
-                collidesWith: "dynamic,"
+                collidesWith: "dynamic,",
+                serverScripts: Script.resolvePath("empty.js")
             };
             messageHandler = function(channel, data, sender) {
                 if (channel === messageChannel) {
