@@ -337,7 +337,7 @@ ShortbowGameManager.prototype = {
             position: this.rootPosition
         });
 		
-		var liveChecker = setInterval(function() {
+		var liveChecker = Script.setInterval(function() {
 			if (this.livesLeft <= 0) {
 				this.endGame();
 				clearInterval(liveChecker);
