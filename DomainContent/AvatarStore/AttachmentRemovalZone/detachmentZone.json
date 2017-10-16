@@ -1,0 +1,169 @@
+{
+    "Entities": [
+        {
+            "clientOnly": 0,
+            "collisionless": 1,
+            "created": "2017-09-27T20:49:29Z",
+            "dimensions": {
+                "x": 0.27328217029571533,
+                "y": 0.20905762910842896,
+                "z": 0.009999999776482582
+            },
+            "id": "{31cd620a-0d4d-462d-b9ac-76562354291b}",
+            "ignoreForCollisions": 1,
+            "lastEdited": 1506628404551064,
+            "lastEditedBy": "{4f4112e4-dd25-44b9-b9f4-7268172f0640}",
+            "lineHeight": 0.05999999865889549,
+            "locked": 1,
+            "name": "Attachment Removal sign",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.3855133056640625,
+                "y": 0.98028564453125,
+                "z": 0.8863451480865479
+            },
+            "queryAACube": {
+                "scale": 0.34422120451927185,
+                "x": 0.21340270340442657,
+                "y": 0.8081750273704529,
+                "z": 0.7142345309257507
+            },
+            "rotation": {
+                "w": 0.20784318447113037,
+                "x": 1.52587890625e-05,
+                "y": -0.9781795740127563,
+                "z": -4.57763671875e-05
+            },
+            "text": "Step up to remove all items",
+            "textColor": {
+                "blue": 156,
+                "green": 205,
+                "red": 247
+            },
+            "type": "Text",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "clientOnly": 0,
+            "compoundShapeURL": "http://hifi-content.s3.amazonaws.com/alan/dev/EZ--Ramp3.obj",
+            "created": "2017-09-27T20:49:29Z",
+            "dimensions": {
+                "x": 0.6875069737434387,
+                "y": 0.29731911420822144,
+                "z": 0.632770836353302
+            },
+            "gravity": {
+                "x": 0,
+                "y": -8,
+                "z": 0
+            },
+            "id": "{2a284f58-5b78-4242-8891-364d68c76444}",
+            "lastEdited": 1506628404551220,
+            "lastEditedBy": "{4f4112e4-dd25-44b9-b9f4-7268172f0640}",
+            "locked": 1,
+            "marketplaceID": "816d3dbd-5f8d-47d9-a7c4-2b00b067aa2a",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jimi/welcome_Area/blocks/rampRevis2.fbx",
+            "name": "Attachment Removal Ramp to Platform",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0,
+                "y": 0.0034809112548828125,
+                "z": 0
+            },
+            "queryAACube": {
+                "scale": 0.9805424213409424,
+                "x": -0.4902712106704712,
+                "y": -0.4867902994155884,
+                "z": -0.4902712106704712
+            },
+            "rotation": {
+                "w": -0.9778438806533813,
+                "x": -0.0031281113624572754,
+                "y": -0.20936906337738037,
+                "z": 0.0004730224609375
+            },
+            "shapeType": "compound",
+            "type": "Model",
+            "userData": "{}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-09-27T20:49:29Z",
+            "dimensions": {
+                "x": 0.6758866906166077,
+                "y": 1.7865022420883179,
+                "z": 0.6521665453910828
+            },
+            "id": "{df4b35c7-68f0-4a07-bf85-197fa67c1df7}",
+            "lastEdited": 1506628404551345,
+            "lastEditedBy": "{57966ec2-b028-41aa-8e6f-7c60477c2f93}",
+            "locked": 1,
+            "name": "Attachment Removal Zone",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.26068115234375,
+                "y": 0.801513671875,
+                "z": 0.5998015999794006
+            },
+            "queryAACube": {
+                "scale": 2.0183494091033936,
+                "x": -0.7484935522079468,
+                "y": -0.20766103267669678,
+                "z": -0.40937310457229614
+            },
+            "rotation": {
+                "w": -0.5593804717063904,
+                "x": 4.57763671875e-05,
+                "y": -0.8289463520050049,
+                "z": -1.52587890625e-05
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/rebecca/attachmentRemovalZone/attachmentRemoval.js",
+            "scriptTimestamp": 1506618489771,
+            "shapeType": "box",
+            "type": "Zone",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
+            "visible": 0
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 19,
+                "green": 25,
+                "red": 28
+            },
+            "created": "2017-09-27T20:49:29Z",
+            "dimensions": {
+                "x": 0.6815733909606934,
+                "y": 0.3127632737159729,
+                "z": 0.6645658016204834
+            },
+            "id": "{01fbe2b5-ae5b-4e02-9d04-2fadf1838f3a}",
+            "lastEdited": 1506628404550922,
+            "lastEditedBy": "{4f4112e4-dd25-44b9-b9f4-7268172f0640}",
+            "locked": 1,
+            "name": "Attachment Removal Box Platform",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.2556324005126953,
+                "y": 0,
+                "z": 0.5961911678314209
+            },
+            "queryAACube": {
+                "scale": 1.0020034313201904,
+                "x": -0.2453693151473999,
+                "y": -0.5010017156600952,
+                "z": 0.09518945217132568
+            },
+            "rotation": {
+                "w": 0.19374382495880127,
+                "x": 0.0012359619140625,
+                "y": -0.9810482859611511,
+                "z": 0.0013580322265625
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        }
+    ],
+    "Version": 73
+}
