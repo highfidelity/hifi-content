@@ -32,6 +32,10 @@
 
     var firstGrab = true;
 
+    var prevID = 0;
+    var listName = "contextOverlayHighlightList";
+    var listType = "entity";
+
     /**
      * 
      * @param {Object} entityProperties 
@@ -85,6 +89,11 @@
                 } 
                 firstGrab = false;
             }
+
+            if (prevID !== entityID) {
+                Selection.addToSelectedItemsList(listName, listType, entityID);
+                prevID = entityID;
+            }
         },
             
         releaseGrab: function(entityID, args) {
@@ -95,6 +104,11 @@
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
                 Messages.unsubscribe(messageChannel); 
                 Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
+            }
+
+            if (prevID !== 0) {
+                Selection.removeFromSelectedItemsList("contextOverlayHighlightList", listType, prevID);
+                prevID = 0;
             }
 
             var userData = properties.userData;
