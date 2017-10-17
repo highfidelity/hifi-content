@@ -251,5 +251,5 @@
         if (isInZone) {
             _this.leaveEntity();
         }
-    }
+    };
 });
