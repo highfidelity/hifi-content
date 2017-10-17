@@ -83,7 +83,9 @@
                 position: { x: center.x, y: center.y + 0.5, z: center.z },
                 modelURL: 'http://mpassets.highfidelity.com/4535b57c-f35a-4d9d-a3ee-1233c457dc8e-v1/aquarium.fbx',
                 shapeType: 'box',
-                lifetime: DEFAULT_LIFETIME
+                lifetime: DEFAULT_LIFETIME,
+                dynamic: false,
+                userData: JSON.stringify({ grabbableKey: { grabbable: false } })
             });
             
             loadFish(NUM_FISH);
@@ -265,7 +267,8 @@
                         dynamic: false,
                         modelURL: "http://mpassets.highfidelity.com/4535b57c-f35a-4d9d-a3ee-1233c457dc8e-v1/goldfish.fbx",
                         shapeType: "sphere",
-                        lifetime: DEFAULT_LIFETIME
+                        lifetime: DEFAULT_LIFETIME,
+                        userData: JSON.stringify({ grabbableKey: { grabbable: false } })
                     })
                 }
             );
