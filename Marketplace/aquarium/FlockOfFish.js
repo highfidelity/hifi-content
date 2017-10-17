@@ -32,12 +32,13 @@
     var ALIGNMENT_FORCE = 0.05;
     var SWIMMING_FORCE = 0.05;
     var SWIMMING_SPEED = 0.6;
- 
+    
+    var DEFAULT_LIFETIME = 7;
     var fishLoaded = false; 
     var fish = [];
 
     var aquariumModel = null;
-
+    var entityTimer = null; // The timer which updates the lifetime periodically
     var lowerCorner = { x: 0, y: 0, z: 0 };
     var upperCorner = { x: 0, y: 0, z: 0 };
 
@@ -52,6 +53,7 @@
             Script.update.connect(updateFish);
             button.editProperties({isActive: true});
             buttonActivated = true;
+            runEntityTimer();
         }
     }
     
@@ -80,7 +82,8 @@
                 type: 'Model',
                 position: { x: center.x, y: center.y + 0.5, z: center.z },
                 modelURL: 'http://mpassets.highfidelity.com/4535b57c-f35a-4d9d-a3ee-1233c457dc8e-v1/aquarium.fbx',
-                shapeType: 'box'
+                shapeType: 'box',
+                lifetime: DEFAULT_LIFETIME
             });
             
             loadFish(NUM_FISH);
@@ -208,12 +211,30 @@
     });
 
     function cleanupFish() {
-        // Delete all of the fish
+        // Delete all of the fish which are currently in the domain
         for (var i = 0; i < fish.length; i++) {
             Entities.deleteEntity(fish[i].entityId);
         }
-        // Delete the Aquarium
+        // Deletes the Aquarium
         Entities.deleteEntity(aquariumModel);
+        
+        // Stops the timer that increases the lifetime of the Fish and Aquarium
+        Script.clearInterval(entityTimer);
+    }
+    
+    // This runs every 5 seconds to clean up any fish or aquariums which are left when leaving a domain
+    // This works but increasing the lifetime of the fish and aquariums every 5 seconds by 5 seconds.
+    // If the Avatar leaves the domain, then this script will not run and the domain-server will do it's
+    // magic and remove the Fish and Aquarium.
+    function runEntityTimer() {
+        entityTimer = Script.setInterval(function() {
+            for (var i = 0; i < fish.length; i++) {
+                var curLifeTime = Entities.getEntityProperties(fish[i].entityId).lifetime;
+                Entities.editEntity(fish[i].entityId, { lifetime: curLifeTime + 5 });
+            }
+            var aquariumLifeTime = Entities.getEntityProperties(aquariumModel).lifetime;
+            Entities.editEntity(aquariumModel, { lifetime: aquariumLifeTime + 5 });
+        }, 5000);
     }
     
     var STARTING_FRACTION = 0.25; 
@@ -243,10 +264,20 @@
                         damping: 0.0,
                         dynamic: false,
                         modelURL: "http://mpassets.highfidelity.com/4535b57c-f35a-4d9d-a3ee-1233c457dc8e-v1/goldfish.fbx",
-                        shapeType: "sphere"
+                        shapeType: "sphere",
+                        lifetime: DEFAULT_LIFETIME
                     })
                 }
             );
         }
     }
+    
+    // If the script didn't deactivate itself, this is a safety net which will force itself
+    // to turn off upon connecting to a different domain. 
+    Window.domainChanged.connect(function() {
+        if(fishLoaded) {
+            onClicked();
+        }
+    });
+    
 }());
