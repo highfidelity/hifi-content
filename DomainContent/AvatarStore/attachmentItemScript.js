@@ -62,7 +62,6 @@
         preload : function(entityID) {
             _entityID = entityID;
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
-
             _attachmentData = JSON.parse(properties.userData).Attachment;
             var _marketplaceID = JSON.parse(properties.userData).marketplaceID;
 
@@ -73,7 +72,6 @@
                 if (_attachmentData.joint.indexOf('Arm') !== -1 ||
                     _attachmentData.joint.indexOf('Hand') !== -1) {
                     isHandOrArm = true;
-                    print(isHandOrArm);
                 }
             } else {
                 _supportedJoints.push(_attachmentData.joint);
