@@ -73,7 +73,6 @@
                 if (_attachmentData.joint.indexOf('Arm') !== -1 ||
                     _attachmentData.joint.indexOf('Hand') !== -1) {
                     isHandOrArm = true;
-                    print(isHandOrArm);
                 }
             } else {
                 _supportedJoints.push(_attachmentData.joint);
