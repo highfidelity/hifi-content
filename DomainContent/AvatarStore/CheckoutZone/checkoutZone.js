@@ -11,7 +11,7 @@
 //  marketplace item, the item will appear as a small overlay. Scanning the overlay will cause the 
 //  the tablet to open to the marketplace home page for that item, allowing the user to quickly make the purchase.
 (function () {
-    var SHARED = Script.require('./attachmentZoneShared.js');
+    var SHARED = Script.require('../attachmentZoneShared.js');
     var MARKET_PLACE_ITEM_URL_PREFIX = 'https://metaverse.highfidelity.com/marketplace/items/';
     var ITEM_HEIGHT = 0.1;
     var OVERLAY_PREFIX = 'MP';
@@ -123,8 +123,6 @@
             demoEntityID: entityID
         };
 
-        print('stored transform = ' + JSON.stringify(replicaStoredTransform));
-
         replicaStoredTransforms[replica] = replicaStoredTransform;
         replicaList.push(replica);
     });
@@ -136,8 +134,6 @@
         };
         var replicaOverlayID = args[ARGS_INDEX.REPLICA_OVERLAY];
         var newEntityID = args[ARGS_INDEX.NEW_ENTITY];
-        print('replicaOverlayID = ' + replicaOverlayID);
-        print('newEntityID = ' + newEntityID);
         
         // Delete the new entity when the transforms are not found.
         if (replicaStoredTransforms[replicaOverlayID] === undefined) {
@@ -167,8 +163,6 @@
         Script.setTimeout(function() {
             makeSureInterval.stop();
         }, 5000);
-
-        print('Entities.editEntity(newEntityID, transformProperties): ' + newEntityID + ', ' + JSON.stringify(transformProperties));
 
 
         var newEntityProperties = Entities.getEntityProperties(newEntityID, ['marketplaceID', 'certificateID']);
