@@ -24,11 +24,10 @@
     }
 
     // import JSON data and lock items
-    var entityTree = _entityImport.importEntitiesJSON(JSON_URL, {
+    var entityTree = ENTITY_IMPORT.importEntitiesJSON(JSON_URL, {
         position: getPosition()
     });
 
-    var laundryBasketParts = _entityImport.createEntitiesFromTree([entityTree])[0].childEntities;
+    var laundryBasketParts = ENTITY_IMPORT.createEntitiesFromTree([entityTree])[0].childEntities;
 
-    Script.scriptEnding.connect(cleanup);
 })();
