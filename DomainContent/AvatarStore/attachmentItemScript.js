@@ -62,9 +62,9 @@
         preload : function(entityID) {
             _entityID = entityID;
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
-
-            _attachmentData = JSON.parse(properties.userData).Attachment;
-            var _marketplaceID = JSON.parse(properties.userData).marketplaceID;
+            var userData = JSON.parse(properties.userData);
+            _attachmentData = userData.Attachment;
+            var _marketplaceID = userData.marketplaceID;
 
             if (_attachmentData.joint.indexOf(LEFT_RIGHT_PLACEHOLDER) !== -1) {
                 var baseJoint = _attachmentData.joint.substring(4);
