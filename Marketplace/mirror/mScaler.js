@@ -9,15 +9,17 @@
 	var inactiveTexture = '{ "inactive": "' + "https://hifi-content.s3.amazonaws.com/patrickmanalich/mirrorFolder/models/mirrorScaler.fbx/mirrorScaler.fbm/scale-texture.png" + '"}';
 	var activeTexture = '{ "inactive": "' + "https://hifi-content.s3.amazonaws.com/patrickmanalich/mirrorFolder/models/mirrorScaler.fbx/mirrorScaler.fbm/scale-texture-active.png" + '"}';
 	var defaultRegPoint = { x: 0.5, y: 0.5, z: 0.5};	// Default registration point of entities, which is in the center
-	var maxScalerDim = 0.05;	// The maximum dimension length the mirror scalers can grow to
+	var maxScalerDim = 0.2;	// The maximum dimension length the mirror scalers can grow to
 	var minScalerDim = 0.0125;	// The minimum dimension length the mirror scalers can shrink to
 	var maxMirrorDim = 1.6;		// The maximum dimension length the mirror can grow to
-	var minMirrorDim = 0.06;	// The minimum dimension length the mirror can shrink to
-	var minVerticalGap = 0.14;	// The minimum gap between two scalers in the local Y direction before they are restricted to 'minScalerDim'
-	var defaultDimLength = 0.025;	// The default dimensions of the mirror editors
+	var minMirrorDim = 0.1;	// The minimum dimension length the mirror can shrink to
+	var defaultDimLength = 0.025;	// The default length of the dimensions for the mirror scalar and mirror toggle
 	var newDimLength;	// The dimension of the mirror editors based on the size and aspect ratio of the mirror
 	var regPointChanged = false;	// True if the registration point of the mirror has been changed from 0, 0, 0
-	var mirrorToggleAdjusted;	// If the entity method 'adjustMirrorToggle' has been called, this will be true (for efficiency)
+	var mirrorToggleAdjusted;	// If the entity method 'adjustMirrorToggle' has been called, this will be true so it will only be called once
+	var halfMultiplier = { x: 0.5, y: -0.5 };	//	Used for finding the local position of the mirror scaler
+	var mirrorChannel;	// The channel where mScaler.js sends messages to mClient.js
+
 	
 	// LOCAL FUNCTIONS
 	
@@ -33,21 +35,21 @@
 		Entities.editEntity(_this.entityID, { textures: activeTexture });
 		if(!mirrorToggleAdjusted) {
 			Entities.editEntity(mirrorID, { userData: "{\"grabbableKey\":{\"grabbable\":false}}" });
-			Entities.callEntityMethod(mirrorID, 'adjustMirrorToggle', [JSON.stringify(newDimLength)]);
+			Messages.sendMessage(mirrorChannel, JSON.stringify({ clientFunction: "adjustMirrorToggle", dimLength: newDimLength}));
 			mirrorToggleAdjusted = true;
 		}
 
-		newDimLength = 0.125 * mirrorProps.dimensions.x;	// Magic numbers, I know. But I'm not sure how important changing these are though
+		if(mirrorProps.dimensions.y > 2.5 * mirrorProps.dimensions.x) {
+			newDimLength = 0.0625 * (mirrorProps.dimensions.x + (mirrorProps.dimensions.y / 2.5));
+		} else if(mirrorProps.dimensions.x > 2.5 * mirrorProps.dimensions.y) {
+			newDimLength = 0.0625 * ((mirrorProps.dimensions.x / 2.5) + mirrorProps.dimensions.y);
+		} else {
+			newDimLength = 0.0625 * (mirrorProps.dimensions.x + mirrorProps.dimensions.y);
+		}
 		if(newDimLength > maxScalerDim) {
 			newDimLength = maxScalerDim;
 		} else if(newDimLength < minScalerDim) {
 			newDimLength = minScalerDim;
-		}
-		if((mirrorProps.dimensions.y - newDimLength) < minVerticalGap) {
-			newDimLength = newDimLength - ((0.18 - mirrorProps.dimensions.y) / 3);
-			if(newDimLength < minScalerDim) {
-				newDimLength = minScalerDim;
-			}
 		}
 		
 		Entities.editEntity(_this.entityID, { dimensions: {	x: newDimLength, y: newDimLength, z: newDimLength } });
@@ -55,8 +57,8 @@
 			regPointChanged = true;
 			Entities.editEntity(mirrorID, { registrationPoint: { x: 0, y: 1, z: 0.5 } } );
 			var localAdjustedPos = { 
-				x: (mirrorProps.dimensions.x * -0.5),
-				y: (mirrorProps.dimensions.y * 0.5),
+				x: (mirrorProps.dimensions.x * -1 * halfMultiplier.x),
+				y: (mirrorProps.dimensions.y * -1 * halfMultiplier.y),
 				z: 0
 			};
 			var localRotatedAdjustedPos = Vec3.multiplyQbyV(mirrorProps.rotation, localAdjustedPos);
@@ -80,7 +82,7 @@
 		}
 		var newMirrorDims = { x: newDimX, y: newDimY, z: mirrorProps.dimensions.z };
 		Entities.editEntity(mirrorID, { dimensions: newMirrorDims} );
-		Entities.callEntityMethod(mirrorID, 'updateMirrorOverlay', []);
+		Messages.sendMessage(mirrorChannel, JSON.stringify({ clientFunction: "updateMirrorOverlay"}));
 	};
 	
 	// When the mirror scaler is released, reset the texture and registration point back to their default values, and 
@@ -95,8 +97,8 @@
 				regPointChanged = false;
 				Entities.editEntity(mirrorID, { registrationPoint: defaultRegPoint});
 				var localAdjustedPos = { 
-					x: (mirrorProps.dimensions.x * 0.5),
-					y: (mirrorProps.dimensions.y * -0.5),
+					x: (mirrorProps.dimensions.x * halfMultiplier.x),
+					y: (mirrorProps.dimensions.y * halfMultiplier.y),
 					z: 0
 				};
 				var localRotatedAdjustedPos = Vec3.multiplyQbyV(mirrorProps.rotation, localAdjustedPos);
@@ -107,8 +109,8 @@
 			Entities.editEntity(_this.entityID, { velocity: Vec3.ZERO });
 			Entities.editEntity(_this.entityID, { angularVelocity: Vec3.ZERO });
 			localAdjustedPos = { 
-				x: (mirrorProps.dimensions.x * 1),
-				y: (mirrorProps.dimensions.y * -1),
+				x: (mirrorProps.dimensions.x * 2 * halfMultiplier.x),
+				y: (mirrorProps.dimensions.y * 2 * halfMultiplier.y),
 				z: 0
 			};
 			localRotatedAdjustedPos = Vec3.multiplyQbyV(mirrorProps.rotation, localAdjustedPos);
@@ -116,9 +118,9 @@
 			Entities.editEntity(_this.entityID, { position: worldRotatedAdjustedPos } );
 			Entities.editEntity(_this.entityID, { rotation: mirrorProps.rotation });
 			Entities.editEntity(mirrorID, { userData: "{\"grabbableKey\":{\"grabbable\":true}}" });
-			Entities.callEntityMethod(mirrorID, 'adjustMirrorToggle', [JSON.stringify(newDimLength)]);
+			Messages.sendMessage(mirrorChannel, JSON.stringify({ clientFunction: "adjustMirrorToggle", dimLength: newDimLength}));
 			mirrorToggleAdjusted = false;
-			Entities.callEntityMethod(mirrorID, 'updateMirrorOverlay', []);
+			Messages.sendMessage(mirrorChannel, JSON.stringify({ clientFunction: "updateMirrorOverlay"}));
 		}
 	};
 	
@@ -139,6 +141,7 @@
 			Entities.editEntity(_this.entityID, { textures: inactiveTexture });
 			mirrorToggleAdjusted = false;
 			newDimLength = defaultDimLength;
+			mirrorChannel = "mirrorChannel".concat(mirrorID);
 			Controller.mouseReleaseEvent.connect(releaseMirrorScaler);
 		}, 1500);
 	}

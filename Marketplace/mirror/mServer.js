@@ -5,11 +5,11 @@
 	// VARIABLES
 
 	var _this = this;
-	var mirrorScalerID;
-	var mirrorToggleID;
-	var mirrorScalerScriptURL = "https://hifi-content.s3.amazonaws.com/patrickmanalich/mirrorFolder/mScaler.js";
-	var mirrorToggleScriptURL = "https://hifi-content.s3.amazonaws.com/patrickmanalich/mirrorFolder/mToggle.js";
-	var defaultDimLength = 0.025;
+	var mirrorScalerID;	// The entity ID of the mirror scaler
+	var mirrorToggleID;	// The entity ID of the mirror toggle
+	var mirrorScalerScriptURL = Script.resolvePath("mScaler.js");
+	var mirrorToggleScriptURL = Script.resolvePath("mToggle.js");
+	var defaultDimLength = 0.025;	// The default length of the dimensions for the mirror scalar and mirror toggle
 	var mirrorOverlayOffset = 0.01;	// The distance between the center of the mirror and the mirror overlay
 	
 	// ENTITY FUNCTIONS

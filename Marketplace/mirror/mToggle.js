@@ -5,7 +5,7 @@
 	// VARIABLES
 	
 	var _this = this;
-	var mirrorID;	// The entityID of the mirror object that spawns the four mirror rotators
+	var mirrorID;	// The entity ID of the mirror
 	
 	// LOCAL FUNCTIONS
 	

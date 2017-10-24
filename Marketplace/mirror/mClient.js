@@ -8,10 +8,10 @@
 	var debug = false;	// If true then a spectator camera model and box entity will be rezzed
 	var mobileSpectatorCamera = true;	// If true then the spectator camera will follow your avatar's position
 	var resolution = 1024;	// The resolution of the mirror when turned on
-	var defaultDimLength = 0.025;
+	var defaultDimLength = 0.025;	// The default length of the dimensions for the mirror scalar and mirror toggle
     var mirrorOverlayID;	// The entity ID of the overlay that displays the mirror reflection
 	var mirrorOverlayRunning;	// True if mirror overlay is reflecting, false otherwise
-	var mirrorScalerGrabbed;
+	var mirrorScalerGrabbed;	// True if the mirror scaler is being grabbed, so position is adjusted for registration point
 	var mirrorOverlayOffset = 0.01;	// The distance between the center of the mirror and the mirror overlay
 	var mirrorScalerID; // The entity ID of the mirror scaler
 	var mirrorToggleID;	// The entity ID of the mirror toggle
@@ -21,9 +21,73 @@
 	var debugNearClipPlaneID;	// The near clipping plane entity ID that represents the clipping plane of the spectator camera
 	var mirrorToggleOverlayModelInactiveURL = "https://hifi-content.s3.amazonaws.com/patrickmanalich/mirrorFolder/models/mirrorToggleOverlayInactive.fbx";
 	var mirrorToggleOverlayModelActiveURL = "https://hifi-content.s3.amazonaws.com/patrickmanalich/mirrorFolder/models/mirrorToggleOverlayActive.fbx";
-    var zeroRot = { w: 1, x: 0, y: 0, z: 0 };	// Constant quaternion for a rotation of 0
+	var halfMultiplier = { x: 0.5, y: -0.5 };	//	Used for finding the local position of the mirror scaler
+	var mirrorChannel;	// The channel where mScaler.js sends messages to mClient.js
 
 	// LOCAL FUNCTIONS
+	
+	// Toggle the mirror overlay on and off
+    function adjustMirrorToggle(dimLength) {
+        if(!mirrorScalerGrabbed) {
+            mirrorScalerGrabbed = true;
+			Overlays.editOverlay(mirrorToggleOverlayID, {visible: false});
+			Entities.editEntity(mirrorToggleID, {userData: "{\"grabbableKey\":{\"wantsTrigger\":false}}"});
+        } else {
+			var mirrorProps = Entities.getEntityProperties(_this.entityID, ["position", "rotation", "dimensions"]);
+			var localAdjustedPos = { 
+				x: (mirrorProps.dimensions.x * 0.4),
+				y: (mirrorProps.dimensions.y * 0.4),
+				z: mirrorOverlayOffset
+			};
+			var localRotatedAdjustedPos = Vec3.multiplyQbyV(mirrorProps.rotation, localAdjustedPos);
+			var worldRotatedAdjustedPos = Vec3.sum(mirrorProps.position, localRotatedAdjustedPos);
+			Entities.editEntity(mirrorToggleID, { position: worldRotatedAdjustedPos } );
+			Entities.editEntity(mirrorToggleID, { rotation: mirrorProps.rotation } );
+			Entities.editEntity(mirrorToggleID, { dimensions: {x: dimLength, y: dimLength, z: dimLength} } );
+			Entities.editEntity(mirrorToggleID, {userData: "{\"grabbableKey\":{\"wantsTrigger\":true}}"});
+
+			
+			var mirrorToggleProps = Entities.getEntityProperties(mirrorToggleID, ["position", "rotation", "dimensions"]);
+			Overlays.editOverlay(mirrorToggleOverlayID, { position: mirrorToggleProps.position } );
+			Overlays.editOverlay(mirrorToggleOverlayID, { rotation: Quat.multiply(mirrorToggleProps.rotation, { w: 0, x: -0.707, y: 0, z: -0.707}) } );
+			Overlays.editOverlay(mirrorToggleOverlayID, { dimensions: { x: dimLength / 3, y: dimLength, z: dimLength } } );
+			Overlays.editOverlay(mirrorToggleOverlayID, { visible: true});
+			
+			mirrorScalerGrabbed = false;
+        }
+    };
+	
+	// Takes in an mirror scaler number which is used for the index of "halfDimSigns" that is needed to adjust the mirror 
+	// overlay's position. Deletes and re-adds the mirror overlay so the url and position is updated, and resets the 
+	// resolution of the spectator camera
+	function updateMirrorOverlay() {
+		if(mirrorOverlayRunning) {
+			var mirrorProps = Entities.getEntityProperties(_this.entityID, ["rotation", "dimensions", "position"]);
+			var dimX = mirrorProps.dimensions.x;
+			var dimY = mirrorProps.dimensions.y;
+			
+			Overlays.deleteOverlay(mirrorOverlayID);
+			mirrorOverlayID = Overlays.addOverlay("image3d", {
+				name: "mirrorOverlay",
+				url: "resource://spectatorCameraFrame",
+				emissive: true,
+				parentID: _this.entityID,
+				alpha: 1,
+				localRotation: { w: 1, x: 0, y: 0, z: 0 },
+				dimensions: {
+					x: -(dimY > dimX ? dimY : dimX),
+					y: -(dimY > dimX ? dimY : dimX),
+					z: 0
+				}
+			});
+			if(!mirrorScalerGrabbed) {
+				Overlays.editOverlay(mirrorOverlayID, {localPosition: { x: 0, y: 0, z: mirrorOverlayOffset }});
+			} else {
+				Overlays.editOverlay(mirrorOverlayID, {localPosition: { x: (dimX * halfMultiplier.x), y: (dimY * halfMultiplier.y), z: mirrorOverlayOffset} });
+			}
+			spectatorCameraConfig.resetSizeSpectatorCamera(dimX * resolution, dimY * resolution);
+		}
+	}
 	
 	// Takes in the spectator camera position and creates an array of the front four vertices of the mirror. It then calculates
 	// the distance between each vertex and the spectator camera position and returns the farthest distance.
@@ -69,29 +133,29 @@
 		if(mirrorOverlayRunning) {
 			var mirrorProps = Entities.getEntityProperties(_this.entityID, ["dimensions", "position", "rotation"]);
 			var headPos = Camera.getPosition();
-			var adjustedPos;
+			var localAdjustedPos;
 			if(!mirrorScalerGrabbed) {
-				adjustedPos = {	x: 0, y: 0,	z: 0};
+				localAdjustedPos = { x: 0, y: 0, z: 0};
 			} else {
-				adjustedPos = {	x: (mirrorProps.dimensions.x * 0.5), y: (mirrorProps.dimensions.y * -0.5), z: 0 };
+				localAdjustedPos = { x: (mirrorProps.dimensions.x * halfMultiplier.x), y: (mirrorProps.dimensions.y * halfMultiplier.y), z: 0 };
 			}
-			var rotatedAdjustedPos = Vec3.multiplyQbyV(mirrorProps.rotation, adjustedPos);
-			var rotatedAdjustedMirrorPos = Vec3.sum(mirrorProps.position, rotatedAdjustedPos);
+			var localRotatedAdjustedPos = Vec3.multiplyQbyV(mirrorProps.rotation, localAdjustedPos);
+			var worldRotatedAdjustedPos = Vec3.sum(mirrorProps.position, localRotatedAdjustedPos);
 			if(mobileSpectatorCamera) {	// mobile
-				var mirrorToHeadVec = Vec3.subtract(headPos, rotatedAdjustedMirrorPos);
+				var mirrorToHeadVec = Vec3.subtract(headPos, worldRotatedAdjustedPos);
 				var zLocalVecNormalized = Vec3.multiplyQbyV(mirrorProps.rotation, Vec3.UNIT_Z);
 				var distanceFromMirror = (Vec3.dot(zLocalVecNormalized, mirrorToHeadVec));
 				var oppositeSideMirrorPos = Vec3.subtract(headPos, Vec3.multiply(2 * distanceFromMirror, zLocalVecNormalized));
-				spectatorCameraConfig.orientation = Quat.lookAt(oppositeSideMirrorPos, rotatedAdjustedMirrorPos, Vec3.multiplyQbyV(mirrorProps.rotation, Vec3.UP));
+				spectatorCameraConfig.orientation = Quat.lookAt(oppositeSideMirrorPos, worldRotatedAdjustedPos, Vec3.multiplyQbyV(mirrorProps.rotation, Vec3.UP));
 				spectatorCameraConfig.position = oppositeSideMirrorPos;
 				spectatorCameraConfig.nearClipPlaneDistance = findNearClipPlaneDistance(spectatorCameraConfig.position);
-				var distanceAway = Vec3.distance(rotatedAdjustedMirrorPos, headPos);
+				var distanceAway = Vec3.distance(worldRotatedAdjustedPos, headPos);
 				var halfHeight = mirrorProps.dimensions.y / 2;
 				var halfAngle = Math.atan(halfHeight/distanceAway) / (Math.PI / 180);
 				spectatorCameraConfig.vFoV = halfAngle * 2;
 			} else {	// immobile
 				spectatorCameraConfig.orientation = Quat.multiply(mirrorProps.rotation, Quat.fromPitchYawRollDegrees(0,180,0));
-				spectatorCameraConfig.position = rotatedAdjustedMirrorPos;
+				spectatorCameraConfig.position = worldRotatedAdjustedPos;
 				spectatorCameraConfig.nearClipPlaneDistance = (mirrorProps.dimensions.z / 2) + mirrorOverlayOffset;
 				spectatorCameraConfig.vFoV = 45;
 			}
@@ -110,10 +174,10 @@
 	
 	// Calls 'updateMirrorOverlay' once to set up mirror overlay, then connects 'updateSpectatorCamera' and starts rendering
     function mirrorOverlayOn() {
-		mirrorOverlayRunning = true;	// SHOULD THIS BE OUTSIDE IF STATEMENT
 		if(!spectatorCameraConfig.attachedEntityId) {
+			mirrorOverlayRunning = true;
 			Overlays.editOverlay(mirrorToggleOverlayID, { url: mirrorToggleOverlayModelActiveURL });
-			Entities.callEntityMethod(_this.entityID, 'updateMirrorOverlay', []);
+			updateMirrorOverlay();
 			Script.update.connect(updateSpectatorCamera);
 			spectatorCameraConfig.enableSecondaryCameraRenderConfigs(true);
 			if(debug) {
@@ -138,10 +202,10 @@
 					Entities.editEntity(debugNearClipPlaneID, { visible: false });
 				}
 			}
+			mirrorOverlayRunning = false;
 		} else {
 			print("Cannot turn off mirror if spectator camera is already in use");
 		}
-		mirrorOverlayRunning = false;	// SHOULD THIS BE OUTSIDE IF STATEMENT
     }
 	
 	// ENTITY FUNCTIONS
@@ -164,8 +228,8 @@
 			})
 			
 			var localAdjustedPos = { 
-				x: (mirrorProps.dimensions.x * 0.5),
-				y: (mirrorProps.dimensions.y * -0.5),
+				x: (mirrorProps.dimensions.x * halfMultiplier.x),
+				y: (mirrorProps.dimensions.y * halfMultiplier.y),
 				z: 0
 			};
 			var localRotatedAdjustedPos = Vec3.multiplyQbyV(mirrorProps.rotation, localAdjustedPos);
@@ -194,6 +258,9 @@
 
 			mirrorOverlayRunning = false;
 			mirrorScalerGrabbed = false;
+			mirrorChannel = "mirrorChannel".concat(_this.entityID);
+			Messages.subscribe(mirrorChannel);
+			Messages.messageReceived.connect(_this, _this.onReceivedMessage);
 			
 			if(debug) {
 				debugSpectatorCameraID = Entities.addEntity({
@@ -227,38 +294,6 @@
 			}
 		}, 1500);
     }
-
-	// Takes in an mirror scaler number which is used for the index of "halfDimSigns" that is needed to adjust the mirror 
-	// overlay's position. Deletes and re-adds the mirror overlay so the url and position is updated, and resets the 
-	// resolution of the spectator camera
-	_this.updateMirrorOverlay = function (entityID, data) {
-		if(mirrorOverlayRunning) {
-			var mirrorProps = Entities.getEntityProperties(_this.entityID, ["rotation", "dimensions", "position"]);
-			var dimX = mirrorProps.dimensions.x;
-			var dimY = mirrorProps.dimensions.y;
-			
-			Overlays.deleteOverlay(mirrorOverlayID);
-			mirrorOverlayID = Overlays.addOverlay("image3d", {
-				name: "mirrorOverlay",
-				url: "resource://spectatorCameraFrame",
-				emissive: true,
-				parentID: _this.entityID,
-				alpha: 1,
-				localRotation: zeroRot,
-				dimensions: {
-					x: -(dimY > dimX ? dimY : dimX),
-					y: -(dimY > dimX ? dimY : dimX),
-					z: 0
-				}
-			});
-			if(!mirrorScalerGrabbed) {
-				Overlays.editOverlay(mirrorOverlayID, {localPosition: { x: 0, y: 0, z: mirrorOverlayOffset }});
-			} else {
-				Overlays.editOverlay(mirrorOverlayID, {localPosition: { x: (dimX * 0.5), y: (dimY * -0.5), z: mirrorOverlayOffset} });
-			}
-			spectatorCameraConfig.resetSizeSpectatorCamera(dimX * resolution, dimY * resolution);
-		}
-	}
 	
 	// Toggle the mirror overlay on and off
     _this.toggleMirrorOverlay = function (entityID, data) {	// TODO: convert this into one function like adjustMirrorToggle
@@ -266,37 +301,6 @@
             mirrorOverlayOn();
         } else {
             mirrorOverlayOff();
-        }
-    };
-	
-	// Toggle the mirror overlay on and off
-    _this.adjustMirrorToggle = function (entityID, data) {
-        if(!mirrorScalerGrabbed) {
-            mirrorScalerGrabbed = true;
-			Overlays.editOverlay(mirrorToggleOverlayID, {visible: false});
-			Entities.editEntity(mirrorToggleID, {userData: "{\"grabbableKey\":{\"wantsTrigger\":false}}"});
-        } else {
-			var mirrorProps = Entities.getEntityProperties(_this.entityID, ["position", "rotation", "dimensions"]);
-			var localAdjustedPos = { 
-				x: (mirrorProps.dimensions.x * 0.4),
-				y: (mirrorProps.dimensions.y * 0.4),
-				z: mirrorOverlayOffset
-			};
-			var localRotatedAdjustedPos = Vec3.multiplyQbyV(mirrorProps.rotation, localAdjustedPos);
-			var worldRotatedAdjustedPos = Vec3.sum(mirrorProps.position, localRotatedAdjustedPos);
-			Entities.editEntity(mirrorToggleID, { position: worldRotatedAdjustedPos } );
-			Entities.editEntity(mirrorToggleID, { rotation: mirrorProps.rotation } );
-			Entities.editEntity(mirrorToggleID, { dimensions: {x: JSON.parse(data), y: JSON.parse(data), z: JSON.parse(data)} } );
-			Entities.editEntity(mirrorToggleID, {userData: "{\"grabbableKey\":{\"wantsTrigger\":true}}"});
-
-			
-			var mirrorToggleProps = Entities.getEntityProperties(mirrorToggleID, ["position", "rotation", "dimensions"]);
-			Overlays.editOverlay(mirrorToggleOverlayID, { position: mirrorToggleProps.position } );
-			Overlays.editOverlay(mirrorToggleOverlayID, { rotation: Quat.multiply(mirrorToggleProps.rotation, { w: 0, x: -0.707, y: 0, z: -0.707}) } );
-			Overlays.editOverlay(mirrorToggleOverlayID, { dimensions: { x: JSON.parse(data) / 3, y: JSON.parse(data), z: JSON.parse(data) } } );
-			Overlays.editOverlay(mirrorToggleOverlayID, { visible: true});
-			
-			mirrorScalerGrabbed = false;
         }
     };
 	
@@ -310,8 +314,8 @@
 		var mirrorProps = Entities.getEntityProperties(_this.entityID, ["position", "rotation", "dimensions"]);
 			// adjust mirror scaler
 		var localAdjustedPos = { 
-				x: (mirrorProps.dimensions.x * 0.5),
-				y: (mirrorProps.dimensions.y * -0.5),
+				x: (mirrorProps.dimensions.x * halfMultiplier.x),
+				y: (mirrorProps.dimensions.y * halfMultiplier.y),
 				z: 0
 		};
 		var localRotatedAdjustedPos = Vec3.multiplyQbyV(mirrorProps.rotation, localAdjustedPos);
@@ -338,9 +342,26 @@
 		Overlays.editOverlay(mirrorToggleOverlayID, { visible: true});
 	};
 	
+	// Used to receive messages from 'mirrorScaler.js' and 'mirrorServer.js'. If the message is from 'mirrorScaler.js' then the
+	// mirror overlay will be updated. If the message is from 'mirrorServer.js' then the mirror toggle overlay will be adjusted
+	_this.onReceivedMessage = function(channel, message, senderID) {
+		try {
+			var parsedMessage = JSON.parse(message);
+			if (channel === mirrorChannel) {
+				if(parsedMessage.clientFunction === "updateMirrorOverlay") {
+					updateMirrorOverlay();
+				} else if(parsedMessage.clientFunction === "adjustMirrorToggle") {
+					adjustMirrorToggle(parsedMessage.dimLength);
+				}
+			}
+		} catch (err) {	}
+	}
+	
 	// Turns off mirror and deletes all mirror editors
 	_this.unload = function(entityID) {
         print("unload mirror client");
+		Messages.unsubscribe(mirrorChannel);
+		Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);
         mirrorOverlayOff();
 		Overlays.deleteOverlay(mirrorToggleOverlayID);
 		Entities.deleteEntity(mirrorToggleID);
