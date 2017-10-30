@@ -31,10 +31,7 @@
     var isAttached;
 
     var firstGrab = true;
-
-    var prevID = 0;
-    var listName = "contextOverlayHighlightList";
-    var listType = "entity";
+    var isHandOrArm = false;
 
     /**
      * 
@@ -65,12 +62,18 @@
         preload : function(entityID) {
             _entityID = entityID;
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
+            var userData = JSON.parse(properties.userData);
+            _attachmentData = userData.Attachment;
+            var _marketplaceID = userData.marketplaceID;
 
-            _attachmentData = JSON.parse(properties.userData).Attachment;
             if (_attachmentData.joint.indexOf(LEFT_RIGHT_PLACEHOLDER) !== -1) {
                 var baseJoint = _attachmentData.joint.substring(4);
                 _supportedJoints.push("Left".concat(baseJoint));
                 _supportedJoints.push("Right".concat(baseJoint));
+                if (_attachmentData.joint.indexOf('Arm') !== -1 ||
+                    _attachmentData.joint.indexOf('Hand') !== -1) {
+                    isHandOrArm = true;
+                }
             } else {
                 _supportedJoints.push(_attachmentData.joint);
             }
@@ -81,6 +84,8 @@
                 messageChannel = MESSAGE_CHANNEL_BASE + properties.parentID;
                 Messages.subscribe(messageChannel);
             }
+
+            Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
         },
         startNearGrab: function(entityID, args) {
             if (firstGrab) {
@@ -89,26 +94,16 @@
                 } 
                 firstGrab = false;
             }
-
-            if (prevID !== entityID) {
-                Selection.addToSelectedItemsList(listName, listType, entityID);
-                prevID = entityID;
-            }
         },
             
         releaseGrab: function(entityID, args) {
-            var hand = args[0] === "left" ? 0 : 1;
+            var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
 
             if (Entities.getNestableType(properties.parentID) === "entity") {
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
                 Messages.unsubscribe(messageChannel); 
                 Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
-            }
-
-            if (prevID !== 0) {
-                Selection.removeFromSelectedItemsList("contextOverlayHighlightList", listType, prevID);
-                prevID = 0;
             }
 
             var userData = properties.userData;
@@ -120,6 +115,10 @@
                 _supportedJoints.forEach(function(joint) {
                     var jointPosition = MyAvatar.getJointPosition(joint);
                     if (Vec3.distance(position, jointPosition) <= ATTACH_DISTANCE) {
+                        // Check that we are not holding onto an arm attachment in a hand
+                        if (joint.toLowerCase().indexOf(hand) !== -1) {
+                            return;
+                        }
                         var newEntityProperties = Entities.getEntityProperties(_entityID, 'userData');
                         touchJSONUserData(newEntityProperties, function(userData) {
                             userData.Attachment.attached = true;
