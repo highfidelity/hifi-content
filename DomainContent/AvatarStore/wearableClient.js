@@ -11,8 +11,9 @@
 //
 
 (function() {
+    var _entityID;
     var Wearable = function () {
-        var _entityID;
+    
     };
     Wearable.prototype = {
         preload: function (entityID) {
@@ -25,9 +26,8 @@
             Entities.callEntityServerMethod(_entityID, 'spawnNewChild', [_entityID]);
             Entities.editEntity(_entityID, {
                 'script' : Script.resolvePath('attachmentItemScript.js'),
-                'serverScripts' : ""
             });     
         }
     };
     return new Wearable();
-})
+});

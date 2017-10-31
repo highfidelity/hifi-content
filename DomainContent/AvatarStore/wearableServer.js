@@ -10,7 +10,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 (function() {
-    var spawnMoreChildren;
     var properties; 
     var newEntityProperties;
 
@@ -40,7 +39,7 @@
         },
         spawnNewChild: function(entityID, params) {
             print("Parameter:" + JSON.stringify(params[0]));
-            if(params[0] === entityID) {
+            if (params[0] === entityID) {
                 Entities.addEntity(newEntityProperties);
             } else {
                 print("Message sender was not this entity, disregarding request");
