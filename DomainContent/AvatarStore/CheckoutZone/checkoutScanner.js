@@ -15,6 +15,7 @@
     var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + "/system/html/js/marketplacesInject.js";
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
+    var CHECKOUT_INTERVAL_MS = 1000;
     
     var interval;
     var properties;
@@ -57,7 +58,7 @@
                     }
                 });
             }
-        }, 1000);
+        }, CHECKOUT_INTERVAL_MS);
         Entities.addingEntity.connect(onEntityAdded);
     };
     

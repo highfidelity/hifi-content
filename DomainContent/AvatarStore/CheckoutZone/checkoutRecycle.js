@@ -12,11 +12,13 @@
     
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
+    var RECYLCE_CHECK_INTERVAL_MS = 1000;
+    var recycleCheckInterval = null;
     
     var properties;
     
     this.preload = function(entityID) {
-        Script.setInterval(function() {
+        recycleCheckInterval = Script.setInterval(function() {
             var overlays = Overlays.findOverlays(properties.position, SCAN_RADIUS);
             if (overlays.length > 0) {
                 overlays.forEach(function(overlay) {
@@ -26,6 +28,10 @@
                     }
                 });
             }
-        }, 1000);
+        }, RECYLCE_CHECK_INTERVAL_MS);
+    };
+
+    this.unload = function() {
+        Script.clearInterval(recycleCheckInterval);
     };
 });
