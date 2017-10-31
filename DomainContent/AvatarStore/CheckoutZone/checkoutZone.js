@@ -12,8 +12,10 @@
 //  the tablet to open to the marketplace home page for that item, allowing the user to quickly make the purchase.
 (function () {
     var SHARED = Script.require('../attachmentZoneShared.js');
-    var MARKET_PLACE_ITEM_URL_PREFIX = 'https://metaverse.highfidelity.com/marketplace/items/';
     var ITEM_HEIGHT = 0.1;
+    var HALF = 0.5;
+    var ITEM_OFFSET = {x: 1.5, y: 1.25, z: 0.75};
+    var VERTICAL_SPACING = 6;
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
     
@@ -62,7 +64,7 @@
 
     // Get info on checkout stand so we can place copies of items on it for purchasing
     // Find the position of the top of the stand at one end
-    var getCheckoutStandPosition = (function(){
+    var getCheckoutStandPosition = (function() {
         var zoneChildren = Entities.getChildrenIDs(zoneID);
         zoneChildren.forEach(function (childID) {
             var name = Entities.getEntityProperties(childID, 'name').name;
@@ -71,13 +73,13 @@
                 tableID = tableProperties.id;
                 tableHeight = tableProperties.dimensions.y;
                 tableLength = tableProperties.dimensions.x;
-                var halfTableHeight = 0.5 * tableHeight;
-                var verticalSpace = 6 * ITEM_HEIGHT;
+                
+                var halfTableHeight = HALF * tableHeight;
+                var verticalSpace = VERTICAL_SPACING * ITEM_HEIGHT;
                 spawnY = halfTableHeight + verticalSpace;
-                var halfTableLength = 0.5 * tableLength;
+                var halfTableLength = HALF * tableLength;
                 spawnZ = (halfTableLength);
                 spawnX = 0;
-                return;
             }
         });
     });
@@ -110,8 +112,8 @@
         var scaleReduction;
         while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize) {
             scale *= scaleReduction;
-            overlayProperties.dimensions.y *= scale;
             overlayProperties.dimensions.x *= scale;
+            overlayProperties.dimensions.y *= scale;
             overlayProperties.dimensions.z *= scale;
         }
         var replica = Overlays.addOverlay("model", overlayProperties);
@@ -154,15 +156,17 @@
         };
         Entities.editEntity(newEntityID, transformProperties);
 
+        var MAKING_SURE_INTERVAL = 100; // Milliseconds
         // Make really sure that the translations are set properly
         var makeSureInterval = Script.setInterval(function() {
             Entities.editEntity(newEntityID, transformProperties);
-        }, 100);
+        }, MAKING_SURE_INTERVAL);
 
         // Five seconds should be enough to be sure, otherwise we have a problem
+        var STOP_MAKING_SURE_TIMEOUT = 5000; // Milliseconds
         Script.setTimeout(function() {
             makeSureInterval.stop();
-        }, 5000);
+        }, STOP_MAKING_SURE_TIMEOUT);
 
 
         var newEntityProperties = Entities.getEntityProperties(newEntityID, ['marketplaceID', 'certificateID']);
@@ -176,13 +180,13 @@
         Entities.deleteEntity(transform.demoEntityID);
     };
 
-    _this.enterEntity = (function (entityID) {
+    _this.enterEntity = (function(entityID) {
         isInZone = true;
         left = true;
         getCheckoutStandPosition();
         SHARED.getAvatarChildEntities(MyAvatar).forEach(function (entityID) {
-            var maxItems = 10;
-            if (replicaList.length < maxItems){
+            var MAX_ITEMS = 10;
+            if (replicaList.length < MAX_ITEMS){
                 var childUserData = Entities.getEntityProperties(entityID, 'userData').userData;
                 var isAttachment = childUserData.indexOf("attached\":true");
                 var marketplaceID = Entities.getEntityProperties(entityID, 'marketplaceID').marketplaceID;
@@ -191,11 +195,11 @@
                     // TODO check for already purchased 
                     spawnOverlayReplica(entityID); // put a copy of the item on the table
                     // move spawn position over to the next empty spot
-                    var moveRight = 1.5 * ITEM_HEIGHT;
-                    var moveBack = 0.75 * ITEM_HEIGHT;
-                    var moveDown = 1.25 * ITEM_HEIGHT;
-                    var moveLeft = 1.5 * ITEM_HEIGHT;
-                    var moveForward = 0.75 * ITEM_HEIGHT;
+                    var moveRight = ITEM_OFFSET.x * ITEM_HEIGHT;
+                    var moveBack = ITEM_OFFSET.z * ITEM_HEIGHT;
+                    var moveDown = ITEM_OFFSET.y * ITEM_HEIGHT;
+                    var moveLeft = ITEM_OFFSET.x * ITEM_HEIGHT;
+                    var moveForward = ITEM_OFFSET.z * ITEM_HEIGHT;
                     if (left) {
                         spawnZ += moveRight;
                         spawnX += moveBack;
@@ -208,22 +212,13 @@
                     }
                 }
             }
-
-            Overlays.mousePressOnOverlay.connect(function(overlayID, event){
-                if (replicaList.indexOf(overlayID) !== -1) {
-                    var name = Overlays.getProperty(overlayID, 'name');
-                    var id = name.substr(OVERLAY_PREFIX.length, OVERLAY_PREFIX.length + 35);
-                    var goToURL = MARKET_PLACE_ITEM_URL_PREFIX + id;
-                    var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-                    tablet.gotoWebScreen(goToURL);
-                }
-            });
         });
     });
     
     _this.leaveEntity = function() {
         isInZone = false;
-        Entities.findEntities(MyAvatar.position, 1000).forEach(function(entity) {
+        var SCANNER_RANGE_METERS = 1000;
+        Entities.findEntities(MyAvatar.position, SCANNER_RANGE_METERS).forEach(function(entity) {
             try {
                 var name = Entities.getEntityProperties(entity).name;
                 if (name.indexOf("Checkout Item") !== -1) {
