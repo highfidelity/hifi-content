@@ -38,12 +38,8 @@
     };
     
     this.preload = function(entityID) {
-        properties = Entities.getEntityProperties(entityID, ['position', 'userData']);
-        try {
-            checkoutZoneID = JSON.parse(properties.userData).avatarStore.checkoutZoneID;
-        } catch (e) {
-            print('Something went wrong trying to fetch the avatarStore.checkoutZoneID from the scanners userData.');
-        }
+        properties = Entities.getEntityProperties(entityID, ['position', 'parentID']);
+        checkoutZoneID = properties.parentID;
         interval = Script.setInterval(function() {
             var overlays = Overlays.findOverlays(properties.position, SCAN_RADIUS);
             if (overlays.length > 0) {
