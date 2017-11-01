@@ -16,6 +16,7 @@
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
     var CHECKOUT_INTERVAL_MS = 1000;
+    var PURCHASED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound6.wav"));
     var SCANNED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound8.wav"));
 
     var shared = Script.require('./attachmentZoneShared.js');    
@@ -35,8 +36,8 @@
             if (scannedMPOverlays[newItemProperties.marketplaceID] !== undefined) {
                 var overlayID = scannedMPOverlays[newItemProperties.marketplaceID];
                 Entities.callEntityMethod(checkoutZoneID, 'replicaCheckedOut', [overlayID, entityID]);
-                if (SCANNED_ITEM_SOUND.downloaded) {
-                    Audio.playSound(SCANNED_ITEM_SOUND, {
+                if (PURCHASED_ITEM_SOUND.downloaded) {
+                    Audio.playSound(PURCHASED_ITEM_SOUND, {
                         position: MyAvatar.position,
                         volume: shared.AUDIO_VOLUME_LEVEL,
                         localOnly: true
@@ -61,6 +62,13 @@
                         scannedMPOverlays[marketplaceID] = overlay;
                         TABLET.gotoWebScreen(goToURL, MARKETPLACES_INJECT_SCRIPT_URL);
                         Overlays.deleteOverlay(overlay);
+                        if (SCANNED_ITEM_SOUND.downloaded) {
+                            Audio.playSound(SCANNED_ITEM_SOUND, {
+                                position: MyAvatar.position,
+                                volume: shared.AUDIO_VOLUME_LEVEL,
+                                localOnly: true
+                            });
+                        }
                     }
                 });
             }
