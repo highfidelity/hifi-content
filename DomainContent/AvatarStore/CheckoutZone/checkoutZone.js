@@ -20,9 +20,11 @@
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
-    
+    var OVERLAY_ROTATIONAL_OFFSET = { x: 10, y: 140, z: 0 };
+    var TABLET_LOCAL_POSITION_OFFSET = { x: 0.01, y: 0.9, z: -0.6 };
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
+    var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 240, z: 0 };
     
     var _this = this;
     var isInZone = false;
@@ -103,7 +105,7 @@
             grabbable: true,
             parentID: tableID,
             localPosition: {x: spawnX, y: spawnY, z: spawnZ},
-            localRotation: Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 }),
+            localRotation: Quat.fromVec3Degrees(OVERLAY_ROTATIONAL_OFFSET),
             // clone dimensions so we can alter it without messing up the original entities dimensions
             dimensions: JSON.parse(JSON.stringify(entityProperties.dimensions))
         };
@@ -234,11 +236,12 @@
         });
         var tabletTransform = {
             parentID: tableID,
-            localPosition: { x: 0.01, y: 0.9, z: -0.6 },
-            localRotation: Quat.fromVec3Degrees({ x: 10, y: 240, z: 0 })
+            localPosition: TABLET_LOCAL_POSITION_OFFSET,
+            localRotation: Quat.fromVec3Degrees(TABLET_ROTATIONAL_OFFSET)
         };
         Overlays.editOverlay(HMD.tabletID, tabletTransform);
         var tabletTransformInterval = Script.setInterval(function() {
+            // print(JSON.stringify(tabletTransform)); 
             Overlays.editOverlay(HMD.tabletID, tabletTransform);
         }, 100);
         Script.setTimeout(function() {
