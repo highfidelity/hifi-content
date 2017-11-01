@@ -97,7 +97,7 @@
             grabbable: true,
             parentID: tableID,
             localPosition: {x: spawnX, y: spawnY, z: spawnZ},
-            localRotation: {x: 0, y: 0, z: 0},
+            localRotation: Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 }),
             // clone dimensions so we can alter it without messing up the original entities dimensions
             dimensions: JSON.parse(JSON.stringify(entityProperties.dimensions))
         };
@@ -213,6 +213,19 @@
                 }
             }
         });
+        Overlays.editOverlay(HMD.tabletID, tabletTransform);
+        var tabletTransform = {
+            parentID: tableID,
+            localPosition: { x: 0.01, y: 0.9, z: -0.6 },
+            localRotation: Quat.fromVec3Degrees({ x: 10, y: 240, z: 0 })
+        };
+        var tabletTransformInterval = Script.setInterval(function() {
+            // print(JSON.stringify(tabletTransform)); 
+            Overlays.editOverlay(HMD.tabletID, tabletTransform);
+        }, 100);
+        Script.setTimeout(function() {
+            tabletTransformInterval.stop();
+        }, 1000);
     });
     
     _this.leaveEntity = function() {
