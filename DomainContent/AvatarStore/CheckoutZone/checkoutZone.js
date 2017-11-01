@@ -239,7 +239,6 @@
         };
         Overlays.editOverlay(HMD.tabletID, tabletTransform);
         var tabletTransformInterval = Script.setInterval(function() {
-            // print(JSON.stringify(tabletTransform)); 
             Overlays.editOverlay(HMD.tabletID, tabletTransform);
         }, 100);
         Script.setTimeout(function() {
