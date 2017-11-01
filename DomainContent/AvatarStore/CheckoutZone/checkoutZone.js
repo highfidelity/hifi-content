@@ -18,6 +18,7 @@
     var VERTICAL_SPACING = 6;
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
+    var ENTER_ZONE_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound5.wav"));
     
     var _this = this;
     var isInZone = false;
@@ -181,6 +182,13 @@
     };
 
     _this.enterEntity = (function(entityID) {
+        if (ENTER_ZONE_SOUND.downloaded) {
+            Audio.playSound(ENTER_ZONE_SOUND, {
+                position: MyAvatar.position,
+                volume: SHARED.AUDIO_VOLUME_LEVEL,
+                localOnly: true
+            });
+        }
         isInZone = true;
         left = true;
         getCheckoutStandPosition();
