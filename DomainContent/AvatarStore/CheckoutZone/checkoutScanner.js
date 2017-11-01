@@ -16,6 +16,9 @@
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
     var CHECKOUT_INTERVAL_MS = 1000;
+    var SCANNED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound8.wav"));
+
+    var shared = Script.require('./attachmentZoneShared.js');    
     
     var interval;
     var properties;
@@ -32,6 +35,13 @@
             if (scannedMPOverlays[newItemProperties.marketplaceID] !== undefined) {
                 var overlayID = scannedMPOverlays[newItemProperties.marketplaceID];
                 Entities.callEntityMethod(checkoutZoneID, 'replicaCheckedOut', [overlayID, entityID]);
+                if (SCANNED_ITEM_SOUND.downloaded) {
+                    Audio.playSound(SCANNED_ITEM_SOUND, {
+                        position: MyAvatar.position,
+                        volume: shared.AUDIO_VOLUME_LEVEL,
+                        localOnly: true
+                    });
+                }
                 delete scannedMPOverlays[newItemProperties.marketplaceID];
             }
         }

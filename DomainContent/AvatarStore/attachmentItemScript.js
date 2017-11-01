@@ -8,13 +8,15 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 (function() {
-    var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/attach_sound_1.wav'));
-    var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/detach.wav'));
+    var shared = Script.require('attachmentZoneShared.js');
+    
+    var GRAB_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound1.wav'));
+    var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
+    var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound7.wav'));
 
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var ATTACH_DISTANCE = 0.35;
     var DETACH_DISTANCE = 0.5;
-    var AUDIO_VOLUME_LEVEL = 0.2;
     var RELEASE_LIFETIME = 60;
 
     var TRIGGER_INTENSITY = 1.0;
@@ -22,15 +24,11 @@
 
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
 
-    var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
-    var messageChannel;
-    
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached;
 
-    var firstGrab = true;
     var isHandOrArm = false;
 
     /**
@@ -79,33 +77,21 @@
             }
 
             isAttached = _attachmentData.attached;
-
-            if (Entities.getNestableType(properties.parentID) !== "avatar" && !isAttached) {
-                messageChannel = MESSAGE_CHANNEL_BASE + properties.parentID;
-                Messages.subscribe(messageChannel);
-            }
-
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
         },
         startNearGrab: function(entityID, args) {
-            if (firstGrab) {
-                if (!Entities.getEntityProperties(entityID, 'visible').visible) {
-                    Entities.editEntity(entityID, {visible: true});
-                } 
-                firstGrab = false;
+            if (GRAB_SOUND.downloaded) {
+                Audio.playSound(GRAB_SOUND, {
+                    position: MyAvatar.position,
+                    volume: shared.AUDIO_VOLUME_LEVEL,
+                    localOnly: true
+                });
             }
         },
             
         releaseGrab: function(entityID, args) {
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
-
-            if (Entities.getNestableType(properties.parentID) === "entity") {
-                Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
-                Messages.unsubscribe(messageChannel); 
-                Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
-            }
-
             var userData = properties.userData;
             var position = properties.position; 
             var attachmentData = JSON.parse(userData).Attachment;
@@ -132,7 +118,7 @@
                         if (ATTACH_SOUND.downloaded) {
                             Audio.playSound(ATTACH_SOUND, {
                                 position: MyAvatar.position,
-                                volume: AUDIO_VOLUME_LEVEL,
+                                volume: shared.AUDIO_VOLUME_LEVEL,
                                 localOnly: true
                             });
                         }
@@ -156,7 +142,7 @@
                     if (DETACH_SOUND.downloaded) {
                         Audio.playSound(DETACH_SOUND, {
                             position: MyAvatar.position,
-                            volume:AUDIO_VOLUME_LEVEL,
+                            volume: shared.AUDIO_VOLUME_LEVEL,
                             localOnly: true
                         });
                     }
