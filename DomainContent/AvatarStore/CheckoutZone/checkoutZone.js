@@ -18,6 +18,11 @@
     var VERTICAL_SPACING = 6;
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
+    var APP_NAME = "CHECKOUT";
+    var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
+    
+    var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
+    var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     
     var _this = this;
     var isInZone = false;
@@ -26,6 +31,7 @@
     var replicaList = [];
     var replicaStoredTransforms = {};
     var left = true;
+    var button;
 
     this.preload = function(entityID) {
         zoneID = entityID;
@@ -179,8 +185,21 @@
         // Remove the demo object, to prevent overlapping objects
         Entities.deleteEntity(transform.demoEntityID);
     };
+    var setupApp = (function() {
+        button = TABLET.addButton({
+            icon: APP_ICON,
+            text: APP_NAME
+        });
+        HMD.openTablet(true);
+        function onClicked() {
+            TABLET.gotoWebScreen(APP_URL); 
+        }
+        button.clicked.connect(onClicked);
+        TABLET.gotoWebScreen(APP_URL);
+    });
 
     _this.enterEntity = (function(entityID) {
+        setupApp();
         isInZone = true;
         left = true;
         getCheckoutStandPosition();
@@ -213,12 +232,12 @@
                 }
             }
         });
-        Overlays.editOverlay(HMD.tabletID, tabletTransform);
         var tabletTransform = {
             parentID: tableID,
             localPosition: { x: 0.01, y: 0.9, z: -0.6 },
             localRotation: Quat.fromVec3Degrees({ x: 10, y: 240, z: 0 })
         };
+        Overlays.editOverlay(HMD.tabletID, tabletTransform);
         var tabletTransformInterval = Script.setInterval(function() {
             // print(JSON.stringify(tabletTransform)); 
             Overlays.editOverlay(HMD.tabletID, tabletTransform);
@@ -246,6 +265,10 @@
         });
         replicaList = [];
         replicaStoredTransforms = {};
+        TABLET.removeButton(button);
+        TABLET.gotoHomeScreen();
+        Overlays.editOverlay(HMD.tabletID, {parentID: MyAvatar.sessionUUID});
+        HMD.closeTablet();
     };
 
     _this.unload = function() {
