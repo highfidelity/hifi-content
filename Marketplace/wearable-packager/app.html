@@ -22,14 +22,16 @@
         </div>
         <script>
             function main(){
-                EventBridge.emitWebEvent("Document Ready");
                 $(".submit-button").click(function(){
                     var clickEvent = {
-                        "type" : "submit",
-                        "entityID" : $(".id").val(),
-                        "joint" : $(".joint_dropdown").val()
+                        type : "submit",
+                        entityID : $(".id").val(),
+                        joint : $(".joint_dropdown").val()
                     };
-                    EventBridge.emitWebEvent(clickEvent);
+                    EventBridge.emitWebEvent(JSON.stringify(clickEvent));
+                });
+                EventBridge.scriptEventReceived.connect(function(scriptEvent){
+                    $(".id").val(scriptEvent);
                 });
             }
             $(document).ready(main);
