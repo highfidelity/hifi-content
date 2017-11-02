@@ -4,6 +4,7 @@
     var APP_ICON;
 
     var export_properties = {
+        type: "Model",
         clientOnly: 1,
         parentID: "{00000000-0000-0000-0000-000000000001}",
         owningAvatarID: "{00000000-0000-0000-0000-000000000000}",
@@ -33,7 +34,18 @@
             var newExportProperties = export_properties;
             var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script']);
 
-            newExportProperties
+            newExportProperties.modelURL = properties.modelURL;
+            newExportProperties.dimensions = properties.dimensions;
+            newExportProperties.script = properties.script;
+
+            var tempEntity = Entities.addEntity(newExportProperties, 1);
+            var success = Clipboard.exportEntities("Wearable_" + tempEntity + ".json", tempEntity );
+            if (success) {
+                Entities.deleteEntity(tempEntity);
+            } else {
+                print("Error exporting entity");
+            }
+            
 
         }
     }
