@@ -17,7 +17,7 @@
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var ATTACH_DISTANCE = 0.35;
     var DETACH_DISTANCE = 0.5;
-    var RELEASE_LIFETIME = 60;
+    var RELEASE_LIFETIME = 10;
 
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
@@ -96,8 +96,31 @@
             var position = properties.position; 
             var attachmentData = JSON.parse(userData).Attachment;
             isAttached = attachmentData.attached;
-
-            if (!isAttached) {
+            if (isAttached) {
+                var jointPosition = (properties.parentID === MyAvatar.sessionUUID) ? 
+                    MyAvatar.getJointPosition(properties.parentJointIndex) : 
+                    AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
+                if (Vec3.distance(position, jointPosition) > DETACH_DISTANCE) {
+                    var newDetachEntityProperties = Entities.getEntityProperties(entityID);
+                    touchJSONUserData(newDetachEntityProperties, function(userData) {
+                        userData.Attachment.attached = false;
+                    });
+                    Entities.editEntity(_entityID, {
+                        parentID: EMPTY_PARENT_ID,
+                        lifetime: Entities.getEntityProperties(_entityID, 'age').age + RELEASE_LIFETIME,
+                        userData: newDetachEntityProperties.userData
+                    });
+                    if (DETACH_SOUND.downloaded) {
+                        Audio.playSound(DETACH_SOUND, {
+                            position: MyAvatar.position,
+                            volume: shared.AUDIO_VOLUME_LEVEL,
+                            localOnly: true
+                        });
+                    }
+                    Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
+                    isAttached = false;
+                }
+            } else if (!isAttached) {
                 _supportedJoints.forEach(function(joint) {
                     var jointPosition = MyAvatar.getJointPosition(joint);
                     if (Vec3.distance(position, jointPosition) <= ATTACH_DISTANCE) {
@@ -122,32 +145,10 @@
                                 localOnly: true
                             });
                         }
+                        isAttached = true;
                         Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                     }
                 }); 
-            } else if (isAttached) {
-                var jointPosition = (properties.parentID === MyAvatar.sessionUUID) ? 
-                    MyAvatar.getJointPosition(properties.parentJointIndex) : 
-                    AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
-                if (Vec3.distance(position, jointPosition) > DETACH_DISTANCE) {
-                    var newDetachEntityProperties = Entities.getEntityProperties(entityID);
-                    touchJSONUserData(newDetachEntityProperties, function(userData) {
-                        userData.Attachment.attached = false;
-                    });
-                    Entities.editEntity(_entityID, {
-                        parentID: EMPTY_PARENT_ID,
-                        lifetime: Entities.getEntityProperties(_entityID, 'age').age + RELEASE_LIFETIME,
-                        userData: newDetachEntityProperties.userData
-                    });
-                    if (DETACH_SOUND.downloaded) {
-                        Audio.playSound(DETACH_SOUND, {
-                            position: MyAvatar.position,
-                            volume: shared.AUDIO_VOLUME_LEVEL,
-                            localOnly: true
-                        });
-                    }
-                    Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
-                }
             } 
         }
     };
