@@ -16,29 +16,34 @@
     var channelName;
     //blank data
     var data = [];
+    //controls haptic feedback
+    var pulseStrength;
+    var bothHands;
 
     _this.preload = function(entityID) {
         print("Loading reset script");
+        pulseStrength = .9;
+        bothHands = 2;
         _this.entityID = entityID;
         //get the id of the reset so you can find the unique channel name
         var props = Entities.getEntityProperties(entityID);
         var properties = JSON.parse(props.userData);
         //channel name
-        channelName = "reset-channel-"+ properties.deckHandlerID;
+        channelName = "reset-channel-" + properties.deckHandlerID;
     };
 
     _this.startFarTrigger = function(entityID, data) {
         //send the message
         Messages.sendMessage(channelName, JSON.stringify(data));
         //let player know they've hit the sign through haptic feedback
-        Controller.triggerShortHapticPulse(.9, 2);
+        Controller.triggerShortHapticPulse(pulseStrength, bothHands);
     };
 
     _this.startNearTrigger = function(entityID, data) {
         //send the message
         Messages.sendMessage(channelName, JSON.stringify(data));
         //let player know they've hit the sign through haptic feedback
-        Controller.triggerShortHapticPulse(.9, 2);
+        Controller.triggerShortHapticPulse(pulseStrength, bothHands);
     };
 
     _this.unload = function () {
