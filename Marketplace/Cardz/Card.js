@@ -17,18 +17,28 @@
     //name of card
     var cardName;
     //channel
-    var showChannel
+    var showChannel;
     //overlays that are on cards
     var cardOverlay;
     //hand joints
     var rightHandJoint;
     var leftHandJoint;
+    //Makes sure your hand is close enough to the card to attach
+    var closeEnough;
+    //controls haptic feedback
+    var pulseStrength;
+    var rightHand;
+    var leftHand;
 
     _this.preload = function(entityID) {
         print("Loading Card script"); 
         _this.entityID = entityID; 
         rightHandJoint = MyAvatar.getJointIndex("RightHandMiddle1");
         leftHandJoint = MyAvatar.getJointIndex("LeftHandMiddle1");
+        closeEnough = .1;
+        pulseStrength = .9;
+        rightHand = 0;
+        leftHand = 1;
         var props = Entities.getEntityProperties(entityID);
         var properties = JSON.parse(props.userData);
         deckHandlerID = properties.deckHandlerID;
@@ -41,11 +51,9 @@
     };
 
     _this.onReceivedMessage = function(channel, message, senderID) {
-        try {
-            var data = JSON.parse(message);
-        } catch (err) {
-            // e
-        }
+        //get data from message
+        var data = JSON.parse(message);
+        //check if message is meant for you and is being sent to the correct card
         if ((channel == showChannel) && (MyAvatar.sessionUUID == data[0]) && (_this.entityID == data[2])) {
             var card = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions', 'name']);
             //get which hand the card is in
@@ -78,7 +86,7 @@
         var props = Entities.getEntityProperties(_this.entityID);
         var properties = JSON.parse(props.userData);
         var held = properties.held;
-        if (held == true) {
+        if (held === true) {
             //get hand
             hand = args[0];
             //delete an overlay if there is one
@@ -88,7 +96,7 @@
             } catch (err) {
                 //e
             }
-        } else if (held == false) {
+        } else if (held === false) {
             hand = args[0];
             //unparent to hand and change held state
             var changeTexture = {
@@ -108,7 +116,7 @@
         var props = Entities.getEntityProperties(_this.entityID);
         var properties = JSON.parse(props.userData);
         var held = properties.held;
-        if (held == true) {
+        if (held === true) {
             //get hand
             hand = args[0];
             //delete an overlay if there is one
@@ -118,7 +126,7 @@
             } catch (err) {
                 //e
             }
-        } else if (held == false) {
+        } else if (held === false) {
             hand = args[0];
             //unparent to hand and change held state
             var changeTexture = {
@@ -141,101 +149,66 @@
         var checkIfCard = properties.card;
         var held = properties.held;
         var deckHandlerID = properties.deckHandlerID;
-        if ((checkIfCard == true) && (held == false) && (hand == "right")) {
-            //feedback to let you know you attached the card to your hand
-            Controller.triggerShortHapticPulse(.9, 1);
-            //get position of left and right hand
-            var left = MyAvatar.getLeftPalmPosition();
-            var right = props.position;
-            //get distance between right hand and left hand
-            var dx = left.x - right.x;
-            var dy = left.y - right.y;
-            var dz = left.z - right.z;
-            var dist = getDistance(dx, dy, dz);
-            //if card is within an acceptable distance to your hand then place it
-            if (dist < .10) {
-                //place card and change held state
-                var placement = {
-                    userData: JSON.stringify({
-                        grabbableKey: {
-                            grabbable: true,
-                            ignoreIK: false
-                        },
-                        "held": true,
-                        "card": true,
-                        "deckHandlerID": deckHandlerID
-                    }),
-                    parentID: MyAvatar.sessionUUID,
-                    parentJointIndex: leftHandJoint
-                };
-                Entities.editEntity(_this.entityID, placement);
-            //reset card if not close enough
-            } else if (dist >= .10) {
-                //unparent to hand and change held state
-                var unparentToMe = {
-                    parentID: ""
-                };
-                Entities.editEntity(_this.entityID, unparentToMe);
-                //send message
-                var cardChannel = "card-channel-".concat(deckHandlerID);
-                var data = [true, _this.entityID, MyAvatar.sessionUUID];
-                Messages.sendMessage(cardChannel, JSON.stringify(data));
-                //delete an overlay if there is one
-                try {
-                    Overlays.deleteOverlay(cardOverlay);
-                    cardOverlay = undefined;
-                } catch (err) {
-                    //e
+        //check to see if you are holding a card that is not already being held
+        if ((checkIfCard === true) && (held === false)) {
+            if (hand == "right") {
+                //feedback to let you know you attached the card to your hand
+                Controller.triggerShortHapticPulse(pulseStrength, leftHand);
+                //get position of left hand and card
+                var left = MyAvatar.getLeftPalmPosition();
+                var cardPos = props.position;
+                //get distance between right hand and left hand
+                var dist = getDistance(left, cardPos);
+                //if card is within an acceptable distance to your hand then place it
+                if (dist <= closeEnough) {
+                    //place card and change held state
+                    var placement = {
+                        userData: JSON.stringify({
+                            grabbableKey: {
+                                grabbable: true,
+                                ignoreIK: false
+                            },
+                            "held": true,
+                            "card": true,
+                            "deckHandlerID": deckHandlerID
+                        }),
+                        parentID: MyAvatar.sessionUUID,
+                        parentJointIndex: leftHandJoint
+                    };
+                    Entities.editEntity(_this.entityID, placement);
+                } else if (dist > closeEnough) {
+                    notCloseEnough();
                 }
-            }
-        } else if ((checkIfCard == true) && (held == false) && (hand == "left")) {
-            Controller.triggerShortHapticPulse(.9, 0);
-            //get position of left and right hand
-            var left = props.position;
-            var right = MyAvatar.getRightPalmPosition();
-            //get distance between right hand and left hand
-            var dx = left.x - right.x;
-            var dy = left.y - right.y;
-            var dz = left.z - right.z;
-            var dist = getDistance(dx, dy, dz);
-            //if card is within an acceptable distance to your hand then place it
-            if (dist < .10) {
-                //place card and change held state
-                var placement = {
-                    userData: JSON.stringify({
-                        grabbableKey: {
-                            grabbable: true,
-                            ignoreIK: false
-                        },
-                        "held": true,
-                        "card": true,
-                        "deckHandlerID": deckHandlerID
-                    }),
-                    parentID: MyAvatar.sessionUUID,
-                    parentJointIndex: rightHandJoint
-                };
-                Entities.editEntity(_this.entityID, placement);
-            //reset card if not close enough
-            } else if (dist >= .10) {
-                //unparent to hand and change held state
-                var unparentToMe = {
-                    parentID: ""
-                };
-                Entities.editEntity(_this.entityID, unparentToMe);
-                //send message
-                var cardChannel = "card-channel-".concat(deckHandlerID);
-                var data = [true, _this.entityID, MyAvatar.sessionUUID];
-                Messages.sendMessage(cardChannel, JSON.stringify(data));
-                //delete an overlay if there is one
-                try {
-                    Overlays.deleteOverlay(cardOverlay);
-                    cardOverlay = undefined;
-                } catch (err) {
-                    //e
+            } else if (hand == "left") {
+                Controller.triggerShortHapticPulse(pulseStrength, rightHand);
+                //get position of right hand and card
+                var right = MyAvatar.getRightPalmPosition();
+                var cardPos = props.position;
+                //get distance between right hand and card
+                var dist = getDistance(right, cardPos);
+                //if card is within an acceptable distance to your hand then place it
+                if (dist <= closeEnough) {
+                    //place card and change held state
+                    var placement = {
+                        userData: JSON.stringify({
+                            grabbableKey: {
+                                grabbable: true,
+                                ignoreIK: false
+                            },
+                            "held": true,
+                            "card": true,
+                            "deckHandlerID": deckHandlerID
+                        }),
+                        parentID: MyAvatar.sessionUUID,
+                        parentJointIndex: rightHandJoint
+                    };
+                    Entities.editEntity(_this.entityID, placement);
+                } else if (dist > closeEnough) {
+                    notCloseEnough();
                 }
             }
         //if you were already holding a card
-        } else if ((checkIfCard == true) && (held == true)) {
+        } else if ((checkIfCard === true) && (held === true)) {
             //unparent to hand and change held state. Also make it fall
             var unparent = {
                 parentID: "",
@@ -282,13 +255,35 @@
         } 
     };
 
-    function getDistance(dx, dy, dz) {
+    function getDistance(hand, cardPos) {
+        var dx = hand.x - cardPos.x;
+        var dy = hand.y - cardPos.y;
+        var dz = hand.z - cardPos.z;
         //get distance between model and beacon
         var dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2));
         return dist;
     }
 
-    _this.unload = function () {
+    function notCloseEnough() {
+        //unparent to hand and change held state
+        var unparentToMe = {
+            parentID: ""
+        };
+        Entities.editEntity(_this.entityID, unparentToMe);
+        //send message to change card texture back to original
+        var cardChannel = "card-channel-".concat(deckHandlerID);
+        var data = [true, _this.entityID, MyAvatar.sessionUUID];
+        Messages.sendMessage(cardChannel, JSON.stringify(data));
+        //delete an overlay if there is one
+        try {
+            Overlays.deleteOverlay(cardOverlay);
+            cardOverlay = undefined;
+        } catch (err) {
+            //e
+        }
+    }
+
+    _this.unload = function() {
         //unsubscribe to channel
         Messages.unsubscribe(showChannel);
         Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);

@@ -71,8 +71,6 @@ function createCardTable() {
     //finds position below your avatar
     var rootPosition = utils.findSurfaceBelowPosition(MyAvatar.position);
     rootPosition.y += .5;
-    
-    print(CARD_ENTITIES.Entities[0].name);
 
     for (i = 0; i < CARD_ENTITIES.Entities.length; i++) {
         //adds rootPosition to position saved in js file "spawnSetupScriptShopping" to figure out placement of objects

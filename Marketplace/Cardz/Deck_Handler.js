@@ -134,7 +134,6 @@
         Entities.addEntity(resetButtonProperties);
         //set last card number
         lastCard = 52;
-        
         //get all channels
         cardChannel = "card-channel-".concat(entityID);
         resetChannel = "reset-channel-".concat(entityID);
@@ -159,49 +158,6 @@
                textures: '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/' + cardName + '.jpg"}',
             };
             Entities.editEntity(data[1], usability);
-            if ((("CARD_" + cards[lastCard - 1]) == cardName) && (lastCard != 0)) {
-                --lastCard;
-                var cardProperties = {
-                    "type": "Model", 
-                    "lifetime": -1, 
-                    "dynamic": true,
-                    "damping": 0.98,
-                    "angularDamping": 0.98,
-                    "gravity": {
-                        x: 0,
-                        y: -4,
-                        z: 0
-                    },
-                    "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[lastCard - 1] + '.jpg"}',
-                    "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
-                    "dimensions": {
-                        x: .07,
-                        y: .12,
-                        z: .006
-                    },
-                    userData: JSON.stringify({
-                        grabbableKey: {
-                            grabbable: true,
-                            ignoreIK: false
-                        },
-                        "held": false,
-                        "card": true,
-                        "deckHandlerID": _this.entityID
-                    }),
-                    "position": {
-                        x: deckLocation.x,
-                        y: deckLocation.y + (.053 + .003),
-                        z: deckLocation.z
-                    },
-                    "collisionless": false,
-                    "collidesWith": "static,dynamic",
-                    "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
-                    name: "CARD_" + cards[lastCard - 1],
-                    shapeType: "box",
-                    "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
-                };
-                cardIDs.push(Entities.addEntity(cardProperties));
-            }
         } else if (data[0] == false) {
             var showChannel = "show-channel".concat(data[1]); 
             var dataToPassBack = [data[2], data[3], data[4]];
