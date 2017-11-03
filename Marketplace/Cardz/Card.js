@@ -86,28 +86,8 @@
         var props = Entities.getEntityProperties(_this.entityID);
         var properties = JSON.parse(props.userData);
         var held = properties.held;
-        if (held === true) {
-            //get hand
-            hand = args[0];
-            //delete an overlay if there is one
-            try {
-                Overlays.deleteOverlay(cardOverlay);
-                cardOverlay = undefined;
-            } catch (err) {
-                //e
-            }
-        } else if (held === false) {
-            hand = args[0];
-            //unparent to hand and change held state
-            var changeTexture = {
-                parentID: "",
-                parentJointIndex: "",
-                textures: '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_X.jpg"}',
-            };
-            Entities.editEntity(_this.entityID, changeTexture);
-            var cardChannel = "card-channel-".concat(deckHandlerID);
-            var data = [false, _this.entityID, MyAvatar.sessionUUID, hand, _this.entityID];
-            Messages.sendMessage(cardChannel, JSON.stringify(data));
+        if (held === false) {
+            hideCard(args);
         }
     };
 
@@ -116,28 +96,8 @@
         var props = Entities.getEntityProperties(_this.entityID);
         var properties = JSON.parse(props.userData);
         var held = properties.held;
-        if (held === true) {
-            //get hand
-            hand = args[0];
-            //delete an overlay if there is one
-            try {
-                Overlays.deleteOverlay(cardOverlay);
-                cardOverlay = undefined;
-            } catch (err) {
-                //e
-            }
-        } else if (held === false) {
-            hand = args[0];
-            //unparent to hand and change held state
-            var changeTexture = {
-                parentID: "",
-                parentJointIndex: "",
-                textures: '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_X.jpg"}',
-            };
-            Entities.editEntity(_this.entityID, changeTexture);
-            var cardChannel = "card-channel-".concat(deckHandlerID);
-            var data = [false, _this.entityID, MyAvatar.sessionUUID, hand, _this.entityID];
-            Messages.sendMessage(cardChannel, JSON.stringify(data));
+        if (held === false) {
+            hideCard(args);
         }
     };
 
@@ -281,6 +241,20 @@
         } catch (err) {
             //e
         }
+    }
+
+    function hideCard(args) {
+        hand = args[0];
+        //unparent to hand and change held state
+        var changeTexture = {
+            parentID: "",
+            parentJointIndex: "",
+            textures: '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_X.jpg"}',
+        };
+        Entities.editEntity(_this.entityID, changeTexture);
+        var cardChannel = "card-channel-".concat(deckHandlerID);
+        var data = [false, _this.entityID, MyAvatar.sessionUUID, hand, _this.entityID];
+        Messages.sendMessage(cardChannel, JSON.stringify(data));
     }
 
     _this.unload = function() {

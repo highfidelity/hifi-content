@@ -26,6 +26,8 @@
     _this.preload = function(entityID) {
         print("Loading Deck Handler script."); 
         _this.entityID = entityID;
+        //set last card number
+        lastCard = 52;
         //position of deck handler
         deckLocation = Entities.getEntityProperties(entityID).position;
         deckRotation = Entities.getEntityProperties(entityID).rotation;
@@ -132,8 +134,6 @@
             "script": Script.resolvePath("./Reset_Button.js") + "?" + Date.now()
         };
         Entities.addEntity(resetButtonProperties);
-        //set last card number
-        lastCard = 52;
         //get all channels
         cardChannel = "card-channel-".concat(entityID);
         resetChannel = "reset-channel-".concat(entityID);
