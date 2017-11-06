@@ -31,9 +31,9 @@
     var button;
     var checkoutOutlineConfig;
     var recycleBinID;
+    var scannerZone;
 
     this.preload = function(entityID) {
-        print("preloading checkout zone");
         zoneID = entityID;
         changeHighlight1();
     };
@@ -107,6 +107,9 @@
             if (tableChildName === "Checkout Recycle") {
                 recycleBinID = childID;
                 return;
+            } else if (tableChildName === "Checkout Scan Zone") {
+                scannerZone = childID;
+                return;
             }
         });
     });
@@ -130,7 +133,6 @@
         };
         var scale = (ITEM_HEIGHT / overlayProperties.dimensions.y);
         if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
-            // print("size was too big...scaling to ITEM-HEIGHT");
             overlayProperties.dimensions.y = ITEM_HEIGHT;
             overlayProperties.dimensions.x *= scale;
             overlayProperties.dimensions.z *= scale;
@@ -225,6 +227,7 @@
     _this.enterEntity = (function (entityID) {
         collectZoneData();
         Entities.callEntityMethod(recycleBinID, 'enterCheckout');
+        Entities.callEntityMethod(scannerZone, 'enterCheckout');
         setupApp();
         isInZone = true; 
         left = true;
@@ -275,6 +278,7 @@
     
     _this.leaveEntity = function() {
         Entities.callEntityMethod(recycleBinID, 'exitCheckout');
+        Entities.callEntityMethod(scannerZone, 'exitCheckout');
         isInZone = false;
         Entities.findEntities(MyAvatar.position, 1000).forEach(function(entity) {
             try {

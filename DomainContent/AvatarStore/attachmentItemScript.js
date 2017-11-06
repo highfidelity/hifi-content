@@ -7,7 +7,7 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-/* global Selection, Render */
+/* global Render */
 (function() {
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/attach_sound_1.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/detach.wav'));
@@ -33,10 +33,6 @@
 
     var firstGrab = true;
     var isHandOrArm = false;
-
-    var prevID = 0;
-    var LIST_NAME = "contextOverlayHighlightList1";
-    var listType = "entity";
 
     /**
      * 
@@ -93,13 +89,6 @@
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
         },
         startNearGrab: function(entityID, args) {
-            print("starting a near grab");
-            if (prevID !== entityID) {
-                Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
-                print("added entity to highlight list");
-                prevID = entityID;
-            }
-
             if (firstGrab) {
                 if (!Entities.getEntityProperties(entityID, 'visible').visible) {
                     Entities.editEntity(entityID, {visible: true});
@@ -111,12 +100,6 @@
         releaseGrab: function(entityID, args) {
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
-
-            if (prevID !== 0) {
-                Selection.removeFromSelectedItemsList(LIST_NAME, listType, prevID);
-                print("removed grabbed entity from highlight list");
-                prevID = 0;
-            }
 
             if (Entities.getNestableType(properties.parentID) === "entity") {
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
