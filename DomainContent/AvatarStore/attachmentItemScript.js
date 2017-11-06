@@ -1,169 +1,513 @@
 //
 //  attachmentItemScript.js
 //
-//  This script is a simplified version of the original attachmentItemScript.js 
+//  Created by Thijs Wenker on 5/30/17.
 //  Copyright 2017 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+
+/*
+    // User Data formats:
+    {
+        "Attachment": {
+            "action": "attach",
+            "joint": "Hips",
+            "options": {
+                "translation": {
+                    "x": 0,
+                    "y": -0.11,
+                    "z": 0.04
+                }
+            }
+        }
+    }
+    {
+        "Attachment": {
+            "action": "attach",
+            "joint": "[LR]Hips",
+            "snapDistance": 0.31,
+            "options": {
+                "translation": {
+                    "x": 0,
+                    "y": -0.11,
+                    "z": 0.04
+                }
+            }
+        }
+    }
+    {
+        "Attachment": {
+            "action": "clear",
+            "joint": "Hips"
+        }
+    }
+    {
+        "Attachment": {
+            "action": "clear",
+            "joint": "[LR]ForeArm"
+        }
+    }
+*/
+
+
 (function() {
+    var _entityID = null;
+    var _isGrabbing = false;
+    var _attachmentData = null;
+    var _leftRightAttachToggle = false;
+    // var _listeningChannel = null;
+    var _virtualHoldController = null;
+    
+    var WANT_DEBUG = true;
+
+    // var ATTACHMENT_CHANNEL_PREFIX = 'attachmentItem-';
+
+    var TOTAL_HOLD_LIFETIME = 60; // seconds
+    
+    var DEFAULT_SNAP_DISTANCE = 0.3;
+    var HAND_LEFT = 0;
+    var HAND_RIGHT = 1;
+
+    var LEFT_RIGHT_PLACEHOLDER = '[LR]';
+
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/attach_sound_1.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/detach.wav'));
 
-    var LEFT_RIGHT_PLACEHOLDER = '[LR]';
-    var ATTACH_DISTANCE = 0.35;
-    var DETACH_DISTANCE = 0.5;
-    var AUDIO_VOLUME_LEVEL = 0.2;
-    var RELEASE_LIFETIME = 60;
+    var prevID = 0;
+    var LIST_NAME = "contextOverlayHighlightList1";
+    var listType = "entity";
+    var checkoutOutlineConfig;
 
-    var TRIGGER_INTENSITY = 1.0;
-    var TRIGGER_TIME = 0.2;
-
-    var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
-
-    var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
-    var messageChannel;
-    
-    var _entityID;
-    var _attachmentData;
-    var _supportedJoints = [];
-    var isAttached;
-
-    var firstGrab = true;
-    var isHandOrArm = false;
-
-    /**
-     * 
-     * @param {Object} entityProperties 
-     * @param {touchJSONUserDataCallback} touchCallback 
-     */
-    var touchJSONUserData = function(entityProperties, touchCallback) {
-        try {
-            // attempt to touch the userData
-            var userData = JSON.parse(entityProperties.userData);
-            touchCallback.call(this, userData);
-            entityProperties.userData = JSON.stringify(userData);
-        } catch (e) {
-            print('Something went wrong while trying to touch/modify the userData. Could be invalid JSON or problem with the callback function.');
-        }
-    };
-
-    /**
-     * This callback is displayed as a global member.
-     * @callback touchJSONUserDataCallback
-     * @param {Object} userData
-     */
-
-    function AttachableItem() {
-
+    var debugPrint = function(message) {};
+    if (WANT_DEBUG) {
+        debugPrint = function(message) {
+            print(message);
+        };
     }
-    AttachableItem.prototype = {
-        preload : function(entityID) {
-            _entityID = entityID;
-            var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
-            var userData = JSON.parse(properties.userData);
-            _attachmentData = userData.Attachment;
-            var _marketplaceID = userData.marketplaceID;
 
-            if (_attachmentData.joint.indexOf(LEFT_RIGHT_PLACEHOLDER) !== -1) {
-                var baseJoint = _attachmentData.joint.substring(4);
-                _supportedJoints.push("Left".concat(baseJoint));
-                _supportedJoints.push("Right".concat(baseJoint));
-                if (_attachmentData.joint.indexOf('Arm') !== -1 ||
-                    _attachmentData.joint.indexOf('Hand') !== -1) {
-                    isHandOrArm = true;
+    var getEntityProperty = function(entityID, property) {
+        return Entities.getEntityProperties(entityID, property)[property];
+    };
+
+    var _this;
+    function VirtualHoldController(hand, holdableEntity, localPosition, localRotation) {
+        _this = this;
+        _this.hand = hand;
+        _this.holdableEntity = holdableEntity;
+        _this.localPosition = localPosition;
+        _this.localRotation = localRotation;
+        _this.controllerWasReleased = false;
+        _this.cleanedUp = false;
+        _this.init();
+    }
+
+    VirtualHoldController.prototype = {
+        hand: null,
+        holdableEntity: null,
+        holdAction: null,
+        controllerWasReleased: null,
+        mappingName: null,
+        mapping: null,
+        cleanedUp: null,
+        onRelease: null,
+        init: function() {
+            Script.update.connect(_this.update);
+            Messages.sendMessage('Hifi-Hand-Disabler', _this.hand);
+
+            _this.mappingName = 'VirtualHoldController_' + _this.hand + '_' + _this.holdableEntity;
+
+            _this.mapping = Controller.newMapping(_this.mappingName);
+            var SMOOTH_TRIGGER_RELEASE_THRESHOLD = 0.3;
+            var GRIP_BUTTON_ACTIVE_THRESHOLD = 0.5;
+            var smoothTriggerCheck = function(value) {
+                if (value < SMOOTH_TRIGGER_RELEASE_THRESHOLD) {
+                    _this.release();
                 }
+            };
+            var gripButtonCheck = function(value) {
+                if (value > GRIP_BUTTON_ACTIVE_THRESHOLD) {
+                    _this.release();
+                }
+            };
+
+            var NEAR_GRABBING_ACTION_TIMEFRAME = 0.05;
+            var NEAR_GRABBING_KINEMATIC = true;
+            var NEAR_GRABBING_IGNORE_IK = false;
+            _this.holdAction = Entities.addAction('hold', _this.holdableEntity, {
+                hand: _this.hand,
+                timeScale: NEAR_GRABBING_ACTION_TIMEFRAME,
+                relativePosition: _this.localPosition,
+                relativeRotation: _this.localRotation,
+                ttl: TOTAL_HOLD_LIFETIME,
+                kinematic: NEAR_GRABBING_KINEMATIC,
+                kinematicSetVelocity: true,
+                ignoreIK: NEAR_GRABBING_IGNORE_IK
+            });
+
+            if (_this.hand === 'left') {
+                _this.mapping.from([Controller.Standard.LT]).peek().to(smoothTriggerCheck);
+                _this.mapping.from([Controller.Standard.LB]).peek().to(gripButtonCheck);
+                _this.mapping.from([Controller.Standard.LeftGrip]).peek().to(gripButtonCheck);
             } else {
-                _supportedJoints.push(_attachmentData.joint);
+                _this.mapping.from([Controller.Standard.RT]).peek().to(smoothTriggerCheck);
+                _this.mapping.from([Controller.Standard.RB]).peek().to(gripButtonCheck);
+                _this.mapping.from([Controller.Standard.RightGrip]).peek().to(gripButtonCheck);
             }
+            _this.mapping.enable();
 
-            isAttached = _attachmentData.attached;
+            Entities.callEntityMethod(_this.holdableEntity, 'startNearGrab', [_this.hand, MyAvatar.sessionUUID]);
 
-            if (Entities.getNestableType(properties.parentID) !== "avatar" && !isAttached) {
-                messageChannel = MESSAGE_CHANNEL_BASE + properties.parentID;
-                Messages.subscribe(messageChannel);
-            }
-
-            Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
         },
-        startNearGrab: function(entityID, args) {
-            if (firstGrab) {
-                if (!Entities.getEntityProperties(entityID, 'visible').visible) {
-                    Entities.editEntity(entityID, {visible: true});
-                } 
-                firstGrab = false;
+        update: function(deltaTime) {
+            // check if entity still exists
+            if (Object.keys(Entities.getEntityProperties(_this.holdableEntity)).length === 0) {
+                debugPrint('Could not find holdableEntity. Cleaning up!');
+                _this.cleanup();
+                return;
             }
+            // check if controller released
+            if (_this.controllerWasReleased) {
+                debugPrint('Controller was already released. Cleaning up!');
+                _this.cleanup();
+                return;
+            }
+            Entities.callEntityMethod(_this.holdableEntity, 'continueNearGrab', [_this.hand, MyAvatar.sessionUUID]);
         },
-            
-        releaseGrab: function(entityID, args) {
-            var hand = args[0];
-            var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
+        release: function() {
+            if (_this.controllerWasReleased) {
+                debugPrint('Controller was already released!');
+                return;
+            }
+            _this.controllerWasReleased = true;
+            Entities.callEntityMethod(_this.holdableEntity, 'releaseGrab', [_this.hand, MyAvatar.sessionUUID]);
 
-            if (Entities.getNestableType(properties.parentID) === "entity") {
-                Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
-                Messages.unsubscribe(messageChannel); 
-                Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
+            Entities.deleteAction(_this.holdableEntity, _this.holdAction);
+
+            if (_this.onRelease !== null) {
+                _this.onRelease.call(_this);
             }
 
-            var userData = properties.userData;
-            var position = properties.position; 
-            var attachmentData = JSON.parse(userData).Attachment;
-            isAttached = attachmentData.attached;
-
-            if (!isAttached) {
-                _supportedJoints.forEach(function(joint) {
-                    var jointPosition = MyAvatar.getJointPosition(joint);
-                    if (Vec3.distance(position, jointPosition) <= ATTACH_DISTANCE) {
-                        // Check that we are not holding onto an arm attachment in a hand
-                        if (joint.toLowerCase().indexOf(hand) !== -1) {
-                            return;
-                        }
-                        var newEntityProperties = Entities.getEntityProperties(_entityID, 'userData');
-                        touchJSONUserData(newEntityProperties, function(userData) {
-                            userData.Attachment.attached = true;
-                        });
-                        Entities.editEntity(_entityID, {
-                            parentID: MyAvatar.sessionUUID,
-                            parentJointIndex: MyAvatar.getJointIndex(joint),
-                            userData: newEntityProperties.userData,
-                            lifetime: -1
-                        });
-                        if (ATTACH_SOUND.downloaded) {
-                            Audio.playSound(ATTACH_SOUND, {
-                                position: MyAvatar.position,
-                                volume: AUDIO_VOLUME_LEVEL,
-                                localOnly: true
-                            });
-                        }
-                        Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
-                    }
-                }); 
-            } else if (isAttached) {
-                var jointPosition = (properties.parentID === MyAvatar.sessionUUID) ? 
-                    MyAvatar.getJointPosition(properties.parentJointIndex) : 
-                    AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
-                if (Vec3.distance(position, jointPosition) > DETACH_DISTANCE) {
-                    var newDetachEntityProperties = Entities.getEntityProperties(entityID);
-                    touchJSONUserData(newDetachEntityProperties, function(userData) {
-                        userData.Attachment.attached = false;
-                    });
-                    Entities.editEntity(_entityID, {
-                        parentID: EMPTY_PARENT_ID,
-                        lifetime: Entities.getEntityProperties(_entityID, 'age').age + RELEASE_LIFETIME,
-                        userData: newDetachEntityProperties.userData
-                    });
-                    if (DETACH_SOUND.downloaded) {
-                        Audio.playSound(DETACH_SOUND, {
-                            position: MyAvatar.position,
-                            volume:AUDIO_VOLUME_LEVEL,
-                            localOnly: true
-                        });
-                    }
-                    Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
-                }
-            } 
+            debugPrint('We don\'t need a virtual controller after release. Cleaning up!');
+            _this.cleanup();
+        },
+        cleanup: function() {
+            if (_this.cleanedUp) {
+                return;
+            }
+            _this.mapping.disable();
+            Messages.sendMessage('Hifi-Hand-Disabler', 'none');
+            Script.update.disconnect(_this.update);
+            _this.cleanedUp = true;
         }
     };
-    return new AttachableItem(); 
+
+
+    var getUserData = function() {
+        try {
+            return JSON.parse(getEntityProperty(_entityID, 'userData'));
+        } catch (e) {
+            // e
+            debugPrint('Could not retrieve valid userData');
+        }
+        return null;
+    };
+
+    var getAttachmentData = function() {
+        var userDataObject = getUserData();
+        if (userDataObject === null || userDataObject.Attachment === undefined) {
+            return null;
+        }
+        return userDataObject.Attachment;
+    };
+
+    /* var getScriptTimestamp = function() {
+        return getEntityProperty(_entityID, 'scriptTimestamp');
+    };*/
+
+    this.preload = function(entityID) {
+        _entityID = entityID;
+        debugPrint('loaded ' + entityID);
+    };
+
+    this.unload = function() {
+        if (_virtualHoldController !== null) {
+            _virtualHoldController.cleanup();
+        }
+    };
+
+    var changeHighlight1 = (function() {
+        checkoutOutlineConfig = Render.getConfig("RenderMainView.OutlineEffect1");
+        checkoutOutlineConfig["glow"] = true;
+        checkoutOutlineConfig["width"] = 5;
+        checkoutOutlineConfig["intensity"] = 0.5;
+        checkoutOutlineConfig["colorR"] = 0.18;
+        checkoutOutlineConfig["colorG"] = 0.61;
+        checkoutOutlineConfig["colorB"] = 0.86;
+        checkoutOutlineConfig["unoccludedFillOpacity"] = 0;        
+    });
+
+    function attachmentAction(joint, attachmentData) {
+        if (attachmentData === undefined) {
+            attachmentData = getAttachmentData();
+        }
+        if (attachmentData === null) {
+            return;
+        }
+        var otherJoint = null;
+        if (joint === undefined) {
+            if (attachmentData.joint.indexOf(LEFT_RIGHT_PLACEHOLDER) !== -1) {
+                joint = attachmentData.joint.replace(LEFT_RIGHT_PLACEHOLDER, _leftRightAttachToggle ? 'Left' : 'Right');
+                debugPrint('joint = ' + joint);
+                otherJoint = attachmentData.joint.replace(LEFT_RIGHT_PLACEHOLDER, _leftRightAttachToggle ? 'Right' : 'Left');
+                debugPrint('otherJoint = ' + otherJoint);
+            } else {
+                joint = attachmentData.joint;
+            }
+
+            // flip the state if attaching
+            if (attachmentData.action === 'attach') {
+                _leftRightAttachToggle = !_leftRightAttachToggle;
+            }
+        }
+        var currentAttachments = MyAvatar.getAttachmentsVariant();
+        var newAttachments = [];
+        currentAttachments.forEach(function(attachment) {
+            // do not add the current joint data to the list of the joint that we are changing
+            if (attachment.jointName !== joint && (attachmentData.action === 'attach' || attachment.jointName !== otherJoint)) {
+                newAttachments.push(attachment);
+            }
+        });
+
+        if (attachmentData.action === 'attach') {
+            var attachmentModel = getEntityProperty(_entityID, 'modelURL');
+            var newAttachment = {
+                jointName: joint,
+                modelUrl: attachmentModel
+            };
+            for (var key in attachmentData.options) {
+                if (attachmentData.options.hasOwnProperty(key)) {
+                    newAttachment[key] = attachmentData.options[key];
+                }
+            }
+
+            newAttachments.push(newAttachment);
+
+            if (ATTACH_SOUND.downloaded) {
+                Audio.playSound(ATTACH_SOUND, {
+                    position: getEntityProperty(_entityID, 'position'),
+                    volume: 0.2,
+                    localOnly: true
+                });
+            }
+            var modelPathParts = attachmentModel.split('/');
+            var fileName = modelPathParts[modelPathParts.length - 1];
+            UserActivityLogger.logAction('attachmentItemScript_attach', {
+                joint: joint,
+                model: fileName
+            });
+        } else if (attachmentData.action === 'clear') {
+            if (DETACH_SOUND.downloaded) {
+                Audio.playSound(DETACH_SOUND, {
+                    position: getEntityProperty(_entityID, 'position'),
+                    volume: 0.4,
+                    localOnly: true
+                });
+            }
+            var joints = [joint];
+            if (otherJoint !== null) {
+                joints.push(joint);
+            }
+            UserActivityLogger.logAction('attachmentItemScript_detach', {
+                joints: joints
+            });
+        }
+
+        MyAvatar.setAttachmentsVariant(newAttachments);        
+    }
+
+    this.startFarTrigger = function(entityID, args) {
+        var attachmentData = getAttachmentData();
+        // Only allow far-grab for the clear signs
+        if (attachmentData.action === 'clear') {
+            attachmentAction(undefined, attachmentData);
+        }
+    };
+
+    this.startNearTrigger = function(entityID, args) {
+        var attachmentData = getAttachmentData();
+        if (attachmentData.action === 'attach') {
+            var hand = args[0];
+            var entityProperties = Entities.getEntityProperties(entityID, ['position', 'rotation']);
+            var handPosition = hand === 'left' ? MyAvatar.getLeftPalmPosition() : MyAvatar.getRightPalmPosition();
+            var handRotation = hand === 'left' ? MyAvatar.getLeftPalmRotation() : MyAvatar.getRightPalmRotation();
+
+            var localPosition = Vec3.multiplyQbyV(Quat.inverse(handRotation), Vec3.subtract(entityProperties.position, handPosition));
+            var localRotation = Quat.multiply(Quat.inverse(handRotation), entityProperties.rotation);
+
+            debugPrint('trying to create entity');
+            var newProperties = Entities.getEntityProperties(_entityID);
+            debugPrint('received properties from ' + _entityID + ': ' + JSON.stringify(newProperties));
+            
+            newProperties.position = Vec3.sum(handPosition, Vec3.multiplyQbyV(handRotation, localPosition));
+            newProperties.rotation = Quat.multiply(handRotation, localRotation);
+            newProperties.lifetime = TOTAL_HOLD_LIFETIME;
+
+            // delete some unused properties
+            delete newProperties.id;
+            delete newProperties.lastEdited;
+            delete newProperties.lastEditedBy;
+            delete newProperties.created;
+            delete newProperties.age;
+            delete newProperties.ageAsText;
+            delete newProperties.naturalDimensions;
+            delete newProperties.naturalPosition;
+            delete newProperties.boundingBox;
+            delete newProperties.actionData;
+
+
+            // collisionMask is already set:
+            delete newProperties.collidesWith;
+
+            if (newProperties.locked !== undefined) {
+                delete newProperties.locked;
+            }
+
+            if (newProperties.renderInfo !== undefined) {
+                delete newProperties.renderInfo;
+            }
+
+            if (newProperties.angularVelocity !== undefined) {
+                delete newProperties.angularVelocity;
+            }
+
+            delete newProperties.localRotation;
+            delete newProperties.localPosition;
+
+            delete newProperties.parentID;
+            delete newProperties.parentJointIndex;
+            delete newProperties.queryAACube;
+            delete newProperties.originalTextures;
+            delete newProperties.animation;
+            delete newProperties.owningAvatarID;
+            delete newProperties.clientOnly;
+            
+            // We only want the server-side script in the locked item
+            if (newProperties.serverScripts !== undefined) {
+                delete newProperties.serverScripts;
+            }
+
+            try {
+                // attempt to modify the userData
+                var userData = JSON.parse(newProperties.userData);
+                userData.grabbableKey.wantsTrigger = false;
+                userData.grabbableKey.grabbable = true;
+                // userData.attachmentServer = _listeningChannel;
+                newProperties.userData = JSON.stringify(userData);
+            } catch (e) {
+                debugPrint('Something went wrong while trying to modify the userData.');
+            }
+
+            // must be dynamic for hold action:
+            newProperties.dynamic = true;
+
+            if (newProperties.shapeType === undefined || newProperties.shapeType === 'none') {
+                // must have dynamic shapeType for hold action:
+                newProperties.shapeType = 'box';
+            }
+            var newEntityID = Entities.addEntity(newProperties, true);
+            debugPrint('created ' + newEntityID + ' with properties: ' + JSON.stringify(newProperties));
+
+            // We don't need this attempts system down here anymore, but it works:
+            var attempts = 0;
+            var MAX_ATTEMPTS = 10;
+            var attachAttemptInterval = null;
+            var attachOnEntityFound = function() {
+                if (Object.keys(Entities.getEntityProperties(entityID, 'position')).length === 0) {
+                    attempts++;
+                    if (attempts >= MAX_ATTEMPTS) {
+                        Script.clearInterval(attachAttemptInterval);
+                    }
+                    return;
+                }
+                Script.clearInterval(attachAttemptInterval);
+                if (_virtualHoldController !== null) {
+                    _virtualHoldController.cleanup();
+                    _virtualHoldController = null;
+                }
+
+                _virtualHoldController = new VirtualHoldController(hand, entityID, localPosition, localRotation);
+                _virtualHoldController.onRelease = function() {
+                    debugPrint('Virtual hold controller released.');
+                };
+            };
+            attachAttemptInterval = Script.setInterval(attachOnEntityFound, 100);
+        } else if (attachmentData.action === 'clear') {
+            attachmentAction(undefined, attachmentData);
+        }
+    };
+
+    this.startNearGrab = function(entityID, args) {
+        debugPrint('NearGrabStarting ' + JSON.stringify(args));
+        _isGrabbing = true;
+        _attachmentData = getAttachmentData();
+        if (prevID !== entityID) {
+            changeHighlight1();
+            Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
+            prevID = entityID;
+        }
+    };
+
+    this.continueNearGrab = function(entityID, args) {
+        if (_isGrabbing && _attachmentData !== null) {
+            var snapDistance = _attachmentData.snapDistance !== undefined ? _attachmentData.snapDistance :
+                DEFAULT_SNAP_DISTANCE;
+            var entityPosition = Entities.getEntityProperties(entityID, 'position').position;
+
+            var joints = [];
+            var closestJoint = null;
+            if (_attachmentData.joint.indexOf(LEFT_RIGHT_PLACEHOLDER) !== -1) {
+                joints.push(_attachmentData.joint.replace(LEFT_RIGHT_PLACEHOLDER, 'Left'));
+                joints.push(_attachmentData.joint.replace(LEFT_RIGHT_PLACEHOLDER, 'Right'));
+            } else {
+                joints.push(_attachmentData.joint);
+            }
+
+            joints.forEach(function(joint) {
+                var targetJointPosition = MyAvatar.getJointPosition(joint);
+                var distance = Vec3.distance(entityPosition, targetJointPosition);
+                if (distance < snapDistance && (closestJoint === null || distance < closestJoint.distance)) {
+                    closestJoint = {
+                        name: joint,
+                        distance: distance
+                    };
+                }
+            });
+
+            if (closestJoint !== null) {
+                debugPrint('attach' + closestJoint.name);
+                attachmentAction(closestJoint.name);
+                Controller.triggerShortHapticPulse(0.3, args[0] === 'left' ? HAND_LEFT : HAND_RIGHT);
+                Entities.deleteEntity(_entityID);
+            }
+        }
+    };
+
+    this.releaseGrab = function(entityID, args) {
+        if (_isGrabbing) {
+            _isGrabbing = false;
+            Entities.deleteEntity(_entityID);
+        }
+        if (prevID !== 0) {
+            Selection.removeFromSelectedItemsList(LIST_NAME, listType, prevID);
+            prevID = 0;
+        }
+    };
+
+    this.clickReleaseOnEntity = function(entityID, mouseEvent) {
+        if (mouseEvent.isLeftButton) {
+            attachmentAction();
+        }
+    };
 });
