@@ -38,12 +38,9 @@
 
         },
         spawnNewChild: function(entityID, params) {
-            print("Parameter:" + JSON.stringify(params[0]));
             if (params[0] === entityID) {
                 Entities.addEntity(newEntityProperties);
-            } else {
-                print("Message sender was not this entity, disregarding request");
-            }
+            } 
         }
     };
     return new Wearable();
