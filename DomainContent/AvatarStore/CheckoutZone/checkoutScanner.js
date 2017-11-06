@@ -28,7 +28,8 @@
     var scannedMPOverlays = {};
 
     var onEntityAdded = function(entityID) {
-        var newItemProperties = Entities.getEntityProperties(entityID, ['marketplaceID', 'clientOnly', 'owningAvatarID', 'lastEditedBy']);
+        var newItemProperties = Entities.getEntityProperties(entityID, 
+            ['marketplaceID', 'clientOnly', 'owningAvatarID', 'lastEditedBy']);
         if (/* newItemProperties.clientOnly && newItemProperties.owningAvatarID === MyAvatar.sessionUUID && */
             (newItemProperties.lastEditedBy === MyAvatar.sessionUUID || newItemProperties.lastEditedBy === undefined) &&
             newItemProperties.marketplaceID !== "") {

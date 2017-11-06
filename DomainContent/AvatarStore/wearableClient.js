@@ -19,9 +19,6 @@
         preload: function (entityID) {
             _entityID = entityID;
         },
-        unload: function () {
-    
-        },
         startNearGrab: function () {
             Entities.callEntityServerMethod(_entityID, 'spawnNewChild', [_entityID]);
             Entities.editEntity(_entityID, {
