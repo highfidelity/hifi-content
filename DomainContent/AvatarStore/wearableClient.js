@@ -23,6 +23,7 @@
             Entities.callEntityServerMethod(_entityID, 'spawnNewChild', [_entityID]);
             Entities.editEntity(_entityID, {
                 'script' : Script.resolvePath('attachmentItemScript.js'),
+                'serverScripts' : ""
             });     
         }
     };

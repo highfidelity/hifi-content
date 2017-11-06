@@ -19,7 +19,8 @@
     Wearable.prototype = {
         remotelyCallable: ['spawnNewChild'],
         preload: function(entityID){
-            properties = Entities.getEntityProperties(entityID, ['position', 'rotation', 'dimensions', 'userData', 'modelURL']);
+            properties = Entities.getEntityProperties(entityID, 
+                ['position', 'rotation', 'dimensions', 'userData', 'modelURL']);
             newEntityProperties = {
                 type: 'Model',
                 position: properties.position,
@@ -31,11 +32,8 @@
                 serverScripts: Script.resolvePath("wearableServer.js"),
                 visible: true,
                 shapeType: "box",
-                collidesWith: "dynamic,",
+                collidesWith: ""
             };
-        },
-        unload: function() {
-
         },
         spawnNewChild: function(entityID, params) {
             if (params[0] === entityID) {
