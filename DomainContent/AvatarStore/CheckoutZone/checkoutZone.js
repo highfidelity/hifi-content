@@ -19,6 +19,13 @@
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
     var ENTER_ZONE_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound5.wav"));
+    var APP_NAME = "CHECKOUT";
+    var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
+    var OVERLAY_ROTATIONAL_OFFSET = { x: 10, y: 140, z: 0 };
+    var TABLET_LOCAL_POSITION_OFFSET = { x: 0.01, y: 0.9, z: -0.6 };
+    var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
+    var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
+    var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 240, z: 0 };
     
     var _this = this;
     var isInZone = false;
@@ -27,6 +34,7 @@
     var replicaList = [];
     var replicaStoredTransforms = {};
     var left = true;
+    var button;
 
     this.preload = function(entityID) {
         zoneID = entityID;
@@ -98,7 +106,7 @@
             grabbable: true,
             parentID: tableID,
             localPosition: {x: spawnX, y: spawnY, z: spawnZ},
-            localRotation: {x: 0, y: 0, z: 0},
+            localRotation: Quat.fromVec3Degrees(OVERLAY_ROTATIONAL_OFFSET),
             // clone dimensions so we can alter it without messing up the original entities dimensions
             dimensions: JSON.parse(JSON.stringify(entityProperties.dimensions))
         };
@@ -180,6 +188,18 @@
         // Remove the demo object, to prevent overlapping objects
         Entities.deleteEntity(transform.demoEntityID);
     };
+    var setupApp = (function() {
+        button = TABLET.addButton({
+            icon: APP_ICON,
+            text: APP_NAME
+        });
+        HMD.openTablet(true);
+        function onClicked() {
+            TABLET.gotoWebScreen(APP_URL); 
+        }
+        button.clicked.connect(onClicked);
+        TABLET.gotoWebScreen(APP_URL);
+    });
 
     _this.enterEntity = (function(entityID) {
         if (ENTER_ZONE_SOUND.downloaded) {
@@ -189,6 +209,7 @@
                 localOnly: true
             });
         }
+        setupApp();
         isInZone = true;
         left = true;
         getCheckoutStandPosition();
@@ -221,6 +242,19 @@
                 }
             }
         });
+        var tabletTransform = {
+            parentID: tableID,
+            localPosition: TABLET_LOCAL_POSITION_OFFSET,
+            localRotation: Quat.fromVec3Degrees(TABLET_ROTATIONAL_OFFSET)
+        };
+        Overlays.editOverlay(HMD.tabletID, tabletTransform);
+        var tabletTransformInterval = Script.setInterval(function() {
+            // print(JSON.stringify(tabletTransform)); 
+            Overlays.editOverlay(HMD.tabletID, tabletTransform);
+        }, 100);
+        Script.setTimeout(function() {
+            tabletTransformInterval.stop();
+        }, 1000);
     });
     
     _this.leaveEntity = function() {
@@ -241,6 +275,10 @@
         });
         replicaList = [];
         replicaStoredTransforms = {};
+        TABLET.removeButton(button);
+        TABLET.gotoHomeScreen();
+        Overlays.editOverlay(HMD.tabletID, {parentID: MyAvatar.sessionUUID});
+        HMD.closeTablet();
     };
 
     _this.unload = function() {

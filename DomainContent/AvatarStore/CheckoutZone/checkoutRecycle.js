@@ -18,11 +18,12 @@
     var RECYLCE_CHECK_INTERVAL_MS = 1000;
     var recycleCheckInterval = null;
     
-    var properties;
+    var scannerPosition;
     
     this.preload = function(entityID) {
+        scannerPosition = Entities.getEntityProperties(entityID, 'position').position;
         recycleCheckInterval = Script.setInterval(function() {
-            var overlays = Overlays.findOverlays(properties.position, SCAN_RADIUS);
+            var overlays = Overlays.findOverlays(scannerPosition, SCAN_RADIUS);
             if (overlays.length > 0) {
                 overlays.forEach(function(overlay) {
                     var name = Overlays.getProperty(overlay, 'name');
