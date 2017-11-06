@@ -16,7 +16,7 @@
 
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var ATTACH_DISTANCE = 0.35;
-    var DETACH_DISTANCE = 0.5;
+    var DETACH_DISTANCE = 0.4;
     var RELEASE_LIFETIME = 10;
 
     var TRIGGER_INTENSITY = 1.0;
@@ -28,30 +28,6 @@
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached;
-
-    var isHandOrArm = false;
-
-    /**
-     * 
-     * @param {Object} entityProperties 
-     * @param {touchJSONUserDataCallback} touchCallback 
-     */
-    var touchJSONUserData = function(entityProperties, touchCallback) {
-        try {
-            // attempt to touch the userData
-            var userData = JSON.parse(entityProperties.userData);
-            touchCallback.call(this, userData);
-            entityProperties.userData = JSON.stringify(userData);
-        } catch (e) {
-            print('Something went wrong while trying to touch/modify the userData. Could be invalid JSON or problem with the callback function.');
-        }
-    };
-
-    /**
-     * This callback is displayed as a global member.
-     * @callback touchJSONUserDataCallback
-     * @param {Object} userData
-     */
 
     function AttachableItem() {
 
@@ -68,10 +44,6 @@
                 var baseJoint = _attachmentData.joint.substring(4);
                 _supportedJoints.push("Left".concat(baseJoint));
                 _supportedJoints.push("Right".concat(baseJoint));
-                if (_attachmentData.joint.indexOf('Arm') !== -1 ||
-                    _attachmentData.joint.indexOf('Hand') !== -1) {
-                    isHandOrArm = true;
-                }
             } else {
                 _supportedJoints.push(_attachmentData.joint);
             }
@@ -102,7 +74,7 @@
                     AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
                 if (Vec3.distance(position, jointPosition) > DETACH_DISTANCE) {
                     var newDetachEntityProperties = Entities.getEntityProperties(entityID);
-                    touchJSONUserData(newDetachEntityProperties, function(userData) {
+                    shared.touchJSONUserData(newDetachEntityProperties, function(userData) {
                         userData.Attachment.attached = false;
                     });
                     Entities.editEntity(_entityID, {
@@ -129,7 +101,7 @@
                             return;
                         }
                         var newEntityProperties = Entities.getEntityProperties(_entityID, 'userData');
-                        touchJSONUserData(newEntityProperties, function(userData) {
+                        shared.touchJSONUserData(newEntityProperties, function(userData) {
                             userData.Attachment.attached = true;
                         });
                         Entities.editEntity(_entityID, {
