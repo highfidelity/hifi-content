@@ -11,20 +11,15 @@
 //  marketplace item, the item will appear as a small overlay. Scanning the overlay will cause the 
 //  the tablet to open to the marketplace home page for that item, allowing the user to quickly make the purchase.
 (function () {
-    var SHARED = Script.require('../attachmentZoneShared.js');
+    var SHARED = Script.require('./attachmentZoneShared.js');
     var ITEM_HEIGHT = 0.1;
-    var HALF = 0.5;
-    var ITEM_OFFSET = {x: 1.5, y: 1.25, z: 0.75};
-    var VERTICAL_SPACING = 6;
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
-    var OVERLAY_ROTATIONAL_OFFSET = { x: 10, y: 140, z: 0 };
-    var TABLET_LOCAL_POSITION_OFFSET = { x: 0.01, y: 0.9, z: -0.6 };
+    
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-    var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 240, z: 0 };
     
     var _this = this;
     var isInZone = false;
@@ -34,10 +29,26 @@
     var replicaStoredTransforms = {};
     var left = true;
     var button;
+    var checkoutOutlineConfig;
+    var recycleBinID;
+    var scannerZone;
 
     this.preload = function(entityID) {
         zoneID = entityID;
+        changeHighlight1();
     };
+
+    var changeHighlight1 = (function() {
+        checkoutOutlineConfig = Render.getConfig("RenderMainView.OutlineEffect1");
+        checkoutOutlineConfig["glow"] = true;
+        checkoutOutlineConfig["width"] = 7;
+        checkoutOutlineConfig["intensity"] = 0.8;
+        checkoutOutlineConfig["colorR"] = 0.18;
+        checkoutOutlineConfig["colorG"] = 0.61;
+        checkoutOutlineConfig["colorB"] = 0.86;
+        checkoutOutlineConfig["unoccludedFillOpacity"] = 0;
+        checkoutOutlineConfig["occludedFillOpacity"] = 0;      
+    });
 
     var getTransformForMarketplaceItems = function() {
         return Settings.getValue(TRANSFORMS_SETTINGS, {});
@@ -72,7 +83,7 @@
 
     // Get info on checkout stand so we can place copies of items on it for purchasing
     // Find the position of the top of the stand at one end
-    var getCheckoutStandPosition = (function() {
+    var collectZoneData = (function(){
         var zoneChildren = Entities.getChildrenIDs(zoneID);
         zoneChildren.forEach(function (childID) {
             var name = Entities.getEntityProperties(childID, 'name').name;
@@ -81,13 +92,24 @@
                 tableID = tableProperties.id;
                 tableHeight = tableProperties.dimensions.y;
                 tableLength = tableProperties.dimensions.x;
-                
-                var halfTableHeight = HALF * tableHeight;
-                var verticalSpace = VERTICAL_SPACING * ITEM_HEIGHT;
+                var halfTableHeight = 0.5 * tableHeight;
+                var verticalSpace = 6 * ITEM_HEIGHT;
                 spawnY = halfTableHeight + verticalSpace;
-                var halfTableLength = HALF * tableLength;
+                var halfTableLength = 0.5 * tableLength;
                 spawnZ = (halfTableLength);
                 spawnX = 0;
+                return;
+            }
+        });
+        var tableChildren = Entities.getChildrenIDs(tableID);
+        tableChildren.forEach(function (childID) {
+            var tableChildName = Entities.getEntityProperties(childID, 'name').name;
+            if (tableChildName === "Checkout Recycle") {
+                recycleBinID = childID;
+                return;
+            } else if (tableChildName === "Checkout Scan Zone") {
+                scannerZone = childID;
+                return;
             }
         });
     });
@@ -95,8 +117,8 @@
     // Spawn a copy of each attachment scaled down to fit the ITEM_HEIGHT and place it on the checkout table
     var spawnOverlayReplica = (function(entityID) {
         var entityProperties = Entities.getEntityProperties(entityID, [
-            'name', 'modelURL', 'type', 'dimensions', 'marketplaceID', 'modelURL',
-            'localPosition', 'localRotation', 'dimensions', 'parentJointIndex'
+            'name', 'modelURL', 'type', 'dimensions', 'marketplaceID',
+            'localPosition', 'localRotation', 'parentJointIndex', 'userData'
         ]);
         var overlayProperties = {
             url: entityProperties.modelURL,
@@ -105,9 +127,9 @@
             grabbable: true,
             parentID: tableID,
             localPosition: {x: spawnX, y: spawnY, z: spawnZ},
-            localRotation: Quat.fromVec3Degrees(OVERLAY_ROTATIONAL_OFFSET),
+            localRotation: Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 }),
             // clone dimensions so we can alter it without messing up the original entities dimensions
-            dimensions: JSON.parse(JSON.stringify(entityProperties.dimensions))
+            dimensions: entityProperties.dimensions
         };
         var scale = (ITEM_HEIGHT / overlayProperties.dimensions.y);
         if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
@@ -116,15 +138,19 @@
             overlayProperties.dimensions.z *= scale;
         }
         // check that the item is not too large
-        var maxItemSize = 0.3;
-        var scaleReduction;
-        while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize) {
+        var maxItemSize = 0.175;
+        var scaleReduction = 0.95;
+        while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize || overlayProperties.dimensions.y > maxItemSize) {
             scale *= scaleReduction;
-            overlayProperties.dimensions.x *= scale;
             overlayProperties.dimensions.y *= scale;
+            overlayProperties.dimensions.x *= scale;
             overlayProperties.dimensions.z *= scale;
         }
         var replica = Overlays.addOverlay("model", overlayProperties);
+        Selection.addToSelectedItemsList("contextOverlayHighlightList1", "overlay", replica);
+        var userDataObject = JSON.parse(entityProperties.userData);
+        userDataObject.replicaOverlayID = replica;
+        Entities.editEntity(entityID, {userData: JSON.stringify(userDataObject)});
         var replicaStoredTransform = {
             position: entityProperties.localPosition,
             rotation: entityProperties.localRotation,
@@ -164,18 +190,15 @@
         };
         Entities.editEntity(newEntityID, transformProperties);
 
-        var MAKING_SURE_INTERVAL = 100; // Milliseconds
         // Make really sure that the translations are set properly
         var makeSureInterval = Script.setInterval(function() {
             Entities.editEntity(newEntityID, transformProperties);
-        }, MAKING_SURE_INTERVAL);
+        }, 100);
 
         // Five seconds should be enough to be sure, otherwise we have a problem
-        var STOP_MAKING_SURE_TIMEOUT = 5000; // Milliseconds
         Script.setTimeout(function() {
             makeSureInterval.stop();
-        }, STOP_MAKING_SURE_TIMEOUT);
-
+        }, 5000);
 
         var newEntityProperties = Entities.getEntityProperties(newEntityID, ['marketplaceID', 'certificateID']);
         var certificateID = undefined;
@@ -187,6 +210,7 @@
         // Remove the demo object, to prevent overlapping objects
         Entities.deleteEntity(transform.demoEntityID);
     };
+
     var setupApp = (function() {
         button = TABLET.addButton({
             icon: APP_ICON,
@@ -200,14 +224,18 @@
         TABLET.gotoWebScreen(APP_URL);
     });
 
-    _this.enterEntity = (function(entityID) {
+    _this.enterEntity = (function (entityID) {
+        collectZoneData();
+        Entities.callEntityMethod(recycleBinID, 'enterCheckout');
+        Entities.callEntityMethod(scannerZone, 'enterCheckout');
         setupApp();
-        isInZone = true;
+        isInZone = true; 
         left = true;
-        getCheckoutStandPosition();
-        SHARED.getAvatarChildEntities(MyAvatar).forEach(function (entityID) {
-            var MAX_ITEMS = 10;
-            if (replicaList.length < MAX_ITEMS){
+        var avatarChildEntities = [];
+        avatarChildEntities = SHARED.getAvatarChildEntities(MyAvatar);
+        avatarChildEntities.forEach(function (entityID) {
+            var maxItems = 10;
+            if (replicaList.length < maxItems){
                 var childUserData = Entities.getEntityProperties(entityID, 'userData').userData;
                 var isAttachment = childUserData.indexOf("attached\":true");
                 var marketplaceID = Entities.getEntityProperties(entityID, 'marketplaceID').marketplaceID;
@@ -216,11 +244,11 @@
                     // TODO check for already purchased 
                     spawnOverlayReplica(entityID); // put a copy of the item on the table
                     // move spawn position over to the next empty spot
-                    var moveRight = ITEM_OFFSET.x * ITEM_HEIGHT;
-                    var moveBack = ITEM_OFFSET.z * ITEM_HEIGHT;
-                    var moveDown = ITEM_OFFSET.y * ITEM_HEIGHT;
-                    var moveLeft = ITEM_OFFSET.x * ITEM_HEIGHT;
-                    var moveForward = ITEM_OFFSET.z * ITEM_HEIGHT;
+                    var moveRight = 1.5 * ITEM_HEIGHT;
+                    var moveBack = 0.75 * ITEM_HEIGHT;
+                    var moveDown = 1.25 * ITEM_HEIGHT;
+                    var moveLeft = 1.5 * ITEM_HEIGHT;
+                    var moveForward = 0.75 * ITEM_HEIGHT;
                     if (left) {
                         spawnZ += moveRight;
                         spawnX += moveBack;
@@ -234,14 +262,13 @@
                 }
             }
         });
+        Overlays.editOverlay(HMD.tabletID, tabletTransform);
         var tabletTransform = {
             parentID: tableID,
-            localPosition: TABLET_LOCAL_POSITION_OFFSET,
-            localRotation: Quat.fromVec3Degrees(TABLET_ROTATIONAL_OFFSET)
+            localPosition: { x: 0.01, y: 0.9, z: -0.6 },
+            localRotation: Quat.fromVec3Degrees({ x: 10, y: 240, z: 0 })
         };
-        Overlays.editOverlay(HMD.tabletID, tabletTransform);
         var tabletTransformInterval = Script.setInterval(function() {
-            // print(JSON.stringify(tabletTransform)); 
             Overlays.editOverlay(HMD.tabletID, tabletTransform);
         }, 100);
         Script.setTimeout(function() {
@@ -250,9 +277,10 @@
     });
     
     _this.leaveEntity = function() {
+        Entities.callEntityMethod(recycleBinID, 'exitCheckout');
+        Entities.callEntityMethod(scannerZone, 'exitCheckout');
         isInZone = false;
-        var SCANNER_RANGE_METERS = 1000;
-        Entities.findEntities(MyAvatar.position, SCANNER_RANGE_METERS).forEach(function(entity) {
+        Entities.findEntities(MyAvatar.position, 1000).forEach(function(entity) {
             try {
                 var name = Entities.getEntityProperties(entity).name;
                 if (name.indexOf("Checkout Item") !== -1) {
