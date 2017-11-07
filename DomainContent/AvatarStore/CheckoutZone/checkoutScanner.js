@@ -16,6 +16,7 @@
     var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + "/system/html/js/marketplacesInject.js";
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
+    var CHECKOUT_INTERVAL_MS = 1000;
 
     var interval;
     var properties;
@@ -28,14 +29,13 @@
 
     Scanner.prototype = {
         onEntityAdded: function(entityID) {
-            var newItemProperties = Entities.getEntityProperties(entityID, ['marketplaceID', 'clientOnly', 'owningAvatarID', 'lastEditedBy']);
-            if ((newItemProperties.lastEditedBy === MyAvatar.sessionUUID || newItemProperties.lastEditedBy === undefined) && newItemProperties.marketplaceID !== "") {
-                // print('Entity of interest added.');
+            var newItemProperties = Entities.getEntityProperties(entityID, 
+                ['marketplaceID', 'clientOnly', 'owningAvatarID', 'lastEditedBy']);
+            if ((newItemProperties.lastEditedBy === MyAvatar.sessionUUID || newItemProperties.lastEditedBy === undefined)
+             && newItemProperties.marketplaceID !== "") {
                 if (scannedMPOverlays[newItemProperties.marketplaceID] !== undefined) {
-                    // print('scannedMPOverlays contains entity of interest.');
                     var overlayID = scannedMPOverlays[newItemProperties.marketplaceID];
                     Entities.callEntityMethod(checkoutZoneID, 'replicaCheckedOut', [overlayID, entityID]);
-                    // print('called the entity method.');
                     delete scannedMPOverlays[newItemProperties.marketplaceID];
                 }
             }
@@ -49,16 +49,15 @@
                     overlays.forEach(function(overlay) {
                         var name = Overlays.getProperty(overlay, 'name');
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {
-                            //  print("this one is MP!");
                             var marketplaceID = name.substr(OVERLAY_PREFIX.length, OVERLAY_PREFIX.length + 35);
-                            // print("ID is " + marketplaceID);
                             var goToURL = MARKET_PLACE_ITEM_URL_PREFIX + "/items/" + marketplaceID;
                             scannedMPOverlays[marketplaceID] = overlay;
                             TABLET.gotoWebScreen(goToURL, MARKETPLACES_INJECT_SCRIPT_URL);
                             Overlays.deleteOverlay(overlay);
                         }
                     });
-                }            }, 1000);
+                } 
+            }, CHECKOUT_INTERVAL_MS);
             Entities.addingEntity.connect(this.onEntityAdded);
         },
         exitCheckout: function() {
