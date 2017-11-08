@@ -35,13 +35,14 @@
         },
         enterCheckout: function() {
             interval = Script.setInterval(function() {
+                print("Recycle bin is searching for overlays");
                 var overlays = Overlays.findOverlays(recyclePosition, SCAN_RADIUS);
                 if (overlays.length === 0 && overlayInBin) { // overlay removed from bin...no new one in bin
                     currentEntityMatch = null;
                     overlayInBin = null;
                 } else if ((overlays.length > 0) && (overlayInBin) && 
                 // overlay was taken out of bin...not deleted...new one is in bin
-                        (overlays.toString().indexOf(overlayInBin) === -1)) { 
+                        (overlays.toString().indexOf(overlayInBin) === -1)) {
                     currentEntityMatch = null;
                     overlayInBin = null;
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInBin) !== -1) {

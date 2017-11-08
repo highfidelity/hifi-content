@@ -44,6 +44,7 @@
             properties = Entities.getEntityProperties(entityID, ['position', 'parentID']);
             checkoutZoneID = properties.parentID;
             interval = Script.setInterval(function() {
+                print("Scanner is searching for overlays");
                 var overlays = Overlays.findOverlays(properties.position, SCAN_RADIUS);
                 if (overlays.length > 0) {
                     overlays.forEach(function(overlay) {
