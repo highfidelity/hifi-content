@@ -13,9 +13,11 @@
     
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var MARKET_PLACE_ITEM_URL_PREFIX = 'https://metaverse.highfidelity.com/marketplace';
-    var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + "/system/html/js/marketplacesInject.js";
+    var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + 
+        "/system/html/js/marketplacesInject.js";
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
+    var CHECKOUT_INTERVAL_MS = 1000;
     var LIST_NAME = "contextOverlayHighlightList3";
     var SEARCH_RADIUS = 2;
 
@@ -42,8 +44,10 @@
             checkoutZoneID = Entities.getEntityProperties(tableID, 'parentID').parentID;
         },
         onEntityAdded: function(entityID) {
-            var newItemProperties = Entities.getEntityProperties(entityID, ['marketplaceID', 'clientOnly', 'owningAvatarID', 'lastEditedBy']);
-            if ((newItemProperties.lastEditedBy === MyAvatar.sessionUUID || newItemProperties.lastEditedBy === undefined) && newItemProperties.marketplaceID !== "") {
+            var newItemProperties = Entities.getEntityProperties(entityID, ['marketplaceID', 'clientOnly', 
+                'owningAvatarID', 'lastEditedBy']);
+            if ((newItemProperties.lastEditedBy === MyAvatar.sessionUUID || newItemProperties.lastEditedBy === 
+                undefined) && newItemProperties.marketplaceID !== "") {
                 if (scannedMPOverlays[newItemProperties.marketplaceID] !== undefined) {
                     var overlayID = scannedMPOverlays[newItemProperties.marketplaceID];
                     Entities.callEntityMethod(checkoutZoneID, 'replicaCheckedOut', [overlayID, entityID]);
@@ -71,7 +75,8 @@
                     matchingEntity = null;
                     overlayInScanner = null;
                     // overlay was taken out of Scanner...new one is in Scanner
-                } else if ((overlays.length > 0) && (overlayInScanner) && (overlays.toString().indexOf(overlayInScanner) === -1)) {
+                } else if ((overlays.length > 0) && (overlayInScanner) && 
+                (overlays.toString().indexOf(overlayInScanner) === -1)) {
                     Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
                     Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
                     prevID = 0;
@@ -80,7 +85,8 @@
                     // ready to process overlayin scanner
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInScanner) !== -1) {
                     if (Overlays.getProperty(overlayInScanner, 'parentID')) { // if item has parentID
-                        if (Overlays.getProperty(overlayInScanner, 'parentID') === tableID) { // if item in Scanner is not being held 
+                        if (Overlays.getProperty(overlayInScanner, 'parentID') === tableID) { 
+                            // if item in Scanner is not being held 
                             name = Overlays.getProperty(overlayInScanner, 'name');
                             Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
                             Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
@@ -101,7 +107,8 @@
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {
                             var nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS);
                             nearbyEntities.forEach(function(entityID) {
-                                var userDataString = JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
+                                var userDataString = 
+                                    JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
                                 if (userDataString.indexOf(overlayID) !== -1) {
                                     overlayInScanner = overlayID;
                                     matchingEntity = entityID;
@@ -115,7 +122,7 @@
                         }
                     });
                 }
-            }, 1000);
+            }, CHECKOUT_INTERVAL_MS);
             Entities.addingEntity.connect(this.onEntityAdded);
         },
         exitCheckout: function() {

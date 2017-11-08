@@ -14,6 +14,7 @@
     var OVERLAY_PREFIX = 'MP';
     var SEARCH_RADIUS = 2;
     var LIST_NAME = "contextOverlayHighlightList2";
+    var RECYLCE_CHECK_INTERVAL_MS = 1000;
     
     var prevID = 0;
     var recyclePosition;
@@ -56,15 +57,18 @@
                     prevID = 0;
                     currentEntityMatch = null;
                     overlayInBin = null;
-                } else if ((overlays.length > 0) && (overlayInBin) && (overlays.toString().indexOf(overlayInBin) === -1)) { // overlay was taken out of bin...not deleted...new one is in bin
+                } else if ((overlays.length > 0) && (overlayInBin) && (overlays.toString().indexOf(overlayInBin) === -1)) {
+                    // overlay was taken out of bin...not deleted...new one is in bin
                     Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
                     Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInBin);
                     prevID = 0;
                     currentEntityMatch = null;
                     overlayInBin = null;
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInBin) !== -1) {
-                    if (Overlays.getProperty(overlayInBin, 'parentID')) { // if overlay in bin is parented to table, it is not being held anymore
-                        if (Overlays.getProperty(overlayInBin, 'parentID') === tableID) { // if item in bin is not being held 
+                    if (Overlays.getProperty(overlayInBin, 'parentID')) {
+                        // if overlay in bin is parented to table, it is not being held anymore
+                        if (Overlays.getProperty(overlayInBin, 'parentID') === tableID) {
+                            // if item in bin is not being held 
                             Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
                             Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInBin);
                             prevID = 0;
@@ -79,7 +83,8 @@
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {
                             var nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS);
                             nearbyEntities.forEach(function(entityID) {
-                                var userDataString = JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
+                                var userDataString = 
+                                    JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
                                 if (userDataString.indexOf(overlayID) !== -1) {
                                     overlayInBin = overlayID;
                                     currentEntityMatch = entityID;
@@ -93,7 +98,7 @@
                         }
                     });
                 }
-            }, 1000);
+            }, RECYLCE_CHECK_INTERVAL_MS);
         },
         exitCheckout: function() {
             Script.clearInterval(interval);
