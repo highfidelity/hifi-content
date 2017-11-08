@@ -16,6 +16,7 @@
     var _this = this;
     var DEFAULT_RADIUS = 0.25;
     var lastUpdateLevel = 0;
+    var updateInterval = 10;
 
     _this.preload = function(entityID) {
         _this.entityID = entityID;
@@ -41,7 +42,7 @@
             lastUpdateLevel = Audio.inputLevel;
             Entities.editEntity(_this.entityID, effectPropsChange);
         }
-    }, 10);
+    }, updateInterval);
 
     _this.unload = function() {
         Script.clearInterval(_this.intervalID);

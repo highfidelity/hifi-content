@@ -17,6 +17,7 @@
     var DEFAULT_RADIUS = 0.25;
     var lastUpdateLevel = 0;
     var lastPosition = {x:0, y:0, z:0};
+    var updateInterval = 10;
     var injector;
     var options;
 
@@ -72,7 +73,7 @@
                 Entities.editEntity(_this.entityID, effectPropsChange);
             }
         }
-    }, 10);
+    }, updateInterval);
 
     // stop audio injector when entity is deleted
     _this.unload = function() {
@@ -81,5 +82,4 @@
             injector.stop();
         }
     };
-
 });
