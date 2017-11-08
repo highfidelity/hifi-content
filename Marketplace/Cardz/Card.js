@@ -55,13 +55,19 @@
         var data = JSON.parse(message);
         //check if message is meant for you and is being sent to the correct card
         if ((channel == showChannel) && (MyAvatar.sessionUUID == data[0]) && (_this.entityID == data[2])) {
+            //delete an overlay if there is one
+            try {
+                Overlays.deleteOverlay(cardOverlay);
+                cardOverlay = undefined;
+            } catch (err) {
+                //e
+            }
             var card = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions', 'name']);
             //get which hand the card is in
             hand = data[1];
             //add overlay to card so that the person holding the card can still see it
             cardOverlay = Overlays.addOverlay("image3d", {
                 url: "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/" + card.name + ".jpg",
-                //scale: 0.13,
                 subImage: { x: 1024, y: 361, width: 1024, height: 1326},
                 ignoreRayIntersection: true,
                 parentID: _this.entityID,
@@ -130,7 +136,8 @@
                             },
                             "held": true,
                             "card": true,
-                            "deckHandlerID": deckHandlerID
+                            "deckHandlerID": deckHandlerID,
+                            "me": MyAvatar.sessionUUID
                         }),
                         parentID: MyAvatar.sessionUUID,
                         parentJointIndex: leftHandJoint
@@ -157,7 +164,8 @@
                             },
                             "held": true,
                             "card": true,
-                            "deckHandlerID": deckHandlerID
+                            "deckHandlerID": deckHandlerID,
+                            "me": MyAvatar.sessionUUID
                         }),
                         parentID: MyAvatar.sessionUUID,
                         parentJointIndex: rightHandJoint
@@ -167,8 +175,8 @@
                     notCloseEnough();
                 }
             }
-        //if you were already holding a card
-        } else if ((checkIfCard === true) && (held === true)) {
+        //if you were already holding a card then unparent. If someone tries to grab the card out of your hand then do nothing
+        } else if ((checkIfCard === true) && (held === true) && (MyAvatar.sessionUUID == properties.me)) {
             //unparent to hand and change held state. Also make it fall
             var unparent = {
                 parentID: "",
