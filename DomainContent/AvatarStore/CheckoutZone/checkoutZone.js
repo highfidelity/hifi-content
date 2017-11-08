@@ -25,6 +25,10 @@
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 240, z: 0 };
+    // Milliseconds
+    var MAKING_SURE_INTERVAL = 100;
+    var STOP_MAKING_SURE_TIMEOUT = 5000; 
+    var SHORTER_STOP_INTERVAL = 1000;
     
     var _this = this;
     var isInZone = false;
@@ -123,7 +127,8 @@
             dimensions: JSON.parse(JSON.stringify(entityProperties.dimensions))
         };
         var scale = (ITEM_HEIGHT / overlayProperties.dimensions.y);
-        if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
+        if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || 
+        (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
             overlayProperties.dimensions.y = ITEM_HEIGHT;
             overlayProperties.dimensions.x *= scale;
             overlayProperties.dimensions.z *= scale;
@@ -131,7 +136,8 @@
         // check that the item is not too large
         var maxItemSize = 0.175;
         var scaleReduction = 0.95;
-        while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize || overlayProperties.dimensions.y > maxItemSize) {
+        while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize || 
+            overlayProperties.dimensions.y > maxItemSize) {
             scale *= scaleReduction;
             overlayProperties.dimensions.y *= scale;
             overlayProperties.dimensions.x *= scale;
@@ -180,14 +186,12 @@
         };
         Entities.editEntity(newEntityID, transformProperties);
 
-        var MAKING_SURE_INTERVAL = 100; // Milliseconds
         // Make really sure that the translations are set properly
         var makeSureInterval = Script.setInterval(function() {
             Entities.editEntity(newEntityID, transformProperties);
         }, MAKING_SURE_INTERVAL);
 
         // Five seconds should be enough to be sure, otherwise we have a problem
-        var STOP_MAKING_SURE_TIMEOUT = 5000; // Milliseconds
         Script.setTimeout(function() {
             makeSureInterval.stop();
         }, STOP_MAKING_SURE_TIMEOUT);
@@ -261,12 +265,10 @@
             localRotation: Quat.fromVec3Degrees(TABLET_ROTATIONAL_OFFSET)
         };
         Overlays.editOverlay(HMD.tabletID, tabletTransform);
-        var SHORTER_CHECK_INTERVAL = 1000;
         var tabletTransformInterval = Script.setInterval(function() {
             Overlays.editOverlay(HMD.tabletID, tabletTransform);
-        }, SHORTER_CHECK_INTERVAL);
+        }, MAKING_SURE_INTERVAL);
 
-        var SHORTER_STOP_INTERVAL = 1000;
         Script.setTimeout(function() {
             tabletTransformInterval.stop();
         }, SHORTER_STOP_INTERVAL);
