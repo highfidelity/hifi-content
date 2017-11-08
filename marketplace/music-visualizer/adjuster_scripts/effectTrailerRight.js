@@ -14,9 +14,9 @@
 
 (function() {
     var _this = this;
+    var pressThreshold = 0.01;
 
     _this.preload = function(entityID) {
-        print("Right trailer script has loaded");
         _this.entityID = entityID;
     };
 
@@ -31,12 +31,12 @@
     mapping.from(Controller.Standard.RT).to(function(value) {
         var props = Entities.getEntityProperties(_this.entityID, 'isEmitting');
         pressStrength = value;
-        if (pressStrength < 0.01 && oldPressStrength >= 0.01) {
+        if (pressStrength < pressThreshold && oldPressStrength >= pressThreshold) {
             props.isEmitting = false;
             Entities.editEntity(_this.entityID, props);
         }
 
-        if (pressStrength >= 0.01 && oldPressStrength < 0.01) {
+        if (pressStrength >= pressThreshold && oldPressStrength < pressThreshold) {
             props.isEmitting = true;
             Entities.editEntity(_this.entityID, props);
         }
