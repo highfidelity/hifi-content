@@ -179,7 +179,7 @@
         } else if ((checkIfCard === true) && (held === true) && (MyAvatar.sessionUUID == properties.me)) {
             //this allows you to rearrange your cards without dropping them
             var cardDistanceFromHand;
-            hand == "right" ? cardDistanceFromHand = MyAvatar.getLeftPalmPosition() : cardDistanceFromHand = MyAvatar.getLeftPalmPosition();
+            hand == "right" ? cardDistanceFromHand = MyAvatar.getLeftPalmPosition() : cardDistanceFromHand = MyAvatar.getRightPalmPosition();
             var cardPos = props.position;
             //get distance between hand and card
             var dist = getDistance(cardDistanceFromHand, cardPos);
