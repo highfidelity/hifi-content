@@ -177,48 +177,56 @@
             }
         //if you were already holding a card then unparent. If someone tries to grab the card out of your hand then do nothing
         } else if ((checkIfCard === true) && (held === true) && (MyAvatar.sessionUUID == properties.me)) {
-            //unparent to hand and change held state. Also make it fall
-            var unparent = {
-                parentID: "",
-                parentJointIndex: "",
-                userData: JSON.stringify({
-                    grabbableKey: {
-                        grabbable: true,
-                        ignoreIK: false
+            //this allows you to rearrange your cards without dropping them
+            var cardDistanceFromHand;
+            hand == "right" ? cardDistanceFromHand = MyAvatar.getLeftPalmPosition() : cardDistanceFromHand = MyAvatar.getLeftPalmPosition();
+            var cardPos = props.position;
+            //get distance between hand and card
+            var dist = getDistance(cardDistanceFromHand, cardPos);
+            if (dist > closeEnough) {
+                //unparent to hand and change held state. Also make it fall
+                var unparent = {
+                    parentID: "",
+                    parentJointIndex: "",
+                    userData: JSON.stringify({
+                        grabbableKey: {
+                            grabbable: true,
+                            ignoreIK: false
+                        },
+                        "held": false,
+                        "card": true,
+                        "deckHandlerID": deckHandlerID
+                    }),
+                    "velocity": {
+                        x: 0,
+                        y: -4,
+                        z: 0
                     },
-                    "held": false,
-                    "card": true,
-                    "deckHandlerID": deckHandlerID
-                }),
-                "velocity": {
-                    x: 0,
-                    y: -4,
-                    z: 0
-                },
-                "damping": 0.98,
-                "angularDamping": 0.98,
-                "collidesWith": "static,dynamic"
-            };
-            Entities.editEntity(_this.entityID, unparent);
-            //make it stop moving
-            var stopMoving = {
-                "velocity": {
-                    x: 0,
-                    y: 0,
-                    z: 0
+                    "damping": 0.98,
+                    "angularDamping": 0.98,
+                    "collidesWith": "static,dynamic"
+                };
+                Entities.editEntity(_this.entityID, unparent);
+                //make it stop moving
+                var stopMoving = {
+                    "velocity": {
+                        x: 0,
+                        y: 0,
+                        z: 0
+                    }
+                };
+                Entities.editEntity(_this.entityID, stopMoving);
+                //send message
+                var cardChannel = "card-channel-".concat(deckHandlerID);
+                var data = [true, _this.entityID, MyAvatar.sessionUUID];
+                Messages.sendMessage(cardChannel, JSON.stringify(data));
+                //delete an overlay if there is one
+                try {
+                    Overlays.deleteOverlay(cardOverlay);
+                    cardOverlay = undefined;
+                } catch (err) {
+                    //e
                 }
-            };
-            Entities.editEntity(_this.entityID, stopMoving);
-            //send message
-            var cardChannel = "card-channel-".concat(deckHandlerID);
-            var data = [true, _this.entityID, MyAvatar.sessionUUID];
-            Messages.sendMessage(cardChannel, JSON.stringify(data));
-            //delete an overlay if there is one
-            try {
-                Overlays.deleteOverlay(cardOverlay);
-                cardOverlay = undefined;
-            } catch (err) {
-                //e
             }
         } 
     };
