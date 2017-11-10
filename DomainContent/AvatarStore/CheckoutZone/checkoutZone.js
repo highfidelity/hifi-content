@@ -28,7 +28,6 @@
     var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
     // Milliseconds
     var MAKING_SURE_INTERVAL = 100;
-    // var STOP_MAKING_SURE_TIMEOUT = 5000; 
     var SHORTER_STOP_INTERVAL = 1000;
 
     var _this = this;
@@ -47,7 +46,6 @@
     };
 
     // Get info on checkout stand so we can place copies of items on it for purchasing
-    // Find the position of the top of the stand at one end
     var collectZoneData = (function(){
         var zoneChildren = Entities.getChildrenIDs(zoneID);
         zoneChildren.forEach(function (childID) {
@@ -93,7 +91,6 @@
             parentID: tableID,
             localPosition: {x: spawnX, y: spawnY, z: spawnZ},
             localRotation: Quat.fromVec3Degrees(OVERLAY_ROTATIONAL_OFFSET),
-            // clone dimensions so we can alter it without messing up the original entities dimensions
             dimensions: JSON.parse(JSON.stringify(entityProperties.dimensions))
         };
         var scale = (ITEM_HEIGHT / overlayProperties.dimensions.y);
@@ -157,7 +154,7 @@
                 if (marketplaceID && (isAttachment !== -1)) {
                 
                     // TODO check for already purchased 
-                    spawnOverlayReplica(entityID); // put a copy of the item on the table
+                    
                     // move spawn position over to the next empty spot
                     var moveRight = ITEM_OFFSET.x * ITEM_HEIGHT;
                     var moveBack = ITEM_OFFSET.z * ITEM_HEIGHT;
