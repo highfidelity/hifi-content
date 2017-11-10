@@ -10,6 +10,7 @@
 //  This zone will provide an area at which a user may purchase an item. When the avatar enters the zone wearing a 
 //  marketplace item, the item will appear as a small overlay. Scanning the overlay will cause the 
 //  the tablet to open to the marketplace home page for that item, allowing the user to quickly make the purchase.
+/* global Wallet */
 (function () {
     var SHARED = Script.require('../attachmentZoneShared.js');
     var ITEM_HEIGHT = 0.1;
@@ -17,7 +18,6 @@
     var ITEM_OFFSET = {x: 1.5, y: 1.25, z: 0.75};
     var VERTICAL_SPACING = 6;
     var OVERLAY_PREFIX = 'MP';
-    var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
     var OVERLAY_ROTATIONAL_OFFSET = { x: 10, y: 140, z: 0 };
@@ -25,17 +25,18 @@
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 240, z: 0 };
+    var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
     // Milliseconds
     var MAKING_SURE_INTERVAL = 100;
-    var STOP_MAKING_SURE_TIMEOUT = 5000; 
+    // var STOP_MAKING_SURE_TIMEOUT = 5000; 
     var SHORTER_STOP_INTERVAL = 1000;
-    
+
     var _this = this;
     var isInZone = false;
     var tableProperties, tableHeight, tableLength, tableID, spawnZ, spawnY, spawnX;
     var zoneID;
     var replicaList = [];
-    var replicaStoredTransforms = {};
+    
     var left = true;
     var button;
     var recycleBinID;
@@ -43,37 +44,6 @@
 
     this.preload = function(entityID) {
         zoneID = entityID;
-    };
-
-    var getTransformForMarketplaceItems = function() {
-        return Settings.getValue(TRANSFORMS_SETTINGS, {});
-    };
-    
-    var getTransformsForMarketplaceItem = function(marketplaceID) {
-        var transformItems = getTransformForMarketplaceItems();
-        if (transformItems[marketplaceID] === undefined) {
-            return {
-                certificateTransforms: {},
-                unsortedTransforms: [],
-                lastUsedUnsortedTransformIndex: -1
-            };
-        }
-        return transformItems[marketplaceID];
-    };
-    
-    var addTransformForMarketplaceItem = function(marketplaceID, certificateID, transform) {
-        if (marketplaceID === undefined) {
-            return;
-        }
-        var marketplaceItemTransforms = getTransformForMarketplaceItems();
-        var marketplaceItemTransform = getTransformsForMarketplaceItem(marketplaceID);
-        if (certificateID !== undefined) {
-            marketplaceItemTransform.certificateTransforms[certificateID] = transform;
-        } else {
-            marketplaceItemTransform.unsortedTransforms.push(transform);
-        }
-        marketplaceItemTransforms[marketplaceID] = marketplaceItemTransform;
-        Settings.setValue(TRANSFORMS_SETTINGS, marketplaceItemTransforms);
     };
 
     // Get info on checkout stand so we can place copies of items on it for purchasing
@@ -147,65 +117,8 @@
         var userDataObject = JSON.parse(entityProperties.userData);
         userDataObject.replicaOverlayID = replica;
         Entities.editEntity(entityID, {userData: JSON.stringify(userDataObject)});
-        var replicaStoredTransform = {
-            position: entityProperties.localPosition,
-            rotation: entityProperties.localRotation,
-            dimensions: entityProperties.dimensions,
-            jointName: MyAvatar.jointNames[entityProperties.parentJointIndex],
-            demoEntityID: entityID
-        };
-
-        replicaStoredTransforms[replica] = replicaStoredTransform;
         replicaList.push(replica);
     });
-
-    _this.replicaCheckedOut = function(entityID, args) {
-        var ARGS_INDEX = {
-            REPLICA_OVERLAY: 0,
-            NEW_ENTITY: 1
-        };
-        var replicaOverlayID = args[ARGS_INDEX.REPLICA_OVERLAY];
-        var newEntityID = args[ARGS_INDEX.NEW_ENTITY];
-        
-        // Delete the new entity when the transforms are not found.
-        if (replicaStoredTransforms[replicaOverlayID] === undefined) {
-            print('Could not find transform data, deleting purchased entity.');
-            Entities.deleteEntity(newEntityID);
-            return;
-        }
-
-        var transform = replicaStoredTransforms[replicaOverlayID];
-        var transformProperties = {
-            parentID: MyAvatar.sessionUUID,
-            parentJointIndex: MyAvatar.getJointIndex(transform.jointName),
-            localPosition: transform.position,
-            localRotation: transform.rotation,
-            dimensions: transform.dimensions,
-            velocity: {x: 0, y: 0, z: 0},
-            dynamic: false
-        };
-        Entities.editEntity(newEntityID, transformProperties);
-
-        // Make really sure that the translations are set properly
-        var makeSureInterval = Script.setInterval(function() {
-            Entities.editEntity(newEntityID, transformProperties);
-        }, MAKING_SURE_INTERVAL);
-
-        // Five seconds should be enough to be sure, otherwise we have a problem
-        Script.setTimeout(function() {
-            makeSureInterval.stop();
-        }, STOP_MAKING_SURE_TIMEOUT);
-
-        var newEntityProperties = Entities.getEntityProperties(newEntityID, ['marketplaceID', 'certificateID']);
-        var certificateID = undefined;
-        if (newEntityProperties.certificateID !== "" && newEntityProperties.certificateID !== undefined) {
-            certificateID = newEntityProperties.certificateID;
-        }
-        addTransformForMarketplaceItem(newEntityProperties.marketplaceID, certificateID, transform);
-
-        // Remove the demo object, to prevent overlapping objects
-        Entities.deleteEntity(transform.demoEntityID);
-    };
 
     var setupApp = (function() {
         button = TABLET.addButton({
@@ -217,7 +130,13 @@
             TABLET.gotoWebScreen(APP_URL); 
         }
         button.clicked.connect(onClicked);
-        TABLET.gotoWebScreen(APP_URL);
+        if (Wallet.walletStatus === 3) {
+            TABLET.gotoWebScreen(APP_URL); 
+        } else {
+            TABLET.pushOntoStack(APP_URL);
+            TABLET.loadQMLSource(MARKETPLACE_WALLET_QML_PATH);
+        }
+    
     });
 
     _this.enterEntity = (function (entityID) {
@@ -293,7 +212,6 @@
             Overlays.deleteOverlay(overlayItem);
         });
         replicaList = [];
-        replicaStoredTransforms = {};
         TABLET.removeButton(button);
         TABLET.gotoHomeScreen();
         Overlays.editOverlay(HMD.tabletID, {parentID: MyAvatar.sessionUUID});
