@@ -28,7 +28,7 @@
     var _supportedJoints = [];
     var isAttached;
 
-    var attachDistance = HMD.active ? MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y : ATTACH_DISTANCE;
+    var attachDistance = HMD.active ? (MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y) / 2 : ATTACH_DISTANCE;
 
     function AttachableItem() {
 
@@ -36,7 +36,7 @@
 
     var attachFunction = function(){
         if (HMD.active) {
-            attachDistance = MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y;
+            attachDistance = (MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y)/2;
         }
     };
 
