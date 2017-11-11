@@ -16,7 +16,6 @@
 
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var ATTACH_DISTANCE = 0.35;
-    var DETACH_DISTANCE = 0.4;
     var RELEASE_LIFETIME = 10;
 
     var TRIGGER_INTENSITY = 1.0;
@@ -29,9 +28,18 @@
     var _supportedJoints = [];
     var isAttached;
 
+    var attachDistance = HMD.active ? MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y : ATTACH_DISTANCE;
+
     function AttachableItem() {
 
     }
+
+    var attachFunction = function(){
+        if (HMD.active) {
+            attachDistance = MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y;
+        }
+    };
+
     AttachableItem.prototype = {
         preload : function(entityID) {
             _entityID = entityID;
@@ -50,6 +58,10 @@
 
             isAttached = _attachmentData.attached;
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
+            MyAvatar.skeletonChanged.connect(attachFunction);
+        },
+        unload: function() {
+            MyAvatar.skeletonChanged.disconnect(attachFunction);
         },
         startNearGrab: function(entityID, args) {
             if (GRAB_SOUND.downloaded) {
@@ -72,7 +84,7 @@
                 var jointPosition = (properties.parentID === MyAvatar.sessionUUID) ? 
                     MyAvatar.getJointPosition(properties.parentJointIndex) : 
                     AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
-                if (Vec3.distance(position, jointPosition) > DETACH_DISTANCE) {
+                if (Vec3.distance(position, jointPosition) > attachDistance) {
                     var newDetachEntityProperties = Entities.getEntityProperties(entityID);
                     shared.touchJSONUserData(newDetachEntityProperties, function(userData) {
                         userData.Attachment.attached = false;
@@ -95,7 +107,7 @@
             } else if (!isAttached) {
                 _supportedJoints.forEach(function(joint) {
                     var jointPosition = MyAvatar.getJointPosition(joint);
-                    if (Vec3.distance(position, jointPosition) <= ATTACH_DISTANCE) {
+                    if (Vec3.distance(position, jointPosition) <= attachDistance) {
                         // Check that we are not holding onto an arm attachment in a hand
                         if (joint.toLowerCase().indexOf(hand) !== -1) {
                             return;
