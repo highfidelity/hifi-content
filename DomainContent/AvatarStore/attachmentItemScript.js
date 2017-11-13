@@ -107,31 +107,7 @@
             var position = properties.position; 
             var attachmentData = JSON.parse(userData).Attachment;
             isAttached = attachmentData.attached;
-            if (isAttached) {
-                var jointPosition = (properties.parentID === MyAvatar.sessionUUID) ? 
-                    MyAvatar.getJointPosition(properties.parentJointIndex) : 
-                    AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
-                if (Vec3.distance(position, jointPosition) > attachDistance) {
-                    var newDetachEntityProperties = Entities.getEntityProperties(entityID);
-                    shared.touchJSONUserData(newDetachEntityProperties, function(userData) {
-                        userData.Attachment.attached = false;
-                    });
-                    Entities.editEntity(_entityID, {
-                        parentID: EMPTY_PARENT_ID,
-                        lifetime: Entities.getEntityProperties(_entityID, 'age').age + RELEASE_LIFETIME,
-                        userData: newDetachEntityProperties.userData
-                    });
-                    if (DETACH_SOUND.downloaded) {
-                        Audio.playSound(DETACH_SOUND, {
-                            position: MyAvatar.position,
-                            volume: shared.AUDIO_VOLUME_LEVEL,
-                            localOnly: true
-                        });
-                    }
-                    Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
-                    isAttached = false;
-                }
-            } else if (!isAttached) {
+            if (!isAttached) {
                 _supportedJoints.forEach(function(joint) {
                     var jointPosition = MyAvatar.getJointPosition(joint);
                     if (Vec3.distance(position, jointPosition) <= attachDistance) {
@@ -160,6 +136,30 @@
                         Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                     }
                 }); 
+            } else if (isAttached) {
+                var jointPosition = (properties.parentID === MyAvatar.sessionUUID) ? 
+                    MyAvatar.getJointPosition(properties.parentJointIndex) : 
+                    AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
+                if (Vec3.distance(position, jointPosition) > attachDistance) {
+                    var newDetachEntityProperties = Entities.getEntityProperties(entityID);
+                    shared.touchJSONUserData(newDetachEntityProperties, function(userData) {
+                        userData.Attachment.attached = false;
+                    });
+                    Entities.editEntity(_entityID, {
+                        parentID: EMPTY_PARENT_ID,
+                        lifetime: Entities.getEntityProperties(_entityID, 'age').age + RELEASE_LIFETIME,
+                        userData: newDetachEntityProperties.userData
+                    });
+                    if (DETACH_SOUND.downloaded) {
+                        Audio.playSound(DETACH_SOUND, {
+                            position: MyAvatar.position,
+                            volume: shared.AUDIO_VOLUME_LEVEL,
+                            localOnly: true
+                        });
+                    }
+                    Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
+                    isAttached = false;
+                }
             } 
         }
     };
