@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 (function() {
-    var shared = Script.require('attachmentZoneShared.js');
+    var shared = Script.require('./attachmentZoneShared.js');
     
     var GRAB_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound1.wav'));
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
