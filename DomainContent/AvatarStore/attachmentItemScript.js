@@ -71,6 +71,9 @@
                     localOnly: true
                 });
             }
+            if (Entities.getEntityProperties(entityID, 'visible').visible === false) {
+                Entities.editEntity(entityID, {'visible' : true});
+            }
         },
             
         releaseGrab: function(entityID, args) {
