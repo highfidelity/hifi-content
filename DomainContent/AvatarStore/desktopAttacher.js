@@ -20,7 +20,8 @@
             // only attach by primary mouse button
             return;
         }
-        if (Vec3.distance(Entities.getEntityProperties(_entityID, 'position').position, MyAvatar.position) > MINIMUM_ACTIVATION_RADIUS) {
+        if (Vec3.distance(Entities.getEntityProperties(_entityID, 'position').position,
+            MyAvatar.position) > MINIMUM_ACTIVATION_RADIUS) {
             // only allow attaching when avatar is inside MINIMUM_ACTIVATION_RADIUS
             return;
         }
