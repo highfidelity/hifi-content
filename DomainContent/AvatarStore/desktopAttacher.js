@@ -11,12 +11,17 @@
 //
 (function() {
     var _entityID;
+    var MINIMUM_ACTIVATION_RADIUS = 4; // meters
     this.preload = function(entityID) {
         _entityID = entityID;
     };
     this.clickDownOnEntity = function(entityID, mouseEvent) {
         if (!mouseEvent.isPrimaryButton) {
             // only attach by primary mouse button
+            return;
+        }
+        if (Vec3.distance(Entities.getEntityProperties(_entityID, 'position').position, MyAvatar.position) > MINIMUM_ACTIVATION_RADIUS) {
+            // only allow attaching when avatar is inside MINIMUM_ACTIVATION_RADIUS
             return;
         }
         var childIDs = Entities.getChildrenIDs(_entityID);
