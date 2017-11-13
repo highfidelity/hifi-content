@@ -19,7 +19,7 @@
     var PURCHASED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound6.wav"));
     var SCANNED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound8.wav"));
 
-    var shared = Script.require('./attachmentZoneShared.js');    
+    var shared = Script.require('../attachmentZoneShared.js');    
     
     var interval;
     var properties;
