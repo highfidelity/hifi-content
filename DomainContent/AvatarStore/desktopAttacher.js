@@ -14,11 +14,14 @@
     this.preload = function(entityID) {
         _entityID = entityID;
     };
-    this.clickDownOnEntity = function() {
-        print('clicked down on entity');
+    this.clickDownOnEntity = function(entityID, mouseEvent) {
+        if (!mouseEvent.isPrimaryButton) {
+            // only attach by primary mouse button
+            return;
+        }
         var childIDs = Entities.getChildrenIDs(_entityID);
         if (childIDs.length === 0) {
-            print('no child entities found..');
+            print('[DesktopAttacher_' + _entityID + '] no child entities found..');
             return;
         }
         Entities.callEntityMethod(childIDs[0], 'desktopAttach');
