@@ -42,7 +42,6 @@
     var attachFunction = function(){
         if (HMD.active) {
             attachDistance = (MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y)/2;
-            print("Avatar Scale Changed -- new attach/detach distance: " + attachDistance);
         }
     };
 
