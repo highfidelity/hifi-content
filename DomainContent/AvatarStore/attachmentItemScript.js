@@ -7,6 +7,7 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+/* global Render */
 (function() {
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/attach_sound_1.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/detach.wav'));
@@ -162,7 +163,7 @@
                     }
                     Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                 }
-            } 
+            }
         }
     };
     return new AttachableItem(); 
