@@ -158,7 +158,6 @@
                         });
                     }
                     Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
-                    isAttached = false;
                 }
             } 
         }
