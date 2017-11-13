@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <title> Wearable Packager </title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <div class="top-bar">
+            <h4>Package Wearable</h4>
+        </div>
+        <div class="content">
+            <input class="id" type="text" placeholder="EntityID to package">
+            <select class="joint_dropdown">
+                <option>HeadTop_End</option>
+                <option>[LR]ForeArm</option>
+                <option>Hips</option>
+                <option>Neck</option>
+                <option>Spine</option>
+            </select>
+            <input type="submit" class="submit-button" value="Package JSON">
+        </div>
+        <script>
+            function main(){
+                $(".submit-button").click(function(){
+                    var clickEvent = {
+                        type : "submit",
+                        entityID : $(".id").val(),
+                        joint : $(".joint_dropdown").val()
+                    };
+                    EventBridge.emitWebEvent(JSON.stringify(clickEvent));
+                });
+                EventBridge.scriptEventReceived.connect(function(scriptEvent){
+                    $(".id").val(scriptEvent);
+                });
+            }
+            $(document).ready(main);
+        </script>
+    </body>
+</html>
