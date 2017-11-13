@@ -23,10 +23,15 @@
 
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
 
+    var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+    var messageChannel;
+
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached;
+
+    var firstGrab = true;
 
     var attachDistance = HMD.active ? (MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y) / 2 : ATTACH_DISTANCE;
 
@@ -57,6 +62,12 @@
             }
 
             isAttached = _attachmentData.attached;
+
+            if (Entities.getNestableType(properties.parentID) !== "avatar" && !isAttached) {
+                messageChannel = MESSAGE_CHANNEL_BASE + properties.parentID;
+                Messages.subscribe(messageChannel);
+            }
+
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
             MyAvatar.skeletonChanged.connect(attachFunction);
         },
@@ -64,6 +75,12 @@
             MyAvatar.skeletonChanged.disconnect(attachFunction);
         },
         startNearGrab: function(entityID, args) {
+            if (firstGrab) {
+                if (!Entities.getEntityProperties(entityID, 'visible').visible) {
+                    Entities.editEntity(entityID, {visible: true});
+                }
+                firstGrab = false;
+            }
             if (GRAB_SOUND.downloaded) {
                 Audio.playSound(GRAB_SOUND, {
                     position: MyAvatar.position,
@@ -76,6 +93,13 @@
         releaseGrab: function(entityID, args) {
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
+
+            if (Entities.getNestableType(properties.parentID) === "entity") {
+                Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
+                Messages.unsubscribe(messageChannel);
+                Entities.editEntity(entityID, {parentID : EMPTY_PARENT_ID});
+            }
+
             var userData = properties.userData;
             var position = properties.position; 
             var attachmentData = JSON.parse(userData).Attachment;
