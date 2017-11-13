@@ -4,41 +4,56 @@
 //  Creates invisible clones to be used so people can attach entities without rez rights
 //  Copyright 2017 High Fidelity, Inc.
 //
-//  Version 2: Requires Entities.callEntityClientMethod() functionality (RC 58 or later)
-//
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 (function() {
+    var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+    var CLONE_LIFETIME = 300;
+    var UPDATE_INTERVAL = 10000;
+
+    var messageChannel;
+
+    var messageHandler;
+    var spawnMoreChildren;
     var properties; 
-    var newEntityProperties;
 
     var Wearable = function() {
 
     };
     Wearable.prototype = {
-        remotelyCallable: ['spawnNewChild'],
         preload: function(entityID){
-            properties = Entities.getEntityProperties(entityID, 
-                ['position', 'rotation', 'dimensions', 'userData', 'modelURL']);
-            newEntityProperties = {
+            properties = Entities.getEntityProperties(entityID, ['dimensions', 'userData', 'modelURL']);
+            messageChannel = MESSAGE_CHANNEL_BASE + entityID;
+            Messages.subscribe(messageChannel);
+            var newEntityProperties = {
                 type: 'Model',
-                position: properties.position,
-                rotation: properties.rotation,
                 dimensions: properties.dimensions,
                 userData: properties.userData,
+                parentID: entityID,
                 modelURL : properties.modelURL,
-                script: Script.resolvePath("wearableClient.js"),
-                serverScripts: Script.resolvePath("wearableServer.js"),
-                visible: true,
+                script: Script.resolvePath("attachmentItemScript.js"),
+                lifetime: CLONE_LIFETIME,
+                visible: false,
                 shapeType: "box",
-                collidesWith: ""
+                collidesWith: "dynamic,",
+                serverScripts: Script.resolvePath("empty.js")
             };
+            messageHandler = function(channel, data, sender) {
+                if (channel === messageChannel) {
+                    Entities.addEntity(newEntityProperties);   
+                }    
+            };
+            Messages.messageReceived.connect(messageHandler);
+            spawnMoreChildren = Script.setInterval(function() {
+                if (Entities.getChildrenIDs(entityID).length === 0) {
+                    Entities.addEntity(newEntityProperties);            
+                }
+            }, UPDATE_INTERVAL);
         },
-        spawnNewChild: function(entityID, params) {
-            if (params[0] === entityID) {
-                Entities.addEntity(newEntityProperties);
-            } 
+        unload: function() {
+            Messages.messageReceived.disconnect(messageHandler);
+            Script.clearInterval(spawnMoreChildren);
         }
     };
     return new Wearable();
