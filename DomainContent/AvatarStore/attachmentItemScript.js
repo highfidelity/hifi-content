@@ -33,17 +33,12 @@
 
     var firstGrab = true;
 
-    var attachDistance = HMD.active ? (MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y) / 2 : ATTACH_DISTANCE;
+    var attachDistance = ATTACH_DISTANCE;
 
     function AttachableItem() {
 
     }
 
-    var attachFunction = function(){
-        if (HMD.active) {
-            attachDistance = (MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y)/2;
-        }
-    };
 
     AttachableItem.prototype = {
         preload : function(entityID) {
@@ -69,10 +64,10 @@
             }
 
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
-            MyAvatar.scaleChanged.connect(attachFunction);
+            //MyAvatar.scaleChanged.connect(attachFunction);
         },
         unload: function() {
-            MyAvatar.scaleChanged.disconnect(attachFunction);
+            //MyAvatar.scaleChanged.disconnect(attachFunction);
         },
         startNearGrab: function(entityID, args) {
             if (firstGrab) {
@@ -87,9 +82,6 @@
                     volume: shared.AUDIO_VOLUME_LEVEL,
                     localOnly: true
                 });
-            }
-            if (Entities.getEntityProperties(entityID, 'visible').visible === false) {
-                Entities.editEntity(entityID, {visible: true});
             }
         },
             
