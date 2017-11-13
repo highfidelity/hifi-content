@@ -78,7 +78,6 @@
             Settings.setValue(TRANSFORMS_SETTINGS, marketplaceItemTransforms);
         },
 
-        // TODO FIX DEMO ENTITY ID
         replicaCheckedOut: function(replicaOverlayID, newEntityID) {
             if (replicaStoredTransforms[replicaOverlayID] === undefined) {
                 Entities.deleteEntity(newEntityID);
