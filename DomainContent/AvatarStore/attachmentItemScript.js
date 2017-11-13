@@ -42,6 +42,7 @@
     var attachFunction = function(){
         if (HMD.active) {
             attachDistance = (MyAvatar.getHeadPosition().y - MyAvatar.getLeftHandPosition().y)/2;
+            print("Avatar Scale Changed -- new attach/detach distance: " + attachDistance);
         }
     };
 
@@ -69,10 +70,10 @@
             }
 
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
-            MyAvatar.skeletonChanged.connect(attachFunction);
+            MyAvatar.scaleChanged.connect(attachFunction);
         },
         unload: function() {
-            MyAvatar.skeletonChanged.disconnect(attachFunction);
+            MyAvatar.scaleChanged.disconnect(attachFunction);
         },
         startNearGrab: function(entityID, args) {
             if (firstGrab) {
