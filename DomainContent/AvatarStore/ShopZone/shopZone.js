@@ -12,9 +12,12 @@
     var shared = Script.require('../attachmentZoneShared.js');
     this.leaveEntity = function (entityID) {
         shared.getAvatarChildEntities(MyAvatar).forEach(function (entityID) {
-            var properties = Entities.getEntityProperties(entityID, ['clientOnly', 'userData']);
+            var properties = Entities.getEntityProperties(entityID, ['clientOnly', 'userData', 'locked']);
             try {
                 var isAttachment = JSON.parse(properties.userData).Attachment !== undefined;
+                if (properties.locked) {
+                    Entities.editEntity(entityID, {locked: false});
+                }
                 if (isAttachment && !properties.clientOnly) {
                     Entities.deleteEntity(entityID);
                 }

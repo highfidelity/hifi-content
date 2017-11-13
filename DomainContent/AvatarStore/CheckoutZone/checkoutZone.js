@@ -18,6 +18,7 @@
     var VERTICAL_SPACING = 6;
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
+    var ENTER_ZONE_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound5.wav"));
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
     var OVERLAY_ROTATIONAL_OFFSET = { x: 10, y: 140, z: 0 };
@@ -110,7 +111,8 @@
             dimensions: JSON.parse(JSON.stringify(entityProperties.dimensions))
         };
         var scale = (ITEM_HEIGHT / overlayProperties.dimensions.y);
-        if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
+        if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) 
+                                                           || (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
             overlayProperties.dimensions.y = ITEM_HEIGHT;
             overlayProperties.dimensions.x *= scale;
             overlayProperties.dimensions.z *= scale;
@@ -201,6 +203,13 @@
     });
 
     _this.enterEntity = (function(entityID) {
+        if (ENTER_ZONE_SOUND.downloaded) {
+            Audio.playSound(ENTER_ZONE_SOUND, {
+                position: MyAvatar.position,
+                volume: SHARED.AUDIO_VOLUME_LEVEL,
+                localOnly: true
+            });
+        }
         setupApp();
         isInZone = true;
         left = true;
