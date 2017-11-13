@@ -16,7 +16,7 @@
             try {
                 var isAttachment = JSON.parse(properties.userData).Attachment !== undefined;
                 if (properties.locked) {
-                    Entities.editEntity(entityID, {"locked" : false});
+                    Entities.editEntity(entityID, {locked: false});
                 }
                 if (isAttachment && !properties.clientOnly) {
                     Entities.deleteEntity(entityID);

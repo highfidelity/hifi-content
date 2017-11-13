@@ -32,7 +32,7 @@
                 userData: properties.userData,
                 parentID: entityID,
                 modelURL : properties.modelURL,
-                script: Script.resolvePath("attachmentItemScript.js"),
+                script: Script.resolvePath("attachmentItemScript.js") + "?" + Date.now(),
                 lifetime: CLONE_LIFETIME,
                 visible: false,
                 shapeType: "box",

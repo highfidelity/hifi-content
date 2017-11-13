@@ -89,7 +89,7 @@
                 });
             }
             if (Entities.getEntityProperties(entityID, 'visible').visible === false) {
-                Entities.editEntity(entityID, {'visible' : true});
+                Entities.editEntity(entityID, {visible: true});
             }
         },
             
@@ -100,7 +100,7 @@
             if (Entities.getNestableType(properties.parentID) === "entity") {
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
                 Messages.unsubscribe(messageChannel);
-                Entities.editEntity(entityID, {parentID : EMPTY_PARENT_ID});
+                Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
             }
 
             var userData = properties.userData;
