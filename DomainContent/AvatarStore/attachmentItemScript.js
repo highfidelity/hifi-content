@@ -29,16 +29,26 @@
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
+    var _isNearGrabbingWithHand = false;
     var isAttached;
 
     var firstGrab = true;
 
     var attachDistance = ATTACH_DISTANCE;
+    var lastDesktopSupportedJointIndex = -1;
 
+    var playAttachSound = function() {
+        if (ATTACH_SOUND.downloaded) {
+            Audio.playSound(ATTACH_SOUND, {
+                position: MyAvatar.position,
+                volume: shared.AUDIO_VOLUME_LEVEL,
+                localOnly: true
+            });
+        }
+    };
     function AttachableItem() {
 
     }
-
 
     AttachableItem.prototype = {
         preload : function(entityID) {
@@ -64,10 +74,56 @@
             }
 
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
-            //MyAvatar.scaleChanged.connect(attachFunction);
+            // MyAvatar.scaleChanged.connect(attachFunction);
         },
         unload: function() {
-            //MyAvatar.scaleChanged.disconnect(attachFunction);
+            // MyAvatar.scaleChanged.disconnect(attachFunction);
+        },
+        /**
+         * Local remote function to be called from desktopAttachment.js whenever a click event is registered.
+         * @param entityID current entityID
+         * @param args array of arguments to be passed in from remote server
+         */
+        desktopAttach: function(entityID, args) {
+            var newEntityProperties = Entities.getEntityProperties(_entityID, ['dimensions', 'userData']);
+            var attachmentData = null;
+            shared.touchJSONUserData(newEntityProperties, function(userData) {
+                userData.Attachment.attached = true;
+                attachmentData = userData.Attachment;
+            });
+            lastDesktopSupportedJointIndex = (lastDesktopSupportedJointIndex + 1) % _supportedJoints.length;
+            
+            var defaultPosition = {x: 0, y: 0, z: 0};
+            if (attachmentData.defaultPosition !== undefined) {
+                defaultPosition = attachmentData.defaultPosition;
+            }
+            var defaultRotation = {x: 0, y: 0, z: 0, w: 1};
+            if (attachmentData.defaultRotation !== undefined) {
+                defaultRotation = attachmentData.defaultRotation;
+            }
+            var defaultDimensions = newEntityProperties.dimensions;
+            if (attachmentData.defaultDimensions !== undefined) {
+                defaultDimensions = attachmentData.defaultDimensions;
+            }
+            var jointIndex = MyAvatar.getJointIndex(_supportedJoints[lastDesktopSupportedJointIndex]);
+            if (jointIndex === -1) {
+                // fail when no joint index is found and delete entity since a new one is being created already.
+                Entities.deleteEntity(_entityID);
+                return;
+            }
+
+            // Finally, if all worked out, set the attachment properties.
+            Entities.editEntity(_entityID, {
+                visible: true,
+                localPosition: defaultPosition,
+                localRotation: defaultRotation,
+                dimensions: defaultDimensions,
+                parentID: MyAvatar.sessionUUID,
+                parentJointIndex: jointIndex,
+                userData: newEntityProperties.userData,
+                lifetime: -1
+            });
+            playAttachSound();
         },
         startNearGrab: function(entityID, args) {
             if (firstGrab) {
@@ -84,8 +140,14 @@
                 });
             }
         },
-            
+        continueNearGrab: function(entity, args) {
+            _isNearGrabbingWithHand = true;
+        },
         releaseGrab: function(entityID, args) {
+            if (!_isNearGrabbingWithHand) {
+                return;
+            }
+            _isNearGrabbingWithHand = false;
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
 
@@ -117,13 +179,7 @@
                             userData: newEntityProperties.userData,
                             lifetime: -1
                         });
-                        if (ATTACH_SOUND.downloaded) {
-                            Audio.playSound(ATTACH_SOUND, {
-                                position: MyAvatar.position,
-                                volume: shared.AUDIO_VOLUME_LEVEL,
-                                localOnly: true
-                            });
-                        }
+                        playAttachSound();
                         isAttached = true;
                         Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                     }
