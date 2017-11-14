@@ -234,7 +234,6 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
         } else if (htmlEvent.type === "chooseAudioFile") {
             if (htmlEvent.value !== CLEAR_SELECTION_TEXT) {
                 audioFile = Window.browse("Choose a .wav audio file", "", "*.wav");
-                print("audio file selected: " + audioFile + "; yee");
                 if (audioFile !== null) {
                     var filenameArr = audioFile.split("/");
                     var filename = filenameArr[filenameArr.length - 1];
