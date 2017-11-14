@@ -35,6 +35,19 @@
 
     var attachDistance = ATTACH_DISTANCE;
 
+    var attachFunction = function(){
+        var posEye = MyAvatar.getEyePosition();
+        var posFoot = MyAvatar.getJointPosition("LeftFoot");
+
+        if (posEye == {x: 0, y:0, z:0} ||
+            posFoot == {x: 0, y:0, z:0} || !HMD.active){
+            return;
+        } else {
+            var estimateHeight = posEye.y - posFoot.y;
+            attachDistance = estimateHeight/3;
+        }
+    };
+
     function AttachableItem() {
 
     }
@@ -64,10 +77,10 @@
             }
 
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
-            //MyAvatar.scaleChanged.connect(attachFunction);
+            MyAvatar.scaleChanged.connect(attachFunction);
         },
         unload: function() {
-            //MyAvatar.scaleChanged.disconnect(attachFunction);
+            MyAvatar.scaleChanged.disconnect(attachFunction);
         },
         startNearGrab: function(entityID, args) {
             if (firstGrab) {
