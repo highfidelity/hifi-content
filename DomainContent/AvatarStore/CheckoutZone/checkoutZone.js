@@ -16,7 +16,6 @@
     var MAX_ITEMS = 12;
     var ITEM_HEIGHT = 0.07;
     var HALF = 0.5;
-    // var ITEM_OFFSET = {x: 0, y: 0.1, z: 0.1};
     var OVERLAY_PREFIX = 'MP';
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
@@ -28,7 +27,6 @@
     var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
     // Milliseconds
     var MAKING_SURE_INTERVAL = 100;
-    // var STOP_MAKING_SURE_TIMEOUT = 5000; 
     var SHORTER_STOP_INTERVAL = 1000;
 
     var _this = this;
@@ -82,7 +80,6 @@
 
     // Spawn a copy of each attachment scaled down to fit the ITEM_HEIGHT and place it on the checkout table
     var spawnOverlayReplica = (function(entityID) {
-        print("inside spawner");
         var entityProperties = Entities.getEntityProperties(entityID, [
             'name', 'modelURL', 'type', 'dimensions', 'marketplaceID',
             'localPosition', 'localRotation', 'parentJointIndex', 'userData'
@@ -132,7 +129,8 @@
             TABLET.gotoWebScreen(APP_URL); 
         }
         button.clicked.connect(onClicked);
-        if (Wallet.walletStatus === 3) {
+        var walletReady = 3;
+        if (Wallet.walletStatus === walletReady) {
             TABLET.gotoWebScreen(APP_URL); 
         } else {
             TABLET.pushOntoStack(APP_URL);
@@ -142,7 +140,6 @@
     });
 
     _this.enterEntity = (function (entityID) {
-        print("Hello player one");
         replicaList = [];
         collectZoneData();
         Entities.callEntityMethod(recycleBinID, 'enterCheckout');
@@ -155,42 +152,26 @@
         avatarChildEntities = SHARED.getAvatarChildEntities(MyAvatar);
         avatarChildEntities.forEach(function (entityID) {
             if (replicaList.length < MAX_ITEMS){
-                print("replica list is less than max");
                 var childUserData = Entities.getEntityProperties(entityID, 'userData').userData;
                 var isAttachment = childUserData.indexOf("attached\":true");
                 var marketplaceID = Entities.getEntityProperties(entityID, 'marketplaceID').marketplaceID;
                 if (marketplaceID && (isAttachment !== -1)) {
-                
-                    // TODO check for already purchased 
-                    print("heading over to spawner");
-                    spawnOverlayReplica(entityID); // put a copy of the item on the table
-                    // move spawn position over to the next empty spot
-                    // var moveRight = ITEM_OFFSET.x;
-                    // var moveBack = -ITEM_OFFSET.z;
-                    // var moveDown = ITEM_OFFSET.y;
-                    // var moveLeft = -ITEM_OFFSET.x;
-                    // var moveForward = ITEM_OFFSET.z;
+                    spawnOverlayReplica(entityID);
                     if (left) {
-                        spawnX -= 0.07;
-                        spawnZ -= 0.07;
-                        // spawnX += moveBack;
+                        spawnX -= ITEM_HEIGHT;
+                        spawnZ -= ITEM_HEIGHT;
                         left = false;
                         middle = true;
                     } else if (middle){
-                        spawnX -= 0.07;
-                        spawnZ -= 0.07;
-                        // spawnX += moveBack;
+                        spawnX -= ITEM_HEIGHT;
+                        spawnZ -= ITEM_HEIGHT;
                         middle = false;
                     } else {
                         spawnY += 0.1;
-                        spawnX += 0.07;
-                        spawnX += 0.07;
-                        spawnZ += 0.07;
-                        spawnZ += 0.07;
-                        // spawnZ += moveLeft;
-                        // spawnX += moveForward;
-                        // spawnX += moveForward;
-                        // spawnX += moveForward;
+                        spawnX += ITEM_HEIGHT;
+                        spawnX += ITEM_HEIGHT;
+                        spawnZ += ITEM_HEIGHT;
+                        spawnZ += ITEM_HEIGHT;
                         left = true;
                     }
                 }
@@ -237,7 +218,7 @@
     };
 
     _this.unload = function() {
-        // sure you leave the entity if you're still in there
+        // make sure you leave the entity if you're still in there
         if (isInZone) {
             _this.leaveEntity();
         }
