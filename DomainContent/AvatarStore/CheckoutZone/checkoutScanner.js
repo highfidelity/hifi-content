@@ -24,7 +24,7 @@
     var STOP_MAKING_SURE_TIMEOUT = 5000; // Milliseconds
     var TABLE_ID;
     var SCANNED_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 });
-    var SCANNED_LOCAL_HEIGHT = 0.25;
+    var SCANNED_LOCAL_HEIGHT = 0.29;
     var OVERLAY_SPACING = 0.09;
 
     var interval;
@@ -131,13 +131,13 @@
             scannedMPOverlays = {};
             // new local position for scanned overlays after they are scanned
             var newX = 0.05;
-            var newZ = -0.5; 
+            var newZ = -0.32; 
             var position1 = true;
             var position2 = false;
-            var position3 = false;
 
             properties = Entities.getEntityProperties(entityID, ['position', 'parentID']);
             interval = Script.setInterval(function() {
+                print("scanner is searching");
                 var overlays = Overlays.findOverlays(properties.position, SCAN_RADIUS);
                 // overlay removed from scanner...no new one in Scanner
                 if (overlays.length === 0 && overlayInScanner) {
@@ -173,21 +173,16 @@
                                 });
                                 scannedMPOverlays[overlayInScanner] = {x: newX, y: SCANNED_LOCAL_HEIGHT, z: newZ};
                                 if (position1) {
-                                    newX -=OVERLAY_SPACING;
+                                    newZ -=OVERLAY_SPACING;
                                     position1 = false;
                                     position2 = true;
                                 } else if (position2) {
-                                    newX -=OVERLAY_SPACING;
+                                    newZ -=OVERLAY_SPACING;
                                     position2 = false;
-                                    position3 = true;
-                                } else if (position3) {
-                                    newX -=OVERLAY_SPACING;
-                                    position3 = false;
                                 } else {
-                                    newX +=OVERLAY_SPACING;
-                                    newX +=OVERLAY_SPACING;
-                                    newX +=OVERLAY_SPACING;
                                     newZ +=OVERLAY_SPACING;
+                                    newZ +=OVERLAY_SPACING;
+                                    newX -=OVERLAY_SPACING;
                                     position1 = true;
                                 }
                             } else {

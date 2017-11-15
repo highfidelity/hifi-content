@@ -13,7 +13,7 @@
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
     var SEARCH_RADIUS = 2;
-    var RECYLCE_CHECK_INTERVAL_MS = 1000;
+    var RECYLCE_CHECK_INTERVAL_MS = 500;
     
     var recyclePosition;
     var tableID;

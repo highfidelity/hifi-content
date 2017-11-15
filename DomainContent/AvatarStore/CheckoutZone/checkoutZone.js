@@ -20,7 +20,7 @@
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
     var OVERLAY_ROTATIONAL_OFFSET = { x: 10, y: 140, z: 0 };
-    var TABLET_LOCAL_POSITION_OFFSET = { x: 0.01, y: 0.9, z: -0.6 };
+    var TABLET_LOCAL_POSITION_OFFSET = { x: -0.1, y: 0.9, z: -0.45 };
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 240, z: 0 };
@@ -57,11 +57,11 @@
                 tableHeight = tableProperties.dimensions.y;
                 tableLength = tableProperties.dimensions.x;
                 var halfTableHeight = HALF * tableHeight;
-                var verticalSpace = -0.025;
+                var verticalSpace = -0.015;
                 spawnY = halfTableHeight + verticalSpace;
                 var halfTableLength = HALF * tableLength;
-                spawnZ = (halfTableLength - ITEM_HEIGHT);
-                spawnX = 0;
+                spawnZ = (halfTableLength - ITEM_HEIGHT + 0.18);
+                spawnX = -0.05;
                 return;
             }
         });
@@ -157,17 +157,19 @@
                 var marketplaceID = Entities.getEntityProperties(entityID, 'marketplaceID').marketplaceID;
                 if (marketplaceID && (isAttachment !== -1)) {
                     spawnOverlayReplica(entityID);
+                    var xOffset = 0.005;
+                    var yOffset = 0.1;
                     if (left) {
-                        spawnX -= ITEM_HEIGHT;
+                        spawnX -= ITEM_HEIGHT + xOffset;
                         spawnZ -= ITEM_HEIGHT;
                         left = false;
                         middle = true;
                     } else if (middle){
-                        spawnX -= ITEM_HEIGHT;
+                        spawnX -= ITEM_HEIGHT + xOffset;
                         spawnZ -= ITEM_HEIGHT;
                         middle = false;
                     } else {
-                        spawnY += 0.1;
+                        spawnY += yOffset;
                         spawnX += ITEM_HEIGHT;
                         spawnX += ITEM_HEIGHT;
                         spawnZ += ITEM_HEIGHT;
