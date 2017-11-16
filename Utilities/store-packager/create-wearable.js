@@ -1,5 +1,7 @@
 //
 //  create-wearable.js
+// 
+//  Makes an object in a domain a store demo copy
 //
 //  Created by Liv Erickson on 11/6/17.
 //  Copyright 2017 High Fidelity, Inc.
@@ -13,8 +15,8 @@
 /* globals Selection */
 (function(){
     var APP_NAME = "WEARABLE";
-    var APP_URL = Script.resolvePath("app.html?" + Date.now());
-    var APP_ICON;
+    var APP_URL = Script.resolvePath("app.html");
+    var APP_ICON = Script.resolvePath("icon.png");
 
     var SERVER_URL = "https://hifi-content.s3.amazonaws.com/liv/avatar_shopping_demo/wearableServer.js"; 
 
@@ -61,12 +63,12 @@
     };
 
     var button = tablet.addButton({
-        text: APP_NAME
+        text: APP_NAME,
+        icon: APP_ICON
     });
 
     
     function maybeExited() {
-        print("Exited app page");
         Entities.clickReleaseOnEntity.disconnect(handleMousePress);
         Entities.hoverLeaveEntity.disconnect(handleMouseLeave);
         tablet.screenChanged.disconnect(maybeExited);
@@ -94,8 +96,6 @@
             var newUserDataProperties = baseUserdata;
             newUserDataProperties["marketplaceID"] = marketplaceID;
             newUserDataProperties["Attachment"].joint = joint;
-
-            print(JSON.stringify(newUserDataProperties));
 
             Entities.editEntity(entityID, {locked: false});
 
