@@ -14,7 +14,7 @@
 (function () {
     var SHARED = Script.require('../attachmentZoneShared.js');
     var MAX_ITEMS = 12;
-    var ITEM_HEIGHT = 0.02;
+    var ITEM_HEIGHT = 0.04;
     var ITEM_SPACING = 0.04;
     var HALF = 0.5;
     var OVERLAY_PREFIX = 'MP';
@@ -60,9 +60,8 @@
                 var verticalSpace = 0.2;
                 spawnY = halfTableHeight + verticalSpace;
                 var halfTableLength = HALF * tableLength;
-                var extraSmallOffset = 0.015;
-                spawnZ = (halfTableLength - ITEM_HEIGHT - extraSmallOffset);
-                spawnX = - extraSmallOffset;
+                spawnZ = (halfTableLength - ITEM_HEIGHT);
+                spawnX = 0;
                 return;
             }
         });
@@ -104,14 +103,14 @@
             overlayProperties.dimensions.z *= scale;
         }
         // check that the item is not too large
-        var maxItemSize = 0.175;
+        var maxItemSize = 0.06;
         var scaleReduction = 0.95;
         while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize || 
             overlayProperties.dimensions.y > maxItemSize) {
-            scale *= scaleReduction;
-            overlayProperties.dimensions.y *= scale;
-            overlayProperties.dimensions.x *= scale;
-            overlayProperties.dimensions.z *= scale;
+            scaleReduction;
+            overlayProperties.dimensions.y *= scaleReduction;
+            overlayProperties.dimensions.x *= scaleReduction;
+            overlayProperties.dimensions.z *= scaleReduction;
         }
         var replica = Overlays.addOverlay("model", overlayProperties);
         var userDataObject = JSON.parse(entityProperties.userData);
@@ -169,7 +168,8 @@
                         middle = false;
                     } else {
                         spawnY += ITEM_SPACING;
-                        spawnY += ITEM_HEIGHT;
+                        var HALF_ITEM_SPACING = 0.02;
+                        spawnY += HALF_ITEM_SPACING;
                         spawnX += ITEM_SPACING;
                         spawnZ += ITEM_SPACING;
                         spawnX += ITEM_SPACING;
