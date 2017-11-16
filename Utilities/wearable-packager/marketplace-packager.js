@@ -26,7 +26,6 @@
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');    
 
     function handleMousePress(entityID) {
-        print("Clicked: " + entityID);
         if (prevID !== entityID) {
             Selection.addToSelectedItemsList(listName, listType, entityID);
             prevID = entityID;
@@ -79,7 +78,6 @@
 
     
     function maybeExited() {
-        print("Exited app page");
         Entities.clickReleaseOnEntity.disconnect(handleMousePress);
         Entities.hoverLeaveEntity.disconnect(handleMouseLeave);
         tablet.screenChanged.disconnect(maybeExited);
@@ -100,7 +98,7 @@
         if (filename !== "") {
             var success = Clipboard.exportEntities(filename, [entityIDToExport]);
             if (!success) {
-                print("Export failed on entity " + entityIDToExport);
+                // No luck, failed
             }
         }
         Entities.deleteEntity(entityIDToExport);                        
@@ -120,7 +118,6 @@
             var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script']);
 
             newUserDataProperties["Attachment"].joint = joint;
-            print(JSON.stringify(newUserDataProperties));
             
             newExportProperties.modelURL = properties.modelURL;
             newExportProperties.dimensions = properties.dimensions;
