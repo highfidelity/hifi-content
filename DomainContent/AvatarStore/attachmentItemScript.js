@@ -21,7 +21,6 @@
     var TRIGGER_TIME = 0.2;
 
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
-    var ATTACH_DETACH_CONSTANT = 0.30;
 
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
     var messageChannel;
@@ -34,10 +33,11 @@
 
     var firstGrab = true;
 
-    var attachDistance = MyAvatar.getEyeHeight() * ATTACH_DETACH_CONSTANT;
+    var attachDistance;
 
     var attachFunction = function(){
-        attachDistance = MyAvatar.getEyeHeight() * ATTACH_DETACH_CONSTANT;
+        attachDistance = MyAvatar.getEyeHeight() / 3;
+        print("Scale: " + MyAvatar.scale + "-- Eye Height: " + MyAvatar.getEyeHeight() + "-- attachDistance: " + attachDistance);
     };
 
     var lastDesktopSupportedJointIndex = -1;
@@ -80,6 +80,7 @@
 
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
             MyAvatar.scaleChanged.connect(attachFunction);
+            attachDistance = MyAvatar.getEyeHeight() / 3;
         },
         unload: function() {
             MyAvatar.scaleChanged.disconnect(attachFunction);
@@ -136,6 +137,7 @@
                     Entities.editEntity(entityID, {visible: true});
                 }
                 firstGrab = false;
+                attachDistance = MyAvatar.getEyeHeight() / 3;
             }
             if (GRAB_SOUND.downloaded) {
                 Audio.playSound(GRAB_SOUND, {
@@ -143,8 +145,7 @@
                     volume: shared.AUDIO_VOLUME_LEVEL,
                     localOnly: true
                 });
-            }
-            attachDistance = MyAvatar.getEyeHeight() * ATTACH_DETACH_CONSTANT;            
+            }            
         },
         continueNearGrab: function(entity, args) {
             _isNearGrabbingWithHand = true;
