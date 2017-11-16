@@ -37,7 +37,6 @@
 
     var attachFunction = function(){
         attachDistance = MyAvatar.getEyeHeight() / 3;
-        print("Scale: " + MyAvatar.scale + "-- Eye Height: " + MyAvatar.getEyeHeight() + "-- attachDistance: " + attachDistance);
     };
 
     var lastDesktopSupportedJointIndex = -1;
