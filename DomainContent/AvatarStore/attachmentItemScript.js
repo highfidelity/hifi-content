@@ -15,13 +15,13 @@
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound7.wav'));
 
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
-    var ATTACH_DISTANCE = 0.35;
     var RELEASE_LIFETIME = 10;
 
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
 
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
+    var ATTACH_DETACH_CONSTANT = 0.35;
 
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
     var messageChannel;
@@ -34,19 +34,10 @@
 
     var firstGrab = true;
 
-    var attachDistance = ATTACH_DISTANCE;
+    var attachDistance = MyAvatar.getEyeHeight() * ATTACH_DETACH_CONSTANT;
 
     var attachFunction = function(){
-        var posEye = MyAvatar.getEyePosition();
-        var posFoot = MyAvatar.getJointPosition("LeftFoot");
-
-        if (posEye == {x: 0, y:0, z:0} ||
-            posFoot == {x: 0, y:0, z:0} || !HMD.active){
-            return;
-        } else {
-            var estimateHeight = posEye.y - posFoot.y;
-            attachDistance = estimateHeight/3;
-        }
+        attachDistance = MyAvatar.getEyeHeight() * ATTACH_DETACH_CONSTANT;
     };
 
     var lastDesktopSupportedJointIndex = -1;
