@@ -1,7 +1,21 @@
+//
+//  marketplace-packager.js
+//
+//  A utility script for packaging up an item to generate a properly-configured JSON
+//  for releasing to Marketplace as a wearable item.
+// 
+//  Created by Liv Erickson on 11/16/17
+//  Copyright 2017 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+/* globals Selection */
+
 (function(){
     var APP_NAME = "WEARPKGR";
-    var APP_URL = Script.resolvePath("app.html?" + Date.now());
-    var APP_ICON;
+    var APP_URL = Script.resolvePath("app.html");
+    var APP_ICON = Script.resolvePath("icon.png");
 
     var prevID = 0;
     var listName = "contextOverlayHighlightList";
@@ -55,12 +69,12 @@
         visible: 1,
         shapeType: "box",
         collidesWith: "",
-        collisionMask: 0,
-
+        collisionMask: 0
     };
 
     var button = tablet.addButton({
-        text: APP_NAME
+        text: APP_NAME,
+        icon: APP_ICON
     });
 
     
