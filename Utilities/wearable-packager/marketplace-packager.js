@@ -53,7 +53,10 @@
         parentID: "{00000000-0000-0000-0000-000000000001}",
         owningAvatarID: "{00000000-0000-0000-0000-000000000000}",
         visible: 1,
-        collidesWith: ""
+        shapeType: "box",
+        collidesWith: "",
+        collisionMask: 0,
+
     };
 
     var button = tablet.addButton({
