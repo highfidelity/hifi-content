@@ -122,7 +122,7 @@
             newExportProperties.modelURL = properties.modelURL;
             newExportProperties.dimensions = properties.dimensions;
             newExportProperties.script = properties.script;
-            newExportProperties.userdata = newUserDataProperties;
+            newExportProperties.userData = JSON.stringify(newUserDataProperties);
 
             entityIDToExport = Entities.addEntity(newExportProperties, 1);
             Window.saveFileChanged.connect(onFileSaveChanged);
