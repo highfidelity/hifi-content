@@ -21,7 +21,7 @@
     var TRIGGER_TIME = 0.2;
 
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
-    var ATTACH_DETACH_CONSTANT = 0.35;
+    var ATTACH_DETACH_CONSTANT = 0.30;
 
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
     var messageChannel;
@@ -37,7 +37,7 @@
     var attachDistance = MyAvatar.getEyeHeight() * ATTACH_DETACH_CONSTANT;
 
     var attachFunction = function(){
-        attachDistance = MyAvatar.scale * attachDistance;
+        attachDistance = MyAvatar.getEyeHeight() * attachDistance;
     };
 
     var lastDesktopSupportedJointIndex = -1;
