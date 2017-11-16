@@ -34,7 +34,7 @@
 
     var firstGrab = true;
 
-    var attachDistance = MyAvatar.getEyeHeight() * ATTACH_DETACH_CONSTANT;
+    var attachDistance;
 
     var attachFunction = function(){
         attachDistance = MyAvatar.getEyeHeight() * ATTACH_DETACH_CONSTANT;
@@ -144,6 +144,7 @@
                     localOnly: true
                 });
             }
+            attachDistance = MyAvatar.getEyeHeight() * ATTACH_DETACH_CONSTANT;            
         },
         continueNearGrab: function(entity, args) {
             _isNearGrabbingWithHand = true;
