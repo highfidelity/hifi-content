@@ -47,7 +47,7 @@
                 y: -4,
                 z: 0
             },
-            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[51] + '.jpg"}',
+            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/CARD_' + cards[51] + '.jpg"}',
             "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
             "dimensions": {
                 x: .07,
@@ -70,7 +70,7 @@
             },
             "collisionless": false,
             "collidesWith": "static,dynamic",
-            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsAssets/master_card.fbx",
             name: "CARD_" + cards[51],
             shapeType: "box",
             "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
@@ -81,7 +81,7 @@
             "type": "Model", 
             "lifetime": -1, 
             "dynamic": false,
-            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_0.jpg"}',
+            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/CARD_0.jpg"}',
             "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
             "dimensions": {
                 x: .07,
@@ -97,7 +97,7 @@
             "position": deckLocation,
             "collisionless": false,
             "collidesWith": "dynamic",
-            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsAssets/master_card.fbx",
             name: "CARD_DECK",
             shapeType: "box",
         };
@@ -155,36 +155,62 @@
         if (data[0] == true) {
             var cardName = Entities.getEntityProperties(data[1]).name;
             var usability = {
-               textures: '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/' + cardName + '.jpg"}',
+               textures: '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/' + cardName + '.jpg"}',
             };
             Entities.editEntity(data[1], usability);
         } else if (data[0] == false) {
             var showChannel = "show-channel".concat(data[1]); 
-            var dataToPassBack = [data[2], data[3], data[4]];
+            var dataToPassBack = [data[2], data[3], data[1]];
             Messages.sendMessage(showChannel, JSON.stringify(dataToPassBack));
             var cardName = Entities.getEntityProperties(data[1]).name;
-            if ((("CARD_" + cards[lastCard - 1]) == cardName) && (lastCard != 0)) {
+            if ((("CARD_" + cards[lastCard - 1]) == cardName) && (lastCard != 1)) {
                 --lastCard;
-                //give them time to pickup the card before you spawn a new one
-                Script.setTimeout( function() {
-                    var cardProperties = {
-                        "type": "Model", 
-                        "lifetime": -1, 
-                        "dynamic": true,
-                        "damping": 0.98,
-                        "angularDamping": 0.98,
-                        "gravity": {
-                            x: 0,
-                            y: -4,
-                            z: 0
+                //spawn card but make it inactive, do this because if a player grabs cards from the deck too fast the scripts dont load on time and it causes confusion.
+                var cardProperties = {
+                    "type": "Model",
+                    "lifetime": -1,
+                    "dynamic": true,
+                    "damping": 0.98,
+                    "angularDamping": 0.98,
+                    "visible": false,
+                    "gravity": {
+                        x: 0,
+                        y: -4,
+                        z: 0
+                    },
+                    "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/CARD_' + cards[lastCard - 1] + '.jpg"}',
+                    "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, { x: 1, y: 0, z: 0 })),
+                    "dimensions": {
+                        x: .07,
+                        y: .12,
+                        z: .006
+                    },
+                    userData: JSON.stringify({
+                        grabbableKey: {
+                            grabbable: false,
+                            ignoreIK: false
                         },
-                        "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[lastCard - 1] + '.jpg"}',
-                        "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
-                        "dimensions": {
-                            x: .07,
-                            y: .12,
-                            z: .006
-                        },
+                        "held": false,
+                        "card": true,
+                        "deckHandlerID": _this.entityID
+                    }),
+                    "position": {
+                        x: deckLocation.x,
+                        y: deckLocation.y + (.053 + .003),
+                        z: deckLocation.z
+                    },
+                    "collisionless": false,
+                    "collidesWith": "",
+                    "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsAssets/master_card.fbx",
+                    name: "CARD_" + cards[lastCard - 1],
+                    shapeType: "box",
+                    "script": Script.resolvePath("./Card.js") + "?" + Date.now()
+                };
+                var temporaryIDHolder = Entities.addEntity(cardProperties)
+                cardIDs.push(temporaryIDHolder);
+                //activate the card
+                Script.setTimeout(function () {
+                    var allowPickup = {
                         userData: JSON.stringify({
                             grabbableKey: {
                                 grabbable: true,
@@ -194,23 +220,13 @@
                             "card": true,
                             "deckHandlerID": _this.entityID
                         }),
-                        "position": {
-                            x: deckLocation.x,
-                            y: deckLocation.y + (.053 + .003),
-                            z: deckLocation.z
-                        },
-                        "collisionless": false,
                         "collidesWith": "static,dynamic",
-                        "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
-                        name: "CARD_" + cards[lastCard - 1],
-                        shapeType: "box",
-                        "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
+                        "visible": true
                     };
-                    cardIDs.push(Entities.addEntity(cardProperties));
+                    Entities.editEntity(temporaryIDHolder, allowPickup);
                 }, 1000);
             }
         }
-
     }
 
     function Shuffle(array) {
@@ -249,7 +265,7 @@
                 y: -4,
                 z: 0
             },
-            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsTexture/CARD_' + cards[51] + '.jpg"}',
+            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/CARD_' + cards[51] + '.jpg"}',
             "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
             "dimensions": {
                 x: .07,
@@ -272,7 +288,7 @@
             },
             "collisionless": false,
             "collidesWith": "static,dynamic",
-            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/DeckOfCards/DeckOfCardsAssets/master_card.fbx",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsAssets/master_card.fbx",
             name: "CARD_" + cards[51],
             shapeType: "box",
             "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
@@ -286,6 +302,6 @@
     _this.unload = function () {
         Messages.unsubscribe(cardChannel);
         Messages.unsubscribe(resetChannel);
-        Messages.messageReceived.connect(_this, _this.onReceivedMessage);
+        Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);
     };
 })
