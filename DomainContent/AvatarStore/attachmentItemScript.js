@@ -10,28 +10,28 @@
 (function() {
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/attach_sound_1.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/detach.wav'));
-
+    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var ATTACH_DISTANCE = 0.35;
     var DETACH_DISTANCE = 0.5;
     var AUDIO_VOLUME_LEVEL = 0.2;
     var RELEASE_LIFETIME = 60;
-
+    var LIST_NAME = "highlightList1";
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
-
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
-
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+  
     var messageChannel;
-    
+    var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached;
-
     var firstGrab = true;
     var isHandOrArm = false;
+    var prevID = 0;
+    var listType = "entity";
 
     /**
      * 
@@ -61,6 +61,9 @@
     AttachableItem.prototype = {
         preload : function(entityID) {
             _entityID = entityID;
+            highlightConfig["selectionName"] = LIST_NAME; 
+            Selection.clearSelectedItemsList(LIST_NAME);
+            HIGHLIGHT.changeHighlight1(highlightConfig);
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
             var userData = JSON.parse(properties.userData);
             _attachmentData = userData.Attachment;
@@ -77,7 +80,7 @@
             } else {
                 _supportedJoints.push(_attachmentData.joint);
             }
-
+            
             isAttached = _attachmentData.attached;
 
             if (Entities.getNestableType(properties.parentID) !== "avatar" && !isAttached) {
@@ -88,6 +91,15 @@
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
         },
         startNearGrab: function(entityID, args) {
+            if (prevID !== entityID) {
+                
+                // TODO this should be moved away from the wearable entities--only needs to run once?
+                // not sure where is best to place it...on the store itself?
+                
+                Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
+                prevID = entityID;
+            }
+
             if (firstGrab) {
                 if (!Entities.getEntityProperties(entityID, 'visible').visible) {
                     Entities.editEntity(entityID, {visible: true});
@@ -99,6 +111,11 @@
         releaseGrab: function(entityID, args) {
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
+
+            if (prevID !== 0) {
+                Selection.removeFromSelectedItemsList(LIST_NAME, listType, prevID);
+                prevID = 0;
+            }
 
             if (Entities.getNestableType(properties.parentID) === "entity") {
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
@@ -162,7 +179,7 @@
                     }
                     Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                 }
-            } 
+            }
         }
     };
     return new AttachableItem(); 
