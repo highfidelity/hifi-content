@@ -15,13 +15,13 @@
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound7.wav'));
 
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
-    var ATTACH_DISTANCE = 0.35;
     var RELEASE_LIFETIME = 10;
 
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
 
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
+    var ATTACH_SCALE = 3;
 
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
     var messageChannel;
@@ -34,7 +34,12 @@
 
     var firstGrab = true;
 
-    var attachDistance = ATTACH_DISTANCE;
+    var attachDistance;
+
+    var attachFunction = function() {
+        attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
+    };
+
     var lastDesktopSupportedJointIndex = -1;
 
     var playAttachSound = function() {
@@ -74,10 +79,11 @@
             }
 
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
-            // MyAvatar.scaleChanged.connect(attachFunction);
+            MyAvatar.scaleChanged.connect(attachFunction);
+            attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
         },
         unload: function() {
-            // MyAvatar.scaleChanged.disconnect(attachFunction);
+            MyAvatar.scaleChanged.disconnect(attachFunction);
         },
         /**
          * Local remote function to be called from desktopAttachment.js whenever a click event is registered.
@@ -131,6 +137,7 @@
                     Entities.editEntity(entityID, {visible: true});
                 }
                 firstGrab = false;
+                attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
             }
             if (GRAB_SOUND.downloaded) {
                 Audio.playSound(GRAB_SOUND, {
