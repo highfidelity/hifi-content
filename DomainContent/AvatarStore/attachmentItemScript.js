@@ -19,22 +19,18 @@
     var LIST_NAME = "highlightList1";
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
-
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
-
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+  
     var messageChannel;
     var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached;
-
     var firstGrab = true;
     var isHandOrArm = false;
-
     var prevID = 0;
-    
     var listType = "entity";
 
     /**
