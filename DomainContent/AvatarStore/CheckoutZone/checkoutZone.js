@@ -10,6 +10,7 @@
 //  This zone will provide an area at which a user may purchase an item. When the avatar enters the zone wearing a 
 //  marketplace item, the item will appear as a small overlay. Scanning the overlay will cause the 
 //  the tablet to open to the marketplace home page for that item, allowing the user to quickly make the purchase.
+/* global Render, Selection */
 (function () {
     var SHARED = Script.require('./attachmentZoneShared.js');
     var ITEM_HEIGHT = 0.1;
@@ -17,7 +18,6 @@
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
-    
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     
@@ -29,26 +29,12 @@
     var replicaStoredTransforms = {};
     var left = true;
     var button;
-    var checkoutOutlineConfig;
     var recycleBinID;
     var scannerZone;
 
     this.preload = function(entityID) {
         zoneID = entityID;
-        changeHighlight1();
     };
-
-    var changeHighlight1 = (function() {
-        checkoutOutlineConfig = Render.getConfig("RenderMainView.OutlineEffect1");
-        checkoutOutlineConfig["glow"] = true;
-        checkoutOutlineConfig["width"] = 7;
-        checkoutOutlineConfig["intensity"] = 0.8;
-        checkoutOutlineConfig["colorR"] = 0.18;
-        checkoutOutlineConfig["colorG"] = 0.61;
-        checkoutOutlineConfig["colorB"] = 0.86;
-        checkoutOutlineConfig["unoccludedFillOpacity"] = 0;
-        checkoutOutlineConfig["occludedFillOpacity"] = 0;      
-    });
 
     var getTransformForMarketplaceItems = function() {
         return Settings.getValue(TRANSFORMS_SETTINGS, {});
@@ -82,7 +68,6 @@
     };
 
     // Get info on checkout stand so we can place copies of items on it for purchasing
-    // Find the position of the top of the stand at one end
     var collectZoneData = (function(){
         var zoneChildren = Entities.getChildrenIDs(zoneID);
         zoneChildren.forEach(function (childID) {
@@ -132,7 +117,8 @@
             dimensions: entityProperties.dimensions
         };
         var scale = (ITEM_HEIGHT / overlayProperties.dimensions.y);
-        if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
+        if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || 
+            (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
             overlayProperties.dimensions.y = ITEM_HEIGHT;
             overlayProperties.dimensions.x *= scale;
             overlayProperties.dimensions.z *= scale;
@@ -140,7 +126,8 @@
         // check that the item is not too large
         var maxItemSize = 0.175;
         var scaleReduction = 0.95;
-        while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize || overlayProperties.dimensions.y > maxItemSize) {
+        while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize || 
+                overlayProperties.dimensions.y > maxItemSize) {
             scale *= scaleReduction;
             overlayProperties.dimensions.y *= scale;
             overlayProperties.dimensions.x *= scale;

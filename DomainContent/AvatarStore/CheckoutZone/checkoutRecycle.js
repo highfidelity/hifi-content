@@ -13,40 +13,30 @@
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
     var SEARCH_RADIUS = 2;
-    var LIST_NAME = "contextOverlayHighlightList2";
+    var LIST_NAME = "highlightList2";
     var RECYLCE_CHECK_INTERVAL_MS = 1000;
+    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
     
     var prevID = 0;
     var recyclePosition;
     var tableID;
     var recycleProperties;
-    var checkoutOutlineConfig;
     var overlayInBin = null;
     var currentEntityMatch = null;
     var interval;
-    
+    var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
 
     var Recycle = function() {
-        
     };
 
     Recycle.prototype = {
         preload: function(entityID) {
+            highlightConfig["selectionName"] = LIST_NAME; 
             Selection.clearSelectedItemsList(LIST_NAME);
+            HIGHLIGHT.changeHighlight2(highlightConfig);
             recycleProperties = Entities.getEntityProperties(entityID, ['position', 'parentID']);
             recyclePosition = recycleProperties.position;
             tableID = recycleProperties.parentID;
-        },
-        changeHighlight2: function() {
-            checkoutOutlineConfig = Render.getConfig("RenderMainView.OutlineEffect2");
-            checkoutOutlineConfig["glow"] = true;
-            checkoutOutlineConfig["width"] = 7;
-            checkoutOutlineConfig["intensity"] = 0.8;
-            checkoutOutlineConfig["colorR"] = 0.92;
-            checkoutOutlineConfig["colorG"] = 0.34;
-            checkoutOutlineConfig["colorB"] = 0.34;
-            checkoutOutlineConfig["unoccludedFillOpacity"] = 0;
-             
         },
         enterCheckout: function() {
             interval = Script.setInterval(function() {
@@ -104,7 +94,6 @@
             Script.clearInterval(interval);
         }
     };
-    var recycleClientScript = new Recycle();
-    recycleClientScript.changeHighlight2();
-    return recycleClientScript;
+    
+    return new Recycle();
 });

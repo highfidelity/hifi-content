@@ -18,27 +18,29 @@
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
     var CHECKOUT_INTERVAL_MS = 1000;
-    var LIST_NAME = "contextOverlayHighlightList3";
+    var LIST_NAME = "highlightList3";
     var SEARCH_RADIUS = 2;
+    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
 
     var interval;
     var properties;
     var checkoutZoneID;
-    var checkoutOutlineConfig;
     var scannedMPOverlays = {};
     var prevID = 0;
     var matchingEntity;
     var overlayInScanner;
     var tableID;
     var name;
-
+    var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
     var Scanner = function() {
         
     };
 
     Scanner.prototype = {
         preload: function(entityID) {
+            highlightConfig["selectionName"] = LIST_NAME; 
             Selection.clearSelectedItemsList(LIST_NAME);
+            HIGHLIGHT.changeHighlight3(highlightConfig);
             properties = Entities.getEntityProperties(entityID, ['position', 'parentID']);
             tableID = properties.parentID;
             checkoutZoneID = Entities.getEntityProperties(tableID, 'parentID').parentID;
@@ -55,16 +57,6 @@
                 }
             }
         },
-        changeHighlight3: (function() {
-            checkoutOutlineConfig = Render.getConfig("RenderMainView.OutlineEffect3");
-            checkoutOutlineConfig["glow"] = true;
-            checkoutOutlineConfig["width"] = 7;
-            checkoutOutlineConfig["intensity"] = 0.8;
-            checkoutOutlineConfig["colorR"] = 0.15;
-            checkoutOutlineConfig["colorG"] = 0.68;
-            checkoutOutlineConfig["colorB"] = 0.37;
-            checkoutOutlineConfig["unoccludedFillOpacity"] = 0;        
-        }),
         enterCheckout: function(entityID) {
             interval = Script.setInterval(function() {
                 var overlays = Overlays.findOverlays(properties.position, SCAN_RADIUS);
@@ -86,7 +78,7 @@
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInScanner) !== -1) {
                     if (Overlays.getProperty(overlayInScanner, 'parentID')) { // if item has parentID
                         if (Overlays.getProperty(overlayInScanner, 'parentID') === tableID) { 
-                            // if item in Scanner is not being held 
+                            // if item in Scanner is not being grabbed anymore
                             name = Overlays.getProperty(overlayInScanner, 'name');
                             Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
                             Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
@@ -101,7 +93,7 @@
                             overlayInScanner = null;
                         }
                     }
-                } else if (overlays.length > 0 && !overlayInScanner) { // check new overlays in Scanner
+                } else if (overlays.length > 0 && !overlayInScanner) { // check for new overlays in Scanner
                     overlays.forEach(function(overlayID) {
                         name = Overlays.getProperty(overlayID, 'name');
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {
@@ -130,7 +122,6 @@
             Entities.addingEntity.disconnect(this.onEntityAdded);
         }
     };
-    var scannerScript = new Scanner();
-    scannerScript.changeHighlight3();
-    return scannerScript;
+    
+    return new Scanner();
 });
