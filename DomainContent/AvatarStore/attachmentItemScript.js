@@ -9,21 +9,26 @@
 //
 /* global Render, Selection */
 
-var highlightToggle = false;
+
 
 (function() {
-    var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/attach_sound_1.wav'));
-    var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/detach.wav'));
+    var highlightToggle = false;
+  
+    var GRAB_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound1.wav'));
+    var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
+    var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound7.wav'));
     var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
+    var SHARED = Script.require('./attachmentZoneShared.js');
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var ATTACH_DISTANCE = 0.35;
     var DETACH_DISTANCE = 0.5;
     var AUDIO_VOLUME_LEVEL = 0.2;
-    var RELEASE_LIFETIME = 60;
+    var RELEASE_LIFETIME = 10;
     var LIST_NAME = "highlightList1";
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
+    var ATTACH_SCALE = 3;
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
   
     var messageChannel;
@@ -31,10 +36,12 @@ var highlightToggle = false;
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
+    var _isNearGrabbingWithHand = false;
     var isAttached;
     var firstGrab = true;
     var prevID = 0;
     var listType = "entity";
+    var attachDistance;
 
     /**
      * 
@@ -50,17 +57,27 @@ var highlightToggle = false;
         } catch (e) {
             print('Something went wrong while trying to touch/modify the userData. Could be invalid JSON or problem with the callback function.');
         }
+
+    var attachFunction = function() {
+        attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
+
     };
 
-    /**
-     * This callback is displayed as a global member.
-     * @callback touchJSONUserDataCallback
-     * @param {Object} userData
-     */
+    var lastDesktopSupportedJointIndex = -1;
 
+    var playAttachSound = function() {
+        if (ATTACH_SOUND.downloaded) {
+            Audio.playSound(ATTACH_SOUND, {
+                position: MyAvatar.position,
+                volume: shared.AUDIO_VOLUME_LEVEL,
+                localOnly: true
+            });
+        }
+    };
     function AttachableItem() {
 
     }
+
     AttachableItem.prototype = {
         preload : function(entityID) {
             _entityID = entityID;
@@ -90,6 +107,57 @@ var highlightToggle = false;
             }
 
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
+            MyAvatar.scaleChanged.connect(attachFunction);
+            attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
+        },
+        unload: function() {
+            MyAvatar.scaleChanged.disconnect(attachFunction);
+        },
+        /**
+         * Local remote function to be called from desktopAttachment.js whenever a click event is registered.
+         * @param entityID current entityID
+         * @param args array of arguments to be passed in from remote server
+         */
+        desktopAttach: function(entityID, args) {
+            var newEntityProperties = Entities.getEntityProperties(_entityID, ['dimensions', 'userData']);
+            var attachmentData = null;
+            shared.touchJSONUserData(newEntityProperties, function(userData) {
+                userData.Attachment.attached = true;
+                attachmentData = userData.Attachment;
+            });
+            lastDesktopSupportedJointIndex = (lastDesktopSupportedJointIndex + 1) % _supportedJoints.length;
+            
+            var defaultPosition = {x: 0, y: 0, z: 0};
+            if (attachmentData.defaultPosition !== undefined) {
+                defaultPosition = attachmentData.defaultPosition;
+            }
+            var defaultRotation = {x: 0, y: 0, z: 0, w: 1};
+            if (attachmentData.defaultRotation !== undefined) {
+                defaultRotation = attachmentData.defaultRotation;
+            }
+            var defaultDimensions = newEntityProperties.dimensions;
+            if (attachmentData.defaultDimensions !== undefined) {
+                defaultDimensions = attachmentData.defaultDimensions;
+            }
+            var jointIndex = MyAvatar.getJointIndex(_supportedJoints[lastDesktopSupportedJointIndex]);
+            if (jointIndex === -1) {
+                // fail when no joint index is found and delete entity since a new one is being created already.
+                Entities.deleteEntity(_entityID);
+                return;
+            }
+
+            // Finally, if all worked out, set the attachment properties.
+            Entities.editEntity(_entityID, {
+                visible: true,
+                localPosition: defaultPosition,
+                localRotation: defaultRotation,
+                dimensions: defaultDimensions,
+                parentID: MyAvatar.sessionUUID,
+                parentJointIndex: jointIndex,
+                userData: newEntityProperties.userData,
+                lifetime: -1
+            });
+            playAttachSound();
         },
         startNearGrab: function(entityID, args) {
             if (prevID !== entityID) {
@@ -104,12 +172,26 @@ var highlightToggle = false;
             if (firstGrab) {
                 if (!Entities.getEntityProperties(entityID, 'visible').visible) {
                     Entities.editEntity(entityID, {visible: true});
-                } 
+                }
                 firstGrab = false;
+                attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
+            }
+            if (GRAB_SOUND.downloaded) {
+                Audio.playSound(GRAB_SOUND, {
+                    position: MyAvatar.position,
+                    volume: shared.AUDIO_VOLUME_LEVEL,
+                    localOnly: true
+                });
             }
         },
-            
+        continueNearGrab: function(entity, args) {
+            _isNearGrabbingWithHand = true;
+        },
         releaseGrab: function(entityID, args) {
+            if (!_isNearGrabbingWithHand) {
+                return;
+            }
+            _isNearGrabbingWithHand = false;
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
 
@@ -120,7 +202,7 @@ var highlightToggle = false;
 
             if (Entities.getNestableType(properties.parentID) === "entity") {
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
-                Messages.unsubscribe(messageChannel); 
+                Messages.unsubscribe(messageChannel);
                 Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
             }
 
@@ -128,17 +210,16 @@ var highlightToggle = false;
             var position = properties.position; 
             var attachmentData = JSON.parse(userData).Attachment;
             isAttached = attachmentData.attached;
-
             if (!isAttached) {
                 _supportedJoints.forEach(function(joint) {
                     var jointPosition = MyAvatar.getJointPosition(joint);
-                    if (Vec3.distance(position, jointPosition) <= ATTACH_DISTANCE) {
+                    if (Vec3.distance(position, jointPosition) <= attachDistance) {
                         // Check that we are not holding onto an arm attachment in a hand
                         if (joint.toLowerCase().indexOf(hand) !== -1) {
                             return;
                         }
                         var newEntityProperties = Entities.getEntityProperties(_entityID, 'userData');
-                        touchJSONUserData(newEntityProperties, function(userData) {
+                        shared.touchJSONUserData(newEntityProperties, function(userData) {
                             userData.Attachment.attached = true;
                         });
                         Entities.editEntity(_entityID, {
@@ -147,13 +228,8 @@ var highlightToggle = false;
                             userData: newEntityProperties.userData,
                             lifetime: -1
                         });
-                        if (ATTACH_SOUND.downloaded) {
-                            Audio.playSound(ATTACH_SOUND, {
-                                position: MyAvatar.position,
-                                volume: AUDIO_VOLUME_LEVEL,
-                                localOnly: true
-                            });
-                        }
+                        playAttachSound();
+                        isAttached = true;
                         Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                     }
                 }); 
@@ -161,9 +237,9 @@ var highlightToggle = false;
                 var jointPosition = (properties.parentID === MyAvatar.sessionUUID) ? 
                     MyAvatar.getJointPosition(properties.parentJointIndex) : 
                     AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
-                if (Vec3.distance(position, jointPosition) > DETACH_DISTANCE) {
+                if (Vec3.distance(position, jointPosition) > attachDistance) {
                     var newDetachEntityProperties = Entities.getEntityProperties(entityID);
-                    touchJSONUserData(newDetachEntityProperties, function(userData) {
+                    shared.touchJSONUserData(newDetachEntityProperties, function(userData) {
                         userData.Attachment.attached = false;
                     });
                     Entities.editEntity(_entityID, {
@@ -174,7 +250,7 @@ var highlightToggle = false;
                     if (DETACH_SOUND.downloaded) {
                         Audio.playSound(DETACH_SOUND, {
                             position: MyAvatar.position,
-                            volume:AUDIO_VOLUME_LEVEL,
+                            volume: shared.AUDIO_VOLUME_LEVEL,
                             localOnly: true
                         });
                     }

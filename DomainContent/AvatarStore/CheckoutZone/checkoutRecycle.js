@@ -9,18 +9,17 @@
 //  This script acts on the recycle zone to delete an item replica when it is placed in the bin..
 /* global Selection, Render */
 
-<<<<<<< HEAD
-var highlightToggle = false;
-
-=======
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
 (function() {
+    var highlightToggle = false;
+  
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
     var SEARCH_RADIUS = 2;
     var LIST_NAME = "highlightList2";
     var RECYLCE_CHECK_INTERVAL_MS = 500;
     var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
+    var SHARED = Script.require('../attachmentZoneShared.js');
+    var RECYCLE_OVERLAY_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound4.wav"));
     
     var prevID = 0;
     var recycleBin;
@@ -75,6 +74,13 @@ var highlightToggle = false;
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInBin);
                                 prevID = 0;
                             }
+                          if (RECYCLE_OVERLAY_SOUND.downloaded) {
+                            Audio.playSound(RECYCLE_OVERLAY_SOUND, {
+                                position: MyAvatar.position,
+                                volume: shared.AUDIO_VOLUME_LEVEL,
+                                localOnly: true
+                            });
+                        }
                             Entities.deleteEntity(currentEntityMatch);
                             Overlays.deleteOverlay(overlayInBin);
                             overlayInBin = null;
@@ -111,7 +117,4 @@ var highlightToggle = false;
     };
     
     return new Recycle();
-<<<<<<< HEAD
 });
-=======
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b

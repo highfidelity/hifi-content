@@ -12,18 +12,16 @@
 //  the tablet to open to the marketplace home page for that item, allowing the user to quickly make the purchase.
 /* global Render, Selection, Wallet */
 
-<<<<<<< HEAD
-var highlightToggle = false;
-
-=======
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
 (function () {
+  var highlightToggle = false;
+  
     var SHARED = Script.require('../attachmentZoneShared.js');
     var MAX_ITEMS = 12;
     var ITEM_HEIGHT = 0.07;
     var HALF = 0.5;
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
+    var ENTER_ZONE_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound5.wav"));
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
@@ -97,15 +95,9 @@ var highlightToggle = false;
                 var verticalSpace = -0.015;
                 spawnY = halfTableHeight + verticalSpace;
                 var halfTableLength = HALF * tableLength;
-<<<<<<< HEAD
                 var zOffset = 0.3;
                 spawnZ = (halfTableLength - ITEM_HEIGHT + zOffset);
                 var xOffset = -0.05;
-=======
-                var zOffset = 0.18;
-                spawnZ = (halfTableLength - ITEM_HEIGHT + zOffset);
-                var xOffset = -0.05
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
                 spawnX = xOffset;
                 return;
             }
@@ -138,12 +130,7 @@ var highlightToggle = false;
             localPosition: {x: spawnX, y: spawnY, z: spawnZ},
             localRotation: Quat.fromVec3Degrees(OVERLAY_ROTATIONAL_OFFSET),
             // clone dimensions so we can alter it without messing up the original entities dimensions
-<<<<<<< HEAD
-            dimensions: entityProperties.dimensions,
-            drawInFront: false
-=======
             dimensions: entityProperties.dimensions
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
         };
         var scale = (ITEM_HEIGHT / overlayProperties.dimensions.y);
         if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || 
@@ -249,6 +236,13 @@ var highlightToggle = false;
     _this.enterEntity = (function (entityID) {
         replicaList = [];
         collectZoneData();
+        if (ENTER_ZONE_SOUND.downloaded) {
+            Audio.playSound(ENTER_ZONE_SOUND, {
+                position: MyAvatar.position,
+                volume: SHARED.AUDIO_VOLUME_LEVEL,
+                localOnly: true
+            });
+        }
         Entities.callEntityMethod(recycleBinID, 'enterCheckout');
         Entities.callEntityMethod(scannerZone, 'enterCheckout');
         setupApp();
@@ -258,20 +252,12 @@ var highlightToggle = false;
         var avatarChildEntities = [];
         avatarChildEntities = SHARED.getAvatarChildEntities(MyAvatar);
         avatarChildEntities.forEach(function (entityID) {
-<<<<<<< HEAD
-=======
-            var maxItems = 10;
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
             if (replicaList.length < MAX_ITEMS){
                 var childUserData = Entities.getEntityProperties(entityID, 'userData').userData;
                 var isAttachment = childUserData.indexOf("attached\":true");
                 var marketplaceID = Entities.getEntityProperties(entityID, 'marketplaceID').marketplaceID;
                 if (marketplaceID && (isAttachment !== -1)) {
                     spawnOverlayReplica(entityID);
-<<<<<<< HEAD
-=======
-                    spawnOverlayReplica(entityID);
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
                     var xOff = 0.005;
                     var yOff = 0.1;
                     if (left) {
@@ -300,14 +286,6 @@ var highlightToggle = false;
             localRotation: Quat.fromVec3Degrees(TABLET_ROTATIONAL_OFFSET)
         };
         Overlays.editOverlay(HMD.tabletID, tabletTransform);
-<<<<<<< HEAD
-=======
-        var tabletTransform = {
-            parentID: tableID,
-            localPosition: { x: 0.01, y: 0.9, z: -0.6 },
-            localRotation: Quat.fromVec3Degrees({ x: 10, y: 240, z: 0 })
-        };
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
         var tabletTransformInterval = Script.setInterval(function() {
             Overlays.editOverlay(HMD.tabletID, tabletTransform);
         }, MAKING_SURE_INTERVAL);
