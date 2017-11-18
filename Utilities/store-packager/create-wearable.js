@@ -27,7 +27,6 @@
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');    
 
     function handleMousePress(entityID) {
-        print("Clicked: " + entityID);
         if (prevID !== entityID) {
             Selection.addToSelectedItemsList(listName, listType, entityID);
             prevID = entityID;
