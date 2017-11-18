@@ -7,37 +7,60 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+/* global Render, Selection */
+
+
+
 (function() {
-    var shared = Script.require('./attachmentZoneShared.js');
-    
+    var highlightToggle = false;
+  
     var GRAB_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound1.wav'));
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound7.wav'));
-
+    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
+    var SHARED = Script.require('./attachmentZoneShared.js');
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
+    var ATTACH_DISTANCE = 0.35;
+    var DETACH_DISTANCE = 0.5;
+    var AUDIO_VOLUME_LEVEL = 0.2;
     var RELEASE_LIFETIME = 10;
-
+    var LIST_NAME = "highlightList1";
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
-
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
     var ATTACH_SCALE = 3;
-
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+  
     var messageChannel;
-
+    var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
     var _isNearGrabbingWithHand = false;
     var isAttached;
-
     var firstGrab = true;
-
+    var prevID = 0;
+    var listType = "entity";
     var attachDistance;
+
+    /**
+     * 
+     * @param {Object} entityProperties 
+     * @param {touchJSONUserDataCallback} touchCallback 
+     */
+    var touchJSONUserData = function(entityProperties, touchCallback) {
+        try {
+            // attempt to touch the userData
+            var userData = JSON.parse(entityProperties.userData);
+            touchCallback.call(this, userData);
+            entityProperties.userData = JSON.stringify(userData);
+        } catch (e) {
+            print('Something went wrong while trying to touch/modify the userData. Could be invalid JSON or problem with the callback function.');
+        }
 
     var attachFunction = function() {
         attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
+
     };
 
     var lastDesktopSupportedJointIndex = -1;
@@ -58,6 +81,11 @@
     AttachableItem.prototype = {
         preload : function(entityID) {
             _entityID = entityID;
+            if (highlightToggle) {
+                highlightConfig["selectionName"] = LIST_NAME; 
+                Selection.clearSelectedItemsList(LIST_NAME);
+                HIGHLIGHT.changeHighlight1(highlightConfig);
+            }
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
             var userData = JSON.parse(properties.userData);
             _attachmentData = userData.Attachment;
@@ -70,7 +98,7 @@
             } else {
                 _supportedJoints.push(_attachmentData.joint);
             }
-
+            
             isAttached = _attachmentData.attached;
 
             if (Entities.getNestableType(properties.parentID) !== "avatar" && !isAttached) {
@@ -132,6 +160,15 @@
             playAttachSound();
         },
         startNearGrab: function(entityID, args) {
+            if (prevID !== entityID) {
+                
+                // TODO this should be moved away from the wearable entities--only needs to run once?
+                // not sure where is best to place it...on the store itself?
+                
+                Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
+                prevID = entityID;
+            }
+
             if (firstGrab) {
                 if (!Entities.getEntityProperties(entityID, 'visible').visible) {
                     Entities.editEntity(entityID, {visible: true});
@@ -157,6 +194,11 @@
             _isNearGrabbingWithHand = false;
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
+
+            if (prevID !== 0) {
+                Selection.removeFromSelectedItemsList(LIST_NAME, listType, prevID);
+                prevID = 0;
+            }
 
             if (Entities.getNestableType(properties.parentID) === "entity") {
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
@@ -214,7 +256,7 @@
                     }
                     Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                 }
-            } 
+            }
         }
     };
     return new AttachableItem(); 

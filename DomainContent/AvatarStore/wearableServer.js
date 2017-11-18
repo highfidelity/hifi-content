@@ -35,11 +35,13 @@
                 userData: properties.userData,
                 parentID: entityID,
                 modelURL : properties.modelURL,
-                script: Script.resolvePath("attachmentItemScript.js"),
+                script: "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/withHighlights/attachmentItemScript.js",
                 lifetime: CLONE_LIFETIME,
                 visible: false,
                 shapeType: "box",
+
                 collidesWith: "dynamic,"
+
             };
             messageHandler = function(channel, data, sender) {
                 if (channel === messageChannel) {
