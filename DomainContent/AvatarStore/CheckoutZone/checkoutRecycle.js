@@ -9,8 +9,11 @@
 //  This script acts on the recycle zone to delete an item replica when it is placed in the bin..
 /* global Selection, Render */
 
+<<<<<<< HEAD
 var highlightToggle = false;
 
+=======
+>>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
 (function() {
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
@@ -108,4 +111,7 @@ var highlightToggle = false;
     };
     
     return new Recycle();
+<<<<<<< HEAD
 });
+=======
+>>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
