@@ -10,7 +10,7 @@
 (function() {
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
     var CLONE_LIFETIME = 300;
-    var UPDATE_INTERVAL = 1000;
+    var UPDATE_INTERVAL = 10000;
 
     var messageChannel;
 

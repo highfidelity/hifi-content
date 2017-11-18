@@ -7,6 +7,10 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+/* global Render */
+
+var highlightToggle = false;
+
 (function() {
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/attach_sound_1.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sound/detach.wav'));
@@ -19,22 +23,17 @@
     var LIST_NAME = "highlightList1";
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
-
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
-
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+  
     var messageChannel;
     var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
     var isAttached;
-
     var firstGrab = true;
-    var isHandOrArm = false;
-
     var prevID = 0;
-    
     var listType = "entity";
 
     /**
@@ -65,9 +64,11 @@
     AttachableItem.prototype = {
         preload : function(entityID) {
             _entityID = entityID;
-            highlightConfig["selectionName"] = LIST_NAME; 
-            Selection.clearSelectedItemsList(LIST_NAME);
-            HIGHLIGHT.changeHighlight1(highlightConfig);
+            if (highlightToggle) {
+                highlightConfig["selectionName"] = LIST_NAME; 
+                Selection.clearSelectedItemsList(LIST_NAME);
+                HIGHLIGHT.changeHighlight1(highlightConfig);
+            }
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
             var userData = JSON.parse(properties.userData);
             _attachmentData = userData.Attachment;
@@ -77,10 +78,6 @@
                 var baseJoint = _attachmentData.joint.substring(4);
                 _supportedJoints.push("Left".concat(baseJoint));
                 _supportedJoints.push("Right".concat(baseJoint));
-                if (_attachmentData.joint.indexOf('Arm') !== -1 ||
-                    _attachmentData.joint.indexOf('Hand') !== -1) {
-                    isHandOrArm = true;
-                }
             } else {
                 _supportedJoints.push(_attachmentData.joint);
             }
