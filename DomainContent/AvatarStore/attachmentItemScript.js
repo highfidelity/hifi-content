@@ -7,41 +7,37 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-/* global Render, Selection */
-
 (function() {
-    var highlightToggle = false;
-  
+    var shared = Script.require('./attachmentZoneShared.js');
+    
     var GRAB_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound1.wav'));
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound7.wav'));
-    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
-    var SHARED = Script.require('./attachmentZoneShared.js');
+
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var RELEASE_LIFETIME = 10;
-    var LIST_NAME = "highlightList1";
+
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
+
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
     var ATTACH_SCALE = 3;
+
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
-  
     var messageChannel;
-    var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
+
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
     var _isNearGrabbingWithHand = false;
     var isAttached;
-    var firstGrab = true;
-    var prevID = 0;
-    var listType = "entity";
-    var attachDistance;
 
+    var firstGrab = true;
+
+    var attachDistance;
 
     var attachFunction = function() {
         attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
-
     };
 
     var lastDesktopSupportedJointIndex = -1;
@@ -50,12 +46,11 @@
         if (ATTACH_SOUND.downloaded) {
             Audio.playSound(ATTACH_SOUND, {
                 position: MyAvatar.position,
-                volume: SHARED.AUDIO_VOLUME_LEVEL,
+                volume: shared.AUDIO_VOLUME_LEVEL,
                 localOnly: true
             });
         }
     };
-
     function AttachableItem() {
 
     }
@@ -63,11 +58,6 @@
     AttachableItem.prototype = {
         preload : function(entityID) {
             _entityID = entityID;
-            if (highlightToggle) {
-                highlightConfig["selectionName"] = LIST_NAME; 
-                Selection.clearSelectedItemsList(LIST_NAME);
-                HIGHLIGHT.changeHighlight1(highlightConfig);
-            }
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
             var userData = JSON.parse(properties.userData);
             _attachmentData = userData.Attachment;
@@ -80,7 +70,7 @@
             } else {
                 _supportedJoints.push(_attachmentData.joint);
             }
-            
+
             isAttached = _attachmentData.attached;
 
             if (Entities.getNestableType(properties.parentID) !== "avatar" && !isAttached) {
@@ -103,7 +93,7 @@
         desktopAttach: function(entityID, args) {
             var newEntityProperties = Entities.getEntityProperties(_entityID, ['dimensions', 'userData']);
             var attachmentData = null;
-            SHARED.touchJSONUserData(newEntityProperties, function(userData) {
+            shared.touchJSONUserData(newEntityProperties, function(userData) {
                 userData.Attachment.attached = true;
                 attachmentData = userData.Attachment;
             });
@@ -142,12 +132,6 @@
             playAttachSound();
         },
         startNearGrab: function(entityID, args) {
-            if (highlightToggle) {
-                if (prevID !== entityID) {
-                    Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
-                    prevID = entityID;
-                }
-            }
             if (firstGrab) {
                 if (!Entities.getEntityProperties(entityID, 'visible').visible) {
                     Entities.editEntity(entityID, {visible: true});
@@ -158,7 +142,7 @@
             if (GRAB_SOUND.downloaded) {
                 Audio.playSound(GRAB_SOUND, {
                     position: MyAvatar.position,
-                    volume: SHARED.AUDIO_VOLUME_LEVEL,
+                    volume: shared.AUDIO_VOLUME_LEVEL,
                     localOnly: true
                 });
             }
@@ -173,17 +157,13 @@
             _isNearGrabbingWithHand = false;
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
-            if (highlightToggle) {
-                if (prevID !== 0) {
-                    Selection.removeFromSelectedItemsList(LIST_NAME, listType, prevID);
-                    prevID = 0;
-                }
-            }
+
             if (Entities.getNestableType(properties.parentID) === "entity") {
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
                 Messages.unsubscribe(messageChannel);
                 Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
             }
+
             var userData = properties.userData;
             var position = properties.position; 
             var attachmentData = JSON.parse(userData).Attachment;
@@ -197,7 +177,7 @@
                             return;
                         }
                         var newEntityProperties = Entities.getEntityProperties(_entityID, 'userData');
-                        SHARED.touchJSONUserData(newEntityProperties, function(userData) {
+                        shared.touchJSONUserData(newEntityProperties, function(userData) {
                             userData.Attachment.attached = true;
                         });
                         Entities.editEntity(_entityID, {
@@ -217,7 +197,7 @@
                     AvatarList.getAvatar(properties.parentID).getJointPosition(properties.parentJointIndex);
                 if (Vec3.distance(position, jointPosition) > attachDistance) {
                     var newDetachEntityProperties = Entities.getEntityProperties(entityID);
-                    SHARED.touchJSONUserData(newDetachEntityProperties, function(userData) {
+                    shared.touchJSONUserData(newDetachEntityProperties, function(userData) {
                         userData.Attachment.attached = false;
                     });
                     Entities.editEntity(_entityID, {
@@ -228,13 +208,13 @@
                     if (DETACH_SOUND.downloaded) {
                         Audio.playSound(DETACH_SOUND, {
                             position: MyAvatar.position,
-                            volume: SHARED.AUDIO_VOLUME_LEVEL,
+                            volume: shared.AUDIO_VOLUME_LEVEL,
                             localOnly: true
                         });
                     }
                     Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                 }
-            }
+            } 
         }
     };
     return new AttachableItem(); 
