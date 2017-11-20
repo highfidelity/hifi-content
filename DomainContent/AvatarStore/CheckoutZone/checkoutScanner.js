@@ -13,6 +13,7 @@
     var highlightToggle = false;
     
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
+    var SHARED = Script.require('../attachmentZoneShared.js');
     var MARKET_PLACE_ITEM_URL_PREFIX = 'https://metaverse.highfidelity.com/marketplace';
     var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + 
         "/system/html/js/marketplacesInject.js";
@@ -26,16 +27,15 @@
     var SCANNED_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 });
     var SCANNED_LOCAL_HEIGHT = 0.29;
     var OVERLAY_SPACING = 0.09;
-<<<<<<< HEAD
     var MAKING_SURE_INTERVAL = 100; // Milliseconds
     var STOP_MAKING_SURE_TIMEOUT = 5000; // Milliseconds
+    var PURCHASED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound6.wav"));
+    var SCANNED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound8.wav"));
   
     var tableID;
-=======
-    var TABLE_ID;
-  
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
     var interval;
+    var properties;
+    var checkoutZoneID;
     var scanPosition;
     var scannedMPOverlays = {};
     var prevID = 0;
@@ -46,17 +46,15 @@
     var replicaStoredTransforms = {};
     var lastScannedOverlay;
     var lastScannedMPItem;
-<<<<<<< HEAD
     var scanner;
-=======
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
   
     var Scanner = function() {
     };
 
+
     Scanner.prototype = {
         preload: function(entityID) {
-<<<<<<< HEAD
+
             scanner = entityID;
             if (highlightToggle) {
                 highlightConfig["selectionName"] = LIST_NAME; 
@@ -68,22 +66,7 @@
         getTransformForMarketplaceItems: function() {
             return Settings.getValue(TRANSFORMS_SETTINGS, {});
         },
-      
-=======
-          TABLE_ID = Entities.getEntityProperties(entityID, 'parentID').parentID;
-            highlightConfig["selectionName"] = LIST_NAME; 
-            Selection.clearSelectedItemsList(LIST_NAME);
-            HIGHLIGHT.changeHighlight3(highlightConfig);
-            properties = Entities.getEntityProperties(entityID, ['position', 'parentID']);
-            tableID = properties.parentID;
-            checkoutZoneID = Entities.getEntityProperties(tableID, 'parentID').parentID;
-        },
-      
-        getTransformForMarketplaceItems: function() {
-            return Settings.getValue(TRANSFORMS_SETTINGS, {});
-        },
-      
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
+
         onEntityAdded: function(entityID) {
             var newItemProperties = Entities.getEntityProperties(entityID, ['marketplaceID', 'clientOnly', 
                 'owningAvatarID', 'lastEditedBy']);
@@ -91,6 +74,13 @@
                 undefined) && newItemProperties.marketplaceID !== "") {
                 if (lastScannedMPItem === newItemProperties.marketplaceID) {
                     scannerScript.replicaCheckedOut(lastScannedOverlay, entityID);
+                    if (PURCHASED_ITEM_SOUND.downloaded) {
+                        Audio.playSound(PURCHASED_ITEM_SOUND, {
+                            position: MyAvatar.position,
+                            volume: SHARED.AUDIO_VOLUME_LEVEL,
+                            localOnly: true
+                        });
+                    }
                 }
             }
         },
@@ -126,6 +116,7 @@
             if (replicaStoredTransforms[replicaOverlayID] === undefined) {
                 Entities.deleteEntity(newEntityID);
                 return;
+
             }
             var transform = replicaStoredTransforms[replicaOverlayID];
             var transformProperties = {
@@ -155,13 +146,13 @@
             var certificateID = undefined;
             if (newEntityProperties.certificateID !== "" && newEntityProperties.certificateID !== undefined) {
                 certificateID = newEntityProperties.certificateID;
+
             }
             scannerScript.addTransformForMarketplaceItem(newEntityProperties.marketplaceID, certificateID, 
                 transformProperties);
     
             Entities.deleteEntity(matchingEntity);
         },
-<<<<<<< HEAD
 
         enterCheckout: function(entityID) {
             scannedMPOverlays = {};
@@ -182,25 +173,7 @@
                         Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
                         prevID = 0;
                     }
-=======
-        enterCheckout: function(entityID) {
-          scannedMPOverlays = {};
-            // new local position for scanned overlays after they are scanned
-            var newX = 0.05;
-            var newZ = -0.32; 
-            var position1 = true;
-            var position2 = false;
-            properties = Entities.getEntityProperties(entityID, ['position', 'parentID']);
-          
-            interval = Script.setInterval(function() {
-              print("scanner is searching");
-                var overlays = Overlays.findOverlays(properties.position, SCAN_RADIUS);
-                // overlay removed from scanner...no new one in Scanner
-                if (overlays.length === 0 && overlayInScanner) {
-                    Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
-                    Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
-                    prevID = 0;
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
+
                     matchingEntity = null;
                     overlayInScanner = null;
                     // overlay was taken out of Scanner...new one is in Scanner
@@ -216,13 +189,9 @@
                     // ready to process overlayin scanner
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInScanner) !== -1) {
                     if (Overlays.getProperty(overlayInScanner, 'parentID')) {
-<<<<<<< HEAD
+
                         tableID = Entities.getEntityProperties(scanner, 'parentID').parentID;
                         if (Overlays.getProperty(overlayInScanner, 'parentID') === tableID) { 
-                            print("pID matches table");
-=======
-                        if (Overlays.getProperty(overlayInScanner, 'parentID') === TABLE_ID) { 
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
                             // if item in Scanner is not being grabbed anymore
                             name = Overlays.getProperty(overlayInScanner, 'name');
                             if (highlightToggle) {
@@ -243,11 +212,7 @@
                                 jointName: MyAvatar.jointNames[entityProperties.parentJointIndex],
                                 demoEntityID: entityID
                             };
-<<<<<<< HEAD
-                            print("store teransform");
-=======
-                            scannedMPOverlays[marketplaceID] = overlayInScanner;
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
+
                             replicaStoredTransforms[overlayInScanner] = replicaStoredTransform;
                             if (JSON.stringify(scannedMPOverlays).indexOf(overlayInScanner) === -1){
                                 Overlays.editOverlay(overlayInScanner, {
@@ -274,29 +239,27 @@
                                     localRotation: SCANNED_LOCAL_ROTATION
                                 });
                             }
-<<<<<<< HEAD
-                            
+            
                     
                             TABLET.gotoWebScreen(goToURL, MARKETPLACES_INJECT_SCRIPT_URL);
+                            if (SCANNED_ITEM_SOUND.downloaded) {
+                                Audio.playSound(SCANNED_ITEM_SOUND, {
+                                    position: MyAvatar.position,
+                                    volume: SHARED.AUDIO_VOLUME_LEVEL,
+                                    localOnly: true
+                                });
+                            }
                             if (highlightToggle) {
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
                             }
-=======
-                            TABLET.gotoWebScreen(goToURL, MARKETPLACES_INJECT_SCRIPT_URL);
-                            Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
-                            Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
+
                             lastScannedOverlay = overlayInScanner;
                             lastScannedMPItem = entityProperties.marketplaceID;
                             overlayInScanner = null;
                         }
                     }
-<<<<<<< HEAD
-                    // check for new overlays in Scanner
-=======
-                  // check for new overlays in Scanner
->>>>>>> 0fbdfe36c2431199a35a706e560e7401a1ffb21b
+
                 } else if (overlays.length > 0 && !overlayInScanner) {
                     overlays.forEach(function(overlayID) {
                         name = Overlays.getProperty(overlayID, 'name');

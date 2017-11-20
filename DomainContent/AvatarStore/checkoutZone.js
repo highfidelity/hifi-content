@@ -24,9 +24,9 @@
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
     var OVERLAY_ROTATIONAL_OFFSET = { x: 10, y: 140, z: 0 };
-    var TABLET_LOCAL_POSITION_OFFSET = { x: -0.1, y: 0.74, z: -0.35 };
+    var TABLET_LOCAL_POSITION_OFFSET = { x: -0.1, y: 0.9, z: -0.45 };
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-    var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 220, z: 0 };
+    var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 240, z: 0 };
     var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
     // Milliseconds
     var MAKING_SURE_INTERVAL = 100;
@@ -138,7 +138,7 @@
             overlayProperties.dimensions.z *= scale;
         }
         // check that the item is not too large
-        var maxItemSize = 0.1;
+        var maxItemSize = 0.175;
         var scaleReduction = 0.95;
         while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize || 
                   overlayProperties.dimensions.y > maxItemSize) {
