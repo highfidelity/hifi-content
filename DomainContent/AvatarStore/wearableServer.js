@@ -35,7 +35,7 @@
                 userData: properties.userData,
                 parentID: entityID,
                 modelURL : properties.modelURL,
-                script: "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/withHighlights/attachmentItemScript.js",
+                script: Script.resolvePath("attachmentItemScript.js"),
                 lifetime: CLONE_LIFETIME,
                 visible: false,
                 shapeType: "box",

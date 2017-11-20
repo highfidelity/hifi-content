@@ -142,9 +142,11 @@
             playAttachSound();
         },
         startNearGrab: function(entityID, args) {
-            if (prevID !== entityID) {
-                Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
-                prevID = entityID;
+            if (highlightToggle) {
+                if (prevID !== entityID) {
+                    Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
+                    prevID = entityID;
+                }
             }
             if (firstGrab) {
                 if (!Entities.getEntityProperties(entityID, 'visible').visible) {
@@ -171,9 +173,11 @@
             _isNearGrabbingWithHand = false;
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
-            if (prevID !== 0) {
-                Selection.removeFromSelectedItemsList(LIST_NAME, listType, prevID);
-                prevID = 0;
+            if (highlightToggle) {
+                if (prevID !== 0) {
+                    Selection.removeFromSelectedItemsList(LIST_NAME, listType, prevID);
+                    prevID = 0;
+                }
             }
             if (Entities.getNestableType(properties.parentID) === "entity") {
                 Messages.sendMessage(messageChannel, "Removed Item :" + entityID);

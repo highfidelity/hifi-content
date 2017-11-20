@@ -31,6 +31,7 @@
     // Milliseconds
     var MAKING_SURE_INTERVAL = 100;
     var SHORTER_STOP_INTERVAL = 1000;
+    var STOP_MAKING_SURE_TIMEOUT = 5000;
     
     var _this = this;
     var isInZone = false;
@@ -192,12 +193,12 @@
         // Make really sure that the translations are set properly
         var makeSureInterval = Script.setInterval(function() {
             Entities.editEntity(newEntityID, transformProperties);
-        }, 100);
+        }, MAKING_SURE_INTERVAL);
   
         // Five seconds should be enough to be sure, otherwise we have a problem
         Script.setTimeout(function() {
             makeSureInterval.stop();
-        }, 5000);
+        }, STOP_MAKING_SURE_TIMEOUT);
   
         var newEntityProperties = Entities.getEntityProperties(newEntityID, ['marketplaceID', 'certificateID']);
         var certificateID = undefined;
@@ -242,7 +243,7 @@
         Entities.callEntityMethod(recycleBinID, 'enterCheckout');
         Entities.callEntityMethod(scannerZone, 'enterCheckout');
         setupApp();
-        isInZone = true; 
+        isInZone = true;
         var avatarChildEntities = [];
         avatarChildEntities = SHARED.getAvatarChildEntities(MyAvatar);
         avatarChildEntities.forEach(function (entityID) {
@@ -252,19 +253,19 @@
                 var marketplaceID = Entities.getEntityProperties(entityID, 'marketplaceID').marketplaceID;
                 if (marketplaceID && (isAttachment !== -1)) {
                     spawnOverlayReplica(entityID);
-                    var xOff = 0.005;
-                    var yOff = 0.1;
+                    var xOffset = 0.005;
+                    var yOffset = 0.1;
                     if (left) {
-                        spawnX -= ITEM_HEIGHT + xOff;
+                        spawnX -= ITEM_HEIGHT + xOffset;
                         spawnZ -= ITEM_HEIGHT;
                         left = false;
                         middle = true;
                     } else if (middle){
-                        spawnX -= ITEM_HEIGHT + xOff;
+                        spawnX -= ITEM_HEIGHT + xOffset;
                         spawnZ -= ITEM_HEIGHT;
                         middle = false;
                     } else {
-                        spawnY += yOff;
+                        spawnY += yOffset;
                         spawnX += ITEM_HEIGHT;
                         spawnX += ITEM_HEIGHT;
                         spawnZ += ITEM_HEIGHT;
