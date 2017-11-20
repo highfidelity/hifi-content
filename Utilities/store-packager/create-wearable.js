@@ -19,6 +19,8 @@
     var APP_ICON = Script.resolvePath("icon.png");
 
     var SERVER_URL = "https://hifi-content.s3.amazonaws.com/liv/avatar_shopping_demo/wearableServer.js"; 
+    var CLIENT_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/desktopAttacher.js";
+    var TIMEOUT = 2000;
 
     var prevID = 0;
     var listName = "contextOverlayHighlightList";
@@ -79,7 +81,7 @@
         Entities.hoverLeaveEntity.connect(handleMouseLeave);
         Script.setTimeout(function(){
             tablet.screenChanged.connect(maybeExited); 
-        }, 2000);
+        }, TIMEOUT);
     }
     button.clicked.connect(clicked);
 
@@ -99,11 +101,13 @@
             Entities.editEntity(entityID, {locked: false});
 
             Entities.editEntity(entityID, {userData: JSON.stringify(newUserDataProperties),
+                parentJointName: joint,
+                script: CLIENT_URL,
                 serverScripts: SERVER_URL});
 
             Script.setTimeout(function(){
                 Entities.editEntity(entityID, {locked: true});
-            }, 2000);
+            }, TIMEOUT);
         }
     }
 
