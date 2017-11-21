@@ -12,7 +12,7 @@
 //
 /* globals Selection */
 
-(function(){
+(function() {
     var APP_NAME = "WEARPKGR";
     var APP_URL = Script.resolvePath("app.html");
     var APP_ICON = Script.resolvePath("icon.png");
@@ -88,7 +88,7 @@
         tablet.gotoWebScreen(APP_URL);
         Entities.clickReleaseOnEntity.connect(handleMousePress);
         Entities.hoverLeaveEntity.connect(handleMouseLeave);
-        Script.setTimeout(function(){
+        Script.setTimeout(function() {
             tablet.screenChanged.connect(maybeExited); 
         }, TIMEOUT);
     }
@@ -100,6 +100,7 @@
             var success = Clipboard.exportEntities(filename, [entityIDToExport]);
             if (!success) {
                 // No luck, failed
+                print("Failed to export json");
             }
         }
         Entities.deleteEntity(entityIDToExport);                        
