@@ -12,7 +12,7 @@
 //  the tablet to open to the marketplace home page for that item, allowing the user to quickly make the purchase.
 /* global Render, Wallet */
 (function () {
-    var SHARED = Script.require('../attachmentZoneShared.js');
+    var SHARED = Script.require('../../attachmentZoneShared.js');
     var MAX_ITEMS = 12;
     var ITEM_HEIGHT = 0.04;
     var ITEM_SPACING = 0.04;
@@ -44,7 +44,6 @@
     var replicaStoredTransforms = {};
     var left = true;
     var middle = false;
-    
 
     this.preload = function(entityID) {
         zoneID = entityID;

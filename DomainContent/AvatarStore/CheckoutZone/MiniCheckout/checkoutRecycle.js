@@ -18,8 +18,8 @@
     var AVATAR_SEARCH_RADIUS = 1;
     var LIST_NAME = "highlightList2";
     var RECYCLE_CHECK_INTERVAL_MS = 500;
-    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
-    var SHARED = Script.require('../attachmentZoneShared.js');
+    var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
+    var SHARED = Script.require('../../attachmentZoneShared.js');
     var RECYCLE_OVERLAY_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound4.wav"));
     
     var prevID = 0;
@@ -59,8 +59,7 @@
                     currentEntityMatch = null;
                     overlayInBin = null;
                 } else if ((overlays.length > 0) && (overlayInBin) && 
-                // overlay was taken out of bin...not deleted...new one is in bin
-                        (overlays.toString().indexOf(overlayInBin) === -1)) {
+                    (overlays.toString().indexOf(overlayInBin) === -1)) {
                     if (highlightToggle) {
                         Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
                         Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInBin);
@@ -69,7 +68,6 @@
                     currentEntityMatch = null;
                     overlayInBin = null;
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInBin) !== -1) {
-                    // if overlay in bin is parented to table, it is not being held anymore
                     if (Overlays.getProperty(overlayInBin, 'parentID')) { 
                         if (Overlays.getProperty(overlayInBin, 'parentID') === tableID) {
                             if (highlightToggle) {
@@ -89,7 +87,7 @@
                             overlayInBin = null;
                         }
                     }
-                } else if (overlays.length > 0 && !overlayInBin) { // check new overlays in bin
+                } else if (overlays.length > 0 && !overlayInBin) {
                     overlays.forEach(function(overlayID) {
                         var name = Overlays.getProperty(overlayID, 'name');
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {

@@ -44,7 +44,7 @@
     var replicaStoredTransforms = {};
     var left = true;
     var middle = false;
-  
+    
     this.preload = function(entityID) {
         zoneID = entityID;
     };
