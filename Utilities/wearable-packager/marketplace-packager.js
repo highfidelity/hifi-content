@@ -127,7 +127,7 @@
             newExportProperties.script = properties.script;
             newExportProperties.userData = JSON.stringify(newUserDataProperties);
 
-            entityIDToExport = Entities.addEntity(newExportProperties, 1);
+            entityIDToExport = Entities.addEntity(newExportProperties, true);
             Window.saveFileChanged.connect(onFileSaveChanged);
             Window.saveAsync("Select Where to Save", "", "*.json");
             Script.setTimeout(function(){
