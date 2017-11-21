@@ -1,3 +1,12 @@
+<!--
+    /store-packager/app.html
+    Makes an object in a domain a store demo copy
+    Created by Liv Erickson on 11/6/17.
+    Copyright 2017 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
 <html>
     <head>
         <title> Wearable Setup </title>
@@ -25,12 +34,12 @@
         </div>
         <script>
             function main(){
-                $(".submit-button").click(function(){
+                $(".submit-button").click(function() {
                     var clickEvent = {
-                        type : "submit",
-                        entityID : $(".id").val(),
-                        marketplaceID : $(".mkp_id").val(),
-                        joint : $(".joint_dropdown").val()
+                        type: "submit",
+                        entityID: $(".id").val(),
+                        marketplaceID: $(".mkp_id").val(),
+                        joint: $(".joint_dropdown").val()
                     };
                     EventBridge.emitWebEvent(JSON.stringify(clickEvent));
                 });
@@ -42,3 +51,4 @@
         </script>
     </body>
 </html>
+
