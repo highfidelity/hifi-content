@@ -18,48 +18,48 @@
     var APP_URL = Script.resolvePath("app.html");
     var APP_ICON = Script.resolvePath("icon.png");
 
-    var SERVER_URL = "https://hifi-content.s3.amazonaws.com/liv/avatar_shopping_demo/wearableServer.js"; 
+    var SERVER_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/wearableServer.js"; 
     var CLIENT_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/desktopAttacher.js";
     var TIMEOUT = 2000;
 
-    var prevID = 0;
+    var previousID = 0;
     var listName = "contextOverlayHighlightList";
     var listType = "entity";
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');    
 
     function handleMousePress(entityID) {
-        if (prevID !== entityID) {
+        if (previousID !== entityID) {
             Selection.addToSelectedItemsList(listName, listType, entityID);
-            prevID = entityID;
+            previousID = entityID;
         }
         tablet.emitScriptEvent(entityID);
     }
 
     function handleMouseLeave(entityID) {
-        if (prevID !== 0) {
-            Selection.removeFromSelectedItemsList("contextOverlayHighlightList", listType, prevID);
-            prevID = 0;
+        if (previousID !== 0) {
+            Selection.removeFromSelectedItemsList("contextOverlayHighlightList", listType, previousID);
+            previousID = 0;
         }
     }
 
     var baseUserdata = {
-        "Attachment": {
-            "action": "attach",
-            "joint": "",
-            "attached" : false,
-            "options": {
-                "translation": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
+        Attachment: {
+            action: "attach",
+            joint: "",
+            attached : false,
+            options: {
+                translation: {
+                    x: 0,
+                    y: 0,
+                    z: 0
                 },
-                "scale": 1
+                scale: 1
             }
         },
-        "grabbableKey": {
-            "cloneable": false,
-            "grabbable": true
+        grabbableKey: {
+            cloneable: false,
+            grabbable: true
         }
     };
 
@@ -75,7 +75,7 @@
         tablet.screenChanged.disconnect(maybeExited);
     }
 
-    function clicked(){
+    function clicked() {
         tablet.gotoWebScreen(APP_URL);
         Entities.clickReleaseOnEntity.connect(handleMousePress);
         Entities.hoverLeaveEntity.connect(handleMouseLeave);
@@ -85,7 +85,7 @@
     }
     button.clicked.connect(clicked);
 
-    function onWebEventReceived(event){
+    function onWebEventReceived(event) {
         if (typeof(event) === "string") {
             event = JSON.parse(event);
         }
@@ -95,16 +95,18 @@
             var marketplaceID = event.marketplaceID;
 
             var newUserDataProperties = baseUserdata;
-            newUserDataProperties["marketplaceID"] = marketplaceID;
-            newUserDataProperties["Attachment"].joint = joint;
+            newUserDataProperties.marketplaceID = marketplaceID;
+            newUserDataProperties.Attachment.joint = joint;
 
             Entities.editEntity(entityID, {locked: false});
 
-            Entities.editEntity(entityID, {userData: JSON.stringify(newUserDataProperties),
+            Entities.editEntity(entityID, {
+                userData: JSON.stringify(newUserDataProperties),
                 script: CLIENT_URL,
-                serverScripts: SERVER_URL});
+                serverScripts: SERVER_URL
+            });
 
-            Script.setTimeout(function(){
+            Script.setTimeout(function() {
                 Entities.editEntity(entityID, {locked: true});
             }, TIMEOUT);
         }
@@ -112,7 +114,7 @@
 
     tablet.webEventReceived.connect(onWebEventReceived);
 
-    function cleanup(){
+    function cleanup() {
         tablet.removeButton(button);
     }
 

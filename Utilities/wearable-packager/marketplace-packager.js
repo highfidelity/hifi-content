@@ -17,7 +17,10 @@
     var APP_URL = Script.resolvePath("app.html");
     var APP_ICON = Script.resolvePath("icon.png");
 
-    var prevID = 0;
+    var TIMEOUT = 2000;
+    var LONG_TIMEOUT = 20000;
+
+    var previousID = 0;
     var listName = "contextOverlayHighlightList";
     var listType = "entity";
 
@@ -26,46 +29,44 @@
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');    
 
     function handleMousePress(entityID) {
-        if (prevID !== entityID) {
+        if (previousID !== entityID) {
             Selection.addToSelectedItemsList(listName, listType, entityID);
-            prevID = entityID;
+            previousID = entityID;
         }
         tablet.emitScriptEvent(entityID);
     }
 
     function handleMouseLeave(entityID) {
-        if (prevID !== 0) {
-            Selection.removeFromSelectedItemsList("contextOverlayHighlightList", listType, prevID);
-            prevID = 0;
+        if (previousID !== 0) {
+            Selection.removeFromSelectedItemsList("contextOverlayHighlightList", listType, previousID);
+            previousID = 0;
         }
     }
 
     var baseUserdata = {
-        "Attachment": {
-            "action": "attach",
-            "joint": "Hips",
-            "attached" : false,
-            "options": {
-                "translation": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
+        Attachment: {
+            action: "attach",
+            joint: "Hips",
+            attached: false,
+            options: {
+                translation: {
+                    x: 0,
+                    y: 0,
+                    z: 0
                 },
-                "scale": 1
+                scale: 1
             }
         },
-        "grabbableKey": {
-            "cloneable": false,
-            "grabbable": true
+        grabbableKey: {
+            cloneable: false,
+            grabbable: true
         }
     };
 
     var exportProperties = {
         type: "Model",
-        clientOnly: 1,
-        parentID: "{00000000-0000-0000-0000-000000000001}",
-        owningAvatarID: "{00000000-0000-0000-0000-000000000000}",
-        visible: 1,
+        parentID: MyAvatar.sessionUUID,
+        visible: true,
         shapeType: "box",
         collidesWith: "",
         collisionMask: 0
@@ -83,17 +84,17 @@
         tablet.screenChanged.disconnect(maybeExited);
     }
 
-    function clicked(){
+    function clicked() {
         tablet.gotoWebScreen(APP_URL);
         Entities.clickReleaseOnEntity.connect(handleMousePress);
         Entities.hoverLeaveEntity.connect(handleMouseLeave);
         Script.setTimeout(function(){
             tablet.screenChanged.connect(maybeExited); 
-        }, 2000);
+        }, TIMEOUT);
     }
     button.clicked.connect(clicked);
 
-    function onFileSaveChanged(filename){
+    function onFileSaveChanged(filename) {
         Window.saveFileChanged.disconnect(onFileSaveChanged);
         if (filename !== "") {
             var success = Clipboard.exportEntities(filename, [entityIDToExport]);
@@ -104,7 +105,7 @@
         Entities.deleteEntity(entityIDToExport);                        
     }
 
-    function onWebEventReceived(event){
+    function onWebEventReceived(event) {
         if (typeof(event) === "string") {
             event = JSON.parse(event);
         }
@@ -117,7 +118,7 @@
     
             var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script']);
 
-            newUserDataProperties["Attachment"].joint = joint;
+            newUserDataProperties.Attachment.joint = joint;
             
             newExportProperties.modelURL = properties.modelURL;
             newExportProperties.dimensions = properties.dimensions;
@@ -130,13 +131,13 @@
             Window.saveAsync("Select Where to Save", "", "*.json");
             Script.setTimeout(function(){
                 Entities.deleteEntity(entityIDToExport);
-            }, 20000); 
+            }, LONG_TIMEOUT); 
         }
     }
 
     tablet.webEventReceived.connect(onWebEventReceived);
 
-    function cleanup(){
+    function cleanup() {
         tablet.removeButton(button);
     }
 
