@@ -197,12 +197,12 @@
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
                                 prevID = 0;
                             }
-                            var marketplaceID = name.substr(OVERLAY_PREFIX.length, OVERLAY_PREFIX.length + 35);
+                            var MPIDLengthMinusOne = 35;
+                            var marketplaceID = name.substr(OVERLAY_PREFIX.length, OVERLAY_PREFIX.length + MPIDLengthMinusOne);
                             print("mp id " + marketplaceID);
                             var goToURL = MARKET_PLACE_ITEM_URL_PREFIX + "/items/" + marketplaceID;
                             var entityProperties = Entities.getEntityProperties(matchingEntity, 
-                                ['localPosition', 'localRotation', 'dimensions', 
-                                    'parentJointIndex', 'marketplaceID']);
+                                ['localPosition', 'localRotation', 'dimensions', 'parentJointIndex', 'marketplaceID']);
                             var replicaStoredTransform = {
                                 position: entityProperties.localPosition,
                                 rotation: entityProperties.localRotation,

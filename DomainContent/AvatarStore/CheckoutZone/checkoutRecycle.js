@@ -48,7 +48,7 @@
                 print("Recycle is searching too...");
                 recyclePosition = Entities.getEntityProperties(recycleBin, 'position').position;
                 var overlays = Overlays.findOverlays(recyclePosition, SCAN_RADIUS);
-                if (overlays.length === 0 && overlayInBin) { // overlay removed from bin...no new one in bin
+                if (overlays.length === 0 && overlayInBin) {
                     if (highlightToggle) {
                         Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
                         Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInBin);
@@ -57,7 +57,6 @@
                     currentEntityMatch = null;
                     overlayInBin = null;
                 } else if ((overlays.length > 0) && (overlayInBin) && (overlays.toString().indexOf(overlayInBin) === -1)) {
-                    // overlay was taken out of bin...not deleted...new one is in bin
                     if (highlightToggle) {
                         Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
                         Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInBin);
@@ -67,9 +66,7 @@
                     overlayInBin = null;
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInBin) !== -1) {
                     if (Overlays.getProperty(overlayInBin, 'parentID')) {
-                        // if overlay in bin is parented to table, it is not being held anymore
                         if (Overlays.getProperty(overlayInBin, 'parentID') === tableID) {
-                            // if item in bin is not being held 
                             if (highlightToggle) {
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInBin);
@@ -87,7 +84,7 @@
                             overlayInBin = null;
                         }
                     }
-                } else if (overlays.length > 0 && !overlayInBin) { // check new overlays in bin
+                } else if (overlays.length > 0 && !overlayInBin) {
                     overlays.forEach(function(overlayID) {
                         var name = Overlays.getProperty(overlayID, 'name');
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {
