@@ -32,7 +32,7 @@
                 "y": -4.57763671875e-05,
                 "z": 1.52587890625e-05
             },
-            "script": "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/final%20github/CheckoutZone/MiniCheckout/checkoutScanner.js",
+            "script": "https://raw.githubusercontent.com/RebeccaStankus/hifi-content/everythingPR/DomainContent/AvatarStore/CheckoutZone/MiniCheckout/checkoutScanner.js",
             "scriptTimestamp": 1511284893005,
             "shapeType": "box",
             "type": "Zone",
@@ -224,7 +224,7 @@
                 "y": 0.7054398059844971,
                 "z": -7.62939453125e-05
             },
-            "script": "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/final%20github/CheckoutZone/MiniCheckout/checkoutZone.js",
+            "script": "https://raw.githubusercontent.com/RebeccaStankus/hifi-content/everythingPR/DomainContent/AvatarStore/CheckoutZone/MiniCheckout/checkoutZone.js",
             "scriptTimestamp": 1511284910163,
             "shapeType": "box",
             "type": "Zone",
@@ -307,7 +307,7 @@
                 "y": 0.9505913257598877,
                 "z": -7.62939453125e-05
             },
-            "script": "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/final%20github/CheckoutZone/MiniCheckout/checkoutRecycle.js",
+            "script": "https://raw.githubusercontent.com/RebeccaStankus/hifi-content/everythingPR/DomainContent/AvatarStore/CheckoutZone/MiniCheckout/checkoutRecycle.js",
             "scriptTimestamp": 1511284878156,
             "shapeType": "box",
             "type": "Zone",
