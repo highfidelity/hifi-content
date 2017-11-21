@@ -130,7 +130,7 @@
             entityIDToExport = Entities.addEntity(newExportProperties, true);
             Window.saveFileChanged.connect(onFileSaveChanged);
             Window.saveAsync("Select Where to Save", "", "*.json");
-            Script.setTimeout(function(){
+            Script.setTimeout(function() {
                 Entities.deleteEntity(entityIDToExport);
             }, LONG_TIMEOUT); 
         }
