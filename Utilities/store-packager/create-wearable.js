@@ -101,7 +101,6 @@
             Entities.editEntity(entityID, {locked: false});
 
             Entities.editEntity(entityID, {userData: JSON.stringify(newUserDataProperties),
-                parentJointName: joint,
                 script: CLIENT_URL,
                 serverScripts: SERVER_URL});
 
