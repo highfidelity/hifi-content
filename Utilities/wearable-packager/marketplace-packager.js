@@ -121,7 +121,7 @@
             
             newExportProperties.modelURL = properties.modelURL;
             newExportProperties.dimensions = properties.dimensions;
-            newExportProperties.parentJointName = joint;
+            newExportProperties.parentJointIndex = MyAvatar.jointNames.indexOf(joint);
             newExportProperties.script = properties.script;
             newExportProperties.userData = JSON.stringify(newUserDataProperties);
 
