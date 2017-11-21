@@ -16,17 +16,20 @@
 
     var messageHandler;
     var spawnMoreChildren;
-    var properties; 
+    var properties;
+    var newEntityProperties;
 
     var Wearable = function() {
 
     };
+
     Wearable.prototype = {
+        remotelyCallable: ['spawnNewEntity'],
         preload: function(entityID){
             properties = Entities.getEntityProperties(entityID, ['dimensions', 'userData', 'modelURL']);
             messageChannel = MESSAGE_CHANNEL_BASE + entityID;
             Messages.subscribe(messageChannel);
-            var newEntityProperties = {
+            newEntityProperties = {
                 type: 'Model',
                 dimensions: properties.dimensions,
                 userData: properties.userData,
@@ -36,20 +39,27 @@
                 lifetime: CLONE_LIFETIME,
                 visible: false,
                 shapeType: "box",
-                collidesWith: "dynamic,",
-                serverScripts: Script.resolvePath("empty.js")
+                collidesWith: "dynamic,"
             };
             messageHandler = function(channel, data, sender) {
                 if (channel === messageChannel) {
-                    Entities.addEntity(newEntityProperties);   
+                    Entities.addEntity(newEntityProperties);
                 }    
             };
             Messages.messageReceived.connect(messageHandler);
             spawnMoreChildren = Script.setInterval(function() {
                 if (Entities.getChildrenIDs(entityID).length === 0) {
-                    Entities.addEntity(newEntityProperties);            
+                    Entities.addEntity(newEntityProperties);
                 }
             }, UPDATE_INTERVAL);
+        },
+        /**
+         * Remotely callable spawnNewEntity function
+         * @param entityID current entity ID
+         * @param param parameters (expected to be empty)
+         */
+        spawnNewEntity: function(entityID, params) {
+            Entities.addEntity(newEntityProperties);
         },
         unload: function() {
             Messages.messageReceived.disconnect(messageHandler);

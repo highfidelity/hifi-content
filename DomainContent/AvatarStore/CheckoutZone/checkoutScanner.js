@@ -16,6 +16,10 @@
     var SCAN_RADIUS = 0.15; // meters
     var OVERLAY_PREFIX = 'MP';
     var CHECKOUT_INTERVAL_MS = 1000;
+    var PURCHASED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound6.wav"));
+    var SCANNED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound8.wav"));
+
+    var shared = Script.require('../attachmentZoneShared.js');    
     
     var interval;
     var properties;
@@ -24,7 +28,8 @@
     var scannedMPOverlays = {};
 
     var onEntityAdded = function(entityID) {
-        var newItemProperties = Entities.getEntityProperties(entityID, ['marketplaceID', 'clientOnly', 'owningAvatarID', 'lastEditedBy']);
+        var newItemProperties = Entities.getEntityProperties(entityID, 
+            ['marketplaceID', 'clientOnly', 'owningAvatarID', 'lastEditedBy']);
         if (/* newItemProperties.clientOnly && newItemProperties.owningAvatarID === MyAvatar.sessionUUID && */
             (newItemProperties.lastEditedBy === MyAvatar.sessionUUID || newItemProperties.lastEditedBy === undefined) &&
             newItemProperties.marketplaceID !== "") {
@@ -32,6 +37,13 @@
             if (scannedMPOverlays[newItemProperties.marketplaceID] !== undefined) {
                 var overlayID = scannedMPOverlays[newItemProperties.marketplaceID];
                 Entities.callEntityMethod(checkoutZoneID, 'replicaCheckedOut', [overlayID, entityID]);
+                if (PURCHASED_ITEM_SOUND.downloaded) {
+                    Audio.playSound(PURCHASED_ITEM_SOUND, {
+                        position: MyAvatar.position,
+                        volume: shared.AUDIO_VOLUME_LEVEL,
+                        localOnly: true
+                    });
+                }
                 delete scannedMPOverlays[newItemProperties.marketplaceID];
             }
         }
@@ -51,6 +63,13 @@
                         scannedMPOverlays[marketplaceID] = overlay;
                         TABLET.gotoWebScreen(goToURL, MARKETPLACES_INJECT_SCRIPT_URL);
                         Overlays.deleteOverlay(overlay);
+                        if (SCANNED_ITEM_SOUND.downloaded) {
+                            Audio.playSound(SCANNED_ITEM_SOUND, {
+                                position: MyAvatar.position,
+                                volume: shared.AUDIO_VOLUME_LEVEL,
+                                localOnly: true
+                            });
+                        }
                     }
                 });
             }
