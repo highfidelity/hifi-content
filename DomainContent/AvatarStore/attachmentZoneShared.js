@@ -61,5 +61,6 @@ module.exports = {
     ATTACHMENT_ZONE_CHANNEL_ACTIONS: {
         CREATE_ATTACHMENT_ENTITY: 'createAttachmentEntity',
         CREATED_ATTACHMENT_ENTITY: 'createdAttachmentEntity'
-    }
+    },
+    AUDIO_VOLUME_LEVEL : 0.2
 };
