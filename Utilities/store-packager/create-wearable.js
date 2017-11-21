@@ -13,7 +13,7 @@
 //  Requires lock access
 //
 /* globals Selection */
-(function(){
+(function() {
     var APP_NAME = "WEARABLE";
     var APP_URL = Script.resolvePath("app.html");
     var APP_ICON = Script.resolvePath("icon.png");
@@ -79,7 +79,7 @@
         tablet.gotoWebScreen(APP_URL);
         Entities.clickReleaseOnEntity.connect(handleMousePress);
         Entities.hoverLeaveEntity.connect(handleMouseLeave);
-        Script.setTimeout(function(){
+        Script.setTimeout(function() {
             tablet.screenChanged.connect(maybeExited); 
         }, TIMEOUT);
     }
@@ -120,3 +120,4 @@
 
     Script.scriptEnding.connect(cleanup);
 }());
+
