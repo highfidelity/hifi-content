@@ -33,9 +33,9 @@
             function main(){
                 $(".submit-button").click(function() {
                     var clickEvent = {
-                        type : "submit",
-                        entityID : $(".id").val(),
-                        joint : $(".joint_dropdown").val()
+                        type: "submit",
+                        entityID: $(".id").val(),
+                        joint: $(".joint_dropdown").val()
                     };
                     EventBridge.emitWebEvent(JSON.stringify(clickEvent));
                 });
