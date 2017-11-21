@@ -13,7 +13,7 @@
     var highlightToggle = false;
     
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-    var SHARED = Script.require('../attachmentZoneShared.js');
+    var SHARED = Script.require('../../attachmentZoneShared.js');
     var MARKET_PLACE_ITEM_URL_PREFIX = 'https://metaverse.highfidelity.com/marketplace';
     var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + 
     "/system/html/js/marketplacesInject.js";
@@ -23,7 +23,7 @@
     var LIST_NAME = "highlightList3";
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
     var AVATAR_SEARCH_RADIUS = 1;
-    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
+    var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
     var SCANNED_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 });
     var SCANNED_LOCAL_HEIGHT = 0.29;
     var OVERLAY_SPACING = 0.09;
