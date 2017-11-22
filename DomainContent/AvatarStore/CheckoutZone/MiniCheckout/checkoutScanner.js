@@ -13,17 +13,17 @@
     var highlightToggle = false;
     
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-    var SHARED = Script.require('../attachmentZoneShared.js');
+    var SHARED = Script.require('../../attachmentZoneShared.js');
     var MARKET_PLACE_ITEM_URL_PREFIX = 'https://metaverse.highfidelity.com/marketplace';
     var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + 
-        "/system/html/js/marketplacesInject.js";
-    var SCAN_RADIUS = 0.15; // meters
+    "/system/html/js/marketplacesInject.js";
+    var SCAN_RADIUS = 0.07; // meters
     var OVERLAY_PREFIX = 'MP';
     var CHECKOUT_INTERVAL_MS = 500;
     var LIST_NAME = "highlightList3";
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
-    var SEARCH_RADIUS = 2;
-    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
+    var AVATAR_SEARCH_RADIUS = 1;
+    var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
     var SCANNED_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 });
     var SCANNED_LOCAL_HEIGHT = 0.29;
     var OVERLAY_SPACING = 0.09;
@@ -31,7 +31,7 @@
     var STOP_MAKING_SURE_TIMEOUT = 5000; // Milliseconds
     var PURCHASED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound6.wav"));
     var SCANNED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound8.wav"));
-  
+
     var tableID;
     var interval;
     var scanPosition;
@@ -45,14 +45,12 @@
     var lastScannedOverlay;
     var lastScannedMPItem;
     var scanner;
-  
+
     var Scanner = function() {
     };
 
-
     Scanner.prototype = {
         preload: function(entityID) {
-
             scanner = entityID;
             if (highlightToggle) {
                 highlightConfig["selectionName"] = LIST_NAME; 
@@ -60,7 +58,6 @@
                 HIGHLIGHT.changeHighlight3(highlightConfig);
             }
         },
-      
         getTransformForMarketplaceItems: function() {
             return Settings.getValue(TRANSFORMS_SETTINGS, {});
         },
@@ -68,8 +65,8 @@
         onEntityAdded: function(entityID) {
             var newItemProperties = Entities.getEntityProperties(entityID, ['marketplaceID', 'clientOnly', 
                 'owningAvatarID', 'lastEditedBy']);
-            if ((newItemProperties.lastEditedBy === MyAvatar.sessionUUID || newItemProperties.lastEditedBy === 
-                undefined) && newItemProperties.marketplaceID !== "") {
+            if ((newItemProperties.lastEditedBy === MyAvatar.sessionUUID || newItemProperties.lastEditedBy === undefined) &&
+                newItemProperties.marketplaceID !== "") {
                 if (lastScannedMPItem === newItemProperties.marketplaceID) {
                     scannerScript.replicaCheckedOut(lastScannedOverlay, entityID);
                     if (PURCHASED_ITEM_SOUND.downloaded) {
@@ -82,7 +79,7 @@
                 }
             }
         },
-      
+        
         getTransformsForMarketplaceItem: function(marketplaceID) {
             var transformItems = scannerScript.getTransformForMarketplaceItems();
             if (transformItems[marketplaceID] === undefined) {
@@ -114,7 +111,6 @@
             if (replicaStoredTransforms[replicaOverlayID] === undefined) {
                 Entities.deleteEntity(newEntityID);
                 return;
-
             }
             var transform = replicaStoredTransforms[replicaOverlayID];
             var transformProperties = {
@@ -144,7 +140,6 @@
             var certificateID = undefined;
             if (newEntityProperties.certificateID !== "" && newEntityProperties.certificateID !== undefined) {
                 certificateID = newEntityProperties.certificateID;
-
             }
             scannerScript.addTransformForMarketplaceItem(newEntityProperties.marketplaceID, certificateID, 
                 transformProperties);
@@ -155,11 +150,11 @@
         enterCheckout: function(entityID) {
             scannedMPOverlays = {};
             // new local position for scanned overlays after they are scanned
-            var newX = 0.04;
+            var newX = 0.05;
             var newZ = -0.35; 
             var position1 = true;
             var position2 = false;
-          
+
             interval = Script.setInterval(function() {
                 print("scanner is searching");
                 scanPosition = Entities.getEntityProperties(scanner, 'position').position;
@@ -171,12 +166,11 @@
                         Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
                         prevID = 0;
                     }
-
                     matchingEntity = null;
                     overlayInScanner = null;
                     // overlay was taken out of Scanner...new one is in Scanner
                 } else if ((overlays.length > 0) && (overlayInScanner) && 
-                (overlays.toString().indexOf(overlayInScanner) === -1)) {
+                                (overlays.toString().indexOf(overlayInScanner) === -1)) {
                     if (highlightToggle) {
                         Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
                         Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
@@ -184,12 +178,11 @@
                     }
                     matchingEntity = null;
                     overlayInScanner = null;
-                    // ready to process overlayin scanner
+                // ready to process overlay in scanner
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInScanner) !== -1) {
                     if (Overlays.getProperty(overlayInScanner, 'parentID')) {
-
                         tableID = Entities.getEntityProperties(scanner, 'parentID').parentID;
-                        if (Overlays.getProperty(overlayInScanner, 'parentID') === tableID) { 
+                        if (Overlays.getProperty(overlayInScanner, 'parentID') === tableID) {
                             // if item in Scanner is not being grabbed anymore
                             name = Overlays.getProperty(overlayInScanner, 'name');
                             if (highlightToggle) {
@@ -199,8 +192,8 @@
                             }
                             var MPIDLengthMinusOne = 35;
                             var marketplaceID = name.substr(OVERLAY_PREFIX.length, OVERLAY_PREFIX.length + MPIDLengthMinusOne);
-                            print("mp id " + marketplaceID);
                             var goToURL = MARKET_PLACE_ITEM_URL_PREFIX + "/items/" + marketplaceID;
+                            
                             var entityProperties = Entities.getEntityProperties(matchingEntity, 
                                 ['localPosition', 'localRotation', 'dimensions', 'parentJointIndex', 'marketplaceID']);
                             var replicaStoredTransform = {
@@ -210,7 +203,6 @@
                                 jointName: MyAvatar.jointNames[entityProperties.parentJointIndex],
                                 demoEntityID: entityID
                             };
-
                             replicaStoredTransforms[overlayInScanner] = replicaStoredTransform;
                             if (JSON.stringify(scannedMPOverlays).indexOf(overlayInScanner) === -1){
                                 Overlays.editOverlay(overlayInScanner, {
@@ -237,8 +229,6 @@
                                     localRotation: SCANNED_LOCAL_ROTATION
                                 });
                             }
-            
-                    
                             TABLET.gotoWebScreen(goToURL, MARKETPLACES_INJECT_SCRIPT_URL);
                             if (SCANNED_ITEM_SOUND.downloaded) {
                                 Audio.playSound(SCANNED_ITEM_SOUND, {
@@ -251,21 +241,20 @@
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
                             }
-
                             lastScannedOverlay = overlayInScanner;
                             lastScannedMPItem = entityProperties.marketplaceID;
                             overlayInScanner = null;
                         }
                     }
-
-                } else if (overlays.length > 0 && !overlayInScanner) {
+                // check for new overlays in Scanner
+                } else if (overlays.length > 0 && !overlayInScanner) { 
                     overlays.forEach(function(overlayID) {
                         name = Overlays.getProperty(overlayID, 'name');
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {
-                            var nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS);
+                            var nearbyEntities = Entities.findEntities(MyAvatar.position, AVATAR_SEARCH_RADIUS);
                             nearbyEntities.forEach(function(entityID) {
                                 var userDataString = 
-                                    JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
+                                JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
                                 if (userDataString.indexOf(overlayID) !== -1) {
                                     overlayInScanner = overlayID;
                                     matchingEntity = entityID;
@@ -280,18 +269,17 @@
                             });
                         }
                     });
-                }
+                } 
             }, CHECKOUT_INTERVAL_MS);
             Entities.addingEntity.connect(scannerScript.onEntityAdded);
         },
-        
+
         exitCheckout: function() {
             replicaStoredTransforms = {};
             Script.clearInterval(interval);
             Entities.addingEntity.disconnect(scannerScript.onEntityAdded);
         }
     };
-    
     var scannerScript = new Scanner();
     return scannerScript;
 });
