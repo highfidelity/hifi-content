@@ -17,7 +17,7 @@
     var SEARCH_RADIUS = 2;
     var LIST_NAME = "highlightList2";
     var RECYCLE_CHECK_INTERVAL_MS = 500;
-    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
+    var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
     var SHARED = Script.require('../attachmentZoneShared.js');
     var RECYCLE_OVERLAY_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound4.wav"));
     
