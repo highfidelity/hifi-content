@@ -17,8 +17,6 @@
 
     var SHARED = Script.require('../attachmentZoneShared.js');
     var MAX_ITEMS = 12;
-    var ITEM_HEIGHT = 0.07;
-    var ITEM_HEIGHT_MINI = 0.04;
     var HALF = 0.5;
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
@@ -27,8 +25,7 @@
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
     var OVERLAY_ROTATIONAL_OFFSET = { x: 10, y: 140, z: 0 };
-    var TABLET_LOCAL_POSITION_OFFSET = { x: -0.1, y: 0.74, z: -0.35 };
-    var TABLET_LOCAL_POSITION_OFFSET_MINI = { x: -0.01, y: 0.53, z: -0.4 };
+    
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 220, z: 0 };
     var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
@@ -37,6 +34,8 @@
     var SHORTER_STOP_INTERVAL = 1000;
     var STOP_MAKING_SURE_TIMEOUT = 5000;
     
+    var itemHeight;
+    var tabletLocalOffset;
     var _this = this;
     var isInZone = false;
     var tableProperties, tableHeight, tableLength, tableID, spawnZ, spawnY, spawnX;
@@ -52,6 +51,15 @@
     
     this.preload = function(entityID) {
         zoneID = entityID;
+        if (mini) {
+            print("mini");
+            itemHeight = 0.04;
+            tabletLocalOffset = { x: -0.01, y: 0.53, z: -0.4 };
+        } else {
+            print("not mini");
+            itemHeight = 0.07;
+            tabletLocalOffset = { x: -0.1, y: 0.74, z: -0.35 };
+        }
     };
     
     var getTransformForMarketplaceItems = function() {
@@ -100,13 +108,13 @@
                     zOffset = 0;
                     xOffset = 0;
                 } else {
-                    yOffset = 0.2;
+                    yOffset = 0;
                     zOffset = 0.3;
                     xOffset = -0.05;
                 }
                 spawnY = halfTableHeight + yOffset;
                 var halfTableLength = HALF * tableLength;
-                spawnZ = (halfTableLength - ITEM_HEIGHT + zOffset);
+                spawnZ = (halfTableLength - itemHeight + zOffset);
                 spawnX = xOffset;
                 return;
             }
@@ -141,10 +149,10 @@
             // clone dimensions so we can alter it without messing up the original entities dimensions
             dimensions: entityProperties.dimensions
         };
-        var scale = (ITEM_HEIGHT / overlayProperties.dimensions.y);
-        if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || 
-              (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
-            overlayProperties.dimensions.y = ITEM_HEIGHT;
+        var scale = (itemHeight / overlayProperties.dimensions.y);
+        if ((overlayProperties.dimensions.x > itemHeight) || (overlayProperties.dimensions.y > itemHeight) || 
+              (overlayProperties.dimensions.y > itemHeight)) {
+            overlayProperties.dimensions.y = itemHeight;
             overlayProperties.dimensions.x *= scale;
             overlayProperties.dimensions.z *= scale;
         }
@@ -276,20 +284,20 @@
                         yOffset = 0.1;
                     }
                     if (left) {
-                        spawnX -= ITEM_HEIGHT + xOffset;
-                        spawnZ -= ITEM_HEIGHT;
+                        spawnX -= itemHeight + xOffset;
+                        spawnZ -= itemHeight;
                         left = false;
                         middle = true;
                     } else if (middle){
-                        spawnX -= ITEM_HEIGHT + xOffset;
-                        spawnZ -= ITEM_HEIGHT;
+                        spawnX -= itemHeight + xOffset;
+                        spawnZ -= itemHeight;
                         middle = false;
                     } else {
                         spawnY += yOffset;
-                        spawnX += ITEM_HEIGHT;
-                        spawnX += ITEM_HEIGHT;
-                        spawnZ += ITEM_HEIGHT;
-                        spawnZ += ITEM_HEIGHT;
+                        spawnX += itemHeight;
+                        spawnX += itemHeight;
+                        spawnZ += itemHeight;
+                        spawnZ += itemHeight;
                         left = true;
                     }
                 }
@@ -297,7 +305,7 @@
         });
         var tabletTransform = {
             parentID: tableID,
-            localPosition: TABLET_LOCAL_POSITION_OFFSET,
+            localPosition: tabletLocalOffset,
             localRotation: Quat.fromVec3Degrees(TABLET_ROTATIONAL_OFFSET)
         };
         Overlays.editOverlay(HMD.tabletID, tabletTransform);
