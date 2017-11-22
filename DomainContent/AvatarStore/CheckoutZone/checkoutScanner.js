@@ -11,6 +11,7 @@
 /* global Selection, Render */
 (function() {
     var highlightToggle = false;
+    var mini = false;
     
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var SHARED = Script.require('../attachmentZoneShared.js');
@@ -18,15 +19,16 @@
     var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + 
         "/system/html/js/marketplacesInject.js";
     var SCAN_RADIUS = 0.15; // meters
+    var SCAN_RADIUS_MINI = 0.07; // meters
     var OVERLAY_PREFIX = 'MP';
     var CHECKOUT_INTERVAL_MS = 500;
     var LIST_NAME = "highlightList3";
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
     var SEARCH_RADIUS = 2;
+    var SEARCH_RADIUS_MINI = 1;
     var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
     var SCANNED_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 });
     var SCANNED_LOCAL_HEIGHT = 0.29;
-    var OVERLAY_SPACING = 0.09;
     var MAKING_SURE_INTERVAL = 100; // Milliseconds
     var STOP_MAKING_SURE_TIMEOUT = 5000; // Milliseconds
     var PURCHASED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound6.wav"));
@@ -34,6 +36,7 @@
   
     var tableID;
     var interval;
+    var overlaySpacing;
     var scanPosition;
     var scannedMPOverlays = {};
     var prevID = 0;
@@ -52,12 +55,15 @@
 
     Scanner.prototype = {
         preload: function(entityID) {
-
             scanner = entityID;
             if (highlightToggle) {
                 highlightConfig["selectionName"] = LIST_NAME; 
                 Selection.clearSelectedItemsList(LIST_NAME);
                 HIGHLIGHT.changeHighlight3(highlightConfig);
+            }
+            var sizeLimit = 0.2;
+            if (Entities.getEntityProperties(entityID, 'dimensions.x').dimensions.x < sizeLimit) {
+                mini = true;
             }
         },
       
@@ -129,13 +135,11 @@
             replicaStoredTransforms[replicaOverlayID] = transformProperties;
 
             Entities.editEntity(newEntityID, transformProperties);
-            
-            // Make really sure that the translations are set properly
+        
             var makeSureInterval = Script.setInterval(function() {
                 Entities.editEntity(newEntityID, transformProperties);
             }, MAKING_SURE_INTERVAL);
     
-            // Five seconds should be enough to be sure, otherwise we have a problem
             Script.setTimeout(function() {
                 makeSureInterval.stop();
             }, STOP_MAKING_SURE_TIMEOUT);
@@ -154,8 +158,14 @@
 
         enterCheckout: function(entityID) {
             scannedMPOverlays = {};
-            // new local position for scanned overlays after they are scanned
-            var newX = 0.04;
+            var newX;
+            if (mini) {
+                newX = 0.04;
+                overlaySpacing = 0.055;
+            } else {
+                newX = 0.02;
+                overlaySpacing = 0.09;
+            }
             var newZ = -0.35; 
             var position1 = true;
             var position2 = false;
@@ -163,8 +173,12 @@
             interval = Script.setInterval(function() {
                 print("scanner is searching");
                 scanPosition = Entities.getEntityProperties(scanner, 'position').position;
-                var overlays = Overlays.findOverlays(scanPosition, SCAN_RADIUS);
-                // overlay removed from scanner...no new one in Scanner
+                var overlays;
+                if (mini) {
+                    overlays = Overlays.findOverlays(scanPosition, SCAN_RADIUS_MINI);
+                } else {
+                    overlays = Overlays.findOverlays(scanPosition, SCAN_RADIUS);
+                }
                 if (overlays.length === 0 && overlayInScanner) {
                     if (highlightToggle) {
                         Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
@@ -174,7 +188,6 @@
 
                     matchingEntity = null;
                     overlayInScanner = null;
-                    // overlay was taken out of Scanner...new one is in Scanner
                 } else if ((overlays.length > 0) && (overlayInScanner) && 
                 (overlays.toString().indexOf(overlayInScanner) === -1)) {
                     if (highlightToggle) {
@@ -184,13 +197,11 @@
                     }
                     matchingEntity = null;
                     overlayInScanner = null;
-                    // ready to process overlayin scanner
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInScanner) !== -1) {
                     if (Overlays.getProperty(overlayInScanner, 'parentID')) {
 
                         tableID = Entities.getEntityProperties(scanner, 'parentID').parentID;
                         if (Overlays.getProperty(overlayInScanner, 'parentID') === tableID) { 
-                            // if item in Scanner is not being grabbed anymore
                             name = Overlays.getProperty(overlayInScanner, 'name');
                             if (highlightToggle) {
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
@@ -199,7 +210,6 @@
                             }
                             var MPIDLengthMinusOne = 35;
                             var marketplaceID = name.substr(OVERLAY_PREFIX.length, OVERLAY_PREFIX.length + MPIDLengthMinusOne);
-                            print("mp id " + marketplaceID);
                             var goToURL = MARKET_PLACE_ITEM_URL_PREFIX + "/items/" + marketplaceID;
                             var entityProperties = Entities.getEntityProperties(matchingEntity, 
                                 ['localPosition', 'localRotation', 'dimensions', 'parentJointIndex', 'marketplaceID']);
@@ -219,16 +229,16 @@
                                 });
                                 scannedMPOverlays[overlayInScanner] = {x: newX, y: SCANNED_LOCAL_HEIGHT, z: newZ};
                                 if (position1) {
-                                    newZ -=OVERLAY_SPACING;
+                                    newZ -=overlaySpacing;
                                     position1 = false;
                                     position2 = true;
                                 } else if (position2) {
-                                    newZ -=OVERLAY_SPACING;
+                                    newZ -=overlaySpacing;
                                     position2 = false;
                                 } else {
-                                    newZ +=OVERLAY_SPACING;
-                                    newZ +=OVERLAY_SPACING;
-                                    newX -=OVERLAY_SPACING;
+                                    newZ +=overlaySpacing;
+                                    newZ +=overlaySpacing;
+                                    newX -=overlaySpacing;
                                     position1 = true;
                                 }
                             } else {
@@ -237,7 +247,6 @@
                                     localRotation: SCANNED_LOCAL_ROTATION
                                 });
                             }
-            
                     
                             TABLET.gotoWebScreen(goToURL, MARKETPLACES_INJECT_SCRIPT_URL);
                             if (SCANNED_ITEM_SOUND.downloaded) {
@@ -262,7 +271,12 @@
                     overlays.forEach(function(overlayID) {
                         name = Overlays.getProperty(overlayID, 'name');
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {
-                            var nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS);
+                            var nearbyEntities;
+                            if (mini) {
+                                nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS_MINI);
+                            } else {
+                                nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS);
+                            }
                             nearbyEntities.forEach(function(entityID) {
                                 var userDataString = 
                                     JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
