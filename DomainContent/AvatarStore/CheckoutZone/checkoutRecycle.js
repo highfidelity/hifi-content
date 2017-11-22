@@ -39,7 +39,8 @@
     Recycle.prototype = {
         preload: function(entityID) {
             recycleBin = entityID;
-            if (Entities.getEntityProperties(recycleBin, 'dimensions.x') < 0.2) {
+            var sizeLimit = 0.2;
+            if (Entities.getEntityProperties(recycleBin, 'dimensions.x') < sizeLimit) {
                 mini = true;
             }
             if (highlightToggle) {
