@@ -39,7 +39,9 @@
                 lifetime: CLONE_LIFETIME,
                 visible: false,
                 shapeType: "box",
+
                 collidesWith: "dynamic,"
+
             };
             messageHandler = function(channel, data, sender) {
                 if (channel === messageChannel) {
