@@ -58,7 +58,7 @@
             itemHeight = 0.04;
             tabletLocalOffset = { x: -0.01, y: 0.53, z: -0.4 };
         } else {
-            print("not mini. zone is " + zoneID + " and dim x is " + Entities.getEntityProperties(zoneID, 'dimensions.x')");
+            print("not mini. zone is " + zoneID + " and dim x is " + Entities.getEntityProperties(zoneID, 'dimensions.x'));
             itemHeight = 0.07;
             tabletLocalOffset = { x: -0.1, y: 0.74, z: -0.35 };
         }
