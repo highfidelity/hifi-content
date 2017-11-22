@@ -50,7 +50,7 @@
     this.preload = function(entityID) {
         zoneID = entityID;
         var sizeLimit = 1;
-        if (Entities.getEntityProperties(zoneID, 'dimensions.x') < sizeLimit) {
+        if (Entities.getEntityProperties(zoneID, 'dimensions.x').dimensions.x < sizeLimit) {
             mini = true;
         }
         if (mini) {
