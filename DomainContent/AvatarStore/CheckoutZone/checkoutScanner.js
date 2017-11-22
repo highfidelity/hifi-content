@@ -162,7 +162,7 @@
             if (mini) {
                 newX = 0.04;
             } else {
-                newX = 0.05;
+                newX = 0.04;
             }
             var newZ = -0.35; 
             var position1 = true;
