@@ -29,7 +29,6 @@
     var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
     var SCANNED_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 });
     var SCANNED_LOCAL_HEIGHT = 0.29;
-    var OVERLAY_SPACING = 0.09;
     var MAKING_SURE_INTERVAL = 100; // Milliseconds
     var STOP_MAKING_SURE_TIMEOUT = 5000; // Milliseconds
     var PURCHASED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound6.wav"));
@@ -37,6 +36,7 @@
   
     var tableID;
     var interval;
+    var overlaySpacing;
     var scanPosition;
     var scannedMPOverlays = {};
     var prevID = 0;
@@ -161,8 +161,10 @@
             var newX;
             if (mini) {
                 newX = 0.04;
+                overlaySpacing = 0.055;
             } else {
                 newX = 0.02;
+                overlaySpacing = 0.09;
             }
             var newZ = -0.35; 
             var position1 = true;
@@ -227,16 +229,16 @@
                                 });
                                 scannedMPOverlays[overlayInScanner] = {x: newX, y: SCANNED_LOCAL_HEIGHT, z: newZ};
                                 if (position1) {
-                                    newZ -=OVERLAY_SPACING;
+                                    newZ -=overlaySpacing;
                                     position1 = false;
                                     position2 = true;
                                 } else if (position2) {
-                                    newZ -=OVERLAY_SPACING;
+                                    newZ -=overlaySpacing;
                                     position2 = false;
                                 } else {
-                                    newZ +=OVERLAY_SPACING;
-                                    newZ +=OVERLAY_SPACING;
-                                    newX -=OVERLAY_SPACING;
+                                    newZ +=overlaySpacing;
+                                    newZ +=overlaySpacing;
+                                    newX -=overlaySpacing;
                                     position1 = true;
                                 }
                             } else {
