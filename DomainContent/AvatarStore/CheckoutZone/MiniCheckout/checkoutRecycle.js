@@ -1,3 +1,4 @@
+//
 //  checkoutRecycle.js
 //
 //  Created by Rebecca Stankus on 10/20/17.
@@ -11,14 +12,14 @@
 
 (function() {
     var highlightToggle = false;
-  
-    var SCAN_RADIUS = 0.15; // meters
+
+    var SCAN_RADIUS = 0.05; // meters
     var OVERLAY_PREFIX = 'MP';
-    var SEARCH_RADIUS = 2;
+    var AVATAR_SEARCH_RADIUS = 1;
     var LIST_NAME = "highlightList2";
     var RECYCLE_CHECK_INTERVAL_MS = 500;
-    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
-    var SHARED = Script.require('../attachmentZoneShared.js');
+    var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
+    var SHARED = Script.require('../../attachmentZoneShared.js');
     var RECYCLE_OVERLAY_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound4.wav"));
     
     var prevID = 0;
@@ -29,6 +30,7 @@
     var currentEntityMatch = null;
     var interval;
     var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
+    
 
     var Recycle = function() {
     };
@@ -48,7 +50,7 @@
                 print("Recycle is searching too...");
                 recyclePosition = Entities.getEntityProperties(recycleBin, 'position').position;
                 var overlays = Overlays.findOverlays(recyclePosition, SCAN_RADIUS);
-                if (overlays.length === 0 && overlayInBin) {
+                if (overlays.length === 0 && overlayInBin) { // overlay removed from bin...no new one in bin
                     if (highlightToggle) {
                         Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
                         Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInBin);
@@ -56,7 +58,8 @@
                     }
                     currentEntityMatch = null;
                     overlayInBin = null;
-                } else if ((overlays.length > 0) && (overlayInBin) && (overlays.toString().indexOf(overlayInBin) === -1)) {
+                } else if ((overlays.length > 0) && (overlayInBin) && 
+                    (overlays.toString().indexOf(overlayInBin) === -1)) {
                     if (highlightToggle) {
                         Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
                         Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInBin);
@@ -65,7 +68,7 @@
                     currentEntityMatch = null;
                     overlayInBin = null;
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInBin) !== -1) {
-                    if (Overlays.getProperty(overlayInBin, 'parentID')) {
+                    if (Overlays.getProperty(overlayInBin, 'parentID')) { 
                         if (Overlays.getProperty(overlayInBin, 'parentID') === tableID) {
                             if (highlightToggle) {
                                 Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
@@ -88,10 +91,10 @@
                     overlays.forEach(function(overlayID) {
                         var name = Overlays.getProperty(overlayID, 'name');
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {
-                            var nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS);
+                            var nearbyEntities = Entities.findEntities(MyAvatar.position, AVATAR_SEARCH_RADIUS);
                             nearbyEntities.forEach(function(entityID) {
                                 var userDataString = 
-                                    JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
+                                JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
                                 if (userDataString.indexOf(overlayID) !== -1) {
                                     overlayInBin = overlayID;
                                     currentEntityMatch = entityID;
@@ -107,7 +110,7 @@
                         }
                     });
                 }
-            }, RECYCLE_CHECK_INTERVAL_MS);    
+            }, RECYCLE_CHECK_INTERVAL_MS);
         },
         exitCheckout: function() {
             Script.clearInterval(interval);
