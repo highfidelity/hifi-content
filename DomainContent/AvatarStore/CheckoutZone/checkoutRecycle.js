@@ -52,7 +52,6 @@
         },
         enterCheckout: function() {
             interval = Script.setInterval(function() {
-                print("Recycle is searching too...");
                 recyclePosition = Entities.getEntityProperties(recycleBin, 'position').position;
                 var overlays;
                 if (mini) {
