@@ -104,7 +104,7 @@
                 tableLength = tableProperties.dimensions.x;
                 var halfTableHeight = HALF * tableHeight;
                 if (mini) {
-                    yOffset = -0.015;
+                    yOffset = 0.2;
                     zOffset = 0;
                     xOffset = 0;
                 } else {
