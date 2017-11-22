@@ -40,7 +40,7 @@
         preload: function(entityID) {
             recycleBin = entityID;
             var sizeLimit = 0.2;
-            if (Entities.getEntityProperties(recycleBin, 'dimensions.x') < sizeLimit) {
+            if (Entities.getEntityProperties(recycleBin, 'dimensions.x').dimensions.x < sizeLimit) {
                 mini = true;
             }
             if (highlightToggle) {

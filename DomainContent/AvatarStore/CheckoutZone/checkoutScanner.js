@@ -62,7 +62,7 @@
                 HIGHLIGHT.changeHighlight3(highlightConfig);
             }
             var sizeLimit = 0.2;
-            if (Entities.getEntityProperties(entityID, 'dimensions.x') < sizeLimit) {
+            if (Entities.getEntityProperties(entityID, 'dimensions.x').dimensions.x < sizeLimit) {
                 mini = true;
             }
         },
