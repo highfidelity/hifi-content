@@ -23,7 +23,7 @@
     var LIST_NAME = "highlightList3";
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
     var SEARCH_RADIUS = 2;
-    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
+    var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
     var SCANNED_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 });
     var SCANNED_LOCAL_HEIGHT = 0.29;
     var OVERLAY_SPACING = 0.09;
