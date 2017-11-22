@@ -61,7 +61,8 @@
                 Selection.clearSelectedItemsList(LIST_NAME);
                 HIGHLIGHT.changeHighlight3(highlightConfig);
             }
-            if (Entities.getEntityProperties(entityID, 'dimensions.x') < 0.2) {
+            var sizeLimit = 0.2;
+            if (Entities.getEntityProperties(entityID, 'dimensions.x') < sizeLimit) {
                 mini = true;
             }
         },
