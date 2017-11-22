@@ -51,6 +51,9 @@
     
     this.preload = function(entityID) {
         zoneID = entityID;
+        if (Entities.getEntityProperties(zoneID, 'dimensions.x') < 1) {
+            mini = true;
+        }
         if (mini) {
             print("mini");
             itemHeight = 0.04;
