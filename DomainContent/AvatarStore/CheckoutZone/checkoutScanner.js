@@ -171,7 +171,6 @@
             var position2 = false;
           
             interval = Script.setInterval(function() {
-                print("scanner is searching");
                 scanPosition = Entities.getEntityProperties(scanner, 'position').position;
                 var overlays;
                 if (mini) {
