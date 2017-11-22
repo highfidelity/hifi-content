@@ -45,8 +45,6 @@
     var recycleBinID;
     var scannerZone;
     var replicaStoredTransforms = {};
-    var left = true;
-    var middle = false;
     var yOffset, zOffset, xOffset;
     
     this.preload = function(entityID) {
@@ -254,6 +252,7 @@
     });
   
     _this.enterEntity = (function (entityID) {
+        
         replicaList = [];
         collectZoneData();
         if (ENTER_ZONE_SOUND.downloaded) {
@@ -269,6 +268,8 @@
         isInZone = true;
         var avatarChildEntities = [];
         avatarChildEntities = SHARED.getAvatarChildEntities(MyAvatar);
+        var left = true;
+        var middle = false;
         avatarChildEntities.forEach(function (entityID) {
             if (replicaList.length < MAX_ITEMS){
                 var childUserData = Entities.getEntityProperties(entityID, 'userData').userData;
