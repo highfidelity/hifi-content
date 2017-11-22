@@ -274,7 +274,7 @@
                 "y": 1,
                 "z": -1.52587890625e-05
             },
-            "script": "https://hifi-content.s3.amazonaws.com/rebecca/mirrorClient.js",
+            "script": "https://hifi-content.s3.amazonaws.com/davidback/production/mirrorClient.js",
             "shapeType": "simple-hull",
             "type": "Model",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
