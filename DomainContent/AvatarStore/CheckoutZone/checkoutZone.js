@@ -13,9 +13,10 @@
 /* global Render, Wallet */
 
 (function () {
+    var mini = false;
+
     var SHARED = Script.require('../attachmentZoneShared.js');
     var MAX_ITEMS = 12;
-    var ITEM_HEIGHT = 0.07;
     var HALF = 0.5;
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
@@ -24,7 +25,7 @@
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/shoppingCart.svg";
     var OVERLAY_ROTATIONAL_OFFSET = { x: 10, y: 140, z: 0 };
-    var TABLET_LOCAL_POSITION_OFFSET = { x: -0.1, y: 0.74, z: -0.35 };
+    
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 220, z: 0 };
     var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
@@ -33,6 +34,8 @@
     var SHORTER_STOP_INTERVAL = 1000;
     var STOP_MAKING_SURE_TIMEOUT = 5000;
     
+    var itemHeight;
+    var tabletLocalOffset;
     var _this = this;
     var isInZone = false;
     var tableProperties, tableHeight, tableLength, tableID, spawnZ, spawnY, spawnX;
@@ -42,11 +45,21 @@
     var recycleBinID;
     var scannerZone;
     var replicaStoredTransforms = {};
-    var left = true;
-    var middle = false;
+    var yOffset, zOffset, xOffset;
     
     this.preload = function(entityID) {
         zoneID = entityID;
+        var sizeLimit = 1;
+        if (Entities.getEntityProperties(zoneID, 'dimensions.x').dimensions.x < sizeLimit) {
+            mini = true;
+        }
+        if (mini) {
+            itemHeight = 0.04;
+            tabletLocalOffset = { x: -0.01, y: 0.53, z: -0.4 };
+        } else {
+            itemHeight = 0.07;
+            tabletLocalOffset = { x: -0.1, y: 0.74, z: -0.35 };
+        }
     };
     
     var getTransformForMarketplaceItems = function() {
@@ -80,7 +93,6 @@
         Settings.setValue(TRANSFORMS_SETTINGS, marketplaceItemTransforms);
     };
   
-    // Get info on checkout stand so we can place copies of items on it for purchasing
     var collectZoneData = (function(){
         var zoneChildren = Entities.getChildrenIDs(zoneID);
         zoneChildren.forEach(function (childID) {
@@ -91,12 +103,18 @@
                 tableHeight = tableProperties.dimensions.y;
                 tableLength = tableProperties.dimensions.x;
                 var halfTableHeight = HALF * tableHeight;
-                var verticalSpace = -0.015;
-                spawnY = halfTableHeight + verticalSpace;
+                if (mini) {
+                    yOffset = 0.2;
+                    zOffset = 0;
+                    xOffset = 0;
+                } else {
+                    yOffset = 0;
+                    zOffset = 0.3;
+                    xOffset = -0.05;
+                }
+                spawnY = halfTableHeight + yOffset;
                 var halfTableLength = HALF * tableLength;
-                var zOffset = 0.3;
-                spawnZ = (halfTableLength - ITEM_HEIGHT + zOffset);
-                var xOffset = -0.05;
+                spawnZ = (halfTableLength - itemHeight + zOffset);
                 spawnX = xOffset;
                 return;
             }
@@ -131,15 +149,20 @@
             // clone dimensions so we can alter it without messing up the original entities dimensions
             dimensions: entityProperties.dimensions
         };
-        var scale = (ITEM_HEIGHT / overlayProperties.dimensions.y);
-        if ((overlayProperties.dimensions.x > ITEM_HEIGHT) || (overlayProperties.dimensions.y > ITEM_HEIGHT) || 
-              (overlayProperties.dimensions.y > ITEM_HEIGHT)) {
-            overlayProperties.dimensions.y = ITEM_HEIGHT;
+        var scale = (itemHeight / overlayProperties.dimensions.y);
+        if ((overlayProperties.dimensions.x > itemHeight) || (overlayProperties.dimensions.y > itemHeight) || 
+              (overlayProperties.dimensions.y > itemHeight)) {
+            overlayProperties.dimensions.y = itemHeight;
             overlayProperties.dimensions.x *= scale;
             overlayProperties.dimensions.z *= scale;
         }
         // check that the item is not too large
-        var maxItemSize = 0.1;
+        var maxItemSize;
+        if (mini) {
+            maxItemSize = 0.06;
+        } else {
+            maxItemSize = 0.1;
+        }
         var scaleReduction = 0.95;
         while (overlayProperties.dimensions.x > maxItemSize || overlayProperties.dimensions.z > maxItemSize || 
                   overlayProperties.dimensions.y > maxItemSize) {
@@ -231,6 +254,7 @@
     });
   
     _this.enterEntity = (function (entityID) {
+        
         replicaList = [];
         collectZoneData();
         if (ENTER_ZONE_SOUND.downloaded) {
@@ -246,6 +270,8 @@
         isInZone = true;
         var avatarChildEntities = [];
         avatarChildEntities = SHARED.getAvatarChildEntities(MyAvatar);
+        var left = true;
+        var middle = false;
         avatarChildEntities.forEach(function (entityID) {
             if (replicaList.length < MAX_ITEMS){
                 var childUserData = Entities.getEntityProperties(entityID, 'userData').userData;
@@ -253,23 +279,28 @@
                 var marketplaceID = Entities.getEntityProperties(entityID, 'marketplaceID').marketplaceID;
                 if (marketplaceID && (isAttachment !== -1)) {
                     spawnOverlayReplica(entityID);
-                    var xOffset = 0.005;
-                    var yOffset = 0.1;
+                    if (mini) {
+                        xOffset = 0;
+                        yOffset = 0.06;
+                    } else {
+                        xOffset = 0.005;
+                        yOffset = 0.1;
+                    }
                     if (left) {
-                        spawnX -= ITEM_HEIGHT + xOffset;
-                        spawnZ -= ITEM_HEIGHT;
+                        spawnX -= itemHeight + xOffset;
+                        spawnZ -= itemHeight;
                         left = false;
                         middle = true;
                     } else if (middle){
-                        spawnX -= ITEM_HEIGHT + xOffset;
-                        spawnZ -= ITEM_HEIGHT;
+                        spawnX -= itemHeight + xOffset;
+                        spawnZ -= itemHeight;
                         middle = false;
                     } else {
                         spawnY += yOffset;
-                        spawnX += ITEM_HEIGHT;
-                        spawnX += ITEM_HEIGHT;
-                        spawnZ += ITEM_HEIGHT;
-                        spawnZ += ITEM_HEIGHT;
+                        spawnX += itemHeight;
+                        spawnX += itemHeight;
+                        spawnZ += itemHeight;
+                        spawnZ += itemHeight;
                         left = true;
                     }
                 }
@@ -277,7 +308,7 @@
         });
         var tabletTransform = {
             parentID: tableID,
-            localPosition: TABLET_LOCAL_POSITION_OFFSET,
+            localPosition: tabletLocalOffset,
             localRotation: Quat.fromVec3Degrees(TABLET_ROTATIONAL_OFFSET)
         };
         Overlays.editOverlay(HMD.tabletID, tabletTransform);
