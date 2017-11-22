@@ -39,6 +39,9 @@
     Recycle.prototype = {
         preload: function(entityID) {
             recycleBin = entityID;
+            if (Entities.getEntityProperties(recycleBin, 'dimensions.x') < 0.2) {
+                mini = true;
+            }
             if (highlightToggle) {
                 highlightConfig["selectionName"] = LIST_NAME; 
                 Selection.clearSelectedItemsList(LIST_NAME);

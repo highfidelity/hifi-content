@@ -55,12 +55,14 @@
 
     Scanner.prototype = {
         preload: function(entityID) {
-
             scanner = entityID;
             if (highlightToggle) {
                 highlightConfig["selectionName"] = LIST_NAME; 
                 Selection.clearSelectedItemsList(LIST_NAME);
                 HIGHLIGHT.changeHighlight3(highlightConfig);
+            }
+            if (Entities.getEntityProperties(entityID, 'dimensions.x') < 0.2) {
+                mini = true;
             }
         },
       
