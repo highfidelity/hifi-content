@@ -46,7 +46,8 @@
     var scannerZone;
     var replicaStoredTransforms = {};
     var yOffset, zOffset, xOffset;
-    
+    var scannerPosition;
+
     this.preload = function(entityID) {
         zoneID = entityID;
         var sizeLimit = 1;
@@ -127,6 +128,7 @@
                 return;
             } else if (tableChildName === "Checkout Scan Zone") {
                 scannerZone = childID;
+                scannerPosition = Entities.getEntityProperties(scannerZone, 'position').position;
                 return;
             }
         });
@@ -181,7 +183,13 @@
             jointName: MyAvatar.jointNames[entityProperties.parentJointIndex],
             demoEntityID: entityID
         };
-  
+
+        var mousePress = (function(id, event) {
+            Overlays.editOverlay(id, {position: scannerPosition});
+        });
+
+        Overlays.mousePressOnOverlay.connect(mousePress);
+        
         replicaStoredTransforms[replica] = replicaStoredTransform;
         replicaList.push(replica);
     });
