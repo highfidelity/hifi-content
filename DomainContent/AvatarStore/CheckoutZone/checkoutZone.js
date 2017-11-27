@@ -184,14 +184,14 @@
             demoEntityID: entityID
         };
 
-        var mousePress = (function(id, event) {
-            Overlays.editOverlay(id, {position: scannerPosition});
-        });
-
-        Overlays.mousePressOnOverlay.connect(mousePress);
-        
         replicaStoredTransforms[replica] = replicaStoredTransform;
         replicaList.push(replica);
+        var mousePress = function(id, event) {
+            if (replicaList.indexOf(id) !== -1) {
+                Overlays.editOverlay(id, {position: scannerPosition});
+            }
+        };
+        Overlays.mousePressOnOverlay.connect(mousePress);
     });
   
     _this.replicaCheckedOut = function(entityID, args) {
@@ -361,4 +361,3 @@
         }
     };
 });
-  
