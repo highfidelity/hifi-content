@@ -46,7 +46,8 @@
     var scannerZone;
     var replicaStoredTransforms = {};
     var yOffset, zOffset, xOffset;
-    
+    var scannerPosition;
+
     this.preload = function(entityID) {
         zoneID = entityID;
         var sizeLimit = 1;
@@ -127,6 +128,7 @@
                 return;
             } else if (tableChildName === "Checkout Scan Zone") {
                 scannerZone = childID;
+                scannerPosition = Entities.getEntityProperties(scannerZone, 'position').position;
                 return;
             }
         });
@@ -181,9 +183,15 @@
             jointName: MyAvatar.jointNames[entityProperties.parentJointIndex],
             demoEntityID: entityID
         };
-  
+
         replicaStoredTransforms[replica] = replicaStoredTransform;
         replicaList.push(replica);
+        var mousePress = function(id, event) {
+            if (replicaList.indexOf(id) !== -1) {
+                Overlays.editOverlay(id, {position: scannerPosition});
+            }
+        };
+        Overlays.mousePressOnOverlay.connect(mousePress);
     });
   
     _this.replicaCheckedOut = function(entityID, args) {
@@ -353,4 +361,3 @@
         }
     };
 });
-  
