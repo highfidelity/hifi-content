@@ -29,8 +29,10 @@
     var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
     var SCANNED_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 });
     var SCANNED_LOCAL_HEIGHT = 0.29;
-    var MAKING_SURE_INTERVAL = 100; // Milliseconds
-    var STOP_MAKING_SURE_TIMEOUT = 5000; // Milliseconds
+
+    var OVERLAY_SPACING = 0.09;
+    var TRANSLATION_CHECK_INTERVAL = 100; // Milliseconds
+    var TRANSLATION_CHECK_TIMEOUT = 5000; // Milliseconds
     var PURCHASED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound6.wav"));
     var SCANNED_ITEM_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound8.wav"));
   
@@ -138,11 +140,11 @@
         
             var makeSureInterval = Script.setInterval(function() {
                 Entities.editEntity(newEntityID, transformProperties);
-            }, MAKING_SURE_INTERVAL);
+            }, TRANSLATION_CHECK_INTERVAL);
     
             Script.setTimeout(function() {
                 makeSureInterval.stop();
-            }, STOP_MAKING_SURE_TIMEOUT);
+            }, TRANSLATION_CHECK_TIMEOUT);
     
             var newEntityProperties = Entities.getEntityProperties(newEntityID, ['marketplaceID', 'certificateID']);
             var certificateID = undefined;
