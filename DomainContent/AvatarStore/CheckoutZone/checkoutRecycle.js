@@ -11,13 +11,16 @@
 
 (function() {
     var highlightToggle = false;
+    var mini = false;
   
     var SCAN_RADIUS = 0.15; // meters
+    var SCAN_RADIUS_MINI = 0.05; // meters
     var OVERLAY_PREFIX = 'MP';
     var SEARCH_RADIUS = 2;
+    var SEARCH_RADIUS_MINI = 1;
     var LIST_NAME = "highlightList2";
     var RECYCLE_CHECK_INTERVAL_MS = 500;
-    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
+    var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
     var SHARED = Script.require('../attachmentZoneShared.js');
     var RECYCLE_OVERLAY_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound4.wav"));
     
@@ -36,6 +39,10 @@
     Recycle.prototype = {
         preload: function(entityID) {
             recycleBin = entityID;
+            var sizeLimit = 0.2;
+            if (Entities.getEntityProperties(recycleBin, 'dimensions.x').dimensions.x < sizeLimit) {
+                mini = true;
+            }
             if (highlightToggle) {
                 highlightConfig["selectionName"] = LIST_NAME; 
                 Selection.clearSelectedItemsList(LIST_NAME);
@@ -45,9 +52,13 @@
         },
         enterCheckout: function() {
             interval = Script.setInterval(function() {
-                print("Recycle is searching too...");
                 recyclePosition = Entities.getEntityProperties(recycleBin, 'position').position;
-                var overlays = Overlays.findOverlays(recyclePosition, SCAN_RADIUS);
+                var overlays;
+                if (mini) {
+                    overlays = Overlays.findOverlays(recyclePosition, SCAN_RADIUS_MINI);
+                } else {
+                    overlays = Overlays.findOverlays(recyclePosition, SCAN_RADIUS);
+                }
                 if (overlays.length === 0 && overlayInBin) {
                     if (highlightToggle) {
                         Selection.removeFromSelectedItemsList(LIST_NAME, "entity", currentEntityMatch);
@@ -88,7 +99,12 @@
                     overlays.forEach(function(overlayID) {
                         var name = Overlays.getProperty(overlayID, 'name');
                         if (name.indexOf(OVERLAY_PREFIX) !== -1) {
-                            var nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS);
+                            var nearbyEntities;
+                            if (mini) {
+                                nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS_MINI);
+                            } else {
+                                nearbyEntities = Entities.findEntities(MyAvatar.position, SEARCH_RADIUS);
+                            }
                             nearbyEntities.forEach(function(entityID) {
                                 var userDataString = 
                                     JSON.stringify(Entities.getEntityProperties(entityID, 'userData').userData);
