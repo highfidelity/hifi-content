@@ -30,9 +30,9 @@
     var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 220, z: 0 };
     var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
     // Milliseconds
-    var MAKING_SURE_INTERVAL = 100;
+    var TRANSLATION_CHECK_INTERVAL = 100;
     var SHORTER_STOP_INTERVAL = 1000;
-    var STOP_MAKING_SURE_TIMEOUT = 5000;
+    var TRANSLATION_STOP_INTERVAL = 5000;
     
     var itemHeight;
     var tabletLocalOffset;
@@ -224,12 +224,12 @@
         // Make really sure that the translations are set properly
         var makeSureInterval = Script.setInterval(function() {
             Entities.editEntity(newEntityID, transformProperties);
-        }, MAKING_SURE_INTERVAL);
+        }, TRANSLATION_CHECK_INTERVAL);
   
         // Five seconds should be enough to be sure, otherwise we have a problem
         Script.setTimeout(function() {
             makeSureInterval.stop();
-        }, STOP_MAKING_SURE_TIMEOUT);
+        }, TRANSLATION_STOP_INTERVAL);
   
         var newEntityProperties = Entities.getEntityProperties(newEntityID, ['marketplaceID', 'certificateID']);
         var certificateID = undefined;
