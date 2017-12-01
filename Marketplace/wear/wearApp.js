@@ -119,7 +119,7 @@ module.exports = (function() {
             if (properties.clientOnly) {
                 var userData;
                 try {
-                    userData = JSON.stringify(properties.userData);
+                    userData = JSON.parse(properties.userData);
                 } catch (e) {
                     userData = {};
                 }
