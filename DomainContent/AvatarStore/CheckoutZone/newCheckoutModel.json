@@ -1,0 +1,366 @@
+{
+    "Entities": [
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 28,
+                "green": 5,
+                "red": 28
+            },
+            "created": "2017-11-22T20:40:36Z",
+            "dimensions": {
+                "x": 0.10000000149011612,
+                "y": 1,
+                "z": 1
+            },
+            "id": "{60a8e4d0-3247-4bec-9bb2-5addb197b243}",
+            "lastEdited": 1511383581957315,
+            "lastEditedBy": "{174e0941-1db0-4353-842b-f4dffc3c5a91}",
+            "locked": 1,
+            "name": "Checkout Table",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{b60aa415-99d3-41de-80f6-2c0c879518fc}",
+            "position": {
+                "x": -0.35451704263687134,
+                "y": -1.0101280212402344,
+                "z": 0.08475255966186523
+            },
+            "queryAACube": {
+                "scale": 1.460235595703125,
+                "x": -4.810560703277588,
+                "y": -11.562960624694824,
+                "z": -9.626410484313965
+            },
+            "registrationPoint": {
+                "x": 0.6000000238418579,
+                "y": 0.5,
+                "z": 0.5
+            },
+            "rotation": {
+                "w": 0.999969482421875,
+                "x": 0.005935788154602051,
+                "y": -7.62939453125e-05,
+                "z": -0.0001068115234375
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "visible": 0
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-11-22T20:40:36Z",
+            "dimensions": {
+                "x": 0.24305231869220734,
+                "y": 0.19966340065002441,
+                "z": 0.27107617259025574
+            },
+            "id": "{601b56a9-bc97-444d-9cb8-273ef61cf947}",
+            "lastEdited": 1511383339191117,
+            "lastEditedBy": "{174e0941-1db0-4353-842b-f4dffc3c5a91}",
+            "locked": 1,
+            "name": "Checkout Scan Zone",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{60a8e4d0-3247-4bec-9bb2-5addb197b243}",
+            "position": {
+                "x": -0.07820490747690201,
+                "y": 0.4865121841430664,
+                "z": -0.10313248634338379
+            },
+            "queryAACube": {
+                "scale": 0.41523751616477966,
+                "x": -4.406107425689697,
+                "y": -10.573189735412598,
+                "z": -9.046721458435059
+            },
+            "rotation": {
+                "w": 1.0000001192092896,
+                "x": -4.5776134356856346e-05,
+                "y": -1.5222090951283462e-05,
+                "z": 4.577566869556904e-05
+            },
+            "script": "https://raw.githubusercontent.com/RebeccaStankus/hifi-content/sizesCombined/DomainContent/AvatarStore/CheckoutZone/checkoutScanner.js",
+            "scriptTimestamp": 1511310052232,
+            "shapeType": "box",
+            "type": "Zone",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false},\"avatarStore\":{\"checkoutZoneID\":\"{1fc5224f-4c09-433a-bff5-54703d5ffc07}\"}}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-11-22T20:40:36Z",
+            "dimensions": {
+                "x": 0.18638640642166138,
+                "y": 0.17391513288021088,
+                "z": 0.11566425114870071
+            },
+            "haze": {
+                "hazeAttenuateKeyLight": 1,
+                "hazeKeyLightAltitude": 1.401298464324817e-45,
+                "hazeKeyLightRange": 1.975830834697992e-42
+            },
+            "id": "{39536d0e-1ef2-4823-85ff-455099428c1e}",
+            "lastEdited": 1511383339190097,
+            "lastEditedBy": "{174e0941-1db0-4353-842b-f4dffc3c5a91}",
+            "locked": 1,
+            "name": "Checkout Recycle",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{60a8e4d0-3247-4bec-9bb2-5addb197b243}",
+            "position": {
+                "x": 0.0973973423242569,
+                "y": 0.3127012252807617,
+                "z": 0.23427319526672363
+            },
+            "queryAACube": {
+                "scale": 0.2799367308616638,
+                "x": -4.002363204956055,
+                "y": -10.683466911315918,
+                "z": -9.152996063232422
+            },
+            "rotation": {
+                "w": 0.3159990906715393,
+                "x": -0.0481116808950901,
+                "y": 0.9457998871803284,
+                "z": -0.05738919600844383
+            },
+            "script": "https://raw.githubusercontent.com/RebeccaStankus/hifi-content/sizesCombined/DomainContent/AvatarStore/CheckoutZone/checkoutRecycle.js",
+            "scriptTimestamp": 1511310073982,
+            "shapeType": "box",
+            "type": "Zone",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
+            "visible": 0
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-11-22T20:40:36Z",
+            "dimensions": {
+                "x": 0.43368294835090637,
+                "y": 0.24339258670806885,
+                "z": 0.42161548137664795
+            },
+            "id": "{1ea5c783-a154-447b-b4c9-62d2b6761dcb}",
+            "lastEdited": 1511383339189920,
+            "lastEditedBy": "{174e0941-1db0-4353-842b-f4dffc3c5a91}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/alan/dev/glow-cone-red.fbx",
+            "name": "Checkout Scan Light",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{b60aa415-99d3-41de-80f6-2c0c879518fc}",
+            "position": {
+                "x": -0.4664543569087982,
+                "y": -0.5031118392944336,
+                "z": 0.048349857330322266
+            },
+            "queryAACube": {
+                "scale": 0.6519819498062134,
+                "x": -4.46367883682251,
+                "y": -10.672285079956055,
+                "z": -9.130949020385742
+            },
+            "rotation": {
+                "w": 0.014602899551391602,
+                "x": -0.6607916951179504,
+                "y": -0.01600671000778675,
+                "z": 0.7502709031105042
+            },
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "clientOnly": 0,
+            "collisionless": 1,
+            "created": "2017-11-22T20:40:36Z",
+            "dimensions": {
+                "x": 1.5134880542755127,
+                "y": 2.500713348388672,
+                "z": 3.0838875770568848
+            },
+            "id": "{22427937-68af-4f4d-95af-c1a990d03c05}",
+            "ignoreForCollisions": 1,
+            "lastEdited": 1511383339190372,
+            "lastEditedBy": "{174e0941-1db0-4353-842b-f4dffc3c5a91}",
+            "locked": 1,
+            "name": "Checkout MirrorReflectionArea",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{21558341-69f5-42f3-a144-f09b5bdebe1a}",
+            "position": {
+                "x": 0.06482601165771484,
+                "y": -0.46485042572021484,
+                "z": 1.3508970737457275
+            },
+            "queryAACube": {
+                "scale": 4.249067783355713,
+                "x": -6.393592834472656,
+                "y": -12.331379890441895,
+                "z": -12.046737670898438
+            },
+            "rotation": {
+                "w": 0.9999906420707703,
+                "x": -1.52587381307967e-05,
+                "y": -4.5661392505280674e-05,
+                "z": -1.5260360669344664e-05
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/rebecca/mirrorReflection.js",
+            "shapeType": "box",
+            "type": "Zone",
+            "visible": 0
+        },
+        {
+            "clientOnly": 0,
+            "collisionless": 1,
+            "created": "2017-11-22T20:40:36Z",
+            "dimensions": {
+                "x": 0.6000000238418579,
+                "y": 0.6000000238418579,
+                "z": 0.009999999776482582
+            },
+            "id": "{21558341-69f5-42f3-a144-f09b5bdebe1a}",
+            "ignoreForCollisions": 1,
+            "lastEdited": 1511383339190551,
+            "lastEditedBy": "{174e0941-1db0-4353-842b-f4dffc3c5a91}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/thoys/production/avatarStore/mirror_without_backface.fbx",
+            "name": "Checkout Mirror",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{b60aa415-99d3-41de-80f6-2c0c879518fc}",
+            "position": {
+                "x": -0.6982074975967407,
+                "y": 0.10133552551269531,
+                "z": 0.011786937713623047
+            },
+            "queryAACube": {
+                "scale": 4.249068260192871,
+                "x": -6.39359188079834,
+                "y": -12.327656745910645,
+                "z": -12.046737670898438
+            },
+            "rotation": {
+                "w": 0.6977187395095825,
+                "x": -0.0001678466796875,
+                "y": 0.7163348197937012,
+                "z": -0.0002899169921875
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/davidback/production/mirrorClient.js",
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "clientOnly": 0,
+            "collisionless": 1,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 255
+            },
+            "created": "2017-11-22T20:40:36Z",
+            "dimensions": {
+                "x": 0.18811896443367004,
+                "y": 0.20000000298023224,
+                "z": 0.12238265573978424
+            },
+            "id": "{9150848a-9cb8-4f30-93a2-78f7f2fd003c}",
+            "ignoreForCollisions": 1,
+            "lastEdited": 1511383339191253,
+            "lastEditedBy": "{174e0941-1db0-4353-842b-f4dffc3c5a91}",
+            "locked": 1,
+            "name": "Checkout Recycle Temp Model",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.3453035354614258,
+                "y": 0.25221729278564453,
+                "z": 0.27246761322021484
+            },
+            "queryAACube": {
+                "scale": 0.300609827041626,
+                "x": 0.1949986219406128,
+                "y": 0.10191237926483154,
+                "z": 0.12216269969940186
+            },
+            "rotation": {
+                "w": -0.44802016019821167,
+                "x": -0.038864731788635254,
+                "y": 0.8920271396636963,
+                "z": -0.045334577560424805
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "myAvatar,otherAvatar,",
+            "collisionMask": 24,
+            "created": "2017-11-22T20:40:36Z",
+            "dimensions": {
+                "x": 1.399999976158142,
+                "y": 2.939500093460083,
+                "z": 0.8176000118255615
+            },
+            "id": "{b60aa415-99d3-41de-80f6-2c0c879518fc}",
+            "lastEdited": 1511383339190860,
+            "lastEditedBy": "{174e0941-1db0-4353-842b-f4dffc3c5a91}",
+            "locked": 1,
+            "name": "Checkout Zone",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.011940956115722656,
+                "y": 0.9084157943725586,
+                "z": 0
+            },
+            "queryAACube": {
+                "scale": 3.356952667236328,
+                "x": -1.6665353775024414,
+                "y": -0.7700605392456055,
+                "z": -1.678476333618164
+            },
+            "rotation": {
+                "w": 0.7087358236312866,
+                "x": 0.0001373291015625,
+                "y": 0.7054398059844971,
+                "z": -7.62939453125e-05
+            },
+            "script": "https://raw.githubusercontent.com/RebeccaStankus/hifi-content/sizesCombined/DomainContent/AvatarStore/CheckoutZone/checkoutZone.js",
+            "scriptTimestamp": 1511375314058,
+            "shapeType": "box",
+            "type": "Zone",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false,\"ignoreIK\":false}}",
+            "visible": 0
+        },
+        {
+            "clientOnly": 0,
+            "created": "2017-11-22T20:40:36Z",
+            "dimensions": {
+                "x": 0.9466000199317932,
+                "y": 1.5327999591827393,
+                "z": 0.38850000500679016
+            },
+            "id": "{d428bb79-f63c-47d3-a59c-20294dccca74}",
+            "lastEdited": 1511383339190714,
+            "lastEditedBy": "{174e0941-1db0-4353-842b-f4dffc3c5a91}",
+            "locked": 1,
+            "modelURL": "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/combinedSizes/checkoutMachv5.obj",
+            "name": "Checkout Model",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0.4902687072753906
+            },
+            "queryAACube": {
+                "scale": 1.84294855594635,
+                "x": -0.921474277973175,
+                "y": -0.921474277973175,
+                "z": -0.4312055706977844
+            },
+            "rotation": {
+                "w": 0.999969482421875,
+                "x": -4.57763671875e-05,
+                "y": -0.006393551826477051,
+                "z": 0.0021820068359375
+            },
+            "textures": "# Blender MTL File: 'checkoutMachv5.blend'\n# Material Count: 5\n\nnewmtl Material.003\nNs 1000.000000\nKa 1.000000 1.000000 1.000000\nKd 0.227065 0.234760 0.206610\nKs 1.000000 1.000000 1.000000\nKe 0.000000 0.000000 0.000000\nNi 1.000000\nd 1.000000\nillum 2\n\nnewmtl Material.004\nNs 96.078431\nKa 1.000000 1.000000 1.000000\nKd 0.066677 0.245335 0.640000\nKs 0.500000 0.500000 0.500000\nKe 0.000000 0.000000 0.000000\nNi 1.000000\nd 1.000000\nillum 2\n\nnewmtl mat15\nNs 84.313725\nKa 1.000000 1.000000 1.000000\nKd 0.860000 0.848518 0.684336\nKs 1.000000 1.000000 1.000000\nKe 0.000000 0.000000 0.000000\nNi 1.000000\nd 1.000000\nillum 2\n\nnewmtl mat20\nNs 96.078431\nKa 1.000000 1.000000 1.000000\nKd 1.000000 1.000000 1.000000\nKs 0.000000 0.000000 0.000000\nKe 0.000000 0.000000 0.000000\nNi 1.000000\nd 1.000000\nillum 2\nmap_Kd G:\\My Drive\\Models\\Textures\\WoodFine0050_1_512-D.jpg\n\nnewmtl mat25\nNs 300.000000\nKa 1.000000 0.650000 0.670000\nKd 0.920000 0.950000 0.940000\nKs 1.000000 1.000000 1.000000\nKe 0.000000 0.000000 0.000000\nNi 1.500000\nd 0.400000\nillum 3",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        }
+    ],
+    "Version": 79
+}
