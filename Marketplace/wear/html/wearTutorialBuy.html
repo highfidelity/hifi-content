@@ -1,68 +1,26 @@
+<!--
+    html/wearTutorialBuy.html
+
+    Created by Thijs Wenker on 11/30/17.
+    Copyright 2017 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
 <html>
-        <head>
-            <title>Adjust Attachments Tutorial</title>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <script src="js/jquery-3.2.1.min.js"></script>
-            <style>
-                @font-face {
-                    font-family: Raleway-Regular;
-                    src: url(../../../resources/fonts/Raleway-Regular.ttf),  /* Windows production */
-                        url(../../../fonts/Raleway-Regular.ttf),  /* OSX production */
-                        url(../../../interface/resources/fonts/Raleway-Regular.ttf),  /* Development, running script in /HiFi/examples */
-                        url(../fonts/Raleway-Regular.ttf);  /* Marketplace script */
-                }
-    
-                @font-face {
-                    font-family: Raleway-Light;
-                    src: url(../../../resources/fonts/Raleway-Light.ttf),
-                        url(../../../fonts/Raleway-Light.ttf),
-                        url(../../../interface/resources/fonts/Raleway-Light.ttf),
-                        url(fonts/Raleway-Light.ttf);
-                }
-    
-                @font-face {
-                    font-family: Raleway-Bold;
-                    src: url(../../../resources/fonts/Raleway-Bold.ttf),
-                        url(../../../fonts/Raleway-Bold.ttf),
-                        url(../../../interface/resources/fonts/Raleway-Bold.ttf),
-                        url(fonts/Raleway-Bold.ttf);
-                }
-    
-                @font-face {
-                    font-family: Raleway-SemiBold;
-                    src: url(../../../resources/fonts/Raleway-SemiBold.ttf),
-                        url(../../../fonts/Raleway-SemiBold.ttf),
-                        url(../../../interface/resources/fonts/Raleway-SemiBold.ttf),
-                        url(fonts/Raleway-SemiBold.ttf);
-                }
-    
-                @font-face {
-                    font-family: FiraSans-SemiBold;
-                    src: url(../../../resources/fonts/FiraSans-SemiBold.ttf),
-                        url(../../../fonts/FiraSans-SemiBold.ttf),
-                        url(../../../interface/resources/fonts/FiraSans-SemiBold.ttf),
-                        url(fonts/FiraSans-SemiBold.ttf);
-                }
-    
-                @font-face {
-                    font-family: AnonymousPro-Regular;
-                    src: url(../../../resources/fonts/AnonymousPro-Regular.ttf),
-                        url(../../../fonts/AnonymousPro-Regular.ttf),
-                        url(../../../interface/resources/fonts/AnonymousPro-Regular.ttf),
-                        url(fonts/AnonymousPro-Regular.ttf);
-                }
-    
-                @font-face {
-                    font-family: HiFi-Glyphs;
-                    src: url(../../../resources/fonts/hifi-glyphs.ttf),
-                        url(../../../fonts/hifi-glyphs.ttf),
-                        url(../../../interface/resources/fonts/hifi-glyphs.ttf),
-                        url(fonts/hifi-glyphs.ttf);
-                }
-            </style>
-        </head>
-        <body>
-            <img src=""/>
-        </body>
-    </html>
+    <head>
+        <title>Buy Attachments Tutorial</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="css/tutorial-style.css">
+        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="js/tutorial.js"></script>
+    </head>
+    <body>
+        <div class="content">
+            <img src="img/wearTutorialBuy.png" draggable="false"/>
+            <p><span class="bold">Click on items</span> to your left to buy them</p>
+            <input type="button" class="blueButton gotIt" onclick="gotIt()" value="GOT IT" />
+        </div>
+    </body>
+</html>

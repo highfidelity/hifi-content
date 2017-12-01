@@ -1,3 +1,12 @@
+<!--
+    html/wearApp.html
+
+    Created by Thijs Wenker on 11/30/17.
+    Copyright 2017 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
 <html>
     <head>
         <title>Adjust Attachments</title>
@@ -64,7 +73,7 @@
             input[type=number] {
                 position: relative;
                 height: 28px;
-                width: 124px;
+                width: 139px;
                 padding-left: 15px;
                 padding-right: 3px;
                 background-color: #d1d1d3;
@@ -151,7 +160,6 @@
                 font-family: Raleway-Regular;
                 font-size: 15px;
 
-
                 -webkit-touch-callout: none;
                 -webkit-user-select: none;
                 -khtml-user-select: none;
@@ -170,7 +178,7 @@
             }
 
             hr {
-                margin-bottom: 10px;
+                margin-bottom: 20px;
                 color: #373737;
                 background-color: #373737;
                 border: 0 none;
@@ -467,20 +475,24 @@
                 border: 1px solid #61d836;
                 background-color: #e4f5e1;
             }
-            #hmdWarning {
+            #hmdWarning > h3 {
+                padding-bottom: 5px;
+            }
+            #footer {
                 position: absolute;
                 bottom: 2%;
                 width: 100%;
             }
-            #hmdWarning > h3 {
-                padding-bottom: 5px;
+            #footerButtonContainer {
+                text-align: center;
+                padding-bottom: 10px;
             }
         </style>
     </head>
     <body>
       <div class="container">
         <div style="margin-top: 21px; margin-bottom: 10px; text-align: center;">
-            <img style="height: 24px; display: inline-block; padding-right: 5px;" src="img/WearAppIconBlack.svg" />
+            <img style="height: 30px; display: inline-block; padding-right: 5px; vertical-align: bottom;" src="img/WearAppIconBlack.svg" />
             <h1 style="display: inline-block;">Adjust Wearables</h1>
         </div>
         <hr>
@@ -508,20 +520,24 @@
                         <label>Scale</label>
                         <div style="clear: both;">
                             <input type="number" id="property-scale" step="0.01">
+                            <input type="button" style="margin-left: auto; margin-right: auto; width: 130px; float: right;" class="redButton" onclick="showRemoveWearableModal()" value="TAKE IT OFF" />
                         </div>
-                        <input type="button" style="margin-left: auto; margin-right: auto; width: 130px; float: right;" class="redButton" onclick="showRemoveWearableModal()" value="Take it off" />
                     </div>
                 </fieldset>
             </div>
             <div id="loading">
-
+                
             </div>
-
-            <div id="hmdWarning">
-                <div id="hmdWarningText">
-                <h3>Wearable adjustment mode: On</h3>
-                <p>Item positions will persist when you close this app</p>
-              </div>
+            <div id="footer">
+                <div id="footerButtonContainer">
+                    <input type="button" style="margin-left: auto; margin-right: auto; width: 230px; min-height: 40px;" class="blueButton" onclick="goToMyPurchases()" value="GO TO MY PURCHASES" />
+                </div>
+                <div id="hmdWarning">
+                    <div id="hmdWarningText">
+                        <h3>Wearable adjustment mode: On</h3>
+                        <p>Item positions will persist when you close this app</p>
+                    </div>
+                </div>
             </div>
             <div id="removeWearableModal">
                 <div class="modalDialog">
@@ -657,10 +673,15 @@
 
             function confirmRemoveWearableModal() {
                 hideRemoveWearableModal();
-                // TODO: get current selected item and remove it
                 EventBridge.emitWebEvent(JSON.stringify({
                     action: 'deleteEntity',
                     selectedAvatarEntity: getCurrentSelectedID()
+                }));
+            }
+
+            function goToMyPurchases() {
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: 'PURCHASES'
                 }));
             }
 

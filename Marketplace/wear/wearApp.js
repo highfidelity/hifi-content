@@ -7,19 +7,28 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-
-(function() {
-    var APP_NAME = "WEAR";
+module.exports = (function() {
+    var APP_NAME = 'WEAR';
     var WEAR_TUTORIAL_CHANNEL = 'com.highfidelity.wear.tutorialChannel';
-    var HTML_PATH = Script.resolvePath("html");
-    var APP_URL = HTML_PATH + "/wearApp.html";
-    var APP_ICON = HTML_PATH + "/img/WearAppIconWhite.svg";
+    var HTML_PATH = Script.resolvePath('html');
+    var APP_URL = HTML_PATH + '/wearApp.html';
+    var APP_ICON = HTML_PATH + '/img/WearAppIconWhite.svg';
     var ATTACHMENT_SEARCH_RADIUS = 100; // meters (just in case)
+    var TUTORIAL_URLS = {
+        ADJUST: HTML_PATH + '/wearTutorialAdjust.html',
+        ADJUST_VR: HTML_PATH + '/wearTutorialAdjustVR.html',
+        ATTACH: HTML_PATH + '/wearTutorialAttach.html',
+        BUY: HTML_PATH + '/wearTutorialBuy.html'
+    };
 
+    var SETTING_RESET_FIRST_TIME_SETTINGS = 'com.highfidelity.wear.resetFirstTimeSettings';
     var SETTING_STORE_ENTERED_FIRST_TIME = 'com.highfidelity.wear.storeEnteredFirstTime';
-    var SETTING_FIRST_TIME_USE_APP = 'com.highfidelity.wear.firstTimeUseApp';
+    var SETTING_FIRST_TIME_USE_APP_DESKTOP = 'com.highfidelity.wear.firstTimeUseAppDesktop';
+    var SETTING_FIRST_TIME_USE_APP_VR = 'com.highfidelity.wear.firstTimeUseAppVR';
 
     var isAppActive = false;
+    var isTutorialActive = false;
+    var activeTutorialURL = null;
     var selectedAvatarEntity = null;
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
@@ -27,6 +36,17 @@
         text: APP_NAME,
         icon: APP_ICON
     });
+
+    // Check for first time settings being reset
+    // Console command for testing first time settings:
+    //     Settings.setValue('com.highfidelity.wear.firstTimeUseApp', true);
+    if (Settings.getValue(SETTING_RESET_FIRST_TIME_SETTINGS, false)) {
+        Settings.setValue(SETTING_STORE_ENTERED_FIRST_TIME, false);
+        Settings.setValue(SETTING_FIRST_TIME_USE_APP_DESKTOP, true);
+        Settings.setValue(SETTING_FIRST_TIME_USE_APP_VR, true);
+        // Switch the reset option back off
+        Settings.setValue(SETTING_RESET_FIRST_TIME_SETTINGS, false);
+    }
 
     var isEntityBeingWorn = function(entityID) {
         return Entities.getEntityProperties(entityID, 'parentID').parentID === MyAvatar.sessionUUID;
@@ -36,8 +56,12 @@
         return Settings.getValue(SETTING_STORE_ENTERED_FIRST_TIME, false);
     };
 
-    var isFirstTimeUse = function() {
-        return Settings.getValue(SETTING_FIRST_TIME_USE_APP, true);
+    var isFirstTimeUseDesktop = function() {
+        return Settings.getValue(SETTING_FIRST_TIME_USE_APP_DESKTOP, true);
+    };
+
+    var isFirstTimeUseVR = function() {
+        return Settings.getValue(SETTING_FIRST_TIME_USE_APP_VR, true);
     };
 
     var getAttachedModelEntities = function() {
@@ -89,6 +113,26 @@
         }));
     };
 
+    var makeClientEntitiesGrabbable = function(grabbable) {
+        getAttachedModelEntities().forEach(function(entityID) {
+            var properties = Entities.getEntityProperties(entityID, ['clientOnly', 'userData']);
+            if (properties.clientOnly) {
+                var userData;
+                try {
+                    userData = JSON.stringify(properties.userData);
+                } catch (e) {
+                    userData = {};
+                }
+
+                if (userData.grabbableKey === undefined) {
+                    userData.grabbableKey = {};
+                }
+                userData.grabbableKey.grabbable = grabbable;
+                Entities.editEntity(entityID, {userData: JSON.stringify(userData)});
+            }
+        });        
+    };
+
     var onAddingEntity = function(entityID) {
         if (isEntityBeingWorn(entityID)) {
             sendUpdate();
@@ -96,7 +140,33 @@
     };
 
     var onWebEventReceived = function(data) {
+        if (!isAppActive && !isTutorialActive) {
+            // ignore web-events when the app and tutorial are inactive
+            return;
+        }
         var dataObject = JSON.parse(data);
+        if (dataObject.action === 'gotIt') {
+            switch (activeTutorialURL) {
+                case TUTORIAL_URLS.ADJUST:
+                    Settings.setValue(SETTING_FIRST_TIME_USE_APP_DESKTOP, false);
+                    activateWearApp();
+                    break;
+                case TUTORIAL_URLS.ADJUST_VR:
+                    Settings.setValue(SETTING_FIRST_TIME_USE_APP_VR, false);
+                    activateWearApp();
+                    break;
+                case TUTORIAL_URLS.ATTACH:
+                    Settings.setValue(SETTING_STORE_ENTERED_FIRST_TIME, true);
+                    tablet.gotoHomeScreen();
+                    HMD.closeTablet();
+                    break;
+                case TUTORIAL_URLS.BUY:
+                    tablet.gotoHomeScreen();
+                    HMD.closeTablet();
+                    break;
+            }
+            return;
+        }
         if (dataObject.action === 'selectedAvatarEntityChanged') {
             selectedAvatarEntity = dataObject.selectedAvatarEntity;
             sendUpdate();
@@ -124,11 +194,37 @@
         }
     };
 
+    var activateWearApp = function() {
+        if (isAppActive) {
+            // skipping, app is already active
+            return;
+        }
+        tablet.gotoWebScreen(APP_URL);
+        Entities.addingEntity.connect(onAddingEntity);
+        Entities.clickReleaseOnEntity.connect(onClickReleaseOnEntity);
+        isAppActive = true;
+        if (HMD.active) {
+            makeClientEntitiesGrabbable(true);
+        }
+    };
+
+    var loadTutorial = function(tutorialURL) {
+        activeTutorialURL = tutorialURL;
+        tablet.gotoWebScreen(activeTutorialURL);
+        isTutorialActive = true;
+    };
+
     var onTabletScreenChanged = function(type, url) {
         if (isAppActive && url !== APP_URL) {
-            tablet.screenChanged.disconnect(onTabletScreenChanged);
             Entities.addingEntity.disconnect(onAddingEntity);
             isAppActive = false;
+            if (HMD.active) {
+                makeClientEntitiesGrabbable(false);
+            }
+        }
+        if (isTutorialActive && url !== activeTutorialURL) {
+            isTutorialActive = false;
+            activeTutorialURL = null;
         }
     };
 
@@ -142,15 +238,16 @@
     var onHmdChanged = function() {
         if (isAppActive) {
             sendUpdate();
+            makeClientEntitiesGrabbable(HMD.active);
         }
     };
 
     var onMessageReceived = function(channel, message, sender) {
         if (channel === WEAR_TUTORIAL_CHANNEL && sender === MyAvatar.sessionUUID) {
-            if (message === 'storeEnter' && !HMD.active) {
-                // display tutorial
-            } else if (message === 'checkoutEnter') {
-
+            if (message === 'storeEnter' && !HMD.active && !hasEnteredStoreForFirstTime()) {
+                loadTutorial(TUTORIAL_URLS.ATTACH);
+            } else if (message === 'checkoutEnter' && !HMD.active) {
+                loadTutorial(TUTORIAL_URLS.BUY);
             }
         }
     };
@@ -159,30 +256,45 @@
     Messages.messageReceived.connect(onMessageReceived);
 
     HMD.displayModeChanged.connect(onHmdChanged);
-
+    tablet.webEventReceived.connect(onWebEventReceived);
+    tablet.screenChanged.connect(onTabletScreenChanged);
 
     button.clicked.connect(function() {
         if (isAppActive) {
             // skipping, app is already active
             return;
         }
-        tablet.screenChanged.connect(onTabletScreenChanged);
-        tablet.gotoWebScreen(APP_URL);
-        tablet.webEventReceived.connect(onWebEventReceived);
-        Entities.addingEntity.connect(onAddingEntity);
-        Entities.clickReleaseOnEntity.connect(onClickReleaseOnEntity);
-        isAppActive = true;
+
+        if (HMD.active && isFirstTimeUseVR()) {
+            loadTutorial(TUTORIAL_URLS.ADJUST_VR);
+            return;
+        }
+
+        if (!HMD.active && isFirstTimeUseDesktop()) {
+            loadTutorial(TUTORIAL_URLS.ADJUST);
+            return;
+        }
+        
+        activateWearApp();
     });
 
-    Script.scriptEnding.connect(function() {
+    var cleanUp = function() {
         tablet.removeButton(button);
         Messages.messageReceived.disconnect(onMessageReceived);
         HMD.displayModeChanged.disconnect(onHmdChanged);
+        tablet.webEventReceived.disconnect(onWebEventReceived);
+        tablet.screenChanged.disconnect(onTabletScreenChanged);
         Messages.unsubscribe(WEAR_TUTORIAL_CHANNEL);
         if (isAppActive) {
-            tablet.screenChanged.disconnect(onTabletScreenChanged);
+            if (HMD.active) {
+                makeClientEntitiesGrabbable(false);
+            }
             Entities.addingEntity.disconnect(onAddingEntity);
             Entities.clickReleaseOnEntity.disconnect(onClickReleaseOnEntity);
         }
-    });
-})();
+    };
+
+    return {
+        cleanUp: cleanUp
+    };
+});
