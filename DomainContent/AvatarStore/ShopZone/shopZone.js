@@ -9,21 +9,9 @@
 //
 
 (function () {
-    var shared = Script.require('../attachmentZoneShared.js');
-    this.leaveEntity = function (entityID) {
-        shared.getAvatarChildEntities(MyAvatar).forEach(function (entityID) {
-            var properties = Entities.getEntityProperties(entityID, ['clientOnly', 'userData', 'locked']);
-            try {
-                var isAttachment = JSON.parse(properties.userData).Attachment !== undefined;
-                if (properties.locked) {
-                    Entities.editEntity(entityID, {locked: false});
-                }
-                if (isAttachment && !properties.clientOnly) {
-                    Entities.deleteEntity(entityID);
-                }
-            } catch (e) {
-                // e
-            }
-        });
+    this.enterEntity = function() {
+        if (!HMD.active) {
+            Messages.sendLocalMessage('com.highfidelity.wear.tutorialChannel', 'storeEnter');
+        }
     };
 });

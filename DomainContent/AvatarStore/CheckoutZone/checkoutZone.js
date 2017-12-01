@@ -31,8 +31,8 @@
     var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
     // Milliseconds
     var TRANSLATION_CHECK_INTERVAL = 100;
-    var SHORTER_STOP_INTERVAL = 1000;
-    var TRANSLATION_STOP_INTERVAL = 5000;
+    var SHORTER_STOP_TIMEOUT = 1000;
+    var TRANSLATION_STOP_TIMEOUT = 5000;
     
     var itemHeight;
     var tabletLocalOffset;
@@ -229,7 +229,7 @@
         // Five seconds should be enough to be sure, otherwise we have a problem
         Script.setTimeout(function() {
             makeSureInterval.stop();
-        }, TRANSLATION_STOP_INTERVAL);
+        }, TRANSLATION_STOP_TIMEOUT);
   
         var newEntityProperties = Entities.getEntityProperties(newEntityID, ['marketplaceID', 'certificateID']);
         var certificateID = undefined;
@@ -252,12 +252,17 @@
             TABLET.gotoWebScreen(APP_URL); 
         }
         button.clicked.connect(onClicked);
-        var walletReady = 3;
-        if (Wallet.walletStatus === walletReady) {
-            TABLET.gotoWebScreen(APP_URL); 
+        if (HMD.active) {
+            var walletReady = 3;
+            if (Wallet.walletStatus === walletReady) {
+                TABLET.gotoWebScreen(APP_URL); 
+            } else {
+                TABLET.pushOntoStack(APP_URL);
+                TABLET.loadQMLSource(MARKETPLACE_WALLET_QML_PATH);
+            }
         } else {
-            TABLET.pushOntoStack(APP_URL);
-            TABLET.loadQMLSource(MARKETPLACE_WALLET_QML_PATH);
+            // Load the checkout wear tutorial for desktop users:
+            Messages.sendLocalMessage('com.highfidelity.wear.tutorialChannel', 'checkoutEnter');
         }
     });
   
@@ -322,10 +327,10 @@
         Overlays.editOverlay(HMD.tabletID, tabletTransform);
         var tabletTransformInterval = Script.setInterval(function() {
             Overlays.editOverlay(HMD.tabletID, tabletTransform);
-        }, MAKING_SURE_INTERVAL);
+        }, TRANSLATION_CHECK_INTERVAL);
         Script.setTimeout(function() {
             tabletTransformInterval.stop();
-        }, SHORTER_STOP_INTERVAL);
+        }, SHORTER_STOP_TIMEOUT);
     });
       
     _this.leaveEntity = function() {
