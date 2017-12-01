@@ -10,7 +10,14 @@
 
 (function () {
     var shared = Script.require('../attachmentZoneShared.js');
-    this.leaveEntity = function (entityID) {
+
+    this.enterEntity = function() {
+        if (!HMD.active) {
+            Messages.sendLocalMessage('com.highfidelity.wear.tutorialChannel', 'storeEnter');
+        }
+    };
+
+    this.leaveEntity = function(entityID) {
         shared.getAvatarChildEntities(MyAvatar).forEach(function (entityID) {
             var properties = Entities.getEntityProperties(entityID, ['clientOnly', 'userData', 'locked']);
             try {
