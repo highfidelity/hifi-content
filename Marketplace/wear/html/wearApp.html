@@ -1,0 +1,764 @@
+<!--
+    html/wearApp.html
+
+    Created by Thijs Wenker on 11/30/17.
+    Copyright 2017 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
+<html>
+    <head>
+        <title>Adjust Attachments</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="js/jquery-3.2.1.min.js"></script>
+        <style>
+            @font-face {
+                font-family: Raleway-Regular;
+                src: url(fonts/Raleway-Regular.ttf);
+            }
+
+            @font-face {
+                font-family: Raleway-Light;
+                src: url(fonts/Raleway-Light.ttf);
+            }
+
+            @font-face {
+                font-family: Raleway-Bold;
+                src: url(fonts/Raleway-Bold.ttf);
+            }
+
+            @font-face {
+                font-family: Raleway-SemiBold;
+                src: url(fonts/Raleway-SemiBold.ttf);
+            }
+
+            @font-face {
+                font-family: FiraSans-SemiBold;
+                src: url(fonts/FiraSans-SemiBold.ttf);
+            }
+
+            @font-face {
+                font-family: AnonymousPro-Regular;
+                src: url(fonts/AnonymousPro-Regular.ttf);
+            }
+
+            @font-face {
+                font-family: HiFi-Glyphs;
+                src: url(fonts/hifi-glyphs.ttf);
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            
+            input[type="text"], input[type="number"], textarea {
+                margin: 0;
+                padding: 0 12px;
+                background-color: #d1d1d3;
+                border-color: #d1d1d3;
+                border: none;
+                font-family: FiraSans-SemiBold;
+                font-size: 15px;
+            }
+
+            input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+                background-color: #ffffff;
+                border-color: #ffffff;
+            }
+
+            input[type=number] {
+                position: relative;
+                height: 28px;
+                width: 139px;
+                padding-left: 15px;
+                padding-right: 3px;
+                background-color: #d1d1d3;
+                border-color: #d1d1d3;
+                border-style: solid;
+            }
+            
+            input[type=number]::-webkit-inner-spin-button {
+                opacity: 1.0;
+                display: block;
+                position: relative;
+                width: 10px;
+                height: 90%;
+                overflow: hidden;
+                font-family: hifi-glyphs;
+                font-size: 32px;
+                color: #afafaf;
+                cursor: pointer;
+                background-color: #000000;
+            }
+            input[type=number]::-webkit-inner-spin-button:before,
+            input[type=number]::-webkit-inner-spin-button:after {
+                position:absolute;
+                left: -19px;
+                line-height: 8px;
+                text-align: center;
+            }
+            input[type=number]::-webkit-inner-spin-button:before {
+                content: "6";
+                top: 4px;
+            }
+            input[type=number]::-webkit-inner-spin-button:after {
+                content: "5";
+                bottom: 4px;
+            }
+
+            input[type=number].hover-up::-webkit-inner-spin-button:before,
+            input[type=number].hover-down::-webkit-inner-spin-button:after {
+                color: #ffffff;
+            }
+
+            input.no-spin::-webkit-outer-spin-button,
+            input.no-spin::-webkit-inner-spin-button {
+                display: none;
+                -webkit-appearance: none;
+                margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+                padding-right: 12px;
+            }
+
+            #properties {
+                clear: both;
+            }
+
+            #properties fieldset {
+                position: relative;
+                /* 0.1px on the top is to prevent margin collapsing between this and it's first child */
+                margin: 21px -21px 0px -21px;
+                padding: 0.1px 21px 0px 21px;
+                border: none;
+                /*border-top: 1px rgb(90,90,90) solid;
+                box-shadow: 0px -1px 0px rgb(37,37,37);*/
+            }
+            body {
+                background-color: #e3e3e3;
+                font-family: Raleway-Regular;
+                font-size: 15px;
+
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+            .container {
+                position: relative;
+                margin: 0px 21px 0px 21px;
+                height: 100%;
+                color: #3b3b3b;
+
+                font-family: Raleway-Regular;
+                font-size: 15px;
+
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+
+            h1 {
+                font-family: Raleway-Light;
+                font-size: 24px;
+                text-align: center;
+            }
+
+            hr {
+                margin-bottom: 20px;
+                color: #373737;
+                background-color: #373737;
+                border: 0 none;
+                height: 1px;
+            }
+
+            .dropdown {
+                position: relative;
+                margin-bottom: -17px;
+            }
+            .dropdown select {
+                clear: both;
+            }
+            .dropdown dl {
+                clear: both;
+            }
+            .dropdown dl {
+                font-family: FiraSans-SemiBold;
+                font-size: 15px;
+                width: 398px;
+                height: 28px;
+                padding: 0 28px 0 12px;
+                color: #3b3b3b;
+                background: linear-gradient(#ffffff 20%, #afafaf 100%);
+                position: relative;
+            }
+            .dropdown dl[dropped="true"] {
+                color: #404040;
+                background: #d4d4d4;
+                z-index: 998;
+            }
+            .dropdown dt {
+                height: 100%;
+                box-sizing: border-box;
+                border-right: 1px solid #e3e3e3;
+                width: 100%;
+            }
+            .dropdown dt:hover {
+                color: #404040;
+            }
+            .dropdown dt:focus {
+                outline: none;
+            }
+            .dropdown dt span:first-child {
+                display: inline-block;
+                position: relative;
+                top: 5px;
+            }
+            .dropdown dt span:last-child {
+                font-family: HiFi-Glyphs;
+                font-size: 42px;
+                float: right;
+                margin-right: -48px;
+                position: relative;
+                left: -12px;
+                top: -9px;
+            }
+            .dropdown dd {
+                position: absolute;
+                top: 28px;
+                left: 3px;
+                display: none;
+            }
+            .dropdown dl[dropped="true"] dd {
+                display: block;
+            }
+            .dropdown li {
+                list-style-type: none;
+                padding: 3px 0 1px 12px;
+                width: 424px;
+                height: auto;
+                font-family: FiraSans-SemiBold;
+                font-size: 15px;
+                color: #404040;
+                background-color: #d4d4d4;
+                z-index: 999;
+            }
+            .dropdown li:hover {
+                background-color: #00b4ef;
+            }
+            .dropdown dl[disabled="disabled"], .dropdown dl[disabled="disabled"][dropped="true"] {
+                color: #252525;
+                background: linear-gradient(#575757 20%, #252525 100%);
+            }
+            .dropdown dl[disabled="disabled"] dd {
+                display: none;
+            }
+            .dropdown dl[disabled="disabled"] dt:hover {
+                color: #252525;
+            }
+
+            #removeWearableModal {
+                position: fixed;
+                z-index: 100;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+            }
+            #removeWearableModal.visible {
+                display: block;
+                z-index: 12000;
+            }
+            #removeWearableModal > .modalDialog {
+                opacity: 1;
+                background: #fff;
+                color: #000;
+                width: 80%;
+                padding: 20px;
+                position: fixed;
+                z-index: 12006;
+                -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+                -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+                box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+                margin-top: 30%;
+                margin-left: 5%;
+            }
+
+            .blueButton {
+                font-family: Raleway-Bold;
+                font-size: 13px;
+                color: white;
+                padding: 0px 10px;
+                border-radius: 3px;
+                border-width: 0px;
+                background-image: linear-gradient(#00B4EF, #1080B8);
+                min-height: 30px;
+            }
+            .blueButton:hover {
+                background-image: linear-gradient(#00B4EF, #00B4EF);
+            }
+            .blueButton:active {
+                background-image: linear-gradient(#1080B8, #1080B8);
+            }
+            .blueButton:disabled {
+                background-image: linear-gradient(#FFFFFF, #AFAFAF);
+            }
+            .redButton {
+                font-family: Raleway-Bold;
+                font-size: 13px;
+                color: white;
+                padding: 0px 10px;
+                border-radius: 3px;
+                border-width: 0px;
+                background-image: linear-gradient(#d22041, #99142f);
+                min-height: 30px;
+            }
+            .redButton:hover {
+                background-image: linear-gradient(#d42043, #d42043);
+            }
+            .redButton:active {
+                background-image: linear-gradient(#94132E , #94132E);
+            }
+            .redButton:disabled {
+                background-image: linear-gradient(#d22041, #99142f);
+            }
+
+            .whiteButton {
+                font-family: Raleway-Bold;
+                font-size: 13px;
+                color: #000000;
+                padding: 0px 10px;
+                border-radius: 3px;
+                border-width: 0px;
+                background-image: linear-gradient(#ffffff, #ffffff);
+                min-height: 30px;
+            }
+            .whiteButton:hover {
+                border: solid black 2px;
+            }
+            .whiteButton:active {
+                border: solid black 2px;
+            }
+            .whiteButton:disabled {
+                background-image: linear-gradient(#afafaf, #afafaf00);
+            }
+
+            .tuple div {
+                display: inline-block;
+                position: relative;
+                margin-right: 6px;
+            }
+            .tuple div:last-child {
+                margin-right: 0;
+            }
+
+            .tuple label {
+                margin-right: -6px;
+            }
+
+            .xyz .tuple input {
+                padding-left: 25px;
+            }
+
+            .text label, .url label, .number label, .textarea label, .rgb label, .xyz label, .pyr label, .dropdown label, .gen label {
+                float: left;
+                margin-left: 1px;
+                margin-bottom: 3px;
+                margin-top: -2px;
+            }
+
+            .text legend, .url legend, .number legend, .textarea legend, .rgb legend, .xyz legend, .pyr legend, .dropdown legend, .gen legend {
+                float: left;
+                margin-left: 1px;
+                margin-bottom: 3px;
+                margin-top: -2px;
+            }
+
+            .xyz > div, .pyr > div, .gen > div {
+                clear: both;
+            }
+
+            .xyz .buttons input {
+                margin-top: 14px;
+            }
+            .xyz .buttons span {
+                word-wrap: nowrap;
+                white-space: nowrap;
+            }
+
+            .tuple div > label:first-child {
+                float: left;
+            }
+            .tuple div > label + input {
+                clear: both;
+                float: left;
+            }
+            .tuple div input + label {
+                display: inline !important;
+                float: none !important;
+                position: absolute;
+                margin-top: 8px;
+                margin-left: 6px;
+                left: 0;
+                font-family: FiraSans-SemiBold;
+                font-size: 12px;
+            }
+            .tuple .red + label, .tuple .x + label, .tuple .pitch + label {
+                color: #e2334d;
+            }
+            .tuple .green + label, .tuple .y + label, .tuple .yaw + label {
+                color: #1ac567;
+            }
+            .tuple .blue + label, .tuple .z + label, .tuple .roll + label {
+                color: #1080b8;
+            }
+
+            .tuple .red:focus, .tuple .x:focus, .tuple .pitch:focus {
+                outline-color: #e2334d;
+            }
+            .tuple .green:focus, .tuple .y:focus, .tuple .yaw:focus {
+                outline-color: #1ac567;
+            }
+            tuple, .blue:focus, .tuple .z:focus, .tuple .roll:focus {
+                outline-color: #1080b8;
+            }
+
+            .xyz .buttons input {
+                margin-top: 14px;
+            }
+            .xyz .buttons span {
+                word-wrap: nowrap;
+                white-space: nowrap;
+            }
+
+            .property label, .number label {
+                display: table-cell;
+                vertical-align: middle;
+                font-family: Raleway-SemiBold;
+                font-size: 14px;
+            }
+            .property label .unit, .number label .unit {
+                margin-left: 8px;
+                font-family: Raleway-Light;
+                font-size: 13px;
+            }
+
+            .property legend, .number legend {
+                display: table-cell;
+                vertical-align: middle;
+                font-family: Raleway-SemiBold;
+                font-size: 14px;
+            }
+            .property legend .unit, .number legend .unit {
+                margin-left: 8px;
+                font-family: Raleway-Light;
+                font-size: 13px;
+            }
+
+            #hmdWarningText {
+                padding: 10px;
+                border: 1px solid #61d836;
+                background-color: #e4f5e1;
+            }
+            #hmdWarning > h3 {
+                padding-bottom: 5px;
+            }
+            #footer {
+                position: absolute;
+                bottom: 2%;
+                width: 100%;
+            }
+            #footerButtonContainer {
+                text-align: center;
+                padding-bottom: 10px;
+            }
+        </style>
+    </head>
+    <body>
+      <div class="container">
+        <div style="margin-top: 21px; margin-bottom: 10px; text-align: center;">
+            <img style="height: 30px; display: inline-block; padding-right: 5px; vertical-align: bottom;" src="img/WearAppIconBlack.svg" />
+            <h1 style="display: inline-block;">Adjust Wearables</h1>
+        </div>
+        <hr>
+            <div class="property dropdown" id="entitySelectionContainer"></div>
+
+            <div id="properties">
+                <fieldset class="property xyz fstuple">
+                    <legend>Position <span class="unit">m</span></legend>
+                    <div class="tuple">
+                        <div><input type="number" class="x" id="property-position-x" step="0.01"><label for="property-position-x">X:</label></div>
+                        <div><input type="number" class="y" id="property-position-y" step="0.01"><label for="property-position-y">Y:</label></div>
+                        <div><input type="number" class="z" id="property-position-z" step="0.01"><label for="property-position-z">Z:</label></div>
+                    </div>
+                </fieldset>
+                <fieldset class="property xyz fstuple">
+                    <legend>Rotation <span class="unit">deg</span></legend>
+                    <div class="tuple">
+                        <div><input type="number" class="x" id="property-rotation-x" step="1"><label for="property-rotation-x">X:</label></div>
+                        <div><input type="number" class="y" id="property-rotation-y" step="1"><label for="property-rotation-y">Y:</label></div>
+                        <div><input type="number" class="z" id="property-rotation-z" step="1"><label for="property-rotation-z">Z:</label></div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <div class="property number">
+                        <label>Scale</label>
+                        <div style="clear: both;">
+                            <input type="number" id="property-scale" step="0.01">
+                            <input type="button" style="margin-left: auto; margin-right: auto; width: 130px; float: right;" class="redButton" onclick="showRemoveWearableModal()" value="TAKE IT OFF" />
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="loading">
+                
+            </div>
+            <div id="footer">
+                <div id="footerButtonContainer">
+                    <input type="button" style="margin-left: auto; margin-right: auto; width: 230px; min-height: 40px;" class="blueButton" onclick="goToMyPurchases()" value="GO TO MY PURCHASES" />
+                </div>
+                <div id="hmdWarning">
+                    <div id="hmdWarningText">
+                        <h3>Wearable adjustment mode: On</h3>
+                        <p>Item positions will persist when you close this app</p>
+                    </div>
+                </div>
+            </div>
+            <div id="removeWearableModal">
+                <div class="modalDialog">
+                    <h2>Remove Wearable</h2>
+                    <p>This action will remove the wearable from your avatar. You can wear it again by accessing it from My Purchases if you own it.</p>
+                    <div style="text-align: center;">
+                        <input type="button" style="margin-left: auto; margin-right: auto; width: 130px;" class="whiteButton" onclick="hideRemoveWearableModal()" value="CLOSE" />
+                        <input type="button" style="margin-left: auto; margin-right: auto; width: 130px;" class="blueButton" onclick="confirmRemoveWearableModal()" value="CONFIRM" />
+                    </div>
+                </div>
+            </div>
+        <script>
+            // Dropdowns - originally found in entityProperties.html
+            // For each dropdown the following replacement is created in place of the original dropdown...
+            // Structure created:
+            //  <dl dropped="true/false">
+            //      <dt name="?" id="?" value="?"><span>display text</span><span>carat</span></dt>
+            //      <dd>
+            //          <ul>
+            //              <li value="??>display text</li>
+            //              <li>...</li>
+            //          </ul>
+            //      </dd>
+            //  </dl>
+
+            function setDropdownText(dropdown) {
+                var lis = dropdown.parentNode.getElementsByTagName("li");
+                var text = "";
+                for (var i = 0; i < lis.length; i++) {
+                    if (String(lis[i].getAttribute("value")) === String(dropdown.value)) {
+                        text = lis[i].textContent;
+                    }
+                }
+                dropdown.firstChild.textContent = text;
+            }
+
+            function toggleDropdown(event) {
+                var element = event.target;
+                if (element.nodeName !== "DT") {
+                    element = element.parentNode;
+                }
+                element = element.parentNode;
+                var isDropped = element.getAttribute("dropped");
+                element.setAttribute("dropped", isDropped !== "true" ? "true" : "false");
+            }
+
+            function setDropdownValue(event) {
+                var dt = event.target.parentNode.parentNode.previousSibling;
+                dt.value = event.target.getAttribute("value");
+                dt.firstChild.textContent = event.target.textContent;
+
+                dt.parentNode.setAttribute("dropped", "false");
+
+                var evt = document.createEvent("HTMLEvents");
+                evt.initEvent("change", true, true);
+                dt.dispatchEvent(evt);
+            }
+
+            function stylizeDropdown(elSelect) {
+                var options = elSelect.getElementsByTagName("option");
+                var selectedOption = 0;
+                for (var j = 0; j < options.length; j++) {
+                    if (options[j].getAttribute("selected") === "selected") {
+                        selectedOption = j;
+                    }
+                }
+
+                var value = '';
+                
+                var text = ''
+                if (options.length > 0) {
+                    value = options[selectedOption].value;
+                    text = options[selectedOption].firstChild.textContent;
+                }
+
+
+                var div = elSelect.parentNode;
+
+                var dl = document.createElement("dl");
+                div.appendChild(dl);
+
+                var dt = document.createElement("dt");
+                dt.name = elSelect.name;
+                dt.id = elSelect.id;
+                dt.setAttribute("value", value);
+                dt.addEventListener("click", toggleDropdown, true);
+                dl.appendChild(dt);
+
+
+                var span = document.createElement("span");
+                span.textContent = text;
+                dt.appendChild(span);
+
+                var span = document.createElement("span");
+                span.textContent = "5"; // caratDn
+                dt.appendChild(span);
+
+                var dd = document.createElement("dd");
+                dl.appendChild(dd);
+
+                var ul = document.createElement("ul");
+                dd.appendChild(ul);
+
+                for (var j = 0; j < options.length; j++) {
+                    var li = document.createElement("li");
+                    li.setAttribute("value", options[j].value);
+                    li.textContent = options[j].firstChild.textContent;
+                    li.addEventListener("click", setDropdownValue);
+                    ul.appendChild(li);
+                }
+
+                elSelect.parentNode.removeChild(elSelect);
+
+                return dt;
+            }
+
+            var $entitySelectionDropdown = null;
+
+            function getCurrentSelectedID() {
+                if ($entitySelectionDropdown === null) {
+                    return undefined;
+                }
+                return $entitySelectionDropdown.attr('value');
+            }
+
+            function showRemoveWearableModal() {
+                $('#removeWearableModal').addClass('visible');
+            }
+
+            function hideRemoveWearableModal() {
+                $('#removeWearableModal').removeClass('visible');
+            }
+
+            function confirmRemoveWearableModal() {
+                hideRemoveWearableModal();
+                EventBridge.emitWebEvent(JSON.stringify({
+                    action: 'deleteEntity',
+                    selectedAvatarEntity: getCurrentSelectedID()
+                }));
+            }
+
+            function goToMyPurchases() {
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: 'PURCHASES'
+                }));
+            }
+
+            $(document).ready(function() {
+                EventBridge.scriptEventReceived.connect(function(scriptEvent) {
+                    var data = JSON.parse(scriptEvent);
+                    if (data.action === 'update') {
+                        var $entitySelection = $('<select>');
+                        $('#entitySelectionContainer').empty().append($entitySelection);
+                        $.each(data.attachments, function(entityID, label) {
+                            var $selectOption = $('<option>').text(label).attr('value', entityID);
+                            if (entityID === data.selectedAvatarEntity) {
+                                $selectOption.attr('selected', 'selected');
+                            }
+                            $entitySelection.append($selectOption);
+                        });
+                        var dropdown = stylizeDropdown($entitySelection[0]);
+                        $entitySelectionDropdown = $(dropdown);
+                        $entitySelectionDropdown.on('change', function() {
+                            EventBridge.emitWebEvent(JSON.stringify({
+                                action: 'selectedAvatarEntityChanged',
+                                selectedAvatarEntity: $(this).val()
+                            }));
+                        });
+
+                        $('#hmdWarning').css('display', data.hmdActive ? 'block' : 'none');
+
+                        if (data.properties === undefined) {
+                            $('#properties').css('display', 'none');
+                            
+                            return;
+                        }
+                        $('#properties').css('display', 'block');
+                        
+                        $('#property-position-x').val(data.properties.position.x.toFixed(3));
+                        $('#property-position-y').val(data.properties.position.y.toFixed(3));
+                        $('#property-position-z').val(data.properties.position.z.toFixed(3));
+
+                        $('#property-rotation-x').val(data.properties.rotation.x.toFixed(3));
+                        $('#property-rotation-y').val(data.properties.rotation.y.toFixed(3));
+                        $('#property-rotation-z').val(data.properties.rotation.z.toFixed(3));
+
+                        $('#property-scale').val(data.properties.scale.toFixed(3));
+                    }
+                });
+                $('input[type=number]').on('change', function() {
+                    var propertyID = $(this).attr('id');
+                    if (propertyID.startsWith('property-position-')) {
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            action: 'propertyUpdate',
+                            position: {
+                                x: Number($('#property-position-x').val()),
+                                y: Number($('#property-position-y').val()),
+                                z: Number($('#property-position-z').val())
+                            }
+                        }));
+                    } else if (propertyID.startsWith('property-rotation-')) {
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            action: 'propertyUpdate',
+                            rotation: {
+                                x: Number($('#property-rotation-x').val()),
+                                y: Number($('#property-rotation-y').val()),
+                                z: Number($('#property-rotation-z').val()) 
+                            }
+                        }));
+                    } else if (propertyID === 'property-scale') {
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            action: 'propertyUpdate',
+                            scale: Number($('#property-scale').val())
+                        }));
+                    }
+                });
+                EventBridge.emitWebEvent(JSON.stringify({
+                    action: 'appReady'
+                }));
+            });
+        </script>
+      </div>
+    </body>
+</html>

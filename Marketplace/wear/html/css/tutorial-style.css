@@ -1,0 +1,96 @@
+/*
+  html/css/tutorial-style.css
+
+  Created by Thijs Wenker on 11/30/17.
+  Copyright 2017 High Fidelity, Inc.
+
+  Distributed under the Apache License, Version 2.0.
+  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+*/
+
+@font-face {
+    font-family: Raleway-Regular;
+    src: url(../fonts/Raleway-Regular.ttf);
+}
+
+@font-face {
+    font-family: Raleway-Light;
+    src: url(../fonts/Raleway-Light.ttf);
+}
+
+@font-face {
+    font-family: Raleway-Bold;
+    src: url(../fonts/Raleway-Bold.ttf);
+}
+
+@font-face {
+    font-family: Raleway-SemiBold;
+    src: url(../fonts/Raleway-SemiBold.ttf);
+}
+
+@font-face {
+    font-family: FiraSans-SemiBold;
+    src: url(../fonts/FiraSans-SemiBold.ttf);
+}
+
+@font-face {
+    font-family: AnonymousPro-Regular;
+    src: url(../fonts/AnonymousPro-Regular.ttf);
+}
+
+@font-face {
+    font-family: HiFi-Glyphs;
+    src: url(../fonts/hifi-glyphs.ttf);
+}
+
+body {
+    margin: 21px;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    background-color: #e3e3e3;
+}
+img {
+    display: block;
+    width: 100%;
+}
+p {
+    font-family: Raleway-Regular;
+    line-height: 1.5;
+    font-size: 30px;
+    padding: 21px;
+    padding-top: 0px;
+    color: #3b3b3b;
+}
+span.bold {
+    font-family: Raleway-Bold;
+}
+
+input[type=button].gotIt {
+    position: absolute;
+    min-height: 40px;
+    width: 130px;
+    right: 21px;
+    bottom: 42px;
+}
+.blueButton {
+    font-family: Raleway-Bold;
+    font-size: 13px;
+    color: white;
+    padding: 0px 10px;
+    border-radius: 3px;
+    border-width: 0px;
+    background-image: linear-gradient(#00B4EF, #1080B8);
+    min-height: 30px;
+}
+.blueButton:hover {
+    background-image: linear-gradient(#00B4EF, #00B4EF);
+}
+.blueButton:active {
+    background-image: linear-gradient(#1080B8, #1080B8);
+}
+.blueButton:disabled {
+    background-image: linear-gradient(#FFFFFF, #AFAFAF);
+}
