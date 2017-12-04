@@ -30,9 +30,9 @@
     var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 220, z: 0 };
     var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
     // Milliseconds
-    var MAKING_SURE_INTERVAL = 100;
-    var SHORTER_STOP_INTERVAL = 1000;
-    var STOP_MAKING_SURE_TIMEOUT = 5000;
+    var TRANSLATION_CHECK_INTERVAL = 100;
+    var SHORTER_STOP_TIMEOUT = 1000;
+    var TRANSLATION_STOP_TIMEOUT = 5000;
     
     var itemHeight;
     var tabletLocalOffset;
@@ -46,7 +46,8 @@
     var scannerZone;
     var replicaStoredTransforms = {};
     var yOffset, zOffset, xOffset;
-    
+    var scannerPosition;
+
     this.preload = function(entityID) {
         zoneID = entityID;
         var sizeLimit = 1;
@@ -127,6 +128,7 @@
                 return;
             } else if (tableChildName === "Checkout Scan Zone") {
                 scannerZone = childID;
+                scannerPosition = Entities.getEntityProperties(scannerZone, 'position').position;
                 return;
             }
         });
@@ -181,9 +183,15 @@
             jointName: MyAvatar.jointNames[entityProperties.parentJointIndex],
             demoEntityID: entityID
         };
-  
+
         replicaStoredTransforms[replica] = replicaStoredTransform;
         replicaList.push(replica);
+        var mousePress = function(id, event) {
+            if (replicaList.indexOf(id) !== -1) {
+                Overlays.editOverlay(id, {position: scannerPosition});
+            }
+        };
+        Overlays.mousePressOnOverlay.connect(mousePress);
     });
   
     _this.replicaCheckedOut = function(entityID, args) {
@@ -216,12 +224,12 @@
         // Make really sure that the translations are set properly
         var makeSureInterval = Script.setInterval(function() {
             Entities.editEntity(newEntityID, transformProperties);
-        }, MAKING_SURE_INTERVAL);
+        }, TRANSLATION_CHECK_INTERVAL);
   
         // Five seconds should be enough to be sure, otherwise we have a problem
         Script.setTimeout(function() {
             makeSureInterval.stop();
-        }, STOP_MAKING_SURE_TIMEOUT);
+        }, TRANSLATION_STOP_TIMEOUT);
   
         var newEntityProperties = Entities.getEntityProperties(newEntityID, ['marketplaceID', 'certificateID']);
         var certificateID = undefined;
@@ -244,12 +252,17 @@
             TABLET.gotoWebScreen(APP_URL); 
         }
         button.clicked.connect(onClicked);
-        var walletReady = 3;
-        if (Wallet.walletStatus === walletReady) {
-            TABLET.gotoWebScreen(APP_URL); 
+        if (HMD.active) {
+            var walletReady = 3;
+            if (Wallet.walletStatus === walletReady) {
+                TABLET.gotoWebScreen(APP_URL); 
+            } else {
+                TABLET.pushOntoStack(APP_URL);
+                TABLET.loadQMLSource(MARKETPLACE_WALLET_QML_PATH);
+            }
         } else {
-            TABLET.pushOntoStack(APP_URL);
-            TABLET.loadQMLSource(MARKETPLACE_WALLET_QML_PATH);
+            // Load the checkout wear tutorial for desktop users:
+            Messages.sendLocalMessage('com.highfidelity.wear.tutorialChannel', 'checkoutEnter');
         }
     });
   
@@ -314,10 +327,10 @@
         Overlays.editOverlay(HMD.tabletID, tabletTransform);
         var tabletTransformInterval = Script.setInterval(function() {
             Overlays.editOverlay(HMD.tabletID, tabletTransform);
-        }, MAKING_SURE_INTERVAL);
+        }, TRANSLATION_CHECK_INTERVAL);
         Script.setTimeout(function() {
             tabletTransformInterval.stop();
-        }, SHORTER_STOP_INTERVAL);
+        }, SHORTER_STOP_TIMEOUT);
     });
       
     _this.leaveEntity = function() {
@@ -353,4 +366,3 @@
         }
     };
 });
-  
