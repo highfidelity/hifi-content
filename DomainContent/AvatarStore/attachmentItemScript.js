@@ -25,6 +25,7 @@
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
     var ATTACH_SCALE = 3;
     var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+    var NOT_ATTACHED_DESTROY_RADIUS = 0.1;
   
     var messageChannel;
     var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
@@ -37,6 +38,7 @@
     var prevID = 0;
     var listType = "entity";
     var attachDistance;
+    var initialParentPosition;
 
 
     var attachFunction = function() {
@@ -91,6 +93,7 @@
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
             MyAvatar.scaleChanged.connect(attachFunction);
             attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
+            initialParentPosition = Entities.getEntityProperties(properties.parentID, ['position']).position;
         },
         unload: function() {
             MyAvatar.scaleChanged.disconnect(attachFunction);
@@ -232,7 +235,17 @@
                             localOnly: true
                         });
                     }
+                    isAttached = false;
                     Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
+                }
+            }
+            
+            if (!isAttached) { 
+                // If placed back within NOT_ATTACHED_DESTROY_RADIUS of the original parent entity 
+                // and it is not attached then destroy it (i.e. user is putting it back)
+                if (Vec3.distance(initialParentPosition, position) < NOT_ATTACHED_DESTROY_RADIUS) {
+                    Entities.deleteEntity(_entityID);
+                    return;
                 }
             }
         }
