@@ -19,7 +19,7 @@
     var MAX_ITEMS = 12;
     var HALF = 0.5;
     var OVERLAY_PREFIX = 'MP';
-    var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
+    var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.transforms';
     var ENTER_ZONE_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound5.wav"));
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
