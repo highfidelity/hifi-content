@@ -10,7 +10,7 @@
 /* global Render, Selection */
 
 (function() {
-    var highlightToggle = false;
+    var highlightToggle = true;
   
     var GRAB_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound1.wav'));
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
@@ -20,6 +20,7 @@
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var RELEASE_LIFETIME = 10;
     var LIST_NAME = "highlightList1";
+    var CANNOT_ATTACH_LIST = "highlightList4";
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
@@ -64,9 +65,8 @@
         preload : function(entityID) {
             _entityID = entityID;
             if (highlightToggle) {
-                highlightConfig["selectionName"] = LIST_NAME; 
                 Selection.clearSelectedItemsList(LIST_NAME);
-                HIGHLIGHT.changeHighlight1(highlightConfig);
+                Selection.clearSelectedItemsList(CANNOT_ATTACH_LIST);
             }
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
             var userData = JSON.parse(properties.userData);
@@ -144,7 +144,17 @@
         startNearGrab: function(entityID, args) {
             if (highlightToggle) {
                 if (prevID !== entityID) {
-                    Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
+                    var jointName = _attachmentData.joint;
+                    var jointIndex = MyAvatar.getJointIndex(jointName);
+                    if (jointIndex !== -1) {
+                        highlightConfig["selectionName"] = LIST_NAME;
+                        HIGHLIGHT.changeHighlight1(highlightConfig);
+                        Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
+                    } else {
+                        highlightConfig["selectionName"] = CANNOT_ATTACH_LIST;
+                        HIGHLIGHT.changeHighlight4(highlightConfig);
+                        Selection.addToSelectedItemsList(CANNOT_ATTACH_LIST, listType, entityID);
+                    }
                     prevID = entityID;
                 }
             }
@@ -176,6 +186,7 @@
             if (highlightToggle) {
                 if (prevID !== 0) {
                     Selection.removeFromSelectedItemsList(LIST_NAME, listType, prevID);
+                    Selection.removeFromSelectedItemsList(CANNOT_ATTACH_LIST, listType, prevID);
                     prevID = 0;
                 }
             }
