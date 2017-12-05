@@ -39,6 +39,7 @@
     var listType = "entity";
     var attachDistance;
     var initialParentPosition;
+    var initialParentPositionSet = false;
 
 
     var attachFunction = function() {
@@ -93,7 +94,12 @@
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
             MyAvatar.scaleChanged.connect(attachFunction);
             attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
-            initialParentPosition = Entities.getEntityProperties(properties.parentID, ['position']).position;
+            
+            // We only want to store the initial parent position for the original parent wearable entity
+            if (properties.parentID != EMPTY_PARENT_ID && Entities.getNestableType(properties.parentID) !== "avatar") {
+                initialParentPosition = Entities.getEntityProperties(properties.parentID, ['position']).position;
+                initialParentPositionSet = true;
+            }
         },
         unload: function() {
             MyAvatar.scaleChanged.disconnect(attachFunction);
@@ -242,7 +248,7 @@
             
             // If placed back within NOT_ATTACHED_DESTROY_RADIUS of the original parent entity 
             // and it is not attached then destroy it (if the user is putting it back)
-            if (!isAttached && Vec3.distance(initialParentPosition, position) < NOT_ATTACHED_DESTROY_RADIUS) {
+            if (!isAttached && initialParentPositionSet && Vec3.distance(initialParentPosition, position) < NOT_ATTACHED_DESTROY_RADIUS) {
                 Entities.deleteEntity(_entityID);
             }
         }
