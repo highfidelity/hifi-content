@@ -23,7 +23,7 @@
     var OVERLAY_PREFIX = 'MP';
     var CHECKOUT_INTERVAL_MS = 500;
     var LIST_NAME = "highlightList3";
-    var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.tranforms';
+    var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.transforms';
     var SEARCH_RADIUS = 2;
     var SEARCH_RADIUS_MINI = 1;
     var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
