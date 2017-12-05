@@ -39,5 +39,14 @@ module.exports = {
         highlightConfig["colorG"] = 0.68;
         highlightConfig["colorB"] = 0.37;
         highlightConfig["unoccludedFillOpacity"] = 0;        
+    }),
+    changeHighlight4: (function(highlightConfig) {
+        highlightConfig["glow"] = true;
+        highlightConfig["width"] = 7;
+        highlightConfig["intensity"] = 0.8;
+        highlightConfig["colorR"] = 0.26;
+        highlightConfig["colorG"] = 0.9;
+        highlightConfig["colorB"] = 0.87;
+        highlightConfig["unoccludedFillOpacity"] = 0;        
     })
 };
