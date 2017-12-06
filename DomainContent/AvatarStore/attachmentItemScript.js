@@ -10,7 +10,7 @@
 /* global Render, Selection */
 
 (function() {
-    var highlightToggle = false;
+    var highlightToggle = true;
   
     var GRAB_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound1.wav'));
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
