@@ -248,7 +248,8 @@
             
             // If placed back within NOT_ATTACHED_DESTROY_RADIUS of the original parent entity 
             // and it is not attached then destroy it (if the user is putting it back)
-            if (!isAttached && initialParentPositionSet && Vec3.distance(initialParentPosition, position) < NOT_ATTACHED_DESTROY_RADIUS) {
+            if (!isAttached && initialParentPositionSet && 
+                Vec3.distance(initialParentPosition, position) < NOT_ATTACHED_DESTROY_RADIUS) {
                 Entities.deleteEntity(_entityID);
             }
         }
