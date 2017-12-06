@@ -8,13 +8,13 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 (function() {
-    var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+    var REMOVED_FROM_PARENT_CHANNEL_BASE = "AvatarStoreRemovedFromParent";
     var CLONE_LIFETIME = 300;
     var UPDATE_INTERVAL = 10000;
 
-    var messageChannel;
+    var removedFromParentChannel;
 
-    var messageHandler;
+    var removedFromParentHandler;
     var spawnMoreChildren;
     var properties;
     var newEntityProperties;
@@ -27,8 +27,8 @@
         remotelyCallable: ['spawnNewEntity'],
         preload: function(entityID){
             properties = Entities.getEntityProperties(entityID, ['dimensions', 'userData', 'modelURL']);
-            messageChannel = MESSAGE_CHANNEL_BASE + entityID;
-            Messages.subscribe(messageChannel);
+            removedFromParentChannel = REMOVED_FROM_PARENT_CHANNEL_BASE + entityID;
+            Messages.subscribe(removedFromParentChannel);
             newEntityProperties = {
                 type: 'Model',
                 dimensions: properties.dimensions,
@@ -43,12 +43,12 @@
                 collidesWith: "dynamic,"
 
             };
-            messageHandler = function(channel, data, sender) {
-                if (channel === messageChannel) {
+            removedFromParentHandler = function(channel, data, sender) {
+                if (channel === removedFromParentChannel) {
                     Entities.addEntity(newEntityProperties);
                 }    
             };
-            Messages.messageReceived.connect(messageHandler);
+            Messages.messageReceived.connect(removedFromParentHandler);
             spawnMoreChildren = Script.setInterval(function() {
                 if (Entities.getChildrenIDs(entityID).length === 0) {
                     Entities.addEntity(newEntityProperties);
@@ -64,7 +64,7 @@
             Entities.addEntity(newEntityProperties);
         },
         unload: function() {
-            Messages.messageReceived.disconnect(messageHandler);
+            Messages.messageReceived.disconnect(removedFromParentHandler);
             Script.clearInterval(spawnMoreChildren);
         }
     };
