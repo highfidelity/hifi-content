@@ -40,10 +40,9 @@
         pulseStrength = .9;
         rightHand = 0;
         leftHand = 1;
-        var props = Entities.getEntityProperties(entityID);
-        var properties = JSON.parse(props.userData);
+        cardName = Entities.getEntityProperties(entityID).name;
+        var properties = JSON.parse(Entities.getEntityProperties(entityID).userData);
         deckHandlerID = properties.deckHandlerID;
-        cardName = props.name;
         cardOverlay = undefined;
         //subscribe to channel
         showChannel = "show-channel".concat(_this.entityID); 
@@ -90,8 +89,7 @@
 
     _this.startNearGrab = function(entityID, args) {
         //if the glove is in your hand then check to see if its touching a card
-        var props = Entities.getEntityProperties(_this.entityID);
-        var properties = JSON.parse(props.userData);
+        var properties = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
         var held = properties.held;
         if (held === false) {
             hideCard(args);
@@ -100,8 +98,7 @@
 
     _this.startDistanceGrab = function(entityID, args) {
         //if the glove is in your hand then check to see if its touching a card
-        var props = Entities.getEntityProperties(_this.entityID);
-        var properties = JSON.parse(props.userData);
+        var properties = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
         var held = properties.held;
         if (held === false) {
             hideCard(args);
@@ -111,82 +108,61 @@
     _this.releaseGrab = function (entityID, args) {
         var hand = args[0];
         //check if the object you are holding is a card and if it isnt already in your hand
-        var props = Entities.getEntityProperties(_this.entityID);
-        var properties = JSON.parse(props.userData);
+        var cardPos = Entities.getEntityProperties(_this.entityID).position;
+        var properties = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
         var checkIfCard = properties.card;
         var held = properties.held;
         var deckHandlerID = properties.deckHandlerID;
         //check to see if you are holding a card that is not already being held
         if ((checkIfCard === true) && (held === false)) {
-            if (hand == "right") {
-                //get position of left hand and card
-                var left = MyAvatar.getLeftPalmPosition();
-                var cardPos = props.position;
-                //get distance between right hand and left hand
-                var dist = getDistance(left, cardPos);
-                //if card is within an acceptable distance to your hand then place it
-                if (dist <= closeEnough) {
-					//feedback to let you know you attached the card to your hand
-					Controller.triggerShortHapticPulse(pulseStrength, rightHand);
-                    //place card and change held state
-                    var placement = {
-                        userData: JSON.stringify({
-                            grabbableKey: {
-                                grabbable: true,
-                                ignoreIK: false
-                            },
-                            "held": true,
-                            "card": true,
-                            "deckHandlerID": deckHandlerID,
-                            "me": MyAvatar.sessionUUID
-                        }),
-                        parentID: MyAvatar.sessionUUID,
-                        parentJointIndex: leftHandJoint
-                    };
-                    Entities.editEntity(_this.entityID, placement);
-                } else if (dist > closeEnough) {
-                    notCloseEnough();
-                }
-            } else if (hand == "left") {
-                var right = MyAvatar.getRightPalmPosition();
-                var cardPos = props.position;
-                //get distance between right hand and card
-                var dist = getDistance(right, cardPos);
-                //if card is within an acceptable distance to your hand then place it
-                if (dist <= closeEnough) {
-					//get position of right hand and card
-					Controller.triggerShortHapticPulse(pulseStrength, leftHand);
-                    //place card and change held state
-                    var placement = {
-                        userData: JSON.stringify({
-                            grabbableKey: {
-                                grabbable: true,
-                                ignoreIK: false
-                            },
-                            "held": true,
-                            "card": true,
-                            "deckHandlerID": deckHandlerID,
-                            "me": MyAvatar.sessionUUID
-                        }),
-                        parentID: MyAvatar.sessionUUID,
-                        parentJointIndex: rightHandJoint
-                    };
-                    Entities.editEntity(_this.entityID, placement);
-                } else if (dist > closeEnough) {
-                    notCloseEnough();
-                }
+            var handPosition;
+            var handJoint;
+            hand == "right" ? (
+                handPosition = MyAvatar.getLeftPalmPosition()
+            ) : (
+                handPosition = MyAvatar.getRightPalmPosition()
+            );
+            hand == "right" ? handJoint = leftHandJoint : handJoint = rightHandJoint;
+            //get distance between right hand and left hand
+            var dist = getDistance(handPosition, cardPos);
+            //if card is within an acceptable distance to your hand then place it
+            if (dist <= closeEnough) {
+				//feedback to let you know you attached the card to your hand
+				Controller.triggerShortHapticPulse(pulseStrength, rightHand);
+                //place card and change held state
+                var placement = {
+                    userData: JSON.stringify({
+                        grabbableKey: {
+                            grabbable: true,
+                            ignoreIK: false
+                        },
+                        "held": true,
+                        "card": true,
+                        "deckHandlerID": deckHandlerID,
+                        "me": MyAvatar.sessionUUID
+                    }),
+                    parentID: MyAvatar.sessionUUID,
+                    parentJointIndex: handJoint
+                };
+                Entities.editEntity(_this.entityID, placement);
+            } else if (dist > closeEnough) {
+                notCloseEnough();
             }
         //if you were already holding a card then unparent. If someone tries to grab the card out of your hand then do nothing
         } else if ((checkIfCard === true) && (held === true) && (MyAvatar.sessionUUID == properties.me)) {
             //this allows you to rearrange your cards without dropping them
             var cardDistanceFromHand;
             var handCardIsIn;
-            hand == "right" ? cardDistanceFromHand = MyAvatar.getLeftPalmPosition() : cardDistanceFromHand = MyAvatar.getRightPalmPosition();
+            hand == "right" ? (
+                cardDistanceFromHand = MyAvatar.getLeftPalmPosition()
+            ) : (
+                cardDistanceFromHand = MyAvatar.getRightPalmPosition()
+            );
             hand == "right" ? handCardIsIn = rightHandJoint : handCardIsIn = leftHandJoint;
-            var cardPos = props.position;
+            var cardJointIndex = Entities.getEntityProperties(_this.entityID).parentJointIndex;
             //get distance between hand and card
             var dist = getDistance(cardDistanceFromHand, cardPos);
-            if ((dist > closeEnough) && (handCardIsIn != props.parentJointIndex)) {
+            if ((dist > closeEnough) && (handCardIsIn != cardJointIndex)) {
                 //unparent to hand and change held state. Also make it fall
                 var unparent = {
                     parentID: "",

@@ -48,7 +48,7 @@
                 z: 0
             },
             "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/CARD_' + cards[51] + '.jpg"}',
-            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
+            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 0, y: 0, z: 0})),
             "dimensions": {
                 x: .07,
                 y: .12,
@@ -65,7 +65,7 @@
             }),
             "position": {
                 x: deckLocation.x,
-                y: deckLocation.y + (.053 + .003),
+                y: deckLocation.y + (.035),
                 z: deckLocation.z
             },
             "collisionless": false,
@@ -76,32 +76,6 @@
             "script": Script.resolvePath("./Card.js") + "?" + Date.now() 
         };
         cardIDs.push(Entities.addEntity(cardProperties));
-        //make the deck (used for decoration, makes them think cards are coming from the deck)
-        var cardDeckProperties = {
-            "type": "Model", 
-            "lifetime": -1, 
-            "dynamic": false,
-            "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/CARD_0.jpg"}',
-            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
-            "dimensions": {
-                x: .07,
-                y: .12,
-                z: .1
-            },
-            userData: JSON.stringify({
-                grabbableKey: {
-                    grabbable: false,
-                    ignoreIK: false
-                },
-            }),
-            "position": deckLocation,
-            "collisionless": false,
-            "collidesWith": "dynamic",
-            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsAssets/master_card.fbx",
-            name: "CARD_DECK",
-            shapeType: "box",
-        };
-        Entities.addEntity(cardDeckProperties);
         //find right of deck
         var direction = Quat.getRight(deckRotation);
         var distance = .7;
@@ -111,7 +85,6 @@
             "type": "Model", 
             "lifetime": -1, 
             "dynamic": false,
-            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
             "dimensions": {
                 x: .07,
                 y: .12,
@@ -165,6 +138,9 @@
             var cardName = Entities.getEntityProperties(data[1]).name;
             if ((("CARD_" + cards[lastCard - 1]) == cardName) && (lastCard != 1)) {
                 --lastCard;
+                //position of deck handler
+                deckLocation = Entities.getEntityProperties(_this.entityID).position;
+                deckRotation = Entities.getEntityProperties(_this.entityID).rotation;
                 //spawn card but make it inactive, do this because if a player grabs cards from the deck too fast the scripts dont load on time and it causes confusion.
                 var cardProperties = {
                     "type": "Model",
@@ -179,7 +155,7 @@
                         z: 0
                     },
                     "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/CARD_' + cards[lastCard - 1] + '.jpg"}',
-                    "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, { x: 1, y: 0, z: 0 })),
+                    "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, { x: 0, y: 0, z: 0 })),
                     "dimensions": {
                         x: .07,
                         y: .12,
@@ -196,7 +172,7 @@
                     }),
                     "position": {
                         x: deckLocation.x,
-                        y: deckLocation.y + (.053 + .003),
+                        y: deckLocation.y + (.035),
                         z: deckLocation.z
                     },
                     "collisionless": false,
@@ -246,6 +222,9 @@
     }
 
     function resetDeck() {
+        //position of deck handler
+        deckLocation = Entities.getEntityProperties(_this.entityID).position;
+        deckRotation = Entities.getEntityProperties(_this.entityID).rotation;
         //shuffle deck
         cards = Shuffle(cards);
         //delete all cards
@@ -266,7 +245,7 @@
                 z: 0
             },
             "textures": '{ "HiddenCardFile": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/CARD_' + cards[51] + '.jpg"}',
-            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 1, y: 0, z: 0})),
+            "rotation": Quat.multiply(deckRotation, Quat.angleAxis(90, {x: 0, y: 0, z: 0})),
             "dimensions": {
                 x: .07,
                 y: .12,
@@ -283,7 +262,7 @@
             }),
             "position": {
                 x: deckLocation.x,
-                y: deckLocation.y + (.053 + .003),
+                y: deckLocation.y + (.035),
                 z: deckLocation.z
             },
             "collisionless": false,
