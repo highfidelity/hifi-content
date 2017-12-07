@@ -24,9 +24,13 @@
     var TRIGGER_TIME = 0.2;
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
     var ATTACH_SCALE = 3;
-    var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+    var REMOVED_FROM_PARENT_CHANNEL_BASE = "AvatarStoreRemovedFromParent";
+    var RELEASE_GRAB_CHANNEL_BASE = "AvatarStoreReleaseGrab";
+    var NOT_ATTACHED_DESTROY_RADIUS = 0.1;
   
-    var messageChannel;
+    var removedFromParentChannel;
+    var releaseGrabChannel;
+    var releaseGrabHandler;
     var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
     var _entityID;
     var _attachmentData;
@@ -37,6 +41,8 @@
     var prevID = 0;
     var listType = "entity";
     var attachDistance;
+    var initialParentPosition;
+    var initialParentPositionSet = false;
 
 
     var attachFunction = function() {
@@ -58,6 +64,17 @@
 
     function AttachableItem() {
 
+    }
+    
+    function CheckReleaseGrabOnParent() {
+        // If placed back within NOT_ATTACHED_DESTROY_RADIUS of the original parent entity 
+        // and it is not attached then destroy it (if the user is putting it back)
+        var properties = Entities.getEntityProperties(_entityID, ['userData', 'position']);
+        var isAttached = JSON.parse(properties.userData).Attachment.attached;
+        if (!isAttached && initialParentPositionSet && 
+            Vec3.distance(initialParentPosition, properties.position) < NOT_ATTACHED_DESTROY_RADIUS) {
+            Entities.deleteEntity(_entityID);
+        }
     }
 
     AttachableItem.prototype = {
@@ -84,16 +101,33 @@
             isAttached = _attachmentData.attached;
 
             if (Entities.getNestableType(properties.parentID) !== "avatar" && !isAttached) {
-                messageChannel = MESSAGE_CHANNEL_BASE + properties.parentID;
-                Messages.subscribe(messageChannel);
+                removedFromParentChannel = REMOVED_FROM_PARENT_CHANNEL_BASE + properties.parentID;
+                Messages.subscribe(removedFromParentChannel);
             }
+            
+            releaseGrabChannel = RELEASE_GRAB_CHANNEL_BASE + entityID;
+            Messages.subscribe(releaseGrabChannel);
+            releaseGrabHandler = function(channel, data, sender) {
+                if (channel === releaseGrabChannel) {
+                    CheckReleaseGrabOnParent();
+                }    
+            };
+            Messages.messageReceived.connect(releaseGrabHandler);
 
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
             MyAvatar.scaleChanged.connect(attachFunction);
             attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
+            
+            // We only want to store the initial parent position for the original parent wearable entity
+            if (properties.parentID != EMPTY_PARENT_ID && Entities.getNestableType(properties.parentID) !== "avatar") {
+                initialParentPosition = Entities.getEntityProperties(properties.parentID, ['position']).position;
+                initialParentPositionSet = true;
+            }
         },
         unload: function() {
             MyAvatar.scaleChanged.disconnect(attachFunction);
+            Messages.unsubscribe(releaseGrabChannel);
+            Messages.unsubscribe(removedFromParentChannel);
         },
         /**
          * Local remote function to be called from desktopAttachment.js whenever a click event is registered.
@@ -180,8 +214,8 @@
                 }
             }
             if (Entities.getNestableType(properties.parentID) === "entity") {
-                Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
-                Messages.unsubscribe(messageChannel);
+                Messages.sendMessage(removedFromParentChannel, "Removed Item :" + entityID);
+                Messages.unsubscribe(removedFromParentChannel);
                 Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
             }
             var userData = properties.userData;
@@ -232,9 +266,13 @@
                             localOnly: true
                         });
                     }
+                    isAttached = false;
                     Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                 }
             }
+            
+            Messages.sendMessage(releaseGrabChannel, "Released Grab: " + entityID);
+            CheckReleaseGrabOnParent();
         }
     };
     return new AttachableItem(); 
