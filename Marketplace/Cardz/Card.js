@@ -35,7 +35,6 @@
         _this.entityID = entityID; 
         rightHandJoint = MyAvatar.getJointIndex("RightHandMiddle1");
         leftHandJoint = MyAvatar.getJointIndex("LeftHandMiddle1");
-        print(rightHandJoint + " " + leftHandJoint);
         closeEnough = .1;
         pulseStrength = .9;
         rightHand = 0;
