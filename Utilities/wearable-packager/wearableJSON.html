@@ -1,6 +1,6 @@
 <!--
-    /store-packager/app.html
-    Makes an object in a domain a store demo copy
+    /wearable-packager/app.html
+    Exports wearable JSON for Marketplace
     Created by Liv Erickson on 11/6/17.
     Copyright 2017 High Fidelity, Inc.
 
@@ -9,20 +9,17 @@
 -->
 <html>
     <head>
-        <title> Wearable Setup </title>
+        <title> Wearable Packager </title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     </head>
     <body>
         <div class="top-bar">
-            <h2>Make Item Wearable</h2>
-            <p> Select the item you want to populate the entityID field. Paste in the marketplace ID for the object. Click 'Make Wearable' to make the object wearable.
-            </p>
+            <h4>Package Wearable</h4>
         </div>
         <div class="content">
             <input class="id" type="text" placeholder="EntityID to package">
-            <input class="mkp_id" type="text" placeholder="MarketplaceID">
             <select class="joint_dropdown">
                 <option>HeadTop_End</option>
                 <option>[LR]ForeArm</option>
@@ -30,7 +27,7 @@
                 <option>Neck</option>
                 <option>Spine</option>
             </select>
-            <input type="submit" class="submit-button" value="Make Wearable">
+            <input type="submit" class="submit-button" value="Package JSON">
         </div>
         <script>
             function main(){
@@ -38,7 +35,6 @@
                     var clickEvent = {
                         type: "submit",
                         entityID: $(".id").val(),
-                        marketplaceID: $(".mkp_id").val(),
                         joint: $(".joint_dropdown").val()
                     };
                     EventBridge.emitWebEvent(JSON.stringify(clickEvent));
@@ -51,4 +47,3 @@
         </script>
     </body>
 </html>
-

@@ -15,8 +15,8 @@
 /* globals Selection */
 (function() {
     var APP_NAME = "WEARABLE";
-    var APP_URL = Script.resolvePath("app.html");
-    var APP_ICON = Script.resolvePath("icon.png");
+    var APP_URL = Script.resolvePath("wearableCreator.html");
+    var APP_ICON = Script.resolvePath("./dress2.svg");
 
     var SERVER_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/wearableServer.js"; 
     var CLIENT_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/desktopAttacher.js";
