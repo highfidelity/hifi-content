@@ -1,10 +1,8 @@
 // AC stands for Alien Control
 
 /* globals Entities, Agent, Script, EntityViewer, Sound, SoundCache, Avatar, Quat, Vec3, Users, Messages */
-//false;
-print("above invasion utils");
 var invasionUtils = Script.require('./invasionUtils.js');
-print("under invasion utils");
+
 var MILLISECONDS_IN_SECOND = 1000;
 var ADDED_LIFETIME = 15;
 var LIFETIME_CHECK_INTERVAL = (ADDED_LIFETIME * MILLISECONDS_IN_SECOND) / 2;
@@ -217,11 +215,16 @@ function randomLocalPositionFromDimensions(dimensions) {
 }
 
 function getRandomAttackPosition(randomTarget) {                
-    var lowPosition = {x: BEAM_TO_POSITION.x, y: LOWEST_HOVER_HEIGHT + (RANDOM_ATTACK_BOX_DIMENSIONS.y / 2), z: BEAM_TO_POSITION.z};
+    var lowPosition = {
+        x: BEAM_TO_POSITION.x,
+        y: LOWEST_HOVER_HEIGHT + (RANDOM_ATTACK_BOX_DIMENSIONS.y / 2),
+        z: BEAM_TO_POSITION.z
+    };
 
     var direction = Vec3.normalize(Vec3.subtract(lowPosition, randomTarget.position));
 
-    var centerOfBox = Vec3.sum(randomTarget.position, Vec3.multiply(direction, CLOSEST_LASER_RANGE + (RANDOM_ATTACK_BOX_DIMENSIONS.z / 2)));
+    var centerOfBox = Vec3.sum(randomTarget.position,
+        Vec3.multiply(direction, CLOSEST_LASER_RANGE + (RANDOM_ATTACK_BOX_DIMENSIONS.z / 2)));
 
     if (DEBUG_CUBES) {
         Entities.addEntity({
@@ -233,7 +236,8 @@ function getRandomAttackPosition(randomTarget) {
         });
     }
     
-    var randomPosition = Vec3.sum(centerOfBox, Vec3.multiplyQbyV(Quat.lookAtSimple(Vec3.ZERO, direction), randomLocalPositionFromDimensions(RANDOM_ATTACK_BOX_DIMENSIONS)));
+    var randomPosition = Vec3.sum(centerOfBox, Vec3.multiplyQbyV(Quat.lookAtSimple(Vec3.ZERO, direction),
+        randomLocalPositionFromDimensions(RANDOM_ATTACK_BOX_DIMENSIONS)));
     
     return randomPosition;
 }
@@ -242,7 +246,7 @@ var getLivePowerSources = function() {
     var livePowerSources = [];
     powerSources.forEach(function(powerSource) {
         if (powerSource.isAlive.call(powerSource)) {
-            livePowerSources.push(powerSource)
+            livePowerSources.push(powerSource);
         }
     });
     return livePowerSources;
@@ -252,7 +256,7 @@ var getRandomLivePowerSources = function() {
     return getLivePowerSources().sort(function(a, b) {
         return 0.5 - Math.random();
     });
-}
+};
 
 var TrackableEntity = (function() {
     function TrackableEntity(properties, label) {
@@ -272,7 +276,6 @@ var TrackableEntity = (function() {
                 Entities.editEntity(this.entity, {
                     lifetime: currentAge + ADDED_LIFETIME
                 });
-                // print('updating lifetime for ' + this.label + ' -> ' + this.entity);
             }
         },
         exists: function() {
@@ -311,7 +314,9 @@ var PowerSource = (function() {
 
                 invasionUtils.setPowerDeviceHealth(this.trackableEntity.entity, this.health);
                 
-                Entities.editEntity(this.trackableEntity.entity, {angularVelocity: Vec3.multiply(POWER_SOURCE_FULL_ANGULAR_VELOCITY, this.health)});
+                Entities.editEntity(this.trackableEntity.entity, {
+                    angularVelocity: Vec3.multiply(POWER_SOURCE_FULL_ANGULAR_VELOCITY, this.health)
+                });
             }
             return this.isAlive();
         },
@@ -325,10 +330,12 @@ var PowerSource = (function() {
 
                 invasionUtils.setPowerDeviceHealth(this.trackableEntity.entity, this.health);
                 
-                Entities.editEntity(this.trackableEntity.entity, {angularVelocity: Vec3.multiply(POWER_SOURCE_FULL_ANGULAR_VELOCITY, this.health)});
+                Entities.editEntity(this.trackableEntity.entity, {
+                    angularVelocity: Vec3.multiply(POWER_SOURCE_FULL_ANGULAR_VELOCITY, this.health)
+                });
             }
         }
-    }
+    };
     return PowerSource;
 })();
 
@@ -343,7 +350,7 @@ var UFOMovePathEvent = (function() {
     function UFOMovePathEvent(ufoMoveAction, options) {
         this.ufoMoveAction = ufoMoveAction;
         this.options = options;
-    };
+    }
 
     UFOMovePathEvent.prototype = {
         ufoMoveAction: null,
@@ -378,7 +385,7 @@ var Alien = (function() {
         this.updateStatus(invasionUtils.UFO_STATUS.MOVING);
         this.setTargetPowerSource(targetPowerSource);
         this.goingHome = false;
-    };
+    }
 
     Alien.prototype = {
         motherShip: null,
@@ -395,14 +402,16 @@ var Alien = (function() {
         goingHome: null,
         setTargetPowerSource: function(targetPowerSource) {
             this.targetPowerSource = targetPowerSource;
-            print('something out.');
             
-            var setResult = invasionUtils.setAlienTarget(this.trackableEntity.entity, this.targetPowerSource.trackableEntity.entity);
-            print("invasionUtils.setAlienTarget(" + this.trackableEntity.entity + ", " + this.targetPowerSource.trackableEntity.entity + ") = " + setResult); 
+            invasionUtils.setAlienTarget(this.trackableEntity.entity,
+                this.targetPowerSource.trackableEntity.entity);
         },
         attackPowerSource: function() {
             var alien = this;
-            Entities.editEntity(this.trackableEntity.entity, {rotation: invasionUtils.getAlienFireRotation(this.trackableEntity.entity, this.targetPowerSource.trackableEntity.entity)});
+            Entities.editEntity(this.trackableEntity.entity, {
+                rotation: invasionUtils.getAlienFireRotation(this.trackableEntity.entity,
+                    this.targetPowerSource.trackableEntity.entity)
+            });
             this.updateStatus(invasionUtils.UFO_STATUS.ATTACKING);
             if (this.attackInterval !== null) {
                 Script.clearInterval(this.attackInterval);
@@ -413,7 +422,7 @@ var Alien = (function() {
                     alien.attackInterval = null;
                     return;
                 }
-                if(!alien.targetPowerSource.applyDamage.call(alien.targetPowerSource, UFO_ATTACK_DAMAGE)) {
+                if (!alien.targetPowerSource.applyDamage.call(alien.targetPowerSource, UFO_ATTACK_DAMAGE)) {
                     // target is destroyed. lets move to another or return home
                     alien.updateStatus(invasionUtils.UFO_STATUS.MOVING);
                     var randomPowerSources = getRandomLivePowerSources();
@@ -426,7 +435,7 @@ var Alien = (function() {
                             // now move the UFOs towards their target
                             new UFOMovePathEvent(UFO_PATH_ACTION.MOVE, {target: randomPosition, speed: 6.0})
                         ], function(alien) {
-                            print('attack mode starting for alien '); // + JSON.stringify(alien));
+                            print('attack mode starting for alien');
                             // lets go in FULL attack mode!
                             alien.attackPowerSource.call(alien);
                         });
@@ -462,6 +471,7 @@ var Alien = (function() {
                 var currentAlien = this;
                 
                 var timeout = this.currentMove.options.timeout;
+                var direction, velocity;
                 
                 // start of move
                 switch (currentMove.ufoMoveAction) {
@@ -469,18 +479,34 @@ var Alien = (function() {
                         // do nothing
                         break;
                     case UFO_PATH_ACTION.MOVE:
-                        timeout = (Vec3.distance(currentAlien.position, currentMove.options.target) / currentMove.options.speed) * MILLISECONDS_IN_SECOND;
-                        var direction = Vec3.normalize(Vec3.subtract(currentMove.options.target, currentAlien.position));
-                        var velocity = Vec3.multiply(direction, currentMove.options.speed);
-                        var rotationOffset = Quat.inverse({"x":0,"y":-0.5986136794090271,"z":0,"w":0.8010378479957581});
-                        var rotation = Quat.cancelOutRollAndPitch(Quat.multiply(Quat.lookAt(currentAlien.position, currentMove.options.target, Vec3.UP), rotationOffset));
+                        timeout = (Vec3.distance(currentAlien.position, currentMove.options.target) / currentMove.options.speed)
+                            * MILLISECONDS_IN_SECOND;
+                        direction = Vec3.normalize(Vec3.subtract(currentMove.options.target, currentAlien.position));
+                        velocity = Vec3.multiply(direction, currentMove.options.speed);
+                        var rotationOffset = Quat.inverse({
+                            x: 0.0,
+                            y: -0.5986136794090271,
+                            z: 0.0,
+                            w: 0.8010378479957581
+                        });
+                        var rotation = Quat.cancelOutRollAndPitch(Quat.multiply(
+                            Quat.lookAt(currentAlien.position, currentMove.options.target, Vec3.UP), rotationOffset));
 
                         Entities.editEntity(currentAlien.trackableEntity.entity, {velocity: velocity, rotation: rotation});
                         break;
                     case UFO_PATH_ACTION.SPIN_MOVE:
-                        timeout = (Vec3.distance(currentAlien.position, currentMove.options.target) / currentMove.options.speed) * MILLISECONDS_IN_SECOND;
-                        var velocity = Vec3.multiply(Vec3.normalize(Vec3.subtract(currentMove.options.target, currentAlien.position)), currentMove.options.speed);
-                        Entities.editEntity(currentAlien.trackableEntity.entity, {velocity: velocity, angularVelocity: {x: 0, y: 2, z: 0}});
+                        timeout = (Vec3.distance(currentAlien.position, currentMove.options.target) / currentMove.options.speed)
+                            * MILLISECONDS_IN_SECOND;
+                        direction = Vec3.normalize(Vec3.subtract(currentMove.options.target, currentAlien.position));
+                        velocity = Vec3.multiply(direction, currentMove.options.speed);
+                        Entities.editEntity(currentAlien.trackableEntity.entity, {
+                            velocity: velocity,
+                            angularVelocity: {
+                                x: 0.0,
+                                y: 2.0,
+                                z: 0.0
+                            }
+                        });
                         break;
                     case UFO_PATH_ACTION.WARP:
                         // do nothing
@@ -495,12 +521,19 @@ var Alien = (function() {
                             break;
                         case UFO_PATH_ACTION.MOVE:
                             // end moving
-                            Entities.editEntity(currentAlien.trackableEntity.entity, {position: currentMove.options.target, velocity: Vec3.ZERO});
+                            Entities.editEntity(currentAlien.trackableEntity.entity, {
+                                position: currentMove.options.target,
+                                velocity: Vec3.ZERO
+                            });
                             currentAlien.position = currentMove.options.target;
                             break;
                         case UFO_PATH_ACTION.SPIN_MOVE:
                             // end spinning
-                            Entities.editEntity(currentAlien.trackableEntity.entity, {position: currentMove.options.target, velocity: Vec3.ZERO, angularVelocity: Vec3.ZERO});
+                            Entities.editEntity(currentAlien.trackableEntity.entity, {
+                                position: currentMove.options.target,
+                                velocity: Vec3.ZERO,
+                                angularVelocity: Vec3.ZERO
+                            });
                             currentAlien.position = currentMove.options.target;
                             break;
                         case UFO_PATH_ACTION.WARP:
@@ -566,7 +599,7 @@ var Alien = (function() {
                 new UFOMovePathEvent(UFO_PATH_ACTION.SPIN_MOVE, {target: BEAM_FROM_POSITION, speed: 5.0})
 
             ], function(alien) {
-                print('E.T. Return Home '); // + JSON.stringify(alien));
+                print('E.T. Return Home');
 
                 // remove from activeAliens
                 alien.motherShip.removeActiveAlien.call(alien.motherShip, alien);
@@ -577,8 +610,6 @@ var Alien = (function() {
     };
     return Alien;
 })();
-
-
 
 
 var MotherShip = (function() {
@@ -626,7 +657,7 @@ var MotherShip = (function() {
                     // now move the UFOs towards their target
                     new UFOMovePathEvent(UFO_PATH_ACTION.MOVE, {target: randomPosition, speed: 6.0})
                 ], function(alien) {
-                    print('attack mode starting for alien ');// + JSON.stringify(alien));
+                    print('attack mode starting for alien');
                     // lets go in FULL attack mode!
                     alien.attackPowerSource.call(alien);
                 });
@@ -642,7 +673,6 @@ var MotherShip = (function() {
         position: null,
         trackableEntity: null,
         updateLifetime: function() {
-            //print(JSON.stringify(this));
             this.trackableEntity.updateLifetime();
             if (this.activeAliens !== null) {
                 this.activeAliens.forEach(function(activeAlien) {
@@ -696,7 +726,6 @@ Script.setInterval(function() {
             powerSource.trackableEntity.updateLifetime.call(powerSource.trackableEntity);
         }
     });
-    //print('powerSources = ' + JSON.stringify(powerSources));
     if (motherShip && motherShip.trackableEntity) {
         motherShip.updateLifetime.call(motherShip);
     }
@@ -795,25 +824,25 @@ Messages.messageReceived.connect(function(channel, message, sender) {
             angularVelocity: {x: 0, y: 5, z: 0}
         });*/
         
-        var data = JSON.parse(message);
-        if (data.type === "HitAlienWithLaser") {
+        var alienData = JSON.parse(message);
+        if (alienData.type === "HitAlienWithLaser") {
             motherShip.activeAliens.forEach(function(activeAlien) {
-                if (activeAlien.trackableEntity.entity === data.alienID) {
+                if (activeAlien.trackableEntity.entity === alienData.alienID) {
                     activeAlien.applyDamage.call(activeAlien, 0.1);
                 }
             });
-        } else if (data.type === "HitAlienWithFood") {
+        } else if (alienData.type === "HitAlienWithFood") {
             motherShip.activeAliens.forEach(function(activeAlien) {
-                if (activeAlien.trackableEntity.entity === data.alienID) {
+                if (activeAlien.trackableEntity.entity === alienData.alienID) {
                     activeAlien.goHomeHappy.call(activeAlien);
                 }
             });
         }
     } else if (channel === invasionUtils.REPAIR_CHANNEL) {
-        var data = JSON.parse(message);
-        if (data.type === "RepairPowerSource") {
+        var repairData = JSON.parse(message);
+        if (repairData.type === "RepairPowerSource") {
             powerSources.forEach(function(powerSource) {
-                if (powerSource.trackableEntity.entity === data.powerSourceID) {
+                if (powerSource.trackableEntity.entity === repairData.powerSourceID) {
                     powerSource.repair.call(powerSource, 0.25);
                 }
             });
@@ -821,6 +850,6 @@ Messages.messageReceived.connect(function(channel, message, sender) {
     }
 });
 
-print("above update interval");
-updateInterval = Script.setInterval(update, 1000 / 60);
-print("end of file is reached, as expected.");
+var UPDATE_RATE_FPS = 60;
+
+updateInterval = Script.setInterval(update, MILLISECONDS_IN_SECOND / UPDATE_RATE_FPS);
