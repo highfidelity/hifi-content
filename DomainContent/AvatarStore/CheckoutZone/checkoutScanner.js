@@ -10,7 +10,6 @@
 //  This script acts on the scanner zone to pull up an item's marketplace page to enable purchasing.
 /* global Selection, Render */
 (function() {
-    var highlightToggle = false;
     var mini = false;
     
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
@@ -22,11 +21,10 @@
     var SCAN_RADIUS_MINI = 0.07; // meters
     var OVERLAY_PREFIX = 'MP';
     var CHECKOUT_INTERVAL_MS = 500;
-    var LIST_NAME = "highlightList3";
+    var LIST_NAME = "scannerList";
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.transforms';
     var SEARCH_RADIUS = 2;
     var SEARCH_RADIUS_MINI = 1;
-    var HIGHLIGHT = Script.require('../ExternalOutlineConfig.js');
     var SCANNED_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: 10, y: 140, z: 0 });
     var SCANNED_LOCAL_HEIGHT = 0.29;
     var TRANSLATION_CHECK_INTERVAL = 100; // Milliseconds
@@ -43,11 +41,22 @@
     var matchingEntity;
     var overlayInScanner;
     var name;
-    var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
     var replicaStoredTransforms = {};
     var lastScannedOverlay;
     var lastScannedMPItem;
     var scanner;
+    var scannerOutlineStyle = {
+        outlineUnoccludedColor: { red: 39, green: 174, blue: 96 },
+        outlineOccludedColor: { red: 39, green: 174, blue: 96 },
+        fillUnoccludedColor: { red: 39, green: 174, blue: 96 },
+        fillOccludedColor: { red: 39, green: 174, blue: 96 },
+        outlineUnoccludedAlpha: 1,
+        outlineOccludedAlpha: 0,
+        fillUnoccludedAlpha: 0,
+        fillOccludedAlpha: 0,
+        outlineWidth: 3,
+        isOutlineSmooth: true
+    };
   
     var Scanner = function() {
     };
@@ -56,11 +65,8 @@
     Scanner.prototype = {
         preload: function(entityID) {
             scanner = entityID;
-            if (highlightToggle) {
-                highlightConfig["selectionName"] = LIST_NAME; 
-                Selection.clearSelectedItemsList(LIST_NAME);
-                HIGHLIGHT.changeHighlight3(highlightConfig);
-            }
+            Selection.enableListHighlight(LIST_NAME, scannerOutlineStyle);
+            Selection.clearSelectedItemsList(LIST_NAME);
             var sizeLimit = 0.2;
             if (Entities.getEntityProperties(entityID, 'dimensions.x').dimensions.x < sizeLimit) {
                 mini = true;
@@ -179,21 +185,16 @@
                     overlays = Overlays.findOverlays(scanPosition, SCAN_RADIUS);
                 }
                 if (overlays.length === 0 && overlayInScanner) {
-                    if (highlightToggle) {
-                        Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
-                        Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
-                        prevID = 0;
-                    }
-
+                    Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
+                    Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
+                    prevID = 0;
                     matchingEntity = null;
                     overlayInScanner = null;
                 } else if ((overlays.length > 0) && (overlayInScanner) && 
                 (overlays.toString().indexOf(overlayInScanner) === -1)) {
-                    if (highlightToggle) {
-                        Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
-                        Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
-                        prevID = 0;
-                    }
+                    Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
+                    Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
+                    prevID = 0;
                     matchingEntity = null;
                     overlayInScanner = null;
                 } else if (overlays.length > 0 && overlays.toString().indexOf(overlayInScanner) !== -1) {
@@ -202,11 +203,9 @@
                         tableID = Entities.getEntityProperties(scanner, 'parentID').parentID;
                         if (Overlays.getProperty(overlayInScanner, 'parentID') === tableID) { 
                             name = Overlays.getProperty(overlayInScanner, 'name');
-                            if (highlightToggle) {
-                                Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
-                                Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
-                                prevID = 0;
-                            }
+                            Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
+                            Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
+                            prevID = 0;
                             var MPIDLengthMinusOne = 35;
                             var marketplaceID = name.substr(OVERLAY_PREFIX.length, OVERLAY_PREFIX.length + MPIDLengthMinusOne);
                             var goToURL = MARKET_PLACE_ITEM_URL_PREFIX + "/items/" + marketplaceID;
@@ -255,10 +254,8 @@
                                     localOnly: true
                                 });
                             }
-                            if (highlightToggle) {
-                                Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
-                                Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
-                            }
+                            Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
+                            Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
 
                             lastScannedOverlay = overlayInScanner;
                             lastScannedMPItem = entityProperties.marketplaceID;
@@ -282,12 +279,10 @@
                                 if (userDataString.indexOf(overlayID) !== -1) {
                                     overlayInScanner = overlayID;
                                     matchingEntity = entityID;
-                                    if (highlightToggle) {
-                                        if (prevID !== entityID) {
-                                            Selection.addToSelectedItemsList(LIST_NAME, "entity", matchingEntity);
-                                            Selection.addToSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
-                                            prevID = entityID;
-                                        }
+                                    if (prevID !== entityID) {
+                                        Selection.addToSelectedItemsList(LIST_NAME, "entity", matchingEntity);
+                                        Selection.addToSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
+                                        prevID = entityID;
                                     }
                                 }
                             });
