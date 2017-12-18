@@ -7,7 +7,7 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-/* globals Entities, Vec3, Quat, Overlays */
+/* globals Entities, Vec3, Quat, Overlays, module */
 
 var MINIMUM_POWER_DEVICE_HEALTH = 0.0;
 var MAXIMUM_POWER_DEVICE_HEALTH = 1.0;
@@ -44,13 +44,13 @@ var getAlienBarrelPosition = function(entityID) {
     var barrelLocalPosition = Vec3.multiplyQbyV(properties.rotation, ALIEN_BARREL_LOCAL_OFFSET);
     var barrelWorldPosition = Vec3.sum(properties.position, barrelLocalPosition);
     return barrelWorldPosition;
-}
+};
 
 var getAlienBarrelDirection = function(entityID) {
     var rotation = Entities.getEntityProperties(entityID, ['rotation']).rotation;
     var barrelAdjustedDirection = Vec3.multiplyQbyV(rotation, ALIEN_BARREL_LOCAL_DIRECTION);
     return barrelAdjustedDirection;
-}
+};
 
 var getAlienFireRotation = function(alienEntity, fireAtEntity) {
     var targetPosition = Entities.getEntityProperties(fireAtEntity, ['position']).position;
@@ -61,41 +61,40 @@ var getAlienFireRotation = function(alienEntity, fireAtEntity) {
     var rotationBetween = Quat.rotationBetween(barrelDirection, toTargetDirection);
     var newRotation = Quat.multiply(rotationBetween, currentRotation);
     return newRotation;
-}
+};
 
 var getPowerDeviceHealth = function(entityID) {
     var properties = Entities.getEntityProperties(entityID, ['userData']);
     if (properties.userData) {
         var userData = JSON.parse(properties.userData);
-        if (userData.PowerDeviceHealth != undefined) {
+        if (userData.PowerDeviceHealth !== undefined) {
             return userData.PowerDeviceHealth;
         }
     }
     return 1.0;
-}
+};
 
 var setPowerDeviceHealth = function(entityID, health) {
     var properties = Entities.getEntityProperties(entityID, ['userData']);
     if (properties.userData) {
         var userData = JSON.parse(properties.userData);
         userData.PowerDeviceHealth = health;
-        //print('setPowerDeviceHealth Entities.editEntity("' + entityID + '", ' + JSON.stringify({userData: JSON.stringify(userData)}) + ');');
         Entities.editEntity(entityID, {userData: JSON.stringify(userData)});
         return true;
     }
     return false;
-}
+};
 
 var getAlienHealth = function(entityID) {
     var properties = Entities.getEntityProperties(entityID, ['userData']);
     if (properties.userData) {
         var userData = JSON.parse(properties.userData);
-        if (userData.AlienHealth != undefined) {
+        if (userData.AlienHealth !== undefined) {
             return userData.AlienHealth;
         }
     }
     return 1.0;
-}
+};
 
 var setAlienHealth = function(entityID, health) {
     var properties = Entities.getEntityProperties(entityID, ['userData']);
@@ -106,21 +105,18 @@ var setAlienHealth = function(entityID, health) {
         return true;
     }
     return false;
-}
+};
 
 var getAlienStatus = function(entityID) {
-    print("getAlienStatus 0 " + entityID);
     var properties = Entities.getEntityProperties(entityID, ['userData']);
     if (properties.userData) {
         var userData = JSON.parse(properties.userData);
-        print("getAlienStatus 1 " + userData);
-        if (userData.AlienStatus != undefined) {
-            print("getAlienStatus 2 " + userData.AlienStatus);
+        if (userData.AlienStatus !== undefined) {
             return userData.AlienStatus;
         }
     }
     return 0;
-}
+};
 
 var setAlienStatus = function(entityID, status) {
     var properties = Entities.getEntityProperties(entityID, ['userData']);
@@ -131,18 +127,18 @@ var setAlienStatus = function(entityID, status) {
         return true;
     }
     return false;
-}
+};
 
 var getAlienTarget = function(entityID) {
     var properties = Entities.getEntityProperties(entityID, ['userData']);
     if (properties.userData) {
         var userData = JSON.parse(properties.userData);
-        if (userData.TargetEntity != undefined) {
+        if (userData.TargetEntity !== undefined) {
             return userData.TargetEntity;
         }
     }
     return 0;
-}
+};
 
 var setAlienTarget = function(entityID, target) {
     var properties = Entities.getEntityProperties(entityID, ['userData']);
@@ -150,12 +146,10 @@ var setAlienTarget = function(entityID, target) {
         var userData = JSON.parse(properties.userData);
         userData.TargetEntity = target;
         Entities.editEntity(entityID, {userData: JSON.stringify(userData)});
-        print("entityID = " + entityID);
-        print("userData = " + Entities.getEntityProperties(entityID, 'userData').userData);
         return true;
     }
     return false;
-}
+};
 
 
 var addHealthBarBG = function(entityID, localOffset) {
@@ -171,7 +165,7 @@ var addHealthBarBG = function(entityID, localOffset) {
         visible: true
     });
     return healthBarBGID;
-}
+};
 
 var addHealthBar = function(healthBarBGID) {
     var healthBarID = Overlays.addOverlay("image3d", {
@@ -187,7 +181,7 @@ var addHealthBar = function(healthBarBGID) {
         visible: true
     });
     return healthBarID;
-}
+};
 
 var updateHealthBar = function(healthBarID, healthBarPercent) {
     var newLength = HEALTH_BAR_LENGTH * healthBarPercent;
@@ -201,7 +195,7 @@ var updateHealthBar = function(healthBarID, healthBarPercent) {
             visible: false
         });
     }
-}
+};
 
 module.exports = {
     MINIMUM_POWER_DEVICE_HEALTH: MINIMUM_POWER_DEVICE_HEALTH,
