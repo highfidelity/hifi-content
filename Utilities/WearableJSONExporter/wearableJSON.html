@@ -1,6 +1,6 @@
 <!--
-    /store-packager/app.html
-    Makes an object in a domain a store demo copy
+    /wearable-packager/app.html
+    Exports wearable JSON for Marketplace
     Created by Liv Erickson on 11/6/17.
     Copyright 2017 High Fidelity, Inc.
 
@@ -9,7 +9,7 @@
 -->
 <html>
     <head>
-        <title> Wearable Setup</title>
+        <title> Wearable Packager </title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="wear.css">
@@ -19,29 +19,23 @@
         <div class="container">
             <div style="margin-top: 21px; margin-bottom: 10px; text-align: center;">
                 <img style="height: 30px; display: inline-block; padding-right: 15px;
-                    padding-bottom: 15px; vertical-align: middle;" src="dress.svg" />
-                <h1 style="display: inline-block;">Wearable Creator</h1>
-                <h3 style="display: inline-block;">Select the item you want to populate the entityID field. 
-                <br>Paste in the marketplace ID for the object.
-                <br>'Make Wearable' to make the object wearable.</h2>
+                        padding-bottom: 12px; vertical-align: middle;" src="jsonPack.png" />
+                <h1 style="display: inline-block;">Wearable JSON Packager</h1>
+                <h3 style="display: inline-block;">Select the item you want to populate the entityID field.
+                <br>Select the joint your item should attach to.
+                <br>'Package JSON' to export the item as a JSON.</h3>
             </div>
             <hr> <br>
             <div id="properties">
                 <fieldset class="property xyz">
                     <legend>Entity ID to package</legend>
                     <div class="tuple">
-                        <div><input class="id" style="padding-left:0; width: 302;" type="text"></div>
-                    </div>
-                </fieldset>
-                <fieldset class="property xyz">
-                    <legend>Marketplace ID</legend>
-                    <div class="tuple">
-                        <div><input class="mkp_id" style="padding-left:0; width: 302;" type="text"></div>
+                        <div><input class="id" style="padding-left:0; width: 320;" type="text"></div>
                     </div>
                 </fieldset>
                 <br>
                 <fieldset class="property xyz">
-                    <legend>Attachment Joint</legend>
+                    <legend>Attachment Joint</legend><br>
                     <div class="dropdown">
                         <button id="selected" onclick="myFunction()" class="dropbtn" >Select attachment Joint<span class="caret">
                             </span></button>
@@ -73,48 +67,49 @@
                     </div>
                 </fieldset>
                 <br><br><br>
-                <input type="submit" style="margin-left: 25%; margin-right: auto; width: 230px; min-height: 40px;" 
-                        class="blueButton" value="Create Wearable">
+                <input type="submit" style="margin-left: 25%; margin-right: auto; width: 230px; min-height: 40px;"
+                        class="blueButton" value="Package JSON">
             </div>
             <script>
+                var selectedJoint = null;
                 $(document).ready(function(){
-                    $(".dropdown-menu li").click(function(){
-                        $("#selected").text($(this).text());
+                        $(".dropdown-menu li").click(function(){
+                            $("#selected").text($(this).text());
+                            selectedJoint = $(this).text();
+                        });
                     });
-                });
-            
-                function myFunction() {document.getElementById("myDropdown").classList.toggle("show");}
-            
-                window.onclick = function(event) {
-                    if (!event.target.matches('.dropbtn')) {
-                        var dropdowns = document.getElementsByClassName("dropdown-content");
-                        var i;
-                        for (i = 0; i < dropdowns.length; i++) {
-                            var openDropdown = dropdowns[i];
-                            if (openDropdown.classList.contains('show')) {
-                                openDropdown.classList.remove('show');
+                
+                    function myFunction() {document.getElementById("myDropdown").classList.toggle("show");}
+                
+                    window.onclick = function(event) {
+                        if (!event.target.matches('.dropbtn')) {
+                            var dropdowns = document.getElementsByClassName("dropdown-content");
+                            var i;
+                            for (i = 0; i < dropdowns.length; i++) {
+                                var openDropdown = dropdowns[i];
+                                if (openDropdown.classList.contains('show')) {
+                                    openDropdown.classList.remove('show');
+                                }
                             }
                         }
                     }
-                }
-            
-                function main(){
-                    $(".bluebutton").click(function() {
-                        var clickEvent = {
-                            type: "submit",
-                            entityID: $(".id").val(),
-                            marketplaceID: $(".mkp_id").val(),
-                            joint: $(".dropbtn").val()
-                        };
-                        EventBridge.emitWebEvent(JSON.stringify(clickEvent));
-                    });
-                    EventBridge.scriptEventReceived.connect(function(scriptEvent){
-                        $(".id").val(scriptEvent);
-                    });
-                }
-                $(document).ready(main);
+                
+                    function main(){
+                        $(".bluebutton").click(function() {
+                            var clickEvent = {
+                                type: "submit",
+                                entityID: $(".id").val(),
+                                joint: selectedJoint,
+                                app:"JSON"
+                            };
+                            EventBridge.emitWebEvent(JSON.stringify(clickEvent));
+                        });
+                        EventBridge.scriptEventReceived.connect(function(scriptEvent){
+                            $(".id").val(scriptEvent);
+                        });
+                    }
+                    $(document).ready(main);
             </script>
         </div>
     </body>
 </html>
-

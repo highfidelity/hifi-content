@@ -43,17 +43,21 @@
             
             input[type="text"], input[type="number"], textarea {
                 margin: 0;
-                padding: 0 12px;
+                padding: 0 5;
+                width: 330px;
                 background-color: #d1d1d3;
                 border-color: #d1d1d3;
                 border: none;
-                font-family: FiraSans-SemiBold;
+                font-family: Raleway-SemiBold;
                 font-size: 15px;
+                color: rgb(66, 61, 61);
+                height: 20px;
             }
 
             input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
                 background-color: #ffffff;
                 border-color: #ffffff;
+                color: rgb(66, 61, 61);
             }
 
             input.no-spin::-webkit-outer-spin-button,
@@ -129,7 +133,7 @@
                 margin-bottom: -17px;
                 background-color: #9c9c9c;
                 display: inline-block;
-                width: 290px;
+                width: 200px;
             }
             .dropdown select {
                 clear: both;
@@ -192,7 +196,7 @@
                 padding: 3px 0 1px 12px;
                 width: 290px;
                 height: auto;
-                font-family: FiraSans-SemiBold;
+                font-family: Raleway-SemiBold;
                 font-size: 15px;
                 color: #404040;
                 background-color: #d4d4d4;
@@ -243,10 +247,6 @@
                 margin-right: -6px;
             }
 
-            .xyz .tuple input {
-                padding-left: 25px;
-            }
-
             .text label, .url label, .number label, .textarea label, .rgb label, .xyz label, .pyr label, .dropdown label, .gen label {
                 float: left;
                 margin-left: 1px;
@@ -287,7 +287,7 @@
                 margin-top: 8px;
                 margin-left: 6px;
                 left: 0;
-                font-family: FiraSans-SemiBold;
+                font-family: Raleway-SemiBold;
                 font-size: 12px;
             }
 
@@ -337,14 +337,14 @@
                 width: 290px;
              }
 .dropbtn {
-    background-color: #d4d4d4;
+    background-color: #d1d1d3;
     height: 20px;
     color: rgb(66, 61, 61);
     padding: 2px;
     font-size: 14px;
     border: none;
     cursor: pointer;
-    width: 302px;
+    width: 200px;
     font-family: Raleway-SemiBold;
 }
 .dropdown-content {
@@ -367,5 +367,5 @@
 
 .dropdown-content a:hover {background-color: #f1f1f1}
 
-.show {display:block;} 
+.show {display:block;}
         </style>

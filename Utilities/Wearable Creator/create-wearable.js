@@ -1,30 +1,30 @@
 //
-//  marketplace-packager.js
-//
-//  A utility script for packaging up an item to generate a properly-configured JSON
-//  for releasing to Marketplace as a wearable item.
+//  create-wearable.js
 // 
-//  Created by Liv Erickson on 11/16/17
+//  Makes an object in a domain a store demo copy
+//
+//  Created by Liv Erickson on 11/6/17.
 //  Copyright 2017 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+//  This script is a tool that can be used to turn a wearable into a display copy
+//  Requires lock access
+//
 /* globals Selection */
-
 (function() {
-    var APP_NAME = "WEARPKGR";
-    var APP_URL = Script.resolvePath("app.html");
-    var APP_ICON = Script.resolvePath("icon.png");
+    var APP_NAME = "WEARABLE";
+    var APP_URL = Script.resolvePath("wearableCreator.html");
+    var APP_ICON = Script.resolvePath("./dress2.svg");
 
+    var SERVER_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/wearableServer.js"; 
+    var CLIENT_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/desktopAttacher.js";
     var TIMEOUT = 2000;
-    var LONG_TIMEOUT = 20000;
 
     var previousID = 0;
     var listName = "contextOverlayHighlightList";
     var listType = "entity";
-
-    var entityIDToExport = "";
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');    
 
@@ -46,8 +46,8 @@
     var baseUserdata = {
         Attachment: {
             action: "attach",
-            joint: "Hips",
-            attached: false,
+            joint: "",
+            attached : false,
             options: {
                 translation: {
                     x: 0,
@@ -61,15 +61,6 @@
             cloneable: false,
             grabbable: true
         }
-    };
-
-    var exportProperties = {
-        type: "Model",
-        parentID: MyAvatar.sessionUUID,
-        visible: true,
-        shapeType: "box",
-        collidesWith: "",
-        collisionMask: 0
     };
 
     var button = tablet.addButton({
@@ -94,45 +85,33 @@
     }
     button.clicked.connect(clicked);
 
-    function onFileSaveChanged(filename) {
-        Window.saveFileChanged.disconnect(onFileSaveChanged);
-        if (filename !== "") {
-            var success = Clipboard.exportEntities(filename, [entityIDToExport]);
-            if (!success) {
-                // No luck, failed
-                print("Failed to export json");
-            }
-        }
-        Entities.deleteEntity(entityIDToExport);                        
-    }
-
     function onWebEventReceived(event) {
         if (typeof(event) === "string") {
             event = JSON.parse(event);
         }
-        if (event.type === "submit") {
+        if (event.type === "submit" && event.app === "WEAR") {
             var entityID = event.entityID;
             var joint = event.joint;
+            var marketplaceID = event.marketplaceID;
+            print(event.name);
+            var name = event.name;
 
-            var newExportProperties = exportProperties;
             var newUserDataProperties = baseUserdata;
-    
-            var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script']);
-
+            newUserDataProperties.marketplaceID = marketplaceID;
             newUserDataProperties.Attachment.joint = joint;
-            
-            newExportProperties.modelURL = properties.modelURL;
-            newExportProperties.dimensions = properties.dimensions;
-            newExportProperties.parentJointIndex = MyAvatar.jointNames.indexOf(joint);
-            newExportProperties.script = properties.script;
-            newExportProperties.userData = JSON.stringify(newUserDataProperties);
 
-            entityIDToExport = Entities.addEntity(newExportProperties, true);
-            Window.saveFileChanged.connect(onFileSaveChanged);
-            Window.saveAsync("Select Where to Save", "", "*.json");
+            Entities.editEntity(entityID, {locked: false});
+            Entities.editEntity(entityID, {name: name});
+
+            Entities.editEntity(entityID, {
+                userData: JSON.stringify(newUserDataProperties),
+                script: CLIENT_URL,
+                serverScripts: SERVER_URL
+            });
+
             Script.setTimeout(function() {
-                Entities.deleteEntity(entityIDToExport);
-            }, LONG_TIMEOUT); 
+                Entities.editEntity(entityID, {locked: true});
+            }, TIMEOUT);
         }
     }
 
@@ -144,3 +123,4 @@
 
     Script.scriptEnding.connect(cleanup);
 }());
+
