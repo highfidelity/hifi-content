@@ -30,6 +30,7 @@ module.exports = (function() {
     var isTutorialActive = false;
     var activeTutorialURL = null;
     var selectedAvatarEntity = null;
+    var lastAttachedEntities = [];
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
     var button = tablet.addButton({
@@ -76,7 +77,10 @@ module.exports = (function() {
 
     var sendUpdate = function() {
         var attachments = {};
-        getAttachedModelEntities().forEach(function(entityID) {
+
+        lastAttachedEntities = getAttachedModelEntities();
+
+        lastAttachedEntities.forEach(function(entityID) {
             var properties = Entities.getEntityProperties(entityID, ['name', 'modelURL', 'parentJointIndex']);
 
             var label;
@@ -90,7 +94,12 @@ module.exports = (function() {
         });
 
         var properties = null;
-        if (Object.keys(attachments).length > 0 && (selectedAvatarEntity === null || selectedAvatarEntity === '')) {
+        var attachmentsCount = Object.keys(attachments).length;
+        if (attachmentsCount === 0) {
+            selectedAvatarEntity = null;
+        } else if (attachmentsCount > 0 && (selectedAvatarEntity === null || selectedAvatarEntity === '' ||
+                                            lastAttachedEntities.indexOf(selectedAvatarEntity) === -1)) {
+
             selectedAvatarEntity = Object.keys(attachments)[0];
         }
 
@@ -135,6 +144,12 @@ module.exports = (function() {
 
     var onAddingEntity = function(entityID) {
         if (isEntityBeingWorn(entityID)) {
+            sendUpdate();
+        }
+    };
+
+    var onDeletingEntity = function(entityID) {
+        if (lastAttachedEntities.indexOf(entityID) !== -1) {
             sendUpdate();
         }
     };
@@ -201,6 +216,7 @@ module.exports = (function() {
         }
         tablet.gotoWebScreen(APP_URL);
         Entities.addingEntity.connect(onAddingEntity);
+        Entities.deletingEntity.connect(onDeletingEntity);
         Entities.clickReleaseOnEntity.connect(onClickReleaseOnEntity);
         isAppActive = true;
         if (HMD.active) {
@@ -290,6 +306,7 @@ module.exports = (function() {
                 makeClientEntitiesGrabbable(false);
             }
             Entities.addingEntity.disconnect(onAddingEntity);
+            Entities.deletingEntity.disconnect(onDeletingEntity);
             Entities.clickReleaseOnEntity.disconnect(onClickReleaseOnEntity);
         }
     };
