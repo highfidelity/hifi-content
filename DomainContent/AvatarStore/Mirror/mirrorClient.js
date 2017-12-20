@@ -18,14 +18,14 @@
     /* globals utils, Render */
     var _this = this;
     var RESOLUTION = 1024;          // The resolution of the mirror when turned on
-	var ZERO_ROT = { w: 1, x: 0, y: 0, z: 0 };   // Constant quaternion for a rotation of 0
-	var FAR_CLIP_DISTANCE = 16;		// The far clip distance for the spectator camera when the mirror is on
+    var ZERO_ROT = { w: 1, x: 0, y: 0, z: 0 };   // Constant quaternion for a rotation of 0
+    var FAR_CLIP_DISTANCE = 16;     // The far clip distance for the spectator camera when the mirror is on
     var mirrorOverlayID;            // The entity ID of the overlay that displays the mirror reflection
     var mirrorOverlayRunning;       // True if mirror overlay is reflecting, false otherwise
     var mirrorOverlayOffset = 0.01; // The distance between the center of the mirror and the mirror overlay
     var spectatorCameraConfig = Render.getConfig("SecondaryCamera");    // Render configuration for the spectator camera
     var lastDimensions = { x: 0, y: 0 };        // The previous dimensions of the mirror
-	var previousFarClipDistance;	// Store the specator camera's previous far clip distance that we override for the mirror
+    var previousFarClipDistance;    // Store the specator camera's previous far clip distance that we override for the mirror
 
     // LOCAL FUNCTIONS    
     function isPositionInsideBox(position, boxProperties) {
@@ -90,8 +90,8 @@
                 mirrorOverlayRunning = true;
                 spectatorCameraConfig.mirrorProjection = true;
                 spectatorCameraConfig.attachedEntityId = _this.entityID;
-				previousFarClipDistance = spectatorCameraConfig.farClipPlaneDistance;
-				spectatorCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
+                previousFarClipDistance = spectatorCameraConfig.farClipPlaneDistance;
+                spectatorCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
                 Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 0;
                 var initialDimensions = Entities.getEntityProperties(_this.entityID, ["dimensions"]).dimensions;
                 spectatorCameraConfig.resetSizeSpectatorCamera(initialDimensions.x * RESOLUTION, initialDimensions.y * RESOLUTION);
@@ -110,7 +110,7 @@
             spectatorCameraConfig.enableSecondaryCameraRenderConfigs(false);
             spectatorCameraConfig.mirrorProjection = false;
             spectatorCameraConfig.attachedEntityId = null;
-			spectatorCameraConfig.farClipPlaneDistance = previousFarClipDistance;
+            spectatorCameraConfig.farClipPlaneDistance = previousFarClipDistance;
             Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
             Overlays.deleteOverlay(mirrorOverlayID);
             Script.update.disconnect(updateMirrorDimensions);
