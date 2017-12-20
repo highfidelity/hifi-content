@@ -29,7 +29,8 @@
 
     // LOCAL FUNCTIONS    
     function isPositionInsideBox(position, boxProperties) {
-        var localPosition = Vec3.multiplyQbyV(Quat.inverse(boxProperties.rotation), Vec3.subtract(MyAvatar.position, boxProperties.position));
+        var localPosition = Vec3.multiplyQbyV(Quat.inverse(boxProperties.rotation), 
+                                              Vec3.subtract(MyAvatar.position, boxProperties.position));
         var halfDimensions = Vec3.multiply(boxProperties.dimensions, 0.5);
         return -halfDimensions.x <= localPosition.x &&
                 halfDimensions.x >= localPosition.x &&
@@ -39,7 +40,8 @@
                 halfDimensions.z >= localPosition.z;
     }
     
-    // When x or y dimensions of the mirror change - reset the resolution of the spectator camera and edit the mirror overlay to adjust for the new dimensions
+    // When x or y dimensions of the mirror change - reset the resolution of the 
+    // spectator camera and edit the mirror overlay to adjust for the new dimensions
     function updateMirrorDimensions(forceUpdate) {
         if (mirrorOverlayRunning) {
             var newDimensions = Entities.getEntityProperties(_this.entityID, ["dimensions"]).dimensions;
@@ -83,7 +85,8 @@
         }
     }
     
-    // Sets up spectator camera to render the mirror, calls 'updateMirrorOverlay' once to set up mirror overlay, then connects 'updateMirrorDimensions' to update dimension changes
+    // Sets up spectator camera to render the mirror, calls 'updateMirrorOverlay' once to set up
+    // mirror overlay, then connects 'updateMirrorDimensions' to update dimension changes
     _this.mirrorOverlayOn = function(onPreload) {
         if(!mirrorOverlayRunning) {
             if (!spectatorCameraConfig.attachedEntityId) {
@@ -94,7 +97,8 @@
                 spectatorCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
                 Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 0;
                 var initialDimensions = Entities.getEntityProperties(_this.entityID, ["dimensions"]).dimensions;
-                spectatorCameraConfig.resetSizeSpectatorCamera(initialDimensions.x * RESOLUTION, initialDimensions.y * RESOLUTION);
+                spectatorCameraConfig.resetSizeSpectatorCamera(initialDimensions.x * RESOLUTION, 
+                                                               initialDimensions.y * RESOLUTION);
                 spectatorCameraConfig.enableSecondaryCameraRenderConfigs(true);
                 updateMirrorOverlay();
                 Script.update.connect(updateMirrorDimensions);
@@ -126,7 +130,11 @@
         // If avatar is already inside the mirror zone at the time preload is called then turn on the mirror
         var children = Entities.getChildrenIDs(_this.entityID);
         var childZero = Entities.getEntityProperties(children[0]);
-        if (isPositionInsideBox(MyAvatar.position, {position: childZero.position, rotation: childZero.rotation, dimensions: childZero.dimensions})) {
+        if (isPositionInsideBox(MyAvatar.position, {
+                position: childZero.position, 
+                rotation: childZero.rotation, 
+                dimensions: childZero.dimensions
+            })) {
             _this.mirrorOverlayOn(true);
         }
     };
