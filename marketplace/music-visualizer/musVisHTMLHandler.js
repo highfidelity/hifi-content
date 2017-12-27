@@ -23,6 +23,12 @@ function chooseAudioFile() {
     }));
 }
 
+function cleanUpParticles() {
+    EventBridge.emitWebEvent(JSON.stringify({
+        type: "cleanUpParticles",
+    }));
+}
+
 // mic sync, audio file, and finger trail are mutually exclusive
 function main() {
 

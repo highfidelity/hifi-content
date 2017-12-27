@@ -23,12 +23,14 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
 (function() {
 
     var APP_NAME = "MUS VIS";
-    var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/musicVisualizerUI.html?" + Date.now();
+    //var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/musicVisualizerUI.html?" + Date.now();
+    var APP_URL = "C:/Users/elisa/Documents/hifi-content/marketplace/music-visualizer/musicVisualizerUI.html?" + Date.now();
     var APP_ICON = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/icons/particles-i-01.svg";
     var APP_ICON_ACTIVE = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/icons/particles-a-01.svg";
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 
     var audioFile = "";
+    var existingParticles = [];
 
     var button = tablet.addButton({
         icon: APP_ICON,
@@ -89,7 +91,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
             effectJSON.script = MIC_SYNC_SCRIPT;
             print("attached script: " + effectJSON.script);
         } else if (audioFile) {
-            print("ze file is:" + audioFile + ".");
+            print("the audio file is:" + audioFile + ".");
             effectJSON.userData = JSON.stringify({
                 grabbableKey: {
                     grabbable: true,
@@ -107,7 +109,8 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
             invisible.position = position;
             var invisSphere = Entities.addEntity(invisible);
             effectJSON.parentID = invisSphere;
-            Entities.addEntity(effectJSON);
+            var behaviorParticle = Entities.addEntity(effectJSON);
+            existingParticles.push(behaviorParticle);
         }
 
         // creates trail effect
@@ -166,6 +169,11 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
                 visible: false
             });
 
+            existingParticles.push(effectLeft);
+            existingParticles.push(effectRight);
+            existingParticles.push(equipLeft);
+            existingParticles.push(equipRight);
+
             // allow time for equip
             Script.setTimeout(function() {
                 Messages.sendLocalMessage('Hifi-Hand-Grab', JSON.stringify({
@@ -202,7 +210,8 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
         }
 
         if (behavior === "nobehavior") {
-            Entities.addEntity(effectJSON);
+            var noBehaviorParticle = Entities.addEntity(effectJSON);
+            existingParticles.push(noBehaviorParticle);
         }
 
         // clears audio file selection
@@ -248,6 +257,15 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
         // Resets saved audio file when contradiction present
         } else if (htmlEvent.type === "contradiction") {
             updateSelection("");
+        } else if (htmlEvent.type === "cleanUpParticles") {
+            cleanUpParticles();
+        }
+    }
+
+    function cleanUpParticles() {
+        print("Cleaning up particles");
+        while (existingParticles.length > 0) {
+            Entities.deleteEntity(existingParticles.pop());
         }
     }
 
@@ -257,6 +275,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
         if (shown) {
             tablet.webEventReceived.disconnect(onWebEventReceived);
         }
+        cleanUpParticles();
     }
     Script.scriptEnding.connect(cleanup);
 

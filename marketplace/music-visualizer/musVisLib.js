@@ -72,7 +72,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 0.5,
-            "lifetime": -1,
+            "lifetime": 5400,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -95,7 +95,7 @@ module.exports = {
             "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/fire.jpg",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
-            "name": "fire"
+            "name": "musvis_fire"
         },
         water: {
             "accelerationSpread": {
@@ -154,7 +154,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 1.5,
-            "lifetime": -1,
+            "lifetime": 5400,
             "maxParticles": 10,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -177,7 +177,7 @@ module.exports = {
             "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/rain.png",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
-            "name": "water"
+            "name": "musvis_water"
         },
         earth: {
             "accelerationSpread": {
@@ -236,7 +236,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 1,
-            "lifetime": -1,
+            "lifetime": 5400,
             "maxParticles": 10,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -259,7 +259,7 @@ module.exports = {
             "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/sand3.png",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
-            "name": "earth"
+            "name": "musvis_earth"
         },
         air: {
             "accelerationSpread": {
@@ -318,7 +318,7 @@ module.exports = {
             "emitSpeed": 0.0,
             "isEmitting": true,
             "lifespan": 1,
-            "lifetime": -1,
+            "lifetime": 5400,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -341,7 +341,7 @@ module.exports = {
             "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/air.png",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
-            "name": "air"        	
+            "name": "musvis_air"        	
         },
         snow: {
             "accelerationSpread": {
@@ -400,7 +400,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 1,
-            "lifetime": -1,
+            "lifetime": 5400,
             "maxParticles": 10,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -423,7 +423,7 @@ module.exports = {
             "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/snow.jpg",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
-            "name": "snow"
+            "name": "musvis_snow"
         },
         rainbow: {
             "accelerationSpread": {
@@ -482,7 +482,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 0.5,
-            "lifetime": -1,
+            "lifetime": 5400,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -505,7 +505,7 @@ module.exports = {
             "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/rainbows.png",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
-            "name": "rainbow"
+            "name": "musvis_rainbow"
         },
         lightning: {
             "accelerationSpread": {
@@ -564,7 +564,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 0.5,
-            "lifetime": -1,
+            "lifetime": 5400,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -587,7 +587,7 @@ module.exports = {
             "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/lightning.jpg",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
-            "name": "lightning"
+            "name": "musvis_lightning"
         },
         love: {
             "accelerationSpread": {
@@ -646,7 +646,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 0.75,
-            "lifetime": -1,
+            "lifetime": 5400,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -669,7 +669,7 @@ module.exports = {
             "textures": "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/hearts_v2.png",
             "type": "ParticleEffect",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
-            "name": "love"
+            "name": "musvis_love"
         },
         invisible: {
             "collisionsWillMove": 1,
@@ -689,6 +689,7 @@ module.exports = {
                 "y": -9.800000190734863,
                 "z": 0
             },
+            "lifetime": 5400,
             "queryAACube": {
                 "scale": 0.3464101552963257,
                 "x": -0.17320507764816284,
@@ -704,7 +705,7 @@ module.exports = {
             "type": "Sphere",
             "userData": "{\"grabbableKey\":{\"grabbable\":true},\"ProceduralEntity\":{\"version\":2,\"shaderUrl\":\"https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/textures/invisible.fs\"}}",
             "visible": 1,
-            "name": "invisible"
+            "name": "musvis_invisible"
         }
     },
 
