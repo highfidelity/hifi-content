@@ -14,7 +14,7 @@
 
 (function() {
     var APP_NAME = "WEARPKGR";
-    var APP_URL = Script.resolvePath("app.html");
+    var APP_URL = Script.resolvePath("wearableJSON.html");
     var APP_ICON = Script.resolvePath("icon.png");
 
     var TIMEOUT = 2000;
@@ -110,7 +110,7 @@
         if (typeof(event) === "string") {
             event = JSON.parse(event);
         }
-        if (event.type === "submit") {
+        if (event.type === "submit" && event.app === "JSON") {
             var entityID = event.entityID;
             var joint = event.joint;
 
@@ -123,6 +123,7 @@
             
             newExportProperties.modelURL = properties.modelURL;
             newExportProperties.dimensions = properties.dimensions;
+            newExportProperties.localDimensions = properties.localDimensions;
             newExportProperties.parentJointIndex = MyAvatar.jointNames.indexOf(joint);
             newExportProperties.script = properties.script;
             newExportProperties.userData = JSON.stringify(newUserDataProperties);
