@@ -44,7 +44,7 @@
     // spectator camera and edit the mirror overlay to adjust for the new dimensions
     function updateMirrorDimensions(forceUpdate) {
         if (mirrorOverlayRunning) {
-            var newDimensions = Entities.getEntityProperties(_this.entityID, ["dimensions"]).dimensions;
+            var newDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
             if (forceUpdate === true || (newDimensions.x != lastDimensions.x || newDimensions.y != lastDimensions.y)) {
                 spectatorCameraConfig.resetSizeSpectatorCamera(newDimensions.x * RESOLUTION, newDimensions.y * RESOLUTION);
                 Overlays.editOverlay(mirrorOverlayID, {
@@ -88,7 +88,7 @@
     // Sets up spectator camera to render the mirror, calls 'updateMirrorOverlay' once to set up
     // mirror overlay, then connects 'updateMirrorDimensions' to update dimension changes
     _this.mirrorOverlayOn = function(onPreload) {
-        if(!mirrorOverlayRunning) {
+        if (!mirrorOverlayRunning) {
             if (!spectatorCameraConfig.attachedEntityId) {
                 mirrorOverlayRunning = true;
                 spectatorCameraConfig.mirrorProjection = true;
@@ -96,7 +96,7 @@
                 previousFarClipDistance = spectatorCameraConfig.farClipPlaneDistance;
                 spectatorCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
                 Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 0;
-                var initialDimensions = Entities.getEntityProperties(_this.entityID, ["dimensions"]).dimensions;
+                var initialDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
                 spectatorCameraConfig.resetSizeSpectatorCamera(initialDimensions.x * RESOLUTION, 
                                                                initialDimensions.y * RESOLUTION);
                 spectatorCameraConfig.enableSecondaryCameraRenderConfigs(true);
@@ -110,7 +110,7 @@
     
     // Resets spectator camera, deletes the mirror overlay, and disconnects 'updateMirrorDimensions' 
     _this.mirrorOverlayOff = function() {
-        if(mirrorOverlayRunning) {
+        if (mirrorOverlayRunning) {
             spectatorCameraConfig.enableSecondaryCameraRenderConfigs(false);
             spectatorCameraConfig.mirrorProjection = false;
             spectatorCameraConfig.attachedEntityId = null;
