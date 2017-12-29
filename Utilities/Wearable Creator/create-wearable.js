@@ -15,8 +15,8 @@
 /* globals Selection */
 (function() {
     var APP_NAME = "WEARABLE";
-    var APP_URL = Script.resolvePath("app.html");
-    var APP_ICON = Script.resolvePath("icon.png");
+    var APP_URL = Script.resolvePath("wearableCreator.html");
+    var APP_ICON = Script.resolvePath("./dress2.svg");
 
     var SERVER_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/wearableServer.js"; 
     var CLIENT_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/desktopAttacher.js";
@@ -89,16 +89,19 @@
         if (typeof(event) === "string") {
             event = JSON.parse(event);
         }
-        if (event.type === "submit") {
+        if (event.type === "submit" && event.app === "WEAR") {
             var entityID = event.entityID;
             var joint = event.joint;
             var marketplaceID = event.marketplaceID;
+            print(event.name);
+            var name = event.name;
 
             var newUserDataProperties = baseUserdata;
             newUserDataProperties.marketplaceID = marketplaceID;
             newUserDataProperties.Attachment.joint = joint;
 
             Entities.editEntity(entityID, {locked: false});
+            Entities.editEntity(entityID, {name: name});
 
             Entities.editEntity(entityID, {
                 userData: JSON.stringify(newUserDataProperties),
