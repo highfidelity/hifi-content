@@ -28,6 +28,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
     var APP_ICON_ACTIVE = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/icons/particles-a-01.svg";
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 
+    var WANT_DEBUG = false;
     var audioFile = "";
     var existingParticles = [];
 
@@ -80,7 +81,9 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
 
     // adds the particle to world
     function createParticle(effectName, micSync, behavior, file) {
-        print(effectName + " particle is being added");
+        if (WANT_DEBUG) {
+            print(effectName + " particle is being added");
+        }
         var position = getPositionToCreateEntity();
         var effectJSON = LIB.getEffect(effectName, LIB.effectLib);
         effectJSON.position = position;
@@ -88,9 +91,13 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
         // mic sync and audio file are mutually exclusive
         if (micSync) {
             effectJSON.script = MIC_SYNC_SCRIPT;
-            print("attached script: " + effectJSON.script);
+            if (WANT_DEBUG) {
+                print("attached script: " + effectJSON.script);
+            }
         } else if (audioFile) {
-            print("the audio file is:" + audioFile + ".");
+            if (WANT_DEBUG) {
+                print("the audio file is:" + audioFile + ".");
+            }
             effectJSON.userData = JSON.stringify({
                 grabbableKey: {
                     grabbable: true,
@@ -99,9 +106,10 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
                 audio: audioFile
             });
             effectJSON.script = AUDIO_SYNC_SCRIPT;
-            print("attached script: " + effectJSON.script);
+            if (WANT_DEBUG) {
+                print("attached script: " + effectJSON.script);
+            }
         }
-
         // creates invisible sphere as parent to effect
         if (behavior === "dynamic") {
             var invisible = LIB.getEffect("invisible", LIB.effectLib);
@@ -229,14 +237,18 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
 
     function onWebEventReceived(event) {
         var htmlEvent = JSON.parse(event);
-        print("Event: " + JSON.stringify(htmlEvent));
+        if (WANT_DEBUG) {
+            print("Event: " + JSON.stringify(htmlEvent));
+        }
         // Handles particle button clicks to retrieve the effect JSON from musVisLib
         if (htmlEvent.type === "click") {
             var effectName = htmlEvent.data;
             var micSync = htmlEvent.sync;
             var file = audioFile;
             var behavior = htmlEvent.behavior;
-            print("Audio file: " + file);
+            if (WANT_DEBUG) {
+                print("Audio file: " + file);
+            }
             createParticle(effectName, micSync, behavior, file);
         // Handles audio file browsing event
         } else if (htmlEvent.type === "chooseAudioFile") {
@@ -262,7 +274,9 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
     }
 
     function cleanUpParticles() {
-        print("Cleaning up particles");
+        if (WANT_DEBUG) {
+            print("Cleaning up particles");
+        }
         while (existingParticles.length > 0) {
             Entities.deleteEntity(existingParticles.pop());
         }

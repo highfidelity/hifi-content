@@ -11,6 +11,7 @@
 //  All assets are under CC Attribution Non-Commerical
 //  http://creativecommons.org/licenses/
 //  
+var lifetime = 5400;
 
 module.exports = {
 
@@ -72,7 +73,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 0.5,
-            "lifetime": 5400,
+            "lifetime": lifetime,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -154,7 +155,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 1.5,
-            "lifetime": 5400,
+            "lifetime": lifetime,
             "maxParticles": 10,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -236,7 +237,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 1,
-            "lifetime": 5400,
+            "lifetime": lifetime,
             "maxParticles": 10,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -318,7 +319,7 @@ module.exports = {
             "emitSpeed": 0.0,
             "isEmitting": true,
             "lifespan": 1,
-            "lifetime": 5400,
+            "lifetime": lifetime,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -400,7 +401,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 1,
-            "lifetime": 5400,
+            "lifetime": lifetime,
             "maxParticles": 10,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -482,7 +483,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 0.5,
-            "lifetime": 5400,
+            "lifetime": lifetime,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -564,7 +565,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 0.5,
-            "lifetime": 5400,
+            "lifetime": lifetime,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -646,7 +647,7 @@ module.exports = {
             "emitSpeed": 0.05000000074505806,
             "isEmitting": true,
             "lifespan": 0.75,
-            "lifetime": 5400,
+            "lifetime": lifetime,
             "maxParticles": 100,
             "particleRadius": 0.25,
             "polarFinish": 0.6981316804885864,
@@ -689,7 +690,7 @@ module.exports = {
                 "y": -9.800000190734863,
                 "z": 0
             },
-            "lifetime": 5400,
+            "lifetime": lifetime,
             "queryAACube": {
                 "scale": 0.3464101552963257,
                 "x": -0.17320507764816284,
