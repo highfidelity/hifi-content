@@ -11,7 +11,7 @@
 //  All assets are under CC Attribution Non-Commerical
 //  http://creativecommons.org/licenses/
 //  
-var lifetime = 5400;
+var LIFETIME = 5400;
 
 module.exports = {
 
