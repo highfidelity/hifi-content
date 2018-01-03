@@ -1,25 +1,28 @@
-///
-/// emojiTablet.js
-/// A tablet app for sending emojis to other users
-/// 
-/// Author: Elisa Lupin-Jimenez
-/// Copyright High Fidelity 2017
-///
-/// Licensed under the Apache 2.0 License
-/// See accompanying license file or http://apache.org/
-///
-/// All assets are under CC Attribution Non-Commerical
-/// http://creativecommons.org/licenses/
-///
+//
+// emojiTablet.js
+// A tablet app for sending emojis to other users
+// 
+// Author: Elisa Lupin-Jimenez
+// Copyright High Fidelity 2017
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
+// All assets are under CC Attribution Non-Commerical
+// http://creativecommons.org/licenses/
+//
 
-var lib = Script.require("https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/emojiLib.js?" + Date.now());
+var library = Script.require("https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/emojiLib.js?" + Date.now());
 
 (function() {
 
     var APP_NAME = "EMOJIS";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/emojiTabletUI.html?" + Date.now();
-    var APP_ICON = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/icons/emoji-i.svg";
+    var APP_ICON = "./icons/emoji-i.svg";
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
+
+    var DISTANCE = 0.5;
+    var WANT_DEBUG = false;
 
     var button = tablet.addButton({
         icon: APP_ICON,
@@ -29,44 +32,47 @@ var lib = Script.require("https://hifi-content.s3.amazonaws.com/elisalj/emoji_sc
     // Activates tablet UI when selected from menu
     function onClicked() {
         tablet.gotoWebScreen(APP_URL);
-    };
+    }
     button.clicked.connect(onClicked);
 
     // Gives position right in front of user's avatar
     function getPositionToCreateEntity() {
         var direction = Quat.getFront(MyAvatar.orientation);
-        var distance = 0.3;
+        var distance = DISTANCE;
         var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
-        position.y += 0.5;
+        position.y += DISTANCE;
         return position;
-    };
+    }
 
     var emojiJSON = null;
 
     // Handles emoji button clicks to retrieve the link to the emoji JSON from emojiLib
     function onWebEventReceived(event) {
-        var emojiName = (JSON.parse(event)).data;
-        var url = lib.getEmoji(emojiName, lib.emojiLib);
-        if (url != null) {
-            emojiJSON = Script.require(url);
-            create3DEmoji(emojiJSON, null);
-        } else {
-            print("Unable to create emoji");
+        if (JSON.parse(event).type === "emoji-click") {
+            var emojiName = (JSON.parse(event)).data;
+            var url = library.getEmoji(emojiName, library.emojiLib);
+            if (url !== null) {
+                emojiJSON = Script.require(url);
+                create3DEmoji(emojiJSON, null);
+            } else if (WANT_DEBUG) {
+                print("Unable to create emoji");
+            }
         }
-    };
+    }
     tablet.webEventReceived.connect(onWebEventReceived);
 
     function create3DEmoji(emojiJSON, userName) {
-        print("Creating " + emojiJSON.name + " emoji");
+        if (WANT_DEBUG) {
+            print("Creating " + emojiJSON.name + " emoji");
+        }
         emojiJSON.position = getPositionToCreateEntity(emojiJSON.personified);
-        var newEmoji = Entities.addEntity(emojiJSON);
-    };
+        Entities.addEntity(emojiJSON);
+    }
 
     // When tablet UI is closed and app is removed from menu
     function cleanup() {
         tablet.removeButton(button);
-    };
+    }
     Script.scriptEnding.connect(cleanup);
 
 }());
-

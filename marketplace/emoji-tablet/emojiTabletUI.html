@@ -141,7 +141,7 @@
                 $(".emoji-button").click(function(){
                     console.log(this.name + " button click");
                     var clickEvent = {
-                        "type": "click",
+                        "type": "emoji-click",
                         "data": this.name
                     };
                     EventBridge.emitWebEvent(JSON.stringify(clickEvent));
