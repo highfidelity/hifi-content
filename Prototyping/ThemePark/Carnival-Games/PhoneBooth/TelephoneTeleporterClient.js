@@ -6,6 +6,7 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 (function(){
     var TELEPORTER_CHANNEL = "UnleashTheTeleporter";    
     var LOCATION_HREF = "hifi://dev-content";
@@ -20,7 +21,7 @@
         canTeleport = false;
     };
 
-    var enableTeleportMode = function(){
+    var enableTeleportMode = function() {
         canTeleport = true;
         Script.setTimeout(disableTeleport, TIMEOUT);
     };

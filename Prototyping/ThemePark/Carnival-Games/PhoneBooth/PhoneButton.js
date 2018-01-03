@@ -6,7 +6,8 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-(function(){
+
+(function() {
 
     var MESSAGE_CHANNEL = "RingRingRingRingRingRingRingBananaPhone";
     var HOVER_ACTIVE_COLOR = {red: 255, green: 0, blue: 0};
@@ -16,7 +17,7 @@
     var isActiveButton = false;
     var name;
 
-    var PhoneButton = function(){
+    var PhoneButton = function() {
 
     };
     PhoneButton.prototype = {
@@ -26,9 +27,8 @@
                 isActiveButton = true;
                 Messages.subscribe(MESSAGE_CHANNEL);                
             }
-
         },
-        unload: function(){
+        unload: function(){ 
             if (isActiveButton){
                 Messages.unsubscribe(MESSAGE_CHANNEL);                
             }

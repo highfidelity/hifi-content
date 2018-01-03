@@ -17,6 +17,8 @@
 
     var ALERT_COLOR = {red: 255, green: 0, blue: 0};
 
+    var INTERVAL = 10000;
+
     var loop;
     var lightID;    
     var isAttack = false;
@@ -29,7 +31,7 @@
             isAttack = true;
         } else if (channel === "InvasionChannel" && message.type === 'gameover') {
             isAttack = false;
-            Script.setInterval(lightEffect, 10000);
+            Script.setInterval(lightEffect, INTERVAL);
         }
     };
 
