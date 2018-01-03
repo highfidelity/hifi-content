@@ -9,39 +9,41 @@
 (function () {
     var CRUNCH_SOUND_URL = "https://hifi-content.s3.amazonaws.com/liv/dev/emojis/Apple_Bite-Simon_Craggs-1683647397.wav";
     var CRUNCH = SoundCache.getSound(Script.resolvePath(CRUNCH_SOUND_URL));
-    var playback; 
+    var playback;
+    var SOUND_VOLUME = 0.5;
+    var DISTANCE_WITHIN = 0.1;
     var _this = this;
+
+
     _this.preload = function (entityID) {
         _this.entityID = entityID;
-        var props = Entities.getEntityProperties(entityID);
-        playback = {volume: 0.5, position: Entities.getEntityProperties(_this.entityID).position};
-    }
+        playback = {volume: SOUND_VOLUME, position: Entities.getEntityProperties(_this.entityID, "position").position};
+    };
 
     var checkIfNearHead = function () {
-        var pos = Entities.getEntityProperties(_this.entityID).position;
+        var position = Entities.getEntityProperties(_this.entityID, "position").position;
         var avatarHeadPosition = MyAvatar.getJointPosition("Head");
-        if (isWithin10cm(pos.y, avatarHeadPosition.y) &
-            isWithin10cm(pos.z, avatarHeadPosition.z)) {
-            playEatingEffect(pos);
+        if (isWithinDistance(position.y, avatarHeadPosition.y) &
+            isWithinDistance(position.z, avatarHeadPosition.z)) {
+            playEatingEffect(position);
         }
-    }
+    };
 
-    var playEatingEffect = function (pos) {
- 
-        print("Crunch! Eating " + _this.entityID);
+    var playEatingEffect = function (position) {
         Audio.playSound(CRUNCH, playback);
         Entities.deleteEntity(_this.entityID);
-    }
+    };
 
     // Helper function to see if the object is close to us
-    var isWithin10cm = function (val1, val2) {
-        if (Math.abs(Math.abs(val1) - Math.abs(val2)) <= .1)
+    var isWithinDistance = function (val1, val2) {
+        if (Math.abs(Math.abs(val1) - Math.abs(val2)) <= DISTANCE_WITHIN) {
             return true;
-
+        }
         return false;
-    }
+    };
+
     Script.update.connect(checkIfNearHead);
     _this.unload = function (entityID) {
         Script.update.disconnect(checkIfNearHead);
-    }
-})
+    };
+});

@@ -1,27 +1,44 @@
+//
+// edible.js
+// An eating effect for emojis
+// 
+// Author: Liv Erickson
+// Copyright High Fidelity 2017
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
+// All assets are under CC Attribution Non-Commerical
+// http://creativecommons.org/licenses/
+//
+
 (function () {
     var NOM_URL = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/behaviors/sounds/nom-nom.wav";
     var NOM = SoundCache.getSound(Script.resolvePath(NOM_URL));
+    var WANT_DEBUG = false;
+    var DISTANCE_WITHIN = 0.1;
 
     var _this = this;
     _this.preload = function (entityID) {
         _this.entityID = entityID;
-        var props = Entities.getEntityProperties(entityID);
-        print("Loading properties");
-    }
+        if (WANT_DEBUG) {
+            print("Loading properties");
+        }
+    };
 
     var checkIfNearHead = function () {
-        var pos = Entities.getEntityProperties(_this.entityID).position;
+        var position = Entities.getEntityProperties(_this.entityID, 'position').position;
         var avatarHeadPosition = MyAvatar.getJointPosition("Head");
-        if (isWithin10cm(pos.y, avatarHeadPosition.y) &
-            isWithin10cm(pos.z, avatarHeadPosition.z)) {
-            playEatingEffect(pos);
+        if (isWithinDistance(position.y, avatarHeadPosition.y) &
+            isWithinDistance(position.z, avatarHeadPosition.z)) {
+            playEatingEffect(position);
         }
-    }
+    };
 
-    var playEatingEffect = function (pos) {
+    var playEatingEffect = function (position) {
         var crumbsProperties1 = {
             type: "ParticleEffect",
-            position: pos,
+            position: position,
             lifetime: 0.95,
             "isEmitting": true,
             "lifespan": 0.95,
@@ -53,7 +70,7 @@
         };
         var crumbsProperties2 = {
             type: "ParticleEffect",
-            position: pos,
+            position: position,
             lifetime: 0.95,
             "isEmitting": true,
             "lifespan": 1.5,
@@ -83,25 +100,25 @@
             "azimuthStart": "-180.00000500895632",
             "azimuthFinish": "180.00000500895632"
         };
-        print("Yum! Eating " + _this.entityID);
         Entities.addEntity(crumbsProperties1);
         Entities.addEntity(crumbsProperties2);
         Audio.playSound(NOM, {
-          position: Entities.getEntityProperties(_this.entityID).position,
-          volume: 0.5
+            position: Entities.getEntityProperties(_this.entityID, "position").position,
+            volume: 0.5
         });
         Entities.deleteEntity(_this.entityID);
-    }
+    };
 
     // Helper function to see if the object is close to us
-    var isWithin10cm = function (val1, val2) {
-        if (Math.abs(Math.abs(val1) - Math.abs(val2)) <= .1)
+    var isWithinDistance = function (val1, val2) {
+        if (Math.abs(Math.abs(val1) - Math.abs(val2)) <= DISTANCE_WITHIN) {
             return true;
-
+        }
         return false;
-    }
+    };
+    
     Script.update.connect(checkIfNearHead);
     _this.unload = function (entityID) {
         Script.update.disconnect(checkIfNearHead);
-    }
-})
+    };
+});

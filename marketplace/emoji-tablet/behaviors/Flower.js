@@ -1,18 +1,18 @@
-///
-/// Flower.js
-/// An object that spawns flower particles when grabbed
-/// Attach to an entity 
-/// 
-/// Author: Liv Erickson
-/// Copyright High Fidelity 2017
-///
-/// Licensed under the Apache 2.0 License
-/// See accompanying license file or http://apache.org/
-///
+//
+// Flower.js
+// An object that spawns flower particles when grabbed
+// Attach to an entity 
+// 
+// Author: Liv Erickson
+// Copyright High Fidelity 2017
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
 (function () {
     FlowerEmoji = function () {
         _this = this;
-    }
+    };
 
     FlowerEmoji.prototype = {
         preload: function (entityID) {
@@ -50,6 +50,6 @@
             Entities.addEntity(petalProperties);
             Entities.deleteEntity(_this.entityID);
         }
-    }
+    };
     return new FlowerEmoji();
-})
+});
