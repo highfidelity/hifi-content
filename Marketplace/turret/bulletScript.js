@@ -2,6 +2,7 @@
 
 (function() {
 
+
 	var bulletID;
 	const lifetime = 4;	
 
@@ -14,6 +15,25 @@
 	var explosionParticles = null;
 	var flightSound;
 
+	var currentTarget = null;
+	var smartBullet = false;
+	var damage = 1;
+
+
+
+    getEntityUserData = function(id) {
+	    var results = null;
+	    var properties = Entities.getEntityProperties(id, "userData");
+	    if (properties.userData) {
+	        try {
+	            results = JSON.parse(properties.userData);
+	        } catch(err) {
+	            logDebug(err);
+	            logDebug(properties.userData);
+	        }
+	    }
+	    return results ? results : {};
+	}
 
 	function clearProxCheck() {
 		if (proxInterval) {
@@ -39,8 +59,8 @@
 	        explode();
 	    }
         
-        print("Daantje Debug velocity of bullet> " + JSON.stringify(Entities.getEntityProperties(bulletID, ['velocity']).velocity));
-        print("Daantje Debug velocity of bullet total > " + JSON.stringify(Vec3.length(Entities.getEntityProperties(bulletID, ['velocity']).velocity)));
+        //print("Daantje Debug velocity of bullet> " + JSON.stringify(Entities.getEntityProperties(bulletID, ['velocity']).velocity));
+        //print("Daantje Debug velocity of bullet total > " + JSON.stringify(Vec3.length(Entities.getEntityProperties(bulletID, ['velocity']).velocity)));
         var velocityMagnitude = Vec3.length(Entities.getEntityProperties(bulletID, ['velocity']).velocity);
         var adjustedVolume = (velocityMagnitude < 1 ? Math.LOG10E * Math.log(velocityMagnitude + 1) : 1);
 	    // update flight sound position
@@ -48,6 +68,25 @@
 	    	position: bulletPos,
 	    	volume: adjustedVolume
 	    };
+        
+        var curTargetPos = null ;
+
+        if (currentTarget == MyAvatar.sessionUUID) {
+            curTargetPos = MyAvatar.position;
+        } else {
+            curTargetPos = currentTarget.position;
+        }
+	   
+	    // If in Smart Bullet mode rotates towards the player
+	    if (smartBullet && curTargetPos != null) {
+	    	// velocity and rotation
+            var newRotation = Quat.lookAt(bulletPos, curTargetPos, Quat.getUp(MyAvatar.orientation));
+	    	var newBulletProps = {
+	    		rotation: newRotation,
+	    		velocity: Vec3.multiply(velocityMagnitude, Quat.getFront(newRotation))
+	    	}
+	    	Entities.editEntity(bulletID, newBulletProps);
+	    }
 	    
 	}
 
@@ -196,6 +235,12 @@
 
         Script.setTimeout(this.selfDestruct, lifetime*1000);
 
+        // User Data processing
+        var userData = getEntityUserData(entityID);
+        smartBullet = userData["bulletData"].smartBullet;
+        currentTarget = userData["bulletData"].target;
+        damage = userData["bulletData"].damage;
+        //print( "Info: check bulletData " + JSON.stringify(userData["bulletData"]) );
     };
 
     this.collisionWithEntity = function (thisEntityID, collisionEntityID, collisionInfo) {

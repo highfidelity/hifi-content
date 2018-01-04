@@ -31,7 +31,7 @@ var bulletGravity = {
 // How much damage can it inflict
 var bulletDamage = 10.0;
 // if on, the bullet attempts to follow player
-var smartBullet = false;
+var smartBullet = true;
 
 var minAngleRange = 1;
 
@@ -55,6 +55,7 @@ const TURRET_TIP_FWD_OFFSET  = -1;
 
 
 var currentTarget = null;
+var targetID;
 var currentBullet = null;
 
 var tempShotParticleProps = {
@@ -154,6 +155,7 @@ Turret.prototype = {
             var avatarID = identifiers[i];
             // get the position for this avatar
             var avatar = AvatarList.getAvatar(avatarID);
+
             var avatarPosition = avatar && avatar.position;
             if (avatarID === null) {
                 avatar = MyAvatar.sessionUUID ;
@@ -169,6 +171,7 @@ Turret.prototype = {
             
             if ((Vec3.distance(avatarPosition, _this.properties.position) < activeDistance)) {
                 currentTarget = avatar;
+                // maybe theres a smart bullet bug here
                 //print( " Daantje Debug :  Found new target.");
                 return;
             }
