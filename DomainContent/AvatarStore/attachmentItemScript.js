@@ -10,24 +10,29 @@
 /* global Render, Selection */
 
 (function() {
-    var highlightToggle = false;
-  
+    var highlightGrabToggle = false;
     var GRAB_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound1.wav'));
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound7.wav'));
-    var HIGHLIGHT = Script.require('./ExternalOutlineConfig.js');
     var SHARED = Script.require('./attachmentZoneShared.js');
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var RELEASE_LIFETIME = 10;
-    var LIST_NAME = "highlightList1";
+    var GRAB_LIST = "grabHighlightList";
+    var CANNOT_ATTACH_LIST = "noAttachJointList";
     var TRIGGER_INTENSITY = 1.0;
     var TRIGGER_TIME = 0.2;
     var EMPTY_PARENT_ID = "{00000000-0000-0000-0000-000000000000}";
     var ATTACH_SCALE = 3;
-    var MESSAGE_CHANNEL_BASE = "AvatarStoreObject";
+    var REMOVED_FROM_PARENT_CHANNEL_BASE = "AvatarStoreRemovedFromParent";
+    var RELEASE_GRAB_CHANNEL_BASE = "AvatarStoreReleaseGrab";
+    var NOT_ATTACHED_DESTROY_RADIUS = 0.1;
+    var IN_CHECKOUT_SETTINGS = 'io.highfidelity.avatarStore.checkOut.isInside';
+    var OVERLAY_PREFIX = 'MP';
+    var SCAN_RADIUS = 5;
   
-    var messageChannel;
-    var highlightConfig = Render.getConfig("UpdateScene.HighlightStageSetup");
+    var removedFromParentChannel;
+    var releaseGrabChannel;
+    var releaseGrabHandler;
     var _entityID;
     var _attachmentData;
     var _supportedJoints = [];
@@ -37,7 +42,33 @@
     var prevID = 0;
     var listType = "entity";
     var attachDistance;
-
+    var initialParentPosition;
+    var initialParentPositionSet = false;
+    var grabOutlineStyle = {
+        outlineUnoccludedColor: { red: 45, green: 156, blue: 219 },
+        outlineOccludedColor: { red: 45, green: 156, blue: 219 },
+        fillUnoccludedColor: { red: 45, green: 156, blue: 219 },
+        fillOccludedColor: { red: 45, green: 156, blue: 219 },
+        outlineUnoccludedAlpha: 1,
+        outlineOccludedAlpha: 0,
+        fillUnoccludedAlpha: 0,
+        fillOccludedAlpha: 0,
+        outlineWidth: 3,
+        isOutlineSmooth: true
+    };
+    var noAttachOutlineStyle = {
+        outlineUnoccludedColor: { red: 255, green: 0, blue: 0 },
+        outlineOccludedColor: { red: 255, green: 0, blue: 0 },
+        fillUnoccludedColor: { red: 255, green: 0, blue: 0 },
+        fillOccludedColor: { red: 255, green: 0, blue: 0 },
+        outlineUnoccludedAlpha: 1,
+        outlineOccludedAlpha: 0,
+        fillUnoccludedAlpha: 0,
+        fillOccludedAlpha: 0,
+        outlineWidth: 3,
+        isOutlineSmooth: true
+    };
+    var overlayMatch;
 
     var attachFunction = function() {
         attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
@@ -60,14 +91,24 @@
 
     }
 
+    function CheckReleaseGrabOnParent() {
+        // If placed back within NOT_ATTACHED_DESTROY_RADIUS of the original parent entity 
+        // and it is not attached then destroy it (if the user is putting it back)
+        var properties = Entities.getEntityProperties(_entityID, ['userData', 'position']);
+        var isAttached = JSON.parse(properties.userData).Attachment.attached;
+        if (!isAttached && initialParentPositionSet && 
+            Vec3.distance(initialParentPosition, properties.position) < NOT_ATTACHED_DESTROY_RADIUS) {
+            Entities.deleteEntity(_entityID);
+        }
+    }
+
     AttachableItem.prototype = {
         preload : function(entityID) {
             _entityID = entityID;
-            if (highlightToggle) {
-                highlightConfig["selectionName"] = LIST_NAME; 
-                Selection.clearSelectedItemsList(LIST_NAME);
-                HIGHLIGHT.changeHighlight1(highlightConfig);
-            }
+            Selection.enableListHighlight(GRAB_LIST, grabOutlineStyle);
+            Selection.enableListHighlight(CANNOT_ATTACH_LIST, noAttachOutlineStyle);
+            Selection.clearSelectedItemsList(GRAB_LIST);
+            Selection.clearSelectedItemsList(CANNOT_ATTACH_LIST);
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData']);
             var userData = JSON.parse(properties.userData);
             _attachmentData = userData.Attachment;
@@ -84,16 +125,33 @@
             isAttached = _attachmentData.attached;
 
             if (Entities.getNestableType(properties.parentID) !== "avatar" && !isAttached) {
-                messageChannel = MESSAGE_CHANNEL_BASE + properties.parentID;
-                Messages.subscribe(messageChannel);
+                removedFromParentChannel = REMOVED_FROM_PARENT_CHANNEL_BASE + properties.parentID;
+                Messages.subscribe(removedFromParentChannel);
             }
+            
+            releaseGrabChannel = RELEASE_GRAB_CHANNEL_BASE + entityID;
+            Messages.subscribe(releaseGrabChannel);
+            releaseGrabHandler = function(channel, data, sender) {
+                if (channel === releaseGrabChannel) {
+                    CheckReleaseGrabOnParent();
+                }    
+            };
+            Messages.messageReceived.connect(releaseGrabHandler);
 
             Entities.editEntity(entityID, {marketplaceID: _marketplaceID});
             MyAvatar.scaleChanged.connect(attachFunction);
             attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
+            
+            // We only want to store the initial parent position for the original parent wearable entity
+            if (properties.parentID != EMPTY_PARENT_ID && Entities.getNestableType(properties.parentID) !== "avatar") {
+                initialParentPosition = Entities.getEntityProperties(properties.parentID, ['position']).position;
+                initialParentPositionSet = true;
+            }
         },
         unload: function() {
             MyAvatar.scaleChanged.disconnect(attachFunction);
+            Messages.unsubscribe(releaseGrabChannel);
+            Messages.unsubscribe(removedFromParentChannel);
         },
         /**
          * Local remote function to be called from desktopAttachment.js whenever a click event is registered.
@@ -142,11 +200,22 @@
             playAttachSound();
         },
         startNearGrab: function(entityID, args) {
-            if (highlightToggle) {
-                if (prevID !== entityID) {
-                    Selection.addToSelectedItemsList(LIST_NAME, listType, entityID);
-                    prevID = entityID;
+            if (prevID !== entityID) {
+                var jointName = _attachmentData.joint;
+                var jointIndex = MyAvatar.getJointIndex(jointName);
+                if (jointIndex !== -1) {
+                    if (highlightGrabToggle){
+                        Selection.addToSelectedItemsList(GRAB_LIST, listType, entityID);
+                    }
+                } else {
+                    Selection.addToSelectedItemsList(CANNOT_ATTACH_LIST, listType, entityID);
                 }
+                if (Settings.getValue(IN_CHECKOUT_SETTINGS,false)) {
+                    var userDataObject = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
+                    overlayMatch = userDataObject.replicaOverlayID;
+                    Selection.addToSelectedItemsList(GRAB_LIST, "overlay", overlayMatch);
+                }
+                prevID = entityID;
             }
             if (firstGrab) {
                 if (!Entities.getEntityProperties(entityID, 'visible').visible) {
@@ -173,15 +242,15 @@
             _isNearGrabbingWithHand = false;
             var hand = args[0];
             var properties = Entities.getEntityProperties(entityID, ['parentID', 'userData', 'position']);
-            if (highlightToggle) {
-                if (prevID !== 0) {
-                    Selection.removeFromSelectedItemsList(LIST_NAME, listType, prevID);
-                    prevID = 0;
-                }
+            if (prevID !== 0) {
+                Selection.removeFromSelectedItemsList(GRAB_LIST, listType, prevID);
+                Selection.removeFromSelectedItemsList(CANNOT_ATTACH_LIST, listType, prevID);
+                Selection.removeFromSelectedItemsList(GRAB_LIST, "overlay", overlayMatch);
+                prevID = 0;
             }
             if (Entities.getNestableType(properties.parentID) === "entity") {
-                Messages.sendMessage(messageChannel, "Removed Item :" + entityID);
-                Messages.unsubscribe(messageChannel);
+                Messages.sendMessage(removedFromParentChannel, "Removed Item :" + entityID);
+                Messages.unsubscribe(removedFromParentChannel);
                 Entities.editEntity(entityID, {parentID: EMPTY_PARENT_ID});
             }
             var userData = properties.userData;
@@ -232,9 +301,13 @@
                             localOnly: true
                         });
                     }
+                    isAttached = false;
                     Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
                 }
             }
+            
+            Messages.sendMessage(releaseGrabChannel, "Released Grab: " + entityID);
+            CheckReleaseGrabOnParent();
         }
     };
     return new AttachableItem(); 
