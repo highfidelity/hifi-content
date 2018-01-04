@@ -709,7 +709,7 @@
 
                         $('#hmdWarning').css('display', data.hmdActive ? 'block' : 'none');
 
-                        if (data.properties === undefined) {
+                        if (!data.properties) {
                             $('#properties').css('display', 'none');
                             
                             return;
