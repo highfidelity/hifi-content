@@ -18,8 +18,8 @@
     var APP_URL = Script.resolvePath("wearableCreator.html");
     var APP_ICON = Script.resolvePath("./dress2.svg");
 
-    var SERVER_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/wearableServer.js"; 
-    var CLIENT_URL = "https://raw.githubusercontent.com/highfidelity/hifi-content/avatar-shopping-mvp/DomainContent/AvatarStore/desktopAttacher.js";
+    var SERVER_URL = "https://hifi-content.s3.amazonaws.com/DomainContent/AvatarStore/wearableServer.js"; 
+    var CLIENT_URL = "https://hifi-content.s3.amazonaws.com/DomainContent/AvatarStore/desktopAttacher.js";
     var TIMEOUT = 2000;
 
     var previousID = 0;
@@ -93,7 +93,6 @@
             var entityID = event.entityID;
             var joint = event.joint;
             var marketplaceID = event.marketplaceID;
-            print(event.name);
             var name = event.name;
 
             var newUserDataProperties = baseUserdata;
