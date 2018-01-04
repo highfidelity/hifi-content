@@ -9,9 +9,9 @@
 
 
 
-var TURRET_MODEL_URL = Script.resolvePath('assets/turret.fbx');
-var TURRET_BASE_MODEL_URL = Script.resolvePath('assets/turretBase.fbx');
-var TURRET_SCRIPT_URL = Script.resolvePath('turretScript.js');
+const TURRET_MODEL_URL = Script.resolvePath('assets/turret.fbx');
+const TURRET_BASE_MODEL_URL = Script.resolvePath('assets/turretBase.fbx');
+const TURRET_SCRIPT_URL = Script.resolvePath('turretScript.js');
 //var ENTITY_SPAWNER_SCRIPT_URL = Script.resolvePath('entitySpawner.js');
 
 
