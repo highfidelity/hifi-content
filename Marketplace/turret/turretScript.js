@@ -18,8 +18,9 @@ var enabled = true;
 var rotateSpeed = 0.05;
 // how frequently does it shoot at the player
 var shootingInterval = 1.0;
+var shootTimer = null; 
 // Is it always shooting or only when has a clean shot
-var alwaysShoot = false;
+var alwaysShoot = true;
 // How fast will the bullet travel - m/s
 var bulletVelocity = 3.0;
 var bulletGravity = {
@@ -30,7 +31,7 @@ var bulletGravity = {
 // How much damage can it inflict
 var bulletDamage = 10.0;
 // if on, the bullet attempts to follow player
-var smartBullet = false;
+var smartBullet = true;
 
 // Minimum angle difference to have a clear line at the target
 const minAngleRange = 1;
@@ -49,8 +50,6 @@ const BULLET_DIMENSIONS = {
 };
 
 const TURRET_TIP_FWD_OFFSET  = -1;
-
-var currentShootingTimer = 0.0;
 
 var currentTarget = null;
 var targetID;
@@ -107,11 +106,6 @@ function cleanup() {
     Messages.unsubscribe(MESSAGE_CHANNEL);
 }
 
-function resetShootingTimer() {
-    currentShootingTimer = 0.0;
-};
-
-
 function Turret() {
     _this = this;
 };
@@ -129,10 +123,12 @@ Turret.prototype = {
         print("INFO: Enable Turret");
         enabled = true;
         Script.update.connect(_this.onUpdate);
+        shootTimer = Script.setInterval(_this.shoot, shootingInterval*1000);
     },
     disableTurret: function() {
         print("INFO: Disable Turret");
         enabled = false;
+        Script.clearInterval(shootTimer);
         Script.update.disconnect(_this.onUpdate);
     },
     onUpdate: function(deltaTime) {
@@ -141,7 +137,7 @@ Turret.prototype = {
         if (currentTarget == null) {
             //print ("Daantje Debug : Trying to pick new target");
             _this.pickTarget();
-            resetShootingTimer();
+            
         } else {
             if (currentTarget == MyAvatar.sessionUUID) {
                 avatarPosition = MyAvatar.position;
@@ -151,13 +147,13 @@ Turret.prototype = {
             if (Vec3.distance(avatarPosition, _this.properties.position) > activeDistance) {
                 //print ("Daantje Debug : Lost Target");
                 _this.pickTarget();
-                resetShootingTimer();
+                
             }
         }
         if (currentTarget != null) {
             //TODO
+            _this.avatarPosition = avatarPosition;
             _this.rotateToTarget(deltaTime, avatarPosition);
-            _this.shoot(deltaTime, avatarPosition);
             //print ("Daantje Debug : Rotating and shooting" + Vec3.distance(avatarPosition, _this.properties.position));
         }
     },
@@ -217,60 +213,43 @@ Turret.prototype = {
                 {rotation : Quat.multiply(_this.properties.rotation, 
                     Quat.fromPitchYawRollDegrees(0.0, 180.0, 0.0))});  
         }
-    }, 
-    shoot: function(deltaTime, avatarPosition) {
-        if (currentShootingTimer >= 0.0){
-            if (currentShootingTimer >= 0 ) {
-                currentShootingTimer += deltaTime;
-            }
-            
-            if (alwaysShoot){
-                //print(" Daantje Debug: shooting.");
-                if (currentShootingTimer >= shootingInterval){
-                    currentShootingTimer = -1.0;
-                    var injector = Audio.playSound(CHARGING_SOUND, {
+    },
+    shoot: function() {
+        if (alwaysShoot){
+            var injector = Audio.playSound(CHARGING_SOUND, {
+                volume: 1.0,
+                position: Entities.getEntityProperties(_this.entityID, 'position').position
+            });
+            injector.finished.connect(function() {
+                Audio.playSound(SHOT_SOUND, {
+                    volume: 1.0,
+                    position: Entities.getEntityProperties(_this.entityID, 'position').position
+                });
+                currentBullet = _this.createBullet();
+                
+            });   
+        } else {
+            // TODO has good rotation range of player
+            //print(" Daantje Debug: facing player.");
+            var targetDirection = Vec3.subtract(_this.avatarPosition, _this.properties.position);
+            var front = Quat.getFront(_this.properties.rotation);
+            var axis = Quat.getUp(_this.properties.rotation);
+            var angle = Vec3.orientedAngle(front, Vec3.normalize(targetDirection), axis);
+
+            if (Math.abs(angle) < minAngleRange){
+                var injector = Audio.playSound(CHARGING_SOUND, {
+                    volume: 1.0,
+                    position: Entities.getEntityProperties(_this.entityID, 'position').position
+                });
+                injector.finished.connect(function() {
+                    Audio.playSound(SHOT_SOUND, {
                         volume: 1.0,
                         position: Entities.getEntityProperties(_this.entityID, 'position').position
                     });
-                    injector.finished.connect(function() {
-                        Audio.playSound(SHOT_SOUND, {
-                            volume: 1.0,
-                            position: Entities.getEntityProperties(_this.entityID, 'position').position
-                        });
-                        currentBullet = _this.createBullet();
-                        
-                        resetShootingTimer();
-                    });
-                }    
-            } else {
-                // TODO has good rotation range of player
-                //print(" Daantje Debug: facing player.");
-                var targetDirection = Vec3.subtract(avatarPosition, _this.properties.position);
-                var front = Quat.getFront(_this.properties.rotation);
-                var axis = Quat.getUp(_this.properties.rotation);
-                var angle = Vec3.orientedAngle(front, Vec3.normalize(targetDirection), axis);
 
-                if (Math.abs(angle) < minAngleRange){
-                    if (currentShootingTimer >= shootingInterval){
-                        currentShootingTimer = -1.0;
-                        var injector = Audio.playSound(CHARGING_SOUND, {
-                            volume: 1.0,
-                            position: Entities.getEntityProperties(_this.entityID, 'position').position
-                        });
-                        injector.finished.connect(function() {
-                            Audio.playSound(SHOT_SOUND, {
-                                volume: 1.0,
-                                position: Entities.getEntityProperties(_this.entityID, 'position').position
-                            });
-
-                            currentBullet = _this.createBullet();
-                            
-
-                            resetShootingTimer();
-                            
-                        }); 
-                    }    
-                }
+                    currentBullet = _this.createBullet();
+                    
+                });    
             }
         }
     },
