@@ -7,18 +7,17 @@
 (function() {
 
 var _this;
+const MESSAGE_CHANNEL = "Turret-Bullet-Hit";
 
 // Turret Properties
 // maximum distance to shoot (meters)
 var activeDistance = 5;
-
 // Whether or not it's actually operating
 var enabled = true;
 // how fast it lerps to shoot at player
 var rotateSpeed = 0.05;
 // how frequently does it shoot at the player
 var shootingInterval = 1.0;
-var currentShootingTimer = 0.0;
 // Is it always shooting or only when has a clean shot
 var alwaysShoot = false;
 // How fast will the bullet travel - m/s
@@ -31,16 +30,15 @@ var bulletGravity = {
 // How much damage can it inflict
 var bulletDamage = 10.0;
 // if on, the bullet attempts to follow player
-var smartBullet = true;
+var smartBullet = false;
 
-var minAngleRange = 1;
+// Minimum angle difference to have a clear line at the target
+const minAngleRange = 1;
 
 // One shot audio clip played while charging to shoot
 var CHARGING_SOUND = SoundCache.getSound(Script.resolvePath('assets/chargeSound.wav'));
 // One shot audio clip played when shot is fired
 var SHOT_SOUND =  SoundCache.getSound(Script.resolvePath('assets/shotSound.wav'));
-
-
 
 const BULLET_MODEL_URL = Script.resolvePath('assets/Dogeodgeball.fbx');
 const BULLET_SCRIPT_URL = Script.resolvePath('bulletScript.js');
@@ -52,7 +50,7 @@ const BULLET_DIMENSIONS = {
 
 const TURRET_TIP_FWD_OFFSET  = -1;
 
-
+var currentShootingTimer = 0.0;
 
 var currentTarget = null;
 var targetID;
@@ -92,7 +90,22 @@ var tempShotParticleProps = {
 
 var shotParticleArray = [];
 
+function hitMessage(channel, message, sender) {
+    if (channel == MESSAGE_CHANNEL) {
+        print("INFO: Message received - " + message);
+    }
+    
+};
 
+function setup() {
+    Messages.messageReceived.connect(hitMessage);
+    Messages.subscribe(MESSAGE_CHANNEL);
+}
+
+function cleanup() {
+    Messages.messageReceived.disconnect(hitMessage);
+    Messages.unsubscribe(MESSAGE_CHANNEL);
+}
 
 function resetShootingTimer() {
     currentShootingTimer = 0.0;
@@ -110,6 +123,7 @@ Turret.prototype = {
         if (enabled) { 
             _this.enableTurret();
         }
+        
     },
     enableTurret: function() {
         print("INFO: Enable Turret");
@@ -205,62 +219,60 @@ Turret.prototype = {
         }
     }, 
     shoot: function(deltaTime, avatarPosition) {
-    	if (currentShootingTimer >= 0.0){
+        if (currentShootingTimer >= 0.0){
             if (currentShootingTimer >= 0 ) {
                 currentShootingTimer += deltaTime;
             }
-    		
-    		if (alwaysShoot){
-	            //print(" Daantje Debug: shooting.");
-	            if (currentShootingTimer >= shootingInterval){
-	           	    currentShootingTimer = -1.0;
-	                var injector = Audio.playSound(CHARGING_SOUND, {
-	                    volume: 1.0,
-	                    position: Entities.getEntityProperties(_this.entityID, 'position').position
-	                });
-	                injector.finished.connect(function() {
-	                    Audio.playSound(SHOT_SOUND, {
-	                        volume: 1.0,
-	                        position: Entities.getEntityProperties(_this.entityID, 'position').position
-	                    });
+            
+            if (alwaysShoot){
+                //print(" Daantje Debug: shooting.");
+                if (currentShootingTimer >= shootingInterval){
+                    currentShootingTimer = -1.0;
+                    var injector = Audio.playSound(CHARGING_SOUND, {
+                        volume: 1.0,
+                        position: Entities.getEntityProperties(_this.entityID, 'position').position
+                    });
+                    injector.finished.connect(function() {
+                        Audio.playSound(SHOT_SOUND, {
+                            volume: 1.0,
+                            position: Entities.getEntityProperties(_this.entityID, 'position').position
+                        });
                         currentBullet = _this.createBullet();
                         
-	                    resetShootingTimer();
-	                });
-	            }    
+                        resetShootingTimer();
+                    });
+                }    
             } else {
-	            // TODO has good rotation range of player
-	            //print(" Daantje Debug: facing player.");
-	            var targetDirection = Vec3.subtract(avatarPosition, _this.properties.position);
+                // TODO has good rotation range of player
+                //print(" Daantje Debug: facing player.");
+                var targetDirection = Vec3.subtract(avatarPosition, _this.properties.position);
                 var front = Quat.getFront(_this.properties.rotation);
                 var axis = Quat.getUp(_this.properties.rotation);
                 var angle = Vec3.orientedAngle(front, Vec3.normalize(targetDirection), axis);
 
                 if (Math.abs(angle) < minAngleRange){
                     if (currentShootingTimer >= shootingInterval){
-		           	    currentShootingTimer = -1.0;
-		                var injector = Audio.playSound(CHARGING_SOUND, {
-		                    volume: 1.0,
-		                    position: Entities.getEntityProperties(_this.entityID, 'position').position
-		                });
-		                injector.finished.connect(function() {
-		                    Audio.playSound(SHOT_SOUND, {
-		                        volume: 1.0,
-		                        position: Entities.getEntityProperties(_this.entityID, 'position').position
-		                    });
+                        currentShootingTimer = -1.0;
+                        var injector = Audio.playSound(CHARGING_SOUND, {
+                            volume: 1.0,
+                            position: Entities.getEntityProperties(_this.entityID, 'position').position
+                        });
+                        injector.finished.connect(function() {
+                            Audio.playSound(SHOT_SOUND, {
+                                volume: 1.0,
+                                position: Entities.getEntityProperties(_this.entityID, 'position').position
+                            });
 
                             currentBullet = _this.createBullet();
                             
 
-		                    resetShootingTimer();
+                            resetShootingTimer();
                             
-		                }); 
-	                }    
+                        }); 
+                    }    
                 }
-	        }
-    	}
-        
-
+            }
+        }
     },
     createBullet: function(){
         var bullet = Entities.addEntity({
@@ -286,7 +298,8 @@ Turret.prototype = {
                     bulletData: {
                         target: currentTarget,
                         smartBullet: smartBullet,
-                        damage: bulletDamage
+                        damage: bulletDamage,
+                        turret: _this.entityID
                     }
                 })
             });
@@ -325,5 +338,7 @@ Turret.prototype = {
     }    
 };
 
+setup();
+Script.scriptEnding.connect(cleanup);
 return new Turret();
 });

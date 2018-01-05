@@ -80,6 +80,7 @@ function createTurret() {
 
 function makeTurret() {
     createTurret();
+    
 }
 
 function cleanup() {
