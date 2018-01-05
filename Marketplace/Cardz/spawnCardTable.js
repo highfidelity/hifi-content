@@ -15,77 +15,32 @@ CARD_ENTITIES = {
     "Entities": [
         {
             "clientOnly": 0,
-            "collidesWith": "",
-            "collisionMask": 0,
-            "collisionless": 1,
-            "color": {
-                "blue": 222,
-                "green": 29,
-                "red": 51
-            },
-            "created": "2017-09-11T22:18:46Z",
-            "damping": 0.8999999761581421,
-            "dimensions": {
-                "x": 0.20000000298023224,
-                "y": 0.008494749665260315,
-                "z": 0.20000000298023224
-            },
-            "id": "{7f8d8281-0ef4-42b2-bbc7-1a63da3f252f}",
-            "ignoreForCollisions": 1,
-            "lastEdited": 1505168629878212,
-            "lastEditedBy": "{6978b7ed-091f-442a-a78a-33f8a4176fc7}",
-            "name": "CARD-Deck_Handler",
-            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
-            "position": {
-                "x": 0.0002378225326538086,
-                "y": 0.4577655792236328,
-                "z": 0
-            },
-            "queryAACube": {
-                "scale": 0.28297024965286255,
-                "x": -0.14124730229377747,
-                "y": 0.31628045439720154,
-                "z": -0.14148512482643127
-            },
-            "rotation": {
-                "w": 1,
-                "x": -1.52587890625e-05,
-                "y": -1.52587890625e-05,
-                "z": -1.52587890625e-05
-            },
-            "serverScripts": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/Deck_Handler.js" + "?" + Date.now(),
-            "shape": "Hexagon",
-            "type": "Shape",
-            "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
-        },
-        {
-            "clientOnly": 0,
             "color": {
                 "blue": 0,
                 "green": 0,
                 "red": 255
             },
-            "created": "2017-09-11T22:18:46Z",
+            "created": "2017-11-23T20:38:01Z",
             "dimensions": {
                 "x": 1.6153218746185303,
                 "y": 0.9037846326828003,
                 "z": 0.7385615110397339
             },
-            "id": "{a6358d02-998e-48a8-99aa-c433a531076b}",
-            "lastEdited": 1505168617230535,
-            "lastEditedBy": "{6978b7ed-091f-442a-a78a-33f8a4176fc7}",
+            "id": "{9c410d95-b889-4728-9479-f4c90afeba20}",
+            "lastEdited": 1511469766576694,
+            "lastEditedBy": "{ec485a3a-4a9a-411c-9c49-e216c76fb419}",
             "name": "CARD-Table",
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "position": {
                 "x": 0,
                 "y": 0,
-                "z": 0.0680856704711914
+                "z": 0.07380008697509766
             },
             "queryAACube": {
                 "scale": 1.9928784370422363,
                 "x": -0.9964392185211182,
                 "y": -0.9964392185211182,
-                "z": -0.9283535480499268
+                "z": -0.9226391315460205
             },
             "rotation": {
                 "w": 1,
@@ -96,9 +51,48 @@ CARD_ENTITIES = {
             "shape": "Cube",
             "type": "Box",
             "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "dynamic,",
+            "collisionMask": 2,
+            "created": "2017-11-23T20:38:01Z",
+            "dimensions": {
+                "x": 0.07000000029802322,
+                "y": 0.11999999731779099,
+                "z": 0.05000000074505806
+            },
+            "id": "{c8a68b99-ec83-4756-b06c-28e2046b2e00}",
+            "lastEdited": 1511470311253918,
+            "lastEditedBy": "{ec485a3a-4a9a-411c-9c49-e216c76fb419}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsAssets/master_card.fbx",
+            "name": "CARD_DECK",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "position": {
+                "x": 0.003754138946533203,
+                "y": 0.4776268005371094,
+                "z": 0
+            },
+            "queryAACube": {
+                "scale": 0.14764823019504547,
+                "x": -0.07006997615098953,
+                "y": 0.40380269289016724,
+                "z": -0.07382411509752274
+            },
+            "rotation": {
+                "w": 0.7070878744125366,
+                "x": 0.7070878744125366,
+                "y": -4.57763671875e-05,
+                "z": -1.52587890625e-05
+            },
+            "serverScripts": "https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/Deck_Handler.js?" + Date.now(),
+            "shapeType": "box",
+            "textures": "{ \"HiddenCardFile\": \"https://hifi-content.s3.amazonaws.com/jedon/Game_Creater_Toolkit/Cardz/DeckOfCardsTexture/CARD_0.jpg\"}",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false,\"ignoreIK\":false}}"
         }
     ],
-    "Version": 73
+    "Version": 79
 }
 
 // Add LocalPosition to entity data if parent properties are available

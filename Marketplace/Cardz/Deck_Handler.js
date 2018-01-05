@@ -22,6 +22,8 @@
     var cards = [];
     var deckLocation;
     var deckRotation;
+    //id for reset button
+    var resetButton;
 
     _this.preload = function(entityID) {
         print("Loading Deck Handler script."); 
@@ -106,7 +108,7 @@
             shapeType: "box",
             "script": Script.resolvePath("./Reset_Button.js") + "?" + Date.now()
         };
-        Entities.addEntity(resetButtonProperties);
+        resetButton = Entities.addEntity(resetButtonProperties);
         //get all channels
         cardChannel = "card-channel-".concat(entityID);
         resetChannel = "reset-channel-".concat(entityID);
@@ -279,8 +281,31 @@
     }
 
     _this.unload = function () {
+    	//preload will spawn new cards so you need to delete old ones so reset cube works
+        //delete all cards
+        for (i = 0; i < 52; i++) {
+            Entities.deleteEntity(cardIDs[i]);
+        }
+        Entities.deleteEntity(resetButton);
+        cardIDs = [];
         Messages.unsubscribe(cardChannel);
         Messages.unsubscribe(resetChannel);
         Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);
     };
+
+    //Added this because sometimes I was seeing two buttons on reload
+    var removeAssets = function () {
+        //preload will spawn new cards so you need to delete old ones so reset cube works
+        //delete all cards
+        for (i = 0; i < 52; i++) {
+            Entities.deleteEntity(cardIDs[i]);
+        }
+        Entities.deleteEntity(resetButton);
+        cardIDs = [];
+        Messages.unsubscribe(cardChannel);
+        Messages.unsubscribe(resetChannel);
+        Messages.messageReceived.disconnect(_this, _this.onReceivedMessage);
+    };
+
+    Script.scriptEnding.connect(removeAssets);
 })
