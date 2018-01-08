@@ -184,6 +184,9 @@
             // TEMPORARY PARTICLE PARAMETERS ARE NOT BEING IMPORTED CORRECTELY
             Entities.editEntity(particleTrailEntity, props);
         }
+        //Entities.editEntity(particleTrailEntity, {parentID: ""});
+        //Clipboard.exportEntities(Script.resolvePath('assets/')+"particledaantje.json", [particleTrailEntity]);
+        //ntities.editEntity(particleTrailEntity, {parentID: bulletID});
     }
 
     function particleExplode(entPos) {

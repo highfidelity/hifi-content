@@ -15,7 +15,11 @@ var activeDistance = 5;
 // Whether or not it's actually operating
 var enabled = true;
 // how fast it lerps to shoot at player
-var rotateSpeed = 0.05;
+var rotateSpeed = {
+    x: 0.05,
+    y: 0.03,
+    z: 0.0 // it doesn't make sense to make the turret roll
+}
 // how frequently does it shoot at the player
 var shootingInterval = 1.0;
 var shootTimer = null; 
@@ -195,23 +199,47 @@ Turret.prototype = {
             // direction vector
             var targetDirection = Vec3.subtract(avatarPosition, _this.properties.position);
             var front = Quat.getFront(_this.properties.rotation);
-            var axis = Quat.getUp(_this.properties.rotation);
-            // TODO if there are locked axis, do a projection
-
-            var angle = rotateSpeed / deltaTime;
-            var sign = Vec3.orientedAngle(front, Vec3.normalize(targetDirection), axis);
-            if (Math.abs(sign) < Math.abs(angle)) {
-                angle = sign;
-            } else {
-                sign = ((sign > 0) - (sign < 0)) || +sign;
-                angle = angle * sign;
-            }
+            // LERP on y - yaw
+            var axisUp = Quat.getUp(_this.properties.rotation);
             
-            var deltaRotation = Quat.angleAxis(angle, axis);
-            _this.properties.rotation = Quat.multiply(deltaRotation, _this.properties.rotation);
-            Entities.editEntity( _this.entityID, 
-                {rotation : Quat.multiply(_this.properties.rotation, 
-                    Quat.fromPitchYawRollDegrees(0.0, 180.0, 0.0))});  
+            if (rotateSpeed.y > 0.0) {
+                var angleYaw = rotateSpeed.y / deltaTime;
+                var sign = Vec3.orientedAngle(front, Vec3.normalize(targetDirection), axisUp);
+                if (Math.abs(sign) < Math.abs(angleYaw)) {
+                    angleYaw = sign;
+                } else {
+                    sign = ((sign > 0) - (sign < 0)) || +sign;
+                    angleYaw = angleYaw * sign;
+                }
+
+                var deltaRotation = Quat.angleAxis(angleYaw, axisUp);
+                if (Math.abs(angleYaw) > minAngleRange) {
+                    _this.properties.rotation = Quat.multiply(deltaRotation, _this.properties.rotation);
+                }
+            }
+            // LERP on x - pitch
+            var axisRight = Quat.getRight(_this.properties.rotation);
+            if (rotateSpeed.x > 0.0) {
+                // update front
+                front = Quat.getFront(_this.properties.rotation);
+                var pitchAngleSign = Vec3.orientedAngle(front, Vec3.normalize(targetDirection), axisRight);
+                var anglePitch = rotateSpeed.x / deltaTime;
+                if (Math.abs(pitchAngleSign) < Math.abs(anglePitch)) {
+                    anglePitch = pitchAngleSign;
+                } else {
+                    pitchAngleSign = ((pitchAngleSign > 0) - (pitchAngleSign < 0)) || +pitchAngleSign;
+                    anglePitch = anglePitch * pitchAngleSign;
+                }
+                deltaRotation = Quat.angleAxis(anglePitch, axisRight);
+                if (Math.abs(anglePitch) > minAngleRange) {
+                    _this.properties.rotation = Quat.multiply(deltaRotation, _this.properties.rotation);
+                }
+            }
+            // update with new rotation
+            Entities.editEntity( _this.entityID, {
+                rotation : Quat.multiply(_this.properties.rotation, 
+                    Quat.fromPitchYawRollDegrees(0.0, 180.0, 0.0))
+            });  
         }
     },
     shoot: function() {
