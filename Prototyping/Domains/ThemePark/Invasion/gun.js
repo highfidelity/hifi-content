@@ -17,15 +17,16 @@
     var laserID;
     var laserTimeout;
     var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
+    var TRIGGER_THRESHOLD = 0.97;
     var BARREL_LOCAL_OFFSET = {x:0.015, y:0.065, z:-0.25};
     var BARREL_LOCAL_DIRECTION = {x:0, y:0, z:-1000};
     var GUN_CHANNEL_BASE = "GunChannel";
     var gunChannel;
     var gunHandler;
     
-    Gun = function() {
+    function Gun() {
         _this = this;
-    };
+    }
 
     Gun.prototype = {
         startEquip: function(id, params) {
@@ -42,7 +43,7 @@
         
         toggleWithTriggerPressure: function() {
             var triggerValue = Controller.getValue(TRIGGER_CONTROLS[currentHand]);
-            if (triggerValue >= 0.97) {
+            if (triggerValue >= TRIGGER_THRESHOLD) {
                 if (canShoot === true) {
                     this.fire();
                     Messages.sendMessage(gunChannel, "Fire");
@@ -91,7 +92,10 @@
                 if (equipped) { // only send hit message from the avatar who has it equipped
                     var name = Entities.getEntityProperties(intersection.entityID, ['name']).name;
                     if (name.indexOf("Alien") !== -1) {
-                        Messages.sendMessage(invasionUtils.ALIEN_CHANNEL_BASE, JSON.stringify({type: "HitAlienWithLaser", alienID: intersection.entityID}));
+                        Messages.sendMessage(invasionUtils.ALIEN_CHANNEL_BASE, JSON.stringify({
+                            type: "HitAlienWithLaser",
+                            alienID: intersection.entityID
+                        }));
                     }
                 }
             }

@@ -12,8 +12,8 @@
     
     var SEARCH_RADIUS = 0.3;
 
-    Wrench = function() {
-    };
+    function Wrench() {
+    }
 
     Wrench.prototype = {
         releaseGrab: function() {

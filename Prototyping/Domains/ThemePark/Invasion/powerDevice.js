@@ -14,9 +14,9 @@
     var healthBarID;
     var healthBarBGID;
 
-    PowerDevice = function() {
+    function PowerDevice() {
         _this = this;
-    };
+    }
 
     PowerDevice.prototype = {
         update: function() {
