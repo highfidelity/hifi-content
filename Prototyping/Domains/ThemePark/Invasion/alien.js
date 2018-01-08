@@ -10,6 +10,8 @@
 (function() {
     var invasionUtils = Script.require('./invasionUtils.js');
     
+    var FIRE_LASER_INTERVAL = 100;
+
     var _this;
     var previousStatus = -1;
     var laserID;
@@ -18,9 +20,9 @@
     var healthBarID;
     var healthBarBGID;
 
-    Alien = function() {
+    function Alien() {
         _this = this;
-    };
+    }
 
     Alien.prototype = {
         update: function() {
@@ -49,7 +51,7 @@
             laserInterval = Script.setInterval(function() {
                 var currentVisible = Overlays.getProperty(laserID, 'visible');
                 Overlays.editOverlay(laserID, {visible: !currentVisible});
-            }, 100);
+            }, FIRE_LASER_INTERVAL);
             laserSound = Audio.playSound(SoundCache.getSound(invasionUtils.LASER_SOUND), {
                 position: barrelPosition,
                 volume: invasionUtils.LASER_VOLUME,

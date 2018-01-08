@@ -17,16 +17,31 @@ var BEAM_FROM_POSITION = MOTHERSHIP_POSITION;
 var BEAM_TO_POSITION = Vec3.sum(MOTHERSHIP_POSITION, BEAM_IN_OFFSET);
 
 // TODO: number of UFO's depend on the amount of active-guests in the park
-var NUMBER_OF_UFOS = 20;
+var NUMBER_OF_UFOS = 10;
 
 var CLOSEST_LASER_RANGE = 10;
 var LOWEST_HOVER_HEIGHT = -3.75;
 var RANDOM_ATTACK_BOX_DIMENSIONS = {x: 12, y: 8, z: 12};
 
 var UFO_ATTACK_INTERVAL_MS = 100;
-var UFO_ATTACK_DAMAGE = 0.0015 * 3;
+var UFO_ATTACK_DAMAGE = 0.0015;
 
+var MAX_DEGREES_IN_A_FULL_REVOLUTION = 360.0;
+
+var UFO_SPIN_VELOCITY = {
+    x: 0.0,
+    y: 2.0,
+    z: 0.0
+};
+var UFO_FULL_SPEED = 6.0;
+var UFO_CAREFUL_SPEED = 5.0;
+
+var UPDATE_RATE_FPS = 60;
+
+var DEBUG = true;
 var DEBUG_CUBES = false;
+
+var HALF_DIMENSION_AXIS_OFFSET = -0.5;
 
 var invasionSound = SoundCache.getSound(INVASION_SOUND);
 var alarmSound = SoundCache.getSound(ALARM_SOUND);
@@ -206,11 +221,17 @@ var HAPPY_SMILE_PROPERTIES = {
     })
 };
 
+function debugPrint(message) {
+    if (DEBUG) {
+        print(message);
+    }
+}
+
 function randomLocalPositionFromDimensions(dimensions) {
     return {
-        x: dimensions.x * (Math.random() - 0.5),
-        y: dimensions.y * (Math.random() - 0.5),
-        z: dimensions.z * (Math.random() - 0.5)
+        x: dimensions.x * (Math.random() + HALF_DIMENSION_AXIS_OFFSET),
+        y: dimensions.y * (Math.random() + HALF_DIMENSION_AXIS_OFFSET),
+        z: dimensions.z * (Math.random() + HALF_DIMENSION_AXIS_OFFSET)
     };
 }
 
@@ -360,6 +381,8 @@ var UFOMovePathEvent = (function() {
     return UFOMovePathEvent;
 })();
 
+var ALIEN_ROTATION_OFFSET = {x: 0.0, y: 0.5986136794090271, z: 0.0, w: 0.8010378479957581};
+
 var Alien = (function() {
     function Alien(motherShip, position, targetPowerSource) {
         this.motherShip = motherShip;
@@ -433,9 +456,9 @@ var Alien = (function() {
                         // next target:
                         alien.movePath.call(alien, [
                             // now move the UFOs towards their target
-                            new UFOMovePathEvent(UFO_PATH_ACTION.MOVE, {target: randomPosition, speed: 6.0})
+                            new UFOMovePathEvent(UFO_PATH_ACTION.MOVE, {target: randomPosition, speed: UFO_FULL_SPEED})
                         ], function(alien) {
-                            print('attack mode starting for alien');
+                            debugPrint('attack mode starting for alien');
                             // lets go in FULL attack mode!
                             alien.attackPowerSource.call(alien);
                         });
@@ -483,14 +506,8 @@ var Alien = (function() {
                             * MILLISECONDS_IN_SECOND;
                         direction = Vec3.normalize(Vec3.subtract(currentMove.options.target, currentAlien.position));
                         velocity = Vec3.multiply(direction, currentMove.options.speed);
-                        var rotationOffset = Quat.inverse({
-                            x: 0.0,
-                            y: -0.5986136794090271,
-                            z: 0.0,
-                            w: 0.8010378479957581
-                        });
                         var rotation = Quat.cancelOutRollAndPitch(Quat.multiply(
-                            Quat.lookAt(currentAlien.position, currentMove.options.target, Vec3.UP), rotationOffset));
+                            Quat.lookAt(currentAlien.position, currentMove.options.target, Vec3.UP), ALIEN_ROTATION_OFFSET));
 
                         Entities.editEntity(currentAlien.trackableEntity.entity, {velocity: velocity, rotation: rotation});
                         break;
@@ -501,11 +518,7 @@ var Alien = (function() {
                         velocity = Vec3.multiply(direction, currentMove.options.speed);
                         Entities.editEntity(currentAlien.trackableEntity.entity, {
                             velocity: velocity,
-                            angularVelocity: {
-                                x: 0.0,
-                                y: 2.0,
-                                z: 0.0
-                            }
+                            angularVelocity: UFO_SPIN_VELOCITY
                         });
                         break;
                     case UFO_PATH_ACTION.WARP:
@@ -593,13 +606,13 @@ var Alien = (function() {
             
             this.movePath.call(this, [
                 // move back towards the beam
-                new UFOMovePathEvent(UFO_PATH_ACTION.MOVE, {target: BEAM_TO_POSITION, speed: 6.0}),
+                new UFOMovePathEvent(UFO_PATH_ACTION.MOVE, {target: BEAM_TO_POSITION, speed: UFO_FULL_SPEED}),
 
                 // now move the UFO spiraling up the beam
-                new UFOMovePathEvent(UFO_PATH_ACTION.SPIN_MOVE, {target: BEAM_FROM_POSITION, speed: 5.0})
+                new UFOMovePathEvent(UFO_PATH_ACTION.SPIN_MOVE, {target: BEAM_FROM_POSITION, speed: UFO_CAREFUL_SPEED})
 
             ], function(alien) {
-                print('E.T. Return Home');
+                debugPrint('E.T. Return Home');
 
                 // remove from activeAliens
                 alien.motherShip.removeActiveAlien.call(alien.motherShip, alien);
@@ -649,15 +662,15 @@ var MotherShip = (function() {
                 
                 alien.movePath.call(alien, [
                     // delay the movement per alien that comes out of the ship
-                    new UFOMovePathEvent(UFO_PATH_ACTION.PAUSE, {timeout: i * 1000}),
+                    new UFOMovePathEvent(UFO_PATH_ACTION.PAUSE, {timeout: i * MILLISECONDS_IN_SECOND}),
                     
                     // first move the UFOs spiraling down the beam
-                    new UFOMovePathEvent(UFO_PATH_ACTION.SPIN_MOVE, {target: BEAM_TO_POSITION, speed: 5.0}),
+                    new UFOMovePathEvent(UFO_PATH_ACTION.SPIN_MOVE, {target: BEAM_TO_POSITION, speed: UFO_CAREFUL_SPEED}),
                     
                     // now move the UFOs towards their target
-                    new UFOMovePathEvent(UFO_PATH_ACTION.MOVE, {target: randomPosition, speed: 6.0})
+                    new UFOMovePathEvent(UFO_PATH_ACTION.MOVE, {target: randomPosition, speed: UFO_FULL_SPEED})
                 ], function(alien) {
-                    print('attack mode starting for alien');
+                    debugPrint('attack mode starting for alien');
                     // lets go in FULL attack mode!
                     alien.attackPowerSource.call(alien);
                 });
@@ -735,7 +748,7 @@ var initialized = false;
 
 
 function update(deltaTime) {
-    deltaTime = 1000 / 60;
+    deltaTime = MILLISECONDS_IN_SECOND / UPDATE_RATE_FPS;
     if (!initialized) {
         if (Entities.serversExist() && Entities.canRez()) {
             Entities.setPacketsPerSecond(60000);
@@ -744,12 +757,14 @@ function update(deltaTime) {
             powerSources.forEach(function(powerSource) {
                 powerSource.rez.call(powerSource);
             });
-            print("power sources should be live.");
             
             Messages.sendMessage(invasionUtils.INVASION_CHANNEL, JSON.stringify({
                 type: 'before_it_all_happens'
             }));
             
+            var INITIAL_INVASION_ALERT_TIMEOUT = 3 * MILLISECONDS_IN_SECOND;
+            var ALARM_START_TIMEOUT = INITIAL_INVASION_ALERT_TIMEOUT + (2 * MILLISECONDS_IN_SECOND);
+
             Script.setTimeout(function() {
                 Audio.playSound(invasionSound, {
                     volume: 2.0,
@@ -758,14 +773,14 @@ function update(deltaTime) {
                 Messages.sendMessage(invasionUtils.INVASION_CHANNEL, JSON.stringify({
                     type: 'invasion_alert'
                 }));
-            }, 3000);
+            }, INITIAL_INVASION_ALERT_TIMEOUT);
 
             Script.setTimeout(function() {
                 Audio.playSound(alarmSound, {
                     volume: 0.5,
                     position: {x: 0, y: 0, z: 0}
                 });
-            }, 5000);
+            }, ALARM_START_TIMEOUT);
             var ALARM_TIME = 2770;
             
             Script.setTimeout(function() {
@@ -773,7 +788,7 @@ function update(deltaTime) {
                     volume: 0.75,
                     position: {x: 0, y: 0, z: 0}
                 });
-            }, 5000 + ALARM_TIME);
+            }, ALARM_START_TIMEOUT + ALARM_TIME);
 
             Script.setTimeout(function() {
                 Audio.playSound(alarmSound, {
@@ -784,13 +799,13 @@ function update(deltaTime) {
                     type: 'mothership'
                 }));
                 bringInTheMotherShip();
-            }, 5000 + (ALARM_TIME * 2));
+            }, ALARM_START_TIMEOUT + (ALARM_TIME * 2));
         }
         Messages.subscribe(invasionUtils.ALIEN_CHANNEL_BASE);
         Messages.subscribe(invasionUtils.REPAIR_CHANNEL);
         return;
     }
-    yaw = (yaw + (deltaTime * spinningSpeed)) % 360.0;
+    yaw = (yaw + (deltaTime * spinningSpeed)) % MAX_DEGREES_IN_A_FULL_REVOLUTION;
     Avatar.orientation = Quat.fromVec3Degrees({x: 0, y: yaw, z: 0});
 }
 
@@ -810,20 +825,15 @@ EntityViewer.setCenterRadius(60000);
 // This should allow us to see nano-scale entities from great distances
 EntityViewer.setVoxelSizeScale(Number.MAX_VALUE);
 
+var OCTREE_UPDATE_TIMEOUT = MILLISECONDS_IN_SECOND; // 1 second
+
 var octreeQueryInterval = Script.setInterval(function() {
     EntityViewer.queryOctree();
-}, 1000);
+}, OCTREE_UPDATE_TIMEOUT);
 
 
 Messages.messageReceived.connect(function(channel, message, sender) {
     if (channel === invasionUtils.ALIEN_CHANNEL_BASE) {
-        /*
-        Entities.editEntity(motherShip.trackableEntity.entity, {
-            dynamic: true, 
-            gravity: {x: 0, y: 0, z: -8}, 
-            angularVelocity: {x: 0, y: 5, z: 0}
-        });*/
-        
         var alienData = JSON.parse(message);
         if (alienData.type === "HitAlienWithLaser") {
             motherShip.activeAliens.forEach(function(activeAlien) {
@@ -849,7 +859,5 @@ Messages.messageReceived.connect(function(channel, message, sender) {
         }
     }
 });
-
-var UPDATE_RATE_FPS = 60;
 
 updateInterval = Script.setInterval(update, MILLISECONDS_IN_SECOND / UPDATE_RATE_FPS);
