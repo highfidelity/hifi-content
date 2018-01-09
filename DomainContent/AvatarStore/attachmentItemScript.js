@@ -27,8 +27,6 @@
     var RELEASE_GRAB_CHANNEL_BASE = "AvatarStoreReleaseGrab";
     var NOT_ATTACHED_DESTROY_RADIUS = 0.1;
     var IN_CHECKOUT_SETTINGS = 'io.highfidelity.avatarStore.checkOut.isInside';
-    var OVERLAY_PREFIX = 'MP';
-    var SCAN_RADIUS = 5;
   
     var removedFromParentChannel;
     var releaseGrabChannel;
@@ -87,11 +85,7 @@
         }
     };
 
-    function AttachableItem() {
-
-    }
-
-    function CheckReleaseGrabOnParent() {
+    function checkReleaseGrabOnParent() {
         // If placed back within NOT_ATTACHED_DESTROY_RADIUS of the original parent entity 
         // and it is not attached then destroy it (if the user is putting it back)
         var properties = Entities.getEntityProperties(_entityID, ['userData', 'position']);
@@ -100,6 +94,10 @@
             Vec3.distance(initialParentPosition, properties.position) < NOT_ATTACHED_DESTROY_RADIUS) {
             Entities.deleteEntity(_entityID);
         }
+    }
+
+    function AttachableItem() {
+
     }
 
     AttachableItem.prototype = {
@@ -133,7 +131,7 @@
             Messages.subscribe(releaseGrabChannel);
             releaseGrabHandler = function(channel, data, sender) {
                 if (channel === releaseGrabChannel) {
-                    CheckReleaseGrabOnParent();
+                    checkReleaseGrabOnParent();
                 }    
             };
             Messages.messageReceived.connect(releaseGrabHandler);
@@ -143,7 +141,7 @@
             attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
             
             // We only want to store the initial parent position for the original parent wearable entity
-            if (properties.parentID != EMPTY_PARENT_ID && Entities.getNestableType(properties.parentID) !== "avatar") {
+            if (properties.parentID !== EMPTY_PARENT_ID && Entities.getNestableType(properties.parentID) !== "avatar") {
                 initialParentPosition = Entities.getEntityProperties(properties.parentID, ['position']).position;
                 initialParentPositionSet = true;
             }
@@ -307,7 +305,7 @@
             }
             
             Messages.sendMessage(releaseGrabChannel, "Released Grab: " + entityID);
-            CheckReleaseGrabOnParent();
+            checkReleaseGrabOnParent();
         }
     };
     return new AttachableItem(); 
