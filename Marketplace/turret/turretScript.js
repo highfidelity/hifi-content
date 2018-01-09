@@ -44,6 +44,7 @@ const rotationSensitivity = 2;
 const yawSensitivity = 1;
 const pitchSensitivity = 5;
 
+const TURRET_TURNTABLE_MODEL_URL = Script.resolvePath('assets/basic_turntable.fbx');
 // One shot audio clip played while charging to shoot
 var CHARGING_SOUND = SoundCache.getSound(Script.resolvePath('assets/chargeSound.wav'));
 // One shot audio clip played when shot is fired
@@ -58,6 +59,8 @@ const BULLET_DIMENSIONS = {
 };
 
 const TURRET_TIP_FWD_OFFSET  = -1;
+
+var turretTurntable = null;
 
 var currentTarget = null;
 var targetID;
@@ -114,6 +117,20 @@ function cleanup() {
     Messages.unsubscribe(MESSAGE_CHANNEL);
 }
 
+getEntityUserData = function(id) {
+    var results = null;
+    var properties = Entities.getEntityProperties(id, "userData");
+    if (properties.userData) {
+        try {
+            results = JSON.parse(properties.userData);
+        } catch(err) {
+            logDebug(err);
+            logDebug(properties.userData);
+        }
+    }
+    return results ? results : {};
+}
+
 function Turret() {
     _this = this;
 };
@@ -122,6 +139,45 @@ Turret.prototype = {
     preload: function(entityID) {
         _this.entityID = entityID;
         _this.properties = Entities.getEntityProperties(entityID);
+        
+        // adding turn table to the turret
+        var userData = getEntityUserData(entityID);
+        turretTurntable = userData["turretData"].turnTableID;
+        if (turretTurntable == "") {
+            turretTurntable = Entities.addEntity({
+                type: 'Model',
+                name: 'Turret Turntable',
+                description: 'hifi:turret:turret',
+                modelURL: TURRET_TURNTABLE_MODEL_URL,
+                shapeType: 'box',
+                dynamic: false,
+                collisionless: true,
+                dimensions: {
+                    x: 1.0,
+                    y: 1.0,
+                    z: 1.0
+                },
+                rotation: _this.properties.rotation,
+                position: Vec3.sum(_this.properties.position, 
+                    Vec3.multiply(-0.6, Quat.getUp(_this.properties.rotation))),
+                userData: JSON.stringify({
+                    grabbableKey: {
+                        grabbable: false
+                    }
+                })
+            });
+            Entities.editEntity(entityID, { userData: 
+                JSON.stringify({
+                    grabbableKey: {
+                        grabbable: false
+                    },
+                    turretData: {
+                        turnTableID: turretTurntable
+                    }
+                })
+            });
+        }
+
         if (enabled) { 
             _this.enableTurret();
         }
@@ -200,17 +256,20 @@ Turret.prototype = {
     rotateToTarget: function(deltaTime, avatarPosition) {
         if (currentTarget != null){
             // rotate towards target at rot speed
+            var turnTableRotation = Entities.getEntityProperties(turretTurntable, "rotation");
             // direction vector
             var targetDirection = Vec3.subtract(avatarPosition, _this.properties.position);
-            var front = Quat.getFront(_this.properties.rotation);
+            //var front = Quat.getFront(_this.properties.rotation);
+            var front = Vec3.multiply(-1, Quat.getFront(_this.properties.rotation));
             //print( "Daantje Debug dot angle : " + Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI);
             if ( Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI < rotationSensitivity) {
                 return;
             }
 
             // LERP on y - yaw
-            var axisUp = Quat.getUp(_this.properties.rotation);
             
+            //var axisUp = Quat.getUp(_this.properties.rotation);
+            var axisUp = Quat.getUp(turretTurntable.rotation);
             if (rotateSpeed.y > 0.0) {
                 var angleYaw = rotateSpeed.y / deltaTime;
                 var sign = Vec3.orientedAngle(front, Vec3.normalize(targetDirection), axisUp);
@@ -222,15 +281,18 @@ Turret.prototype = {
                 }
 
                 var deltaRotation = Quat.angleAxis(angleYaw, axisUp);
+                var deltaRotationTurnTable = Quat.angleAxis(angleYaw, Quat.getUp(turnTableRotation.rotation));
                 if (Math.abs(angleYaw) > minAngleRange) {
                     _this.properties.rotation = Quat.multiply(deltaRotation, _this.properties.rotation);
+                    turnTableRotation.rotation = Quat.multiply(deltaRotationTurnTable, turnTableRotation.rotation);
                 }
             }
             // LERP on x - pitch
             var axisRight = Quat.getRight(_this.properties.rotation);
+            //var axisRight = Quat.getRight(turretTurntable.rotation);
             if (rotateSpeed.x > 0.0) {
                 // update front
-                front = Quat.getFront(_this.properties.rotation);
+                front = Vec3.multiply(-1, Quat.getFront(_this.properties.rotation));
                 var pitchAngleSign = Vec3.orientedAngle(front, Vec3.normalize(targetDirection), axisRight);
                 var anglePitch = rotateSpeed.x / deltaTime;
                 if (Math.abs(pitchAngleSign) < Math.abs(anglePitch)) {
@@ -246,8 +308,11 @@ Turret.prototype = {
             }
             // update with new rotation
             Entities.editEntity( _this.entityID, {
-                rotation : Quat.multiply(_this.properties.rotation, 
-                    Quat.fromPitchYawRollDegrees(0.0, 180.0, 0.0))
+                rotation : _this.properties.rotation 
+                
+            });
+            Entities.editEntity( turretTurntable, {
+                rotation : turnTableRotation.rotation
             });  
         }
     },
@@ -351,6 +416,7 @@ Turret.prototype = {
         return turretTipPosition;
     },
     unload: function() {
+        Entities.deleteEntity(turretTurntable);
         _this.disableTurret();
     }    
 };
