@@ -15,6 +15,7 @@
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound7.wav'));
     var SHARED = Script.require('./attachmentZoneShared.js');
+    var MARKETPLACE_SHARED = Script.require('./marketplaceShared.js');
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var RELEASE_LIFETIME = 10;
     var GRAB_LIST = "grabHighlightList";
@@ -42,6 +43,7 @@
     var attachDistance;
     var initialParentPosition;
     var initialParentPositionSet = false;
+    var cachedMarketplaceItemData = null;
     var grabOutlineStyle = {
         outlineUnoccludedColor: { red: 45, green: 156, blue: 219 },
         outlineOccludedColor: { red: 45, green: 156, blue: 219 },
@@ -95,6 +97,27 @@
             Entities.deleteEntity(_entityID);
         }
     }
+    
+    var logAttachEvent = function(marketplaceID) {
+        if (!cachedMarketplaceItemData) {
+            MARKETPLACE_SHARED.requestMarketplaceDataForID(marketplaceID, function(error, marketplaceItemData) {
+                if (!error) {
+                    cachedMarketplaceItemData = marketplaceItemData;
+                    logAttachEvent(marketplaceID);
+                } else {
+                    print('Error retrieving logAttachEvent marketplace data!');
+                }
+            });
+            return;
+        }
+
+        UserActivityLogger.logAction('avatarStore_attach', {
+            name: cachedMarketplaceItemData.name,
+            creator: cachedMarketplaceItemData.creator,
+            avatar: MyAvatar.skeletonModelURL,
+            marketplaceID: marketplaceID
+        });
+    };
 
     function AttachableItem() {
 
@@ -159,9 +182,11 @@
         desktopAttach: function(entityID, args) {
             var newEntityProperties = Entities.getEntityProperties(_entityID, ['dimensions', 'userData']);
             var attachmentData = null;
+            var marketplaceID = null;
             SHARED.touchJSONUserData(newEntityProperties, function(userData) {
                 userData.Attachment.attached = true;
                 attachmentData = userData.Attachment;
+                marketplaceID = userData.marketplaceID;
             });
             lastDesktopSupportedJointIndex = (lastDesktopSupportedJointIndex + 1) % _supportedJoints.length;
             
@@ -196,6 +221,10 @@
                 lifetime: -1
             });
             playAttachSound();
+
+            if (marketplaceID) {
+                logAttachEvent(marketplaceID);
+            }
         },
         startNearGrab: function(entityID, args) {
             if (prevID !== entityID) {
@@ -264,7 +293,9 @@
                             return;
                         }
                         var newEntityProperties = Entities.getEntityProperties(_entityID, 'userData');
+                        var marketplaceID = null;
                         SHARED.touchJSONUserData(newEntityProperties, function(userData) {
+                            marketplaceID = userData.marketplaceID;
                             userData.Attachment.attached = true;
                         });
                         Entities.editEntity(_entityID, {
@@ -276,6 +307,9 @@
                         playAttachSound();
                         isAttached = true;
                         Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
+                        if (marketplaceID) {
+                            logAttachEvent(marketplaceID);
+                        }
                     }
                 }); 
             } else if (isAttached) {
