@@ -6,6 +6,7 @@
     var bulletID;
     const lifetime = 4; 
     const AVATAR_IN_RANGE_DISTANCE = 1;
+    const ENTITY_IN_RANGE_DISTANCE = 0.2;
     const MESSAGE_CHANNEL = "Turret-Bullet-Hit";
 
     var FLIGHT_SOUND = SoundCache.getSound(Script.resolvePath('assets/flightSound.wav'));
@@ -55,6 +56,10 @@
     function proxCheck() {
         var bulletPos = Entities.getEntityProperties(bulletID, ['position']).position;
         var isAnyAvatarInRange = AvatarList.isAvatarInRange(bulletPos, AVATAR_IN_RANGE_DISTANCE);
+         
+
+        
+
 
         if (isAnyAvatarInRange) {
             clearProxCheck();
@@ -82,18 +87,20 @@
                 if ((Vec3.distance(avatarPosition, bulletPos) < AVATAR_IN_RANGE_DISTANCE)) {
                     colliderUUID = avatarID;
                     // TODO SEND MESSAGE
-                    print("Info: Sending Message - Avatar " + colliderUUID 
-                        + " was hit by Bullet " + bulletUUID 
-                        + " launched by Turret " + turretUUID
-                        + "  dealing " + bulletDamage + " of damage."
-                    );
+                    //print("Info: Sending Message - Avatar " + colliderUUID 
+                    //    + " was hit by Bullet " + bulletUUID 
+                    //    + " launched by Turret " + turretUUID
+                    //    + "  dealing " + bulletDamage + " of damage."
+                    //);
                     sendHitMessage();
                 }
             }
 
             explode();
+        } else {
+            scanForEntityCollisionWithRayPicks(bulletPos);
         }
-        
+
         var velocityMagnitude = Vec3.length(Entities.getEntityProperties(bulletID, ['velocity']).velocity);
         var adjustedVolume = (velocityMagnitude < 1 ? Math.LOG10E * Math.log(velocityMagnitude + 1) : 1);
         // update flight sound position
@@ -121,6 +128,107 @@
             Entities.editEntity(bulletID, newBulletProps);
         }
         
+    }
+
+    function hitEntity(hitID) {
+        var newBulletProps = {
+            gravity: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            velocity: {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+        }
+        Entities.editEntity(bulletID, newBulletProps);
+        print("Daantje Debug : entityID " + hitID);
+        print("Daantje Debug : my particles " + particleTrailEntity);
+        print("Daantje Debug : my id " + bulletID);
+        print("Daantje Debug : turret " + turretUUID);
+        clearProxCheck();
+        colliderUUID = hitID;
+        sendHitMessage();
+
+        explode();
+    }
+
+    function scanForEntityCollisionWithRayPicks(bulletPos) {
+        
+        var bulletDirection = Entities.getEntityProperties(bulletID, ['velocity']).velocity;
+
+        var pickRay = {
+            origin: bulletPos,
+            direction: bulletDirection
+        };
+
+        var intersection = Entities.findRayIntersection(pickRay, true);
+        if (intersection.distance < ENTITY_IN_RANGE_DISTANCE) {
+            hitEntity(intersection.entityID);
+            return;
+        }
+
+        // Scan 4 corners of the bounding box
+
+        var halfDimensions = Vec3.multiply(0.5, Entities.getEntityProperties(bulletID, ['dimensions']).dimensions);
+        var top = Quat.getUp(Entities.getEntityProperties(bulletID, ['rotation']).rotation);
+        var right = Quat.getRight(Entities.getEntityProperties(bulletID, ['rotation']).rotation);
+        
+        top = Vec3.multiplyVbyV(halfDimensions, top);
+        right = Vec3.multiplyVbyV(halfDimensions, right);
+
+        var pickRayTopRight = {
+            origin: Vec3.sum(Vec3.sum(bulletPos, top), right),
+            direction: bulletDirection
+        };
+        intersection = Entities.findRayIntersection(pickRayTopRight, true);
+        if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
+            && intersection.entityID != bulletID 
+            && intersection.entityID != particleTrailEntity ) {
+            hitEntity(intersection.entityID);
+            return;
+        }
+
+
+        var pickRayTopLeft = {
+            origin: Vec3.sum(Vec3.sum(bulletPos, top), Vec3.multiply(-1, right)),
+            direction: bulletDirection
+        };
+        intersection = Entities.findRayIntersection(pickRayTopLeft, true);
+        if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
+            && intersection.entityID != bulletID 
+            && intersection.entityID != particleTrailEntity ) {
+            hitEntity(intersection.entityID);
+            return;
+        }
+
+
+        var pickRayBotomRight = {
+            origin: Vec3.sum(Vec3.sum(bulletPos, Vec3.multiply(-1, top)), right),
+            direction: bulletDirection
+        };
+        intersection = Entities.findRayIntersection(pickRayBotomRight, true);
+        if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
+            && intersection.entityID != bulletID 
+            && intersection.entityID != particleTrailEntity ) {
+            hitEntity(intersection.entityID);
+            return;
+        }
+
+        var pickRayBotomLeft = {
+            origin: Vec3.sum(Vec3.sum(bulletPos, Vec3.multiply(-1, top)), Vec3.multiply(-1, right)),
+            direction: bulletDirection
+        };
+        intersection = Entities.findRayIntersection(pickRayBotomLeft, true);
+        if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
+            && intersection.entityID != bulletID 
+            && intersection.entityID != particleTrailEntity ) { 
+            hitEntity(intersection.entityID);
+            return;
+        }
+    
     }
 
     function sendHitMessage() {
@@ -286,14 +394,13 @@
         turretUUID = userData["bulletData"].turret;
     };
 
-    this.collisionWithEntity = function (thisEntityID, collisionEntityID, collisionInfo) {
+    // this.collisionWithEntity = function (thisEntityID, collisionEntityID, collisionInfo) {
 
-        print("Daantje Debug: COLLIDING" + JSON.stringify(collisionInfo));
-        colliderUUID = collisionEntityID;
-        sendHitMessage();
+    //     colliderUUID = collisionEntityID;
+    //     sendHitMessage();
 
-        explode();
-    };
+    //     explode();
+    // };
 
     this.unload = function() {
         print("Daantje Debug - Cleaning up! ");
