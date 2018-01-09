@@ -39,6 +39,10 @@ var smartBullet = true;
 
 // Minimum angle difference to have a clear line at the target
 const minAngleRange = 1;
+// 
+const rotationSensitivity = 2;
+const yawSensitivity = 1;
+const pitchSensitivity = 5;
 
 // One shot audio clip played while charging to shoot
 var CHARGING_SOUND = SoundCache.getSound(Script.resolvePath('assets/chargeSound.wav'));
@@ -199,6 +203,11 @@ Turret.prototype = {
             // direction vector
             var targetDirection = Vec3.subtract(avatarPosition, _this.properties.position);
             var front = Quat.getFront(_this.properties.rotation);
+            //print( "Daantje Debug dot angle : " + Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI);
+            if ( Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI < rotationSensitivity) {
+                return;
+            }
+
             // LERP on y - yaw
             var axisUp = Quat.getUp(_this.properties.rotation);
             
