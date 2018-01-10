@@ -24,6 +24,8 @@
     var deckRotation;
     //id for reset button
     var resetButton;
+    //number of cards in a deck
+    var NUMBER_OF_CARDS = 52;
 
     _this.preload = function(entityID) {
         print("Loading Deck Handler script."); 
@@ -33,7 +35,7 @@
         //position of deck handler
         deckLocation = Entities.getEntityProperties(entityID).position;
         deckRotation = Entities.getEntityProperties(entityID).rotation;
-        for (i = 1; i <= 52; i++) {
+        for (i = 1; i <= NUMBER_OF_CARDS; i++) {
             cards.push(i);
         }
         cards = Shuffle(cards);
@@ -230,7 +232,7 @@
         //shuffle deck
         cards = Shuffle(cards);
         //delete all cards
-        for (i = 0; i < 52; i++) {
+        for (i = 0; i < NUMBER_OF_CARDS; i++) {
             Entities.deleteEntity(cardIDs[i]);
         }
         cardIDs = [];
@@ -283,7 +285,7 @@
     _this.unload = function () {
     	//preload will spawn new cards so you need to delete old ones so reset cube works
         //delete all cards
-        for (i = 0; i < 52; i++) {
+        for (i = 0; i < NUMBER_OF_CARDS; i++) {
             Entities.deleteEntity(cardIDs[i]);
         }
         Entities.deleteEntity(resetButton);
@@ -297,7 +299,7 @@
     var removeAssets = function () {
         //preload will spawn new cards so you need to delete old ones so reset cube works
         //delete all cards
-        for (i = 0; i < 52; i++) {
+        for (i = 0; i < NUMBER_OF_CARDS; i++) {
             Entities.deleteEntity(cardIDs[i]);
         }
         Entities.deleteEntity(resetButton);
