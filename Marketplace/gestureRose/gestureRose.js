@@ -29,7 +29,6 @@ controllerMapping.from(Controller.Standard.RightGrip).to(function (value) {
             var gestureEndPos = MyAvatar.getJointPosition("RightHand");
             var total = Vec3.subtract(gestureEndPos, gestureStartPos);
             if (Math.abs(total.x) < X_TRIGGER_LIMIT && total.y < Y_TRIGGER_DIST && Math.abs(total.z) < Z_TRIGGER_LIMIT) {
-                print("ROSE APPEARO!");
                 var clientOnly = !(Entities.canRez() || Entities.canRezTmp());
                 Entities.addEntity({
                     name: "Long Stemmed Rose",
