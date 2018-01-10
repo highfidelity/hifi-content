@@ -122,7 +122,7 @@
             // velocity and rotation
             var newRotation = Quat.lookAt(bulletPos, curTargetPos, Quat.getUp(MyAvatar.orientation));
             var newBulletProps = {
-                rotation: newRotation,
+                rotation: Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(0, 180, 0)),
                 velocity: Vec3.multiply(velocityMagnitude, Quat.getFront(newRotation))
             }
             Entities.editEntity(bulletID, newBulletProps);
@@ -131,6 +131,7 @@
     }
 
     function hitEntity(hitID) {
+        clearProxCheck();
         var newBulletProps = {
             gravity: {
                 x: 0,
@@ -148,7 +149,7 @@
         print("Daantje Debug : my particles " + particleTrailEntity);
         print("Daantje Debug : my id " + bulletID);
         print("Daantje Debug : turret " + turretUUID);
-        clearProxCheck();
+        
         colliderUUID = hitID;
         sendHitMessage();
 
@@ -165,7 +166,9 @@
         };
 
         var intersection = Entities.findRayIntersection(pickRay, true);
-        if (intersection.distance < ENTITY_IN_RANGE_DISTANCE) {
+        if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
+            && intersection.entityID != bulletID 
+            && intersection.entityID != particleTrailEntity ) {
             hitEntity(intersection.entityID);
             return;
         }

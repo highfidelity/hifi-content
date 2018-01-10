@@ -29,7 +29,7 @@ var alwaysShoot = true;
 var bulletVelocity = 3.0;
 var bulletGravity = {
     x: 0,
-    y: -3,
+    y: 0,
     z: 0
 };
 // How much damage can it inflict
@@ -50,12 +50,12 @@ var CHARGING_SOUND = SoundCache.getSound(Script.resolvePath('assets/chargeSound.
 // One shot audio clip played when shot is fired
 var SHOT_SOUND =  SoundCache.getSound(Script.resolvePath('assets/shotSound.wav'));
 
-const BULLET_MODEL_URL = Script.resolvePath('assets/Dogeodgeball.fbx');
+const BULLET_MODEL_URL = Script.resolvePath('assets/basic_bullet.fbx');
 const BULLET_SCRIPT_URL = Script.resolvePath('bulletScript.js');
 const BULLET_DIMENSIONS = {
-    x: 0.15,
-    y: 0.15,
-    z: 0.15
+    x: 1,
+    y: 1,
+    z: 1
 };
 
 const TURRET_TIP_FWD_OFFSET  = -1;
@@ -362,7 +362,7 @@ Turret.prototype = {
                 description: 'hifi:turret:bullet',
                 modelURL: BULLET_MODEL_URL,
                 //shapeType: 'simple-compound',
-                shapeType: 'sphere',
+                shapeType: 'box',
                 dimensions: BULLET_DIMENSIONS,
                 position: _this.getTurretTipPosition(Entities.getEntityProperties(_this.entityID)),
                 rotation: Entities.getEntityProperties(_this.entityID, 'rotation').rotation,
