@@ -27,6 +27,9 @@
     var colliderUUID;
     var turretUUID;
 
+    SCRIPT_PATH = Script.resolvePath(''),
+    CONTENT_PATH = SCRIPT_PATH.substr(0, SCRIPT_PATH.lastIndexOf('/')),
+
     getEntityUserData = function(id) {
         var results = null;
         var properties = Entities.getEntityProperties(id, "userData");
@@ -247,6 +250,7 @@
 
     function particleTrail() {
         // TEMPORARY PARTICLE PARAMETERS ARE NOT BEING IMPORTED CORRECTELY
+
         var props = {
             type: 'ParticleEffect',
             name: 'Particle',
@@ -254,7 +258,10 @@
             isEmitting: true,
             lifespan: 4.0,
             maxParticles: 100,
-            textures: 'https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png',
+            //textures: "atp:/assets/speedwhite.png",
+            //textures: "http://hifi-production.s3.amazonaws.com/DomainContent/Toybox/spray_paint/smokeparticle.png",
+            //textures: "atp:/assets/flowers2.png",
+            textures: "http://ganbattegame.com/speedwhite.png",
             emitRate: 150,
             emitSpeed: 0,
             emitAcceleration: {
@@ -283,18 +290,20 @@
             alphaFinish: 0,
             polarStart: 0,
             polarFinish: 0,
-            azimuthStart: -180,
-            azimuthFinish: 180
+            //azimuthStart: -180,
+            //azimuthFinish: 180
         };
 
-        var created = [];
-        var success = Clipboard.importEntities(Script.resolvePath('assets/flightParticle.json'));
-        if (success === true) {
-            created = Clipboard.pasteEntities(Entities.getEntityProperties(bulletID, ['position']).position);
-            particleTrailEntity = created[0];
+        //var created = [];
+        //var success = Clipboard.importEntities(Script.resolvePath('assets/flightParticle.json'));
+        //if (success === true) {
+            //created = Clipboard.pasteEntities(Entities.getEntityProperties(bulletID, ['position']).position);
+            //particleTrailEntity = created[0];
             // TEMPORARY PARTICLE PARAMETERS ARE NOT BEING IMPORTED CORRECTELY
-            Entities.editEntity(particleTrailEntity, props);
-        }
+            //Entities.editEntity(particleTrailEntity, props);
+            
+       // }
+        particleTrailEntity = Entities.addEntity(props);
         //Entities.editEntity(particleTrailEntity, {parentID: ""});
         //Clipboard.exportEntities(Script.resolvePath('assets/')+"particledaantje.json", [particleTrailEntity]);
         //ntities.editEntity(particleTrailEntity, {parentID: bulletID});

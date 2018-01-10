@@ -70,7 +70,7 @@ var tempShotParticleProps = {
     type: "ParticleEffect",
     name: "Turret Shot Particle",
     isEmitting: true,
-    lifespan: 2,
+    lifetime: 2,
     maxParticles: 10,
     textures: "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
     emitRate: 5.5,
