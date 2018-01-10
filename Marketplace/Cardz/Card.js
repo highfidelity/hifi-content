@@ -40,8 +40,8 @@
         rightHand = 0;
         leftHand = 1;
         cardName = Entities.getEntityProperties(entityID).name;
-        var properties = JSON.parse(Entities.getEntityProperties(entityID).userData);
-        deckHandlerID = properties.deckHandlerID;
+        var userDataProperties = JSON.parse(Entities.getEntityProperties(entityID).userData);
+        deckHandlerID = userDataProperties.deckHandlerID;
         cardOverlay = undefined;
         //subscribe to channel
         showChannel = "show-channel".concat(_this.entityID); 
@@ -88,8 +88,8 @@
 
     _this.startNearGrab = function(entityID, args) {
         //if the glove is in your hand then check to see if its touching a card
-        var properties = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
-        var held = properties.held;
+        var userDataProperties = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
+        var held = userDataProperties.held;
         if (held === false) {
             hideCard(args);
         }
@@ -97,8 +97,8 @@
 
     _this.startDistanceGrab = function(entityID, args) {
         //if the glove is in your hand then check to see if its touching a card
-        var properties = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
-        var held = properties.held;
+        var userDataProperties = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
+        var held = userDataProperties.held;
         if (held === false) {
             hideCard(args);
         }
@@ -108,10 +108,10 @@
         var hand = args[0];
         //check if the object you are holding is a card and if it isnt already in your hand
         var cardPos = Entities.getEntityProperties(_this.entityID).position;
-        var properties = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
-        var checkIfCard = properties.card;
-        var held = properties.held;
-        var deckHandlerID = properties.deckHandlerID;
+        var userDataProperties = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData);
+        var checkIfCard = userDataProperties.card;
+        var held = userDataProperties.held;
+        var deckHandlerID = userDataProperties.deckHandlerID;
         //check to see if you are holding a card that is not already being held
         if ((checkIfCard === true) && (held === false)) {
             var handPosition;
@@ -148,7 +148,7 @@
                 notCloseEnough();
             }
         //if you were already holding a card then unparent. If someone tries to grab the card out of your hand then do nothing
-        } else if ((checkIfCard === true) && (held === true) && (MyAvatar.sessionUUID == properties.me)) {
+        } else if ((checkIfCard === true) && (held === true) && (MyAvatar.sessionUUID == userDataProperties.me)) {
             //this allows you to rearrange your cards without dropping them
             var cardDistanceFromHand;
             var handCardIsIn;
