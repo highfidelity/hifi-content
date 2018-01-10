@@ -58,7 +58,7 @@ const BULLET_DIMENSIONS = {
     z: 1
 };
 
-const TURRET_TIP_FWD_OFFSET  = -1;
+const TURRET_TIP_FWD_OFFSET  = -0.7;
 
 var turretTurntable = null;
 
@@ -366,10 +366,11 @@ Turret.prototype = {
                 dimensions: BULLET_DIMENSIONS,
                 position: _this.getTurretTipPosition(Entities.getEntityProperties(_this.entityID)),
                 rotation: Entities.getEntityProperties(_this.entityID, 'rotation').rotation,
-                dynamic: true,
+                dynamic: false,
+                lifetime: 10,
                 //collisionless: false,
-                collisionless: false,
-                collidesWith: "otherAvatar,myAvatar",
+                collisionless: true,
+                //collidesWith: "otherAvatar,myAvatar",
                 velocity: Vec3.multiply(-bulletVelocity, Quat.getFront(Entities.getEntityProperties(_this.entityID, 'rotation').rotation)),
                 gravity: bulletGravity,
                 script: BULLET_SCRIPT_URL,

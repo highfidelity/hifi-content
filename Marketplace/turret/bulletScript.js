@@ -28,7 +28,10 @@
     var turretUUID;
 
     SCRIPT_PATH = Script.resolvePath(''),
-    CONTENT_PATH = SCRIPT_PATH.substr(0, SCRIPT_PATH.lastIndexOf('/')),
+    CONTENT_PATH = SCRIPT_PATH.substr(0, SCRIPT_PATH.lastIndexOf('/'));
+
+    var accumulatedTime = 0.0;
+
 
     getEntityUserData = function(id) {
         var results = null;
@@ -47,8 +50,6 @@
     function clearProxCheck() {
         if (proxInterval) {
             Script.clearInterval(proxInterval);
-            //Entities.deleteEntity(particleTrailEntity);
-            //particleTrailEntity = null;
         }
 
         if (proxTimeout) {
@@ -57,13 +58,10 @@
     }
 
     function proxCheck() {
+        accumulatedTime += 50;
         var bulletPos = Entities.getEntityProperties(bulletID, ['position']).position;
         var isAnyAvatarInRange = AvatarList.isAvatarInRange(bulletPos, AVATAR_IN_RANGE_DISTANCE);
-         
-
-        
-
-
+  
         if (isAnyAvatarInRange) {
             clearProxCheck();
             
@@ -121,7 +119,7 @@
         }
        
         // If in Smart Bullet mode rotates towards the player
-        if (smartBullet && curTargetPos != null) {
+        if (smartBullet && curTargetPos != null && accumulatedTime > 200) {
             // velocity and rotation
             var newRotation = Quat.lookAt(bulletPos, curTargetPos, Quat.getUp(MyAvatar.orientation));
             var newBulletProps = {
@@ -171,6 +169,7 @@
         var intersection = Entities.findRayIntersection(pickRay, true);
         if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
             && intersection.entityID != bulletID 
+            && intersection.entityID != turretUUID 
             && intersection.entityID != particleTrailEntity ) {
             hitEntity(intersection.entityID);
             return;
@@ -191,7 +190,8 @@
         };
         intersection = Entities.findRayIntersection(pickRayTopRight, true);
         if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
-            && intersection.entityID != bulletID 
+            && intersection.entityID != bulletID
+            && intersection.entityID != turretUUID  
             && intersection.entityID != particleTrailEntity ) {
             hitEntity(intersection.entityID);
             return;
@@ -204,7 +204,8 @@
         };
         intersection = Entities.findRayIntersection(pickRayTopLeft, true);
         if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
-            && intersection.entityID != bulletID 
+            && intersection.entityID != bulletID
+            && intersection.entityID != turretUUID 
             && intersection.entityID != particleTrailEntity ) {
             hitEntity(intersection.entityID);
             return;
@@ -217,7 +218,8 @@
         };
         intersection = Entities.findRayIntersection(pickRayBotomRight, true);
         if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
-            && intersection.entityID != bulletID 
+            && intersection.entityID != bulletID
+            && intersection.entityID != turretUUID 
             && intersection.entityID != particleTrailEntity ) {
             hitEntity(intersection.entityID);
             return;
@@ -229,7 +231,8 @@
         };
         intersection = Entities.findRayIntersection(pickRayBotomLeft, true);
         if (intersection.distance < ENTITY_IN_RANGE_DISTANCE 
-            && intersection.entityID != bulletID 
+            && intersection.entityID != bulletID
+            && intersection.entityID != turretUUID 
             && intersection.entityID != particleTrailEntity ) { 
             hitEntity(intersection.entityID);
             return;
@@ -258,11 +261,11 @@
             isEmitting: true,
             lifespan: 4.0,
             maxParticles: 100,
-            //textures: "atp:/assets/speedwhite.png",
+            textures: CONTENT_PATH + "/assets/speedwhite.png",
             //textures: "http://hifi-production.s3.amazonaws.com/DomainContent/Toybox/spray_paint/smokeparticle.png",
             //textures: "atp:/assets/flowers2.png",
-            textures: "http://ganbattegame.com/speedwhite.png",
-            emitRate: 150,
+            //textures: "http://ganbattegame.com/speedwhite.png",
+            emitRate: 20,
             emitSpeed: 0,
             emitAcceleration: {
                 x: 0,
@@ -371,6 +374,7 @@
     }
 
     this.selfDestruct = function() {
+        clearProxCheck();
         explode();
     }
 
