@@ -15,22 +15,22 @@ Script.include(Script.resolvePath("./spawnCardTable.js") + "?" + Date.now());
 Script.include(Script.resolvePath("./utils.js") + "?" + Date.now());
 TEMPLATES = CARD_ENTITIES.Entities;
 //holds temporary templates and position values
-var tem;
-var pos;
+var templates;
+var objectPosition;
 //These variables will be used to store the ids of the objects being spawned
 var entityIDs = [];
 
 // Merge two objects into a new object. If a key name appears in both a and b, the value in a will be used.
 function mergeObjects(a, b) {
-    var obj = {};
+    var objects = {};
     var key;
     for (key in b) {
-        obj[key] = b[key];
+        objects[key] = b[key];
     }
     for (key in a) {
-        obj[key] = a[key];
+        objects[key] = a[key];
     }
-    return obj;
+    return objects;
 }
 
 // Spawn an entity from a template.
@@ -74,10 +74,10 @@ function createCardTable() {
 
     for (i = 0; i < CARD_ENTITIES.Entities.length; i++) {
         //adds rootPosition to position saved in js file "spawnSetupScriptShopping" to figure out placement of objects
-        tem = getTemplate(CARD_ENTITIES.Entities[i].name);
-        pos = Vec3.sum(rootPosition, tem.position);
+        templates = getTemplate(CARD_ENTITIES.Entities[i].name);
+        objectPosition = Vec3.sum(rootPosition, templates.position);
         entityIDs[i] = spawnTemplate(CARD_ENTITIES.Entities[i].name, {
-            position: pos
+            position: objectPosition
         });
         entityIDs.push(entityIDs[i]);
     }
