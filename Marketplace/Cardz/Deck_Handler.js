@@ -38,7 +38,7 @@
         for (i = 1; i <= NUMBER_OF_CARDS; i++) {
             cards.push(i);
         }
-        cards = Shuffle(cards);
+        cards = shuffle(cards);
         //create a single card
         var cardProperties = {
             "type": "Model", 
@@ -209,11 +209,11 @@
         }
     }
 
-    function Shuffle(array) {
+    function shuffle(array) {
         var currentIndex = array.length, temporaryValue, randomIndex;
         // While there remain elements to shuffle...
         while (0 !== currentIndex) {
-        // Pick a remaining element...
+            // Pick a remaining element...
             randomIndex = Math.floor(Math.random() * currentIndex);
             currentIndex -= 1;
 
@@ -230,7 +230,7 @@
         deckLocation = Entities.getEntityProperties(_this.entityID).position;
         deckRotation = Entities.getEntityProperties(_this.entityID).rotation;
         //shuffle deck
-        cards = Shuffle(cards);
+        cards = shuffle(cards);
         //delete all cards
         for (i = 0; i < NUMBER_OF_CARDS; i++) {
             Entities.deleteEntity(cardIDs[i]);
