@@ -26,8 +26,7 @@
         bothHands = 2;
         _this.entityID = entityID;
         //get the id of the reset so you can find the unique channel name
-        var props = Entities.getEntityProperties(entityID);
-        var properties = JSON.parse(props.userData);
+        var properties = JSON.parse(Entities.getEntityProperties(entityID).userData);
         //channel name
         channelName = "reset-channel-" + properties.deckHandlerID;
     };
