@@ -26,9 +26,9 @@
         bothHands = 2;
         _this.entityID = entityID;
         //get the id of the reset so you can find the unique channel name
-        var properties = JSON.parse(Entities.getEntityProperties(entityID).userData);
+        var userDataProperties = JSON.parse(Entities.getEntityProperties(entityID).userData);
         //channel name
-        channelName = "reset-channel-" + properties.deckHandlerID;
+        channelName = "reset-channel-" + userDataProperties.deckHandlerID;
     };
 
     _this.startFarTrigger = function(entityID, data) {
