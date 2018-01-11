@@ -247,15 +247,16 @@
 
     function particleTrail() {
         // TEMPORARY PARTICLE PARAMETERS ARE NOT BEING IMPORTED CORRECTELY FROM JSON
+        
         var props = {
             type: 'ParticleEffect',
             name: 'Particle',
             parentID: bulletID,
             isEmitting: true,
-            lifespan: 4.0,
-            maxParticles: 100,
-            textures: CONTENT_PATH + "/assets/speed/speedtrail" + getRandomInt(1, 3) + ".png",
-            emitRate: 20,
+            lifespan: 1,
+            maxParticles: 250,
+            textures: CONTENT_PATH + "/assets/speed/cloud.png",
+            emitRate: 10,
             emitSpeed: 0,
             emitAcceleration: {
                 x: 0,
@@ -263,10 +264,10 @@
                 z: 0
             },
             emitterShouldTrail: true,
-            particleRadius: 0,
+            particleRadius: 0.05,
             radiusSpread: 0,
             radiusStart: 0.1,
-            radiusFinish: 0.05,
+            radiusFinish: 0.0,
             color: {
                 red: 255,
                 blue: 255,
@@ -277,17 +278,18 @@
                 y: 0,
                 z: 0
             },
-            alpha: 0,
-            emitOrientation: {"x":0,"y":90,"z":0},
-            alphaSpread: 0,
+            alpha: 1,
+            emitOrientation: {"x":0,"y":0,"z":0},
+            alphaSpread: 1,
             alphaStart: 1,
-            alphaFinish: 0,
+            alphaFinish: 0.0,
             polarStart: 0,
             polarFinish: 0,
             azimuthStart: -180,
-            azimuthFinish: 180,
+            azimuthFinish: -180,
             position: Vec3.sum(Entities.getEntityProperties(bulletID, ['position']).position, 
-                Vec3.multiply(0.3, Quat.getFront(Entities.getEntityProperties(bulletID, ['rotation']).rotation)))
+                Vec3.multiply(0.3, Quat.getFront(Entities.getEntityProperties(bulletID, ['rotation']).rotation))),
+            rotation: Entities.getEntityProperties(bulletID, ['rotation']).rotation
         };
 
         //var created = [];
@@ -405,7 +407,7 @@
         }, 10000);
         
         // Self destruct function allows to destroy the bullet with an explosion
-        Script.setTimeout(this.selfDestruct, lifetime*1000);
+        //Script.setTimeout(this.selfDestruct, lifetime*1000);
 
         // User Data processing
         var userData = getEntityUserData(entityID);

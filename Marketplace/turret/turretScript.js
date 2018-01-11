@@ -347,7 +347,7 @@
                 position: _this.getTurretTipPosition(Entities.getEntityProperties(_this.entityID)),
                 rotation: Entities.getEntityProperties(_this.entityID, 'rotation').rotation,
                 dynamic: false,
-                lifetime: 10,
+                lifetime: 4,
                 //collisionless: false,
                 collisionless: true,
                 //collidesWith: "otherAvatar,myAvatar",
