@@ -11,7 +11,7 @@ const MESSAGE_CHANNEL = "Turret-Bullet-Hit";
 
 // Turret Properties
 // maximum distance to shoot (meters)
-var activeDistance = 5;
+var activeDistance = 20;
 // Whether or not it's actually operating
 var enabled = true;
 // how fast it lerps to shoot at player
@@ -21,10 +21,10 @@ var rotateSpeed = {
     z: 0.0 // it doesn't make sense to make the turret roll
 }
 // how frequently does it shoot at the player
-var shootingInterval = 1.0;
+var shootingInterval = 2.5;
 var shootTimer = null; 
 // Is it always shooting or only when has a clean shot
-var alwaysShoot = true;
+var alwaysShoot = false;
 // How fast will the bullet travel - m/s
 var bulletVelocity = 3.0;
 var bulletGravity = {
@@ -59,36 +59,39 @@ const BULLET_DIMENSIONS = {
 };
 
 const TURRET_TIP_FWD_OFFSET  = -0.7;
+const TURRET_PARTICLE_TIP_FWD_OFFSET  = -0.95;
 
 var turretTurntable = null;
 
 var currentTarget = null;
 var targetID;
 var currentBullet = null;
-
+var SCRIPT_PATH = Script.resolvePath('');
+var CONTENT_PATH = SCRIPT_PATH.substr(0, SCRIPT_PATH.lastIndexOf('/'));
 var tempShotParticleProps = {
     type: "ParticleEffect",
     name: "Turret Shot Particle",
     isEmitting: true,
+    lifespan: 2,
     lifetime: 2,
-    maxParticles: 10,
-    textures: "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
-    emitRate: 5.5,
+    maxParticles: 1,
+    textures: CONTENT_PATH + "/assets/shot/shot1.png",
+    emitRate: 1,
     emitSpeed: 0,
     emitDimensions: {"x":0,"y":0,"z":0},
-    emitOrientation: {"x":-90,"y":0,"z":1},
-    emitterShouldTrail: true,
-    particleRadius: 0.25,
+    emitOrientation: {"x":-90,"y":0,"z":0},
+    emitterShouldTrail: false,
+    particleRadius: 1,
     radiusSpread: 0,
     radiusStart: 0,
-    radiusFinish: 0.10000000149011612,
-    color: {"red":200,"blue":200,"green":200},
-    colorSpread: {"red":0,"blue":0,"green":0},
-    colorStart: {"red":200,"blue":200,"green":200},
-    colorFinish: {"red":0,"blue":0,"green":0},
-    emitAcceleration: {"x":-0.5,"y":2.5,"z":-0.5},
-    accelerationSpread: {"x":0.5,"y":1,"z":0.5},
-    alpha: 0,
+    radiusFinish: 5,
+    color: {"red":255,"blue":255,"green":255},
+    colorSpread: {"red":255,"blue":255,"green":255},
+    colorStart: {"red":255,"blue":255,"green":255},
+    colorFinish: {"red":255,"blue":255,"green":255},
+    emitAcceleration: {"x":0.0,"y":0.0,"z":0.0},
+    accelerationSpread: {"x":0,"y":0,"z":0},
+    alpha: 0.5,
     alphaSpread: 0,
     alphaStart: 1,
     alphaFinish: 0,
@@ -97,6 +100,8 @@ var tempShotParticleProps = {
     azimuthStart: -180.00000500895632,
     azimuthFinish: 180.00000500895632
 };
+
+
 
 var shotParticleArray = [];
 
@@ -115,6 +120,8 @@ function setup() {
 function cleanup() {
     Messages.messageReceived.disconnect(hitMessage);
     Messages.unsubscribe(MESSAGE_CHANNEL);
+    Script.clearInterval(shootTimer);
+    Script.update.disconnect(_this.onUpdate);
 }
 
 getEntityUserData = function(id) {
@@ -262,7 +269,7 @@ Turret.prototype = {
             //var front = Quat.getFront(_this.properties.rotation);
             var front = Vec3.multiply(-1, Quat.getFront(_this.properties.rotation));
             //print( "Daantje Debug dot angle : " + Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI);
-            if ( Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI < rotationSensitivity) {
+            if (Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI < rotationSensitivity) {
                 return;
             }
 
@@ -323,34 +330,18 @@ Turret.prototype = {
                 position: Entities.getEntityProperties(_this.entityID, 'position').position
             });
             injector.finished.connect(function() {
-                Audio.playSound(SHOT_SOUND, {
-                    volume: 1.0,
-                    position: Entities.getEntityProperties(_this.entityID, 'position').position
-                });
                 currentBullet = _this.createBullet();
-                
             });   
         } else {
-            // TODO has good rotation range of player
-            //print(" Daantje Debug: facing player.");
             var targetDirection = Vec3.subtract(_this.avatarPosition, _this.properties.position);
-            var front = Quat.getFront(_this.properties.rotation);
-            var axis = Quat.getUp(_this.properties.rotation);
-            var angle = Vec3.orientedAngle(front, Vec3.normalize(targetDirection), axis);
-
-            if (Math.abs(angle) < minAngleRange){
+            var front = Vec3.multiply(-1, Quat.getFront(_this.properties.rotation));
+            if (Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI <= rotationSensitivity) {
                 var injector = Audio.playSound(CHARGING_SOUND, {
                     volume: 1.0,
                     position: Entities.getEntityProperties(_this.entityID, 'position').position
                 });
                 injector.finished.connect(function() {
-                    Audio.playSound(SHOT_SOUND, {
-                        volume: 1.0,
-                        position: Entities.getEntityProperties(_this.entityID, 'position').position
-                    });
-
                     currentBullet = _this.createBullet();
-                    
                 });    
             }
         }
@@ -361,7 +352,6 @@ Turret.prototype = {
                 name: 'Turret Bullet',
                 description: 'hifi:turret:bullet',
                 modelURL: BULLET_MODEL_URL,
-                //shapeType: 'simple-compound',
                 shapeType: 'box',
                 dimensions: BULLET_DIMENSIONS,
                 position: _this.getTurretTipPosition(Entities.getEntityProperties(_this.entityID)),
@@ -387,17 +377,21 @@ Turret.prototype = {
                 })
             });
 
-        // spawn smoke particle
         var created = [];
         var shotParticle = null;
         var success = Clipboard.importEntities(Script.resolvePath('assets/shotParticle.json'));
         if (success === true) {
-            created = Clipboard.pasteEntities(_this.getTurretTipPosition(Entities.getEntityProperties(_this.entityID)));
+            created = Clipboard.pasteEntities(_this.getTurretParticleTipPosition(Entities.getEntityProperties(_this.entityID)));
             shotParticle = created[0];
 
             Entities.editEntity(shotParticle, tempShotParticleProps);
             shotParticleArray.push(shotParticle);
         }
+        var props = {
+            position: _this.getTurretParticleTipPosition(Entities.getEntityProperties(_this.entityID)),
+            parentID: _this.entityID
+        };
+        Entities.editEntity(shotParticle, props);
         
         // stop smoke particle
         Script.setTimeout(function () {
@@ -407,12 +401,22 @@ Turret.prototype = {
             shotParticleArray = [];
         }, 500);
 
+        Audio.playSound(SHOT_SOUND, {
+            volume: 1.0,
+            position: Entities.getEntityProperties(_this.entityID, 'position').position
+        });
+
         return bullet;
     },
     getTurretTipPosition: function(properties) {
         var front = Quat.getFront(properties.rotation);
         var frontOffset = Vec3.multiply(front, TURRET_TIP_FWD_OFFSET);
-
+        var turretTipPosition = Vec3.sum(properties.position, frontOffset);
+        return turretTipPosition;
+    },
+    getTurretParticleTipPosition: function(properties) {
+        var front = Quat.getFront(properties.rotation);
+        var frontOffset = Vec3.multiply(front, TURRET_PARTICLE_TIP_FWD_OFFSET);
         var turretTipPosition = Vec3.sum(properties.position, frontOffset);
         return turretTipPosition;
     },

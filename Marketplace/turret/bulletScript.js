@@ -5,7 +5,7 @@
 
     var bulletID;
     const lifetime = 4; 
-    const AVATAR_IN_RANGE_DISTANCE = 1;
+    const AVATAR_IN_RANGE_DISTANCE = 0.7;
     const ENTITY_IN_RANGE_DISTANCE = 0.2;
     const MESSAGE_CHANNEL = "Turret-Bullet-Hit";
 
@@ -27,7 +27,7 @@
     var colliderUUID;
     var turretUUID;
 
-    SCRIPT_PATH = Script.resolvePath(''),
+    SCRIPT_PATH = Script.resolvePath('');
     CONTENT_PATH = SCRIPT_PATH.substr(0, SCRIPT_PATH.lastIndexOf('/'));
 
     var accumulatedTime = 0.0;
@@ -261,7 +261,7 @@
             isEmitting: true,
             lifespan: 4.0,
             maxParticles: 100,
-            textures: CONTENT_PATH + "/assets/speedwhite.png",
+            textures: CONTENT_PATH + "/assets/speed/speedtrail1.png",
             //textures: "http://hifi-production.s3.amazonaws.com/DomainContent/Toybox/spray_paint/smokeparticle.png",
             //textures: "atp:/assets/flowers2.png",
             //textures: "http://ganbattegame.com/speedwhite.png",
@@ -278,9 +278,9 @@
             radiusStart: 0.1,
             radiusFinish: 0.05,
             color: {
-                red: 201,
-                blue: 201,
-                green: 34
+                red: 255,
+                blue: 255,
+                green: 255
             },
             accelerationSpread: {
                 x: 0,
@@ -288,13 +288,16 @@
                 z: 0
             },
             alpha: 0,
+            emitOrientation: {"x":0,"y":90,"z":0},
             alphaSpread: 0,
             alphaStart: 1,
             alphaFinish: 0,
             polarStart: 0,
             polarFinish: 0,
-            //azimuthStart: -180,
-            //azimuthFinish: 180
+            azimuthStart: -180,
+            azimuthFinish: 180,
+            position: Vec3.sum(Entities.getEntityProperties(bulletID, ['position']).position, 
+                Vec3.multiply(0.3, Quat.getFront(Entities.getEntityProperties(bulletID, ['rotation']).rotation)))
         };
 
         //var created = [];
@@ -318,39 +321,36 @@
             name: 'Particle',
             parentID: bulletID,
             isEmitting: true,
-            lifespan: 2,
-            maxParticles: 10,
-            localPosition: {
-                x: 0,
-                y: 0,
-                z: 0
-            },
-            textures: 'https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png',
+            lifespan: 3,
+            lifetime: 3,
+            maxParticles: 1,
+            textures: CONTENT_PATH + "/assets/impact/impact1.png",
             emitRate: 1,
             emitSpeed: 0,
+            emitDimensions: {"x":0,"y":0,"z":0},
+            emitOrientation: {"x":-90,"y":0,"z":0},
             emitterShouldTrail: false,
-            particleRadius: 1,
+            particleRadius: 1.5,
             radiusSpread: 0,
-            radiusStart: 0,
-            radiusFinish: 1,
-            color: {
-                red: 232,
-                blue: 232,
-                green: 26
-            },
-            emitAcceleration: {
-                x: 0,
-                y: 0,
-                z: 0
-            },
-            alpha: 0,
+            radiusStart: 0.2,
+            radiusFinish: 5,
+            color: {"red":255,"blue":255,"green":255},
+            colorSpread: {"red":255,"blue":255,"green":255},
+            colorStart: {"red":255,"blue":255,"green":255},
+            colorFinish: {"red":255,"blue":255,"green":255},
+            emitAcceleration: {"x":0.0,"y":0.0,"z":0.0},
+            accelerationSpread: {"x":0,"y":0,"z":0},
+            alpha: 0.5,
             alphaSpread: 0,
             alphaStart: 1,
             alphaFinish: 0.5,
             polarStart: 0,
             polarFinish: 0,
-            azimuthStart: -180,
-            azimuthFinish: 180
+            azimuthStart: -180.00000500895632,
+            azimuthFinish: 180.00000500895632,
+            position: Vec3.sum(Entities.getEntityProperties(bulletID, ['position']).position, 
+                Vec3.multiply(-0.3, Quat.getFront(Entities.getEntityProperties(bulletID, ['rotation']).rotation)))
+            
         };
         explosionParticles = Entities.addEntity(props);
         return explosionParticles;
@@ -360,6 +360,19 @@
         var entPos = Entities.getEntityProperties(bulletID, 'position').position;
         
         flightSound.stop();
+        var newBulletProps = {
+            gravity: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            velocity: {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+        }
+        Entities.editEntity(bulletID, newBulletProps);
         particleExplode(entPos);
 
         Script.setTimeout(function () {
@@ -387,7 +400,7 @@
             particleTrail();
             flightSound = Audio.playSound(FLIGHT_SOUND, {
                 position: Entities.getEntityProperties(bulletID, 'position').position,
-                volume: 1,
+                volume: 0.5,
                 loop: true
             });
         }
