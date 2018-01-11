@@ -1,5 +1,5 @@
 //
-//  Created by Daniela Fontes (Mimicry) on 12/18/2017
+//  Created by Daniela Fontes & Thomas Papa (Mimicry) on 12/18/2017
 //  Copyright 2017 High Fidelity, Inc.
 //
 //
@@ -8,13 +8,10 @@
 //
 
 
-
 const TURRET_MODEL_URL = Script.resolvePath('assets/basic_barrel.fbx');
 
 const TURRET_BASE_MODEL_URL = Script.resolvePath('assets/basic_base.fbx');
 const TURRET_SCRIPT_URL = Script.resolvePath('turretScript.js');
-//var ENTITY_SPAWNER_SCRIPT_URL = Script.resolvePath('entitySpawner.js');
-
 
 var front = Quat.getFront(MyAvatar.orientation);
 var up = Quat.getUp(MyAvatar.orientation);
@@ -34,12 +31,12 @@ function createTurret() {
         modelURL: TURRET_MODEL_URL,
         shapeType: 'box',
         dynamic: false,
+        // proportion
         registrationPoint:  {
             x: 0.5,
             y: 0.5,
-            z: 0.13 // proportion
+            z: 0.13 
         },
-        
         rotation: MyAvatar.orientation,
         script: TURRET_SCRIPT_URL,
         position: TURRET_START_POSITION,

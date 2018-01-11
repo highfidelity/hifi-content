@@ -1,7 +1,13 @@
-
+//
+//  Created by Daniela Fontes & Thomas Papa (Mimicry) on 12/18/2017
+//  Copyright 2017 High Fidelity, Inc.
+//
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
 
 (function() {
-
 
     var bulletID;
     const lifetime = 4; 
@@ -32,7 +38,6 @@
 
     var accumulatedTime = 0.0;
 
-
     getEntityUserData = function(id) {
         var results = null;
         var properties = Entities.getEntityProperties(id, "userData");
@@ -47,11 +52,14 @@
         return results ? results : {};
     }
 
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
     function clearProxCheck() {
         if (proxInterval) {
             Script.clearInterval(proxInterval);
         }
-
         if (proxTimeout) {
             Script.clearTimeout(proxTimeout);
         }
@@ -66,7 +74,6 @@
             clearProxCheck();
             
             identifiers = AvatarList.getAvatarIdentifiers();
-            //print ("Daantje Debug avatar ID length: " + identifiers.length);
             for (var i = 0; i < identifiers.length; i++) {
                 var avatarID = identifiers[i];
                 // get the position for this avatar
@@ -87,16 +94,10 @@
                 
                 if ((Vec3.distance(avatarPosition, bulletPos) < AVATAR_IN_RANGE_DISTANCE)) {
                     colliderUUID = avatarID;
-                    // TODO SEND MESSAGE
-                    //print("Info: Sending Message - Avatar " + colliderUUID 
-                    //    + " was hit by Bullet " + bulletUUID 
-                    //    + " launched by Turret " + turretUUID
-                    //    + "  dealing " + bulletDamage + " of damage."
-                    //);
+                    // send message
                     sendHitMessage();
                 }
             }
-
             explode();
         } else {
             scanForEntityCollisionWithRayPicks(bulletPos);
@@ -104,7 +105,7 @@
 
         var velocityMagnitude = Vec3.length(Entities.getEntityProperties(bulletID, ['velocity']).velocity);
         var adjustedVolume = (velocityMagnitude < 1 ? Math.LOG10E * Math.log(velocityMagnitude + 1) : 1);
-        // update flight sound position
+        // update flight sound position and volume
         flightSound.options = { 
             position: bulletPos,
             volume: adjustedVolume
@@ -118,7 +119,7 @@
             curTargetPos = currentTarget.position;
         }
        
-        // If in Smart Bullet mode rotates towards the player
+        // if in Smart Bullet mode: rotates towards the player
         if (smartBullet && curTargetPos != null && accumulatedTime > 200) {
             // velocity and rotation
             var newRotation = Quat.lookAt(bulletPos, curTargetPos, Quat.getUp(MyAvatar.orientation));
@@ -146,14 +147,8 @@
             }
         }
         Entities.editEntity(bulletID, newBulletProps);
-        print("Daantje Debug : entityID " + hitID);
-        print("Daantje Debug : my particles " + particleTrailEntity);
-        print("Daantje Debug : my id " + bulletID);
-        print("Daantje Debug : turret " + turretUUID);
-        
         colliderUUID = hitID;
         sendHitMessage();
-
         explode();
     }
 
@@ -252,8 +247,7 @@
     }
 
     function particleTrail() {
-        // TEMPORARY PARTICLE PARAMETERS ARE NOT BEING IMPORTED CORRECTELY
-
+        // TEMPORARY PARTICLE PARAMETERS ARE NOT BEING IMPORTED CORRECTELY FROM JSON
         var props = {
             type: 'ParticleEffect',
             name: 'Particle',
@@ -261,10 +255,7 @@
             isEmitting: true,
             lifespan: 4.0,
             maxParticles: 100,
-            textures: CONTENT_PATH + "/assets/speed/speedtrail1.png",
-            //textures: "http://hifi-production.s3.amazonaws.com/DomainContent/Toybox/spray_paint/smokeparticle.png",
-            //textures: "atp:/assets/flowers2.png",
-            //textures: "http://ganbattegame.com/speedwhite.png",
+            textures: CONTENT_PATH + "/assets/speed/speedtrail" + getRandomInt(1, 3) + ".png",
             emitRate: 20,
             emitSpeed: 0,
             emitAcceleration: {
@@ -306,13 +297,9 @@
             //created = Clipboard.pasteEntities(Entities.getEntityProperties(bulletID, ['position']).position);
             //particleTrailEntity = created[0];
             // TEMPORARY PARTICLE PARAMETERS ARE NOT BEING IMPORTED CORRECTELY
-            //Entities.editEntity(particleTrailEntity, props);
-            
-       // }
+            //Entities.editEntity(particleTrailEntity, props);    
+        // }
         particleTrailEntity = Entities.addEntity(props);
-        //Entities.editEntity(particleTrailEntity, {parentID: ""});
-        //Clipboard.exportEntities(Script.resolvePath('assets/')+"particledaantje.json", [particleTrailEntity]);
-        //ntities.editEntity(particleTrailEntity, {parentID: bulletID});
     }
 
     function particleExplode(entPos) {
@@ -324,7 +311,7 @@
             lifespan: 3,
             lifetime: 3,
             maxParticles: 1,
-            textures: CONTENT_PATH + "/assets/impact/impact1.png",
+            textures: CONTENT_PATH + "/assets/impact/impact" + getRandomInt(1, 8) + ".png",
             emitRate: 1,
             emitSpeed: 0,
             emitDimensions: {"x":0,"y":0,"z":0},
@@ -348,8 +335,13 @@
             polarFinish: 0,
             azimuthStart: -180.00000500895632,
             azimuthFinish: 180.00000500895632,
-            position: Vec3.sum(Entities.getEntityProperties(bulletID, ['position']).position, 
-                Vec3.multiply(-0.3, Quat.getFront(Entities.getEntityProperties(bulletID, ['rotation']).rotation)))
+            position: Vec3.sum(
+                Entities.getEntityProperties(bulletID, ['position']).position, 
+                Vec3.multiply(
+                    -0.3, 
+                    Quat.getFront(Entities.getEntityProperties(bulletID, ['rotation']).rotation
+                ))
+            )
             
         };
         explosionParticles = Entities.addEntity(props);
@@ -407,12 +399,13 @@
         
         Script.setTimeout(function () {
             proxInterval = Script.setInterval(proxCheck, 50);
-        }, 200); // Setting a delay to give it time to leave initial avatar without proc.
+        }, 200);
 
         proxTimeout = Script.setTimeout(function () {
             clearProxCheck();
         }, 10000);
-
+        
+        // Self destruct function allows to destroy the bullet with an explosion
         Script.setTimeout(this.selfDestruct, lifetime*1000);
 
         // User Data processing
@@ -422,14 +415,6 @@
         bulletDamage = userData["bulletData"].damage;
         turretUUID = userData["bulletData"].turret;
     };
-
-    // this.collisionWithEntity = function (thisEntityID, collisionEntityID, collisionInfo) {
-
-    //     colliderUUID = collisionEntityID;
-    //     sendHitMessage();
-
-    //     explode();
-    // };
 
     this.unload = function() {
         print("Daantje Debug - Cleaning up! ");
