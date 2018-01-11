@@ -7,7 +7,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-
 const TURRET_MODEL_URL = Script.resolvePath('assets/basic_barrel.fbx');
 
 const TURRET_BASE_MODEL_URL = Script.resolvePath('assets/basic_base.fbx');
@@ -86,4 +85,3 @@ function cleanup() {
 Script.scriptEnding.connect(cleanup);
 
 makeTurret();
-

@@ -8,7 +8,6 @@
 //
 
 (function() {
-
     var bulletID;
     const lifetime = 4; 
     const AVATAR_IN_RANGE_DISTANCE = 0.7;
@@ -37,7 +36,7 @@
     CONTENT_PATH = SCRIPT_PATH.substr(0, SCRIPT_PATH.lastIndexOf('/'));
 
     var accumulatedTime = 0.0;
-
+    
     getEntityUserData = function(id) {
         var results = null;
         var properties = Entities.getEntityProperties(id, "userData");

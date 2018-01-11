@@ -9,7 +9,6 @@
 
 
 (function() {
-
     var _this;
     const MESSAGE_CHANNEL = "Turret-Bullet-Hit";
 
@@ -66,6 +65,7 @@
     var currentTarget = null;
     var targetID;
     var currentBullet = null;
+    var injector = null;
     var SCRIPT_PATH = Script.resolvePath('');
     var CONTENT_PATH = SCRIPT_PATH.substr(0, SCRIPT_PATH.lastIndexOf('/'));
     var tempShotParticleProps = {
@@ -101,24 +101,6 @@
         azimuthFinish: 180.00000500895632
     };
 
-    function hitMessage(channel, message, sender) {
-        if (channel == MESSAGE_CHANNEL) {
-            print("INFO: Message received - " + message);
-        }
-    };
-
-    function setup() {
-        Messages.messageReceived.connect(hitMessage);
-        Messages.subscribe(MESSAGE_CHANNEL);
-    }
-
-    function cleanup() {
-        Messages.messageReceived.disconnect(hitMessage);
-        Messages.unsubscribe(MESSAGE_CHANNEL);
-        Script.clearInterval(shootTimer);
-        Script.update.disconnect(_this.onUpdate);
-    }
-
     getEntityUserData = function(id) {
         var results = null;
         var properties = Entities.getEntityProperties(id, "userData");
@@ -135,6 +117,24 @@
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function hitMessage(channel, message, sender) {
+        if (channel == MESSAGE_CHANNEL) {
+            print("INFO: Message received - " + message);
+        }
+    };
+
+    function setup() {
+        Messages.messageReceived.connect(hitMessage);
+        Messages.subscribe(MESSAGE_CHANNEL);
+    }
+
+    function cleanup() {
+        Messages.messageReceived.disconnect(hitMessage);
+        Messages.unsubscribe(MESSAGE_CHANNEL);
+        Script.clearInterval(shootTimer);
+        Script.update.disconnect(_this.onUpdate);
     }
 
     function Turret() {
@@ -245,11 +245,8 @@
                 
                 if ((Vec3.distance(avatarPosition, _this.properties.position) < activeDistance)) {
                     currentTarget = avatar;
-                    // maybe theres a smart bullet bug here
-                    //print( " Daantje Debug :  Found new target.");
                     return;
                 }
-
             };
             return;
         },
@@ -259,9 +256,7 @@
                 var turnTableRotation = Entities.getEntityProperties(turretTurntable, "rotation");
                 // direction vector
                 var targetDirection = Vec3.subtract(avatarPosition, _this.properties.position);
-                //var front = Quat.getFront(_this.properties.rotation);
                 var front = Vec3.multiply(-1, Quat.getFront(_this.properties.rotation));
-                //print( "Daantje Debug dot angle : " + Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI);
                 if (Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI < rotationSensitivity) {
                     return;
                 }
@@ -314,24 +309,29 @@
             }
         },
         shoot: function() {
+            if (injector != null) {
+                return;     
+            }
             if (alwaysShoot){
-                var injector = Audio.playSound(CHARGING_SOUND, {
+                injector = Audio.playSound(CHARGING_SOUND, {
                     volume: 1.0,
                     position: Entities.getEntityProperties(_this.entityID, 'position').position
                 });
                 injector.finished.connect(function() {
                     currentBullet = _this.createBullet();
+                    injector = null;
                 });   
             } else {
                 var targetDirection = Vec3.subtract(_this.avatarPosition, _this.properties.position);
                 var front = Vec3.multiply(-1, Quat.getFront(_this.properties.rotation));
                 if (Math.acos(Vec3.dot(front, Vec3.normalize(targetDirection))) * 180 / Math.PI <= rotationSensitivity) {
-                    var injector = Audio.playSound(CHARGING_SOUND, {
+                    injector = Audio.playSound(CHARGING_SOUND, {
                         volume: 1.0,
                         position: Entities.getEntityProperties(_this.entityID, 'position').position
                     });
                     injector.finished.connect(function() {
                         currentBullet = _this.createBullet();
+                        injector = null;
                     });    
                 }
             }
