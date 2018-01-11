@@ -15,6 +15,7 @@
     var ATTACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound2.wav'));
     var DETACH_SOUND = SoundCache.getSound(Script.resolvePath('sounds/sound7.wav'));
     var SHARED = Script.require('./attachmentZoneShared.js');
+    var MARKETPLACE_SHARED = Script.require('./marketplaceShared.js');
     var LEFT_RIGHT_PLACEHOLDER = '[LR]';
     var RELEASE_LIFETIME = 10;
     var GRAB_LIST = "grabHighlightList";
@@ -27,8 +28,6 @@
     var RELEASE_GRAB_CHANNEL_BASE = "AvatarStoreReleaseGrab";
     var NOT_ATTACHED_DESTROY_RADIUS = 0.1;
     var IN_CHECKOUT_SETTINGS = 'io.highfidelity.avatarStore.checkOut.isInside';
-    var OVERLAY_PREFIX = 'MP';
-    var SCAN_RADIUS = 5;
   
     var removedFromParentChannel;
     var releaseGrabChannel;
@@ -44,6 +43,7 @@
     var attachDistance;
     var initialParentPosition;
     var initialParentPositionSet = false;
+    var cachedMarketplaceItemData = null;
     var grabOutlineStyle = {
         outlineUnoccludedColor: { red: 45, green: 156, blue: 219 },
         outlineOccludedColor: { red: 45, green: 156, blue: 219 },
@@ -87,11 +87,7 @@
         }
     };
 
-    function AttachableItem() {
-
-    }
-
-    function CheckReleaseGrabOnParent() {
+    function checkReleaseGrabOnParent() {
         // If placed back within NOT_ATTACHED_DESTROY_RADIUS of the original parent entity 
         // and it is not attached then destroy it (if the user is putting it back)
         var properties = Entities.getEntityProperties(_entityID, ['userData', 'position']);
@@ -100,6 +96,31 @@
             Vec3.distance(initialParentPosition, properties.position) < NOT_ATTACHED_DESTROY_RADIUS) {
             Entities.deleteEntity(_entityID);
         }
+    }
+    
+    var logAttachEvent = function(marketplaceID) {
+        if (!cachedMarketplaceItemData) {
+            MARKETPLACE_SHARED.requestMarketplaceDataForID(marketplaceID, function(error, marketplaceItemData) {
+                if (!error) {
+                    cachedMarketplaceItemData = marketplaceItemData;
+                    logAttachEvent(marketplaceID);
+                } else {
+                    print('Error retrieving logAttachEvent marketplace data!');
+                }
+            });
+            return;
+        }
+
+        UserActivityLogger.logAction('avatarStore_attach', {
+            name: cachedMarketplaceItemData.name,
+            creator: cachedMarketplaceItemData.creator,
+            avatar: MyAvatar.skeletonModelURL,
+            marketplaceID: marketplaceID
+        });
+    };
+
+    function AttachableItem() {
+
     }
 
     AttachableItem.prototype = {
@@ -133,7 +154,7 @@
             Messages.subscribe(releaseGrabChannel);
             releaseGrabHandler = function(channel, data, sender) {
                 if (channel === releaseGrabChannel) {
-                    CheckReleaseGrabOnParent();
+                    checkReleaseGrabOnParent();
                 }    
             };
             Messages.messageReceived.connect(releaseGrabHandler);
@@ -143,7 +164,7 @@
             attachDistance = MyAvatar.getEyeHeight() / ATTACH_SCALE;
             
             // We only want to store the initial parent position for the original parent wearable entity
-            if (properties.parentID != EMPTY_PARENT_ID && Entities.getNestableType(properties.parentID) !== "avatar") {
+            if (properties.parentID !== EMPTY_PARENT_ID && Entities.getNestableType(properties.parentID) !== "avatar") {
                 initialParentPosition = Entities.getEntityProperties(properties.parentID, ['position']).position;
                 initialParentPositionSet = true;
             }
@@ -161,9 +182,11 @@
         desktopAttach: function(entityID, args) {
             var newEntityProperties = Entities.getEntityProperties(_entityID, ['dimensions', 'userData']);
             var attachmentData = null;
+            var marketplaceID = null;
             SHARED.touchJSONUserData(newEntityProperties, function(userData) {
                 userData.Attachment.attached = true;
                 attachmentData = userData.Attachment;
+                marketplaceID = userData.marketplaceID;
             });
             lastDesktopSupportedJointIndex = (lastDesktopSupportedJointIndex + 1) % _supportedJoints.length;
             
@@ -198,6 +221,10 @@
                 lifetime: -1
             });
             playAttachSound();
+
+            if (marketplaceID) {
+                logAttachEvent(marketplaceID);
+            }
         },
         startNearGrab: function(entityID, args) {
             if (prevID !== entityID) {
@@ -266,7 +293,9 @@
                             return;
                         }
                         var newEntityProperties = Entities.getEntityProperties(_entityID, 'userData');
+                        var marketplaceID = null;
                         SHARED.touchJSONUserData(newEntityProperties, function(userData) {
+                            marketplaceID = userData.marketplaceID;
                             userData.Attachment.attached = true;
                         });
                         Entities.editEntity(_entityID, {
@@ -278,6 +307,9 @@
                         playAttachSound();
                         isAttached = true;
                         Controller.triggerHapticPulse(TRIGGER_INTENSITY, TRIGGER_TIME, hand);
+                        if (marketplaceID) {
+                            logAttachEvent(marketplaceID);
+                        }
                     }
                 }); 
             } else if (isAttached) {
@@ -307,7 +339,7 @@
             }
             
             Messages.sendMessage(releaseGrabChannel, "Released Grab: " + entityID);
-            CheckReleaseGrabOnParent();
+            checkReleaseGrabOnParent();
         }
     };
     return new AttachableItem(); 
