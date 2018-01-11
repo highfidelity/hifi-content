@@ -10,18 +10,25 @@
 /* globals RayPick */
 
 (function() { 
+    var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
+    var BEAM_LOCAL_OFFSET = {x:0, y:-0.0055, z:-0.045};
+    var BEAM_LOCAL_DIRECTION = {x:0, y:0, z:-1000};
+    var BEAM_MIN_SIZE = 0.02;
+    var TRIGGER_TOGGLE_VALUE = 0.97;
+    var RED = { red:255, green:0, blue:0 };
+    var BEAM_ORIGIN_SIZE = { x: 0.016 , y: 0.016, z: 0.016 };
+    var BEAM_ORIGIN_LOCAL_POSITION = { x: 0.00010538101196289062, y: -0.0016655921936035156, z: -0.049716949462890625};
+
     var _this;
     var equipped = false;
     var currentHand = null;
     var on = false;
     var beamFocus;
-    var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
-    var BEAM_LOCAL_OFFSET = {x:0, y:-0.0455, z:-0.04};
-    var BEAM_LOCAL_DIRECTION = {x:0, y:0, z:-1000};
-    var BEAM_MIN_SIZE = 0.01;
-    var beamOverlay;
+    /* var beamOverlay;
     var beam;
-    var laserLine;
+    var laserLine;*/
+    var beamOrigin;
+    var triggerReleased = true;
     
     Laser = function() {
         _this = this;
@@ -42,11 +49,24 @@
         
         toggleWithTriggerPressure: function() {
             var triggerValue = Controller.getValue(TRIGGER_CONTROLS[currentHand]);
-            if (triggerValue >= 0.97) {
-                this.turnOn();
-            } else {
-                if (on) {
+            if (on) {
+                if (triggerValue >= TRIGGER_TOGGLE_VALUE && triggerReleased) {
+                    // print("off");
                     this.turnOff();
+                    triggerReleased = false;
+                } else if (triggerValue < TRIGGER_TOGGLE_VALUE && !triggerReleased) {
+                    triggerReleased = true;
+                } else {
+                    // print("update");
+                    this.turnOn(); // this will also update position of beam
+                }
+            } else {
+                if (triggerValue >= TRIGGER_TOGGLE_VALUE && triggerReleased) {
+                    // print("on");
+                    this.turnOn();
+                    triggerReleased = false;
+                } else if (triggerValue < TRIGGER_TOGGLE_VALUE && !triggerReleased) {
+                    triggerReleased = true;
                 }
             }
         },
@@ -54,6 +74,7 @@
         releaseEquip: function(id, params) {
             currentHand = null;
             equipped = false;
+            this.turnOff();
         },
         
         getBeamPosition: function() {
@@ -77,12 +98,24 @@
                 origin: beamStart,
                 direction: beamEnd
             });
-            /*var beamPickRay = RayPick.addPick({
+            if (!on) {
+                beamOrigin = Entities.addEntity({
+                    type: "Model",
+                    modelURL: "https://hifi-content.s3.amazonaws.com/rebecca/laser/beam.fbx",
+                    dimensions: BEAM_ORIGIN_SIZE,
+                    color: RED,
+                    name: "Laser Beam",
+                    collisionless: true,
+                    parentID: _this.entityID,
+                    localPosition: BEAM_ORIGIN_LOCAL_POSITION
+                });
+            }
+            /* var beamPickRay = RayPick.addPick({
                 origin: beamStart,
                 direction: beamEnd
             });*/
             // var intersection = RayPick.getEntityIntersection(beamPickRay);
-            var intersection = Entities.findRayIntersection(beamPickRay, true, [], [_this], true, false);
+            var intersection = Entities.findRayIntersection(beamPickRay, true, [], [_this.entityID], true, false);
             if (intersection.intersects) {
                 var intersectionPosition = intersection.intersection;
                 var beamPointDistance = Vec3.distance(intersectionPosition, beamStart);
@@ -102,12 +135,9 @@
                         modelURL: "https://hifi-content.s3.amazonaws.com/rebecca/laser/beam.fbx",
                         position: intersection.intersection,
                         dimensions: { x: beamSize , y: beamSize, z: beamSize },
-                        color: { red:255, green:0, blue:0 },
+                        color: RED,
                         name: "Laser Beam",
-                        collisionless: true,
-                        alpha: 1,
-                        glow: 1,
-                        solid: true
+                        collisionless: true
                     });
                     /* print("adding beam");
                     beam = Entities.addEntity({
@@ -116,7 +146,7 @@
                         linePoints: [beamStart, intersectionPosition],
                         color: { red: 255, green: 0, blue: 0 }
                     });*/
-                    laserLine = Overlays.addOverlay("line3d", {
+                    /* laserLine = Overlays.addOverlay("line3d", {
                         type: "line3d",
                         color: { red:0, green:255, blue:0 },
                         visible: true,
@@ -127,19 +157,19 @@
                         drawInFront: 1, // Even when burried inside of something, show it.
                         start: beamStart,
                         end: intersectionPosition
-                    });
+                    });*/
                 } else {
                     Entities.editEntity(beamFocus, {
                         position: intersection.intersection,
                         dimensions: { x: beamSize , y: beamSize, z: beamSize }
                     });
-                    Entities.editEntity(beam, {
+                    /* Entities.editEntity(beam, {
                         linePoints: [beamStart, intersectionPosition]
                     });
                     Overlays.editOverlay(laserLine, {
                         start: beamStart,
                         end: intersectionPosition
-                    });
+                    });*/
                 }
             }
             on = true;
@@ -148,10 +178,12 @@
         turnOff : function() {
             if (beamFocus !== undefined) {
                 Entities.deleteEntity(beamFocus);
-                Entities.deleteEntity(beam);
-                Overlays.deleteOverlay(laserLine);
+                Entities.deleteEntity(beamOrigin);
+                /* Entities.deleteEntity(beam);
+                Overlays.deleteOverlay(laserLine);*/
                 beamFocus = undefined;
-                beam = undefined;
+                // beam = undefined;
+                beamOrigin = undefined;
             }
             on = false;
         },
