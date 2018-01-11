@@ -23,7 +23,8 @@ var touchJSONUserData = function(entityProperties, touchCallback) {
         touchCallback.call(this, userData);
         entityProperties.userData = JSON.stringify(userData);
     } catch (e) {
-        print('Something went wrong while trying to touch/modify the userData. Could be invalid JSON or problem with the callback function.');
+        print('Something went wrong while trying to touch/modify the userData. '+
+            'Could be invalid JSON or problem with the callback function.');
     }
 };
 

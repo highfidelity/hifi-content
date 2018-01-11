@@ -272,7 +272,6 @@
     });
   
     _this.enterEntity = (function (entityID) {
-        // IN_CHECKOUT_SETTINGS = true;
         setInCheckoutZoneSetting(true);
         replicaList = [];
         collectZoneData();
@@ -340,7 +339,6 @@
     });
       
     _this.leaveEntity = function() {
-        //IN_CHECKOUT_SETTINGS = false;
         setInCheckoutZoneSetting(false);
         Entities.callEntityMethod(recycleBinID, 'exitCheckout');
         Entities.callEntityMethod(scannerZone, 'exitCheckout');
