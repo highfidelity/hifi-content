@@ -7,9 +7,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-const TURRET_MODEL_URL = Script.resolvePath('assets/basic_barrel.fbx');
+const TURRET_MODEL_URL = Script.resolvePath('assets/turret.fbx');
 
-const TURRET_BASE_MODEL_URL = Script.resolvePath('assets/basic_base.fbx');
+const TURRET_BASE_MODEL_URL = Script.resolvePath('assets/turretBase.fbx');
 const TURRET_SCRIPT_URL = Script.resolvePath('turretScript.js');
 
 var front = Quat.getFront(MyAvatar.orientation);

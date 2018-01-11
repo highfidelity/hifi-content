@@ -44,13 +44,13 @@
     const rotationSensitivity = 2;
     const minAngleRange = 1;
 
-    const TURRET_TURNTABLE_MODEL_URL = Script.resolvePath('assets/basic_turntable.fbx');
+    const TURRET_TURNTABLE_MODEL_URL = Script.resolvePath('assets/turretTurntable.fbx');
     // One shot audio clip played while charging to shoot
     var CHARGING_SOUND = SoundCache.getSound(Script.resolvePath('assets/chargeSound.wav'));
     // One shot audio clip played when shot is fired
     var SHOT_SOUND =  SoundCache.getSound(Script.resolvePath('assets/shotSound.wav'));
 
-    const BULLET_MODEL_URL = Script.resolvePath('assets/basic_bullet.fbx');
+    const BULLET_MODEL_URL = Script.resolvePath('assets/bullet.fbx');
     const BULLET_SCRIPT_URL = Script.resolvePath('bulletScript.js');
     const BULLET_DIMENSIONS = {
         x: 1,
