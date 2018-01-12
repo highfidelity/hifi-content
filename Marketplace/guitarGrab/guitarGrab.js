@@ -34,10 +34,10 @@ controllerMapping.from(Controller.Standard.RT).to(function (value) {
 init();
 
 function grabLogic(value, grabHand) {
-    if (value === 1 && !GUITAR_DEPLOYED) {
+    if (value > 0.99 && !GUITAR_DEPLOYED) {
         print("Full trigger");
         checkHandBehindBack(grabHand);
-    } else if (value === 0) {
+    } else if (value < 0.01) {
         print("Trigger released");
         if (GUITAR_MONITOR_RELEASE) {
             dropGuitar();
