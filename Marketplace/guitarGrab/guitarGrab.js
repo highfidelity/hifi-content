@@ -82,10 +82,11 @@ function removeGuitar(grabHand) {
         jointName = "RightHand";
     }
     var handJointIndex = MyAvatar.getJointIndex(jointName);
+    var found = false;
     MyAvatar.attachmentData.forEach(function (attachment) {
-        if(attachment.modelURL === GUITAR_URL){
+        if (attachment.modelURL === GUITAR_URL && !found) {
             GUITAR_ATTACH_POSITION = attachment.translation;
-            break;
+            found = true;
         }
     });
 
