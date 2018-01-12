@@ -21,9 +21,10 @@ Script.scriptEnding.connect(function () {
 });
 
 
-controllerMappingName = 'gestureRoseMapping';
+controllerMappingName = 'guitarGrabMapping';
 controllerMapping = Controller.newMapping(controllerMappingName);
 controllerMapping.from(Controller.Standard.LT).to(function (value) {
+    print(value);
     grabLogic(value, 0);
 });
 controllerMapping.from(Controller.Standard.RT).to(function (value) {
@@ -34,8 +35,10 @@ init();
 
 function grabLogic(value, grabHand) {
     if (value === 1 && !GUITAR_DEPLOYED) {
+        print("Full trigger");
         checkHandBehindBack(grabHand);
     } else if (value === 0) {
+        print("Trigger released");
         if (GUITAR_MONITOR_RELEASE) {
             dropGuitar();
             GUITAR_MONITOR_RELEASE = false;

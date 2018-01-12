@@ -9,7 +9,7 @@ var ROSE_SCALE = {z: 0.1297, y: 0.3165, x: 0.1241};
 var ROSE_REZ_OFFSET = {x: 0, y: 0.25, z: 0};
 var ROSE_LIFETIME = 300;
 var ROSE_DEFAULT_GRAVITY = {x: 0, y: -7, z: 0};
-var ROSE_URL = Script.resolvePath('longStemRose.fbx');
+var ROSE_URL = "http://fluffy.ws/HighFid/longStemRose.fbx"; //Script.resolvePath('longStemRose.fbx');
 
 var gestureStarted = false;
 var gestureStartPos = null;
@@ -35,10 +35,12 @@ function gestureLogic(value,gestureHand){
     }
 
     if (value >= 0.7 && isPalmUpwards(gestureHand)) {
+        print("Gesture Start!");
         _gestureHand = gestureHand;
         gestureStarted = true;
         gestureStartPos = MyAvatar.getJointPosition(jointName);
     } else if (value === 0) {
+        print("Gesture End!");
         if (isPalmUpwards(gestureHand) && gestureStarted && gestureHand === _gestureHand) {
             var gestureEndPos = MyAvatar.getJointPosition(jointName);
             var total = Vec3.subtract(gestureEndPos, gestureStartPos);
