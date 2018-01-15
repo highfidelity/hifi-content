@@ -38,15 +38,15 @@ Script.scriptEnding.connect(function () {
 controllerMappingName = 'gestureRoseMapping';
 controllerMapping = Controller.newMapping(controllerMappingName);
 controllerMapping.from(Controller.Standard.LeftGrip).to(function (value) {
-    gestureLogic(value,-1);
+    gestureLogic(value, -1);
 });
 controllerMapping.from(Controller.Standard.RightGrip).to(function (value) {
-    gestureLogic(value,1);
+    gestureLogic(value, 1);
 });
 
-function gestureLogic(value,gestureHand){
+function gestureLogic(value, gestureHand) {
     var jointName = "LeftHand";
-    if(gestureHand === 1){
+    if (gestureHand === 1) {
         jointName = "RightHand";
     }
     if (!gestureStarted && (value > GRIP_PULL) && isPalmUpwards(gestureHand)) {
@@ -84,7 +84,7 @@ init();
 
 function isPalmUpwards(gestureHand) {
     var handRot = MyAvatar.getLeftHandPose()["rotation"];
-    if(gestureHand === 1){
+    if (gestureHand === 1) {
         handRot = MyAvatar.getRightHandPose()["rotation"];
     }
     var returnVal = false;
