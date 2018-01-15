@@ -1,0 +1,44 @@
+
+{
+  "Entities": [        {
+
+            "type": "ParticleEffect",
+            "name": "Turret Flight Particle",
+            "isEmitting": true,
+            "lifespan": 4.0,
+            "maxParticles": 100,
+            "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
+            "emitRate": 150,
+            "emitSpeed": 0,
+            "emitAcceleration": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "emitterShouldTrail": true,
+            "particleRadius": 0,
+            "radiusSpread": 0,
+            "radiusStart": 0.2,
+            "radiusFinish": 0.1,
+            "color": {
+                "red": 201,
+                "blue": 201,
+                "green": 34
+            },
+            "accelerationSpread": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "alpha": 0,
+            "alphaSpread": 0,
+            "alphaStart": 1,
+            "alphaFinish": 0,
+            "polarStart": 0,
+            "polarFinish": 0,
+            "azimuthStart": -180,
+            "azimuthFinish": 180
+        }
+    ],
+  "Version": 67
+}

@@ -218,7 +218,7 @@ http://creativecommons.org/licenses/by/4.0/
 
     var MAX_INTENSITY = 100000;
     var MASSIVE_LIGHT = {
-        collisionless: 1,
+        collsionless: 1,
         color: {
             blue: 155,
             green: 199,
