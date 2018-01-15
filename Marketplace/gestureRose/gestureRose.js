@@ -1,6 +1,22 @@
-var X_TRIGGER_LIMIT = 0.1;
-var Y_TRIGGER_DIST = -0.145;
-var Z_TRIGGER_LIMIT = 0.1;
+//
+//  gestureRose.js
+//  
+//  Created by Fluffy Jenkins for High Fidelity Worklist
+//  Copyright 2018 High Fidelity, Inc.
+//
+//  This example detects a gesture (downward motion of the hand while palm is turned upward and grip button squeezed)
+//  and responds to that gesture by creating a rose model in front of the gesturing hand.
+//  
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+var X_GESTURE_LIMIT = 0.1;
+var Y_GESTURE_DIST = -0.145;
+var Z_GESTURE_LIMIT = 0.1;
+
+var GRIP_PULL = 0.7;
+var GRIP_RELEASE = 0.1;
+
 var GLOBAL_UP = {x: 0, y: 1, z: 0};
 var DEG_TO_RAD = Math.PI / 180;
 var ANGLE_MATCH = Math.cos(45 * DEG_TO_RAD);
@@ -9,7 +25,7 @@ var ROSE_SCALE = {z: 0.1297, y: 0.3165, x: 0.1241};
 var ROSE_REZ_OFFSET = {x: 0, y: 0.25, z: 0};
 var ROSE_LIFETIME = 300;
 var ROSE_DEFAULT_GRAVITY = {x: 0, y: -7, z: 0};
-var ROSE_URL = "http://fluffy.ws/HighFid/longStemRose.fbx"; //Script.resolvePath('longStemRose.fbx');
+var ROSE_URL = Script.resolvePath('longStemRose.fbx');
 
 var gestureStarted = false;
 var gestureStartPos = null;
@@ -33,19 +49,19 @@ function gestureLogic(value,gestureHand){
     if(gestureHand === 1){
         jointName = "RightHand";
     }
-
-    if (value >= 0.7 && isPalmUpwards(gestureHand)) {
-        print("Gesture Start!");
+    if (!gestureStarted && (value > GRIP_PULL) && isPalmUpwards(gestureHand)) {
+        // Grip started
         _gestureHand = gestureHand;
         gestureStarted = true;
         gestureStartPos = MyAvatar.getJointPosition(jointName);
-    } else if (value === 0) {
-        print("Gesture End!");
+    } else if (gestureStarted && (value < GRIP_RELEASE)) {
+        //  Grip ended, check if it was the right gesture
         if (isPalmUpwards(gestureHand) && gestureStarted && gestureHand === _gestureHand) {
             var gestureEndPos = MyAvatar.getJointPosition(jointName);
             var total = Vec3.subtract(gestureEndPos, gestureStartPos);
-            if (Math.abs(total.x) < X_TRIGGER_LIMIT && total.y < Y_TRIGGER_DIST && Math.abs(total.z) < Z_TRIGGER_LIMIT) {
+            if (Math.abs(total.x) < X_GESTURE_LIMIT && total.y < Y_GESTURE_DIST && Math.abs(total.z) < Z_GESTURE_LIMIT) {
                 var clientOnly = !(Entities.canRez() || Entities.canRezTmp());
+                //  Correct gesture, make a rose. 
                 Entities.addEntity({
                     name: "Long Stemmed Rose",
                     shapeType: "simple-hull",
@@ -58,13 +74,9 @@ function gestureLogic(value,gestureHand){
                     gravity: ROSE_DEFAULT_GRAVITY,
                     userData: "{ \"grabbableKey\": { \"grabbable\": true, \"kinematic\": false } }"
                 }, clientOnly);
-                gestureStarted = false;
-                _gestureHand = 0;
             }
-        } else if (gestureStarted) {
-            _gestureHand = 0;
-            gestureStarted = false;
         }
+        gestureStarted = false;
     }
 }
 
