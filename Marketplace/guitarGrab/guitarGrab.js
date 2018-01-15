@@ -12,19 +12,34 @@ var GUITAR_DEPLOYED = false;
 var GUITAR_DEPLOYED_UUID;
 
 var GUITAR_SCALE = {x: 0.3337, y: 0.0770, z: 0.8180};
-var GUITAR_REZ_OFFSET = {x: 0, y: 0, z: 0.05};
-var GUITAR_REZ_ROTATION = {};
+var GUITAR_HAND_OFFSET = {x: 0, y: 0.1, z: 0.025};
+var GUITAR_HAND_L_ROTATION = {
+    x: -0.5,
+    y: 0.5,
+    z: -0.5,
+    w: 0.5
+};
+var GUITAR_HAND_R_ROTATION = {
+    x: -0.5,
+    y: -0.5,
+    z: 0.5,
+    w: 0.5
+};
 var GUITAR_LIFETIME = 360;
+
+var MAX_GRAB = 0.99;
+var MIN_GRAB = 0.01;
+
+var HAPTIC_AMOUNT = 100;
+var DETECTION_Y_LIMIT = 0.1;
 
 Script.scriptEnding.connect(function () {
     shutdown();
 });
 
-
 controllerMappingName = 'guitarGrabMapping';
 controllerMapping = Controller.newMapping(controllerMappingName);
 controllerMapping.from(Controller.Standard.LT).to(function (value) {
-    print(value);
     grabLogic(value, 0);
 });
 controllerMapping.from(Controller.Standard.RT).to(function (value) {
@@ -34,11 +49,9 @@ controllerMapping.from(Controller.Standard.RT).to(function (value) {
 init();
 
 function grabLogic(value, grabHand) {
-    if (value > 0.99 && !GUITAR_DEPLOYED) {
-        print("Full trigger");
+    if (value > MAX_GRAB && !GUITAR_DEPLOYED) {
         checkHandBehindBack(grabHand);
-    } else if (value < 0.01) {
-        print("Trigger released");
+    } else if (value < MIN_GRAB) {
         if (GUITAR_MONITOR_RELEASE) {
             dropGuitar();
             GUITAR_MONITOR_RELEASE = false;
@@ -57,18 +70,18 @@ function checkHandBehindBack(grabHand) {
     var currAvatarPos = Camera.position;
     var currHandPos = MyAvatar.getJointPosition(jointName);
 
-    if (Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currAvatarPos, currHandPos)).z < 0) {
+    if (Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currAvatarPos, currHandPos)).z < 0 && Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currAvatarPos, currHandPos)).y < DETECTION_Y_LIMIT) {
         if (GUITAR_DEPLOYED) {
             var currGuitarPos = Entities.getEntityProperties(GUITAR_DEPLOYED_UUID, ["Position"]).position;
 
             if (Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currAvatarPos, currGuitarPos)).z < 0) {
-                Controller.triggerHapticPulse(1, 100, grabHand);
+                Controller.triggerHapticPulse(1, HAPTIC_AMOUNT, grabHand);
                 Entities.deleteEntity(GUITAR_DEPLOYED_UUID);
                 GUITAR_DEPLOYED_UUID = null;
                 addGuitar();
             }
         } else {
-            Controller.triggerHapticPulse(1, 100, grabHand);
+            Controller.triggerHapticPulse(1, HAPTIC_AMOUNT, grabHand);
             removeGuitar(grabHand);
         }
     }
@@ -95,6 +108,12 @@ function removeGuitar(grabHand) {
 
     MyAvatar.detachOne(GUITAR_URL, GUITAR_ATTACH_JOINT);
 
+    var TEMP_HAND_ROTATION = GUITAR_HAND_L_ROTATION;
+
+    if (grabHand === 1) {
+        TEMP_HAND_ROTATION = GUITAR_HAND_R_ROTATION;
+    }
+
     var clientOnly = !(Entities.canRez() || Entities.canRezTmp());
     GUITAR_DEPLOYED_UUID = Entities.addEntity({
         name: "Guitar",
@@ -105,8 +124,8 @@ function removeGuitar(grabHand) {
         collidesWith: "static,dynamic,kinematic,",
         parentID: MyAvatar.sessionUUID,
         parentJointIndex: handJointIndex,
-        position: Vec3.sum(MyAvatar.getJointPosition(handJointIndex), Vec3.multiplyQbyV(MyAvatar.getJointRotation(handJointIndex), GUITAR_REZ_OFFSET)),
-        rotation: GUITAR_REZ_ROTATION,
+        localPosition: GUITAR_HAND_OFFSET,
+        localRotation: TEMP_HAND_ROTATION,
         dimensions: GUITAR_SCALE,
         dynamic: false,
         lifetime: GUITAR_LIFETIME,
@@ -131,7 +150,6 @@ function init() {
     addGuitar();
     Controller.enableMapping(controllerMappingName);
 }
-
 
 function shutdown() {
     try {
