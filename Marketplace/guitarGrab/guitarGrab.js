@@ -1,3 +1,17 @@
+//
+// guitarGrab.js
+// A script to add a guitar to ones back and grab it off in VR or add it back
+//
+// Author: Fluffy Jenkins
+// Copyright High Fidelity 2018
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
+// All assets are under CC Attribution Non-Commerical
+// http://creativecommons.org/licenses/
+//
+
 var GUITAR_MONITOR_RELEASE = false;
 var GUITAR_ATTACH_POSITION = {x: 0, y: 0.420, z: -0.3};
 var GUITAR_ATTACH_ROTATION = {
