@@ -1,0 +1,1228 @@
+{
+    "Entities": [
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 9,
+                "green": 255,
+                "red": 0
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{51655252-2df2-4bc1-8ec3-5ac82e43fb46}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5300083160400391,
+                "y": 0.20384426414966583,
+                "z": -0.0029845237731933594
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 0.39557778835296631,
+                "y": 0.34999752044677734,
+                "z": 8.41876220703125
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":0,\"green\":255,\"blue\":9}}"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 255,
+                "green": 0,
+                "red": 242
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{381ef5a7-e2ae-4754-959b-3edd5d42366d}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.529533863067627,
+                "y": 0.091740839183330536,
+                "z": -0.002986907958984375
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 0.39578735828399658,
+                "y": 0.23789414763450623,
+                "z": 8.4191999435424805
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":242,\"green\":0,\"blue\":255}}"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 255,
+                "green": 13,
+                "red": 0
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{7354bcda-31ad-41da-b950-071a74e38937}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5299971103668213,
+                "y": 0.52787560224533081,
+                "z": -0.0029754638671875
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 0.39558041095733643,
+                "y": 0.67402887344360352,
+                "z": 8.4187393188476562
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":0,\"green\":13,\"blue\":255}}"
+        },
+        {
+            "clientOnly": 0,
+            "collisionless": 1,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{a523c5ff-2658-49f1-9d57-0a1944ba9d82}",
+            "ignoreForCollisions": 1,
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5302813053131104,
+                "y": 0.20386141538619995,
+                "z": -0.002556920051574707
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 0.38327232003211975,
+                "y": 0.33744451403617859,
+                "z": 8.4057588577270508
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{8c82b7dd-8dcc-400e-a7ba-d4ddc154c13d}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.530266284942627,
+                "y": 0.63748568296432495,
+                "z": -0.0025446414947509766
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 0.38327589631080627,
+                "y": 0.77106881141662598,
+                "z": 8.4057273864746094
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 255
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{4c6557e5-9c99-486f-a0c3-b0bac9ef008e}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5299935340881348,
+                "y": 0.63746851682662964,
+                "z": -0.0029723644256591797
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 0.39558136463165283,
+                "y": 0.78362178802490234,
+                "z": 8.4187307357788086
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":255,\"green\":0,\"blue\":0}}"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{cfaf9cbb-666a-43fb-8bbd-901032e6e88a}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5300045013427734,
+                "y": 0.31196135282516479,
+                "z": -0.0029814243316650391
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 0.39557874202728271,
+                "y": 0.4581146240234375,
+                "z": 8.4187545776367188
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":0,\"green\":0,\"blue\":0}}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{657517a5-9f98-425c-b9b4-785ee475a380}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5302700996398926,
+                "y": 0.52789276838302612,
+                "z": -0.0025477409362792969
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 0.38327518105506897,
+                "y": 0.66147589683532715,
+                "z": 8.405735969543457
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{df27526e-7441-4377-a3d9-4cb9df796503}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5302774906158447,
+                "y": 0.31197851896286011,
+                "z": -0.0025538206100463867
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 0.38327327370643616,
+                "y": 0.44556167721748352,
+                "z": 8.4057512283325195
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 0,
+                "green": 225,
+                "red": 255
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{bec8409f-17d5-4a23-b266-cf4bf4302008}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5300009250640869,
+                "y": 0.42078274488449097,
+                "z": -0.0029783248901367188
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 0.39557969570159912,
+                "y": 0.56693601608276367,
+                "z": 8.4187459945678711
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":255,\"green\":255,\"blue\":0}}"
+        },
+        {
+            "clientOnly": 0,
+            "collisionless": 1,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11389999836683273,
+                "y": 0.031500000506639481,
+                "z": 0.11389999836683273
+            },
+            "id": "{5a157074-40fd-4fda-a88a-b0c99c3309b8}",
+            "ignoreForCollisions": 1,
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5303206443786621,
+                "y": 0.091799892485141754,
+                "z": -0.00254058837890625
+            },
+            "queryAACube": {
+                "scale": 0.16413003206253052,
+                "x": 0.38327595591545105,
+                "y": 0.22538545727729797,
+                "z": 8.4057292938232422
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{46368a28-f9f0-437e-89a1-b7370facb315}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.5302739143371582,
+                "y": 0.42079991102218628,
+                "z": -0.0025506019592285156
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 0.38327446579933167,
+                "y": 0.5543830394744873,
+                "z": 8.4057435989379883
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 255,
+                "green": 0,
+                "red": 242
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{dc3dbf93-29ba-43b7-813b-440c8024b2e6}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.591829776763916,
+                "y": 0.087802596390247345,
+                "z": -0.0017268657684326172
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 1.7652426958084106,
+                "y": 0.23425522446632385,
+                "z": 11.22410774230957
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":242,\"green\":0,\"blue\":255}}"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 255
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.084723480045795441,
+                "y": 0.22005957365036011,
+                "z": 0.037231024354696274
+            },
+            "id": "{b34d4910-2875-4b3e-983b-0c47ecea4a7a}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi_Whiteboard - Wipe All button",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{62cd0788-1ab4-49a1-bac0-c7bf76724f64}",
+            "position": {
+                "x": -0.0005407335702329874,
+                "y": 0.0068120807409286499,
+                "z": 0.0027847287710756063
+            },
+            "queryAACube": {
+                "scale": 0.23872669041156769,
+                "x": 1.7162516117095947,
+                "y": 0.0045989230275154114,
+                "z": 11.176079750061035
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": -4.57763671875e-05,
+                "y": 0.70708787441253662,
+                "z": -1.52587890625e-05
+            },
+            "script": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/resetWhiteBoard.js",
+            "scriptTimestamp": 1478570878150,
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true,\"wantsTrigger\":true}}",
+            "visible": 0
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 9,
+                "green": 255,
+                "red": 0
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{e9fb4329-cae4-484e-9c56-a495ec213fd8}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5918335914611816,
+                "y": 0.20373600721359253,
+                "z": -0.0017235279083251953
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 1.7652434110641479,
+                "y": 0.35018864274024963,
+                "z": 11.224099159240723
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":0,\"green\":255,\"blue\":9}}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{a77973fd-c62b-486a-9b29-66afd2cf8961}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "https://hifi-content.s3.amazonaws.com/lincoln/white-board/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5915567874908447,
+                "y": 0.087819762527942657,
+                "z": -0.0012995004653930664
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 1.7529369592666626,
+                "y": 0.22170224785804749,
+                "z": 11.211104393005371
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 255,
+                "green": 13,
+                "red": 0
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{8edff76e-b361-4de1-b6aa-a6870f5ae9f6}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5918450355529785,
+                "y": 0.5277673602104187,
+                "z": -0.0017144680023193359
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 1.7652462720870972,
+                "y": 0.67421996593475342,
+                "z": 11.224075317382812
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":0,\"green\":13,\"blue\":255}}"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 255
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{bb163099-7e49-4424-ba01-1b9dc86a32c5}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5918488502502441,
+                "y": 0.63736027479171753,
+                "z": -0.0017114877700805664
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 1.7652469873428345,
+                "y": 0.78381288051605225,
+                "z": 11.224067687988281
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":255,\"green\":0,\"blue\":0}}"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 0,
+                "green": 225,
+                "red": 255
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{e5423b60-1621-4611-88f8-3076bd1ca140}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5918412208557129,
+                "y": 0.42067450284957886,
+                "z": -0.0017173290252685547
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 1.7652453184127808,
+                "y": 0.56712710857391357,
+                "z": 11.224082946777344
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":255,\"green\":255,\"blue\":0}}"
+        },
+        {
+            "clientOnly": 0,
+            "collisionless": 1,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{5b4a059e-7801-4931-9690-4785ddf6c13a}",
+            "ignoreForCollisions": 1,
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "https://hifi-content.s3.amazonaws.com/lincoln/white-board/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5915758609771729,
+                "y": 0.63737744092941284,
+                "z": -0.0012841224670410156
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 1.7529412508010864,
+                "y": 0.77125990390777588,
+                "z": 11.211065292358398
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{4bab7673-3c24-40c8-8e94-81a599420928}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "https://hifi-content.s3.amazonaws.com/lincoln/white-board/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5915684700012207,
+                "y": 0.42069166898727417,
+                "z": -0.0012899637222290039
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 1.7529398202896118,
+                "y": 0.55457413196563721,
+                "z": 11.211080551147461
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{d160667c-5964-4270-ba5d-4c4b3badf858}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "https://hifi-content.s3.amazonaws.com/lincoln/white-board/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5915720462799072,
+                "y": 0.52778452634811401,
+                "z": -0.0012872219085693359
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 1.7529405355453491,
+                "y": 0.66166698932647705,
+                "z": 11.21107292175293
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{5f23cb8a-9ba3-4d12-8643-1e0ce270dc2f}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "https://hifi-content.s3.amazonaws.com/lincoln/white-board/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5915608406066895,
+                "y": 0.20375317335128784,
+                "z": -0.0012961626052856445
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 1.752937912940979,
+                "y": 0.33763566613197327,
+                "z": 11.211095809936523
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.096414588391780853,
+                "y": 0.096522048115730286,
+                "z": 0.026594201102852821
+            },
+            "id": "{ba412e8b-6222-4dba-b308-3b9641182f00}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi-whiteboardPaint",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5918374061584473,
+                "y": 0.31185311079025269,
+                "z": -0.0017205476760864258
+            },
+            "queryAACube": {
+                "scale": 0.13899470865726471,
+                "x": 1.7652441263198853,
+                "y": 0.4583057165145874,
+                "z": 11.224091529846191
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": 1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"markerColor\":{\"red\":0,\"green\":0,\"blue\":0}}"
+        },
+        {
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.11390624195337296,
+                "y": 0.031480271369218826,
+                "z": 0.11390624195337296
+            },
+            "id": "{101e2d57-7a49-4c89-be14-5b3d0a8d248d}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "https://hifi-content.s3.amazonaws.com/lincoln/white-board/paintbucket.fbx",
+            "name": "hifi_whiteboard-paint-holder",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5915646553039551,
+                "y": 0.311870276927948,
+                "z": -0.001293182373046875
+            },
+            "queryAACube": {
+                "scale": 0.1641349196434021,
+                "x": 1.7529388666152954,
+                "y": 0.44575276970863342,
+                "z": 11.211088180541992
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": 0.70708787441253662,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+            "collisionMask": 23,
+            "compoundShapeURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/whiteboard_wood_phys.obj",
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 3.1054999828338623,
+                "y": 2.5469999313354492,
+                "z": 0.46360000967979431
+            },
+            "gravity": {
+                "x": 0,
+                "y": -9.8000001907348633,
+                "z": 0
+            },
+            "id": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "marketplaceID": "b40db216-ac1e-48bf-b6a5-09973c527987",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/whiteboard_wood_VR.fbx",
+            "name": "hifi_whiteboard",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 4.0430512428283691,
+                "x": -2.0215256214141846,
+                "y": -2.0215256214141846,
+                "z": -2.0215256214141846
+            },
+            "rotation": {
+                "w": 0.52991819381713867,
+                "x": -3.7798035918967798e-05,
+                "y": 0.84804874658584595,
+                "z": -2.9995915610925294e-05
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/thoys/production/whiteboard/whiteboard.js",
+            "scriptTimestamp": 1478567400902,
+            "shapeType": "compound",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
+        },
+        {
+            "animation": {
+                "currentFrame": 1,
+                "firstFrame": 1,
+                "url": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/resetButton.fbx?2"
+            },
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.031500000506639481,
+                "y": 0.2669999897480011,
+                "z": 0.11389999836683273
+            },
+            "id": "{62cd0788-1ab4-49a1-bac0-c7bf76724f64}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/resetButton.fbx?2",
+            "name": "whiteboard_resetButton_lt",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.5910654067993164,
+                "y": -0.098800107836723328,
+                "z": -0.0012030601501464844
+            },
+            "queryAACube": {
+                "scale": 0.29198366403579712,
+                "x": 1.6888898611068726,
+                "y": -0.028842039406299591,
+                "z": 11.146712303161621
+            },
+            "rotation": {
+                "w": 0.70696568489074707,
+                "x": -1.52587890625e-05,
+                "y": -0.70727092027664185,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 255
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.078850045800209045,
+                "y": 0.22555796802043915,
+                "z": 0.025155555456876755
+            },
+            "id": "{7b7521c2-f618-468f-951c-2af638a1dab9}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi_Whiteboard - Wipe All button",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{c3df9880-48e4-46d2-994d-4cc29d3516fc}",
+            "position": {
+                "x": 0.00065946573158726096,
+                "y": -0.00098879635334014893,
+                "z": -0.0012927055358886719
+            },
+            "queryAACube": {
+                "scale": 0.24026346206665039,
+                "x": 0.3437117338180542,
+                "y": -0.0042703226208686829,
+                "z": 8.3659076690673828
+            },
+            "rotation": {
+                "w": 0.70708787441253662,
+                "x": -4.57763671875e-05,
+                "y": 0.70708787441253662,
+                "z": -1.52587890625e-05
+            },
+            "script": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/resetWhiteBoard.js",
+            "scriptTimestamp": 1478570878150,
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true,\"wantsTrigger\":true}}",
+            "visible": 0
+        },
+        {
+            "animation": {
+                "currentFrame": 1,
+                "firstFrame": 1,
+                "url": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/resetButton.fbx?2"
+            },
+            "clientOnly": 0,
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.031500000506639481,
+                "y": 0.2669999897480011,
+                "z": 0.11389999836683273
+            },
+            "id": "{c3df9880-48e4-46d2-994d-4cc29d3516fc}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/resetButton.fbx?v=2",
+            "name": "whiteboard_resetButton_rt",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": 1.531280517578125,
+                "y": -0.098800107836723328,
+                "z": -0.0037748813629150391
+            },
+            "queryAACube": {
+                "scale": 0.29198366403579712,
+                "x": 0.31782492995262146,
+                "y": -0.029141440987586975,
+                "z": 8.3414974212646484
+            },
+            "rotation": {
+                "w": 0.70696568489074707,
+                "x": -1.52587890625e-05,
+                "y": -0.70727092027664185,
+                "z": -1.52587890625e-05
+            },
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "compoundShapeURL": "http://hifi-content.s3.amazonaws.com/Examples%20Content/production/whiteboard/handScannerSwitch_phys.obj",
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 0.15355314314365387,
+                "y": 0.24223634600639343,
+                "z": 0.14694482088088989
+            },
+            "id": "{6bf3bd67-f875-483b-b9a7-f9fefc76ef9d}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "marketplaceID": "b40db216-ac1e-48bf-b6a5-09973c527987",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/handScannerSwitch_tall_VR.fbx",
+            "name": "hifi_whiteboardSwiper",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -1.4730377197265625,
+                "y": -0.15946060419082642,
+                "z": 0.10406351089477539
+            },
+            "queryAACube": {
+                "scale": 0.32225733995437622,
+                "x": 1.7166275978088379,
+                "y": -0.10465182363986969,
+                "z": 10.979352951049805
+            },
+            "rotation": {
+                "w": 0.70693516731262207,
+                "x": -1.52587890625e-05,
+                "y": -0.70730143785476685,
+                "z": -1.52587890625e-05
+            },
+            "script": "http://hifi-content.s3.amazonaws.com/caitlyn/production/whiteboard/swiper.js?23v21",
+            "scriptTimestamp": 1478567195627,
+            "shapeType": "compound",
+            "type": "Model"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 150,
+                "green": 150,
+                "red": 150
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "cutoff": 90,
+            "dimensions": {
+                "x": 6.1369271278381348,
+                "y": 6.1369271278381348,
+                "z": 6.1369271278381348
+            },
+            "exponent": 2,
+            "falloffRadius": 2,
+            "id": "{c329d53f-4f9b-4407-9470-1c5f4a7b8a72}",
+            "intensity": 8,
+            "isSpotlight": 1,
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "name": "hifi_whiteboardLight",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -0.30410003662109375,
+                "y": 0.78892815113067627,
+                "z": 1.8550882339477539
+            },
+            "queryAACube": {
+                "scale": 10.62946891784668,
+                "x": -2.3756313323974609,
+                "y": -4.309999942779541,
+                "z": 4.0074253082275391
+            },
+            "rotation": {
+                "w": 0.97857630252838135,
+                "x": -0.13890290260314941,
+                "y": -0.085893034934997559,
+                "z": -0.12516975402832031
+            },
+            "type": "Light"
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "static,dynamic,kinematic,",
+            "collisionMask": 7,
+            "color": {
+                "blue": 200,
+                "green": 10,
+                "red": 200
+            },
+            "created": "2016-11-16T19:34:20Z",
+            "dimensions": {
+                "x": 2.9871418476104736,
+                "y": 1.5095769166946411,
+                "z": 0.0081667453050613403
+            },
+            "id": "{f2d4906d-729a-44de-b2c7-a9ed1089f2c7}",
+            "lastEditedBy": "{751d3786-e22d-444a-8233-f759f60dc83a}",
+            "locked": 1,
+            "marketplaceID": "b40db216-ac1e-48bf-b6a5-09973c527987",
+            "name": "hifi-whiteboardDrawingSurface",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{87bb645d-79ee-4221-b6c5-38b2f04ee382}",
+            "position": {
+                "x": -0.028631329536437988,
+                "y": 0.50949198007583618,
+                "z": 0.011899711564183235
+            },
+            "queryAACube": {
+                "scale": 3.3469247817993164,
+                "x": -0.51175320148468018,
+                "y": -0.94817048311233521,
+                "z": 8.2091388702392578
+            },
+            "rotation": {
+                "w": -1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "visible": 0
+        }
+    ],
+    "Version": 65
+}
