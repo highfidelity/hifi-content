@@ -6,12 +6,19 @@
 	
 	var _this = this;
 	var mirrorID;	// The entity ID of the mirror
+	var triggered;	// Used to prevent double triggering, true if mirror toggle has been triggered
 	
 	// LOCAL FUNCTIONS
 	
 	// When the mirror toggle is clicked on by the mouse, call the "toggleMirrorOverlay" function
     var triggerMirrorToggle = function (entityID, data) {
-		Entities.callEntityMethod(mirrorID, 'toggleMirrorOverlay', []);
+		if(!triggered) {	// If triggered timeout hasn't completed, don't call "toggleMirrorOverlay" again
+			Entities.callEntityMethod(mirrorID, 'toggleMirrorOverlay', []);
+			triggered = true;
+			Script.setTimeout(function() {
+				triggered = false;
+			}, 1000);
+		}
     };
 	
 	// ENTITY FUNCTIONS
@@ -28,6 +35,7 @@
 					mirrorID = foundEntityID;
 				}
 			})
+			triggered = false;
 		}, 1500);
 	}
 

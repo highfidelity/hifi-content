@@ -16,8 +16,8 @@
                 "y": 0,
                 "z": 0
             },
-            "script": "http://mpassets.highfidelity.com/11442069-f90a-49d4-bcdd-c7da233c969f-v1/mClient.js",
-            "serverScripts": "http://mpassets.highfidelity.com/11442069-f90a-49d4-bcdd-c7da233c969f-v1/mServer.js",
+            "script": "http://mpassets.highfidelity.com/397aeebc-dab5-4610-b9fd-94ce3cc56c44-v1/mClient.js",
+            "serverScripts": "http://mpassets.highfidelity.com/397aeebc-dab5-4610-b9fd-94ce3cc56c44-v1/mServer.js",
             "shapeType": "simple-hull",
             "type": "Model",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}"

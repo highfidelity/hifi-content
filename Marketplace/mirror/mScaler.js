@@ -147,7 +147,7 @@
 	}
 	
 	_this.continueNearGrab = grabMirrorScaler;
-	_this.continueDistantGrab = grabMirrorScaler;
+	_this.continueDistanceGrab = grabMirrorScaler;
 	_this.holdingClickOnEntity = grabMirrorScaler;
 	_this.releaseGrab = releaseMirrorScaler;
 	
