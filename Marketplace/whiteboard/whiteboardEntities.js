@@ -489,4 +489,9 @@ for (i = 0; i < entities.length; ++i) {
             delete entity.position;
         }
     }
+
+}
+
+for (i = 0; i < entities.length; ++i) {
+    delete entities[i].id;
 }

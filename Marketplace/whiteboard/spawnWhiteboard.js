@@ -110,7 +110,8 @@ function createWhiteboard() {
 	whiteboardFrameID = spawnTemplate("Whiteboard", {
         position: rootPosition,
         compoundShapeURL: Script.resolvePath("models/whiteBoard_collider.obj"),
-        script: Script.resolvePath("whiteboard.js")
+        script: Script.resolvePath("whiteboard.js"),
+        serverScripts: Script.resolvePath("whiteboardManagerServer.js")
     });
     entityIDs.push(whiteboardFrameID);
 
