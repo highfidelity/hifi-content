@@ -103,10 +103,24 @@
             };
 
             var colorIntersection = Entities.findRayIntersection(pickRay, true, _this.colors);
-
+            print("Daantje Debug My Marker Color " + JSON.stringify(_this.markerColor));
+			var isIntersectingColorWell = false;
+			
             if (colorIntersection.intersects) {
-                _this.markerColor = getEntityCustomData('markerColor', colorIntersection.entityID, DEFAULT_COLOR);
-                setEntityCustomData('markerColor', _this.entityID, _this.markerColor);
+				
+				_this.colors.forEach(function(entity) {
+					if (entity === colorIntersection.entityID) {
+						isIntersectingColorWell = true;
+					}
+				});
+				if (isIntersectingColorWell) {
+					_this.markerColor = getEntityCustomData('markerColor', colorIntersection.entityID, DEFAULT_COLOR);
+					setEntityCustomData('markerColor', _this.entityID, _this.markerColor);
+				} else {
+					// update color
+                    _this.markerColor = getEntityCustomData('markerColor', _this.entityID, DEFAULT_COLOR);
+				}
+				
             } else {
                 // update color
                 _this.markerColor = getEntityCustomData('markerColor', _this.entityID, DEFAULT_COLOR);
@@ -150,8 +164,9 @@
                     z: 10
                 },
                 position: position,
+				color: _this.markerColor,
                 textures: _this.MARKER_TEXTURE_URL,
-                color: _this.markerColor,
+                
                 lifetime: 5000
             });
 

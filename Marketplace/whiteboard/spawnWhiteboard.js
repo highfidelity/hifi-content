@@ -148,7 +148,7 @@ function createWhiteboard() {
             type: "marker",
             markerColor: {
         		red: 0,
-        		gree: 13,
+        		green: 13,
         		blue: 255
         	}
         })
