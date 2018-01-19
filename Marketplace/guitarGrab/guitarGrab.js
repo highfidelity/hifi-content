@@ -81,14 +81,17 @@ function checkHandBehindBack(grabHand) {
     if (grabHand === 1) {
         jointName = "RightHand";
     }
-    var currAvatarPos = Camera.position;
-    var currHandPos = MyAvatar.getJointPosition(jointName);
+    var currentAvatarPos = Camera.position;
+    var currentHandPos = MyAvatar.getJointPosition(jointName);
 
-    if (Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currAvatarPos, currHandPos)).z < 0 && Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currAvatarPos, currHandPos)).y < DETECTION_Y_LIMIT) {
+    var handZPosition = Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currentAvatarPos, currentHandPos)).z;
+    var handYPosition = Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currentAvatarPos, currentHandPos)).y;
+
+    if (handZPosition < 0 && handYPosition < DETECTION_Y_LIMIT) {
         if (GUITAR_DEPLOYED) {
-            var currGuitarPos = Entities.getEntityProperties(GUITAR_DEPLOYED_UUID, ["Position"]).position;
+            var currentGuitarPos = Entities.getEntityProperties(GUITAR_DEPLOYED_UUID, ["Position"]).position;
 
-            if (Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currAvatarPos, currGuitarPos)).z < 0) {
+            if (Vec3.multiplyQbyV(Quat.inverse(MyAvatar.orientation), Vec3.subtract(currentAvatarPos, currentGuitarPos)).z < 0) {
                 Controller.triggerHapticPulse(1, HAPTIC_AMOUNT, grabHand);
                 Entities.deleteEntity(GUITAR_DEPLOYED_UUID);
                 GUITAR_DEPLOYED_UUID = null;
@@ -150,7 +153,7 @@ function removeGuitar(grabHand) {
 }
 
 function dropGuitar() {
-    Entities.editEntity(GUITAR_DEPLOYED_UUID, {parentID: "", parentJointIndex: "", dynamic: true, collisionless: false})
+    Entities.editEntity(GUITAR_DEPLOYED_UUID, {parentID: "", parentJointIndex: "", dynamic: true, collisionless: false});
 }
 
 function clearAllGuitars() {
