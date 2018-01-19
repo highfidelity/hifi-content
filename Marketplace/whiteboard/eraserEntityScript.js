@@ -36,6 +36,10 @@
                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
                 if (props.name === _this.STROKE_NAME && Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS) {
                     Entities.deleteEntity(stroke);
+                    // Test erase RCP
+					var serverID = Entities.getEntityProperties(props.parentID, "parentID").parentID;
+					print("Daantje Debug calling server to erase " + serverID);
+                    Entities.callEntityServerMethod(serverID, 'erase', []);
                     var vibrated = Controller.triggerHapticPulse(1, 70, 2);
                 }
             });

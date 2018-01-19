@@ -10,7 +10,7 @@
     };
 
     Whiteboard.prototype = {
-        remotelyCallable: ['startMarkerLine'],
+        remotelyCallable: ['startMarkerStroke', 'continueMarkerStroke', 'resetMarkerStroke', 'erase', 'clearBoard'],
         preload: function(entityID){
             print("Daantje Debug on Preload " + entityID);
         },
@@ -19,8 +19,20 @@
          * @param entityID current entity ID
          * @param param parameters (expected to be empty)
          */
-        startMarkerLine: function(entityID, params) {
-            print("Daantje Debug startMarkerLine");
+        startMarkerStroke: function(entityID, params) {
+            print("Daantje Debug startMarkerStroke");
+        },
+        continueMarkerStroke: function(entityID, params) {
+            print("Daantje Debug continueMarkerStroke");
+        },
+        resetMarkerStroke: function(entityID, params) {
+            print("Daantje Debug resetMarkerStroke");
+        },
+        erase: function(entityID, params) {
+            print("Daantje Debug erase");
+        },
+		clearBoard: function(entityID, params) {
+            print("Daantje Debug clear board");
         },
         unload: function() {
             print("Daantje Debug on Unload");

@@ -20,7 +20,11 @@
                 if (props.name === _this.STROKE_NAME && Vec3.distance(_this.resetPosition, props.position) < _this.RESET_STROKE_SEARCH_RADIUS) {
                     Entities.deleteEntity(stroke);
                 }
-            });     
+            });
+            var serverID = Entities.getEntityProperties(_this.entityID, "parentID").parentID;
+            serverID = 	Entities.getEntityProperties(serverID, "parentID").parentID;
+            print("Daantje Debug calling server to clear board " + serverID);
+            Entities.callEntityServerMethod(serverID, 'clearBoard', []);			
         },
         clickReleaseOnEntity: function() {
             _this.clearBoard();

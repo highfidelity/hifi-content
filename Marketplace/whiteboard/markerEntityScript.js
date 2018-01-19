@@ -158,6 +158,10 @@
             _this.linePoints = [];
             _this.normals = [];
             _this.strokes.push(_this.currentStroke);
+            // Test start new stroke
+			var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
+			print("Daantje Debug + call server newStroke " + serverID);
+            Entities.callEntityServerMethod(serverID, 'startMarkerStroke', []);
         },
 
         paint: function(position) {
@@ -203,6 +207,12 @@
                 _this.currentStroke = null;
                 _this.oldPosition = position;
             }
+            
+            // Test continue new stroke
+			// whiteboard server ID
+			var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
+			print("Daantje Debug + call server paint " + serverID);
+            Entities.callEntityServerMethod(serverID, 'continueMarkerStroke', []);
         },
 
         resetStroke: function() {
@@ -212,6 +222,11 @@
             _this.currentStroke = null;
 
             _this.oldPosition = null;
+
+            // Test reset stroke
+			var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
+			print("Daantje Debug + call server reset " + serverID);
+            Entities.callEntityServerMethod(serverID, 'resetMarkerStroke', []);
         }
     };
 

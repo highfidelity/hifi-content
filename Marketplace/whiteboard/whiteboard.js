@@ -18,15 +18,13 @@
     var self = this;
     Whiteboard.prototype = {
         preload: function(entityID) {
-            this.entityID = entityID;
-            this.setup();
             _this.entityID = entityID;
-
-            self.intervalID = Script.setInterval(function() {
-               
-                Entities.callEntityServerMethod(_this.entityID, 'startMarkerLine', []);
-                 print("Call server @ " + _this.entityID);
-            }, 4000);
+            _this.setup();
+            
+            //self.intervalID = Script.setInterval(function() {
+            //    Entities.callEntityServerMethod(_this.entityID, 'startMarkerStroke', []);
+            //    print("Call server @ " + _this.entityID);
+            //}, 4000);
 
         },
         unload: function() {
