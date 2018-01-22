@@ -1,0 +1,7 @@
+All audio files from freesound.org
+by Jobro
+https://freesound.org/people/jobro/packs/2489/
+
+Files were changed from stereo to mono
+
+https://creativecommons.org/licenses/by/3.0/
