@@ -24,6 +24,8 @@
     // var LINEAR_TIMESCALE = 0.1;
     // var ANGULAR_TIMESCALE = 0.1;
     var _this;
+	
+	var isPainting = false;
 
     // subscribe to channel 
     MarkerTip = function() {
@@ -103,7 +105,7 @@
             };
 
             var colorIntersection = Entities.findRayIntersection(pickRay, true, _this.colors);
-            print("Daantje Debug My Marker Color " + JSON.stringify(_this.markerColor));
+
 			var isIntersectingColorWell = false;
 			
             if (colorIntersection.intersects) {
@@ -131,117 +133,40 @@
                 _this.currentWhiteboard = whiteBoardIntersection.entityID;
                 var whiteboardRotation = Entities.getEntityProperties(_this.currentWhiteboard, "rotation").rotation;
                 _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
-
-                _this.paint(whiteBoardIntersection.intersection)
-            
+                _this.paint(whiteBoardIntersection.intersection);
+                isPainting = true;
                 hand = paramsArray[0] === 'left' ? 0 : 1;
                 var vibrated = Controller.triggerHapticPulse(1, 70, hand);
-            } else if (_this.currentStroke) {
+            } else {
                 _this.resetStroke();
             }
         },
-
         startEquip: function() {
             _this.startNearGrab();
         },
-
         continueEquip: function(ID, paramsArray) {
             _this.continueNearGrab(ID, paramsArray);
         },
-
         releaseEquip: function() {
              _this.releaseGrab();
         },
-
-        newStroke: function(position) {
-            _this.strokeBasePosition = position;
-            _this.currentStroke = Entities.addEntity({
-                type: "PolyLine",
-                name: _this.STROKE_NAME,
-                dimensions: {
-                    x: 10,
-                    y: 10,
-                    z: 10
-                },
-                position: position,
-				color: _this.markerColor,
-                textures: _this.MARKER_TEXTURE_URL,
-                
-                lifetime: 5000
-            });
-
-            _this.linePoints = [];
-            _this.normals = [];
-            _this.strokes.push(_this.currentStroke);
-            // Test start new stroke
-			var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
-			print("Daantje Debug + call server newStroke " + serverID);
-            Entities.callEntityServerMethod(serverID, 'startMarkerStroke', []);
-        },
-
         paint: function(position) {
-            var basePosition = position;
-            if (!_this.currentStroke) {
-                if (_this.oldPosition) {
-                    basePosition = _this.oldPosition;
-                }
-                _this.newStroke(basePosition);
-            }
-
-            var localPoint = Vec3.subtract(basePosition, _this.strokeBasePosition);
-            localPoint = Vec3.sum(localPoint, Vec3.multiply(_this.whiteboardNormal, _this.strokeForwardOffset));
-
-            if (_this.linePoints.length > 0) {
-                var distance = Vec3.distance(localPoint, _this.linePoints[_this.linePoints.length - 1]);
-                if (distance < _this.MIN_DISTANCE_BETWEEN_POINTS) {
-                    return;
-                }
-            }
-            _this.linePoints.push(localPoint);
-            _this.normals.push(_this.whiteboardNormal);
-
-            var strokeWidths = [];
-            var i;
-            for (i = 0; i < _this.linePoints.length; i++) {
-                // Create a temp array of stroke widths for calligraphy effect - start and end should be less wide
-                var pointsFromCenter = Math.abs(_this.linePoints.length / 2 - i);
-                var pointWidth = map(pointsFromCenter, 0, this.linePoints.length / 2, _this.STROKE_WIDTH_RANGE.max, this.STROKE_WIDTH_RANGE.min);
-                strokeWidths.push(pointWidth);
-            }
-
-            Entities.editEntity(_this.currentStroke, {
-                linePoints: _this.linePoints,
-                normals: _this.normals,
-                strokeWidths: strokeWidths
-            });
-
-            if (_this.linePoints.length > MAX_POINTS_PER_STROKE) {
-                Entities.editEntity(_this.currentStroke, {
-                    parentID: _this.currentWhiteboard
-                });
-                _this.currentStroke = null;
-                _this.oldPosition = position;
-            }
-            
-            // Test continue new stroke
+            //[position, markerColor, creatorMarker, parentID]
+            // Paint
 			// whiteboard server ID
 			var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
 			print("Daantje Debug + call server paint " + serverID);
-            Entities.callEntityServerMethod(serverID, 'continueMarkerStroke', []);
+            Entities.callEntityServerMethod(serverID, 'paint', [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]);
         },
-
         resetStroke: function() {
-            Entities.editEntity(_this.currentStroke, {
-                parentID: _this.currentWhiteboard
-            });
-            _this.currentStroke = null;
-
-            _this.oldPosition = null;
-
-            // Test reset stroke
-			var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
-			print("Daantje Debug + call server reset " + serverID);
-            Entities.callEntityServerMethod(serverID, 'resetMarkerStroke', []);
+            // reset stroke
+            //[creatorMarker, parentID]
+			if (isPainting) {
+				isPainting = false;
+				var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
+			    print("Daantje Debug + call server reset " + serverID);
+                Entities.callEntityServerMethod(serverID, 'resetMarkerStroke', [_this.entityID, _this.currentWhiteboard]);
+			}
         }
     };
 
