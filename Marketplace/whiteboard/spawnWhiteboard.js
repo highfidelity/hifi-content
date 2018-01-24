@@ -109,6 +109,7 @@ function createWhiteboard() {
 	// Spawn Whiteboard Frame
 	whiteboardFrameID = spawnTemplate("Whiteboard", {
         position: rootPosition,
+        rotation: MyAvatar.orientation,
         compoundShapeURL: Script.resolvePath("models/whiteBoard_collider.obj"),
         script: Script.resolvePath("whiteboard.js"),
         serverScripts: Script.resolvePath("whiteboardManagerServer.js")
@@ -116,14 +117,17 @@ function createWhiteboard() {
     entityIDs.push(whiteboardFrameID);
 
     // Spawn drawing surface
-    
     drawingSurfaceID = spawnTemplate("Whiteboard - Drawing Surface", {
     	parentID: whiteboardFrameID
     });
     entityIDs.push(drawingSurfaceID);
     
+    var newProperties = {
+        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(drawingSurfaceID, "rotation").rotation)
+    };
+    Entities.editEntity(drawingSurfaceID, newProperties);
+
     // Spawn blue marker
-    
     blueMarkerID = spawnTemplate("hifi_model_marker_blue", {
         parentID: whiteboardFrameID,
         script: Script.resolvePath("whiteboardToolAttacher_NoHandControllerGrab.js"),
@@ -156,8 +160,12 @@ function createWhiteboard() {
 
     entityIDs.push(blueMarkerID);
 
+    newProperties = {
+        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(blueMarkerID, "rotation").rotation)
+    };
+    Entities.editEntity(blueMarkerID, newProperties);
+
     // Spawn eraser
-    
     eraserID = spawnTemplate("hifi_model_whiteboardEraser", {
         parentID: whiteboardFrameID,
         script: Script.resolvePath("whiteboardToolAttacher_NoHandControllerGrab.js"),
@@ -184,12 +192,22 @@ function createWhiteboard() {
     });
 
     entityIDs.push(eraserID);
+
+    newProperties = {
+        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(eraserID, "rotation").rotation)
+    };
+    Entities.editEntity(eraserID, newProperties);
     
     // Spawn Reset Button
     resetButtonID = spawnTemplate("Whiteboard - Reset Button", {
     	parentID: whiteboardFrameID
     });
     entityIDs.push(resetButtonID);
+
+    newProperties = {
+        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(resetButtonID, "rotation").rotation)
+    };
+    Entities.editEntity(resetButtonID, newProperties);
 
     // Spawn reset nutton sensor
     
@@ -198,6 +216,11 @@ function createWhiteboard() {
     	script: Script.resolvePath("resetWhiteBoard.js")
     });
     entityIDs.push(resetButtonSensorID);
+
+    newProperties = {
+        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(resetButtonSensorID, "rotation").rotation)
+    };
+    Entities.editEntity(resetButtonSensorID, newProperties);
 
 };
 

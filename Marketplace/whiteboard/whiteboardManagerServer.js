@@ -67,7 +67,7 @@
             var strokeWidths = [];
             var strokeBasePosition = strokeBasePositionInProgress[currentIndex];
             var basePosition = utils.parseJSON(params[0]);
-            var whiteboardNormal = Entities.getEntityProperties(params[3], "rotation").rotation;
+            var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
             whiteboardNormal = Quat.getFront(whiteboardNormal);
             //add new points to lines and normals
 
@@ -125,9 +125,9 @@
                 color: utils.parseJSON(params[1]),
                 textures: MARKER_TEXTURE_URL,
                 lifetime: 5000,
-                parentID: params[3],
                 userData: JSON.stringify({
-                    creatorMarker: params[2]
+                    creatorMarker: params[2],
+					parentBoard: params[3]
                 })
             });
             
@@ -154,7 +154,7 @@
             if (currentIndex == -1) {
                 return;
             }
-
+			
             strokes.push(strokesInProgress[currentIndex]);
             strokesInProgress.splice(currentIndex, 1);
             linePointsInProgress.splice(currentIndex, 1);
