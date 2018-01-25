@@ -55,7 +55,6 @@
                 clientOnly: 0,
                 collidesWith: "static,",
                 collisionMask: 1,
-                collisionsWillMove: 0,
                 damping: 0,
                 dimensions: FINGER_ENTITY_DIMENSIONS,
                 dynamic: 1,
