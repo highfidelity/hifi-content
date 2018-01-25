@@ -201,7 +201,13 @@
                     break;
             } 
         },
-        collisionWithEntity: function() {
+        collisionWithEntity: function(thisEntity, otherEntity, collision) {
+            if (collision.type === 0) {
+                this.playSound();
+            }
+            
+        },
+        playSound: function() {
             _this.homePos = Entities.getEntityProperties(_this.entityID, ["position"]).position;
             _this.injector = Audio.playSound(_this.sound, {position: _this.homePos, volume: AUDIO_VOLUME});
             if (sound.downloaded && !playing) {
@@ -230,7 +236,7 @@
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
             if (mouseEvent.isLeftButton) {
-                this.collisionWithEntity();
+                this.playSound();
             }
         },
         getKeyNumber: function(){
