@@ -270,7 +270,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
             var nearbyEntityProperties = Entities.getEntityProperties(nearbyEntity);
             var nearbyEntityName = JSON.stringify(nearbyEntityProperties.name);
             
-            if(nearbyEntityName.indexOf("musvis") != -1) {
+            if (nearbyEntityName.indexOf("musvis") != -1) {
                 print("Found " + nearbyEntityName + ", removing from domain.");
                 Entities.deleteEntity(nearbyEntity);
             }
