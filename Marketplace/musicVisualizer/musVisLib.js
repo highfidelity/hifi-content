@@ -1,9 +1,10 @@
 //  
-//  emojiLib.js
-//  A library of JSON links for emojis
+//  musVisLib.js
+//  A library of of effects for the Music Visualizer
 //  
 //  Author: Elisa Lupin-Jimenez
-//  Copyright High Fidelity 2017
+//  Edits: Cain Kilgore
+//  Copyright High Fidelity 2018
 //  
 //  Licensed under the Apache 2.0 License
 //  See accompanying license file or http://apache.org/

@@ -13,7 +13,7 @@
 //  http://creativecommons.org/licenses/
 //  
 
-var LIB = Script.require("./musVisLib.js?" + Date.now());
+var visualizerLibrary = Script.require("./musVisLib.js?" + Date.now());
 var MIC_SYNC_SCRIPT = Script.resolvePath("adjuster_scripts/micSync.js?" + Date.now());
 var AUDIO_SYNC_SCRIPT = Script.resolvePath("adjuster_scripts/audioFileSync.js?" + Date.now());
 var TRAIL_LEFT_SCRIPT = Script.resolvePath("adjuster_scripts/effectTrailerLeft.js?" + Date.now());
@@ -31,7 +31,9 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
     var DELETE_RADIUS = 500;
     var audioFile = "";
     var existingParticles = [];
-
+    var positionIncrement = 0.5;
+    var handTimeout = 700;
+    
     var button = tablet.addButton({
         icon: APP_ICON,
         activeIcon: APP_ICON_ACTIVE,
@@ -75,15 +77,14 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
         var direction = Quat.getFront(MyAvatar.orientation);
         var distance = 0.3;
         var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
-        position.y += 0.5;
+        position.y += positionIncrement;
         return position;
     }
 
     // adds the particle to world
     function createParticle(effectName, micSync, behavior, file) {
-        print(effectName + " particle is being added");
         var position = getPositionToCreateEntity();
-        var effectJSON = LIB.getEffect(effectName, LIB.effectLib);
+        var effectJSON = visualizerLibrary.getEffect(effectName, visualizerLibrary.effectLib);
         effectJSON.position = position;
         
         // mic sync and audio file are mutually exclusive
@@ -105,7 +106,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
 
         // creates invisible sphere as parent to effect
         if (behavior === "dynamic") {
-            var invisible = LIB.getEffect("invisible", LIB.effectLib);
+            var invisible = visualizerLibrary.getEffect("invisible", visualizerLibrary.effectLib);
             invisible.position = position;
             var invisSphere = Entities.addEntity(invisible);
             effectJSON.parentID = invisSphere;
@@ -199,7 +200,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
                 Overlays.editOverlay(equipLeft, equipLeftProps);
                 Overlays.editOverlay(equipRight, equipRightProps);
 
-            }, 700);
+            }, handTimeout);
 
             // once particles are equipped tablet must be auto closed
             button.editProperties({ isActive: false });
@@ -230,7 +231,6 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
 
     function onWebEventReceived(event) {
         var htmlEvent = JSON.parse(event);
-        print("Event: " + JSON.stringify(htmlEvent));
         // Handles particle button clicks to retrieve the effect JSON from musVisLib
         if (htmlEvent.type === "click") {
             var effectName = htmlEvent.data;
@@ -263,16 +263,13 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
     }
 
     function cleanUpParticles() {
-        print("Cleaning up particles");
-        
         var getNearbyEntities = Entities.findEntities(MyAvatar.position, DELETE_RADIUS);
         for (var i = 0; i < getNearbyEntities.length; i++) {
             var nearbyEntity = getNearbyEntities[i];
-            var nearbyEntityProperties = Entities.getEntityProperties(nearbyEntity);
-            var nearbyEntityName = JSON.stringify(nearbyEntityProperties.name);
+            var nearbyEntityProperties = JSON.stringify(Entities.getEntityProperties(nearbyEntity, "name"));
             
-            if(nearbyEntityName.indexOf("musvis") != -1) {
-                print("Found " + nearbyEntityName + ", removing from domain.");
+            if(nearbyEntityProperties.indexOf("musvis") != -1) {
+                print("Found " + nearbyEntityProperties + ", removing from domain.");
                 Entities.deleteEntity(nearbyEntity);
             }
         }

@@ -17,7 +17,8 @@
     var DEFAULT_RADIUS = 0.25;
     var lastUpdateLevel = 0;
     var updateInterval = 10;
-
+    var particlePercentage = 0.5;
+    
     _this.preload = function(entityID) {
         _this.entityID = entityID;
     };
@@ -38,7 +39,7 @@
         } else {
             var effectPropsChange = Entities.getEntityProperties(_this.entityID, 'particleRadius');
             var targetLevel = Audio.inputLevel + DEFAULT_RADIUS;
-            effectPropsChange.particleRadius = mixValue(effectPropsChange.particleRadius, targetLevel, 0.5);
+            effectPropsChange.particleRadius = mixValue(effectPropsChange.particleRadius, targetLevel, particlePercentage);
             lastUpdateLevel = Audio.inputLevel;
             Entities.editEntity(_this.entityID, effectPropsChange);
         }
