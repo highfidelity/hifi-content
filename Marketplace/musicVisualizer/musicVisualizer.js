@@ -3,7 +3,8 @@
 //  A tablet app for spawning particle entities with audio reactivity
 //   
 //  Author: Elisa Lupin-Jimenez
-//  Copyright High Fidelity 2017
+//  Copyright High Fidelity 2018
+//  Editor: Cain Kilgore
 //  
 //  Licensed under the Apache 2.0 License
 //  See accompanying license file or http://apache.org/
@@ -23,9 +24,9 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
 (function() {
 
     var APP_NAME = "MUS VIS";
-    var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/musicVisualizerUI.html?" + Date.now();
-    var APP_ICON = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/icons/particles-i-01.svg";
-    var APP_ICON_ACTIVE = "https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/icons/particles-a-01.svg";
+    var APP_URL = "http://mpassets.highfidelity.com/94c95207-e34c-48c8-afae-ad7dd9499a69-v1/music_visualizer.html?" + Date.now();
+    var APP_ICON = "http://mpassets.highfidelity.com/94c95207-e34c-48c8-afae-ad7dd9499a69-v1/icons/particles-i-01.svg";
+    var APP_ICON_ACTIVE = "http://mpassets.highfidelity.com/94c95207-e34c-48c8-afae-ad7dd9499a69-v1/icons/particles-a-01.svg";
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var DELETE_RADIUS = 500;
     var audioFile = "";
@@ -270,7 +271,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
             var nearbyEntityProperties = Entities.getEntityProperties(nearbyEntity);
             var nearbyEntityName = JSON.stringify(nearbyEntityProperties.name);
             
-            if (nearbyEntityName.indexOf("musvis") != -1) {
+            if(nearbyEntityName.indexOf("musvis") != -1) {
                 print("Found " + nearbyEntityName + ", removing from domain.");
                 Entities.deleteEntity(nearbyEntity);
             }
