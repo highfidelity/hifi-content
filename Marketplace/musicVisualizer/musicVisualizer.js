@@ -33,6 +33,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
     var existingParticles = [];
     var positionIncrement = 0.5;
     var handTimeout = 700;
+    var fingerLifespan = 2;
     
     var button = tablet.addButton({
         icon: APP_ICON,
@@ -117,7 +118,7 @@ var CLEAR_SELECTION_TEXT = "Clear selection";
         // creates trail effect
         if (behavior === "finger") {
             effectJSON.isEmitting = false;
-            effectJSON.lifespan = 2;
+            effectJSON.lifespan = fingerLifespan;
             effectJSON.userData = JSON.stringify({
                 grabbableKey: {
                     grabbable: true,
