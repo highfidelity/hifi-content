@@ -20,7 +20,9 @@
     var updateInterval = 1;
     var injector;
     var options;
-
+    var minDistance = 0.01;
+    var particlePercentage = 0.5;
+    
     function loadInjector(sound) {
         options = { loop: true, position: Entities.getEntityProperties(_this.entityID, 'position').position };
         injector = Audio.playSound(sound, options);
@@ -51,7 +53,7 @@
         if (injector !== undefined && injector.isPlaying()) {
             // update spatialized sound location with particle movement
             var entityPosition = Entities.getEntityProperties(_this.entityID, 'position').position;
-            if (Vec3.distance(lastPosition, entityPosition) > 0.01) {
+            if (Vec3.distance(lastPosition, entityPosition) > minDistance) {
                 options.position = entityPosition;
                 injector.setOptions(options);
                 lastPosition = injector.options.position;
@@ -68,7 +70,7 @@
             } else {
                 var effectPropsChange = Entities.getEntityProperties(_this.entityID, 'particleRadius');
                 var targetLevel = injector.getLoudness() + DEFAULT_RADIUS;
-                effectPropsChange.particleRadius = mixValue(effectPropsChange.particleRadius, targetLevel, 0.5);
+                effectPropsChange.particleRadius = mixValue(effectPropsChange.particleRadius, targetLevel, particlePercentage);
                 lastUpdateLevel = injector.getLoudness();
                 Entities.editEntity(_this.entityID, effectPropsChange);
             }
