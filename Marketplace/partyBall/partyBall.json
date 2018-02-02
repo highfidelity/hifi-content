@@ -1,0 +1,43 @@
+{
+    "Entities": [
+        {
+            "clientOnly": 0,
+            "collisionsWillMove": 1,
+            "created": "2018-02-02T21:30:59Z",
+            "dimensions": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            },
+            "dynamic": 1,
+            "gravity": {
+                "x": 0,
+                "y": -1.5,
+                "z": 0
+            },
+            "id": "{6e1daf41-92ab-46de-bded-c659490676d3}",
+            "lastEdited": 1517607301543083,
+            "lastEditedBy": "{6461b9f0-c2d1-4252-b18b-350746976b96}",
+            "modelURL": "http://mpassets.highfidelity.com/478d5ec2-227c-4c7f-81b9-f60944dacc40-v1/partyBall.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 1.7320507764816284,
+                "x": -0.8660253882408142,
+                "y": -0.8660253882408142,
+                "z": -0.8660253882408142
+            },
+            "restitution": 0.9900000095367432,
+            "rotation": {
+                "w": 0.999969482421875,
+                "x": -0.0010528564453125,
+                "y": -4.57763671875e-05,
+                "z": -0.004318296909332275
+            },
+            "script": "http://mpassets.highfidelity.com/478d5ec2-227c-4c7f-81b9-f60944dacc40-v1/partyBall.js",
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"wantsTrigger\":true,\"grabbable\":false}}"
+        }
+    ],
+    "Version": 84
+}
