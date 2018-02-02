@@ -12,6 +12,8 @@
     var _this;
 
     var AUDIO_VOLUME_LEVEL = 1;
+    var TIMEOUT_10_MS = 10;
+
     var playing = false;
     var sound;
 
@@ -26,23 +28,26 @@
         },
         collisionWithEntity: function(thisEntity, otherEntity, collision) {
             if (collision.type === 0) {
-                _this.homePos = Entities.getEntityProperties(_this.entityID, ["position"]).position;
-                _this.injector = Audio.playSound(_this.sound, {position: _this.homePos, volume: AUDIO_VOLUME_LEVEL});
-                if (sound.downloaded && !playing) {
-                    Audio.playSound(sound, {
-                        position: _this.homePos,
-                        volume: AUDIO_VOLUME_LEVEL
-                    });
-                    playing = true;
-                    Script.setTimeout(function() {
-                        playing = false;
-                    }, 250);
-                }
+                this.playSound();
+            }
+        },
+        playSound: function() {
+            _this.homePos = Entities.getEntityProperties(_this.entityID, ["position"]).position;
+            _this.injector = Audio.playSound(_this.sound, {position: _this.homePos, volume: AUDIO_VOLUME_LEVEL});
+            if (sound.downloaded && !playing) {
+                Audio.playSound(sound, {
+                    position: _this.homePos,
+                    volume: AUDIO_VOLUME_LEVEL
+                });
+                playing = true;
+                Script.setTimeout(function() {
+                    playing = false;
+                }, TIMEOUT_10_MS);
             }
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
             if (mouseEvent.isLeftButton) {
-                this.collisionWithEntity();
+                this.playSound();
             }
         }
     };

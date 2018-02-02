@@ -13,17 +13,19 @@
 
     var AUDIO_VOLUME_LEVEL = 0.8;
     var HALF = 0.5;
+    var TIMEOUT_10_MS = 10;
+
     var playing = false;
     var soundEdge;
     var soundBell;
     var soundMid;
     var topCenter;
 
-    var Cowbell = function() {
+    var Ride = function() {
         _this = this;
     };
 
-    Cowbell.prototype = {
+    Ride.prototype = {
         preload: function(entityID){
             _this.entityID = entityID;
             var properties = Entities.getEntityProperties(_this.entityID, ["position", "dimensions"]);
@@ -56,7 +58,7 @@
                 playing = true;
                 Script.setTimeout(function() {
                     playing = false;
-                }, 10);
+                }, TIMEOUT_10_MS;);
             }
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
@@ -66,5 +68,5 @@
         }
     };
 
-    return new Cowbell();
+    return new Ride();
 });
