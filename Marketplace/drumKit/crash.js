@@ -12,40 +12,45 @@
     var _this;
 
     var AUDIO_VOLUME_LEVEL = 1;
+    var TIMEOUT_MS = 10;
+    
     var playing = false;
     var sound;
 
-    var Cowbell = function() {
+    var Crash = function() {
         _this = this;
     };
 
-    Cowbell.prototype = {
+    Crash.prototype = {
         preload: function(entityID){
             _this.entityID = entityID;
             sound = SoundCache.getSound(Script.resolvePath("DrumKit/CRASH1.wav"));
         },
         collisionWithEntity: function(thisEntity, otherEntity, collision) {
             if (collision.type === 0) {
-                _this.homePos = Entities.getEntityProperties(_this.entityID, ["position"]).position;
-                _this.injector = Audio.playSound(_this.sound, {position: _this.homePos, volume: AUDIO_VOLUME_LEVEL});
-                if (sound.downloaded && !playing) {
-                    Audio.playSound(sound, {
-                        position: _this.homePos,
-                        volume: AUDIO_VOLUME_LEVEL
-                    });
-                    playing = true;
-                    Script.setTimeout(function() {
-                        playing = false;
-                    }, 250);
-                }
+                this.playSound();
+            }
+        },
+        playSound: function() {
+            _this.homePos = Entities.getEntityProperties(_this.entityID, ["position"]).position;
+            _this.injector = Audio.playSound(_this.sound, {position: _this.homePos, volume: AUDIO_VOLUME_LEVEL});
+            if (sound.downloaded && !playing) {
+                Audio.playSound(sound, {
+                    position: _this.homePos,
+                    volume: AUDIO_VOLUME_LEVEL
+                });
+                playing = true;
+                Script.setTimeout(function() {
+                    playing = false;
+                }, TIMEOUT_MS);
             }
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
             if (mouseEvent.isLeftButton) {
-                this.collisionWithEntity();
+                this.playSound();
             }
         }
     };
 
-    return new Cowbell();
+    return new Crash();
 });
