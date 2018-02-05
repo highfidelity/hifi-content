@@ -58,7 +58,7 @@
                 playing = true;
                 Script.setTimeout(function() {
                     playing = false;
-                }, TIMEOUT_10_MS;);
+                }, TIMEOUT_10_MS);
             }
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
