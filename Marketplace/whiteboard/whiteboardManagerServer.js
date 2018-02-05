@@ -1,10 +1,8 @@
 (function() {
-	print("Daantje Debug pre");
-    Script.include('utils.js');
+	Script.include('utils.js');
     
     var _this;
-    print("Daantje Debug ");
-
+    
     var strokes = [];
     var strokesInProgress = [];
     var linePointsInProgress = [];
@@ -13,7 +11,8 @@
     var MAX_POINTS_PER_STROKE = 40;
     
 	var MARKER_TEXTURE_URL = Script.resolvePath("markerStroke.png");
-	var strokeForwardOffset = 0.0001;
+	//var strokeForwardOffset = 0.0001;
+	var strokeForwardOffset = 0.01;
 	var STROKE_WIDTH_RANGE = {
                 min: 0.002,
                 max: 0.01
@@ -24,7 +23,7 @@
     };
 
     Whiteboard.prototype = {
-        remotelyCallable: ['paint', 'resetMarkerStroke', 'erase', 'clearBoard'],
+        remotelyCallable: ['paint', 'resetMarkerStroke', 'erase', 'clearBoard', 'serverAddEntity', 'serverEditEntity', 'serverSetEntityData'],
         preload: function(entityID){
             print("Daantje Debug on Preload " + entityID);
             _this.entityID = entityID;
@@ -68,11 +67,37 @@
             var strokeBasePosition = strokeBasePositionInProgress[currentIndex];
             var basePosition = utils.parseJSON(params[0]);
             var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
-            whiteboardNormal = Quat.getFront(whiteboardNormal);
-            //add new points to lines and normals
+            whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
 
-            var localPoint = Vec3.subtract(basePosition, strokeBasePosition);
-            localPoint = Vec3.sum(localPoint, Vec3.multiply(whiteboardNormal, strokeForwardOffset));
+            var whiteboardPosition = Entities.getEntityProperties(_this.entityID , "position").position;
+			print("Daantje Debug -- normal " + JSON.stringify(whiteboardNormal));
+            print("Daantje Debug -- position " + JSON.stringify(whiteboardPosition));
+			
+            // Plane equation
+            // ax + by + cz + d = 0
+            var d = -1 * (whiteboardNormal.x * whiteboardPosition.x + 
+                whiteboardNormal.y * whiteboardPosition.y +
+                whiteboardNormal.z * whiteboardPosition.z 
+            );
+			var c = Vec3.dot(whiteboardNormal, whiteboardPosition);
+			
+			print("Daantje Debug -- d " + d);
+            
+            //add new points to lines and normals
+            var localPoint = basePosition;
+			//var localPoint = Vec3.subtract(basePosition, strokeBasePosition);
+			
+			var distLocal = Vec3.dot(whiteboardNormal, localPoint) - c;
+            
+			print("Daantje Debug -- dist " + distLocal);
+            
+            //Projecting local point onto the whiteboard plane
+            //localPoint = Vec3.sum(localPoint, Vec3.multiply(-1 * dist, whiteboardNormal));
+			localPoint = Vec3.subtract(localPoint, Vec3.multiply(distLocal, whiteboardNormal));
+			localPoint = Vec3.subtract(localPoint, strokeBasePosition);
+			localPoint = Vec3.sum(localPoint, Vec3.multiply(whiteboardNormal, strokeForwardOffset));
+            
+			print("Daantje Debug -- Drawing here " + JSON.stringify(localPoint));
 
             if (linePoints.length > 0) {
                 var distance = Vec3.distance(localPoint, linePoints[linePoints.length - 1]);
@@ -169,6 +194,23 @@
         },
 		clearBoard: function(entityID, params) {
             print("Daantje Debug clear board");
+        },
+        // params [entityID, properties]
+        serverAddEntity: function(entityID, params) {
+            print("Daantje Debug serverAddEntity");
+            Entities.addEntity(params[0], utils.parseJSON(params[1]));
+        },
+        // params [entityID, properties]
+        serverEditEntity: function(entityID, params) {
+            print("Daantje Debug serverEditEntity");
+            Entities.editEntity(params[0], utils.parseJSON(params[1]));
+        },
+        // params [property, entityID, message]
+        // setEntityCustomData("markerColor", _this.entityID, JSON.parse(message))
+        serverSetEntityData: function(entityID, params) {
+            print("Daantje Debug serverSetEntityData");
+            //setEntityCustomData(params[0], params[1], utils.parseJSON(params[2]));
+            setEntityUserData(params[0], utils.parseJSON(params[1]));
         },
         unload: function() {
             print("Daantje Debug on Unload");

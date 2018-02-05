@@ -129,6 +129,7 @@
             updateProperties();
             
             Controller.enableMapping(_this.mappingName);
+            //Controller.mouseReleaseEvent.connect(_this.mouseReleaseEvent);
             Script.update.connect(_this.update);
         },
         unload: function() {
@@ -137,6 +138,7 @@
             Script.clearInterval(_this.propertiesUpdateTimer);
             Overlays.deleteOverlay(_this.overlay);
             Controller.disableMapping(_this.mappingName);
+            //Controller.mouseReleaseEvent.disconnect(_this.mouseReleaseEvent);
         },
         update: function(deltaTime) {
             var shouldShow = false;
@@ -195,6 +197,7 @@
                 lifetime: 86400,
                 script: MARKER_SCRIPT_URL,
                 scriptTimestamp: SCRIPT_UPDATE_DATE,
+				//parentID: Entities.getEntityProperties(_this.entityID, "parentID").parentID,
                 userData: JSON.stringify({
                     grabbableKey: {
                         grabbable: true,
@@ -235,7 +238,7 @@
                     }]
                 })
             };
-            return Entities.addEntity(markerProperties, CLIENT_ONLY);
+            return Entities.addEntity(markerProperties);
         },
         createEraser: function(modelURL) {
 
@@ -246,6 +249,7 @@
                 script: ERASER_SCRIPT_URL,
                 scriptTimestamp: SCRIPT_UPDATE_DATE,
                 shapeType: "box",
+				parentID: Entities.getEntityProperties(_this.entityID, "parentID").parentID,
                 lifetime: 86400,
                 dimensions: {
                     x: 0.0858,
@@ -289,7 +293,7 @@
                     }]
                 })
             };
-            return Entities.addEntity(eraserProps, CLIENT_ONLY);
+            return Entities.addEntity(eraserProps);
         },
         attachEntity: function(entityID, attachHand) {
             var properties = Entities.getEntityProperties(entityID, ['userData', 'modelURL']);
@@ -306,7 +310,37 @@
             //Script.setTimeout(function() {
             Messages.sendLocalMessage('Hifi-Hand-Grab', JSON.stringify({hand: attachHand, entityID: newEntity}));
             //}, 1000);
+        },
+
+        // DESKTOP MOUSE COMPATIBILITY
+        
+        clickReleaseOnEntity: function(entityID, mouseEvent) {
+            if (!mouseEvent.isLeftButton) {
+                return;
+            }
+            var properties = Entities.getEntityProperties(entityID, ['userData', 'modelURL']);
+            properties.rotation = Entities.getEntityProperties(Entities.getEntityProperties(_this.entityID, "parentID").parentID, "rotation").rotation;
+            properties.position = Entities.getEntityProperties(_this.entityID, "position").position;
+
+            var userData = JSON.parse(properties.userData);
+            if (Entities.getEntityProperties(entityID, "name").name === "hifi_model_whiteboardEraser") {
+                print("Daantje Debug + test 2  mouseReleaseEvent create eraser " + JSON.stringify(mouseEvent));
+                var eraser = _this.createEraser(properties.modelURL);
+                Entities.editEntity(eraser, {
+                    position: properties.position
+                });
+            } else {
+                print("Daantje Debug + test 2  mouseReleaseEvent create marker " + JSON.stringify(mouseEvent));
+
+                var marker = _this.createMarker(properties.modelURL, userData.markerColor);
+                Entities.editEntity(marker, {
+                    position: properties.position,
+                    rotation: properties.rotation
+                });
+            }
+            
         }
+        
 
         /*,
         startNearTrigger: function(entityID, args) {
