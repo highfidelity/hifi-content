@@ -15,7 +15,7 @@
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var SHARED = Script.require('../attachmentZoneShared.js');
     var MARKETPLACE_SHARED = Script.require('../marketplaceShared.js');
-    var MARKET_PLACE_ITEM_URL_PREFIX = 'https://metaverse.highfidelity.com/marketplace';
+    var MARKET_PLACE_ITEM_URL_PREFIX = Account.metaverseServerURL + '/marketplace';
     var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + 
         "/system/html/js/marketplacesInject.js";
     var SCAN_RADIUS = 0.15; // meters
