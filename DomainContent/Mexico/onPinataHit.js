@@ -23,6 +23,7 @@
 
     var WHACK_URL = "https://hifi-content.s3.amazonaws.com/elisalj/mexico/whack.wav";
     var PARTY_URL = "http://mpassets.highfidelity.com/a5f42695-f15a-4f44-9660-14b4f8ca2b29-v1/PartyHorn4.wav";
+    var CONFETTI_HELPER_SCRIPT = "https://hifi-content.s3.amazonaws.com/elisalj/mexico/confettiHelper.js";
     var CHECK_DISTANCE_FROM_PADDLE = 3;
     var CONFETTI_SIZE_RANDOMIZER = 0.5;
     var AUDIO_VOLUME = 0.2;
@@ -33,9 +34,10 @@
         paddleOriginalPosition = Entities.getEntityProperties(entityID, "position").position;
         var pinataArray = Entities.findEntities(paddleOriginalPosition, CHECK_DISTANCE_FROM_PADDLE);
         pinataArray.forEach(function(objectID) {
-            if (Entities.getEntityProperties(objectID, "name").name === "Pinata") {
+            var objectProperties = Entities.getEntityProperties(objectID, ["position", "name"]);
+            if (objectProperties.name === "Pinata") {
                 pinataID = objectID;
-                pinataOriginalPosition = Entities.getEntityProperties(objectID, "position").position;
+                pinataOriginalPosition = objectProperties.position;
             }
         });
         // sound from http://soundbible.com/1952-Punch-Or-Whack.html
@@ -59,7 +61,7 @@
         emitRate: 100,
         emitSpeed: 3,
         speedSpread: 1,
-        script: "(function() { return { preload: function(e) { Script.setTimeout(function(){Entities.editEntity(e, { 'isEmitting': 0, 'script':'' }) },50); } } })",
+        script: CONFETTI_HELPER_SCRIPT,
         emitOrientation: Quat.fromVec3Degrees({x: 0, y: 90, z: 0}),
         emitDimensions: {
             x: 0.5,
