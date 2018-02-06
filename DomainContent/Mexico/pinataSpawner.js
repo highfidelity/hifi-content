@@ -110,7 +110,7 @@ paddleID = Entities.addEntity({
     "dynamic": 1,
     "name": "Pinata Paddle",
     "position": paddlePosition,
-    "script": "https://hifi-content.s3.amazonaws.com/elisalj/mexico/onPinataHit.js?31",
+    "script": "https://hifi-content.s3.amazonaws.com/elisalj/mexico/onPinataHit.js?33",
     "rotation": {
         "w": 0.98437130451202393,
         "x": -1.7827005649451166e-05,
