@@ -16,6 +16,8 @@
 
     var spiritID;
 
+    var DISPLACEMENT = 0.5;
+    var DISTANCE_FROM_AVATAR = 0.05;
     var INTERVAL = 200;
     var TIMEOUT = 5000;
     var START_POSITION = {
@@ -113,29 +115,28 @@
 
     function getPositionToCreateEntity() {
         var direction = Quat.getFront(MyAvatar.orientation);
-        var distance = 0.3;
+        var distance = DISPLACEMENT;
         var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
-        position.y += 0.5;
+        position.y += DISPLACEMENT;
         return position;
     };
 
     this.enterEntity = function(entityID) {
-        spiritID = Entities.addEntity(SPIRIT);
+        spiritID = Entities.addEntity(SPIRIT, true);
         var position;
         Script.setInterval(function () {
             if (spiritID !== 0) {
-                position = Entities.getEntityProperties(spiritID).position;
+                position = Entities.getEntityProperties(spiritID, "position").position;
                 var destination = Vec3.multiply(-1, Vec3.normalize(Vec3.subtract(position, MyAvatar.position)));
                 var newVelocity = {
                     "velocity": destination
                 };
                 Entities.editEntity(spiritID, newVelocity);
 
-                if (Vec3.distance(MyAvatar.position, position) < 0.05) {
-                    print("Spirit gifts you a flower");
+                if (Vec3.distance(MyAvatar.position, position) < DISTANCE_FROM_AVATAR) {
                     Entities.deleteEntity(spiritID);
                     flower.position = getPositionToCreateEntity();
-                    Entities.addEntity(flower);
+                    Entities.addEntity(flower, true);
                     spiritID = 0;
                 }
             }
