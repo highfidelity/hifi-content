@@ -18,12 +18,12 @@
         },        
         clearBoard: function() {
             // TODO Hacky
+            print("Daantje Debug calling server to clear board " + serverID);
             _this.resetPosition = Entities.getEntityProperties(_this.entityID, "position").position;
             var results = Entities.findEntities(_this.resetPosition, _this.RESET_STROKE_SEARCH_RADIUS);
             _this.findWhiteboard();
             var serverID = _this.whiteboard;
             
-
             results.forEach(function(stroke) {
                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
                 if (props.name === _this.STROKE_NAME && Vec3.distance(_this.resetPosition, props.position) < _this.RESET_STROKE_SEARCH_RADIUS) {
@@ -49,6 +49,7 @@
             });
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
+            print("Daantje Debug calling server to clear board ");
             _this.clearBoard();
         },
         startNearTrigger: function(entityID) {      

@@ -34,6 +34,8 @@
 
         startNearGrab: function() {
             _this.findWhiteboard();
+            var serverID = _this.whiteboard;
+            Entities.callEntityServerMethod(serverID, 'spawnEraser', [_this.entityID]);
         },
 
         findWhiteboard: function() {
@@ -119,7 +121,7 @@
             //Entities.editEntity(_this.entityID, {collisionless: true});
             var serverID = _this.whiteboard;
             Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, JSON.stringify({collisionless: true, grabbable: false})]);
-            
+            Entities.callEntityServerMethod(serverID, 'spawnEraser', [_this.entityID]);
 
             _this.whiteboards = [];
             

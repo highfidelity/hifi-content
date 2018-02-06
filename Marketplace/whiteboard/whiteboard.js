@@ -28,7 +28,6 @@
 
         },
         unload: function() {
-            Script.clearInterval(self.intervalID);
         },
         setup: function() {
 

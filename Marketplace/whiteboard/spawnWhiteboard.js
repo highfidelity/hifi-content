@@ -86,6 +86,11 @@ var entityIDs = [];
 var whiteboardFrameID = null;
 var drawingSurfaceID = null;
 var blueMarkerID = null;
+var greenMarkerID = null;
+var blackMarkerID = null;
+var redMarkerID = null;
+var pinkMarkerID = null;
+var yellowMarkerID = null;
 var eraserID = null;
 var resetButtonID = null;
 var resetButtonSensorID = null;
@@ -127,80 +132,10 @@ function createWhiteboard() {
     };
     Entities.editEntity(drawingSurfaceID, newProperties);
 
-    // Spawn blue marker
-    blueMarkerID = spawnTemplate("hifi_model_marker_blue", {
-        parentID: whiteboardFrameID,
-        script: Script.resolvePath("whiteboardToolAttacher_NoHandControllerGrab.js"),
-        userData: JSON.stringify({
-        	grabbableKey: {
-                wantsTrigger: true
-            },
-            triggerHotspots: {
-            	position: {
-            		x: 0,
-            		y: 0,
-            		z: 0
-            	},
-            	radius: 0.15,
-            	modelURL: Script.resolvePath("models/marker-blue.fbx"),
-            	modelScale: {
-            		x: 0.16,
-            		y: 0.16,
-            		z: 0.8
-            	}
-            },
-            type: "marker",
-            markerColor: {
-        		red: 0,
-        		green: 13,
-        		blue: 255
-        	}
-        })
-    });
-
-    entityIDs.push(blueMarkerID);
-
-    newProperties = {
-        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(blueMarkerID, "rotation").rotation)
-    };
-    Entities.editEntity(blueMarkerID, newProperties);
-
-    // Spawn eraser
-    eraserID = spawnTemplate("hifi_model_whiteboardEraser", {
-        parentID: whiteboardFrameID,
-        script: Script.resolvePath("whiteboardToolAttacher_NoHandControllerGrab.js"),
-        userData: JSON.stringify({
-        	grabbableKey: {
-                wantsTrigger: true
-            },
-            triggerHotspots: {
-            	position: {
-            		x: 0,
-            		y: 0,
-            		z: 0
-            	},
-            	radius: 0.15,
-            	modelURL: Script.resolvePath("models/eraser-2.fbx"),
-            	modelScale: {
-            		x: 0.4,
-            		y: 0.4,
-            		z: 0.8
-            	}
-            },
-            type: "eraser"
-        })
-    });
-
-    entityIDs.push(eraserID);
-
-    newProperties = {
-        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(eraserID, "rotation").rotation)
-    };
-    Entities.editEntity(eraserID, newProperties);
-    
     // Spawn Reset Button
     resetButtonID = spawnTemplate("Whiteboard - Reset Button", {
-    	parentID: whiteboardFrameID
+    	parentID: whiteboardFrameID,
+        script: Script.resolvePath("resetWhiteBoard.js")
     });
     entityIDs.push(resetButtonID);
 
@@ -208,19 +143,6 @@ function createWhiteboard() {
         rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(resetButtonID, "rotation").rotation)
     };
     Entities.editEntity(resetButtonID, newProperties);
-
-    // Spawn reset nutton sensor
-    
-    resetButtonSensorID = spawnTemplate("Whiteboard - Reset Button Sensor", {
-    	parentID: resetButtonID,
-    	script: Script.resolvePath("resetWhiteBoard.js")
-    });
-    entityIDs.push(resetButtonSensorID);
-
-    newProperties = {
-        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(resetButtonSensorID, "rotation").rotation)
-    };
-    Entities.editEntity(resetButtonSensorID, newProperties);
 
 };
 

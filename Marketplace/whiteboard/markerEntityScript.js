@@ -62,7 +62,7 @@
         if (_this.currentWhiteboard != null) {
             return Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
         }
-        if (_this.whiteboards.length > 1) {
+        if (_this.whiteboards.length >= 1) {
             return Entities.getEntityProperties(_this.whiteboards[0], "parentID").parentID;
         }
     }
@@ -86,11 +86,11 @@
         startNearGrab: function() {
             _this.whiteboards = [];
             _this.colors = [];
-
-            _this.markerColor = getEntityUserData(_this.entityID).markerColor;
+            var userData = getEntityUserData(_this.entityID);
+            _this.markerColor = userData.markerColor;
 
             var markerProps = Entities.getEntityProperties(_this.entityID);
-            _this.DRAW_ON_BOARD_DISTANCE = markerProps.dimensions.x / 2;
+            _this.DRAW_ON_BOARD_DISTANCE = markerProps.dimensions.z / 2;
             var markerPosition = markerProps.position;
             var results = Entities.findEntities(markerPosition, 5);
             results.forEach(function(entity) {
@@ -101,6 +101,12 @@
                     _this.colors.push(entity)
                 }
             });
+            
+            var serverID = getServerID();
+
+            Entities.callEntityServerMethod(serverID, 'spawnMarker', [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]);
+            Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, JSON.stringify({collisionless: true, grabbable: false, lifetime: 3600})]);
+            
         },
 
         releaseGrab: function() {
@@ -205,8 +211,8 @@
 
             _this.whiteboards = [];
             _this.colors = [];
-
-            _this.markerColor = getEntityUserData(_this.entityID).markerColor;
+            var userData = getEntityUserData(_this.entityID);
+            _this.markerColor = userData.markerColor;
 
             var markerProps = Entities.getEntityProperties(_this.entityID);
             _this.DRAW_ON_BOARD_DISTANCE = markerProps.dimensions.x / 2;
@@ -223,7 +229,12 @@
             
             // Server side
             var serverID = getServerID();
+            
+            print("Daantje Debug + test  clickDownOnEntity serverID " + serverID);
+            Entities.callEntityServerMethod(serverID, 'spawnMarker', [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]);
             Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, JSON.stringify({collisionless: true, grabbable: false})]);
+            
+            
             //setEntityCustomData("grabbable", _this.entityID, false);
             //Entities.callEntityServerMethod(serverID, 'serverSetEntityCustomData', ["grabbable", _this.entityID, false]);
 
@@ -273,22 +284,35 @@
                     if (!event.isAlt && isPainting) {
                         _this.resetStroke();
                         isPainting = false;
+                    } else {
+                        _this.currentWhiteboard = whiteBoardIntersection.entityID;
+                        isPainting = true;
                     }
                     
-                    var BreakException = {};
+                    //var BreakException = {};
 
-                    try {
-                        results.forEach(function(entity) {
-                        var entityName = Entities.getEntityProperties(entity, "name").name;
-                            if (entityName === _this.WHITEBOARD_SURFACE_NAME) {
-                                _this.currentWhiteboard = entity;
-                                isPainting = true;
-                                throw BreakException;
-                            }
-                        });
-                    } catch (e) {
-                        if (e !== BreakException) throw e;
-                    }
+                    // try {
+                    //     results.forEach(function(entity) {
+                    //     var entityName = Entities.getEntityProperties(entity, "name").name;
+                    //         if (entityName === _this.WHITEBOARD_SURFACE_NAME) {
+                    //             _this.currentWhiteboard = entity;
+                    //             isPainting = true;
+                    //             throw BreakException;
+                    //         }
+                    //     });
+                    // } catch (e) {
+                    //     if (e !== BreakException) throw e;
+                    // }
+
+                    //results.forEach(function(entity) {
+                    //    var entityName = Entities.getEntityProperties(entity, "name").name;
+                    //        if (entityName === _this.WHITEBOARD_SURFACE_NAME) {
+                    //            _this.currentWhiteboard = entity;
+                    //            isPainting = true;
+                    //        
+                    //        }
+                    //    });
+
                     
       
                     if (isPainting) {
