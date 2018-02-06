@@ -15,11 +15,12 @@
 (function() {
 
     var candleArray;
+    var HALF_MULTIPLIER = 0.5;
 
     function isPositionInsideBox(position, boxProperties) {
         var localPosition = Vec3.multiplyQbyV(Quat.inverse(boxProperties.rotation),
             Vec3.subtract(position, boxProperties.position));
-        var halfDimensions = Vec3.multiply(boxProperties.dimensions, 0.5);
+        var halfDimensions = Vec3.multiply(boxProperties.dimensions, HALF_MULTIPLIER);
         return -halfDimensions.x <= localPosition.x &&
                 halfDimensions.x >= localPosition.x &&
                -halfDimensions.y <= localPosition.y &&

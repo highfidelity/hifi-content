@@ -14,27 +14,33 @@
 
 (function() {
 
-    var WHACK_SOUND;
-    var PARTY_SOUND;
+    var whackSound;
+    var partySound;
     var paddleID;
     var paddleOriginalPosition;
     var pinataID;
     var pinataOriginalPosition;
 
+    var WHACK_URL = "https://hifi-content.s3.amazonaws.com/elisalj/mexico/whack.wav";
+    var PARTY_URL = "http://mpassets.highfidelity.com/a5f42695-f15a-4f44-9660-14b4f8ca2b29-v1/PartyHorn4.wav";
+    var CHECK_DISTANCE_FROM_PADDLE = 3;
+    var CONFETTI_SIZE_RANDOMIZER = 0.5;
+    var AUDIO_VOLUME = 0.2;
+    var RESET_PINATA_DISTANCE = 1;
+
     this.preload = function(entityID) {
         paddleID = entityID;
         paddleOriginalPosition = Entities.getEntityProperties(entityID, "position").position;
-        var pinataArray = Entities.findEntities(paddleOriginalPosition, 3);
-        for (i in pinataArray) {
-            var objectID = pinataArray[i];
+        var pinataArray = Entities.findEntities(paddleOriginalPosition, CHECK_DISTANCE_FROM_PADDLE);
+        pinataArray.forEach(function(objectID) {
             if (Entities.getEntityProperties(objectID, "name").name === "Pinata") {
                 pinataID = objectID;
                 pinataOriginalPosition = Entities.getEntityProperties(objectID, "position").position;
             }
-        }
+        });
         // sound from http://soundbible.com/1952-Punch-Or-Whack.html
-        WHACK_SOUND = SoundCache.getSound("https://hifi-content.s3.amazonaws.com/elisalj/mexico/whack.wav");
-        PARTY_SOUND = SoundCache.getSound("http://mpassets.highfidelity.com/a5f42695-f15a-4f44-9660-14b4f8ca2b29-v1/PartyHorn4.wav");
+        whackSound = SoundCache.getSound(WHACK_URL);
+        partySound = SoundCache.getSound(PARTY_URL);
     };
 
     var hits = 0;
@@ -119,9 +125,9 @@
             part.colorFinish = part.colorStart;
             part.color = part.colorStart;
             part.dimensions = {
-                x: Math.random()*0.5,
-                y: Math.random()*0.5,
-                z: Math.random()*0.5
+                x: Math.random() * CONFETTI_SIZE_RANDOMIZER,
+                y: Math.random() * CONFETTI_SIZE_RANDOMIZER,
+                z: Math.random() * CONFETTI_SIZE_RANDOMIZER
             };
             part.position = properties.position;
             part.rotation = properties.rotation;
@@ -138,12 +144,11 @@
     };
 
     this.collisionWithEntity = function(paddleID, pinataID, collisionInfo) {
-        if (Entities.getEntityProperties(pinataID, "name").name === "Pinata") {
-            var pinataProperties = Entities.getEntityProperties(pinataID);
+        var pinataProperties = Entities.getEntityProperties(pinataID);
+        if (pinataProperties.name === "Pinata") {
             shootConfetti(pinataProperties);
             if (hits > hitsToBreak) {
-                print("pinata has been defeated");
-                Audio.playSound(PARTY_SOUND, {position: pinataProperties.position, volume: 0.20, loop: false});
+                Audio.playSound(partySound, {position: pinataProperties.position, volume: AUDIO_VOLUME, loop: false});
                 dropCandy(pinataProperties);
 
                 pinataProperties.name = "Invisible Pinata";
@@ -160,7 +165,7 @@
                     Entities.editEntity(pinataID, pinataProperties);
                 }, TIMEOUT);
             } else {
-                Audio.playSound(WHACK_SOUND, {position: pinataProperties.position, volume: 0.20, loop: false});
+                Audio.playSound(whackSound, {position: pinataProperties.position, volume: AUDIO_VOLUME, loop: false});
                 hits++;
             }
         }
@@ -169,11 +174,11 @@
     Script.setInterval(function() {
         var pinataProperties = Entities.getEntityProperties(pinataID, "position");
         var paddleProperties = Entities.getEntityProperties(paddleID, "position");
-        if (Vec3.distance(pinataOriginalPosition, pinataProperties.position) > 1) {
+        if (Vec3.distance(pinataOriginalPosition, pinataProperties.position) > RESET_PINATA_DISTANCE) {
             pinataProperties.position = pinataOriginalPosition;
             Entities.editEntity(pinataID, pinataProperties);
         }
-        if (Vec3.distance(paddleOriginalPosition, paddleProperties.position) > 1) {
+        if (Vec3.distance(paddleOriginalPosition, paddleProperties.position) > RESET_PINATA_DISTANCE) {
             paddleProperties.position = paddleOriginalPosition;
             Entities.editEntity(paddleID, paddleProperties);
         }

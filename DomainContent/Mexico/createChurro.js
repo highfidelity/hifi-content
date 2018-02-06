@@ -47,7 +47,6 @@
     };
 
     this.mousePressOnEntity = function(entityID, mouseEvent) {
-        print("creating churro");
         Entities.addEntity(churro, true);
     };
 
