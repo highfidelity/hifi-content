@@ -105,7 +105,7 @@
             var serverID = getServerID();
 
             Entities.callEntityServerMethod(serverID, 'spawnMarker', [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]);
-            Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, JSON.stringify({collisionless: true, grabbable: false, lifetime: 3600})]);
+            //Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, JSON.stringify({collisionless: true, grabbable: false, lifetime: 3600})]);
             
         },
 
@@ -169,12 +169,15 @@
             }
         },
         startEquip: function() {
+            _this.equipped = true;
+            _this.startEquipTime = Date.now();
             _this.startNearGrab();
         },
         continueEquip: function(ID, paramsArray) {
             _this.continueNearGrab(ID, paramsArray);
         },
         releaseEquip: function() {
+            _this.equipped = false;
              _this.releaseGrab();
         },
         paint: function(position) {
@@ -198,6 +201,10 @@
 
         // MOUSE DESKTOP COMPATIBILITY
         clickDownOnEntity: function(entityID, mouseEvent) {
+            if (mouseEvent.isMiddleButton != true  || HMD.active) {
+                return;
+            }
+
             var args = "mouse";
             Entities.callEntityMethod(_this.entityID, "releaseGrab", args);
 
@@ -240,12 +247,12 @@
 
             
             mouseDown = true;
-            print("Daantje Debug + test  clickDownOnEntity ");
+            print("Daantje Debug + test  clickDownOnEntity " + JSON.stringify(mouseEvent));
             
         },
         mouseMoveEvent: function(event) {
             var serverID;
-            if (mouseDown && event.x != undefined) {
+            if (mouseDown && event.x != undefined && event.isMiddleButton == true) {
                 
                 
                 
@@ -275,7 +282,7 @@
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
                 
                 if (whiteBoardIntersection.intersects ) {
-                    print("Daantje Debug + test  mouseMoveEvent " + JSON.stringify(whiteBoardIntersection));
+                    print("Daantje Debug + test  mouseMoveEvent " + JSON.stringify(event));
 
 
                     
@@ -351,12 +358,12 @@
             
             if (mouseDown) {
                 // enable phisics
-                print("Daantje Debug + test  mouseReleaseEvent");
+                print("Daantje Debug + test  mouseReleaseEvent " + JSON.stringify(event));
                 //Entities.editEntity(_this.entityID, {collisionless: false, grabbable: true});
                 //setEntityCustomData("grabbable", _this.entityID, true);
                 // Server side
                 var serverID = getServerID();
-                Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, JSON.stringify({collisionless: true, grabbable: false})]);
+                Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, JSON.stringify({collisionless: false, grabbable: true})]);
                 //setEntityCustomData("grabbable", _this.entityID, false);
                 //Entities.callEntityServerMethod(serverID, 'serverSetEntityCustomData', ["grabbable", _this.entityID, false]);
                 mouseDown = false;

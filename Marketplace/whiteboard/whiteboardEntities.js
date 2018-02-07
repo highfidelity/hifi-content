@@ -213,7 +213,8 @@ WHITEBOARD_ENTITIES =
                 "y": 0.70730149745941162,
                 "z": 1.52587890625e-05
             },
-            "type": "Model"
+            "type": "Model",
+            "shapeType": "box",
         },
         {
             "clientOnly": 0,
@@ -488,6 +489,7 @@ for (i = 0; i < entities.length; ++i) {
     entity = entities[i];
     if (entity.parentID !== undefined) {
         var parent = entitiesByID[entity.parentID];
+        entity.script = "";
         if (parent !== undefined) {
             entity.localPosition = Vec3.subtract(entity.position, parent.position);
             delete entity.position;

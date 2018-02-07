@@ -105,7 +105,9 @@
         },
         // MOUSE DESKTOP COMPATIBILITY
         clickDownOnEntity: function(entityID, mouseEvent) {
-            
+            if (mouseEvent.isMiddleButton != true || HMD.active) {
+                return;
+            }
             
             var args = "mouse";
             Entities.callEntityMethod(_this.entityID, "releaseGrab", args);
@@ -142,7 +144,7 @@
         },
         mouseMoveEvent: function(event) {
             
-            if (mouseDown && event.x != undefined) {
+            if (mouseDown && event.x != undefined && event.isMiddleButton == true) {
                 print("Daantje Debug + test  mouseMoveEvent eraser" + JSON.stringify(event));
                 
                 
@@ -183,17 +185,7 @@
                         _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
 
                         // my marker offset
-                        var eraserXOffset = Vec3.multiply(Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.x / 2 , _this.whiteboardNormal);
-                        var front = _this.whiteboardNormal;
-                        var right = Quat.getRight(whiteboardRotation);
-                        var up = Quat.getUp(whiteboardRotation);
-                        var projx = Vec3.dot(whiteBoardIntersection.intersection, right);
-                        var projy = Vec3.dot(whiteBoardIntersection.intersection, up);
-                        var projz = Vec3.dot(whiteboardPosition, up);
-                        projx = Vec3.multiply(projx, right);
-                        projy = Vec3.multiply(projy, up);
-                        projz = Vec3.multiply(projz, front);
-
+                        
                         var serverID = Entities.getEntityProperties(_this.whiteboard, "parentID").parentID;
                         Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, 
                             JSON.stringify({
@@ -212,29 +204,16 @@
                             results1.forEach(function(stroke) {
                                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
                                 if (props.name === _this.STROKE_NAME && Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS) {
-                                    //Entities.deleteEntity(stroke);
-                                    // Test erase RCP
                                     print("Daantje Debug calling server to erase " + serverID);
                                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
-                                    
-                                    
                                 }
                             });
-
-
-
                         } else {
                             isErasing = false;
                         }
-                        
                     }
-                    
-                    
                 }
-
-                
             }
-
         },
         mouseReleaseEvent: function(event) {
             

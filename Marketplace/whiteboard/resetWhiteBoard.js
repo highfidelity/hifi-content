@@ -55,6 +55,9 @@
         startNearTrigger: function(entityID) {      
             _this.clearBoard();
         },
+        startFarTrigger: function(entityID) {      
+            _this.clearBoard();
+        }
 
 
     };

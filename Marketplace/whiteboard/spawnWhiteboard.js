@@ -136,7 +136,13 @@ function createWhiteboard() {
     // Spawn Reset Button
     resetButtonID = spawnTemplate("Whiteboard - Reset Button", {
     	parentID: whiteboardFrameID,
-        script: Script.resolvePath("resetWhiteBoard.js")
+        script: Script.resolvePath("resetWhiteBoard.js"),
+        userData: JSON.stringify({
+            grabbableKey: {
+                grabbable: false,
+                wantsTrigger: true
+            }
+        })
     });
     entityIDs.push(resetButtonID);
 
@@ -148,4 +154,4 @@ function createWhiteboard() {
 };
 
 createWhiteboard();
-//Script.stop();
+Script.stop();
