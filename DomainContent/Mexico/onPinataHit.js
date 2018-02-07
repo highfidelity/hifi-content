@@ -146,7 +146,8 @@
     };
 
     this.collisionWithEntity = function(paddleID, pinataID, collisionInfo) {
-        var pinataProperties = Entities.getEntityProperties(pinataID);
+        var pinataProperties = Entities.getEntityProperties(pinataID, 
+            ["name", "position", "rotation", "collisionless", "visible"]);
         if (pinataProperties.name === "Pinata") {
             shootConfetti(pinataProperties);
             if (hits > hitsToBreak) {
