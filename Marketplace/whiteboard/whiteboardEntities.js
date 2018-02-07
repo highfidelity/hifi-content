@@ -193,6 +193,7 @@ WHITEBOARD_ENTITIES =
             "lastEditedBy": "{45823a8a-4a1b-4602-9aed-9f9d76bf8c04}",
             "modelURL": "http://mpassets.highfidelity.com/53f930fb-a433-4ccf-8974-2c53a631e40e-v1/resetButton.fbx",
             "name": "Whiteboard - Reset Button",
+            //"locked": 1,
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "parentID": "{6f8cb378-f7d9-46f2-990c-c8566edb9438}",
             "position": {
@@ -317,6 +318,7 @@ WHITEBOARD_ENTITIES =
             "lastEdited": 1488330981733291,
             "lastEditedBy": "{7d3592e1-121b-4c9e-ad6a-62ad0a76aa86}",
             "name": "Whiteboard - Reset Button Sensor",
+            //"locked": 1,
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "parentID": "{f4b7fdb2-e9db-4a6e-beaa-a1c19a6c231b}",
             "position": {
@@ -360,6 +362,7 @@ WHITEBOARD_ENTITIES =
             "lastEdited": 1488324470842448,
             "lastEditedBy": "{7a961abc-4e3f-4bf7-a3e7-335452206b05}",
             "name": "Whiteboard - Drawing Surface",
+            //"locked": 1,
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "parentID": "{6f8cb378-f7d9-46f2-990c-c8566edb9438}",
             "position": {
@@ -405,6 +408,7 @@ WHITEBOARD_ENTITIES =
             "marketplaceID": "b40db216-ac1e-48bf-b6a5-09973c527987",
             "modelURL": "http://mpassets.highfidelity.com/53f930fb-a433-4ccf-8974-2c53a631e40e-v1/wbFrameNew_framed.fbx",
             "name": "Whiteboard",
+            //"locked": 1,
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "queryAACube": {
                 "scale": 3.9163320064544678,

@@ -116,7 +116,8 @@ function createWhiteboard() {
         position: rootPosition,
         rotation: MyAvatar.orientation,
         compoundShapeURL: Script.resolvePath("models/whiteBoard_collider.obj"),
-        script: Script.resolvePath("whiteboard.js"),
+        //script: Script.resolvePath("whiteboard.js"),
+        script: "",
         serverScripts: Script.resolvePath("whiteboardManagerServer.js")
     });
     entityIDs.push(whiteboardFrameID);
