@@ -23,7 +23,7 @@
 
     var WHACK_URL = "https://hifi-content.s3.amazonaws.com/elisalj/mexico/whack.wav";
     var PARTY_URL = "http://mpassets.highfidelity.com/a5f42695-f15a-4f44-9660-14b4f8ca2b29-v1/PartyHorn4.wav";
-    var CONFETTI_HELPER_SCRIPT = "https://hifi-content.s3.amazonaws.com/elisalj/mexico/confettiHelper.js";
+    var CONFETTI_HELPER_SCRIPT = Script.resolvePath("./confettiHelper.js");
     var CHECK_DISTANCE_FROM_PADDLE = 3;
     var CONFETTI_SIZE_RANDOMIZER = 0.5;
     var AUDIO_VOLUME = 0.2;
