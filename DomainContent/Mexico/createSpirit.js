@@ -115,8 +115,7 @@
 
     function getPositionToCreateEntity() {
         var direction = Quat.getFront(MyAvatar.orientation);
-        var distance = DISPLACEMENT;
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
+        var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, DISPLACEMENT));
         position.y += DISPLACEMENT;
         return position;
     };
