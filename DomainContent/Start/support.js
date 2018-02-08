@@ -15,7 +15,7 @@
     var onChatPage = false; // True when chat web page is opened.
     var webHandlerConnected = false; // True when the web handler has been connected.
     var channelName = "Support"; // Unique name for channel that we listen to.
-    var tabletButtonName = "Support"; // Tablet button label.
+    var tabletButtonName = "SUPPORT"; // Tablet button label.
     var tabletButtonIcon = "icons/tablet-icons/menu-i.svg"; // Icon for chat button.
     var tabletButtonActiveIcon = "icons/tablet-icons/menu-a.svg"; // Active icon for chat button.
     var tabletButton = null; // The button we create in the tablet.
