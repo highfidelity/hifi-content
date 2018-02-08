@@ -1,7 +1,11 @@
 "use strict";
 
-// Chat.js
+// support.js
+// 
+// Originally chat.js
 // By Don Hopkins (dhopkins@donhopkins.com)
+//
+// Copyright High Fidelity Inc.
 //
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +28,6 @@
     var avatarIdentifiers = {}; // Map of avatar ids to dict of identifierParams.
     var speechBubbleShowing = false; // Is the speech bubble visible?
     var speechBubbleMessage = null; // The message shown in the speech bubble.
-    var speechBubbleData = null; // The data of the speech bubble message.
     var speechBubbleTextID = null; // The id of the speech bubble local text entity.
     var speechBubbleTimer = null; // The timer to pop down the speech bubble.
     var speechBubbleParams = null; // The params used to create or edit the speech bubble.
@@ -119,7 +122,6 @@
 
     // Clear the local chat log.
     function clearChatLog() {
-        //print("clearChatLog");
         chatLog = [];
         updateChatPage();
     }
@@ -217,10 +219,6 @@
 
         var myAvatarID = MyAvatar.sessionUUID;
         var myJointIndex = MyAvatar.getJointIndex(identifyAvatarMyJointName);
-        var myJointRotation = 
-            Quat.multiply(
-                MyAvatar.orientation,
-                MyAvatar.getAbsoluteJointRotationInObjectFrame(myJointIndex));
         var myJointPosition =
             Vec3.sum(
                 MyAvatar.position, 
@@ -250,12 +248,7 @@
                 return;
             }
             
-            yourJointIndex = yourAvatar.getJointIndex(identifyAvatarMyJointName)
-
-            var yourJointRotation = 
-                Quat.multiply(
-                    yourAvatar.orientation,
-                    yourAvatar.getAbsoluteJointRotationInObjectFrame(yourJointIndex));
+            yourJointIndex = yourAvatar.getJointIndex(identifyAvatarMyJointName);
             yourJointPosition =
                 Vec3.sum(
                     yourAvatar.position, 
@@ -316,8 +309,8 @@
         }
 
         for (var i = 0, n = ids.length; i < n; i++) {
-            var avatarID = ids[i];
-            unidentifyAvatar(avatarID);
+            var avatarIDToUnidentify = ids[i];
+            unidentifyAvatar(avatarIDToUnidentify);
         }
 
     }
@@ -410,7 +403,7 @@
         for (var i = 0, n = messageLines.length; i < n; i++) {
             var messageLine = messageLines[i];
 
-            if (messageLine.substr(0, 1) == '/') {
+            if (messageLine.substr(0, 1) === '/') {
                 handleChatCommand(messageLine, data);
             } else {
                 transmitChatMessage(messageLine, data);
@@ -431,7 +424,8 @@
             case '?':
             case 'help':
                 logMessage('Type "/?" or "/help" for help', null);
-                logMessage('Type "/name <name>" to set your chat name, or "/name" to use your display name. If your display name is not defined, a random name will be used.', null);
+                logMessage('Type "/name <name>" to set your chat name, or "/name" to use your display name.'
+                    + 'If your display name is not defined, a random name will be used.', null);
                 logMessage('Type "/close" to close your overhead chat message.', null);
                 logMessage('Type "/say <something>" to display a new message.', null);
                 logMessage('Type "/clear" to clear your chat log.', null);
@@ -439,7 +433,7 @@
                 break;
 
             case 'name':
-                if (rest == '') {
+                if (rest === '') {
                     if (MyAvatar.displayName) {
                         chatName = MyAvatar.displayName;
                         saveSettings();
@@ -447,7 +441,8 @@
                     } else {
                         chatName = randomAvatarName();
                         saveSettings();
-                        logMessage('Your avatar\'s display name is not defined, so your chat name has been set to "' + chatName + '".', null);
+                        logMessage('Your avatar\'s display name is not defined, so your chat name has been set to "' + 
+                            chatName + '".', null);
                     }
                 } else {
                     chatName = rest;
@@ -462,7 +457,7 @@
                 break;
 
             case 'say':
-                if (rest == '') {
+                if (rest === '') {
                     emptyChatMessage(data);
                 } else {
                     transmitChatMessage(rest, data);
@@ -531,7 +526,6 @@
 
         speechBubbleShowing = true;
         speechBubbleMessage = message;
-        speechBubbleData = data;
 
         updateSpeechBubble();
 
@@ -584,7 +578,9 @@
         var textSize = Overlays.textSize(speechBubbleTextOverlayID, speechBubbleMessage);
         try {
             Overlays.deleteOverlay(speechBubbleTextOverlayID);
-        } catch (e) {}
+        } catch (e) {
+            // catch
+        }
 
         var fudge = 0.02;
 
@@ -643,7 +639,9 @@
         if (speechBubbleTextID) {
             try {
                 Entities.deleteEntity(speechBubbleTextID);
-            } catch (e) {}
+            } catch (e) {
+                // catch
+            }
             speechBubbleTextID = null;
         }
     }
@@ -685,7 +683,7 @@
     function onChatMessageReceived(channel, message, senderID) {
 
         // Ignore messages to any other channel than mine.
-        if (channel != channelName) {
+        if (channel !== channelName) {
             return;
         }
 
@@ -712,11 +710,11 @@
                 break;
 
             case 'ReplyWho':
-                handleReplyWho(messageData.myAvatarID, messageData.avatarID, messageData.displayName, messageData.message, messageData.data);
+                handleReplyWho(messageData.myAvatarID, messageData.avatarID, messageData.displayName, 
+                    messageData.message, messageData.data);
                 break;
 
             default:
-                print("onChatMessageReceived: unknown messageType", messageType, "message", message);
                 break;
 
         }
@@ -790,7 +788,6 @@
                 break;
 
             default:
-                print("onWebEventReceived: unexpected eventType", eventType);
                 break;
 
         }
