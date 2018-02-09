@@ -20,8 +20,8 @@
     var webHandlerConnected = false; // True when the web handler has been connected.
     var channelName = "Support"; // Unique name for channel that we listen to.
     var tabletButtonName = "SUPPORT"; // Tablet button label.
-    var tabletButtonIcon = "icons/tablet-icons/menu-i.svg"; // Icon for chat button.
-    var tabletButtonActiveIcon = "icons/tablet-icons/menu-a.svg"; // Active icon for chat button.
+    var tabletButtonIcon = Script.resolvePath("resources/support-i.svg"); // Icon for chat button.
+    var tabletButtonActiveIcon = Script.resolvePath("resources/support-a.svg"); // Active icon for chat button.
     var tabletButton = null; // The button we create in the tablet.
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system"); // The awesome tablet.
     var chatLog = []; // Array of chat messages in the form of [avatarID, displayName, message, data].
@@ -663,6 +663,7 @@
         lastWebPageURL = url;
         onChatPage = true;
         tablet.gotoWebScreen(lastWebPageURL);
+        tabletButton.editProperties({ isActive: true });
         // Connect immediately so we don't miss anything.
         connectWebHandler();
     }
@@ -804,6 +805,7 @@
         } else { 
             if (onChatPage) {
                 onChatPage = false;
+                tabletButton.editProperties({ isActive: false });
                 disconnectWebHandler();
             }
         }
