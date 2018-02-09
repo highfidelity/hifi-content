@@ -3,7 +3,8 @@
 //
 //  Created by Eric Levin on 2/17/15.
 //  Additions by James B. Pollack @imgntn 6/9/2016
-//  Copyright 2016 High Fidelity, Inc.
+//  Modified by Daniela Fontes (Mimicry) 9/2/2018
+//  Copyright 2018 High Fidelity, Inc.
 //
 //  This entity script provides logic for an object with attached script to erase nearby marker strokes
 //  Distributed under the Apache License, Version 2.0.
@@ -15,7 +16,7 @@
     var _this;
 
     var isErasing = false;
-    var mouseDown = false;
+    var isMouseDown = false;
 
     Eraser = function() {
         _this = this;
@@ -31,13 +32,16 @@
     };
 
     Eraser.prototype = {
-
+        preload: function(entityID) {
+            _this.entityID = entityID;
+            Controller.mouseMoveEvent.connect(_this.mouseMoveEvent);
+            Controller.mouseReleaseEvent.connect(_this.mouseReleaseEvent);
+        },
         startNearGrab: function() {
             _this.findWhiteboard();
             var serverID = _this.whiteboard;
             Entities.callEntityServerMethod(serverID, 'spawnEraser', [_this.entityID]);
         },
-
         findWhiteboard: function() {
             var results = Entities.findEntities(
                 Entities.getEntityProperties(_this.entityID, "position").position,
@@ -51,56 +55,38 @@
                 }
             });
         },
-
         continueNearGrab: function() {
             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
             _this.continueHolding();
         },
-
         continueHolding: function() {
             var results = Entities.findEntities(_this.eraserPosition, _this.ERASER_TO_STROKE_SEARCH_RADIUS);
             // Create a map of stroke entities and their positions
 
             results.forEach(function(stroke) {
                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
-                if (props.name === _this.STROKE_NAME && Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS) {
-                    //Entities.deleteEntity(stroke);
-                    // Test erase RCP
+                if (props.name === _this.STROKE_NAME 
+                    && Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS) 
+                {
                     if (_this.whiteboard == null) {
                         _this.findWhiteboard();
                     }
-                    //var serverID = Entities.getEntityProperties(props.parentID, "parentID").parentID;
                     var serverID = _this.whiteboard;
-                    print("Daantje Debug calling server to erase " + serverID);
+                    // RPC - calling server to erase
                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
                     var vibrated = Controller.triggerHapticPulse(1, 70, 2);
-					
                 }
             });
         },
-
-        preload: function(entityID) {
-            _this.entityID = entityID;
-            Controller.mouseMoveEvent.connect(_this.mouseMoveEvent);
-            Controller.mouseReleaseEvent.connect(_this.mouseReleaseEvent);
-        },
-
         startEquip: function() {
             _this.equipped = true;
             _this.startEquipTime = Date.now();
             _this.startNearGrab();
         },
-
         continueEquip: function() {
             _this.continueNearGrab();
         },
-
         releaseEquip: function() {
-            // FIXME: it seems to release quickly while auto-attaching, added this to make sure it doesn't delete the entity at that time
-            var MIN_CLEANUP_TIME = 1000;
-            if (_this.equipped && (Date.now() - _this.startEquipTime) > 1000) {
-                Entities.deleteEntity(_this.entityID);
-            }
             _this.equipped = false;
         },
         // MOUSE DESKTOP COMPATIBILITY
@@ -119,16 +105,16 @@
             }));
             _this.findWhiteboard();
             
-            // Edit entity in a server-sided way
-            //Entities.editEntity(_this.entityID, {collisionless: true});
+            // Edit entity in a server-sided way and create a new eraser if this is the original one
             var serverID = _this.whiteboard;
-            Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, JSON.stringify({collisionless: true, grabbable: false})]);
+            Entities.callEntityServerMethod(serverID, 'serverEditEntity', 
+                [_this.entityID, JSON.stringify({collisionless: true, grabbable: false})]
+            );
             Entities.callEntityServerMethod(serverID, 'spawnEraser', [_this.entityID]);
 
             _this.whiteboards = [];
             
             var eraserProps = Entities.getEntityProperties(_this.entityID);
-            
             var eraserPosition = eraserProps.position;
             var results = Entities.findEntities(eraserPosition, 5);
             results.forEach(function(entity) {
@@ -138,33 +124,21 @@
                 }
             });
             
-            mouseDown = true;
-            print("Daantje Debug + test  clickDownOnEntity eraser");
-            
+            isMouseDown = true;         
         },
         mouseMoveEvent: function(event) {
-            
-            if (mouseDown && event.x != undefined && event.isMiddleButton == true) {
-                print("Daantje Debug + test  mouseMoveEvent eraser" + JSON.stringify(event));
-                
-                
+            if (isMouseDown && event.x != undefined && event.isMiddleButton == true) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
-                
-
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
                 
                 if (whiteBoardIntersection.intersects) {
-                    print("Daantje Debug + intersects");
-                    
                     var results = Entities.findEntities(whiteBoardIntersection.intersection, 0.01);
 
                     if (!event.isAlt && isErasing) {
-    
                         isErasing = false;
                     }
                     
                     var BreakException = {};
-
                     try {
                         results.forEach(function(entity) {
                         var entityName = Entities.getEntityProperties(entity, "name").name;
@@ -178,33 +152,29 @@
                         if (e !== BreakException) throw e;
                     }
                     
-      
                     if (isErasing) {
                         var whiteboardPosition = Entities.getEntityProperties(_this.whiteboard, "position").position;
                         var whiteboardRotation = Entities.getEntityProperties(_this.whiteboard, "rotation").rotation;
                         _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
 
-                        // my marker offset
-                        
                         var serverID = Entities.getEntityProperties(_this.whiteboard, "parentID").parentID;
-                        Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, 
+                        Entities.callEntityServerMethod(serverID, 'serverEditEntity', 
+                            [_this.entityID, 
                             JSON.stringify({
                             position: whiteBoardIntersection.intersection,
                             rotation:  Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(90, 0, 45))
                         })]);
-                        //Entities.editEntity(_this.entityID, {
-                        //    position: whiteBoardIntersection.intersection,
-                        //   rotation:  Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(90, 0, 45))
-                        //});
+                        
                         if (event.isAlt) {
                             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
                             var results1 = Entities.findEntities(_this.eraserPosition, _this.ERASER_TO_STROKE_SEARCH_RADIUS);
                             // Create a map of stroke entities and their positions
-                            
                             results1.forEach(function(stroke) {
                                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
-                                if (props.name === _this.STROKE_NAME && Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS) {
-                                    print("Daantje Debug calling server to erase " + serverID);
+                                if (props.name === _this.STROKE_NAME && 
+                                    Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS)
+                                {
+                                    // RPC - calling server to erase
                                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
                                 }
                             });
@@ -216,26 +186,21 @@
             }
         },
         mouseReleaseEvent: function(event) {
-            
-            if (mouseDown) {
-                // enable physics
-                print("Daantje Debug + test  mouseReleaseEvent eraser");
-                
+            if (isMouseDown) {
                 // Edit entity in a server-sided way
                 _this.findWhiteboard();
-                //Entities.editEntity(_this.entityID, {collisionless: false});
                 var serverID = _this.whiteboard;
-                Entities.callEntityServerMethod(serverID, 'serverEditEntity', [_this.entityID, JSON.stringify({collisionless: false, grabbable: true})]);
+                Entities.callEntityServerMethod(serverID, 'serverEditEntity', 
+                    [_this.entityID, JSON.stringify({collisionless: false, grabbable: true})
+                ]);
                 
-                mouseDown = false;
+                isMouseDown = false;
             }
-            
         },
         unload: function() {
             Controller.mouseMoveEvent.disconnect(_this.mouseMoveEvent);
             Controller.mouseReleaseEvent.disconnect(_this.mouseReleaseEvent);
         }
-
     };
 
     return new Eraser();

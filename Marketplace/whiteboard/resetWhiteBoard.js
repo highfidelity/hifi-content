@@ -6,7 +6,6 @@
         _this.RESET_STROKE_SEARCH_RADIUS = 5;
         _this.STROKE_NAME = "hifi_polyline_markerStroke";
         _this.WHITEBOARD_NAME = "Whiteboard";
-        _this.WHITEBOARD_SURFACE_NAME = "Whiteboard - Drawing Surface";
         _this.WHITEBOARD_SEARCH_RADIUS = 2;
         _this.whiteboard = null;
     }
@@ -14,11 +13,8 @@
     ResetBoard.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
-            
         },        
         clearBoard: function() {
-            // TODO Hacky
-            print("Daantje Debug calling server to clear board " + serverID);
             _this.resetPosition = Entities.getEntityProperties(_this.entityID, "position").position;
             var results = Entities.findEntities(_this.resetPosition, _this.RESET_STROKE_SEARCH_RADIUS);
             _this.findWhiteboard();
@@ -26,14 +22,17 @@
             
             results.forEach(function(stroke) {
                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
-                if (props.name === _this.STROKE_NAME && Vec3.distance(_this.resetPosition, props.position) < _this.RESET_STROKE_SEARCH_RADIUS) {
-                    //Entities.deleteEntity(stroke);
+                if (props.name === _this.STROKE_NAME && 
+                    Vec3.distance(_this.resetPosition, props.position) < _this.RESET_STROKE_SEARCH_RADIUS) 
+                {
+                    // Calling server to delete stroke 
+                    // Server side equivalent of Entities.deleteEntity(stroke);
                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
                 }
             });
             
-            print("Daantje Debug calling server to clear board " + serverID);
-            Entities.callEntityServerMethod(serverID, 'clearBoard', []);			
+            // Calling server to clear board and reset markers and erasers
+            Entities.callEntityServerMethod(serverID, 'clearBoard', []);            
         },
         findWhiteboard: function() {
             var results = Entities.findEntities(
@@ -49,7 +48,6 @@
             });
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
-            print("Daantje Debug calling server to clear board ");
             _this.clearBoard();
         },
         startNearTrigger: function(entityID) {      
@@ -58,8 +56,6 @@
         startFarTrigger: function(entityID) {      
             _this.clearBoard();
         }
-
-
     };
 
     return new ResetBoard();

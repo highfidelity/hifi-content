@@ -1,4 +1,10 @@
-
+//  Created by Daniela Fontes (Mimicry) 17/01/2018
+//  Copyright 2018 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//
 
 Script.include('utils.js');
 Script.include('whiteboardEntities.js');
@@ -8,15 +14,15 @@ const WHITEBOARD_UP_OFFSET = 1.15;
 
 TEMPLATES = WHITEBOARD_ENTITIES.Entities;
 
-// Spawn an entity from a template.
-//
-// The overrides can be used to override or add properties in the template. For instance,
-// it's common to override the `position` property so that you can set the position
-// of the entity to be spawned.
-//
-// @param {string} templateName The name of the template to spawn
-// @param {object} overrides An object containing properties that will override
-//                           any properties set in the template.
+/// Spawn an entity from a template.
+///
+/// The overrides can be used to override or add properties in the template. For instance,
+/// it's common to override the `position` property so that you can set the position
+/// of the entity to be spawned.
+///
+/// @param {string} templateName The name of the template to spawn
+/// @param {object} overrides An object containing properties that will override
+///                           any properties set in the template.
 function spawnTemplate(templateName, overrides) {
     var template = getTemplate(templateName);
     if (template === null) {
@@ -44,11 +50,11 @@ function spawnTemplates(templateName, overrides) {
     return spawnedEntities;
 }
 
-// TEMPLATES contains a dictionary of different named entity templates. An entity
-// template is just a list of properties.
-//
-// @param name Name of the template to get
-// @return {object} The matching template, or null if not found
+/// TEMPLATES contains a dictionary of different named entity templates. An entity
+/// template is just a list of properties.
+///
+/// @param name Name of the template to get
+/// @return {object} The matching template, or null if not found
 function getTemplate(name) {
     for (var i = 0; i < TEMPLATES.length; ++i) {
         if (TEMPLATES[i].name === name) {
@@ -85,15 +91,7 @@ var entityIDs = [];
 
 var whiteboardFrameID = null;
 var drawingSurfaceID = null;
-var blueMarkerID = null;
-var greenMarkerID = null;
-var blackMarkerID = null;
-var redMarkerID = null;
-var pinkMarkerID = null;
-var yellowMarkerID = null;
-var eraserID = null;
 var resetButtonID = null;
-var resetButtonSensorID = null;
 
 function createWhiteboard() {
     var rootPosition = utils.findSurfaceBelowPosition(MyAvatar.position);
@@ -111,12 +109,11 @@ function createWhiteboard() {
             Quat.getFront(MyAvatar.orientation)
         )
     );
-	// Spawn Whiteboard Frame
-	whiteboardFrameID = spawnTemplate("Whiteboard", {
+    // Spawn Whiteboard Frame
+    whiteboardFrameID = spawnTemplate("Whiteboard", {
         position: rootPosition,
         rotation: MyAvatar.orientation,
         compoundShapeURL: Script.resolvePath("models/whiteBoard_collider.obj"),
-        //script: Script.resolvePath("whiteboard.js"),
         script: "",
         serverScripts: Script.resolvePath("whiteboardManagerServer.js")
     });
@@ -124,7 +121,7 @@ function createWhiteboard() {
 
     // Spawn drawing surface
     drawingSurfaceID = spawnTemplate("Whiteboard - Drawing Surface", {
-    	parentID: whiteboardFrameID
+        parentID: whiteboardFrameID
     });
     entityIDs.push(drawingSurfaceID);
     
@@ -135,7 +132,7 @@ function createWhiteboard() {
 
     // Spawn Reset Button
     resetButtonID = spawnTemplate("Whiteboard - Reset Button", {
-    	parentID: whiteboardFrameID,
+        parentID: whiteboardFrameID,
         script: Script.resolvePath("resetWhiteBoard.js"),
         userData: JSON.stringify({
             grabbableKey: {

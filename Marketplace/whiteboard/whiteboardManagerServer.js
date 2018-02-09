@@ -1,17 +1,24 @@
+//  Created by Daniela Fontes (Mimicry) 17/01/2018
+//  Copyright 2018 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//
 (function() {
-	Script.include('utils.js');
+    Script.include('utils.js');
     Script.include('whiteboardEntities.js');
     TEMPLATES = WHITEBOARD_ENTITIES.Entities;
 
-    // Spawn an entity from a template.
-    //
-    // The overrides can be used to override or add properties in the template. For instance,
-    // it's common to override the `position` property so that you can set the position
-    // of the entity to be spawned.
-    //
-    // @param {string} templateName The name of the template to spawn
-    // @param {object} overrides An object containing properties that will override
-    //                           any properties set in the template.
+    /// Spawn an entity from a template.
+    ///
+    /// The overrides can be used to override or add properties in the template. For instance,
+    /// it's common to override the `position` property so that you can set the position
+    /// of the entity to be spawned.
+    ///
+    /// @param {string} templateName The name of the template to spawn
+    /// @param {object} overrides An object containing properties that will override
+    ///                           any properties set in the template.
     function spawnTemplate(templateName, overrides) {
         var template = getTemplate(templateName);
         if (template === null) {
@@ -39,11 +46,11 @@
         return spawnedEntities;
     }
 
-    // TEMPLATES contains a dictionary of different named entity templates. An entity
-    // template is just a list of properties.
-    //
-    // @param name Name of the template to get
-    // @return {object} The matching template, or null if not found
+    /// TEMPLATES contains a dictionary of different named entity templates. An entity
+    /// template is just a list of properties.
+    ///
+    /// @param name Name of the template to get
+    /// @return {object} The matching template, or null if not found
     function getTemplate(name) {
         for (var i = 0; i < TEMPLATES.length; ++i) {
             if (TEMPLATES[i].name === name) {
@@ -98,7 +105,9 @@
     var pinkMarkerID = null;
     var yellowMarkerID = null;
     var eraserID = null;
-    /////
+
+    var MARKER_ENTITY_SCRIPT = Script.resolvePath("markerEntityScript.js");
+    var ERASER_ENTITY_SCRIPT = Script.resolvePath("eraserEntityScript.js");
     
     var _this;
     
@@ -107,15 +116,15 @@
     var linePointsInProgress = [];
     var normalsInProgress = [];
     var strokeBasePositionInProgress = [];
-    var MAX_POINTS_PER_STROKE = 40;
+    const MAX_POINTS_PER_STROKE = 40;
     
-	var MARKER_TEXTURE_URL = Script.resolvePath("markerStroke.png");
-	//var strokeForwardOffset = 0.0001;
-	var strokeForwardOffset = 0.01;
-	var STROKE_WIDTH_RANGE = {
-                min: 0.002,
-                max: 0.005
-            };
+    var MARKER_TEXTURE_URL = Script.resolvePath("markerStroke.png");
+    var strokeForwardOffset = 0.01;
+    const STROKE_WIDTH_RANGE = {
+        min: 0.002,
+        max: 0.005
+    };
+    const RESET_MARKERS_AND_ERASERS_RADIUS = 15;
 
     var Whiteboard = function() {
         _this = this;
@@ -133,7 +142,6 @@
             'spawnEraser'
         ],
         preload: function(entityID){
-            print("Daantje Debug on Preload " + entityID);
             _this.entityID = entityID;
             _this.MIN_DISTANCE_BETWEEN_POINTS = 0.002;
             _this.MAX_DISTANCE_BETWEEN_POINTS = 0.1;
@@ -143,17 +151,16 @@
             _this.MARKER_COLOR_NAME = "hifi-whiteboardPaint";
             _this.spawnOriginalMarkersAndErasers();
         },
-        /**
-         * Remotely callable startMarkerLine function
-         * @param entityID current entity ID
-         * @param param parameters [position, markerColor, creatorMarker, parentID]
-         */
+        /// Remotely callable paint function
+        ///
+        /// Creates and expand Polyline projected onto the "Whiteboard - Drawing Surface"
+        ///
+        /// @param {string} entityID of the server
+        /// @param {object} param parameters passed as an array of string 
+        /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
         paint: function(entityID, params) {
-            print("Daantje Debug paint @ " + JSON.stringify(params[0]));
-            var properties = null;
-            //TODO find stroke
             var currentIndex = -1;
-            for(var i = 0; i < strokesInProgress.length; i++){
+            for (var i = 0; i < strokesInProgress.length; i++) {
                 if (getEntityUserData(strokesInProgress[i]).creatorMarker == params[2]) {
                     currentIndex = i;
                     break;
@@ -162,11 +169,10 @@
             
             // we haven't found the polyline
             if (currentIndex == -1) {
-                // build new polyline
-				print("Daantje Debug start new stroke");
-				_this.startMarkerStroke(params);
+                // build new polyline by starting a new stroke
+                _this.startMarkerStroke(params);
                 currentIndex = 0;
-				return;
+                return;
             }
             
             // add new points
@@ -174,40 +180,22 @@
             var normals = normalsInProgress[currentIndex];
             var strokeWidths = [];
             var strokeBasePosition = strokeBasePositionInProgress[currentIndex];
-            var basePosition = utils.parseJSON(params[0]);
+            var localPoint = utils.parseJSON(params[0]);
             var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
             whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
 
             var whiteboardPosition = Entities.getEntityProperties(_this.entityID , "position").position;
-			print("Daantje Debug -- normal " + JSON.stringify(whiteboardNormal));
-            print("Daantje Debug -- position " + JSON.stringify(whiteboardPosition));
-			
-            // Plane equation
-            // ax + by + cz + d = 0
-            var d = -1 * (whiteboardNormal.x * whiteboardPosition.x + 
-                whiteboardNormal.y * whiteboardPosition.y +
-                whiteboardNormal.z * whiteboardPosition.z 
-            );
-			var c = Vec3.dot(whiteboardNormal, whiteboardPosition);
-			
-			print("Daantje Debug -- d " + d);
-            
-            //add new points to lines and normals
-            var localPoint = basePosition;
-			//var localPoint = Vec3.subtract(basePosition, strokeBasePosition);
-			
-			var distLocal = Vec3.dot(whiteboardNormal, localPoint) - c;
-            
-			print("Daantje Debug -- dist " + distLocal);
-            
-            //Projecting local point onto the whiteboard plane
-            //localPoint = Vec3.sum(localPoint, Vec3.multiply(-1 * dist, whiteboardNormal));
-			localPoint = Vec3.subtract(localPoint, Vec3.multiply(distLocal, whiteboardNormal));
-			localPoint = Vec3.subtract(localPoint, strokeBasePosition);
-			localPoint = Vec3.sum(localPoint, Vec3.multiply(whiteboardNormal, strokeForwardOffset));
-            
-			print("Daantje Debug -- Drawing here " + JSON.stringify(localPoint));
 
+            // Project localPoint on the Plane defined by whiteboardNormal
+            // and whiteboardPosition
+            var c = Vec3.dot(whiteboardNormal, whiteboardPosition);
+            var distLocal = Vec3.dot(whiteboardNormal, localPoint) - c;
+            
+            // Projecting local point onto the whiteboard plane
+            localPoint = Vec3.subtract(localPoint, Vec3.multiply(distLocal, whiteboardNormal));
+            localPoint = Vec3.subtract(localPoint, strokeBasePosition);
+            localPoint = Vec3.sum(localPoint, Vec3.multiply(whiteboardNormal, strokeForwardOffset));
+            
             if (linePoints.length > 0) {
                 var distance = Vec3.distance(localPoint, linePoints[linePoints.length - 1]);
                 if (distance < _this.MIN_DISTANCE_BETWEEN_POINTS) {
@@ -218,15 +206,19 @@
             normals.push(whiteboardNormal);
 
             var strokeWidths = [];
-            var i;
-            for (i = 0; i < linePoints.length; i++) {
+            for (var i = 0; i < linePoints.length; i++) {
                 // Create a temp array of stroke widths for calligraphy effect - start and end should be less wide
                 var pointsFromCenter = Math.abs(linePoints.length / 2 - i);
-                var pointWidth = map(pointsFromCenter, 0, linePoints.length / 2, STROKE_WIDTH_RANGE.max, STROKE_WIDTH_RANGE.min);
+                var pointWidth = map(pointsFromCenter, 
+                    0, 
+                    linePoints.length / 2, 
+                    STROKE_WIDTH_RANGE.max, 
+                    STROKE_WIDTH_RANGE.min
+                );
                 strokeWidths.push(pointWidth);
             }
             
-            //edit entity
+            // Edit entity
             Entities.editEntity(strokesInProgress[currentIndex], {
                 linePoints: linePoints,
                 normals: normals,
@@ -235,7 +227,6 @@
             linePointsInProgress[currentIndex] = linePoints;
             normalsInProgress[currentIndex] = normals;
             
-
             // if reached max number finish line
             if (linePoints.length > MAX_POINTS_PER_STROKE) {
                 strokes.push(strokesInProgress[currentIndex]);
@@ -245,10 +236,15 @@
                 strokeBasePositionInProgress.splice(currentIndex, 1);
             }
         },
+        /// Create a new stroke (Polyline)
+        ///
+        /// Creates new Polyline entity and tries to expand it.
+        ///
+        /// @param {object} param parameters passed as an array of string 
+        /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
         startMarkerStroke: function(params) {
-            print("Daantje Debug startMarkerStroke " + JSON.stringify(params));
             var newStroke = Entities.addEntity({
-				type: "PolyLine",
+                type: "PolyLine",
                 name: _this.STROKE_NAME,
                 dimensions: {
                     x: 10,
@@ -261,86 +257,101 @@
                 lifetime: 5000,
                 userData: JSON.stringify({
                     creatorMarker: params[2],
-					parentBoard: params[3]
+                    parentBoard: params[3]
                 })
             });
             
-			
             linePointsInProgress.push([]);
             normalsInProgress.push([]);
             strokesInProgress.push(newStroke);
             strokeBasePositionInProgress.push(utils.parseJSON(params[0]));
-			_this.paint(_this.entityID, params);
-		},
+            // continue to expand newly created polyline
+            _this.paint(_this.entityID, params);
+        },
+        /// Remotely callable reset marker stroke function
+        ///
+        /// Attempts to stop an ongoing stroke being drawn by a specific marker.
+        ///
+        /// @param {string}  entityID of the server
+        /// @param {object}  param parameters passed as an array of string 
+        /// with the id of the marker that stoped drawing and the drawing surface [creatorMarkerID, drawingSurfaceID]
         resetMarkerStroke: function(entityID, params) {
-            print("Daantje Debug resetMarkerStroke");
-
-
             var currentIndex = -1;
-            for(var i = 0; i < strokesInProgress.length; i++){
+            for (var i = 0; i < strokesInProgress.length; i++) {
                 if (getEntityUserData(strokesInProgress[i]).creatorMarker == params[0]) {
                     currentIndex = i;
                     break;
                 }
             }
-            
             // we haven't found the polyline
             if (currentIndex == -1) {
                 return;
             }
-			
+            // remove stroke information from the current active strokes
             strokes.push(strokesInProgress[currentIndex]);
             strokesInProgress.splice(currentIndex, 1);
             linePointsInProgress.splice(currentIndex, 1);
             normalsInProgress.splice(currentIndex, 1);
             strokeBasePositionInProgress.splice(currentIndex, 1);
         },
-        // params [strokeID]
+        /// Remotely callable erase stroke function
+        ///
+        /// Attempts to delete a stroke entity passed in the parameters.
+        ///
+        /// @param {string}  entityID of the server
+        /// @param {object} param parameters passed as an array of string 
+        /// with the id of the stroke to be deleted [strokeID]
         erase: function(entityID, params) {
-            print("Daantje Debug erase");
-            // TODO clean arrays
             Entities.deleteEntity(params[0]);
         },
-		clearBoard: function(entityID, params) {
-            print("Daantje Debug Clear Board here");
+        /// Remotely callable function that clears the whiteboard
+        ///
+        /// Attempts to delete all the spawned markers and erasers,
+        /// and respawns the original markers and eraser in the correct positions
+        ///
+        /// @param {string}  entityID of the server
+        /// @param {object} params not used
+        clearBoard: function(entityID, params) {
             _this.resetMarkersAndErasers(_this.entityID, [_this.entityID]);
             _this.spawnOriginalMarkersAndErasers();
         },
-        // params [entityID, properties]
+        /// Remotely callable function that creates an entity
+        ///
+        /// @param {string}  entityID of the server
+        /// @param {object} params [properties]
         serverAddEntity: function(entityID, params) {
-            print("Daantje Debug serverAddEntity");
-            Entities.addEntity(params[0], utils.parseJSON(params[1]));
+            Entities.addEntity(utils.parseJSON(params[0]));
         },
-        // params [entityID, properties]
+        /// Remotely callable function that edits an entity
+        ///
+        /// @param {string}  entityID of the server
+        /// @param {object} params [entityID, properties]
         serverEditEntity: function(entityID, params) {
-            print("Daantje Debug serverEditEntity");
             Entities.editEntity(params[0], utils.parseJSON(params[1]));
         },
-        // params [property, entityID, message]
-        // setEntityCustomData("markerColor", _this.entityID, JSON.parse(message))
+        /// Remotely callable function that edits an entity
+        ///
+        /// @param {string}  entityID of the server
+        /// @param {object} params [entityID, userData]
         serverSetEntityData: function(entityID, params) {
-            print("Daantje Debug serverSetEntityData");
-            //setEntityCustomData(params[0], params[1], utils.parseJSON(params[2]));
             setEntityUserData(params[0], utils.parseJSON(params[1]));
         },
         resetMarkersAndErasers: function(entityID, params) {
             // delete all markers and erasers
-            
             var results = Entities.findEntities(
                 Entities.getEntityProperties(_this.entityID, "position").position, 
-                15
+                RESET_MARKERS_AND_ERASERS_RADIUS
             );
-            print("Daantje Debug Clear Board here delete markers and erasers " + results.length);
             results.forEach(function(entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
-                if (entityName == ERASER_NAME
-                    || entityName == BLUE_MARKER_NAME
-                    || entityName == GREEN_MARKER_NAME
-                    || entityName == BLACK_MARKER_NAME
-                    || entityName == RED_MARKER_NAME
-                    || entityName == PINK_MARKER_NAME
-                    || entityName == YELLOW_MARKER_NAME) {
-                    print("Daantje Debug + + + reset entity " + entity);
+                if (entityName == ERASER_NAME || 
+                    entityName == BLUE_MARKER_NAME || 
+                    entityName == GREEN_MARKER_NAME || 
+                    entityName == BLACK_MARKER_NAME || 
+                    entityName == RED_MARKER_NAME || 
+                    entityName == PINK_MARKER_NAME || 
+                    entityName == YELLOW_MARKER_NAME) 
+                {
                     Entities.deleteEntity(entity);
                 }
             });
@@ -371,77 +382,57 @@
             eraserID = null;
             _this.spawnEraser(_this.entityID, [_this.entityID]);
         },
+        /// Remotely callable function that creates a new marker
+        ///
+        /// Attempts to spawn a new marker.
+        /// This function is called when an original marker is grabbed. 
+        ///
+        /// @param {string}  entityID of the server
+        /// @param  {object} params [grabbedMarkerID, markerName, markerColor]
         spawnMarker: function(entityID, params) {
-            
             var markerName = utils.parseJSON(params[1]);
             var color = utils.parseJSON(params[2]);
-
-            print("Daantje Debug spawnBlueMarker marker name " + params[0]);
-            print("Daantje Debug spawnBlueMarker color " + JSON.stringify(color));
-
+            var newProperties = {
+                parentID: '{00000000-0000-0000-0000-000000000000}'
+            };
             if ( markerName == "hifi_model_marker_blue" && 
-                (blueMarkerID == null || params[0] == blueMarkerID)) {
-                print("Daantje Debug spawnBlueMarker 2");
-                
+                (blueMarkerID == null || params[0] == blueMarkerID)) 
+            {
                 blueMarkerID = _this.spawnMarkerWithColor(markerName, color);
-
-                newProperties = {
-                    parentID: '{00000000-0000-0000-0000-000000000000}'
-                };
                 Entities.editEntity(blueMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_green" && 
-                (greenMarkerID == null || params[0] == greenMarkerID)) {
-                print("Daantje Debug spawnGreenMarker 2");
-                
+                (greenMarkerID == null || params[0] == greenMarkerID)) 
+            {
                 greenMarkerID = _this.spawnMarkerWithColor(markerName, color);
-
-                newProperties = {
-                    parentID: '{00000000-0000-0000-0000-000000000000}'
-                };
                 Entities.editEntity(greenMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_black" && 
-                (blackMarkerID == null || params[0] == blackMarkerID)) {
-                print("Daantje Debug spawnBlackMarker 2");
-                
+                (blackMarkerID == null || params[0] == blackMarkerID)) 
+            {
                 blackMarkerID = _this.spawnMarkerWithColor(markerName, color);
-
-                newProperties = {
-                    parentID: '{00000000-0000-0000-0000-000000000000}'
-                };
                 Entities.editEntity(blackMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_red" && 
-                (redMarkerID == null || params[0] == redMarkerID)) {
-                print("Daantje Debug spawnRedMarker 2");
-                
+                (redMarkerID == null || params[0] == redMarkerID)) 
+            {
                 redMarkerID = _this.spawnMarkerWithColor(markerName, color);
-
-                newProperties = {
-                    parentID: '{00000000-0000-0000-0000-000000000000}'
-                };
                 Entities.editEntity(redMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_pink" && 
-                (pinkMarkerID == null || params[0] == pinkMarkerID)) {
-                print("Daantje Debug spawnPinkMarker 2");
-                
+                (pinkMarkerID == null || params[0] == pinkMarkerID)) 
+            {
                 pinkMarkerID = _this.spawnMarkerWithColor(markerName, color);
-
-                newProperties = {
-                    parentID: '{00000000-0000-0000-0000-000000000000}'
-                };
                 Entities.editEntity(pinkMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_yellow" && 
                 (yellowMarkerID == null || params[0] == yellowMarkerID)) {
-                print("Daantje Debug spawnYellowMarker 2");
-                
                 yellowMarkerID = _this.spawnMarkerWithColor(markerName, color);
-
-                newProperties = {
-                    parentID: '{00000000-0000-0000-0000-000000000000}'
-                };
                 Entities.editEntity(yellowMarkerID, newProperties);
             }
         },
-        // entityID
+        /// Remotely callable function that creates a new eraser
+        ///
+        /// Attempts to spawn a new eraser.
+        /// This function is called when an original eraser is grabbed. 
+        ///
+        /// @param {string} entityID of the server
+        /// @param {object} params [grabbedEraserID]
         spawnEraser: function(entityID, params) {
             if (eraserID == null || params[0] == eraserID) {
                 spawnTemplate("hifi_model_whiteboardEraser", {
@@ -450,7 +441,7 @@
                         Entities.getEntityProperties(_this.entityID, "rotation").rotation,
                         Quat.fromPitchYawRollDegrees(-90, 0, 0)
                     ),
-                    script: Script.resolvePath("eraserEntityScript.js"),
+                    script: ERASER_ENTITY_SCRIPT,
                     userData: JSON.stringify({
                         grabbableKey: {
                             grabbable: true,
@@ -489,11 +480,7 @@
                     })
                 });
                 newProperties = {
-                    parentID: '{00000000-0000-0000-0000-000000000000}',
-                    //rotation: Entities.getEntityProperties(_this.entityID, "rotation").rotation
-                    //Quat.multiply(Entities.getEntityProperties(eraserID, "rotation").rotation, 
-                        
-                    
+                    parentID: '{00000000-0000-0000-0000-000000000000}', 
                 };
                 Entities.editEntity(eraserID, newProperties);
             }
@@ -501,16 +488,13 @@
         spawnMarkerWithColor: function(markerName, color) {
             return spawnTemplate(markerName, {
                 parentID: _this.entityID,
-                //position: rootPosition, 
-                //rotation: MyAvatar.orientation,
-                script: Script.resolvePath("markerEntityScript.js"),
+                script: MARKER_ENTITY_SCRIPT,
                 userData: JSON.stringify({
                     grabbableKey: {
                         grabbable: true,
                         ignoreIK: true
                     },
                     markerColor: color,
-                    //mainMarker: true,
                     equipHotspots: [{
                         position: {
                             x: 0,
@@ -545,14 +529,10 @@
                     }]
                 })
             });
-
         },
         unload: function() {
-            print("Daantje Debug on Unload");
             _this.resetMarkersAndErasers(_this.entityID, [_this.entityID]);
         }
     };
     return new Whiteboard();
-
-    
 });
