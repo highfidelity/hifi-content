@@ -28,6 +28,44 @@
     
     var isPainting = false;
     var isMouseDown = false;
+    var isStartingStroke = false;
+
+    var BEGIN_STROKE_SOUND = SoundCache.getSound(Script.resolvePath('markerBeginStroke.wav'));
+
+    var STROKEL1_SOUND = SoundCache.getSound(Script.resolvePath('strokeL1.wav'));
+    var STROKER1_SOUND = SoundCache.getSound(Script.resolvePath('strokeR1.wav'));
+    var STROKER2_SOUND = SoundCache.getSound(Script.resolvePath('strokeR2.wav'));
+    var STROKER3_SOUND = SoundCache.getSound(Script.resolvePath('strokeR3.wav'));
+    
+    var STROKE_SOUND_ARRAY = [STROKEL1_SOUND, STROKER1_SOUND, STROKER2_SOUND, STROKER3_SOUND];
+
+    var timestamp = null;
+    const SOUND_TIMESTAMP_LIMIT = {
+        min: 100,
+        max: 300
+    };
+    var SOUND_TIMESTAMP = 220;
+
+    var t0 = null, t1 = null;
+
+    function clamp(value, min, max) {
+        if (value < min) {
+            return min;
+        } else if (value > max) {
+            return max;
+        }
+        return value;
+    }
+
+    function playRandomStrokeSound(position) {
+        
+        Audio.playSound(STROKE_SOUND_ARRAY[Math.floor(Math.random() * STROKE_SOUND_ARRAY.length)], {
+            position: position,
+            volume: clamp(Math.random(), 0.4, 0.6)
+        });
+        SOUND_TIMESTAMP = Math.floor(Math.random() * SOUND_TIMESTAMP_LIMIT.max) + SOUND_TIMESTAMP_LIMIT.min;
+
+    }
 
     // subscribe to channel 
     MarkerTip = function() {
@@ -153,6 +191,34 @@
                 var whiteboardRotation = Entities.getEntityProperties(_this.currentWhiteboard, "rotation").rotation;
                 _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
                 _this.paint(whiteBoardIntersection.intersection);
+                if (isPainting == false) {
+                    Audio.playSound(BEGIN_STROKE_SOUND, {
+                        position: whiteBoardIntersection.intersection,
+                        volume: clamp(Math.random(), 0.45, 0.65)
+                    });
+                    timestamp = Date.now();
+                    t0 = whiteBoardIntersection.intersection;
+                    t1 = null;
+                    
+                } else if ((Date.now() - timestamp) > SOUND_TIMESTAMP) {
+                    timestamp = Date.now();
+                    playRandomStrokeSound(whiteBoardIntersection.intersection);
+                } else {
+                    if (t1 == null) {
+                        t1 = whiteBoardIntersection.intersection;
+                    } else {
+                        var v1 = Vec3.normalize(Vec3.subtract(t1, t0));
+                        var v2 = Vec3.normalize(Vec3.subtract(whiteBoardIntersection.intersection, t1));
+                        var cosA = Vec3.dot(v1, v2);
+                        if (cosA < 0.85 ) {
+                            timestamp = Date.now();
+                            playRandomStrokeSound(whiteBoardIntersection.intersection);
+                        }
+                        t0 = t1;
+                        t1 = whiteBoardIntersection.intersection;
+                    }
+                }
+
                 isPainting = true;
                 hand = paramsArray[0] === 'left' ? 0 : 1;
                 var vibrated = Controller.triggerHapticPulse(1, 70, hand);
@@ -239,6 +305,7 @@
         },
         mouseMoveEvent: function(event) {
             var serverID;
+
             if (isMouseDown && event.x != undefined && event.isMiddleButton == true) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
                 var colorIntersection = Entities.findRayIntersection(pickRay, true, _this.colors);
@@ -267,8 +334,10 @@
                     if (!event.isAlt && isPainting) {
                         _this.resetStroke();
                         isPainting = false;
+                        isStartingStroke = false;
                     } else {
                         _this.currentWhiteboard = whiteBoardIntersection.entityID;
+                        
                         isPainting = true;
                     }
       
@@ -297,6 +366,35 @@
 
                         if (event.isAlt) {
                             _this.paint(whiteBoardIntersection.intersection);
+                            if (!isStartingStroke) {
+                                isStartingStroke = true;
+                                
+                                Audio.playSound(BEGIN_STROKE_SOUND, {
+                                    position: whiteBoardIntersection.intersection,
+                                    volume: clamp(Math.random(), 0.45, 0.65)
+                                });
+                                timestamp = Date.now();
+                                t0 = whiteBoardIntersection.intersection;
+                                t1 = null;
+                                
+                            } else if ((Date.now() - timestamp) > SOUND_TIMESTAMP) {
+                                timestamp = Date.now();
+                                playRandomStrokeSound(whiteBoardIntersection.intersection);
+                            } else {
+                                if (t1 == null) {
+                                    t1 = whiteBoardIntersection.intersection;
+                                } else {
+                                    var v1 = Vec3.normalize(Vec3.subtract(t1, t0));
+                                    var v2 = Vec3.normalize(Vec3.subtract(whiteBoardIntersection.intersection, t1));
+                                    var cosA = Vec3.dot(v1, v2);
+                                    if (cosA < 0.85 ) {
+                                        timestamp = Date.now();
+                                        playRandomStrokeSound(whiteBoardIntersection.intersection);
+                                    }
+                                    t0 = t1;
+                                    t1 = whiteBoardIntersection.intersection;
+                                }
+                            }
                         } else {
                             isPainting = false;
                         }   
