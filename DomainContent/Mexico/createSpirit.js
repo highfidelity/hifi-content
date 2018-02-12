@@ -34,7 +34,7 @@
             z: 0.0
         },
         "lifetime": 30,
-        "modelURL": "https://hifi-content.s3.amazonaws.com/elisalj/mexico/rose/th_05_11.obj",
+        "modelURL": Script.resolvePath("./assets/marigold/model.obj"),
         "name": "Spirit Rose",
         "type": "Model",
         "position": START_POSITION,
@@ -108,7 +108,7 @@
             "z": -1.52587890625e-05
         },
         "speedSpread": 0,
-        "textures": "https://hifi-content.s3.amazonaws.com/elisalj/mexico/sparkle.png",
+        "textures": Script.resolvePath("./assets/sparkle.png"),
         "type": "ParticleEffect",
         "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
     };

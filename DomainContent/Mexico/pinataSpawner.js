@@ -15,8 +15,6 @@
 /* jslint vars: true */
 // var Overlays, Entities, Controller, Script, MyAvatar, Vec3; // Referenced globals provided by High Fidelity.
 
-var HIFI_PUBLIC_BUCKET = "http://s3.amazonaws.com/hifi-public/";
-
 var pinataID;
 var poleID;
 var paddleID;
@@ -29,7 +27,7 @@ var pinataPosition = Vec3.sum(MyAvatar.position, {
 
 pinataID = Entities.addEntity({
     type: "Model",
-    modelURL: "https://hifi-content.s3.amazonaws.com/DomainContent/jimjamz/llamarama_textured.fbx",
+    modelURL: Script.resolvePath("./assets/pinata/llamarama_textured.fbx"),
     name: "Pinata",
     shapeType: "Sphere",
     position: pinataPosition,
@@ -71,8 +69,8 @@ var polePosition = Vec3.sum(MyAvatar.position, {
 poleID = Entities.addEntity({
     type: "Model",
     grabbable: false,
-    modelURL: "https://hifi-content.s3.amazonaws.com/Examples%20Content/production/paddleball/tballPole_VR.fbx",
-    compoundShapeURL: "https://hifi-content.s3.amazonaws.com/Examples%20Content/production/paddleball/tballPole_phys.obj",
+    modelURL: Script.resolvePath("./assets/pinata/tballPole_VR.fbx"),
+    compoundShapeURL: Script.resolvePath("./assets/pinata/tballPole_phys.obj"),
     name: "Pinata Pole",
     shapeType: "compound",
     position: polePosition,
@@ -110,7 +108,7 @@ paddleID = Entities.addEntity({
     "dynamic": 1,
     "name": "Pinata Paddle",
     "position": paddlePosition,
-    "script": "https://hifi-content.s3.amazonaws.com/elisalj/mexico/onPinataHit.js?36",
+    "script": Script.resolvePath("./onPinataHit.js"),
     "rotation": {
         "w": 0.98437130451202393,
         "x": -1.7827005649451166e-05,
