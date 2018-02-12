@@ -82,7 +82,7 @@
             y: 0,
             z: 0
         },
-        textures: Script.resolvePath("./assets/Confetti.png");
+        textures: Script.resolvePath("./assets/Confetti.png"),
         alpha: 1,
         alphaSpread: 0,
         alphaStart: 1,
@@ -93,7 +93,7 @@
     var CANDY = {
         name: "Pinata Candy",
         type: "Model",
-        modelURL: Script.resolvePath("./assets/candy/candy%20corn.obj");
+        modelURL: Script.resolvePath("./assets/candy/candy%20corn.obj"),
         dimensions: {
             x: 0.0784,
             y: 0.1164,
@@ -108,7 +108,7 @@
             "z": 0
         },
         lifetime: CANDY_LIFETIME,
-        script: Script.resolvePath("./crunch.js");
+        script: Script.resolvePath("./crunch.js")
     };
 
     var randColor = function() {
