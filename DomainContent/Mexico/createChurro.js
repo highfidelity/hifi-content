@@ -25,11 +25,11 @@
         });
         churro = {
             type: "Model",
-            modelURL: "https://hifi-content.s3.amazonaws.com/elisalj/mexico/churro/model.obj",
+            modelURL: Script.resolvePath("./assets/churro/model.obj"),
             name: "Churro",
             shapeType: "compound",
             position: position,
-            script: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/behaviors/crunch.js",
+            script: Script.resolvePath("./crunch.js"),
             dimensions: {
                 x: 0.5531,
                 y: 0.1373,
