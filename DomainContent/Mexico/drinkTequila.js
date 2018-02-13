@@ -26,8 +26,8 @@
     var LIFETIME = 30;
     var DRINK_IT_DISTANCE = 0.2;
     var DONE_DRINKING_SHOT = 1000;
-    var REMOVE_ELEPHANT = 30000;
     var WAIT_AFTER_GRABBING = 100;
+    var TEN_SECONDS = 10;
 
     var interval;
     var drunkZone = null;
@@ -96,7 +96,7 @@
         if (interval) {
             Script.clearInterval(interval);
         }
-        Entities.editEntity(_this.entityID, {lifetime: 10});
+        Entities.editEntity(_this.entityID, {lifetime: TEN_SECONDS});
     };
 
     var distanceCheck = function() {
@@ -127,14 +127,12 @@
                             hazeRange: 100,
                             hazeBackgroundBlend: 0.5
                         }});
-                        // show pink elephant overlay
                         break;
                     case 100:
                         Entities.editEntity(drunkZone, {haze: {
                             hazeRange: 50,
                             hazeBackgroundBlend: 0.25
                         }});
-                        // show pink elephant overlay
                         break;
                     case 50:
                         Entities.editEntity(drunkZone, {haze: {
@@ -169,27 +167,6 @@
                     dimensions: DRUNK_ZONE_DIMENSIONS,
                     lifetime: LIFETIME
                 });
-            /* pinkElephant1 = Overlays.addOverlay("model", {
-                dimensions: {
-                    x: 0.5,
-                    y: 0.7,
-                    z: 0.5
-                },
-                alpha:0.5,
-                position: {x: 555.7121,y: 499.5868, z: 506.5796},
-                modelURL: "https://hifi-content.s3.amazonaws.com/rebecca/Mexico/models/pinkElephant.fbx",
-                rotation: {
-                    w: 0.894934356212616,
-                    x: -7.637845556018874e-07,
-                    y: -0.4461978077888489,
-                    z: -3.870036948683264e-07
-                }
-            });
-            Script.setTimeout(function() {
-                if (pinkElephant1) {
-                    Overlays.deleteOverlay(pinkElephant1);
-                }
-            }, REMOVE_ELEPHANT);*/
             }
             drunkZone = null;
             Script.setTimeout(function() {

@@ -12,18 +12,27 @@
 
     var _this;
 
-    var AUDIO_VOLUME_LEVEL = 1;
-    var SEARCHING_INTERVAL_MS = 10;
-    var SEARCH_RADIUS_M = 0.1;
-    var EXTINGUISH_TIMER_MS = 6000;
+    var AUDIO_VOLUME_LEVEL = 0.25;
+    var SEARCHING_INTERVAL_MS = 100;
+    var SEARCH_RADIUS_M = 0.05;
+    var EXTINGUISH_TIMER_MS = 60000;
     var REMOVE_CANDLE_TIMER_MS = 10000;
+    var HALF = 0.5;
+    var NOT_FOUND = -1;
+    var BOTH_HANDS = 2;
+    var ONE_HAND = 1;
+    var NO_HANDS = 0;
 
     var sound;
-    var firstLight = true;
     var injector;
     var flame;
     var removeCandle;
     var searching;
+    var flamePosition;
+    var candleDimensionsY;
+    var flameLocalPosition;
+    var handsOn = 0;
+    var audioUpdate;
 
     var Candle = function() {
         _this = this;
@@ -32,45 +41,49 @@
     Candle.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
-            sound = SoundCache.getSound(Script.resolvePath("DrumKit/COWBELL1.wav"));
-            print("preload");
+            sound = SoundCache.getSound(Script.resolvePath("Sounds/174494__unfa__firework-candle-raw.wav"));
+            candleDimensionsY = Entities.getEntityProperties(_this.entityID, ['dimensions']).dimensions.y;
+            flameLocalPosition = {x: 0, y: candleDimensionsY * HALF, z: 0};
         },
 
         startNearGrab: function() {
-            print("grabbed");
-            if (removeCandle) {
-                print("clearing delete timeout");
-                Script.clearTimeout(removeCandle);
-                removeCandle = null;
-            }
-            if (firstLight) {
-                searching = Script.setInterval(this.searchForFire(), SEARCHING_INTERVAL_MS);
+            if (handsOn === 0) {
+                handsOn = ONE_HAND;
+                if (removeCandle) {
+                    Script.clearTimeout(removeCandle);
+                    removeCandle = null;
+                }
+                searching = Script.setInterval(this.searchForFire, SEARCHING_INTERVAL_MS);
+            } else {
+                handsOn = BOTH_HANDS;
             }
         },
 
         searchForFire: function() {
-            print("searching");
-            Entities.findEntities(_this.entityID, SEARCH_RADIUS_M).forEach(function(element) {
+            var candlePosition = Entities.getEntityProperties(_this.entityID, 'position').position;
+            candlePosition.y += (HALF * candleDimensionsY);
+            flamePosition = candlePosition;
+            Entities.findEntities(flamePosition, SEARCH_RADIUS_M).forEach(function(element) {
                 var name = Entities.getEntityProperties(element, 'name').name;
-                if (name.indexOf("Flame") || name.indexOf("Candle")) {
-                    print("found a flame");
-                    this.lightCandle();
-                    this.playSound();
+                if (name.indexOf("Flame") !== NOT_FOUND) {
+                    _this.lightCandle();
                     Script.clearInterval(searching);
+                    searching = null;
                 }
             });
         },
 
         lightCandle: function() {
-            print("lighting");
-            this.playSound();
+            var candlePosition = Entities.getEntityProperties(_this.entityID, 'position').position;
+            candlePosition.y += (HALF * candleDimensionsY);
+            flamePosition = candlePosition;
             flame = Entities.addEntity({
                 type: "ParticleEffect",
-                parentID: _this.entitiyID,
-                localPosition: _this.flamePosition, 
-                dimensions: { x: 0.2450, y: 0.2450, z: 0.2450 }, 
-                color: { red: 0, green: 255, blue: 0 },
-                gravity: { x: 0, y: 0, z: 0 },
+                position: flamePosition,
+                parentID: _this.entityID,
+                localPosition: flameLocalPosition, 
+                dimensions: { x: 0.2450, y: 0.2450, z: 0.2450 },
+                naturalDimensions: {x:1,y:1,z:1},
                 ignoreCollisions: true,
                 userData: {
                     grabbable: false
@@ -80,19 +93,23 @@
                 maxParticles: 3033,
                 lifespan: 0.44999998807907104,
                 emitRate:262,
-                emitSpeed:0,
-                speedSpread: 0,
+                emitSpeed: 0,
+                speedSpread:0,
                 emitOrientation: {
                     x: -0.0000152587890625,
                     y: -0.0000152587890625,
                     z: -0.0000152587890625,
                     w: 1
                 },
+                emitDimensions: {x:0, y:0, z:0},
                 emitRadiusStart:1,
                 polarStart: 1.8151423931121826,
                 polarFinish: 1.9024088382720947,
-                azimuthStart:-3.1415927410125732,
-                azimuthFinish:3.1415927410125732,
+                radiusFinish: 0.019999999552965164,
+                radiusStart: 0.019999999552965164,
+                radiusSpread:0,
+                azimuthStart:-180,
+                azimuthFinish:180,
                 emitAcceleration:{
                     x:-0.009999999776482582,
                     y:1,
@@ -107,7 +124,8 @@
                 alpha: 0.38999998569488525,
                 alphaStart:0.1899999976158142,
                 alphaFinish:0.3499999940395355,
-                emitterShouldTrail: true,
+                alphaSpread:0,
+                emitterShouldTrail: 1,
                 textures: "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Fireball.jpg",
                 boundingBox:{
                     brn:{
@@ -131,37 +149,86 @@
                     }
                 }
             });
+            _this.playSound();
+            audioUpdate = Script.setInterval(function() {
+                if (flame) {
+                    _this.updateSoundPosition;
+                }
+            }, SEARCHING_INTERVAL_MS);
             Script.setTimeout(function() {
                 Entities.deleteEntity(flame);
+                if (injector) {
+                    if (audioUpdate) {
+                        Script.clearInterval(audioUpdate);
+                    }
+                    injector.stop();
+                }
+                if (handsOn === 1) {
+                    handsOn = NO_HANDS;
+                    _this.startNearGrab();
+                } else if (handsOn ===2) {
+                    handsOn = ONE_HAND;
+                    _this.startNearGrab();
+                }
             }, EXTINGUISH_TIMER_MS);
-            firstLight = false;
+        },
+
+        updateSoundPosition: function() {
+            var newSoundPosition = Entities.getEntityProperties(flame, 'position').position;
+            if (injector) {
+                injector.options = { position: newSoundPosition };
+            }
         },
 
         releaseGrab: function() {
-            print("releasing");
-            removeCandle = Script.setTimeout(function() {
-                if (flame) {
-                    Entities.deleteEntity(flame);
+            if (handsOn === 1) {
+                if (!removeCandle) {
+                    removeCandle = Script.setTimeout(function() {
+                        if (flame) {
+                            Entities.deleteEntity(flame);
+                        }
+                        if (injector) {
+                            if (audioUpdate) {
+                                Script.clearInterval(audioUpdate);
+                            }
+                            injector.stop();
+                        }
+                        Entities.deleteEntity(_this.entityID);
+                    }, REMOVE_CANDLE_TIMER_MS);
                 }
-                if (injector) {
-                    injector.stop();
+                if (searching) {
+                    Script.clearInterval(searching);
                 }
-                Entities.deleteEntity(_this.entityID);
-            }, REMOVE_CANDLE_TIMER_MS);
+                searching = null;
+                handsOn = NO_HANDS;
+            } else {
+                handsOn = ONE_HAND;
+            }
+            
         },
 
         playSound: function(buttonID, params) {
-            print("sound");
-            _this.flamePosition = Entities.getEntityProperties(flame, ["position"]).position;
-            _this.injector = Audio.playSound(_this.sound, {position: _this.flamePosition, volume: AUDIO_VOLUME_LEVEL});
-            Audio.playSound(sound, {
-                position: _this.flamePosition,
-                volume: AUDIO_VOLUME_LEVEL
-            });
+            _this.flamePosition = Entities.getEntityProperties(flame, 'position').position;
+            if (sound.downloaded) {
+                if (injector) {
+                    if (audioUpdate) {
+                        Script.clearInterval(audioUpdate);
+                    }
+                    injector.stop();
+                }
+                injector = Audio.playSound(sound, {
+                    position: _this.flamePosition,
+                    volume: AUDIO_VOLUME_LEVEL,
+                    loop: true
+                }); 
+            }
         },
 
         unload: function() {
             if (injector) {
+                if (audioUpdate) {
+                    Script.clearInterval(audioUpdate);
+                }
                 injector.stop();
             }
             this.releaseGrab();
