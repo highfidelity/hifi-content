@@ -203,9 +203,6 @@
     </body>
 
     <script>
-
-        //console.log("ChatPage: loading script...");
-
         var messageData = {}; // The data that is sent along with the message. 
         var typing = false; // True while the user is typing.
         var typingTimerDuration = 1; // How long to wait before ending typing, in seconds.
@@ -222,7 +219,6 @@
                 var displayName = a[1];
                 var message = a[2];
                 var data = a[3];
-                //console.log("updateChatLog", i, a, displayName, message);
                 if (avatarID) {
                     receiveChatMessage(avatarID, displayName, message, data);
                 } else {
@@ -231,7 +227,6 @@
             }
         }
 
-        // Call this no every keystroke.
         function type() {
             beginTyping();
             handleType();
@@ -311,7 +306,6 @@
                     .text(displayName + ': ')
                     .on('mouseenter', function(event) {
                         identifyAvatar(avatarID);
-                        //event.cancelBubble();
                         $logLineDisplayName.css({
                             color: '#00ff00',
                             'text-decoration': 'underline'
@@ -385,7 +379,6 @@
 
         // The user entered a non-empty chat message.
         function handleChatMessage(message, data) {
-            //console.log("handleChatMessage", message);
             EventBridge.emitWebEvent(
                 JSON.stringify({
                     type: "HandleChatMessage",
@@ -433,19 +426,15 @@
         // Let's get this show on the road!
         function main() {
 
-            //console.log("ChatPage: main");
-
             $ChatLog = $('#ChatLog');
             $ChatInputText = $('#ChatInputText');
 
             // Whenever the chat log resizes, or the input text gets or loses focus, 
             // scroll the chat log to the last line.
             $ChatLog.on('resize', function(event) {
-                //console.log("ChatLog resize", $ChatLog, event);
                 scrollChatLog();
             });
             $ChatInputText.on('focus blur', function(event) {
-                //console.log("ChatInputText focus blur", $ChatInputText, event);
                 scrollChatLog();
             });
 
@@ -469,8 +458,6 @@
 
             // Hook up a handler for events that come from hifi.
             EventBridge.scriptEventReceived.connect(function (message) {
-
-                //console.log("ChatPage: main: scriptEventReceived", message);
 
                 var messageData = JSON.parse(message);
                 var messageType = messageData['type'];
