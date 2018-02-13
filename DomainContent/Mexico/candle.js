@@ -47,7 +47,7 @@
         },
 
         startNearGrab: function() {
-            if (handsOn === 0) {
+            if (handsOn === NO_HANDS) {
                 handsOn = ONE_HAND;
                 if (removeCandle) {
                     Script.clearTimeout(removeCandle);
@@ -163,10 +163,10 @@
                     }
                     injector.stop();
                 }
-                if (handsOn === 1) {
+                if (handsOn === ONE_HAND) {
                     handsOn = NO_HANDS;
                     _this.startNearGrab();
-                } else if (handsOn ===2) {
+                } else if (handsOn === BOTH_HANDS) {
                     handsOn = ONE_HAND;
                     _this.startNearGrab();
                 }
@@ -181,7 +181,7 @@
         },
 
         releaseGrab: function() {
-            if (handsOn === 1) {
+            if (handsOn === ONE_HAND) {
                 if (!removeCandle) {
                     removeCandle = Script.setTimeout(function() {
                         if (flame) {
