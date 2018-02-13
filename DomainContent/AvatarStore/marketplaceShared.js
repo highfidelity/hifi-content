@@ -11,7 +11,7 @@
 //
 
 var requestMarketplaceDataForID = function(marketplaceID, replyCallback) {
-    Script.require('./request.js').request('https://highfidelity.com/marketplace/items/' + marketplaceID, function(error, response) {
+    Script.require('./request.js').request(Account.metaverseServerURL + 'marketplace/items/' + marketplaceID, function(error, response) {
         var replyData = {};
         var replyError = error;
         if (!error) {
