@@ -13,6 +13,7 @@ Contributing
   ```
 4. Code
   * Follow the [coding standard](https://docs.highfidelity.com/build-guide/coding-standards)
+  * Install and configure [ESLINT](https://eslint.org/) for your editor to apply formatting for scripts 
 5. Commit
   * Use well formed commit messages
 6. Update your branch
