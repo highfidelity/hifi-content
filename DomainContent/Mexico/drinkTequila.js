@@ -28,6 +28,10 @@
     var DONE_DRINKING_SHOT = 1000;
     var WAIT_AFTER_GRABBING = 100;
     var TEN_SECONDS = 10;
+    var DRUNK_HAZE_1000_M = 1000;
+    var DRUNK_HAZE_100_M = 100;
+    var DRUNK_HAZE_50_M = 50;
+    var DRUNK_HAZE_10_M = 10;
 
     var interval;
     var drunkZone = null;
@@ -117,7 +121,7 @@
                 var zoneHazeProperties = Entities.getEntityProperties(drunkZone, 'haze').haze;
                 var hazeRange = zoneHazeProperties.hazeRange;
                 switch (hazeRange) {
-                    case 1000:
+                    case DRUNK_HAZE_1000_M:
                         Entities.editEntity(drunkZone, {haze: {
                             hazeColor:{
                                 red: 0,
@@ -128,20 +132,20 @@
                             hazeBackgroundBlend: 0.5
                         }});
                         break;
-                    case 100:
+                    case DRUNK_HAZE_100_M:
                         Entities.editEntity(drunkZone, {haze: {
                             hazeRange: 50,
                             hazeBackgroundBlend: 0.25
                         }});
                         break;
-                    case 50:
+                    case DRUNK_HAZE_50_M:
                         Entities.editEntity(drunkZone, {haze: {
                             hazeRange: 10,
                             hazeBackgroundBlend: 0.1
                         }});
                         fallDown();
                         break;
-                    case 10:
+                    case DRUNK_HAZE_10_M:
                         fallDown();
                         break;
                     default:
