@@ -21,12 +21,20 @@
     var NECK_COLOR_INDEX = 20;
     var RIFF_NUMBER_INDEX = 20;
     var SEARCH_RADIUS = 100;
+    var UPDATE_POSITION_MS = 50;
+    var BOTH_HANDS = 2;
+    var ONE_HAND = 1;
+    var NO_HANDS = 0;
+    var NOT_FOUND = -1;
 
     var fingerEntities = [];
     var overlays = [];
     var colors = [];
     var distance;
     var interval;
+    var ampCheckInterval;
+    var ampLeft;
+    var ampRight;
     var ampLeftPosition;
     var ampRightPosition;
     var colorsShowing = false;
@@ -47,15 +55,16 @@
             Entities.findEntities(_this.entityID, SEARCH_RADIUS).forEach(function(element) {
                 var name = Entities.getEntityProperties(element, 'name').name;
                 if (name === "Guitar Amp Left CC-BY Poly by Google") {
+                    ampLeft = element;
                     ampLeftPosition = Entities.getEntityProperties(element, 'position').position;
                 } else if (name === "Guitar Amp Right CC-BY Poly by Google") {
+                    ampRight = element;
                     ampRightPosition = Entities.getEntityProperties(element, 'position').position;
-                } else if ((name.indexOf("Guitar Body") !== -1) || (name.indexOf("Guitar Neck") !== -1)) {
+                } else if ((name.indexOf("Guitar Body") !== NOT_FOUND) || (name.indexOf("Guitar Neck") !== NOT_FOUND)) {
                     colors.push(element);
                 }
             });
-            var i;
-            for (i =1; i <= 8; i++){
+            for ( var i =1; i <= 8; i++){
                 sounds["Red" + i + "L"] = SoundCache.getSound(Script.resolvePath("sounds/red/" + i + "L.wav"));
                 sounds["Red" + i + "R"] = SoundCache.getSound(Script.resolvePath("sounds/red/" + i + "R.wav"));
                 sounds["Orange" + i + "L"] = SoundCache.getSound(Script.resolvePath("sounds/orange/" + i + "L.wav"));
@@ -69,7 +78,7 @@
             }
         },
         mousePress: function(id, event) {
-            if (overlays.indexOf(id) !== -1) {
+            if (overlays.indexOf(id) !== NOT_FOUND) {
                 if (timeout) {
                     Script.clearTimeout(timeout);
                     timeout = null;
@@ -78,6 +87,10 @@
                     _this.releaseGrab();
                     timeout = null;
                 }, STILL_PLAYING_TIMEOUT_MS);
+                if (ampCheckInterval) {
+                    Script.clearTimeout(ampCheckInterval);
+                }
+                ampCheckInterval = Script.setInterval(this.updateAmpPositions, UPDATE_POSITION_MS);
                 var name = Overlays.getProperty(id, 'name');
                 if (name.indexOf("Neck") !== -1) {
                     neckGrabColor = name.substr(NECK_COLOR_INDEX);
@@ -114,34 +127,54 @@
             if (!colorsShowing) {
                 this.createFingertipEntity("LeftHandMiddle4");
                 this.createFingertipEntity("RightHandMiddle4");
+                if (interval) {
+                    Script.clearInterval(interval);
+                }
                 interval = Script.setInterval(this.updatePositions, POSITION_CHECK_INTERVAL_MS);
                 Script.setTimeout(function () {
                     Script.clearInterval(interval);
                 }, POSITION_CHECK_TIMEOUT_MS);
                 this.createBodyOverlays();
                 this.createNeckOverlays();
-                numberHandsGrabbing = 1;
+                numberHandsGrabbing = ONE_HAND;
                 colorsShowing = true;
+                if (ampCheckInterval) {
+                    Script.clearTimeout(ampCheckInterval);
+                }
+                ampCheckInterval = Script.setInterval(this.updateAmpPositions, UPDATE_POSITION_MS);
             } else {
-                numberHandsGrabbing = 2;
+                numberHandsGrabbing = BOTH_HANDS;
+            }
+        },
+        updateAmpPositions: function() {
+            var newAmpLPosition = Entities.getEntityProperties(ampLeft, 'position').position;
+            var newAmpRPosition = Entities.getEntityProperties(ampRight, 'position').position;
+            if (injectorL) {
+                injectorL.options = { position: newAmpLPosition };
+            }
+            if (injectorL) {
+                injectorR.options = { position: newAmpRPosition };
             }
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
             if (mouseEvent.isRightButton) {
-                if (numberHandsGrabbing === 0) {
+                if (numberHandsGrabbing === NO_HANDS) {
                     this.startNearGrab();
-                    numberHandsGrabbing = 1;
+                    numberHandsGrabbing = ONE_HAND;
                 } else {
                     this.releaseGrab();
-                    numberHandsGrabbing = 0;
+                    numberHandsGrabbing = NO_HANDS;
                 }
                 
             }
         },
         releaseGrab: function() {
-            if (numberHandsGrabbing === 2) {
-                numberHandsGrabbing = 1;
+            if (numberHandsGrabbing === BOTH_HANDS) {
+                numberHandsGrabbing = ONE_HAND;
             } else {
+                if (ampCheckInterval) {
+                    Script.clearInterval(ampCheckInterval);
+                }
                 colorsShowing = false;
                 if (interval) {
                     Script.clearInterval(interval);
@@ -162,7 +195,7 @@
                         injectorL.stop();
                     }, STOP_SOUND_DELAY);
                 }
-                numberHandsGrabbing = 0;
+                numberHandsGrabbing = NO_HANDS;
             }
         },
         playSound: function(buttonID, params) {
@@ -233,6 +266,7 @@
         createBodyOverlays: function() {
             var riff1 = Overlays.addOverlay("sphere", {
                 name: "Guitar Body Overlay 1",
+                isSolid: true,
                 color: {
                     red: 250,
                     green: 122,
@@ -245,6 +279,7 @@
                     z: 0.045
                 },
                 glow: 1,
+                wireFrame: false,
                 localPosition: {
                     x:0.06207275390625,
                     y:-0.2640190124511719,
@@ -261,6 +296,7 @@
             overlays.push(riff1);
             var riff2 = Overlays.addOverlay("sphere", {
                 name: "Guitar Body Overlay 2",
+                isSolid: true,
                 color: {
                     red: 187,
                     green: 85,
@@ -289,6 +325,7 @@
             overlays.push(riff2);
             var riff3 = Overlays.addOverlay("sphere", {
                 name: "Guitar Body Overlay 3",
+                isSolid: true,
                 color: {
                     red: 117,
                     green: 250,
@@ -317,6 +354,7 @@
             overlays.push(riff3);
             var riff4 = Overlays.addOverlay("sphere", {
                 name: "Guitar Body Overlay 4",
+                isSolid: true,
                 color: {
                     red: 247,
                     green: 239,
@@ -345,6 +383,7 @@
             overlays.push(riff4);
             var riff5 = Overlays.addOverlay("sphere", {
                 name: "Guitar Body Overlay 5",
+                isSolid: true,
                 size: 1,
                 color: {
                     red: 138,
@@ -374,6 +413,7 @@
             overlays.push(riff5);
             var riff6 = Overlays.addOverlay("sphere", {
                 name: "Guitar Body Overlay 6",
+                isSolid: true,
                 color: {
                     red: 2,
                     green: 94,
@@ -402,6 +442,7 @@
             overlays.push(riff6);
             var riff7 = Overlays.addOverlay("sphere", {
                 name: "Guitar Body Overlay 7",
+                isSolid: true,
                 color: {
                     red: 81,
                     green: 3,
@@ -430,6 +471,7 @@
             overlays.push(riff7);
             var riff8 = Overlays.addOverlay("sphere", {
                 name: "Guitar Body Overlay 8",
+                isSolid: true,
                 color: {
                     red: 232,
                     green: 19,
@@ -460,6 +502,7 @@
         createNeckOverlays: function() {
             var red = Overlays.addOverlay("sphere", {
                 name: "Guitar Neck Overlay Red",
+                isSolid: true,
                 color: {
                     blue: 0,
                     green: 0,
@@ -475,7 +518,7 @@
                 localPosition: {
                     x:0.02330160140991211,
                     y:0.31251323223114014,
-                    z:0.02842235565185547
+                    z:0.03
                 },
                 localRotation: {
                     x:0.7065384387969971,
@@ -488,6 +531,7 @@
             overlays.push(red);
             var orange = Overlays.addOverlay("sphere", {
                 name: "Guitar Neck Overlay Orange",
+                isSolid: true,
                 color: {
                     blue: 0,
                     green: 68,
@@ -503,7 +547,7 @@
                 localPosition: {
                     x:0.020969390869140625,
                     y:0.21316003799438477,
-                    z:0.02842235565185547
+                    z:0.03
                 },
                 localRotation: {
                     x:0.7066299915313721,
@@ -516,6 +560,7 @@
             overlays.push(orange);
             var yellow = Overlays.addOverlay("sphere", {
                 name: "Guitar Neck Overlay Yellow",
+                isSolid: true,
                 color: {
                     blue: 8,
                     green: 247,
@@ -531,7 +576,7 @@
                 localPosition: {
                     x:0.01756763458251953,
                     y:0.11455994844436646,
-                    z:0.02849578857421875
+                    z:0.03
                 },
                 localRotation: {
                     x:-0.7066910862922668,
@@ -549,6 +594,7 @@
                     green: 148,
                     red: 3
                 },
+                isSolid: true,
                 alpha: 0.5,
                 dimensions: {
                     x: 0.05,
@@ -559,7 +605,7 @@
                 localPosition: {
                     x:0.015446662902832031,
                     y:0.01676046848297119,
-                    z:0.028522491455078125
+                    z:0.03
                 },
                 localRotation: {
                     x:-0.7066910862922668,
@@ -572,6 +618,7 @@
             overlays.push(green);
             var blue = Overlays.addOverlay("sphere", {
                 name: "Guitar Neck Overlay Blue",
+                isSolid: true,
                 color: {
                     blue: 222,
                     green: 101,
@@ -587,7 +634,7 @@
                 localPosition: {
                     x:0.012490272521972656,
                     y:-0.08011186122894287,
-                    z:0.028550148010253906
+                    z:0.03
                 },
                 localRotation: {
                     x:-0.7066910862922668,
