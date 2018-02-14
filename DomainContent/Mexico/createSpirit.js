@@ -24,7 +24,6 @@
     var DISPLACEMENT = 0.5;
     var DISTANCE_FROM_AVATAR = 0.05;
     var INTERVAL = 200;
-    var TIMEOUT = 5000;
     var START_POSITION = {
         x: 500,
         y: 503.5,
@@ -123,7 +122,7 @@
         var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, DISPLACEMENT));
         position.y += DISPLACEMENT;
         return position;
-    };
+    }
 
     this.enterEntity = function(entityID) {
         spiritID = Entities.addEntity(SPIRIT, true);
@@ -141,7 +140,9 @@
                     Entities.deleteEntity(spiritID);
                     flower.position = getPositionToCreateEntity();
                     var flowerID = Entities.addEntity(flower, true);
-                    Audio.playSound(HARP, {volume: VOLUME, loop: false, position: Entities.getEntityProperties(flowerID, "position").position});
+                    var playbackOptions = {volume: VOLUME, loop: false, 
+                        position: Entities.getEntityProperties(flowerID, "position").position};
+                    Audio.playSound(HARP, playbackOptions);
                     spiritID = 0;
                 }
             }
