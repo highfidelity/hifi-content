@@ -16,6 +16,11 @@
 
     var spiritID;
 
+    // Sound credit to http://cd.textfiles.com/10000soundssongs/WAV/SCALES.WAV
+    var HARP_SOUND_URL = Script.resolvePath("./sounds/harp.wav");
+    var HARP = SoundCache.getSound(HARP_SOUND_URL);
+    var VOLUME = 0.5;
+
     var DISPLACEMENT = 0.5;
     var DISTANCE_FROM_AVATAR = 0.05;
     var INTERVAL = 200;
@@ -135,7 +140,8 @@
                 if (Vec3.distance(MyAvatar.position, position) < DISTANCE_FROM_AVATAR) {
                     Entities.deleteEntity(spiritID);
                     flower.position = getPositionToCreateEntity();
-                    Entities.addEntity(flower, true);
+                    var flowerID = Entities.addEntity(flower, true);
+                    Audio.playSound(HARP, {volume: VOLUME, loop: false, position: Entities.getEntityProperties(flowerID, "position").position});
                     spiritID = 0;
                 }
             }
