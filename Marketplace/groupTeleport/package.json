@@ -1,0 +1,22 @@
+{
+  "name": "group-teleporter",
+  "version": "0.0.1",
+  "description": "A group teleporter prototype",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "lowdb": "^1.0.0",
+    "body-parser": "^1.18.2"
+  },
+  "engines": {
+    "node": "8.x"
+  },
+  "keywords": [
+    "node",
+    "glitch",
+    "express"
+  ]
+}
