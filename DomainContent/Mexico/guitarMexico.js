@@ -14,11 +14,17 @@
     var AUDIO_VOLUME_LEVEL = 0.8;
     var SONG_LENGTH_MS = 50000;
     var UPDATE_POSITION_MS = 50;
+    var BOTH_HANDS = 2;
+    var ONE_HAND = 1;
+    var NO_HANDS = 0;
+    var LIFETIME_ON_RELEASE = 30;
+    var LIFETIME_ON_GRAB = 120;
 
     var playing = false;
     var song;
     var injector;
     var interval;
+    var numberHandsGrabbing = 1;
 
     var Guitar = function() {
         _this = this;
@@ -31,16 +37,35 @@
             song = SoundCache.getSound(Script.resolvePath("Sounds/mexicoAnthem.wav"));
         },
         startNearGrab: function(thisEntity, otherEntity, collision) {
-            this.playSound(song);
+            Entities.editEntity(_this.entityID, {lifetime: LIFETIME_ON_GRAB});
+            if (numberHandsGrabbing === NO_HANDS) {
+                print("1 hand");
+                numberHandsGrabbing = ONE_HAND;
+                this.playSound(song);
+            } else {
+                print("2 hands");
+                numberHandsGrabbing = BOTH_HANDS;
+                if (!playing) {
+                    this.playSound(song);
+                }
+            }
         },
         releaseGrab: function() {
-            if (injector) {
-                injector.stop();
+            if (numberHandsGrabbing === BOTH_HANDS) {
+                print("1 hand");
+                numberHandsGrabbing = ONE_HAND;
+            } else {
+                print("no hands");
+                if (injector) {
+                    injector.stop();
+                }
+                if (interval) {
+                    Script.clearInterval(interval);
+                }
+                playing = false;
+                Entities.editEntity(_this.entityID, {lifetime: LIFETIME_ON_RELEASE});
+                numberHandsGrabbing = NO_HANDS;
             }
-            if (interval) {
-                Script.clearInterval(interval);
-            }
-            playing = false;
         },
         playSound: function(specificSound) {
             if (specificSound.downloaded && !playing) {
