@@ -68,7 +68,6 @@ var polePosition = Vec3.sum(MyAvatar.position, {
 
 poleID = Entities.addEntity({
     type: "Model",
-    grabbable: false,
     modelURL: Script.resolvePath("./assets/pinata/tballPole_VR.fbx"),
     compoundShapeURL: Script.resolvePath("./assets/pinata/tballPole_phys.obj"),
     name: "Pinata Pole",
@@ -83,51 +82,26 @@ poleID = Entities.addEntity({
 });
 
 var paddlePosition = Vec3.sum(MyAvatar.position, {
-    x: 1.15,
-    y: 2.0,
+    x: 1.5,
+    y: 0.5,
     z: 0.15
 });
 
 paddleID = Entities.addEntity({
-    "color": {
-        "red": 255,
-        "green": 87,
-        "blue": 210 
+    type: "Model",
+    modelURL: Script.resolvePath("./assets/baseball_bat/bat.obj"),
+    name: "Pinata Paddle",
+    density: 10000,
+    script: Script.resolvePath("./onPinataHit.js"),
+    shapeType: "compound",
+    dynamic: 0,
+    position: paddlePosition,
+    dimensions: {
+        x: 0.1035,
+        y: 0.0990,
+        z: 1.4780
     },
-    "density": 10000,
-    "dimensions": {
-        "x": 0.0568,
-        "y": 1.7805,
-        "z": 0.0892
-    },
-    "gravity": {
-        "x": 0,
-        "y": -5,
-        "z": 0
-    },
-    "dynamic": 1,
-    "name": "Pinata Paddle",
-    "position": paddlePosition,
-    "script": Script.resolvePath("./onPinataHit.js"),
-    "rotation": {
-        "w": 0.98437130451202393,
-        "x": -1.7827005649451166e-05,
-        "y": -0.17610554397106171,
-        "z": -9.9647018942050636e-05
-    },
-    "type": "Box"
-});
-
-var paddlePointToOffsetFrom = Vec3.sum(paddlePosition, {
-    x: 0.0,
-    y: 2.0,
-    z: 0.0
-});
-
-Entities.addAction("offset", paddleID, {
-    pointToOffsetFrom: paddlePointToOffsetFrom,
-    linearDistance: 2.0,
-    linearTimeScale: 0.1
+    userData: JSON.stringify({ grabbableKey: { grabbable: true } })
 });
 
 Script.stop();
