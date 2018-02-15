@@ -44,14 +44,18 @@
 
     this.enterEntity = function(entityID) {
         candleArray = Entities.getChildrenIDs(entityID);
-        candleArray.forEach(function(candleID) {
-            var properties = Entities.getEntityProperties(candleID, "isEmitting");
-            properties.isEmitting = true;
-            Entities.editEntity(candleID, properties);  
-        });
+        var zoneProperties = Entities.getEntityProperties(entityID, ["position", "dimensions", "rotation"]);
+        if (!isSomeAvatarOtherThanMeStillInsideTheObject(zoneProperties)) {
+            candleArray.forEach(function(candleID) {
+                var properties = Entities.getEntityProperties(candleID, "isEmitting");
+                properties.isEmitting = true;
+                Entities.editEntity(candleID, properties);  
+            });
+        }
     };
 
     this.leaveEntity = function(entityID) {
+        candleArray = Entities.getChildrenIDs(entityID);
         var zoneProperties = Entities.getEntityProperties(entityID, ["position", "dimensions", "rotation"]);
         if (!isSomeAvatarOtherThanMeStillInsideTheObject(zoneProperties)) {
             candleArray.forEach(function(candleID) {
