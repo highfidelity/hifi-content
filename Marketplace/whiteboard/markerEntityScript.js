@@ -30,12 +30,12 @@
     var isMouseDown = false;
     var isStartingStroke = false;
 
-    var BEGIN_STROKE_SOUND = SoundCache.getSound(Script.resolvePath('markerBeginStroke.wav'));
+    var BEGIN_STROKE_SOUND = SoundCache.getSound(Script.resolvePath('sfx/markerBeginStroke.wav'));
 
-    var STROKEL1_SOUND = SoundCache.getSound(Script.resolvePath('strokeL1.wav'));
-    var STROKER1_SOUND = SoundCache.getSound(Script.resolvePath('strokeR1.wav'));
-    var STROKER2_SOUND = SoundCache.getSound(Script.resolvePath('strokeR2.wav'));
-    var STROKER3_SOUND = SoundCache.getSound(Script.resolvePath('strokeR3.wav'));
+    var STROKEL1_SOUND = SoundCache.getSound(Script.resolvePath('sfx/strokeL1.wav'));
+    var STROKER1_SOUND = SoundCache.getSound(Script.resolvePath('sfx/strokeR1.wav'));
+    var STROKER2_SOUND = SoundCache.getSound(Script.resolvePath('sfx/strokeR2.wav'));
+    var STROKER3_SOUND = SoundCache.getSound(Script.resolvePath('sfx/strokeR3.wav'));
     
     var STROKE_SOUND_ARRAY = [STROKEL1_SOUND, STROKER1_SOUND, STROKER2_SOUND, STROKER3_SOUND];
 

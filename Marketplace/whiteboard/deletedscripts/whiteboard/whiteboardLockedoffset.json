@@ -1,0 +1,137 @@
+{
+    "Entities": [
+        {
+            "animation": {
+                "currentFrame": 91.60862731933594,
+                "firstFrame": 1,
+                "hold": 1,
+                "loop": 0
+            },
+            "clientOnly": 0,
+            "created": "2018-02-14T15:14:54Z",
+            "dimensions": {
+                "x": 0.03150000050663948,
+                "y": 0.2669999897480011,
+                "z": 0.11389999836683273
+            },
+            "id": "{9ec1771f-b55c-4e9f-99cd-d9f6e20f092e}",
+            "lastEdited": 1518708144750998,
+            "lastEditedBy": "{e4f5328b-8fd9-4636-8856-5427437127af}",
+            "locked": 1,
+            "modelURL": "https://virtualrealityrental.eu/hifi/whiteboard/models/resetButton.fbx",
+            "name": "Whiteboard - Reset Button",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{3fd3b1ab-4fe6-4413-a26e-298a6f039c12}",
+            "position": {
+                "x": 1.6056420803070068,
+                "y": 0.0045949905179440975,
+                "z": 0.003766435431316495
+            },
+            "queryAACube": {
+                "scale": 0.2919836640357971,
+                "x": 1.4596502780914307,
+                "y": -0.14144572615623474,
+                "z": -0.1421765387058258
+            },
+            "rotation": {
+                "w": -0.7105973958969116,
+                "x": 4.57763671875e-05,
+                "y": 0.7035782337188721,
+                "z": 1.52587890625e-05
+            },
+            "script": "https://virtualrealityrental.eu/hifi/whiteboard/resetWhiteBoard.js",
+            "shapeType": "box",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false,\"wantsTrigger\":true}}"
+        },
+        {
+            "clientOnly": 0,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 255
+            },
+            "created": "2018-02-14T15:14:54Z",
+            "dimensions": {
+                "x": 2.859999895095825,
+                "y": 1.6332000494003296,
+                "z": 0.019999999552965164
+            },
+            "id": "{d17ee453-68fa-4a4d-b3fe-80b377e958af}",
+            "lastEdited": 1518708131773732,
+            "lastEditedBy": "{e4f5328b-8fd9-4636-8856-5427437127af}",
+            "locked": 1,
+            "name": "Whiteboard - Drawing Surface",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{3fd3b1ab-4fe6-4413-a26e-298a6f039c12}",
+            "position": {
+                "x": 0.003578012576326728,
+                "y": 0.15804241597652435,
+                "z": -7.802899745001923e-06
+            },
+            "queryAACube": {
+                "scale": 3.293530225753784,
+                "x": -1.6431822776794434,
+                "y": -1.488722801208496,
+                "z": -1.646777629852295
+            },
+            "rotation": {
+                "w": -1.52587890625e-05,
+                "x": -1.52587890625e-05,
+                "y": -1,
+                "z": -1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "visible": 0
+        },
+        {
+            "clientOnly": 0,
+            "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+            "collisionMask": 23,
+            "compoundShapeURL": "https://virtualrealityrental.eu/hifi/whiteboard/models/whiteBoard_collider.obj",
+            "created": "2018-02-14T15:14:54Z",
+            "dimensions": {
+                "x": 3.0890612602233887,
+                "y": 2.5363354682922363,
+                "z": 0.6126075983047485
+            },
+            "gravity": {
+                "x": 0,
+                "y": -9.800000190734863,
+                "z": 0
+            },
+            "id": "{3fd3b1ab-4fe6-4413-a26e-298a6f039c12}",
+            "lastEdited": 1518709093979045,
+            "lastEditedBy": "{e4f5328b-8fd9-4636-8856-5427437127af}",
+            "locked": 1,
+            "marketplaceID": "b40db216-ac1e-48bf-b6a5-09973c527987",
+            "modelURL": "https://virtualrealityrental.eu/hifi/whiteboard/models/wbFrameNew_framed.fbx",
+            "name": "Whiteboard",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 4.327091217041016,
+                "x": -2.163545608520508,
+                "y": -2.163545608520508,
+                "z": -2.163545608520508
+            },
+            "registrationPoint": {
+                "x": 0.5,
+                "y": 0.5849999785423279,
+                "z": 0.5
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "scriptTimestamp": 1485288066226,
+            "serverScripts": "file:///d:/hifiWhiteboard/hifi-content/Marketplace/whiteboard/whiteboardManagerServer.js",
+            "shapeType": "compound",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
+        }
+    ],
+    "Version": 84
+}

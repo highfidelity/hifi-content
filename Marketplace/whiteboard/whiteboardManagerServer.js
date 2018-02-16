@@ -342,6 +342,7 @@
                 Entities.getEntityProperties(_this.entityID, "position").position, 
                 RESET_MARKERS_AND_ERASERS_RADIUS
             );
+            
             results.forEach(function(entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
                 if (entityName == ERASER_NAME || 
@@ -359,25 +360,11 @@
         spawnOriginalMarkersAndErasers: function() {
            // spawn original markers and erasers
             blueMarkerID = _this.spawnMarkerWithColor(BLUE_MARKER_NAME, BLUE_MARKER_COLOR);
-            var newProperties = {
-                parentID: '{00000000-0000-0000-0000-000000000000}'
-            };
-            Entities.editEntity(blueMarkerID, newProperties);
-            
             greenMarkerID = _this.spawnMarkerWithColor(GREEN_MARKER_NAME, GREEN_MARKER_COLOR);
-            Entities.editEntity(greenMarkerID, newProperties);
-
             blackMarkerID = _this.spawnMarkerWithColor(BLACK_MARKER_NAME, BLACK_MARKER_COLOR);
-            Entities.editEntity(blackMarkerID, newProperties);
-
             redMarkerID = _this.spawnMarkerWithColor(RED_MARKER_NAME, RED_MARKER_COLOR);
-            Entities.editEntity(redMarkerID, newProperties);
-
             pinkMarkerID = _this.spawnMarkerWithColor(PINK_MARKER_NAME, PINK_MARKER_COLOR);
-            Entities.editEntity(pinkMarkerID, newProperties);
-
             yellowMarkerID = _this.spawnMarkerWithColor(YELLOW_MARKER_NAME, YELLOW_MARKER_COLOR);
-            Entities.editEntity(yellowMarkerID, newProperties);
             
             eraserID = null;
             _this.spawnEraser(_this.entityID, [_this.entityID]);
@@ -393,37 +380,32 @@
             var markerName = utils.parseJSON(params[1]);
             var color = utils.parseJSON(params[2]);
             var newProperties = {
-                parentID: '{00000000-0000-0000-0000-000000000000}'
+                parentID: ""
             };
             if ( markerName == "hifi_model_marker_blue" && 
                 (blueMarkerID == null || params[0] == blueMarkerID)) 
             {
                 blueMarkerID = _this.spawnMarkerWithColor(markerName, color);
-                Entities.editEntity(blueMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_green" && 
                 (greenMarkerID == null || params[0] == greenMarkerID)) 
             {
                 greenMarkerID = _this.spawnMarkerWithColor(markerName, color);
-                Entities.editEntity(greenMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_black" && 
                 (blackMarkerID == null || params[0] == blackMarkerID)) 
             {
                 blackMarkerID = _this.spawnMarkerWithColor(markerName, color);
-                Entities.editEntity(blackMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_red" && 
                 (redMarkerID == null || params[0] == redMarkerID)) 
             {
                 redMarkerID = _this.spawnMarkerWithColor(markerName, color);
-                Entities.editEntity(redMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_pink" && 
                 (pinkMarkerID == null || params[0] == pinkMarkerID)) 
             {
                 pinkMarkerID = _this.spawnMarkerWithColor(markerName, color);
-                Entities.editEntity(pinkMarkerID, newProperties);
             } else if ( markerName == "hifi_model_marker_yellow" && 
-                (yellowMarkerID == null || params[0] == yellowMarkerID)) {
+                (yellowMarkerID == null || params[0] == yellowMarkerID)) 
+            {
                 yellowMarkerID = _this.spawnMarkerWithColor(markerName, color);
-                Entities.editEntity(yellowMarkerID, newProperties);
             }
         },
         /// Remotely callable function that creates a new eraser
@@ -435,13 +417,34 @@
         /// @param {object} params [grabbedEraserID]
         spawnEraser: function(entityID, params) {
             if (eraserID == null || params[0] == eraserID) {
-                spawnTemplate("hifi_model_whiteboardEraser", {
-                    parentID: _this.entityID,
+                var template = getTemplate(ERASER_NAME);
+                var rootPos = Entities.getEntityProperties(_this.entityID, "position").position;
+                var currentRot = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+                //var rootWhiteboardRotation = getTemplate("Whiteboard");
+                var rootRot = getTemplate("Whiteboard")['rotation'];
+                var localPos = template['localPosition'];
+                var up = Vec3.multiply(Quat.getUp(rootRot), Vec3.dot(localPos, Quat.getUp(rootRot)));
+                var front = Vec3.multiply(Quat.getFront(rootRot), Vec3.dot(localPos, Quat.getFront(rootRot)));
+                var right = Vec3.multiply(Quat.getRight(rootRot), Vec3.dot(localPos, Quat.getRight(rootRot)));
+                var relativePosInWorld = Vec3.sum(Vec3.sum(up, right), front);
+                relativePosInWorld = Vec3.multiplyQbyV(currentRot, relativePosInWorld);
+                var finalPosition = Vec3.sum(relativePosInWorld, rootPos);
+                eraserID = Entities.addEntity( {
+                    parentID: "{00000000-0000-0000-0000-000000000000}",
+                    position: finalPosition,
                     rotation: Quat.multiply(
                         Entities.getEntityProperties(_this.entityID, "rotation").rotation,
                         Quat.fromPitchYawRollDegrees(-90, 0, 0)
                     ),
                     script: ERASER_ENTITY_SCRIPT,
+                    dimensions: template['dimensions'],
+                    gravity: template['gravity'],
+                    name: ERASER_NAME,
+                    type: "Model",
+                    shapeType: "box",
+                    lifetime: 3600,
+                    queryAACube: template['queryAACube'],
+                    modelURL: template['modelURL'],
                     userData: JSON.stringify({
                         grabbableKey: {
                             grabbable: true,
@@ -453,7 +456,7 @@
                                 y: 0,
                                 z: 0
                             },
-                            radius: 0.15,
+                            radius: 0.35,
                             joints: {
                                 RightHand: [{
                                     x: 0.020,
@@ -479,16 +482,39 @@
                         }]
                     })
                 });
-                newProperties = {
-                    parentID: '{00000000-0000-0000-0000-000000000000}', 
-                };
-                Entities.editEntity(eraserID, newProperties);
             }
         },
         spawnMarkerWithColor: function(markerName, color) {
-            return spawnTemplate(markerName, {
-                parentID: _this.entityID,
+            var template = getTemplate(markerName);
+            var rootPos = Entities.getEntityProperties(_this.entityID, "position").position;
+            var currentRot = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+            
+            var rootRot = getTemplate("Whiteboard")['rotation'];
+            var localPos = template['localPosition'];
+            var up = Vec3.multiply(Quat.getUp(rootRot), Vec3.dot(localPos, Quat.getUp(rootRot)));
+            var front = Vec3.multiply(Quat.getFront(rootRot), Vec3.dot(localPos, Quat.getFront(rootRot)));
+            var right = Vec3.multiply(Quat.getRight(rootRot), Vec3.dot(localPos, Quat.getRight(rootRot)));
+            var relativePosInWorld = Vec3.sum(Vec3.sum(up, right), front);
+            relativePosInWorld = Vec3.multiplyQbyV(currentRot, relativePosInWorld);
+            var finalPosition = Vec3.sum(relativePosInWorld, rootPos);
+            
+
+            return Entities.addEntity( {
+                parentID: "{00000000-0000-0000-0000-000000000000}",
+                position: finalPosition,
+                rotation: Quat.multiply(
+                    Entities.getEntityProperties(_this.entityID, "rotation").rotation,
+                    template['rotation']
+                ),
                 script: MARKER_ENTITY_SCRIPT,
+                dimensions: template['dimensions'],
+                gravity: template['gravity'],
+                name: markerName,
+                type: "Model",
+                shapeType: "box",
+                lifetime: 3600,
+                queryAACube: template['queryAACube'],
+                modelURL: template['modelURL'],
                 userData: JSON.stringify({
                     grabbableKey: {
                         grabbable: true,
@@ -501,7 +527,7 @@
                             y: 0,
                             z: 0
                         },
-                        radius: 0.15,
+                        radius: 0.32,
                         joints: {
                             RightHand: [{
                                 x: 0.001,

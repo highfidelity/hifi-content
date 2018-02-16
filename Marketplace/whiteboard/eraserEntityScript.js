@@ -18,6 +18,8 @@
     var isErasing = false;
     var isMouseDown = false;
 
+    var ERASER_HIT_BOARD_SOUND = SoundCache.getSound(Script.resolvePath('sfx/eraserHitBoard.wav'));
+
     Eraser = function() {
         _this = this;
         _this.equipped = false;
@@ -74,6 +76,12 @@
                     var serverID = _this.whiteboard;
                     // RPC - calling server to erase
                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
+                    
+                    Audio.playSound(ERASER_HIT_BOARD_SOUND, {
+                        position: _this.eraserPosition,
+                        volume: 0.6
+                    });
+
                     var vibrated = Controller.triggerHapticPulse(1, 70, 2);
                 }
             });
@@ -176,6 +184,10 @@
                                 {
                                     // RPC - calling server to erase
                                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
+                                    Audio.playSound(ERASER_HIT_BOARD_SOUND, {
+                                        position: _this.eraserPosition,
+                                        volume: 0.6
+                                    });
                                 }
                             });
                         } else {

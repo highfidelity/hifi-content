@@ -10,7 +10,7 @@ Script.include('utils.js');
 Script.include('whiteboardEntities.js');
 
 const WHITEBOARD_FWD_OFFSET = 4;
-const WHITEBOARD_UP_OFFSET = 1.15;
+const WHITEBOARD_UP_OFFSET = 1.28;
 
 TEMPLATES = WHITEBOARD_ENTITIES.Entities;
 
@@ -109,15 +109,18 @@ function createWhiteboard() {
             Quat.getFront(MyAvatar.orientation)
         )
     );
+    var rootRotation = MyAvatar.orientation;
     // Spawn Whiteboard Frame
     whiteboardFrameID = spawnTemplate("Whiteboard", {
         position: rootPosition,
-        rotation: MyAvatar.orientation,
+        rotation: rootRotation,
         compoundShapeURL: Script.resolvePath("models/whiteBoard_collider.obj"),
         script: "",
         serverScripts: Script.resolvePath("whiteboardManagerServer.js")
     });
     entityIDs.push(whiteboardFrameID);
+    
+    //Entities.editEntity(whiteboardFrameID, newProperties);
 
     // Spawn drawing surface
     drawingSurfaceID = spawnTemplate("Whiteboard - Drawing Surface", {
@@ -126,7 +129,7 @@ function createWhiteboard() {
     entityIDs.push(drawingSurfaceID);
     
     var newProperties = {
-        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(drawingSurfaceID, "rotation").rotation)
+        rotation: Quat.multiply(rootRotation, Entities.getEntityProperties(drawingSurfaceID, "rotation").rotation)
     };
     Entities.editEntity(drawingSurfaceID, newProperties);
 
@@ -144,7 +147,7 @@ function createWhiteboard() {
     entityIDs.push(resetButtonID);
 
     newProperties = {
-        rotation: Quat.multiply(MyAvatar.orientation, Entities.getEntityProperties(resetButtonID, "rotation").rotation)
+        rotation: Quat.multiply(rootRotation, Entities.getEntityProperties(resetButtonID, "rotation").rotation)
     };
     Entities.editEntity(resetButtonID, newProperties);
 
