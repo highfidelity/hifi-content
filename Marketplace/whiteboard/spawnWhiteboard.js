@@ -5,21 +5,20 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 //
+var utils = Script.require('./utils.js');
+var whiteboardEntities = Script.require('./whiteboardEntities.js');
 
-Script.include('utils.js');
-Script.include('whiteboardEntities.js');
+var WHITEBOARD_FWD_OFFSET = 4;
+var WHITEBOARD_UP_OFFSET = 1.28;
 
-const WHITEBOARD_FWD_OFFSET = 4;
-const WHITEBOARD_UP_OFFSET = 1.28;
-
-TEMPLATES = WHITEBOARD_ENTITIES.Entities;
+var TEMPLATES = whiteboardEntities.WHITEBOARD_ENTITIES.Entities;
 
 /// Spawn an entity from a template.
-///
+/// 
 /// The overrides can be used to override or add properties in the template. For instance,
 /// it's common to override the `position` property so that you can set the position
 /// of the entity to be spawned.
-///
+/// 
 /// @param {string} templateName The name of the template to spawn
 /// @param {object} overrides An object containing properties that will override
 ///                           any properties set in the template.
@@ -30,7 +29,7 @@ function spawnTemplate(templateName, overrides) {
         return null;
     }
     print("Spawning: ", templateName);
-    var properties = mergeObjects(template, overrides);
+    var properties = utils.mergeObjects(template, overrides);
     return Entities.addEntity(properties);
 }
 
@@ -44,7 +43,7 @@ function spawnTemplates(templateName, overrides) {
     var spawnedEntities = [];
     for (var i = 0; i < templates.length; ++i) {
         print("Spawning: ", templateName);
-        var properties = mergeObjects(templates[i], overrides);
+        var properties = utils.mergeObjects(templates[i], overrides);
         spawnedEntities.push(Entities.addEntity(properties));
     }
     return spawnedEntities;
@@ -52,7 +51,7 @@ function spawnTemplates(templateName, overrides) {
 
 /// TEMPLATES contains a dictionary of different named entity templates. An entity
 /// template is just a list of properties.
-///
+/// 
 /// @param name Name of the template to get
 /// @return {object} The matching template, or null if not found
 function getTemplate(name) {
@@ -94,7 +93,7 @@ var drawingSurfaceID = null;
 var resetButtonID = null;
 
 function createWhiteboard() {
-    var rootPosition = utils.findSurfaceBelowPosition(MyAvatar.position);
+    var rootPosition = utils.utils.findSurfaceBelowPosition(MyAvatar.position);
     rootPosition = Vec3.sum(
         rootPosition, 
         Vec3.multiply(
@@ -119,8 +118,7 @@ function createWhiteboard() {
         serverScripts: Script.resolvePath("whiteboardManagerServer.js")
     });
     entityIDs.push(whiteboardFrameID);
-    
-    //Entities.editEntity(whiteboardFrameID, newProperties);
+
 
     // Spawn drawing surface
     drawingSurfaceID = spawnTemplate("Whiteboard - Drawing Surface", {
@@ -151,7 +149,7 @@ function createWhiteboard() {
     };
     Entities.editEntity(resetButtonID, newProperties);
 
-};
+}
 
 createWhiteboard();
 Script.stop();

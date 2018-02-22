@@ -6,72 +6,53 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-map = function(value, min1, max1, min2, max2) {
-    return min2 + (max2 - min2) * ((value - min1) / (max1 - min1));
-}
+/* globals Entities, Vec3, Quat, Overlays, module */
 
-vec3toStr = function(v, digits) {
+var map = function(value, min1, max1, min2, max2) {
+    return min2 + (max2 - min2) * ((value - min1) / (max1 - min1));
+};
+
+var vec3toStr = function(v, digits) {
     if (!digits) {
         digits = 3;
     }
     return "{ " + v.x.toFixed(digits) + ", " + v.y.toFixed(digits) + ", " + v.z.toFixed(digits) + " }";
-}
+};
 
-quatToStr = function(q, digits) {
+var quatToStr = function(q, digits) {
     if (!digits) {
         digits = 3;
     }
     return "{ " + q.w.toFixed(digits) + ", " + q.x.toFixed(digits) + ", " +
         q.y.toFixed(digits) + ", " + q.z.toFixed(digits) + " }";
-}
+};
 
-vec3equal = function(v0, v1) {
-    return (v0.x == v1.x) && (v0.y == v1.y) && (v0.z == v1.z);
-}
+var vec3equal = function(v0, v1) {
+    return (v0.x === v1.x) && (v0.y === v1.y) && (v0.z === v1.z);
+};
 
-colorMix = function(colorA, colorB, mix) {
+var colorMix = function(colorA, colorB, mix) {
     var result = {};
     for (var key in colorA) {
         result[key] = (colorA[key] * (1 - mix)) + (colorB[key] * mix);
     }
     return result;
-}
+};
 
-scaleLine = function(start, end, scale) {
-    var v = Vec3.subtract(end, start);
-    var length = Vec3.length(v);
-    v = Vec3.multiply(scale, v);
-    return Vec3.sum(start, v);
-}
-
-findAction = function(name) {
+var findAction = function(name) {
     return Controller.findAction(name);
-}
-
-addLine = function(origin, vector, color) {
-    if (!color) {
-        color = COLORS.WHITE
-    }
-    return Entities.addEntity(mergeObjects(LINE_PROTOTYPE, {
-        position: origin,
-        linePoints: [
-            ZERO_VECTOR,
-            vector,
-        ],
-        color: color
-    }));
-}
+};
 
 // FIXME fetch from a subkey of user data to support non-destructive modifications
-setEntityUserData = function(id, data) {
-    var json = JSON.stringify(data)
+var setEntityUserData = function(id, data) {
+    var json = JSON.stringify(data);
     Entities.editEntity(id, {
         userData: json
     });
-}
+};
 
 // FIXME do non-destructive modification of the existing user data
-getEntityUserData = function(id) {
+var getEntityUserData = function(id) {
     var results = null;
     var properties = Entities.getEntityProperties(id, "userData");
     if (properties.userData) {
@@ -83,86 +64,87 @@ getEntityUserData = function(id) {
         }
     }
     return results ? results : {};
-}
+};
 
 
 // Non-destructively modify the user data of an entity.
-setEntityCustomData = function(customKey, id, data) {
+var setEntityCustomData = function(customKey, id, data) {
     var userData = getEntityUserData(id);
-    if (data == null) {
+    if (data === null) {
         delete userData[customKey];
     } else {
         userData[customKey] = data;
     }
     setEntityUserData(id, userData);
-}
+};
 
-getEntityCustomData = function(customKey, id, defaultValue) {
+var getEntityCustomData = function(customKey, id, defaultValue) {
     var userData = getEntityUserData(id);
-    if (undefined != userData[customKey]) {
+    if (undefined !== userData[customKey]) {
         return userData[customKey];
     } else {
         return defaultValue;
     }
-}
+};
 
-mergeObjects = function(proto, custom) {
+var mergeObjects = function(proto, custom) {
     var result = {};
-    for (var attrname in proto) {
+    var attrname;
+    for (attrname in proto) {
         result[attrname] = proto[attrname];
     }
-    for (var attrname in custom) {
+    for (attrname in custom) {
         result[attrname] = custom[attrname];
     }
     return result;
-}
+};
 
-LOG_WARN = 1;
+var LOG_WARN = 1;
 
-logWarn = function(str) {
+var logWarn = function(str) {
     if (LOG_WARN) {
         print(str);
     }
-}
+};
 
-LOG_ERROR = 1;
+var LOG_ERROR = 1;
 
-logError = function(str) {
+var logError = function(str) {
     if (LOG_ERROR) {
         print(str);
     }
-}
+};
 
-LOG_INFO = 1;
+var LOG_INFO = 1;
 
-logInfo = function(str) {
+var logInfo = function(str) {
     if (LOG_INFO) {
         print(str);
     }
-}
+};
 
-LOG_DEBUG = 0;
+var LOG_DEBUG = 0;
 
-logDebug = function(str) {
+var logDebug = function(str) {
     if (LOG_DEBUG) {
         print(str);
     }
-}
+};
 
-LOG_TRACE = 0;
+var LOG_TRACE = 0;
 
-logTrace = function(str) {
+var logTrace = function(str) {
     if (LOG_TRACE) {
         print(str);
     }
-}
+};
 
 // Computes the penetration between a point and a sphere (centered at the origin)
 // if point is inside sphere: returns true and stores the result in 'penetration'
 // (the vector that would move the point outside the sphere)
 // otherwise returns false
-findSphereHit = function(point, sphereRadius) {
-    var EPSILON = 0.000001; //smallish positive number - used as margin of error for some computations
+var findSphereHit = function(point, sphereRadius) {
+    var EPSILON = 0.000001; // smallish positive number - used as margin of error for some computations
     var vectorLength = Vec3.length(point);
     if (vectorLength < EPSILON) {
         return true;
@@ -172,31 +154,31 @@ findSphereHit = function(point, sphereRadius) {
         return true;
     }
     return false;
-}
+};
 
-findSpherePointHit = function(sphereCenter, sphereRadius, point) {
+var findSpherePointHit = function(sphereCenter, sphereRadius, point) {
     return findSphereHit(Vec3.subtract(point, sphereCenter), sphereRadius);
-}
+};
 
-findSphereSphereHit = function(firstCenter, firstRadius, secondCenter, secondRadius) {
+var findSphereSphereHit = function(firstCenter, firstRadius, secondCenter, secondRadius) {
     return findSpherePointHit(firstCenter, firstRadius + secondRadius, secondCenter);
-}
+};
 
 // Given a vec3 v, return a vec3 that is the same vector relative to the avatars
 // DEFAULT eye position, rotated into the avatars reference frame.
-getEyeRelativePosition = function(v) {
+var getEyeRelativePosition = function(v) {
     return Vec3.sum(MyAvatar.getDefaultEyePosition(), Vec3.multiplyQbyV(MyAvatar.orientation, v));
-}
+};
 
-getAvatarRelativeRotation = function(q) {
+var getAvatarRelativeRotation = function(q) {
     return Quat.multiply(MyAvatar.orientation, q);
-}
+};
 
-pointInExtents = function(point, minPoint, maxPoint) {
+var pointInExtents = function(point, minPoint, maxPoint) {
     return (point.x >= minPoint.x && point.x <= maxPoint.x) &&
         (point.y >= minPoint.y && point.y <= maxPoint.y) &&
         (point.z >= minPoint.z && point.z <= maxPoint.z);
-}
+};
 
 /**
  * Converts an HSL color value to RGB. Conversion formula
@@ -209,19 +191,29 @@ pointInExtents = function(point, minPoint, maxPoint) {
  * @param   Number  l       The lightness
  * @return  Array           The RGB representation
  */
-hslToRgb = function(hsl) {
+var hslToRgb = function(hsl) {
     var r, g, b;
-    if (hsl.s == 0) {
+    if (hsl.s === 0) {
         r = g = b = hsl.l; // achromatic
     } else {
         var hue2rgb = function hue2rgb(p, q, t) {
-            if (t < 0) t += 1;
-            if (t > 1) t -= 1;
-            if (t < 1 / 6) return p + (q - p) * 6 * t;
-            if (t < 1 / 2) return q;
-            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+            if (t < 0) {
+                t += 1;
+            }
+            if (t > 1) {
+                t -= 1;
+            }
+            if (t < 1 / 6) {
+                return p + (q - p) * 6 * t;
+            }
+            if (t < 1 / 2) {
+                return q;
+            }
+            if (t < 2 / 3) {
+                return p + (q - p) * (2 / 3 - t) * 6;
+            }
             return p;
-        }
+        };
 
         var q = hsl.l < 0.5 ? hsl.l * (1 + hsl.s) : hsl.l + hsl.s - hsl.l * hsl.s;
         var p = 2 * hsl.l - q;
@@ -235,11 +227,10 @@ hslToRgb = function(hsl) {
         green: Math.round(g * 255),
         blue: Math.round(b * 255)
     };
-}
+};
 
 
-
-orientationOf = function(vector) {
+var orientationOf = function(vector) {
     var Y_AXIS = {
         x: 0,
         y: 1,
@@ -251,44 +242,42 @@ orientationOf = function(vector) {
         z: 0
     };
 
-    var theta = 0.0;
-
     var RAD_TO_DEG = 180.0 / Math.PI;
     var direction, yaw, pitch;
     direction = Vec3.normalize(vector);
     yaw = Quat.angleAxis(Math.atan2(direction.x, direction.z) * RAD_TO_DEG, Y_AXIS);
     pitch = Quat.angleAxis(Math.asin(-direction.y) * RAD_TO_DEG, X_AXIS);
     return Quat.multiply(yaw, pitch);
-}
+};
 
-randFloat = function(low, high) {
+var randFloat = function(low, high) {
     return low + Math.random() * (high - low);
-}
+};
 
 
-randInt = function(low, high) {
+var randInt = function(low, high) {
     return Math.floor(randFloat(low, high));
-}
+};
 
-hexToRgb = function(hex) {
+var hexToRgb = function(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
         red: parseInt(result[1], 16),
         green: parseInt(result[2], 16),
         blue: parseInt(result[3], 16)
     } : null;
-}
+};
 
-calculateHandSizeRatio = function() {
+var calculateHandSizeRatio = function() {
     // Get the ratio of the current avatar's hand to Owen's hand
 
     var standardCenterHandPoint = 0.11288;
     var jointNames = MyAvatar.getJointNames();
-    //get distance from handJoint up to leftHandIndex3 as a proxy for center of hand
-    var wristToFingertipDistance = 0;;
+    // get distance from handJoint up to leftHandIndex3 as a proxy for center of hand
+    var wristToFingertipDistance = 0;
     for (var i = 0; i < jointNames.length; i++) {
         var jointName = jointNames[i];
-        print(jointName)
+        print(jointName);
         if (jointName.indexOf("LeftHandIndex") !== -1) {
             // translations are relative to parent joint, so simply add them together
             // joints face down the y-axis
@@ -304,19 +293,22 @@ calculateHandSizeRatio = function() {
     // Compare against standard hand (Owen)
     var handSizeRatio = centerHandPoint / standardCenterHandPoint;
     return handSizeRatio;
-}
+};
 
-clamp = function(val, min, max) {
-    return Math.max(min, Math.min(max, val))
-}
+var clamp = function(val, min, max) {
+    return Math.max(min, Math.min(max, val));
+};
 
-attachChildToParent = function(childName, parentName, position, searchRadius) {
+var attachChildToParent = function(childName, parentName, position, searchRadius) {
     var childEntity, parentEntity;
-    var entities = Entities.findEntities(position, searchRadius)
-    for (var i = 0; i < entities.length; i++) {
+    var entities = Entities.findEntities(position, searchRadius);
+    var i;
+    var entity;
+    var name;
+    for (i = 0; i < entities.length; i++) {
         // first go through and find the entity we want to attach to its parent
-        var entity = entities[i];
-        var name = Entities.getEntityProperties(entity, "name").name;
+        entity = entities[i];
+        name = Entities.getEntityProperties(entity, "name").name;
         if (name === childName) {
             childEntity = entity;
             break;
@@ -327,10 +319,10 @@ attachChildToParent = function(childName, parentName, position, searchRadius) {
         print("You are trying to attach an entity that doesn't exist! Returning");
     }
 
-    for (var i = 0; i < entities.length; i++) {
+    for (i = 0; i < entities.length; i++) {
         // first go through and find the entity we want to attach to its parent
-        var entity = entities[i];
-        var name = Entities.getEntityProperties(entity, "name").name;
+        entity = entities[i];
+        name = Entities.getEntityProperties(entity, "name").name;
         if (name === parentName) {
             parentEntity = entity;
             break;
@@ -344,9 +336,9 @@ attachChildToParent = function(childName, parentName, position, searchRadius) {
 
     print("Successfully attached " + childName + " to " + parentName);
     Entities.editEntity(childEntity, {parentID: parentEntity});
-}
+};
 
-utils = {
+var utils = {
     parseJSON: function(json) {
         try {
             return JSON.parse(json);
@@ -364,4 +356,43 @@ utils = {
         }
         return pos;
     }
+};
+
+module.exports = {
+    map: map,
+    vec3toStr: vec3toStr,
+    quatToStr: quatToStr,
+    vec3equal: vec3equal,
+    colorMix: colorMix,
+    findAction: findAction,
+    setEntityUserData: setEntityUserData,
+    getEntityUserData: getEntityUserData,
+    setEntityCustomData: setEntityCustomData,
+    getEntityCustomData: getEntityCustomData,
+    mergeObjects: mergeObjects,
+    LOG_WARN: LOG_WARN,
+    logWarn: logWarn,
+    LOG_ERROR: LOG_ERROR,
+    logError: logError,
+    LOG_INFO: LOG_INFO,
+    logInfo: logInfo,
+    LOG_DEBUG: LOG_DEBUG,
+    logDebug: logDebug,
+    LOG_TRACE: LOG_TRACE,
+    logTrace: logTrace,
+    findSphereHit: findSphereHit,
+    findSpherePointHit: findSpherePointHit,
+    findSphereSphereHit: findSphereSphereHit,
+    getEyeRelativePosition: getEyeRelativePosition,
+    getAvatarRelativeRotation: getAvatarRelativeRotation,
+    pointInExtents: pointInExtents,
+    hslToRgb: hslToRgb,
+    orientationOf: orientationOf,
+    randFloat: randFloat,
+    randInt: randInt,
+    hexToRgb: hexToRgb,
+    calculateHandSizeRatio: calculateHandSizeRatio,
+    clamp: clamp,
+    attachChildToParent: attachChildToParent,
+    utils: utils
 };

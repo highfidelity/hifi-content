@@ -3,7 +3,7 @@
 //
 //  Created by Eric Levin on 2/17/15.
 //  Additions by James B. Pollack @imgntn 6/9/2016
-//  Modified by Daniela Fontes (Mimicry) 9/2/2018
+//  Modified by Daniela Fontes (Mimicry) 2/9/2018
 //  Copyright 2018 High Fidelity, Inc.
 //
 //  This entity script provides logic for an object with attached script to erase nearby marker strokes
@@ -11,8 +11,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    Script.include(Script.resolvePath('utils.js'));
-
+    
     var _this;
 
     var isErasing = false;
@@ -20,7 +19,7 @@
 
     var ERASER_HIT_BOARD_SOUND = SoundCache.getSound(Script.resolvePath('sfx/eraserHitBoard.wav'));
 
-    Eraser = function() {
+    var Eraser = function() {
         _this = this;
         _this.equipped = false;
         _this.STROKE_NAME = "hifi_polyline_markerStroke";
@@ -68,9 +67,8 @@
             results.forEach(function(stroke) {
                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
                 if (props.name === _this.STROKE_NAME 
-                    && Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS) 
-                {
-                    if (_this.whiteboard == null) {
+                    && Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS) {
+                    if (_this.whiteboard === null) {
                         _this.findWhiteboard();
                     }
                     var serverID = _this.whiteboard;
@@ -82,7 +80,7 @@
                         volume: 0.6
                     });
 
-                    var vibrated = Controller.triggerHapticPulse(1, 70, 2);
+                    Controller.triggerHapticPulse(1, 70, 2);
                 }
             });
         },
@@ -99,7 +97,7 @@
         },
         // MOUSE DESKTOP COMPATIBILITY
         clickDownOnEntity: function(entityID, mouseEvent) {
-            if (mouseEvent.isMiddleButton != true || HMD.active) {
+            if (mouseEvent.isMiddleButton !== true || HMD.active) {
                 return;
             }
             
@@ -135,7 +133,7 @@
             isMouseDown = true;         
         },
         mouseMoveEvent: function(event) {
-            if (isMouseDown && event.x != undefined && event.isMiddleButton == true) {
+            if (isMouseDown && event.x !== undefined && event.isMiddleButton === true) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
                 
@@ -149,7 +147,7 @@
                     var BreakException = {};
                     try {
                         results.forEach(function(entity) {
-                        var entityName = Entities.getEntityProperties(entity, "name").name;
+                            var entityName = Entities.getEntityProperties(entity, "name").name;
                             if (entityName === _this.WHITEBOARD_SURFACE_NAME) {
                                 _this.whiteboard = entity;
                                 isErasing = true;
@@ -157,31 +155,37 @@
                             }
                         });
                     } catch (e) {
-                        if (e !== BreakException) throw e;
+                        if (e !== BreakException) {
+                            throw e;
+                        }
                     }
                     
                     if (isErasing) {
-                        var whiteboardPosition = Entities.getEntityProperties(_this.whiteboard, "position").position;
                         var whiteboardRotation = Entities.getEntityProperties(_this.whiteboard, "rotation").rotation;
                         _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
 
                         var serverID = Entities.getEntityProperties(_this.whiteboard, "parentID").parentID;
-                        Entities.callEntityServerMethod(serverID, 'serverEditEntity', 
+                        Entities.callEntityServerMethod(
+                            serverID, 
+                            'serverEditEntity', 
                             [_this.entityID, 
-                            JSON.stringify({
-                            position: whiteBoardIntersection.intersection,
-                            rotation:  Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(90, 0, 45))
-                        })]);
+                                JSON.stringify({
+                                    position: whiteBoardIntersection.intersection,
+                                    rotation:  Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(90, 0, 45))
+                                })]
+                        );
                         
                         if (event.isAlt) {
                             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
-                            var results1 = Entities.findEntities(_this.eraserPosition, _this.ERASER_TO_STROKE_SEARCH_RADIUS);
+                            var results1 = Entities.findEntities(
+                                _this.eraserPosition, 
+                                _this.ERASER_TO_STROKE_SEARCH_RADIUS
+                            );
                             // Create a map of stroke entities and their positions
                             results1.forEach(function(stroke) {
                                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
-                                if (props.name === _this.STROKE_NAME && 
-                                    Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS)
-                                {
+                                var distance = Vec3.distance(_this.eraserPosition, props.position);
+                                if (props.name === _this.STROKE_NAME && distance < _this.ERASER_TO_STROKE_SEARCH_RADIUS) {
                                     // RPC - calling server to erase
                                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
                                     Audio.playSound(ERASER_HIT_BOARD_SOUND, {
@@ -202,9 +206,10 @@
                 // Edit entity in a server-sided way
                 _this.findWhiteboard();
                 var serverID = _this.whiteboard;
-                Entities.callEntityServerMethod(serverID, 'serverEditEntity', 
-                    [_this.entityID, JSON.stringify({collisionless: false, grabbable: true})
-                ]);
+                Entities.callEntityServerMethod(serverID, 
+                    'serverEditEntity', 
+                    [_this.entityID, JSON.stringify({collisionless: false, grabbable: true})]
+                );
                 
                 isMouseDown = false;
             }

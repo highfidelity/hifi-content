@@ -1,14 +1,14 @@
 (function() {
     var _this;
     
-    ResetBoard = function() {
+    var ResetBoard = function() {
         _this = this;
         _this.RESET_STROKE_SEARCH_RADIUS = 5;
         _this.STROKE_NAME = "hifi_polyline_markerStroke";
         _this.WHITEBOARD_NAME = "Whiteboard";
         _this.WHITEBOARD_SEARCH_RADIUS = 2;
         _this.whiteboard = null;
-    }
+    };
 
     ResetBoard.prototype = {
         preload: function(entityID) {
@@ -23,8 +23,7 @@
             results.forEach(function(stroke) {
                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
                 if (props.name === _this.STROKE_NAME && 
-                    Vec3.distance(_this.resetPosition, props.position) < _this.RESET_STROKE_SEARCH_RADIUS) 
-                {
+                    Vec3.distance(_this.resetPosition, props.position) < _this.RESET_STROKE_SEARCH_RADIUS) {
                     // Calling server to delete stroke 
                     // Server side equivalent of Entities.deleteEntity(stroke);
                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);

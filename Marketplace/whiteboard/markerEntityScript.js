@@ -4,7 +4,7 @@
 //  Created by Eric Levin on 2/17/15.
 //  Additions by James B. Pollack @imgntn 6/9/2016
 //  Modifications by Thijs Wenker @thoys 1/19/2017
-//  Modified by Daniela Fontes (Mimicry) 9/2/2018
+//  Modified by Daniela Fontes (Mimicry) 2/9/2018
 //  Copyright 2018 High Fidelity, Inc.
 //
 //  This script provides the logic for an object to draw marker strokes on its associated whiteboard
@@ -13,17 +13,12 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-
-    Script.include(Script.resolvePath('utils.js'));
-    //var SPRING_ENTITY_SCRIPT_URL = Script.resolvePath('springentity.js');
-    var MAX_POINTS_PER_STROKE = 40;
+    var utils = Script.require('./utils.js');
     var DEFAULT_COLOR = {
         red: 10,
         green: 10,
         blue: 10
     };
-    // var LINEAR_TIMESCALE = 0.1;
-    // var ANGULAR_TIMESCALE = 0.1;
     var _this;
     
     var isPainting = false;
@@ -40,11 +35,16 @@
     var STROKE_SOUND_ARRAY = [STROKEL1_SOUND, STROKER1_SOUND, STROKER2_SOUND, STROKER3_SOUND];
 
     var timestamp = null;
-    const SOUND_TIMESTAMP_LIMIT = {
+    var SOUND_TIMESTAMP_LIMIT = {
         min: 100,
         max: 300
     };
     var SOUND_TIMESTAMP = 220;
+
+    var STROKE_SOUND_VOLUME = {
+        min: 0.4,
+        max: 0.6
+    };
 
     var t0 = null, t1 = null;
 
@@ -61,14 +61,14 @@
         
         Audio.playSound(STROKE_SOUND_ARRAY[Math.floor(Math.random() * STROKE_SOUND_ARRAY.length)], {
             position: position,
-            volume: clamp(Math.random(), 0.4, 0.6)
+            volume: clamp(Math.random(), STROKE_SOUND_VOLUME.min , STROKE_SOUND_VOLUME.max)
         });
         SOUND_TIMESTAMP = Math.floor(Math.random() * SOUND_TIMESTAMP_LIMIT.max) + SOUND_TIMESTAMP_LIMIT.min;
 
     }
 
     // subscribe to channel 
-    MarkerTip = function() {
+    var MarkerTip = function() {
         _this = this;
         _this.whiteboards = [];
         _this.colors = [];
@@ -78,19 +78,18 @@
     };
 
     function handleColorMessage(channel, message, senderID) {
-        if (channel == "Ink-Color") {
-            //setEntityCustomData('markerColor', _this.entityID, _this.markerColor);
+        if (channel === "Ink-Color") {
             var auxMessage = JSON.parse(message);
-            var data = getEntityUserData(_this.entityID);
+            var data = utils.getEntityUserData(_this.entityID);
             data.markerColor = auxMessage.markerColor;
-            serverID = getServerID();
+            var serverID = getServerID();
             // RPC - Call server change marker ink 
             Entities.callEntityServerMethod(serverID, 'serverSetEntityData', [_this.entityID, JSON.stringify(data)]);
         }
-    };
+    }
 
     function getServerID() {
-        if (_this.currentWhiteboard != null) {
+        if (_this.currentWhiteboard !== null) {
             return Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
         }
         if (_this.whiteboards.length >= 1) {
@@ -114,7 +113,7 @@
         startNearGrab: function() {
             _this.whiteboards = [];
             _this.colors = [];
-            var userData = getEntityUserData(_this.entityID);
+            var userData = utils.getEntityUserData(_this.entityID);
             _this.markerColor = userData.markerColor;
 
             var markerProps = Entities.getEntityProperties(_this.entityID);
@@ -126,7 +125,7 @@
                 if (entityName === _this.WHITEBOARD_SURFACE_NAME) {
                     _this.whiteboards.push(entity);
                 } else if (entityName === _this.MARKER_COLOR_NAME) {
-                    _this.colors.push(entity)
+                    _this.colors.push(entity);
                 }
             });
             
@@ -143,8 +142,8 @@
         continueNearGrab: function(ID, paramsArray) {
             // cast a ray from marker and see if it hits anything
             var markerProps = Entities.getEntityProperties(_this.entityID);
-
-            //need to back up the ray to the back of the marker 
+            var serverID = null;
+            // need to back up the ray to the back of the marker 
             var markerFront = Quat.getFront(markerProps.rotation);
             var howFarBack = markerProps.dimensions.z / 2;
             var pulledBack = Vec3.multiply(markerFront, -howFarBack);
@@ -167,31 +166,30 @@
                     }
                 });
                 if (isIntersectingColorWell) {
-                    _this.markerColor = getEntityCustomData('markerColor', colorIntersection.entityID, DEFAULT_COLOR);
-                    var data = getEntityUserData(_this.entityID);
+                    _this.markerColor = utils.getEntityCustomData('markerColor', colorIntersection.entityID, DEFAULT_COLOR);
+                    var data = utils.getEntityUserData(_this.entityID);
                     data.markerColor = _this.markerColor;
                     serverID = getServerID();
                     // RPC - Call server change marker ink 
                     Entities.callEntityServerMethod(serverID, 'serverSetEntityData', [_this.entityID, JSON.stringify(data)]);
                 } else {
                     // update color
-                    _this.markerColor = getEntityCustomData('markerColor', _this.entityID, DEFAULT_COLOR);
+                    _this.markerColor = utils.getEntityCustomData('markerColor', _this.entityID, DEFAULT_COLOR);
                 }
                 
             } else {
                 // update color
-                _this.markerColor = getEntityCustomData('markerColor', _this.entityID, DEFAULT_COLOR);
+                _this.markerColor = utils.getEntityCustomData('markerColor', _this.entityID, DEFAULT_COLOR);
             }
 
             var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
-            if (whiteBoardIntersection.intersects && 
-                Vec3.distance(whiteBoardIntersection.intersection, markerProps.position) <= _this.DRAW_ON_BOARD_DISTANCE) 
-            {
+            var distance = Vec3.distance(whiteBoardIntersection.intersection, markerProps.position);
+            if (whiteBoardIntersection.intersects && distance <= _this.DRAW_ON_BOARD_DISTANCE) {
                 _this.currentWhiteboard = whiteBoardIntersection.entityID;
                 var whiteboardRotation = Entities.getEntityProperties(_this.currentWhiteboard, "rotation").rotation;
                 _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
                 _this.paint(whiteBoardIntersection.intersection);
-                if (isPainting == false) {
+                if (isPainting === false) {
                     Audio.playSound(BEGIN_STROKE_SOUND, {
                         position: whiteBoardIntersection.intersection,
                         volume: clamp(Math.random(), 0.45, 0.65)
@@ -204,7 +202,7 @@
                     timestamp = Date.now();
                     playRandomStrokeSound(whiteBoardIntersection.intersection);
                 } else {
-                    if (t1 == null) {
+                    if (t1 === null) {
                         t1 = whiteBoardIntersection.intersection;
                     } else {
                         var v1 = Vec3.normalize(Vec3.subtract(t1, t0));
@@ -220,8 +218,8 @@
                 }
 
                 isPainting = true;
-                hand = paramsArray[0] === 'left' ? 0 : 1;
-                var vibrated = Controller.triggerHapticPulse(1, 70, hand);
+                var hand = paramsArray[0] === 'left' ? 0 : 1;
+                Controller.triggerHapticPulse(1, 70, hand);
             } else {
                 _this.resetStroke();
             }
@@ -259,7 +257,7 @@
 
         // MOUSE DESKTOP COMPATIBILITY
         clickDownOnEntity: function(entityID, mouseEvent) {
-            if (mouseEvent.isMiddleButton != true  || HMD.active) {
+            if (mouseEvent.isMiddleButton !== true || HMD.active) {
                 return;
             }
 
@@ -274,7 +272,7 @@
 
             _this.whiteboards = [];
             _this.colors = [];
-            var userData = getEntityUserData(_this.entityID);
+            var userData = utils.getEntityUserData(_this.entityID);
             _this.markerColor = userData.markerColor;
 
             var markerProps = Entities.getEntityProperties(_this.entityID);
@@ -286,7 +284,7 @@
                 if (entityName === _this.WHITEBOARD_SURFACE_NAME) {
                     _this.whiteboards.push(entity);
                 } else if (entityName === _this.MARKER_COLOR_NAME) {
-                    _this.colors.push(entity)
+                    _this.colors.push(entity);
                 }
             });
             
@@ -306,7 +304,7 @@
         mouseMoveEvent: function(event) {
             var serverID;
 
-            if (isMouseDown && event.x != undefined && event.isMiddleButton == true) {
+            if (isMouseDown && event.x !== undefined && event.isMiddleButton === true) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
                 var colorIntersection = Entities.findRayIntersection(pickRay, true, _this.colors);
                 var isIntersectingColorWell = false;
@@ -318,19 +316,20 @@
                         }
                     });
                     if (isIntersectingColorWell) {
-                        _this.markerColor = getEntityCustomData('markerColor', colorIntersection.entityID, DEFAULT_COLOR);
-                        var data = getEntityUserData(_this.entityID);
+                        _this.markerColor = utils.getEntityCustomData('markerColor', colorIntersection.entityID, DEFAULT_COLOR);
+                        var data = utils.getEntityUserData(_this.entityID);
                         data.markerColor = _this.markerColor;
                         serverID = getServerID();
                         // RPC - Call server change marker ink 
-                        Entities.callEntityServerMethod(serverID, 'serverSetEntityData', [_this.entityID, JSON.stringify(data)]);
+                        Entities.callEntityServerMethod(serverID, 
+                            'serverSetEntityData', 
+                            [_this.entityID, JSON.stringify(data)]
+                        );
                     }
                 } 
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
                 
                 if (whiteBoardIntersection.intersects ) {
-                    var results = Entities.findEntities(whiteBoardIntersection.intersection, 0.01);
-
                     if (!event.isAlt && isPainting) {
                         _this.resetStroke();
                         isPainting = false;
@@ -356,12 +355,13 @@
                         Entities.callEntityServerMethod(serverID, 
                             'serverEditEntity', 
                             [_this.entityID, 
-                            JSON.stringify({
-                                position: Vec3.sum(whiteBoardIntersection.intersection, markerZOffset),
-                                rotation:  whiteboardRotation,
-                                collisionless: true, 
-                                grabbable: false
-                            })]
+                                JSON.stringify({
+                                    position: Vec3.sum(whiteBoardIntersection.intersection, markerZOffset),
+                                    rotation:  whiteboardRotation,
+                                    collisionless: true, 
+                                    grabbable: false
+                                })
+                            ]
                         );
 
                         if (event.isAlt) {
@@ -381,7 +381,7 @@
                                 timestamp = Date.now();
                                 playRandomStrokeSound(whiteBoardIntersection.intersection);
                             } else {
-                                if (t1 == null) {
+                                if (t1 === null) {
                                     t1 = whiteBoardIntersection.intersection;
                                 } else {
                                     var v1 = Vec3.normalize(Vec3.subtract(t1, t0));
