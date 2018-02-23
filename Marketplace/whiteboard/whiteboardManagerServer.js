@@ -374,7 +374,6 @@
                 relativePosInWorld = Vec3.multiplyQbyV(currentRotation, relativePosInWorld);
                 var finalPosition = Vec3.sum(relativePosInWorld, rootPosition);
                 eraserID = Entities.addEntity( {
-                    parentID: "{00000000-0000-0000-0000-000000000000}",
                     position: finalPosition,
                     rotation: Quat.multiply(
                         Entities.getEntityProperties(_this.entityID, "rotation").rotation,
