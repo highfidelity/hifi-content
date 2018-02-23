@@ -1,0 +1,116 @@
+<!--
+    groupTeleportApp.html
+    Tour around with a group of people.
+    Created by Thijs Wenker on 2/1/18.
+    Copyright 2018 High Fidelity, Inc.
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
+<html>
+    <head>
+        <title>Teleport App</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="groupTeleportApp.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <style>
+            #groups div {
+                border: 1px solid black;
+                margin: 5px 4px;
+                width: 100%;
+                height: 80px;
+            }
+            #groups div button {
+                float: right;
+            }
+        </style>
+    </head>
+    <body>
+        <button id="login">Login</button>
+        <div id="groups"></div>
+        <div id="followingGroup" style="display: none;">
+            <h2>Following</h2>
+            <button class="actionOff">Stop Following</button>
+        </div>
+        <div id="guidingGroup" style="display: none;">
+            <h2>Guide</h2>
+            <button class="actionOff">Stop Leading</button>
+        </div>
+        <script>
+            var loggedIn = false;
+            $(document).ready(function() {
+                $('.actionOff').on('click', function() {
+                    EventBridge.emitWebEvent(JSON.stringify({
+                        app: "GROUP-TP",
+                        action: "off"
+                    }));
+                });
+                $('#login').on('click', function() {
+                    if (!loggedIn) {
+                        var password = prompt("Guide password", "123456");
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            app: "GROUP-TP",
+                            action: "login",
+                            password: password
+                        }));
+                    } else {
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            app: "GROUP-TP",
+                            action: "logout"
+                        }));
+                    }
+                });
+                EventBridge.scriptEventReceived.connect(function(scriptEvent) {
+                    var eventData = null;
+                    try {
+                        eventData = JSON.parse(scriptEvent);
+                    } catch (e) {
+                        return;
+                    }
+                    if (eventData.app !== "GROUP-TP") {
+                        return;
+                    }
+                    if (eventData.action === 'refresh') {
+                        loggedIn = eventData.loggedIn;
+                        $('#login').text(loggedIn ? "Logout" : "Login");
+                        $('#groups').empty();
+                        eventData.groups.forEach(function(group) {
+                            var $groupDiv = $('<div>').text(group.groupname);
+                            var $groupFollowButton = $('<button>').text('Follow');
+                            $groupFollowButton.on('click', function() {
+                                var groupPassword = "";
+                                if (group.passwordProtected) {
+                                    groupPassword  = prompt("Group password", "standup");
+                                }
+                                EventBridge.emitWebEvent(JSON.stringify({
+                                    app: "GROUP-TP",
+                                    action: "follow",
+                                    groupName: group.groupname,
+                                    groupPassword: groupPassword
+                                }));
+                            });
+                          
+                            $groupDiv.append($groupFollowButton);
+                            if (group.isGuide) {
+                                var $groupGuideButton = $('<button>').text('Guide');
+                                $groupGuideButton.on('click', function() {
+                                    EventBridge.emitWebEvent(JSON.stringify({
+                                        app: "GROUP-TP",
+                                        action: "guide",
+                                        groupName: group.groupname
+                                    }));
+                                });
+                                $groupDiv.append($groupGuideButton);
+                            }
+                            $('#groups').append($groupDiv);
+                        });
+                    }
+                });
+                EventBridge.emitWebEvent(JSON.stringify({
+                    app: "GROUP-TP",
+                    action: "refresh"
+                }));
+            });
+        </script>
+    </body>
+</html>
