@@ -16,15 +16,10 @@
     var FINGER_ENTITY_DIMENSIONS = {x: 0.005,y: 0.005,z: 0.005};
     var POSITION_CHECK_INTERVAL_MS = 100;
     var POSITION_CHECK_TIMEOUT_MS = 3000;
-    var STILL_PLAYING_TIMEOUT_MS = 3000;
-    var STOP_SOUND_DELAY = 5000;
+    var STILL_PLAYING_TIMEOUT_MS = 6000;
     var NECK_COLOR_INDEX = 20;
     var RIFF_NUMBER_INDEX = 20;
     var SEARCH_RADIUS = 100;
-    var UPDATE_POSITION_MS = 50;
-    var BOTH_HANDS = 2;
-    var ONE_HAND = 1;
-    var NO_HANDS = 0;
     var NOT_FOUND = -1;
 
     var fingerEntities = [];
@@ -32,13 +27,9 @@
     var colors = [];
     var distance;
     var interval;
-    var ampCheckInterval;
-    var ampLeft;
-    var ampRight;
     var ampLeftPosition;
     var ampRightPosition;
     var colorsShowing = false;
-    var numberHandsGrabbing = 0;
     var neckGrabColor = "Red";
     var sounds = {};
     var injectorL;
@@ -54,13 +45,7 @@
             Overlays.mousePressOnOverlay.connect(this.mousePress);
             Entities.findEntities(_this.entityID, SEARCH_RADIUS).forEach(function(element) {
                 var name = Entities.getEntityProperties(element, 'name').name;
-                if (name === "Guitar Amp Left CC-BY Poly by Google") {
-                    ampLeft = element;
-                    ampLeftPosition = Entities.getEntityProperties(element, 'position').position;
-                } else if (name === "Guitar Amp Right CC-BY Poly by Google") {
-                    ampRight = element;
-                    ampRightPosition = Entities.getEntityProperties(element, 'position').position;
-                } else if ((name.indexOf("Guitar Body") !== NOT_FOUND) || (name.indexOf("Guitar Neck") !== NOT_FOUND)) {
+                if ((name.indexOf("Guitar Body") !== NOT_FOUND) || (name.indexOf("Guitar Neck") !== NOT_FOUND)) {
                     colors.push(element);
                 }
             });
@@ -77,46 +62,15 @@
                 sounds["Blue" + i + "R"] = SoundCache.getSound(Script.resolvePath("sounds/blue/" + i + "R.wav"));
             }
         },
-        mousePress: function(id, event) {
+        mousePress: function(id, event) { // this is only for the overlays in desktop mode
             if (overlays.indexOf(id) !== NOT_FOUND) {
-                if (timeout) {
-                    Script.clearTimeout(timeout);
-                    timeout = null;
-                }
-                timeout = Script.setTimeout(function(){
-                    _this.releaseGrab();
-                    timeout = null;
-                }, STILL_PLAYING_TIMEOUT_MS);
-                if (ampCheckInterval) {
-                    Script.clearTimeout(ampCheckInterval);
-                }
-                ampCheckInterval = Script.setInterval(this.updateAmpPositions, UPDATE_POSITION_MS);
+                _this.releaseGrab();
                 var name = Overlays.getProperty(id, 'name');
-                if (name.indexOf("Neck") !== -1) {
+                if (name.indexOf("Neck") !== NOT_FOUND) {
                     neckGrabColor = name.substr(NECK_COLOR_INDEX);
                 } else {
-                    var currentSoundL = sounds[neckGrabColor + name.substr(RIFF_NUMBER_INDEX) + "L"];
-                    var currentSoundR = sounds[neckGrabColor + name.substr(RIFF_NUMBER_INDEX) + "R"];
-                    if (currentSoundL.downloaded) {
-                        if (injectorL) {
-                            injectorL.stop();
-                        }
-                        injectorL = Audio.playSound(currentSoundL, {
-                            position: ampLeftPosition,
-                            volume: AUDIO_VOLUME_LEVEL,
-                            loop: true
-                        });
-                    }
-                    if (currentSoundR.downloaded) {
-                        if (injectorR) {
-                            injectorR.stop();
-                        }
-                        injectorR = Audio.playSound(currentSoundR, {
-                            position: ampRightPosition,
-                            volume: AUDIO_VOLUME_LEVEL,
-                            loop: true
-                        });
-                    }
+                    var params = [name.substr(RIFF_NUMBER_INDEX)];
+                    _this.playSound(0, params);
                 }
             }
         },
@@ -124,79 +78,81 @@
             neckGrabColor = params[0];
         },
         startNearGrab: function() {
+            if (timeout) {
+                Script.clearTimeout(timeout);
+                timeout = null;
+            }
             if (!colorsShowing) {
-                this.createFingertipEntity("LeftHandMiddle4");
-                this.createFingertipEntity("RightHandMiddle4");
-                if (interval) {
-                    Script.clearInterval(interval);
-                }
-                interval = Script.setInterval(this.updatePositions, POSITION_CHECK_INTERVAL_MS);
-                Script.setTimeout(function () {
-                    Script.clearInterval(interval);
-                }, POSITION_CHECK_TIMEOUT_MS);
-                this.createBodyOverlays();
-                this.createNeckOverlays();
-                numberHandsGrabbing = ONE_HAND;
                 colorsShowing = true;
-                if (ampCheckInterval) {
-                    Script.clearTimeout(ampCheckInterval);
+                _this.initializeGuitar();
+                _this.createFingertips();
+            }
+        },
+        getAmpPositions: function() {
+            Entities.findEntities(_this.entityID, SEARCH_RADIUS).forEach(function(element) {
+                var name = Entities.getEntityProperties(element, 'name').name;
+                if (name === "Guitar Amp Left CC-BY Poly by Google") {
+                    ampLeftPosition = Entities.getEntityProperties(element, 'position').position;
+                } else if (name === "Guitar Amp Right CC-BY Poly by Google") {
+                    ampRightPosition = Entities.getEntityProperties(element, 'position').position;
                 }
-                ampCheckInterval = Script.setInterval(this.updateAmpPositions, UPDATE_POSITION_MS);
-            } else {
-                numberHandsGrabbing = BOTH_HANDS;
-            }
+            });
         },
-        updateAmpPositions: function() {
-            var newAmpLPosition = Entities.getEntityProperties(ampLeft, 'position').position;
-            var newAmpRPosition = Entities.getEntityProperties(ampRight, 'position').position;
-            if (injectorL) {
-                injectorL.options = { position: newAmpLPosition };
-            }
-            if (injectorL) {
-                injectorR.options = { position: newAmpRPosition };
-            }
+        initializeGuitar: function() {
+            _this.getAmpPositions();
+            this.createBodyOverlays();
+            this.createNeckOverlays();
         },
-        clickReleaseOnEntity: function(entityID, mouseEvent) {
+        createFingertips: function() {
+            _this.createFingertipEntity("LeftHandMiddle4");
+            _this.createFingertipEntity("RightHandMiddle4");
+            if (interval) {
+                Script.clearInterval(interval);
+            }
+            interval = Script.setInterval(this.updatePositions, POSITION_CHECK_INTERVAL_MS);
+            Script.setTimeout(function () {
+                Script.clearInterval(interval);
+            }, POSITION_CHECK_TIMEOUT_MS);
+        },
+        clickReleaseOnEntity: function(entityID, mouseEvent) { // this is for turning on/off guitar in desktop mode
             if (mouseEvent.isRightButton) {
-                if (numberHandsGrabbing === NO_HANDS) {
-                    this.startNearGrab();
-                    numberHandsGrabbing = ONE_HAND;
+                if (!colorsShowing) {
+                    _this.initializeGuitar();
                 } else {
-                    this.releaseGrab();
-                    numberHandsGrabbing = NO_HANDS;
+                    _this.setTurnOffTimeout();
                 }
-                
             }
         },
         releaseGrab: function() {
-            if (numberHandsGrabbing === BOTH_HANDS) {
-                numberHandsGrabbing = ONE_HAND;
-            } else {
-                if (ampCheckInterval) {
-                    Script.clearInterval(ampCheckInterval);
-                }
-                colorsShowing = false;
-                if (interval) {
-                    Script.clearInterval(interval);
-                }
-                fingerEntities.forEach(function(entity) {
-                    Entities.deleteEntity(entity);
-                });
-                fingerEntities = [];
-                overlays.forEach(function(overlay) {
-                    Overlays.deleteOverlay(overlay);
-                });
-                overlays = [];
-                if (injectorL) {
-                    Script.setTimeout(function() {
-                        if (injectorR) {
-                            injectorR.stop();
-                        }
-                        injectorL.stop();
-                    }, STOP_SOUND_DELAY);
-                }
-                numberHandsGrabbing = NO_HANDS;
+            if (timeout) {
+                Script.clearTimeout(timeout);
+                timeout = null;
             }
+            timeout = Script.setTimeout(function(){
+                _this.turnOffTimeout();
+                timeout = null;
+            }, STILL_PLAYING_TIMEOUT_MS);
+            
+        },
+        turnOffTimeout: function() {
+            colorsShowing = false;
+            if (interval) {
+                Script.clearInterval(interval);
+            }
+            fingerEntities.forEach(function(entity) {
+                Entities.deleteEntity(entity);
+            });
+            fingerEntities = [];
+            overlays.forEach(function(overlay) {
+                Overlays.deleteOverlay(overlay);
+            });
+            overlays = [];
+            if (injectorL) {
+                injectorL.stop();
+            }
+            if (injectorR) {
+                injectorR.stop();
+            } 
         },
         playSound: function(buttonID, params) {
             if (interval) {
