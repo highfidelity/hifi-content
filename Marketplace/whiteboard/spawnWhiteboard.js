@@ -25,10 +25,8 @@ var TEMPLATES = whiteboardEntities.WHITEBOARD_ENTITIES.Entities;
 function spawnTemplate(templateName, overrides) {
     var template = getTemplate(templateName);
     if (template === null) {
-        print("ERROR, unknown template name:", templateName);
         return null;
     }
-    print("Spawning: ", templateName);
     var properties = utils.mergeObjects(template, overrides);
     return Entities.addEntity(properties);
 }
@@ -36,13 +34,11 @@ function spawnTemplate(templateName, overrides) {
 function spawnTemplates(templateName, overrides) {
     var templates = getTemplates(templateName);
     if (template.length === 0) {
-        print("ERROR, unknown template name:", templateName);
         return [];
     }
 
     var spawnedEntities = [];
     for (var i = 0; i < templates.length; ++i) {
-        print("Spawning: ", templateName);
         var properties = utils.mergeObjects(templates[i], overrides);
         spawnedEntities.push(Entities.addEntity(properties));
     }
@@ -81,7 +77,6 @@ for (var i = 0; i < TEMPLATES.length; ++i) {
         var urlParts = template.modelURL.split("/");
         var filename = urlParts[urlParts.length - 1];
         var newURL = Script.resolvePath("models/" + filename);
-        print("Updated url", template.modelURL, "to", newURL);
         template.modelURL = newURL;
     }
 }
@@ -93,7 +88,7 @@ var drawingSurfaceID = null;
 var resetButtonID = null;
 
 function createWhiteboard() {
-    var rootPosition = utils.utils.findSurfaceBelowPosition(MyAvatar.position);
+    var rootPosition = utils.findSurfaceBelowPosition(MyAvatar.position);
     rootPosition = Vec3.sum(
         rootPosition, 
         Vec3.multiply(

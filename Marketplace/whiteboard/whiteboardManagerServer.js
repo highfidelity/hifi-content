@@ -33,7 +33,6 @@
             var urlParts = template.modelURL.split("/");
             var filename = urlParts[urlParts.length - 1];
             var newURL = Script.resolvePath("models/" + filename);
-            print("Updated url", template.modelURL, "to", newURL);
             template.modelURL = newURL;
         }
     }
@@ -86,7 +85,8 @@
     };
 
     Whiteboard.prototype = {
-        remotelyCallable: ['paint', 
+        remotelyCallable: [
+            'paint', 
             'resetMarkerStroke', 
             'erase', 
             'clearBoard', 
@@ -135,7 +135,7 @@
             var normals = normalsInProgress[currentIndex];
             var strokeWidths = [];
             var strokeBasePosition = strokeBasePositionInProgress[currentIndex];
-            var localPoint = utils.utils.parseJSON(params[0]);
+            var localPoint = utils.parseJSON(params[0]);
             var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
             whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
 
@@ -143,11 +143,11 @@
 
             // Project localPoint on the Plane defined by whiteboardNormal
             // and whiteboardPosition
-            var c = Vec3.dot(whiteboardNormal, whiteboardPosition);
-            var distLocal = Vec3.dot(whiteboardNormal, localPoint) - c;
+            var distanceWhiteboardPlane = Vec3.dot(whiteboardNormal, whiteboardPosition);
+            var distanceLocal = Vec3.dot(whiteboardNormal, localPoint) - distanceWhiteboardPlane;
             
             // Projecting local point onto the whiteboard plane
-            localPoint = Vec3.subtract(localPoint, Vec3.multiply(distLocal, whiteboardNormal));
+            localPoint = Vec3.subtract(localPoint, Vec3.multiply(distanceLocal, whiteboardNormal));
             localPoint = Vec3.subtract(localPoint, strokeBasePosition);
             localPoint = Vec3.sum(localPoint, Vec3.multiply(whiteboardNormal, strokeForwardOffset));
             
@@ -205,8 +205,8 @@
                     y: 10,
                     z: 10
                 },
-                position: utils.utils.parseJSON(params[0]),
-                color: utils.utils.parseJSON(params[1]),
+                position: utils.parseJSON(params[0]),
+                color: utils.parseJSON(params[1]),
                 textures: MARKER_TEXTURE_URL,
                 lifetime: 5000,
                 userData: JSON.stringify({
@@ -218,7 +218,7 @@
             linePointsInProgress.push([]);
             normalsInProgress.push([]);
             strokesInProgress.push(newStroke);
-            strokeBasePositionInProgress.push(utils.utils.parseJSON(params[0]));
+            strokeBasePositionInProgress.push(utils.parseJSON(params[0]));
             // continue to expand newly created polyline
             _this.paint(_this.entityID, params);
         },
@@ -274,21 +274,21 @@
         /// @param {string}  entityID of the server
         /// @param {object} params [properties]
         serverAddEntity: function(entityID, params) {
-            Entities.addEntity(utils.utils.parseJSON(params[0]));
+            Entities.addEntity(utils.parseJSON(params[0]));
         },
         /// Remotely callable function that edits an entity
         /// 
         /// @param {string}  entityID of the server
         /// @param {object} params [entityID, properties]
         serverEditEntity: function(entityID, params) {
-            Entities.editEntity(params[0], utils.utils.parseJSON(params[1]));
+            Entities.editEntity(params[0], utils.parseJSON(params[1]));
         },
         /// Remotely callable function that edits an entity
         /// 
         /// @param {string}  entityID of the server
         /// @param {object} params [entityID, userData]
         serverSetEntityData: function(entityID, params) {
-            utils.setEntityUserData(params[0], utils.utils.parseJSON(params[1]));
+            utils.setEntityUserData(params[0], utils.parseJSON(params[1]));
         },
         resetMarkersAndErasers: function(entityID, params) {
             // delete all markers and erasers
@@ -330,8 +330,8 @@
         /// @param {string}  entityID of the server
         /// @param  {object} params [grabbedMarkerID, markerName, markerColor]
         spawnMarker: function(entityID, params) {
-            var markerName = utils.utils.parseJSON(params[1]);
-            var color = utils.utils.parseJSON(params[2]);
+            var markerName = utils.parseJSON(params[1]);
+            var color = utils.parseJSON(params[2]);
 
             if ( markerName === "hifi_model_marker_blue" && 
                 (blueMarkerID === null || params[0] === blueMarkerID)) {
@@ -363,16 +363,16 @@
         spawnEraser: function(entityID, params) {
             if (eraserID === null || params[0] === eraserID) {
                 var template = getTemplate(ERASER_NAME);
-                var rootPos = Entities.getEntityProperties(_this.entityID, "position").position;
-                var currentRot = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+                var rootPosition = Entities.getEntityProperties(_this.entityID, "position").position;
+                var currentRotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
                 var rootRot = getTemplate("Whiteboard")['rotation'];
                 var localPos = template['localPosition'];
                 var up = Vec3.multiply(Quat.getUp(rootRot), Vec3.dot(localPos, Quat.getUp(rootRot)));
                 var front = Vec3.multiply(Quat.getFront(rootRot), Vec3.dot(localPos, Quat.getFront(rootRot)));
                 var right = Vec3.multiply(Quat.getRight(rootRot), Vec3.dot(localPos, Quat.getRight(rootRot)));
                 var relativePosInWorld = Vec3.sum(Vec3.sum(up, right), front);
-                relativePosInWorld = Vec3.multiplyQbyV(currentRot, relativePosInWorld);
-                var finalPosition = Vec3.sum(relativePosInWorld, rootPos);
+                relativePosInWorld = Vec3.multiplyQbyV(currentRotation, relativePosInWorld);
+                var finalPosition = Vec3.sum(relativePosInWorld, rootPosition);
                 eraserID = Entities.addEntity( {
                     parentID: "{00000000-0000-0000-0000-000000000000}",
                     position: finalPosition,
@@ -430,8 +430,8 @@
         },
         spawnMarkerWithColor: function(markerName, color) {
             var template = getTemplate(markerName);
-            var rootPos = Entities.getEntityProperties(_this.entityID, "position").position;
-            var currentRot = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+            var rootPosition = Entities.getEntityProperties(_this.entityID, "position").position;
+            var currentRotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
             
             var rootRot = getTemplate("Whiteboard")['rotation'];
             var localPos = template['localPosition'];
@@ -439,12 +439,11 @@
             var front = Vec3.multiply(Quat.getFront(rootRot), Vec3.dot(localPos, Quat.getFront(rootRot)));
             var right = Vec3.multiply(Quat.getRight(rootRot), Vec3.dot(localPos, Quat.getRight(rootRot)));
             var relativePosInWorld = Vec3.sum(Vec3.sum(up, right), front);
-            relativePosInWorld = Vec3.multiplyQbyV(currentRot, relativePosInWorld);
-            var finalPosition = Vec3.sum(relativePosInWorld, rootPos);
+            relativePosInWorld = Vec3.multiplyQbyV(currentRotation, relativePosInWorld);
+            var finalPosition = Vec3.sum(relativePosInWorld, rootPosition);
             
 
             return Entities.addEntity( {
-                parentID: "{00000000-0000-0000-0000-000000000000}",
                 position: finalPosition,
                 rotation: Quat.multiply(
                     Entities.getEntityProperties(_this.entityID, "rotation").rotation,

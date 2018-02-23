@@ -46,7 +46,10 @@
         max: 0.6
     };
 
-    var t0 = null, t1 = null;
+    var strokeSoundTimestamp0 = null, strokeSoundTimestamp1 = null;
+    var STROKE_SOUND_THRESHOLD_DIRECTION = 0.85;
+
+    var WHITEBOARD_SEARCH_RADIUS = 5;
 
     function clamp(value, min, max) {
         if (value < min) {
@@ -119,7 +122,7 @@
             var markerProps = Entities.getEntityProperties(_this.entityID);
             _this.DRAW_ON_BOARD_DISTANCE = markerProps.dimensions.z / 2;
             var markerPosition = markerProps.position;
-            var results = Entities.findEntities(markerPosition, 5);
+            var results = Entities.findEntities(markerPosition, WHITEBOARD_SEARCH_RADIUS);
             results.forEach(function(entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
                 if (entityName === _this.WHITEBOARD_SURFACE_NAME) {
@@ -195,25 +198,25 @@
                         volume: clamp(Math.random(), 0.45, 0.65)
                     });
                     timestamp = Date.now();
-                    t0 = whiteBoardIntersection.intersection;
-                    t1 = null;
+                    strokeSoundTimestamp0 = whiteBoardIntersection.intersection;
+                    strokeSoundTimestamp1 = null;
                     
                 } else if ((Date.now() - timestamp) > SOUND_TIMESTAMP) {
                     timestamp = Date.now();
                     playRandomStrokeSound(whiteBoardIntersection.intersection);
                 } else {
-                    if (t1 === null) {
-                        t1 = whiteBoardIntersection.intersection;
+                    if (strokeSoundTimestamp1 === null) {
+                        strokeSoundTimestamp1 = whiteBoardIntersection.intersection;
                     } else {
-                        var v1 = Vec3.normalize(Vec3.subtract(t1, t0));
-                        var v2 = Vec3.normalize(Vec3.subtract(whiteBoardIntersection.intersection, t1));
+                        var v1 = Vec3.normalize(Vec3.subtract(strokeSoundTimestamp1, strokeSoundTimestamp0));
+                        var v2 = Vec3.normalize(Vec3.subtract(whiteBoardIntersection.intersection, strokeSoundTimestamp1));
                         var cosA = Vec3.dot(v1, v2);
                         if (cosA < 0.85 ) {
                             timestamp = Date.now();
                             playRandomStrokeSound(whiteBoardIntersection.intersection);
                         }
-                        t0 = t1;
-                        t1 = whiteBoardIntersection.intersection;
+                        strokeSoundTimestamp0 = strokeSoundTimestamp1;
+                        strokeSoundTimestamp1 = whiteBoardIntersection.intersection;
                     }
                 }
 
@@ -278,7 +281,7 @@
             var markerProps = Entities.getEntityProperties(_this.entityID);
             _this.DRAW_ON_BOARD_DISTANCE = markerProps.dimensions.x / 2;
             var markerPosition = markerProps.position;
-            var results = Entities.findEntities(markerPosition, 5);
+            var results = Entities.findEntities(markerPosition, WHITEBOARD_SEARCH_RADIUS);
             results.forEach(function(entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
                 if (entityName === _this.WHITEBOARD_SURFACE_NAME) {
@@ -371,28 +374,32 @@
                                 
                                 Audio.playSound(BEGIN_STROKE_SOUND, {
                                     position: whiteBoardIntersection.intersection,
-                                    volume: clamp(Math.random(), 0.45, 0.65)
+                                    volume: clamp(Math.random(), STROKE_SOUND_VOLUME.min, STROKE_SOUND_VOLUME.max)
                                 });
                                 timestamp = Date.now();
-                                t0 = whiteBoardIntersection.intersection;
-                                t1 = null;
+                                strokeSoundTimestamp0 = whiteBoardIntersection.intersection;
+                                strokeSoundTimestamp1 = null;
                                 
                             } else if ((Date.now() - timestamp) > SOUND_TIMESTAMP) {
                                 timestamp = Date.now();
                                 playRandomStrokeSound(whiteBoardIntersection.intersection);
                             } else {
-                                if (t1 === null) {
-                                    t1 = whiteBoardIntersection.intersection;
+                                if (strokeSoundTimestamp1 === null) {
+                                    strokeSoundTimestamp1 = whiteBoardIntersection.intersection;
                                 } else {
-                                    var v1 = Vec3.normalize(Vec3.subtract(t1, t0));
-                                    var v2 = Vec3.normalize(Vec3.subtract(whiteBoardIntersection.intersection, t1));
-                                    var cosA = Vec3.dot(v1, v2);
-                                    if (cosA < 0.85 ) {
+                                    var strokeSoundDirection1 = Vec3.normalize(
+                                        Vec3.subtract(strokeSoundTimestamp1, strokeSoundTimestamp0)
+                                    );
+                                    var strokeSoundDirection2 = Vec3.normalize(
+                                        Vec3.subtract(whiteBoardIntersection.intersection, strokeSoundTimestamp1)
+                                    );
+                                    var cosA = Vec3.dot(strokeSoundDirection1, strokeSoundDirection2);
+                                    if (cosA < STROKE_SOUND_THRESHOLD_DIRECTION) {
                                         timestamp = Date.now();
                                         playRandomStrokeSound(whiteBoardIntersection.intersection);
                                     }
-                                    t0 = t1;
-                                    t1 = whiteBoardIntersection.intersection;
+                                    strokeSoundTimestamp0 = strokeSoundTimestamp1;
+                                    strokeSoundTimestamp1 = whiteBoardIntersection.intersection;
                                 }
                             }
                         } else {
@@ -423,37 +430,3 @@
 
     return new MarkerTip();
 });
-
-//  markerTipEntityScript.js
-//
-//  Created by Eric Levin on 2/17/15.
-//  Additions by James B. Pollack @imgntn 6/9/2016
-//  Modifications by Thijs Wenker @thoys 1/19/2017
-//  Copyright 2017 High Fidelity, Inc.
-//
-//  This script provides the logic for an object to draw marker strokes on its associated whiteboard
-
-//  Distributed under the Apache License, Version 2.0.
-//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-//  markerTipEntityScript.js
-//
-//  Created by Eric Levin on 2/17/15.
-//  Additions by James B. Pollack @imgntn 6/9/2016
-//  Modifications by Thijs Wenker @thoys 1/19/2017
-//  Copyright 2017 High Fidelity, Inc.
-//
-//  This script provides the logic for an object to draw marker strokes on its associated whiteboard
-
-//  Distributed under the Apache License, Version 2.0.
-//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-//  markerTipEntityScript.js
-//
-//  Created by Eric Levin on 2/17/15.
-//  Additions by James B. Pollack @imgntn 6/9/2016
-//  Modifications by Thijs Wenker @thoys 1/19/2017
-//  Copyright 2017 High Fidelity, Inc.
-//
-//  This script provides the logic for an object to draw marker strokes on its associated whiteboard
-
-//  Distributed under the Apache License, Version 2.0.
-//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html

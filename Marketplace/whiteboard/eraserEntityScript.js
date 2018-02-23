@@ -19,6 +19,17 @@
 
     var ERASER_HIT_BOARD_SOUND = SoundCache.getSound(Script.resolvePath('sfx/eraserHitBoard.wav'));
 
+    var ERASER_SOUND_VOLUME = 0.6;
+
+    var HAPTIC_PARAMETERS = {
+        strength: 1,
+        duration: 70,
+        hand: 2
+    };
+    
+    var SURFACE_OFFSET = 0.01;
+    var hand = 2;
+
     var Eraser = function() {
         _this = this;
         _this.equipped = false;
@@ -26,7 +37,7 @@
         _this.ERASER_TO_STROKE_SEARCH_RADIUS = 0.1;
         _this.WHITEBOARD_NAME = "Whiteboard";
         _this.WHITEBOARD_SURFACE_NAME = "Whiteboard - Drawing Surface";
-        _this.WHITEBOARD_SEARCH_RADIUS = 2;
+        _this.WHITEBOARD_SEARCH_RADIUS = 5;
         _this.whiteboard = null;
         _this.whiteboardNormal = null;
 
@@ -56,8 +67,9 @@
                 }
             });
         },
-        continueNearGrab: function() {
+        continueNearGrab: function(ID, paramsArray) {
             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
+            hand = paramsArray[0] === 'left' ? 0 : 1;
             _this.continueHolding();
         },
         continueHolding: function() {
@@ -77,10 +89,14 @@
                     
                     Audio.playSound(ERASER_HIT_BOARD_SOUND, {
                         position: _this.eraserPosition,
-                        volume: 0.6
+                        volume: ERASER_SOUND_VOLUME
                     });
-
-                    Controller.triggerHapticPulse(1, 70, 2);
+                    
+                    Controller.triggerHapticPulse(
+                        HAPTIC_PARAMETERS.strength, 
+                        HAPTIC_PARAMETERS.duration, 
+                        hand
+                    );
                 }
             });
         },
@@ -97,7 +113,7 @@
         },
         // MOUSE DESKTOP COMPATIBILITY
         clickDownOnEntity: function(entityID, mouseEvent) {
-            if (mouseEvent.isMiddleButton !== true || HMD.active) {
+            if (!mouseEvent.isMiddleButton || HMD.active) {
                 return;
             }
             
@@ -122,7 +138,7 @@
             
             var eraserProps = Entities.getEntityProperties(_this.entityID);
             var eraserPosition = eraserProps.position;
-            var results = Entities.findEntities(eraserPosition, 5);
+            var results = Entities.findEntities(eraserPosition, _this.WHITEBOARD_SEARCH_RADIUS);
             results.forEach(function(entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
                 if (entityName === _this.WHITEBOARD_SURFACE_NAME) {
@@ -133,12 +149,12 @@
             isMouseDown = true;         
         },
         mouseMoveEvent: function(event) {
-            if (isMouseDown && event.x !== undefined && event.isMiddleButton === true) {
+            if (isMouseDown && event.x !== undefined && event.isMiddleButton) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
                 
                 if (whiteBoardIntersection.intersects) {
-                    var results = Entities.findEntities(whiteBoardIntersection.intersection, 0.01);
+                    var results = Entities.findEntities(whiteBoardIntersection.intersection, SURFACE_OFFSET);
 
                     if (!event.isAlt && isErasing) {
                         isErasing = false;
@@ -177,12 +193,12 @@
                         
                         if (event.isAlt) {
                             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
-                            var results1 = Entities.findEntities(
+                            var nearbyEntities = Entities.findEntities(
                                 _this.eraserPosition, 
                                 _this.ERASER_TO_STROKE_SEARCH_RADIUS
                             );
                             // Create a map of stroke entities and their positions
-                            results1.forEach(function(stroke) {
+                            nearbyEntities.forEach(function(stroke) {
                                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
                                 var distance = Vec3.distance(_this.eraserPosition, props.position);
                                 if (props.name === _this.STROKE_NAME && distance < _this.ERASER_TO_STROKE_SEARCH_RADIUS) {
@@ -190,7 +206,7 @@
                                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
                                     Audio.playSound(ERASER_HIT_BOARD_SOUND, {
                                         position: _this.eraserPosition,
-                                        volume: 0.6
+                                        volume: ERASER_SOUND_VOLUME
                                     });
                                 }
                             });

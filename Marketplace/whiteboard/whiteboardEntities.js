@@ -2,8 +2,6 @@
 
 var WHITEBOARD_ENTITIES = Script.require('./whiteboardEntities.json');
 
-print("Debug " + JSON.stringify(WHITEBOARD_ENTITIES.Entities));
-
 // Add LocalPosition to entity data if parent properties are available
 var entities = WHITEBOARD_ENTITIES.Entities;
 var entitiesByID = {};

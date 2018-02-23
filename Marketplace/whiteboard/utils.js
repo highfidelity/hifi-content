@@ -338,25 +338,25 @@ var attachChildToParent = function(childName, parentName, position, searchRadius
     Entities.editEntity(childEntity, {parentID: parentEntity});
 };
 
-var utils = {
-    parseJSON: function(json) {
-        try {
-            return JSON.parse(json);
-        } catch (e) {
-            return undefined;
-        }
-    },
-    findSurfaceBelowPosition: function(pos) {
-        var result = Entities.findRayIntersection({
-            origin: pos,
-            direction: { x: 0.0, y: -1.0, z: 0.0 }
-        }, true);
-        if (result.intersects) {
-            return result.intersection;
-        }
-        return pos;
+
+var parseJSON = function(json) {
+    try {
+        return JSON.parse(json);
+    } catch (e) {
+        return undefined;
     }
 };
+var findSurfaceBelowPosition = function(pos) {
+    var result = Entities.findRayIntersection({
+        origin: pos,
+        direction: { x: 0.0, y: -1.0, z: 0.0 }
+    }, true);
+    if (result.intersects) {
+        return result.intersection;
+    }
+    return pos;
+};
+
 
 module.exports = {
     map: map,
@@ -394,5 +394,5 @@ module.exports = {
     calculateHandSizeRatio: calculateHandSizeRatio,
     clamp: clamp,
     attachChildToParent: attachChildToParent,
-    utils: utils
+    findSurfaceBelowPosition: findSurfaceBelowPosition 
 };
