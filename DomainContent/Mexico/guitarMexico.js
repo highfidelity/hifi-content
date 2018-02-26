@@ -39,11 +39,9 @@
         startNearGrab: function(thisEntity, otherEntity, collision) {
             Entities.editEntity(_this.entityID, {lifetime: LIFETIME_ON_GRAB});
             if (numberHandsGrabbing === NO_HANDS) {
-                print("1 hand");
                 numberHandsGrabbing = ONE_HAND;
                 this.playSound(song);
             } else {
-                print("2 hands");
                 numberHandsGrabbing = BOTH_HANDS;
                 if (!playing) {
                     this.playSound(song);
@@ -52,10 +50,8 @@
         },
         releaseGrab: function() {
             if (numberHandsGrabbing === BOTH_HANDS) {
-                print("1 hand");
                 numberHandsGrabbing = ONE_HAND;
             } else {
-                print("no hands");
                 if (injector) {
                     injector.stop();
                 }
