@@ -71,17 +71,25 @@
     var normalsInProgress = [];
     var strokeBasePositionInProgress = [];
     var MAX_POINTS_PER_STROKE = 40;
-    
     var MARKER_TEXTURE_URL = Script.resolvePath("markerStroke.png");
     var strokeForwardOffset = 0.01;
     var STROKE_WIDTH_RANGE = {
         min: 0.002,
         max: 0.005
     };
-    var RESET_MARKERS_AND_ERASERS_RADIUS = 15;
+    var STROKE_LIFETIME = 5000;
+    var STROKE_DIMENSIONS = {
+        x: 10,
+        y: 10,
+        z: 10
+    };
 
+    var RESET_MARKERS_AND_ERASERS_RADIUS = 15;
     var SHORT_TOOL_LIFETIME = 300;
     var TOOL_LIFETIME = 3600;
+
+    var MARKER_EQUIP_HIGHLIGHT_RADIUS = 0.32;
+    var ERASER_EQUIP_HIGHLIGHT_RADIUS = 0.35;
 
     var Whiteboard = function() {
         _this = this;
@@ -203,15 +211,11 @@
             var newStroke = Entities.addEntity({
                 type: "PolyLine",
                 name: _this.STROKE_NAME,
-                dimensions: {
-                    x: 10,
-                    y: 10,
-                    z: 10
-                },
+                dimensions: STROKE_DIMENSIONS,
                 position: utils.parseJSON(params[0]),
                 color: utils.parseJSON(params[1]),
                 textures: MARKER_TEXTURE_URL,
-                lifetime: 5000,
+                lifetime: STROKE_LIFETIME,
                 userData: JSON.stringify({
                     creatorMarker: params[2],
                     parentBoard: params[3]
@@ -401,15 +405,11 @@
                     userData: JSON.stringify({
                         grabbableKey: {
                             grabbable: true,
-                            ignoreIK: true
+                            ignoreIK: false
                         },
                         equipHotspots: [{
-                            position: {
-                                x: 0,
-                                y: 0,
-                                z: 0
-                            },
-                            radius: 0.35,
+                            position: Vec3.ZERO,
+                            radius: ERASER_EQUIP_HIGHLIGHT_RADIUS,
                             joints: {
                                 RightHand: [{
                                     x: 0.020,
@@ -471,16 +471,12 @@
                 userData: JSON.stringify({
                     grabbableKey: {
                         grabbable: true,
-                        ignoreIK: true
+                        ignoreIK: false
                     },
                     markerColor: color,
                     equipHotspots: [{
-                        position: {
-                            x: 0,
-                            y: 0,
-                            z: 0
-                        },
-                        radius: 0.32,
+                        position: Vec3.ZERO,
+                        radius: MARKER_EQUIP_HIGHLIGHT_RADIUS,
                         joints: {
                             RightHand: [{
                                 x: 0.001,

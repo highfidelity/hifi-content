@@ -145,7 +145,7 @@
         releaseGrab: function() {
             _this.resetStroke();
         },
-        continueNearGrab: function(ID, paramsArray) {
+        continueNearGrab: function(entityID, paramsArray) {
             // cast a ray from marker and see if it hits anything
             var markerProps = Entities.getEntityProperties(_this.entityID);
             var serverID = null;
@@ -243,8 +243,8 @@
             _this.startEquipTime = Date.now();
             _this.startNearGrab();
         },
-        continueEquip: function(ID, paramsArray) {
-            _this.continueNearGrab(ID, paramsArray);
+        continueEquip: function(entityID, paramsArray) {
+            _this.continueNearGrab(entityID, paramsArray);
         },
         releaseEquip: function() {
             _this.equipped = false;

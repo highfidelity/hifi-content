@@ -67,7 +67,7 @@
                 }
             });
         },
-        continueNearGrab: function(ID, paramsArray) {
+        continueNearGrab: function(entityID, paramsArray) {
             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
             hand = paramsArray[0] === 'left' ? 0 : 1;
             _this.continueHolding();
@@ -105,8 +105,8 @@
             _this.startEquipTime = Date.now();
             _this.startNearGrab();
         },
-        continueEquip: function(ID, paramsArray) {
-            _this.continueNearGrab(ID, paramsArray);
+        continueEquip: function(entityID, paramsArray) {
+            _this.continueNearGrab(entityID, paramsArray);
         },
         releaseEquip: function() {
             _this.equipped = false;
