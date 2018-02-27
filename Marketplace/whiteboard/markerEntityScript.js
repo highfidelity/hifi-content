@@ -112,9 +112,22 @@
     MarkerTip.prototype = {
         preload: function(entityID) {
             this.entityID = entityID;
-
+            _this.WHITEBOARD_NAME = "Whiteboard";
+            _this.wb = null;
             Controller.mouseMoveEvent.connect(_this.mouseMoveEvent);
             Controller.mouseReleaseEvent.connect(_this.mouseReleaseEvent);
+        },
+        findWhiteboard: function() {
+            var results = Entities.findEntities(
+                Entities.getEntityProperties(_this.entityID, "position").position,
+                WHITEBOARD_SEARCH_RADIUS
+            );
+            results.forEach(function(entity) {
+                var entityName = Entities.getEntityProperties(entity, "name").name;
+                if (entityName === _this.WHITEBOARD_NAME) {
+                    _this.wb entity;
+                }
+            });
         },
         startNearGrab: function() {
             _this.whiteboards = [];
@@ -134,8 +147,8 @@
                     _this.colors.push(entity);
                 }
             });
-            
-            var serverID = getServerID();
+            _this.findWhiteboard();
+            var serverID = _this.wb;
 
             Entities.callEntityServerMethod(serverID, 
                 'spawnMarker', 
