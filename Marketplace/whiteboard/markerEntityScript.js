@@ -46,6 +46,12 @@
         max: 0.6
     };
 
+    var HAPTIC_PARAMETERS = {
+        strength: 1,
+        duration: 70,
+        hand: 2
+    };
+
     var strokeSoundTimestamp0 = null, strokeSoundTimestamp1 = null;
     var STROKE_SOUND_THRESHOLD_DIRECTION = 0.85;
 
@@ -192,7 +198,7 @@
                 if (isPainting === false) {
                     Audio.playSound(BEGIN_STROKE_SOUND, {
                         position: whiteBoardIntersection.intersection,
-                        volume: clamp(Math.random(), 0.45, 0.65)
+                        volume: clamp(Math.random(), STROKE_SOUND_VOLUME.min, STROKE_SOUND_VOLUME.max)
                     });
                     timestamp = Date.now();
                     strokeSoundTimestamp0 = whiteBoardIntersection.intersection;
@@ -205,10 +211,14 @@
                     if (strokeSoundTimestamp1 === null) {
                         strokeSoundTimestamp1 = whiteBoardIntersection.intersection;
                     } else {
-                        var v1 = Vec3.normalize(Vec3.subtract(strokeSoundTimestamp1, strokeSoundTimestamp0));
-                        var v2 = Vec3.normalize(Vec3.subtract(whiteBoardIntersection.intersection, strokeSoundTimestamp1));
-                        var cosA = Vec3.dot(v1, v2);
-                        if (cosA < 0.85 ) {
+                        var strokeSoundDirection1 = Vec3.normalize(
+                            Vec3.subtract(strokeSoundTimestamp1, strokeSoundTimestamp0)
+                        );
+                        var strokeSoundDirection2 = Vec3.normalize(
+                            Vec3.subtract(whiteBoardIntersection.intersection, strokeSoundTimestamp1)
+                        );
+                        var cosA = Vec3.dot(strokeSoundDirection1, strokeSoundDirection2);
+                        if (cosA < STROKE_SOUND_THRESHOLD_DIRECTION) {
                             timestamp = Date.now();
                             playRandomStrokeSound(whiteBoardIntersection.intersection);
                         }
@@ -219,7 +229,11 @@
 
                 isPainting = true;
                 var hand = paramsArray[0] === 'left' ? 0 : 1;
-                Controller.triggerHapticPulse(1, 70, hand);
+                Controller.triggerHapticPulse(
+                    HAPTIC_PARAMETERS.strength, 
+                    HAPTIC_PARAMETERS.duration, 
+                    hand
+                );
             } else {
                 _this.resetStroke();
             }
