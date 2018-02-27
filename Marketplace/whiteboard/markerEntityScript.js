@@ -125,7 +125,7 @@
             results.forEach(function(entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
                 if (entityName === _this.WHITEBOARD_NAME) {
-                    _this.wb entity;
+                    _this.wb = entity;
                 }
             });
         },
