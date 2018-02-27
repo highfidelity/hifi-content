@@ -131,15 +131,16 @@
             }
         },
         releaseGrab: function() {
-            if (timeout) {
-                Script.clearTimeout(timeout);
-                timeout = null;
+            if (Entities.getEntityProperties(_this.entityID, 'parentID').parentID !== MyAvatar.sessionUUID) {
+                if (timeout) {
+                    Script.clearTimeout(timeout);
+                    timeout = null;
+                }
+                timeout = Script.setTimeout(function(){
+                    _this.turnOffTimeout();
+                    timeout = null;
+                }, STILL_PLAYING_TIMEOUT_MS);
             }
-            timeout = Script.setTimeout(function(){
-                _this.turnOffTimeout();
-                timeout = null;
-            }, STILL_PLAYING_TIMEOUT_MS);
-            
         },
         turnOffTimeout: function() {
             if (interval) {
