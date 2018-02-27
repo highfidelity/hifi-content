@@ -52,7 +52,7 @@
         createFingertipEntity: function(finger) {
             var entityData = {
                 angularDamping: 0,
-                clientOnly: 0,
+                clientOnly: 1,
                 collidesWith: "static,",
                 collisionMask: 1,
                 damping: 0,
