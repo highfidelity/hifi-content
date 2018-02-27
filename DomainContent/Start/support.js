@@ -28,7 +28,7 @@
     var tabletButtonMessageBlinkState = 0; // Which icon should we show for message waiting (if active)
     var tabletButtonMessageBlinkTimer = null; // The timer for changing the tablet icon for message waiting
     var tabletButton = null; // The button we create in the tablet.
-    var tabletButtonSortOrder = 12; // The sort order of the button in the tablet
+    var tabletButtonSortOrder = 11; // The sort order of the button in the tablet
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system"); // The awesome tablet.
     var chatLog = []; // Array of chat messages in the form of [avatarID, displayName, message, data].
     var avatarIdentifiers = {}; // Map of avatar ids to dict of identifierParams.
