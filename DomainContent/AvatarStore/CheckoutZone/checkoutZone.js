@@ -29,7 +29,7 @@
     
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 220, z: 0 };
-    var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
+    var MARKETPLACE_WALLET_QML_PATH = "hifi/commerce/wallet/Wallet.qml";
     // Milliseconds
     var TRANSLATION_CHECK_INTERVAL = 100;
     var SHORTER_STOP_TIMEOUT = 1000;
@@ -272,7 +272,6 @@
     });
   
     _this.enterEntity = (function (entityID) {
-        // IN_CHECKOUT_SETTINGS = true;
         setInCheckoutZoneSetting(true);
         replicaList = [];
         collectZoneData();
@@ -340,7 +339,6 @@
     });
       
     _this.leaveEntity = function() {
-        //IN_CHECKOUT_SETTINGS = false;
         setInCheckoutZoneSetting(false);
         Entities.callEntityMethod(recycleBinID, 'exitCheckout');
         Entities.callEntityMethod(scannerZone, 'exitCheckout');

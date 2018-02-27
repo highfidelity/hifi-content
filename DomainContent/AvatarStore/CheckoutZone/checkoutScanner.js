@@ -14,7 +14,8 @@
     
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var SHARED = Script.require('../attachmentZoneShared.js');
-    var MARKET_PLACE_ITEM_URL_PREFIX = 'https://metaverse.highfidelity.com/marketplace';
+    var MARKETPLACE_SHARED = Script.require('../marketplaceShared.js');
+    var MARKET_PLACE_ITEM_URL_PREFIX = Account.metaverseServerURL + '/marketplace';
     var MARKETPLACES_INJECT_SCRIPT_URL = ScriptDiscoveryService.defaultScriptsPath + 
         "/system/html/js/marketplacesInject.js";
     var SCAN_RADIUS = 0.15; // meters
@@ -56,6 +57,21 @@
         fillOccludedAlpha: 0,
         outlineWidth: 3,
         isOutlineSmooth: true
+    };
+
+    var logScanEvent = function(marketplaceID) {
+        MARKETPLACE_SHARED.requestMarketplaceDataForID(marketplaceID, function(error, marketplaceItemData) {
+            if (!error) {
+                UserActivityLogger.logAction('avatarStore_scan', {
+                    name: marketplaceItemData.name,
+                    creator: marketplaceItemData.creator,
+                    cost: marketplaceItemData.cost,
+                    marketplaceID: marketplaceID
+                });
+            } else {
+                print('Error retrieving logScanEvent marketplace data!');
+            }
+        });
     };
   
     var Scanner = function() {
@@ -254,6 +270,8 @@
                                     localOnly: true
                                 });
                             }
+                            logScanEvent(marketplaceID);
+
                             Selection.removeFromSelectedItemsList(LIST_NAME, "entity", matchingEntity);
                             Selection.removeFromSelectedItemsList(LIST_NAME, "overlay", overlayInScanner);
 

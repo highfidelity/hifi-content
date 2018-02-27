@@ -1,0 +1,148 @@
+
+<!-- saved from url=(0085)https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/musicVisualizerUI.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Music Visualizer</title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                width: 100%;
+                font-family: 'Raleway', sans-serif;
+                color: white;
+                background: linear-gradient(#2b2b2b, #0f212e);
+            }
+
+            .top-bar {
+                height: 60px;
+                background: linear-gradient(#2b2b2b, #1e1e1e);
+                font-weight: bold;
+                padding-left: 30px;
+                padding-right: 30px;
+                display: flex;
+                align-items: center;
+                position: fixed;
+                width: 480px;
+                top: 0;
+                z-index: 1;
+            }
+
+            .content {
+                margin-top: 40px;
+                padding-left: 25px;
+                padding-right: 25px;
+                padding-top: 15px;
+                padding-bottom: 15px;
+            }
+
+            input[type=button] {
+                font-family: 'Raleway';
+                font-weight: bold;
+                font-size: 13px;
+                text-transform: uppercase;
+                vertical-align: top;
+                height: 125px;
+                min-width: 125px;
+                padding: 0px 18px;
+                margin-right: 6px;
+                border-radius: 5px;
+                border: none;
+                color: #fff;
+                background-color: #000;
+                background: linear-gradient(#343434 20%, #000 100%);
+                cursor: pointer;
+            }
+
+            input[type=button].red {
+                color: #fff;
+                background-color: #94132e;
+                background: linear-gradient(#d42043 20%, #94132e 100%);
+            }
+            input[type=button].blue {
+                color: #fff;
+                background-color: #1080b8;
+                background: linear-gradient(#00b4ef 20%, #1080b8 100%);
+            }
+            input[type=button].white {
+                color: #121212;
+                background-color: #afafaf;
+                background: linear-gradient(#fff 20%, #afafaf 100%);
+            }
+
+            input[type=button]:enabled:hover {
+                background: linear-gradient(#000, #000);
+                border: none;
+            }
+            input[type=button].red:enabled:hover {
+                background: linear-gradient(#d42043, #d42043);
+                border: none;
+            }
+            input[type=button].blue:enabled:hover {
+                background: linear-gradient(#00b4ef, #00b4ef);
+                border: none;
+            }
+            input[type=button].white:enabled:hover {
+                background: linear-gradient(#fff, #fff);
+                border: none;
+            }
+
+            input[type=button]:active {
+                background: linear-gradient(#343434, #343434);
+            }
+            input[type=button].red:active {
+                background: linear-gradient(#94132e, #94132e);
+            }
+            input[type=button].blue:active {
+                background: linear-gradient(#1080b8, #1080b8);
+            }
+            input[type=button].white:active {
+                background: linear-gradient(#afafaf, #afafaf);
+            }
+
+            input[type=button]:disabled {
+                color: #252525;
+                background: linear-gradient(#575757 20%, #252525 100%);
+            }
+
+            input[type=button][pressed=pressed] {
+                color: #00b4ef;
+            }
+            
+            input[type=button]:hover {
+                filter: brightness(80%);
+            }
+
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script><style></style>
+        <script type="text/javascript" src="eventBridgeLoader.js"></script>
+        <script type="text/javascript" src="musVisHTMLHandler.js"></script>
+
+    </head>
+    <body>
+        <div class="top-bar">
+            <h2>Music Visualizer</h2>
+        </div>
+        <div class="content">
+            <h4>Choose a particle effect from the list below to dance with your tunes!</h4>
+            <p><input type="checkbox" class="mic-check" name="MicSync">Sync to mic OR
+            <input class="blueButton" style="line-height:20px;text-align:center;padding:0px 8px;margin-left:auto;margin-right:auto;height:20px;width:150px;" type="button" value="Choose audio file" onclick="chooseAudioFile()">
+            <span class="filename" id="audio-file">No file selected</span></p>
+            <input type="radio" class="radio-button" name="ForD" value="finger">Finger trails
+            <input type="radio" class="radio-button" name="ForD" value="dynamic">Dynamic
+            <input type="radio" class="radio-button" name="ForD" value="nobehavior" checked="checked">No behavior
+            <p></p>
+            <h5>Finger trail usage: hold trigger to emit, press grip to release effect. Audio reactivity not available with trailers.</h5>
+            <p><input type="button" class="particle-button white" name="fire" style="background: #fff url(icons/fire.jpg);">
+            <input type="button" class="particle-button red" name="water" style="background: #fff url(icons/water.jpg);">
+            <input type="button" class="particle-button white" name="earth" style="background: #fff url(icons/earth.jpg);"></p>
+            <p><input type="button" class="particle-button blue" name="air" style="background: #fff url(icons/air.jpg);">
+            <input type="button" class="particle-button red" name="snow" style="background: #fff url(icons/snow.jpg);">
+            <input type="button" class="particle-button red" name="rainbow" style="background: #fff url(icons/rainbow.jpg);"></p>
+            <p><input type="button" class="particle-button white" name="lightning" style="background: #fff url(icons/lightning.jpg);">
+            <input type="button" class="particle-button blue" name="love" style="background: #fff url(icons/love.jpg);">
+            <!-- <input type="button" class="particle-button-white" name="clean">hi</input> -->
+            <input class="button" style="background: #252525;line-height:20px;text-align:center;padding:0px 8px;margin-left:auto;margin-right:auto;height:125px;width:50px;" type="button" value="Clean up" onclick="cleanUpParticles()"></p>
+        </div>
+    
+<a style="display: none; " id="exifview-absolute-url-convert-proxy" href="https://hifi-content.s3.amazonaws.com/elisalj/music_visualizer/dummy"></a></body></html>
