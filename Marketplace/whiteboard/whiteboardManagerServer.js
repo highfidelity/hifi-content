@@ -80,6 +80,9 @@
     };
     var RESET_MARKERS_AND_ERASERS_RADIUS = 15;
 
+    var SHORT_TOOL_LIFETIME = 300;
+    var TOOL_LIFETIME = 3600;
+
     var Whiteboard = function() {
         _this = this;
     };
@@ -320,7 +323,7 @@
             yellowMarkerID = _this.spawnMarkerWithColor(YELLOW_MARKER_NAME, YELLOW_MARKER_COLOR);
             
             eraserID = null;
-            _this.spawnEraser(_this.entityID, [_this.entityID]);
+            _this.spawnEraser(_this.entityID, [null]);
         },
         /// Remotely callable function that creates a new marker
         /// 
@@ -332,6 +335,8 @@
         spawnMarker: function(entityID, params) {
             var markerName = utils.parseJSON(params[1]);
             var color = utils.parseJSON(params[2]);
+
+            Entities.editEntity(params[0], {lifetime: SHORT_TOOL_LIFETIME});
 
             if ( markerName === "hifi_model_marker_blue" && 
                 (blueMarkerID === null || params[0] === blueMarkerID)) {
@@ -362,6 +367,10 @@
         /// @param {object} params [grabbedEraserID]
         spawnEraser: function(entityID, params) {
             if (eraserID === null || params[0] === eraserID) {
+                if (params[0] !== null) {
+                    Entities.editEntity(params[0], {lifetime: SHORT_TOOL_LIFETIME});
+                }
+
                 var template = getTemplate(ERASER_NAME);
                 var rootPosition = Entities.getEntityProperties(_this.entityID, "position").position;
                 var currentRotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
@@ -386,7 +395,7 @@
                     type: "Model",
                     shapeType: "box",
                     collidesWith: "static,dynamic,kinematic",
-                    lifetime: 3600,
+                    lifetime: TOOL_LIFETIME,
                     queryAACube: template['queryAACube'],
                     modelURL: template['modelURL'],
                     userData: JSON.stringify({
@@ -456,7 +465,7 @@
                 name: markerName,
                 type: "Model",
                 shapeType: "box",
-                lifetime: 3600,
+                lifetime: TOOL_LIFETIME,
                 queryAACube: template['queryAACube'],
                 modelURL: template['modelURL'],
                 userData: JSON.stringify({
