@@ -394,5 +394,6 @@ module.exports = {
     calculateHandSizeRatio: calculateHandSizeRatio,
     clamp: clamp,
     attachChildToParent: attachChildToParent,
-    findSurfaceBelowPosition: findSurfaceBelowPosition 
+    findSurfaceBelowPosition: findSurfaceBelowPosition,
+    parseJSON: parseJSON
 };

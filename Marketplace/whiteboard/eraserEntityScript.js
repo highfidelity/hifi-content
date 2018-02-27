@@ -105,8 +105,8 @@
             _this.startEquipTime = Date.now();
             _this.startNearGrab();
         },
-        continueEquip: function() {
-            _this.continueNearGrab();
+        continueEquip: function(ID, paramsArray) {
+            _this.continueNearGrab(ID, paramsArray);
         },
         releaseEquip: function() {
             _this.equipped = false;

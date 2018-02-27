@@ -385,6 +385,7 @@
                     name: ERASER_NAME,
                     type: "Model",
                     shapeType: "box",
+                    collidesWith: "static,dynamic,kinematic",
                     lifetime: 3600,
                     queryAACube: template['queryAACube'],
                     modelURL: template['modelURL'],
@@ -449,6 +450,7 @@
                     template['rotation']
                 ),
                 script: MARKER_ENTITY_SCRIPT,
+                collidesWith: "static,dynamic,kinematic",
                 dimensions: template['dimensions'],
                 gravity: template['gravity'],
                 name: markerName,

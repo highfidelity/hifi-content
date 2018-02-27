@@ -104,9 +104,6 @@
     Messages.messageReceived.connect(handleColorMessage);
 
     MarkerTip.prototype = {
-        springAction: null,
-        springEntity: null,
-        hand: null,
         preload: function(entityID) {
             this.entityID = entityID;
 
