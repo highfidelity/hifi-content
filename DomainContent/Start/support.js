@@ -11,7 +11,7 @@
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-(function() {
+(function () {
 
     var webPageURL = Script.resolvePath("html/ChatPage.html"); // URL of tablet web page.
     var randomizeWebPageURL = true; // Set to true for debugging.
@@ -22,7 +22,13 @@
     var tabletButtonName = "SUPPORT"; // Tablet button label.
     var tabletButtonIcon = Script.resolvePath("resources/support-i.svg"); // Icon for chat button.
     var tabletButtonActiveIcon = Script.resolvePath("resources/support-a.svg"); // Active icon for chat button.
+    var tabletButtonMessageIcon = Script.resolvePath("resources/support-msg.svg"); // Message Waiting Icon for chat button.
+    var tabletButtonMessageBlinkTimerDelay = 750; // The timer's speed for message waiting
+    var tabletButtonMessageBlinkActive = false; // Do we have a message waiting?
+    var tabletButtonMessageBlinkState = 0; // Which icon should we show for message waiting (if active)
+    var tabletButtonMessageBlinkTimer = null; // The timer for changing the tablet icon for message waiting
     var tabletButton = null; // The button we create in the tablet.
+    var tabletButtonSortOrder = 8; // The sort order of the button in the tablet
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system"); // The awesome tablet.
     var chatLog = []; // Array of chat messages in the form of [avatarID, displayName, message, data].
     var avatarIdentifiers = {}; // Map of avatar ids to dict of identifierParams.
@@ -41,9 +47,9 @@
     var identifyAvatarMyJointName = 'Head'; // My bone from which to draw the avatar identity line.
     var identifyAvatarYourJointName = 'Head'; // Your bone to which to draw the avatar identity line.
     var speechBubbleDuration = 10; // How long to leave the speech bubble up, in seconds.
-    var speechBubbleTextColor = {red: 255, green: 255, blue: 255}; // The text color of the speech bubble.
-    var speechBubbleBackgroundColor = {red: 0, green: 0, blue: 0}; // The background color of the speech bubble.
-    var speechBubbleOffset = {x: 0, y: 0.3, z: 0.0}; // The offset from the joint to whic the speech bubble is attached.
+    var speechBubbleTextColor = { red: 255, green: 255, blue: 255 }; // The text color of the speech bubble.
+    var speechBubbleBackgroundColor = { red: 0, green: 0, blue: 0 }; // The background color of the speech bubble.
+    var speechBubbleOffset = { x: 0, y: 0.3, z: 0.0 }; // The offset from the joint to which the speech bubble is attached.
     var speechBubbleJointName = 'Head'; // The name of the joint to which the speech bubble is attached.
     var speechBubbleLineHeight = 0.05; // The height of a line of text in the speech bubble.
 
@@ -60,9 +66,9 @@
         identifyAvatarMyJointName = Settings.getValue('Support_identifyAvatarMyJointName', 'Head');
         identifyAvatarYourJointName = Settings.getValue('Support_identifyAvatarYourJointName', 'Head');
         speechBubbleDuration = Settings.getValue('Support_speechBubbleDuration', 10);
-        speechBubbleTextColor = Settings.getValue('Support_speechBubbleTextColor', {red: 255, green: 255, blue: 255});
-        speechBubbleBackgroundColor = Settings.getValue('Support_speechBubbleBackgroundColor', {red: 0, green: 0, blue: 0});
-        speechBubbleOffset = Settings.getValue('Support_speechBubbleOffset', {x: 0.0, y: 0.3, z:0.0});
+        speechBubbleTextColor = Settings.getValue('Support_speechBubbleTextColor', { red: 255, green: 255, blue: 255 });
+        speechBubbleBackgroundColor = Settings.getValue('Support_speechBubbleBackgroundColor', { red: 0, green: 0, blue: 0 });
+        speechBubbleOffset = Settings.getValue('Support_speechBubbleOffset', { x: 0.0, y: 0.3, z: 0.0 });
         speechBubbleJointName = Settings.getValue('Support_speechBubbleJointName', 'Head');
         speechBubbleLineHeight = Settings.getValue('Support_speechBubbleLineHeight', 0.05);
 
@@ -131,6 +137,7 @@
     function handleTransmitChatMessage(avatarID, displayName, message, data) {
         trimChatLog();
         chatLog.push([avatarID, displayName, message, data]);
+        tabletButtonMessageBlinkActive = true;
 
         if (onChatPage) {
             tablet.emitScriptEvent(
@@ -178,7 +185,7 @@
         }
 
         Messages.sendMessage(
-            channelName, 
+            channelName,
             JSON.stringify({
                 type: 'AvatarBeginTyping',
                 avatarID: MyAvatar.sessionUUID,
@@ -198,7 +205,7 @@
         }
 
         Messages.sendMessage(
-            channelName, 
+            channelName,
             JSON.stringify({
                 type: 'AvatarEndTyping',
                 avatarID: MyAvatar.sessionUUID,
@@ -220,7 +227,7 @@
         var myJointIndex = MyAvatar.getJointIndex(identifyAvatarMyJointName);
         var myJointPosition =
             Vec3.sum(
-                MyAvatar.position, 
+                MyAvatar.position,
                 Vec3.multiplyQbyV(
                     MyAvatar.orientation,
                     MyAvatar.getAbsoluteJointTranslationInObjectFrame(myJointIndex)));
@@ -246,11 +253,11 @@
             if (!yourAvatar) {
                 return;
             }
-            
+
             yourJointIndex = yourAvatar.getJointIndex(identifyAvatarMyJointName);
             yourJointPosition =
                 Vec3.sum(
-                    yourAvatar.position, 
+                    yourAvatar.position,
                     Vec3.multiplyQbyV(
                         yourAvatar.orientation,
                         yourAvatar.getAbsoluteJointTranslationInObjectFrame(yourJointIndex)));
@@ -274,7 +281,7 @@
         identifierParams.lineID = Overlays.addOverlay("line3d", identifierParams);
 
         identifierParams.timer =
-            Script.setTimeout(function() {
+            Script.setTimeout(function () {
                 unidentifyAvatar(yourAvatarID);
             }, identifyAvatarDuration * 1000);
 
@@ -440,7 +447,7 @@
                     } else {
                         chatName = randomAvatarName();
                         saveSettings();
-                        logMessage('Your avatar\'s display name is not defined, so your chat name has been set to "' + 
+                        logMessage('Your avatar\'s display name is not defined, so your chat name has been set to "' +
                             chatName + '".', null);
                     }
                 } else {
@@ -508,7 +515,7 @@
         popUpSpeechBubble(message, data);
 
         Messages.sendMessage(
-            channelName, 
+            channelName,
             JSON.stringify({
                 type: 'TransmitChatMessage',
                 avatarID: MyAvatar.sessionUUID,
@@ -591,13 +598,13 @@
         };
         speechBubbleParams.dimensions = dimensions;
 
-        var headRotation = 
+        var headRotation =
             Quat.multiply(
                 MyAvatar.orientation,
                 MyAvatar.getAbsoluteJointRotationInObjectFrame(jointIndex));
         var headPosition =
             Vec3.sum(
-                MyAvatar.position, 
+                MyAvatar.position,
                 Vec3.multiplyQbyV(
                     MyAvatar.orientation,
                     MyAvatar.getAbsoluteJointTranslationInObjectFrame(jointIndex)));
@@ -612,7 +619,7 @@
         speechBubbleParams.position = position;
 
         if (!speechBubbleTextID) {
-            speechBubbleTextID = 
+            speechBubbleTextID =
                 Entities.addEntity(speechBubbleParams, true);
         } else {
             Entities.editEntity(speechBubbleTextID, speechBubbleParams);
@@ -701,7 +708,7 @@
                 break;
 
             case 'ReplyWho':
-                handleReplyWho(messageData.myAvatarID, messageData.avatarID, messageData.displayName, 
+                handleReplyWho(messageData.myAvatarID, messageData.avatarID, messageData.displayName,
                     messageData.message, messageData.data);
                 break;
 
@@ -785,14 +792,14 @@
     }
 
     function onScreenChanged(type, url) {
-    
-        if ((type === "Web") && 
+
+        if ((type === "Web") &&
             (url === lastWebPageURL)) {
             if (!onChatPage) {
                 onChatPage = true;
                 connectWebHandler();
             }
-        } else { 
+        } else {
             if (onChatPage) {
                 onChatPage = false;
                 tabletButton.editProperties({ isActive: false });
@@ -834,13 +841,39 @@
     }
 
     // Show the tablet web page when the chat button on the tablet is clicked.
+    // Also, set tabletButtonMessageBlinkActive to false and set the icon back to normal
     function onTabletButtonClicked() {
         showTabletWebPage();
+        turnOffMessageWaiting();
     }
 
     // Shut down the chat application when the tablet button is destroyed.
     function onTabletButtonDestroyed() {
         shutDown();
+        turnOffMessageWaiting();
+    }
+
+    // If we have a message waiting, blink our tablet button icon
+    function onMessageWaitingCheck() {
+        if (tabletButtonMessageBlinkActive) {
+            // Toggle the state (1->0->1->0...)
+            tabletButtonMessageBlinkState = 1 - tabletButtonMessageBlinkState;
+            // Change the icon accordingly
+            tabletButton.editProperties({
+                icon: tabletButtonMessageBlinkState ? tabletButtonMessageIcon : tabletButtonIcon
+                // No need for a different activeIcon, because we set tabletButtonMessageBlinkActive
+                // to false when the button goes active anyway.
+            });
+        }
+    }
+
+    // Turn off everything if we open or close the chat application
+    function turnOffMessageWaiting() {
+        tabletButtonMessageBlinkActive = false;
+        tabletButtonMessageBlinkState = 0;
+        tabletButton.editProperties({
+            icon: tabletButtonIcon
+        });
     }
 
     // Start up the chat application.
@@ -850,7 +883,8 @@
         tabletButton = tablet.addButton({
             icon: tabletButtonIcon,
             activeIcon: tabletButtonActiveIcon,
-            text: tabletButtonName
+            text: tabletButtonName,
+            sortOrder: tabletButtonSortOrder
         });
 
         Messages.subscribe(channelName);
@@ -860,6 +894,8 @@
         Messages.messageReceived.connect(onChatMessageReceived);
 
         tabletButton.clicked.connect(onTabletButtonClicked);
+
+        tabletButtonMessageBlinkTimer = Script.setInterval(onMessageWaitingCheck, tabletButtonMessageBlinkTimerDelay);
 
         Script.scriptEnding.connect(onTabletButtonDestroyed);
 
@@ -882,6 +918,8 @@
         tablet.screenChanged.disconnect(onScreenChanged);
 
         Messages.messageReceived.disconnect(onChatMessageReceived);
+
+        Script.clearInterval(tabletButtonMessageBlinkTimer);
 
         // Clean up the tablet button we made.
         tabletButton.clicked.disconnect(onTabletButtonClicked);
