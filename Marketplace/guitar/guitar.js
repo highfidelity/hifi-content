@@ -21,6 +21,7 @@
     var RIFF_NUMBER_INDEX = 20;
     var SEARCH_RADIUS = 100;
     var NOT_FOUND = -1;
+    var INITIAL_TIMEOUT_MS = 60000;
 
     var fingerEntities = [];
     var overlays = [];
@@ -61,8 +62,13 @@
                 sounds["Blue" + i + "L"] = SoundCache.getSound(Script.resolvePath("sounds/blue/" + i + "L.wav"));
                 sounds["Blue" + i + "R"] = SoundCache.getSound(Script.resolvePath("sounds/blue/" + i + "R.wav"));
             }
+            timeout = Script.setTimeout(function(){
+                _this.turnOffTimeout();
+                timeout = null;
+            }, INITIAL_TIMEOUT_MS);
         },
-        mousePress: function(id, event) { // this is only for the overlays in desktop mode
+        // clicking an overlay causes a sound to play in desktop
+        mousePress: function(id, event) {
             if (overlays.indexOf(id) !== NOT_FOUND) {
                 _this.releaseGrab();
                 var name = Overlays.getProperty(id, 'name');
@@ -117,9 +123,10 @@
         clickReleaseOnEntity: function(entityID, mouseEvent) { // this is for turning on/off guitar in desktop mode
             if (mouseEvent.isRightButton) {
                 if (!colorsShowing) {
+                    colorsShowing = true;
                     _this.initializeGuitar();
                 } else {
-                    _this.setTurnOffTimeout();
+                    _this.releaseGrab();
                 }
             }
         },
@@ -135,7 +142,6 @@
             
         },
         turnOffTimeout: function() {
-            colorsShowing = false;
             if (interval) {
                 Script.clearInterval(interval);
             }
@@ -152,7 +158,8 @@
             }
             if (injectorR) {
                 injectorR.stop();
-            } 
+            }
+            Entities.deleteEntity(_this.entityID);
         },
         playSound: function(buttonID, params) {
             if (interval) {
