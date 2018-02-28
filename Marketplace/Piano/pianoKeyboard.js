@@ -13,6 +13,7 @@
     var FINGER_ENTITY_DIMENSIONS = {x: 0.005,y: 0.005,z: 0.005};
     var POSITION_CHECK_INTERVAL_MS = 100;
     var POSITION_CHECK_TIMEOUT_MS = 3000;
+    var NEGATIVE = -1;
     var fingerEntities = [];
     var distance;
     var interval;
@@ -50,9 +51,13 @@
             fingerEntities = [];
         },
         createFingertipEntity: function(finger) {
+            if (MyAvatar.getJointIndex(finger) === NEGATIVE) {
+                finger = finger.substr(0, finger.length + NEGATIVE);
+                finger = finger.concat("3");
+            }
             var entityData = {
                 angularDamping: 0,
-                clientOnly: 1,
+                clientOnly: 0,
                 collidesWith: "static,",
                 collisionMask: 1,
                 damping: 0,

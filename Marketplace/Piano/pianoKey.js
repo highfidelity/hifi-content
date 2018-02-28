@@ -30,6 +30,7 @@
     var KEY_INDEX = 10;
     var COLOR_CHANGE_TIMEOUT = 250;
     var NEGATIVE = -1;
+    var NUMBER_OF_COLORS = 4;
 
     var white = true;
     var playing = false;
@@ -57,7 +58,7 @@
             } 
         },
         playSound: function() {
-            var colorChange = Math.floor(Math.random() * 4);
+            var colorChange = Math.floor(Math.random() * NUMBER_OF_COLORS);
             var newColor;
             _this.homePosition = Entities.getEntityProperties(_this.entityID, ["position"]).position;
             _this.injector = Audio.playSound(_this.sound, {position: _this.homePos, volume: AUDIO_VOLUME});
