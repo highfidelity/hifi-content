@@ -191,6 +191,10 @@
             }
         },
         createFingertipEntity: function(finger) {
+            if (MyAvatar.getJointIndex(finger) === NOT_FOUND) {
+                finger = finger.substr(0, finger.length + NOT_FOUND);
+                finger = finger.concat("3");
+            }
             var entityData = {
                 angularDamping: 0,
                 clientOnly: 0,
