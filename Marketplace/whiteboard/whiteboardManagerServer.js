@@ -167,6 +167,16 @@
                 if (distance < _this.MIN_DISTANCE_BETWEEN_POINTS) {
                     return;
                 }
+
+                if (distance > _this.MAX_DISTANCE_BETWEEN_POINTS) {
+                    strokes.push(strokesInProgress[currentIndex]);
+                    strokesInProgress.splice(currentIndex, 1);
+                    linePointsInProgress.splice(currentIndex, 1);
+                    normalsInProgress.splice(currentIndex, 1);
+                    strokeBasePositionInProgress.splice(currentIndex, 1);
+
+                    return;
+                }
             }
             linePoints.push(localPoint);
             normals.push(whiteboardNormal);

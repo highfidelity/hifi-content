@@ -316,7 +316,8 @@
             });
             
             // Server side
-            var serverID = getServerID();
+            _this.findWhiteboard();
+            var serverID = _this.wb;
             Entities.callEntityServerMethod(serverID, 
                 'spawnMarker', 
                 [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]
