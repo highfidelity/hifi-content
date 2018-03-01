@@ -1,0 +1,200 @@
+<!--
+    groupTeleportApp.html
+    Tour around with a group of people.
+
+    Created by Thijs Wenker on 2/1/18.
+    Copyright 2018 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
+<html>
+    <head>
+        <title>Teleport App</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="groupTeleportApp.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <style>
+            #groups div {
+                border: 1px solid black;
+                margin: 5px 4px;
+                width: 100%;
+                height: 80px;
+            }
+            #groups div button {
+                float: right;
+            }
+            .panel {
+              border: 1px solid black;
+              padding: 2px 2px;
+              margin: 5px 4px;
+              width: 100%;
+              height: 80%;
+              display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+          <div id="buttonBar">
+              <button id="login">Group Leader Login</button>
+              <button id="resetGroupLeaderPassword">Create/Reset Group Leader Password</button>
+          </div>
+        </header>
+        <main>
+          <div class="panel" id="groups"></div>
+          <div class="panel" id="groupLeaderLogin">
+              <p>Password: <input id="groupLeaderLoginPassword"/></p>
+              <button id="groupLeaderLoginSubmit">Login</button>
+          </div>
+          <div class="panel" id="followingGroup">
+              <h2>Following</h2>
+              <p><b>Group name:</b> <span class="groupName">Group name here</span></p>
+              <p><b>Place:</b> <span class="groupPlace">Unknown</span></p>
+              <button class="actionOff">Stop Following</button>
+          </div>
+          <div class="panel" id="guidingGroup">
+              <h2>Guide</h2>
+              <p><b>Group name:</b> <span class="groupName">Group name here</span></p>
+            
+              <button class="actionSummon">Summon</button>
+              <button class="actionToggleAutoFollowMode">Auto follow mode on</button>
+              <button class="actionOff" >Stop Leading</button>
+          </div>
+          <div class="panel" id="createAccount">
+              <h2>Create/Reset Group Leader Password</h2>
+              <p>Please visit https://highfidelity.com/user/tokens/new on your desktop and create a token with the identity permission checked. Token can be removed after registration process.</p>
+              <p>Token: <input id="createAccountToken"/></p>
+              <p>Password: <input id="createAccountPassword"/></p>
+              <button id="createAccountSubmit">Create Account</button>
+          </div>
+        </main>
+        <script>
+            var MODE = {
+                NONE: 0,
+                FOLLOWING: 1,
+                GUIDE: 2
+            };
+          
+            var loggedIn = false;
+            function switchPanel(panel) {
+               $('.panel').css('display', 'none');
+               $('#' + panel).css('display', 'block');
+            }
+          
+            actionToggleAutoFollowMode
+          
+            $(document).ready(function() {
+                $('.actionOff').on('click', function() {
+                    EventBridge.emitWebEvent(JSON.stringify({
+                        app: "GROUP-TP",
+                        action: "off"
+                    }));
+                });
+                $('.actionSummon').on('click', function() {
+                    EventBridge.emitWebEvent(JSON.stringify({
+                        app: "GROUP-TP",
+                        action: "summon"
+                    }));
+                });
+                $('#resetGroupLeaderPassword').on('click', function() {
+                    switchPanel('createAccount');
+                });
+                $('#createAccountSubmit').on('click', function() {
+                    EventBridge.emitWebEvent(JSON.stringify({
+                        app: "GROUP-TP",
+                        action: "createAccount",
+                        token: $('#createAccountToken').val(),
+                        password: $('#createAccountPassword').val()
+                    }));
+                    switchPanel('groups');
+                });
+                $('#login').on('click', function() {
+                    if (!loggedIn) {
+                        var password = prompt("Guide password", "");
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            app: "GROUP-TP",
+                            action: "login",
+                            password: password
+                        }));
+                    } else {
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            app: "GROUP-TP",
+                            action: "logout"
+                        }));
+                    }
+                });
+                EventBridge.scriptEventReceived.connect(function(scriptEvent) {
+                    var eventData = null;
+                    try {
+                        eventData = JSON.parse(scriptEvent);
+                    } catch (e) {
+                        return;
+                    }
+                    if (eventData.app !== "GROUP-TP") {
+                        return;
+                    }
+                    if (eventData.action === 'refresh') {
+                        loggedIn = eventData.loggedIn;
+                        switch (eventData.mode) {
+                            case MODE.NONE:
+                                switchPanel('groups');
+                                break;
+                            case MODE.FOLLOWING:
+                                switchPanel('followingGroup');
+                                break;
+                            case MODE.GUIDE:
+                                switchPanel('guidingGroup');
+                                break;
+                        }
+                        if (eventData.groupName) {
+                           $('.groupName').text(eventData.groupName);
+                        }
+                        
+                        $('#login').text(loggedIn ? "Logout" : "Login");
+                        $('#resetGroupLeaderPassword').css('display', loggedIn ? 'none' : 'block');
+                        if (eventData.groups) {
+                            $('#groups').empty();
+                            $('#groups').append($('<h2/>').text('Groups'));
+                            eventData.groups.forEach(function(group) {
+                                var $groupDiv = $('<div>').text(group.groupName);
+                                var $groupFollowButton = $('<button>').text('Follow');
+                                $groupFollowButton.on('click', function() {
+                                    var groupPassword = "";
+                                    if (group.passwordProtected) {
+                                        groupPassword = prompt("Group password", "");
+                                    }
+                                    EventBridge.emitWebEvent(JSON.stringify({
+                                        app: "GROUP-TP",
+                                        action: "follow",
+                                        groupName: group.groupName,
+                                        groupPassword: groupPassword
+                                    }));
+                                });
+
+                                $groupDiv.append($groupFollowButton);
+                                if (group.isGuide) {
+                                    var $groupGuideButton = $('<button>').text('Guide');
+                                    $groupGuideButton.on('click', function() {
+                                        EventBridge.emitWebEvent(JSON.stringify({
+                                            app: "GROUP-TP",
+                                            action: "guide",
+                                            groupName: group.groupName
+                                        }));
+                                    });
+                                    $groupDiv.append($groupGuideButton);
+                                }
+                                $('#groups').append($groupDiv);
+                            });
+                        }
+                    }
+                });
+                EventBridge.emitWebEvent(JSON.stringify({
+                    app: "GROUP-TP",
+                    action: "refresh"
+                }));
+            });
+        </script>
+    </body>
+</html>
