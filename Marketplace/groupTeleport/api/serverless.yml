@@ -1,0 +1,80 @@
+# serverless.yml
+
+service: group-teleport-api
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  usersTableName: 'group-teleport-api-users-${self:provider.stage}'
+  groupsTableName: 'group-teleport-api-groups-${self:provider.stage}'
+  dynamodb:
+    start:
+      migrate: true
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    -
+      Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn" ] }
+        - { "Fn::GetAtt": ["GroupsDynamoDBTable", "Arn" ] }
+  environment:
+    USERS_TABLE: ${self:custom.usersTableName}
+    GROUPS_TABLE: ${self:custom.groupsTableName}
+
+functions:
+  app:
+    handler: index.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+
+resources:
+  Description: 'HIFI Group teleport API'
+  Resources:
+    UsersDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: username
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: username
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.usersTableName}
+    GroupsDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: groupName
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: groupName
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.groupsTableName}
+package:
+  exclude:
+    - .idea/**
