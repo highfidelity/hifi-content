@@ -70,7 +70,7 @@
     var linePointsInProgress = [];
     var normalsInProgress = [];
     var strokeBasePositionInProgress = [];
-    var MAX_POINTS_PER_STROKE = 40;
+    var MAX_POINTS_PER_STROKE = 25;
     var MARKER_TEXTURE_URL = Script.resolvePath("markerStroke.png");
     var strokeForwardOffset = 0.01;
     var STROKE_WIDTH_RANGE = {
@@ -110,7 +110,7 @@
         preload: function(entityID){
             _this.entityID = entityID;
             _this.MIN_DISTANCE_BETWEEN_POINTS = 0.002;
-            _this.MAX_DISTANCE_BETWEEN_POINTS = 0.1;
+            _this.MAX_DISTANCE_BETWEEN_POINTS = 0.03;
             _this.strokes = [];
             _this.STROKE_NAME = "hifi_polyline_markerStroke";
             _this.WHITEBOARD_SURFACE_NAME = "Whiteboard - Drawing Surface";
@@ -137,7 +137,6 @@
             if (currentIndex === -1) {
                 // build new polyline by starting a new stroke
                 _this.startMarkerStroke(params);
-                currentIndex = 0;
                 return;
             }
             
@@ -174,7 +173,7 @@
                     linePointsInProgress.splice(currentIndex, 1);
                     normalsInProgress.splice(currentIndex, 1);
                     strokeBasePositionInProgress.splice(currentIndex, 1);
-
+                    _this.startMarkerStroke(params);
                     return;
                 }
             }
@@ -190,6 +189,7 @@
                     STROKE_WIDTH_RANGE.max, 
                     STROKE_WIDTH_RANGE.min
                 );
+                pointWidth = (STROKE_WIDTH_RANGE.min + STROKE_WIDTH_RANGE.max) / 2;
                 strokeWidths.push(pointWidth);
             }
             
@@ -209,6 +209,7 @@
                 linePointsInProgress.splice(currentIndex, 1);
                 normalsInProgress.splice(currentIndex, 1);
                 strokeBasePositionInProgress.splice(currentIndex, 1);
+                _this.startMarkerStroke(params);
             }
         },
         /// Create a new stroke (Polyline)
@@ -225,7 +226,7 @@
                 position: utils.parseJSON(params[0]),
                 color: utils.parseJSON(params[1]),
                 textures: MARKER_TEXTURE_URL,
-                lifetime: STROKE_LIFETIME,
+                lifetime: -1,
                 userData: JSON.stringify({
                     creatorMarker: params[2],
                     parentBoard: params[3]

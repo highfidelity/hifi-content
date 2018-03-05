@@ -34,7 +34,7 @@
         _this = this;
         _this.equipped = false;
         _this.STROKE_NAME = "hifi_polyline_markerStroke";
-        _this.ERASER_TO_STROKE_SEARCH_RADIUS = 0.1;
+        _this.ERASER_TO_STROKE_SEARCH_RADIUS = 0.0032;
         _this.WHITEBOARD_NAME = "Whiteboard";
         _this.WHITEBOARD_SURFACE_NAME = "Whiteboard - Drawing Surface";
         _this.WHITEBOARD_SEARCH_RADIUS = 5;
@@ -78,8 +78,7 @@
 
             results.forEach(function(stroke) {
                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
-                if (props.name === _this.STROKE_NAME 
-                    && Vec3.distance(_this.eraserPosition, props.position) < _this.ERASER_TO_STROKE_SEARCH_RADIUS) {
+                if (props.name === _this.STROKE_NAME) {
                     if (_this.whiteboard === null) {
                         _this.findWhiteboard();
                     }
@@ -200,8 +199,8 @@
                             // Create a map of stroke entities and their positions
                             nearbyEntities.forEach(function(stroke) {
                                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
-                                var distance = Vec3.distance(_this.eraserPosition, props.position);
-                                if (props.name === _this.STROKE_NAME && distance < _this.ERASER_TO_STROKE_SEARCH_RADIUS) {
+                                
+                                if (props.name === _this.STROKE_NAME) {
                                     // RPC - calling server to erase
                                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
                                     Audio.playSound(ERASER_HIT_BOARD_SOUND, {
