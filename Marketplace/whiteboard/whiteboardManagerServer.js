@@ -77,7 +77,7 @@
         min: 0.002,
         max: 0.005
     };
-    var STROKE_LIFETIME = 5000;
+    var STROKE_LIFETIME = -1;
     var STROKE_DIMENSIONS = {
         x: 10,
         y: 10,
@@ -226,7 +226,7 @@
                 position: utils.parseJSON(params[0]),
                 color: utils.parseJSON(params[1]),
                 textures: MARKER_TEXTURE_URL,
-                lifetime: -1,
+                lifetime: STROKE_LIFETIME,
                 userData: JSON.stringify({
                     creatorMarker: params[2],
                     parentBoard: params[3]

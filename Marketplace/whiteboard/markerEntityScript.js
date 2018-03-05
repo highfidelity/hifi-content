@@ -57,6 +57,14 @@
 
     var WHITEBOARD_SEARCH_RADIUS = 5;
 
+    var BLUE_MARKER_NAME = "hifi_model_marker_blue";
+    var GREEN_MARKER_NAME = "hifi_model_marker_green";
+    var BLACK_MARKER_NAME = "hifi_model_marker_black";
+    var RED_MARKER_NAME = "hifi_model_marker_red";
+    var PINK_MARKER_NAME = "hifi_model_marker_pink";
+    var YELLOW_MARKER_NAME = "hifi_model_marker_yellow";
+    var ERASER_NAME = "hifi_model_whiteboardEraser";
+
     function clamp(value, min, max) {
         if (value < min) {
             return min;
@@ -114,6 +122,7 @@
             this.entityID = entityID;
             _this.WHITEBOARD_NAME = "Whiteboard";
             _this.wb = null;
+            Controller.mousePressEvent.connect(_this.mousePressEvent);
             Controller.mouseMoveEvent.connect(_this.mouseMoveEvent);
             Controller.mouseReleaseEvent.connect(_this.mouseReleaseEvent);
         },
@@ -284,18 +293,9 @@
 
         // MOUSE DESKTOP COMPATIBILITY
         clickDownOnEntity: function(entityID, mouseEvent) {
-            if (mouseEvent.isMiddleButton !== true || HMD.active) {
+            if (HMD.active) {
                 return;
             }
-
-            var args = "mouse";
-            Entities.callEntityMethod(_this.entityID, "releaseGrab", args);
-
-            Messages.sendMessage('Hifi-Object-Manipulation', JSON.stringify({
-                action: 'release',
-                grabbedEntity: _this.entityID,
-                joint: "mouse"
-            }));
 
             _this.whiteboards = [];
             _this.colors = [];
@@ -326,13 +326,45 @@
                 'serverEditEntity', 
                 [_this.entityID, JSON.stringify({collisionless: true, grabbable: false})]
             );
-            
-            isMouseDown = true;
+            if (_this.equipped) {
+                isMouseDown = true;
+            }
+            _this.equipped = true;
+        },
+        mousePressEvent: function(event) {
+            if (_this.equipped) {
+                isMouseDown = true;
+
+                var pickRay = Camera.computePickRay(event.x, event.y);
+                var toolIntersection = Entities.findRayIntersection(pickRay, true, [], [_this.entityID], true, true);
+                if (toolIntersection.intersects) {
+                    var entityName = Entities.getEntityProperties(toolIntersection.entityID, "name").name;
+                    
+                    if (entityName === ERASER_NAME || 
+                        entityName === BLUE_MARKER_NAME || 
+                        entityName === GREEN_MARKER_NAME || 
+                        entityName === BLACK_MARKER_NAME || 
+                        entityName === RED_MARKER_NAME || 
+                        entityName === PINK_MARKER_NAME || 
+                        entityName === YELLOW_MARKER_NAME) {
+                        // unequip and delete
+                        _this.equipped = false;
+                        var serverID = getServerID();
+                        isMouseDown = false;
+                        _this.resetStroke();
+                        // delete marker
+                        Entities.callEntityServerMethod(serverID, 
+                            'erase', 
+                            [_this.entityID]
+                        );
+                    }
+                }
+            }
         },
         mouseMoveEvent: function(event) {
             var serverID;
 
-            if (isMouseDown && event.x !== undefined && event.isMiddleButton === true) {
+            if (_this.equipped && event.x !== undefined) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
                 var colorIntersection = Entities.findRayIntersection(pickRay, true, _this.colors);
                 var isIntersectingColorWell = false;
@@ -357,8 +389,8 @@
                 } 
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
                 
-                if (whiteBoardIntersection.intersects ) {
-                    if (!event.isAlt && isPainting) {
+                if (whiteBoardIntersection.intersects) {
+                    if (!isMouseDown && isPainting) {
                         _this.resetStroke();
                         isPainting = false;
                         isStartingStroke = false;
@@ -392,7 +424,7 @@
                             ]
                         );
 
-                        if (event.isAlt) {
+                        if (isMouseDown) {
                             _this.paint(whiteBoardIntersection.intersection);
                             if (!isStartingStroke) {
                                 isStartingStroke = true;
@@ -431,23 +463,33 @@
                             isPainting = false;
                         }   
                     }  
+                } else {
+                    _this.equipped = false;
+                    serverID = getServerID();
+                    Entities.callEntityServerMethod(serverID, 
+                        'serverEditEntity', 
+                        [_this.entityID, JSON.stringify({collisionless: false, grabbable: true})]
+                    );
+                    isMouseDown = false;
+                    _this.resetStroke();
+                    // delete marker
+                    Entities.callEntityServerMethod(serverID, 
+                        'erase', 
+                        [_this.entityID]
+                    );
                 }
             }
 
         },
         mouseReleaseEvent: function(event) {
             if (isMouseDown) {
-                // Server side
-                var serverID = getServerID();
-                Entities.callEntityServerMethod(serverID, 
-                    'serverEditEntity', 
-                    [_this.entityID, JSON.stringify({collisionless: false, grabbable: true})]
-                );
                 isMouseDown = false;
                 _this.resetStroke();
+                isStartingStroke = false;
             }
         },
         unload: function() {
+            Controller.mousePressEvent.disconnect(_this.mousePressEvent);
             Controller.mouseMoveEvent.disconnect(_this.mouseMoveEvent);
             Controller.mouseReleaseEvent.disconnect(_this.mouseReleaseEvent);
         }
