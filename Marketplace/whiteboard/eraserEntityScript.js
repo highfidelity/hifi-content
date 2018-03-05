@@ -150,6 +150,7 @@
                 isMouseDown = true;
             }
             _this.equipped = true;
+            Settings.setValue('io.highfidelity.isEditing', true);
 
         },
         mousePressEvent: function(event) {
@@ -173,6 +174,7 @@
                         _this.findWhiteboard();
                         var serverID = _this.whiteboard;
                         isMouseDown = false;
+                        Settings.setValue('io.highfidelity.isEditing', false);
                         // delete marker
                         Entities.callEntityServerMethod(serverID, 
                             'erase', 
@@ -254,6 +256,7 @@
                     _this.findWhiteboard();
                     serverID = _this.whiteboard;
                     isMouseDown = false;
+                    Settings.setValue('io.highfidelity.isEditing', false);
                     // delete marker
                     Entities.callEntityServerMethod(serverID, 
                         'erase', 

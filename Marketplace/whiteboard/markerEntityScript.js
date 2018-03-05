@@ -296,6 +296,7 @@
             if (HMD.active) {
                 return;
             }
+            Settings.setValue('io.highfidelity.isEditing', true);
 
             _this.whiteboards = [];
             _this.colors = [];
@@ -349,6 +350,7 @@
                         entityName === YELLOW_MARKER_NAME) {
                         // unequip and delete
                         _this.equipped = false;
+                        Settings.setValue('io.highfidelity.isEditing', false);
                         var serverID = getServerID();
                         isMouseDown = false;
                         _this.resetStroke();
@@ -466,11 +468,8 @@
                 } else {
                     _this.equipped = false;
                     serverID = getServerID();
-                    Entities.callEntityServerMethod(serverID, 
-                        'serverEditEntity', 
-                        [_this.entityID, JSON.stringify({collisionless: false, grabbable: true})]
-                    );
                     isMouseDown = false;
+                    Settings.setValue('io.highfidelity.isEditing', false);
                     _this.resetStroke();
                     // delete marker
                     Entities.callEntityServerMethod(serverID, 
