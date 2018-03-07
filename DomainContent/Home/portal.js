@@ -1,12 +1,10 @@
-(function () {
+(function() {
     var teleportSound;
     var portalDestination;
-    var animationURL;
     var position;
     var canTeleport;
 
     function playSound(entityID) {
-        print("playing teleport sound");
         if (teleportSound.downloaded) {
             if (!position) {
                 getProps(entityID);
@@ -18,7 +16,6 @@
     function getProps(entityID) {
         var properties = Entities.getEntityProperties(entityID);
         if (properties) {
-            animationURL = properties.modelURL;
             position = properties.position;
             portalDestination = properties.userData;
         }
@@ -36,7 +33,7 @@
             halfDimensions.z >= localPosition.z;
     }
 
-    this.preload = function (entityID) {
+    this.preload = function(entityID) {
         print("loading teleport script");
         teleportSound = SoundCache.getSound("http://s3.amazonaws.com/hifi-public/birarda/teleport.raw");
         getProps(entityID);
@@ -44,7 +41,7 @@
         canTeleport = !isPositionInsideBox(MyAvatar.position, Entities.getEntityProperties(entityID));
     };
 
-    this.enterEntity = function (entityID) {
+    this.enterEntity = function(entityID) {
         // check if we should teleport
         if (canTeleport === false) {
             // if we have not passed enough time, do not teleport the user
@@ -52,42 +49,16 @@
         }
         // get latest props in case we changed the destination
         getProps(entityID);
-        print("enterEntity() .... The portal destination is " + portalDestination);
 
         if (portalDestination.length > 0) {
-            print("Teleporting to hifi://" + portalDestination);
+            playSound(entityID);
             Window.location = "hifi://" + portalDestination;
         }
 
     };
 
-    this.leaveEntity = function (entityID) {
-        print("leaveEntity() called ....");
-        if (!animationURL) {
-            getProps(entityID);
-        }
-        Entities.editEntity(entityID, {
-            animation: { url: animationURL, currentFrame: 1, running: false }
-        });
-
-        if (canTeleport === true) {
-            // only play the sound if we can teleport
-            playSound(entityID);
-        }
+    this.leaveEntity = function(entityID) {
+        // we can set canTeleport to true since they are not in the teleporter anymore
         canTeleport = true;
-    };
-
-    this.hoverEnterEntity = function (entityID) {
-        print("hoverEnterEntity() called ....");
-        if (!animationURL) {
-            getProps(entityID);
-        }
-        Entities.editEntity(entityID, {
-            animation: { url: animationURL, fps: 24, firstFrame: 1, lastFrame: 25, currentFrame: 1, running: true, hold: true }
-        });
-    };
-
-    this.unload = function () {
-        print("unloading teleport script");
     };
 });
