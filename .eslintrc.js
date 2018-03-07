@@ -53,7 +53,6 @@ module.exports = {
         "WebWindow": false,
         "Window": false,
         "XMLHttpRequest": false,
-        "console": false,
         "location": false,
         "print": false
     },
@@ -67,7 +66,6 @@ module.exports = {
         "keyword-spacing": ["error", { "before": true, "after": true }],
         "max-len": ["error", 128, 4],
         "new-cap": ["error"],
-        'no-console': 'off',
         "no-floating-decimal": ["error"],
         //"no-magic-numbers": ["error", { "ignore": [0, 1], "ignoreArrayIndexes": true }],
         "no-multiple-empty-lines": ["error"],
