@@ -1,4 +1,6 @@
 (function() {
+    var TELEPORT_SOUND_VOLUME = 0.40;
+
     var teleportSound;
     var portalDestination;
     var position;
@@ -9,7 +11,7 @@
             if (!position) {
                 getProps(entityID);
             }
-            Audio.playSound(teleportSound, { position: position, volume: 0.40, localOnly: true });
+            Audio.playSound(teleportSound, { position: position, volume: TELEPORT_SOUND_VOLUME, localOnly: true });
         }
     }
 
