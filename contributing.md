@@ -32,6 +32,7 @@ Contributing
 8. Submit a pull request
 
   *You can follow [GitHub's guide](https://help.github.com/articles/creating-a-pull-request) to find out how to create a pull request.*
+  In your pull request, please include a brief test plan that can be run to validate the changes that you've made in your PR.
 
 LFS
 ===
