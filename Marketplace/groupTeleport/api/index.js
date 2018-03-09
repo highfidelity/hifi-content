@@ -20,7 +20,7 @@ const requestPromise = require('request-promise-native');
 const crypto = require('crypto');
 const {USERS_TABLE, GROUPS_TABLE, IS_OFFLINE} = process.env;
 
-const DEBUG = true;
+const DEBUG = false;
 
 let dynamoDb;
 
@@ -36,6 +36,9 @@ if (IS_OFFLINE === 'true') {
 // time a group guide has to wait before they can overtake a group in milliseconds
 // build in for security, we don't want a group jump around between two domains over and over
 const MIN_WAIT_OVERTAKE_MS = 10000;
+
+
+const MAX_GROUP_INACTIVE_LIST_TIME_MS = 10 /* min */ * 60 /* sec/min */ * 1000 /* ms/sec */;
 
 const DEFAULT_SALT_LENGTH = 128;
 const DEFAULT_HASHING_ITERATIONS = 10000;
@@ -121,15 +124,19 @@ app.post('/groups', (request, response) => {
                     return;
                 }
                 let mappedGroups = result.Items.filter(function (group) {
-                    return group.public ||
-                        (group.followerUsernames.length === 0 || group.followerUsernames.indexOf(username) !== -1) ||
-                        (isLoggedIn && group.authorizedGuides.indexOf(username) !== -1);
+                    let groupTimedOut = (Date.now() - group.lastUpdate) > MAX_GROUP_INACTIVE_LIST_TIME_MS;
+                    console.log('groupTimedOut = ' + groupTimedOut ? 'true' : 'false');
+                    return (!groupTimedOut && (group.public || (group.followerUsernames.length === 0 ||
+                            group.followerUsernames.indexOf(username) !== -1))) ||
+                        (isLoggedIn && (group.authorizedGuides.indexOf(username) !== -1 || group.creator === username));
                 }).map(function (group) {
+                    let isCreator = group.creator === username;
                     return {
                         groupName: group.groupName,
                         public: group.public,
                         passwordProtected: !!group.hashedPassword,
-                        isGuide: isLoggedIn && group.authorizedGuides.indexOf(username) !== -1
+                        isGuide: isLoggedIn && (group.authorizedGuides.indexOf(username) !== -1 || isCreator),
+                        isCreator
                     };
                 }).sort(function (groupA, groupB) {
                     return (groupA.isGuide === groupB.isGuide) ? groupA.groupName > groupB.groupName : groupA.isGuide ? -1 : 1;
@@ -363,12 +370,14 @@ app.post('/getPosition', (request, response) => {
                 return;
             }
             let guideSessionUUID = group.guide.hifiSessionUUID;
-            let {orientation, position, location} = group;
+            let {orientation, position, location, autoFollow, lastSummon} = group;
             resolve({
                 guideSessionUUID,
                 location,
                 position,
-                orientation
+                orientation,
+                autoFollow,
+                lastSummon
             });
         });
     }).then((positionData) => {
@@ -381,11 +390,10 @@ app.post('/getPosition', (request, response) => {
             error
         });
     });
-
 });
 
 app.post('/updatePosition', (request, response) => {
-    let {username, password, groupName, hifiSessionUUID, location, position, orientation} = request.body;
+    let {username, password, groupName, hifiSessionUUID, location, position, orientation, autoFollow, summon} = request.body;
     new Promise((resolve, reject) => {
         isUserPasswordCorrect(username, password, (isLoggedIn) => {
             if (!isLoggedIn) {
@@ -407,7 +415,7 @@ app.post('/updatePosition', (request, response) => {
                     return;
                 }
                 let group = result.Item;
-                if (!group || group.authorizedGuides.indexOf(username) === -1) {
+                if (!group || (group.authorizedGuides.indexOf(username) === -1 && group.creator !== username)) {
                     reject('group auth failed');
                     return;
                 }
@@ -427,23 +435,32 @@ app.post('/updatePosition', (request, response) => {
                     return;
                 }
 
+                let updateExpression =  'SET guide = :guide, #location = :location, #position = :position, ' +
+                    'orientation = :orientation, lastUpdate = :lastUpdate, autoFollow = :autoFollow';
+                let expressionAttributeValues =  { // a map of substitutions for all attribute values
+                    ':guide': {
+                        username,
+                        hifiSessionUUID
+                    },
+                    ':location': location,
+                    ':position': position,
+                    ':orientation': orientation,
+                    ':lastUpdate': currentTimeMs,
+                    ':autoFollow': autoFollow
+                };
+
+                if (summon) {
+                    updateExpression += ', lastSummon = :lastSummon';
+                    expressionAttributeValues[':lastSummon'] = Date.now();
+                }
+
                 dynamoDb.update({
                     TableName: GROUPS_TABLE,
                     Key: {
                         groupName,
                     },
-                    UpdateExpression: 'SET guide = :guide, #location = :location, #position = :position, ' +
-                    'orientation = :orientation, lastUpdate = :lastUpdate',
-                    ExpressionAttributeValues: { // a map of substitutions for all attribute values
-                        ':guide': {
-                            username,
-                            hifiSessionUUID
-                        },
-                        ':location': location,
-                        ':position': position,
-                        ':orientation': orientation,
-                        ':lastUpdate': currentTimeMs
-                    },
+                    UpdateExpression: updateExpression,
+                    ExpressionAttributeValues: expressionAttributeValues,
                     ExpressionAttributeNames: {
                         '#location': 'location',
                         '#position': 'position'
@@ -460,6 +477,70 @@ app.post('/updatePosition', (request, response) => {
         });
     }).then(() => {
         response.send({
+            success: true
+        });
+    }).catch((error) => {
+        response.json({
+            success: false,
+            error
+        });
+    });
+});
+
+app.post('/createGroup', (request, response) => {
+    let {username, password, groupName, groupPassword, followerUsernames, authorizedGuides} = request.body;
+    // public is a reserved word in javascript
+    let isPublic = request.body.public;
+    new Promise((resolve, reject) => {
+        isUserPasswordCorrect(username, password, (isLoggedIn) => {
+            if (!isLoggedIn) {
+                reject('password failed');
+                return;
+            }
+            resolve();
+        });
+    }).then(() => {
+        return new Promise((resolve, reject) => {
+            dynamoDb.get({
+                TableName: GROUPS_TABLE,
+                Key: {
+                    groupName
+                }
+            }, (error, result) => {
+                if (error) {
+                    reject('Could not get group');
+                    return;
+                }
+                if (result.Item) {
+                    reject(`Group ${groupName} already exists`);
+                    return;
+                }
+                let newGroup = {
+                    groupName,
+                    public: !!isPublic,
+                    creator: username,
+                    authorizedGuides
+                };
+                if (!newGroup.public) {
+                    newGroup.hashedPassword = hashPassword(groupPassword);
+                    newGroup.followerUsernames = followerUsernames ? followerUsernames : [];
+                }
+                dynamoDb.put({
+                    TableName: GROUPS_TABLE,
+                    Item: newGroup
+                }, (error) => {
+                    if (error) {
+                        console.log(error);
+                        reject('Could not create group');
+                        return;
+                    }
+                    resolve();
+                });
+            });
+        });
+    }).then(() => {
+        // when all succeeds
+        response.json({
             success: true
         });
     }).catch((error) => {
