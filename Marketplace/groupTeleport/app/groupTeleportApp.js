@@ -8,7 +8,7 @@
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* globals Account, MyAvatar, Script, Settings, Tablet, Uuid, Vec3, Quat, Messages, AvatarList */
+/* globals Account, MyAvatar, Script, Settings, Tablet, Uuid, Vec3, Quat, Messages, AvatarList, location:true */
 
 var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 
@@ -162,7 +162,9 @@ function attemptTeleportToGroup(force) {
             // TODO: check hostname
             var position = response.position;
 
-            if (remotelySummoned || location.placename !== response.location || Vec3.distance(position, MyAvatar.position) > MINIMUM_FOLLOW_DISTANCE) {
+            if (remotelySummoned || location.placename !== response.location ||
+                Vec3.distance(position, MyAvatar.position) > MINIMUM_FOLLOW_DISTANCE) {
+
                 position = getOffsetPositionFromTarget(position, response.orientation);
                 location = 'hifi://' + response.location + '/' + position.x + ',' + position.y + ',' + position.z;
                 MyAvatar.orientation = response.orientation;
@@ -255,7 +257,7 @@ function onWebEventReceived(webEvent) {
             break;
         case 'follow':
             groupPassword = eventData.groupPassword;
-            Settings.setValue(SETTING_LAST_GROUP_SECRET, groupPassword)
+            Settings.setValue(SETTING_LAST_GROUP_SECRET, groupPassword);
             changeGroup(eventData.groupName);
             changeMode(MODE.FOLLOWING);
             refresh();
