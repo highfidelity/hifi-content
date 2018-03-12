@@ -12,7 +12,7 @@
 
     // Trick to make the entity script stop running the app when it is loaded standalone (from MarketPlace)
     Messages.sendMessage(WEAR_RUN_STANDALONE_CHANNEL, '');
-    var createWearApp = Script.require('./wearApp.js?145');
+    var createWearApp = Script.require('./wearApp.js');
     var wearAppInstance = createWearApp();
     Script.scriptEnding.connect(wearAppInstance.cleanUp);
 })();
