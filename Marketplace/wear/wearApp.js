@@ -282,7 +282,6 @@ module.exports = (function() {
 
     button.clicked.connect(function() {
         if (isAppActive) {
-            print("closing app");
             tablet.gotoHomeScreen();
             onTabletScreenChanged();
             return;
