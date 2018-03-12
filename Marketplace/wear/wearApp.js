@@ -6,6 +6,7 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+/* global module */
 
 module.exports = (function() {
     var APP_NAME = 'WEAR';
@@ -281,7 +282,9 @@ module.exports = (function() {
 
     button.clicked.connect(function() {
         if (isAppActive) {
-            // skipping, app is already active
+            print("closing app");
+            tablet.gotoHomeScreen();
+            onTabletScreenChanged();
             return;
         }
 
