@@ -8,6 +8,13 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
+// Buttons are named according to their type of function: open, close, hold, push in order, or simultaneous.
+// The name also includes a number that must match the gate it is meant to control. A button changes color according to 
+// its state and can only be pressed while green. Yellow indicates pressed down and red is disabled. A button should not 
+// be parented or have children unless it is part of a "press in order" set in which case the child button must be in a 
+// yellow state before its parent can be pressed. The last button of the series will not have a parentID and it 
+// will open the gate. Buttons that must be held simultaneously have a sister button with the same name that must be in 
+// a yellow state in order to open the gate. A "hold" must be held continuously to open the gate.
 
 /* global Pointers*/
 
