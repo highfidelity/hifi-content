@@ -1,0 +1,26 @@
+{
+    "Entities": [
+        {
+            "collisionless": 1,
+            "dimensions": {
+                "x": 0.2,
+                "y": 0.4,
+                "z": 0.01
+            },
+            "ignoreForCollisions": 1,
+            "modelURL": "https://hifi-content.s3.amazonaws.com/patrickmanalich/mirrorFolder/models/mirror.fbx",
+            "name": "mirror",
+            "rotation": {
+                "w": 1,
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "script": "http://mpassets.highfidelity.com/397aeebc-dab5-4610-b9fd-94ce3cc56c44-v1/mClient.js",
+            "serverScripts": "http://mpassets.highfidelity.com/397aeebc-dab5-4610-b9fd-94ce3cc56c44-v1/mServer.js",
+            "shapeType": "simple-hull",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        }
+    ]
+}
