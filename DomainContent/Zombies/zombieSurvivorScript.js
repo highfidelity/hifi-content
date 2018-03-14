@@ -21,7 +21,7 @@ var RUN_CONTROLS_THRESHOLD = 0.9;
 var ADDITIONAL_BODY_OFFSET = {x:-0.097595, y:-0.018677, z:-0.088746};
 var BITE_ANIMATION = "atp:/biteReaction.fbx";
 var BITE_ANIMATION_START_FRAME = 0;
-var BITE_ANIMATION_BLOOD_KEYFRAME = 10;
+var BITE_ANIMATION_BLOOD_KEYFRAME = 0;
 var BITE_ANIMATION_END_FRAME = 138;
 var BITE_ANIMATION_FPS = 60;
 var BLOOD_HAZE = "atp:/BloodCircle_169.png";
@@ -33,6 +33,8 @@ var HEALTH_VERTICAL_OFFSET_OVERLAY = -0.25;
 var HEALTH_HORIZONTAL_OFFSET_OVERHEAD = 0.1;
 var HEALTH_HORIZONTAL_OFFSET_OVERLAY = 0.1;
 var HEALTH_OFFSET_WRIST = { x:0, y:0.03, z:0 };
+var HEALTH_SIZE_OVERHEAD = 0.1;
+var HEALTH_SIZE_WRIST = 0.04;
 var BRAIN_FULL_URL = "atp:/brainFull.png";
 var BRAIN_FULL_TEXTURE = "{\"tex.picture\":\"atp:/brainFull.png\"}";
 var BRAIN_DEAD_URL = "atp:/brainDead.png";
@@ -40,7 +42,7 @@ var BRAIN_DEAD_TEXTURE = "{\"tex.picture\":\"atp:/brainDead.png\"}";
 var DEBUG_BITE_KEY = "b";
 var DEBUG_RESET_HEALTH_KEY = "h";
 var DEBUG_RUN_KEY = "r";
-var DEBUG_ENABLED = true;
+var DEBUG_ENABLED = false;
 
 var currentVelocity = 0;
 var previousLeftDotProduct = 0;
@@ -72,16 +74,11 @@ function onMessageReceived(channel, message, senderID) {
     var type = messageData['type'];
     var biterID = messageData['biterID'];
     var victimID = messageData['victimID'];
-    if (type === "receiveBite") {
+    if (type === "receiveBite" && victimID === MyAvatar.sessionUUID) {
         if (DEBUG_ENABLED) {
-            print("receiveBite message received from biter " + biterID + " biting " + victimID);
+            print("receiveBite message received from biter " + biterID);
         }
-        if (victimID === MyAvatar.sessionUUID) {
-            if (DEBUG_ENABLED) {
-                print("Bitten by zombie " + biterID);
-            }
-            biteReceived();
-        }
+        biteReceived();
     }
 }
 
@@ -122,7 +119,9 @@ function biteReceived() {
         Overlays.deleteOverlay(bloodHaze);
         bloodHaze = undefined;
         if (newBites >= BITES_REQUIRED) {
-            Window.location = DEAD_ZONE_RUST;
+            if (!DEBUG_ENABLED) {
+                Window.location = DEAD_ZONE_RUST;
+            }
             resetHealth();
             if (DEBUG_ENABLED) {
                 print("DEAD - teleport to dead zone - " + BITES_SETTING_NAME + " reset back to 0");
@@ -135,11 +134,12 @@ function biteReceived() {
         bloodHaze = Overlays.addOverlay("image3d", {
             alpha: 1,
             drawInFront: true,
-            localPosition: {x: 0, y: 0, z: -0.6 * MyAvatar.sensorToWorldScale},
+            emissive: true,
+            localPosition: {x: 0, y: 0, z: -0.7 * MyAvatar.sensorToWorldScale},
             localRotation: {x: 0, y: 0, z: 0, w: 1},
             parentID: MyAvatar.sessionUUID,
             parentJointIndex: -7,
-            scale: 2.5 * MyAvatar.sensorToWorldScale,
+            scale: 3 * MyAvatar.sensorToWorldScale,
             url: BLOOD_HAZE,
             width: 1920,
             height: 2160        
@@ -280,9 +280,9 @@ function addHealth(deadHealth) {
     var brain = Entities.addEntity({
         clientOnly: 1,
         dimensions: {
-            x: 0.1,
-            y: 0.1,
-            z: 0.0001
+            x: HEALTH_SIZE_OVERHEAD,
+            y: HEALTH_SIZE_OVERHEAD,
+            z: 0.00001
         },
         localPosition: localPositionOverhead,
         modelURL: "https://hifi-content.s3.amazonaws.com/DomainContent/production/default-image-model.fbx",
@@ -297,9 +297,9 @@ function addHealth(deadHealth) {
     var overlayProperties = {
         alpha: 1,
         dimensions: {
-            x: 0.04,
-            y: 0.04,
-            z: 0.04
+            x: HEALTH_SIZE_WRIST,
+            y: HEALTH_SIZE_WRIST,
+            z: HEALTH_SIZE_WRIST
         },
         localPosition: localPositionWrist,
         localRotation: Quat.fromPitchYawRollDegrees(0, 90, 0),
@@ -386,7 +386,7 @@ function init() {
 
     Script.setTimeout(function () {
         initializeHealth();
-    }, 500);
+    }, 2000);
 }
 
 init();

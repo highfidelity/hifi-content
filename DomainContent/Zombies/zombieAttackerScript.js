@@ -20,12 +20,12 @@ var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
 var TRIGGER_THRESHOLD = 0.9;
 var BITE_ANIMATION = "atp:/zombieBite.fbx";
 var BITE_ANIMATION_START_FRAME = 0;
-var BITE_ANIMATION_BLOOD_KEYFRAME = 10;
+var BITE_ANIMATION_BLOOD_KEYFRAME = 0;
 var BITE_ANIMATION_END_FRAME = 160;
 var BITE_ANIMATION_FPS = 60;
 var MSEC_PER_SEC = 1000;
 var DEBUG_BITE_KEY = "b";
-var DEBUG_ENABLED = true;
+var DEBUG_ENABLED = false;
 
 var bloodTargetAvatar;
 var biteAnimationPlaying = false;
@@ -95,8 +95,8 @@ function triggerBite() {
                         "emitRate": 7.5,
                         "emitterShouldTrail": true,
                         "emitSpeed": 0.15,
-                        "lifespan": 1,
-                        "lifetime": 1,
+                        "lifespan": 1.5,
+                        "lifetime": 1.5,
                         "locked": true,
                         "localPosition": localPosition,
                         "particleRadius": 0.2,
