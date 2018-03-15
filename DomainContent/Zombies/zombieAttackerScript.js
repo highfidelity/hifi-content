@@ -8,14 +8,10 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 var CHANNEL_NAME = "ZOMBIE_BITE";
-var SEARCH_RANGE = 3;
+var SEARCH_RANGE = 2;
 var BITE_RANGE = 0.3;
 var BITE_SOUND = SoundCache.getSound("atp:/zombieBite.wav");
 var BITE_SOUND_VOLUME = 0.5;
-var BLOOD_COLOR = { "blue": 7, "green": 7, "red": 138 };
-var BLOOD_PARTICLE_TEXTURE = "atp:/rain.png";
-var BLOOD_HEAD_DIFFERENCE_MULTIPLE = 0.8;
-var BLOOD_Z_OFFSET = 0.15;
 var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
 var TRIGGER_THRESHOLD = 0.9;
 var BITE_ANIMATION = "atp:/zombieBite.fbx";
@@ -29,7 +25,6 @@ var DEBUG_ENABLED = false;
 
 var bloodTargetAvatar;
 var biteAnimationPlaying = false;
-var bloodEffect;
 
 function triggerBite() {
     if (biteAnimationPlaying) {
@@ -66,49 +61,6 @@ function triggerBite() {
                 Script.setTimeout(function () {
                     var targetAvatar = AvatarList.getAvatar(bloodTargetAvatar);
                     var targetHeadPosition = targetAvatar.getJointPosition("Head");
-                    var headDifference = Vec3.length(Vec3.subtract(targetHeadPosition, targetAvatar.position));
-                    var localPosition = { x:0, y:headDifference * BLOOD_HEAD_DIFFERENCE_MULTIPLE, z:BLOOD_Z_OFFSET };
-                    bloodEffect = {
-                        "alpha": 1,
-                        "alphaFinish": 0,
-                        "alphaSpread": 1,
-                        "alphaStart": 1,
-                        "color": BLOOD_COLOR,
-                        "colorFinish": BLOOD_COLOR,
-                        "colorSpread": BLOOD_COLOR,
-                        "colorStart": BLOOD_COLOR,
-                        "dimensions": {
-                            "x": 0.5,
-                            "y": 0.5,
-                            "z": 0.5
-                        },
-                        "emitAcceleration": {
-                            "x": 0,
-                            "y": -2,
-                            "z": 0
-                        },
-                        "emitDimensions": {
-                            "x": 1,
-                            "y": 0.2,
-                            "z": 1
-                        },
-                        "emitRate": 7.5,
-                        "emitterShouldTrail": true,
-                        "emitSpeed": 0.15,
-                        "lifespan": 1.5,
-                        "lifetime": 1.5,
-                        "locked": true,
-                        "localPosition": localPosition,
-                        "particleRadius": 0.2,
-                        "parentID": targetAvatarSessionUUID,
-                        "polarFinish": 0.6981316804885864,
-                        "radiusFinish": 0.2,
-                        "radiusStart": 0,
-                        "speedSpread": 0.3,
-                        "textures": BLOOD_PARTICLE_TEXTURE,
-                        "type": "ParticleEffect"
-                    };
-                    Entities.addEntity(bloodEffect);
                     Audio.playSound(BITE_SOUND, {
                         volume: BITE_SOUND_VOLUME,
                         position: targetHeadPosition

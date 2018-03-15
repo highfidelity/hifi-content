@@ -20,10 +20,11 @@ var TEAM_CONTROL_LABEL = "TEAMS";
 var TEAM_CONTROL_APP_SORT_ORDER = 12;
 var TEAM_CONTROL_CHANNEL = "TEAM_CONTROL_CHANNEL";
 
-var GREEN_TEAM_MARKETPLACE_ID = "eae3d891-8376-446a-aa4b-343b80e51ec4";
-var BLUE_TEAM_MARKETPLACE_ID = "a1b9e0e7-6568-42a5-80fc-74482da38bcd";
-var RED_TEAM_MARKETPLACE_ID = "ce90c695-a98e-4248-876d-651f66c9e6f8";
-var YELLOW_TEAM_MARKETPLACE_ID = "ce90c695-a98e-4248-876d-651f66c9e6f8";
+var GREEN_TEAM_MARKETPLACE_ID = "7241253f-1957-47a0-9856-2b16bd252075";
+var BLUE_TEAM_MARKETPLACE_ID = "1170a3f7-bb36-4aeb-a5a1-0c0c4a5ed0ed";
+var RED_TEAM_MARKETPLACE_ID = "c1d3a80a-3ae3-4eab-8549-57401d82b247";
+var YELLOW_TEAM_MARKETPLACE_ID;
+var NO_TEAM_MARKETPLACE_ID = "ffffffff-ffff-ffff-ffff-ffffffffffff";
 
 var onTeamControlScreen = false;
 var button;
@@ -65,6 +66,8 @@ function onWebEventReceived(event) {
             marketplaceID = RED_TEAM_MARKETPLACE_ID;
         } else if (teamName === "Yellow Team") {
             marketplaceID = YELLOW_TEAM_MARKETPLACE_ID;
+        } else if (teamName === "No Team") {
+            marketplaceID = NO_TEAM_MARKETPLACE_ID;
         }
         Messages.sendMessage(TEAM_CONTROL_CHANNEL, JSON.stringify({marketplaceID: marketplaceID}));
     }

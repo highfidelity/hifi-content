@@ -25,6 +25,10 @@ var BITE_ANIMATION_BLOOD_KEYFRAME = 0;
 var BITE_ANIMATION_END_FRAME = 138;
 var BITE_ANIMATION_FPS = 60;
 var BLOOD_HAZE = "atp:/BloodCircle_169.png";
+var BLOOD_COLOR = { "blue": 7, "green": 7, "red": 138 };
+var BLOOD_PARTICLE_TEXTURE = "atp:/rain.png";
+var BLOOD_HEAD_DIFFERENCE_MULTIPLE = 0.8;
+var BLOOD_Z_OFFSET = 0.15;
 var MSEC_PER_SEC = 1000;
 var BITES_REQUIRED = 3;
 var BITES_SETTING_NAME = "ZombieBiteCount";
@@ -60,7 +64,7 @@ var rightStrideForwardCount = 0;
 var previousRightStrideForwardCount = 0;
 var rightStrideBackwardCount = 0;
 var biteAnimationPlaying = false;
-var bloodHaze = undefined;
+var bloodHaze;
 var healthOverhead = [];
 var healthWrist = [];
 var localPositionOverhead;
@@ -104,7 +108,7 @@ function biteReceived() {
     newBites++;
     Settings.setValue(BITES_SETTING_NAME, newBites);
     if (DEBUG_ENABLED) {
-        print(BITES_SETTING_NAME + " setting changed from " + oldBites + " to " + newBites);
+        print("biteReceived - " + BITES_SETTING_NAME + " setting changed from " + oldBites + " to " + newBites);
     }
 
     var frameCount = BITE_ANIMATION_END_FRAME - BITE_ANIMATION_START_FRAME;
@@ -117,15 +121,13 @@ function biteReceived() {
         biteAnimationPlaying = false;
         MyAvatar.restoreAnimation();
         Overlays.deleteOverlay(bloodHaze);
-        bloodHaze = undefined;
         if (newBites >= BITES_REQUIRED) {
             if (!DEBUG_ENABLED) {
                 Window.location = DEAD_ZONE_RUST;
+            } else {
+                print("DEAD - " + BITES_SETTING_NAME + " reset back to 0");
             }
             resetHealth();
-            if (DEBUG_ENABLED) {
-                print("DEAD - teleport to dead zone - " + BITES_SETTING_NAME + " reset back to 0");
-            }
         }
     }, timeOut);
 
@@ -144,6 +146,52 @@ function biteReceived() {
             width: 1920,
             height: 2160        
         });
+        
+        var headPosition = MyAvatar.getJointPosition("Head");
+        var headDifference = Vec3.length(Vec3.subtract(headPosition, MyAvatar.position));
+        var bloodLocalPosition = { x:0, y:headDifference * BLOOD_HEAD_DIFFERENCE_MULTIPLE, z:BLOOD_Z_OFFSET };
+        var bloodPosition = Vec3.sum(MyAvatar.position, bloodLocalPosition);
+        var bloodEffect = {
+            alpha: 1,
+            alphaFinish: 0,
+            alphaSpread: 1,
+            alphaStart: 1,
+            clientOnly: 1,
+            color: BLOOD_COLOR,
+            colorFinish: BLOOD_COLOR,
+            colorSpread: BLOOD_COLOR,
+            colorStart: BLOOD_COLOR,
+            dimensions: {
+                x: 0.5,
+                y: 0.5,
+                z: 0.5
+            },
+            emitAcceleration: {
+                x: 0,
+                y: -2,
+                z: 0
+            },
+            emitDimensions: {
+                x: 1,
+                y: 0.2,
+                z: 1
+            },
+            emitRate: 7.5,
+            emitterShouldTrail: true,
+            emitSpeed: 0.15,
+            lifespan: 1.5,
+            lifetime: 1.5,
+            locked: true,
+            particleRadius: 0.2,
+            polarFinish: 0.6981316804885864,
+            position: bloodPosition,
+            radiusFinish: 0.2,
+            radiusStart: 0,
+            speedSpread: 0.3,
+            textures: BLOOD_PARTICLE_TEXTURE,
+            type: "ParticleEffect"
+        };
+        Entities.addEntity(bloodEffect);
     }, bloodTimeOut);
 
     loseHealth();

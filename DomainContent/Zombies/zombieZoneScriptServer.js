@@ -28,9 +28,11 @@
         var messageData = JSON.parse(message);
         var userDataProperties = JSON.parse(Entities.getEntityProperties(_this.entityID, 'userData').userData);
         userDataProperties.marketplaceID = messageData['marketplaceID'];
+        Entities.editEntity(_this.entityID, {locked: false});
         Entities.editEntity(_this.entityID, {
             userData: JSON.stringify(userDataProperties)
         });
+        Entities.editEntity(_this.entityID, {locked: true});
         print("updateTeamControl - marketplaceID updated to " + userDataProperties.marketplaceID);
     };
 

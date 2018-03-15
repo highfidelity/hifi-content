@@ -19,7 +19,7 @@
     var WEARABLE_SEARCH_RADIUS = 10;
 
     var _foundEntityID = -1;
-    var _passMarketplaceID;
+    var _passMarketplaceID = undefined;
     var _userdataProperties;
     var _backupLocation;
 
@@ -46,6 +46,9 @@
     };
 
     var searchForMatchingMarketplaceItem = function() {
+        if (_passMarketplaceID === undefined) {
+            return;
+        }
         Entities.findEntitiesByType('Model', MyAvatar.position, WEARABLE_SEARCH_RADIUS).forEach(function(entityID) {
             var properties = Entities.getEntityProperties(entityID, ['marketplaceID', 'certificateID', 'parentID']);
             if (properties.marketplaceID === _passMarketplaceID && properties.parentID === MyAvatar.sessionUUID){
