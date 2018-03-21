@@ -1,0 +1,139 @@
+<!--
+//  zombieStageManager.html
+//
+//  Created by Elisa Lupin-Jimenez
+//  Copyright 2018 High Fidelity, Inc.
+//
+//  Based on https://hifi-content.s3.amazonaws.com/faye/tablet-sample-app/quick_start_template.html
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
+<html>
+    <head>
+        <title>Zombie Locations</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                width: 100%;
+                font-family: 'Raleway', sans-serif;
+                color: white;
+                background: linear-gradient(#2b2b2b, #0f212e);
+            }
+
+            .top-bar {
+                height: 90px;
+                background: linear-gradient(#2b2b2b, #1e1e1e);
+                font-weight: bold;
+                padding-left: 30px;
+                padding-right: 30px;
+                display: flex;
+                align-items: center;
+                position: fixed;
+                width: 480px;
+                top: 0;
+                z-index: 1;
+            }
+
+            .content {
+                margin-top: 90px;
+                padding: 25px;
+            }
+
+            input[type=button] {
+                font-family: 'Raleway';
+                font-weight: bold;
+                font-size: 13px;
+                text-transform: uppercase;
+                vertical-align: top;
+                height: 25px;
+                min-width: 125px;
+                padding: 0px 18px;
+                margin-right: 6px;
+                border-radius: 5px;
+                border: none;
+                color: #fff;
+                background-color: #000;
+                background: linear-gradient(#343434 20%, #000 100%);
+                cursor: pointer;
+            }
+
+            input[type=button]:enabled:hover {
+                background: linear-gradient(#000, #000);
+                border: none;
+            }
+
+            input[type=button]:active {
+                background: linear-gradient(#343434, #343434);
+            }
+
+            input[type=button]:disabled {
+                color: #252525;
+                background: linear-gradient(#575757 20%, #252525 100%);
+            }
+
+            input[type=button][pressed=pressed] {
+                color: #00b4ef;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="top-bar">
+            <h2>Zombie Locations</h2>
+        </div>
+        <div class="content">
+            <h4>Pick your zombie color</h4>
+            <p><input type="button" class="color" value="Red" style="background: #e5110d;">
+                <input type="button" class="color" value="Purple" style="background: #af0de5;">
+                <input type="button" class="color" value="Pink" style="background: #e50dd7;"></p>
+            <p><input type="button" class="color" value="Teal" style="background: #049da3;">
+                <input type="button" class="color" value="Brick" style="background: #8a3335;">
+                <input type="button" class="color" value="Maroon" style="background: #800000;"></p>
+            <p><input type="button" class="color" value="Boardwalk" style="background: #ef5b0b;">
+                <input type="button" class="color" value="Generator" style="background: #0b1bef;">
+                <input type="button" class="color" value="Plateau" style="background: #0bef5f;"></p>
+            <p><input type="button" class="color" value="Citywalk" style="background: #bc9d03;"></p>
+            <h4>Locations:</h4>
+            <p><input type="button" class="location" value="1"></p>
+            <p><input type="button" class="location" value="2"></p>
+            <p><input type="button" class="location" value="3"></p>
+            <p><input type="button" class="location" value="4"></p>
+            <p><input type="button" class="location" value="5" style="display: none"></p>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script>
+            function main() {
+                var selectedColor = "";
+                $(".color").click(function() {
+                    console.log(this.value + " color selected");
+                    selectedColor = this.value;
+                    if (selectedColor === "Red") {
+                        $("[value*='5']").show();
+                    } else {
+                        $("[value*='5']").hide();
+                    }
+                });
+                $(".location").click(function() {
+                    if (selectedColor !== "") {
+                        console.log(this.value + " location selected");
+                        var clickEvent = {
+                            "type": "click",
+                            "color": selectedColor,
+                            "data": this.value
+                        };
+                        EventBridge.emitWebEvent(JSON.stringify(clickEvent));
+                    } else {
+                        console.log("color has not been selected");
+                    }
+                });
+            }
+
+            $(document).ready(main);
+        </script>
+    </body>
+</html>
