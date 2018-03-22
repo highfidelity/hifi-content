@@ -98,11 +98,11 @@
                 <input type="button" class="color" value="Plateau" style="background: #0bef5f;"></p>
             <p><input type="button" class="color" value="Citywalk" style="background: #bc9d03;"></p>
             <h4>Locations:</h4>
-            <p><input type="button" class="location" value="1" ></p>
-            <p><input type="button" class="location" value="2" ></p>
-            <p><input type="button" class="location" value="3" ></p>
-            <p><input type="button" class="location" value="4" ></p>
-            <p><input type="button" class="location" value="5" style="display: hidden"></p>
+            <p><input type="button" class="location" value="1" style="display: none"></p>
+            <p><input type="button" class="location" value="2" style="display: none"></p>
+            <p><input type="button" class="location" value="3" style="display: none"></p>
+            <p><input type="button" class="location" value="4" style="display: none"></p>
+            <p><input type="button" class="location" value="5" style="display: none"></p>
         </div>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -114,21 +114,29 @@
                     console.log(this.value + " color selected");
                     selectedColor = this.value;
                     if (selectedColor === "Red") {
+                        $("[value*='1']").show();
+                        $("[value*='2']").show();
                         $("[value*='3']").show();
                         $("[value*='4']").show();
                         $("[value*='5']").show();
                     } else if (selectedColor === "Maroon" || selectedColor === "Boardwalk" ||
                               selectedColor === "Citywalk") {
+                                $("[value*='1']").show();
+                                $("[value*='2']").show();
                                 $("[value*='3']").show();
                                 $("[value*='4']").hide();
                                 $("[value*='5']").hide();
                                 
                     } else if (selectedColor === "Plateau") {
+                        $("[value*='1']").show();
+                        $("[value*='2']").show();
                         $("[value*='3']").hide();
                         $("[value*='4']").hide();
                         $("[value*='5']").hide();
 
                     } else {
+                        $("[value*='1']").show();
+                        $("[value*='2']").show();
                         $("[value*='3']").show();
                         $("[value*='4']").show();
                         $("[value*='5']").hide();
