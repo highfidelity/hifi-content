@@ -20,12 +20,14 @@
             <div style="margin-top: 21px; margin-bottom: 10px; text-align: center;">
                 <img style="height: 30px; display: inline-block; padding-right: 15px;
                         padding-bottom: 12px; vertical-align: middle;" src="jsonPack.png" />
-                <h1 style="display: inline-block;">Wearable JSON Packager</h1>
-                <h3 style="display: inline-block;">Select the item you want to populate the entityID field.
-                <br>Select the joint your item should attach to.
-                <br>'Package JSON' to export the item as a JSON.</h3>
+                <h1 style="display: inline-block;">Wearable JSON Packager</h1><hr>
+                <div style = "text-align: justify">
+                <h3>To use:</h3><br>
+                <text style="display: inline-block;">1. Click the item you want to populate the entityID field. This should be an entity that has a Marketplace URL (http://mpassets...) as the model URL.
+                <br>2. Select the joint your item should attach to. Joints that specify a left or right side will be exported to work with both sides.
+                <br>3. 'Package JSON' to export the item as a JSON.</text>
+                </div>
             </div>
-            <hr> <br>
             <div id="properties">
                 <fieldset class="property xyz">
                     <legend>Entity ID to package</legend>
@@ -48,20 +50,32 @@
                                 <li>Spine</li>
                                 <li>Spine1</li>
                                 <li>Spine2</li>
-                                <li>[LR]Shoulder</li>
-                                <li>[LR]Arm</li>
-                                <li>[LR]ForeArm</li>
-                                <li>[LR]Hand</li>
-                                <li>[LR]HandThumb1</li>
-                                <li>[LR]HandIndex1</li>
-                                <li>[LR]HandMiddle1</li>
-                                <li>[LR]HandRing1</li>
-                                <li>[LR]HandPinky1</li>
-                                <li>[LR]UpLeg</li>
-                                <li>[LR]Leg</li>
-                                <li>[LR]Foot</li>
-                                <li>[LR]ToeBase</li>
-                                <li>[LR]Toe_End</li>
+                                <li>LeftShoulder</li>
+                                <li>RightShoulder</li>
+                                <li>LeftArm</li>
+                                <li>RightArm</li>
+                                <li>LeftForeArm</li>
+                                <li>RightForeArm</li>
+                                <li>LeftHandThumb1</li>
+                                <li>RightHandThumb1</li>
+                                <li>LeftHandIndex1</li>
+                                <li>RightHandIndex1</li>
+                                <li>LeftHandMiddle1</li>
+                                <li>RightHandMiddle1</li>
+                                <li>LeftHandRing1</li>
+                                <li>RightHandRing1</li>
+                                <li>LeftHandPinky1</li>
+                                <li>RightHandPinky1</li>
+                                <li>LeftUpLeg</li>
+                                <li>RightUpLeg</li>
+                                <li>LeftLeg</li>
+                                <li>RightLeg</li>
+                                <li>LeftFoot</li>
+                                <li>RightFoot</li>
+                                <li>LeftToeBase</li>
+                                <li>RightToeBase</li>
+                                <li>LeftToe_End</li>
+                                <li>RightToe_End</li>
                             </div>
                         </ul>
                     </div>
@@ -69,13 +83,29 @@
                 <br><br><br>
                 <input type="submit" style="margin-left: 25%; margin-right: auto; width: 230px; min-height: 40px;"
                         class="blueButton" value="Package JSON">
-            </div>
+            </div><br>
+            <hr>
+            <text id="warning" style = "color:red; display:none">
+                The item you selected does not appear to be a marketplace asset. Please upload your model to Marketplace and use that URL to package your wearable.
+            </text>
+            <text id="joint-warning" style = "color:red; display:none">
+                    You must select a joint that your wearable can be used with.
+            </text>
             <script>
                 var selectedJoint = null;
                 $(document).ready(function(){
                         $(".dropdown-menu li").click(function(){
                             $("#selected").text($(this).text());
                             selectedJoint = $(this).text();
+                            if ($(".id").val() !== "") {
+                                // Try to adjust the entity's position
+                                var entityEvent = {
+                                    type : "move-entity",
+                                    entityID: $(".id").val(),
+                                    joint: selectedJoint
+                                };
+                                EventBridge.emitWebEvent(JSON.stringify(entityEvent));
+                            }
                         });
                     });
                 
@@ -105,7 +135,16 @@
                             EventBridge.emitWebEvent(JSON.stringify(clickEvent));
                         });
                         EventBridge.scriptEventReceived.connect(function(scriptEvent){
-                            $(".id").val(scriptEvent);
+                            if (scriptEvent === "display-warning-modelURL") {
+                                $("#warning").show();
+                            } else if (scriptEvent === "display-warning-joint-selection") {
+                                $("#joint-warning").show();
+                            } else if (scriptEvent === "hide-warning") {
+                                $("#warning").hide();
+                                $("#joint-warning").hide();
+                            } else {
+                                $(".id").val(scriptEvent);
+                            }
                         });
                     }
                     $(document).ready(main);
