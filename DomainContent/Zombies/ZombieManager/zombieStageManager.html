@@ -119,21 +119,18 @@
                         $("[value*='3']").show();
                         $("[value*='4']").show();
                         $("[value*='5']").show();
-                    } else if (selectedColor === "Maroon" || selectedColor === "Boardwalk" ||
-                              selectedColor === "Citywalk") {
-                                $("[value*='1']").show();
-                                $("[value*='2']").show();
-                                $("[value*='3']").show();
-                                $("[value*='4']").hide();
-                                $("[value*='5']").hide();
-                                
+                    } else if (selectedColor === "Maroon" || selectedColor === "Boardwalk" || selectedColor === "Citywalk") {
+                        $("[value*='1']").show();
+                        $("[value*='2']").show();
+                        $("[value*='3']").show();
+                        $("[value*='4']").hide();
+                        $("[value*='5']").hide();
                     } else if (selectedColor === "Plateau") {
                         $("[value*='1']").show();
                         $("[value*='2']").show();
                         $("[value*='3']").hide();
                         $("[value*='4']").hide();
                         $("[value*='5']").hide();
-
                     } else {
                         $("[value*='1']").show();
                         $("[value*='2']").show();
@@ -144,7 +141,6 @@
                 });
                 $(".location").click(function() {
                     if (selectedColor !== "") {
-                        console.log(this.value + " location selected");
                         var clickEvent = {
                             "type": "click",
                             "color": selectedColor,
@@ -152,12 +148,9 @@
                         };
                         EventBridge.emitWebEvent(JSON.stringify(clickEvent));
                     } else {
-                        console.log("color has not been selected");
+
                     }
                 });
-            }
-            function showButtonsFromColorData(color) {
-
             }
             $(document).ready(main);
         </script>
