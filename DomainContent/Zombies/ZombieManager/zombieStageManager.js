@@ -55,7 +55,6 @@
             var number = eventJSON.data;
             var color = eventJSON.color;
             var position = zombiePositions.getPosition(color, number, zombiePositions.positions);
-            print("position is: " + JSON.stringify(position));
             if (position !== null) {
                 Window.location.handleLookupString(formatPositionToAddress(position));
             }
