@@ -18,7 +18,7 @@
     var APP_ICON = Script.resolvePath("icon.png");
 
     var TIMEOUT = 2000;
-    var LONG_TIMEOUT = 20000;
+    var RETURN_DISTANCE = 1;
 
     var previousID = 0;
     var listName = "contextOverlayHighlightList";
@@ -26,7 +26,7 @@
 
     var entityIDToExport = "";
 
-    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');    
+    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');  
 
     function handleMousePress(entityID) {
         if (previousID !== entityID) {
@@ -65,7 +65,8 @@
 
     var exportProperties = {
         type: "Model",
-        parentID: MyAvatar.sessionUUID,
+        parentID: "{00000000-0000-0000-0000-000000000001}",
+        owningAvatarID: "{00000000-0000-0000-0000-000000000000}",
         visible: true,
         shapeType: "box",
         collidesWith: "",
@@ -103,44 +104,77 @@
                 print("Failed to export json");
             }
         }
-        Entities.deleteEntity(entityIDToExport);                        
     }
 
     function onWebEventReceived(event) {
         if (typeof(event) === "string") {
             event = JSON.parse(event);
         }
+        if (event.type === "move-entity") {
+            Entities.editEntity(event.entityID, {
+                "parentID" : MyAvatar.sessionUUID,
+                "parentJointIndex" : MyAvatar.getJointIndex(event.joint),
+                "position" : MyAvatar.getJointPosition(event.joint)
+            });
+        }
         if (event.type === "submit" && event.app === "JSON") {
+            tablet.emitScriptEvent("hide-warning");
             var entityID = event.entityID;
-            var joint = event.joint;
-
+            // Collect the rest of the properties we want
             var newExportProperties = exportProperties;
             var newUserDataProperties = baseUserdata;
-    
-            var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script']);
-
-            newUserDataProperties.Attachment.joint = joint;
             
-            newExportProperties.modelURL = properties.modelURL;
-            newExportProperties.dimensions = properties.dimensions;
-            newExportProperties.localDimensions = properties.localDimensions;
-            newExportProperties.parentJointIndex = MyAvatar.jointNames.indexOf(joint);
-            newExportProperties.script = properties.script;
-            newExportProperties.userData = JSON.stringify(newUserDataProperties);
+            // Confirm we have a valid joint 
+            var joint = event.joint;
+            if (joint === null) {
+                tablet.emitScriptEvent("display-warning-joint-selection");
+                return;
+            }
+            if (joint.indexOf("Left") !== -1) {
+                newUserDataProperties.Attachment.joint = "[LR]" + joint.substring(4);
+            } else if (joint.indexOf("Right") !== -1) {
+                newUserDataProperties.Attachment.joint = "[LR]" + joint.substring(5);
+            } else {
+                newUserDataProperties.Attachment.joint = joint;
+            }
+            
 
-            entityIDToExport = Entities.addEntity(newExportProperties, true);
-            Window.saveFileChanged.connect(onFileSaveChanged);
-            Window.saveAsync("Select Where to Save", "", "*.json");
-            Script.setTimeout(function() {
-                Entities.deleteEntity(entityIDToExport);
-            }, LONG_TIMEOUT); 
+            var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script', 'localPosition', 'localRotation']);
+            newExportProperties.modelURL = properties.modelURL;
+
+            if ( newExportProperties.modelURL === undefined || newExportProperties.modelURL.indexOf("mpassets") === -1 ) {
+                tablet.emitScriptEvent("display-warning-modelURL");
+            } else {
+
+                newExportProperties.dimensions = properties.dimensions;
+                newExportProperties.localDimensions = properties.localDimensions;
+                newExportProperties.parentJointIndex = MyAvatar.jointNames.indexOf(joint);
+                newExportProperties.script = properties.script;
+                newExportProperties.localPosition = properties.localPosition;
+                newExportProperties.localRotation = properties.localRotation;
+
+                newExportProperties.userData = JSON.stringify(newUserDataProperties);
+    
+                entityIDToExport = Entities.addEntity(newExportProperties, true);
+                Window.saveFileChanged.connect(onFileSaveChanged);
+                Window.saveAsync("Select Where to Save", "", "*.json");
+                Window.saveFileChanged.connect(function() {
+                    Entities.deleteEntity(entityIDToExport);
+                    Entities.editEntity(entityID, {
+                        'parentID': "{00000000-0000-0000-0000-000000000000}",
+                        'position' : Vec3.sum(MyAvatar.position, Vec3.multiply(Quat.getFront(MyAvatar.orientation), RETURN_DISTANCE))
+                    });
+                });
+            } 
         }
     }
-
     tablet.webEventReceived.connect(onWebEventReceived);
 
     function cleanup() {
         tablet.removeButton(button);
+        Entities.clickReleaseOnEntity.disconnect(handleMousePress);
+        Entities.hoverLeaveEntity.disconnect(handleMouseLeave);
+        tablet.screenChanged.disconnect(maybeExited);
     }
 
     Script.scriptEnding.connect(cleanup);
