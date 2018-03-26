@@ -96,7 +96,7 @@
             <p><input type="button" class="color" value="Boardwalk" style="background: #ef5b0b;">
                 <input type="button" class="color" value="Generator" style="background: #0b1bef;">
                 <input type="button" class="color" value="Plateau" style="background: #0bef5f;"></p>
-            <p><input type="button" class="color" value="Citywalk" style="background: #bc9d03;"></p>
+            <p><input type="button" class="color" value="CityWalk" style="background: #bc9d03;"></p>
             <h4>Locations:</h4>
             <p><input type="button" class="location" value="1" style="display: none"></p>
             <p><input type="button" class="location" value="2" style="display: none"></p>
@@ -108,7 +108,6 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
             function main() {
-                EventBridge.scriptEventReceived.connect(showButtonsFromColorData);
                 var selectedColor = "";
                 $(".color").click(function() {
                     console.log(this.value + " color selected");
@@ -119,7 +118,7 @@
                         $("[value*='3']").show();
                         $("[value*='4']").show();
                         $("[value*='5']").show();
-                    } else if (selectedColor === "Maroon" || selectedColor === "Boardwalk" || selectedColor === "Citywalk") {
+                    } else if (selectedColor === "Maroon" || selectedColor === "Boardwalk" || selectedColor === "CityWalk") {
                         $("[value*='1']").show();
                         $("[value*='2']").show();
                         $("[value*='3']").show();
