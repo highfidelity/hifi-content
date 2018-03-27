@@ -24,7 +24,7 @@
         _this = this;
     };
     
-    var updateTeamControl = function (channel, message, senderID)  {
+    var updateTeamControl = function (channel, message, senderID) {
         var messageData = JSON.parse(message);
         var userDataProperties = JSON.parse(Entities.getEntityProperties(_this.entityID, 'userData').userData);
         userDataProperties.marketplaceID = messageData['marketplaceID'];

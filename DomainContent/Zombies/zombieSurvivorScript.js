@@ -8,17 +8,20 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 var CHANNEL_NAME = "ZOMBIE_BITE";
-var DEAD_ZONE_RUST = "hifi://Rust/-31.67,4989.96,-13.19";
-var MINIMUM_STRIDE_MOVEMENT = 0.015;
+//var DEAD_ZONE_RUST = "hifi://Rust/-31.67,4989.96,-13.19";
+var DEAD_ZONE_EMPTY = "hifi://AvatarIslandDemo/7.25304,-332.286,7.87865";
+var MINIMUM_STRIDE_MOVEMENT = 0.1;
 var MINIMUM_FORWARD_STRIDES = 20;
 var MINIMUM_BACKWARD_STRIDES = 20;
+var STRIDE_MAX_DIFFERENCE = 0.1;
+var STRIDE_EXTREME_LISTS = 5;
+var MAX_STRIDE_COUNT = 80;
 var MAX_VELOCITY = 10;
-var VELOCITY_INCREASE_FACTOR = 60;
+var VELOCITY_INCREASE_FACTOR = 10;
 var VELOCITY_DECREASE = 0.2;
 var VELOCITY_DECREASE_RUNNING = 0.05;
 var RUN_CONTROLS = [Controller.Standard.LeftGrip, Controller.Standard.RightGrip];
 var RUN_CONTROLS_THRESHOLD = 0.9;
-var ADDITIONAL_BODY_OFFSET = {x:-0.097595, y:-0.018677, z:-0.088746};
 var BITE_ANIMATION = "atp:/biteReaction.fbx";
 var BITE_ANIMATION_START_FRAME = 0;
 var BITE_ANIMATION_BLOOD_KEYFRAME = 0;
@@ -26,7 +29,7 @@ var BITE_ANIMATION_END_FRAME = 138;
 var BITE_ANIMATION_FPS = 60;
 var BLOOD_HAZE = "atp:/BloodCircle_169.png";
 var BLOOD_COLOR = { "blue": 7, "green": 7, "red": 138 };
-var BLOOD_PARTICLE_TEXTURE = "atp:/rain.png";
+var BLOOD_PARTICLE_TEXTURE = "atp:/bloodDrip.png";
 var BLOOD_HEAD_DIFFERENCE_MULTIPLE = 0.8;
 var BLOOD_Z_OFFSET = 0.15;
 var MSEC_PER_SEC = 1000;
@@ -34,15 +37,14 @@ var BITES_REQUIRED = 3;
 var BITES_SETTING_NAME = "ZombieBiteCount";
 var HEALTH_VERTICAL_OFFSET_OVERHEAD = 1;
 var HEALTH_VERTICAL_OFFSET_OVERLAY = -0.25;
-var HEALTH_HORIZONTAL_OFFSET_OVERHEAD = 0.1;
+var HEALTH_HORIZONTAL_OFFSET_OVERHEAD = 0.125;
 var HEALTH_HORIZONTAL_OFFSET_OVERLAY = 0.1;
-var HEALTH_OFFSET_WRIST = { x:0, y:0.03, z:0 };
-var HEALTH_SIZE_OVERHEAD = 0.1;
-var HEALTH_SIZE_WRIST = 0.04;
-var BRAIN_FULL_URL = "atp:/brainFull.png";
-var BRAIN_FULL_TEXTURE = "{\"tex.picture\":\"atp:/brainFull.png\"}";
-var BRAIN_DEAD_URL = "atp:/brainDead.png";
-var BRAIN_DEAD_TEXTURE = "{\"tex.picture\":\"atp:/brainDead.png\"}";
+var HEALTH_OFFSET_WRIST = { x:0, y:0.035, z:0 };
+var HEALTH_SIZE_OVERHEAD_MULTIPLIER = 0.25;
+var HEALTH_SIZE_WRIST_MULTIPLIER = 0.1;
+var BRAIN_FULL_MODEL = "atp:/brainFull.fbx";
+var BRAIN_DEAD_MODEL = "atp:/brainDead.fbx";
+var BRAIN_MODEL_DIMENSIONS = { x:0.4732, y:0.2819, z:0.0092 };
 var DEBUG_BITE_KEY = "b";
 var DEBUG_RESET_HEALTH_KEY = "h";
 var DEBUG_RUN_KEY = "r";
@@ -51,17 +53,15 @@ var DEBUG_ENABLED = false;
 var currentVelocity = 0;
 var previousLeftDotProduct = 0;
 var previousRightDotProduct = 0;
-var bodyOffset;
-var additionalBodyOffset;
-var minLeftStride;
-var maxLeftStride;
-var minRightStride;
-var maxRightStride;
+var avatarUp = Vec3.ZERO;
+var avatarRight = Vec3.ZERO;
+var minLeftStrides;
+var maxLeftStrides;
+var minRightStrides;
+var maxRightStrides;
 var leftStrideForwardCount = 0;
-var previousLeftStrideForwardCount = 0;
 var leftStrideBackwardCount = 0;
 var rightStrideForwardCount = 0;
-var previousRightStrideForwardCount = 0;
 var rightStrideBackwardCount = 0;
 var biteAnimationPlaying = false;
 var bloodHaze;
@@ -123,7 +123,8 @@ function biteReceived() {
         Overlays.deleteOverlay(bloodHaze);
         if (newBites >= BITES_REQUIRED) {
             if (!DEBUG_ENABLED) {
-                Window.location = DEAD_ZONE_RUST;
+                //Window.location = DEAD_ZONE_RUST;
+                Window.location = DEAD_ZONE_EMPTY;
             } else {
                 print("DEAD - " + BITES_SETTING_NAME + " reset back to 0");
             }
@@ -197,6 +198,28 @@ function biteReceived() {
     loseHealth();
 }
 
+function getStride(stridesArray) {
+    var strideTotal = 0;
+    for (var i = 0; i < stridesArray.length; i++) {
+        strideTotal += stridesArray[i];
+    }
+    return strideTotal / stridesArray.length;
+}
+
+function resetLeftStride() {
+    maxLeftStrides = [];
+    minLeftStrides = [];
+    leftStrideForwardCount = 0;
+    leftStrideBackwardCount = 0;
+}
+
+function resetRightStride() {
+    maxRightStrides = [];
+    minRightStrides = [];
+    rightStrideForwardCount = 0;
+    rightStrideBackwardCount = 0;
+}
+
 function update() {
     var runControlsHeld = true;
     for (var i = 0; i < RUN_CONTROLS.length; i++) {
@@ -207,14 +230,14 @@ function update() {
     }    
 
     if (runControlsHeld && !biteAnimationPlaying) {
-        if (Vec3.equal(bodyOffset, Vec3.ZERO)) {
-            bodyOffset = Vec3.subtract(MyAvatar.getJointPosition("Body"), MyAvatar.position);
-            additionalBodyOffset = Vec3.sum(bodyOffset, ADDITIONAL_BODY_OFFSET);
+        if (Vec3.equal(avatarUp, Vec3.ZERO)) {
+            avatarUp = Quat.getUp(MyAvatar.orientation);
+            avatarRight = Quat.getRight(MyAvatar.orientation);
         }
 
         var leftHandPosition = Vec3.sum(MyAvatar.position, MyAvatar.getLeftHandPosition());
         var rightHandPosition = Vec3.sum(MyAvatar.position, MyAvatar.getRightHandPosition());
-        var leftPlaneNormal = Vec3.cross(bodyOffset, additionalBodyOffset);
+        var leftPlaneNormal = Vec3.cross(avatarUp, avatarRight);
         var rightPlaneNormal = leftPlaneNormal;
         var toLeftHand = Vec3.subtract(leftHandPosition, MyAvatar.position);
         var leftDotProduct = Vec3.dot(leftPlaneNormal, toLeftHand);
@@ -236,63 +259,138 @@ function update() {
             rightStrideBackwardCount++;
         }
 
-        if (minLeftStride === undefined || leftDotProduct < minLeftStride) {
-            minLeftStride = leftDotProduct;
+        var idx = 0;
+        if (minLeftStrides.length < STRIDE_EXTREME_LISTS) {
+            minLeftStrides.push(leftDotProduct);
+            minLeftStrides.sort(function(a, b) {
+                return a - b;
+            });
+        } else if (leftDotProduct < minLeftStrides[minLeftStrides.length - 1]) {
+            for (idx = 0; idx < minLeftStrides.length; idx++) {
+                if (leftDotProduct < minLeftStrides[idx]) {
+                    minLeftStrides.splice(idx, 0, leftDotProduct);
+                    minLeftStrides.pop();
+                    break;
+                }
+            }
         }
-        if (maxLeftStride === undefined || leftDotProduct > maxLeftStride) {
-            maxLeftStride = leftDotProduct;
+        if (maxLeftStrides.length < STRIDE_EXTREME_LISTS) {
+            maxLeftStrides.push(leftDotProduct);
+            maxLeftStrides.sort(function(a, b) { 
+                return b - a;
+            });
+        } else if (leftDotProduct > maxLeftStrides[maxLeftStrides.length - 1]) {
+            for (idx = 0; idx < maxLeftStrides.length; idx++) {
+                if (leftDotProduct > maxLeftStrides[idx]) {
+                    maxLeftStrides.splice(idx, 0, leftDotProduct);
+                    maxLeftStrides.pop();
+                    break;
+                }
+            }
         }
-        if (minRightStride === undefined || rightDotProduct < minRightStride) {
-            minRightStride = rightDotProduct;
+        if (minRightStrides.length < STRIDE_EXTREME_LISTS) {
+            minRightStrides.push(rightDotProduct);
+            minRightStrides.sort(function(a, b) {
+                return a - b;
+            });
+        } else if (rightDotProduct < minRightStrides[minRightStrides.length - 1]) {
+            for (idx = 0; idx < minRightStrides.length; idx++) {
+                if (rightDotProduct < minRightStrides[idx]) {
+                    minRightStrides.splice(idx, 0, rightDotProduct);
+                    minRightStrides.pop();
+                    break;
+                }
+            }
         }
-        if (maxRightStride === undefined || rightDotProduct > maxRightStride) {
-            maxRightStride = rightDotProduct;
+        if (maxRightStrides.length < STRIDE_EXTREME_LISTS) {
+            maxRightStrides.push(rightDotProduct);
+            maxRightStrides.sort(function(a, b) {
+                return b - a;
+            });
+        } else if (rightDotProduct > maxRightStrides[maxRightStrides.length - 1]) {
+            for (idx = 0; idx < maxRightStrides.length; idx++) {
+                if (rightDotProduct > maxRightStrides[idx]) {
+                    maxRightStrides.splice(idx, 0, rightDotProduct);
+                    maxRightStrides.pop();
+                    break;
+                }
+            }
         }
 
-        if (minLeftStride !== undefined && maxLeftStride !== undefined && 
-            maxLeftStride - minLeftStride > MINIMUM_STRIDE_MOVEMENT && 
+        var maxLeftStride = getStride(maxLeftStrides);
+        var minLeftStride = getStride(minLeftStrides);
+        var maxLeftStrideDifference = Math.abs(leftDotProduct - maxLeftStride);
+        var maxRightStride = getStride(maxRightStrides);
+        var minRightStride = getStride(minRightStrides);
+        var maxRightStrideDifference = Math.abs(rightDotProduct - maxRightStride);
+
+        if (minLeftStrides.length === STRIDE_EXTREME_LISTS && maxLeftStrides.length === STRIDE_EXTREME_LISTS && 
+            maxLeftStride - minLeftStride > MINIMUM_STRIDE_MOVEMENT && maxLeftStrideDifference < STRIDE_MAX_DIFFERENCE &&
             leftStrideForwardCount >= MINIMUM_FORWARD_STRIDES && leftStrideBackwardCount >= MINIMUM_BACKWARD_STRIDES) {
-            var maxLeftStrideDifference = Math.abs(leftDotProduct - maxLeftStride);
-            if (maxLeftStrideDifference > 0 && maxLeftStrideDifference < 0.01) {
-                var strideLengthLeft = maxLeftStride - minLeftStride;
-                var velocityIncreaseLeft = strideLengthLeft * VELOCITY_INCREASE_FACTOR;
-                currentVelocity += velocityIncreaseLeft;
-                if (currentVelocity > MAX_VELOCITY) {
-                    currentVelocity = MAX_VELOCITY;
-                }
-                maxLeftStride = undefined;
-                minLeftStride = undefined;
-                leftStrideForwardCount = 0;
-                leftStrideBackwardCount = 0;
+            var strideLengthLeft = maxLeftStride - minLeftStride;
+            var velocityIncreaseLeft = strideLengthLeft * VELOCITY_INCREASE_FACTOR;
+            currentVelocity += velocityIncreaseLeft;
+            if (currentVelocity > MAX_VELOCITY) {
+                currentVelocity = MAX_VELOCITY;
+            }
+            resetLeftStride();
+            if (DEBUG_ENABLED) {
+                print("********** LEFT STRIDE SUCCESS ********** stride length = " + strideLengthLeft);
             }
         } 
         
-        if (minRightStride !== undefined && maxRightStride !== undefined && 
-            maxRightStride - minRightStride > MINIMUM_STRIDE_MOVEMENT && 
+        if (minRightStrides.length === STRIDE_EXTREME_LISTS && maxRightStrides.length === STRIDE_EXTREME_LISTS && 
+            maxRightStride - minRightStride > MINIMUM_STRIDE_MOVEMENT && maxRightStrideDifference < STRIDE_MAX_DIFFERENCE &&
             rightStrideForwardCount >= MINIMUM_FORWARD_STRIDES && rightStrideBackwardCount >= MINIMUM_BACKWARD_STRIDES) {
-            var maxRightStrideDifference = Math.abs(rightDotProduct - maxRightStride);
-            if (maxRightStrideDifference > 0 && maxRightStrideDifference < 0.01) {
-                var strideLengthRight = maxRightStride - minRightStride;
-                var velocityIncreaseRight = strideLengthRight * VELOCITY_INCREASE_FACTOR;
-                currentVelocity += velocityIncreaseRight;
-                if (currentVelocity > MAX_VELOCITY) {
-                    currentVelocity = MAX_VELOCITY;
-                }
-                maxRightStride = undefined;
-                minRightStride = undefined;
-                rightStrideForwardCount = 0;
-                rightStrideBackwardCount = 0;
+            var strideLengthRight = maxRightStride - minRightStride;
+            var velocityIncreaseRight = strideLengthRight * VELOCITY_INCREASE_FACTOR;
+            currentVelocity += velocityIncreaseRight;
+            if (currentVelocity > MAX_VELOCITY) {
+                currentVelocity = MAX_VELOCITY;
+            }
+            resetRightStride();
+            if (DEBUG_ENABLED) {
+                print("********** RIGHT STRIDE SUCCESS ********** stride length = " + strideLengthRight);
             }
         }
+
+        // fail-safes in case stride detection gets into a weird state then reset our values and start over
+        if (leftStrideForwardCount > MAX_STRIDE_COUNT || leftStrideBackwardCount > MAX_STRIDE_COUNT) {
+            if (DEBUG_ENABLED) {
+                print("Max left stride counts reached - triggering left stride reset");
+            }
+            resetLeftStride();
+        }
+        if (rightStrideForwardCount > MAX_STRIDE_COUNT || rightStrideBackwardCount > MAX_STRIDE_COUNT) {
+            if (DEBUG_ENABLED) {
+                print("Max right stride counts reached - triggering right stride reset");
+            }
+            resetRightStride();
+        }
+
+        /*
+        print("minLeftStrides: ");
+        for (idx = 0; idx < minLeftStrides.length; idx++) {
+            print(minLeftStrides[idx]);
+        }
+        print("maxLeftStrides: ");
+        for (idx = 0; idx < maxLeftStrides.length; idx++) {
+            print(maxLeftStrides[idx]);
+        }
+        print("minRightStrides: ");
+        for (idx = 0; idx < minRightStrides.length; idx++) {
+            print(minRightStrides[idx]);
+        }
+        print("maxRightStrides: ");
+        for (idx = 0; idx < maxRightStrides.length; idx++) {
+            print(maxRightStrides[idx]);
+        }
+        */
+
+        print("minL " + minLeftStride + "  maxL " + maxLeftStride + "  minR " + minRightStride + "  maxR " + maxRightStride + "  leftDot " + leftDotProduct + "  rightDot " + rightDotProduct + "  leftForw " + leftStrideForwardCount + "  leftBack " + leftStrideBackwardCount + "  rightForw " + rightStrideForwardCount + "  rightBack " + rightStrideBackwardCount);
     } else {
-        maxLeftStride = undefined;
-        minLeftStride = undefined;
-        maxRightStride = undefined;
-        minRightStride = undefined;
-        leftStrideForwardCount = 0;
-        leftStrideBackwardCount = 0;
-        rightStrideForwardCount = 0;
-        rightStrideBackwardCount = 0;
+        resetLeftStride();
+        resetRightStride();        
     }
 
     if (debugForceRun && !biteAnimationPlaying) {
@@ -307,7 +405,9 @@ function update() {
         currentVelocity = 0;
     }
 
-    var velocityForward = { x:0, y:0, z:1 }; 
+    var cameraOrientation = Camera.getOrientation();
+    var velocityForward = Quat.getForward(cameraOrientation);
+    velocityForward.y = 0;
     var newVelocity = currentVelocity;
     if (newVelocity < 0) {
         newVelocity = 0;
@@ -327,43 +427,39 @@ function update() {
 function addHealth(deadHealth) {
     var brain = Entities.addEntity({
         clientOnly: 1,
-        dimensions: {
-            x: HEALTH_SIZE_OVERHEAD,
-            y: HEALTH_SIZE_OVERHEAD,
-            z: 0.00001
-        },
+        dimensions: Vec3.multiply(BRAIN_MODEL_DIMENSIONS, HEALTH_SIZE_OVERHEAD_MULTIPLIER),
         localPosition: localPositionOverhead,
-        modelURL: "https://hifi-content.s3.amazonaws.com/DomainContent/production/default-image-model.fbx",
+        modelURL: deadHealth ? BRAIN_DEAD_MODEL : BRAIN_FULL_MODEL,
         name: "Zombie Brain",
         parentID: MyAvatar.sessionUUID,
         owningAvatarID: MyAvatar.sessionUUID,
-        textures: deadHealth ? BRAIN_DEAD_TEXTURE : BRAIN_FULL_TEXTURE,
-        type: "Model"
+        type: "Model",
+        userData: JSON.stringify({
+            grabbableKey: {
+                grabbable: false
+            }
+        })
     });
     healthOverhead.push(brain);
     
     var overlayProperties = {
         alpha: 1,
-        dimensions: {
-            x: HEALTH_SIZE_WRIST,
-            y: HEALTH_SIZE_WRIST,
-            z: HEALTH_SIZE_WRIST
-        },
+        dimensions: Vec3.multiply(BRAIN_MODEL_DIMENSIONS, HEALTH_SIZE_WRIST_MULTIPLIER),
         localPosition: localPositionWrist,
         localRotation: Quat.fromPitchYawRollDegrees(0, 90, 0),
         parentID: MyAvatar.sessionUUID,
         parentJointIndex: MyAvatar.getJointIndex("RightForeArm"),
-        url: deadHealth ? BRAIN_DEAD_URL : BRAIN_FULL_URL,
+        url: deadHealth ? BRAIN_DEAD_MODEL : BRAIN_FULL_MODEL,
         visible: true
     };
-    healthWrist.push(Overlays.addOverlay("image3d", overlayProperties));
+    healthWrist.push(Overlays.addOverlay("model", overlayProperties));
 }
 
 function loseHealth() {
     var brainOverhead = healthOverhead[currentHealthIndex];
-    Entities.editEntity(brainOverhead, { textures: BRAIN_DEAD_TEXTURE });
+    Entities.editEntity(brainOverhead, { modelURL: BRAIN_DEAD_MODEL });
     var brainWrist = healthWrist[currentHealthIndex];
-    Overlays.editOverlay(brainWrist, { url: BRAIN_DEAD_URL });
+    Overlays.editOverlay(brainWrist, { url: BRAIN_DEAD_MODEL });
     currentHealthIndex++;
 }
 
@@ -428,7 +524,7 @@ function init() {
     Controller.keyPressEvent.connect(keyPressEvent);
     
     MyAvatar.motorMode = "dynamic";
-    MyAvatar.motorReferenceFrame = "camera";
+    MyAvatar.motorReferenceFrame = "world";
 
     Script.update.connect(update);
 
