@@ -222,7 +222,9 @@
             var newStroke = Entities.addEntity({
                 type: "PolyLine",
                 name: _this.STROKE_NAME,
+                parentID: _this.entityID,
                 dimensions: STROKE_DIMENSIONS,
+                rotation: Quat.IDENTITY,
                 position: utils.parseJSON(params[0]),
                 color: utils.parseJSON(params[1]),
                 textures: MARKER_TEXTURE_URL,
