@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script>    
+        //
+        //  Created by Luis Cuenca on 1/31/18
+        //  Copyright 2018 High Fidelity, Inc.
+        //
+        //
+        //  Distributed under the Apache License, Version 2.0.
+        //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+        //
+
+        /* jslint bitwise: true */
+
+        /* global $, EventBridge
+        */
+        $(function () {
+        
+            var MSG_DOCUMENT_LOADED = 0;
+            var MSG_JOINT_INPUT_DATA = 1;
+            var MSG_COLLISION_DATA = 2;
+            var MSG_COLLISION_INPUT_DATA = 3;
+            var MSG_DISPLAY_DATA = 4;
+            var MSG_CREATE = 5;
+            
+            var KIND_JOINT = "joint";
+            var KIND_COLLISION = "collision";
+            var KIND_DISPLAY = "display";
+            
+            var groupData, collisionData;
+            
+            
+            function createInput(kind, group, name, type, config) {
+                var input = $("<input>").attr("type", type).attr("data-name", name).attr("data-group", group).attr("data-kind", kind);
+                var inputId = kind + "-" + group + "-" + type + "-" + name;
+                input.attr("id", inputId).attr("name", inputId);
+                if (type === "range") {
+                    input.attr("step", config.step).attr("value", config.value).attr("min", config.min).attr("max", config.max);
+                } else if (type === "checkbox" && config.checked) {
+                    input.attr("checked", "checked");
+                }
+                return input;
+            }
+            
+            function createElement(kind, group, name, type, config) {
+                var element = $("<div>").addClass("unit-config half");
+                var input = createInput(kind, group, name, type, config);
+                var label = $("<label>").text(name).attr("for", input.attr("id"));
+                element.append(label).append(input);
+                return element;
+            }
+            
+            function createGroupContainer(name, type) {
+                var groupContainer = $("<div>").addClass("ui-corner-all custom-corners");
+                var bartype = type ? "ui-bar-" + type : "ui-bar-b";
+                var headContainer = $("<div>").addClass("ui-bar " + bartype);
+                var header = $("<h3>").addClass("header-text").text(name);
+                var contentContainer = $("<div>").addClass("group-content ui-body ui-body-a");
+                headContainer.append(header);
+                groupContainer.append(headContainer).append(contentContainer);
+                return groupContainer;
+            }
+            
+            function createGroup(kind, name, elements, type) {
+                var group = createGroupContainer(name, type);
+                var content = group.find(".group-content");
+                for (var i = 0; i < elements.length; i++){
+                    if (elements[i].type) {
+                        content.append(createElement(kind, name, elements[i].name, elements[i].type, elements[i].config));
+                    } else {
+                        content.append(elements[i]);
+                    }
+                }
+                return group;
+            }
+            
+
+            
+            function getGroupJSON() {
+                return "CUSTOM_FLOW_DATA = " + JSON.stringify(groupData, null, 4);
+            }
+            
+            function getCollisionJSON() {
+                return "CUSTOM_COLLISION_DATA = " + JSON.stringify(collisionData, null, 4);
+            }
+            
+            function createDump() {
+                var group = createGroupContainer("JSON");
+                var content = group.find(".group-content");
+                var dumpBox = $("<textarea>").attr("cols", 40).attr("rows", 40).attr("id", "dump-box");
+                content.append(dumpBox);
+                return group;
+            }
+            
+            function updateDump() {
+                if (groupData) {
+                    var filterKeys = Object.keys(groupData);
+                    if (filterKeys.length > 0) {
+                        var dataKeys = Object.keys(groupData[filterKeys[0]]);
+                        var rows = (filterKeys.length) * (dataKeys.length + 2) + 2;
+                        $("#dump-box").attr("rows", rows).val("\n" +getGroupJSON() + ";\n\n" + getCollisionJSON() + ";\n");
+                    }
+                }                   
+            }
+            
+            function createJointDropdown(joints, parentElement) {
+                var container = $("<fieldset data-role='controlgroup' data-type='horizontal'>");
+                var select = $("<select>").attr("id", "joint-select");
+                for (var i = 0; i < joints.length; i++) {
+                    var option = $("<option>").attr("value", joints[i]).text(joints[i]);
+                    select.append(option);
+                }
+                var button = $("<button>").addClass("add-joint").text("Add").click(function(){
+                    var joint = $("#joint-select").val();
+                    EventBridge.emitWebEvent(JSON.stringify({type:MSG_COLLISION_DATA, name: "add", value: joint}));
+                });
+                container.append(select);
+                container.append(button);
+                var group = createGroup(KIND_COLLISION, "Manage Collisions", [container]); 
+                parentElement.append(group);
+            }
+            
+            function createCollisionGroup(name, collisionSettings) {
+                var controls = [
+                                {name: "radius", type: "range", config: {"step": 0.01, "value": collisionSettings.radius, "min":0.01, "max":0.5}},
+                                {name: "offset", type: "range", config: {"step": 0.05, "value": collisionSettings.offset.y, "min":-0.3, "max":0.3}}
+                            ];
+                var groupElement = createGroup(KIND_COLLISION, name, controls, "a");
+                var headbar = groupElement.find(".ui-bar");
+                headbar.data("joint", name).addClass("ui-nodisc-icon ui-alt-icon");
+                var deleteBtn = $("<a>").addClass("ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-notext thin right");
+                deleteBtn.click(function(){
+                    var parent = $(this).parent();
+                    var joint = parent.data("joint");
+                    parent.parent().remove();
+                    EventBridge.emitWebEvent(JSON.stringify({type:MSG_COLLISION_DATA, name: "remove", value: joint}));
+                    collisionData[joint] = undefined;
+                });
+                headbar.append(deleteBtn);
+                return groupElement;
+            }
+            
+            function configureInputs(selector) {
+                $(selector).find("input").change(function() {
+                    var kind = $(this).data("kind");
+                    var group = $(this).data("group");
+                    var name = $(this).data("name");
+                    var value = this.value;
+                    var type;
+                    
+                    switch(kind) {
+                        case KIND_COLLISION:
+                            type = MSG_COLLISION_INPUT_DATA;
+                            if (name === "offset") {
+                                collisionData[group].offset.y = eval(value);
+                            } else {
+                                collisionData[group][name] = eval(value);
+                            }
+                            break;
+                        case KIND_JOINT: {
+                            type = MSG_JOINT_INPUT_DATA;
+                            if (name === "active") {
+                                value = $(this).prop("checked");
+                                groupData[group][name] = eval(value);
+                            } else {
+                                groupData[group][name] = eval(value);
+                            }
+                            break;
+                        }
+                        case KIND_DISPLAY: {
+                            type = MSG_DISPLAY_DATA;
+                            break;
+                        }
+                    }
+                    EventBridge.emitWebEvent(JSON.stringify({type: type, group: group, name: name, value: value}));
+                });
+            }
+
+            EventBridge.scriptEventReceived.connect(function (msg) {
+                var message = JSON.parse(msg);          
+                if (message.type === MSG_CREATE) {
+                    groupData = message.data.group;
+                    var filterKeys = Object.keys(groupData);
+                    var controls;
+                    for (var i = 0; i < filterKeys.length; i++) {
+                        var parameters = groupData[filterKeys[i]];
+                        controls = [
+                            {name: "radius", type: "range", config: {"step": 0.01, "value": parameters.radius, "min":0.01, "max":0.1}},
+                            {name: "stiffness", type: "range", config: {"step": 0.05, "value": parameters.stiffness, "min":0.0, "max":1.0}},
+                            {name: "gravity", type: "range", config: {"step": 0.0001, "value": parameters.gravity, "min":-0.05, "max":0.05}},
+                            {name: "damping", type: "range", config: {"step": 0.05, "value": parameters.damping, "min":0.0, "max":1.0}},
+                            {name: "inertia", type: "range", config: {"step": 0.05, "value": parameters.inertia, "min":0.0, "max":1.0}},
+                            {name: "delta", type: "range", config: {"step": 0.05, "value": parameters.delta, "min":0.0, "max":1.0}}
+                        ];
+                        var groupElement = createGroup(KIND_JOINT, filterKeys[i], controls);
+                        var enabler = createInput(KIND_JOINT, filterKeys[i], "active", "checkbox", {"checked": parameters.active}).addClass("joint-enabler");
+                        $(groupElement).find(".ui-bar").append(enabler);
+                        $("#joints-panel").append(groupElement);
+                    }
+                    controls = [
+                        {name: "avatar", type: "checkbox", config: {"checked": message.data.display.avatar}},
+                        {name: "collisions", type: "checkbox", config: {"checked": message.data.display.collisions}},
+                        {name: "debug", type: "checkbox", config: {"checked": message.data.display.debug}},
+                        {name: "solid", type: "checkbox", config: {"checked": message.data.display.solid}}
+                    ];
+                    groupElement = createGroup(KIND_DISPLAY, "Display", controls);
+                    $("#display-panel").append(groupElement);
+                    createJointDropdown(message.data.joints, $("#collisions-panel"));
+
+                    collisionData = message.data.collisions;
+                    var collisionKeys = Object.keys(collisionData);
+                    for (i = 0; i < collisionKeys.length; i++) {
+                        var jointName = collisionKeys[i];
+                        var collisionGroup = createCollisionGroup(jointName, collisionData[jointName]);
+                        $("#collisions-panel").append(collisionGroup);
+                    }
+
+                    $("#json-panel").append(createDump());                  
+                    
+                    $("#joints-panel").trigger('create');
+                    $("#collisions-panel").trigger('create');
+                    $("#display-panel").trigger('create');
+                    
+                    configureInputs("#joints-panel, #collisions-panel");
+                    configureInputs("#display-panel");
+                    
+                    $("#collisions-panel").hide();
+                    $("#json-panel").hide();
+                } else if (message.type === MSG_COLLISION_DATA) {
+                    collisionData[message.name] = message.data;
+                    collisionGroup = createCollisionGroup(message.name, message.data);
+                    $("#collisions-panel").append(collisionGroup);
+                    collisionGroup.trigger('create');
+                    configureInputs(collisionGroup);
+                }
+            });
+            
+            $(".nav-text").click(function() {
+                var index = $(this).data("idx");
+                if (index === 0) {
+                    $("#collisions-panel").hide();
+                    $("#joints-panel").show();
+                    $("#json-panel").hide();
+                } else if (index === 1){
+                    $("#collisions-panel").show();
+                    $("#joints-panel").hide();
+                    $("#json-panel").hide();
+                } else {
+                    $("#collisions-panel").hide();
+                    $("#joints-panel").hide();
+                    updateDump();
+                    $("#json-panel").show();
+                }
+            });
+            EventBridge.emitWebEvent(JSON.stringify({type: MSG_DOCUMENT_LOADED}));
+
+        });
+    </script>
+    
+    <head>
+        <meta charset="utf-8" />
+        <style>
+            .container {
+                margin:10px;
+            }
+            .unit-config.third{
+                width: 33%;
+                display: inline-block;
+            }
+            .unit-config.half{
+                width: 49.5%;
+                display: inline-block;
+            }
+            .nav-bar{
+                width: 440px;
+            }
+            .nav-text > a {
+                font-size: 20px !important; 
+                
+            }
+            .ui-controlgroup-controls {
+                width:100% !important;
+            }
+            .ui-select {
+                width:80% !important;
+            } 
+            .right {
+                float: right;
+            }
+            .thin {
+                margin: 0px !important;
+                padding: 0px !important;
+            }
+            .joint-enabler {
+                margin-left: 390px !important;
+                margin-top: -25px !important;
+            }
+        </style>
+        <body>
+
+            <div id="nav-panel" style="margin:10px">
+                <div data-role="navbar" class="nav-bar">
+                    <ul>
+                        <li class="nav-text" data-idx=0 ><a href="#" class="ui-btn-active">Joints</a></li>
+                        <li class="nav-text" data-idx=1 ><a href="#" >Collisions</a></li>
+                        <li class="nav-text" data-idx=2 ><a href="#" >JSON</a></li>
+                    </ul>
+                </div><!-- /navbar -->
+            </div>
+            <div id="display-panel" class="container">
+            
+            </div>
+            <div id="joints-panel" class="container">
+
+            </div>
+            <div id="collisions-panel" class="container">
+
+            </div>
+            <div id="json-panel" class="container">
+
+            </div>
+        </body>
+    </head>
+</html>
