@@ -32,7 +32,6 @@
             
             var groupData, collisionData;
             
-            
             function createInput(kind, group, name, type, config) {
                 var input = $("<input>").attr("type", type).attr("data-name", name).attr("data-group", group).attr("data-kind", kind);
                 var inputId = kind + "-" + group + "-" + type + "-" + name;
@@ -76,8 +75,6 @@
                 }
                 return group;
             }
-            
-
             
             function getGroupJSON() {
                 return "CUSTOM_FLOW_DATA = " + JSON.stringify(groupData, null, 4);
@@ -300,7 +297,6 @@
             }
         </style>
         <body>
-
             <div id="nav-panel" style="margin:10px">
                 <div data-role="navbar" class="nav-bar">
                     <ul>

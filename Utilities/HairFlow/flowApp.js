@@ -16,7 +16,6 @@
     Script.registerValue("FLOWAPP", true);
     Script.include(Script.resolvePath("./flow.js"));
 
-    
     var TABLET_BUTTON_NAME = "FLOW";
     var HTML_URL = Script.resolvePath("./flowApp.html");
     
@@ -35,7 +34,7 @@
     });
     
     var shown = false;
-	var documentLoaded = false;
+    var documentLoaded = false;
     
     function manageClick() {
         if (shown) {
@@ -55,7 +54,7 @@
     });
   
     function onScreenChanged(type, url) {     
-		console.log("Screen changed");
+        console.log("Screen changed");
         if (type === "Web" && url === HTML_URL) {
             tabletButton.editProperties({isActive: true});
             if (!shown) {
@@ -64,15 +63,14 @@
                 }
                 // hook up to event bridge
                 tablet.webEventReceived.connect(onWebEventReceived);
-				Script.setTimeout(function() {
-					console.log("document loaded: " + documentLoaded);
-				}, 500);
+                Script.setTimeout(function() {
+                    console.log("document loaded: " + documentLoaded);
+                }, 500);
             }
             shown = true;
         } else {
             tabletButton.editProperties({isActive: false});
             if (shown) {
-                // GlobalDebugger.stop();
                 // disconnect from event bridge
                 tablet.webEventReceived.disconnect(onWebEventReceived);
             }
@@ -110,7 +108,7 @@
                 break;
             }
             case MSG_DOCUMENT_LOADED: {
-				documentLoaded = true;
+                documentLoaded = true;
                 tablet.emitScriptEvent(JSON.stringify(  
                     {   "type": MSG_CREATE, 
                         "data": {

@@ -16,7 +16,6 @@ Script.include("/~/system/libraries/Xform.js");
 Script.include(Script.resolvePath("./VectorMath.js"));
 
 (function(){
-    
     var SHOW_AVATAR = true;
     var SHOW_DEBUG_SHAPES = false;
     var SHOW_SOLID_SHAPES = false;
@@ -40,7 +39,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
     
     var COLLISION_SHAPES_LIMIT = 4;
     
-    var DUMMY_KEYWORD = "Extra"
+    var DUMMY_KEYWORD = "Extra";
     var DUMMY_JOINT_COUNT = 8;
     var DUMMY_JOINT_DISTANCE = 0.05;
         
@@ -148,8 +147,8 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             var position = cubePosition ? cubePosition : {x: 0, y: 0, z: 0};
             var rotation = cubeRotation ? cubeRotation : {x: 0, y: 0, z: 0, w: 0};
             var dimensions = cubeDimensions ? cubeDimensions : {x: 1, y: 1, z: 1};
-            var color = shapeColor ? shapeColor : { red: 0, green: 255, blue: 255 };
-            if (self.debugCubes[cubeName] != undefined) {
+            var color = shapeColor !== undefined ? shapeColor : { red: 0, green: 255, blue: 255 };
+            if (self.debugCubes[cubeName] !== undefined) {
                 Overlays.editOverlay(self.debugCubes[cubeName], {
                     position: position,
                     rotation: rotation,
@@ -168,7 +167,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     visible: true
                 });
             }
-        }
+        };
         
         this.setDebugLine = function(lineName, startPosition, endPosition, shapeColor, forceRendering) {
             var doRender = self.showDebugShapes || forceRendering;
@@ -176,7 +175,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             var start = startPosition ? startPosition : {x: 0, y: 0, z: 0};
             var end = endPosition ? endPosition : {x: 0, y: 1, z: 0};
             var color = shapeColor ? shapeColor : { red: 0, green: 255, blue: 255 };
-            if (self.debugLines[lineName] != undefined) {
+            if (self.debugLines[lineName] !== undefined) {
                 Overlays.editOverlay(self.debugLines[lineName], {
                     color: color,
                     start: start,
@@ -191,14 +190,14 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     visible: true
                 });
             }
-        }
+        };
         
         this.setDebugSphere = function(sphereName, pos, diameter, shapeColor, forceRendering) {
             var doRender = self.showDebugShapes || forceRendering;
             if (!doRender) return;
             var scale = diameter ? diameter : 0.01;
             var color = shapeColor ? shapeColor : { red: 255, green: 0, blue: 255 };
-            if (self.debugSpheres[sphereName] != undefined) {
+            if (self.debugSpheres[sphereName] !== undefined) {
                 Overlays.editOverlay(self.debugSpheres[sphereName], {
                     color: color,
                     position: pos,
@@ -215,67 +214,81 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     visible: true
                 });
             }
-        }
+        };
         
         this.deleteSphere = function(name) {
             Overlays.deleteOverlay(self.debugSpheres[name]);
             self.debugSpheres[name] = undefined;
-        }
+        };
         
         this.deleteLine = function(name) {
             Overlays.deleteOverlay(self.debugLines[name]);
             self.debugLines[name] = undefined;
-        }
+        };
         
         this.deleteCube = function(name) {
             Overlays.deleteOverlay(self.debugCubes[name]);
             self.debugCubes[name] = undefined;
-        }
+        };
         
         this.cleanup = function() {
             for (var lineName in self.debugLines) {
-                self.deleteLine(lineName);
+                if (lineName !== undefined) {
+                        self.deleteLine(lineName);
+                }
             }
             for (var sphereName in self.debugSpheres) {
-                self.deleteSphere(sphereName);
+                if (sphereName !== undefined) {
+                        self.deleteSphere(sphereName);
+                }
             }
             for (var cubeName in self.debugCubes) {
-                self.deleteCube(cubeName);
+                    if (cubeName!== undefined) {
+                        self.deleteCube(cubeName);
+                }
             }
             self.debugLines = {};
             self.debugSpheres = {};
             self.debugCubes = {};
-        }
+        };
         
         this.setVisible = function(isVisible) {
             self.showDebugShapes = isVisible;
             for (var lineName in self.debugLines) {
-                Overlays.editOverlay(self.debugLines[lineName], {
-                    visible: isVisible
-                });
+                if (lineName !== undefined) {
+                    Overlays.editOverlay(self.debugLines[lineName], {
+                        visible: isVisible
+                    });
+                }
             }
             for (var sphereName in self.debugSpheres) {
-                Overlays.editOverlay(self.debugSpheres[sphereName], {
-                    visible: isVisible
-                });
+                if (sphereName !== undefined) {
+                    Overlays.editOverlay(self.debugSpheres[sphereName], {
+                        visible: isVisible
+                    });
+                }
             }
-        }
+        };
         
         this.setSolid = function(isSolid) {
             self.showSolidShapes = isSolid;
             for (var lineName in self.debugLines) {
-                Overlays.editOverlay(self.debugLines[lineName], {
-                    solid: isSolid
-                });
+                if (lineName !== undefined) {
+                    Overlays.editOverlay(self.debugLines[lineName], {
+                        solid: isSolid
+                    });
+                }
             }
             for (var sphereName in self.debugSpheres) {
-                Overlays.editOverlay(self.debugSpheres[sphereName], {
-                    solid: isSolid
-                });
+                if (sphereName !== undefined) {
+                    Overlays.editOverlay(self.debugSpheres[sphereName], {
+                        solid: isSolid
+                    });
+                }
             }
-        }       
+        };       
 
-    }
+    };
 
 
     var FlowHandSystem = function() {
@@ -304,7 +317,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 }
                 return VEC3.distance(avatarPosition, MyAvatar.position) < distance;
             });
-        }
+        };
         
         this.setScale = function(scale) {
             for (var j = 0; j < self.avatarHands.length; j++) {
@@ -313,7 +326,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     self.avatarHands[j][side].radius = self.avatarHands[j][side].initialRadius * scale;
                 }
             }
-        }
+        };
         
         this.update = function() {
             var nearbyAvatars = self.getNearbyAvatars(HAND_TOUCHING_DISTANCE);
@@ -323,10 +336,11 @@ Script.include(Script.resolvePath("./VectorMath.js"));
 
                 var avatar = AvatarList.getAvatar(avatarID);
                 var avatarIndex = self.avatarIds.indexOf(avatarID);
+                var i, side;
                 if (avatarIndex === -1) {
                     var newHands = {};
-                    for (var i = 0; i < HAND_COLLISION_JOINTS.length; i++) {
-                        var side = HAND_COLLISION_JOINTS[i];
+                    for (i = 0; i < HAND_COLLISION_JOINTS.length; i++) {
+                        side = HAND_COLLISION_JOINTS[i];
                         var jointId = avatar.getJointIndex(side);
                         var name =  avatarID + "_" + HAND_COLLISION_PREFIX + side;
                         var handCollisionSettings = {type: "sphere", radius: HAND_COLLISION_RADIUS, offset: {x: 0, y: 0, z: 0}, avatarId: avatarID};
@@ -358,17 +372,17 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 }
             }
             self.lastAvatarCount = nearbyAvatars.length;
-        }
+        };
         
         this.computeCollision = function(collisions) {
             var collisionData = new FlowCollisionData();
             if (collisions.length > 1) {
                 for (var i = 0; i < collisions.length; i++) {
-                    collisionData.offset += collisions[i].offset 
+                    collisionData.offset += collisions[i].offset;
                     collisionData.normal = VEC3.sum(collisionData.normal, VEC3.multiply(collisions[i].normal, collisions[i].distance));
                     collisionData.position = VEC3.sum(collisionData.position, collisions[i].position);
-                    collisionData.radius += collisions[i].radius 
-                    collisionData.distance += collisions[i].distance 
+                    collisionData.radius += collisions[i].radius; 
+                    collisionData.distance += collisions[i].distance; 
                 }
                 collisionData.offset = collisionData.offset/collisions.length;
                 collisionData.radius = VEC3.length(collisionData.normal)/2;
@@ -380,7 +394,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             }
             collisionData.collisionCount = collisions.length;
             return collisionData;
-        }
+        };
         
         this.manageHapticPulse = function() {
             if (self.isLeftHandTouching) {
@@ -401,7 +415,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     self.rightHandTouchDelta = 0;
                 }
             }
-        }
+        };
         
         this.checkThreadCollisions = function(thread) {
 
@@ -459,16 +473,16 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 collisionResult.push(self.computeCollision(threadCollisionData[i]));
             }
             return collisionResult;
-        }
+        };
 
         this.setRightTriggerValue = function(value) {
             self.rightTriggerValue = value;
-        }
+        };
         
         this.setLeftTriggerValue = function(value) {
             self.leftTriggerValue = value;
-        }
-    }
+        };
+    };
 
     var FlowCollisionSystem = function() {
         var self = this;
@@ -477,11 +491,11 @@ Script.include(Script.resolvePath("./VectorMath.js"));
         
         this.addCollisionSphere = function(name, jointIndex, jointName, settings) {
             self.collisionSpheres.push(new FlowCollisionSphere(name, jointIndex, jointName, settings));
-        }
+        };
         
         this.addCollisionCube = function(name, jointIndex, jointName, settings) {
             self.collisionCubes.push(new FlowCollisionCube(name, jointIndex, jointName, settings));
-        }
+        };
         
         this.addCollisionShape = function(jointIndex, jointName, settings) {
             var name = JOINT_COLLISION_PREFIX + jointIndex;
@@ -493,7 +507,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     self.addCollisionCube(name, jointIndex, jointName, settings);
                     break;
             }
-        }
+        };
         
         this.addCollisionToJoint = function(jointName) {
             if (self.collisionSpheres.length >= COLLISION_SHAPES_LIMIT) {
@@ -507,7 +521,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             } else {
                 return false;
             }
-        }
+        };
         
         this.removeCollisionFromJoint = function(jointName) {
             var jointIndex = MyAvatar.getJointIndex(jointName);
@@ -516,7 +530,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 self.collisionSpheres[collisionIndex].clean();
                 self.collisionSpheres.splice(collisionIndex, 1);
             }
-        }
+        };
         
         this.update = function() {
             for (var i = 0; i < self.collisionCubes.length; i++) {
@@ -525,13 +539,13 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             for (i = 0; i < self.collisionSpheres.length; i++) {
                 self.collisionSpheres[i].update();
             }
-        }
+        };
         
         this.computeCollision = function(collisions) {
             var collisionData = new FlowCollisionData();
             if (collisions.length > 1) {
                 for (var i = 0; i < collisions.length; i++) {
-                    collisionData.offset += collisions[i].offset 
+                    collisionData.offset += collisions[i].offset; 
                     collisionData.normal = VEC3.sum(collisionData.normal, VEC3.multiply(collisions[i].normal, collisions[i].distance));
                     collisionData.position = VEC3.sum(collisionData.position, collisions[i].position);
                     collisionData.radius += collisions[i].radius;
@@ -547,14 +561,14 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             }
             collisionData.collisionCount = collisions.length;
             return collisionData;
-        }
+        };
         
         this.setScale = function(scale) {
             for (var j = 0; j < self.collisionSpheres.length; j++) {
                 self.collisionSpheres[j].radius = self.collisionSpheres[j].initialRadius * scale;
                 self.collisionSpheres[j].offset = VEC3.multiply(self.collisionSpheres[j].initialOffset, scale);
             }
-        }
+        };
 
         this.checkThreadCollisions = function(thread, checkSegments) {
             var threadCollisionData = Array(thread.joints.length);
@@ -566,12 +580,12 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 var rootCollision = self.collisionSpheres[j].checkCollision(thread.positions[0], thread.radius);
                 var collisionData = [rootCollision];
                 var tooFar = rootCollision.distance > (thread.length + rootCollision.radius);
-                
+                var nextCollision;
                 if (!tooFar) {
                     if (checkSegments) {
                         for (i = 1; i < thread.joints.length; i++) {
                             var prevCollision = collisionData[i-1];
-                            var nextCollision = self.collisionSpheres[j].checkCollision(thread.positions[i], thread.radius);
+                            nextCollision = self.collisionSpheres[j].checkCollision(thread.positions[i], thread.radius);
                             collisionData.push(nextCollision);
                             if (prevCollision.offset > 0) {
                                 if (i == 1) {
@@ -606,7 +620,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 collisionResult.push(self.computeCollision(threadCollisionData[i]));
             }
             return collisionResult;
-        }
+        };
         
         this.findCollisionWithJoint = function (jointIndex) {
             for (var i = 0; i < self.collisionSpheres.length; i++) {
@@ -615,7 +629,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 }
             }
             return -1;
-        }
+        };
         
         this.modifyCollision = function(jointName, parameter, value) {
             var jointIndex = MyAvatar.getJointIndex(jointName);
@@ -636,7 +650,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     }
                 }
             }
-        }
+        };
         
         this.getCollisionData = function() {
             var collisionData = {};
@@ -645,18 +659,18 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 collisionData[self.collisionSpheres[i].jointName] = data;
             }
             return collisionData;
-        }
+        };
 
-    }
+    };
     
     var FlowCollisionData = function(offset, position, radius, normal, distance) {
         this.collisionCount = 0;
-        this.offset = offset != undefined ? offset : 0;
-        this.position = position != undefined ? position : {x: 0, y: 0, z: 0};
-        this.radius = radius != undefined ? radius : 0;
-        this.normal = normal != undefined ? normal : {x: 0, y: 0, z: 0};
-        this.distance = distance != undefined ? distance : 0;
-    }
+        this.offset = offset !== undefined ? offset : 0;
+        this.position = position !== undefined ? position : {x: 0, y: 0, z: 0};
+        this.radius = radius !== undefined ? radius : 0;
+        this.normal = normal !== undefined ? normal : {x: 0, y: 0, z: 0};
+        this.distance = distance !== undefined ? distance : 0;
+    };
     
     var FlowCollisionSphere = function(name, jointIndex, jointName, settings) {
         var self = this;
@@ -672,7 +686,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
         this.position = {x:0, y:0, z:0};
         
         this.update = function() {
-            if (self.avatarId != undefined){
+            if (self.avatarId !== undefined){
                 var avatar = AvatarList.getAvatar(self.avatarId);
                 self.position = avatar.getJointPosition(self.jointIndex);
             } else {
@@ -682,7 +696,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             if (self.attenuation && self.attenuation > 0) {
                 collisionDebug.setDebugSphere(self.name + "_att", self.position, 2*(self.radius + self.attenuation), {red: 120, green: 200, blue: 50}); 
             }
-        }
+        };
         
         this.checkCollision = function(point, radius) {
             var centerToJoint = VEC3.subtract(point, self.position);
@@ -690,7 +704,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             var offset =  self.radius - distance;
             var collisionData = new FlowCollisionData(offset, self.position, self.radius, VEC3.normalize(centerToJoint), distance);
             return collisionData;
-        }
+        };
         
         this.checkSegmentCollision = function(point1, point2, pointCollision1, pointCollision2) {
             var collisionData = new FlowCollisionData();
@@ -699,7 +713,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             var maxDistance = Math.sqrt(Math.pow(pointCollision1.radius,2) + Math.pow(segmentLength,2));
             if (pointCollision1.distance < maxDistance && pointCollision2.distance < maxDistance) {
                 var segmentPercent = pointCollision1.distance/(pointCollision1.distance + pointCollision2.distance);
-                var collisionPoint = VEC3.sum(point1, VEC3.multiply(segment, segmentPercent)) 
+                var collisionPoint = VEC3.sum(point1, VEC3.multiply(segment, segmentPercent)); 
                 var centerToSegment = VEC3.subtract(collisionPoint, self.position);
                 var distance = VEC3.length(centerToSegment);
                 if (distance < self.radius) {
@@ -708,12 +722,12 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 }
             }
             return collisionData;
-        }
+        };
         
         this.clean = function() {
             collisionDebug.deleteSphere(self.name);
-        }
-    }
+        };
+    };
     
     var FlowCollisionCube = function(name, jointIndex, settings) {
         var self = this;
@@ -728,16 +742,13 @@ Script.include(Script.resolvePath("./VectorMath.js"));
         this.rotation = {x:0, y:0, z:0, w:0};
         
         this.update = function() {
-            if (self.avatarId != undefined){
+            if (self.avatarId !== undefined){
                 var avatar = AvatarList.getAvatar(self.avatarId);
                 self.position = avatar.getJointPosition(self.jointIndex);
                 self.rotation = avatar.getJointRotation(self.jointIndex);
-            } else {
-                //self.position = MyAvatar.jointToWorldPoint(offset, jointIndex);
-                //self.rotation = MyAvatar.jointToWorldRotation({x:0, y:0, z:0, w:0}, jointIndex);
             }               
             collisionDebug.setDebugCube(self.name, self.position, self.rotation, self.dimensions, {red: 200, green: 10, blue: 50});
-        }
+        };
         
         this.checkCollision = function(point, radius) {
             var localPoint = MyAvatar.worldToJointPoint(point, self.jointIndex);
@@ -780,8 +791,8 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 position = MyAvatar.jointToWorldPoint(position, self.jointIndex);
             }           
             return new FlowCollisionData(offset, position, radius, normal, offset);
-        }
-    }
+        };
+    };
     
     var FlowNode = function(initialPosition, settings) {
         var self = this;
@@ -807,7 +818,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
 
         this.anchored = false;
         this.colliding = false;
-        this.collision;
+        this.collision = undefined;
         
         this.update = function(accelerationOffset) {
             self.acceleration = {x: 0, y: self.gravity, z: 0};
@@ -823,27 +834,30 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 self.acceleration = VEC3.sum(self.acceleration, accelerationOffset);
                 
                 // Calculate new position
-                self.currentPosition = VEC3.sum(VEC3.sum(self.currentPosition, VEC3.multiply(self.currentVelocity, self.damping)), VEC3.multiply(self.acceleration, Math.pow(self.delta, 2)));                
+                self.currentPosition = VEC3.sum(
+                    VEC3.sum(self.currentPosition, VEC3.multiply(self.currentVelocity, self.damping)), 
+                    VEC3.multiply(self.acceleration, Math.pow(self.delta, 2))
+                );                
             } else {
                 self.acceleration = {x:0, y:0, z:0};
                 self.currentVelocity = {x:0, y:0, z:0};
             }
-        }
-		
+        };
+        
         
         this.solve = function(constrainPoint, maxDistance, collision) {
-			self.solveConstraints(constrainPoint, maxDistance);
-			self.solveCollisions(collision);      
-        }
-		
-		this.solveConstraints = function(constrainPoint, maxDistance) {
-			var constrainVector = VEC3.subtract(self.currentPosition, constrainPoint);
+            self.solveConstraints(constrainPoint, maxDistance);
+            self.solveCollisions(collision);      
+        };
+        
+        this.solveConstraints = function(constrainPoint, maxDistance) {
+            var constrainVector = VEC3.subtract(self.currentPosition, constrainPoint);
             var difference = maxDistance/VEC3.length(constrainVector);
             self.currentPosition = difference < 1.0 ? VEC3.sum(constrainPoint, VEC3.multiply(constrainVector, difference)) : self.currentPosition;
-		}
-		
-		this.solveCollisions = function(collision) {
-			self.colliding = collision && (collision.offset > 0);
+        };
+        
+        this.solveCollisions = function(collision) {
+            self.colliding = collision && (collision.offset > 0);
             self.collision = collision;
             if (self.colliding) {
                 self.currentPosition = VEC3.sum(self.currentPosition, VEC3.multiply(collision.normal, collision.offset));
@@ -851,12 +865,14 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             } else {
                 self.previousCollision = undefined;
             } 
-		}
+        };
         
         this.apply = function(name, forceRendering) {
-            jointDebug.setDebugSphere(name, self.currentPosition, 2*self.radius, {red: self.collision && self.collision.collisionCount > 1 ? 0 : 255, green:self.colliding ? 0 : 255, blue:0}, forceRendering);
-        }
-    }
+            jointDebug.setDebugSphere(name, self.currentPosition, 2*self.radius, {  red: self.collision && self.collision.collisionCount > 1 ? 0 : 255, 
+                                                                                    green:self.colliding ? 0 : 255, 
+                                                                                    blue:0 }, forceRendering);
+        };
+    };
     
 
     var FlowJoint = function(index, parentIndex, name, group, settings){
@@ -873,8 +889,8 @@ Script.include(Script.resolvePath("./VectorMath.js"));
         this.initialPosition = MyAvatar.getJointPosition(index);
         this.initialXform = new Xform(MyAvatar.getJointRotation(index), MyAvatar.getJointTranslation(index));
         
-        this.currentRotation;
-        this.recoveryPosition;
+        this.currentRotation = undefined;
+        this.recoveryPosition = undefined;
         
         this.node = new FlowNode(self.initialPosition, settings);
         
@@ -898,12 +914,12 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     self.node.currentPosition = MyAvatar.getJointPosition(self.parentIndex);
                 }
             }
-        }
+        };
                 
         this.solve = function(collision) {
             var parentPosition = flowJointData[self.parentIndex] ? flowJointData[self.parentIndex].node.currentPosition : MyAvatar.getJointPosition(self.parentIndex);
             self.node.solve(parentPosition, self.length, collision);            
-        }
+        };
         
         this.apply = function() {
             
@@ -911,8 +927,8 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 MyAvatar.setJointRotation(self.index, self.currentRotation);
             }
             self.node.apply(self.name, self.isDummy);
-        }
-    }
+        };
+    };
     
     var FlowJointDummy = function(initialPosition, index, parentIndex, childIndex, settings) {
         var group = DUMMY_KEYWORD;
@@ -923,7 +939,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
         this.initialPosition = initialPosition;
         this.node = new FlowNode(initialPosition, settings);
         this.length = DUMMY_JOINT_DISTANCE;
-    }       
+    };   
     
     var FlowThread = function(root) {
         var self = this;
@@ -951,7 +967,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     self.length += flowJointData[index].length;
                 }
             }
-        }
+        };
         
         this.computeRecovery = function() {
             var parentIndex = self.joints[0];
@@ -965,7 +981,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 parentJoint = joint;
             }
             
-        }
+        };
 
         this.update = function() {
             if (!self.getActive()) {
@@ -979,19 +995,19 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 joint.update();
                 self.positions.push(joint.node.currentPosition);
             }
-        }
+        };
         
         this.solve = function(useCollisions) {
             if (!self.getActive()) {
                 return;
             }
+            var i, index;
             if (useCollisions) {
-
                 var handCollisions = handSystem.checkThreadCollisions(self);
                 var bodyCollisions = collisionSystem.checkThreadCollisions(self);
                 var handTouchedJoint = -1;
-                for (var i = 0; i < self.joints.length; i++) {
-                    var index = self.joints[i];
+                for (i = 0; i < self.joints.length; i++) {
+                    index = self.joints[i];
                     if (bodyCollisions[i].offset > 0) {
                         flowJointData[index].solve(bodyCollisions[i]);
                     } else {
@@ -999,23 +1015,13 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                         flowJointData[index].solve(handCollisions[i]);
                     }                   
                 }
-                if (handTouchedJoint > 1) {
-                    // console.log("handTouched: "+ handTouchedJoint);
-                    //for (var i = handTouchedJoint; i > 1; i--) {
-                        //var joint1 = flowJointData[self.joints[handTouchedJoint]];
-                        //var joint2 = flowJointData[self.joints[handTouchedJoint-2]];
-                        //var middleJoint = flowJointData[self.joints[handTouchedJoint-1]];
-                        //var middlePos = VEC3.multiply(VEC3.sum(joint1.node.currentPosition, joint2.node.currentPosition), 0.5);
-                        //flowJointData[self.joints[handTouchedJoint-1]].node.currentPosition = middlePos;//VEC3.multiply(VEC3.sum(middleJoint.node.currentPosition, middlePos), 0.5);
-                    //}                     
-                }
             } else {
                 for (i = 0; i < self.joints.length; i++) {
                     index = self.joints[i];
                     flowJointData[index].solve(new FlowCollisionData());
                 }
             }
-        }
+        };
         
         this.computeJointRotations = function() {
             var rootIndex = flowJointData[self.joints[0]].parentIndex;
@@ -1041,7 +1047,10 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             for (i = 1; i < self.joints.length-1; i++){
                 var nextJoint = flowJointData[self.joints[i+1]];
                 for (var j = i; j < self.joints.length; j++){
-                    rootFramePositions[j] = VEC3.multiplyQbyV(QUAT.inverse(joint0.currentRotation), VEC3.subtract(rootFramePositions[j], VEC3.multiply(joint0.initialXform.pos, 0.01)));
+                    rootFramePositions[j] = VEC3.multiplyQbyV(
+                        QUAT.inverse(joint0.currentRotation), 
+                        VEC3.subtract(rootFramePositions[j], VEC3.multiply(joint0.initialXform.pos, 0.01))
+                    );
                 }
                 pos0 = rootFramePositions[i];
                 pos1 = rootFramePositions[i+1];
@@ -1056,7 +1065,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 joint0 = joint1;
                 joint1 = nextJoint;
             }
-        }
+        };
 
         this.apply = function() {
             if (!self.getActive()) {
@@ -1067,17 +1076,27 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             for (var i = 0; i < self.joints.length; i++){
                 var joint = flowJointData[self.joints[i]];
                 var parentJoint = flowJointData[joint.parentIndex];
-                jointDebug.setDebugLine(joint.name, joint.node.currentPosition, !parentJoint ? MyAvatar.getJointPosition(joint.parentIndex) : parentJoint.node.currentPosition, {red: 255, green:(joint.colliding ? 0 : 255), blue:0}, joint.isDummy);
+                jointDebug.setDebugLine(
+                    joint.name, 
+                    joint.node.currentPosition, 
+                    !parentJoint ? MyAvatar.getJointPosition(joint.parentIndex) : parentJoint.node.currentPosition, 
+                    {
+                        red: 255, 
+                        green:(joint.colliding ? 0 : 255), 
+                        blue:0
+                    }, 
+                    joint.isDummy
+                );
                 joint.apply();
             }
-        }
+        };
         
         this.getActive = function() {
             return flowJointData[self.joints[0]].node.active;
-        }
+        };
         
         self.computeThread(root);
-    }
+    };
     
     var isActive, flowSkeleton, flowJointData, flowThreads, handSystem, collisionSystem, collisionDebug, jointDebug;
     
@@ -1129,7 +1148,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 joint.node.radius = joint.node.initialRadius * scale;
             }
         }
-    }
+    };
     
     var calculateConstraints = function() {
         var collisionKeys = Object.keys(CUSTOM_COLLISION_DATA);
@@ -1142,9 +1161,9 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                     var group = namesplit[1];
                     FLOW_JOINT_KEYWORDS.push(group);
                     var jointSettings;
-                    if (CUSTOM_FLOW_DATA[group] != undefined) {
+                    if (CUSTOM_FLOW_DATA[group] !== undefined) {
                         jointSettings = CUSTOM_FLOW_DATA[group];
-                    } else if (PRESET_FLOW_DATA[group] != undefined){
+                    } else if (PRESET_FLOW_DATA[group] !== undefined){
                         jointSettings = PRESET_FLOW_DATA[group];
                     } else {
                         jointSettings = DEFAULT_JOINT_SETTINGS.get();
@@ -1170,7 +1189,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             var index = flowSkeleton[i].index;
             var flowJoint = flowJointData[index];
             var parentFlowJoint = flowJointData[flowJoint.parentIndex];
-            if (parentFlowJoint != undefined) {
+            if (parentFlowJoint !== undefined) {
                 parentFlowJoint.childIndex = index;
             } else {
                 flowJoint.node.anchored = true;
@@ -1185,9 +1204,9 @@ Script.include(Script.resolvePath("./VectorMath.js"));
                 flowThreads.push(thread);
             }
         }
-		if (flowThreads.length === 0) {
-			MyAvatar.clearJointsData();
-		}
+        if (flowThreads.length === 0) {
+            MyAvatar.clearJointsData();
+        }
         
         if (SHOW_DUMMY_JOINTS) {
             var jointCount = flowJointData.length;
@@ -1207,7 +1226,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             flowThreads.push(extraThread);
         }
         setFlowScale(MyAvatar.scale);
-    }
+    };
     
 
     Script.update.connect(function(){
@@ -1247,9 +1266,9 @@ Script.include(Script.resolvePath("./VectorMath.js"));
     
     MyAvatar.skeletonChanged.connect(function(){
         Script.setTimeout(function() {
-			stopFlow();
+            stopFlow();
             MyAvatar.clearJointsData();
-			initFlow();
+            initFlow();
         }, 200);
     });
     
