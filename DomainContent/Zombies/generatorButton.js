@@ -7,19 +7,28 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
-/* global Pointers*/
+
+/* global Pointers */
 
 (function() {
     var AUDIO_VOLUME_LEVEL = 0.2;
     var DOWN_TIME_MS = 3000;
     var DISABLED_TIME_MS = 10000;
     var SOS_BUTTON = "{a106c159-b533-47c4-93cc-a34fc4ed9b58}";
-    var POSITION_INACTIVE = {x:3.4711,y:-8.9907,z:4.6893};
-    var POSITION_ACTIVE = {x:3.4155,y:-8.9907,z:4.7278};
-
+    var POSITION_INACTIVE = {
+        x: 3.4711,
+        y: -8.9907,
+        z: 4.6893
+    };
+    var POSITION_ACTIVE = {
+        x: 3.4155,
+        y: -8.9907,
+        z: 4.7278
+    };
     var YELLOW = "https://hifi-content.s3.amazonaws.com/jimi/environment/201802_Shop/buttons/buttonYellow.fbx";
     var RED = "https://hifi-content.s3.amazonaws.com/jimi/environment/201802_Shop/buttons/buttonRed.fbx";
     var GREEN = "https://hifi-content.s3.amazonaws.com/jimi/environment/201802_Shop/buttons/buttonGreen.fbx";
+    var GENERATOR_SOUND = "sounds/259912__daroc__dieselgenerator.wav";
 
     var _this;
     var currentHand = 0;
@@ -33,7 +42,7 @@
     Button.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
-            sound = SoundCache.getSound(Script.resolvePath("sounds/259912__daroc__dieselgenerator.wav"));
+            sound = SoundCache.getSound(Script.resolvePath(GENERATOR_SOUND));
             _this.reset();
         },
         reset: function(){
@@ -51,7 +60,6 @@
                 _this.lowerButton();
                 _this.changeColorToYellow();
                 if (sound.downloaded) {
-                    print("playing sound");
                     if (generatorSound) {
                         generatorSound.stop();
                     }
@@ -112,7 +120,6 @@
                     currentHand = 1;
                 }
             }
-            // print("mouse press on button");
             if (_this.color === GREEN) {
                 _this.pressButton();
             }

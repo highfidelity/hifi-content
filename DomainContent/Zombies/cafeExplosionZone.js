@@ -1,42 +1,32 @@
 (function () {
-    var EXPLOSION_BY_CAFE = "{61572699-d8b7-4186-b9a1-857a7ba7db34}";
+    var FIRE_BY_CAFE = "{b908d304-cbee-4eb0-85ed-e549264de3f4}";
     var AUDIO_VOLUME_LEVEL = 0.8;
+    var EXPLOSION_SOUND = "sounds/156031__iwiploppenisse__explosion.wav";
 
     var sound;
 
-    var _this;
-
     var ExplosionZone = function() {
-        _this = this;
     };
 
     ExplosionZone.prototype = {
         preload: function(entityID) {
-            sound = SoundCache.getSound(Script.resolvePath("sounds/156031__iwiploppenisse__explosion.wav"));
-            _this.ready = false;
+            sound = SoundCache.getSound(Script.resolvePath(EXPLOSION_SOUND));
         },
         enterEntity: function() {
-        // did explosion already happen?
-            var explosion = Entities.getEntityProperties(EXPLOSION_BY_CAFE, 'visible').visible;
-            if (!explosion && _this.ready) {
+            // did explosion already happen?
+            var explosion = Entities.getEntityProperties(FIRE_BY_CAFE, 'visible').visible;
+            if (!explosion) {
                 if (sound.downloaded) {
-                    print("sound!!!");
                     Audio.playSound(sound, {
-                        position: Entities.getEntityProperties(EXPLOSION_BY_CAFE, 'position').position,
+                        position: Entities.getEntityProperties(FIRE_BY_CAFE, 'position').position,
                         volume: AUDIO_VOLUME_LEVEL
                     });
                 }
-                Entities.editEntity(EXPLOSION_BY_CAFE, {
+                Entities.editEntity(FIRE_BY_CAFE, {
                     visible: true,
                     collisionless: false
                 });
             }
-        },
-        readyToExplode: function() {
-            _this.ready = true;
-        },
-        notReadyToExplode: function() {
-            _this.ready = false;
         }
     };
 
