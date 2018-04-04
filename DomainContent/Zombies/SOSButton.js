@@ -7,7 +7,7 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
-/* global Pointers*/
+/* global Pointers */
 
 (function() {
     var AUDIO_VOLUME_LEVEL = 0.2;
@@ -15,13 +15,22 @@
     var DISABLED_TIME_MS = 10000;
     var BOAT = "{4691d6ad-93f5-4456-90b9-95c9f2ef00b2}";
     var BLOCK_BOAT_ACCESS = "{838f0103-1bfa-4c7c-a786-b3e8c0f71f8a}";
+    var BOAT_HORN = "sounds/346108__limetoe__boat-horn.wav";
     var BOAT_SOUND_POSITION = {
         x:-4.8,
         y:4.5,
         z:-52
     };
-    var POSITION_INACTIVE = {x:-6.2397,y:4.4977,z:-51.5015};
-    var POSITION_ACTIVE = {x:-6.2397,y:4.4031,z:-51.5015};
+    var POSITION_INACTIVE = {
+        x: -6.2397,
+        y: 4.4977,
+        z: -51.5015
+    };
+    var POSITION_ACTIVE = {
+        x: -6.2397,
+        y: 4.4031,
+        z: -51.5015
+    };
 
     var YELLOW = {
         red: 237,
@@ -53,7 +62,7 @@
     Button.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
-            sound = SoundCache.getSound(Script.resolvePath("sounds/346108__limetoe__boat-horn.wav"));
+            sound = SoundCache.getSound(Script.resolvePath(BOAT_HORN));
             _this.reset();
         },
         reset: function() {
@@ -132,7 +141,6 @@
                     currentHand = 1;
                 }
             }
-            // print("mouse press on button");
             if (_this.color === GREEN) {
                 _this.pressButton();
             }
