@@ -15,7 +15,7 @@
     var DISABLED_TIME_MS = 10000;
     var BOAT = "{4691d6ad-93f5-4456-90b9-95c9f2ef00b2}";
     var BLOCK_BOAT_ACCESS = "{838f0103-1bfa-4c7c-a786-b3e8c0f71f8a}";
-    var BOAT_HORN = "sounds/346108__limetoe__boat-horn.wav";
+    var BOAT_HORN_SOUND = "sounds/346108__limetoe__boat-horn.wav";
     var BOAT_SOUND_POSITION = {
         x:-4.8,
         y:4.5,
@@ -62,7 +62,7 @@
     Button.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
-            sound = SoundCache.getSound(Script.resolvePath(BOAT_HORN));
+            sound = SoundCache.getSound(Script.resolvePath(BOAT_HORN_SOUND));
             _this.reset();
         },
         reset: function() {
