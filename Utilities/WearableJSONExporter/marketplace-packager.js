@@ -111,6 +111,10 @@
             event = JSON.parse(event);
         }
         if (event.type === "move-entity") {
+            var entityIDProperties = Entities.getEntityProperties(event.entityID, 'parentID');
+            if (entityIDProperties.parentID === MyAvatar.sessionUUID) {
+                return; // don't change things that are already attached to us
+            }
             Entities.editEntity(event.entityID, {
                 "parentID" : MyAvatar.sessionUUID,
                 "parentJointIndex" : MyAvatar.getJointIndex(event.joint),
@@ -123,7 +127,6 @@
             // Collect the rest of the properties we want
             var newExportProperties = exportProperties;
             var newUserDataProperties = baseUserdata;
-            
             // Confirm we have a valid joint 
             var joint = event.joint;
             if (joint === null) {
