@@ -27,12 +27,13 @@
             pillProperties = {
                 type: "Model",
                 shapeType: "Sphere",
-                modelURL: "https://hifi-content.s3.amazonaws.com/DomainContent/Hub/models/pill/Pill.obj",
+                modelURL: Script.resolvePath("./models/Pill.obj"),
                 script: Script.resolvePath('swallowFXPill.js'),
                 dimensions : {x: 0.1259, y: 0.1259, z: 0.3227},
                 lifetime: LIFETIME,
                 position: SPAWN_POSITION,
                 dynamic: true,
+                visible: false,
                 userData : "{\"grabbableKey\":{\"grabbable\":true}}"
             };        
             spawnPillInterval = Script.setInterval(function() {
