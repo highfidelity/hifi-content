@@ -20,13 +20,16 @@
     var TIMEOUT = 2000;
     var RETURN_DISTANCE = 1;
 
+    var LEFT_JOINT_PREFIX = "Left";
+    var RIGHT_JOINT_PREFIX = "Right";
+
     var previousID = 0;
     var listName = "contextOverlayHighlightList";
     var listType = "entity";
 
     var entityIDToExport = "";
 
-    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');  
+    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
 
     function handleMousePress(entityID) {
         if (previousID !== entityID) {
@@ -65,8 +68,7 @@
 
     var exportProperties = {
         type: "Model",
-        parentID: "{00000000-0000-0000-0000-000000000001}",
-        owningAvatarID: "{00000000-0000-0000-0000-000000000000}",
+        parentID: MyAvatar.SELF_ID,
         visible: true,
         shapeType: "box",
         collidesWith: "",
@@ -116,9 +118,9 @@
                 return; // don't change things that are already attached to us
             }
             Entities.editEntity(event.entityID, {
-                "parentID" : MyAvatar.sessionUUID,
-                "parentJointIndex" : MyAvatar.getJointIndex(event.joint),
-                "position" : MyAvatar.getJointPosition(event.joint)
+                "parentID": MyAvatar.sessionUUID,
+                "parentJointIndex": MyAvatar.getJointIndex(event.joint),
+                "position": MyAvatar.getJointPosition(event.joint)
             });
         }
         if (event.type === "submit" && event.app === "JSON") {
@@ -133,19 +135,20 @@
                 tablet.emitScriptEvent("display-warning-joint-selection");
                 return;
             }
-            if (joint.indexOf("Left") !== -1) {
-                newUserDataProperties.Attachment.joint = "[LR]" + joint.substring(4);
-            } else if (joint.indexOf("Right") !== -1) {
-                newUserDataProperties.Attachment.joint = "[LR]" + joint.substring(5);
+            if (joint.indexOf(LEFT_JOINT_PREFIX) !== -1) {
+                newUserDataProperties.Attachment.joint = "[LR]" + joint.substring(LEFT_JOINT_PREFIX.length);
+            } else if (joint.indexOf(RIGHT_JOINT_PREFIX) !== -1) {
+                newUserDataProperties.Attachment.joint = "[LR]" + joint.substring(RIGHT_JOINT_PREFIX);
             } else {
                 newUserDataProperties.Attachment.joint = joint;
             }
             
 
-            var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script', 'localPosition', 'localRotation']);
+            var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script',
+                'localPosition', 'localRotation']);
             newExportProperties.modelURL = properties.modelURL;
 
-            if ( newExportProperties.modelURL === undefined || newExportProperties.modelURL.indexOf("mpassets") === -1 ) {
+            if (newExportProperties.modelURL === undefined || newExportProperties.modelURL.indexOf("mpassets") === -1) {
                 tablet.emitScriptEvent("display-warning-modelURL");
             } else {
 
@@ -164,8 +167,9 @@
                 Window.saveFileChanged.connect(function() {
                     Entities.deleteEntity(entityIDToExport);
                     Entities.editEntity(entityID, {
-                        'parentID': "{00000000-0000-0000-0000-000000000000}",
-                        'position' : Vec3.sum(MyAvatar.position, Vec3.multiply(Quat.getFront(MyAvatar.orientation), RETURN_DISTANCE))
+                        'parentID': Uuid.NULL,
+                        'position' : Vec3.sum(MyAvatar.position, 
+                            Vec3.multiply(Quat.getFront(MyAvatar.orientation), RETURN_DISTANCE))
                     });
                 });
             } 
