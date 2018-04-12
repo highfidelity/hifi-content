@@ -36,7 +36,7 @@
             template.modelURL = newURL;
         }
     }
-
+    
     var BLUE_MARKER_NAME = "hifi_model_marker_blue";
     var GREEN_MARKER_NAME = "hifi_model_marker_green";
     var BLACK_MARKER_NAME = "hifi_model_marker_black";
@@ -72,7 +72,7 @@
     var normalsInProgress = [];
     var strokeBasePositionInProgress = [];
     var MAX_POINTS_PER_STROKE = 60;
-    //35
+    // 35
     var MARKER_TEXTURE_URL = Script.resolvePath("markerStroke.png");
     var strokeForwardOffset = 0.01;
     var STROKE_WIDTH_RANGE = {
@@ -116,7 +116,7 @@
             _this.entityID = entityID;
             _this.MIN_DISTANCE_BETWEEN_POINTS = 0.002;
             _this.MAX_DISTANCE_BETWEEN_POINTS = 0.02;
-            //0.03
+            // 0.03
             _this.DISTANCE_BETWEEN_POINTS_RESOLUTION = 0.005;
             _this.strokes = [];
             _this.STROKE_NAME = "hifi_polyline_markerStroke";
@@ -132,7 +132,7 @@
         /// @param {object} param parameters passed as an array of string 
         /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
         paintDesktop: function(entityID, params) {
-             var currentIndex = -1;
+            var currentIndex = -1;
             for (var i = 0; i < strokesInProgress.length; i++) {
                 if (utils.getEntityUserData(strokesInProgress[i]).creatorMarker === params[2]) {
                     currentIndex = i;
@@ -182,6 +182,14 @@
                     // this filters most wild lines
                     return;
                 }
+                
+                // use previous point in the line to smooth 
+                var smoothingCoef = 0.5;
+
+                localPoint = Vec3.sum(
+                    Vec3.multiply(smoothingCoef,localPoint), 
+                    Vec3.multiply((1- smoothingCoef), linePoints[linePoints.length - 1])
+                );
             }
             
 
@@ -236,7 +244,7 @@
                 })
             });
             
-            if (previousLine != null) {
+            if (previousLine !== null) {
                 _this.bridge(newStroke, previousLine);
             } else {
                 linePointsInProgress.push([]);
@@ -252,15 +260,13 @@
             var normals = [];
             var strokeWidths = [];
             var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
-            var whiteboardPosition = Entities.getEntityProperties(_this.entityID , "position").position;
             
             whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
 
             var strokeBasePosition = Entities.getEntityProperties(newStroke , "position").position;
             var prevStrokeBasePosition = Entities.getEntityProperties(previousLine , "position").position;
             var prevLinePoints = Entities.getEntityProperties(previousLine , "linePoints").linePoints;
-            var prevNormals
-            //get last 2 linePoints
+            // get last 2 linePoints
             var lastPoint1 = prevLinePoints[prevLinePoints.length - 1];
             var lastPoint2 = prevLinePoints[prevLinePoints.length - 2];
             
