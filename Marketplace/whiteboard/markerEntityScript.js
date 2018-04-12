@@ -165,7 +165,7 @@
             );
         },
         releaseGrab: function() {
-            _this.resetStroke();
+            _this.resetStroke(false);
         },
         continueNearGrab: function(entityID, paramsArray) {
             // cast a ray from marker and see if it hits anything
@@ -216,7 +216,7 @@
                 _this.currentWhiteboard = whiteBoardIntersection.entityID;
                 var whiteboardRotation = Entities.getEntityProperties(_this.currentWhiteboard, "rotation").rotation;
                 _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
-                _this.paint(whiteBoardIntersection.intersection);
+                _this.paint(whiteBoardIntersection.intersection, false);
                 if (isPainting === false) {
                     Audio.playSound(BEGIN_STROKE_SOUND, {
                         position: whiteBoardIntersection.intersection,
@@ -257,7 +257,7 @@
                     hand
                 );
             } else {
-                _this.resetStroke();
+                _this.resetStroke(false);
             }
         },
         startEquip: function() {
@@ -272,22 +272,34 @@
             _this.equipped = false;
             _this.releaseGrab();
         },
-        paint: function(position) {
+        paint: function(position, isDesktopMode) {
             // whiteboard server ID
             var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
             // RPC - call server paint [position, markerColor, creatorMarker, parentID]
-            Entities.callEntityServerMethod(serverID, 
-                'paint', 
-                [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
-            );
+			if (isDesktopMode) {
+				Entities.callEntityServerMethod(serverID, 
+					'paintDesktop', 
+					[JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
+				);
+			} else {
+				Entities.callEntityServerMethod(serverID, 
+					'paint', 
+					[JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
+				);
+			}
+            
         },
-        resetStroke: function() {
+        resetStroke: function(isDesktopMode) {
             // reset stroke
             if (isPainting) {
                 isPainting = false;
                 var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
                 // RPC - call server reset [creatorMarker, parentID]
-                Entities.callEntityServerMethod(serverID, 'resetMarkerStroke', [_this.entityID, _this.currentWhiteboard]);
+				if (isDesktopMode) {
+					Entities.callEntityServerMethod(serverID, 'resetMarkerStrokeDesktop', [_this.entityID, _this.currentWhiteboard]);
+				} else {
+					Entities.callEntityServerMethod(serverID, 'resetMarkerStroke', [_this.entityID, _this.currentWhiteboard]);
+				}
             }
         },
 
@@ -353,7 +365,7 @@
                         Settings.setValue('io.highfidelity.isEditing', false);
                         var serverID = getServerID();
                         isMouseDown = false;
-                        _this.resetStroke();
+                        _this.resetStroke(true);
                         // delete marker
                         Entities.callEntityServerMethod(serverID, 
                             'erase', 
@@ -365,7 +377,6 @@
         },
         mouseMoveEvent: function(event) {
             var serverID;
-
             if (_this.equipped && event.x !== undefined) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
                 var colorIntersection = Entities.findRayIntersection(pickRay, true, _this.colors);
@@ -393,7 +404,7 @@
                 
                 if (whiteBoardIntersection.intersects) {
                     if (!isMouseDown && isPainting) {
-                        _this.resetStroke();
+                        _this.resetStroke(true);
                         isPainting = false;
                         isStartingStroke = false;
                     } else {
@@ -426,8 +437,8 @@
                             ]
                         );
 
-                        if (isMouseDown) {
-                            _this.paint(whiteBoardIntersection.intersection);
+                        if (isMouseDown && event.isLeftButton) {
+                            _this.paint(whiteBoardIntersection.intersection, true);
                             if (!isStartingStroke) {
                                 isStartingStroke = true;
                                 
@@ -470,7 +481,7 @@
                     serverID = getServerID();
                     isMouseDown = false;
                     Settings.setValue('io.highfidelity.isEditing', false);
-                    _this.resetStroke();
+                    _this.resetStroke(true);
                     // delete marker
                     Entities.callEntityServerMethod(serverID, 
                         'erase', 
@@ -483,7 +494,7 @@
         mouseReleaseEvent: function(event) {
             if (isMouseDown) {
                 isMouseDown = false;
-                _this.resetStroke();
+                _this.resetStroke(true);
                 isStartingStroke = false;
             }
         },

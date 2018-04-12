@@ -67,10 +67,12 @@
     
     var strokes = [];
     var strokesInProgress = [];
+   
     var linePointsInProgress = [];
     var normalsInProgress = [];
     var strokeBasePositionInProgress = [];
-    var MAX_POINTS_PER_STROKE = 25;
+    var MAX_POINTS_PER_STROKE = 60;
+    //35
     var MARKER_TEXTURE_URL = Script.resolvePath("markerStroke.png");
     var strokeForwardOffset = 0.01;
     var STROKE_WIDTH_RANGE = {
@@ -84,6 +86,7 @@
         z: 10
     };
 
+    
     var RESET_MARKERS_AND_ERASERS_RADIUS = 15;
     var SHORT_TOOL_LIFETIME = 300;
     var TOOL_LIFETIME = 3600;
@@ -99,6 +102,8 @@
         remotelyCallable: [
             'paint', 
             'resetMarkerStroke', 
+            'paintDesktop', 
+            'resetMarkerStrokeDesktop', 
             'erase', 
             'clearBoard', 
             'serverAddEntity', 
@@ -110,33 +115,35 @@
         preload: function(entityID){
             _this.entityID = entityID;
             _this.MIN_DISTANCE_BETWEEN_POINTS = 0.002;
-            _this.MAX_DISTANCE_BETWEEN_POINTS = 0.03;
+            _this.MAX_DISTANCE_BETWEEN_POINTS = 0.02;
+            //0.03
+            _this.DISTANCE_BETWEEN_POINTS_RESOLUTION = 0.005;
             _this.strokes = [];
             _this.STROKE_NAME = "hifi_polyline_markerStroke";
             _this.WHITEBOARD_SURFACE_NAME = "Whiteboard - Drawing Surface";
             _this.MARKER_COLOR_NAME = "hifi-whiteboardPaint";
             _this.spawnOriginalMarkersAndErasers();
         },
-        /// Remotely callable paint function
+        /// Remotely callable paintDesktop function
         /// 
-        /// Creates and expand Polyline projected onto the "Whiteboard - Drawing Surface"
+        /// Creates and expand Polyline projected onto the "Whiteboard - Drawing Surface" with data from Desktop mode
         /// 
         /// @param {string} entityID of the server
         /// @param {object} param parameters passed as an array of string 
         /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
-        paint: function(entityID, params) {
-            var currentIndex = -1;
+        paintDesktop: function(entityID, params) {
+             var currentIndex = -1;
             for (var i = 0; i < strokesInProgress.length; i++) {
                 if (utils.getEntityUserData(strokesInProgress[i]).creatorMarker === params[2]) {
                     currentIndex = i;
                     break;
                 }
             }
-            
+
             // we haven't found the polyline
             if (currentIndex === -1) {
                 // build new polyline by starting a new stroke
-                _this.startMarkerStroke(params);
+                _this.startMarkerStrokeDesktop(params, null);
                 return;
             }
             
@@ -144,12 +151,13 @@
             var linePoints = linePointsInProgress[currentIndex];
             var normals = normalsInProgress[currentIndex];
             var strokeWidths = [];
+            var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
+            var whiteboardPosition = Entities.getEntityProperties(_this.entityID , "position").position;
+
             var strokeBasePosition = strokeBasePositionInProgress[currentIndex];
             var localPoint = utils.parseJSON(params[0]);
-            var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
+            
             whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
-
-            var whiteboardPosition = Entities.getEntityProperties(_this.entityID , "position").position;
 
             // Project localPoint on the Plane defined by whiteboardNormal
             // and whiteboardPosition
@@ -160,36 +168,27 @@
             localPoint = Vec3.subtract(localPoint, Vec3.multiply(distanceLocal, whiteboardNormal));
             localPoint = Vec3.subtract(localPoint, strokeBasePosition);
             localPoint = Vec3.sum(localPoint, Vec3.multiply(whiteboardNormal, strokeForwardOffset));
+            var pointWidth = (STROKE_WIDTH_RANGE.min + STROKE_WIDTH_RANGE.max) / 2;
+
             
             if (linePoints.length > 0) {
                 var distance = Vec3.distance(localPoint, linePoints[linePoints.length - 1]);
                 if (distance < _this.MIN_DISTANCE_BETWEEN_POINTS) {
                     return;
                 }
-
-                if (distance > _this.MAX_DISTANCE_BETWEEN_POINTS) {
-                    strokes.push(strokesInProgress[currentIndex]);
-                    strokesInProgress.splice(currentIndex, 1);
-                    linePointsInProgress.splice(currentIndex, 1);
-                    normalsInProgress.splice(currentIndex, 1);
-                    strokeBasePositionInProgress.splice(currentIndex, 1);
-                    _this.startMarkerStroke(params);
+                
+                if (distance < _this.MAX_DISTANCE_BETWEEN_POINTS) {
+                    // ignore points out of order
+                    // this filters most wild lines
                     return;
                 }
             }
+            
+
             linePoints.push(localPoint);
             normals.push(whiteboardNormal);
 
             for (i = 0; i < linePoints.length; i++) {
-                // Create a temp array of stroke widths for calligraphy effect - start and end should be less wide
-                var pointsFromCenter = Math.abs(linePoints.length / 2 - i);
-                var pointWidth = utils.map(pointsFromCenter, 
-                    0, 
-                    linePoints.length / 2, 
-                    STROKE_WIDTH_RANGE.max, 
-                    STROKE_WIDTH_RANGE.min
-                );
-                pointWidth = (STROKE_WIDTH_RANGE.min + STROKE_WIDTH_RANGE.max) / 2;
                 strokeWidths.push(pointWidth);
             }
             
@@ -204,6 +203,197 @@
             
             // if reached max number finish line
             if (linePoints.length > MAX_POINTS_PER_STROKE) {
+                var prev = strokesInProgress[currentIndex];
+                strokes.push(strokesInProgress[currentIndex]);
+                strokesInProgress.splice(currentIndex, 1);
+                linePointsInProgress.splice(currentIndex, 1);
+                normalsInProgress.splice(currentIndex, 1);
+                strokeBasePositionInProgress.splice(currentIndex, 1);
+                _this.startMarkerStrokeDesktop(params, prev);
+            }
+            
+        },
+        /// Create a new stroke for Desktop mode(Polyline)
+        /// 
+        /// Creates new Polyline entity and tries to expand it.
+        /// 
+        /// @param {object} param parameters passed as an array of string 
+        /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
+        startMarkerStrokeDesktop: function(params, previousLine) {
+            var newStroke = Entities.addEntity({
+                type: "PolyLine",
+                name: _this.STROKE_NAME,
+                parentID: _this.entityID,
+                dimensions: STROKE_DIMENSIONS,
+                rotation: Quat.IDENTITY,
+                position: utils.parseJSON(params[0]),
+                color: utils.parseJSON(params[1]),
+                textures: MARKER_TEXTURE_URL,
+                lifetime: STROKE_LIFETIME,
+                userData: JSON.stringify({
+                    creatorMarker: params[2],
+                    parentBoard: params[3]
+                })
+            });
+            
+            if (previousLine != null) {
+                _this.bridge(newStroke, previousLine);
+            } else {
+                linePointsInProgress.push([]);
+                normalsInProgress.push([]);
+                strokesInProgress.push(newStroke);
+                strokeBasePositionInProgress.push(utils.parseJSON(params[0]));
+                // continue to expand newly created polyline
+                _this.paintDesktop(_this.entityID, params);
+            }
+        },
+        bridge: function(newStroke, previousLine) {
+            var linePoints = [];
+            var normals = [];
+            var strokeWidths = [];
+            var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
+            var whiteboardPosition = Entities.getEntityProperties(_this.entityID , "position").position;
+            
+            whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
+
+            var strokeBasePosition = Entities.getEntityProperties(newStroke , "position").position;
+            var prevStrokeBasePosition = Entities.getEntityProperties(previousLine , "position").position;
+            var prevLinePoints = Entities.getEntityProperties(previousLine , "linePoints").linePoints;
+            var prevNormals
+            //get last 2 linePoints
+            var lastPoint1 = prevLinePoints[prevLinePoints.length - 1];
+            var lastPoint2 = prevLinePoints[prevLinePoints.length - 2];
+            
+            lastPoint1 = Vec3.sum(lastPoint1, prevStrokeBasePosition);
+            lastPoint2 = Vec3.sum(lastPoint2, prevStrokeBasePosition);
+            
+            lastPoint1 = Vec3.subtract(lastPoint1, strokeBasePosition);
+            lastPoint2 = Vec3.subtract(lastPoint2, strokeBasePosition);
+            
+            var pointWidth = (STROKE_WIDTH_RANGE.min + STROKE_WIDTH_RANGE.max) / 2;
+            
+            linePoints = [lastPoint1, lastPoint2];
+            normals = [whiteboardNormal, whiteboardNormal];
+            strokeWidths = [pointWidth *2 , pointWidth*2];
+            
+            // Edit entity
+            Entities.editEntity(newStroke, {
+                linePoints: linePoints,
+                normals: normals,
+                strokeWidths: strokeWidths
+            });
+            
+            linePointsInProgress.push(linePoints);
+            normalsInProgress.push(normals);
+            strokesInProgress.push(newStroke);
+            strokeBasePositionInProgress.push(strokeBasePosition);
+        },
+        /// Remotely callable reset marker stroke function from Desktop mode
+        /// 
+        /// Attempts to stop an ongoing stroke being drawn by a specific marker.
+        /// 
+        /// @param {string}  entityID of the server
+        /// @param {object}  param parameters passed as an array of string 
+        /// with the id of the marker that stoped drawing and the drawing surface [creatorMarkerID, drawingSurfaceID]
+        resetMarkerStrokeDesktop: function(entityID, params) {
+            print("Daantje Debug: Reset Desktop");
+            var currentIndex = -1;
+            for (var i = 0; i < strokesInProgress.length; i++) {
+                if (utils.getEntityUserData(strokesInProgress[i]).creatorMarker === params[0]) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+
+            // we haven't found the polyline
+            if (currentIndex === -1) {
+                return;
+            }
+            
+            // remove stroke information from the current active strokes
+            strokes.push(strokesInProgress[currentIndex]);
+            strokesInProgress.splice(currentIndex, 1);
+            linePointsInProgress.splice(currentIndex, 1);
+            normalsInProgress.splice(currentIndex, 1);
+            strokeBasePositionInProgress.splice(currentIndex, 1);
+        },
+        /// Remotely callable paint function
+        /// 
+        /// Creates and expand Polyline projected onto the "Whiteboard - Drawing Surface"
+        /// 
+        /// @param {string} entityID of the server
+        /// @param {object} param parameters passed as an array of string 
+        /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
+        paint: function(entityID, params) {
+            
+            var currentIndex = -1;
+            for (var i = 0; i < strokesInProgress.length; i++) {
+                if (utils.getEntityUserData(strokesInProgress[i]).creatorMarker === params[2]) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+
+               
+            // we haven't found the polyline
+            if (currentIndex === -1) {
+                // build new polyline by starting a new stroke
+                _this.startMarkerStroke(params);
+                return;
+            }
+            
+            // add new points
+            var linePoints = linePointsInProgress[currentIndex];
+            var normals = normalsInProgress[currentIndex];
+            var strokeWidths = [];
+            var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
+            var whiteboardPosition = Entities.getEntityProperties(_this.entityID , "position").position;
+
+            var strokeBasePosition = strokeBasePositionInProgress[currentIndex];
+            var localPoint = utils.parseJSON(params[0]);
+            
+            whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
+
+            // Project localPoint on the Plane defined by whiteboardNormal
+            // and whiteboardPosition
+            var distanceWhiteboardPlane = Vec3.dot(whiteboardNormal, whiteboardPosition);
+            var distanceLocal = Vec3.dot(whiteboardNormal, localPoint) - distanceWhiteboardPlane;
+            
+            // Projecting local point onto the whiteboard plane
+            localPoint = Vec3.subtract(localPoint, Vec3.multiply(distanceLocal, whiteboardNormal));
+            localPoint = Vec3.subtract(localPoint, strokeBasePosition);
+            localPoint = Vec3.sum(localPoint, Vec3.multiply(whiteboardNormal, strokeForwardOffset));
+            var pointWidth = (STROKE_WIDTH_RANGE.min + STROKE_WIDTH_RANGE.max) / 2;
+
+            
+            if (linePoints.length > 0) {
+                var distance = Vec3.distance(localPoint, linePoints[linePoints.length - 1]);
+                if (distance < _this.MIN_DISTANCE_BETWEEN_POINTS) {
+                    return;
+                }
+
+            }
+            
+
+            linePoints.push(localPoint);
+            normals.push(whiteboardNormal);
+
+            for (i = 0; i < linePoints.length; i++) {
+                strokeWidths.push(pointWidth);
+            }
+            
+            // Edit entity
+            Entities.editEntity(strokesInProgress[currentIndex], {
+                linePoints: linePoints,
+                normals: normals,
+                strokeWidths: strokeWidths
+            });
+            linePointsInProgress[currentIndex] = linePoints;
+            normalsInProgress[currentIndex] = normals;
+            
+            // if reached max number finish line
+            if (linePoints.length > MAX_POINTS_PER_STROKE) {
+                print("Daantje Debug: gap max points per stroke");
                 strokes.push(strokesInProgress[currentIndex]);
                 strokesInProgress.splice(currentIndex, 1);
                 linePointsInProgress.splice(currentIndex, 1);
@@ -211,6 +401,7 @@
                 strokeBasePositionInProgress.splice(currentIndex, 1);
                 _this.startMarkerStroke(params);
             }
+            
         },
         /// Create a new stroke (Polyline)
         /// 
@@ -219,6 +410,7 @@
         /// @param {object} param parameters passed as an array of string 
         /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
         startMarkerStroke: function(params) {
+            print("Daantje Debug: Start Stroke Desktop");
             var newStroke = Entities.addEntity({
                 type: "PolyLine",
                 name: _this.STROKE_NAME,
@@ -250,6 +442,7 @@
         /// @param {object}  param parameters passed as an array of string 
         /// with the id of the marker that stoped drawing and the drawing surface [creatorMarkerID, drawingSurfaceID]
         resetMarkerStroke: function(entityID, params) {
+            print("Daantje Debug: Reset");
             var currentIndex = -1;
             for (var i = 0; i < strokesInProgress.length; i++) {
                 if (utils.getEntityUserData(strokesInProgress[i]).creatorMarker === params[0]) {
@@ -257,10 +450,12 @@
                     break;
                 }
             }
+
             // we haven't found the polyline
             if (currentIndex === -1) {
                 return;
             }
+            
             // remove stroke information from the current active strokes
             strokes.push(strokesInProgress[currentIndex]);
             strokesInProgress.splice(currentIndex, 1);
