@@ -56,7 +56,7 @@
     var LIFETIME = 10; // seconds
     var GRAVITY = {x: 0, y: -9.8, z: 0};
     var EFFECT_START_TIMEOUT = 300; // ms
-    var DEBUG = true;
+    var DEBUG = false;
 
     var LAST_ACTIVE_PILL_SETTING = "io.highfidelity.spacePills.lastActivePillSetting";
 
