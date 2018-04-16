@@ -16,20 +16,28 @@
 
 (function() {
 
+    /* fun trippy sphere bug
+    Entities.addEntity({ type: 'Sphere', dimensions: Vec3.ONE, position: MyAvatar.position, collisionless: true,
+        angularDamping: 0, angularVelocity: Vec3.UNIT_Y, alpha: 0.5 })
+    */
+
     var SWALLOW_SOUNDS_URLS = [
         "http://www.pacdv.com/sounds/people_sound_effects/gulp-2.wav",
         // rest of sounds from https://freesound.org/people/170084/sounds/408205/
-        Script.resolvePath("./sounds/swallow-1.wav"),
-        Script.resolvePath("./sounds/swallow-2.wav"),
-        Script.resolvePath("./sounds/swallow-3.wav"),
-        Script.resolvePath("./sounds/swallow-4.wav"),
-        Script.resolvePath("./sounds/swallow-5.wav"),
-        Script.resolvePath("./sounds/swallow-6.wav"),
-        Script.resolvePath("./sounds/swallow-7.wav")
+        Script.resolvePath("sounds/swallow-1.wav"),
+        Script.resolvePath("sounds/swallow-2.wav"),
+        Script.resolvePath("sounds/swallow-3.wav"),
+        Script.resolvePath("sounds/swallow-4.wav"),
+        Script.resolvePath("sounds/swallow-5.wav"),
+        Script.resolvePath("sounds/swallow-6.wav"),
+        Script.resolvePath("sounds/swallow-7.wav")
     ];
 
     // sound from https://freesound.org/people/meschi06/sounds/220914/
-    var WAH_SOUND = SoundCache.getSound(Script.resolvePath("./wah-formatted.wav"));
+    var EFFECT_SOUND_URL = Script.resolvePath("sounds/space-trip-short.wav");
+
+    var SWALLOW_SOUNDS = [];
+    var EFFECT_SOUND;
 
     var WIREFRAME = "Wireframe:LightingModel:enableWireframe";
 
@@ -43,12 +51,14 @@
     ];
 
     var SWALLOW_VOLUME = 0.5;
-    var WAH_VOLUME = 0.2;
-    var WITHIN_10_CM = 0.1;
+    var EFFECT_VOLUME = 0.5;
+    var CHECK_RADIUS = 0.2; // meters
     var LIFETIME = 10; // seconds
     var GRAVITY = {x: 0, y: -9.8, z: 0};
-    var WAH_START_TIMEOUT = 300; // ms
-    var DEBUG = false;
+    var EFFECT_START_TIMEOUT = 300; // ms
+    var DEBUG = true;
+
+    var LAST_ACTIVE_PILL_SETTING = "io.highfidelity.spacePills.lastActivePillSetting";
 
     var _entityID;
     var _this;
@@ -59,27 +69,24 @@
 
     Pill.prototype = {
         swallowPlayback: null,
-        wahPlayback: null,
-        wahPlaying: null,
+        effectPlayback: null,
+        effectPlaying: null,
         isInactive: true,
         hasServerScript: false,
 
         resetRenderDefaults: function() {
-            if (!_this.isInactive) {
-                Render.getConfig("RenderMainView").getConfig(WIREFRAME.split(":")[1])[WIREFRAME.split(":")[2]] = false;
-                Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").mode = 0;
-                Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").size = {x: 0, y: -1, z: 1, w: 1};
-                Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").enabled = false;
-            }
+            Render.getConfig("RenderMainView").getConfig(WIREFRAME.split(":")[1])[WIREFRAME.split(":")[2]] = false;
+            Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").mode = 0;
+            Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").enabled = false;
         },
 
         removeInjector: function() {
-            if (_this.wahPlaying !== null) {
-                if (_this.wahPlaying.playing) {
+            if (_this.effectPlaying !== null) {
+                if (_this.effectPlaying.playing) {
                     if (DEBUG) {
                         print("stopping wah sound");
                     }
-                    _this.wahPlaying.stop();
+                    _this.effectPlaying.stop();
                 }
             }
         },
@@ -92,18 +99,12 @@
                 visible: true,
                 lifetime: -1,
                 dynamic: true,
+                dimensions: {x: 0.1259, y: 0.1259, z: 0.3227},
                 collisionless: true,
                 gravity: GRAVITY
             };
             Entities.editEntity(entityID, editJSON);
         },
-
-        // FIXME: if someone is holding the pill and disconnects the pills don't disappear
-        /* continueNearGrab: function() {
-            if (DEBUG) {
-                print("holding pill");
-            }
-        }, */
 
         releaseGrab: function(entityID) {
             if (DEBUG) {
@@ -120,7 +121,7 @@
         checkIfNearHead: function() {
             if (_this.isInactive && HMD.active) {
                 var position = Entities.getEntityProperties(_entityID, "position").position;
-                if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < WITHIN_10_CM) {
+                if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < (CHECK_RADIUS * MyAvatar.scale)) {
                     if (DEBUG) {
                         print("swallowing pill");
                     }
@@ -137,6 +138,7 @@
             if (DEBUG) {
                 print("effect is: " + effect);
             }
+            Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").size = {x: -1, y: -1, z: 1, w: 1};
             if (index === 0) {
                 Render.getConfig("RenderMainView").getConfig(effect.split(":")[1])[effect.split(":")[2]] = true;
             } else {
@@ -149,13 +151,14 @@
             if (DEBUG) {
                 print("playing swallow effect");
             }
+            Settings.setValue(LAST_ACTIVE_PILL_SETTING, _entityID);
             var size = SWALLOW_SOUNDS_URLS.length - 1;
             var index = Math.round(Math.random() * size);
-            var swallowSound = SoundCache.getSound(SWALLOW_SOUNDS_URLS[index]);
+            var swallowSound = SWALLOW_SOUNDS[index];
             Audio.playSound(swallowSound, _this.swallowPlayback);
             Script.setTimeout(function() {
-                _this.wahPlaying = Audio.playSound(WAH_SOUND, _this.wahPlayback);
-            }, WAH_START_TIMEOUT);
+                _this.effectPlaying = Audio.playSound(EFFECT_SOUND, _this.effectPlayback);
+            }, EFFECT_START_TIMEOUT);
 
             _this.enableVisualEffects();
 
@@ -170,7 +173,6 @@
             } else {
                 Script.setTimeout(function() {
                     _this.resetRenderDefaults();
-                    _this.removeInjector();
                     _this.isInactive = true;
                 }, LIFETIME * 1000);
             }           
@@ -181,8 +183,6 @@
                 if (DEBUG) {
                     print("pill has been clicked");
                 }
-                _this.removeInjector();
-                Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").size = {x: -1, y: -1, z: 1, w: 1};
                 _this.isInactive = false;
                 _this.playSwallowEffect(_this.avatarHeadPosition, false);
             }
@@ -195,16 +195,17 @@
             }
             Script.update.connect(_this.checkIfNearHead);
             _entityID = entityID;
-            Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").size = {x: -1, y: -1, z: 1, w: 1};
+            SWALLOW_SOUNDS_URLS.forEach(function(swallow) {
+                SWALLOW_SOUNDS.push(SoundCache.getSound(swallow));
+            });
+            EFFECT_SOUND = SoundCache.getSound(EFFECT_SOUND_URL);
             _this.swallowPlayback = {
                 volume: SWALLOW_VOLUME,
-                position: Entities.getEntityProperties(_entityID).position,
-                stereo: true
+                position: Entities.getEntityProperties(_entityID).position
             };
-            _this.wahPlayback = {
-                volume: WAH_VOLUME,
+            _this.effectPlayback = {
+                volume: EFFECT_VOLUME,
                 position: MyAvatar.getJointPosition("Head"),
-                loop: true,
                 localOnly: true
             };
             _this.hasServerScript = Entities.getEntityProperties(_entityID).serverScripts !== undefined;
@@ -215,8 +216,11 @@
                 print("unloading pill");
             }
             Script.update.disconnect(_this.checkIfNearHead);
-            _this.resetRenderDefaults();
-            _this.removeInjector();
+            if (_entityID === Settings.getValue(LAST_ACTIVE_PILL_SETTING, Uuid.NULL)) {
+                _this.resetRenderDefaults();
+                Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").size = {x: 0, y: -1, z: 1, w: 1};
+                _this.removeInjector();
+            }
         }
     };
 
