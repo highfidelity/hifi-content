@@ -51,7 +51,7 @@
     ];
 
     var SWALLOW_VOLUME = 0.5;
-    var EFFECT_VOLUME = 0.5;
+    var EFFECT_VOLUME = 0.7;
     var CHECK_RADIUS = 0.2; // meters
     var LIFETIME = 10; // seconds
     var GRAVITY = {x: 0, y: -9.8, z: 0};
@@ -152,10 +152,14 @@
                 print("playing swallow effect");
             }
             Settings.setValue(LAST_ACTIVE_PILL_SETTING, _entityID);
+
             var size = SWALLOW_SOUNDS_URLS.length - 1;
             var index = Math.round(Math.random() * size);
             var swallowSound = SWALLOW_SOUNDS[index];
+            var headPosition = MyAvatar.getJointPosition("Head");
+            _this.swallowPlayback.position = headPosition;
             Audio.playSound(swallowSound, _this.swallowPlayback);
+
             Script.setTimeout(function() {
                 _this.effectPlaying = Audio.playSound(EFFECT_SOUND, _this.effectPlayback);
             }, EFFECT_START_TIMEOUT);
@@ -200,15 +204,12 @@
             SWALLOW_SOUNDS_URLS.forEach(function(swallow) {
                 SWALLOW_SOUNDS.push(SoundCache.getSound(swallow));
             });
-            var headPosition = MyAvatar.getJointPosition("Head");
             EFFECT_SOUND = SoundCache.getSound(EFFECT_SOUND_URL);
             _this.swallowPlayback = {
                 volume: SWALLOW_VOLUME,
-                position: headPosition
             };
             _this.effectPlayback = {
                 volume: EFFECT_VOLUME,
-                position: headPosition,
                 localOnly: true
             };
             _this.hasServerScript = Entities.getEntityProperties(_entityID).serverScripts !== undefined;
