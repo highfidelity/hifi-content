@@ -179,12 +179,14 @@
         },
 
         mousePressOnEntity: function(entityID, mouseEvent) {
-            if (_this.hasServerScript && !HMD.active && _this.isInactive) {
-                if (DEBUG) {
-                    print("pill has been clicked");
+            if (mouseEvent.isLeftButton) {
+                if (_this.hasServerScript && !HMD.active && _this.isInactive) {
+                    if (DEBUG) {
+                        print("pill has been clicked");
+                    }
+                    _this.isInactive = false;
+                    _this.playSwallowEffect(_this.avatarHeadPosition, false);
                 }
-                _this.isInactive = false;
-                _this.playSwallowEffect(_this.avatarHeadPosition, false);
             }
         },
 
@@ -198,14 +200,15 @@
             SWALLOW_SOUNDS_URLS.forEach(function(swallow) {
                 SWALLOW_SOUNDS.push(SoundCache.getSound(swallow));
             });
+            var headPosition = MyAvatar.getJointPosition("Head");
             EFFECT_SOUND = SoundCache.getSound(EFFECT_SOUND_URL);
             _this.swallowPlayback = {
                 volume: SWALLOW_VOLUME,
-                position: Entities.getEntityProperties(_entityID).position
+                position: headPosition
             };
             _this.effectPlayback = {
                 volume: EFFECT_VOLUME,
-                position: MyAvatar.getJointPosition("Head"),
+                position: headPosition,
                 localOnly: true
             };
             _this.hasServerScript = Entities.getEntityProperties(_entityID).serverScripts !== undefined;
