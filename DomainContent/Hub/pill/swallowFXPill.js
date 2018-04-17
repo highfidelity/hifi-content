@@ -16,11 +16,6 @@
 
 (function() {
 
-    /* fun trippy sphere bug
-    Entities.addEntity({ type: 'Sphere', dimensions: Vec3.ONE, position: MyAvatar.position, collisionless: true,
-        angularDamping: 0, angularVelocity: Vec3.UNIT_Y, alpha: 0.5 })
-    */
-
     var SWALLOW_SOUNDS_URLS = [
         "http://www.pacdv.com/sounds/people_sound_effects/gulp-2.wav",
         // rest of sounds from https://freesound.org/people/170084/sounds/408205/
