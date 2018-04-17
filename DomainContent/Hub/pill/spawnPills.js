@@ -16,6 +16,7 @@
     var MAX_PILLS = 5;
     var PILL_URL = Script.resolvePath("models/Pill.obj");
     var SWALLOW_PILL_SCRIPT = Script.resolvePath('./swallowFXPill.js');
+    var DEBUG = false;
 
     var pillProperties; 
     var spawnPillInterval;
@@ -27,7 +28,9 @@
 
     PillSpawner.prototype = {
         preload: function(entityID) {
-            print("preload for spawnPills");
+            if (DEBUG) {
+                print("preload for spawnPills");
+            }
             SPAWN_POSITION = Entities.getEntityProperties(entityID, "position").position;
             pillProperties = {
                 type: "Model",
@@ -53,7 +56,9 @@
             }, CHECK_INTERVAL);
         },
         unload: function() {
-            print("unload spawnPills");
+            if (DEBUG) {
+                print("unload spawnPills");
+            }
             Script.clearInterval(spawnPillInterval);
         }
     };
