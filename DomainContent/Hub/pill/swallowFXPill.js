@@ -212,7 +212,7 @@
                 volume: EFFECT_VOLUME,
                 localOnly: true
             };
-            _this.hasServerScript = Entities.getEntityProperties(_entityID).serverScripts !== undefined;
+            _this.hasServerScript = Entities.getEntityProperties(_entityID, "serverScripts").serverScripts !== undefined;
         },
 
         unload: function(entityID) {
