@@ -14,7 +14,7 @@
     var SPAWN_POSITION;
     var CHECK_INTERVAL = LIFETIME * 100; // milliseconds
     var MAX_PILLS = 5;
-    var PILL_URL = Script.resolvePath("models/Pill.obj");
+    var PILL_URL = Script.resolvePath("models/pill.fbx");
     var SWALLOW_PILL_SCRIPT = Script.resolvePath('./swallowFXPill.js');
     var DEBUG = false;
 
