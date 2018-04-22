@@ -1,9 +1,9 @@
 # Flow App
 
 ## Overview
-**Flow** is a script that simulates physics on avatar's hair, clothes, and body parts.
+**Flow** is a script that simulates physics on avatar's hair, clothes, and body parts. [https://hifi-content.s3.amazonaws.com/luis/flowFiles/flow.js]
 
-**Flow App** is an interface application for visually debugging and configuring **Flow.**
+**Flow App** is an interface application for visually debugging and configuring **Flow.** [https://hifi-content.s3.amazonaws.com/luis/flowFiles/flowApp.js]
 
 **Flow** will only animate avatars that contain **Flow Threads**.
 
