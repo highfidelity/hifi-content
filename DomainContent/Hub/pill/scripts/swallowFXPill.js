@@ -17,19 +17,18 @@
 (function() {
 
     var SWALLOW_SOUNDS_URLS = [
-        "http://www.pacdv.com/sounds/people_sound_effects/gulp-2.wav",
-        // rest of sounds from https://freesound.org/people/170084/sounds/408205/
-        Script.resolvePath("sounds/swallow-1.wav"),
-        Script.resolvePath("sounds/swallow-2.wav"),
-        Script.resolvePath("sounds/swallow-3.wav"),
-        Script.resolvePath("sounds/swallow-4.wav"),
-        Script.resolvePath("sounds/swallow-5.wav"),
-        Script.resolvePath("sounds/swallow-6.wav"),
-        Script.resolvePath("sounds/swallow-7.wav")
+        // sounds from https://freesound.org/people/170084/sounds/408205/
+        Script.resolvePath("../sounds/swallow-1.wav"),
+        Script.resolvePath("../sounds/swallow-2.wav"),
+        Script.resolvePath("../sounds/swallow-3.wav"),
+        Script.resolvePath("../sounds/swallow-4.wav"),
+        Script.resolvePath("../sounds/swallow-5.wav"),
+        Script.resolvePath("../sounds/swallow-6.wav"),
+        Script.resolvePath("../sounds/swallow-7.wav")
     ];
 
     // sound from https://freesound.org/people/meschi06/sounds/220914/
-    var EFFECT_SOUND_URL = Script.resolvePath("sounds/space-trip-short.wav");
+    var EFFECT_SOUND_URL = Script.resolvePath("../sounds/space-trip-short.wav");
 
     var SWALLOW_SOUNDS = [];
     var EFFECT_SOUND;
