@@ -41,7 +41,7 @@
     
     var ENCODED_PROTOCOL = PROTOCOL.CURRENT;
     
-    var ASSETS_PATH = Script.resolvePath('Star-sprite.png');
+    var STAR_SPRITE_PATH = Script.resolvePath('Star-sprite.png');
     
     var PROJECTION_MODE = {
         STELLAR: 1,
@@ -162,7 +162,7 @@
             this.position = Vec3.sum(parentProperties.position,
                 Vec3.multiplyQbyV(parentProperties.rotation, this.localPosition));
             this.id = Overlays.addOverlay("image3d", {
-                url: ASSETS_PATH + 'Star-sprite.png',
+                url: STAR_SPRITE_PATH,
                 position: this.position,
                 size: 1,
                 scale: STAR_SIZE + addedUserSize,
