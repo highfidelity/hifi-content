@@ -32,7 +32,7 @@
             description: properties.description,
             shapeType: "compound",
             position: position,
-            script: Script.resolvePath("./crunch.js?03"),
+            script: Script.resolvePath("./crunch.js"),
             dimensions: properties.dimensions,
             gravity: {
                 x: 0.0,
