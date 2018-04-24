@@ -16,6 +16,7 @@
     var MAX_PILLS = 5;
     var PILL_URL = Script.resolvePath("models/pill.fbx");
     var SWALLOW_PILL_SCRIPT = Script.resolvePath('./swallowFXPill.js');
+    var PILL_SIZE = {x: 0.1259, y: 0.1259, z: 0.3227};
     var DEBUG = false;
 
     var pillProperties; 
@@ -39,6 +40,7 @@
                 script: SWALLOW_PILL_SCRIPT,
                 lifetime: LIFETIME,
                 position: SPAWN_POSITION,
+                dimensions: PILL_SIZE,
                 dynamic: false,
                 gravity: {x: 0, y: 0, z: 0},
                 collisionless: false,

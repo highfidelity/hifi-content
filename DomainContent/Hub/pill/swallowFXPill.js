@@ -50,6 +50,7 @@
     var CHECK_RADIUS = 0.2; // meters
     var LIFETIME = 10; // seconds
     var GRAVITY = {x: 0, y: -9.8, z: 0};
+    var PILL_SIZE = {x: 0.1259, y: 0.1259, z: 0.3227};
     var EFFECT_START_TIMEOUT = 300; // ms
     var DEBUG = false;
 
@@ -94,7 +95,7 @@
                 visible: true,
                 lifetime: -1,
                 dynamic: true,
-                dimensions: {x: 0.1259, y: 0.1259, z: 0.3227},
+                dimensions: PILL_SIZE,
                 collisionless: true,
                 gravity: GRAVITY
             };
@@ -201,7 +202,7 @@
             });
             EFFECT_SOUND = SoundCache.getSound(EFFECT_SOUND_URL);
             _this.swallowPlayback = {
-                volume: SWALLOW_VOLUME,
+                volume: SWALLOW_VOLUME
             };
             _this.effectPlayback = {
                 volume: EFFECT_VOLUME,
