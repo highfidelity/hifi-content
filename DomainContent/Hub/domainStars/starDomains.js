@@ -41,7 +41,7 @@
     
     var ENCODED_PROTOCOL = PROTOCOL.CURRENT;
     
-    var ASSETS_PATH = 'https://cdn.glitch.com/e7db449d-04bc-4408-afef-85aa803949d2/';
+    var ASSETS_PATH = Script.resolvePath('Star-sprite.png');
     
     var PROJECTION_MODE = {
         STELLAR: 1,
