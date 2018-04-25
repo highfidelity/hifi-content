@@ -45,7 +45,7 @@
     ];
 
     var SWALLOW_VOLUME = 0.5;
-    var EFFECT_VOLUME = 0.7;
+    var EFFECT_VOLUME = 0.9;
     var CHECK_RADIUS = 0.2; // meters
     var LIFETIME = 10; // seconds
     var GRAVITY = {x: 0, y: -9.8, z: 0};
