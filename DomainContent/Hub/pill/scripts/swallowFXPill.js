@@ -28,7 +28,7 @@
     ];
 
     // sound from https://freesound.org/people/meschi06/sounds/220914/
-    var EFFECT_SOUND_URL = Script.resolvePath("../sounds/space-trip-short.wav");
+    var EFFECT_SOUND_URL = Script.resolvePath("../sounds/space-trip-stereo.wav");
 
     var SWALLOW_SOUNDS = [];
     var EFFECT_SOUND;
@@ -67,7 +67,6 @@
         effectPlayback: null,
         effectPlaying: null,
         isInactive: true,
-        hasServerScript: false,
 
         resetRenderDefaults: function() {
             Render.getConfig("RenderMainView").getConfig(WIREFRAME.split(":")[1])[WIREFRAME.split(":")[2]] = false;
@@ -179,7 +178,7 @@
 
         mousePressOnEntity: function(entityID, mouseEvent) {
             if (mouseEvent.isLeftButton) {
-                if (_this.hasServerScript && !HMD.active && _this.isInactive) {
+                if (!HMD.active && _this.isInactive) {
                     if (DEBUG) {
                         print("pill has been clicked");
                     }
@@ -207,7 +206,6 @@
                 volume: EFFECT_VOLUME,
                 localOnly: true
             };
-            _this.hasServerScript = Entities.getEntityProperties(_entityID, "serverScripts").serverScripts !== undefined;
         },
 
         unload: function(entityID) {
