@@ -1,0 +1,384 @@
+{
+    "DataVersion": 0,
+    "Entities": [
+        {
+            "age": 142.35513305664062,
+            "ageAsText": "0 hours 2 minutes 22 seconds",
+            "clientOnly": false,
+            "created": "2018-04-19T17:07:24Z",
+            "id": "{16d2d662-4dba-41bb-9951-74dcac8be29e}",
+            "lastEdited": 1524157634594126,
+            "lastEditedBy": "{6c562790-1d1c-4e1f-9a35-959b0e28f852}",
+            "lifetime": 3600,
+            "materialURL": "https://hifi-content.s3.amazonaws.com/liv/dev/Materials/Blue.json",
+            "name": "Gun Next Color Material",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{145c2b7f-8d47-444d-b044-cfcc8d3ca6f2}",
+            "parentMaterialName": "39",
+            "position": {
+                "x": 0.017831802368164062,
+                "y": 0.052873849868774414,
+                "z": -0.060300350189208984
+            },
+            "queryAACube": {
+                "scale": 0.17320507764816284,
+                "x": 21.174455642700195,
+                "y": -11.22996997833252,
+                "z": 33.465145111083984
+            },
+            "rotation": {
+                "w": 0.5194017887115479,
+                "x": 0.5269702672958374,
+                "y": 0.41014719009399414,
+                "z": -0.533226490020752
+            },
+            "type": "Material",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "age": 142.35537719726562,
+            "ageAsText": "0 hours 2 minutes 22 seconds",
+            "clientOnly": false,
+            "created": "2018-04-19T17:07:24Z",
+            "id": "{4d330aed-870c-46ff-b4d0-9add5cf53d2e}",
+            "lastEdited": 1524157660507146,
+            "lastEditedBy": "{6c562790-1d1c-4e1f-9a35-959b0e28f852}",
+            "lifetime": 3600,
+            "materialURL": "https://hifi-content.s3.amazonaws.com/liv/dev/Materials/Violet.json",
+            "name": "Gun Next Color Material",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{145c2b7f-8d47-444d-b044-cfcc8d3ca6f2}",
+            "parentMaterialName": "39",
+            "position": {
+                "x": 0.017852783203125,
+                "y": 0.052858710289001465,
+                "z": -0.060498714447021484
+            },
+            "queryAACube": {
+                "scale": 0.17320507764816284,
+                "x": 21.17428970336914,
+                "y": -11.229860305786133,
+                "z": 33.46512222290039
+            },
+            "rotation": {
+                "w": 0.5194017887115479,
+                "x": 0.5269702672958374,
+                "y": 0.41014719009399414,
+                "z": -0.533226490020752
+            },
+            "type": "Material",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "age": 142.35501098632812,
+            "ageAsText": "0 hours 2 minutes 22 seconds",
+            "clientOnly": false,
+            "created": "2018-04-19T17:07:24Z",
+            "id": "{b99cb1ce-9f83-4b65-9276-f43501594c0a}",
+            "lastEdited": 1524157634594126,
+            "lastEditedBy": "{6c562790-1d1c-4e1f-9a35-959b0e28f852}",
+            "lifetime": 3600,
+            "materialURL": "https://hifi-content.s3.amazonaws.com/liv/dev/Materials/Green.json",
+            "name": "Gun Next Color Material",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{145c2b7f-8d47-444d-b044-cfcc8d3ca6f2}",
+            "parentMaterialName": "39",
+            "position": {
+                "x": 0.017732620239257812,
+                "y": 0.052886128425598145,
+                "z": -0.06031179428100586
+            },
+            "queryAACube": {
+                "scale": 0.17320507764816284,
+                "x": 21.174409866333008,
+                "y": -11.230049133300781,
+                "z": 33.46510314941406
+            },
+            "rotation": {
+                "w": 0.5194017887115479,
+                "x": 0.5269702672958374,
+                "y": 0.41014719009399414,
+                "z": -0.533226490020752
+            },
+            "type": "Material",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "age": 142.3558349609375,
+            "ageAsText": "0 hours 2 minutes 22 seconds",
+            "clientOnly": false,
+            "created": "2018-04-19T17:07:24Z",
+            "id": "{2555af07-83e4-4747-b38a-b0e14fa61124}",
+            "lastEdited": 1524157634594126,
+            "lastEditedBy": "{6c562790-1d1c-4e1f-9a35-959b0e28f852}",
+            "lifetime": 3600,
+            "materialURL": "https://hifi-content.s3.amazonaws.com/liv/dev/Materials/Orange.json",
+            "name": "Gun Next Color Material",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{145c2b7f-8d47-444d-b044-cfcc8d3ca6f2}",
+            "parentMaterialName": "39",
+            "position": {
+                "x": 0.017852783203125,
+                "y": 0.052858710289001465,
+                "z": -0.060498714447021484
+            },
+            "queryAACube": {
+                "scale": 0.17320507764816284,
+                "x": 21.17428970336914,
+                "y": -11.229860305786133,
+                "z": 33.46512222290039
+            },
+            "rotation": {
+                "w": 0.5194017887115479,
+                "x": 0.5269702672958374,
+                "y": 0.41014719009399414,
+                "z": -0.533226490020752
+            },
+            "type": "Material",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "age": 142.35504150390625,
+            "ageAsText": "0 hours 2 minutes 22 seconds",
+            "clientOnly": false,
+            "created": "2018-04-19T17:07:24Z",
+            "id": "{b1b3cdae-3f36-4531-8830-e860aabcef63}",
+            "lastEdited": 1524157634594126,
+            "lastEditedBy": "{6c562790-1d1c-4e1f-9a35-959b0e28f852}",
+            "lifetime": 3600,
+            "materialURL": "https://hifi-content.s3.amazonaws.com/liv/dev/Materials/Indigo.json",
+            "name": "Gun Next Color Material",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{145c2b7f-8d47-444d-b044-cfcc8d3ca6f2}",
+            "parentMaterialName": "39",
+            "position": {
+                "x": 0.017852783203125,
+                "y": 0.052858710289001465,
+                "z": -0.060498714447021484
+            },
+            "queryAACube": {
+                "scale": 0.17320507764816284,
+                "x": 21.17428970336914,
+                "y": -11.229860305786133,
+                "z": 33.46512222290039
+            },
+            "rotation": {
+                "w": 0.5194017887115479,
+                "x": 0.5269702672958374,
+                "y": 0.41014719009399414,
+                "z": -0.533226490020752
+            },
+            "type": "Material",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "age": 142.35545349121094,
+            "ageAsText": "0 hours 2 minutes 22 seconds",
+            "clientOnly": false,
+            "created": "2018-04-19T17:07:24Z",
+            "id": "{91b4a483-cb18-433f-94ac-225ca9900e94}",
+            "lastEdited": 1524157634594126,
+            "lastEditedBy": "{6c562790-1d1c-4e1f-9a35-959b0e28f852}",
+            "lifetime": 3600,
+            "materialURL": "https://hifi-content.s3.amazonaws.com/liv/dev/Materials/Red.json",
+            "name": "Gun Next Color Material",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{145c2b7f-8d47-444d-b044-cfcc8d3ca6f2}",
+            "parentMaterialName": "39",
+            "position": {
+                "x": 0.017852783203125,
+                "y": 0.052858710289001465,
+                "z": -0.060498714447021484
+            },
+            "queryAACube": {
+                "scale": 0.17320507764816284,
+                "x": 21.17428970336914,
+                "y": -11.229860305786133,
+                "z": 33.46512222290039
+            },
+            "rotation": {
+                "w": 0.5194017887115479,
+                "x": 0.5269702672958374,
+                "y": 0.41014719009399414,
+                "z": -0.533226490020752
+            },
+            "type": "Material",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "age": 142.3558807373047,
+            "ageAsText": "0 hours 2 minutes 22 seconds",
+            "clientOnly": false,
+            "created": "2018-04-19T17:07:24Z",
+            "id": "{914d6a0a-f6a6-4d9a-8227-11427d82e8e4}",
+            "lastEdited": 1524157634594126,
+            "lastEditedBy": "{6c562790-1d1c-4e1f-9a35-959b0e28f852}",
+            "lifetime": 3600,
+            "materialURL": "https://hifi-content.s3.amazonaws.com/liv/dev/Materials/Yellow.json",
+            "name": "Gun Next Color Material",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{145c2b7f-8d47-444d-b044-cfcc8d3ca6f2}",
+            "parentMaterialName": "39",
+            "position": {
+                "x": 0.017852783203125,
+                "y": 0.052858710289001465,
+                "z": -0.060498714447021484
+            },
+            "queryAACube": {
+                "scale": 0.17320507764816284,
+                "x": 21.17428970336914,
+                "y": -11.229860305786133,
+                "z": 33.46512222290039
+            },
+            "rotation": {
+                "w": 0.5194017887115479,
+                "x": 0.5269702672958374,
+                "y": 0.41014719009399414,
+                "z": -0.533226490020752
+            },
+            "type": "Material",
+            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
+        },
+        {
+            "age": 142.35630798339844,
+            "ageAsText": "0 hours 2 minutes 22 seconds",
+            "clientOnly": false,
+            "collidesWith": "myAvatar,otherAvatar,",
+            "collisionMask": 24,
+            "collisionsWillMove": true,
+            "created": "2018-04-19T17:07:24Z",
+            "damping": 0.5,
+            "dimensions": {
+                "x": 0.25364601612091064,
+                "y": 0.4168066680431366,
+                "z": 0.6038495898246765
+            },
+            "dynamic": true,
+            "id": "{145c2b7f-8d47-444d-b044-cfcc8d3ca6f2}",
+            "lastEdited": 1524157730230430,
+            "lastEditedBy": "{6c562790-1d1c-4e1f-9a35-959b0e28f852}",
+            "lifetime": 3600,
+            "modelURL": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/Hub/Material%20Gun/models/gun.fbx",
+            "name": "Gun Material Swapping",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 0.7763365507125854,
+                "x": -0.3881682753562927,
+                "y": -0.3881682753562927,
+                "z": -0.3881682753562927
+            },
+            "restitution": 0,
+            "rotation": {
+                "w": 0.5071641206741333,
+                "x": 0.6381781101226807,
+                "y": 0.19020366668701172,
+                "z": 0.547081708908081
+            },
+            "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/Hub/Material%20Gun/materialSwapGun.js",
+            "scriptTimestamp": 1523985184461,
+            "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/Hub/Material%20Gun/materialSwapGunServer.js",
+            "shapeType": "simple-compound",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"invertSolidWhileHeld\":true},\"wearable\":{\"joints\":{\"RightHand\":[{\"x\":0.07079616189002991,\"y\":0.20177987217903137,\"z\":0.06374628841876984},{\"x\":-0.5863648653030396,\"y\":-0.46007341146469116,\"z\":0.46949487924575806,\"w\":-0.4733745753765106}],\"LeftHand\":[{\"x\":0.1802254319190979,\"y\":0.13442856073379517,\"z\":0.08504903316497803},{\"x\":0.2198076844215393,\"y\":-0.7377811074256897,\"z\":0.2780133783817291,\"w\":0.574519157409668}]}}}"
+        },
+        {
+            "accelerationSpread": {
+                "x": 0.5,
+                "y": 3,
+                "z": 0.5
+            },
+            "age": 142.3556671142578,
+            "ageAsText": "0 hours 2 minutes 22 seconds",
+            "alpha": 0,
+            "alphaFinish": 0,
+            "alphaStart": 0,
+            "azimuthFinish": 3.1415998935699463,
+            "azimuthStart": -3.1415998935699463,
+            "clientOnly": false,
+            "collidesWith": "",
+            "collisionMask": 0,
+            "collisionless": true,
+            "color": {
+                "blue": 247,
+                "green": 0,
+                "red": 247
+            },
+            "colorFinish": {
+                "blue": 247,
+                "green": 0,
+                "red": 247
+            },
+            "colorSpread": {
+                "blue": 209,
+                "green": 110,
+                "red": 4
+            },
+            "colorStart": {
+                "blue": 247,
+                "green": 0,
+                "red": 247
+            },
+            "created": "2018-04-19T17:07:24Z",
+            "dimensions": {
+                "x": 32.87999725341797,
+                "y": 32.87999725341797,
+                "z": 32.87999725341797
+            },
+            "emitAcceleration": {
+                "x": 0,
+                "y": 2.5,
+                "z": -0.10000000149011612
+            },
+            "emitDimensions": {
+                "x": 0.10000000149011612,
+                "y": 0.10000000149011612,
+                "z": 0.10000000149011612
+            },
+            "emitOrientation": {
+                "w": 0.7068778276443481,
+                "x": -0.7073356509208679,
+                "y": -1.5258869098033756e-05,
+                "z": -1.5258869098033756e-05
+            },
+            "emitRate": 1,
+            "emitSpeed": 3.1500000953674316,
+            "id": "{7ff9e7d8-c024-42c9-a718-a456583eaeaa}",
+            "ignoreForCollisions": true,
+            "lastEdited": 1524157634498030,
+            "lastEditedBy": "{6c562790-1d1c-4e1f-9a35-959b0e28f852}",
+            "lifespan": 2,
+            "lifetime": 3600,
+            "maxParticles": 500,
+            "name": "Gun Particle Effect",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{145c2b7f-8d47-444d-b044-cfcc8d3ca6f2}",
+            "particleRadius": 0.019999999552965164,
+            "polarFinish": 0.296705961227417,
+            "position": {
+                "x": 0.018980979919433594,
+                "y": 0.0623936653137207,
+                "z": -0.1919243335723877
+            },
+            "queryAACube": {
+                "scale": 56.949825286865234,
+                "x": -7.333749771118164,
+                "y": -39.5634880065918,
+                "z": 5.070672988891602
+            },
+            "radiusFinish": 0.019999999552965164,
+            "radiusSpread": 6,
+            "radiusStart": 0.019999999552965164,
+            "rotation": {
+                "w": 0.7067825794219971,
+                "x": -0.7072404026985168,
+                "y": -0.012405574321746826,
+                "z": -0.012466609477996826
+            },
+            "textures": "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Bokeh-Particle.png",
+            "type": "ParticleEffect",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false,\"ignoreIK\":false}}"
+        }
+    ],
+    "Id": "{2829c1bd-b5c9-4f1f-a8ab-3f69f822c76f}",
+    "Version": 87
+}
