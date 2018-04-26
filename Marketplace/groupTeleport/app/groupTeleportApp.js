@@ -212,6 +212,16 @@ function onWebEventReceived(webEvent) {
             refresh();
             break;
         case 'logout':
+            if (mode === MODE.GUIDE) {
+                autoFollow = false;
+                sendGuideUpdate(function() {
+                    Messages.sendMessage(GROUP_TELEPORT_MESSAGE_CHANNEL, JSON.stringify({
+                        action: 'switchAutoFollowMode',
+                        autoFollow: autoFollow
+                    }));
+                });
+            }
+            // Its important that this happens after the auto follow mode off switch is sent.
             userPassword = "";
             loggedIn = false;
             refresh();
@@ -350,7 +360,7 @@ var updateInterval = Script.setInterval(function() {
         }
         return;
     }
-    if (mode === MODE.GUIDE && userPassword.length > 0) {
+    if (mode === MODE.GUIDE && userPassword.length > 0 && loggedIn) {
         sendGuideUpdate();
     } else if (mode === MODE.FOLLOWING) {
         attemptTeleportToGroup();
