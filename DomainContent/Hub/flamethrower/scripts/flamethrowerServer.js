@@ -8,9 +8,10 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {   
-    var END_FIRE_SOUND_1 = SoundCache.getSound(Script.resolvePath('flamethrowerEndFire.wav'));
-    var END_FIRE_SOUND_2 = SoundCache.getSound(Script.resolvePath('flamethrowerEndFire2.wav'));
-    var END_FIRE_SOUND_3 = SoundCache.getSound(Script.resolvePath('flamethrowerEndFire3.wav'));
+    var FIREBALL_IMAGE = Script.resolvePath("../textures/fireball.jpg");
+    var END_FIRE_SOUND_1 = SoundCache.getSound(Script.resolvePath("../sounds/flamethrowerEndFire.wav"));
+    var END_FIRE_SOUND_2 = SoundCache.getSound(Script.resolvePath("../sounds/flamethrowerEndFire2.wav"));
+    var END_FIRE_SOUND_3 = SoundCache.getSound(Script.resolvePath("../sounds/flamethrowerEndFire3.wav"));
     var END_FIRE_VOLUME = 0.6;
     
     var INTERSECT_TYPE = {
@@ -112,7 +113,7 @@
                 radiusStart: 0.3100000023841858,
                 radiusFinish: 0.5099999904632568,
                 speedSpread: 0,
-                textures: "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Fireball.jpg",
+                textures: FIREBALL_IMAGE,
                 type: "ParticleEffect"
             });
             

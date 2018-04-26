@@ -13,9 +13,9 @@ function exponentialSmoothing(target, current) {
 }
 
 (function() {       
-    var FIRING_SOUND = SoundCache.getSound(Script.resolvePath('flamethrowerFiring.wav'));
-    var FIREBALL_IMAGE = Script.resolvePath('fireball.jpg');
-    var DESKTOP_HOW_TO_IMAGE_URL = Script.resolvePath('desktopFireUnequip.png');
+    var FIRING_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/flamethrowerFiring.wav"));
+    var FIREBALL_IMAGE = Script.resolvePath("../textures/fireball.jpg");
+    var DESKTOP_HOW_TO_IMAGE_URL = Script.resolvePath("../textures/desktopFireUnequip.png");
     var DESKTOP_HOW_TO_IMAGE_WIDTH = 384;
     var DESKTOP_HOW_TO_IMAGE_HEIGHT = 128;
     var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
