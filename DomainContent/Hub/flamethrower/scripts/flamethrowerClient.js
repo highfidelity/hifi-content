@@ -386,24 +386,17 @@ function exponentialSmoothing(target, current) {
                     intersectEntityID = avatarIntersection.avatarID;
                 } 
                 
-                var intersectEntityProperties = Entities.getEntityProperties(intersectEntityID, 
-                                                                             ['position', 'rotation', 'name']);
+                var intersectEntityProperties = Entities.getEntityProperties(intersectEntityID, ['position', 'rotation']);
                 intersectLocalPosition = Vec3.subtract(fireEnd, intersectEntityProperties.position);
                 intersectLocalPosition = Vec3.multiplyQbyV(intersectEntityProperties.rotation, intersectLocalPosition);
                 var args = [intersectEntityID, fireEnd.x, fireEnd.y, fireEnd.z, 
                             intersectLocalPosition.x, intersectLocalPosition.y, intersectLocalPosition.z];
                 if (intersectEntityID !== undefined) {
                     if (intersectEntityID === entityIntersection.entityID) {
-                        if (Entities.getEntityProperties(intersectEntityID, ['type']).type === "Shape") {
-                            endFireServerCall = "createEndFireHitShape";
-                        } else {
+                        // for now disable end fires against hit Shape entities because the ray cast results are unreliable
+                        if (Entities.getEntityProperties(intersectEntityID, ['type']).type !== "Shape") {
                             endFireServerCall = "createEndFireHitEntity";
                         }
-                        /*
-                        if (intersectEntityProperties.name.toLowerCase().indexOf("plate") !== -1) {
-                            Entities.callEntityServerMethod(intersectEntityID, 'breakPlate', '');
-                        }
-                        */
                     } else if (intersectEntityID === avatarIntersection.avatarID) {
                         endFireServerCall = "createEndFireHitAvatar";
                     }
