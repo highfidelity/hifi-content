@@ -31,7 +31,7 @@
     };
 
     Flamethrower.prototype = {
-        remotelyCallable: ['createEndFireHitEntity', 'createEndFireHitShape', 'createEndFireHitAvatar', 'createEndFireNoHit'],
+        remotelyCallable: ['createEndFireHitEntity', 'createEndFireHitAvatar', 'createEndFireNoHit'],
         createEndFireHitEntity: function(entityID, params) {
             this.createEndFire(INTERSECT_TYPE.ENTITY, params);
         },
@@ -101,11 +101,12 @@
                 emitSpeed: 0.05000000074505806,
                 lifespan: 1.0099999904632568,
                 lifetime: lifetime,
-                localPosition: intersectType === INTERSECT_TYPE.ENTITY ? intersectLocalPosition : undefined,
+                //localPosition: intersectType === INTERSECT_TYPE.ENTITY ? intersectLocalPosition : undefined,
                 maxParticles: 100,
                 name: "Flamethrower End Flame",
-                parentID: intersectType === INTERSECT_TYPE.ENTITY ? intersectEntityID : undefined,
-                position: intersectType === INTERSECT_TYPE.ENTITY ? undefined : fireEnd,
+                //parentID: intersectType === INTERSECT_TYPE.ENTITY ? intersectEntityID : undefined,
+                //position: intersectType === INTERSECT_TYPE.ENTITY ? undefined : fireEnd,
+                position: fireEnd,
                 particleRadius: 0.4099999964237213,
                 polarStart: 0,
                 polarFinish: 1.9999999845072665,
