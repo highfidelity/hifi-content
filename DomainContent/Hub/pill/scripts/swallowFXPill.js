@@ -115,8 +115,9 @@
         checkIfNearHead: function() {
             if (_this.isInactive && HMD.active) {
                 var position = Entities.getEntityProperties(_entityID, "position").position;
-                if ((Vec3.distance(position, MyAvatar.getJointPosition("Head")) < (CHECK_RADIUS * MyAvatar.scale)) || 
-                    (Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < (CHECK_RADIUS * MyAvatar.scale))) {
+                var pillDistance = CHECK_RADIUS * MyAvatar.scale;
+                if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < pillDistance || 
+                    Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < pillDistance) {
                     if (DEBUG) {
                         print("swallowing pill");
                     }
