@@ -401,6 +401,7 @@
                     }
                 } 
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
+
                 
                 if (whiteBoardIntersection.intersects) {
                     if (!isMouseDown && isPainting) {
@@ -438,6 +439,10 @@
                         );
 
                         if (isMouseDown && event.isLeftButton) {
+
+                           
+                            print("Daantje Debug " +  Vec3.dot(whiteBoardIntersection.intersection, _this.whiteboardNormal));
+
                             _this.paint(whiteBoardIntersection.intersection, true);
                             if (!isStartingStroke) {
                                 isStartingStroke = true;

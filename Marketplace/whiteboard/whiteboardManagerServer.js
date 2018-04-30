@@ -74,7 +74,7 @@
     var MAX_POINTS_PER_STROKE = 60;
     // 35
     var MARKER_TEXTURE_URL = Script.resolvePath("markerStroke.png");
-    var strokeForwardOffset = 0.01;
+    var strokeForwardOffset = 0.02;
     var STROKE_WIDTH_RANGE = {
         min: 0.002,
         max: 0.005
@@ -280,7 +280,7 @@
             
             linePoints = [lastPoint1, lastPoint2];
             normals = [whiteboardNormal, whiteboardNormal];
-            strokeWidths = [pointWidth *2 , pointWidth*2];
+            strokeWidths = [pointWidth , pointWidth];
             
             // Edit entity
             Entities.editEntity(newStroke, {
