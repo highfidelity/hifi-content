@@ -1,4 +1,12 @@
-
+//
+//  showerZoneClient.js
+//
+//  created by Rebecca Stankus on 04/27/18
+//  Copyright 2018 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
 (function() { 
     var _this;
 
@@ -17,8 +25,7 @@
         speakerProperties: [],
         preload: function(entityID) {
             _this.entityID = entityID;
-            _this.zoneProperties = Entities.getEntityProperties(_this.entityID, 
-                ["position", "dimensions", "rotation"]);
+            _this.zoneProperties = Entities.getEntityProperties(_this.entityID, ["position", "dimensions", "rotation"]);
             Entities.getChildrenIDs(_this.entityID).forEach(function(element) {
                 var name = Entities.getEntityProperties(element, 'name').name;
                 if (name === "Shower Particle") {
@@ -28,8 +35,8 @@
                     _this.speakerProperties.push(Entities.getEntityProperties(element));
                 }
             });
-            
         },
+
         onlyAvatarInZone: function(objectProperties) {
             var result = false;
             AvatarList.getAvatarIdentifiers().forEach(function(avatarID) {
@@ -42,17 +49,16 @@
             });
             return result;
         },
+
         isPositionInsideBox: function(position, boxProperties) {
             var localPosition = Vec3.multiplyQbyV(Quat.inverse(boxProperties.rotation),
                 Vec3.subtract(position, boxProperties.position));
             var halfDimensions = Vec3.multiply(boxProperties.dimensions, HALF);
-            return -halfDimensions.x <= localPosition.x &&
-                    halfDimensions.x >= localPosition.x &&
-                   -halfDimensions.y <= localPosition.y &&
-                    halfDimensions.y >= localPosition.y &&
-                   -halfDimensions.z <= localPosition.z &&
-                    halfDimensions.z >= localPosition.z;
+            return -halfDimensions.x <= localPosition.x && halfDimensions.x >= localPosition.x &&
+                   -halfDimensions.y <= localPosition.y && halfDimensions.y >= localPosition.y &&
+                   -halfDimensions.z <= localPosition.z && halfDimensions.z >= localPosition.z;
         },
+
         enterEntity: function() {
             _this.particleEffects.forEach(function(particle) {
                 Entities.editEntity(particle, {isEmitting: true});
@@ -62,11 +68,12 @@
                 _this.touchJSONUserData(_this.speakerProperties[speakerNumber], function(userData) {
                     userData.soundVolume = SOUND_ON;
                 });
-                Entities.editEntity(_this.speakers[speakerNumber], 
+                Entities.editEntity(_this.speakers[speakerNumber],
                     {userData: _this.speakerProperties[speakerNumber].userData});
                 speakerNumber++;
             });
         },
+
         leaveEntity: function() {
             if (!_this.onlyAvatarInZone(_this.zoneProperties)) {
                 _this.particleEffects.forEach(function(particle) {
@@ -77,12 +84,13 @@
                     _this.touchJSONUserData(_this.speakerProperties[speakerNumber], function(userData) {
                         userData.soundVolume = SOUND_OFF;
                     });
-                    Entities.editEntity(_this.speakers[speakerNumber], 
-                        {userData: _this.speakerProperties[speakerNumber].userData});
+                    Entities.editEntity(_this.speakers[speakerNumber],
+                        { userData: _this.speakerProperties[speakerNumber].userData });
                     speakerNumber++;
                 });
             } 
         },
+
         touchJSONUserData: function(entityProperties, touchCallback) {
             try {
                 var userData = JSON.parse(entityProperties.userData);
@@ -93,6 +101,7 @@
                     'Could be invalid JSON or problem with the callback function.');
             }
         },
+
         unload: function() {
             _this.leaveEntity();
         }
