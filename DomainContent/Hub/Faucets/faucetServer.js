@@ -1,3 +1,12 @@
+//
+//  faucetServer.js
+//
+//  created by Rebecca Stankus on 04/27/18
+//  Copyright 2018 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
 
 (function() { 
     var _this;
@@ -6,7 +15,6 @@
 
     var sound;
     var injector;
-
 
     function Faucet() {
         _this = this;
@@ -24,9 +32,7 @@
             _this.on ? _this.turnOff() : _this.turnOn();
         },
         playSound: function(position) {
-            print("sound");
             if (sound.downloaded) {
-                print("playing");
                 if (injector) {
                     injector.stop();
                 }
@@ -38,13 +44,11 @@
             }
         },
         turnOn: function() {
-            print("toggling ON");
             Entities.editEntity(_this.entityID, {isEmitting: true});
             _this.on = true;
             _this.playSound();
         },
         turnOff: function() {
-            print("toggling OFF");
             Entities.editEntity(_this.entityID, {isEmitting: false});
             _this.on = false;
             if (injector) {
