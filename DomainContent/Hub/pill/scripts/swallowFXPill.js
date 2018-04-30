@@ -46,7 +46,7 @@
 
     var SWALLOW_VOLUME = 0.5;
     var EFFECT_VOLUME = 0.9;
-    var CHECK_RADIUS = 0.2; // meters
+    var CHECK_RADIUS = 0.25; // meters
     var LIFETIME = 10; // seconds
     var GRAVITY = {x: 0, y: -9.8, z: 0};
     var PILL_SIZE = {x: 0.1259, y: 0.1259, z: 0.3227};
@@ -115,7 +115,9 @@
         checkIfNearHead: function() {
             if (_this.isInactive && HMD.active) {
                 var position = Entities.getEntityProperties(_entityID, "position").position;
-                if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < (CHECK_RADIUS * MyAvatar.scale)) {
+                var pillDistance = CHECK_RADIUS * MyAvatar.scale;
+                if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < pillDistance || 
+                    Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < pillDistance) {
                     if (DEBUG) {
                         print("swallowing pill");
                     }
