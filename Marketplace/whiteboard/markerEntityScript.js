@@ -276,17 +276,17 @@
             // whiteboard server ID
             var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
             // RPC - call server paint [position, markerColor, creatorMarker, parentID]
-			if (isDesktopMode) {
-				Entities.callEntityServerMethod(serverID, 
-					'paintDesktop', 
-					[JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
-				);
-			} else {
-				Entities.callEntityServerMethod(serverID, 
-					'paint', 
-					[JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
-				);
-			}
+            if (isDesktopMode) {
+                Entities.callEntityServerMethod(serverID, 
+                    'paintDesktop', 
+                    [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
+                );
+            } else {
+                Entities.callEntityServerMethod(serverID, 
+                    'paint', 
+                    [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
+                );
+            }
             
         },
         resetStroke: function(isDesktopMode) {
@@ -295,11 +295,17 @@
                 isPainting = false;
                 var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
                 // RPC - call server reset [creatorMarker, parentID]
-				if (isDesktopMode) {
-					Entities.callEntityServerMethod(serverID, 'resetMarkerStrokeDesktop', [_this.entityID, _this.currentWhiteboard]);
-				} else {
-					Entities.callEntityServerMethod(serverID, 'resetMarkerStroke', [_this.entityID, _this.currentWhiteboard]);
-				}
+                if (isDesktopMode) {
+                    Entities.callEntityServerMethod(serverID, 
+                        'resetMarkerStrokeDesktop', 
+                        [_this.entityID, _this.currentWhiteboard]
+                    );
+                } else {
+                    Entities.callEntityServerMethod(serverID, 
+                        'resetMarkerStroke', 
+                        [_this.entityID, _this.currentWhiteboard]
+                    );
+                }
             }
         },
 
@@ -439,10 +445,6 @@
                         );
 
                         if (isMouseDown && event.isLeftButton) {
-
-                           
-                            print("Daantje Debug " +  Vec3.dot(whiteBoardIntersection.intersection, _this.whiteboardNormal));
-
                             _this.paint(whiteBoardIntersection.intersection, true);
                             if (!isStartingStroke) {
                                 isStartingStroke = true;

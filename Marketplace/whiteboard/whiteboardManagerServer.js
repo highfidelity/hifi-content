@@ -5,7 +5,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 // 
 // 
-(function() {
+(function () {
     var utils = Script.require('./utils.js');
     var whiteboardEntities = Script.require('./whiteboardEntities.js');
     var TEMPLATES = whiteboardEntities.WHITEBOARD_ENTITIES.Entities;
@@ -36,7 +36,7 @@
             template.modelURL = newURL;
         }
     }
-    
+
     var BLUE_MARKER_NAME = "hifi_model_marker_blue";
     var GREEN_MARKER_NAME = "hifi_model_marker_green";
     var BLACK_MARKER_NAME = "hifi_model_marker_black";
@@ -45,12 +45,12 @@
     var YELLOW_MARKER_NAME = "hifi_model_marker_yellow";
     var ERASER_NAME = "hifi_model_whiteboardEraser";
 
-    var BLUE_MARKER_COLOR = {red:0, green:13, blue: 255};
-    var GREEN_MARKER_COLOR = {red:0, green:190, blue: 90};
-    var BLACK_MARKER_COLOR = {red:0, green:0, blue: 0};
-    var RED_MARKER_COLOR = {red:255, green:0, blue: 0};
-    var PINK_MARKER_COLOR = {red:242, green:0, blue: 255};
-    var YELLOW_MARKER_COLOR = {red:255, green:195, blue: 0};
+    var BLUE_MARKER_COLOR = { red: 0, green: 13, blue: 255 };
+    var GREEN_MARKER_COLOR = { red: 0, green: 190, blue: 90 };
+    var BLACK_MARKER_COLOR = { red: 0, green: 0, blue: 0 };
+    var RED_MARKER_COLOR = { red: 255, green: 0, blue: 0 };
+    var PINK_MARKER_COLOR = { red: 242, green: 0, blue: 255 };
+    var YELLOW_MARKER_COLOR = { red: 255, green: 195, blue: 0 };
 
     var blueMarkerID = null;
     var greenMarkerID = null;
@@ -62,12 +62,12 @@
 
     var MARKER_ENTITY_SCRIPT = Script.resolvePath("markerEntityScript.js");
     var ERASER_ENTITY_SCRIPT = Script.resolvePath("eraserEntityScript.js");
-    
+
     var _this;
-    
+
     var strokes = [];
     var strokesInProgress = [];
-   
+
     var linePointsInProgress = [];
     var normalsInProgress = [];
     var strokeBasePositionInProgress = [];
@@ -86,7 +86,7 @@
         z: 10
     };
 
-    
+
     var RESET_MARKERS_AND_ERASERS_RADIUS = 15;
     var SHORT_TOOL_LIFETIME = 300;
     var TOOL_LIFETIME = 3600;
@@ -94,25 +94,27 @@
     var MARKER_EQUIP_HIGHLIGHT_RADIUS = 0.32;
     var ERASER_EQUIP_HIGHLIGHT_RADIUS = 0.35;
 
-    var Whiteboard = function() {
+    var lineResolution = 0.005;
+
+    var Whiteboard = function () {
         _this = this;
     };
 
     Whiteboard.prototype = {
         remotelyCallable: [
-            'paint', 
-            'resetMarkerStroke', 
-            'paintDesktop', 
-            'resetMarkerStrokeDesktop', 
-            'erase', 
-            'clearBoard', 
-            'serverAddEntity', 
-            'serverEditEntity', 
-            'serverSetEntityData', 
-            'spawnMarker', 
+            'paint',
+            'resetMarkerStroke',
+            'paintDesktop',
+            'resetMarkerStrokeDesktop',
+            'erase',
+            'clearBoard',
+            'serverAddEntity',
+            'serverEditEntity',
+            'serverSetEntityData',
+            'spawnMarker',
             'spawnEraser'
         ],
-        preload: function(entityID){
+        preload: function (entityID) {
             _this.entityID = entityID;
             _this.MIN_DISTANCE_BETWEEN_POINTS = 0.002;
             _this.MAX_DISTANCE_BETWEEN_POINTS = 0.02;
@@ -123,6 +125,11 @@
             _this.WHITEBOARD_SURFACE_NAME = "Whiteboard - Drawing Surface";
             _this.MARKER_COLOR_NAME = "hifi-whiteboardPaint";
             _this.spawnOriginalMarkersAndErasers();
+
+            // update entity - This is meant as an hacky way to clear the cache for the client
+            var framePosition = Entities.getEntityProperties(_this.entityID, "position").position;
+            Entities.editEntity(entityID, {position: Vec3.sum(framePosition, {x: 0.0, y: 0.0001, z: 0.0 })});
+            Entities.editEntity(entityID, {position: Vec3.sum(framePosition, {x: 0.0, y: -0.0001, z: 0.0 })});
         },
         /// Remotely callable paintDesktop function
         /// 
@@ -131,7 +138,7 @@
         /// @param {string} entityID of the server
         /// @param {object} param parameters passed as an array of string 
         /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
-        paintDesktop: function(entityID, params) {
+        paintDesktop: function (entityID, params) {
             var currentIndex = -1;
             for (var i = 0; i < strokesInProgress.length; i++) {
                 if (utils.getEntityUserData(strokesInProgress[i]).creatorMarker === params[2]) {
@@ -146,52 +153,52 @@
                 _this.startMarkerStrokeDesktop(params, null);
                 return;
             }
-            
+
             // add new points
             var linePoints = linePointsInProgress[currentIndex];
             var normals = normalsInProgress[currentIndex];
             var strokeWidths = [];
-            var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
-            var whiteboardPosition = Entities.getEntityProperties(_this.entityID , "position").position;
+            var whiteboardNormal = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+            var whiteboardPosition = Entities.getEntityProperties(_this.entityID, "position").position;
 
             var strokeBasePosition = strokeBasePositionInProgress[currentIndex];
             var localPoint = utils.parseJSON(params[0]);
-            
+
             whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
 
             // Project localPoint on the Plane defined by whiteboardNormal
             // and whiteboardPosition
             var distanceWhiteboardPlane = Vec3.dot(whiteboardNormal, whiteboardPosition);
             var distanceLocal = Vec3.dot(whiteboardNormal, localPoint) - distanceWhiteboardPlane;
-            
+
             // Projecting local point onto the whiteboard plane
             localPoint = Vec3.subtract(localPoint, Vec3.multiply(distanceLocal, whiteboardNormal));
             localPoint = Vec3.subtract(localPoint, strokeBasePosition);
             localPoint = Vec3.sum(localPoint, Vec3.multiply(whiteboardNormal, strokeForwardOffset));
             var pointWidth = (STROKE_WIDTH_RANGE.min + STROKE_WIDTH_RANGE.max) / 2;
 
-            
+
             if (linePoints.length > 0) {
                 var distance = Vec3.distance(localPoint, linePoints[linePoints.length - 1]);
                 if (distance < _this.MIN_DISTANCE_BETWEEN_POINTS) {
                     return;
                 }
-                
+
                 if (distance < _this.MAX_DISTANCE_BETWEEN_POINTS) {
                     // ignore points out of order
                     // this filters most wild lines
                     return;
                 }
-                
+
                 // use previous point in the line to smooth 
                 var smoothingCoef = 0.5;
 
                 localPoint = Vec3.sum(
-                    Vec3.multiply(smoothingCoef,localPoint), 
-                    Vec3.multiply((1- smoothingCoef), linePoints[linePoints.length - 1])
+                    Vec3.multiply(smoothingCoef, localPoint),
+                    Vec3.multiply((1 - smoothingCoef), linePoints[linePoints.length - 1])
                 );
             }
-            
+
 
             linePoints.push(localPoint);
             normals.push(whiteboardNormal);
@@ -199,7 +206,7 @@
             for (i = 0; i < linePoints.length; i++) {
                 strokeWidths.push(pointWidth);
             }
-            
+
             // Edit entity
             Entities.editEntity(strokesInProgress[currentIndex], {
                 linePoints: linePoints,
@@ -208,18 +215,14 @@
             });
             linePointsInProgress[currentIndex] = linePoints;
             normalsInProgress[currentIndex] = normals;
-            
+
             // if reached max number finish line
             if (linePoints.length > MAX_POINTS_PER_STROKE) {
                 var prev = strokesInProgress[currentIndex];
-                strokes.push(strokesInProgress[currentIndex]);
-                strokesInProgress.splice(currentIndex, 1);
-                linePointsInProgress.splice(currentIndex, 1);
-                normalsInProgress.splice(currentIndex, 1);
-                strokeBasePositionInProgress.splice(currentIndex, 1);
+                _this.clampStroke(currentIndex);
                 _this.startMarkerStrokeDesktop(params, prev);
             }
-            
+
         },
         /// Create a new stroke for Desktop mode(Polyline)
         /// 
@@ -227,7 +230,7 @@
         /// 
         /// @param {object} param parameters passed as an array of string 
         /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
-        startMarkerStrokeDesktop: function(params, previousLine) {
+        startMarkerStrokeDesktop: function (params, previousLine) {
             var newStroke = Entities.addEntity({
                 type: "PolyLine",
                 name: _this.STROKE_NAME,
@@ -240,10 +243,11 @@
                 lifetime: STROKE_LIFETIME,
                 userData: JSON.stringify({
                     creatorMarker: params[2],
-                    parentBoard: params[3]
+                    parentBoard: params[3],
+                    highResolutionPointCache: "howdy"
                 })
             });
-            
+
             if (previousLine !== null) {
                 _this.bridge(newStroke, previousLine);
             } else {
@@ -255,40 +259,40 @@
                 _this.paintDesktop(_this.entityID, params);
             }
         },
-        bridge: function(newStroke, previousLine) {
+        bridge: function (newStroke, previousLine) {
             var linePoints = [];
             var normals = [];
             var strokeWidths = [];
-            var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
-            
+            var whiteboardNormal = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+
             whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
 
-            var strokeBasePosition = Entities.getEntityProperties(newStroke , "position").position;
-            var prevStrokeBasePosition = Entities.getEntityProperties(previousLine , "position").position;
-            var prevLinePoints = Entities.getEntityProperties(previousLine , "linePoints").linePoints;
+            var strokeBasePosition = Entities.getEntityProperties(newStroke, "position").position;
+            var prevStrokeBasePosition = Entities.getEntityProperties(previousLine, "position").position;
+            var prevLinePoints = Entities.getEntityProperties(previousLine, "linePoints").linePoints;
             // get last 2 linePoints
             var lastPoint1 = prevLinePoints[prevLinePoints.length - 1];
             var lastPoint2 = prevLinePoints[prevLinePoints.length - 2];
-            
+
             lastPoint1 = Vec3.sum(lastPoint1, prevStrokeBasePosition);
             lastPoint2 = Vec3.sum(lastPoint2, prevStrokeBasePosition);
-            
+
             lastPoint1 = Vec3.subtract(lastPoint1, strokeBasePosition);
             lastPoint2 = Vec3.subtract(lastPoint2, strokeBasePosition);
-            
+
             var pointWidth = (STROKE_WIDTH_RANGE.min + STROKE_WIDTH_RANGE.max) / 2;
-            
+
             linePoints = [lastPoint1, lastPoint2];
             normals = [whiteboardNormal, whiteboardNormal];
-            strokeWidths = [pointWidth , pointWidth];
-            
+            strokeWidths = [pointWidth, pointWidth];
+
             // Edit entity
             Entities.editEntity(newStroke, {
                 linePoints: linePoints,
                 normals: normals,
                 strokeWidths: strokeWidths
             });
-            
+
             linePointsInProgress.push(linePoints);
             normalsInProgress.push(normals);
             strokesInProgress.push(newStroke);
@@ -301,7 +305,7 @@
         /// @param {string}  entityID of the server
         /// @param {object}  param parameters passed as an array of string 
         /// with the id of the marker that stoped drawing and the drawing surface [creatorMarkerID, drawingSurfaceID]
-        resetMarkerStrokeDesktop: function(entityID, params) {
+        resetMarkerStrokeDesktop: function (entityID, params) {
             print("Daantje Debug: Reset Desktop");
             var currentIndex = -1;
             for (var i = 0; i < strokesInProgress.length; i++) {
@@ -315,13 +319,9 @@
             if (currentIndex === -1) {
                 return;
             }
-            
+
             // remove stroke information from the current active strokes
-            strokes.push(strokesInProgress[currentIndex]);
-            strokesInProgress.splice(currentIndex, 1);
-            linePointsInProgress.splice(currentIndex, 1);
-            normalsInProgress.splice(currentIndex, 1);
-            strokeBasePositionInProgress.splice(currentIndex, 1);
+            _this.clampStroke(currentIndex);
         },
         /// Remotely callable paint function
         /// 
@@ -330,8 +330,8 @@
         /// @param {string} entityID of the server
         /// @param {object} param parameters passed as an array of string 
         /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
-        paint: function(entityID, params) {
-            
+        paint: function (entityID, params) {
+
             var currentIndex = -1;
             for (var i = 0; i < strokesInProgress.length; i++) {
                 if (utils.getEntityUserData(strokesInProgress[i]).creatorMarker === params[2]) {
@@ -340,38 +340,38 @@
                 }
             }
 
-               
+
             // we haven't found the polyline
             if (currentIndex === -1) {
                 // build new polyline by starting a new stroke
                 _this.startMarkerStroke(params);
                 return;
             }
-            
+
             // add new points
             var linePoints = linePointsInProgress[currentIndex];
             var normals = normalsInProgress[currentIndex];
             var strokeWidths = [];
-            var whiteboardNormal = Entities.getEntityProperties(_this.entityID , "rotation").rotation;
-            var whiteboardPosition = Entities.getEntityProperties(_this.entityID , "position").position;
+            var whiteboardNormal = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+            var whiteboardPosition = Entities.getEntityProperties(_this.entityID, "position").position;
 
             var strokeBasePosition = strokeBasePositionInProgress[currentIndex];
             var localPoint = utils.parseJSON(params[0]);
-            
+
             whiteboardNormal = Vec3.multiply(-1, Quat.getFront(whiteboardNormal));
 
             // Project localPoint on the Plane defined by whiteboardNormal
             // and whiteboardPosition
             var distanceWhiteboardPlane = Vec3.dot(whiteboardNormal, whiteboardPosition);
             var distanceLocal = Vec3.dot(whiteboardNormal, localPoint) - distanceWhiteboardPlane;
-            
+
             // Projecting local point onto the whiteboard plane
             localPoint = Vec3.subtract(localPoint, Vec3.multiply(distanceLocal, whiteboardNormal));
             localPoint = Vec3.subtract(localPoint, strokeBasePosition);
             localPoint = Vec3.sum(localPoint, Vec3.multiply(whiteboardNormal, strokeForwardOffset));
             var pointWidth = (STROKE_WIDTH_RANGE.min + STROKE_WIDTH_RANGE.max) / 2;
 
-            
+
             if (linePoints.length > 0) {
                 var distance = Vec3.distance(localPoint, linePoints[linePoints.length - 1]);
                 if (distance < _this.MIN_DISTANCE_BETWEEN_POINTS) {
@@ -379,7 +379,7 @@
                 }
 
             }
-            
+
 
             linePoints.push(localPoint);
             normals.push(whiteboardNormal);
@@ -387,7 +387,7 @@
             for (i = 0; i < linePoints.length; i++) {
                 strokeWidths.push(pointWidth);
             }
-            
+
             // Edit entity
             Entities.editEntity(strokesInProgress[currentIndex], {
                 linePoints: linePoints,
@@ -396,18 +396,13 @@
             });
             linePointsInProgress[currentIndex] = linePoints;
             normalsInProgress[currentIndex] = normals;
-            
+
             // if reached max number finish line
             if (linePoints.length > MAX_POINTS_PER_STROKE) {
-                print("Daantje Debug: gap max points per stroke");
-                strokes.push(strokesInProgress[currentIndex]);
-                strokesInProgress.splice(currentIndex, 1);
-                linePointsInProgress.splice(currentIndex, 1);
-                normalsInProgress.splice(currentIndex, 1);
-                strokeBasePositionInProgress.splice(currentIndex, 1);
+                _this.clampStroke(currentIndex);
                 _this.startMarkerStroke(params);
             }
-            
+
         },
         /// Create a new stroke (Polyline)
         /// 
@@ -415,7 +410,7 @@
         /// 
         /// @param {object} param parameters passed as an array of string 
         /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
-        startMarkerStroke: function(params) {
+        startMarkerStroke: function (params) {
             print("Daantje Debug: Start Stroke Desktop");
             var newStroke = Entities.addEntity({
                 type: "PolyLine",
@@ -429,16 +424,57 @@
                 lifetime: STROKE_LIFETIME,
                 userData: JSON.stringify({
                     creatorMarker: params[2],
-                    parentBoard: params[3]
+                    parentBoard: params[3],
+                    highResolutionPointCache: "howdy"
                 })
             });
-            
+
             linePointsInProgress.push([]);
             normalsInProgress.push([]);
             strokesInProgress.push(newStroke);
             strokeBasePositionInProgress.push(utils.parseJSON(params[0]));
             // continue to expand newly created polyline
             _this.paint(_this.entityID, params);
+        },
+        clampStroke: function (currentIndex) {
+            // add high resolution point cache
+            _this.createHighResolutionPointCache(strokesInProgress[currentIndex]);
+
+            strokes.push(strokesInProgress[currentIndex]);
+            strokesInProgress.splice(currentIndex, 1);
+            linePointsInProgress.splice(currentIndex, 1);
+            normalsInProgress.splice(currentIndex, 1);
+            strokeBasePositionInProgress.splice(currentIndex, 1);
+        },
+        createHighResolutionPointCache: function (lineID) {
+            var linePoints = Entities.getEntityProperties(lineID, "linePoints").linePoints;
+            var highResolutionLinePoints = [linePoints[0]];
+
+            for (var i = 1; i < linePoints.length; i++) {
+                var lineGenerator = Vec3.normalize(Vec3.subtract(linePoints[i], linePoints[i-1]));
+                var segmentSize = Vec3.distance(linePoints[i], linePoints[i-1]);
+                
+                var highResolutionIncrement = lineResolution;
+                var nextPoint = Vec3.sum(linePoints[i-1], Vec3.multiply(highResolutionIncrement, lineGenerator));
+                while (Vec3.distance(nextPoint, linePoints[i-1]) < segmentSize){
+                    highResolutionLinePoints.push(nextPoint);
+                    highResolutionIncrement += lineResolution;
+                    nextPoint = Vec3.sum(linePoints[i-1], Vec3.multiply(highResolutionIncrement, lineGenerator));
+                }
+                
+                highResolutionLinePoints.push(linePoints[i]);
+            }
+           print("Daantje Debug lenght " + JSON.stringify(highResolutionLinePoints).length);
+            Entities.editEntity(lineID, {
+                userData: JSON.stringify({
+                    creatorMarker: utils.getEntityUserData(lineID).creatorMarker
+                }),
+                lifetime: 600
+            });
+            //Entities.editEntity(lineID, {
+            //    lifetime: STROKE_LIFETIME
+            //});
+            
         },
         /// Remotely callable reset marker stroke function
         /// 
@@ -447,7 +483,7 @@
         /// @param {string}  entityID of the server
         /// @param {object}  param parameters passed as an array of string 
         /// with the id of the marker that stoped drawing and the drawing surface [creatorMarkerID, drawingSurfaceID]
-        resetMarkerStroke: function(entityID, params) {
+        resetMarkerStroke: function (entityID, params) {
             print("Daantje Debug: Reset");
             var currentIndex = -1;
             for (var i = 0; i < strokesInProgress.length; i++) {
@@ -461,13 +497,9 @@
             if (currentIndex === -1) {
                 return;
             }
-            
+
             // remove stroke information from the current active strokes
-            strokes.push(strokesInProgress[currentIndex]);
-            strokesInProgress.splice(currentIndex, 1);
-            linePointsInProgress.splice(currentIndex, 1);
-            normalsInProgress.splice(currentIndex, 1);
-            strokeBasePositionInProgress.splice(currentIndex, 1);
+            _this.clampStroke(currentIndex);
         },
         /// Remotely callable erase stroke function
         /// 
@@ -476,7 +508,7 @@
         /// @param {string}  entityID of the server
         /// @param {object} param parameters passed as an array of string 
         /// with the id of the stroke to be deleted [strokeID]
-        erase: function(entityID, params) {
+        erase: function (entityID, params) {
             Entities.deleteEntity(params[0]);
         },
         /// Remotely callable function that clears the whiteboard
@@ -486,7 +518,7 @@
         /// 
         /// @param {string}  entityID of the server
         /// @param {object} params not used
-        clearBoard: function(entityID, params) {
+        clearBoard: function (entityID, params) {
             _this.resetMarkersAndErasers(_this.entityID, [_this.entityID]);
             _this.spawnOriginalMarkersAndErasers();
         },
@@ -494,44 +526,44 @@
         /// 
         /// @param {string}  entityID of the server
         /// @param {object} params [properties]
-        serverAddEntity: function(entityID, params) {
+        serverAddEntity: function (entityID, params) {
             Entities.addEntity(utils.parseJSON(params[0]));
         },
         /// Remotely callable function that edits an entity
         /// 
         /// @param {string}  entityID of the server
         /// @param {object} params [entityID, properties]
-        serverEditEntity: function(entityID, params) {
+        serverEditEntity: function (entityID, params) {
             Entities.editEntity(params[0], utils.parseJSON(params[1]));
         },
         /// Remotely callable function that edits an entity
         /// 
         /// @param {string}  entityID of the server
         /// @param {object} params [entityID, userData]
-        serverSetEntityData: function(entityID, params) {
+        serverSetEntityData: function (entityID, params) {
             utils.setEntityUserData(params[0], utils.parseJSON(params[1]));
         },
-        resetMarkersAndErasers: function(entityID, params) {
+        resetMarkersAndErasers: function (entityID, params) {
             // delete all markers and erasers
             var results = Entities.findEntities(
-                Entities.getEntityProperties(_this.entityID, "position").position, 
+                Entities.getEntityProperties(_this.entityID, "position").position,
                 RESET_MARKERS_AND_ERASERS_RADIUS
             );
-            
-            results.forEach(function(entity) {
+
+            results.forEach(function (entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
-                if (entityName === ERASER_NAME || 
-                    entityName === BLUE_MARKER_NAME || 
-                    entityName === GREEN_MARKER_NAME || 
-                    entityName === BLACK_MARKER_NAME || 
-                    entityName === RED_MARKER_NAME || 
-                    entityName === PINK_MARKER_NAME || 
+                if (entityName === ERASER_NAME ||
+                    entityName === BLUE_MARKER_NAME ||
+                    entityName === GREEN_MARKER_NAME ||
+                    entityName === BLACK_MARKER_NAME ||
+                    entityName === RED_MARKER_NAME ||
+                    entityName === PINK_MARKER_NAME ||
                     entityName === YELLOW_MARKER_NAME) {
                     Entities.deleteEntity(entity);
                 }
             });
         },
-        spawnOriginalMarkersAndErasers: function() {
+        spawnOriginalMarkersAndErasers: function () {
             // spawn original markers and erasers
             blueMarkerID = _this.spawnMarkerWithColor(BLUE_MARKER_NAME, BLUE_MARKER_COLOR);
             greenMarkerID = _this.spawnMarkerWithColor(GREEN_MARKER_NAME, GREEN_MARKER_COLOR);
@@ -539,7 +571,7 @@
             redMarkerID = _this.spawnMarkerWithColor(RED_MARKER_NAME, RED_MARKER_COLOR);
             pinkMarkerID = _this.spawnMarkerWithColor(PINK_MARKER_NAME, PINK_MARKER_COLOR);
             yellowMarkerID = _this.spawnMarkerWithColor(YELLOW_MARKER_NAME, YELLOW_MARKER_COLOR);
-            
+
             eraserID = null;
             _this.spawnEraser(_this.entityID, [null]);
         },
@@ -550,28 +582,28 @@
         /// 
         /// @param {string}  entityID of the server
         /// @param  {object} params [grabbedMarkerID, markerName, markerColor]
-        spawnMarker: function(entityID, params) {
+        spawnMarker: function (entityID, params) {
             var markerName = utils.parseJSON(params[1]);
             var color = utils.parseJSON(params[2]);
 
-            Entities.editEntity(params[0], {lifetime: SHORT_TOOL_LIFETIME});
+            Entities.editEntity(params[0], { lifetime: SHORT_TOOL_LIFETIME });
 
-            if ( markerName === "hifi_model_marker_blue" && 
+            if (markerName === "hifi_model_marker_blue" &&
                 (blueMarkerID === null || params[0] === blueMarkerID)) {
                 blueMarkerID = _this.spawnMarkerWithColor(markerName, color);
-            } else if ( markerName === "hifi_model_marker_green" && 
+            } else if (markerName === "hifi_model_marker_green" &&
                 (greenMarkerID === null || params[0] === greenMarkerID)) {
                 greenMarkerID = _this.spawnMarkerWithColor(markerName, color);
-            } else if ( markerName === "hifi_model_marker_black" && 
+            } else if (markerName === "hifi_model_marker_black" &&
                 (blackMarkerID === null || params[0] === blackMarkerID)) {
                 blackMarkerID = _this.spawnMarkerWithColor(markerName, color);
-            } else if ( markerName === "hifi_model_marker_red" && 
+            } else if (markerName === "hifi_model_marker_red" &&
                 (redMarkerID === null || params[0] === redMarkerID)) {
                 redMarkerID = _this.spawnMarkerWithColor(markerName, color);
-            } else if ( markerName === "hifi_model_marker_pink" && 
+            } else if (markerName === "hifi_model_marker_pink" &&
                 (pinkMarkerID === null || params[0] === pinkMarkerID)) {
                 pinkMarkerID = _this.spawnMarkerWithColor(markerName, color);
-            } else if ( markerName === "hifi_model_marker_yellow" && 
+            } else if (markerName === "hifi_model_marker_yellow" &&
                 (yellowMarkerID === null || params[0] === yellowMarkerID)) {
                 yellowMarkerID = _this.spawnMarkerWithColor(markerName, color);
             }
@@ -583,10 +615,10 @@
         /// 
         /// @param {string} entityID of the server
         /// @param {object} params [grabbedEraserID]
-        spawnEraser: function(entityID, params) {
+        spawnEraser: function (entityID, params) {
             if (eraserID === null || params[0] === eraserID) {
                 if (params[0] !== null) {
-                    Entities.editEntity(params[0], {lifetime: SHORT_TOOL_LIFETIME});
+                    Entities.editEntity(params[0], { lifetime: SHORT_TOOL_LIFETIME });
                 }
 
                 var template = getTemplate(ERASER_NAME);
@@ -600,7 +632,7 @@
                 var relativePosInWorld = Vec3.sum(Vec3.sum(up, right), front);
                 relativePosInWorld = Vec3.multiplyQbyV(currentRotation, relativePosInWorld);
                 var finalPosition = Vec3.sum(relativePosInWorld, rootPosition);
-                eraserID = Entities.addEntity( {
+                eraserID = Entities.addEntity({
                     position: finalPosition,
                     rotation: Quat.multiply(
                         Entities.getEntityProperties(_this.entityID, "rotation").rotation,
@@ -651,11 +683,11 @@
                 });
             }
         },
-        spawnMarkerWithColor: function(markerName, color) {
+        spawnMarkerWithColor: function (markerName, color) {
             var template = getTemplate(markerName);
             var rootPosition = Entities.getEntityProperties(_this.entityID, "position").position;
             var currentRotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
-            
+
             var rootRot = getTemplate("Whiteboard")['rotation'];
             var localPos = template['localPosition'];
             var up = Vec3.multiply(Quat.getUp(rootRot), Vec3.dot(localPos, Quat.getUp(rootRot)));
@@ -664,9 +696,9 @@
             var relativePosInWorld = Vec3.sum(Vec3.sum(up, right), front);
             relativePosInWorld = Vec3.multiplyQbyV(currentRotation, relativePosInWorld);
             var finalPosition = Vec3.sum(relativePosInWorld, rootPosition);
-            
 
-            return Entities.addEntity( {
+
+            return Entities.addEntity({
                 position: finalPosition,
                 rotation: Quat.multiply(
                     Entities.getEntityProperties(_this.entityID, "rotation").rotation,
@@ -719,7 +751,7 @@
                 })
             });
         },
-        unload: function() {
+        unload: function () {
             _this.resetMarkersAndErasers(_this.entityID, [_this.entityID]);
         }
     };

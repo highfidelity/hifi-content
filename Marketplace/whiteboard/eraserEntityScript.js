@@ -11,7 +11,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    
+    var utils = Script.require('./utils.js');
     var _this;
 
     var isErasing = false;
@@ -230,23 +230,24 @@
                         
                         if (isMouseDown) {
                             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
-                            var nearbyEntities = Entities.findEntities(
-                                _this.eraserPosition, 
-                                _this.ERASER_TO_STROKE_SEARCH_RADIUS
-                            );
+                            _this.pointsWithInBoundsOfEraser();
+                            // var nearbyEntities = Entities.findEntities(
+                            //     _this.eraserPosition, 
+                            //     _this.ERASER_TO_STROKE_SEARCH_RADIUS
+                            // );
                             // Create a map of stroke entities and their positions
-                            nearbyEntities.forEach(function(stroke) {
-                                var props = Entities.getEntityProperties(stroke, ["position", "name"]);
+                            // nearbyEntities.forEach(function(stroke) {
+                            //     var props = Entities.getEntityProperties(stroke, ["position", "name"]);
                                 
-                                if (props.name === _this.STROKE_NAME) {
-                                    // RPC - calling server to erase
-                                    Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
-                                    Audio.playSound(ERASER_HIT_BOARD_SOUND, {
-                                        position: _this.eraserPosition,
-                                        volume: ERASER_SOUND_VOLUME
-                                    });
-                                }
-                            });
+                            //     if (props.name === _this.STROKE_NAME) {
+                            //         // RPC - calling server to erase
+                            //         Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
+                            //         Audio.playSound(ERASER_HIT_BOARD_SOUND, {
+                            //             position: _this.eraserPosition,
+                            //             volume: ERASER_SOUND_VOLUME
+                            //         });
+                            //     }
+                            // });
                         } else {
                             isErasing = false;
                         }
@@ -269,6 +270,28 @@
             if (isMouseDown) {              
                 isMouseDown = false;
             }
+        },
+        pointsWithInBoundsOfEraser: function() {
+            
+            var nearbyStrokes = Entities.findEntitiesByName("hifi_polyline_markerStroke", 
+                _this.eraserPosition, 
+                Entities.getEntityProperties(_this.whiteboard, "dimensions").dimensions.x, 
+                true
+            );
+            print("Daantje Debug " + JSON.stringify(nearbyStrokes));
+
+            nearbyStrokes.forEach(function(stroke) {
+                
+                // TODO get highResolutionCache
+                var points = utils.getEntityCustomData("highResolutionPointCache", stroke, null); 
+                points = Entities.getEntityProperties(stroke, "userData").userData;
+                // ["highResolutionPointCache"]
+                if (points !== null){
+                    // TODO Check whether any of the points in the cache was deleted
+                    print("Daantje Debug 2 " + JSON.stringify(points));
+                    // TODO Tell server to delete chunk
+                }
+            });
         },
         unload: function() {
             Controller.mousePressEvent.disconnect(_this.mousePressEvent);
