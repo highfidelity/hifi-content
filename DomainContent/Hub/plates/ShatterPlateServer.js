@@ -23,7 +23,6 @@
         remotelyCallable : ['breakPlate'],
 
         preload: function(entityID){
-            print("Preload called on plate");
             _entityID = entityID;
             for (var i = 0; i < NUMBER_PIECES; i++) {
                 pieces.push(Entities.addEntity({
@@ -34,7 +33,8 @@
                     parentID: entityID,
                     collidesWith: "",
                     collisionMask: 0,
-                    shapeType: "None"
+                    shapeType: "None",
+                    grabbable: false
                 }));
             } 
         },
