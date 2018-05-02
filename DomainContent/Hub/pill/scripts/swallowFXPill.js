@@ -43,9 +43,9 @@
         3, // Normal
         5, // Metallic
         6, // Emissive
-        17, // Shadow Cascade Indices
-        24, // Low Normal
-        28 // Ambient Occlusion Blurred
+        16, // Shadow Cascade Indices
+        23, // Low Normal
+        27 // Ambient Occlusion Blurred
     ];
 
     var SWALLOW_VOLUME = 0.5;
@@ -139,7 +139,7 @@
                 print("effect is: " + effect);
             }
             Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").size = {x: -1, y: -1, z: 1, w: 1};
-            if (index === 0) {
+            if (effect === WIREFRAME) {
                 Render.getConfig("RenderMainView").getConfig(effect.split(":")[1])[effect.split(":")[2]] = true;
             } else {
                 Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").enabled = true;
