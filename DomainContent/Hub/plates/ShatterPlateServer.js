@@ -10,7 +10,7 @@
 /* globals Entities */
 (function(){
   
-    var PIECE_MODEL = "atp:/Plate-piece.fbx";
+    var PIECE_MODEL = "atp:/plate-piece.fbx";
     var NUMBER_PIECES = 4;
     var pieces = Array();
     var _entityID;
@@ -53,7 +53,8 @@
                     collisionMask: 3,
                     shapeType: "Box",
                     velocity: velocity,
-                    grabbable: true
+                    grabbable: true,
+                    script: Script.resolvePath("ShatterPlatePiece.js")
                 });
             });
     
