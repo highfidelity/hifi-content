@@ -141,7 +141,7 @@
         for (var i = 0; i < PARTICLE_COUNT; i++) {
             var candy = CANDY;
             candy.position = properties.position;
-            Entities.addEntity(candy, true);
+            Entities.addEntity(candy);
         }
     };
 
@@ -185,6 +185,18 @@
             paddleProperties.position = paddleOriginalPosition;
             Entities.editEntity(paddleID, paddleProperties);
         }
+
+        var pinataPointToOffsetFrom = Vec3.sum(pinataOriginalPosition, {
+            x: 0.0,
+            y: 2.0,
+            z: 0.0
+        });
+
+        Entities.addAction("offset", pinataID, {
+            pointToOffsetFrom: pinataPointToOffsetFrom,
+            linearDistance: 2.0,
+            linearTimeScale: 0.1
+        });
     }, TIMEOUT);
 
 });
