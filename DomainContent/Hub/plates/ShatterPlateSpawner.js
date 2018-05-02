@@ -51,7 +51,7 @@
             dishProperties.gravity = {x:0, y: -4, z: 0};
             dishProperties.userData = "{\"grabbableKey\":{\"grabbable\":true}}";
             dishProperties.shapeType = "Compound";
-            dishProperties.compoundShapeURL = "atp:/plate-whole-hub.obj"
+            dishProperties.compoundShapeURL = "atp:/plate-whole-hub.obj",
             dishProperties.dynamic = true,
             dishProperties.collidesWith = "";
             dishProperties.friction = 0.9;
