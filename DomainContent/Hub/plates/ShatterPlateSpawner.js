@@ -23,8 +23,15 @@
     var dishProperties;
 
     function checkClonesAndUpdate(){
-        var found = Entities.findEntitiesByName("Plate", position, DISTANCE);
-        if (found.length === 0) {
+        var count = 0;
+        var found = Entities.findEntities(position, DISTANCE);
+        found.forEach(function(foundEntity){
+            var name = Entities.getEntityProperties(foundEntity, 'name').name;
+            if (name === "Plate") {
+                count++;
+            }
+        });
+        if (count === 0) {
             Entities.addEntity(dishProperties);
         }
     }
@@ -35,16 +42,20 @@
 
     PlateSpawner.prototype = {
         preload: function(entityID) {
-            dishProperties = Entities.getEntityProperties(entityID, ['name', 'position', 'modelURL']);
+            dishProperties = Entities.getEntityProperties(entityID, ['position', 'modelURL']);
+            dishProperties.name = "Plate";
             dishProperties.visible = false;
             dishProperties.script = CLIENT_SCRIPT_URL;
             dishProperties.serverScripts = SERVER_SCRIPT_URL;
             dishProperties.dimensions = PLATE_DIMENSIONS;
             dishProperties.gravity = {x:0, y: -4, z: 0};
             dishProperties.userData = "{\"grabbableKey\":{\"grabbable\":true}}";
-            dishProperties.shapeType = "Box";
+            dishProperties.shapeType = "Compound";
+            dishProperties.compoundShapeURL = "atp:/plate-whole-hub.obj"
             dishProperties.dynamic = true,
             dishProperties.collidesWith = "";
+            dishProperties.friction = 0.9;
+            dishProperties.restitution = 0.1;
             position = dishProperties.position;
 
             Script.setInterval(checkClonesAndUpdate, INTERVAL);
