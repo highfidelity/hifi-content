@@ -9,7 +9,7 @@
 //
 /* globals Entities, SoundCache */
 
-(function(){
+(function() {
     var VELOCITY_TO_BREAK = 2;
     var EMIT_TIME = 2000;
     var breakURL = Script.resolvePath("sound/glass-break.wav");
