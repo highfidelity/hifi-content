@@ -18,8 +18,7 @@
     var LIFETIME = 30; // milliseconds
 
     this.preload = function(entityID) {
-        var foodEntityID = Entities.getEntityProperties(entityID, "parentID").parentID;
-        var properties = Entities.getEntityProperties(foodEntityID, 
+        var properties = Entities.getEntityProperties(Entities.getEntityProperties(entityID, "parentID").parentID, 
             ["position", "modelURL", "name", "dimensions", "description"]);
         var position = Vec3.sum(properties.position, {
             x: 0.0,

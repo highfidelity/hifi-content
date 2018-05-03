@@ -16,16 +16,16 @@
 
     var CRUNCH_SOUND_URLS = [
         // sounds by InspectorJ from https://freesound.org/people/InspectorJ/sounds/332407/
-        Script.resolvePath("../sounds/crunch-1.wav"),
-        Script.resolvePath("../sounds/crunch-2.wav"),
-        Script.resolvePath("../sounds/crunch-3.wav"),
-        Script.resolvePath("../sounds/crunch-4.wav"),
-        Script.resolvePath("../sounds/crunch-5.wav"),
-        Script.resolvePath("../sounds/crunch-6.wav"),
-        Script.resolvePath("../sounds/crunch-7.wav"),
-        Script.resolvePath("../sounds/crunch-8.wav"),
-        Script.resolvePath("../sounds/crunch-9.wav"),
-        Script.resolvePath("../sounds/crunch-10.wav")
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-1.wav",
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-2.wav",
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-3.wav",
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-4.wav",
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-5.wav",
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-6.wav",
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-7.wav",
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-8.wav",
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-9.wav",
+        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-10.wav"
     ];
     var CRUNCH_SOUNDS = [];
 
