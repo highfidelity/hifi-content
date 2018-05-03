@@ -307,37 +307,37 @@
     controllerMappingName = 'Hifi-FacialExpressions-Mapping';
     controllerMapping = Controller.newMapping(controllerMappingName);
 
-    controllerMapping.from(Controller.Hardware.Keyboard.I).to(function(value) {
+    controllerMapping.from(Controller.Hardware.Keyboard.H).to(function(value) {
         if (value !== 0) {
             setEmotion(SMILE);
         }
     });
 
-    controllerMapping.from(Controller.Hardware.Keyboard.O).to(function(value) {
+    controllerMapping.from(Controller.Hardware.Keyboard.J).to(function(value) {
         if (value !== 0) {
             setEmotion(LAUGH);
         }
     });
 
-    controllerMapping.from(Controller.Hardware.Keyboard.P).to(function(value) {
+    controllerMapping.from(Controller.Hardware.Keyboard.K).to(function(value) {
         if (value !== 0) {
             setEmotion(FLIRT);
         }
     });
 
-    controllerMapping.from(Controller.Hardware.Keyboard.J).to(function(value) {
+    controllerMapping.from(Controller.Hardware.Keyboard.L).to(function(value) {
         if (value !== 0) {
             setEmotion(SAD);
         }
     });
 
-    controllerMapping.from(Controller.Hardware.Keyboard.K).to(function(value) {
+    controllerMapping.from(Controller.Hardware.Keyboard.V).to(function(value) {
         if (value !== 0) {
             setEmotion(ANGRY);
         }
     });
 
-    controllerMapping.from(Controller.Hardware.Keyboard.L).to(function(value) {
+    controllerMapping.from(Controller.Hardware.Keyboard.B).to(function(value) {
         if (value !== 0) {
             setEmotion(FEAR);
         }
