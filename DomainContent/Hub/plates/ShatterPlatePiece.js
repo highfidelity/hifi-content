@@ -12,7 +12,7 @@
 (function(){
     var VELOCITY_TO_BREAK = 2;
     var EMIT_TIME = 2000;
-    var breakURL = "https://hifi-content.s3.amazonaws.com/liv/dev/250709__aiwha__glass-break-2.wav";
+    var breakURL = Script.resolvePath("sound/glass-break.wav");
     var breakSound = SoundCache.getSound(breakURL);
     var volumeLevel = 0.25;
     var canBreak = false;
@@ -21,12 +21,11 @@
     var PlatePiece = function(){};
     var shouldBreak = function(velocity){
         return Math.abs(velocity.x) >= VELOCITY_TO_BREAK ||
-      Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
-      Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
+            Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
+            Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
     };
 
     var createParticles = function(position) {
-        print("Creating particles");
         var splat = Entities.addEntity({
             "type":"ParticleEffect",
             "position": position,
@@ -82,10 +81,11 @@
         },
         collisionWithEntity : function(myID, theirID, collision) {
             if (canBreak) {
-                var velocity = Entities.getEntityProperties(myID, 'velocity').velocity;
-                var position = Entities.getEntityProperties(myID, 'position').position;
+                var properties = Entities.getEntityProperties(myID, 'velocity', 'position');
+                var velocity = properties.velocity;
+                var position = properties.position;
                 if (shouldBreak(velocity)) {
-                    if (breakSound.downloaded){
+                    if (breakSound.downloaded) {
                         Audio.playSound(breakSound, {
                             volume: volumeLevel,
                             position: position
