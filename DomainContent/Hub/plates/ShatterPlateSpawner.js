@@ -8,7 +8,7 @@
 // See accompanying license file or http://apache.org/
 //
 
-(function(){
+(function() {
 
     var CLIENT_SCRIPT_URL = Script.resolvePath("ShatterPlateClient.js");
     var SERVER_SCRIPT_URL = Script.resolvePath("ShatterPlateServer.js");
@@ -22,7 +22,7 @@
 
     var dishProperties;
 
-    function checkClonesAndUpdate(){
+    function checkClonesAndUpdate() {
         var count = 0;
         var found = Entities.findEntities(position, DISTANCE);
         found.forEach(function(foundEntity){
@@ -36,7 +36,7 @@
         }
     }
 
-    var PlateSpawner = function(){
+    var PlateSpawner = function() {
 
     };
 
@@ -60,7 +60,7 @@
 
             Script.setInterval(checkClonesAndUpdate, INTERVAL);
         },
-        unload: function(){
+        unload: function() {
             Script.clearInterval(checkClonesAndUpdate);
         }
     };
