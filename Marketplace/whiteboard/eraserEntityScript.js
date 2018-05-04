@@ -11,7 +11,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    var utils = Script.require('./utils.js');
+    
     var _this;
 
     var isErasing = false;
@@ -30,6 +30,8 @@
     var SURFACE_OFFSET = 0.01;
     var hand = 2;
 
+    var lineResolution = 0.005;
+
     var BLUE_MARKER_NAME = "hifi_model_marker_blue";
     var GREEN_MARKER_NAME = "hifi_model_marker_green";
     var BLACK_MARKER_NAME = "hifi_model_marker_black";
@@ -41,6 +43,7 @@
     var Eraser = function() {
         _this = this;
         _this.equipped = false;
+        _this.desktopEquipped = false;
         _this.STROKE_NAME = "hifi_polyline_markerStroke";
         _this.ERASER_TO_STROKE_SEARCH_RADIUS = 0.0032;
         _this.WHITEBOARD_NAME = "Whiteboard";
@@ -50,6 +53,11 @@
         _this.whiteboardNormal = null;
 
     };
+    
+    // UUID: {numberPoints: 12, highResolution: [], pointIndex: []}
+    var strokeHighResolutionCache = {};
+    var overlayA ;
+    var pointIndex;
 
     Eraser.prototype = {
         preload: function(entityID) {
@@ -59,6 +67,9 @@
             Controller.mouseReleaseEvent.connect(_this.mouseReleaseEvent);
         },
         startNearGrab: function() {
+            if (!HMD.active) {
+                return;
+            }
             _this.findWhiteboard();
             var serverID = _this.whiteboard;
             Entities.callEntityServerMethod(serverID, 'spawnEraser', [_this.entityID]);
@@ -109,6 +120,9 @@
             });
         },
         startEquip: function() {
+            if (!HMD.active) {
+                return;
+            }
             _this.equipped = true;
             _this.startEquipTime = Date.now();
             _this.startNearGrab();
@@ -146,15 +160,15 @@
                 }
             });
             
-            if (_this.equipped) {
+            if (_this.desktopEquipped) {
                 isMouseDown = true;
             }
-            _this.equipped = true;
+            _this.desktopEquipped = true;
             Settings.setValue('io.highfidelity.isEditing', true);
 
         },
         mousePressEvent: function(event) {
-            if (_this.equipped) {
+            if (_this.desktopEquipped) {
                 isMouseDown = true;
 
                 var pickRay = Camera.computePickRay(event.x, event.y);
@@ -170,7 +184,7 @@
                         entityName === PINK_MARKER_NAME || 
                         entityName === YELLOW_MARKER_NAME) {
                         // unequip and delete
-                        _this.equipped = false;
+                        _this.desktopEquipped = false;
                         _this.findWhiteboard();
                         var serverID = _this.whiteboard;
                         isMouseDown = false;
@@ -186,7 +200,7 @@
         },
         mouseMoveEvent: function(event) {
             var serverID;
-            if (_this.equipped && event.x !== undefined) {
+            if (_this.desktopEquipped && event.x !== undefined) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
                 
@@ -253,7 +267,7 @@
                         }
                     }
                 } else {
-                    _this.equipped = false;
+                    _this.desktopEquipped = false;
                     _this.findWhiteboard();
                     serverID = _this.whiteboard;
                     isMouseDown = false;
@@ -278,20 +292,212 @@
                 Entities.getEntityProperties(_this.whiteboard, "dimensions").dimensions.x, 
                 true
             );
-            print("Daantje Debug " + JSON.stringify(nearbyStrokes));
 
+            var serverID = Entities.getEntityProperties(_this.whiteboard, "parentID").parentID;
+            
+            var eraserUp = Quat.getRight(Entities.getEntityProperties(_this.entityID, "rotation").rotation);
+            var eraserRight = Quat.getFront(Entities.getEntityProperties(_this.entityID, "rotation").rotation);
+            var eraserHalfDimensionUp = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.x / 4.0;
+            var eraserHalfDimensionRight = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.z / 2.0;
+            eraserUp = Vec3.sum(eraserUp, _this.eraserPosition);
+            eraserRight = Vec3.sum(eraserRight, _this.eraserPosition);
+            var lengthEraserUp = Vec3.dot(eraserUp, eraserUp);
+            var lengthEraserRight = Vec3.dot(eraserRight, eraserRight);
+            
             nearbyStrokes.forEach(function(stroke) {
                 
                 // TODO get highResolutionCache
-                var points = utils.getEntityCustomData("highResolutionPointCache", stroke, null); 
-                points = Entities.getEntityProperties(stroke, "userData").userData;
-                // ["highResolutionPointCache"]
-                if (points !== null){
+                var points = _this.getHighResolutionPointCache(stroke); 
+                var strokeBasePosition = Entities.getEntityProperties(stroke, "position").position;
+                
+                var keep = [];
+                if (points !== undefined){
                     // TODO Check whether any of the points in the cache was deleted
-                    print("Daantje Debug 2 " + JSON.stringify(points));
+                    var linePointsIndex = strokeHighResolutionCache["strokeID"].pointIndex;
+                    
+                    // begin and end of segments [[0,10], [20,35]]
+                    var segments = [];
+               
+                    for (var i = 0; i < points.length; i++) {
+                        var point = Vec3.subtract(Vec3.sum(points[i], strokeBasePosition), _this.eraserPosition);
+                        var keepPoint = false;
+                        if (Vec3.length(point) < eraserHalfDimensionRight) {
+                            var projectionUp = Vec3.length(Vec3.multiply(
+                                (Vec3.dot(point, eraserUp) / lengthEraserUp), 
+                                eraserUp
+                            ));
+                            if (projectionUp < eraserHalfDimensionUp) {
+                                var projectionRight = Vec3.length(Vec3.multiply(
+                                    (Vec3.dot(point, eraserRight) / lengthEraserRight), 
+                                    eraserRight
+                                ));
+                                if (!(projectionRight < eraserHalfDimensionRight)) {
+                                    keep.push(i);
+                                    keepPoint = true;
+
+                                }
+                            } else {
+                                keep.push(i);
+                                keepPoint = true;
+                            }
+                        } else {
+                            keep.push(i);
+                            keepPoint = true;
+                        }
+                        
+                        var currentSegment = segments[segments.length - 1];
+                        if (keepPoint) {
+                            if (segments.length === 0) {
+                                segments.push([i]);
+                            } else if (currentSegment.length === 2) {
+                                segments.push([i]);
+                            } else if ( i === points.length - 1) {
+                                currentSegment.push(i);
+                            }
+                        } else if (segments.length > 0) {
+                            if (currentSegment.length === 1) {
+                                currentSegment.push(i-1);
+                            }
+                        }
+                        
+                    }
                     // TODO Tell server to delete chunk
+                    // print(JSON.stringify(keep));
+                    print(JSON.stringify(segments));
+
+                    var keepLinePointIndexes = [];
+                    var keepInclusivePointIndexes = [];
+                    var startingCount = keepLinePointIndexes.length;
+                    var lastInclusive = 0;
+                    var k, j;
+                    if (segments.length === 0) {
+                        // delete entire line segment
+                        // RPC - calling server to erase
+                        Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
+                        Audio.playSound(ERASER_HIT_BOARD_SOUND, {
+                            position: _this.eraserPosition,
+                            volume: ERASER_SOUND_VOLUME
+                        });
+                    } else if (segments.length === 1){
+                        if (segments[0][0] === 0 && segments[0][1] === points.length - 1) {
+                            // nothing to do here
+                            print("Keep entire line");
+                        } else {
+                            keepLinePointIndexes = [];
+                            keepInclusivePointIndexes = [];
+                            startingCount = keepLinePointIndexes.length;
+                            lastInclusive = 0;
+                            for (j = segments[0][0] ; j <= segments[0][1] ; j++) {
+                                if (linePointsIndex[j] !== undefined) {
+                                    if (startingCount === keepLinePointIndexes.length) {
+                                        keepLinePointIndexes.push(linePointsIndex[j]);
+                                        if (j === segments[0][0]) {
+                                            keepInclusivePointIndexes.push(true);
+                                        } else {
+                                            keepInclusivePointIndexes.push(false);
+                                        }
+                                    } else if (startingCount < keepLinePointIndexes.length) {
+                                        lastInclusive = j;
+                                    }
+                                }
+                            }
+                            if (lastInclusive === segments[0][1]) {
+                                keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
+                                keepInclusivePointIndexes.push(true);
+                            } else {
+                                keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
+                                keepInclusivePointIndexes.push(false);
+                            }
+                            print("PRINT keepLinePointIndexes " + JSON.stringify(keepLinePointIndexes));
+                            print("PRINT keepInclusivePointIndexes " + JSON.stringify(keepInclusivePointIndexes));
+
+                            Entities.callEntityServerMethod(serverID, 'reeditStroke', [stroke, 
+                                JSON.stringify(segments), JSON.stringify(keepLinePointIndexes), JSON.stringify(keepInclusivePointIndexes)]);
+                        }
+                        
+                    } else {
+                        for (k = 0 ; k < segments.length ; k++) {
+                            startingCount = keepLinePointIndexes.length;
+                            lastInclusive = 0;
+                            for (j = segments[k][0] ; j <= segments[k][1] ; j++) {
+                                if (linePointsIndex[j] !== undefined) {
+                                    if (startingCount === keepLinePointIndexes.length) {
+                                        keepLinePointIndexes.push(linePointsIndex[j]);
+                                        if (j === segments[k][0]) {
+                                            keepInclusivePointIndexes.push(true);
+                                        } else {
+                                            keepInclusivePointIndexes.push(false);
+                                        }
+                                    } else if (startingCount < keepLinePointIndexes.length) {
+                                        lastInclusive = j;
+                                    }
+                                }
+                            }
+                            if (lastInclusive === segments[k][1]) {
+                                keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
+                                keepInclusivePointIndexes.push(true);
+                            } else {
+                                keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
+                                keepInclusivePointIndexes.push(false);
+                            }
+                        }
+                        
+                        
+                        print("PRINT keepLinePointIndexes " + JSON.stringify(keepLinePointIndexes));
+                        print("PRINT keepInclusivePointIndexes " + JSON.stringify(keepInclusivePointIndexes));
+                        print(serverID);
+                        Entities.callEntityServerMethod(serverID, 'reeditStroke', [stroke, 
+                            JSON.stringify(segments), JSON.stringify(keepLinePointIndexes), JSON.stringify(keepInclusivePointIndexes)]);
+                    }
+
                 }
             });
+        },
+        getHighResolutionPointCache: function(strokeID) {
+            if (strokeHighResolutionCache["strokeID"] === undefined) {
+                strokeHighResolutionCache["strokeID"] = {
+                    numberPoints: Entities.getEntityProperties(strokeID, "linePoints").linePoints.length,
+                    highResolutionLinePoints: _this.createHighResolutionPointCache(strokeID),
+                    pointIndex: pointIndex
+                };
+            } else {
+                var currentNumberPoints = Entities.getEntityProperties(strokeID, "linePoints").linePoints.length;
+                var cachedNumberPoints = strokeHighResolutionCache["strokeID"].numberPoints;
+                if (currentNumberPoints !== cachedNumberPoints) {
+                    strokeHighResolutionCache["strokeID"] = {
+                        numberPoints: Entities.getEntityProperties(strokeID, "linePoints").linePoints.length,
+                        highResolutionLinePoints: _this.createHighResolutionPointCache(strokeID),
+                        pointIndex: pointIndex
+                    };
+                }
+            }
+            return strokeHighResolutionCache["strokeID"].highResolutionLinePoints;
+        },
+        createHighResolutionPointCache: function (lineID) {
+            var linePoints = Entities.getEntityProperties(lineID, "linePoints").linePoints;
+            var highResolutionLinePoints = [linePoints[0]];
+            pointIndex = {};
+            if (linePoints.length <= 1) {
+                return undefined;
+            } 
+            pointIndex[0] = 0;
+            for (var i = 1; i < linePoints.length; i++) {
+                var lineGenerator = Vec3.normalize(Vec3.subtract(linePoints[i], linePoints[i-1]));
+                var segmentSize = Vec3.distance(linePoints[i], linePoints[i-1]);
+                
+                var highResolutionIncrement = lineResolution;
+                var nextPoint = Vec3.sum(linePoints[i-1], Vec3.multiply(highResolutionIncrement, lineGenerator));
+                while (Vec3.distance(nextPoint, linePoints[i-1]) < segmentSize){
+                    highResolutionLinePoints.push(nextPoint);
+                    highResolutionIncrement += lineResolution;
+                    nextPoint = Vec3.sum(linePoints[i-1], Vec3.multiply(highResolutionIncrement, lineGenerator));
+                }
+                
+                highResolutionLinePoints.push(linePoints[i]);
+                pointIndex[highResolutionLinePoints.length -1] = i;
+            }
+
+            return highResolutionLinePoints;
         },
         unload: function() {
             Controller.mousePressEvent.disconnect(_this.mousePressEvent);

@@ -94,8 +94,6 @@
     var MARKER_EQUIP_HIGHLIGHT_RADIUS = 0.32;
     var ERASER_EQUIP_HIGHLIGHT_RADIUS = 0.35;
 
-    var lineResolution = 0.005;
-
     var Whiteboard = function () {
         _this = this;
     };
@@ -112,7 +110,8 @@
             'serverEditEntity',
             'serverSetEntityData',
             'spawnMarker',
-            'spawnEraser'
+            'spawnEraser',
+            'reeditStroke'
         ],
         preload: function (entityID) {
             _this.entityID = entityID;
@@ -437,44 +436,14 @@
             _this.paint(_this.entityID, params);
         },
         clampStroke: function (currentIndex) {
-            // add high resolution point cache
-            _this.createHighResolutionPointCache(strokesInProgress[currentIndex]);
-
             strokes.push(strokesInProgress[currentIndex]);
             strokesInProgress.splice(currentIndex, 1);
             linePointsInProgress.splice(currentIndex, 1);
             normalsInProgress.splice(currentIndex, 1);
             strokeBasePositionInProgress.splice(currentIndex, 1);
         },
-        createHighResolutionPointCache: function (lineID) {
-            var linePoints = Entities.getEntityProperties(lineID, "linePoints").linePoints;
-            var highResolutionLinePoints = [linePoints[0]];
-
-            for (var i = 1; i < linePoints.length; i++) {
-                var lineGenerator = Vec3.normalize(Vec3.subtract(linePoints[i], linePoints[i-1]));
-                var segmentSize = Vec3.distance(linePoints[i], linePoints[i-1]);
-                
-                var highResolutionIncrement = lineResolution;
-                var nextPoint = Vec3.sum(linePoints[i-1], Vec3.multiply(highResolutionIncrement, lineGenerator));
-                while (Vec3.distance(nextPoint, linePoints[i-1]) < segmentSize){
-                    highResolutionLinePoints.push(nextPoint);
-                    highResolutionIncrement += lineResolution;
-                    nextPoint = Vec3.sum(linePoints[i-1], Vec3.multiply(highResolutionIncrement, lineGenerator));
-                }
-                
-                highResolutionLinePoints.push(linePoints[i]);
-            }
-           print("Daantje Debug lenght " + JSON.stringify(highResolutionLinePoints).length);
-            Entities.editEntity(lineID, {
-                userData: JSON.stringify({
-                    creatorMarker: utils.getEntityUserData(lineID).creatorMarker
-                }),
-                lifetime: 600
-            });
-            //Entities.editEntity(lineID, {
-            //    lifetime: STROKE_LIFETIME
-            //});
-            
+        reeditStroke: function (entityID, params) {
+            print("Hey Hey Vicky " + JSON.stringify(params));
         },
         /// Remotely callable reset marker stroke function
         /// 
