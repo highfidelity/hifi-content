@@ -28,11 +28,12 @@
     ];
 
     // sound from https://freesound.org/people/meschi06/sounds/220914/
-    var EFFECT_SOUND_URL = Script.resolvePath("../sounds/space-trip-short.wav");
+    var EFFECT_SOUND_URL = Script.resolvePath("../sounds/space-trip-stereo.wav");
 
     var SWALLOW_SOUNDS = [];
     var EFFECT_SOUND;
 
+    // retrieved from deferredLighting.qml
     var WIREFRAME = "Wireframe:LightingModel:enableWireframe";
 
     var VISUAL_EFFECTS = [
@@ -41,12 +42,15 @@
         2, // Albedo
         3, // Normal
         5, // Metallic
-        6 // Emissive
+        6, // Emissive
+        16, // Shadow Cascade Indices
+        23, // Low Normal
+        27 // Ambient Occlusion Blurred
     ];
 
     var SWALLOW_VOLUME = 0.5;
-    var EFFECT_VOLUME = 0.7;
-    var CHECK_RADIUS = 0.2; // meters
+    var EFFECT_VOLUME = 0.9;
+    var CHECK_RADIUS = 0.25; // meters
     var LIFETIME = 10; // seconds
     var GRAVITY = {x: 0, y: -9.8, z: 0};
     var PILL_SIZE = {x: 0.1259, y: 0.1259, z: 0.3227};
@@ -67,7 +71,6 @@
         effectPlayback: null,
         effectPlaying: null,
         isInactive: true,
-        hasServerScript: false,
 
         resetRenderDefaults: function() {
             Render.getConfig("RenderMainView").getConfig(WIREFRAME.split(":")[1])[WIREFRAME.split(":")[2]] = false;
@@ -116,7 +119,9 @@
         checkIfNearHead: function() {
             if (_this.isInactive && HMD.active) {
                 var position = Entities.getEntityProperties(_entityID, "position").position;
-                if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < (CHECK_RADIUS * MyAvatar.scale)) {
+                var pillDistance = CHECK_RADIUS * MyAvatar.scale;
+                if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < pillDistance || 
+                    Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < pillDistance) {
                     if (DEBUG) {
                         print("swallowing pill");
                     }
@@ -134,7 +139,7 @@
                 print("effect is: " + effect);
             }
             Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").size = {x: -1, y: -1, z: 1, w: 1};
-            if (index === 0) {
+            if (effect === WIREFRAME) {
                 Render.getConfig("RenderMainView").getConfig(effect.split(":")[1])[effect.split(":")[2]] = true;
             } else {
                 Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").enabled = true;
@@ -179,7 +184,7 @@
 
         mousePressOnEntity: function(entityID, mouseEvent) {
             if (mouseEvent.isLeftButton) {
-                if (_this.hasServerScript && !HMD.active && _this.isInactive) {
+                if (!HMD.active && _this.isInactive) {
                     if (DEBUG) {
                         print("pill has been clicked");
                     }
@@ -207,7 +212,6 @@
                 volume: EFFECT_VOLUME,
                 localOnly: true
             };
-            _this.hasServerScript = Entities.getEntityProperties(_entityID, "serverScripts").serverScripts !== undefined;
         },
 
         unload: function(entityID) {
