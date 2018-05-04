@@ -366,25 +366,46 @@ function exponentialSmoothing(target, current) {
                     origin: fireStart,
                     direction: barrelDirection
                 };
+                var fireRayNormalized = {
+                    origin: fireStart,
+                    direction: barrelDirectionNormalized
+                };
                 
                 var entityIntersection = Entities.findRayIntersection(fireRay, true, [], [this.entityID, flameEntity]);
                 var entityIntersectionDistance = entityIntersection.intersects ? entityIntersection.distance : Number.MAX_VALUE;
+                var shapeIntersection = Entities.findRayIntersection(fireRayNormalized, true, [], [this.entityID, flameEntity]);
+                var shapeIntersectionDistance = shapeIntersection.intersects ? shapeIntersection.distance : Number.MAX_VALUE;
                 var avatarIntersection = AvatarList.findRayIntersection(fireRay);
                 var avatarIntersectionDistance = avatarIntersection.intersects ? avatarIntersection.distance : Number.MAX_VALUE;
                 
                 var intersectEntityID = undefined;
                 var intersectLocalPosition;
-                if (entityIntersection.intersects && entityIntersectionDistance < avatarIntersectionDistance && 
+                var minIntersectionDistance = Number.MAX_VALUE;
+                if (entityIntersection.intersects && entityIntersectionDistance < minIntersectionDistance && 
                     entityIntersectionDistance < barrelDirectionLength) {
-                    var entityDirection = Vec3.multiply(barrelDirectionNormalized, entityIntersection.distance);
-                    fireEnd = Vec3.sum(fireStart, entityDirection);
                     intersectEntityID = entityIntersection.entityID;
-                } else if (avatarIntersection.intersects && avatarIntersectionDistance < entityIntersectionDistance && 
+                    if (Entities.getEntityProperties(intersectEntityID, ['type']).type !== "Shape") {
+                        var entityDirection = Vec3.multiply(barrelDirectionNormalized, entityIntersection.distance);
+                        fireEnd = Vec3.sum(fireStart, entityDirection);
+                        minIntersectionDistance = entityIntersectionDistance;
+                    }
+                }
+                if (shapeIntersection.intersects && shapeIntersectionDistance < minIntersectionDistance && 
+                    shapeIntersectionDistance < barrelDirectionLength) {
+                    intersectEntityID = shapeIntersection.entityID;
+                    if (Entities.getEntityProperties(intersectEntityID, ['type']).type === "Shape") {
+                        var shapeDirection = Vec3.multiply(barrelDirectionNormalized, shapeIntersection.distance);
+                        fireEnd = Vec3.sum(fireStart, shapeDirection);
+                        minIntersectionDistance = shapeIntersectionDistance;
+                    }
+                }
+                if (avatarIntersection.intersects && avatarIntersectionDistance < minIntersectionDistance && 
                     avatarIntersectionDistance < barrelDirectionLength) {
+                    intersectEntityID = avatarIntersection.avatarID;
                     var avatarDirection = Vec3.multiply(barrelDirectionNormalized, avatarIntersection.distance);
                     fireEnd = Vec3.sum(fireStart, avatarDirection);
-                    intersectEntityID = avatarIntersection.avatarID;
-                } 
+                    minIntersectionDistance = avatarIntersectionDistance;
+                }
                 
                 var intersectEntityProperties = Entities.getEntityProperties(intersectEntityID, ['position', 'rotation']);
                 intersectLocalPosition = Vec3.subtract(fireEnd, intersectEntityProperties.position);
@@ -392,11 +413,8 @@ function exponentialSmoothing(target, current) {
                 var args = [intersectEntityID, fireEnd.x, fireEnd.y, fireEnd.z, 
                             intersectLocalPosition.x, intersectLocalPosition.y, intersectLocalPosition.z];
                 if (intersectEntityID !== undefined) {
-                    if (intersectEntityID === entityIntersection.entityID) {
-                        // for now disable end fires against hit Shape entities because the ray cast results are unreliable
-                        if (Entities.getEntityProperties(intersectEntityID, ['type']).type !== "Shape") {
-                            endFireServerCall = "createEndFireHitEntity";
-                        }
+                    if (intersectEntityID === entityIntersection.entityID || intersectEntityID === shapeIntersection.entityID) {
+                        endFireServerCall = "createEndFireHitEntity";
                     } else if (intersectEntityID === avatarIntersection.avatarID) {
                         endFireServerCall = "createEndFireHitAvatar";
                     }
@@ -460,7 +478,7 @@ function exponentialSmoothing(target, current) {
             var showOverlay = true;
             var otherHandDesktopOverlay = this.getOtherHandDesktopOverlay();
             if (otherHandDesktopOverlay !== null) {
-                desktopHowToOverlay = userDataProperties.desktopHowToOverlay;
+                desktopHowToOverlay = otherHandDesktopOverlay;
                 showOverlay = false;    
             }
             
@@ -476,12 +494,11 @@ function exponentialSmoothing(target, current) {
                     alpha: 1.0,
                     visible: true
                 });
-                var userDataProperties = JSON.parse(Entities.getEntityProperties(this.entityID, 'userData').userData);
-                userDataProperties.desktopHowToOverlay = desktopHowToOverlay;
-                Entities.editEntity(this.entityID, {
-                    userData: JSON.stringify(userDataProperties)
-                });
             }
+            
+            var userDataProperties = JSON.parse(Entities.getEntityProperties(this.entityID, 'userData').userData);
+            userDataProperties.desktopHowToOverlay = desktopHowToOverlay;
+            Entities.editEntity(this.entityID, { userData: JSON.stringify(userDataProperties) });
         },
         
         removeDesktopOverlay: function() {
