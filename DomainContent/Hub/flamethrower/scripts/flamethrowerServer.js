@@ -138,7 +138,7 @@
                 sound = END_FIRE_SOUND_3;
             }
             endFireSound = Audio.playSound(sound, {
-                volume: END_FIRE_VOLUME,
+                volume: 0.0, //END_FIRE_VOLUME, // put sound volume to 0 for now until they are working properly
                 position: fireEndPosition
             });
             endFireSound.finished.connect(flamethrowerServer.onEndFireSoundFinished);
