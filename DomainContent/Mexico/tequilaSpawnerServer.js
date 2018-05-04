@@ -22,11 +22,9 @@
     TequilaSpawner.prototype = {
         remotelyCallable: ['spawnIfNeeded', 'spawnNewTequilaShot'],
         preload: function(entityID) {
-            print("good morning sunshine");
             _this.entityID = entityID;
             _this.position = Entities.getEntityProperties(_this.entityID, 'position').position;
-            Script.setInterval(function(){
-                print("interval");
+            Script.setInterval(function() {
                 _this.spawnIfNeeded();
             }, SPAWN_CHECK_MS);
         },
