@@ -28,6 +28,10 @@
     var DONE_DRINKING_SHOT = 1000;
     var MOVE_GLASS_BEFORE_SPAWNING = 250;
     var VELOCITY_TO_BREAK = 2;
+    var DRUNK_HAZE_1000_M = 1000;
+    var DRUNK_HAZE_100_M = 100;
+    var DRUNK_HAZE_50_M = 50;
+    var DRUNK_HAZE_10_M = 10;
 
     var interval;
     var drunkZone = null;
@@ -60,10 +64,8 @@
             _this.position = Entities.getEntityProperties(_this.entityID, 'position').position;
             Entities.findEntities(_this.position, SEARCH_RADIUS).forEach(function(element){
                 var name= Entities.getEntityProperties(element, 'name').name;
-                //  print(name);
                 if (name === "tequila spawner") {
                     spawner = element;
-                    // print("found spawner ", spawner);
                 }
             });
             spawnerPosition = Entities.getEntityProperties(spawner, 'position').position;
@@ -75,26 +77,12 @@
         },
 
         collisionWithEntity : function(myID, theirID, collision) {
-            var velocity = Entities.getEntityProperties(myID, 'velocity').velocity;
-            if (shouldBreak(velocity)) {
+            var properties = Entities.getEntityProperties(myID, ['velocity', 'position']);
+            if (shouldBreak(properties.velocity)) {
                 if (breakSound.downloaded){
                     Audio.playSound(breakSound, {
                         volume: volumeLevel,
-                        position: Entities.getEntityProperties(myID, 'position').position
-                    });
-                }
-                print("STELLLLLAAAAA!!!");
-                Entities.callEntityServerMethod(myID, 'breakPlate', '');
-            }
-        },
-
-        enterEntity: function(myID){
-            var velocity = Entities.getEntityProperties(myID, 'velocity').velocity;
-            if (shouldBreak(velocity)) {
-                if (breakSound.downloaded){
-                    Audio.playSound(breakSound, {
-                        volume: 1.0,
-                        position: Entities.getEntityProperties(myID, 'position').position
+                        position: properties.position
                     });
                 }
                 Entities.callEntityServerMethod(myID, 'breakPlate', '');
@@ -116,16 +104,13 @@
         },
 
         startNearGrab: function(entityID, mouseEvent) {
-            print("near grab");
             if (stillFull) {
-                interval = Script.setInterval(function(){
-                    // print("interval");
+                interval = Script.setInterval(function() {
                     _this.distanceCheck();
                 }, DISTANCE_CHECK_INTERVAL_MS);
             }
             if (canCreateNew) {
                 Script.setTimeout(function() {
-                    print("making a new shot");
                     Entities.callEntityServerMethod(spawner, 'spawnNewTequilaShot');
                     canCreateNew = false;
                 }, MOVE_GLASS_BEFORE_SPAWNING);
@@ -133,12 +118,10 @@
         },
 
         startFarGrab: function(entityID, mouseEvent) {
-            print("started far grab");
             _this.startNearGrab();
         },
 
         mouseReleaseOnEntity: function(entityID, mouseEvent) {
-            print("mouse press");
             if (mouseEvent.button === "Primary") {
                 _this.drinkShot();
             }
@@ -176,7 +159,7 @@
                     var zoneHazeProperties = Entities.getEntityProperties(drunkZone, 'haze').haze;
                     var hazeRange = zoneHazeProperties.hazeRange;
                     switch (hazeRange) {
-                        case 1000:
+                        case DRUNK_HAZE_1000_M:
                             Entities.editEntity(drunkZone, {haze: {
                                 hazeColor:{
                                     red: 0,
@@ -188,14 +171,14 @@
                                 lifetime: 30
                             }});
                             break;
-                        case 100:
+                        case DRUNK_HAZE_100_M:
                             Entities.editEntity(drunkZone, {haze: {
                                 hazeRange: 50,
                                 hazeBackgroundBlend: 0.25,
                                 lifetime: 30
                             }});
                             break;
-                        case 50:
+                        case DRUNK_HAZE_50_M:
                             Entities.editEntity(drunkZone, {haze: {
                                 hazeRange: 10,
                                 hazeBackgroundBlend: 0.1,
@@ -203,7 +186,7 @@
                             }});
                             _this.fallDown();
                             break;
-                        case 10:
+                        case DRUNK_HAZE_10_M:
                             _this.fallDown();
                             break;
                         default:
@@ -224,7 +207,7 @@
                             hazeBackgroundBlend: 0.9
                         },
                         dimensions: {x: 0.5, y: 2, z: 0.5},
-                        lifetime: 30,
+                        lifetime: LIFETIME,
                         parentID: MyAvatar.sessionUUID,
                         parentJointIndex: 0,
                         position: MyAvatar.getJointPosition("Hips")
@@ -235,17 +218,14 @@
                     drinking = false;
                 }, DONE_DRINKING_SHOT);
             }
-            // if not at spawner postion, user is in HMD or has moved the glass away. In this case, delete the 
-            // drink in the glass and give the glass a lifetime, otherwise just create a new shot in the correct position
             var thisPosition = Entities.getEntityProperties(_this.entityID, 'position').position;
             if (Vec3.distance(thisPosition, spawnerPosition) > SEARCH_RADIUS) {
                 Entities.editEntity(_this.entityID, {
-                    lifetime: 30
+                    lifetime: LIFETIME
                 });
                 Entities.deleteEntity(tequila);
                 stillFull = false;
             } else {
-                print("deleting all and making new");
                 Entities.deleteEntity(_this.entityID);
                 if (canCreateNew) {
                     Entities.callEntityServerMethod(spawner, 'spawnNewTequilaShot');

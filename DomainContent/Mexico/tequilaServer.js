@@ -10,7 +10,7 @@
 /* globals Entities */
 (function(){
   
-    var PIECE_MODEL = "http://hifi-content.s3.amazonaws.com/rebecca/Hub/Space%20Juice/models/shot-glass-fragment.fbx";
+    var PIECE_MODEL = Script.resolvePath("assets/shot-glass-fragment.fbx");
     var NUMBER_PIECES = 3;
     var pieces = Array();
     var _entityID;
