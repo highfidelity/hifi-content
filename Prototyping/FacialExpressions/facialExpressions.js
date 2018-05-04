@@ -15,7 +15,7 @@
 (function() {
 
     var TABLET_BUTTON_NAME = "EMOTIONS";
-    // ADD HTML LANDING PAGE
+    //TODO: ADD HTML LANDING PAGE
 
     var TRANSITION_TIME_SECONDS = 0.25;
 
@@ -32,10 +32,6 @@
         activeIcon: activeIcon,
         text: TABLET_BUTTON_NAME,
         isActive: true
-    });
-
-    Script.scriptEnding.connect(function () {
-        tablet.removeButton(tabletButton);
     });
 
     var toggle = function() {
@@ -285,6 +281,9 @@
         if (changingEmotionPercentage >= 1.0) {
             changingEmotionPercentage = 1.0;
             isChangingEmotion = false;
+            if (emotion === DEFAULT) {
+                MyAvatar.hasScriptedBlendshapes = false;
+            }
         }
         for (var blendshape in emotion) {
             MyAvatar.setBlendshape(blendshape, 
@@ -300,6 +299,7 @@
             changingEmotionPercentage = 0.0;
             emotion = currentEmotion;
             isChangingEmotion = true;
+            MyAvatar.hasScriptedBlendshapes = true;
         }
     }
 
@@ -357,19 +357,23 @@
 
     Controller.enableMapping(controllerMappingName);
 
-    // FIXME: this does not work; face will get stuck in emotion if script is removed
-    this.unload = function() {
-        setEmotion(DEFAULT);
-    };
-
-    Script.scriptEnding.connect(function() {
-        Controller.disableMapping(controllerMappingName);
-    });
-
     Script.scriptEnding.connect(function() {
         tabletButton.clicked.disconnect(toggle);
         tablet.removeButton(tabletButton);
         Controller.disableMapping(controllerMappingName);
+
+        if (emotion !== DEFAULT || isChangingEmotion) {
+            isChangingEmotion = false;
+            for (var blendshape in DEFAULT) {
+                MyAvatar.setBlendshape(blendshape, DEFAULT[blendshape]);
+            }
+            MyAvatar.hasScriptedBlendshapes = false;
+            print('blendshapes set to normal');
+            Script.setTimeout(function() {
+                print('haxxxx');
+            }, 100);
+            
+        }
     });
 
 }());
