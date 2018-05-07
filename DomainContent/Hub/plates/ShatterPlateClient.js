@@ -11,7 +11,7 @@
 
 (function() {
     var VELOCITY_TO_BREAK = 2;
-    var breakURL = Script.resolvePath('sound/glass-break.wav');
+    var breakURL = Script.resolvePath('sound/glass-break1.wav');
     var breakSound = SoundCache.getSound(breakURL);
     var volumeLevel = 0.65;
     var _entityID;
@@ -36,7 +36,7 @@
         startNearGrab: function() {
             makeFragile();
         },
-        startFarGrab: function() {
+        mousePressOnEntity: function() {
             makeFragile();
         },
         collisionWithEntity : function(myID, theirID, collision) {

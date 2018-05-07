@@ -12,7 +12,7 @@
 (function() {
     var VELOCITY_TO_BREAK = 2;
     var EMIT_TIME = 2000;
-    var breakURL = Script.resolvePath("sound/glass-break.wav");
+    var breakURL = Script.resolvePath("sound/glass-break2.wav");
     var breakSound = SoundCache.getSound(breakURL);
     var volumeLevel = 0.25;
     var canBreak = false;
@@ -24,6 +24,14 @@
             Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
             Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
     };
+
+    
+    function makeFragile() {
+        Entities.editEntity(_entityID, {
+            collidesWith: "static,dynamic,kinematic,"
+        });
+        canBreak = true;
+    }
 
     var createParticles = function(position) {
         var splat = Entities.addEntity({
@@ -73,11 +81,7 @@
             _entityID = entityID;
         },
         startNearGrab: function() {
-            Entities.editEntity(_entityID, {
-                visible : true,
-                collidesWith: "static,dynamic,kinematic,"
-            });
-            canBreak = true;
+            
         },
         collisionWithEntity : function(myID, theirID, collision) {
             if (canBreak) {
