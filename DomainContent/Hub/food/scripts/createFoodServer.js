@@ -14,7 +14,7 @@
 (function(){
     var LIFETIME = 30; // seconds
     var CHECK_INTERVAL = LIFETIME * 100; // milliseconds
-    var CRUNH_SCRIPT = Script.resolvePath("./crunch.js");
+    var CRUNCH_SCRIPT = Script.resolvePath("./crunch.js");
     var MAX_FOOD = 5;
     var DEBUG = false;
 
@@ -32,20 +32,23 @@
                 print("preload for createFoodServer.js");
             }
             var properties = Entities.getEntityProperties(entityID, 
-                ["position", "dimensions", "modelURL", "name", "dimensions", "description"]);
+                ["position", "rotation", "dimensions", "modelURL", "name", "dimensions", "description"]);
             foodProperties = {
+                name: properties.name + "-clone",
+                descript: properties.description,
                 type: "Model",
-                shapeType: "capsule-z",
+                shapeType: "compound",
                 modelURL: properties.modelURL,
-                script: CRUNH_SCRIPT,
+                script: CRUNCH_SCRIPT,
                 lifetime: LIFETIME,
                 position: properties.position,
+                rotation: properties.rotation,
                 dimensions: properties.dimensions,
                 dynamic: true,
                 gravity: {x: 0, y: 0, z: 0},
                 collisionless: true,
-                visible: true,
-                userData : "{\"grabbableKey\":{\"grabbable\":true}}"
+                visible: false,
+                grabbable: true
             };        
             spawnFoodInterval = Script.setInterval(function() {
                 if (foodArray.length < MAX_FOOD) {
