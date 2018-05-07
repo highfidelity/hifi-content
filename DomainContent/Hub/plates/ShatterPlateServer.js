@@ -10,7 +10,7 @@
 /* globals Entities, Uuid */
 (function() {
   
-    var PIECE_MODEL = "atp:/plate-piece.fbx";
+    var PIECE_MODEL = Script.resolvePath('plate-piece.fbx');
     var NUMBER_PIECES = 4;
     var pieces = Array();
     var _entityID;
