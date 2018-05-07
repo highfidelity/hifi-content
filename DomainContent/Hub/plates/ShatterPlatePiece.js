@@ -25,14 +25,6 @@
             Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
     };
 
-    
-    function makeFragile() {
-        Entities.editEntity(_entityID, {
-            collidesWith: "static,dynamic,kinematic,"
-        });
-        canBreak = true;
-    }
-
     var createParticles = function(position) {
         var splat = Entities.addEntity({
             "type":"ParticleEffect",
@@ -71,17 +63,27 @@
         }, true);
         Entities.editEntity(_entityID, {visible: false});
         Script.setTimeout(function() {
-            Entities.editEntity(splat, { isEmitting: false });
+            Entities.deleteEntity(splat);
             Entities.deleteEntity(_entityID);
         }, EMIT_TIME); 
     };
+
+    function makeFragile(){
+        Entities.editEntity(_entityID, {
+            collidesWith: "static,dynamic,kinematic,"
+        });
+        canBreak = true;
+    }
   
     PlatePiece.prototype = {
         preload: function(entityID) {
             _entityID = entityID;
         },
         startNearGrab: function() {
-            
+            makeFragile();
+        },
+        mousePressOnEntity: function() {
+            makeFragile();
         },
         collisionWithEntity : function(myID, theirID, collision) {
             if (canBreak) {
