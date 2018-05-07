@@ -364,47 +364,26 @@ function exponentialSmoothing(target, current) {
                 var fireEnd = Vec3.sum(fireStart, barrelDirection);
                 var fireRay = {
                     origin: fireStart,
-                    direction: barrelDirection
-                };
-                var fireRayNormalized = {
-                    origin: fireStart,
                     direction: barrelDirectionNormalized
                 };
                 
                 var entityIntersection = Entities.findRayIntersection(fireRay, true, [], [this.entityID, flameEntity]);
                 var entityIntersectionDistance = entityIntersection.intersects ? entityIntersection.distance : Number.MAX_VALUE;
-                var shapeIntersection = Entities.findRayIntersection(fireRayNormalized, true, [], [this.entityID, flameEntity]);
-                var shapeIntersectionDistance = shapeIntersection.intersects ? shapeIntersection.distance : Number.MAX_VALUE;
                 var avatarIntersection = AvatarList.findRayIntersection(fireRay);
                 var avatarIntersectionDistance = avatarIntersection.intersects ? avatarIntersection.distance : Number.MAX_VALUE;
                 
                 var intersectEntityID = undefined;
                 var intersectLocalPosition;
-                var minIntersectionDistance = Number.MAX_VALUE;
-                if (entityIntersection.intersects && entityIntersectionDistance < minIntersectionDistance && 
+                if (entityIntersection.intersects && entityIntersectionDistance < avatarIntersectionDistance && 
                     entityIntersectionDistance < barrelDirectionLength) {
                     intersectEntityID = entityIntersection.entityID;
-                    if (Entities.getEntityProperties(intersectEntityID, ['type']).type !== "Shape") {
-                        var entityDirection = Vec3.multiply(barrelDirectionNormalized, entityIntersection.distance);
-                        fireEnd = Vec3.sum(fireStart, entityDirection);
-                        minIntersectionDistance = entityIntersectionDistance;
-                    }
-                }
-                if (shapeIntersection.intersects && shapeIntersectionDistance < minIntersectionDistance && 
-                    shapeIntersectionDistance < barrelDirectionLength) {
-                    intersectEntityID = shapeIntersection.entityID;
-                    if (Entities.getEntityProperties(intersectEntityID, ['type']).type === "Shape") {
-                        var shapeDirection = Vec3.multiply(barrelDirectionNormalized, shapeIntersection.distance);
-                        fireEnd = Vec3.sum(fireStart, shapeDirection);
-                        minIntersectionDistance = shapeIntersectionDistance;
-                    }
-                }
-                if (avatarIntersection.intersects && avatarIntersectionDistance < minIntersectionDistance && 
+                    var entityDirection = Vec3.multiply(barrelDirectionNormalized, entityIntersection.distance);
+                    fireEnd = Vec3.sum(fireStart, entityDirection);
+                } else if (avatarIntersection.intersects && avatarIntersectionDistance < entityIntersectionDistance && 
                     avatarIntersectionDistance < barrelDirectionLength) {
                     intersectEntityID = avatarIntersection.avatarID;
                     var avatarDirection = Vec3.multiply(barrelDirectionNormalized, avatarIntersection.distance);
                     fireEnd = Vec3.sum(fireStart, avatarDirection);
-                    minIntersectionDistance = avatarIntersectionDistance;
                 }
                 
                 var intersectEntityProperties = Entities.getEntityProperties(intersectEntityID, ['position', 'rotation']);
@@ -413,7 +392,7 @@ function exponentialSmoothing(target, current) {
                 var args = [intersectEntityID, fireEnd.x, fireEnd.y, fireEnd.z, 
                             intersectLocalPosition.x, intersectLocalPosition.y, intersectLocalPosition.z];
                 if (intersectEntityID !== undefined) {
-                    if (intersectEntityID === entityIntersection.entityID || intersectEntityID === shapeIntersection.entityID) {
+                    if (intersectEntityID === entityIntersection.entityID) {
                         endFireServerCall = "createEndFireHitEntity";
                     } else if (intersectEntityID === avatarIntersection.avatarID) {
                         endFireServerCall = "createEndFireHitAvatar";
