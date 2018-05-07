@@ -31,9 +31,9 @@
 
     var VOLUME = 0.5;
     var CHECK_RADIUS = 0.1;
+    var LIFETIME = 30;
 
     var _this = this;
-    var injector;
 
     _this.preload = function(entityID) {
         _this.entityID = entityID;
@@ -42,9 +42,25 @@
         });
     };
 
+    var setUpFood = function() {
+        var age = Entities.getEntityProperties(_this.entityID, "age").age;
+        var editJSON = {
+            lifetime: age + LIFETIME,
+            visible: true,
+            dynamic: true,
+            collisionless: false
+        };
+        Entities.editEntity(_this.entityID, editJSON);
+    };
+
+    _this.startNearGrab = function() {
+        setUpFood();
+    };
+
     var checkIfNearHead = function() {
         var position = Entities.getEntityProperties(_this.entityID, "position").position;
-        if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < (CHECK_RADIUS * MyAvatar.scale)) {
+        if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < (CHECK_RADIUS * MyAvatar.scale) ||
+            Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < (CHECK_RADIUS * MyAvatar.scale)) {
             playEatingEffect();
         }
     };
@@ -53,7 +69,7 @@
         var size = CRUNCH_SOUND_URLS.length - 1;
         var index = Math.round(Math.random() * size);
         var crunchSound = CRUNCH_SOUNDS[index];
-        injector = Audio.playSound(crunchSound, {volume: VOLUME, position: MyAvatar.getJointPosition("Head")});
+        Audio.playSound(crunchSound, {volume: VOLUME, position: MyAvatar.getJointPosition("Head")});
         Entities.deleteEntity(_this.entityID);
     };
 
