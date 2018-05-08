@@ -1,0 +1,41 @@
+{
+    "DataVersion": 0,
+    "Entities": [
+        {
+            "clientOnly": false,
+            "compoundShapeURL": "https://hifi-content.s3.amazonaws.com/zfox/hifi-content/DomainContent/Hub/flamethrower/models/flamethrower.obj",
+            "created": "2018-03-29T20:10:25Z",
+            "dimensions": {
+                "x": 1.2234140634536743,
+                "y": 0.39243215322494507,
+                "z": 0.18208852410316467
+            },
+            "id": "{308d8ebb-be53-4dd8-8bed-e1f2462ce237}",
+            "lastEdited": 1522354318995345,
+            "lastEditedBy": "{bd854ae1-d780-443e-b74e-2f6f43123946}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/zfox/hifi-content/DomainContent/Hub/flamethrower/models/flamethrower.obj",
+            "name": "Flamethrower - CC by Mario Tofani",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 1.9092304706573486,
+                "x": -0.9546152353286743,
+                "y": -0.9546152353286743,
+                "z": -0.9546152353286743
+            },
+            "rotation": {
+                "w": -0.1618829369544983,
+                "x": 0.28450441360473633,
+                "y": 0.9072861671447754,
+                "z": -0.2639658451080322
+            },
+            "script": "https://hifi-content.s3.amazonaws.com/zfox/hifi-content/DomainContent/Hub/flamethrower/scripts/flamethrowerClient.js",
+            "scriptTimestamp": 1522195658683,
+            "serverScripts": "https://hifi-content.s3.amazonaws.com/zfox/hifi-content/DomainContent/Hub/flamethrower/scripts/flamethrowerServer.js",
+            "shapeType": "compound",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"invertSolidWhileHeld\":true},\"wearable\":{\"joints\":{\"RightHand\":[{\"x\":0.0764474868774414,\"y\":0.40706944465637207,\"z\":-0.13648319244384766},{\"x\":-0.8103914260864258,\"y\":-0.494316041469574,\"z\":0.11076521873474121,\"w\":-0.29436177015304565}],\"LeftHand\":[{\"x\":-0.0677480697631836,\"y\":0.420626163482666,\"z\":-0.10563850402832031},{\"x\":0.057083964347839355,\"y\":-0.15535211563110352,\"z\":-0.8364232778549194,\"w\":-0.5225147008895874}]}}}"
+        }
+    ],
+    "Id": "{b5110d00-6999-4384-a87c-cffc1e8c747a}",
+    "Version": 86
+}
