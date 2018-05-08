@@ -1,5 +1,5 @@
 //
-//  materialSwapBullet.js
+//  faucetClient.js
 //
 //  created by Rebecca Stankus on 03/27/18
 //  Copyright 2018 High Fidelity, Inc.
