@@ -1,4 +1,12 @@
-//This file is just used for the superclass
+//
+// animatedBrush.js
+// 
+// Author: MGCraftsman
+// Copyright High Fidelity 2018
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
 function AnimatedBrushClass() {}
 
 /**
@@ -10,9 +18,8 @@ function AnimatedBrushClass() {}
  * @param fingerOverlayID: the id of the overlay that shows over the finger when using fingerpaint
  */
 AnimatedBrushClass.prototype.onUpdate = function(deltaSeconds, entityID) {
-        //To be implemented on the child
     throw "Abstract method onUpdate not implemented";
-}
+};
 
 /**
  * This function updates the user data so in the next frame the animation gets the previous values.\
@@ -21,10 +28,10 @@ AnimatedBrushClass.prototype.onUpdate = function(deltaSeconds, entityID) {
  * @param animatedBrushObject: the animation object (should be a subclass of animatedBrush)
  */
 AnimatedBrushClass.prototype.updateUserData = function(entityID, animatedBrushObject) {
-    var prevUserData = Entities.getEntityProperties(entityID).userData;
+    var prevUserData = Entities.getEntityProperties(entityID, 'userData').userData;
 
     if (prevUserData) {
-        prevUserData = prevUserData == "" ? new Object() : JSON.parse(prevUserData); //preserve other possible user data
+        prevUserData = prevUserData == "" ? new Object() : JSON.parse(prevUserData); 
         if (prevUserData.animations != null && prevUserData.animations[animatedBrushObject.NAME] != null) {
             delete prevUserData.animations[animatedBrushObject.NAME];
             prevUserData.animations[animatedBrushObject.NAME] = animatedBrushObject;        
@@ -32,6 +39,6 @@ AnimatedBrushClass.prototype.updateUserData = function(entityID, animatedBrushOb
         prevUserData.timeFromLastAnimation = Date.now();
         Entities.editEntity(entityID, {userData: JSON.stringify(prevUserData)});
     }
-}
+};
 
 AnimatedBrush = AnimatedBrushClass;

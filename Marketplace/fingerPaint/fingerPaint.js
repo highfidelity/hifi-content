@@ -7,13 +7,14 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+/* globals getControllerWorldLocation, hsv2rgb */
 (function () {
     var tablet,
         button,
+        isOpen = false,
         BUTTON_NAME = "PAINT",
-        //undo vars
         UNDO_STACK_SIZE = 10, 
-        _undoStack = [];
+        _undoStack = [],
         _isFingerPainting = false,
         _isTabletFocused = false,
         _shouldRestoreTablet = false,
@@ -71,8 +72,7 @@
             _lastPosition = null,
             _shouldKeepDrawing = false,
             _texture = CONTENT_PATH + "/" + _savedSettings.currentTexture.brushName,
-            _dynamicEffects = _savedSettings.currentDynamicBrushes;
-            //'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Caris_Tessellation.svg/1024px-Caris_Tessellation.svg.png', // Daantje
+            _dynamicEffects = _savedSettings.currentDynamicBrushes,
             _strokeWidthMultiplier = _savedSettings.currentStrokeWidth * 2 + 0.1,
             _isUvModeStretch = _savedSettings.currentTexture.brushType == "stretch",
             MIN_STROKE_LENGTH = 0.005,  // m
@@ -81,8 +81,8 @@
         function calculateStrokeNormal() {
             if (!_isMouseDrawing) {
                 var controllerPose = _isLeftHandDominant 
-                                    ? getControllerWorldLocation(Controller.Standard.LeftHand, true)
-                                    : getControllerWorldLocation(Controller.Standard.RightHand, true);
+                    ? getControllerWorldLocation(Controller.Standard.LeftHand, true)
+                    : getControllerWorldLocation(Controller.Standard.RightHand, true);
                 var fingerTipRotation = controllerPose.rotation;
                 return Quat.getUp(fingerTipRotation);
             
@@ -103,7 +103,6 @@
         }
 
         function calculateValueInRange(value, min, max, increment) {
-            var delta = max - min;
             value += increment;
             if (value > max) {
                 return min;
@@ -113,7 +112,7 @@
         }
 
         function attacthColorToProperties(properties) {
-            //colored brushes should always be white and no effects should be applied
+            // colored brushes should always be white and no effects should be applied
             if (_isBrushColored) {
                 properties.color = {red: 255, green: 255, blue: 255};
                 return;
@@ -129,17 +128,11 @@
             if ("dynamicSaturation" in _dynamicEffects && _dynamicEffects.dynamicSaturation) {
                 isAnyDynamicEffectEnabled = true;
                 _dynamicColor.saturation = _dynamicColor.saturation == 0.5 ? 1.0 : 0.5;
-                //saturation along the full line
-                //var saturationIncrement = 1.0 / 70.0;
-                //_dynamicColor.saturation = calculateValueInRange(_dynamicColor.saturation, 0, 1, saturationIncrement);
             } 
 
             if ("dynamicValue" in _dynamicEffects && _dynamicEffects.dynamicValue) {
                 isAnyDynamicEffectEnabled = true;
                 _dynamicColor.value = _dynamicColor.value == 0.6 ? 1.0 : 0.6;
-                //value along the full line
-                //var saturationIncrement = 1.0 / 70.0;
-                //_dynamicColor.saturation = calculateValueInRange(_dynamicColor.saturation, 0, 1, saturationIncrement);
             } 
 
 
@@ -225,8 +218,9 @@
 
         function startLine(position, width) {
             // Start drawing a polyline.
-            if (_isTabletFocused)
+            if (_isTabletFocused) {
                 return;
+            }
 
             width = calculateLineWidth(width);
             
@@ -257,7 +251,7 @@
                 strokeWidths: _strokeWidths,
                 textures: _texture, // Daantje
                 isUVModeStretch: _isUvModeStretch,
-                dimensions: STROKE_DIMENSIONS,
+                dimensions: STROKE_DIMENSIONS
             };
             _dynamicColor = rgb2hsv(_strokeColor);
             attacthColorToProperties(newEntityProperties);
@@ -606,30 +600,30 @@
         var ANIM_OPEN = (_isLeftHandDominant? LEFT_ANIM_URL_OPEN: RIGHT_ANIM_URL_OPEN );
         var handLiteral = (_isLeftHandDominant? "left": "right" );
 
-        //Clear previous hand animation override
+        // Clear previous hand animation override
         restoreAllHandAnimations();
         
-        //"rightHandGraspOpen","rightHandGraspClosed",
+        // "rightHandGraspOpen","rightHandGraspClosed",
         MyAvatar.overrideRoleAnimation(handLiteral + "HandGraspOpen", ANIM_OPEN, 30, false, 19, 20);
         MyAvatar.overrideRoleAnimation(handLiteral + "HandGraspClosed", ANIM_URL, 30, false, 19, 20);
 
-        //"rightIndexPointOpen","rightIndexPointClosed",
+        // "rightIndexPointOpen","rightIndexPointClosed",
         MyAvatar.overrideRoleAnimation(handLiteral + "IndexPointOpen", ANIM_OPEN, 30, false, 19, 20);
         MyAvatar.overrideRoleAnimation(handLiteral + "IndexPointClosed", ANIM_URL, 30, false, 19, 20);
 
-        //"rightThumbRaiseOpen","rightThumbRaiseClosed",
+        // "rightThumbRaiseOpen","rightThumbRaiseClosed",
         MyAvatar.overrideRoleAnimation(handLiteral + "ThumbRaiseOpen", ANIM_OPEN, 30, false, 19, 20);
         MyAvatar.overrideRoleAnimation(handLiteral + "ThumbRaiseClosed", ANIM_URL, 30, false, 19, 20);
 
-        //"rightIndexPointAndThumbRaiseOpen","rightIndexPointAndThumbRaiseClosed", 
+        // "rightIndexPointAndThumbRaiseOpen","rightIndexPointAndThumbRaiseClosed", 
         MyAvatar.overrideRoleAnimation(handLiteral + "IndexPointAndThumbRaiseOpen", ANIM_OPEN, 30, false, 19, 20);
         MyAvatar.overrideRoleAnimation(handLiteral + "IndexPointAndThumbRaiseClosed", ANIM_URL, 30, false, 19, 20);
         
-        //turn off lasers and other interactions
+        // turn off lasers and other interactions
         Messages.sendLocalMessage("Hifi-Hand-Disabler", "none");
         Messages.sendLocalMessage("Hifi-Hand-Disabler", handLiteral);
         
-        //update ink Source
+        // update ink Source
 
         var strokeColor = _leftBrush.getStrokeColor();
         var strokeWidth = _leftBrush.getStrokeWidth()*0.06;
@@ -658,52 +652,48 @@
     }
     
     function restoreAllHandAnimations(){
-        //"rightHandGraspOpen","rightHandGraspClosed",
+        // "rightHandGraspOpen","rightHandGraspClosed",
         MyAvatar.restoreRoleAnimation("rightHandGraspOpen");
         MyAvatar.restoreRoleAnimation("rightHandGraspClosed");
 
-        //"rightIndexPointOpen","rightIndexPointClosed",
+        // "rightIndexPointOpen","rightIndexPointClosed",
         MyAvatar.restoreRoleAnimation("rightIndexPointOpen");
         MyAvatar.restoreRoleAnimation("rightIndexPointClosed");
 
-        //"rightThumbRaiseOpen","rightThumbRaiseClosed",
+        // "rightThumbRaiseOpen","rightThumbRaiseClosed",
         MyAvatar.restoreRoleAnimation("rightThumbRaiseOpen");
         MyAvatar.restoreRoleAnimation("rightThumbRaiseClosed");
 
-        //"rightIndexPointAndThumbRaiseOpen","rightIndexPointAndThumbRaiseClosed", 
+        // "rightIndexPointAndThumbRaiseOpen","rightIndexPointAndThumbRaiseClosed", 
         MyAvatar.restoreRoleAnimation("rightIndexPointAndThumbRaiseOpen");
         MyAvatar.restoreRoleAnimation("rightIndexPointAndThumbRaiseClosed");
         
-        //"leftHandGraspOpen","leftHandGraspClosed",
+        // "leftHandGraspOpen","leftHandGraspClosed",
         MyAvatar.restoreRoleAnimation("leftHandGraspOpen");
         MyAvatar.restoreRoleAnimation("leftHandGraspClosed");
 
-        //"leftIndexPointOpen","leftIndexPointClosed",
+        // "leftIndexPointOpen","leftIndexPointClosed",
         MyAvatar.restoreRoleAnimation("leftIndexPointOpen");
         MyAvatar.restoreRoleAnimation("leftIndexPointClosed");
 
-        //"leftThumbRaiseOpen","leftThumbRaiseClosed",
+        // "leftThumbRaiseOpen","leftThumbRaiseClosed",
         MyAvatar.restoreRoleAnimation("leftThumbRaiseOpen");
         MyAvatar.restoreRoleAnimation("leftThumbRaiseClosed");
 
-        //"leftIndexPointAndThumbRaiseOpen","leftIndexPointAndThumbRaiseClosed", 
+        // "leftIndexPointAndThumbRaiseOpen","leftIndexPointAndThumbRaiseClosed", 
         MyAvatar.restoreRoleAnimation("leftIndexPointAndThumbRaiseOpen");
         MyAvatar.restoreRoleAnimation("leftIndexPointAndThumbRaiseClosed");
     }
 
     function pauseProcessing() {
-        print("INFO: Pause Processing");
         Messages.sendLocalMessage("Hifi-Hand-Disabler", "none");
         Messages.unsubscribe(HIFI_POINT_INDEX_MESSAGE_CHANNEL);
         Messages.unsubscribe(HIFI_GRAB_DISABLE_MESSAGE_CHANNEL);
         Messages.unsubscribe(HIFI_POINTER_DISABLE_MESSAGE_CHANNEL);
-        //Restores and clears hand animations
         restoreAllHandAnimations();
     }
 
-     function resumeProcessing() {
-        print("INFO: Resume Processing");
-        //Change to finger paint hand animation
+    function resumeProcessing() {
         updateHandAnimations();
         
         // Messages channels for enabling/disabling other scripts' functions.
@@ -713,7 +703,6 @@
     }
     
     function enableProcessing() {
-        print("INFO: Star Processing");
         // Connect controller API to handController objects.
         _leftHand = handController("left");
         _rightHand = handController("right");
@@ -721,7 +710,7 @@
         if (_savedSettings == null) {
             restoreLastValues();
         }
-          // Connect handController outputs to paintBrush objects.
+        // Connect handController outputs to paintBrush objects.
         _leftBrush = paintBrush("left");
         _leftHand.setUp(_leftBrush.startLine, _leftBrush.drawLine, _leftBrush.finishLine, _leftBrush.eraseClosestLine);
         _rightBrush = paintBrush("right");
@@ -734,7 +723,7 @@
         controllerMapping.from(Controller.Standard.RightGrip).to(_rightHand.onGripPress);
         Controller.enableMapping(CONTROLLER_MAPPING_NAME);
 
-        //Change to finger paint hand animation
+        // Change to finger paint hand animation
         updateHandAnimations();
         
         // Messages channels for enabling/disabling other scripts' functions.
@@ -748,7 +737,6 @@
     }
 
     function disableProcessing() {
-        print("INFO: Disable Processing");
         if (_leftHand && _rightHand) {
             Script.update.disconnect(_leftHand.onUpdate);
             Script.update.disconnect(_rightHand.onUpdate);
@@ -771,16 +759,14 @@
             Messages.unsubscribe(HIFI_GRAB_DISABLE_MESSAGE_CHANNEL);
             Messages.unsubscribe(HIFI_POINTER_DISABLE_MESSAGE_CHANNEL);
             
-            //Restores and clears hand animations
             restoreAllHandAnimations();
             
-            //clears Overlay sphere
             Overlays.deleteOverlay(_inkSourceOverlay);
             _inkSourceOverlay = null;
         }
     }
 
-    //Load last fingerpaint settings
+    // Load last fingerpaint settings
     function restoreLastValues() {
         _savedSettings = new Object();
         _savedSettings.currentColor = Settings.getValue("currentColor", {red: 250, green: 0, blue: 0, origin: "custom"}),
@@ -796,44 +782,15 @@
         _savedSettings.currentIsBrushColored = Settings.getValue("currentIsBrushColored", false);
         _savedSettings.currentHeadersCollapsedStatus = Settings.getValue("currentHeadersCollapsedStatus", new Object());
         _savedSettings.undoDisable = _undoStack.length == 0;
-        //set some global variables
         _isLeftHandDominant = _savedSettings.currentDrawingHand;
         _isBrushColored = _savedSettings.currentIsBrushColored;
     }
 
     function onButtonClicked() {
-        restoreLastValues();
-        var wasFingerPainting = _isFingerPainting;
-        _isFingerPainting = !_isFingerPainting;
-
-        if (!_isFingerPainting) {
+        if (isOpen) {
             tablet.gotoHomeScreen();
-        }
-        button.editProperties({ isActive: _isFingerPainting });
-
-        if (wasFingerPainting) {
-            _leftBrush.cancelLine();
-            _rightBrush.cancelLine();
-        }
-
-        if (_isFingerPainting) {
-            tablet.gotoWebScreen(APP_URL + "?" + encodeURIComponent(JSON.stringify(_savedSettings)));
-            HMD.openTablet();
-            enableProcessing();
-            _savedSettings = null;
-        }
-
-        updateHandFunctions();
-
-        if (!_isFingerPainting) {
-            disableProcessing();
-            Controller.mousePressEvent.disconnect(mouseStartLine);
-            Controller.mouseMoveEvent.disconnect(mouseDrawLine);
-            Controller.mouseReleaseEvent.disconnect(mouseFinishLine);
         } else {
-            Controller.mousePressEvent.connect(mouseStartLine);
-            Controller.mouseMoveEvent.connect(mouseDrawLine);
-            Controller.mouseReleaseEvent.connect(mouseFinishLine);
+            tablet.gotoWebScreen(APP_URL + "?" + encodeURIComponent(JSON.stringify(_savedSettings)));
         }
     }
     
@@ -852,13 +809,34 @@
         var TABLET_SCREEN_CLOSED = "Closed";
         var TABLET_SCREEN_HOME = "Home";
         var TABLET_SCREEN_WEB = "Web";
-            
+        restoreLastValues();
+        var wasFingerPainting = _isFingerPainting;
+
+        if (wasFingerPainting) {
+            _leftBrush.cancelLine();
+            _rightBrush.cancelLine();
+        }
+
         _isTabletDisplayed = type !== TABLET_SCREEN_CLOSED;
         _isFingerPainting = type === TABLET_SCREEN_WEB && url.indexOf("html/main.html") > -1;
+        
         if (!_isFingerPainting) {
             disableProcessing();
             updateHandFunctions();
+            Controller.mousePressEvent.disconnect(mouseStartLine);
+            Controller.mouseMoveEvent.disconnect(mouseDrawLine);
+            Controller.mouseReleaseEvent.disconnect(mouseFinishLine);
+            isOpen = false;
+        } else {
+            enableProcessing();
+            _savedSettings = null;
+            Controller.mousePressEvent.connect(mouseStartLine);
+            Controller.mouseMoveEvent.connect(mouseDrawLine);
+            Controller.mouseReleaseEvent.connect(mouseFinishLine);
+            isOpen = true;
         }
+        updateHandFunctions();
+
         button.editProperties({ isActive: _isFingerPainting });
     }
 
@@ -1013,7 +991,7 @@
     function addAnimationToBrush(entityID) {
         Object.keys(AnimatedBrushesInfo).forEach(function(animationName) {
             if (AnimatedBrushesInfo[animationName].isEnabled) {
-                var prevUserData = Entities.getEntityProperties(entityID).userData;
+                var prevUserData = Entities.getEntityProperties(entityID, 'userData').userData;
                 //preserve other possible user data
                 prevUserData = prevUserData == "" ? new Object() : JSON.parse(prevUserData); 
                 if (prevUserData.animations == null) {
@@ -1048,8 +1026,6 @@
             } else {
                 if (_isFingerPainting) {
                     _shouldRestoreTablet = true;
-
-                    //Make sure the tablet is being shown when we try to change the window
                     while (!tablet.tabletShown) {
                         HMD.openTablet();
                     }
@@ -1112,12 +1088,11 @@
             _isMouseDrawing = true;
             _rightBrush.startLine(getFingerPosition(event.x, event.y), MAX_LINE_WIDTH);
         }
-        //Note: won't work until findRayIntersection works with polylines
+        // Note: won't work until findRayIntersection works with polylines
         //
-        //else if (event.isMiddleButton) {
+        // else if (event.isMiddleButton) {
         //    var pickRay = Camera.computePickRay(event.x, event.y);
         //    var entityToDelete = Entities.findRayIntersection(pickRay, false, [Entities.findEntities(MyAvatar.position, 1000)], []);
-        //    print("Entity to DELETE: " + JSON.stringify(entityToDelete));
         //    var line3d = Overlays.addOverlay("line3d", {
         //        start: pickRay.origin, 
         //        end: Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, 100)),
@@ -1125,10 +1100,9 @@
         //        lineWidth: 5
         //    });
         //    if (entityToDelete.intersects) {
-        //        print("Entity to DELETE Properties: " + JSON.stringify(Entities.getEntityProperties(entityToDelete.entityID)));
         //        //Entities.deleteEntity(entityToDelete.entityID);
         //    }
-        //}
+        // }
     }
 
     function mouseFinishLine(event){

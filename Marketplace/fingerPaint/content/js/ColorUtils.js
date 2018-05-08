@@ -1,5 +1,15 @@
+//
+// ColorUtils.js
+// 
+// Author: MGCraftsman
+// Copyright High Fidelity 2018
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
 //converts hsv color into rgb color space, expects hsv with the following ranges
 //H(0, 359), S(0, 1), V(0, 1) to R(0, 255), G(0, 255), B(0, 255)
+
 hsv2rgb = function (hsvColor) {
     var c = hsvColor.value * hsvColor.saturation;
     var x = c * (1 - Math.abs((hsvColor.hue/60) % 2 - 1));
@@ -31,7 +41,7 @@ hsv2rgb = function (hsvColor) {
         rgbColor.blue = Math.ceil((x + m) * 255);
     } 
     return rgbColor;
-}
+};
 
 
 //converts rgb color into hsv color space, expects rgb with the following ranges
@@ -73,4 +83,4 @@ rgb2hsv = function (rgbColor) {
     hsvColor.value = (cMax);
 
     return hsvColor;
-}
+};

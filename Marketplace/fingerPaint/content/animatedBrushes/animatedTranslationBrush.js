@@ -1,3 +1,12 @@
+//
+// animatedTranslationBrush.js
+// 
+// Author: MGCraftsman
+// Copyright High Fidelity 2018
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
 //Superclass
 Script.include("animatedBrush.js");
 
@@ -17,7 +26,7 @@ AnimatedTranslationBrushClass.prototype.MAX_TRANSLATION = 2;
 AnimatedTranslationBrushClass.prototype.NAME = "animatedTranslationBrush"; //linear increment of brush size;
 
 AnimatedTranslationBrushClass.prototype.onUpdate = function(deltaSeconds, entityID) {
-    var currentPosition = Entities.getEntityProperties(entityID).position;
+    var currentPosition = Entities.getEntityProperties(entityID, 'position').position;
     if (this.startingPosition == null) {
         this.startingPosition = currentPosition;
     }
@@ -36,6 +45,6 @@ AnimatedTranslationBrushClass.prototype.onUpdate = function(deltaSeconds, entity
     }
     Entities.editEntity(entityID, {position : nextPosition});
     this.parent.updateUserData(entityID, this);
-}
+};
 
 AnimatedTranslationBrush = AnimatedTranslationBrushClass;

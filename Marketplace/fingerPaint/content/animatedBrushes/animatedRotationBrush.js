@@ -1,5 +1,15 @@
+//
+// animatedRotationBrush.js
+// 
+// Author: MGCraftsman
+// Copyright High Fidelity 2018
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
 //Superclass
 Script.include("animatedBrush.js");
+var ANGLE_MAX = 360;
 
 function AnimatedRotationBrushClass(settings, entityID) {
     AnimatedBrush.call(this);
@@ -16,10 +26,10 @@ AnimatedRotationBrushClass.prototype.NAME = "animatedRotationBrush"; //linear in
 
 AnimatedRotationBrushClass.prototype.onUpdate = function(deltaSeconds, entityID) {
     this.angle = this.angle + ((deltaSeconds * this.ANIMATED_BRUSH_INCREMENT)/this.ANIMATED_BRUSH_TIME);
-    this.angle = this.angle >= 360 ? 0 : this.angle; //restart hue cycle
+    this.angle = this.angle >= ANGLE_MAX ? 0 : this.angle; //restart hue cycle
     var rotation = Vec3.multiply(this.angle, this.activeAxis);
     Entities.editEntity(entityID, {rotation : Quat.fromPitchYawRollDegrees(rotation.x, rotation.y, rotation.z)});
     this.parent.updateUserData(entityID, this);
-}
+};
 
 AnimatedRotationBrush = AnimatedRotationBrushClass;
