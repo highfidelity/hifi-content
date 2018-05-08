@@ -46,6 +46,7 @@
                     visible: true,
                     dynamic: true,
                     gravity: {x: 0, y: -5, z: 0},
+                    dimensions: {x: 0.1865, y: 0.0303, z: 0.2149},
                     acceleration: {x: 1, y: -5, z: 2},
                     parentID: Uuid.NULL,
                     lifetime: 60,

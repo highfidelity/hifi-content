@@ -19,7 +19,7 @@
     var INTERVAL = 5000;
     var DISTANCE = 0.5;
 
-    var PLATE_DIMENSIONS = {x: 0.4657, y: 0.0141, z: 0.4657};
+    var PLATE_DIMENSIONS = {x: 0.4040, y: 0.0303, z: 0.4040};
     var POSITION_Y_OFFSET = 0.1;
 
     var position;
