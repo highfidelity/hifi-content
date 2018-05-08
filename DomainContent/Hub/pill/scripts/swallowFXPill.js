@@ -38,11 +38,11 @@
 
     var VISUAL_EFFECTS = [
         WIREFRAME,
-        1, // Depth
         2, // Albedo
         3, // Normal
         5, // Metallic
         6, // Emissive
+        17, // Linear Depth
         23 // Low Normal
     ];
 
