@@ -14,7 +14,7 @@ function exponentialSmoothing(target, current) {
 
 (function() {       
     var FIRING_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/flamethrowerFiring.wav"));
-    var FIREBALL_IMAGE = Script.resolvePath("../textures/fireball.jpg");
+    var RAINBOW_IMAGE = Script.resolvePath("../textures/rainbow.png");
     var DESKTOP_HOW_TO_IMAGE_URL = Script.resolvePath("../textures/desktopFireUnequip.png");
     var DESKTOP_HOW_TO_IMAGE_WIDTH = 384;
     var DESKTOP_HOW_TO_IMAGE_HEIGHT = 128;
@@ -253,41 +253,25 @@ function exponentialSmoothing(target, current) {
 
         fire: function() {
             if (isFiring) {
-                Entities.editEntity(flameEntity, {lifespan: fireLifespan});
+                if (flameEntity) {
+                    Entities.editEntity(flameEntity, {lifespan: fireLifespan});
+                }
                 this.continueFiring();
                 return;
-            }
-            
-            if (flameEntity !== null) {
-                Entities.deleteEntity(flameEntity);
-                flameEntity = null;
             }
             var emitAcceleration = this.getRotatedEmitAcceleration();
             var radiusFinish = this.getRadiusFinish();
             var particleRadius = this.getParticleRadius();
-            var clientOnly = true;
-            flameEntity = Entities.addEntity({
-                accelerationSpread: { x:5, y:5, z:5 },
-                alpha: 0.4,
-                alphaStart: 0.1,
-                alphaFinish: 0.4,
-                emitAcceleration: emitAcceleration,
-                emitRate: BASE_EMIT_RATE,
-                emitSpeed: 0,
-                emitterShouldTrail: true,
-                lifespan: fireLifespan,
-                localPosition: BARREL_LOCAL_OFFSET,
-                maxParticles: 500,
-                name: "Flamethrower Flame",
-                parentID: this.entityID,
-                particleRadius: particleRadius,
-                radiusFinish: radiusFinish,
-                radiusSpread: 0.3,
-                radiusStart: 0.05,
-                speedSpread: 0,
-                textures: FIREBALL_IMAGE,
-                type: "ParticleEffect"
-            }, clientOnly);
+            
+            if (flameEntity !== null) {
+                Entities.editEntity(flameEntity, {
+                    emitAcceleration: emitAcceleration, 
+                    emitRate: BASE_EMIT_RATE,
+                    particleRadius: particleRadius,
+                    radiusFinish: radiusFinish,
+                    isEmitting: true
+                });
+            }
             
             if (nozzleLight !== null) {
                 Entities.deleteEntity(nozzleLight);
@@ -430,8 +414,7 @@ function exponentialSmoothing(target, current) {
         
         stopFiring: function() {
             if (flameEntity !== null) {
-                Entities.deleteEntity(flameEntity);
-                flameEntity = null;
+                Entities.editEntity(flameEntity, {isEmitting: false});
             }
             if (nozzleLight !== null) {
                 Entities.deleteEntity(nozzleLight);
@@ -600,6 +583,11 @@ function exponentialSmoothing(target, current) {
             this.stopFiring();
             this.removeDesktopOverlay();
             
+            if (flameEntity !== null) {
+                Entities.deleteEntity(flameEntity);
+                flameEntity = null;
+            }
+            
             if (DEBUG_FIRING) {
                 Script.update.disconnect(this.updateDebugFiring);
             } else if (notHomeCount > 0) {
@@ -626,6 +614,28 @@ function exponentialSmoothing(target, current) {
             if (DEBUG_FIRING) {
                 Script.update.connect(this.updateDebugFiring);
             }
+            
+            var clientOnly = true;
+            flameEntity = Entities.addEntity({
+                accelerationSpread: { x:5, y:5, z:5 },
+                alpha: 0.4,
+                alphaStart: 0.1,
+                alphaFinish: 0.4,
+                emitRate: BASE_EMIT_RATE,
+                emitSpeed: 0,
+                emitterShouldTrail: true,
+                isEmitting: false,
+                lifespan: fireLifespan,
+                localPosition: BARREL_LOCAL_OFFSET,
+                maxParticles: 500,
+                name: "Flamethrower Flame",
+                parentID: this.entityID,
+                radiusSpread: 0.3,
+                radiusStart: 0.05,
+                speedSpread: 0,
+                textures: RAINBOW_IMAGE,
+                type: "ParticleEffect"
+            }, clientOnly);
         }
     };
 
