@@ -26,8 +26,8 @@
 
         preload: function(entityID) {
             var properties = Entities.getEntityProperties(entityID, 
-                ["entityID", "position", "modelURL", "name", "dimensions", "description"]);
-
+                ["position", "rotation", "dimensions", "modelURL", 
+                    "name", "dimensions", "description", "userData"]);
             foodProperties = {
                 type: "Model",
                 modelURL: properties.modelURL,
@@ -39,18 +39,28 @@
                 dimensions: properties.dimensions,
                 grabbable: true,
                 lifetime: LIFETIME,
-                dynamic: true
+                dynamic: true,
+                userData: properties.userData
             };
         },
 
         mousePressOnEntity: function(entityID, mouseEvent) {
             print("food has been clicked");
             if (mouseEvent.isLeftButton) {
-                var REZ_OFFSET = {
-                    x: 0.0,
-                    y: 0.7,
-                    z: -0.5
-                };
+                var REZ_OFFSET;
+                if (Camera.getModeString() === "first person") {
+                    REZ_OFFSET = {
+                        x: 0.0,
+                        y: 0.4 * MyAvatar.scale,
+                        z: -0.5 * MyAvatar.scale
+                    };
+                } else {
+                    REZ_OFFSET = {
+                        x: 0.0,
+                        y: 0.7 * MyAvatar.scale,
+                        z: -0.5 * MyAvatar.scale
+                    };
+                }
                 var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, REZ_OFFSET));
                 foodProperties.position = position;
                 Entities.addEntity(foodProperties);
