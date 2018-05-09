@@ -242,8 +242,7 @@
                 lifetime: STROKE_LIFETIME,
                 userData: JSON.stringify({
                     creatorMarker: params[2],
-                    parentBoard: params[3],
-                    dirty: false
+                    parentBoard: params[3]
                 })
             });
 
@@ -305,7 +304,6 @@
         /// @param {object}  param parameters passed as an array of string 
         /// with the id of the marker that stoped drawing and the drawing surface [creatorMarkerID, drawingSurfaceID]
         resetMarkerStrokeDesktop: function (entityID, params) {
-            print("Daantje Debug: Reset Desktop");
             var currentIndex = -1;
             for (var i = 0; i < strokesInProgress.length; i++) {
                 if (utils.getEntityUserData(strokesInProgress[i]).creatorMarker === params[0]) {
@@ -410,7 +408,6 @@
         /// @param {object} param parameters passed as an array of string 
         /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
         startMarkerStroke: function (params) {
-            print("Daantje Debug: Start Stroke Desktop");
             var newStroke = Entities.addEntity({
                 type: "PolyLine",
                 name: _this.STROKE_NAME,
@@ -423,8 +420,7 @@
                 lifetime: STROKE_LIFETIME,
                 userData: JSON.stringify({
                     creatorMarker: params[2],
-                    parentBoard: params[3],
-                    dirty: false
+                    parentBoard: params[3]
                 })
             });
 
@@ -443,29 +439,23 @@
             strokeBasePositionInProgress.splice(currentIndex, 1);
         },
         reeditStroke: function (entityID, params) {
-            print("Hey Hey Vicky " + JSON.stringify(params));
+            print("Server Reedit " + JSON.stringify(params));
             var lineID = params[0];
             var segments = utils.parseJSON(params[1]);
             var keepPointIndexes = utils.parseJSON(params[2]);
             var inclusive = utils.parseJSON(params[3]);
-            // print(" Entity properties " + JSON.stringify(Entities.getEntityProperties(lineID)));
-            var properties = Entities.getEntityProperties(lineID);
+            
             var linePoints = Entities.getEntityProperties(lineID, "linePoints").linePoints;
             var linePointsCopy;
-            // Entities.editEntity(lineID, {lifetime: 601});
-            print(" Line Points Length " + JSON.stringify(Entities.getEntityProperties(lineID).linePoints.length));
             if (linePoints === undefined) {
                 return;
             }
             
-            // Lock Entity
-            utils.setEntityCustomData("dirty", lineID, true);
-            
+            var properties = Entities.getEntityProperties(lineID);
 
             for (var m = segments.length - 1 ; m >= 0 ; m--) {
                 // copy points array
                 linePointsCopy = linePoints.slice();
-                print("Daantje Debug m " + m);
                 if (m === 0) {
                     if (keepPointIndexes[m * 2 + 1] < linePoints.length - 1) {
                         // prune end if not last
@@ -490,14 +480,13 @@
                             linePoints.splice(0, keepPointIndexes[m * 2]);
                         }
                     }
-                    print("linePoints.length m 0 + " + linePoints.length);
                 } else {
                     if (keepPointIndexes[m * 2 + 1] < linePoints.length - 1) {
                         // prune end if not last
                         if (!inclusive[m * 2 + 1]) {
                             linePointsCopy.splice(keepPointIndexes[m * 2 + 1] + 1, 
                                 (linePoints.length - keepPointIndexes[m * 2 + 1] + 1), 
-                                segments[0][1]
+                                segments[m][1]
                             );
                         } else {
                             linePointsCopy.splice(keepPointIndexes[m * 2 + 1] + 1, 
@@ -508,24 +497,20 @@
                     if (keepPointIndexes[m * 2] > 0) {
                         // prune begining
                         if (!inclusive[m * 2]) {
-                            linePointsCopy.splice(0, keepPointIndexes[m * 2], segments[0][0]);
+                            linePointsCopy.splice(0, keepPointIndexes[m * 2], segments[m][0]);
                         } else {
                             linePointsCopy.splice(0, keepPointIndexes[m * 2]);
                         }
                     }
                     properties.linePoints = linePointsCopy;
-                    print("linePointsCopy.length  + " + linePointsCopy.length);
                     if (linePointsCopy.length > 1) {
-                        var split = Entities.addEntity(properties);
-                        utils.setEntityCustomData("dirty", split, false);
+                        Entities.addEntity(properties);
                     }
                 }
             }
-            // print("Daantje Debug " + linePoints.length);
+            
             if (linePoints.length > 1) {
                 Entities.editEntity(lineID, {linePoints: linePoints});
-                // Unlock entity
-                utils.setEntityCustomData("dirty", lineID, false);
             } else {
                 Entities.deleteEntity(lineID);
             }
@@ -538,7 +523,6 @@
         /// @param {object}  param parameters passed as an array of string 
         /// with the id of the marker that stoped drawing and the drawing surface [creatorMarkerID, drawingSurfaceID]
         resetMarkerStroke: function (entityID, params) {
-            print("Daantje Debug: Reset");
             var currentIndex = -1;
             for (var i = 0; i < strokesInProgress.length; i++) {
                 if (utils.getEntityUserData(strokesInProgress[i]).creatorMarker === params[0]) {

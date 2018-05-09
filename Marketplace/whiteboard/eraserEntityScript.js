@@ -56,9 +56,6 @@
     
     // UUID: {numberPoints: 12, highResolution: [], pointIndex: []}
     var strokeHighResolutionCache = {};
-    
-    var dirtyLines = {};
-
     var lastEraserPosition;
 
     Eraser.prototype = {
@@ -247,7 +244,7 @@
                         
                         if (isMouseDown) {
                             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
-                            if (Vec3.distance(lastEraserPosition, _this.eraserPosition) > lineResolution) {
+                            if (Vec3.distance(lastEraserPosition, _this.eraserPosition) > lineResolution * 2) {
                                 lastEraserPosition = _this.eraserPosition;
                                 _this.pointsWithInBoundsOfEraser();
                             }
@@ -294,6 +291,7 @@
         },
         pointsWithInBoundsOfEraser: function() {
             
+            // find nearby strokes with a big margin
             var nearbyStrokes = Entities.findEntitiesByName("hifi_polyline_markerStroke", 
                 _this.eraserPosition, 
                 Entities.getEntityProperties(_this.whiteboard, "dimensions").dimensions.x, 
@@ -302,6 +300,7 @@
 
             var serverID = Entities.getEntityProperties(_this.whiteboard, "parentID").parentID;
             
+            // Get projection vectors taking into account the eraser position and rotation
             var eraserUp = Quat.getRight(Entities.getEntityProperties(_this.entityID, "rotation").rotation);
             var eraserRight = Quat.getFront(Entities.getEntityProperties(_this.entityID, "rotation").rotation);
             var eraserHalfDimensionUp = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.x / 4.0;
@@ -312,168 +311,101 @@
             var lengthEraserRight = Vec3.dot(eraserRight, eraserRight);
             
             nearbyStrokes.forEach(function(stroke) {
-                var userDataProperty = JSON.parse(Entities.getEntityProperties(stroke, "userData").userData);
-                // print("ddd " + userDataProperty["dirty"] + " length " + Entities.getEntityProperties(stroke, "linePoints").linePoints.length);
-                if (userDataProperty["dirty"] === true || dirtyLines[stroke] === true) {
-                    print("xxx");
-                } else {
-                    dirtyLines[stroke] = true;
-                    // TODO get highResolutionCache
-                    var points = _this.getHighResolutionPointCache(stroke); 
-                    var strokeBasePosition = Entities.getEntityProperties(stroke, "position").position;
-                    
-                    var i, j, k;
-                    var pointSegments = [];
-                    
-                    if (points !== undefined){
-                        
-                        // begin and end of segments [[0,10], [20,35]]
-                        var segments = [];
-                   
-                        for (i = 0; i < points.length; i++) {
-                            var point = Vec3.subtract(Vec3.sum(points[i], strokeBasePosition), _this.eraserPosition);
-                            var keepPoint = false;
-                            if (Vec3.length(point) < eraserHalfDimensionRight) {
-                                var projectionUp = Vec3.length(Vec3.multiply(
-                                    (Vec3.dot(point, eraserUp) / lengthEraserUp), 
-                                    eraserUp
+                // get highResolutionCache
+                var points = _this.getHighResolutionPointCache(stroke);
+                // get strokeBasePosition in order to convert the local polyline points into world coordinates
+                var strokeBasePosition = Entities.getEntityProperties(stroke, "position").position;
+                
+                var i, j, k;
+                var pointSegments = [];
+                
+                if (points !== undefined){
+                    // segments contains arrays with the begining and ending of line segments 
+                    // that won't be deleted [[0,10], [20,35]]
+                    var segments = [];
+                    // for each point check whether it's outside the eraser volume/area
+                    for (i = 0; i < points.length; i++) {
+                        var point = Vec3.subtract(Vec3.sum(points[i], strokeBasePosition), _this.eraserPosition);
+                        var keepPoint = false;
+                        if (Vec3.length(point) < eraserHalfDimensionRight) {
+                            var projectionUp = Vec3.length(Vec3.multiply(
+                                (Vec3.dot(point, eraserUp) / lengthEraserUp), 
+                                eraserUp
+                            ));
+                            if (projectionUp < eraserHalfDimensionUp) {
+                                var projectionRight = Vec3.length(Vec3.multiply(
+                                    (Vec3.dot(point, eraserRight) / lengthEraserRight), 
+                                    eraserRight
                                 ));
-                                if (projectionUp < eraserHalfDimensionUp) {
-                                    var projectionRight = Vec3.length(Vec3.multiply(
-                                        (Vec3.dot(point, eraserRight) / lengthEraserRight), 
-                                        eraserRight
-                                    ));
-                                    if (!(projectionRight < eraserHalfDimensionRight)) {
-                                        keepPoint = true;
-                                    }
-                                } else {
+                                if (!(projectionRight < eraserHalfDimensionRight)) {
                                     keepPoint = true;
                                 }
                             } else {
                                 keepPoint = true;
                             }
-                            
-                            var currentSegment = segments[segments.length - 1];
-                            if (keepPoint) {
-                                if (segments.length === 0) {
-                                    segments.push([i]);
-                                } else if (currentSegment.length === 2) {
-                                    segments.push([i]);
-                                } else if ( i === points.length - 1) {
-                                    currentSegment.push(i);
-                                }
-                            } else if (segments.length > 0) {
-                                if (currentSegment.length === 1) {
-                                    currentSegment.push(i-1);
-                                }
-                            }
-                            
-                        }
-                        // TODO Tell server to delete chunk
-                        // // print(JSON.stringify(keep));
-                        print("Segments " + JSON.stringify(segments));
-    
-                        var keepLinePointIndexes = [];
-                        var keepInclusivePointIndexes = [];
-                        var startingCount = keepLinePointIndexes.length;
-                        var lastInclusive = 0;
-                        var linePointsIndex;
-                        if (segments.length === 0) {
-                            // delete entire line segment
-                            // RPC - calling server to erase
-                            Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
-                            Audio.playSound(ERASER_HIT_BOARD_SOUND, {
-                                position: _this.eraserPosition,
-                                volume: ERASER_SOUND_VOLUME
-                            });
-                        } else if (segments.length === 1){
-                            if (!(segments[0][0] === 0 && segments[0][1] === points.length - 1)) {
-                                linePointsIndex = strokeHighResolutionCache[stroke].pointIndex;
-                                keepLinePointIndexes = [];
-                                keepInclusivePointIndexes = [];
-                                startingCount = keepLinePointIndexes.length;
-                                lastInclusive = 0;
-                                for (j = segments[0][0] ; j <= segments[0][1] ; j++) {
-                                    if (linePointsIndex[j] !== undefined) {
-                                        if (startingCount === keepLinePointIndexes.length) {
-                                            keepLinePointIndexes.push(linePointsIndex[j]);
-                                            if (j === segments[0][0]) {
-                                                keepInclusivePointIndexes.push(true);
-                                            } else {
-                                                keepInclusivePointIndexes.push(false);
-                                            }
-                                        } else if (startingCount < keepLinePointIndexes.length) {
-                                            lastInclusive = j;
-                                        }
-                                    }
-                                }
-                                if (lastInclusive === segments[0][1]) {
-                                    keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
-                                    keepInclusivePointIndexes.push(true);
-                                } else {
-                                    keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
-                                    keepInclusivePointIndexes.push(false);
-                                }
-                                print("// print keepLinePointIndexes " + JSON.stringify(keepLinePointIndexes));
-                                print("// print keepInclusivePointIndexes " + JSON.stringify(keepInclusivePointIndexes));
-                                
-                                
-                                pointSegments = [];
-                                for (i = 0 ; i < segments.length; i++) {
-                                    pointSegments[i] = [];
-                                    pointSegments[i][0] = points[segments[i][0]];
-                                    pointSegments[i][1] = points[segments[i][1]];
-                                }
-                                
-                                Entities.callEntityServerMethod(serverID, 
-                                    'reeditStroke', 
-                                    [stroke, 
-                                        JSON.stringify(pointSegments), 
-                                        JSON.stringify(keepLinePointIndexes), 
-                                        JSON.stringify(keepInclusivePointIndexes)
-                                    ]
-                                );
-                            }
-                            
                         } else {
+                            keepPoint = true;
+                        }
+                        
+                        var currentSegment = segments[segments.length - 1];
+                        if (keepPoint) {
+                            if (segments.length === 0) {
+                                segments.push([i]);
+                            } else if (currentSegment.length === 2) {
+                                segments.push([i]);
+                            } else if ( i === points.length - 1) {
+                                currentSegment.push(i);
+                            }
+                        } else if (segments.length > 0) {
+                            if (currentSegment.length === 1) {
+                                currentSegment.push(i-1);
+                            }
+                        }
+                    }
+                    
+                    var keepLinePointIndexes = [];
+                    var keepInclusivePointIndexes = [];
+                    var startingCount = keepLinePointIndexes.length;
+                    var lastInclusive = 0;
+                    var linePointsIndex;
+                    if (segments.length === 0) {
+                        // delete entire line segment
+                        // RPC - calling server to erase
+                        Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
+                        Audio.playSound(ERASER_HIT_BOARD_SOUND, {
+                            position: _this.eraserPosition,
+                            volume: ERASER_SOUND_VOLUME
+                        });
+                    } else if (segments.length === 1){
+                        if (!(segments[0][0] === 0 && segments[0][1] === points.length - 1)) {
                             linePointsIndex = strokeHighResolutionCache[stroke].pointIndex;
-                            print("Line Points Number " + strokeHighResolutionCache[stroke].numberPoints);
-                            print("Start segmenting ---------------- + " + JSON.stringify(linePointsIndex));
-                            for (k = 0 ; k < segments.length ; k++) {
-                                startingCount = keepLinePointIndexes.length;
-                                lastInclusive = 0;
-                                for (j = segments[k][0] ; j <= segments[k][1] ; j++) {
-                                    print("Segmenting ---------------- K " + k + " j " + j);
-                                    print("StartingCount " + startingCount);
-                                    print("keepLinePointIndexes " + keepLinePointIndexes.length);
-                                    if (linePointsIndex[j] !== undefined) {
-                                        if (startingCount === keepLinePointIndexes.length) {
-                                            keepLinePointIndexes.push(linePointsIndex[j]);
-                                            lastInclusive = j;
-                                            if (j === segments[k][0]) {
-                                                keepInclusivePointIndexes.push(true);
-                                            } else {
-                                                keepInclusivePointIndexes.push(false);
-                                            }
-                                        } else if (startingCount < keepLinePointIndexes.length) {
-                                            lastInclusive = j;
+                            keepLinePointIndexes = [];
+                            keepInclusivePointIndexes = [];
+                            startingCount = keepLinePointIndexes.length;
+                            lastInclusive = 0;
+                            for (j = segments[0][0] ; j <= segments[0][1] ; j++) {
+                                if (linePointsIndex[j] !== undefined) {
+                                    if (startingCount === keepLinePointIndexes.length) {
+                                        keepLinePointIndexes.push(linePointsIndex[j]);
+                                        if (j === segments[0][0]) {
+                                            keepInclusivePointIndexes.push(true);
+                                        } else {
+                                            keepInclusivePointIndexes.push(false);
                                         }
+                                    } else if (startingCount < keepLinePointIndexes.length) {
+                                        lastInclusive = j;
                                     }
                                 }
-                                print("Last Inclusive " + lastInclusive);
-                                if (lastInclusive === segments[k][1]) {
-                                    keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
-                                    keepInclusivePointIndexes.push(true);
-                                } else {
-                                    keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
-                                    keepInclusivePointIndexes.push(false);
-                                }
+                            }
+                            if (lastInclusive === segments[0][1]) {
+                                keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
+                                keepInclusivePointIndexes.push(true);
+                            } else {
+                                keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
+                                keepInclusivePointIndexes.push(false);
                             }
                             
-                            print("Finish segmenting ----------------");
-                            
-                            print("// print keepLinePointIndexes " + JSON.stringify(keepLinePointIndexes));
-                            print("// print keepInclusivePointIndexes " + JSON.stringify(keepInclusivePointIndexes));
+                            // get new line points from segments
                             pointSegments = [];
                             for (i = 0 ; i < segments.length; i++) {
                                 pointSegments[i] = [];
@@ -481,27 +413,71 @@
                                 pointSegments[i][1] = points[segments[i][1]];
                             }
                             
+                            // RPC - calling server to delete and split the lines
                             Entities.callEntityServerMethod(serverID, 
-                                'reeditStroke',
+                                'reeditStroke', 
                                 [stroke, 
                                     JSON.stringify(pointSegments), 
                                     JSON.stringify(keepLinePointIndexes), 
                                     JSON.stringify(keepInclusivePointIndexes)
                                 ]
                             );
+                            
                         }
-    
                     } else {
-                        // line has less than 1 point
-                        // RPC - calling server to erase
-                        Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
+                        linePointsIndex = strokeHighResolutionCache[stroke].pointIndex;
+                        for (k = 0 ; k < segments.length ; k++) {
+                            startingCount = keepLinePointIndexes.length;
+                            lastInclusive = 0;
+                            for (j = segments[k][0] ; j <= segments[k][1] ; j++) {
+                                if (linePointsIndex[j] !== undefined) {
+                                    if (startingCount === keepLinePointIndexes.length) {
+                                        keepLinePointIndexes.push(linePointsIndex[j]);
+                                        lastInclusive = j;
+                                        if (j === segments[k][0]) {
+                                            keepInclusivePointIndexes.push(true);
+                                        } else {
+                                            keepInclusivePointIndexes.push(false);
+                                        }
+                                    } else if (startingCount < keepLinePointIndexes.length) {
+                                        lastInclusive = j;
+                                    }
+                                }
+                            }
+                            
+                            if (lastInclusive === segments[k][1]) {
+                                keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
+                                keepInclusivePointIndexes.push(true);
+                            } else {
+                                keepLinePointIndexes.push(linePointsIndex[lastInclusive]);
+                                keepInclusivePointIndexes.push(false);
+                            }
+                        }
+                        
+                        // get new line points from segments
+                        pointSegments = [];
+                        for (i = 0 ; i < segments.length; i++) {
+                            pointSegments[i] = [];
+                            pointSegments[i][0] = points[segments[i][0]];
+                            pointSegments[i][1] = points[segments[i][1]];
+                        }
+                        
+                        // RPC - calling server to delete and split the lines
+                        Entities.callEntityServerMethod(serverID, 
+                            'reeditStroke',
+                            [stroke, 
+                                JSON.stringify(pointSegments), 
+                                JSON.stringify(keepLinePointIndexes), 
+                                JSON.stringify(keepInclusivePointIndexes)
+                            ]
+                        );
                     }
+                } else {
+                    // line has less than 1 point
+                    // RPC - calling server to erase
+                    Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
                 }
             });
-
-            for (var stroke in dirtyLines) {
-                dirtyLines[stroke] = false;
-            }
                 
         },
         getHighResolutionPointCache: function(strokeID) {
