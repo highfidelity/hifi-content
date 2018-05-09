@@ -32,7 +32,8 @@
                 print("preload for createFoodServer.js");
             }
             var properties = Entities.getEntityProperties(entityID, 
-                ["position", "rotation", "dimensions", "modelURL", "name", "dimensions", "description"]);
+                ["position", "rotation", "dimensions", "modelURL", 
+                    "name", "dimensions", "description", "userData"]);
             foodProperties = {
                 name: properties.name + "-clone",
                 descript: properties.description,
@@ -48,7 +49,8 @@
                 gravity: {x: 0, y: 0, z: 0},
                 collisionless: true,
                 visible: false,
-                grabbable: true
+                grabbable: true,
+                userData: properties.userData
             };        
             spawnFoodInterval = Script.setInterval(function() {
                 if (foodArray.length < MAX_FOOD) {

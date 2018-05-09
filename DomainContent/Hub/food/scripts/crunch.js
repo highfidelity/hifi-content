@@ -14,29 +14,18 @@
 
 (function () {
 
-    var CRUNCH_SOUND_URLS = [
-        // sounds by InspectorJ from https://freesound.org/people/InspectorJ/sounds/332407/
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-1.wav",
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-2.wav",
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-3.wav",
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-4.wav",
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-5.wav",
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-6.wav",
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-7.wav",
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-8.wav",
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-9.wav",
-        "https://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/food/sounds/crunch-10.wav"
-    ];
+    var CRUNCH_SOUND_URLS;
     var CRUNCH_SOUNDS = [];
 
     var VOLUME = 0.5;
-    var CHECK_RADIUS = 0.1;
+    var CHECK_RADIUS = 0.25;
     var LIFETIME = 30;
 
     var _this = this;
 
     _this.preload = function(entityID) {
         _this.entityID = entityID;
+        CRUNCH_SOUND_URLS = JSON.parse(Entities.getEntityProperties(entityID, "userData").userData).sounds;
         CRUNCH_SOUND_URLS.forEach(function(crunch) {
             CRUNCH_SOUNDS.push(SoundCache.getSound(crunch));
         });
@@ -59,8 +48,9 @@
 
     var checkIfNearHead = function() {
         var position = Entities.getEntityProperties(_this.entityID, "position").position;
-        if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < (CHECK_RADIUS * MyAvatar.scale) ||
-            Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < (CHECK_RADIUS * MyAvatar.scale)) {
+        var foodDistance = CHECK_RADIUS * MyAvatar.scale;
+        if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < foodDistance || 
+            Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < foodDistance) {
             playEatingEffect();
         }
     };
@@ -69,6 +59,7 @@
         var size = CRUNCH_SOUND_URLS.length - 1;
         var index = Math.round(Math.random() * size);
         var crunchSound = CRUNCH_SOUNDS[index];
+        print("yum " + crunchSound);
         Audio.playSound(crunchSound, {volume: VOLUME, position: MyAvatar.getJointPosition("Head")});
         Entities.deleteEntity(_this.entityID);
     };
