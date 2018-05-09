@@ -243,7 +243,7 @@
                 userData: JSON.stringify({
                     creatorMarker: params[2],
                     parentBoard: params[3],
-                    highResolutionPointCache: "howdy"
+                    dirty: false
                 })
             });
 
@@ -424,7 +424,7 @@
                 userData: JSON.stringify({
                     creatorMarker: params[2],
                     parentBoard: params[3],
-                    highResolutionPointCache: "howdy"
+                    dirty: false
                 })
             });
 
@@ -444,6 +444,91 @@
         },
         reeditStroke: function (entityID, params) {
             print("Hey Hey Vicky " + JSON.stringify(params));
+            var lineID = params[0];
+            var segments = utils.parseJSON(params[1]);
+            var keepPointIndexes = utils.parseJSON(params[2]);
+            var inclusive = utils.parseJSON(params[3]);
+            // print(" Entity properties " + JSON.stringify(Entities.getEntityProperties(lineID)));
+            var properties = Entities.getEntityProperties(lineID);
+            var linePoints = Entities.getEntityProperties(lineID, "linePoints").linePoints;
+            var linePointsCopy;
+            // Entities.editEntity(lineID, {lifetime: 601});
+            print(" Line Points Length " + JSON.stringify(Entities.getEntityProperties(lineID).linePoints.length));
+            if (linePoints === undefined) {
+                return;
+            }
+            
+            // Lock Entity
+            utils.setEntityCustomData("dirty", lineID, true);
+            
+
+            for (var m = segments.length - 1 ; m >= 0 ; m--) {
+                // copy points array
+                linePointsCopy = linePoints.slice();
+                print("Daantje Debug m " + m);
+                if (m === 0) {
+                    if (keepPointIndexes[m * 2 + 1] < linePoints.length - 1) {
+                        // prune end if not last
+                        if (!inclusive[m * 2 + 1]) {
+                            linePoints.splice(keepPointIndexes[m * 2 + 1] + 1, 
+                                (linePoints.length - keepPointIndexes[m * 2 + 1] + 1), 
+                                segments[0][1]
+                            );
+                        } else {
+                            linePoints.splice(keepPointIndexes[m * 2 + 1] + 1, 
+                                (linePoints.length - keepPointIndexes[m * 2 + 1] + 1)
+                            );
+                        }
+                        
+                        
+                    }
+                    if (keepPointIndexes[m * 2] > 0) {
+                        // prune begining
+                        if (!inclusive[m * 2]) {
+                            linePoints.splice(0, keepPointIndexes[m * 2], segments[0][0]);
+                        } else {
+                            linePoints.splice(0, keepPointIndexes[m * 2]);
+                        }
+                    }
+                    print("linePoints.length m 0 + " + linePoints.length);
+                } else {
+                    if (keepPointIndexes[m * 2 + 1] < linePoints.length - 1) {
+                        // prune end if not last
+                        if (!inclusive[m * 2 + 1]) {
+                            linePointsCopy.splice(keepPointIndexes[m * 2 + 1] + 1, 
+                                (linePoints.length - keepPointIndexes[m * 2 + 1] + 1), 
+                                segments[0][1]
+                            );
+                        } else {
+                            linePointsCopy.splice(keepPointIndexes[m * 2 + 1] + 1, 
+                                (linePoints.length - keepPointIndexes[m * 2 + 1] + 1)
+                            );
+                        } 
+                    }
+                    if (keepPointIndexes[m * 2] > 0) {
+                        // prune begining
+                        if (!inclusive[m * 2]) {
+                            linePointsCopy.splice(0, keepPointIndexes[m * 2], segments[0][0]);
+                        } else {
+                            linePointsCopy.splice(0, keepPointIndexes[m * 2]);
+                        }
+                    }
+                    properties.linePoints = linePointsCopy;
+                    print("linePointsCopy.length  + " + linePointsCopy.length);
+                    if (linePointsCopy.length > 1) {
+                        var split = Entities.addEntity(properties);
+                        utils.setEntityCustomData("dirty", split, false);
+                    }
+                }
+            }
+            // print("Daantje Debug " + linePoints.length);
+            if (linePoints.length > 1) {
+                Entities.editEntity(lineID, {linePoints: linePoints});
+                // Unlock entity
+                utils.setEntityCustomData("dirty", lineID, false);
+            } else {
+                Entities.deleteEntity(lineID);
+            }
         },
         /// Remotely callable reset marker stroke function
         /// 
