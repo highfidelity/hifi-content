@@ -18,7 +18,10 @@
     var APP_ICON = Script.resolvePath("icon.png");
 
     var TIMEOUT = 2000;
-    var LONG_TIMEOUT = 20000;
+    var RETURN_DISTANCE = 1;
+
+    var LEFT_JOINT_PREFIX = "Left";
+    var RIGHT_JOINT_PREFIX = "Right";
 
     var previousID = 0;
     var listName = "contextOverlayHighlightList";
@@ -26,7 +29,7 @@
 
     var entityIDToExport = "";
 
-    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');    
+    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
 
     function handleMousePress(entityID) {
         if (previousID !== entityID) {
@@ -65,7 +68,7 @@
 
     var exportProperties = {
         type: "Model",
-        parentID: MyAvatar.sessionUUID,
+        parentID: MyAvatar.SELF_ID,
         visible: true,
         shapeType: "box",
         collidesWith: "",
@@ -103,44 +106,82 @@
                 print("Failed to export json");
             }
         }
-        Entities.deleteEntity(entityIDToExport);                        
     }
 
     function onWebEventReceived(event) {
         if (typeof(event) === "string") {
             event = JSON.parse(event);
         }
+        if (event.type === "move-entity") {
+            var entityIDProperties = Entities.getEntityProperties(event.entityID, 'parentID');
+            if (entityIDProperties.parentID === MyAvatar.sessionUUID) {
+                return; // don't change things that are already attached to us
+            }
+            Entities.editEntity(event.entityID, {
+                "parentID": MyAvatar.sessionUUID,
+                "parentJointIndex": MyAvatar.getJointIndex(event.joint),
+                "position": MyAvatar.getJointPosition(event.joint)
+            });
+        }
         if (event.type === "submit" && event.app === "JSON") {
+            tablet.emitScriptEvent("hide-warning");
             var entityID = event.entityID;
-            var joint = event.joint;
-
+            // Collect the rest of the properties we want
             var newExportProperties = exportProperties;
             var newUserDataProperties = baseUserdata;
-    
-            var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script']);
-
-            newUserDataProperties.Attachment.joint = joint;
+            // Confirm we have a valid joint 
+            var joint = event.joint;
+            if (joint === null) {
+                tablet.emitScriptEvent("display-warning-joint-selection");
+                return;
+            }
+            if (joint.indexOf(LEFT_JOINT_PREFIX) !== -1) {
+                newUserDataProperties.Attachment.joint = "[LR]" + joint.substring(LEFT_JOINT_PREFIX.length);
+            } else if (joint.indexOf(RIGHT_JOINT_PREFIX) !== -1) {
+                newUserDataProperties.Attachment.joint = "[LR]" + joint.substring(RIGHT_JOINT_PREFIX);
+            } else {
+                newUserDataProperties.Attachment.joint = joint;
+            }
             
-            newExportProperties.modelURL = properties.modelURL;
-            newExportProperties.dimensions = properties.dimensions;
-            newExportProperties.localDimensions = properties.localDimensions;
-            newExportProperties.parentJointIndex = MyAvatar.jointNames.indexOf(joint);
-            newExportProperties.script = properties.script;
-            newExportProperties.userData = JSON.stringify(newUserDataProperties);
 
-            entityIDToExport = Entities.addEntity(newExportProperties, true);
-            Window.saveFileChanged.connect(onFileSaveChanged);
-            Window.saveAsync("Select Where to Save", "", "*.json");
-            Script.setTimeout(function() {
-                Entities.deleteEntity(entityIDToExport);
-            }, LONG_TIMEOUT); 
+            var properties = Entities.getEntityProperties(entityID, ['modelURL', 'dimensions', 'script',
+                'localPosition', 'localRotation']);
+            newExportProperties.modelURL = properties.modelURL;
+
+            if (newExportProperties.modelURL === undefined || newExportProperties.modelURL.indexOf("mpassets") === -1) {
+                tablet.emitScriptEvent("display-warning-modelURL");
+            } else {
+
+                newExportProperties.dimensions = properties.dimensions;
+                newExportProperties.localDimensions = properties.localDimensions;
+                newExportProperties.parentJointIndex = MyAvatar.jointNames.indexOf(joint);
+                newExportProperties.script = properties.script;
+                newExportProperties.localPosition = properties.localPosition;
+                newExportProperties.localRotation = properties.localRotation;
+
+                newExportProperties.userData = JSON.stringify(newUserDataProperties);
+    
+                entityIDToExport = Entities.addEntity(newExportProperties, true);
+                Window.saveFileChanged.connect(onFileSaveChanged);
+                Window.saveAsync("Select Where to Save", "", "*.json");
+                Window.saveFileChanged.connect(function() {
+                    Entities.deleteEntity(entityIDToExport);
+                    Entities.editEntity(entityID, {
+                        'parentID': Uuid.NULL,
+                        'position' : Vec3.sum(MyAvatar.position, 
+                            Vec3.multiply(Quat.getFront(MyAvatar.orientation), RETURN_DISTANCE))
+                    });
+                });
+            } 
         }
     }
-
     tablet.webEventReceived.connect(onWebEventReceived);
 
     function cleanup() {
         tablet.removeButton(button);
+        Entities.clickReleaseOnEntity.disconnect(handleMousePress);
+        Entities.hoverLeaveEntity.disconnect(handleMouseLeave);
+        tablet.screenChanged.disconnect(maybeExited);
     }
 
     Script.scriptEnding.connect(cleanup);
