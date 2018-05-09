@@ -1,0 +1,255 @@
+<!--
+    groupTeleportApp.html
+    Tour around with a group of people.
+
+    Created by Thijs Wenker on 2/1/18.
+    Copyright 2018 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
+<html>
+    <head>
+        <title>Teleport App</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="groupTeleportApp.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <style>
+            #groupsPanel div {
+                border: 1px solid black;
+                margin: 5px 4px;
+                width: 90%;
+                height: 80px;
+            }
+            #groupsPanel div button {
+                float: right;
+            }
+            .panel {
+                border: 1px solid black;
+                padding: 2px 2px;
+                margin: 5px 4px;
+                width: 97%;
+                height: 80%;
+                display: none;
+            }
+            #buttonBar button {
+                display: inline-block;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+          <div id="buttonBar">
+              <button id="login">Group Leader Login</button>
+              <button id="createGroup" style="display: none;">Create Group</button>
+              <button id="resetGroupLeaderPassword">Create/Reset Group Leader Password</button>
+          </div>
+          <br/>
+        </header>
+        <main>
+          <div class="panel" id="groupsPanel"></div>
+          <div class="panel" id="groupLeaderLoginPanel">
+              <h2>Sign-in as Group Leader</h2>
+              <p>Password: <input type="password" id="groupLeaderLoginPassword"/></p>
+              <button id="groupLeaderLoginSubmit">Login</button>
+              <button id="groupLeaderLoginCancel">Cancel</button>
+          </div>
+          <div class="panel" id="followingGroupPanel">
+              <h2>Following</h2>
+              <p><b>Group name:</b> <span class="groupName">Group name here</span></p>
+              <p><b>Place:</b> <span class="groupPlace">Unknown</span></p>
+              <button class="actionTeleportToGroup">Teleport to group</button>
+              <button id="stopFollowing" class="actionOff">Stop Following</button>
+          </div>
+          <div class="panel" id="guidingGroupPanel">
+              <h2>Guide</h2>
+              <p><b>Group name:</b> <span class="groupName">Group name here</span></p>
+            
+              <button class="actionSummon">Summon</button>
+              <button class="actionToggleAutoFollowMode">Auto follow mode is on</button>
+              <button class="actionOff">Stop Leading</button>
+          </div>
+          <div class="panel" id="createAccountPanel">
+              <h2>Create/Reset Group Leader Password</h2>
+              <p>Please visit https://highfidelity.com/user/tokens/new on your desktop and create a token with the identity permission checked. Token can be removed after registration process.</p>
+              <p>Token: <input id="createAccountToken"/></p>
+              <p>Password: <input type="password" id="createAccountPassword"/></p>
+              <button id="createAccountSubmit">Create Account</button>
+              <button id="createAccountCancel">Cancel</button>
+          </div>
+          <div class="panel" id="createGroupPanel">
+              <h2>Create group</h2>
+              <p>Group name: <input id="createGroupName"/></p>
+              <button id="createGroupSubmit">Create Group</button>
+              <button id="createGroupCancel">Cancel</button>
+          </div>
+        </main>
+        <script>
+            var MODE = {
+                NONE: 0,
+                FOLLOWING: 1,
+                GUIDE: 2
+            };
+            var APP_NAME = "GROUP-TP";
+
+            var loggedIn = false;
+            var autoFollowMode = false;
+            function switchPanel(panel, hideButtonBar) {
+                $('.panel').css('display', 'none');
+                $('#' + panel + 'Panel').css('display', 'block');
+                $('#buttonBar').css('display', hideButtonBar ? 'none' : 'block');
+            }
+          
+            function sendActionToApp(action, data) {
+                var eventData = {
+                    app: APP_NAME,
+                    action: action
+                };
+                if (data) {
+                    Object.assign(eventData, data);
+                }
+                EventBridge.emitWebEvent(JSON.stringify(eventData));
+            }
+
+            $(document).ready(function() {
+                $('.actionOff').on('click', function() {
+                    sendActionToApp('off');
+                });
+                $('.actionSummon').on('click', function() {
+                    sendActionToApp('summon');
+                });
+                $('.actionTeleportToGroup').on('click', function() {
+                    sendActionToApp('teleportToGroup');
+                });
+                $('.actionToggleAutoFollowMode').on('click', function() {
+                    // toggle autoFollowMode
+                    autoFollowMode = !autoFollowMode;
+                    sendActionToApp('setAutoFollowMode', {
+                        autoFollowMode: autoFollowMode
+                    });
+                });
+                $('#resetGroupLeaderPassword').on('click', function() {
+                    switchPanel('createAccount', true);
+                });
+                $('#createGroup').on('click', function() {
+                    switchPanel('createGroup', true);
+                });
+                $('#createAccountSubmit').on('click', function() {
+                    sendActionToApp('createAccount', {
+                        token: $('#createAccountToken').val(),
+                        password: $('#createAccountPassword').val()
+                    });
+                    $('#createAccountToken').val('');
+                    $('#createAccountPassword').val('');
+                    switchPanel('groups');
+                });
+                $('#createAccountCancel').on('click', function() {
+                    $('#createAccountToken').val('');
+                    $('#createAccountPassword').val('');
+                    switchPanel('groups');
+                });
+                $('#createGroupSubmit').on('click', function() {
+                    sendActionToApp('createGroup', {
+                        groupName: $('#createGroupName').val()
+                    });
+                    $('#createGroupName').val('');
+                    switchPanel('groups');
+                });
+                $('#createGroupCancel').on('click', function() {
+                    $('#createGroupName').val('');
+                    switchPanel('groups');
+                });
+                $('#login').on('click', function() {
+                    if (!loggedIn) {
+                        switchPanel('groupLeaderLogin', true);
+                    } else {
+                        sendActionToApp('logout');
+                    }
+                });
+                $('#groupLeaderLoginSubmit').on('click', function() {
+                    sendActionToApp('login', {
+                        password: $('#groupLeaderLoginPassword').val()
+                    });
+                    $('#groupLeaderLoginPassword').val('');
+                });
+                $('#groupLeaderLoginCancel').on('click', function() {
+                    sendActionToApp('logout');
+                    $('#groupLeaderLoginPassword').val('');
+                });
+                EventBridge.scriptEventReceived.connect(function(scriptEvent) {
+                    var eventData = null;
+                    try {
+                        eventData = JSON.parse(scriptEvent);
+                    } catch (e) {
+                        return;
+                    }
+                    if (eventData.app !== APP_NAME) {
+                        return;
+                    }
+                    if (eventData.action === 'refresh') {
+                        loggedIn = eventData.loggedIn;
+                        switch (eventData.mode) {
+                            case MODE.NONE:
+                                switchPanel('groups');
+                                break;
+                            case MODE.FOLLOWING:
+                                switchPanel('followingGroup');
+                                break;
+                            case MODE.GUIDE:
+                                switchPanel('guidingGroup');
+                                break;
+                        }
+                        if (eventData.groupName) {
+                            $('.groupName').text(eventData.groupName);
+                        }
+                        if (eventData.groupPlacename) {
+                            $('.groupPlace').text(eventData.groupPlacename);
+                        }
+                        if (eventData.autoFollowMode !== undefined) {
+                            autoFollowMode = eventData.autoFollowMode;
+                            $('.actionToggleAutoFollowMode')
+                                .text('Auto follow mode is ' + (autoFollowMode ? 'on' : 'off'));
+                        }
+                        $('#login').text(loggedIn ? "Group Leader Logout" : "Group Leader Login");
+                        $('#resetGroupLeaderPassword').css('display', loggedIn ? 'none' : 'block');
+                        $('#stopFollowing').css('display', eventData.isGroupLocked ? 'none' : 'block');
+                        $('#createGroup').css('display', loggedIn && eventData.mode === MODE.NONE ? 'block' : 'none');
+                        if (eventData.groups) {
+                            var $groupsPanel = $('#groupsPanel');
+                            $groupsPanel.empty();
+                            $groupsPanel.append($('<h2/>').text('Groups'));
+                            eventData.groups.forEach(function(group) {
+                                var $groupDiv = $('<div>').text(group.groupName);
+                                var $groupFollowButton = $('<button>').text('Follow');
+                                $groupFollowButton.on('click', function() {
+                                    var groupPassword = "";
+                                    if (group.passwordProtected) {
+                                        groupPassword = prompt("Group password", "");
+                                    }
+                                    sendActionToApp('follow', {
+                                        groupName: group.groupName,
+                                        groupPassword: groupPassword
+                                    });
+                                });
+
+                                $groupDiv.append($groupFollowButton);
+                                if (group.isGuide) {
+                                    var $groupGuideButton = $('<button>').text('Guide');
+                                    $groupGuideButton.on('click', function() {
+                                        sendActionToApp('guide', {
+                                            groupName: group.groupName
+                                        });
+                                    });
+                                    $groupDiv.append($groupGuideButton);
+                                }
+                                $groupsPanel.append($groupDiv);
+                            });
+                        }
+                    }
+                });
+                sendActionToApp('refresh');
+            });
+        </script>
+    </body>
+</html>

@@ -1,5 +1,3 @@
-<style>
-
             @font-face {
                 font-family: Raleway-Regular;
                 src: url(fonts/Raleway-Regular.ttf);
@@ -38,6 +36,11 @@
             * {
                 margin: 0;
                 padding: 0;
+            }
+
+            text {
+                font-family: Raleway-SemiBold;
+                font-size: 15px;
             }
 
             
