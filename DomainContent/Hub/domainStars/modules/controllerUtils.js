@@ -38,7 +38,7 @@ var getGrabPointSphereOffset = function(handController, ignoreSensorToWorldScale
 };
 
 // controllerWorldLocation is where the controller would be, in-world, with an added offset
-var getControllerWorldLocation = function (handController, doOffset) {
+var getControllerWorldLocation = function(handController, shouldAddOffset) {
     var orientation;
     var position;
     var pose = Controller.getPoseValue(handController);
@@ -56,7 +56,7 @@ var getControllerWorldLocation = function (handController, doOffset) {
             MyAvatar.getAbsoluteJointTranslationInObjectFrame(controllerJointIndex)));
 
         // add to the real position so the grab-point is out in front of the hand, a bit
-        if (doOffset) {
+        if (shouldAddOffset) {
             var offset = getGrabPointSphereOffset(handController);
             position = Vec3.sum(position, Vec3.multiplyQbyV(orientation, offset));
         }
