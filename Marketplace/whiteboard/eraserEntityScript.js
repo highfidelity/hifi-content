@@ -93,31 +93,50 @@
             _this.continueHolding();
         },
         continueHolding: function() {
-            var results = Entities.findEntities(_this.eraserPosition, _this.ERASER_TO_STROKE_SEARCH_RADIUS);
+            // var results = Entities.findEntities(_this.eraserPosition, _this.ERASER_TO_STROKE_SEARCH_RADIUS);
             // Create a map of stroke entities and their positions
-
-            results.forEach(function(stroke) {
-                var props = Entities.getEntityProperties(stroke, ["position", "name"]);
-                if (props.name === _this.STROKE_NAME) {
-                    if (_this.whiteboard === null) {
-                        _this.findWhiteboard();
-                    }
-                    var serverID = _this.whiteboard;
-                    // RPC - calling server to erase
-                    Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
+            if (_this.whiteboard === null) {
+                _this.findWhiteboard();
+            }
+            var serverID = _this.whiteboard;
+            // RPC - calling server to erase
+            _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
+            //print("Eraser Position " + JSON.stringify(_this.eraserPosition));
+           // print("Eraser Rotation " + JSON.stringify(Entities.getEntityProperties(_this.entityID, "rotation").rotation));
+            //print(Vec3.distance(lastEraserPosition, _this.eraserPosition));
+            if (Vec3.distance(lastEraserPosition, _this.eraserPosition) > lineResolution * 2) {
+                lastEraserPosition = _this.eraserPosition;
+                _this.pointsWithInBoundsOfEraser();
+            }
+            // results.forEach(function(stroke) {
+            //     var props = Entities.getEntityProperties(stroke, ["position", "name"]);
+            //     if (props.name === _this.STROKE_NAME) {
+            //         if (_this.whiteboard === null) {
+            //             _this.findWhiteboard();
+            //         }
+            //         var serverID = _this.whiteboard;
+            //         // RPC - calling server to erase
+            //         _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
+            //         print("Eraser Position " + JSON.stringify(_this.eraserPosition));
+            //         print("Eraser Position " + JSON.stringify(Entities.getEntityProperties(_this.entityID, "rotation").rotation));
+            //         if (Vec3.distance(lastEraserPosition, _this.eraserPosition) > lineResolution * 2) {
+            //             lastEraserPosition = _this.eraserPosition;
+            //             _this.pointsWithInBoundsOfEraser();
+            //         }
+            //         // Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
                     
-                    Audio.playSound(ERASER_HIT_BOARD_SOUND, {
-                        position: _this.eraserPosition,
-                        volume: ERASER_SOUND_VOLUME
-                    });
+            //         // Audio.playSound(ERASER_HIT_BOARD_SOUND, {
+            //         //     position: _this.eraserPosition,
+            //         //     volume: ERASER_SOUND_VOLUME
+            //         // });
                     
-                    Controller.triggerHapticPulse(
-                        HAPTIC_PARAMETERS.strength, 
-                        HAPTIC_PARAMETERS.duration, 
-                        hand
-                    );
-                }
-            });
+            //         // Controller.triggerHapticPulse(
+            //         //     HAPTIC_PARAMETERS.strength, 
+            //         //     HAPTIC_PARAMETERS.duration, 
+            //         //     hand
+            //         // );
+            //     }
+            // });
         },
         startEquip: function() {
             if (!HMD.active) {
@@ -301,15 +320,54 @@
             var serverID = Entities.getEntityProperties(_this.whiteboard, "parentID").parentID;
             
             // Get projection vectors taking into account the eraser position and rotation
-            var eraserUp = Quat.getRight(Entities.getEntityProperties(_this.entityID, "rotation").rotation);
-            var eraserRight = Quat.getFront(Entities.getEntityProperties(_this.entityID, "rotation").rotation);
+            var rotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+            //var eraserUp = Quat.getRight(rotation);
+            //var eraserRight = Quat.getFront(rotation);
+            var eraserUp = Quat.getRight(rotation);
+            var eraserRight = Quat.getFront(rotation);
             var eraserHalfDimensionUp = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.x / 4.0;
             var eraserHalfDimensionRight = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.z / 2.0;
             eraserUp = Vec3.sum(eraserUp, _this.eraserPosition);
             eraserRight = Vec3.sum(eraserRight, _this.eraserPosition);
             var lengthEraserUp = Vec3.dot(eraserUp, eraserUp);
             var lengthEraserRight = Vec3.dot(eraserRight, eraserRight);
-            
+            print("Eraser Up " + JSON.stringify(eraserUp));
+            print("Eraser Right " + JSON.stringify(eraserRight));
+            print("eraserHalfDimensionUp " + eraserHalfDimensionUp);
+            print("eraserHalfDimensionRight " + eraserHalfDimensionRight);
+            var debugA, debugB, debugC;
+
+            if (debugA === undefined) {
+                print("Eraser Upfeedtgfsdgrstwr");
+                debugA = Entities.addEntity({
+                    type: "Box",
+                    name: "filter",
+                    position: _this.eraserPosition,
+                    dimensions: {x: lineResolution, y: lineResolution, z: lineResolution},
+                    color: { red: 255, green: 0, blue: 0 }
+                });
+
+                debugB = Entities.addEntity({
+                    type: "Box",
+                    
+                    name: "filter",
+                    position: Vec3.sum(_this.eraserPosition, Vec3.multiply(0.5, Vec3.normalize(eraserRight))),
+                    dimensions: {x: lineResolution, y: lineResolution, z: lineResolution},
+                    color: { red: 2, green: 255, blue: 0 }
+                });
+
+                debugC = Entities.addEntity({
+                    type: "Box",
+                    
+                    name: "filter",
+                    position:  Vec3.sum(_this.eraserPosition, Vec3.multiply(0.5, Vec3.normalize(eraserUp))),
+                    dimensions: {x: lineResolution, y: lineResolution, z: lineResolution},
+                    color: { red: 5, green: 0, blue: 255 }
+                });
+
+            }
+
+
             nearbyStrokes.forEach(function(stroke) {
                 // get highResolutionCache
                 var points = _this.getHighResolutionPointCache(stroke);
