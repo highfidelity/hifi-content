@@ -42,7 +42,7 @@
         2, // Albedo
         3, // Normal
         5, // Metallic
-        6, // Emissive
+        6, // Emmissive
         23 // Low Normal
     ];
 
