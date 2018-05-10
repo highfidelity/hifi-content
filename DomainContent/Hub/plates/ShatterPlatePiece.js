@@ -61,7 +61,7 @@
             "azimuthStart":"-180",
             "azimuthFinish":"180"
         }, true);
-        Entities.editEntity(_entityID, {visible: false});
+        Entities.editEntity(_entityID, {visible: false, collidesWith: "", collisionless: true});
         Script.setTimeout(function() {
             Entities.deleteEntity(splat);
             Entities.deleteEntity(_entityID);
