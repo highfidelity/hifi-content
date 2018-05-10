@@ -45,7 +45,6 @@
         },
 
         mousePressOnEntity: function(entityID, mouseEvent) {
-            print("food has been clicked");
             if (mouseEvent.isLeftButton) {
                 var REZ_OFFSET;
                 if (Camera.getModeString() === "first person") {
@@ -63,7 +62,7 @@
                 }
                 var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, REZ_OFFSET));
                 foodProperties.position = position;
-                Entities.addEntity(foodProperties);
+                Entities.addEntity(foodProperties, true);
             }
         },
 

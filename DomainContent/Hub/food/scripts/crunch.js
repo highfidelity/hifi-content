@@ -59,7 +59,6 @@
         var size = CRUNCH_SOUND_URLS.length - 1;
         var index = Math.round(Math.random() * size);
         var crunchSound = CRUNCH_SOUNDS[index];
-        print("yum " + crunchSound);
         Audio.playSound(crunchSound, {volume: VOLUME, position: MyAvatar.getJointPosition("Head")});
         Entities.deleteEntity(_this.entityID);
     };
