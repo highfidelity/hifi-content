@@ -185,7 +185,7 @@
                 emissive: true
             });
 
-            // let the star manager know that this star has been updated successfully, to prevent removal
+            // Let the star manager know that this star has been updated successfully to prevent removal.
             this._hasBeenUpdated = true;
         }
 
