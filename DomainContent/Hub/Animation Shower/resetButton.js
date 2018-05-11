@@ -8,13 +8,13 @@
 // See accompanying license file or http://apache.org/
 //
 /* globals Audio, SoundCache */
-(function(){
+(function() {
     var SOUND_URL = Script.resolvePath("Sounds/undo-notif.wav");
 
     var walkRoles = ["walkFwd", "idleToWalkFwd", "walkBwdNormal"];
     var sound = SoundCache.getSound(SOUND_URL);
 
-    function resetAnimations(){
+    function resetAnimations() {
         walkRoles.forEach(function(item) {
             MyAvatar.restoreRoleAnimation(item);
         });
