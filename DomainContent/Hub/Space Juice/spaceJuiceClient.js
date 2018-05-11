@@ -41,7 +41,6 @@
     var stillFull = true;
     var spawner;
     var canCreateNew = true;
-    var _entityID;
 
     function Glass() {
         _this = this;
@@ -49,14 +48,13 @@
 
     var shouldBreak = function(velocity){
         return Math.abs(velocity.x) >= VELOCITY_TO_BREAK ||
-      Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
-      Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
+        Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
+        Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
     };
 
     Glass.prototype = {
         remotelyCallable: ['drinkShot'],
         preload: function(entityID) {
-            print("hello");
             _this = this;
             _this.entityID = entityID;
             _this.position = Entities.getEntityProperties(_this.entityID, 'position').position;
@@ -99,7 +97,7 @@
 
         startNearGrab: function(entityID, mouseEvent) {
             if (stillFull) {
-                interval = Script.setInterval(function(){
+                interval = Script.setInterval(function() {
                     _this.distanceCheck();
                 }, DISTANCE_CHECK_INTERVAL_MS);
             }
@@ -126,13 +124,10 @@
 
         // this is called on nearGrab release and mouseclick release
         releaseGrab: function(entityID, mouseEvent) {
-            print("release grab");
-            print(JSON.stringify(mouseEvent));
             if (interval) {
                 Script.clearInterval(interval);
             }
             if (JSON.stringify(mouseEvent) === "[]") { // this was originated fromm a mouse click rather than a nearGrab
-                print("deleting");
                 Entities.deleteEntity(_this.entityID);
             }
             if (canCreateNew) {

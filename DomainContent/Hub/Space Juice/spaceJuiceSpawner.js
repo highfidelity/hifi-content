@@ -24,7 +24,7 @@
         preload: function(entityID) {
             _this.entityID = entityID;
             _this.position = Entities.getEntityProperties(_this.entityID, 'position').position;
-            Script.setInterval(function(){
+            Script.setInterval(function() {
                 _this.spawnIfNeeded();
             }, SPAWN_CHECK_MS);
         },
@@ -34,12 +34,10 @@
             Entities.findEntities(_this.position, SEARCH_RADIUS).forEach(function(element){
                 var name= Entities.getEntityProperties(element, 'name').name;
                 if (name === "Space Shot") {
-                    print("don't spawn");
                     needToSpawn = false;
                 }
             });
             if (needToSpawn) {
-                print("spawn");
                 _this.spawnNewGlass();
             }
         },
