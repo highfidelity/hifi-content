@@ -62,6 +62,12 @@
             "azimuthFinish":"180"
         }, true);
         Entities.editEntity(_entityID, {visible: false, collidesWith: "", collisionless: true});
+        if (breakSound.downloaded) {
+            Audio.playSound(breakSound, {
+                volume: volumeLevel,
+                position: position
+            });
+        }
         Script.setTimeout(function() {
             Entities.deleteEntity(splat);
             Entities.deleteEntity(_entityID);
@@ -91,12 +97,6 @@
                 var velocity = properties.velocity;
                 var position = properties.position;
                 if (shouldBreak(velocity)) {
-                    if (breakSound.downloaded) {
-                        Audio.playSound(breakSound, {
-                            volume: volumeLevel,
-                            position: position
-                        });
-                    }
                     createParticles(position);
                 }
             }
