@@ -33,15 +33,17 @@
     var SWALLOW_SOUNDS = [];
     var EFFECT_SOUND;
 
+    // retrieved from deferredLighting.qml
     var WIREFRAME = "Wireframe:LightingModel:enableWireframe";
 
     var VISUAL_EFFECTS = [
         WIREFRAME,
-        1, // Depth
         2, // Albedo
         3, // Normal
         5, // Metallic
-        6 // Emissive
+        6, // Emissive
+        17, // Linear Depth
+        23 // Low Normal
     ];
 
     var SWALLOW_VOLUME = 0.5;
@@ -72,6 +74,10 @@
             Render.getConfig("RenderMainView").getConfig(WIREFRAME.split(":")[1])[WIREFRAME.split(":")[2]] = false;
             Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").mode = 0;
             Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").enabled = false;
+
+            Render.getConfig("SecondaryCameraJob").getConfig(WIREFRAME.split(":")[1])[WIREFRAME.split(":")[2]] = false;
+            Render.getConfig("SecondaryCameraJob").getConfig("DebugDeferredBuffer").mode = 0;
+            Render.getConfig("SecondaryCameraJob").getConfig("DebugDeferredBuffer").enabled = false;
         },
 
         removeInjector: function() {
@@ -135,11 +141,16 @@
                 print("effect is: " + effect);
             }
             Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").size = {x: -1, y: -1, z: 1, w: 1};
-            if (index === 0) {
+            Render.getConfig("SecondaryCameraJob").getConfig("DebugDeferredBuffer").size = {x: -1, y: -1, z: 1, w: 1};
+            if (effect === WIREFRAME) {
                 Render.getConfig("RenderMainView").getConfig(effect.split(":")[1])[effect.split(":")[2]] = true;
+                Render.getConfig("SecondaryCameraJob").getConfig(effect.split(":")[1])[effect.split(":")[2]] = true;
             } else {
                 Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").enabled = true;
                 Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").mode = effect;
+
+                Render.getConfig("SecondaryCameraJob").getConfig("DebugDeferredBuffer").enabled = true;
+                Render.getConfig("SecondaryCameraJob").getConfig("DebugDeferredBuffer").mode = effect;
             }
         },
 
@@ -218,6 +229,7 @@
             if (_entityID === Settings.getValue(LAST_ACTIVE_PILL_SETTING, Uuid.NULL)) {
                 _this.resetRenderDefaults();
                 Render.getConfig("RenderMainView").getConfig("DebugDeferredBuffer").size = {x: 0, y: -1, z: 1, w: 1};
+                Render.getConfig("SecondaryCameraJob").getConfig("DebugDeferredBuffer").size = {x: 0, y: -1, z: 1, w: 1};
                 _this.removeInjector();
             }
         }

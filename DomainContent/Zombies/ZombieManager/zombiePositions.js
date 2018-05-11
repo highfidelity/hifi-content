@@ -18,260 +18,206 @@ module.exports = {
     positions: {
         Red: {
             1: {
-                x: -9.685,
-                y: -8.8159,
-                z: 16.6786 
+                x: -9,
+                y: -10,
+                z: 16.5 
             },
             2: {
-                x: -53.6797,
-                y: -0.1246,
-                z: -70.1916
+                x: -22.5,
+                y: -5,
+                z: -32
             },
             3: {
-                x: -23.3401,
-                y: -9.2971,
-                z: 7.9735
+                x: -21,
+                y: -10,
+                z: 5
             },
             4: {
-                x: -13.1930,
-                y: -8.9837,
-                z: -19.09211
+                x: -13,
+                y: -10,
+                z: -19
             },
             5: {
-                x: 23.7724,
-                y: -8.3833,
-                z: -13.1789
+                x: 35,
+                y: -4,
+                z: -45
             },
             readable: {
                 1: "Starting Bus",
-                2: "Trees in the forest",
-                3: "Second Bus",
+                2: "Dumpster",
+                3: "Bus",
                 4: "Flipped over car",
-                5: "Behind A&J"
+                5: "Plateau"
             }
         }, 
-        Purple: {
+        Orange: {
             1: {
-                x: -31.4595,
-                y: 3.3229,
-                z: -63.5472
+                x: -37,
+                y: -10,
+                z: -18
             }, 
             2: {
-                x: -24.1829,
-                y: -9.444,
-                z: 5.0390
+                x: 3,
+                y: -6,
+                z: -33
             },
             3: {
-                x: -12.9658,
-                y: -2.9995, 
-                z: -45.7409
+                x: -28,
+                y: -10.5, 
+                z: -29
             },
             4: {
-                x: -1.9797,
-                y: -10.2699,
-                z: 22.4347
+                x: 2,
+                y: -7,
+                z: -28
+            },
+            5: {
+                x: 27,
+                y: -2.5,
+                z: -41
             },
             readable: {
-                1: "Forest",
-                2: "Second Bus",
-                3: "Inside Regalia",
-                4: "Boardwalk"
+                1: "Exit",
+                2: "Cubby by Door",
+                3: "Left Boardwalk",
+                4: "Up the hill",
+                5: "Plateau"
             }
-            
-
         },
-        Pink: {
+        Yellow: {
             1: {
-                x:-22.87,
-                y:-3.972,
-                z:-31.82
+                x: 27,
+                y: -7,
+                z: -15.5
             },
             2: { 
-                x:-18.601,
-                y:-9.198,
-                z:25.885
+                x: 3.5,
+                y: -9,
+                z: -20.5
             },
             3: { 
-                x:-34.911,
-                y:-2.9444,
-                z:-33.705
+                x: -19,
+                y: -10,
+                z: 25
             },
             4: {
-                x: -1.9797,
-                y: -10.2699,
-                z: 22.4347
+                x: -11,
+                y: -5,
+                z: -33
+            },
+            5: {
+                x: 25,
+                y: -8,
+                z: -3
             },
             readable: {
-                1: "Dumpster",
-                2: "Boardwalk",
-                3: "Near Regalia",
-                4: "Boardwalk"
+                1: "Ramp",
+                2: "Bull statue",
+                3: "Sidewalk boardwalk",
+                4: "Generator",
+                5: "With mannequins"
             }
         },
-        Teal : {
+        Green : {
             1: {
-                x: 3.2379,
-                y: -5.2083,
-                z: -32.8581
+                x: -53.5,
+                y: -1.5,
+                z: -70
             },
             2: {
-                x: -25.1212,
-                y: -9.2486,
-                z: 2.6429
+                x: -11,
+                y: -10,
+                z: -12
             },
             3: {
-                x: -31.6578,
-                y: 3.3258,
-                z: -68.6602
+                x: -27,
+                y: -10,
+                z: 5
             },
             4: {
-                x: -1.9797,
-                y: -10.2699,
-                z: 22.4347
+                x: -35,
+                y: -4,
+                z: -33.5
+            },
+            5: {
+                x: 8,
+                y: -9,
+                z: 23
             },
             readable: {
-                1: "A&J Cubby",
-                2: "Near Gas Main",
-                3: "Forest",
-                4: "Boardwalk"
+                1: "Gate",
+                2: "Trash and Tires",
+                3: "Gas Main",
+                4: "Generator",
+                5: "Boardwalk, near tires/bus"
             }
         },
-        Brick: {
+        Blue: {
             1: {
-                x:8.9289,
-                y:-8.42,
-                z:-15.043
+                x: -31.5,
+                y: 2,
+                z: -63.5
             },
             2: {
-                x:-27.6005,
-                y:-9.1983,
-                z:5.1727
+                x: -24,
+                y: -10,
+                z: 5
             },
             3: {
-                x:-47.769,
-                y:-0.025,
-                z:-61.34
+                x: -27,
+                y: -10,
+                z: 5
             },
             4: {
-                x: -1.9797,
-                y: -10.2699,
-                z: 22.4347
+                x: -31.5,
+                y: 2,
+                z: -69
+            },
+            5: {
+                x: -9,
+                y: -10,
+                z: 16.5
             },
             readable : {
-                1: "Back Alley",
-                2: "Across from Gas Main",
-                3: "Forest",
-                4: "Boardwalk"
+                1: "Phase 4",
+                2: "Bus",
+                3: "Gas Main",
+                4: "Tree",
+                5: "Boardwalk by bus"
             }
         },
-        Maroon: {
+        Purple: {
             1: {
-                x:-21.4689,
-                y:-9.1611,
-                z:4.42181
+                x: -44.5,
+                y: -4,
+                z: -43.5
             },
             2: {
-                x:-19.5104,
-                y:-9.16155,
-                z:-8.32982
+                x: -23,
+                y: -10,
+                z: 8
             },
             3: {
-                x:34.951,
-                y:-2.9243,
-                z:-45.204
-            },
-            readable : {
-                1: "Bus",
-                2: "Back Alley",
-                3: "Plateau"
-            }
-        },
-        Boardwalk: {
-            1: {
-                x:-36.7870,
-                y:-9.01325,
-                z:18.25436
-            }, 
-            2: {
-                x:-28.024,
-                y:-9.3441,
-                z:28.9311
-            },
-            3: {
-                x: -1.9797,
-                y: -10.2699,
-                z: 22.4347
-            },
-            readable: {
-                1: "Blocking cars",
-                2: "Boardwalk path",
-                3: "Final boardwalk"
-            }
-        },
-        Generator: {
-            1: {
-                x:3.25877,
-                y:-7.6755,
-                z:-22.40
-            },
-            2: {
-                x:2.4047,
-                y:-6.2222,
-                z:-27.292
-            },
-            3: {
-                x:3.25877,
-                y:-7.6755,
-                z:-22.40
+                x: 2,
+                y: -7,
+                z: -28
             },
             4: {
-                x:1.0234,
-                y:-9.2155,
-                z:21.691
+                x: -31.5,
+                y: 2,
+                z: -69
             },
-            readable: {
-                1: "Hill by A&J",
-                2: "Near statue at A&J",
-                3: "Hill by A&J",
-                4: "Boardwalk"
-            }
-        },
-        Plateau: {
-            1: {
-                x:26.7789,
-                y:-3.0295,
-                z:-23.85
-            },
-            2: {
-                x:35.30,
-                y:-2.96,
-                z:-45.07
+            5: {
+                x: -9,
+                y: -10,
+                z: 16.5
             },
             readable : {
-                1: "Plateau Entry",
-                2: "Top of Hill"
-            }
-        },
-        CityWalk: {
-            1: {
-                x:-23.48978,
-                y:-3.431381,
-                z:-41.3309
-            },
-            2: {
-                x:-10.348,
-                y:-4.2053,
-                z:-33.520
-            },
-            3: {
-                x:1.0234,
-                y:-9.2155,
-                z:21.691
-            },
-            readable: {
-                1: "Before Regalia",
-                2: "Near Regalia Entrance",
-                3: "Boardwalk"
+                1: "Car",
+                2: "Bus",
+                3: "Gate",
+                4: "Bush",
+                5: "Boardwalk"
             }
         }
     },

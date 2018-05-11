@@ -87,7 +87,7 @@
         },
         collisionWithEntity : function(myID, theirID, collision) {
             if (canBreak) {
-                var properties = Entities.getEntityProperties(myID, 'velocity', 'position');
+                var properties = Entities.getEntityProperties(myID, ['velocity', 'position']);
                 var velocity = properties.velocity;
                 var position = properties.position;
                 if (shouldBreak(velocity)) {

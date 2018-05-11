@@ -88,15 +88,11 @@
         <div class="content">
             <h4>Pick your zombie color</h4>
             <p><input type="button" class="color" value="Red" style="background: #e5110d;">
-                <input type="button" class="color" value="Purple" style="background: #af0de5;">
-                <input type="button" class="color" value="Pink" style="background: #e50dd7;"></p>
-            <p><input type="button" class="color" value="Teal" style="background: #049da3;">
-                <input type="button" class="color" value="Brick" style="background: #8a3335;">
-                <input type="button" class="color" value="Maroon" style="background: #800000;"></p>
-            <p><input type="button" class="color" value="Boardwalk" style="background: #ef5b0b;">
-                <input type="button" class="color" value="Generator" style="background: #0b1bef;">
-                <input type="button" class="color" value="Plateau" style="background: #0bef5f;"></p>
-            <p><input type="button" class="color" value="CityWalk" style="background: #bc9d03;"></p>
+            <input type="button" class="color" value="Purple" style="background: #af0de5;">
+            <input type="button" class="color" value="Orange" style="background: #ef5b0b;"> </p>
+            <input type="button" class="color" value="Blue" style="background: #0b1bef;">
+            <input type="button" class="color" value="Green" style="background: #0bef5f;">
+            <input type="button" class="color" value="Yellow" style="background: #bc9d03;"> <br>
             <h4>Locations:</h4>
             <p><input type="button" class="location" value="1" style="display: none"></p>
             <p><input type="button" class="location" value="2" style="display: none"></p>
@@ -110,33 +106,12 @@
             function main() {
                 var selectedColor = "";
                 $(".color").click(function() {
-                    console.log(this.value + " color selected");
                     selectedColor = this.value;
-                    if (selectedColor === "Red") {
-                        $("[value*='1']").show();
-                        $("[value*='2']").show();
-                        $("[value*='3']").show();
-                        $("[value*='4']").show();
-                        $("[value*='5']").show();
-                    } else if (selectedColor === "Maroon" || selectedColor === "Boardwalk" || selectedColor === "CityWalk") {
-                        $("[value*='1']").show();
-                        $("[value*='2']").show();
-                        $("[value*='3']").show();
-                        $("[value*='4']").hide();
-                        $("[value*='5']").hide();
-                    } else if (selectedColor === "Plateau") {
-                        $("[value*='1']").show();
-                        $("[value*='2']").show();
-                        $("[value*='3']").hide();
-                        $("[value*='4']").hide();
-                        $("[value*='5']").hide();
-                    } else {
-                        $("[value*='1']").show();
-                        $("[value*='2']").show();
-                        $("[value*='3']").show();
-                        $("[value*='4']").show();
-                        $("[value*='5']").hide();
-                    }
+                    $("[value*='1']").show();
+                    $("[value*='2']").show();
+                    $("[value*='3']").show();
+                    $("[value*='4']").show();
+                    $("[value*='5']").show();
                 });
                 $(".location").click(function() {
                     if (selectedColor !== "") {
