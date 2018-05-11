@@ -69,23 +69,23 @@
             var scale = myAvatarProperties.scale;
             var orientation = myAvatarProperties.orientation;
             var position = myAvatarProperties.position;
-            var REZ_OFFSET;
+            var rezOffset;
             if (cameraMode === "first person") {
-                REZ_OFFSET = {
+                rezOffset = {
                     x: 0.0,
                     y: 0.4,
                     z: -0.5
                 };
 
             } else {
-                REZ_OFFSET = {
+                rezOffset = {
                     x: 0.0,
                     y: 0.7,
                     z: -0.5
                 };
             }
-            REZ_OFFSET = Vec3.multiply(REZ_OFFSET, scale);
-            var newPosition = Vec3.sum(position, Vec3.multiplyQbyV(orientation, REZ_OFFSET));
+            rezOffset = Vec3.multiply(rezOffset, scale);
+            var newPosition = Vec3.sum(position, Vec3.multiplyQbyV(orientation, rezOffset));
             var newFoodProperties = JSON.parse(JSON.stringify(foodProperties));
             newFoodProperties.visible = true;
             newFoodProperties.collisionless = false;
