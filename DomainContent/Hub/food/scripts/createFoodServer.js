@@ -9,8 +9,6 @@
 // See accompanying license file or http://apache.org/
 //
 
-/* globals Entities, Uuid */
-
 (function(){
     var LIFETIME = 30; // seconds
     var CHECK_INTERVAL = LIFETIME * 100; // milliseconds
@@ -22,8 +20,8 @@
     var spawnFoodInterval;
     var foodArray = [];
     
-    var FoodSpawner = function(){
-        // nothing here
+    var FoodSpawner = function() {
+        /* nothing to put here */
     };
 
     FoodSpawner.prototype = {
@@ -75,16 +73,18 @@
             if (cameraMode === "first person") {
                 REZ_OFFSET = {
                     x: 0.0,
-                    y: 0.4 * scale,
-                    z: -0.5 * scale
+                    y: 0.4,
+                    z: -0.5
                 };
+
             } else {
                 REZ_OFFSET = {
                     x: 0.0,
-                    y: 0.7 * scale,
-                    z: -0.5 * scale
+                    y: 0.7,
+                    z: -0.5
                 };
             }
+            REZ_OFFSET = Vec3.multiply(REZ_OFFSET, scale);
             var newPosition = Vec3.sum(position, Vec3.multiplyQbyV(orientation, REZ_OFFSET));
             var newFoodProperties = JSON.parse(JSON.stringify(foodProperties));
             newFoodProperties.visible = true;

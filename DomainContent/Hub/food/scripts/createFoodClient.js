@@ -12,8 +12,6 @@
 // http://creativecommons.org/licenses/
 //
 
-/* globals Entities, SoundCache, Script */
-
 (function() {
 
     var Food = function() {};
@@ -21,7 +19,7 @@
     Food.prototype = {
 
         preload: function(entityID) {
-            /* nothing here */
+            /* nothing to put here */
         },
 
         mousePressOnEntity: function(entityID, mouseEvent) {
