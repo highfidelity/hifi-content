@@ -27,6 +27,8 @@
     };
 
     FoodSpawner.prototype = {
+        remotelyCallable: ['spawnFood'],
+
         preload: function(entityID) {
             if (DEBUG) {
                 print("preload for createFoodServer.js");
@@ -62,6 +64,35 @@
                 
             }, CHECK_INTERVAL);
         },
+
+        spawnFood: function(entityID, args) {
+            var cameraMode = args[0];
+            var myAvatarProperties = JSON.parse(args[1]);
+            var scale = myAvatarProperties.scale;
+            var orientation = myAvatarProperties.orientation;
+            var position = myAvatarProperties.position;
+            var REZ_OFFSET;
+            if (cameraMode === "first person") {
+                REZ_OFFSET = {
+                    x: 0.0,
+                    y: 0.4 * scale,
+                    z: -0.5 * scale
+                };
+            } else {
+                REZ_OFFSET = {
+                    x: 0.0,
+                    y: 0.7 * scale,
+                    z: -0.5 * scale
+                };
+            }
+            var newPosition = Vec3.sum(position, Vec3.multiplyQbyV(orientation, REZ_OFFSET));
+            var newFoodProperties = JSON.parse(JSON.stringify(foodProperties));
+            newFoodProperties.visible = true;
+            newFoodProperties.collisionless = false;
+            newFoodProperties.position = newPosition;
+            Entities.addEntity(newFoodProperties);
+        },
+
         unload: function() {
             if (DEBUG) {
                 print("unload createFoodServer.js");
