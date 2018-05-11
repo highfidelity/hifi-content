@@ -36,7 +36,7 @@
 
     // Helper function to see if the object is close to us
     var isWithinDistance = function (val1, val2) {
-        if (Math.abs(Math.abs(val1) - Math.abs(val2)) <= DISTANCE_WITHIN) {
+        if (Vec3.distance(val1, val2) <= DISTANCE_WITHIN) {
             return true;
         }
         return false;

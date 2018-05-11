@@ -16,13 +16,13 @@
 module.exports = {
 
     emojiLib: {
-        corn: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/corn.json?",
-        flower: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/flower.json?",
-        heart: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/heart.json?",
-        monster: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/monster.json?",
-        pickle: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/pickle.json?",
-        pizza: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/pizza.json?",
-        poo: "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/JSON_files/poo.json?"
+        corn: Script.resolvePath("JSON_files/corn.json"),
+        flower: Script.resolvePath("JSON_files/flower.json"),
+        heart: Script.resolvePath("JSON_files/heart.json"),
+        monster: Script.resolvePath("JSON_files/monster.json"),
+        pickle: Script.resolvePath("JSON_files/pickle.json"),
+        pizza: Script.resolvePath("JSON_files/pizza.json"),
+        poo: Script.resolvePath("JSON_files/poo.json")
     },
 
     getEmoji: function(name, library) {

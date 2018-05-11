@@ -14,7 +14,7 @@
 //
 
 (function () {
-    var GROWL_URL = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/behaviors/sounds/monster-growl.wav";
+    var GROWL_URL = Script.resolvePath("sounds/monster-growl.wav");
     var GROWL = SoundCache.getSound(Script.resolvePath(GROWL_URL));
 
     var _entityID;
