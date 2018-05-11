@@ -60,6 +60,12 @@
                     volume: AUDIO_VOLUME_LEVEL
                 });
             }
+        },
+
+        unload: function() {
+            MyAvatar.restoreRoleAnimation("walkFwd");
+            MyAvatar.restoreRoleAnimation("idleToWalkFwd");
+            MyAvatar.restoreRoleAnimation("walkBwdNormal");
         }
     };
   
