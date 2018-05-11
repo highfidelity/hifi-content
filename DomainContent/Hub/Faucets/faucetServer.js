@@ -27,6 +27,7 @@
             _this.entityID = entityID;
             sound = SoundCache.getSound(SOUND_URL);
             _this.on = Entities.getEntityProperties(_this.entityID, 'visible').visible;
+            Entities.editEntity(_this.entityID, {alpha: 1});
         },
         toggle: function(){
             _this.on ? _this.turnOff() : _this.turnOn();
