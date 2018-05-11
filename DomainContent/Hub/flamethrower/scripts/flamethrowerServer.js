@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {   
-    var FIREBALL_IMAGE = Script.resolvePath("../textures/fireball.jpg");
+    var FIREBALL_IMAGE = Script.resolvePath("../textures/sparkles.png");
     var END_FIRE_SOUND_1 = SoundCache.getSound(Script.resolvePath("../sounds/flamethrowerEndFire.wav"));
     var END_FIRE_SOUND_2 = SoundCache.getSound(Script.resolvePath("../sounds/flamethrowerEndFire2.wav"));
     var END_FIRE_SOUND_3 = SoundCache.getSound(Script.resolvePath("../sounds/flamethrowerEndFire3.wav"));

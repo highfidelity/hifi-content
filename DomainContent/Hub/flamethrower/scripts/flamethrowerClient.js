@@ -13,7 +13,7 @@ function exponentialSmoothing(target, current) {
 }
 
 (function() {       
-    var FIRING_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/flamethrowerFiring.wav"));
+    var FIRING_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/39048__ls__sparkles.wav"));
     var RAINBOW_IMAGE = Script.resolvePath("../textures/rainbow.png");
     var DESKTOP_HOW_TO_IMAGE_URL = Script.resolvePath("../textures/desktopFireUnequip.png");
     var DESKTOP_HOW_TO_IMAGE_WIDTH = 384;
@@ -310,7 +310,7 @@ function exponentialSmoothing(target, current) {
                         "z": -1.52587890625e-05
                     },
                     type: "Light"
-                }, clientOnly);
+                }, true);
             }
             
             if (firingSound !== null) {
@@ -617,7 +617,7 @@ function exponentialSmoothing(target, current) {
             
             var clientOnly = true;
             flameEntity = Entities.addEntity({
-                accelerationSpread: { x:5, y:5, z:5 },
+                accelerationSpread: { x:1, y:1, z:1 },
                 alpha: 0.4,
                 alphaStart: 0.1,
                 alphaFinish: 0.4,
@@ -625,7 +625,7 @@ function exponentialSmoothing(target, current) {
                 emitSpeed: 0,
                 emitterShouldTrail: true,
                 isEmitting: false,
-                lifespan: fireLifespan,
+                lifespan: 10,
                 localPosition: BARREL_LOCAL_OFFSET,
                 maxParticles: 500,
                 name: "Flamethrower Flame",
