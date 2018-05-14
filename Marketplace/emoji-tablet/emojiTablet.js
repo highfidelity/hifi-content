@@ -22,8 +22,7 @@ var library = Script.require(Script.resolvePath("emojiLib.js"));
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var isOpen = false;
 
-    var DISTANCE = 0.5;
-    var WANT_DEBUG = true;
+    var WANT_DEBUG = false;
 
     var button = tablet.addButton({
         icon: APP_ICON,

@@ -23,8 +23,7 @@
     var checkIfNearHead = function () {
         var position = Entities.getEntityProperties(_this.entityID, "position").position;
         var avatarHeadPosition = MyAvatar.getJointPosition("Head");
-        if (isWithinDistance(position.y, avatarHeadPosition.y) &
-            isWithinDistance(position.z, avatarHeadPosition.z)) {
+        if (Vec3.distance(position, avatarHeadPosition) <= DISTANCE_WITHIN) {
             playEatingEffect(position);
         }
     };
@@ -32,14 +31,6 @@
     var playEatingEffect = function (position) {
         Audio.playSound(CRUNCH, playback);
         Entities.deleteEntity(_this.entityID);
-    };
-
-    // Helper function to see if the object is close to us
-    var isWithinDistance = function (val1, val2) {
-        if (Vec3.distance(val1, val2) <= DISTANCE_WITHIN) {
-            return true;
-        }
-        return false;
     };
 
     Script.update.connect(checkIfNearHead);
