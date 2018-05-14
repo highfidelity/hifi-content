@@ -33,11 +33,11 @@ function filter(properties, filterType, originalProperties) {
         return properties; // do not delete anything without clone or temp in the name
     }
     if (filterType === Entities.EDIT_FILTER_TYPE) {
-        if (properties.name !== originalProperties.name || 
-            properties.modelURL !== originalProperties.modelURL || 
-            properties.script !== originalProperties.script ||
-            properties.serverScripts !== originalProperties.serverScripts || 
-            properties.textures !== originalProperties.textures) {
+        if (properties.name && properties.name !== originalProperties.name ||
+            properties.modelURL && properties.modelURL!== originalProperties.modelURL ||
+            properties.script && properties.script !== originalProperties.script ||
+            properties.serverScripts && properties.serverScripts !== originalProperties.serverScripts ||
+            properties.textures && properties.textures !== originalProperties.textures) {
             if (WANT_DEBUG) {
                 print("Filter violation: " + JSON.stringify(properties) + " contains an invalid property change");
             }
