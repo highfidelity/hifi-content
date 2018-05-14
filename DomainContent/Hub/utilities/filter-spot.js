@@ -9,15 +9,20 @@
 //
 
 function filter(properties, filterType, originalProperties) {
+    var WANT_DEBUG = false;
     var DELETE_QUALIFIERS = ['-clone', '-temp'];
 
     if (filterType === Entities.DELETE_FILTER_TYPE) {
         var name = originalProperties.name;
         var allowDelete = false;
-        print ("Filter: The name of the property being deleted is: " + name);
+        if (WANT_DEBUG) {
+            print ("Filter: The name of the property being deleted is: " + name);
+        }
         DELETE_QUALIFIERS.forEach(function(qualifier){
             if (name.indexOf(qualifier) !== -1) {
-                print ("Filter: This is an allowed removal");
+                if (WANT_DEBUG) {
+                    print ("Filter: This is an allowed removal");
+                }
                 allowDelete = true;
             }
         });
@@ -33,7 +38,9 @@ function filter(properties, filterType, originalProperties) {
             properties.script !== originalProperties.script ||
             properties.serverScripts !== originalProperties.serverScripts || 
             properties.textures !== originalProperties.textures) {
-            print("Filter violation: " + JSON.stringify(properties));
+            if (WANT_DEBUG) {
+                print("Filter violation: " + JSON.stringify(properties) + " contains an invalid property change");
+            }
             return false;
         }
     }
