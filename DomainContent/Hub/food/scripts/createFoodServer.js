@@ -35,7 +35,7 @@
                 ["position", "rotation", "dimensions", "modelURL", 
                     "name", "dimensions", "description", "userData"]);
             foodProperties = {
-                name: properties.name + "-clone",
+                name: properties.name + "-temp",
                 descript: properties.description,
                 type: "Model",
                 shapeType: "compound",
