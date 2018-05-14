@@ -12,7 +12,7 @@
 (function() {
     var VELOCITY_TO_BREAK = 2;
     var EMIT_TIME = 2000;
-    var breakURL = Script.resolvePath("sound/glass-break.wav");
+    var breakURL = Script.resolvePath("sound/glass-break2.wav");
     var breakSound = SoundCache.getSound(breakURL);
     var volumeLevel = 0.25;
     var canBreak = false;
@@ -61,23 +61,29 @@
             "azimuthStart":"-180",
             "azimuthFinish":"180"
         }, true);
-        Entities.editEntity(_entityID, {visible: false});
+        Entities.editEntity(_entityID, {visible: false, collidesWith: "", collisionless: true});
         Script.setTimeout(function() {
-            Entities.editEntity(splat, { isEmitting: false });
+            Entities.deleteEntity(splat);
             Entities.deleteEntity(_entityID);
         }, EMIT_TIME); 
     };
+
+    function makeFragile(){
+        Entities.editEntity(_entityID, {
+            collidesWith: "static,dynamic,kinematic,"
+        });
+        canBreak = true;
+    }
   
     PlatePiece.prototype = {
         preload: function(entityID) {
             _entityID = entityID;
         },
         startNearGrab: function() {
-            Entities.editEntity(_entityID, {
-                visible : true,
-                collidesWith: "static,dynamic,kinematic,"
-            });
-            canBreak = true;
+            makeFragile();
+        },
+        mousePressOnEntity: function() {
+            makeFragile();
         },
         collisionWithEntity : function(myID, theirID, collision) {
             if (canBreak) {
@@ -92,6 +98,7 @@
                         });
                     }
                     createParticles(position);
+                    canBreak = false;
                 }
             }
            
