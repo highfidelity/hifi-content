@@ -18,7 +18,7 @@ function filter(properties, filterType, originalProperties) {
         if (WANT_DEBUG) {
             print ("Filter: The name of the property being deleted is: " + name);
         }
-        DELETE_QUALIFIERS.forEach(function(qualifier){
+        DELETE_QUALIFIERS.forEach(function(qualifier) {
             if (name.indexOf(qualifier) !== -1) {
                 if (WANT_DEBUG) {
                     print ("Filter: This is an allowed removal");
