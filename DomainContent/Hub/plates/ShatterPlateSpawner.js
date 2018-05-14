@@ -13,19 +13,23 @@
     var CLIENT_SCRIPT_URL = Script.resolvePath("ShatterPlateClient.js");
     var SERVER_SCRIPT_URL = Script.resolvePath("ShatterPlateServer.js");
 
-    var INTERVAL = 2000;
+    var PLATE_MODEL_URL = Script.resolvePath("plate-whole.fbx");
+    var PLATE_COLLISION_HULL_URL = Script.resolvePath("plate-whole-hub.obj");
+
+    var INTERVAL = 5000;
     var DISTANCE = 0.5;
 
-    var PLATE_DIMENSIONS = {x: 0.4657, y: 0.0141, z: 0.4657};
+    var PLATE_DIMENSIONS = {x: 0.4040, y: 0.0303, z: 0.4040};
+    var POSITION_Y_OFFSET = 0.1;
 
     var position;
 
-    var dishProperties;
+    var dishProperties = {};
 
     function checkClonesAndUpdate() {
         var count = 0;
         var found = Entities.findEntities(position, DISTANCE);
-        found.forEach(function(foundEntity){
+        found.forEach(function(foundEntity) {
             var name = Entities.getEntityProperties(foundEntity, 'name').name;
             if (name === "Plate") {
                 count++;
@@ -42,16 +46,18 @@
 
     PlateSpawner.prototype = {
         preload: function(entityID) {
-            dishProperties = Entities.getEntityProperties(entityID, ['position', 'modelURL']);
+            position = Entities.getEntityProperties(entityID, 'position').position;
+            dishProperties.position = { x: position.x, y: position.y + POSITION_Y_OFFSET, z: position.z};
             dishProperties.name = "Plate";
-            dishProperties.visible = false;
+            dishProperties.type = "Model";
+            dishProperties.modelURL = PLATE_MODEL_URL;
             dishProperties.script = CLIENT_SCRIPT_URL;
             dishProperties.serverScripts = SERVER_SCRIPT_URL;
             dishProperties.dimensions = PLATE_DIMENSIONS;
             dishProperties.gravity = {x:0, y: -4, z: 0};
             dishProperties.userData = "{\"grabbableKey\":{\"grabbable\":true}}";
             dishProperties.shapeType = "Compound";
-            dishProperties.compoundShapeURL = "atp:/plate-whole-hub.obj",
+            dishProperties.compoundShapeURL = PLATE_COLLISION_HULL_URL,
             dishProperties.dynamic = true,
             dishProperties.collidesWith = "";
             dishProperties.friction = 0.9;
