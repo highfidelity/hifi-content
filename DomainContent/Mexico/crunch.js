@@ -23,11 +23,11 @@
         var foodDistance = CHECK_RADIUS * MyAvatar.scale;
         if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < foodDistance || 
             Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < foodDistance) {
-            playEatingEffect(position);
+            playEatingEffect();
         }
     };
 
-    var playEatingEffect = function(position) {
+    var playEatingEffect = function() {
         injector = Audio.playSound(CRUNCH, {volume: VOLUME, position: MyAvatar.getJointPosition("Head")});
         Entities.deleteEntity(_this.entityID);
     };
