@@ -47,7 +47,7 @@
     };
 
     this.mousePressOnEntity = function(entityID, mouseEvent) {
-        Entities.addEntity(churro, true);
+        Entities.addEntity(churro);
     };
 
 });
