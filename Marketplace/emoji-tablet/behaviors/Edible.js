@@ -29,7 +29,7 @@
     var checkIfNearHead = function () {
         var position = Entities.getEntityProperties(_this.entityID, 'position').position;
         var avatarHeadPosition = MyAvatar.getJointPosition("Head");
-        if (Vec3.distance(position, avatarHeadPosition) >= DISTANCE_WITHIN) {
+        if (Vec3.distance(position, avatarHeadPosition) <= DISTANCE_WITHIN) {
             playEatingEffect(position);
         }
     };
