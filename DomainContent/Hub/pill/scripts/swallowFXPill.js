@@ -96,6 +96,7 @@
                 print("starting pill grab");
             }
             var editJSON = {
+                name: "space-pill-temp",
                 visible: true,
                 lifetime: -1,
                 dynamic: true,
