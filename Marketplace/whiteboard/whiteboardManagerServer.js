@@ -341,7 +341,7 @@
             // we haven't found the polyline
             if (currentIndex === -1) {
                 // build new polyline by starting a new stroke
-                _this.startMarkerStroke(params);
+                _this.startMarkerStroke(params, null);
                 return;
             }
 
@@ -396,8 +396,9 @@
 
             // if reached max number finish line
             if (linePoints.length > MAX_POINTS_PER_STROKE) {
+                var prev = strokesInProgress[currentIndex];
                 _this.clampStroke(currentIndex);
-                _this.startMarkerStroke(params);
+                _this.startMarkerStrokeDesktop(params, prev);
             }
 
         },
@@ -407,7 +408,7 @@
         /// 
         /// @param {object} param parameters passed as an array of string 
         /// with the properties of the polyline [position, markerColor, creatorMarker, parentID]
-        startMarkerStroke: function (params) {
+        startMarkerStroke: function (params, previousLine) {
             var newStroke = Entities.addEntity({
                 type: "PolyLine",
                 name: _this.STROKE_NAME,
@@ -424,12 +425,16 @@
                 })
             });
 
-            linePointsInProgress.push([]);
-            normalsInProgress.push([]);
-            strokesInProgress.push(newStroke);
-            strokeBasePositionInProgress.push(utils.parseJSON(params[0]));
-            // continue to expand newly created polyline
-            _this.paint(_this.entityID, params);
+            if (previousLine !== null) {
+                _this.bridge(newStroke, previousLine);
+            } else {
+                linePointsInProgress.push([]);
+                normalsInProgress.push([]);
+                strokesInProgress.push(newStroke);
+                strokeBasePositionInProgress.push(utils.parseJSON(params[0]));
+                // continue to expand newly created polyline
+                _this.paint(_this.entityID, params);
+            }
         },
         clampStroke: function (currentIndex) {
             strokes.push(strokesInProgress[currentIndex]);
