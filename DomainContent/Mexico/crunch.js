@@ -8,14 +8,18 @@
 //
 (function () {
     var CRUNCH_SOUND_URL = Script.resolvePath("./sounds/Apple_Bite-Simon_Craggs-1683647397.wav");
-    var CRUNCH = SoundCache.getSound(Script.resolvePath(CRUNCH_SOUND_URL));
+    var CRUNCH;
     var VOLUME = 0.5;
     var CHECK_RADIUS = 0.1;
+    var INTERVAL = 100; // milliseconds
+
+    var checkInterval;
     var injector;
     var _this = this;
 
     _this.preload = function(entityID) {
         _this.entityID = entityID;
+        CRUNCH = SoundCache.getSound(Script.resolvePath(CRUNCH_SOUND_URL));
     };
 
     var checkIfNearHead = function() {
@@ -32,13 +36,9 @@
         Entities.deleteEntity(_this.entityID);
     };
 
-    Script.update.connect(checkIfNearHead);
+    checkInterval = Script.setInterval(checkIfNearHead, INTERVAL);
 
     _this.unload = function(entityID) {
-        if (injector) {
-            injector.stop();
-            injector = null;
-        }
-        Script.update.disconnect(checkIfNearHead);
+        Script.clearInterval(checkInterval);
     };
 });
