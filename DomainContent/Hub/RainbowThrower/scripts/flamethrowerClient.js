@@ -13,7 +13,7 @@ function exponentialSmoothing(target, current) {
 }
 
 (function() {       
-    var FIRING_SOUND = SoundCache.getSound(Script.resolvePath("sounds/39048__ls__sparkles.wav"));
+    var FIRING_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/39048__ls__sparkles.wav"));
     var RAINBOW_IMAGE = Script.resolvePath("../textures/rainbow.png");
     var DESKTOP_HOW_TO_IMAGE_URL = Script.resolvePath("../textures/desktopFireUnequip.png");
     var DESKTOP_HOW_TO_IMAGE_WIDTH = 384;
@@ -364,6 +364,7 @@ function exponentialSmoothing(target, current) {
             }
             var firingVolume = this.getFiringVolume();
             var barrelPosition = this.getBarrelPosition();
+            
             firingSound = Audio.playSound(FIRING_SOUND, {
                 volume: firingVolume,
                 position: barrelPosition,
