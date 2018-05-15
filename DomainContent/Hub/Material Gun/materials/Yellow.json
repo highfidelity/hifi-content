@@ -1,0 +1,7 @@
+{
+  "materialVersion": 1,
+  "materials": {
+    "model": "hifi_pbr",
+    "albedoMap": "https://hifi-content.s3.amazonaws.com/liv/dev/Materials/Colors/yellow.png"
+  }
+}
