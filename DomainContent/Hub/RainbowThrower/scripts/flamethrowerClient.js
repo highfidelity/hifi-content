@@ -47,6 +47,7 @@ function exponentialSmoothing(target, current) {
     var NOZZLE_LIGHT = false;
     var DEBUG_FIRING = false;
     var LIFETIME = 30;
+    var Y_OFFSET_FOR_WINDOW = 24;
     
     var _this;
     var currentHand = null;
@@ -364,7 +365,7 @@ function exponentialSmoothing(target, current) {
             }
             var firingVolume = this.getFiringVolume();
             var barrelPosition = this.getBarrelPosition();
-            
+
             firingSound = Audio.playSound(FIRING_SOUND, {
                 volume: firingVolume,
                 position: barrelPosition,
@@ -496,7 +497,7 @@ function exponentialSmoothing(target, current) {
                 desktopHowToOverlay = Overlays.addOverlay("image", {
                     imageURL: DESKTOP_HOW_TO_IMAGE_URL,
                     x: 0,
-                    y: windowHeight - DESKTOP_HOW_TO_IMAGE_HEIGHT - 24,
+                    y: windowHeight - DESKTOP_HOW_TO_IMAGE_HEIGHT - Y_OFFSET_FOR_WINDOW,
                     width: DESKTOP_HOW_TO_IMAGE_WIDTH,
                     height: DESKTOP_HOW_TO_IMAGE_HEIGHT,
                     alpha: 1.0,
