@@ -20,6 +20,7 @@
     _this.preload = function(entityID) {
         _this.entityID = entityID;
         CRUNCH = SoundCache.getSound(Script.resolvePath(CRUNCH_SOUND_URL));
+        checkInterval = Script.setInterval(checkIfNearHead, INTERVAL);
     };
 
     var checkIfNearHead = function() {
@@ -35,8 +36,6 @@
         injector = Audio.playSound(CRUNCH, {volume: VOLUME, position: MyAvatar.getJointPosition("Head")});
         Entities.deleteEntity(_this.entityID);
     };
-
-    checkInterval = Script.setInterval(checkIfNearHead, INTERVAL);
 
     _this.unload = function(entityID) {
         Script.clearInterval(checkInterval);
