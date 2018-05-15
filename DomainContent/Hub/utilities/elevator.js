@@ -13,6 +13,9 @@
     var pointB = {x: -9.6362, y: -13.733, z: 5.1167};
     var pauseTime = 4; // seconds
     var MOVE_TIME = 5;
+
+    var movingIntervalGlobal = (pauseTime + MOVE_TIME) * 1000;
+
     var goingUp = false;
     var _entityID;
     this.preload = function(entityID) {
@@ -20,7 +23,7 @@
         Script.setInterval(function() {
             movePlatform(goingUp);
             goingUp = !goingUp;
-        }, (pauseTime + MOVE_TIME) * 1000);
+        }, movingIntervalGlobal);
     };
   
     var movePlatform = function(isGoingUp) {
@@ -29,6 +32,8 @@
         var moveTime = MOVE_TIME;
         var moveDirection = Vec3.subtract(to , from);
         var moveVelocity = Vec3.multiply(moveDirection, 1 / moveTime);
+        var movingSingleDirectionInterval = moveTime * 1000;
+
         Entities.editEntity(_entityID, {
             velocity: moveVelocity,
             position: from,
@@ -40,7 +45,7 @@
                 velocity: {x: 0, y: 0, z: 0},
                 position: to
             });
-        }, moveTime * 1000);
+        }, movingSingleDirectionInterval);
 
     };
 });
