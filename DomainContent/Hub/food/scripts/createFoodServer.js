@@ -11,15 +11,35 @@
 
 (function(){
     var LIFETIME = 30; // seconds
-    var CHECK_INTERVAL = LIFETIME * 100; // milliseconds
     var CRUNCH_SCRIPT = Script.resolvePath("./crunch.js");
-    var MAX_FOOD = 5;
+    var INTERVAL = 5000;
+    var DISTANCE = 0.5;
     var DEBUG = false;
 
     var foodProperties; 
-    var spawnFoodInterval;
-    var foodArray = [];
+    var originalFoodName;
     
+    function checkClonesAndUpdate() {
+        var count = 0;
+        var found = Entities.findEntities(foodProperties.position, DISTANCE);
+        found.forEach(function(foundEntity) {
+            var name = Entities.getEntityProperties(foundEntity, 'name').name;
+            var tempName = originalFoodName + "-temp";
+            if (DEBUG) {
+                print("temp name is: " + tempName);
+            }
+            if (name === tempName) {
+                count++;
+            }
+        });
+        if (count === 0) {
+            if (DEBUG) {
+                print("adding replacement burger");
+            }
+            Entities.addEntity(foodProperties);
+        }
+    }
+
     var FoodSpawner = function() {
         /* nothing to put here */
     };
@@ -34,6 +54,7 @@
             var properties = Entities.getEntityProperties(entityID, 
                 ["position", "rotation", "dimensions", "modelURL", 
                     "name", "dimensions", "description", "userData"]);
+            originalFoodName = properties.name;
             foodProperties = {
                 name: properties.name + "-temp",
                 descript: properties.description,
@@ -52,15 +73,8 @@
                 grabbable: true,
                 userData: properties.userData
             };        
-            spawnFoodInterval = Script.setInterval(function() {
-                if (foodArray.length < MAX_FOOD) {
-                    var foodID = Entities.addEntity(foodProperties);
-                    foodArray.push(foodID);
-                } else {
-                    foodArray.pop();
-                }
-                
-            }, CHECK_INTERVAL);
+
+            Script.setInterval(checkClonesAndUpdate, INTERVAL);
         },
 
         spawnFood: function(entityID, args) {
@@ -97,7 +111,7 @@
             if (DEBUG) {
                 print("unload createFoodServer.js");
             }
-            Script.clearInterval(spawnFoodInterval);
+            Script.clearInterval(checkClonesAndUpdate);
         }
     };
 
