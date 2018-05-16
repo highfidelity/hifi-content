@@ -58,38 +58,42 @@
                 position: _this.position,
                 description: "CC-BY Sebastien Labrunie",
                 rotation: Quat.fromVec3Degrees({ x:0, y: -90, z: 0 }),
-                serverScripts: Script.resolvePath("materialSwapGunServer.js?107"),
+                serverScripts: Script.resolvePath("materialSwapGunServer.js"),
                 shapeType: "simple-compound",
                 type: "Model",
                 userData: JSON.stringify({
                     grabbableKey: { invertSolidWhileHeld: true },
                     wearable: { joints: {
-                        RightHand: [{
-                            x:0.07079616189002991,
-                            y:0.20177987217903137,
-                            z:0.06374628841876984
-                        },
-                        {
-                            x:-0.5863648653030396,
-                            y:-0.46007341146469116,
-                            z:0.46949487924575806,
-                            w:-0.4733745753765106
-                        }],
-                        LeftHand: [{
-                            x:0.1802254319190979,
-                            y:0.13442856073379517,
-                            z:0.08504903316497803
-                        },
-                        {
-                            x:0.2198076844215393,
-                            y:-0.7377811074256897,
-                            z:0.2780133783817291,
-                            w:0.574519157409668
-                        }]
+                        RightHand: [
+                            {
+                                x:0.07079616189002991,
+                                y:0.20177987217903137,
+                                z:0.06374628841876984
+                            },
+                            {
+                                x:-0.5863648653030396,
+                                y:-0.46007341146469116,
+                                z:0.46949487924575806,
+                                w:-0.4733745753765106
+                            }
+                        ],
+                        LeftHand: [
+                            {
+                                x:0.1802254319190979,
+                                y:0.13442856073379517,
+                                z:0.08504903316497803
+                            },
+                            {
+                                x:0.2198076844215393,
+                                y:-0.7377811074256897,
+                                z:0.2780133783817291,
+                                w:0.574519157409668
+                            }
+                        ]
                     }
                     }
                 }),
-                script: Script.resolvePath("materialSwapGun.js?107")
+                script: Script.resolvePath("materialSwapGun.js")
             });
 
             var gunUserData = JSON.parse(Entities.getEntityProperties(gun, 'userData').userData);
