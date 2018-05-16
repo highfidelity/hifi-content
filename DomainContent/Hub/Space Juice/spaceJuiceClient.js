@@ -59,7 +59,7 @@
             _this.entityID = entityID;
             _this.position = Entities.getEntityProperties(_this.entityID, 'position').position;
             Entities.findEntities(_this.position, SEARCH_RADIUS).forEach(function(element){
-                var name= Entities.getEntityProperties(element, 'name').name;
+                var name = Entities.getEntityProperties(element, 'name').name;
                 if (name === "space juice spawner") {
                     spawner = element;
                 }
@@ -71,7 +71,7 @@
             });
         },
 
-        collisionWithEntity : function(myID, theirID, collision) {
+        collisionWithEntity: function(myID, theirID, collision) {
             var properties = Entities.getEntityProperties(myID, ['velocity', 'position']);
             if (properties.velocity) {
                 if (shouldBreak(properties.velocity)) {
@@ -127,7 +127,7 @@
             if (interval) {
                 Script.clearInterval(interval);
             }
-            if (JSON.stringify(mouseEvent) === "[]") { // this was originated fromm a mouse click rather than a nearGrab
+            if (JSON.stringify(mouseEvent) === "[]") {
                 Entities.deleteEntity(_this.entityID);
             }
             if (canCreateNew) {
@@ -198,7 +198,7 @@
                         name: 'Drunk Zone',
                         hazeMode: 'enabled',
                         haze: {
-                            hazeColor:{
+                            hazeColor: {
                                 red: 215,
                                 green: 217,
                                 blue: 167
@@ -206,7 +206,7 @@
                             hazeRange: 1000,
                             hazeBackgroundBlend: 0.9
                         },
-                        dimensions: {x: 0.5, y: 2, z: 0.5},
+                        dimensions: { x: 0.5, y: 2, z: 0.5 },
                         lifetime: LIFETIME,
                         parentID: MyAvatar.sessionUUID,
                         parentJointIndex: 0,

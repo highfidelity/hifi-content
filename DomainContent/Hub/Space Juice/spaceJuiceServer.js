@@ -9,7 +9,6 @@
 //
 /* globals Entities */
 (function(){
-  
     var PIECE_MODEL = Script.resolvePath("models/shot-glass-fragment.fbx");
     var NUMBER_PIECES = 3;
     var pieces = Array();
@@ -19,9 +18,9 @@
     };
   
     Glass.prototype = {
-        remotelyCallable : ['breakGlass'],
+        remotelyCallable: ['breakGlass'],
 
-        preload: function(entityID){
+        preload: function(entityID) {
             _entityID = entityID;
             for (var i = 0; i < NUMBER_PIECES; i++) {
                 pieces.push(Entities.addEntity({
@@ -38,9 +37,9 @@
             }
         },
 
-        breakGlass : function(){
+        breakGlass: function() {
             var velocity = Entities.getEntityProperties(_entityID, 'velocity').velocity;
-            pieces.forEach(function(element){
+            pieces.forEach(function(element) {
                 Entities.editEntity(element, {
                     visible: true,
                     dynamic: true,
