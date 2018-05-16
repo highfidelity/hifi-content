@@ -11,7 +11,7 @@
 
 (function() {
     var VELOCITY_TO_BREAK = 2;
-    var breakURL = Script.resolvePath('sound/glass-break.wav');
+    var breakURL = Script.resolvePath('sound/glass-break1.wav');
     var breakSound = SoundCache.getSound(breakURL);
     var volumeLevel = 0.65;
     var _entityID;
@@ -22,16 +22,22 @@
       Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
       Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
     };
+
+    function makeFragile() {
+        Entities.editEntity(_entityID, {
+            collidesWith: "static,dynamic,kinematic,"
+        });
+    }
   
     Plate.prototype = {
         preload: function(entityID) {
             _entityID = entityID;
         },
         startNearGrab: function() {
-            Entities.editEntity(_entityID, {
-                visible : true,
-                collidesWith: "static,dynamic,kinematic,"
-            });
+            makeFragile();
+        },
+        mousePressOnEntity: function() {
+            makeFragile();
         },
         collisionWithEntity : function(myID, theirID, collision) {
             var velocity = Entities.getEntityProperties(myID, 'velocity').velocity;
@@ -39,18 +45,6 @@
                 if (breakSound.downloaded) {
                     Audio.playSound(breakSound, {
                         volume: volumeLevel,
-                        position: Entities.getEntityProperties(myID, 'position').position
-                    });
-                }
-                Entities.callEntityServerMethod(myID, 'breakPlate', '');
-            }
-        },
-        enterEntity: function(myID) {
-            var velocity = Entities.getEntityProperties(myID, 'velocity').velocity;
-            if (shouldBreak(velocity)) {
-                if (breakSound.downloaded) {
-                    Audio.playSound(breakSound, {
-                        volume: 1.0,
                         position: Entities.getEntityProperties(myID, 'position').position
                     });
                 }
