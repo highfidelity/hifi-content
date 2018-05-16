@@ -368,11 +368,6 @@
                 MyAvatar.setBlendshape(blendshape, DEFAULT[blendshape]);
             }
             MyAvatar.hasScriptedBlendshapes = false;
-            print('blendshapes set to normal');
-            Script.setTimeout(function() {
-                print('haxxxx');
-            }, 100);
-            
         }
     });
 
