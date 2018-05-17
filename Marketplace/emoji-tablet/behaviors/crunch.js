@@ -6,25 +6,25 @@
 // Crunch sound from soundbible.com
 // License: Attribution 3.0 | Recorded by Simon Craggs
 //
+
 (function () {
-    var CRUNCH_SOUND_URL = "https://hifi-content.s3.amazonaws.com/liv/dev/emojis/Apple_Bite-Simon_Craggs-1683647397.wav";
-    var CRUNCH = SoundCache.getSound(Script.resolvePath(CRUNCH_SOUND_URL));
+    var CRUNCH_SOUND_URL = Script.resolvePath("./sounds/Apple_Bite-Simon_Craggs-1683647397.wav");
+    var CRUNCH;
     var playback;
     var SOUND_VOLUME = 0.5;
     var DISTANCE_WITHIN = 0.1;
     var _this = this;
 
-
     _this.preload = function (entityID) {
         _this.entityID = entityID;
+        CRUNCH = SoundCache.getSound(Script.resolvePath(CRUNCH_SOUND_URL));
         playback = {volume: SOUND_VOLUME, position: Entities.getEntityProperties(_this.entityID, "position").position};
     };
 
-    var checkIfNearHead = function () {
-        var position = Entities.getEntityProperties(_this.entityID, "position").position;
-        var avatarHeadPosition = MyAvatar.getJointPosition("Head");
-        if (isWithinDistance(position.y, avatarHeadPosition.y) &
-            isWithinDistance(position.z, avatarHeadPosition.z)) {
+    var checkIfNearHead = function() {
+        var position = Entities.getEntityProperties(_this.entityID, 'position').position;
+        if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < DISTANCE_WITHIN ||
+            Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < DISTANCE_WITHIN) {
             playEatingEffect(position);
         }
     };
@@ -34,15 +34,8 @@
         Entities.deleteEntity(_this.entityID);
     };
 
-    // Helper function to see if the object is close to us
-    var isWithinDistance = function (val1, val2) {
-        if (Math.abs(Math.abs(val1) - Math.abs(val2)) <= DISTANCE_WITHIN) {
-            return true;
-        }
-        return false;
-    };
-
     Script.update.connect(checkIfNearHead);
+
     _this.unload = function (entityID) {
         Script.update.disconnect(checkIfNearHead);
     };
