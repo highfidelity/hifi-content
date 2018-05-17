@@ -1,0 +1,50 @@
+{
+  "type": "Model",
+  "name": "Monster",
+  "modelURL": "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/models/monster_walk.fbx",
+  "animation": {
+    "running": 1,
+    "url": "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/models/monster_walk.fbx"
+  },
+  "position": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+  },
+  "registrationPoint": {
+    "x": 0.5,
+    "y": 0,
+    "z": 0.5
+  },
+  "dimensions": {
+    "x": 0.37871584296226501,
+    "y": 0.57074481248855591,
+    "z": 0.38753652572631836
+  },
+  "dynamic": true,
+  "angularVelocity": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+  },
+  "angularDamping": 1,
+  "linearDamping": 0,
+  "velocity": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+  },
+  "gravity": {
+    "x": 0,
+    "y": -9.8,
+    "z": 0
+  },
+  "friction": 0,
+  "damping": 0,
+  "lifetime": 30,
+  "grabbable": true,
+  "collisionless": false,
+  "script": "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/behaviors/monster_walk.js",
+  "serverScripts": "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/behaviors/monster_growl.js",
+  "shapeType": "Box"
+}
