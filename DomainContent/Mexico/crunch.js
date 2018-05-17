@@ -14,7 +14,7 @@
     var INTERVAL = 100; // milliseconds
 
     var checkInterval;
-    var injector;
+    var injector = null;
     var _this = this;
 
     _this.preload = function(entityID) {
@@ -24,11 +24,16 @@
     };
 
     var checkIfNearHead = function() {
-        var position = Entities.getEntityProperties(_this.entityID, "position").position;
-        var foodDistance = CHECK_RADIUS * MyAvatar.scale;
-        if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < foodDistance || 
-            Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < foodDistance) {
-            playEatingEffect();
+        if (!injector) {
+            var position = Entities.getEntityProperties(_this.entityID, "position").position;
+            var foodDistance = CHECK_RADIUS * MyAvatar.scale;
+            if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < foodDistance || 
+                Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < foodDistance) {
+                playEatingEffect();
+                injector.finished.connect(function() {
+                    injector = null;
+                });
+            }
         }
     };
 
