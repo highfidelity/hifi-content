@@ -20,6 +20,7 @@
     var HALF = 0.5;
     var OVERLAY_PREFIX = 'MP';
     var TRANSFORMS_SETTINGS = 'io.highfidelity.avatarStore.checkOut.transforms';
+    var IN_CHECKOUT_SETTINGS = 'io.highfidelity.avatarStore.checkOut.isInside';
     var ENTER_ZONE_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/sound5.wav"));
     var APP_NAME = "CHECKOUT";
     var APP_URL = "https://hifi-content.s3.amazonaws.com/rebecca/CheckoutZone/CheckoutWelcome.html";
@@ -28,7 +29,7 @@
     
     var TABLET = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var TABLET_ROTATIONAL_OFFSET = { x: 10, y: 220, z: 0 };
-    var MARKETPLACE_WALLET_QML_PATH = Script.resourcesPath() + "qml/hifi/commerce/wallet/Wallet.qml";
+    var MARKETPLACE_WALLET_QML_PATH = "hifi/commerce/wallet/Wallet.qml";
     // Milliseconds
     var TRANSLATION_CHECK_INTERVAL = 100;
     var SHORTER_STOP_TIMEOUT = 1000;
@@ -47,6 +48,10 @@
     var replicaStoredTransforms = {};
     var yOffset, zOffset, xOffset;
     var scannerPosition;
+
+    var setInCheckoutZoneSetting = function(isInside) {
+        Settings.setValue(IN_CHECKOUT_SETTINGS, isInside);
+    };
 
     this.preload = function(entityID) {
         zoneID = entityID;
@@ -249,7 +254,7 @@
         });
         HMD.openTablet(true);
         function onClicked() {
-            TABLET.gotoWebScreen(APP_URL); 
+            TABLET.gotoWebScreen(APP_URL);
         }
         button.clicked.connect(onClicked);
         if (HMD.active) {
@@ -267,7 +272,7 @@
     });
   
     _this.enterEntity = (function (entityID) {
-        
+        setInCheckoutZoneSetting(true);
         replicaList = [];
         collectZoneData();
         if (ENTER_ZONE_SOUND.downloaded) {
@@ -334,6 +339,7 @@
     });
       
     _this.leaveEntity = function() {
+        setInCheckoutZoneSetting(false);
         Entities.callEntityMethod(recycleBinID, 'exitCheckout');
         Entities.callEntityMethod(scannerZone, 'exitCheckout');
         isInZone = false;

@@ -6,13 +6,15 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+/* global module */
 
 module.exports = (function() {
     var APP_NAME = 'WEAR';
     var WEAR_TUTORIAL_CHANNEL = 'com.highfidelity.wear.tutorialChannel';
     var HTML_PATH = Script.resolvePath('html');
     var APP_URL = HTML_PATH + '/wearApp.html';
-    var APP_ICON = HTML_PATH + '/img/WearAppIconWhite.svg';
+    var APP_ICON_INACTIVE = HTML_PATH + '/img/WearAppIconWhite.svg';
+    var APP_ICON_ACTIVE = HTML_PATH + '/img/WearAppIconBlack.svg';
     var ATTACHMENT_SEARCH_RADIUS = 100; // meters (just in case)
     var TUTORIAL_URLS = {
         ADJUST: HTML_PATH + '/wearTutorialAdjust.html',
@@ -30,11 +32,13 @@ module.exports = (function() {
     var isTutorialActive = false;
     var activeTutorialURL = null;
     var selectedAvatarEntity = null;
+    var lastAttachedEntities = [];
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
     var button = tablet.addButton({
         text: APP_NAME,
-        icon: APP_ICON
+        icon: APP_ICON_INACTIVE,
+        activeIcon: APP_ICON_ACTIVE
     });
 
     // Check for first time settings being reset
@@ -76,7 +80,10 @@ module.exports = (function() {
 
     var sendUpdate = function() {
         var attachments = {};
-        getAttachedModelEntities().forEach(function(entityID) {
+
+        lastAttachedEntities = getAttachedModelEntities();
+
+        lastAttachedEntities.forEach(function(entityID) {
             var properties = Entities.getEntityProperties(entityID, ['name', 'modelURL', 'parentJointIndex']);
 
             var label;
@@ -90,7 +97,12 @@ module.exports = (function() {
         });
 
         var properties = null;
-        if (Object.keys(attachments).length > 0 && (selectedAvatarEntity === null || selectedAvatarEntity === '')) {
+        var attachmentsCount = Object.keys(attachments).length;
+        if (attachmentsCount === 0) {
+            selectedAvatarEntity = null;
+        } else if (attachmentsCount > 0 && (selectedAvatarEntity === null || selectedAvatarEntity === '' ||
+                                            lastAttachedEntities.indexOf(selectedAvatarEntity) === -1)) {
+
             selectedAvatarEntity = Object.keys(attachments)[0];
         }
 
@@ -135,6 +147,12 @@ module.exports = (function() {
 
     var onAddingEntity = function(entityID) {
         if (isEntityBeingWorn(entityID)) {
+            sendUpdate();
+        }
+    };
+
+    var onDeletingEntity = function(entityID) {
+        if (lastAttachedEntities.indexOf(entityID) !== -1) {
             sendUpdate();
         }
     };
@@ -200,7 +218,9 @@ module.exports = (function() {
             return;
         }
         tablet.gotoWebScreen(APP_URL);
+        button.editProperties({ isActive: true });
         Entities.addingEntity.connect(onAddingEntity);
+        Entities.deletingEntity.connect(onDeletingEntity);
         Entities.clickReleaseOnEntity.connect(onClickReleaseOnEntity);
         isAppActive = true;
         if (HMD.active) {
@@ -217,6 +237,7 @@ module.exports = (function() {
     var onTabletScreenChanged = function(type, url) {
         if (isAppActive && url !== APP_URL) {
             Entities.addingEntity.disconnect(onAddingEntity);
+            button.editProperties({ isActive: false });
             isAppActive = false;
             if (HMD.active) {
                 makeClientEntitiesGrabbable(false);
@@ -261,7 +282,8 @@ module.exports = (function() {
 
     button.clicked.connect(function() {
         if (isAppActive) {
-            // skipping, app is already active
+            tablet.gotoHomeScreen();
+            onTabletScreenChanged();
             return;
         }
 
@@ -290,6 +312,7 @@ module.exports = (function() {
                 makeClientEntitiesGrabbable(false);
             }
             Entities.addingEntity.disconnect(onAddingEntity);
+            Entities.deletingEntity.disconnect(onDeletingEntity);
             Entities.clickReleaseOnEntity.disconnect(onClickReleaseOnEntity);
         }
     };

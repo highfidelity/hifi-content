@@ -13,6 +13,7 @@ Contributing
   ```
 4. Code
   * Follow the [coding standard](https://docs.highfidelity.com/build-guide/coding-standards)
+  * Install and configure [ESLINT](https://eslint.org/) for your editor to apply formatting for scripts 
 5. Commit
   * Use well formed commit messages
 6. Update your branch
@@ -31,3 +32,11 @@ Contributing
 8. Submit a pull request
 
   *You can follow [GitHub's guide](https://help.github.com/articles/creating-a-pull-request) to find out how to create a pull request.*
+  In your pull request, please include a brief test plan that can be run to validate the changes that you've made in your PR.
+
+LFS
+===
+Certain file types in hifi-content are tracked by [Git Large File Storage (LFS)](https://git-lfs.github.com/) Install LFS on your development machine to ensure the following file types are tracked properly: 
+* OBJ
+* FBX
+* WAV
