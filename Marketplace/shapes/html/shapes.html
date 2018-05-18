@@ -1,0 +1,43 @@
+﻿<!--
+shapes.html
+  
+Created by David Rowe on 14 May 2018.
+Copyright 2018 High Fidelity, Inc.
+  
+Distributed under the Apache License, Version 2.0.
+See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Shapes</title>
+    <link rel="stylesheet" type="text/css" href="shapes.css" />
+</head>
+<body>
+    <h1>Shapes</h1>
+
+    <hr />
+
+    <div id="icon" class="off">
+        <img id="logo" src="../assets/shapes-i.svg" />
+        <p id="label">SHAPES</p>
+    </div>
+
+    <p class="blurb">Create and edit domain content in VR.</p>
+
+    <input id="toggle-active" type="button" class="off" value="TURN ON SHAPES" />
+
+    <script>
+        var script = document.createElement("script");
+        script.onload = function () {
+            ui.onLoad();
+            document.getElementsByTagName("body")[0].setAttribute("onunload", "ui.onUnload()");
+        }
+        script.src = "shapes.js";
+        document.getElementsByTagName("head")[0].appendChild(script);
+    </script>
+</body>
+</html>

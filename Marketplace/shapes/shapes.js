@@ -18,6 +18,7 @@
         APP_ICON_INACTIVE = Script.resolvePath("./assets/shapes-i.svg"),
         APP_ICON_ACTIVE = Script.resolvePath("./assets/shapes-a.svg"),
         APP_ICON_DISABLED = Script.resolvePath("./assets/shapes-d.svg"),
+        APP_UI_HTML = Script.resolvePath("./html/shapes.html"),
         ENABLED_CAPTION_COLOR_OVERRIDE = "#ffffff",
         DISABLED_CAPTION_COLOR_OVERRIDE = "#888888",
         START_DELAY = 2000, // ms
@@ -66,11 +67,14 @@
         ToolIcon,
         ToolsMenu,
 
+        // Tablet/toolbar
+        tablet,
+        tabletButton,
+        isTabletUIOpen = false,
+
         // Miscellaneous
         UPDATE_LOOP_TIMEOUT = 16,
         updateTimer = null,
-        tablet,
-        button,
         DOMAIN_CHANGED_MESSAGE = "Toolbar-DomainChanged",
 
         DEBUG = false;
@@ -1828,30 +1832,75 @@
     }
 
 
-    function onAppButtonClicked() {
-        var NOTIFICATIONS_MESSAGE_CHANNEL = "Hifi-Notifications",
+    function onTabletButtonClicked() {
+        if (isTabletUIOpen) {
+            tablet.gotoHomeScreen();
+        } else {
+            tablet.gotoWebScreen(APP_UI_HTML + "?active=" + isAppActive);
+        }
+    }
+
+    function onTabletWebEventReceived(data) {
+        var message,
+            SET_ACTIVE_MESSAGE = "setActive",  // EventBridge message.
+            NOTIFICATIONS_MESSAGE_CHANNEL = "Hifi-Notifications",
             EDIT_ERROR = 4, // Per notifications.js.
             INSUFFICIENT_PERMISSIONS_ERROR_MSG =
                 "You do not have the necessary permissions to edit on this domain."; // Same as edit.js.
 
-        // Application tablet/toolbar button clicked.
-        if (!isAppActive && !(Entities.canRez() || Entities.canRezTmp())) {
-            Feedback.play(dominantHand, Feedback.GENERAL_ERROR);
-            Messages.sendLocalMessage(NOTIFICATIONS_MESSAGE_CHANNEL, JSON.stringify({
-                message: INSUFFICIENT_PERMISSIONS_ERROR_MSG,
-                notificationType: EDIT_ERROR
-            }));
+        try {
+            message = JSON.parse(data);
+        } catch (e) {
             return;
         }
 
-        isAppActive = !isAppActive;
-        updateControllerDispatcher();
-        button.editProperties({ isActive: isAppActive });
+        switch (message.command) {
+            case SET_ACTIVE_MESSAGE:
+                switch (message.value) {
+                    case true:
+                        if (!isAppActive) {
 
-        if (isAppActive) {
-            startApp();
+                            // Only activate the app if have rez permissions.
+                            if (!(Entities.canRez() || Entities.canRezTmp())) {
+                                Feedback.play(dominantHand, Feedback.GENERAL_ERROR);
+                                Messages.sendLocalMessage(NOTIFICATIONS_MESSAGE_CHANNEL, JSON.stringify({
+                                    message: INSUFFICIENT_PERMISSIONS_ERROR_MSG,
+                                    notificationType: EDIT_ERROR
+                                }));
+                                break;
+                            }
+
+                            isAppActive = true;
+                            updateControllerDispatcher();
+                            tabletButton.editProperties({ isActive: isAppActive });
+                            startApp();
+                        }
+                        break;
+                    case false:
+                        if (isAppActive) {
+                            isAppActive = false;
+                            updateControllerDispatcher();
+                            tabletButton.editProperties({ isActive: isAppActive });
+                            stopApp();
+                        }
+                        break;
+                }
+                tablet.gotoHomeScreen();
+                break;
+        }
+    }
+
+    function onTabletScreenChanged(type, url) {
+        var wasTabletUIOpen = isTabletUIOpen;
+
+        isTabletUIOpen = url.substring(0, APP_UI_HTML.length) === APP_UI_HTML;
+        if (isTabletUIOpen === wasTabletUIOpen) {
+            return;
+        }
+        if (isTabletUIOpen) {
+            tablet.webEventReceived.connect(onTabletWebEventReceived);
         } else {
-            stopApp();
+            tablet.webEventReceived.disconnect(onTabletWebEventReceived);
         }
     }
 
@@ -1863,7 +1912,7 @@
             updateControllerDispatcher();
             stopApp();
         }
-        button.editProperties({
+        tabletButton.editProperties({
             icon: hasRezPermissions ? APP_ICON_INACTIVE : APP_ICON_DISABLED,
             captionColor: hasRezPermissions ? ENABLED_CAPTION_COLOR_OVERRIDE : DISABLED_CAPTION_COLOR_OVERRIDE,
             isActive: isAppActive
@@ -1878,7 +1927,7 @@
             updateControllerDispatcher();
             stopApp();
         }
-        button.editProperties({
+        tabletButton.editProperties({
             icon: hasRezPermissions ? APP_ICON_INACTIVE : APP_ICON_DISABLED,
             captionColor: hasRezPermissions ? ENABLED_CAPTION_COLOR_OVERRIDE : DISABLED_CAPTION_COLOR_OVERRIDE,
             isActive: isAppActive
@@ -1921,7 +1970,7 @@
             // incorrectly. Let the user reopen the app because it can take some time for the new avatar to load.
             isAppActive = false;
             updateControllerDispatcher();
-            button.editProperties({ isActive: false });
+            tabletButton.editProperties({ isActive: false });
             stopApp();
         }
     }
@@ -1943,15 +1992,15 @@
 
         // Tablet/toolbar button.
         hasRezPermissions = Entities.canRez() || Entities.canRezTmp();
-        button = tablet.addButton({
+        tabletButton = tablet.addButton({
             icon: hasRezPermissions ? APP_ICON_INACTIVE : APP_ICON_DISABLED,
             captionColor: hasRezPermissions ? ENABLED_CAPTION_COLOR_OVERRIDE : DISABLED_CAPTION_COLOR_OVERRIDE,
             activeIcon: APP_ICON_ACTIVE,
             text: APP_NAME,
             isActive: isAppActive
         });
-        if (button) {
-            button.clicked.connect(onAppButtonClicked);
+        if (tabletButton) {
+            tabletButton.clicked.connect(onTabletButtonClicked);
         }
 
         // Input objects.
@@ -1971,6 +2020,7 @@
         grouping = new Grouping();
 
         // Changes.
+        tablet.screenChanged.connect(onTabletScreenChanged);
         Window.domainChanged.connect(onDomainChanged);
         Entities.canRezChanged.connect(onCanRezChanged);
         Entities.canRezTmpChanged.connect(onCanRezChanged);
@@ -1989,6 +2039,11 @@
             Script.clearTimeout(updateTimer);
         }
 
+        if (isTabletUIOpen) {
+            tablet.webEventReceived.connect(onTabletWebEventReceived);
+        }
+
+        tablet.screenChanged.disconnect(onTabletScreenChanged);
         Window.domainChanged.disconnect(onDomainChanged);
         Entities.canRezChanged.disconnect(onCanRezChanged);
         Entities.canRezTmpChanged.disconnect(onCanRezChanged);
@@ -2001,10 +2056,10 @@
         isAppActive = false;
         updateControllerDispatcher();
 
-        if (button) {
-            button.clicked.disconnect(onAppButtonClicked);
-            tablet.removeButton(button);
-            button = null;
+        if (tabletButton) {
+            tabletButton.clicked.disconnect(onTabletButtonClicked);
+            tablet.removeButton(tabletButton);
+            tabletButton = null;
         }
 
         if (grouping) {
@@ -2038,6 +2093,6 @@
         tablet = null;
     }
 
-    Script.setTimeout(setUp, START_DELAY); // Delay start so that Entities.canRez() work; button is enabled correctly.
+    Script.setTimeout(setUp, START_DELAY); // Delay start so that Entities.canRez() works; button is enabled correctly.
     Script.scriptEnding.connect(tearDown);
 }());
