@@ -41,7 +41,6 @@ Laser = function (side) {
 
         laserLength,
         specifiedLaserLength = null,
-        laserSphereSize = 0,
 
         LEFT_HAND = 0,
 
@@ -110,16 +109,12 @@ Laser = function (side) {
         } else {
             Overlays.editOverlay(laserLine, { visible: false });
         }
-        // Avoid flash from large laser sphere when turn on or suddenly increase distance. Rendering seems to update overlay 
-        // position one frame behind so use sphere size from preceding frame.
-        updateSphere(searchTarget, laserSphereSize, color);
-        laserSphereSize = sphereSize;
+        updateSphere(searchTarget, sphereSize, color);
     }
 
     function hide() {
         Overlays.editOverlay(laserLine, { visible: false });
         Overlays.editOverlay(laserSphere, { visible: false });
-        laserSphereSize = 0;
     }
 
     function setUIOverlays(overlayIDs) {
