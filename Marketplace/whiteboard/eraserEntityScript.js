@@ -98,7 +98,7 @@
             if (_this.whiteboard === null) {
                 _this.findWhiteboard();
             }
-            var serverID = _this.whiteboard;
+            
             // RPC - calling server to erase
             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
            
@@ -274,24 +274,23 @@
             
             // Get projection vectors taking into account the eraser position and rotation
             var rotation = Quat.normalize(Entities.getEntityProperties(_this.entityID, "rotation").rotation);
-            //var eraserUp = Quat.getRight(rotation);
-            //var eraserRight = Quat.getFront(rotation);
+            
             var eraserUp = Quat.getRight(rotation);
             var eraserRight = Quat.getFront(rotation);
-            var eraserDepth = Quat.getUp(rotation);
+            // var eraserDepth = Quat.getUp(rotation);
             var eraserHalfDimensionUp = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.x / 4.0;
             var eraserHalfDimensionRight = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.z / 2.0;
-            var eraserHalfDimensionDepth = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.y / 2.0;
+            // var eraserHalfDimensionDepth = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.y / 2.0;
             if (_this.desktopEquipped) {
                 serverID = Entities.getEntityProperties(_this.whiteboard, "parentID").parentID;
             } 
            
             eraserUp = Vec3.sum(eraserUp, _this.eraserPosition);
             eraserRight = Vec3.sum(eraserRight, _this.eraserPosition);
-            eraserDepth = Vec3.sum(eraserDepth, _this.eraserPosition);
+            // eraserDepth = Vec3.sum(eraserDepth, _this.eraserPosition);
             var lengthEraserUp = Vec3.dot(eraserUp, eraserUp);
             var lengthEraserRight = Vec3.dot(eraserRight, eraserRight);
-            var lengthEraserDepth = Vec3.dot(eraserDepth, eraserDepth);
+            // lengthEraserDepth = Vec3.dot(eraserDepth, eraserDepth);
             
             nearbyStrokes.forEach(function(stroke) {
                 // get highResolutionCache

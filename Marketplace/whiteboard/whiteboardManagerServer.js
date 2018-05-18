@@ -425,16 +425,13 @@
                 })
             });
 
-            if (previousLine !== null) {
-                _this.bridge(newStroke, previousLine);
-            } else {
-                linePointsInProgress.push([]);
-                normalsInProgress.push([]);
-                strokesInProgress.push(newStroke);
-                strokeBasePositionInProgress.push(utils.parseJSON(params[0]));
-                // continue to expand newly created polyline
-                _this.paint(_this.entityID, params);
-            }
+            linePointsInProgress.push([]);
+            normalsInProgress.push([]);
+            strokesInProgress.push(newStroke);
+            strokeBasePositionInProgress.push(utils.parseJSON(params[0]));
+            // continue to expand newly created polyline
+            _this.paint(_this.entityID, params);
+            
         },
         clampStroke: function (currentIndex) {
             strokes.push(strokesInProgress[currentIndex]);
@@ -444,7 +441,7 @@
             strokeBasePositionInProgress.splice(currentIndex, 1);
         },
         reeditStroke: function (entityID, params) {
-            print("Server Reedit " + JSON.stringify(params));
+            // print("Server Reedit " + JSON.stringify(params));
             var lineID = params[0];
             var segments = utils.parseJSON(params[1]);
             var keepPointIndexes = utils.parseJSON(params[2]);
