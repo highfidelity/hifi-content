@@ -63,7 +63,7 @@ h2 {
 }
 
     h2 + ul, h2 + p {
-        margin-top: 10px;
+        margin-top: 5px;
     }
 
     ul + h2 {
@@ -83,7 +83,8 @@ p {
 ul {
     font-size: 14px;
     color: #e3e3e3;
-    margin-left: 17px;
+    margin-left: 16px;
+    margin-right: -5px; /* Hack for desktop dialog line length. */
 }
 
 input {
