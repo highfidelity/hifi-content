@@ -30,9 +30,6 @@ Laser = function (side) {
         SEARCH_SPHERE_FOLLOW_RATE = 0.5,
         COLORS_GRAB_SEARCHING_HALF_SQUEEZE = { red: 10, green: 10, blue: 255 }, // Per controllerDispatcherUtils.js.
         COLORS_GRAB_SEARCHING_FULL_SQUEEZE = { red: 250, green: 10, blue: 10 }, // Per controllerDispatcherUtils.js.
-        COLORS_GRAB_SEARCHING_HALF_SQUEEZE_BRIGHT,
-        COLORS_GRAB_SEARCHING_FULL_SQUEEZE_BRIGHT,
-        BRIGHT_POW = 0.06, // Per old handControllerGrab.js.
 
         GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 }, // Per HmdDisplayPlugin.cpp and controllers.js.
 
@@ -56,24 +53,14 @@ Laser = function (side) {
         return new Laser(side);
     }
 
-    function colorPow(color, power) { // Per old handControllerGrab.js.
-        return {
-            red: Math.pow(color.red / 255, power) * 255,
-            green: Math.pow(color.green / 255, power) * 255,
-            blue: Math.pow(color.blue / 255, power) * 255
-        };
-    }
-
-    COLORS_GRAB_SEARCHING_HALF_SQUEEZE_BRIGHT = colorPow(COLORS_GRAB_SEARCHING_HALF_SQUEEZE, BRIGHT_POW);
-    COLORS_GRAB_SEARCHING_FULL_SQUEEZE_BRIGHT = colorPow(COLORS_GRAB_SEARCHING_FULL_SQUEEZE, BRIGHT_POW);
-
     if (side === LEFT_HAND) {
         GRAB_POINT_SPHERE_OFFSET.x = -GRAB_POINT_SPHERE_OFFSET.x;
     }
 
     laserLine = Overlays.addOverlay("line3d", {
-        alpha: 1.0,
-        glow: 1.0,
+        alpha: 0.9,
+        glow: 0.5,
+        lineWidth: 0.02,
         ignoreRayIntersection: true,
         drawInFront: true,
         parentID: Uuid.SELF,
@@ -82,10 +69,9 @@ Laser = function (side) {
             : "_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND"),
         visible: false
     });
-    laserSphere = Overlays.addOverlay("circle3d", {
-        innerAlpha: 1.0,
-        outerAlpha: 0.0,
+    laserSphere = Overlays.addOverlay("sphere", {
         solid: true,
+        alpha: 0.9,
         ignoreRayIntersection: true,
         drawInFront: true,
         visible: false
@@ -100,17 +86,11 @@ Laser = function (side) {
         });
     }
 
-    function updateSphere(location, size, color, brightColor) {
-        var rotation;
-
-        rotation = Quat.lookAt(location, Camera.getPosition(), Vec3.UP);
-
+    function updateSphere(location, size, color) {
         Overlays.editOverlay(laserSphere, {
             position: location,
-            rotation: rotation,
-            innerColor: brightColor,
-            outerColor: color,
-            outerRadius: size,
+            color: color,
+            dimensions: { x: size, y: size, z: size },
             visible: true
         });
     }
@@ -118,14 +98,12 @@ Laser = function (side) {
     function display(origin, direction, distance, isPressed, isClicked) {
         var searchTarget,
             sphereSize,
-            color,
-            brightColor;
+            color;
 
         searchDistance = SEARCH_SPHERE_FOLLOW_RATE * searchDistance + (1.0 - SEARCH_SPHERE_FOLLOW_RATE) * distance;
         searchTarget = Vec3.sum(origin, Vec3.multiply(searchDistance, direction));
         sphereSize = Math.max(SEARCH_SPHERE_SIZE * searchDistance, MINUMUM_SEARCH_SPHERE_SIZE);
         color = isClicked ? COLORS_GRAB_SEARCHING_FULL_SQUEEZE : COLORS_GRAB_SEARCHING_HALF_SQUEEZE;
-        brightColor = isClicked ? COLORS_GRAB_SEARCHING_FULL_SQUEEZE_BRIGHT : COLORS_GRAB_SEARCHING_HALF_SQUEEZE_BRIGHT;
 
         if (isPressed) {
             updateLine(origin, searchTarget, color);
@@ -134,7 +112,7 @@ Laser = function (side) {
         }
         // Avoid flash from large laser sphere when turn on or suddenly increase distance. Rendering seems to update overlay 
         // position one frame behind so use sphere size from preceding frame.
-        updateSphere(searchTarget, laserSphereSize, color, brightColor);
+        updateSphere(searchTarget, laserSphereSize, color);
         laserSphereSize = sphereSize;
     }
 
