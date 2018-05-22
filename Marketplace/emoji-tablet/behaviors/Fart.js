@@ -27,10 +27,6 @@
         playback = {volume: SOUND_VOLUME, position: Entities.getEntityProperties(_this.entityID, "position").position};
     };
 
-    this.unload = function () {
-        /* nothing to put here */
-    };
-
     this.startNearGrab = function () {
         Audio.playSound(SOUND, playback);
         Entities.deleteEntity(_this.entityID);

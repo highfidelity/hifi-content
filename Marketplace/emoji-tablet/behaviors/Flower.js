@@ -21,9 +21,6 @@
         preload: function (entityID) {
             _this.entityID = entityID;
         },
-        unload: function() {
-            /* nothing here */
-        },
         startNearGrab: function() {
             var petalProperties = {
                 type: "ParticleEffect",

@@ -64,8 +64,4 @@
         }
     }, ROLL_INTERVAL);
 
-    this.unload = function() {
-        /* nothing here */
-    };
-
 });

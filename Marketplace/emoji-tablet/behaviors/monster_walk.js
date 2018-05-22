@@ -44,9 +44,5 @@
         };
         Entities.editEntity(_entityID, newProperties);
     }, INTERVAL);
-    
-    this.unload = function() {
-        /* nothing here */
-    };
 
 });

@@ -14,6 +14,7 @@
 
 (function() {
     var NOM_URL = Script.resolvePath("./behaviors/sounds/nom-nom.wav");
+    var VOLUME = 0.5;
     // FIXME: save to another S3
     var TRIANGLE_PARTICLE_1 = "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/particle-traingle-shard-mirror-h.png";
     var TRIANGLE_PARTICLE_2 = "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/particle-traingle-shard.png";
@@ -106,8 +107,8 @@
         Entities.addEntity(crumbsProperties1);
         Entities.addEntity(crumbsProperties2);
         Audio.playSound(NOM, {
-            position: Entities.getEntityProperties(_this.entityID, position).position,
-            volume: 0.5
+            position: Entities.getEntityProperties(_this.entityID, "position").position,
+            volume: VOLUME
         });
         Entities.deleteEntity(_this.entityID);
     };

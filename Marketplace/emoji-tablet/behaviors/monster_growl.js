@@ -29,9 +29,5 @@
         position: properties.position,
         volume: SOUND_VOLUME
     });
- 
-    this.unload = function() {
-        /* nothing here */
-    };
 
 });
