@@ -16,11 +16,12 @@
     var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
     var BEAM_LOCAL_OFFSET = {x:0, y:-0.0055, z:-0.045};
     var BEAM_LOCAL_DIRECTION = {x:0, y:0, z:-1000};
-    var BEAM_MIN_SIZE = 0.02;
+    var BEAM_MIN_SIZE = 0.04;
     var TRIGGER_TOGGLE_VALUE = 0.97;
-    var ORIGIN_SIZE_RATIO = 0.53;
-    var BEAM_OFFSET_RATIO = 0.4357;
+    var ORIGIN_SIZE_RATIO = 0.6;
+    var BEAM_OFFSET_RATIO = 0.5;
     var TWO = 2;
+    var MIN_FOCUS_SIZE = 0.02;
 
     var equipped = false;
     var currentHand = null;
@@ -137,7 +138,7 @@
             if (intersectEntityID) {
                 var intersectionPosition = intersection.intersection;
                 var beamPointDistance = Vec3.distance(intersectionPosition, beamStart);
-                var beamSize = 0.01 * beamPointDistance;
+                var beamSize = MIN_FOCUS_SIZE * beamPointDistance;
 
                 if (beamSize < BEAM_MIN_SIZE) {
                     beamSize = BEAM_MIN_SIZE;
@@ -145,25 +146,28 @@
 
                 if (!on) {
                     _this.focus = Entities.addEntity({
-                        type: 'Sphere',
+                        type: 'Model',
+                        modelURL: Script.resolvePath("models/Glow-ball-red.fbx"),
                         dimensions: {x: beamSize, y: beamSize, z: beamSize},
                         name: "Laser Focus",
                         color: {red: 255, green: 0, blue: 0},
                         position: intersectionPosition,
-                        collisionless: true
+                        collisionless: true,
+                        userData: "{\"grabbableKey\":{\"grabbable\":false}}"
                     }, true);
                     doNotRayPick.push(_this.focus);
     
                     var originDiameter = ORIGIN_SIZE_RATIO * _this.diameter;
 
                     _this.origin = Entities.addEntity({
-                        type: 'Sphere',
+                        type: 'Model',
+                        modelURL: Script.resolvePath("models/Glow-ball-red.fbx"),
                         name: "Laser Origin",
                         parentID: _this.entityID,
                         localPosition: _this.beamOffset,
                         dimensions: {x: originDiameter, y: originDiameter, z: originDiameter},
-                        color: {red: 255, green: 0, blue: 0},
-                        collisionless: true
+                        collisionless: true,
+                        userData: "{\"grabbableKey\":{\"grabbable\":false}}"
                     }, true);
 
                     doNotRayPick.push(_this.origin);
@@ -183,7 +187,8 @@
                         localPosition: {x: 0, y: 0, z: _this.beamOffset},
                         localRotation: Quat.normalize({}),
                         dimensions: Vec3.multiply(PICK_MAX_DISTANCE * TWO, Vec3.ONE),
-                        linePoints: [Vec3.ZERO, {x: 0, y: 0, z: -beamPointDistance}]
+                        linePoints: [Vec3.ZERO, {x: 0, y: 0, z: -beamPointDistance}],
+                        userData: "{\"grabbableKey\":{\"grabbable\":false}}"
                     }, true);
 
                     doNotRayPick.push(_this.beam);
