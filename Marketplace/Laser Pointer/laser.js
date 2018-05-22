@@ -18,9 +18,9 @@
     var BEAM_LOCAL_DIRECTION = {x:0, y:0, z:-1000};
     var BEAM_MIN_SIZE = 0.02;
     var TRIGGER_TOGGLE_VALUE = 0.97;
-    var SEARCH_RADIUS = 100;
     var ORIGIN_SIZE_RATIO = 0.53;
     var BEAM_OFFSET_RATIO = 0.4357;
+    var TWO = 2;
 
     var equipped = false;
     var currentHand = null;
@@ -44,11 +44,14 @@
             _this.entityID = entityID;
             var dimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
             _this.diameter = dimensions.x;
-            _this.beamOffset = { x: 0, y: 0, z: -(BEAM_OFFSET_RATIO * dimensions.z) };
+            _this.beamOffset = { 
+                x: 0,
+                y: 0,
+                z: -(BEAM_OFFSET_RATIO * dimensions.z)
+            };
         },
 
         startEquip: function(id, params) {
-            print("start equip");
             equipped = true;
             currentHand = params[0] === "left" ? 0 : 1;
         },
@@ -85,7 +88,6 @@
         },
 
         releaseEquip: function(id, params) {
-            print("release");
             currentHand = null;
             equipped = false;
             _this.turnOff();
@@ -115,13 +117,13 @@
                 origin: beamStart,
                 direction: beamDirectionNormalized
             });
-            
             var entityIntersection = Entities.findRayIntersection(beamPickRay, true, [], doNotRayPick);
             var entityIntersectionDistance = entityIntersection.intersects ? entityIntersection.distance : Number.MAX_VALUE;
             var avatarIntersection = AvatarList.findRayIntersection(beamPickRay);
             var avatarIntersectionDistance = avatarIntersection.intersects ? avatarIntersection.distance : Number.MAX_VALUE;
             var intersection = null;
             var intersectEntityID = null;
+
             if (entityIntersection.intersects && entityIntersectionDistance < avatarIntersectionDistance && 
                 entityIntersectionDistance < beamDirectionLength) {
                 intersectEntityID = entityIntersection.entityID;
@@ -131,15 +133,17 @@
                 intersectEntityID = avatarIntersection.avatarID;
                 intersection = avatarIntersection;
             }
+
             if (intersectEntityID) {
                 var intersectionPosition = intersection.intersection;
                 var beamPointDistance = Vec3.distance(intersectionPosition, beamStart);
                 var beamSize = 0.01 * beamPointDistance;
+
                 if (beamSize < BEAM_MIN_SIZE) {
                     beamSize = BEAM_MIN_SIZE;
                 }
+
                 if (!on) {
-                    print("turn on");
                     _this.focus = Entities.addEntity({
                         type: 'Sphere',
                         dimensions: {x: beamSize, y: beamSize, z: beamSize},
@@ -151,6 +155,7 @@
                     doNotRayPick.push(_this.focus);
     
                     var originDiameter = ORIGIN_SIZE_RATIO * _this.diameter;
+
                     _this.origin = Entities.addEntity({
                         type: 'Sphere',
                         name: "Laser Origin",
@@ -160,6 +165,7 @@
                         color: {red: 255, green: 0, blue: 0},
                         collisionless: true
                     }, true);
+
                     doNotRayPick.push(_this.origin);
         
                     _this.beam = Entities.addEntity({
@@ -176,30 +182,32 @@
                         parentID: _this.origin,
                         localPosition: {x: 0, y: 0, z: _this.beamOffset},
                         localRotation: Quat.normalize({}),
-                        dimensions: Vec3.multiply(PICK_MAX_DISTANCE * 2, Vec3.ONE),
+                        dimensions: Vec3.multiply(PICK_MAX_DISTANCE * TWO, Vec3.ONE),
                         linePoints: [Vec3.ZERO, {x: 0, y: 0, z: -beamPointDistance}]
                     }, true);
+
                     doNotRayPick.push(_this.beam);
                 } else {
                     Entities.editEntity(_this.focus, {
                         dimensions: {x: beamSize, y: beamSize, z: beamSize},
                         position: intersectionPosition
                     });
+
                     Entities.editEntity(_this.beam, {
                         localPosition: {x: 0, y: this.beamOffset, z: 0},
                         localRotation: Quat.normalize({}),
-                        dimensions: Vec3.multiply(PICK_MAX_DISTANCE * 2, Vec3.ONE),
+                        dimensions: Vec3.multiply(PICK_MAX_DISTANCE * TWO, Vec3.ONE),
                         linePoints: [Vec3.ZERO, {x: 0, y: 0, z: -beamPointDistance}]
                     });
                 }
             } else {
                 print("no intersection");
             }
+
             on = true;
         },
         
         turnOff : function() {
-            print("off");
             Entities.deleteEntity(_this.focus);
             Entities.deleteEntity(_this.beam);
             Entities.deleteEntity(_this.origin);
