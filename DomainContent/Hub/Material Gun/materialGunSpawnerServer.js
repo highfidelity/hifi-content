@@ -13,7 +13,7 @@
 (function() { 
     var _this;
 
-    var SEARCH_RADIUS = 0.1;
+    var SEARCH_RADIUS = 0.01;
     var CHECKING_INTERVAL_MS = 5000;
 
     var checking;
