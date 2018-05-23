@@ -96,7 +96,7 @@ function exponentialSmoothing(target, current) {
 
         startEquip: function(id, params) {
             currentHand = params[0] === "left" ? 0 : 1;
-
+            
             Entities.editEntity(_this.entityID, {
                 visible: true,
                 lifetime: -1 
@@ -127,7 +127,7 @@ function exponentialSmoothing(target, current) {
         },
 
         continueEquip: function(id, params) {
-            if (!currentHand) {
+            if (currentHand === null) {
                 return;
             }
 
