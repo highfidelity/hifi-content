@@ -20,8 +20,9 @@
     var TRIGGER_TOGGLE_VALUE = 0.97;
     var ORIGIN_SIZE_RATIO = 0.6;
     var BEAM_OFFSET_RATIO = 0.5;
-    var TWO = 2;
     var MIN_FOCUS_SIZE = 0.02;
+    var BEAM_WIDTH = 0.01;
+    var HALF = 0.5;
 
     var equipped = false;
     var currentHand = null;
@@ -108,8 +109,6 @@
         },
 
         turnOn: function() {
-            var PICK_MAX_DISTANCE = 100;
-            
             var beamStart = _this.getBeamPosition();
             var beamDirection = _this.getBeamDirection();
             var beamDirectionLength = Vec3.length(beamDirection);
@@ -173,6 +172,17 @@
                     doNotRayPick.push(_this.origin);
         
                     _this.beam = Entities.addEntity({
+                        type: 'Model',
+                        modelURL: Script.resolvePath("models/laser-beam-red.fbx"),
+                        name: "Laser Beam",
+                        parentID: _this.origin,
+                        localPosition: {x: 0, y: 0, z: -(HALF * beamPointDistance)},
+                        localRotation: Quat.normalize({}),
+                        dimensions: {x: BEAM_WIDTH, y: BEAM_WIDTH, z: beamPointDistance},
+                        userData: "{\"grabbableKey\":{\"grabbable\":false}}"
+                    }, true);
+
+                    /*_this.beam = Entities.addEntity({
                         lifetime: 360,
                         type: 'Line',
                         name: "Laser Beam",
@@ -189,7 +199,7 @@
                         dimensions: Vec3.multiply(PICK_MAX_DISTANCE * TWO, Vec3.ONE),
                         linePoints: [Vec3.ZERO, {x: 0, y: 0, z: -beamPointDistance}],
                         userData: "{\"grabbableKey\":{\"grabbable\":false}}"
-                    }, true);
+                    }, true); */
 
                     doNotRayPick.push(_this.beam);
                 } else {
@@ -199,10 +209,9 @@
                     });
 
                     Entities.editEntity(_this.beam, {
-                        localPosition: {x: 0, y: this.beamOffset, z: 0},
+                        localPosition: {x: 0, y: 0, z: -(HALF * beamPointDistance)},
                         localRotation: Quat.normalize({}),
-                        dimensions: Vec3.multiply(PICK_MAX_DISTANCE * TWO, Vec3.ONE),
-                        linePoints: [Vec3.ZERO, {x: 0, y: 0, z: -beamPointDistance}]
+                        dimensions: {x: BEAM_WIDTH, y: BEAM_WIDTH, z: beamPointDistance}
                     });
                 }
             } else {
