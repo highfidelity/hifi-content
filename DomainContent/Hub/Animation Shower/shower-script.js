@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 /* globals AnimationCache, MyAvatar */
-(function(){
+(function() {
 
     var ANIMATION_URL_ARRAY = [
         Script.resolvePath("Animations/Scary%20Clown%20Walk.fbx"),
@@ -40,14 +40,14 @@
         }
     }
 
-    var AnimationShower = function(){
+    var AnimationShower = function() {
         _this = this;
     };
   
     AnimationShower.prototype = {
-        preload: function(entityID){
+        preload: function(entityID) {
             sound = SoundCache.getSound(SOUND_URL);
-            ANIMATION_URL_ARRAY.forEach(function(url){
+            ANIMATION_URL_ARRAY.forEach(function(url) {
                 var resource = AnimationCache.prefetch(url);
                 var animation = AnimationCache.getAnimation(url);
                 Animations.push({url: url, animation: animation, resource: resource});
