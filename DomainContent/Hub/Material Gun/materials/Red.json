@@ -2,6 +2,6 @@
   "materialVersion": 1,
   "materials": {
     "model": "hifi_pbr",
-    "albedoMap": "https://hifi-content.s3.amazonaws.com/liv/dev/Materials/Colors/red.png"
+    "albedoMap": "http://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/Materials/Colors/red.png"
   }
 }
