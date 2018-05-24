@@ -24,6 +24,7 @@
     var STOP_EMITTING_MS = 200;
     var VELOCITY_FACTOR = 20;
     var MATERIAL_LIFETIME_ON_FIRE = 30;
+    var NUMBER_COLORS = 8;
      
     function Gun() {
         _this = this;
@@ -49,7 +50,7 @@
         },
 
         getRandomMaterialURL: function() {
-            var materialChange = Math.floor(Math.random() * 8);
+            var materialChange = Math.floor(Math.random() * NUMBER_COLORS);
             _this.currentColor = _this.nextColor;
             switch (materialChange) {
                 case 0:
@@ -82,11 +83,11 @@
                     break;
                 case 7:
                     _this.randomMaterialURL = MATERIAL_URL_7;
-                    _this.nextColor = {red: 255, blue: 255, green: 255};
+                    _this.nextColor = {red: 0, blue: 0, green: 0};
                     break;
                 default:
-                    _this.randomMaterialURL = MATERIAL_URL_6;
-                    _this.nextColor = {red: 200, blue: 255, green: 0};
+                    _this.randomMaterialURL = MATERIAL_URL_7;
+                    _this.nextColor = {red: 0, blue: 0, green: 0};
             }
             _this.storeNextMaterialAndColor();
         },
@@ -130,7 +131,7 @@
                     {
                         grabbableKey: {
                             grabbable: true,
-                            wantsTrigger : false
+                            wantsTrigger: false
                         },
                         gun: _this.entityID
                     }
@@ -155,7 +156,7 @@
         createSplat: function(id, params) {
             var splat = Entities.addEntity({
                 type: "ParticleEffect",
-                position:JSON.parse(params[0]),
+                position: JSON.parse(params[0]),
                 dimensions: { x: 10.88, y: 10.88, z: 10.88 },
                 collisionless: 1,
                 dynamic: 0,
@@ -167,8 +168,8 @@
                 emitRate: 100,
                 lifetime: 1,
                 emitSpeed: 3.15,
-                emitDimensions:{ x: 0.1, y: 0.1, z: 0.1 },
-                emitOrientation:{ x: -90, y: 0, z: 0 },
+                emitDimensions: { x: 0.1, y: 0.1, z: 0.1 },
+                emitOrientation: { x: -90, y: 0, z: 0 },
                 emitterShouldTrail: false,
                 particleRadius: 0.02,
                 radiusSpread: 6,
@@ -178,8 +179,8 @@
                 colorSpread: _this.currentColor,
                 colorStart: _this.currentColor,
                 colorFinish: _this.currentColor,
-                emitAcceleration:{ x: -0.0, y: 2.5, z: -0.1 },
-                accelerationSpread:{ x: 0.5, y: 3, z: 0.5 },
+                emitAcceleration: { x: -0.0, y: 2.5, z: -0.1 },
+                accelerationSpread: { x: 0.5, y: 3, z: 0.5 },
                 alpha: 0,
                 alphaSpread: 0,
                 alphaStart: 1,

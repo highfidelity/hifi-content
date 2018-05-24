@@ -20,14 +20,14 @@ function exponentialSmoothing(target, current) {
     var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
     var TRIGGER_THRESHOLD = 0.97;
     var AUDIO_VOLUME_LEVEL = 0.1;
-    var BARREL_LOCAL_OFFSET = {x:0.015, y:0.065, z:-0.25};
-    var BARREL_LOCAL_DIRECTION = {x:0, y:0, z:-1000};
+    var BARREL_LOCAL_OFFSET = {x: 0.015, y: 0.065, z: -0.25};
+    var BARREL_LOCAL_DIRECTION = {x: 0, y: 0, z: -1000};
     var SHOOT_SOUND = Script.resolvePath("sounds/shoot.wav");
     var DESKTOP_HOW_TO_IMAGE_URL = Script.resolvePath("textures/desktopFireUnequip.png");
     var DESKTOP_HOW_TO_IMAGE_WIDTH = 384;
     var DESKTOP_HOW_TO_IMAGE_HEIGHT = 128;
     var FIRE_KEY = "f";
-    var HAND = {LEFT : 0, RIGHT : 1};
+    var HAND = {LEFT: 0, RIGHT: 1};
     var DESKTOP_HOW_TO_OVERLAY = true;
     var CAN_FIRE_AGAIN_TIMEOUT_MS = 250;
     var SWAP_SOUND = Script.resolvePath("sounds/swap.wav");
@@ -60,6 +60,7 @@ function exponentialSmoothing(target, current) {
     var missSound;
     var shootSound;
     var doNotRayPick = [];
+    var offsetMultiplier = 0.8;
     
     function Gun() {
         _this = this;
@@ -301,10 +302,10 @@ function exponentialSmoothing(target, current) {
                 _this.particleInterval = null;
             } else {
                 Entities.editEntity(_this.particleEffect, {
-                    polarStart:0,
-                    polarFinish:17,
-                    emitDimensions:{x:0,y:0,z:0},
-                    emitOrientation:{x:0,y:180,z:0},
+                    polarStart: 0,
+                    polarFinish: 17,
+                    emitDimensions: {x: 0,y: 0,z: 0},
+                    emitOrientation: {x: 0,y: 180,z: 0},
                     color: nextColor,
                     colorSpread: nextColor,
                     colorStart: nextColor,
@@ -433,7 +434,7 @@ function exponentialSmoothing(target, current) {
             var headIndex = MyAvatar.getJointIndex("Head");
             var offset = 0.5;
             if (headIndex) {
-                offset = 0.8 * MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
+                offset = offsetMultiplier* MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
             }
             result.leftHandPosition = Vec3.multiply(offset, {x: 0.25, y: 0.6, z: 1});
             var yPosition = exponentialSmoothing(newLeftHandPositionAvatarFrame.y, previousLeftYPosition);
@@ -469,7 +470,7 @@ function exponentialSmoothing(target, current) {
             var headIndex = MyAvatar.getJointIndex("Head");
             var offset = 0.5;
             if (headIndex) {
-                offset = 0.8 * MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
+                offset = offsetMultiplier * MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
             }
             result.rightHandPosition = Vec3.multiply(offset, {x: -0.25, y: 0.8, z: 1.3});
             var yPosition = exponentialSmoothing(newRightHandPositionAvatarFrame.y, previousRightYPosition);
