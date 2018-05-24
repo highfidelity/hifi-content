@@ -181,26 +181,7 @@
                         dimensions: {x: BEAM_WIDTH, y: BEAM_WIDTH, z: beamPointDistance},
                         userData: "{\"grabbableKey\":{\"grabbable\":false}}"
                     }, true);
-
-                    /*_this.beam = Entities.addEntity({
-                        lifetime: 360,
-                        type: 'Line',
-                        name: "Laser Beam",
-                        canCastShadow: false,
-                        glow: 1.0,
-                        lineWidth: 5,
-                        alpha: 0.5,
-                        ignoreRayIntersection: true,
-                        drawInFront: true,
-                        color: {red: 255, green: 0, blue: 0},
-                        parentID: _this.origin,
-                        localPosition: {x: 0, y: 0, z: _this.beamOffset},
-                        localRotation: Quat.normalize({}),
-                        dimensions: Vec3.multiply(PICK_MAX_DISTANCE * TWO, Vec3.ONE),
-                        linePoints: [Vec3.ZERO, {x: 0, y: 0, z: -beamPointDistance}],
-                        userData: "{\"grabbableKey\":{\"grabbable\":false}}"
-                    }, true); */
-
+                    
                     doNotRayPick.push(_this.beam);
                 } else {
                     Entities.editEntity(_this.focus, {
