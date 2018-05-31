@@ -13,7 +13,7 @@
     var _this;
 
     var SEARCH_RADIUS = 0.1;
-    var SPAWN_CHECK_MS = 10000;
+    var SPAWN_CHECK_MS = 5000;
 
     function SpaceJuiceSpawner() {
         _this = this;
@@ -31,7 +31,7 @@
 
         spawnIfNeeded: function() {
             var needToSpawn = true;
-            Entities.findEntities(_this.position, SEARCH_RADIUS).forEach(function(element){
+            Entities.findEntities(_this.position, SEARCH_RADIUS).forEach(function(element) {
                 var name= Entities.getEntityProperties(element, 'name').name;
                 if (name === "Space Shot") {
                     needToSpawn = false;
@@ -63,11 +63,11 @@
                     y: 0.9647821187973022,
                     z: -1.52587890625e-05
                 },
-                script: Script.resolvePath("spaceJuiceClient.js"),
-                serverScripts: Script.resolvePath("spaceJuiceServer.js"),
+                script: Script.resolvePath("spaceJuiceClient.js?996"),
+                serverScripts: Script.resolvePath("spaceJuiceServer.js?994"),
                 shapeType: "simple-hull",
                 type: "Model",
-                dynamic: true
+                dynamic: false
             });
 
             Entities.addEntity({
@@ -83,8 +83,8 @@
                     z: 0.1049
                 },
                 parentID: glass,
-                localPosition: {x:0, y:0, z:0},
-                localRotation: {x:0, y:0, z:90, w:0},
+                localPosition: {x: 0, y: 0, z: 0},
+                localRotation: {x: 0, y: 0, z: 90, w: 0},
                 name: "Space Shot",
                 shape: "Cone",
                 type: "Shape",
