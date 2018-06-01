@@ -10,7 +10,6 @@
                                 Script.resolvePath("sounds/clap-single-3.wav"),
                                 Script.resolvePath("sounds/clap-single-5.wav"),
                                 Script.resolvePath("sounds/clap-single-6.wav")];
-    var GROUP_CLAP_URL = Script.resolvePath("sounds/small-clap.wav");
 
     var LOCAL_CLAP_TIMEOUT = 250; //ms
 
@@ -20,7 +19,8 @@
     var previousHandLocations = [];
 
     var individualClapSound; 
-    var groupClapSound;
+
+    var applauseListenerEntity;
 
     var open = false;
 
@@ -35,19 +35,12 @@
     button.clicked.connect(onClicked);
 
     function playIndividualClapSound() {
+        applauseListenerEntity = Entities.findEntitiesByName("Applause-Listener", MyAvatar.position, 10, true)[0]; // find first result close to me
         localIntentCounter++;
 
         individualClapSound = SoundCache.getSound(INDIVIDUAL_CLAP_URLS[Math.round(Math.random()*4)]);
-        groupClapSound = SoundCache.getSound(GROUP_CLAP_URL);
-
         if (localIntentCounter > 5) {
-            if (groupClapSound.downloaded) {
-                Audio.playSound(groupClapSound, {
-                    volume: 0.8,
-                    localOnly: false,
-                    position: MyAvatar.position
-                });
-            }
+            Entities.callEntityServerMethod(applauseListenerEntity, 'queueApplauseIntent', [MyAvatar.position]);
             localIntentCounter = 0;
         }
         if (individualClapSound.downloaded) {
