@@ -1670,7 +1670,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "image",
                     properties: {
                         url: Script.resolvePath("../assets/tools/delete/info-text.svg"),
-                        scale: 0.1416,
+                        scale: 0.1536,
                         localPosition: { // Vertically off-center w.r.t. info icon.
                             x: -UIT.dimensions.panel.x / 2 + 0.0679 + 0.1340 / 2,
                             y: -UIT.dimensions.panel.y / 2 + 0.0200 + 0.0240 / 2 + 0.0063 / 2 + UIT.dimensions.footerHeight,
