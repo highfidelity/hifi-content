@@ -2040,7 +2040,7 @@
         }
 
         if (isTabletUIOpen) {
-            tablet.webEventReceived.connect(onTabletWebEventReceived);
+            tablet.webEventReceived.disconnect(onTabletWebEventReceived);
         }
 
         tablet.screenChanged.disconnect(onTabletScreenChanged);
