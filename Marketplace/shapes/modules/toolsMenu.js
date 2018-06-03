@@ -921,7 +921,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     properties: {
                         color: UIT.colors.white,
                         url: Script.resolvePath("../assets/tools/common/actions-label.svg"),
-                        scale: 0.0276,
+                        scale: 0.0384,
                         localPosition: {
                             x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0276 / 2,
                             y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0047 / 2,
@@ -952,7 +952,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     },
                     label: {
                         url: Script.resolvePath("../assets/tools/common/finish-label.svg"),
-                        scale: 0.0318
+                        scale: 0.0384
                     },
                     command: {
                         method: "clearTool"
