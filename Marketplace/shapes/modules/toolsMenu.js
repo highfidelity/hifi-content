@@ -1100,7 +1100,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     properties: {
                         color: UIT.colors.white,
                         url: Script.resolvePath("../assets/tools/physics/properties-label.svg"),
-                        scale: 0.0376,
+                        scale: 0.0384,
                         localPosition: {
                             x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0376 / 2,
                             y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0047 / 2,
@@ -1148,16 +1148,16 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             z: UIT.dimensions.buttonDimensions.z / 2 + UIT.dimensions.imageOverlayOffset
                         },
                         url: Script.resolvePath("../assets/tools/physics/buttons/off-label.svg"),
-                        scale: 0.0104,
+                        scale: 0.0128,
                         color: UIT.colors.white // SVG has gray color.
                     },
                     onSublabel: {
                         url: Script.resolvePath("../assets/tools/physics/buttons/on-label.svg"),
-                        scale: 0.0081
+                        scale: 0.0128
                     },
                     offSublabel: {
                         url: Script.resolvePath("../assets/tools/physics/buttons/off-label.svg"),
-                        scale: 0.0104
+                        scale: 0.0128
                     },
                     setting: {
                         key: "VREdit.physicsTool.gravityOn",
@@ -1186,7 +1186,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             z: UIT.dimensions.buttonDimensions.z / 2 + UIT.dimensions.imageOverlayOffset
                         },
                         url: Script.resolvePath("../assets/tools/physics/buttons/collisions-label.svg"),
-                        scale: 0.0338,
+                        scale: 0.0384,
                         color: UIT.colors.white
                     },
                     sublabel: {
@@ -1196,16 +1196,16 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             z: UIT.dimensions.buttonDimensions.z / 2 + UIT.dimensions.imageOverlayOffset
                         },
                         url: Script.resolvePath("../assets/tools/physics/buttons/off-label.svg"),
-                        scale: 0.0104,
+                        scale: 0.0128,
                         color: UIT.colors.white // SVG has gray color.
                     },
                     onSublabel: {
                         url: Script.resolvePath("../assets/tools/physics/buttons/on-label.svg"),
-                        scale: 0.0081
+                        scale: 0.0128
                     },
                     offSublabel: {
                         url: Script.resolvePath("../assets/tools/physics/buttons/off-label.svg"),
-                        scale: 0.0104
+                        scale: 0.0128
                     },
                     setting: {
                         key: "VREdit.physicsTool.collideOn",
@@ -1234,7 +1234,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             z: UIT.dimensions.buttonDimensions.z / 2 + UIT.dimensions.imageOverlayOffset
                         },
                         url: Script.resolvePath("../assets/tools/physics/buttons/grabbable-label.svg"),
-                        scale: 0.0334,
+                        scale: 0.0384,
                         color: UIT.colors.white
                     },
                     sublabel: {
@@ -1244,16 +1244,16 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             z: UIT.dimensions.buttonDimensions.z / 2 + UIT.dimensions.imageOverlayOffset
                         },
                         url: Script.resolvePath("../assets/tools/physics/buttons/off-label.svg"),
-                        scale: 0.0104,
+                        scale: 0.0128,
                         color: UIT.colors.white // SVG has gray color.
                     },
                     onSublabel: {
                         url: Script.resolvePath("../assets/tools/physics/buttons/on-label.svg"),
-                        scale: 0.0081
+                        scale: 0.0128
                     },
                     offSublabel: {
                         url: Script.resolvePath("../assets/tools/physics/buttons/off-label.svg"),
-                        scale: 0.0104
+                        scale: 0.0128
                     },
                     setting: {
                         key: "VREdit.physicsTool.grabOn",
@@ -1271,7 +1271,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     properties: {
                         color: UIT.colors.white,
                         url: Script.resolvePath("../assets/tools/physics/presets-label.svg"),
-                        scale: 0.0270,
+                        scale: 0.0384,
                         localPosition: {
                             x: UIT.dimensions.panel.x / 2 - UIT.dimensions.rightMargin - 0.1416 + 0.0270 / 2,
                             y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0047 / 2,
@@ -1296,7 +1296,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "picklistItem",
                     label: {
                         url: Script.resolvePath("../assets/tools/physics/presets/default-label.svg"),
-                        scale: 0.0436,
+                        scale: 0.0512,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0436 / 2,
                             y: 0,
@@ -1313,7 +1313,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "picklistItem",
                     label: {
                         url: Script.resolvePath("../assets/tools/physics/presets/lead-label.svg"),
-                        scale: 0.0243,
+                        scale: 0.0256,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0243 / 2,
                             y: 0,
@@ -1327,7 +1327,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "picklistItem",
                     label: {
                         url: Script.resolvePath("../assets/tools/physics/presets/wood-label.svg"),
-                        scale: 0.0316,
+                        scale: 0.0384,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0316 / 2,
                             y: 0,
@@ -1369,7 +1369,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "picklistItem",
                     label: {
                         url: Script.resolvePath("../assets/tools/physics/presets/cotton-label.svg"),
-                        scale: 0.0393,
+                        scale: 0.0512,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0393 / 2,
                             y: 0,
@@ -1383,7 +1383,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "picklistItem",
                     label: {
                         url: Script.resolvePath("../assets/tools/physics/presets/tumbleweed-label.svg"),
-                        scale: 0.0687,
+                        scale: 0.0768,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0687 / 2,
                             y: 0,
@@ -1397,7 +1397,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "picklistItem",
                     label: {
                         url: Script.resolvePath("../assets/tools/physics/presets/zero-g-label.svg"),
-                        scale: 0.0375,
+                        scale: 0.0384,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0375 / 2,
                             y: 0,
@@ -1411,7 +1411,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "picklistItem",
                     label: {
                         url: Script.resolvePath("../assets/tools/physics/presets/balloon-label.svg"),
-                        scale: 0.0459,
+                        scale: 0.0512,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0459 / 2,
                             y: 0,
@@ -1442,7 +1442,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     },
                     sublabel: {
                         url: Script.resolvePath("../assets/tools/common/down-arrow.svg"),
-                        scale: 0.0080,
+                        scale: 0.0128,
                         localPosition: {
                             x: 0.1416 / 2 - 0.0108 - 0.0080 / 2,
                             y: 0,
@@ -1452,7 +1452,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     },
                     customLabel: {
                         url: Script.resolvePath("../assets/tools/physics/presets/custom-label.svg"),
-                        scale: 0.0522,
+                        scale: 0.0640,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0522 / 2,
                             y: 0,
@@ -1497,7 +1497,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             z: UIT.dimensions.buttonDimensions.z / 2 + UIT.dimensions.imageOverlayOffset
                         },
                         url: Script.resolvePath("../assets/tools/physics/sliders/gravity-label.svg"),
-                        scale: 0.0240
+                        scale: 0.0256
                     },
                     setting: {
                         key: "VREdit.physicsTool.gravity",
@@ -1526,7 +1526,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             z: UIT.dimensions.buttonDimensions.z / 2 + UIT.dimensions.imageOverlayOffset
                         },
                         url: Script.resolvePath("../assets/tools/physics/sliders/bounce-label.svg"),
-                        scale: 0.0233
+                        scale: 0.0256
                     },
                     setting: {
                         key: "VREdit.physicsTool.bounce",
@@ -1555,7 +1555,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             z: UIT.dimensions.buttonDimensions.z / 2 + UIT.dimensions.imageOverlayOffset
                         },
                         url: Script.resolvePath("../assets/tools/physics/sliders/friction-label.svg"),
-                        scale: 0.0258
+                        scale: 0.0384
                     },
                     setting: {
                         key: "VREdit.physicsTool.friction",
@@ -1584,7 +1584,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             z: UIT.dimensions.buttonDimensions.z / 2 + UIT.dimensions.imageOverlayOffset
                         },
                         url: Script.resolvePath("../assets/tools/physics/sliders/density-label.svg"),
-                        scale: 0.0241
+                        scale: 0.0256
                     },
                     setting: {
                         key: "VREdit.physicsTool.density",
@@ -1603,7 +1603,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     properties: {
                         color: UIT.colors.white,
                         url: Script.resolvePath("../assets/tools/common/actions-label.svg"),
-                        scale: 0.0276,
+                        scale: 0.0384,
                         localPosition: {
                             x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0276 / 2,
                             y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0047 / 2,
@@ -1634,7 +1634,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     },
                     label: {
                         url: Script.resolvePath("../assets/tools/common/finish-label.svg"),
-                        scale: 0.0318
+                        scale: 0.0384
                     },
                     command: {
                         method: "clearTool"
@@ -1656,7 +1656,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "image",
                     properties: {
                         url: Script.resolvePath("../assets/tools/common/info-icon.svg"),
-                        scale: 0.0321,
+                        scale: 0.0384,
                         localPosition: {
                             x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0321 / 2,
                             y: -UIT.dimensions.panel.y / 2 + 0.0200 + 0.0320 / 2 + UIT.dimensions.footerHeight,
