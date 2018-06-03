@@ -966,7 +966,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     properties: {
                         color: UIT.colors.white,
                         url: Script.resolvePath("../assets/tools/common/actions-label.svg"),
-                        scale: 0.0276,
+                        scale: 0.0384,
                         localPosition: {
                             x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0276 / 2,
                             y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0047 / 2,
@@ -1005,7 +1005,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     highlightColor: UIT.colors.greenShadow,
                     label: {
                         url: Script.resolvePath("../assets/tools/group/group-label.svg"),
-                        scale: 0.0351,
+                        scale: 0.0384,
                         color: UIT.colors.baseGray
                     },
                     labelEnabledColor: UIT.colors.white,
@@ -1029,7 +1029,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     highlightColor: UIT.colors.redAccent,
                     label: {
                         url: Script.resolvePath("../assets/tools/group/ungroup-label.svg"),
-                        scale: 0.0496,
+                        scale: 0.0512,
                         color: UIT.colors.baseGray
                     },
                     labelEnabledColor: UIT.colors.white,
@@ -1061,7 +1061,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     },
                     label: {
                         url: Script.resolvePath("../assets/tools/group/selection-box-label.svg"),
-                        scale: 0.0161
+                        scale: 0.0256
                     },
                     command: {
                         method: "toggleGroupSelectionBox"
@@ -1083,7 +1083,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     highlightColor: UIT.colors.greenShadow,
                     label: {
                         url: Script.resolvePath("../assets/tools/group/clear-label.svg"),
-                        scale: 0.0314,
+                        scale: 0.0384,
                         color: UIT.colors.baseGray
                     },
                     labelEnabledColor: UIT.colors.white,
