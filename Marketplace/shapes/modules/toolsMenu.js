@@ -601,8 +601,8 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                         url: Script.resolvePath("../assets/tools/color/swatches-label.svg"),
                         scale: 0.0384,
                         localPosition: {
-                            x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0384 / 2,
-                            y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0064 / 2,
+                            x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0345 / 2,
+                            y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0047 / 2,
                             z: UIT.dimensions.panel.z / 2 + UIT.dimensions.imageOverlayOffset
                         }
                     }
@@ -837,7 +837,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     properties: {
                         color: UIT.colors.white,
                         url: Script.resolvePath("../assets/tools/common/actions-label.svg"),
-                        scale: 0.0276,
+                        scale: 0.0384,
                         localPosition: {
                             x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0276 / 2,
                             y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0047 / 2,
@@ -868,7 +868,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     },
                     label: {
                         url: Script.resolvePath("../assets/tools/common/finish-label.svg"),
-                        scale: 0.0318
+                        scale: 0.0384
                     },
                     command: {
                         method: "clearTool"
@@ -890,7 +890,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "image",
                     properties: {
                         url: Script.resolvePath("../assets/tools/common/info-icon.svg"),
-                        scale: 0.0321,
+                        scale: 0.0384,
                         localPosition: {
                             x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0321 / 2,
                             y: -UIT.dimensions.panel.y / 2 + 0.0200 + 0.0320 / 2 + UIT.dimensions.footerHeight,
@@ -904,7 +904,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "image",
                     properties: {
                         url: Script.resolvePath("../assets/tools/stretch/info-text.svg"),
-                        scale: 0.1340,
+                        scale: 0.1408,
                         localPosition: { // Vertically center on info icon.
                             x: -UIT.dimensions.panel.x / 2 + 0.0679 + 0.1340 / 2,
                             y: -UIT.dimensions.panel.y / 2 + 0.0200 + 0.0320 / 2 + UIT.dimensions.footerHeight,
