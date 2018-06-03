@@ -599,10 +599,10 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     properties: {
                         color: UIT.colors.white,
                         url: Script.resolvePath("../assets/tools/color/swatches-label.svg"),
-                        scale: 0.0345,
+                        scale: 0.0384,
                         localPosition: {
-                            x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0345 / 2,
-                            y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0047 / 2,
+                            x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0384 / 2,
+                            y: UIT.dimensions.panel.y / 2 - UIT.dimensions.topMargin - 0.0064 / 2,
                             z: UIT.dimensions.panel.z / 2 + UIT.dimensions.imageOverlayOffset
                         }
                     }
@@ -805,7 +805,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     },
                     label: {
                         url: Script.resolvePath("../assets/tools/color/pick-color-label.svg"),
-                        scale: 0.0120
+                        scale: 0.0128
                     },
                     command: {
                         method: "togglePickColor"
