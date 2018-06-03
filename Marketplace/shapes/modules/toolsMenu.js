@@ -131,9 +131,9 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
         MENU_HEADER_BACK_PROPERTIES = {
             // Magic numbers per UI design spec.
             url: Script.resolvePath("../assets/tools/back-icon.svg"),
-            dimensions: { x: 0.0069, y: 0.0107 },
+            scale: 0.0128,
             localPosition: {
-                x: -MENU_HEADER_HEADING_PROPERTIES.dimensions.x / 2 + 0.0118 + 0.0069 / 2,
+                x: -MENU_HEADER_HEADING_PROPERTIES.dimensions.x / 2 + 0.0118 + 0.0128 / 2,
                 y: 0,
                 z: MENU_HEADER_HEADING_PROPERTIES.dimensions.z / 2 + UIT.dimensions.imageOverlayOffset
             },
@@ -148,7 +148,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
 
         MENU_HEADER_TITLE_PROPERTIES = {
             url: Script.resolvePath("../assets/tools/tools-heading.svg"),
-            scale: 0.0327,
+            scale: 0.0384,
             localPosition: {
                 x: 0,
                 y: 0,
@@ -175,7 +175,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
 
         MENU_HEADER_ICON_PROPERTIES = {
             url: Script.resolvePath("../assets/tools/color-icon.svg"), // Initial value so that the overlay is initialized OK.
-            dimensions: { x: 0.01, y: 0.01 }, // Ditto.
+            scale: 0.01, // Ditto.
             localPosition: Vec3.ZERO, // Ditto.
             localRotation: Quat.ZERO,
             color: UIT.colors.lightGrayText,
@@ -890,7 +890,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "image",
                     properties: {
                         url: Script.resolvePath("../assets/tools/common/info-icon.svg"),
-                        dimensions: { x: 0.0321, y: 0.0320 },
+                        scale: 0.0321,
                         localPosition: {
                             x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0321 / 2,
                             y: -UIT.dimensions.panel.y / 2 + 0.0200 + 0.0320 / 2 + UIT.dimensions.footerHeight,
@@ -1341,7 +1341,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "picklistItem",
                     label: {
                         url: Script.resolvePath("../assets/tools/physics/presets/ice-label.svg"),
-                        scale: 0.0144,
+                        scale: 0.0256,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0144 / 2,
                             y: 0,
@@ -1355,7 +1355,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "picklistItem",
                     label: {
                         url: Script.resolvePath("../assets/tools/physics/presets/rubber-label.svg"),
-                        scale: 0.0400,
+                        scale: 0.0512,
                         localPosition: {
                             x: -0.1416 / 2 + 0.017 + 0.0400 / 2,
                             y: 0,
@@ -1656,7 +1656,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                     type: "image",
                     properties: {
                         url: Script.resolvePath("../assets/tools/common/info-icon.svg"),
-                        dimensions: { x: 0.0321, y: 0.0320 },
+                        scale: 0.0321,
                         localPosition: {
                             x: -UIT.dimensions.panel.x / 2 + UIT.dimensions.leftMargin + 0.0321 / 2,
                             y: -UIT.dimensions.panel.y / 2 + 0.0200 + 0.0320 / 2 + UIT.dimensions.footerHeight,
@@ -1700,25 +1700,25 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                 icon: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/color-icon.svg"),
-                        dimensions: { x: 0.0165, y: 0.0187 }
+                        scale: 0.0256
                     },
                     headerOffset: { x: -0.00825, y: 0.0020, z: 0 }
                 },
                 label: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/color-label.svg"),
-                        scale: 0.0241
+                        scale: 0.0256
                     }
                 },
                 sublabel: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/tool-label.svg"),
-                        scale: 0.0152
+                        scale: 0.0256
                     }
                 },
                 title: {
                     url: Script.resolvePath("../assets/tools/color-tool-heading.svg"),
-                    scale: 0.0631
+                    scale: 0.0640
                 },
                 toolOptions: "colorOptions",
                 callback: {
@@ -1739,25 +1739,25 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                 icon: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/stretch-icon.svg"),
-                        dimensions: { x: 0.0167, y: 0.0167 }
+                        scale: 0.0256
                     },
                     headerOffset: { x: -0.00835, y: 0, z: 0 }
                 },
                 label: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/stretch-label.svg"),
-                        scale: 0.0311
+                        scale: 0.0384
                     }
                 },
                 sublabel: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/tool-label.svg"),
-                        scale: 0.0152
+                        scale: 0.0256
                     }
                 },
                 title: {
                     url: Script.resolvePath("../assets/tools/stretch-tool-heading.svg"),
-                    scale: 0.0737
+                    scale: 0.0768
                 },
                 toolOptions: "scaleOptions",
                 callback: {
@@ -1777,25 +1777,25 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                 icon: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/clone-icon.svg"),
-                        dimensions: { x: 0.0154, y: 0.0155 }
+                        scale: 0.0256
                     },
                     headerOffset: { x: -0.0077, y: 0, z: 0 }
                 },
                 label: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/clone-label.svg"),
-                        scale: 0.0231
+                        scale: 0.0256
                     }
                 },
                 sublabel: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/tool-label.svg"),
-                        scale: 0.0152
+                        scale: 0.0256
                     }
                 },
                 title: {
                     url: Script.resolvePath("../assets/tools/clone-tool-heading.svg"),
-                    scale: 0.0621
+                    scale: 0.0640
                 },
                 toolOptions: "cloneOptions",
                 callback: {
@@ -1815,25 +1815,25 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                 icon: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/group-icon.svg"),
-                        dimensions: { x: 0.0161, y: 0.0114 }
+                        scale: 0.0256
                     },
                     headerOffset: { x: -0.00805, y: 0, z: 0 }
                 },
                 label: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/group-label.svg"),
-                        scale: 0.0250
+                        scale: 0.0256
                     }
                 },
                 sublabel: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/tool-label.svg"),
-                        scale: 0.0152
+                        scale: 0.0256
                     }
                 },
                 title: {
                     url: Script.resolvePath("../assets/tools/group-tool-heading.svg"),
-                    scale: 0.0647
+                    scale: 0.0768
                 },
                 toolOptions: "groupOptions",
                 callback: {
@@ -1853,25 +1853,25 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                 icon: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/physics-icon.svg"),
-                        dimensions: { x: 0.0180, y: 0.0198 }
+                        scale: 0.0256
                     },
                     headerOffset: { x: -0.009, y: 0, z: 0 }
                 },
                 label: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/physics-label.svg"),
-                        scale: 0.0297
+                        scale: 0.0384
                     }
                 },
                 sublabel: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/tool-label.svg"),
-                        scale: 0.0152
+                        scale: 0.0256
                     }
                 },
                 title: {
                     url: Script.resolvePath("../assets/tools/physics-tool-heading.svg"),
-                    scale: 0.0712
+                    scale: 0.0768
                 },
                 toolOptions: "physicsOptions",
                 callback: {
@@ -1891,25 +1891,25 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                 icon: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/delete-icon.svg"),
-                        dimensions: { x: 0.0161, y: 0.0161 }
+                        scale: 0.0256
                     },
                     headerOffset: { x: -0.00805, y: 0, z: 0 }
                 },
                 label: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/delete-label.svg"),
-                        scale: 0.0254
+                        scale: 0.0256
                     }
                 },
                 sublabel: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/tool-label.svg"),
-                        scale: 0.0152
+                        scale: 0.0256
                     }
                 },
                 title: {
                     url: Script.resolvePath("../assets/tools/delete-tool-heading.svg"),
-                    scale: 0.0653
+                    scale: 0.0768
                 },
                 toolOptions: "deleteOptions",
                 callback: {
@@ -1950,13 +1950,13 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                 icon: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/undo-icon.svg"),
-                        dimensions: { x: 0.0180, y: 0.0186 }
+                        scale: 0.0256
                     }
                 },
                 label: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/undo-label.svg"),
-                        scale: 0.0205
+                        scale: 0.0256
                     }
                 },
                 callback: {
@@ -1976,13 +1976,13 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                 icon: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/redo-icon.svg"),
-                        dimensions: { x: 0.0180, y: 0.0186 }
+                        scale: 0.0256
                     }
                 },
                 label: {
                     properties: {
                         url: Script.resolvePath("../assets/tools/redo-label.svg"),
-                        scale: 0.0192
+                        scale: 0.0256
                     }
                 },
                 callback: {
@@ -2196,7 +2196,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
         });
         Overlays.editOverlay(menuHeaderIconOverlay, {
             url: menuItem.icon.properties.url,
-            dimensions: menuItem.icon.properties.dimensions,
+            scale: menuItem.icon.properties.scale,
             localPosition: Vec3.sum(MENU_HEADER_ICON_OFFSET, menuItem.icon.headerOffset),
             visible: isVisible
         });
