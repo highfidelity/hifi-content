@@ -24,7 +24,7 @@
         START_DELAY = 2000, // ms
 
         // Application state
-        isAppActive,
+        isAppActive = false,
         dominantHand,
 
         // Tool state
@@ -1985,11 +1985,6 @@
             return;
         }
 
-        // Application state.
-        isAppActive = false;
-        updateControllerDispatcher();
-        dominantHand = MyAvatar.getDominantHand() === "left" ? LEFT_HAND : RIGHT_HAND;
-
         // Tablet/toolbar button.
         hasRezPermissions = Entities.canRez() || Entities.canRezTmp();
         tabletButton = tablet.addButton({
@@ -2001,7 +1996,15 @@
         });
         if (tabletButton) {
             tabletButton.clicked.connect(onTabletButtonClicked);
+        } else {
+            console.error("ERROR: Tablet button not created! App not started.");
+            tablet = null;
+            return;
         }
+
+        // Application state.
+        updateControllerDispatcher();
+        dominantHand = MyAvatar.getDominantHand() === "left" ? LEFT_HAND : RIGHT_HAND;
 
         // Input objects.
         inputs[LEFT_HAND] = new Inputs(LEFT_HAND);
