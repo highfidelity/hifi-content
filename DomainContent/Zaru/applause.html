@@ -86,18 +86,38 @@
     <body>
         <h1>Applause Test</h1>
         <h2>You may now applaud.</h2>
-        <button id="clapButton"> Test Clap </button>
+        <input type="button" class="white" id="clapButton" value="Test Clap">  </input>
+        <input type="checkbox" id="chimeOn"> Use Chime Sound </input><br><br>
+        <input type="button" class="white" id="pressAndHoldApplause" value = "Press and Hold Applause"></input>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
             $('#clapButton').click(function(){
                 var event = {
-                type: "clap"
+                    type: "clap"                
                 };
-                
                 EventBridge.emitWebEvent(JSON.stringify(event));
-
             });
-
+            $('#chimeOn').click(function(){
+                var event = {
+                    type: "chime",
+                    value: document.getElementById("chimeOn").checked
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#pressAndHoldApplause').mousedown(function(){
+                var event = {
+                    type: "continuous",
+                    value: "start"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#pressAndHoldApplause').mouseup(function(){
+                var event = {
+                    type: "continuous",
+                    value: "end"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            })
         </script>
     </body>
 

@@ -1,4 +1,20 @@
+//
+//  Created by Liv Erickson on 6/4/18
+//  Copyright 2018 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
 (function() {
+
+    var INDIVIDUAL_CLAP_URL = Script.resolvePath("sounds/clapping-mix.wav");
+
+    var CHIME_SOUND = Script.resolvePath("sounds/bell-chime-alert.wav");
+    var APPLAUSE_BUTTON_IMAGE = Script.resolvePath("button.png");
+
+    var LOCAL_CLAP_TIMEOUT = 250; // ms
+    var WINDOW_Y_OFFSET = 24;
+    var BUTTON_DIMENSIONS = {x: 221, y: 69};
 
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var appPage = Script.resolvePath("applause.html");
@@ -6,18 +22,14 @@
         text: "Clap"
     });
 
-    var INDIVIDUAL_CLAP_URLS = [
-        Script.resolvePath("sounds/Claps/clap-3.wav"),
-        Script.resolvePath("sounds/Claps/clap-4.wav"),
-        Script.resolvePath("sounds/Claps/clap-5.wav"),
-        Script.resolvePath("sounds/Claps/clap-6.wav"),
-        Script.resolvePath("sounds/Claps/clap-7.wav"),
-        Script.resolvePath("sounds/Claps/clap-8.wav"),
-        Script.resolvePath("sounds/Claps/clap-9.wav"),
-        Script.resolvePath("sounds/Claps/clap-10.wav")
-    ];
+    var shouldUseChimeSound = false;
+    var continuousApplause = false;
+    var continuousApplauseIntensity = 0;
+    var intensityScaleFunction;
+    var currentHeart;
 
-    var LOCAL_CLAP_TIMEOUT = 250; // ms
+
+    var applauseOverlay;
 
     var localIntentCounter = 0;
 
@@ -150,7 +162,8 @@
     function playIndividualClapSound() {
         localIntentCounter++;
         applauseListenerEntity = Entities.findEntitiesByName("Applause-Listener", MyAvatar.position, 10, true)[0]; 
-        individualClapSound = SoundCache.getSound(INDIVIDUAL_CLAP_URLS[Math.round(Math.random() * INDIVIDUAL_CLAP_URLS.length - 1)]);
+        individualClapSound = shouldUseChimeSound ? SoundCache.getSound(CHIME_SOUND) :
+            SoundCache.getSound(INDIVIDUAL_CLAP_URL);
 
         if (localIntentCounter > 5) {
             Entities.callEntityServerMethod(applauseListenerEntity, 'queueApplauseIntent', [MyAvatar.position]);
@@ -160,22 +173,64 @@
             Audio.playSound(individualClapSound, {
                 volume: Math.random(),
                 localOnly: true,
-                position: MyAvatar.position,
-                pitch: 1.0 + Math.random()
+                position: MyAvatar.position
             });
         }
         if (HMD.active) {
             Controller.triggerHapticPulse(0.75, 100, 2);
-            playParticleEffect();
         }
+        playParticleEffect();
+
+    }
+
+    function startContinuousApplause() {
+        var maxIntensity = 1;
+        currentHeart = null; // In case we have an old heart?
+        currentHeart = Entities.addEntity(
+            {
+                type: 'Sphere',
+                name: 'Heart',
+                position: Vec3.sum(MyAvatar.position, Vec3.multiply(Quat.getFront(MyAvatar.orientation), 1))
+            }
+        );
+        intensityScaleFunction = Script.setInterval(function(){
+            continuousApplauseIntensity += 0.025;
+            var previousDimensions = Entities.getEntityProperties(currentHeart, 'dimensions').dimensions;
+            Entities.editEntity(currentHeart, { dimensions : {x: previousDimensions.x + 0.025, y: previousDimensions.y + 0.025, z: previousDimensions.z + 0.025 } });
+            if (continuousApplauseIntensity >= maxIntensity) {
+                stopContinuousApplause();
+            }
+        }, 125);
+    }
+
+    function stopContinuousApplause() {
+        Script.clearInterval(intensityScaleFunction);
+        Entities.editEntity(currentHeart, {dynamic: true, velocity: {x: 0, y: 1, z: 0}});
+        currentHeart = null;
+        continuousApplauseIntensity = 0;
     }
 
     function onWebEventReceived(event) {
         if (typeof event === "string") {
             event = JSON.parse(event);
         }
+        print(JSON.stringify(event));
         if (event.type === "clap") {
             playIndividualClapSound();
+        }
+        if (event.type === "chime") {
+            shouldUseChimeSound = event.value;
+        }
+        if (event.type === "continuous") {
+            if (event.value === "start") {
+                continuousApplause = true;
+                startContinuousApplause();
+                print("Starting continuous applause");
+            } else {
+                continuousApplause = false;
+                stopContinuousApplause();
+                print("Ending continuous applause");
+            }
         }
     }
 
@@ -202,9 +257,6 @@
 
         var oldPositionR = previousHandLocations[0];
         var oldPositionL = previousHandLocations[1];
-
-        // print("Old positions: " + JSON.stringify(oldPositionL) + "," + JSON.stringify(oldPositionR));
-        // print("New positions: " + JSON.stringify(handPositionL) + "," + JSON.stringify(handPositionR));
 
         // console.log("Vec3.distance(handPositionL, handPositionR)", Vec3.distance(handPositionL, handPositionR));
         if (Vec3.distance(handPositionL, handPositionR) <= 0.2) {
@@ -239,17 +291,32 @@
             previousHandLocations.push(handPositionR);
             previousHandLocations.push(handPositionL);
 
-
         }
 
     }
     var checkDistanceActive = false;
 
+    function removeDesktopOverlay(){
+        Overlays.deleteOverlay(applauseOverlay);
+    }
+
+    function addDesktopOverlay() {
+        removeDesktopOverlay();
+        var windowHeight = Controller.getViewportDimensions().y;
+        applauseOverlay = Overlays.addOverlay("image", {
+            imageURL: APPLAUSE_BUTTON_IMAGE,
+            x: 0,
+            y: windowHeight - BUTTON_DIMENSIONS.y - WINDOW_Y_OFFSET,
+            width: BUTTON_DIMENSIONS.x,
+            height: BUTTON_DIMENSIONS.y,
+            alpha: 1.0,
+            visible: true
+        });
+    }
+
     function onScreenChanged(type, url) {
         open = (url === appPage);
         if (open) {
-            print("You can clap now");
-
             if (HMD.active) {
                 Script.update.connect(checkHandsDistance);
                 checkDistanceActive = true;
@@ -257,14 +324,31 @@
             previousHandLocations.push(MyAvatar.getJointPosition("RightHand"));
             previousHandLocations.push(MyAvatar.getJointPosition("LeftHand"));
 
+            if (!HMD.active) {
+                Controller.mousePressEvent.connect(mousePressEvent);
+                addDesktopOverlay();
+            }
+
         } else {
             print("You cannot clap now");
             if (checkDistanceActive === true) {
                 Script.update.disconnect(checkHandsDistance);
                 checkDistanceActive = false;
             }
+            Controller.mousePressEvent.disconnect(mousePressEvent);
+            removeDesktopOverlay();
         }
     }
+
+    var mousePressEvent = function (event) {
+        if (!event.isLeftButton) {
+            return;
+        }
+        var selectedResult = Overlays.getOverlayAtPoint({x: event.x, y: event.y});
+        if (selectedResult === applauseOverlay) {
+            playIndividualClapSound();
+        }
+    };
 
     tablet.screenChanged.connect(onScreenChanged);
 
@@ -273,6 +357,8 @@
         tablet.removeButton(button);
         tablet.screenChanged.disconnect(onScreenChanged);
         tablet.webEventReceived.disconnect(onWebEventReceived);
+        Controller.mousePressEvent.disconnect(mousePressEvent);
+        removeDesktopOverlay();
     }
 
     Script.scriptEnding.connect(appEnding);
