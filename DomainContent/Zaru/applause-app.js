@@ -8,7 +8,7 @@
 (function() {
 
     var INDIVIDUAL_CLAP_URL = Script.resolvePath("sounds/clapping-mix.wav");
-
+    var ONGOING_APPLAUSE_URL = Script.resolvePath("sounds/small-clap.wav");
     var CHIME_SOUND = Script.resolvePath("sounds/bell-chime-alert.wav");
     var APPLAUSE_BUTTON_IMAGE = Script.resolvePath("button.png");
 
@@ -23,21 +23,15 @@
     });
 
     var shouldUseChimeSound = false;
-    var continuousApplause = false;
     var continuousApplauseIntensity = 0;
+    var continuousApplauseSound;
     var intensityScaleFunction;
     var currentHeart;
-
-
     var applauseOverlay;
-
     var localIntentCounter = 0;
-
     var canPlayLocalClap = true;
     var previousHandLocations = [];
-
     var individualClapSound; 
-
     var applauseListenerEntity;
 
     var open = false;
@@ -185,6 +179,13 @@
 
     function startContinuousApplause() {
         var maxIntensity = 1;
+        var continuousApplause =  SoundCache.getSound(ONGOING_APPLAUSE_URL);
+        if (continuousApplause.downloaded) {
+            continuousApplauseSound = Audio.playSound(continuousApplause, {
+                position: MyAvatar.position,
+                looping: true
+            });
+        }
         currentHeart = null; // In case we have an old heart?
         currentHeart = Entities.addEntity(
             {
@@ -204,6 +205,7 @@
     }
 
     function stopContinuousApplause() {
+        continuousApplauseSound.stop();
         Script.clearInterval(intensityScaleFunction);
         Entities.editEntity(currentHeart, {dynamic: true, velocity: {x: 0, y: 1, z: 0}});
         currentHeart = null;
