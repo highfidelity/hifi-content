@@ -11,10 +11,13 @@
     var ONGOING_APPLAUSE_URL = Script.resolvePath("sounds/small-clap.wav");
     var CHIME_SOUND = Script.resolvePath("sounds/bell-chime-alert.wav");
     var APPLAUSE_BUTTON_IMAGE = Script.resolvePath("button.png");
+    var HEART_MODEL_URL = Script.resolvePath("heart.fbx");
 
     var LOCAL_CLAP_TIMEOUT = 250; // ms
     var WINDOW_Y_OFFSET = 24;
     var BUTTON_DIMENSIONS = {x: 221, y: 69};
+    var INCREASE_SCALE_FACTOR = 0.025;
+    var INCREASE_SCALE_VECTOR = {x: 0.00442, y: 0.00382, z: .002};
 
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var appPage = Script.resolvePath("applause.html");
@@ -33,6 +36,8 @@
     var previousHandLocations = [];
     var individualClapSound; 
     var applauseListenerEntity;
+    var isHoldingTrigger = false;
+
 
     var open = false;
 
@@ -176,6 +181,15 @@
         playParticleEffect();
 
     }
+    function createPosition() {
+        var DISTANCE = 0.5;
+        var direction = Quat.getFront(MyAvatar.orientation);
+        var distance = DISTANCE;
+        var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
+        position.y += DISTANCE;
+        return position;
+    }
+
 
     function startContinuousApplause() {
         var maxIntensity = 1;
@@ -189,15 +203,18 @@
         currentHeart = null; // In case we have an old heart?
         currentHeart = Entities.addEntity(
             {
-                type: 'Sphere',
+                type: 'Model',
+                modelURL: HEART_MODEL_URL,
                 name: 'Heart',
-                position: Vec3.sum(MyAvatar.position, Vec3.multiply(Quat.getFront(MyAvatar.orientation), 1))
+                position: createPosition()
             }
         );
         intensityScaleFunction = Script.setInterval(function(){
-            continuousApplauseIntensity += 0.025;
+            continuousApplauseIntensity += INCREASE_SCALE_FACTOR;
             var previousDimensions = Entities.getEntityProperties(currentHeart, 'dimensions').dimensions;
-            Entities.editEntity(currentHeart, { dimensions : {x: previousDimensions.x + 0.025, y: previousDimensions.y + 0.025, z: previousDimensions.z + 0.025 } });
+            Entities.editEntity(currentHeart, { dimensions : {x: previousDimensions.x + INCREASE_SCALE_VECTOR.x, 
+                y: previousDimensions.y + INCREASE_SCALE_VECTOR.y, 
+                z: previousDimensions.z + INCREASE_SCALE_VECTOR.z } });
             if (continuousApplauseIntensity >= maxIntensity) {
                 stopContinuousApplause();
             }
@@ -209,7 +226,13 @@
             continuousApplauseSound.stop();
         }, 500);
         Script.clearInterval(intensityScaleFunction);
-        Entities.editEntity(currentHeart, {dynamic: true, velocity: {x: 0, y: 1, z: 0}});
+        Entities.editEntity(currentHeart, {
+            dynamic: true, 
+            velocity: {x: 0, y: 1.5, z: 0}, 
+            angularVelocity: {x: 0, y: -5, z: 0}, 
+            angularDamping : {x: 0, y: 0, z: 0},
+            lifetime: 300
+        });
         currentHeart = null;
         continuousApplauseIntensity = 0;
     }
@@ -251,6 +274,25 @@
         MyAvatar.clearJointData("LeftForeArm");
     }
 
+    function update() {
+        var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
+        var TRIGGER_THRESHOLD = 0.9;
+        var triggerValueL = Controller.getValue(TRIGGER_CONTROLS[0]);
+        var triggerValueR = Controller.getValue(TRIGGER_CONTROLS[1]);
+
+        if (triggerValueL >= TRIGGER_THRESHOLD && triggerValueR >= TRIGGER_THRESHOLD) {
+            if (!isHoldingTrigger) {
+                isHoldingTrigger = true;
+                startContinuousApplause();
+            }
+        } else {
+            if (isHoldingTrigger) {
+                isHoldingTrigger = false;
+                stopContinuousApplause();
+            }
+        }
+    }
+
     function checkHandsDistance() {
         // console.log("###4 In check Hand Distance");
 
@@ -268,13 +310,16 @@
                 makeOpenPalm();
                 // stretchHands();
                 handsStretched = true;
+                Script.update.connect(update);
             }
+
         } else {
             if (handsStretched) {
                 console.log("###6 About to call Clear Joints");
                 clearJoints();
                 // unStretchHands();
                 handsStretched = false;
+                Script.update.disconnect(update);
             }
         }
 
