@@ -88,7 +88,8 @@
         <h2>You may now applaud.</h2>
         <input type="button" class="white" id="clapButton" value="Test Clap">  </input>
         <input type="checkbox" id="chimeOn"> Use Chime Sound </input><br><br>
-        <input type="button" class="white" id="pressAndHoldApplause" value = "Press and Hold Applause"></input>
+        <input type="button" class="white" id="pressAndHoldApplause" value = "Press and Hold Applause"></input> <br><br>
+        <input type="button" class="white" id="requestServerToHandleClap" value = "Request Server Applause"></input>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
             $('#clapButton').click(function(){
@@ -117,7 +118,13 @@
                     value: "end"
                 };
                 EventBridge.emitWebEvent(JSON.stringify(event));
-            })
+            });
+            $('#requestServerToHandleClap').click(function(){
+                var event = {
+                    type: "serverApplause"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
         </script>
     </body>
 

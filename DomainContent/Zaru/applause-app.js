@@ -13,11 +13,14 @@
     var APPLAUSE_BUTTON_IMAGE = Script.resolvePath("button.png");
     var HEART_MODEL_URL = Script.resolvePath("heart.fbx");
 
-    var LOCAL_CLAP_TIMEOUT = 250; // ms
+    var SERVER_ENTITY_NAME = "Applause Generator";
+
+    var LOCAL_CLAP_TIMEOUT = 175; // ms
     var WINDOW_Y_OFFSET = 24;
     var BUTTON_DIMENSIONS = {x: 221, y: 69};
     var INCREASE_SCALE_FACTOR = 0.025;
-    var INCREASE_SCALE_VECTOR = {x: 0.00442, y: 0.00382, z: .002};
+    var INCREASE_SCALE_VECTOR = {x: 0.00884, y: 0.00764, z: .004};
+    var HAND_PROXIMITY_DISTANCE = 0.25;
 
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     var appPage = Script.resolvePath("applause.html");
@@ -34,6 +37,7 @@
     var localIntentCounter = 0;
     var canPlayLocalClap = true;
     var previousHandLocations = [];
+    var previousHandOrientations = [];
     var individualClapSound; 
     var applauseListenerEntity;
     var isHoldingTrigger = false;
@@ -170,7 +174,7 @@
         }
         if (individualClapSound.downloaded) {
             Audio.playSound(individualClapSound, {
-                volume: Math.random(),
+                volume: 0.25,
                 localOnly: true,
                 position: MyAvatar.position
             });
@@ -182,7 +186,7 @@
 
     }
     function createPosition() {
-        var DISTANCE = 0.5;
+        var DISTANCE = 1.0;
         var direction = Quat.getFront(MyAvatar.orientation);
         var distance = DISTANCE;
         var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
@@ -206,15 +210,20 @@
                 type: 'Model',
                 modelURL: HEART_MODEL_URL,
                 name: 'Heart',
-                position: createPosition()
+                position: createPosition(),
+                collidesWith: "static,dynamic,kinematic,",
+                collisionMask: 3,
+                shapeType: "Box"
+
             }
         );
         intensityScaleFunction = Script.setInterval(function(){
             continuousApplauseIntensity += INCREASE_SCALE_FACTOR;
             var previousDimensions = Entities.getEntityProperties(currentHeart, 'dimensions').dimensions;
-            Entities.editEntity(currentHeart, { dimensions : {x: previousDimensions.x + INCREASE_SCALE_VECTOR.x, 
-                y: previousDimensions.y + INCREASE_SCALE_VECTOR.y, 
-                z: previousDimensions.z + INCREASE_SCALE_VECTOR.z } });
+            Entities.editEntity(currentHeart, { 
+                dimensions : {x: previousDimensions.x + INCREASE_SCALE_VECTOR.x, 
+                    y: previousDimensions.y + INCREASE_SCALE_VECTOR.y, 
+                    z: previousDimensions.z + INCREASE_SCALE_VECTOR.z } });
             if (continuousApplauseIntensity >= maxIntensity) {
                 stopContinuousApplause();
             }
@@ -228,8 +237,8 @@
         Script.clearInterval(intensityScaleFunction);
         Entities.editEntity(currentHeart, {
             dynamic: true, 
-            velocity: {x: 0, y: 1.5, z: 0}, 
-            angularVelocity: {x: 0, y: -5, z: 0}, 
+            velocity: {x: 0, y: Math.round(Math.random() * 3), z: 0}, 
+            angularVelocity: {x: 0, y: -1 * (Math.round(Math.random() * 10)), z: 0}, 
             angularDamping : {x: 0, y: 0, z: 0},
             lifetime: 300
         });
@@ -251,11 +260,14 @@
         if (event.type === "continuous") {
             if (event.value === "start") {
                 startContinuousApplause();
-                print("Starting continuous applause");
             } else {
                 stopContinuousApplause();
-                print("Ending continuous applause");
             }
+        }
+        if (event.type === "serverApplause") {
+            var position = JSON.stringify(MyAvatar.position);
+            var applauseServerEntity = Entities.findEntitiesByName(SERVER_ENTITY_NAME, position, 15)[0]; // find first result
+            Entities.callEntityServerMethod(applauseServerEntity, 'playIndividualClap', [position]);
         }
     }
 
@@ -275,8 +287,8 @@
     }
 
     function update() {
-        var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
-        var TRIGGER_THRESHOLD = 0.9;
+        var TRIGGER_CONTROLS = [Controller.Standard.LS, Controller.Standard.RS];
+        var TRIGGER_THRESHOLD = 0.85;
         var triggerValueL = Controller.getValue(TRIGGER_CONTROLS[0]);
         var triggerValueR = Controller.getValue(TRIGGER_CONTROLS[1]);
 
@@ -293,17 +305,25 @@
         }
     }
 
+    function compareRotations(q1, q2) {
+        var threshold = 0.85;
+        return (Quat.dot(q1, q2) <= threshold);
+    }
+
     function checkHandsDistance() {
-        // console.log("###4 In check Hand Distance");
+        // console.log("###4 In check Hand Distance");b 
 
         var handPositionR = MyAvatar.getJointPosition("RightHand");
         var handPositionL = MyAvatar.getJointPosition("LeftHand");
 
-        var oldPositionR = previousHandLocations[0];
-        var oldPositionL = previousHandLocations[1];
+        var handRotationR = MyAvatar.getRightPalmRotation();
+        var handRotationL = MyAvatar.getLeftPalmRotation();
+
+        var oldRotationR = previousHandOrientations[0];
+        var oldRotationL = previousHandOrientations[1];
 
         // console.log("Vec3.distance(handPositionL, handPositionR)", Vec3.distance(handPositionL, handPositionR));
-        if (Vec3.distance(handPositionL, handPositionR) <= 0.2) {
+        if (Vec3.distance(handPositionL, handPositionR) <= HAND_PROXIMITY_DISTANCE) {
 
             if (!handsStretched) {
                 console.log("###5 About to call make Open Palm");
@@ -323,20 +343,14 @@
             }
         }
 
-        if ((Vec3.distance(handPositionL, handPositionR) <= 0.2 && Vec3.distance(oldPositionL, handPositionL) >= 0.01 &&
-                Vec3.distance(oldPositionR, handPositionR) >= 0.01 &&
-                canPlayLocalClap)) {
+        if ((Vec3.distance(handPositionL, handPositionR) <= HAND_PROXIMITY_DISTANCE) 
+            && (compareRotations(oldRotationR, handRotationR) 
+            || compareRotations(oldRotationL, handRotationL))) {
             // console.log("###7 About to Play Clap");
-            canPlayLocalClap = false;
             playIndividualClapSound();
-            Script.setTimeout(function() {
-                canPlayLocalClap = true;
-            }, LOCAL_CLAP_TIMEOUT);
-
-            previousHandLocations = [];
-
-            previousHandLocations.push(handPositionR);
-            previousHandLocations.push(handPositionL);
+            previousHandOrientations = [];
+            previousHandOrientations.push(handRotationR);
+            previousHandOrientations.push(handRotationL);
 
         }
 
@@ -370,6 +384,9 @@
             }
             previousHandLocations.push(MyAvatar.getJointPosition("RightHand"));
             previousHandLocations.push(MyAvatar.getJointPosition("LeftHand"));
+
+            previousHandOrientations.push(MyAvatar.getRightPalmRotation());
+            previousHandOrientations.push(MyAvatar.getLeftPalmRotation());
 
             if (!HMD.active) {
                 Controller.mousePressEvent.connect(mousePressEvent);
