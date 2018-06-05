@@ -1,5 +1,5 @@
 //
-//  gateServer.js
+//  stageManagementTargetServer.js
 //
 //  Created by Rebecca Stankus on 3/6/18.
 //  Copyright 2018 High Fidelity, Inc.
