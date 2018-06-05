@@ -179,7 +179,7 @@
 
     function startContinuousApplause() {
         var maxIntensity = 1;
-        var continuousApplause =  SoundCache.getSound(ONGOING_APPLAUSE_URL);
+        var continuousApplause = SoundCache.getSound(ONGOING_APPLAUSE_URL);
         if (continuousApplause.downloaded) {
             continuousApplauseSound = Audio.playSound(continuousApplause, {
                 position: MyAvatar.position,
@@ -205,7 +205,9 @@
     }
 
     function stopContinuousApplause() {
-        continuousApplauseSound.stop();
+        Script.setTimeout(function() {
+            continuousApplauseSound.stop();
+        }, 500);
         Script.clearInterval(intensityScaleFunction);
         Entities.editEntity(currentHeart, {dynamic: true, velocity: {x: 0, y: 1, z: 0}});
         currentHeart = null;
@@ -225,11 +227,9 @@
         }
         if (event.type === "continuous") {
             if (event.value === "start") {
-                continuousApplause = true;
                 startContinuousApplause();
                 print("Starting continuous applause");
             } else {
-                continuousApplause = false;
                 stopContinuousApplause();
                 print("Ending continuous applause");
             }
