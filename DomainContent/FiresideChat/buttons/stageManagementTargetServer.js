@@ -14,7 +14,7 @@
     var MOVEMENT_INCREMENT_M = 0.02;
     var MOVEMENT_INTERVAL_MS = 15;
 
-    var moving;
+    var isMoving;
     var currentPosition;
     var upPosition;
     var downPosition;
@@ -57,8 +57,8 @@
                     position: currentPosition
                 });
             } else {
-                if (moving) {
-                    Script.clearInterval(moving);
+                if (isMoving) {
+                    Script.clearInterval(isMoving);
                 }
             }
         },
@@ -69,30 +69,30 @@
                     position: currentPosition
                 });
             } else {
-                if (moving) {
-                    Script.clearInterval(moving);
+                if (isMoving) {
+                    Script.clearInterval(isMoving);
                 }
             }
         },
         raise: function() {
-            if (moving) {
-                Script.clearInterval(moving);
+            if (isMoving) {
+                Script.clearInterval(isMoving);
             }
-            moving = Script.setInterval(function() {
+            isMoving = Script.setInterval(function() {
                 _this.up();
             }, MOVEMENT_INTERVAL_MS);
         },
         lower: function() {
-            if (moving) {
-                Script.clearInterval(moving);
+            if (isMoving) {
+                Script.clearInterval(isMoving);
             }
-            moving = Script.setInterval(function() {
+            isMoving = Script.setInterval(function() {
                 _this.down();
             }, MOVEMENT_INTERVAL_MS);
         },
         unload: function() {
-            if (moving) {
-                Script.clearInterval(moving);
+            if (isMoving) {
+                Script.clearInterval(isMoving);
             }
         }
     };
