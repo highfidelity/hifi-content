@@ -1,5 +1,5 @@
 //
-// todayButton.js
+// stageManagementButton.js
 // 
 // Created by Rebecca Stankus on 06/05/2018
 // Copyright High Fidelity 2018
