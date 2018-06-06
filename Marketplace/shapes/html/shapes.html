@@ -66,14 +66,6 @@ See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.
 
     <p>Click an icon and the entity is created at your hand. It is grabbed if you continue to squeeze the trigger.</p>
 
-    <script>
-        var script = document.createElement("script");
-        script.onload = function () {
-            ui.onLoad();
-            document.getElementsByTagName("body")[0].setAttribute("onunload", "ui.onUnload()");
-        }
-        script.src = "shapes.js";
-        document.getElementsByTagName("head")[0].appendChild(script);
-    </script>
+    <script type="text/javascript" src="shapes.js"></script>
 </body>
 </html>
