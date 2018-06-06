@@ -7,25 +7,25 @@
 //
 (function() {
 
-    var INDIVIDUAL_CLAP_URL = Script.resolvePath("sounds/clapping-mix.wav");
-    var ONGOING_APPLAUSE_URL = Script.resolvePath("sounds/small-clap.wav");
-    var CHIME_SOUND = Script.resolvePath("sounds/bell-chime-alert.wav");
-    var APPLAUSE_BUTTON_IMAGE = Script.resolvePath("button.png");
-    var HEART_MODEL_URL = Script.resolvePath("heart.fbx");
+    var INDIVIDUAL_CLAP_URL = Script.resolvePath('sounds/clapping-mix.wav');
+    var ONGOING_APPLAUSE_URL = Script.resolvePath('sounds/small-clap.wav');
+    var CHIME_SOUND = Script.resolvePath('sounds/bell-chime-alert.wav');
+    var APPLAUSE_BUTTON_IMAGE = Script.resolvePath('button.png');
+    var APPLAUSE_BUTTON_PRESSED = Script.resolvePath('button-pressed.png');
+    var HEART_MODEL_URL = Script.resolvePath('heart.fbx');
 
-    var SERVER_ENTITY_NAME = "Applause Generator";
+    var SERVER_ENTITY_NAME = 'Applause Generator';
 
-    var LOCAL_CLAP_TIMEOUT = 175; // ms
     var WINDOW_Y_OFFSET = 24;
     var BUTTON_DIMENSIONS = {x: 221, y: 69};
     var INCREASE_SCALE_FACTOR = 0.025;
-    var INCREASE_SCALE_VECTOR = {x: 0.00884, y: 0.00764, z: .004};
+    var INCREASE_SCALE_VECTOR = {x: 0.00884, y: 0.00764, z: 0.004};
     var HAND_PROXIMITY_DISTANCE = 0.25;
 
-    var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-    var appPage = Script.resolvePath("applause.html");
+    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
+    var appPage = Script.resolvePath('applause.html');
     var button = tablet.addButton({
-        text: "Clap"
+        text: 'Clap'
     });
 
     var shouldUseChimeSound = false;
@@ -35,7 +35,6 @@
     var currentHeart;
     var applauseOverlay;
     var localIntentCounter = 0;
-    var canPlayLocalClap = true;
     var previousHandLocations = [];
     var previousHandOrientations = [];
     var individualClapSound; 
@@ -63,19 +62,19 @@
 
     function playParticleEffect(){
         var properties = { 
-            type: "ParticleEffect",
-            position: midpoint(MyAvatar.getJointPosition("RightHand"), MyAvatar.getJointPosition("LeftHand")),
+            type: 'ParticleEffect',
+            position: midpoint(MyAvatar.getJointPosition('RightHand'), MyAvatar.getJointPosition('LeftHand')),
             isEmitting:true,
             lifespan:2,
             maxParticles:1,
-            textures:"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/Rust/heart.png",
+            textures:'https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/Rust/heart.png',
             emitRate:1,
             emitSpeed:0,
             emitDimensions:{x:0,y:0,z:0},
             particleRadius:0.1,
             radiusSpread:0.25,
-            radiusStart:0,
-            radiusFinish:0,
+            radiusStart:0.25,
+            radiusFinish:0.25,
             color:{red:153,blue:35,green:14},
             colorSpread:{red:0,blue:0,green:0},
             colorStart:{red:235,blue:173,green:2},
@@ -108,21 +107,19 @@
         }
     };
 
-    var fingerKeys = ["pinky", "ring", "middle", "index", "thumb"];
+    var fingerKeys = ['pinky', 'ring', 'middle', 'index', 'thumb'];
 
     function getJointNames(side, finger, count) {
-        // console.log("###1 In get joint Names");
         var names = [];
         for (var i = 1; i < count + 1; i++) {
-            var name = side[0].toUpperCase() + side.substring(1) + "Hand" + finger[0].toUpperCase() + finger.substring(1) + (i);
+            var name = side[0].toUpperCase() + side.substring(1) + 'Hand' + finger[0].toUpperCase() + finger.substring(1) + (i);
             names.push(name);
         }
         return names;
     }
 
     function makeOpenPalm() {
-        // console.log("###2 in Make open Palm");
-        ["right", "left"].forEach(function(side) {
+        ['right', 'left'].forEach(function(side) {
 
             for (var i = 0; i < fingerKeys.length; i++) {
                 var finger = fingerKeys[i];
@@ -142,8 +139,7 @@
     }
 
     function clearJoints() {
-        // console.log("###3 in Clear Joints");
-        ["right", "left"].forEach(function(side) {
+        ['right', 'left'].forEach(function(side) {
 
             for (var i = 0; i < fingerKeys.length; i++) {
                 var finger = fingerKeys[i];
@@ -164,7 +160,7 @@
 
     function playIndividualClapSound() {
         localIntentCounter++;
-        applauseListenerEntity = Entities.findEntitiesByName("Applause-Listener", MyAvatar.position, 10, true)[0]; 
+        applauseListenerEntity = Entities.findEntitiesByName('Applause-Listener', MyAvatar.position, 10, true)[0]; 
         individualClapSound = shouldUseChimeSound ? SoundCache.getSound(CHIME_SOUND) :
             SoundCache.getSound(INDIVIDUAL_CLAP_URL);
 
@@ -204,16 +200,16 @@
                 looping: true
             });
         }
-        currentHeart = null; // In case we have an old heart?
+        currentHeart = null; 
         currentHeart = Entities.addEntity(
             {
                 type: 'Model',
                 modelURL: HEART_MODEL_URL,
                 name: 'Heart',
                 position: createPosition(),
-                collidesWith: "static,dynamic,kinematic,",
+                collidesWith: 'static,dynamic,kinematic,',
                 collisionMask: 3,
-                shapeType: "Box"
+                shapeType: 'Box'
 
             }
         );
@@ -247,24 +243,24 @@
     }
 
     function onWebEventReceived(event) {
-        if (typeof event === "string") {
+        if (typeof event === 'string') {
             event = JSON.parse(event);
         }
         print(JSON.stringify(event));
-        if (event.type === "clap") {
+        if (event.type === 'clap') {
             playIndividualClapSound();
         }
-        if (event.type === "chime") {
+        if (event.type === 'chime') {
             shouldUseChimeSound = event.value;
         }
-        if (event.type === "continuous") {
-            if (event.value === "start") {
+        if (event.type === 'continuous') {
+            if (event.value === 'start') {
                 startContinuousApplause();
             } else {
                 stopContinuousApplause();
             }
         }
-        if (event.type === "serverApplause") {
+        if (event.type === 'serverApplause') {
             var position = JSON.stringify(MyAvatar.position);
             var applauseServerEntity = Entities.findEntitiesByName(SERVER_ENTITY_NAME, position, 15)[0]; // find first result
             Entities.callEntityServerMethod(applauseServerEntity, 'playIndividualClap', [position]);
@@ -274,17 +270,6 @@
     tablet.webEventReceived.connect(onWebEventReceived);
 
     var handsStretched = false;
-
-    function stretchHands() {
-        MyAvatar.setJointTranslation("RightForeArm", { x: 0, y: 0, z: -05 });
-        MyAvatar.setJointTranslation("LeftForeArm", { x: 0, y: 0, z: -05 });
-
-    }
-
-    function unStretchHands() {
-        MyAvatar.clearJointData("RightForeArm");
-        MyAvatar.clearJointData("LeftForeArm");
-    }
 
     function update() {
         var TRIGGER_CONTROLS = [Controller.Standard.LS, Controller.Standard.RS];
@@ -311,10 +296,9 @@
     }
 
     function checkHandsDistance() {
-        // console.log("###4 In check Hand Distance");b 
 
-        var handPositionR = MyAvatar.getJointPosition("RightHand");
-        var handPositionL = MyAvatar.getJointPosition("LeftHand");
+        var handPositionR = MyAvatar.getJointPosition('RightHand');
+        var handPositionL = MyAvatar.getJointPosition('LeftHand');
 
         var handRotationR = MyAvatar.getRightPalmRotation();
         var handRotationL = MyAvatar.getLeftPalmRotation();
@@ -322,22 +306,17 @@
         var oldRotationR = previousHandOrientations[0];
         var oldRotationL = previousHandOrientations[1];
 
-        // console.log("Vec3.distance(handPositionL, handPositionR)", Vec3.distance(handPositionL, handPositionR));
         if (Vec3.distance(handPositionL, handPositionR) <= HAND_PROXIMITY_DISTANCE) {
 
             if (!handsStretched) {
-                console.log("###5 About to call make Open Palm");
                 makeOpenPalm();
-                // stretchHands();
                 handsStretched = true;
                 Script.update.connect(update);
             }
 
         } else {
             if (handsStretched) {
-                console.log("###6 About to call Clear Joints");
                 clearJoints();
-                // unStretchHands();
                 handsStretched = false;
                 Script.update.disconnect(update);
             }
@@ -346,7 +325,6 @@
         if ((Vec3.distance(handPositionL, handPositionR) <= HAND_PROXIMITY_DISTANCE) 
             && (compareRotations(oldRotationR, handRotationR) 
             || compareRotations(oldRotationL, handRotationL))) {
-            // console.log("###7 About to Play Clap");
             playIndividualClapSound();
             previousHandOrientations = [];
             previousHandOrientations.push(handRotationR);
@@ -364,7 +342,7 @@
     function addDesktopOverlay() {
         removeDesktopOverlay();
         var windowHeight = Controller.getViewportDimensions().y;
-        applauseOverlay = Overlays.addOverlay("image", {
+        applauseOverlay = Overlays.addOverlay('image', {
             imageURL: APPLAUSE_BUTTON_IMAGE,
             x: 0,
             y: windowHeight - BUTTON_DIMENSIONS.y - WINDOW_Y_OFFSET,
@@ -382,8 +360,8 @@
                 Script.update.connect(checkHandsDistance);
                 checkDistanceActive = true;
             }
-            previousHandLocations.push(MyAvatar.getJointPosition("RightHand"));
-            previousHandLocations.push(MyAvatar.getJointPosition("LeftHand"));
+            previousHandLocations.push(MyAvatar.getJointPosition('RightHand'));
+            previousHandLocations.push(MyAvatar.getJointPosition('LeftHand'));
 
             previousHandOrientations.push(MyAvatar.getRightPalmRotation());
             previousHandOrientations.push(MyAvatar.getLeftPalmRotation());
@@ -394,7 +372,6 @@
             }
 
         } else {
-            print("You cannot clap now");
             if (checkDistanceActive === true) {
                 Script.update.disconnect(checkHandsDistance);
                 checkDistanceActive = false;
@@ -410,6 +387,10 @@
         }
         var selectedResult = Overlays.getOverlayAtPoint({x: event.x, y: event.y});
         if (selectedResult === applauseOverlay) {
+            Overlays.editOverlay(applauseOverlay, { imageURL : APPLAUSE_BUTTON_PRESSED});
+            Script.setTimeout(function(){ 
+                Overlays.editOverlay(applauseOverlay, { imageURL: APPLAUSE_BUTTON_IMAGE});
+            }, 150);
             playIndividualClapSound();
         }
     };
