@@ -63,8 +63,8 @@
                     y: 0.9647821187973022,
                     z: -1.52587890625e-05
                 },
-                script: Script.resolvePath("spaceJuiceClient.js?996"),
-                serverScripts: Script.resolvePath("spaceJuiceServer.js?994"),
+                script: Script.resolvePath("spaceJuiceClient.js"),
+                serverScripts: Script.resolvePath("spaceJuiceServer.js"),
                 shapeType: "simple-hull",
                 type: "Model",
                 dynamic: false
