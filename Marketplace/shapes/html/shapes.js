@@ -8,14 +8,16 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-this.ui = (function () {
+/* global document, EventBridge */
+
+(function () {
 
     "use strict";
 
     var isActive = false;
 
     function onToggleActiveClick() {
-        var SET_ACTIVE_MESSAGE = "setActive";  // EventBridge message.
+        var SET_ACTIVE_MESSAGE = "setActive"; // EventBridge message.
 
         isActive = !isActive;
 
@@ -48,13 +50,6 @@ this.ui = (function () {
         toggleActiveButton.className = isActive ? "on" : "off";
     }
 
-    function onUnload() {
-        // Nothing to do.
-    }
-
-    return {
-        onLoad: onLoad,
-        onUnload: onUnload
-    };
+    onLoad();
 
 }());

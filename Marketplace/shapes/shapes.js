@@ -1111,7 +1111,7 @@
                         }
 
                     } else if (!intersection.entityID || !intersection.editableEntity
-                            || (!isTriggerPressed && !isCameraOutsideEntity(intersection.entityID, intersection.intersection))) {
+                        || (!isTriggerPressed && !isCameraOutsideEntity(intersection.entityID, intersection.intersection))) {
                         setState(EDITOR_SEARCHING);
                     } else {
                         log(side, "ERROR: Editor: Unexpected condition B in EDITOR_HIGHLIGHTING!");
@@ -1151,9 +1151,9 @@
                 case EDITOR_DIRECT_SCALING:
                     if (hand.valid() && isTriggerClicked
                             && (otherEditor.isEditing(rootEntityID) || otherEditor.isHandle(intersection.overlayID))) {
-                        // Don't test for intersection.intersected because when scaling with handles intersection may lag behind.
-                        // Don't test toolSelected === TOOL_SCALE because this is a UI element and so not able to be changed while 
-                        // scaling with two hands.
+                        // Don't test for intersection.intersected because when scaling with handles intersection may lag.
+                        // Don't test toolSelected === TOOL_SCALE because this is a UI element and so not able to be changed 
+                        // while scaling with two hands.
                         // No transition.
                         updateState();
                         // updateTool();  Don't updateTool() because this hand is currently using the scaling tool.
@@ -1842,7 +1842,7 @@
 
     function onTabletWebEventReceived(data) {
         var message,
-            SET_ACTIVE_MESSAGE = "setActive",  // EventBridge message.
+            SET_ACTIVE_MESSAGE = "setActive", // EventBridge message.
             NOTIFICATIONS_MESSAGE_CHANNEL = "Hifi-Notifications",
             EDIT_ERROR = 4, // Per notifications.js.
             INSUFFICIENT_PERMISSIONS_ERROR_MSG =
