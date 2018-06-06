@@ -50,7 +50,7 @@
         _this = this;
     }
 
-    var shouldBreak = function(velocity){
+    var shouldBreak = function(velocity) {
         return Math.abs(velocity.x) >= VELOCITY_TO_BREAK ||
       Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
       Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
