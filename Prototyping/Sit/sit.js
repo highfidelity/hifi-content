@@ -96,10 +96,12 @@
                 ? OVERLAY_URL_SITTABLE_HMD
                 : OVERLAY_URL_SITTABLE_DESKTOP;
 
+            var chairProperties = Entities.getEntityProperties(entityID, ["position", "rotation"]);
+
             var chairRotation = Entities.getEntityProperties(entityID, 'rotation').rotation;
             overlaySittable = Overlays.addOverlay("image3d", {
                 position: { x: 0.0, y: 0.0, z: 0.0 },
-                rotation: Quat.multiply(chairRotation, Quat.fromVec3Degrees({ x: -90, y: 180, z: 0 })),
+                rotation: Quat.multiply(chairProperties.rotation, Quat.fromVec3Degrees({ x: -90, y: 180, z: 0 })),
                 dimensions: {
                     x: 0.1,
                     y: 0.1
@@ -116,10 +118,7 @@
                 y: 0.3
             };
 
-            var properties = Entities.getEntityProperties(entityID,
-                ["position", "registrationPoint", "dimensions", "rotation"]);
-
-            var overlayPosition = Vec3.sum(properties.position, { x: 0, y: 0, z: 0 });
+            var overlayPosition = Vec3.sum(chairProperties.position, { x: 0, y: 0, z: 0 });
 
             Overlays.editOverlay(overlaySittable, {
                 position: overlayPosition,
@@ -193,30 +192,14 @@
             });
         },
         canSitDesktop: function () {
-            var distanceFromSeat = Vec3.distance(MyAvatar.position, seatCenterPosition);
+            var chairProperties = Entities.getEntityProperties(entityID, ['position']);
+            var distanceFromSeat = Vec3.distance(MyAvatar.position, chairProperties.position);
             return distanceFromSeat < SITTABLE_DISTANCE_MAX && !this.checkSeatForAvatar();
-        }
+        },
+        calculatePinHipPosition: function () {
 
-    };
-
-    // Preload the animation file
-    this.animation = AnimationCache.prefetch(ANIMATION_URL);
-
-    this.preload = function (id) {
-        entityID = id;
-
-        // get chairProperties to calculate middle of chair
-        var chairProperties = Entities.getEntityProperties(entityID, ['dimensions', 'userData', 'position']);
-        var userData = null;
-        try {
-            userData = JSON.parse(chairProperties.userData);
-        } catch (e) {
-            print("Error parsing userData");
-        }
-
-        if (userData && userData.seatCenterPosition) {
-            seatCenterPosition = userData.seatCenterPosition;
-        } else {
+            // get chairProperties to calculate middle of chair
+            var chairProperties = Entities.getEntityProperties(entityID, ['dimensions', 'position']);
             seatCenterPosition = chairProperties.position;
 
             var yOffset = chairProperties.dimensions.y / 2 * chairOffsetRatio;
@@ -225,7 +208,16 @@
                 y: chairProperties.position.y + yOffset,
                 z: chairProperties.position.z
             };
-        }
+
+        }  
+
+    };
+
+    // Preload the animation file
+    this.animation = AnimationCache.prefetch(ANIMATION_URL);
+
+    this.preload = function (id) {
+        entityID = id;
     };
 
     this.unload = function () {
@@ -256,6 +248,8 @@
         if (overlaySittable !== null) {
             overlays.cleanupSittableOverlay();
         }
+
+        utils.calculatePinHipPosition(); // calculates seatCenterPosition
 
         sittingDown = true;
         lockChairOnStandUp = Entities.getEntityProperties(entityID, 'locked').locked;
@@ -324,8 +318,8 @@
 
         Script.update.disconnect(this, this.update);
         MyAvatar.scaleChanged.disconnect(this.standUp);
-        location.hostChanged.connect(this.standUp);
-        
+        location.hostChanged.disconnect(this.standUp);
+
         canStand = false;
         MyAvatar.removeAnimationStateHandler(animStateHandlerID);
 
