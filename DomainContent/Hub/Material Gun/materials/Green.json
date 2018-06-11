@@ -1,0 +1,7 @@
+{
+  "materialVersion": 1,
+  "materials": {
+    "model": "hifi_pbr",
+    "albedoMap": "http://hifi-content.s3.amazonaws.com/DomainContent/Hub-staging/Materials/Colors/green.png"
+  }
+}
