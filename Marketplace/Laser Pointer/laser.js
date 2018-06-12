@@ -14,8 +14,8 @@
     var _this;
 
     var TRIGGER_CONTROLS = [Controller.Standard.LT, Controller.Standard.RT];
-    var BEAM_LOCAL_OFFSET = {x:0, y:-0.0055, z:-0.045};
-    var BEAM_LOCAL_DIRECTION = {x:0, y:0, z:-1000};
+    var BEAM_LOCAL_OFFSET = {x: 0, y: -0.0055, z: -0.045};
+    var BEAM_LOCAL_DIRECTION = {x: 0, y: 0, z: -1000};
     var BEAM_MIN_SIZE = 0.04;
     var TRIGGER_TOGGLE_VALUE = 0.97;
     var ORIGIN_SIZE_RATIO = 0.6;
@@ -23,18 +23,26 @@
     var MIN_FOCUS_SIZE = 0.02;
     var BEAM_WIDTH = 0.01;
     var HALF = 0.5;
+    var LASER_ON_SOUND = SoundCache.getSound(Script.resolvePath("sounds/on.wav"));
+    var FLASHLIGHT_ON_SOUND = SoundCache.getSound(Script.resolvePath("sounds/flashlight.wav"));
+    var OFF_SOUND = SoundCache.getSound(Script.resolvePath("sounds/off.wav"));
+    var AUDIO_VOLUME_LEVEL = 1;
 
     var equipped = false;
     var currentHand = null;
-    var on = false;
     var doNotRayPick = [];
     var triggerReleased = true;
+    var injector;
     
     var Laser = function() {
         _this = this;
     };
 
     Laser.prototype = {
+
+        on: false,
+        flashlight: null,
+        flashlightBeam: null,
         position: null,
         diameter: null,
         beamOffset: null,
@@ -70,14 +78,23 @@
         
         toggleWithTriggerPressure: function() {
             var triggerValue = Controller.getValue(TRIGGER_CONTROLS[currentHand]);
-            if (on) {
-                if (triggerValue >= TRIGGER_TOGGLE_VALUE && triggerReleased) {
-                    _this.turnOff();
-                    triggerReleased = false;
-                } else if (triggerValue < TRIGGER_TOGGLE_VALUE && !triggerReleased) {
-                    triggerReleased = true;
+            if (_this.on) {
+                if (_this.flashlight) {
+                    if (triggerValue >= TRIGGER_TOGGLE_VALUE && triggerReleased) {
+                        _this.turnOff();
+                        triggerReleased = false;
+                    } else if (triggerValue < TRIGGER_TOGGLE_VALUE && !triggerReleased) {
+                        triggerReleased = true;
+                    }
                 } else {
-                    _this.turnOn();
+                    if (triggerValue >= TRIGGER_TOGGLE_VALUE && triggerReleased) {
+                        _this.flashlightMode();
+                        triggerReleased = false;
+                    } else if (triggerValue < TRIGGER_TOGGLE_VALUE && !triggerReleased) {
+                        triggerReleased = true;
+                    } else {
+                        _this.turnOn();
+                    }
                 }
             } else {
                 if (triggerValue >= TRIGGER_TOGGLE_VALUE && triggerReleased) {
@@ -106,6 +123,18 @@
             var rotation = Entities.getEntityProperties(_this.entityID, ['rotation']).rotation;
             var beamAdjustedDirection = Vec3.multiplyQbyV(rotation, BEAM_LOCAL_DIRECTION);
             return beamAdjustedDirection;
+        },
+
+        playSound: function(sound) {
+            if (sound.downloaded) {
+                if (injector) {
+                    injector.stop();
+                }
+                injector = Audio.playSound(sound, {
+                    position: MyAvatar.position,
+                    volume: AUDIO_VOLUME_LEVEL
+                });
+            }
         },
 
         turnOn: function() {
@@ -143,7 +172,8 @@
                     beamSize = BEAM_MIN_SIZE;
                 }
 
-                if (!on) {
+                if (!_this.on) {
+                    _this.playSound(LASER_ON_SOUND);
                     _this.focus = Entities.addEntity({
                         type: 'Model',
                         modelURL: Script.resolvePath("models/Glow-ball-red.fbx"),
@@ -166,7 +196,8 @@
                         localPosition: _this.beamOffset,
                         dimensions: {x: originDiameter, y: originDiameter, z: originDiameter},
                         collisionless: true,
-                        userData: "{\"grabbableKey\":{\"grabbable\":false}}"
+                        userData: "{\"grabbableKey\":{\"grabbable\":false}}",
+                        description: "CC_BY Alan Zimmerman"
                     }, true);
 
                     doNotRayPick.push(_this.origin);
@@ -179,7 +210,8 @@
                         localPosition: {x: 0, y: 0, z: -(HALF * beamPointDistance)},
                         localRotation: Quat.normalize({}),
                         dimensions: {x: BEAM_WIDTH, y: BEAM_WIDTH, z: beamPointDistance},
-                        userData: "{\"grabbableKey\":{\"grabbable\":false}}"
+                        userData: "{\"grabbableKey\":{\"grabbable\":false}}",
+                        description: "CC_BY Alan Zimmerman"
                     }, true);
                     
                     doNotRayPick.push(_this.beam);
@@ -199,17 +231,96 @@
                 print("no intersection");
             }
 
-            on = true;
+            _this.on = true;
         },
-        
-        turnOff : function() {
+
+        flashlightMode: function() {
+            _this.laserOff();
+            _this.playSound(FLASHLIGHT_ON_SOUND);
+            _this.flashlight = Entities.addEntity({
+                type: "Light",
+                color: {
+                    blue: 22,
+                    green: 88,
+                    red: 255
+                },
+                cutoff: 18,
+                dimensions: {
+                    x: 3.652251958847046,
+                    y: 3.652251958847046,
+                    z: 11.81893539428711
+                },
+                exponent: 120,
+                falloffRadius: 5,
+                intensity: 5,
+                isSpotlight: true,
+                name: "Laser Flashlight",
+                parentID: _this.entityID,
+                localRotation: {
+                    w: 0.999969482421875,
+                    x: -0.007339596748352051,
+                    y: 0.0000152587890625,
+                    z: -0.0000457763671875
+                },
+                localPosition: {
+                    x: -0.011594533920288086,
+                    y: -0.0043926239013671875,
+                    z: -0.04103599488735199
+                },
+                
+                userData: "{\"grabbableKey\":{\"grabbable\":false}}"
+            }, true);
+
+            _this.flashlightBeam = Entities.addEntity({
+                type: 'Model',
+                modelURL: Script.resolvePath("models/light-beam.fbx"),
+                name: "Laser Beam",
+                parentID: _this.entityID,
+                localPosition: {
+                    x: -0.0007977485656738281,
+                    y: -0.0014594662934541702,
+                    z: -0.1237635612487793
+                },
+                localRotation: {
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    w: 1
+                },
+                dimensions: {
+                    x: 0.0589,
+                    y: 0.0589,
+                    z: 0.1641
+                },
+                userData: "{\"grabbableKey\":{\"grabbable\":false}}",
+                description: "CC_BY Alan Zimmerman"
+            }, true);
+        },
+
+        laserOff: function() {
             Entities.deleteEntity(_this.focus);
             Entities.deleteEntity(_this.beam);
             Entities.deleteEntity(_this.origin);
             _this.focus = null;
             _this.beam = null;
             _this.origin = null;
-            on = false;
+        },
+
+        lightOff: function() {
+            Entities.deleteEntity(_this.flashlightBeam);
+            Entities.deleteEntity(_this.flashlight);
+            _this.flashlight = null;
+            _this.flashlightBeam = null;
+        },
+        
+        turnOff: function() {
+            _this.playSound(OFF_SOUND);
+            if (_this.flashlight) {
+                this.lightOff();
+            } else {
+                _this.laserOff();
+            }
+            _this.on = false;
         },
 
         unload: function() {
