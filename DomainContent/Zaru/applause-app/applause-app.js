@@ -21,14 +21,10 @@
     var CHIME_SOUND = Script.resolvePath('sounds/bell-chime-alert.wav');
     var HEART_MODEL_URL = Script.resolvePath('heart.fbx');
 
-    var SEATED_SETTING = 'com.highfidelity.avatar.isSitting';
-    var STANDING_APPLAUSE_EMOTE = Script.resolvePath('StandingClap.fbx');
-    var SEATED_APPLAUSE_EMOTE = Script.resolvePath('Clapping.fbx');
-
     var SERVER_ENTITY_NAME = 'Applause Generator';
 
-    var APPLAUSE_BUTTON_IMAGE = Script.resolvePath('button.png');
-    var APPLAUSE_BUTTON_PRESSED = Script.resolvePath('button-pressed.png');
+    var APPLAUSE_BUTTON_IMAGE = Script.resolvePath('./resources/button.png');
+    var APPLAUSE_BUTTON_PRESSED = Script.resolvePath('./resources/button-pressed.png');
     var WINDOW_Y_OFFSET = 24;
     var BUTTON_DIMENSIONS = {x: 221, y: 69};
 
@@ -56,7 +52,8 @@
     var handsStretched = false;
     var needsCleanup = false;
     var applauseInjector;
-    var shouldOrientParticlesForward = false;
+
+    var applauseEnabled = false;
     
     var dataOpen = {
         left: {
@@ -86,20 +83,18 @@
     }
 
     function createPosition() {
-        var DISTANCE = 0.25;
-        var direction = Quat.getFront(MyAvatar.orientation);
-        var distance = DISTANCE;
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
-        position.y += 3 * DISTANCE;
-        return position;
-    }
-
-    function calculateParticleEmitAcceleration() {
-        if (!shouldOrientParticlesForward) {
-            return {x:0, y: 2.5, z:0};
+        if (!HMD.active) {
+            var DISTANCE = 0.25;
+            var direction = Quat.getFront(MyAvatar.orientation);
+            var distance = DISTANCE;
+            var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
+            position.y += 3 * DISTANCE;
+            return position;
         } else {
-            return Quat.getForward(MyAvatar.orientation);
+            return midpoint(MyAvatar.getJointPosition("RightHand"),
+                MyAvatar.getJointPosition("LeftHand"));
         }
+
     }
 
     // Avatar Helper Functions
@@ -185,7 +180,7 @@
 
         if ((Vec3.distance(handPositionL, handPositionR) <= HAND_PROXIMITY_DISTANCE) 
             && (compareRotations(oldRotationR, handRotationR) 
-            || compareRotations(oldRotationL, handRotationL))) {
+            || compareRotations(oldRotationL, handRotationL)) && applauseEnabled) {
             playIndividualClapSound();
             previousHandOrientations = [];
             previousHandOrientations.push(handRotationR);
@@ -207,28 +202,53 @@
 
     function onWebEventReceived(event) {
         if (typeof event === 'string') {
+            print (event);
             event = JSON.parse(event);
         }
+    
+        if (event.type === 'applause-app-ready' && HMD.active){
+            tablet.emitScriptEvent(JSON.stringify({ type : 'applause-hmd' }));
+        }
+
         if (event.type === 'clap') {
-            playIndividualClapSound();
-        }
-        if (event.type === 'chime') {
-            shouldUseChimeSound = event.value;
-        }
-        if (event.type === 'continuous') {
-            if (event.value === 'start') {
-                startContinuousApplause();
-            } else {
-                stopContinuousApplause();
+            if (applauseEnabled) {
+                playIndividualClapSound();
             }
         }
-        if (event.type === 'serverApplause') {
-            var position = JSON.stringify(MyAvatar.position);
-            var applauseServerEntity = Entities.findEntitiesByName(SERVER_ENTITY_NAME, position, 15)[0]; // find first result
-            Entities.callEntityServerMethod(applauseServerEntity, 'playIndividualClap', [position]);
-        } 
-        if (event.type === 'emitParticlesForward') {
-            shouldOrientParticlesForward = event.value;
+        if (event.type === 'applause-enabled') {
+            applauseEnabled = event.value;
+            if (!HMD.active && applauseEnabled) {
+                needsCleanup = true;
+                Controller.mousePressEvent.connect(mousePressEvent);
+                addDesktopOverlay();
+            }
+
+            if (HMD.active && applauseEnabled) {
+                Script.update.connect(checkHandsDistance);
+                checkDistanceActive = true;
+                
+                previousHandLocations.push(MyAvatar.getJointPosition('RightHand'));
+                previousHandLocations.push(MyAvatar.getJointPosition('LeftHand'));
+    
+                previousHandOrientations.push(MyAvatar.getRightPalmRotation());
+                previousHandOrientations.push(MyAvatar.getLeftPalmRotation());
+            }
+
+            if (!applauseEnabled) {
+                if (checkDistanceActive === true) {
+                    Script.update.disconnect(checkHandsDistance);
+                    checkDistanceActive = false;
+                }
+                if (needsCleanup) {
+                    Controller.mousePressEvent.disconnect(mousePressEvent);
+                    removeDesktopOverlay();
+                }
+                if (handsStretched) {
+                    clearJoints();
+                    handsStretched = false;
+                    Script.update.disconnect(update);
+                }
+            }
         }
     }
 
@@ -248,24 +268,7 @@
 
     function onScreenChanged(type, url) {
         open = (url === appPage);
-        if (open) {
-            if (HMD.active) {
-                Script.update.connect(checkHandsDistance);
-                checkDistanceActive = true;
-            }
-            previousHandLocations.push(MyAvatar.getJointPosition('RightHand'));
-            previousHandLocations.push(MyAvatar.getJointPosition('LeftHand'));
-
-            previousHandOrientations.push(MyAvatar.getRightPalmRotation());
-            previousHandOrientations.push(MyAvatar.getLeftPalmRotation());
-
-            if (!HMD.active) {
-                needsCleanup = true;
-                Controller.mousePressEvent.connect(mousePressEvent);
-                addDesktopOverlay();
-            }
-
-        } else {
+        if (!open) {
             if (checkDistanceActive === true) {
                 Script.update.disconnect(checkHandsDistance);
                 checkDistanceActive = false;
@@ -343,7 +346,7 @@
             colorStart:{red:245,blue:245,green:0},
             colorFinish:{red:255,blue:0,green:85},
             emitAcceleration: {x: 0, y: 0, z: 0},
-            accelerationSpread: {x:0.001, y: 0.001, z: 0.001},
+            accelerationSpread: {x:0.01, y: 0.01, z: 0.01},
             alpha:0.0,
             alphaSpread:0.25,
             alphaStart:1,
