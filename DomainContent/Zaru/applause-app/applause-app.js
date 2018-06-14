@@ -97,6 +97,18 @@
 
     }
 
+    function getRotation() {
+        if (!HMD.active) {
+            return Quat.fromVec3Degrees({x: 0, y: MyAvatar.bodyYaw - 180, z: 0});
+        } else {
+            var jointIndex = MyAvatar.getJointIndex("RightForeArm");
+            var jointRotation = MyAvatar.getAbsoluteJointRotationInObjectFrame(jointIndex);
+            var adjustedRotation = Quat.multiply(jointRotation, Quat.angleAxis(180, Vec3.Z_AXIS));
+
+            return MyAvatar.jointToWorldRotation(jointRotation, jointIndex);
+        }
+    }
+
     // Avatar Helper Functions
 
     function getJointNames(side, finger, count) {
@@ -329,13 +341,13 @@
         var properties = { 
             type: 'ParticleEffect',
             position: createPosition(),
-            rotation : Quat.fromVec3Degrees({x: 0, y: MyAvatar.bodyYaw - 180, z: 0}),
+            rotation : getRotation(),
             isEmitting:true,
-            lifespan:5,
-            maxParticles:8,
+            lifespan:10,
+            maxParticles:1,
             textures:'http://hifi-content.s3.amazonaws.com/alan/dev/Particles/heart-2.png',
-            emitRate:3,
-            emitSpeed:0.5,
+            emitRate:1,
+            emitSpeed:3,
             emitOrientation: Quat.fromVec3Degrees({x: 0, y: 0, z: 0}),
             particleRadius:0.25,
             radiusSpread:0.25,
@@ -351,9 +363,9 @@
             alphaSpread:0.25,
             alphaStart:1,
             alphaFinish:0,
-            lifetime: 4
+            lifetime: 1
         };
-        Entities.addEntity(properties, true);
+        Entities.addEntity(properties);
     }
 
     function playIndividualClapSound() {
