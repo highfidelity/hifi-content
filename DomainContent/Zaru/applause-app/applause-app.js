@@ -17,19 +17,13 @@
         Script.resolvePath("sounds/Claps/clap-9.wav"),
         Script.resolvePath("sounds/Claps/clap-10.wav")
     ];
-    var ONGOING_APPLAUSE_URL = Script.resolvePath('sounds/small-clap.wav');
     var CHIME_SOUND = Script.resolvePath('sounds/bell-chime-alert.wav');
-    var HEART_MODEL_URL = Script.resolvePath('heart.fbx');
-
-    var SERVER_ENTITY_NAME = 'Applause Generator';
+    var CAN_APPLAUD_SETTING = 'io.highfidelity.applauseEnabled';
 
     var APPLAUSE_BUTTON_IMAGE = Script.resolvePath('./resources/button.png');
     var APPLAUSE_BUTTON_PRESSED = Script.resolvePath('./resources/button-pressed.png');
     var WINDOW_Y_OFFSET = 24;
     var BUTTON_DIMENSIONS = {x: 221, y: 69};
-
-    var INCREASE_SCALE_FACTOR = 0.025;
-    var INCREASE_SCALE_VECTOR = {x: 0.00884, y: 0.00764, z: 0.004};
     var HAND_PROXIMITY_DISTANCE = 0.25;
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
@@ -40,17 +34,11 @@
     var open = false;
 
     var shouldUseChimeSound = false;
-    var continuousApplauseIntensity = 0;
-    var continuousApplauseSound;
-    var intensityScaleFunction;
-    var currentHeart;
-    var applauseOverlay;
+    var applauseOverlay = "";
     var previousHandLocations = [];
     var previousHandOrientations = [];
     var individualClapSound; 
-    var isHoldingTrigger = false;
     var handsStretched = false;
-    var needsCleanup = false;
     var applauseInjector;
 
     var applauseEnabled = false;
@@ -98,15 +86,14 @@
     }
 
     function getRotation() {
-        if (!HMD.active) {
+       // if (!HMD.active) {
             return Quat.fromVec3Degrees({x: 0, y: MyAvatar.bodyYaw - 180, z: 0});
-        } else {
+        /**} else {
             var jointIndex = MyAvatar.getJointIndex("RightForeArm");
             var jointRotation = MyAvatar.getAbsoluteJointRotationInObjectFrame(jointIndex);
-            var adjustedRotation = Quat.multiply(jointRotation, Quat.angleAxis(180, Vec3.Z_AXIS));
-
-            return MyAvatar.jointToWorldRotation(jointRotation, jointIndex);
-        }
+            var worldRotation = MyAvatar.jointToWorldRotation(jointRotation, jointIndex);
+            return Quat.cancelOutRollAndPitch(worldRotation);}
+        **/
     }
 
     // Avatar Helper Functions
@@ -179,14 +166,12 @@
             if (!handsStretched) {
                 makeOpenPalm();
                 handsStretched = true;
-                Script.update.connect(update);
             }
 
         } else {
             if (handsStretched) {
                 clearJoints();
                 handsStretched = false;
-                Script.update.disconnect(update);
             }
         }
 
@@ -197,12 +182,9 @@
             previousHandOrientations = [];
             previousHandOrientations.push(handRotationR);
             previousHandOrientations.push(handRotationL);
-
         }
 
     }
-    var checkDistanceActive = false;
-
     // Tablet Handlers
     function onClicked() {
         if (open) {
@@ -214,14 +196,16 @@
 
     function onWebEventReceived(event) {
         if (typeof event === 'string') {
-            print (event);
             event = JSON.parse(event);
         }
-    
-        if (event.type === 'applause-app-ready' && HMD.active){
-            tablet.emitScriptEvent(JSON.stringify({ type : 'applause-hmd' }));
+        if (event.type === 'applause-app-ready') {
+            var webEvent = {
+                type: 'setup',
+                enabled : Settings.getValue(CAN_APPLAUD_SETTING),
+                HMD : HMD.active
+            };
+            tablet.emitScriptEvent(JSON.stringify(webEvent));
         }
-
         if (event.type === 'clap') {
             if (applauseEnabled) {
                 playIndividualClapSound();
@@ -229,40 +213,47 @@
         }
         if (event.type === 'applause-enabled') {
             applauseEnabled = event.value;
-            if (!HMD.active && applauseEnabled) {
-                needsCleanup = true;
-                Controller.mousePressEvent.connect(mousePressEvent);
-                addDesktopOverlay();
-            }
-
-            if (HMD.active && applauseEnabled) {
-                Script.update.connect(checkHandsDistance);
-                checkDistanceActive = true;
-                
-                previousHandLocations.push(MyAvatar.getJointPosition('RightHand'));
-                previousHandLocations.push(MyAvatar.getJointPosition('LeftHand'));
-    
-                previousHandOrientations.push(MyAvatar.getRightPalmRotation());
-                previousHandOrientations.push(MyAvatar.getLeftPalmRotation());
-            }
-
-            if (!applauseEnabled) {
-                if (checkDistanceActive === true) {
-                    Script.update.disconnect(checkHandsDistance);
-                    checkDistanceActive = false;
-                }
-                if (needsCleanup) {
-                    Controller.mousePressEvent.disconnect(mousePressEvent);
-                    removeDesktopOverlay();
-                }
-                if (handsStretched) {
-                    clearJoints();
-                    handsStretched = false;
-                    Script.update.disconnect(update);
-                }
+            Settings.setValue(CAN_APPLAUD_SETTING, applauseEnabled);
+            if (applauseEnabled) {
+                setup();
+            } else {
+                disableApplause();
             }
         }
     }
+
+    var setup = function() {
+        if (HMD.active) {
+            removeDesktopOverlay();
+            Script.update.connect(checkHandsDistance);
+            
+            previousHandLocations.push(MyAvatar.getJointPosition('RightHand'));
+            previousHandLocations.push(MyAvatar.getJointPosition('LeftHand'));
+
+            previousHandOrientations.push(MyAvatar.getRightPalmRotation());
+            previousHandOrientations.push(MyAvatar.getLeftPalmRotation());
+        } else {
+            addDesktopOverlay();
+            Controller.mousePressEvent.connect(mousePressEvent);
+        }
+    };
+
+    var disableApplause = function() {
+        if (HMD.active) {
+            Script.update.disconnect(checkHandsDistance);
+            clearJoints();
+            handsStretched = false;
+        } else {
+            Controller.mousePressEvent.disconnect(mousePressEvent);
+            removeDesktopOverlay();
+        }
+    };
+
+    var toggleOnHMDSwap = function() {
+        if (Settings.getValue(CAN_APPLAUD_SETTING)) {
+            setup();
+        } 
+    };
 
     var mousePressEvent = function (event) {
         if (!event.isLeftButton) {
@@ -278,38 +269,20 @@
         }
     };
 
-    function onScreenChanged(type, url) {
-        open = (url === appPage);
-        if (!open) {
-            if (checkDistanceActive === true) {
-                Script.update.disconnect(checkHandsDistance);
-                checkDistanceActive = false;
-            }
-            if (needsCleanup) {
-                Controller.mousePressEvent.disconnect(mousePressEvent);
-                removeDesktopOverlay();
-            }
-            if (handsStretched) {
-                clearJoints();
-                handsStretched = false;
-                Script.update.disconnect(update);
-            }
-        }
-    }
-
     function appEnding() {
         button.clicked.disconnect(onClicked);
         tablet.removeButton(button);
-        tablet.screenChanged.disconnect(onScreenChanged);
         tablet.webEventReceived.disconnect(onWebEventReceived);
         Controller.mousePressEvent.disconnect(mousePressEvent);
         removeDesktopOverlay();
+        Settings.setValue(CAN_APPLAUD_SETTING, false);
+        HMD.displayModeChanged.disconnect(toggleOnHMDSwap);
     }
 
     button.clicked.connect(onClicked);
-    tablet.screenChanged.connect(onScreenChanged);
     tablet.webEventReceived.connect(onWebEventReceived);
     Script.scriptEnding.connect(appEnding);
+    HMD.displayModeChanged.connect(toggleOnHMDSwap);
 
     function playSoundAndTriggerHaptics() {
         if (applauseInjector !== undefined && applauseInjector.isPlaying()) {
@@ -372,76 +345,6 @@
         playSoundAndTriggerHaptics();
         playParticleEffect();
      
-    }
-
-    function startContinuousApplause() {
-        var maxIntensity = 1;
-        var continuousApplause = SoundCache.getSound(ONGOING_APPLAUSE_URL);
-        if (continuousApplause.downloaded) {
-            continuousApplauseSound = Audio.playSound(continuousApplause, {
-                position: MyAvatar.position,
-                looping: true
-            });
-        }
-        currentHeart = null; 
-        currentHeart = Entities.addEntity(
-            {
-                type: 'Model',
-                modelURL: HEART_MODEL_URL,
-                name: 'Heart',
-                position: createPosition(),
-                collidesWith: 'static,dynamic,kinematic,',
-                collisionMask: 3,
-                shapeType: 'Box'
-
-            }
-        );
-        intensityScaleFunction = Script.setInterval(function(){
-            continuousApplauseIntensity += INCREASE_SCALE_FACTOR;
-            var previousDimensions = Entities.getEntityProperties(currentHeart, 'dimensions').dimensions;
-            Entities.editEntity(currentHeart, { 
-                dimensions : {x: previousDimensions.x + INCREASE_SCALE_VECTOR.x, 
-                    y: previousDimensions.y + INCREASE_SCALE_VECTOR.y, 
-                    z: previousDimensions.z + INCREASE_SCALE_VECTOR.z } });
-            if (continuousApplauseIntensity >= maxIntensity) {
-                stopContinuousApplause();
-            }
-        }, 125);
-    }
-
-    function stopContinuousApplause() {
-        Script.setTimeout(function() {
-            continuousApplauseSound.stop();
-        }, 500);
-        Script.clearInterval(intensityScaleFunction);
-        Entities.editEntity(currentHeart, {
-            dynamic: true, 
-            velocity: {x: 0, y: Math.round(Math.random() * 3), z: 0}, 
-            angularVelocity: {x: 0, y: -1 * (Math.round(Math.random() * 10)), z: 0}, 
-            angularDamping : {x: 0, y: 0, z: 0},
-            lifetime: 45
-        });
-        currentHeart = null;
-        continuousApplauseIntensity = 0;
-    }
-
-    function update() {
-        var TRIGGER_CONTROLS = [Controller.Standard.LS, Controller.Standard.RS];
-        var TRIGGER_THRESHOLD = 0.85;
-        var triggerValueL = Controller.getValue(TRIGGER_CONTROLS[0]);
-        var triggerValueR = Controller.getValue(TRIGGER_CONTROLS[1]);
-
-        if (triggerValueL >= TRIGGER_THRESHOLD && triggerValueR >= TRIGGER_THRESHOLD) {
-            if (!isHoldingTrigger) {
-                isHoldingTrigger = true;
-                startContinuousApplause();
-            }
-        } else {
-            if (isHoldingTrigger) {
-                isHoldingTrigger = false;
-                stopContinuousApplause();
-            }
-        }
     }
    
     function removeDesktopOverlay(){
