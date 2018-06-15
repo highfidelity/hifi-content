@@ -103,7 +103,7 @@
     var chairProperties = null;
     var deadlockGate = false; // locks chair if someone has intent to sit
 
-    var testing = true;
+    var testing = false;
 
     var overlays = {
 
@@ -201,7 +201,7 @@
                     rotation: Camera.orientation,
                     parentId: MyAvatar.sessionUUID,
                     parentJoint: "Head",
-                    dimensions: { x: 0.425, y: 0.3 },
+                    dimensions: { x: 0.425, y: 0.425 },
                     url: OVERLAY_PRESIT_URL_TEXT.url,
                     ignoreRayIntersection: false,
                     drawInFront: true,
@@ -449,6 +449,7 @@
                 overlays.preSit.remove();
             }
 
+            sittingDown = true;
 
             MyAvatar.pinJoint(index, seatCenterPosition, chairProperties.rotation);
             canStand = true;
@@ -478,8 +479,6 @@
         }
 
         utils.setHeadToHipsDistance();
-
-        sittingDown = true;
 
         lockChairOnStandUp = Entities.getEntityProperties(entityID, 'locked').locked;
         Entities.editEntity(entityID, { locked: true });
@@ -556,6 +555,7 @@
         }
         sittingDown = false;
         deadlockGate = false;
+        sitDownSettlePeriod = null;
     };
 
     // User can also click on overlay to sit down
@@ -624,7 +624,7 @@
 
             // AVATAR DISTANCE 
             var avatarDistance = Vec3.distance(MyAvatar.position, seatCenterPosition);
-            if (avatarDistance > DISTANCE_FROM_CHAIR_TO_STAND_AT && now > sitDownSettlePeriod) {
+            if (avatarDistance > DISTANCE_FROM_CHAIR_TO_STAND_AT && sitDownSettlePeriod && now > sitDownSettlePeriod) {
                 hasAvatarMovedTooFar = true;
             }
 
@@ -653,7 +653,7 @@
                 var deviationRatio = headDeviation/headToHipsDistance;
 
                 if ((deviationRatio > ONE_HUNDRED_AND_TEN_PERCENT || deviationRatio < EIGHTY_PERCENT) && 
-                    now > sitDownSettlePeriod) {
+                    sitDownSettlePeriod && now > sitDownSettlePeriod) {
 
                     // print("large deviation");
                     if (deviationTimeStart === null) {
