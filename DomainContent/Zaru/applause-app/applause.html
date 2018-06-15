@@ -181,14 +181,19 @@
             EventBridge.emitWebEvent(JSON.stringify({
                 type: "applause-app-ready"
             }));
-        });
-
-
-        EventBridge.scriptEventReceived.connect(function(scriptEvent) {
-            console.log("Test thing here");
-            if (JSON.parse(scriptEvent).type === 'applause-hmd') {
-                isHMD = true;
+            
+            EventBridge.scriptEventReceived.connect(function(scriptEvent) {
+            if (JSON.parse(scriptEvent).type === 'setup') {
+                console.log(scriptEvent);
+                scriptEvent = JSON.parse(scriptEvent);
+                isHMD = scriptEvent.HMD;
+                if (scriptEvent.enabled) {
+                    $('#applause-toggle').attr("checked", true);
+                    var activeInstructions = isHMD ? '#hmd-instructions' : '#desktop-instructions';
+                    $(activeInstructions).show();
+                };
             }
+        });
         });
 
         $('#clapButton').click(function () {
