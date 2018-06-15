@@ -151,6 +151,13 @@
                 if (startAlpha <= OVERLAY_SITTABLE_MIN_ALPHA) {
                     Script.clearInterval(overlayIntervalTransparency); // Stop my interval when it's faded out
                     overlayIntervalTransparency = null;
+                    print("lerping");
+
+                    if(!this.shouldShowSittableOverlay() || isInEditMode()) {
+                        this.cleanupSittableOverlay();
+
+                    }
+                    //Script.update.connect(this.inEditModeDeleteOverlay);
                 }
             }, OVERLAY_SITTABLE_FADE);
         },
@@ -171,6 +178,11 @@
             } else if (!utils.canSitDesktop()) {
                 this.cleanupSittableOverlay();
             }
+        }, 
+        inEditModeDeleteOverlay: function (){
+            console.log("ROBIN HELLO");
+            this.cleanupSittableOverlay();
+            Script.update.disconnect(this.inEditModeDeleteOverlay);
         }
     };
 
@@ -234,6 +246,8 @@
             Script.clearInterval(overlayCheckForHover);
             overlayCheckForHover = null;
         }
+
+        Script.update.disconnect(this.inEditModeDeleteOverlay());
 
         overlays.cleanupSittableOverlay();
     };
