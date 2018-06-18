@@ -86,7 +86,7 @@ if (typeof Entities.hasEditableRoot !== "function") {
         }
 
         var EDITIBLE_ENTITY_QUERY_PROPERTYES = ["parentID", "visible", "locked", "type"],
-            NONEDITABLE_ENTITY_TYPES = ["Unknown", "Zone", "Light"],
+            NONEDITABLE_ENTITY_TYPES = ["Unknown", "Zone", "Light", "ParticleEffect"],
             properties,
             isEditable;
 
