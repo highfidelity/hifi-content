@@ -172,6 +172,13 @@
         <text> To clap in desktop mode, click the button on your screen or below! </text><br>
         <input type="button" value="Clap!" id="clapButton" class="white"></input>
     </div>
+    <div id="particle-effect" display: "none">
+        <text>Enable Particles  </text>
+            <label class="switch">
+                    <input type="checkbox" id="particle-toggle" checked="true">
+                    <span class="slider round"></span>
+            </label><br>
+    </div>
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script>
@@ -184,16 +191,25 @@
             
             EventBridge.scriptEventReceived.connect(function(scriptEvent) {
             if (JSON.parse(scriptEvent).type === 'setup') {
-                console.log(scriptEvent);
                 scriptEvent = JSON.parse(scriptEvent);
                 isHMD = scriptEvent.HMD;
                 if (scriptEvent.enabled) {
                     $('#applause-toggle').attr("checked", true);
                     var activeInstructions = isHMD ? '#hmd-instructions' : '#desktop-instructions';
                     $(activeInstructions).show();
+                    $('#particle-effect').attr('checked', scriptEvent.particles);
+                    $('#particle-effect').show();
                 };
             }
         });
+        });
+
+        $('#particle-effect').click(function(){
+            var event = {
+                type : "change-particles",
+                value: $('#particle-effect').attr('checked')
+            };
+            EventBridge.emitWebEvent(JSON.stringify(event));
         });
 
         $('#clapButton').click(function () {
@@ -207,6 +223,7 @@
             var activeInstructions = isHMD ? '#hmd-instructions' : '#desktop-instructions';
             
             toggled ? $(activeInstructions).show() : $(activeInstructions).hide();
+            toggled ? $('#particle-effect').show() : $('#particle-effect').hide();
 
             var event = {
                 type: "applause-enabled",

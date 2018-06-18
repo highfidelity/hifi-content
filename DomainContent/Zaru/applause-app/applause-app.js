@@ -5,6 +5,8 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+//  App Icon made by Freepick from www.flaticon.com 
+//
 (function() {
 
     var INDIVIDUAL_CLAP_URLS = [
@@ -19,21 +21,28 @@
     ];
     var CHIME_SOUND = Script.resolvePath('sounds/bell-chime-alert.wav');
     var CAN_APPLAUD_SETTING = 'io.highfidelity.applauseEnabled';
+    var SHOULD_DISPLAY_PARTICLES_APPLAUSE = 'io.highfidelity.applauseEnabled.useParticles';
+    var HAS_APPLAUSE_APP_SETTING = 'io.highfidelity.applauseEnabled.appPresent';
 
     var APPLAUSE_BUTTON_IMAGE = Script.resolvePath('./resources/button.png');
     var APPLAUSE_BUTTON_PRESSED = Script.resolvePath('./resources/button-pressed.png');
     var WINDOW_Y_OFFSET = 24;
     var BUTTON_DIMENSIONS = {x: 221, y: 69};
-    var HAND_PROXIMITY_DISTANCE = 0.25;
+    var HAND_PROXIMITY_SCALE = 6;
+    var handProximityDistance = MyAvatar.getEyeHeight() / HAND_PROXIMITY_SCALE;
+    var APP_ICON = Script.resolvePath('./resources/hand-icon-by-freepik.png');
+    var APPLAUSE_KEY = 't';
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
     var appPage = Script.resolvePath('applause.html');
     var button = tablet.addButton({
-        text: 'Clap'
+        text: 'Clap',
+        icon: APP_ICON
     });
     var open = false;
 
     var shouldUseChimeSound = false;
+    var shouldUseParticles = true;
     var applauseOverlay = "";
     var previousHandLocations = [];
     var previousHandOrientations = [];
@@ -76,7 +85,7 @@
             var direction = Quat.getFront(MyAvatar.orientation);
             var distance = DISTANCE;
             var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
-            position.y += 3 * DISTANCE;
+            position.y += 3 * DISTANCE * MyAvatar.scale;
             return position;
         } else {
             return midpoint(MyAvatar.getJointPosition("RightHand"),
@@ -86,17 +95,16 @@
     }
 
     function getRotation() {
-       // if (!HMD.active) {
-            return Quat.fromVec3Degrees({x: 0, y: MyAvatar.bodyYaw - 180, z: 0});
-        /**} else {
-            var jointIndex = MyAvatar.getJointIndex("RightForeArm");
-            var jointRotation = MyAvatar.getAbsoluteJointRotationInObjectFrame(jointIndex);
-            var worldRotation = MyAvatar.jointToWorldRotation(jointRotation, jointIndex);
-            return Quat.cancelOutRollAndPitch(worldRotation);}
-        **/
+        return Quat.fromVec3Degrees({x: 0, y: MyAvatar.bodyYaw - 180, z: 0});
     }
 
     // Avatar Helper Functions
+
+    function adjustApplauseScale() {
+        handProximityDistance = MyAvatar.getEyeHeight() / HAND_PROXIMITY_SCALE;
+    }
+
+    MyAvatar.scaleChanged.connect(adjustApplauseScale);
 
     function getJointNames(side, finger, count) {
         var names = [];
@@ -162,7 +170,7 @@
         var oldRotationR = previousHandOrientations[0];
         var oldRotationL = previousHandOrientations[1];
 
-        if (Vec3.distance(handPositionL, handPositionR) <= HAND_PROXIMITY_DISTANCE) {
+        if (Vec3.distance(handPositionL, handPositionR) <= handProximityDistance) {
             if (!handsStretched) {
                 makeOpenPalm();
                 handsStretched = true;
@@ -175,7 +183,7 @@
             }
         }
 
-        if ((Vec3.distance(handPositionL, handPositionR) <= HAND_PROXIMITY_DISTANCE) 
+        if ((Vec3.distance(handPositionL, handPositionR) <= handProximityDistance) 
             && (compareRotations(oldRotationR, handRotationR) 
             || compareRotations(oldRotationL, handRotationL)) && applauseEnabled) {
             playIndividualClapSound();
@@ -196,12 +204,14 @@
 
     function onWebEventReceived(event) {
         if (typeof event === 'string') {
+            print(event);
             event = JSON.parse(event);
         }
         if (event.type === 'applause-app-ready') {
             var webEvent = {
                 type: 'setup',
                 enabled : Settings.getValue(CAN_APPLAUD_SETTING),
+                particles: Settings.getValue(SHOULD_DISPLAY_PARTICLES_APPLAUSE, true),
                 HMD : HMD.active
             };
             tablet.emitScriptEvent(JSON.stringify(webEvent));
@@ -219,6 +229,10 @@
             } else {
                 disableApplause();
             }
+        }
+        if (event.type === 'change-particles') {
+            shouldUseParticles = event.value;
+            Settings.setValue(SHOULD_DISPLAY_PARTICLES_APPLAUSE, event.value);
         }
     }
 
@@ -255,7 +269,7 @@
         } 
     };
 
-    var mousePressEvent = function (event) {
+    var mousePressEvent = function(event) {
         if (!event.isLeftButton) {
             return;
         }
@@ -269,20 +283,31 @@
         }
     };
 
+    function keyPressEvent(event) {
+        if (event.text === APPLAUSE_KEY && applauseEnabled) {
+            playIndividualClapSound();
+        }
+    }
+
     function appEnding() {
         button.clicked.disconnect(onClicked);
         tablet.removeButton(button);
         tablet.webEventReceived.disconnect(onWebEventReceived);
         Controller.mousePressEvent.disconnect(mousePressEvent);
+        Controller.keyPressEvent.disconnect(keyPressEvent);
         removeDesktopOverlay();
         Settings.setValue(CAN_APPLAUD_SETTING, false);
+        Settings.setValue(HAS_APPLAUSE_APP_SETTING, false);
         HMD.displayModeChanged.disconnect(toggleOnHMDSwap);
+        MyAvatar.disconnect(adjustApplauseScale);
     }
 
     button.clicked.connect(onClicked);
+    Settings.setValue(HAS_APPLAUSE_APP_SETTING, true);
     tablet.webEventReceived.connect(onWebEventReceived);
     Script.scriptEnding.connect(appEnding);
     HMD.displayModeChanged.connect(toggleOnHMDSwap);
+    Controller.keyPressEvent.connect(keyPressEvent);
 
     function playSoundAndTriggerHaptics() {
         if (applauseInjector !== undefined && applauseInjector.isPlaying()) {
@@ -332,19 +357,20 @@
             colorFinish:{red:255,blue:0,green:85},
             emitAcceleration: {x: 0, y: 0, z: 0},
             accelerationSpread: {x:0.01, y: 0.01, z: 0.01},
-            alpha:0.0,
+            alpha:1.0,
             alphaSpread:0.25,
             alphaStart:1,
             alphaFinish:0,
             lifetime: 1
         };
-        Entities.addEntity(properties);
+        Entities.addEntity(properties, true);
     }
 
     function playIndividualClapSound() {
         playSoundAndTriggerHaptics();
-        playParticleEffect();
-     
+        if (shouldUseParticles) {
+            playParticleEffect();
+        }
     }
    
     function removeDesktopOverlay(){

@@ -6,6 +6,8 @@
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 (function(){
+    var HAS_APPLAUSE_APP_SETTING = 'io.highfidelity.applauseEnabled.appPresent';
+
 
     var ApplauseItem = function(){
 
@@ -14,7 +16,9 @@
     ApplauseItem.prototype = {
 
         preload: function(entityID) {
-            Script.require('./applause-app.js');
+            if (!Settings.getValue(HAS_APPLAUSE_APP_SETTING)) {
+                Script.require('./applause-app.js');
+            }
         }
 
     };
