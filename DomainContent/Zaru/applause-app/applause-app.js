@@ -1,4 +1,5 @@
-//
+//  applause-app.js
+// 
 //  Created by Liv Erickson on 6/4/18
 //  Copyright 2018 High Fidelity, Inc.
 //
@@ -19,7 +20,7 @@
         Script.resolvePath("sounds/Claps/clap-9.wav"),
         Script.resolvePath("sounds/Claps/clap-10.wav")
     ];
-    var CHIME_SOUND = Script.resolvePath('sounds/bell-chime-alert.wav');
+
     var CAN_APPLAUD_SETTING = 'io.highfidelity.applauseEnabled';
     var SHOULD_DISPLAY_PARTICLES_APPLAUSE = 'io.highfidelity.applauseEnabled.useParticles';
     var HAS_APPLAUSE_APP_SETTING = 'io.highfidelity.applauseEnabled.appPresent';
@@ -28,10 +29,17 @@
     var APPLAUSE_BUTTON_PRESSED = Script.resolvePath('./resources/button-pressed.png');
     var WINDOW_Y_OFFSET = 24;
     var BUTTON_DIMENSIONS = {x: 221, y: 69};
+    var BUTTON_PRESS_TIMEOUT = 150; //ms
     var HAND_PROXIMITY_SCALE = 6;
     var handProximityDistance = MyAvatar.getEyeHeight() / HAND_PROXIMITY_SCALE;
     var APP_ICON = Script.resolvePath('./resources/hand-icon-by-freepik.png');
     var APPLAUSE_KEY = 't';
+    var APPLAUSE_VOLUME = 0.25;
+    var HAPTICS = {
+        strength: 0.75,
+        duration: 25,
+        hands: 2
+    };
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
     var appPage = Script.resolvePath('applause.html');
@@ -41,7 +49,6 @@
     });
     var open = false;
 
-    var shouldUseChimeSound = false;
     var shouldUseParticles = true;
     var applauseOverlay = "";
     var previousHandLocations = [];
@@ -159,14 +166,16 @@
         return (Quat.dot(q1, q2) <= threshold);
     }
 
+    function getRandomApplauseSound() {
+        return INDIVIDUAL_CLAP_URLS[Math.round(Math.random() * INDIVIDUAL_CLAP_URLS.length - 1)];
+    }
+
     function checkHandsDistance() {
 
         var handPositionR = MyAvatar.getJointPosition('RightHand');
         var handPositionL = MyAvatar.getJointPosition('LeftHand');
-
         var handRotationR = MyAvatar.getRightPalmRotation();
         var handRotationL = MyAvatar.getLeftPalmRotation();
-
         var oldRotationR = previousHandOrientations[0];
         var oldRotationL = previousHandOrientations[1];
 
@@ -175,23 +184,20 @@
                 makeOpenPalm();
                 handsStretched = true;
             }
-
         } else {
             if (handsStretched) {
                 clearJoints();
                 handsStretched = false;
             }
         }
-
         if ((Vec3.distance(handPositionL, handPositionR) <= handProximityDistance) 
             && (compareRotations(oldRotationR, handRotationR) 
             || compareRotations(oldRotationL, handRotationL)) && applauseEnabled) {
-            playIndividualClapSound();
+            playSingleClap();
             previousHandOrientations = [];
             previousHandOrientations.push(handRotationR);
             previousHandOrientations.push(handRotationL);
         }
-
     }
     // Tablet Handlers
     function onClicked() {
@@ -201,38 +207,44 @@
             tablet.gotoWebScreen(appPage);
         }
     }
-
     function onWebEventReceived(event) {
         if (typeof event === 'string') {
-            print(event);
             event = JSON.parse(event);
         }
-        if (event.type === 'applause-app-ready') {
-            var webEvent = {
-                type: 'setup',
-                enabled : Settings.getValue(CAN_APPLAUD_SETTING),
-                particles: Settings.getValue(SHOULD_DISPLAY_PARTICLES_APPLAUSE, true),
-                HMD : HMD.active
-            };
-            tablet.emitScriptEvent(JSON.stringify(webEvent));
-        }
-        if (event.type === 'clap') {
-            if (applauseEnabled) {
-                playIndividualClapSound();
-            }
-        }
-        if (event.type === 'applause-enabled') {
-            applauseEnabled = event.value;
-            Settings.setValue(CAN_APPLAUD_SETTING, applauseEnabled);
-            if (applauseEnabled) {
-                setup();
-            } else {
-                disableApplause();
-            }
-        }
-        if (event.type === 'change-particles') {
-            shouldUseParticles = event.value;
-            Settings.setValue(SHOULD_DISPLAY_PARTICLES_APPLAUSE, event.value);
+        switch (event.type) {
+            case 'applause-app-ready':
+                var webEvent = {
+                    type: 'setup',
+                    enabled : Settings.getValue(CAN_APPLAUD_SETTING),
+                    particles: Settings.getValue(SHOULD_DISPLAY_PARTICLES_APPLAUSE, true),
+                    HMD : HMD.active
+                };
+                tablet.emitScriptEvent(JSON.stringify(webEvent));
+                break;
+            
+            case 'clap':
+                if (applauseEnabled) {
+                    playSingleClap();
+                }
+                break;
+
+            case 'applause-enabled':
+                applauseEnabled = event.value;
+                Settings.setValue(CAN_APPLAUD_SETTING, applauseEnabled);
+                if (applauseEnabled) {
+                    setup();
+                } else {
+                    disableApplause();
+                }
+                break;
+
+            case 'change-particles':
+                shouldUseParticles = event.value;
+                Settings.setValue(SHOULD_DISPLAY_PARTICLES_APPLAUSE, event.value);
+                break;
+            
+            default: 
+                break;
         }
     }
 
@@ -240,10 +252,8 @@
         if (HMD.active) {
             removeDesktopOverlay();
             Script.update.connect(checkHandsDistance);
-            
             previousHandLocations.push(MyAvatar.getJointPosition('RightHand'));
             previousHandLocations.push(MyAvatar.getJointPosition('LeftHand'));
-
             previousHandOrientations.push(MyAvatar.getRightPalmRotation());
             previousHandOrientations.push(MyAvatar.getLeftPalmRotation());
         } else {
@@ -278,14 +288,14 @@
             Overlays.editOverlay(applauseOverlay, { imageURL : APPLAUSE_BUTTON_PRESSED});
             Script.setTimeout(function(){ 
                 Overlays.editOverlay(applauseOverlay, { imageURL: APPLAUSE_BUTTON_IMAGE});
-            }, 150);
-            playIndividualClapSound();
+            }, BUTTON_PRESS_TIMEOUT);
+            playSingleClap();
         }
     };
 
     function keyPressEvent(event) {
         if (event.text === APPLAUSE_KEY && applauseEnabled) {
-            playIndividualClapSound();
+            playSingleClap();
         }
     }
 
@@ -308,29 +318,31 @@
     Script.scriptEnding.connect(appEnding);
     HMD.displayModeChanged.connect(toggleOnHMDSwap);
     Controller.keyPressEvent.connect(keyPressEvent);
+    prefetchAudio();
+
+    function prefetchAudio() {
+        for (var i = 0; i < INDIVIDUAL_CLAP_URLS.length; i++) {
+            SoundCache.prefetch(INDIVIDUAL_CLAP_URLS[i]);
+        }
+    }
 
     function playSoundAndTriggerHaptics() {
         if (applauseInjector !== undefined && applauseInjector.isPlaying()) {
             return;
         }
-
-        individualClapSound = shouldUseChimeSound ? SoundCache.getSound(CHIME_SOUND) :
-            SoundCache.getSound(INDIVIDUAL_CLAP_URLS[Math.round(Math.random() * INDIVIDUAL_CLAP_URLS.length - 1)]);
-
+        individualClapSound = SoundCache.getSound(getRandomApplauseSound());
         if (individualClapSound.downloaded) {
             applauseInjector = Audio.playSound(
                 individualClapSound,
                 {
-                    volume: 0.25,
+                    volume: APPLAUSE_VOLUME,
                     localOnly: false,
-                    position: MyAvatar.position,
-                    pitch: 1 
+                    position: MyAvatar.position
                 }
             );
         }
-
         if (HMD.active) {
-            Controller.triggerHapticPulse(0.75, 25, 2);
+            Controller.triggerHapticPulse(HAPTICS.strength, HAPTICS.duration, HAPTICS.hands);
         } 
     }
 
@@ -361,12 +373,14 @@
             alphaSpread:0.25,
             alphaStart:1,
             alphaFinish:0,
-            lifetime: 1
+            lifetime: 1,
+            polarStart: 0,
+            polarFinish: 0.0523599
         };
         Entities.addEntity(properties, true);
     }
 
-    function playIndividualClapSound() {
+    function playSingleClap() {
         playSoundAndTriggerHaptics();
         if (shouldUseParticles) {
             playParticleEffect();

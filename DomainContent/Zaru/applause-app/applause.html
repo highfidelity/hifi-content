@@ -169,7 +169,7 @@
         <br>
     </div>
     <div id="desktop-instructions" display: "none">
-        <text> To clap in desktop mode, click the button on your screen or below! </text><br>
+        <text> To clap in desktop mode, click the button on your screen or below! You can also press the 't' key on your keyboard for a shortcut.</text><br>
         <input type="button" value="Clap!" id="clapButton" class="white"></input>
     </div>
     <div id="particle-effect" display: "none">
@@ -197,17 +197,17 @@
                     $('#applause-toggle').attr("checked", true);
                     var activeInstructions = isHMD ? '#hmd-instructions' : '#desktop-instructions';
                     $(activeInstructions).show();
-                    $('#particle-effect').attr('checked', scriptEvent.particles);
+                    $('#particle-toggle').attr('checked', scriptEvent.particles);
                     $('#particle-effect').show();
                 };
             }
         });
         });
 
-        $('#particle-effect').click(function(){
+        $('#particle-toggle').click(function(){
             var event = {
                 type : "change-particles",
-                value: $('#particle-effect').attr('checked')
+                value: document.getElementById('particle-toggle').checked
             };
             EventBridge.emitWebEvent(JSON.stringify(event));
         });
