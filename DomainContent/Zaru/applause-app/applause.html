@@ -159,9 +159,10 @@
     <h1>Let's give everyone a round of applause!</h1>
     <h3>Use the toggle below to enable clapping.</h3>
     <label class="switch">
-            <input type="checkbox" id="applause-toggle">
-            <span class="slider round"></span>
-    </label><br>
+        <input type="checkbox" id="applause-toggle">
+        <span class="slider round"></span>
+    </label>
+    <br>
     <div id="hmd-instructions" display: "none">
         <text> To use the applause feature, hold your hands together and rotate them quickly to show your love! </text>
         <br>
@@ -169,44 +170,47 @@
         <br>
     </div>
     <div id="desktop-instructions" display: "none">
-        <text> To clap in desktop mode, click the button on your screen or below! You can also press the 't' key on your keyboard for a shortcut.</text><br>
+        <text> To clap in desktop mode, click the button on your screen or below! You can also press the 't' key on your keyboard
+            for a shortcut.</text>
+        <br>
         <input type="button" value="Clap!" id="clapButton" class="white"></input>
     </div>
     <div id="particle-effect" display: "none">
-        <text>Enable Particles  </text>
-            <label class="switch">
-                    <input type="checkbox" id="particle-toggle" checked="true">
-                    <span class="slider round"></span>
-            </label><br>
+        <text>Enable Particles </text>
+        <label class="switch">
+            <input type="checkbox" id="particle-toggle" checked="true">
+            <span class="slider round"></span>
+        </label>
+        <br>
     </div>
-    
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script>
         var isHMD = false;
-        
-        $(document).ready(function() {
+
+        $(document).ready(function () {
+            EventBridge.scriptEventReceived.connect(function (scriptEvent) {
+                if (JSON.parse(scriptEvent).type === 'setup') {
+                    scriptEvent = JSON.parse(scriptEvent);
+                    isHMD = scriptEvent.HMD;
+                    if (scriptEvent.enabled) {
+                        $('#applause-toggle').attr("checked", true);
+                        var activeInstructions = isHMD ? '#hmd-instructions' : '#desktop-instructions';
+                        $(activeInstructions).show();
+                        $('#particle-toggle').attr('checked', scriptEvent.particles);
+                        $('#particle-effect').show();
+                    };
+                }
+            });
             EventBridge.emitWebEvent(JSON.stringify({
                 type: "applause-app-ready"
             }));
-            
-            EventBridge.scriptEventReceived.connect(function(scriptEvent) {
-            if (JSON.parse(scriptEvent).type === 'setup') {
-                scriptEvent = JSON.parse(scriptEvent);
-                isHMD = scriptEvent.HMD;
-                if (scriptEvent.enabled) {
-                    $('#applause-toggle').attr("checked", true);
-                    var activeInstructions = isHMD ? '#hmd-instructions' : '#desktop-instructions';
-                    $(activeInstructions).show();
-                    $('#particle-toggle').attr('checked', scriptEvent.particles);
-                    $('#particle-effect').show();
-                };
-            }
-        });
+
         });
 
-        $('#particle-toggle').click(function(){
+        $('#particle-toggle').click(function () {
             var event = {
-                type : "change-particles",
+                type: "change-particles",
                 value: document.getElementById('particle-toggle').checked
             };
             EventBridge.emitWebEvent(JSON.stringify(event));
@@ -221,7 +225,7 @@
         $('#applause-toggle').click(function () {
             var toggled = document.getElementById('applause-toggle').checked;
             var activeInstructions = isHMD ? '#hmd-instructions' : '#desktop-instructions';
-            
+
             toggled ? $(activeInstructions).show() : $(activeInstructions).hide();
             toggled ? $('#particle-effect').show() : $('#particle-effect').hide();
 
@@ -229,7 +233,7 @@
                 type: "applause-enabled",
                 value: toggled
             };
-           EventBridge.emitWebEvent(JSON.stringify(event));
+            EventBridge.emitWebEvent(JSON.stringify(event));
         });
     </script>
 </body>
