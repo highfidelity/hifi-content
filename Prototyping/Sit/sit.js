@@ -81,6 +81,8 @@
     var CHAIR_DISMOUNT_OFFSET = -0.5;
     var chairOffsetRatio = 0.2;
 
+    var SITTING_SEARCH_RADIUS = 0.01;
+
     // for overlays
     var overlayIntervalTransparency = null;
     var overlaySittable = null;
