@@ -201,6 +201,10 @@
     }
     // Tablet Handlers
     function onClicked() {
+        if (!tablet) {
+            print("Warning in onClicked(): 'tablet' is undefined");
+            return;
+        }
         if (open) {
             tablet.gotoHomeScreen();
         } else {
@@ -210,6 +214,10 @@
     function onWebEventReceived(event) {
         if (typeof event === 'string') {
             event = JSON.parse(event);
+        }
+        if (!tablet) {
+            print("Warning in onWebEventReceived(): 'tablet' is undefined");
+            return;
         }
         switch (event.type) {
             case 'applause-app-ready':
@@ -259,6 +267,7 @@
         } else {
             addDesktopOverlay();
             Controller.mousePressEvent.connect(mousePressEvent);
+            Script.update.disconnect(checkHandsDistance);
         }
     };
 
@@ -301,8 +310,10 @@
 
     function appEnding() {
         button.clicked.disconnect(onClicked);
-        tablet.removeButton(button);
-        tablet.webEventReceived.disconnect(onWebEventReceived);
+        if (tablet) {
+            tablet.removeButton(button);
+            tablet.webEventReceived.disconnect(onWebEventReceived);
+        }
         Controller.mousePressEvent.disconnect(mousePressEvent);
         Controller.keyPressEvent.disconnect(keyPressEvent);
         removeDesktopOverlay();
@@ -314,7 +325,9 @@
 
     button.clicked.connect(onClicked);
     Settings.setValue(HAS_APPLAUSE_APP_SETTING, true);
-    tablet.webEventReceived.connect(onWebEventReceived);
+    if (tablet) {
+        tablet.webEventReceived.connect(onWebEventReceived);
+    }
     Script.scriptEnding.connect(appEnding);
     HMD.displayModeChanged.connect(toggleOnHMDSwap);
     Controller.keyPressEvent.connect(keyPressEvent);
