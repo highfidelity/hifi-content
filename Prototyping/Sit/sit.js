@@ -62,6 +62,7 @@
     var EIGHTY_PERCENT = 0.8;
     var HALF = 0.5;
     var NEG_ONE = -1;
+    var TRUE = "true";
 
     var deviationTimeStart = null;
 
@@ -102,6 +103,7 @@
     var sittingDown = false;
 
     var headToHipsDistance = null;
+    var isOccupied = false;
 
     var chairProperties = null;
 
@@ -152,13 +154,12 @@
                 HMD.displayModeChanged.disconnect(this.switchHMDToDesktopText);
             },
             shouldShow: function () {
-                var seatPosition = Entities.getEntityProperties(entityID, ["position"]).position;
+                var seatPosition = chairProperties.position;
                 var distanceFromSeat = Vec3.distance(MyAvatar.position, seatPosition);
-                return distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.checkSeatForAvatar();
+                return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.isSeatOccupied() && !overlayPreSit);
             },
             // This part is used to fade out the overlay over time
             lerpTransparency: function () {
-                print(1);
                 var startAlpha = OVERLAY_SITTABLE_ALPHA_START;
                 var changeAlpha = 0.01;
                 overlayIntervalTransparency = Script.setInterval(function () {
@@ -276,13 +277,14 @@
 
         showOrRemoveSittable: function () { // Show overlays when I'm close to the seat
 
-            if (isInEditMode() || utils.checkSeatForAvatar() || !utils.canSitDesktop()) {
+            if (isInEditMode() || utils.isSeatOccupied() || !utils.canSitDesktop() || overlayPreSit) {
                 if (overlaySittable) {
                     this.sittable.remove();
                 }
             } else {
                 if (overlaySittable === null) { // Make an overlay if there isn't one
                     if (this.sittable.shouldShow()) {
+                        print("CREATING SITTABLE");
                         this.sittable.create();
                     }
                 }
@@ -291,11 +293,33 @@
 
     };
 
+    this.setIsOccupied = function (id, param) {
+        isOccupied = param[0] === TRUE ? true : false;
+    };
+
+    this.remotelyCallable = [
+        "setIsOccupied"
+    ];
+
     var utils = {
 
         // Is the seat used
         checkSeatForAvatar: function () {
-            var isOccupied = Entities.callEntityServerMethod(entityID, "getOccupiedStatus");
+            var nearbyAvatars = AvatarList.getAvatarsInRange(seatCenterPosition, SITTING_SEARCH_RADIUS);
+            if (nearbyAvatars.length === 0) {
+                // chair is empty
+                return null;
+            } else {
+                return nearbyAvatars[0];
+            }
+        },
+
+        isSeatOccupied: function () {
+            Entities.callEntityServerMethod(
+                entityID, 
+                "getOccupiedStatus",
+                [MyAvatar.sessionUUID]
+            );
             return isOccupied;
         },
         rolesToOverride: function () {
@@ -453,11 +477,11 @@
 
     function sitDown() {
 
-        if (overlaySittable !== null) {
+        if (overlaySittable) {
             overlays.sittable.remove();
         }
 
-        if (utils.checkSeatForAvatar()) {
+        if (utils.isSeatOccupied()) {
             return;
         }
 
@@ -548,7 +572,7 @@
     // User can also click on overlay to sit down
     this.mouseReleaseOnOverlay = function (overlayID, pointerEvent) {
         if (overlayID === overlaySittable && pointerEvent.isLeftButton) {
-            if (!utils.checkSeatForAvatar()) {
+            if (!utils.isSeatOccupied()) {
                 sitDown();
             }
         }
