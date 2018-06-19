@@ -97,7 +97,7 @@
     var OVERLAY_PRESIT_URL_ROOT = "https://hifi-production.s3.amazonaws.com/robin/sit/sitOverlayConfirm/sit-overlay-confirm-";
     var OVERLAY_PRESIT_URL_POSTFIX = ".png";
     var OVERLAY_PRESIT_URL_NUM = 12;
-    var OVERLAY_PRESIT_URL_TEXT = "https://hifi-production.s3.amazonaws.com/robin/sit/sitOverlayConfirm/please-face-forward.png"
+    var OVERLAY_PRESIT_URL_TEXT = "https://hifi-production.s3.amazonaws.com/robin/sit/sitOverlayConfirm/please-face-forward.png";
     var overlayCheckForHover = null;
 
     var sitDownSettlePeriod = null;
