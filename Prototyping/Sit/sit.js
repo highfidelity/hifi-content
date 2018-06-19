@@ -24,11 +24,9 @@
     }
 
     var showsPresitOverlay = true;
-    var SITTING_DEBUG = true;
+    var SITTING_DEBUG = false;
 
     var entityID = null;
-
-    var SETTING_KEY = "com.highfidelity.avatar.isSitting";
 
     var ANIMATION_URL = "http://hifi-content.s3.amazonaws.com/alexia/Sitting_Idle.fbx";
     var ANIMATION_FPS = 30;
@@ -36,6 +34,8 @@
     var ANIMATION_LAST_FRAME = 350;
 
     var RELEASE_TIME = 800; // ms
+
+    var SETTING_KEY = "com.highfidelity.avatar.isSitting";
 
     var SIT_SETTLE_TIME = 300; // ms
     var DISTANCE_FROM_CHAIR_TO_STAND_AT = 0.1;
@@ -63,7 +63,6 @@
     var EIGHTY_PERCENT = 0.8;
     var HALF = 0.5;
     var NEG_ONE = -1;
-    var TRUE = "true";
 
     var deviationTimeStart = null;
 
@@ -106,7 +105,6 @@
     var sittingDown = false;
 
     var headToHipsDistance = null;
-    var isOccupied = false;
 
     var chairProperties = null;
 
@@ -289,16 +287,12 @@
                 // Make an overlay if there isn't one
                 this.sittable.create();
             }
-
-            if (SITTING_DEBUG){
-                print(canSit, !overlaySittable, !overlayPreSit, this.sittable.shouldShow());
-            }
         }
     };
 
     var utils = {
 
-        // less costly function call, used in utils.canSit()
+        // Used in utils.canSit()
         isAvatarSittingInSeat: function () {
             var nearbyAvatars = AvatarList.getAvatarsInRange(seatCenterPosition, SITTING_SEARCH_RADIUS);
             if (nearbyAvatars.length === 0) {
@@ -307,16 +301,6 @@
             } else {
                 return nearbyAvatars[0];
             }
-        },
-        
-        // more costly function call, called before sitDown
-        isSeatOccupied: function () {
-            Entities.callEntityServerMethod(
-                entityID, 
-                "getOccupiedStatus",
-                [MyAvatar.sessionUUID]
-            );
-            return isOccupied;
         },
 
         rolesToOverride: function () {
@@ -329,20 +313,16 @@
             if (!chairProperties) {
                 this.setChairProperties();
             }
-
-            var seatID = Settings.getValue(SETTING_KEY);
-            var isStanding = seatID === null || seatID === "";
-
             var distanceFromSeat = Vec3.distance(MyAvatar.position, chairProperties.position);
             var isWithinSitDistance = distanceFromSeat < SITTABLE_DISTANCE_MAX;
 
             var isOpenSeat = !this.isAvatarSittingInSeat();
 
             if (SITTING_DEBUG){
-                print("Utils.canSit(): ", isStanding, isWithinSitDistance, isOpenSeat);
+                print("Utils.canSit(): ", isWithinSitDistance, isOpenSeat);
             }
 
-            return isStanding && isWithinSitDistance && isOpenSeat;
+            return isWithinSitDistance && isOpenSeat;
         },
 
         getInFrontOverlayProperties: function (positionInFront, dimensions, url) {
@@ -416,16 +396,18 @@
         utils.setChairProperties();
     };
 
-    this.setIsOccupied = function (id, param) {
-        isOccupied = param[0] === TRUE ? true : false;
-    };
-
     this.startSitDown = function (id, param) {
         sitDown();
     };
 
+    this.check = function() {
+        print("CHECKING");
+        Entities.callEntityServerMethod(entityID, "checkResolved");
+    };
+
     this.remotelyCallable = [
-        "setIsOccupied"
+        "startSitDown",
+        "check"
     ];
 
     this.unload = function () {
@@ -433,6 +415,8 @@
         if (Settings.getValue(SETTING_KEY) === entityID) {
             standUp();
         }
+
+        Entities.callEntityServerMethod(entityID, "onStandUp");
 
         if (overlayIntervalTransparency !== null) {
             Script.clearInterval(overlayIntervalTransparency);
@@ -459,15 +443,18 @@
     // User can click on overlay to sit down
     this.mouseReleaseOnOverlay = function (overlayID, pointerEvent) {
         if (overlayID === overlaySittable && pointerEvent.isLeftButton) {
-            if (!utils.isSeatOccupied()) {
-                sitDown();
-            }
+
+            // Server checks if seat is occupied
+            // if not occupied will call startSitDown()
+            Entities.callEntityServerMethod(
+                entityID, 
+                "onSitDown",
+                [MyAvatar.sessionUUID]
+            );
         }
     };
 
     function sitAndPinAvatar() {
-
-        Settings.setValue(SETTING_KEY, entityID);
 
         sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME;
 
@@ -502,6 +489,7 @@
             Script.update.connect(update);
             MyAvatar.scaleChanged.connect(standUp);
             location.hostChanged.connect(standUp);
+            Script.scriptEnding.connect(standUp);
 
         }, SIT_DELAY);
 
@@ -510,14 +498,10 @@
     function sitDown() {
 
         if (overlaySittable) {
-            overlays.sittable.remove();
+            overlays.sittable.remove(); 
         }
 
-        if (utils.isSeatOccupied()) {
-            return;
-        }
-
-        Entities.callEntityServerMethod(entityID, "onSitDown");
+        Settings.setValue(SETTING_KEY, entityID);
 
         utils.setHeadToHipsDistance();
 
@@ -569,14 +553,12 @@
         driveKeyPressedStart = null;
         overlays.standUp.remove();
 
-        Script.update.disconnect(update);
-        MyAvatar.scaleChanged.disconnect(standUp);
-        location.hostChanged.disconnect(standUp);
-
         canStand = false;
 
-        if (Settings.getValue(SETTING_KEY) === entityID) {
+        Entities.callEntityServerMethod(entityID, "onStandUp");
 
+        if (Settings.getValue(SETTING_KEY) === entityID) {
+            
             Settings.setValue(SETTING_KEY, "");
 
             for (var i in OVERRIDDEN_DRIVE_KEYS) {
@@ -594,11 +576,15 @@
                 MyAvatar.centerBody();
             }, STANDUP_DELAY);
 
+            sittingDown = false;
+            sitDownSettlePeriod = null;
+        
         }
 
-        Entities.callEntityServerMethod(entityID, "onStandUp");
-        sittingDown = false;
-        sitDownSettlePeriod = null;
+        Script.update.disconnect(update);
+        MyAvatar.scaleChanged.disconnect(standUp);
+        location.hostChanged.disconnect(standUp);
+        Script.scriptEnding.disconnect(standUp);
     }
 
     function update(dt) {
