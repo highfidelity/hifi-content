@@ -156,7 +156,7 @@
             shouldShow: function () {
                 var seatPosition = chairProperties.position;
                 var distanceFromSeat = Vec3.distance(MyAvatar.position, seatPosition);
-                return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.isSeatOccupied() && !overlayPreSit);
+                return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.checkSeatForAvatar() && !overlayPreSit);
             },
             // This part is used to fade out the overlay over time
             lerpTransparency: function () {
@@ -313,7 +313,8 @@
                 return nearbyAvatars[0];
             }
         },
-
+        
+        // called before sitDown
         isSeatOccupied: function () {
             Entities.callEntityServerMethod(
                 entityID, 
