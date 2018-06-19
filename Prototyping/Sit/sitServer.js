@@ -18,7 +18,6 @@
     }
 
     function checkClient() {
-        print("CHECK CLIENT");
         Entities.callEntityClientMethod(
             currentClientSessionID, 
             entityID, 
@@ -27,11 +26,9 @@
 
         Script.setTimeout(function (){
             if (resolved === true){
-                print("RESOLVED IS TRUE");
                 // Seat is occupied
                 resolved = false;
             } else {
-                print("RESOLVED IS FALSE RESET!");
                 // Seat is not occupied
                 isOccupied = false;
                 currentClientSessionID = null;
@@ -42,7 +39,6 @@
     SitServer.prototype = {
 
         remotelyCallable: [
-            "getOccupiedStatus",
             "onSitDown",
             "onStandUp",
             "checkResolved"
@@ -53,7 +49,6 @@
             resolved = false;
 
             heartbeatInterval = Script.setInterval(function () {
-                print("HEARTBEAT");
                 if (isOccupied) {
                     checkClient();
                 }
@@ -68,8 +63,6 @@
 
         onSitDown: function (id, param) {
             var clientSessionID = param[0];
-
-            print("ROBIN IS HERE!", isOccupied);
 
             if (isOccupied === false){
 
