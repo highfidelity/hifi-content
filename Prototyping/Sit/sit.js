@@ -401,7 +401,6 @@
     };
 
     this.check = function() {
-        print("CHECKING");
         Entities.callEntityServerMethod(entityID, "checkResolved");
     };
 
@@ -558,7 +557,7 @@
         Entities.callEntityServerMethod(entityID, "onStandUp");
 
         if (Settings.getValue(SETTING_KEY) === entityID) {
-            
+
             Settings.setValue(SETTING_KEY, "");
 
             for (var i in OVERRIDDEN_DRIVE_KEYS) {
