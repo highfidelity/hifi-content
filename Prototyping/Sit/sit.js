@@ -24,6 +24,7 @@
     }
 
     var showsPresitOverlay = true;
+    var SITTING_DEBUG = true;
 
     var entityID = null;
 
@@ -36,7 +37,7 @@
 
     var RELEASE_TIME = 800; // ms
 
-    var IK_SETTLE_TIME = 300; // ms
+    var SIT_SETTLE_TIME = 300; // ms
     var DISTANCE_FROM_CHAIR_TO_STAND_AT = 0.1;
 
     var OVERLAY_CHECK_INTERVAL = 500;
@@ -109,8 +110,6 @@
 
     var chairProperties = null;
 
-    var testing = false;
-
     var overlays = {
 
         sittable: {
@@ -158,8 +157,9 @@
             shouldShow: function () {
                 var seatPosition = chairProperties.position;
                 var distanceFromSeat = Vec3.distance(MyAvatar.position, seatPosition);
-                return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.checkSeatForAvatar() && !overlayPreSit);
+                return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.isAvatarSittingInSeat() && !overlayPreSit);
             },
+
             // This part is used to fade out the overlay over time
             lerpTransparency: function () {
                 var startAlpha = OVERLAY_SITTABLE_ALPHA_START;
@@ -279,34 +279,27 @@
 
         showOrRemoveSittable: function () { // Show overlays when I'm close to the seat
 
-            if (isInEditMode() || utils.isSeatOccupied() || !utils.canSitDesktop() || overlayPreSit) {
+            var canSit = utils.canSit();
+
+            if (isInEditMode() || !canSit || overlayPreSit) {
                 if (overlaySittable) {
                     this.sittable.remove();
                 }
-            } else {
-                if (overlaySittable === null) { // Make an overlay if there isn't one
-                    if (this.sittable.shouldShow()) {
-                        print("CREATING SITTABLE");
-                        this.sittable.create();
-                    }
-                }
+            } else if (canSit && !overlaySittable && !overlayPreSit && this.sittable.shouldShow()) {
+                // Make an overlay if there isn't one
+                this.sittable.create();
+            }
+
+            if (SITTING_DEBUG){
+                print(canSit, !overlaySittable, !overlayPreSit, this.sittable.shouldShow());
             }
         }
-
     };
-
-    this.setIsOccupied = function (id, param) {
-        isOccupied = param[0] === TRUE ? true : false;
-    };
-
-    this.remotelyCallable = [
-        "setIsOccupied"
-    ];
 
     var utils = {
 
-        // Is the seat used
-        checkSeatForAvatar: function () {
+        // less costly function call, used in utils.canSit()
+        isAvatarSittingInSeat: function () {
             var nearbyAvatars = AvatarList.getAvatarsInRange(seatCenterPosition, SITTING_SEARCH_RADIUS);
             if (nearbyAvatars.length === 0) {
                 // chair is empty
@@ -316,7 +309,7 @@
             }
         },
         
-        // called before sitDown
+        // more costly function call, called before sitDown
         isSeatOccupied: function () {
             Entities.callEntityServerMethod(
                 entityID, 
@@ -325,18 +318,31 @@
             );
             return isOccupied;
         },
+
         rolesToOverride: function () {
             return MyAvatar.getAnimationRoles().filter(function (role) {
                 return !(role.startsWith("right") || role.startsWith("left"));
             });
         },
-        canSitDesktop: function () {
+
+        canSit: function () {
             if (!chairProperties) {
                 this.setChairProperties();
             }
 
+            var seatID = Settings.getValue(SETTING_KEY);
+            var isStanding = seatID === null || seatID === "";
+
             var distanceFromSeat = Vec3.distance(MyAvatar.position, chairProperties.position);
-            return distanceFromSeat < SITTABLE_DISTANCE_MAX && !this.checkSeatForAvatar();
+            var isWithinSitDistance = distanceFromSeat < SITTABLE_DISTANCE_MAX;
+
+            var isOpenSeat = !this.isAvatarSittingInSeat();
+
+            if (SITTING_DEBUG){
+                print("Utils.canSit(): ", isStanding, isWithinSitDistance, isOpenSeat);
+            }
+
+            return isStanding && isWithinSitDistance && isOpenSeat;
         },
 
         getInFrontOverlayProperties: function (positionInFront, dimensions, url) {
@@ -355,6 +361,7 @@
                 emissive: true
             };
         },
+
         calculatePinHipPosition: function () {
             if (!chairProperties) {
                 this.setChairProperties();
@@ -409,7 +416,20 @@
         utils.setChairProperties();
     };
 
+    this.setIsOccupied = function (id, param) {
+        isOccupied = param[0] === TRUE ? true : false;
+    };
+
+    this.startSitDown = function (id, param) {
+        sitDown();
+    };
+
+    this.remotelyCallable = [
+        "setIsOccupied"
+    ];
+
     this.unload = function () {
+
         if (Settings.getValue(SETTING_KEY) === entityID) {
             standUp();
         }
@@ -436,11 +456,20 @@
 
     };
 
+    // User can click on overlay to sit down
+    this.mouseReleaseOnOverlay = function (overlayID, pointerEvent) {
+        if (overlayID === overlaySittable && pointerEvent.isLeftButton) {
+            if (!utils.isSeatOccupied()) {
+                sitDown();
+            }
+        }
+    };
+
     function sitAndPinAvatar() {
 
         Settings.setValue(SETTING_KEY, entityID);
 
-        sitDownSettlePeriod = Date.now() + IK_SETTLE_TIME;
+        sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME;
 
         MyAvatar.characterControllerEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
@@ -461,7 +490,7 @@
 
         Script.setTimeout(function () {
 
-            if ((HMD.active || testing) && showsPresitOverlay) {
+            if (HMD.active && showsPresitOverlay) {
                 overlays.preSit.remove();
             }
 
@@ -499,7 +528,7 @@
 
         Script.setTimeout(function () {
 
-            if ((HMD.active || testing) && showsPresitOverlay) {
+            if (HMD.active && showsPresitOverlay) {
 
                 overlays.preSit.create();
 
@@ -571,15 +600,6 @@
         sittingDown = false;
         sitDownSettlePeriod = null;
     }
-
-    // User can also click on overlay to sit down
-    this.mouseReleaseOnOverlay = function (overlayID, pointerEvent) {
-        if (overlayID === overlaySittable && pointerEvent.isLeftButton) {
-            if (!utils.isSeatOccupied()) {
-                sitDown();
-            }
-        }
-    };
 
     function update(dt) {
 
@@ -662,6 +682,10 @@
                         deviationTimeStart = null;
                     }
                 }
+            }
+
+            if (SITTING_DEBUG){
+                print("update standup conditionals: ", hasAvatarSpineError, hasHeldDriveKey, hasAvatarMovedTooFar);
             }
 
             if (hasAvatarSpineError || hasHeldDriveKey || hasAvatarMovedTooFar) {
