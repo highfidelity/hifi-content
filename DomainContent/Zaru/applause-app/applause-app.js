@@ -29,7 +29,7 @@
     var APPLAUSE_BUTTON_PRESSED = Script.resolvePath('./resources/button-pressed.png');
     var WINDOW_Y_OFFSET = 24;
     var BUTTON_DIMENSIONS = {x: 221, y: 69};
-    var BUTTON_PRESS_TIMEOUT = 150; //ms
+    var BUTTON_PRESS_TIMEOUT = 150; // ms
     var HAND_PROXIMITY_SCALE = 6;
     var handProximityDistance = MyAvatar.getEyeHeight() / HAND_PROXIMITY_SCALE;
     var APP_ICON = Script.resolvePath('./resources/hand-icon-by-freepik.png');
@@ -54,7 +54,7 @@
     var previousHandLocations = [];
     var previousHandOrientations = [];
     var individualClapSound; 
-    var handsStretched = false;
+    var palmsFlattened = false;
     var applauseInjector;
 
     var applauseEnabled = false;
@@ -90,8 +90,7 @@
         if (!HMD.active) {
             var DISTANCE = 0.25;
             var direction = Quat.getFront(MyAvatar.orientation);
-            var distance = DISTANCE;
-            var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, distance));
+            var position = Vec3.sum(MyAvatar.position, Vec3.multiply(direction, DISTANCE));
             position.y += 3 * DISTANCE * MyAvatar.scale;
             return position;
         } else {
@@ -180,14 +179,14 @@
         var oldRotationL = previousHandOrientations[1];
 
         if (Vec3.distance(handPositionL, handPositionR) <= handProximityDistance) {
-            if (!handsStretched) {
+            if (!palmsFlattened) {
                 makeOpenPalm();
-                handsStretched = true;
+                palmsFlattened = true;
             }
         } else {
-            if (handsStretched) {
+            if (palmsFlattened) {
                 clearJoints();
-                handsStretched = false;
+                palmsFlattened = false;
             }
         }
         if ((Vec3.distance(handPositionL, handPositionR) <= handProximityDistance) 
@@ -275,7 +274,7 @@
         if (HMD.active) {
             Script.update.disconnect(checkHandsDistance);
             clearJoints();
-            handsStretched = false;
+            palmsFlattened = false;
         } else {
             Controller.mousePressEvent.disconnect(mousePressEvent);
             removeDesktopOverlay();
