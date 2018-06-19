@@ -1,3 +1,14 @@
+// DJ_Tools_Spawner.js
+//
+// Created by Milad Nazeri on 2018-06-19
+//
+// Copyright 2018 High Fidelity, Inc.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+// Spawns All the DJ tools
+
 (function () {
     // Init
     var PHLASH_TABLE_NAME = "Set_Phlash_Tables",
