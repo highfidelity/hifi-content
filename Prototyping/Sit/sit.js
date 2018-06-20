@@ -318,7 +318,7 @@
 
             var isOpenSeat = !this.isAvatarSittingInSeat();
 
-            if (SITTING_DEBUG){
+            if (SITTING_DEBUG) {
                 print("Utils.canSit(): ", isWithinSitDistance, isOpenSeat);
             }
 
@@ -487,6 +487,7 @@
 
             Script.update.connect(update);
             MyAvatar.scaleChanged.connect(standUp);
+            MyAvatar.onLoadComplete.connect(standUp);
             location.hostChanged.connect(standUp);
             Script.scriptEnding.connect(standUp);
 
@@ -582,6 +583,7 @@
 
         Script.update.disconnect(update);
         MyAvatar.scaleChanged.disconnect(standUp);
+        MyAvatar.onLoadComplete.disconnect(standUp);
         location.hostChanged.disconnect(standUp);
         Script.scriptEnding.disconnect(standUp);
     }
@@ -669,7 +671,7 @@
                 }
             }
 
-            if (SITTING_DEBUG){
+            if (SITTING_DEBUG) {
                 print("update standup conditionals: ", hasAvatarSpineError, hasHeldDriveKey, hasAvatarMovedTooFar);
             }
 
