@@ -1,3 +1,16 @@
+/*
+Created by Robin Wilson June 2018
+
+Script allows users in full body trackers to utilize High Fidelity's avatar 
+movement animations. 
+
+Instructions:
+1. Load and run script before or after calibrating Hifi's full body tracking
+2. Hold down any directional movement button on the controllers and the avatar 
+will smoothly move into the default walk/run animation
+3. Release and the avatar's hands will smoothly move back into your tracker positions
+*/
+
 (function () {
 
     Script.include("/~/system/libraries/utils.js");
