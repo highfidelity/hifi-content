@@ -16,6 +16,9 @@
             if (!Settings.getValue(HAS_APPLAUSE_APP_SETTING)) {
                 Script.require('./applause-app.js');
             }
+        },
+        unload: function() {
+            Settings.setValue(HAS_APPLAUSE_APP_SETTING, false);
         }
     };
     return new ApplauseItem();
