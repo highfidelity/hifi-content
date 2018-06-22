@@ -1,15 +1,20 @@
-/*
-Created by Robin Wilson June 2018
 
-Script allows users in full body trackers to utilize High Fidelity's avatar 
-movement animations. 
-
-Instructions:
-1. Load and run script before or after calibrating Hifi's full body tracking
-2. Hold down any directional movement button on the controllers and the avatar 
-will smoothly move into the default walk/run animation
-3. Release and the avatar's hands will smoothly move back into your tracker positions
-*/
+// pucks-sliding-fix1.js
+// 
+// Script allows users in full body trackers to utilize High Fidelity's avatar 
+// movement animations. 
+//
+// Created by Robin Wilson 6/20/2018
+// Copyright 2018 High Fidelity, Inc.
+//
+// Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+// Instructions:
+// 1. Load and run script before or after calibrating Hifi's full body tracking
+// 2. Hold down any directional movement button on the controllers and the avatar 
+// will smoothly move into the default walk/run animation
+// 3. Release and the avatar's hands will smoothly move back into tracker positions
 
 (function () {
 
@@ -125,6 +130,7 @@ will smoothly move into the default walk/run animation
 
     Script.scriptEnding.connect(function () {
         MyAvatar.removeAnimationStateHandler(animStateHandlerID);
+        Script.update.disconnect(update);
         cleanUpLerp();
     });
 
