@@ -16,6 +16,8 @@
 // will smoothly move into the default walk/run animation
 // 3. Release and the avatar's hands will smoothly move back into tracker positions
 
+/* globals DriveKeys, Script, MyAvatar */
+
 (function () {
 
     Script.include("/~/system/libraries/utils.js");
