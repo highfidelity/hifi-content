@@ -9,12 +9,33 @@
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-// Chair should be triggerable and not collisionless or grabbable for script to work properly
+// Sit setup:
+// 
+// Best added to a stationary chair or entity. Center of seat is indicated by the entity's registration point.
+// Ex: a stool for an avatar to sit in the middle on top, registrationPoint = { x: 0.5, y: 1.0, z: 0.5 }.
+// 
+// Add sit.js and sitServer.js to an entity
+// Ensure both are running.
+//
+// Configurable variables are:
+// - SHOW_PRESIT_OVERLAY_IN_HMD
+// - CHAIR_OFFSET_RATIO
+// 
 
 /* globals Entities, Script, AnimationCache, Settings, MyAvatar, DriveKeys, AvatarList,
  Vec3, HMD, Overlays, Camera, isInEditMode */
 
 (function () {
+
+    // Configurable Variables
+    
+    // true - shows "Face Forward Overlay" before sit; false - sits immediately with no overlay
+    var SHOW_PRESIT_OVERLAY_IN_HMD = true; 
+
+    // Used to calculate pin hip position. Adds CHAIR_OFFSET_RATIO * chair's y dimension to the y center of the seat.
+    // Avatar sit position y = CHAIR_OFFSET_RATIO * height of chair
+    var CHAIR_OFFSET_RATIO = 0.1;
+
     Script.include("/~/system/libraries/utils.js");
     if (!String.prototype.startsWith) {
         String.prototype.startsWith = function (searchString, position) {
@@ -22,9 +43,6 @@
             return this.substr(position, searchString.length) === searchString;
         };
     }
-
-    var showsPresitOverlay = true;
-    var SITTING_DEBUG = false;
 
     var entityID = null;
 
@@ -37,7 +55,7 @@
 
     var SETTING_KEY = "com.highfidelity.avatar.isSitting";
 
-    var SIT_SETTLE_TIME = 300; // ms
+    var SIT_SETTLE_TIME = 350; // ms
     var DISTANCE_FROM_CHAIR_TO_STAND_AT = 0.1;
 
     var OVERLAY_CHECK_INTERVAL = 500;
@@ -58,8 +76,9 @@
     var STANDUP_DELAY = 25;
 
     var STANDUP_DISTANCE = 0.5; // meters
+    var SITTING_DEBUG = false;
 
-    var ONE_HUNDRED_AND_TEN_PERCENT = 1.1;
+    var ONE_HUNDRED_AND_TWENTY_PERCENT = 1.2;
     var EIGHTY_PERCENT = 0.8;
     var HALF = 0.5;
     var NEG_ONE = -1;
@@ -79,7 +98,6 @@
     var lockChairOnStandUp = null;
     var seatCenterPosition = null;
     var CHAIR_DISMOUNT_OFFSET = -0.5;
-    var chairOffsetRatio = 0.2;
 
     var SITTING_SEARCH_RADIUS = 0.01;
 
@@ -145,7 +163,7 @@
                     overlaySittable = null;
 
                     if (overlayIntervalTransparency) {
-                        Script.clearInterval(overlayIntervalTransparency); // Stop my interval when it's faded out
+                        Script.clearInterval(overlayIntervalTransparency);
                         overlayIntervalTransparency = null;
                     }
                 }
@@ -153,12 +171,13 @@
                 HMD.displayModeChanged.disconnect(this.switchHMDToDesktopText);
             },
             shouldShow: function () {
+                // Is avatar in range with available seat?
                 var seatPosition = chairProperties.position;
                 var distanceFromSeat = Vec3.distance(MyAvatar.position, seatPosition);
                 return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.isAvatarSittingInSeat() && !overlayPreSit);
             },
 
-            // This part is used to fade out the overlay over time
+            // Fade's the sittable overlay over time
             lerpTransparency: function () {
                 var startAlpha = OVERLAY_SITTABLE_ALPHA_START;
                 var changeAlpha = 0.01;
@@ -167,13 +186,15 @@
                     Overlays.editOverlay(overlaySittable, { alpha: startAlpha });
 
                     if (startAlpha <= OVERLAY_SITTABLE_MIN_ALPHA) {
-                        Script.clearInterval(overlayIntervalTransparency); // Stop my interval when it's faded out
+                        // Stop fading and keep overlay at the minimum alpha
+                        Script.clearInterval(overlayIntervalTransparency);
                         overlayIntervalTransparency = null;
                     }
                 }, OVERLAY_SITTABLE_FADE);
             },
 
             switchHMDToDesktopText: function () {
+                // Switch sittable overlay text
                 if (overlaySittable) {
                     var url = HMD.active
                         ? OVERLAY_URL_SITTABLE_HMD
@@ -292,8 +313,9 @@
 
     var utils = {
 
-        // Used in utils.canSit()
         isAvatarSittingInSeat: function () {
+            // Is another avatar sitting in the chair?
+            // Used in utils.canSit()
             var nearbyAvatars = AvatarList.getAvatarsInRange(seatCenterPosition, SITTING_SEARCH_RADIUS);
             if (nearbyAvatars.length === 0) {
                 // chair is empty
@@ -304,6 +326,7 @@
         },
 
         rolesToOverride: function () {
+            // Get all animation roles that sit will override
             return MyAvatar.getAnimationRoles().filter(function (role) {
                 return !(role.startsWith("right") || role.startsWith("left"));
             });
@@ -350,7 +373,7 @@
             // get chairProperties to calculate middle of chair
             seatCenterPosition = chairProperties.position;
 
-            var yOffset = chairProperties.dimensions.y * HALF * chairOffsetRatio;
+            var yOffset = chairProperties.dimensions.y * CHAIR_OFFSET_RATIO;
             seatCenterPosition = {
                 x: chairProperties.position.x,
                 y: chairProperties.position.y + yOffset,
@@ -397,6 +420,8 @@
     };
 
     this.startSitDown = function (id, param) {
+        // Called by entity server script
+        // To ensure only 1 avatar sits in chair at a time
         sitDown();
     };
 
@@ -476,7 +501,7 @@
 
         Script.setTimeout(function () {
 
-            if (HMD.active && showsPresitOverlay) {
+            if (HMD.active && SHOW_PRESIT_OVERLAY_IN_HMD) {
                 overlays.preSit.remove();
             }
 
@@ -512,7 +537,7 @@
 
         Script.setTimeout(function () {
 
-            if (HMD.active && showsPresitOverlay) {
+            if (HMD.active && SHOW_PRESIT_OVERLAY_IN_HMD) {
 
                 overlays.preSit.create();
 
@@ -656,7 +681,7 @@
                 var headDeviation = Vec3.distance(headWorldPosition, seatCenterPosition);
                 var headDeviationRatio = headDeviation / headToHipsDistance;
 
-                if ((headDeviationRatio > ONE_HUNDRED_AND_TEN_PERCENT || headDeviationRatio < EIGHTY_PERCENT) &&
+                if ((headDeviationRatio > ONE_HUNDRED_AND_TWENTY_PERCENT || headDeviationRatio < EIGHTY_PERCENT) &&
                     sitDownSettlePeriod && now > sitDownSettlePeriod) {
 
                     if (deviationTimeStart === null) {
