@@ -45,46 +45,43 @@
     }
 
     var entityID = null;
+    
+    var SETTING_KEY = "com.highfidelity.avatar.isSitting";
 
     var ANIMATION_URL = "http://hifi-content.s3.amazonaws.com/alexia/Sitting_Idle.fbx";
     var ANIMATION_FPS = 30;
     var ANIMATION_FIRST_FRAME = 1;
     var ANIMATION_LAST_FRAME = 350;
 
-    var RELEASE_TIME = 800; // ms
-
-    var SETTING_KEY = "com.highfidelity.avatar.isSitting";
-
     var SIT_SETTLE_TIME = 350; // ms
-    var DISTANCE_FROM_CHAIR_TO_STAND_AT = 0.1;
-
+    var DISTANCE_FROM_CHAIR_TO_STAND_AT = 0.5;
+    
     var OVERLAY_CHECK_INTERVAL = 500;
     var OVERLAY_SITTABLE_FADE = 50; // "Click/Trigger to Sit" overlay fade after 50 ms
+    var OVERLAY_SITTABLE_DISTANCE_SHOW = 3; // m 
+    var OVERLAY_SITTABLE_DISTANCE_MAX = 5; // m
+    var OVERLAY_SITTABLE_ALPHA_START = 0.7; 
+    var OVERLAY_SITTABLE_MIN_ALPHA = 0.075; // fades to this alpha value
     var OVERLAY_URL_SITTABLE_HMD = "http://hifi-content.s3.amazonaws.com/alexia/TriggerToSit.png";
     var OVERLAY_URL_SITTABLE_DESKTOP = "http://hifi-content.s3.amazonaws.com/alexia/ClickToSit.png";
     var OVERLAY_URL_STANDUP = "https://hifi-production.s3.amazonaws.com/robin/sit/HoldToStandUp.png";
-    var OVERLAY_SITTABLE_MIN_ALPHA = 0.075;
-
-    var OVERLAY_PRESIT_FRAME_DURATION = 160;
-
-    var SITTABLE_DISTANCE_MAX = 5;
-    var SIT_DELAY = 50; // ms
-
-    var OVERLAY_SITTABLE_DISTANCE_SHOW = 3;
-    var OVERLAY_SITTABLE_ALPHA_START = 0.7; // for overlayss
-
-    var STANDUP_DELAY = 25;
-
-    var STANDUP_DISTANCE = 0.5; // meters
-    var SITTING_DEBUG = false;
-
+    
+    var OVERLAY_PRESIT_FRAME_DURATION = 160; // ms time duration for HMD presit overlay
+    var OVERLAY_PRESIT_URL_ROOT = "https://hifi-production.s3.amazonaws.com/robin/sit/sitOverlayConfirm/sit-overlay-confirm-";
+    var OVERLAY_PRESIT_URL_POSTFIX = ".png";
+    var OVERLAY_PRESIT_URL_NUM = 12;
+    var OVERLAY_PRESIT_URL_TEXT = "https://hifi-production.s3.amazonaws.com/robin/sit/sitOverlayConfirm/please-face-forward.png";
+    
+    var SITTING_DEBUG = false; // turn on sitting debug print statements
+    
     var ONE_HUNDRED_AND_TWENTY_PERCENT = 1.2;
     var EIGHTY_PERCENT = 0.8;
     var HALF = 0.5;
     var NEG_ONE = -1;
-
-    var deviationTimeStart = null;
-
+    
+    var SIT_DELAY = 50; // ms for timeouts in sit
+    var STANDUP_DELAY = 25; // ms for timeout in standup
+    
     var OVERRIDDEN_DRIVE_KEYS = [
         DriveKeys.TRANSLATE_X,
         DriveKeys.TRANSLATE_Y,
@@ -93,16 +90,15 @@
         DriveKeys.STEP_TRANSLATE_Y,
         DriveKeys.STEP_TRANSLATE_Z
     ];
-
-    var canStand = false;
+    
+    var chairProperties = null;
     var lockChairOnStandUp = null;
     var seatCenterPosition = null;
-    var CHAIR_DISMOUNT_OFFSET = -0.5;
-
-    var SITTING_SEARCH_RADIUS = 0.01;
-
+    var CHAIR_DISMOUNT_OFFSET = -0.5; // m in front of chair
+    
+    var SITTING_SEARCH_RADIUS = 0.01; // m to check if avatar is sitting in chair
+    
     // for overlays
-    var overlayIntervalTransparency = null;
     var overlaySittable = null;
     var overlayStandUp = null;
     var overlayPreSit = null;
@@ -111,27 +107,28 @@
     var overlayPreSitLoaded = [];
     var overlayPreSitTextLoaded = null;
     var preSitLoadIndex = 0;
-
-    var OVERLAY_PRESIT_URL_ROOT = "https://hifi-production.s3.amazonaws.com/robin/sit/sitOverlayConfirm/sit-overlay-confirm-";
-    var OVERLAY_PRESIT_URL_POSTFIX = ".png";
-    var OVERLAY_PRESIT_URL_NUM = 12;
-    var OVERLAY_PRESIT_URL_TEXT = "https://hifi-production.s3.amazonaws.com/robin/sit/sitOverlayConfirm/please-face-forward.png";
-    var overlayCheckForHover = null;
-
+    
+    var overlayIntervalHoverCheck = null;
+    var overlayIntervalTransparency = null;
+    
+    // sit/stand variables
+    var sittingDown = false;
+    var canStand = false;
+    var STANDUP_DISTANCE = 0.5; // m 
+    
+    // used in standup conditions
+    var DRIVE_KEY_RELEASE_TIME = 800; // ms
     var sitDownSettlePeriod = null;
     var driveKeyPressedStart = null;
-    var sittingDown = false;
-
+    var deviationTimeStart = null; 
     var headToHipsDistance = null;
-
-    var chairProperties = null;
-
+    
     var overlays = {
-
+        
         sittable: {
             create: function () {
                 utils.setChairProperties();
-
+                
                 // change the image based on what modality the user is in
                 var url = HMD.active
                     ? OVERLAY_URL_SITTABLE_HMD
@@ -337,7 +334,7 @@
                 this.setChairProperties();
             }
             var distanceFromSeat = Vec3.distance(MyAvatar.position, chairProperties.position);
-            var isWithinSitDistance = distanceFromSeat < SITTABLE_DISTANCE_MAX;
+            var isWithinSitDistance = distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_MAX;
 
             var isOpenSeat = !this.isAvatarSittingInSeat();
 
@@ -447,9 +444,9 @@
             overlayIntervalTransparency = null;
         }
 
-        if (overlayCheckForHover !== null) {
-            Script.clearInterval(overlayCheckForHover);
-            overlayCheckForHover = null;
+        if (overlayIntervalHoverCheck !== null) {
+            Script.clearInterval(overlayIntervalHoverCheck);
+            overlayIntervalHoverCheck = null;
         }
 
         if (overlaySittable) {
@@ -480,8 +477,6 @@
 
     function sitAndPinAvatar() {
 
-        sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME;
-
         MyAvatar.characterControllerEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
 
@@ -506,9 +501,11 @@
             }
 
             sittingDown = true;
+            canStand = true;
+            sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME;
 
             MyAvatar.pinJoint(index, seatCenterPosition, chairProperties.rotation);
-            canStand = true;
+
 
             Script.update.connect(update);
             MyAvatar.scaleChanged.connect(standUp);
@@ -575,14 +572,17 @@
         if (!lockChairOnStandUp) {
             Entities.editEntity(entityID, { locked: false });
         }
-        driveKeyPressedStart = null;
-        overlays.standUp.remove();
 
+        driveKeyPressedStart = null;        
         canStand = false;
+        sitDownSettlePeriod = null;
+        sittingDown = false;
+        overlays.standUp.remove();
 
         Entities.callEntityServerMethod(entityID, "onStandUp");
 
         if (Settings.getValue(SETTING_KEY) === entityID) {
+            // Check if avatar is getting out of this chair
 
             Settings.setValue(SETTING_KEY, "");
 
@@ -600,10 +600,9 @@
             Script.setTimeout(function () {
                 MyAvatar.centerBody();
             }, STANDUP_DELAY);
-
-            sittingDown = false;
-            sitDownSettlePeriod = null;
         
+        } else {
+            // Avatar switched to another chair, do not reapply the animation roles
         }
 
         Script.update.disconnect(update);
@@ -647,12 +646,12 @@
                 }
             }
 
-            // Only standup if user has been pushing a drive key for RELEASE_TIME
+            // Only standup if user has been pushing a drive key for DRIVE_KEY_RELEASE_TIME
             if (hasActiveDriveKey) {
 
                 if (driveKeyPressedStart !== null) {
                     var elapsed = now - driveKeyPressedStart;
-                    hasHeldDriveKey = elapsed > RELEASE_TIME;
+                    hasHeldDriveKey = elapsed > DRIVE_KEY_RELEASE_TIME;
                 }
 
             } else {
@@ -681,14 +680,14 @@
                 var headDeviation = Vec3.distance(headWorldPosition, seatCenterPosition);
                 var headDeviationRatio = headDeviation / headToHipsDistance;
 
-                if ((headDeviationRatio > ONE_HUNDRED_AND_TWENTY_PERCENT || headDeviationRatio < EIGHTY_PERCENT) &&
-                    sitDownSettlePeriod && now > sitDownSettlePeriod) {
+                if ((headDeviationRatio > ONE_HUNDRED_AND_TWENTY_PERCENT || headDeviationRatio < EIGHTY_PERCENT) 
+                    && sitDownSettlePeriod && now > sitDownSettlePeriod) {
 
                     if (deviationTimeStart === null) {
                         deviationTimeStart = now;
                     }
 
-                    var deviationTimeToStand = 500;
+                    var deviationTimeToStand = 1000;
                     if (now - deviationTimeStart > deviationTimeToStand) {
                         hasAvatarSpineError = true;
                         deviationTimeStart = null;
@@ -709,7 +708,7 @@
     Overlays.mouseReleaseOnOverlay.connect(this.mouseReleaseOnOverlay);
 
     // Check if we've encountered a chair
-    overlayCheckForHover = Script.setInterval(function () {
+    overlayIntervalHoverCheck = Script.setInterval(function () {
 
         overlays.showOrRemoveSittable();
 
