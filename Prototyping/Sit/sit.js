@@ -37,11 +37,11 @@
     var CHAIR_OFFSET_RATIO = 0.1;
 
     Script.include("/~/system/libraries/utils.js");
-    if (!String.prototype.startsWith) {
-        String.prototype.startsWith = function (searchString, position) {
-            position = position || 0;
-            return this.substr(position, searchString.length) === searchString;
-        };
+
+    function startsWith(str, searchString, position) {
+        print(1);
+        position = position || 0;
+        return str.substr(position, searchString.length) === searchString;
     }
 
     var entityID = null;
@@ -325,7 +325,7 @@
         rolesToOverride: function () {
             // Get all animation roles that sit will override
             return MyAvatar.getAnimationRoles().filter(function (role) {
-                return !(role.startsWith("right") || role.startsWith("left"));
+                return !(startsWith(role, "right") || startsWith(role, "left"));
             });
         },
 
