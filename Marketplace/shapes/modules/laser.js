@@ -78,6 +78,7 @@ Laser = function (side) {
 
     function updateLine(start, end, color) {
         Overlays.editOverlay(laserLine, {
+            parentID: Uuid.SELF, // Re-parent in case have changed domains.
             start: start,
             end: end,
             color: color,
