@@ -12,13 +12,13 @@
 // http://creativecommons.org/licenses/
 //
 
-var library = Script.require("https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/emojiLib.js?" + Date.now());
+var library = Script.require(Script.resolvePath("./emojiLib.js"));
 
 (function() {
 
     var APP_NAME = "EMOJIS";
-    var APP_URL = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/emojiTabletUI.html?" + Date.now();
-    var APP_ICON = "./icons/emoji-i.svg";
+    var APP_URL = Script.resolvePath("./emojiTabletUI.html");
+    var APP_ICON = Script.resolvePath("./icons/emoji-i.svg");
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
 
     var DISTANCE = 0.5;

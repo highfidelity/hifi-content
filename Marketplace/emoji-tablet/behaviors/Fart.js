@@ -12,22 +12,19 @@
 // All assets are under CC Attribution Non-Commerical
 // http://creativecommons.org/licenses/
 //
-(function () {
+(function() {
     var SOUND_URL = "http://mpassets.highfidelity.com/a5f42695-f15a-4f44-9660-14b4f8ca2b29-v1/poot.wav";
     var SOUND = SoundCache.getSound(Script.resolvePath(SOUND_URL));
     var SOUND_VOLUME = 0.5;
 
     var _this;
-    _this = this;
     var playback; 
+
+    _this = this;
 
     this.preload = function (entityID) {
         _this.entityID = entityID;
         playback = {volume: SOUND_VOLUME, position: Entities.getEntityProperties(_this.entityID, "position").position};
-    };
-
-    this.unload = function () {
-
     };
 
     this.startNearGrab = function () {

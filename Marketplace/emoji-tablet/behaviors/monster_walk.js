@@ -22,7 +22,7 @@
     this.preload = function(entityID) {
         _entityID = entityID;
         properties = Entities.getEntityProperties(_entityID, ["position", "rotation"]);
-        var faceAwayRot = Quat.multiply(MyAvatar.orientation, {x:0, y:1, z:0, w:0});
+        var faceAwayRot = Quat.multiply(MyAvatar.orientation, { x: 0, y: 1, z: 0, w: 0 });
         var newProperties = {
             "position": {
                 "x": properties.position.x,
@@ -39,14 +39,10 @@
         var position = Entities.getEntityProperties(_entityID, "position").position;
         var destination = Vec3.normalize(Vec3.subtract(position, MyAvatar.position));
         var newProperties = {
-            "rotation": Quat.multiply(MyAvatar.orientation, {x:0, y:1, z:0, w:0}),
+            "rotation": Quat.multiply(MyAvatar.orientation, { x: 0, y: 1, z: 0, w: 0 }),
             "velocity": destination
         };
         Entities.editEntity(_entityID, newProperties);
     }, INTERVAL);
-    
-    this.unload = function() {
-
-    };
 
 });

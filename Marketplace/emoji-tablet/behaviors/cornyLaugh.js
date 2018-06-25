@@ -14,10 +14,10 @@
 //
 
 (function () {
-    var LAUGH_URL = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/behaviors/sounds/corny-laugh.wav";
-    var LAUGH = SoundCache.getSound(Script.resolvePath(LAUGH_URL));
-    var RIM_SHOT_URL = "https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/behaviors/sounds/rim-shot.wav";
-    var RIM_SHOT = SoundCache.getSound(Script.resolvePath(RIM_SHOT_URL));
+    var LAUGH_URL = Script.resolvePath("./sounds/corny-laugh.wav");
+    var LAUGH;
+    var RIM_SHOT_URL = Script.resolvePath("./sounds/rim-shot.wav");
+    var RIM_SHOT;
     var SOUND_VOLUME = 10;
     var LAUGH_INTERVAL = 800;
     var ROLL_INTERVAL = 3000;
@@ -26,6 +26,8 @@
     var _entityID;
     this.preload = function(entityID) {
         _entityID = entityID;
+        LAUGH = SoundCache.getSound(Script.resolvePath(LAUGH_URL));
+        RIM_SHOT = SoundCache.getSound(Script.resolvePath(RIM_SHOT_URL));
     };
 
     Audio.playSound(RIM_SHOT, {
@@ -61,9 +63,5 @@
             Entities.editEntity(_entityID, angularVelocity);
         }
     }, ROLL_INTERVAL);
-
-    this.unload = function() {
-
-    };
 
 });
