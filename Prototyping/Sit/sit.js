@@ -39,7 +39,6 @@
     Script.include("/~/system/libraries/utils.js");
 
     function startsWith(str, searchString, position) {
-        print(1);
         position = position || 0;
         return str.substr(position, searchString.length) === searchString;
     }
