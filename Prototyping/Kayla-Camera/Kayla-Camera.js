@@ -1,3 +1,14 @@
+// Kayla-Camera.js
+//
+// Created by Milad Nazeri on 2018-06-19
+//
+// Copyright 2018 High Fidelity, Inc.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+// Helper for live events to capture camera positions
+
 (function () {
     // Polyfills
     Script.require(Script.resolvePath('./Polyfills.js'));
@@ -319,7 +330,6 @@
             setAppActive(false);
         }
         if (isTabletUIOpen) {
-            // setUIUpdating(false);
             tablet.webEventReceived.disconnect(onTabletWebEventReceived);
         }
         if (tabletButton) {
