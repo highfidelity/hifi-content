@@ -8,8 +8,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    print("starting stageapp");
-    
     var TABLET_BUTTON_IMAGE = Script.resolvePath('svg/megaphone-i.svg');
     var TABLET_BUTTON_PRESSED = Script.resolvePath('svg/megaphone-a.svg');
     var CLIP_1 = SoundCache.getSound(Script.resolvePath('sounds/audio1.wav'));

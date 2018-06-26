@@ -61,7 +61,6 @@
 
         up: function() {
             if (jungle && movementIncrementM > movementIncrementMin) {
-                print("up jungle");
                 movementIncrementM -= intervalChange;
             }
             if (currentPosition.y < upPosition.y) {
@@ -71,7 +70,6 @@
                 });
             } else {
                 if (jungle) {
-                    print("up else jungle");
                     movementIncrementM = fasterMovementIncrementM;
                 }
                 if (moving) {
@@ -82,7 +80,6 @@
 
         down: function() {
             if (jungle && movementIncrementM > movementIncrementMin) {
-                print("down jungle");
                 movementIncrementM -= intervalChange;
             }
             if (currentPosition.y > downPosition.y) {
@@ -92,7 +89,6 @@
                 });
             } else {
                 if (jungle) {
-                    print("down jungle");
                     movementIncrementM = fasterMovementIncrementM;
                 }
                 if (moving) {
