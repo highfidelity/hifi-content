@@ -91,7 +91,6 @@
     var slideURL = "https://hifi-slides.glitch.me/";
 
     function XHR(url) {
-        print("XHR: request url = " + url);
         this.req = new XMLHttpRequest();
         this.req.open("GET", url);
         this.req.send();
