@@ -62,7 +62,7 @@
                 type: "Shape",
                 shape: "Cylinder",
                 name: name,
-                dynamic: false,
+                dynamic: true,
                 gravity: {
                     x: 0,
                     y: 0,
@@ -81,8 +81,8 @@
                 parentID: _this.entityID,
                 restitution: 0,
                 friction: 0,
-                collisionless: true,
-                // collidesWith: "",
+                collisionless: false,
+                collidesWith: "static,dynamic,kinematic",
                 script: JANGGU_CLIENT_SCRIPT_URL
                 // userData: userData
             };
