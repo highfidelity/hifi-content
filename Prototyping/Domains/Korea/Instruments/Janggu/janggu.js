@@ -9,34 +9,47 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-(function() {
+(function () {
     var _this;
 
     var AUDIO_VOLUME_LEVEL = 1;
     var TIMEOUT_100_MS = 100;
     var TIMEOUT_10_MS = 10;
 
+    var STICK_LISTENER_NAME = "StickListener";
+
     var playing = false;
     var sound;
 
-    var JangguDrum = function() {
+    var JangguDrum = function () {
         _this = this;
     };
 
     JangguDrum.prototype = {
-        preload: function(entityID){
+        preload: function (entityID) {
             _this.entityID = entityID;
             sound = SoundCache.getSound(Script.resolvePath("Sounds/ambient_tom_1.wav"));
         },
-        collisionWithEntity: function(thisEntity, otherEntity, collision) {
+        collisionWithEntity: function (thisEntity, otherEntity, collision) {
             // if otherEntity name is "drumstick"
+
+            var entityName = Entities.getEntityProperties(otherEntity, ["name"]).name;
+
+            print(3, entityName);
+
+            // if (entityName === STICK_LISTENER_NAME){
+            print(1, true);
             if (collision.type === 0) {
+
+                print(2, true);
                 this.playSound();
             }
+            // }
         },
-        playSound: function() {
+        playSound: function () {
+            print(555, true);
             _this.homePos = Entities.getEntityProperties(_this.entityID, ["position"]).position;
-            _this.injector = Audio.playSound(_this.sound, {position: _this.homePos, volume: AUDIO_VOLUME_LEVEL});
+            _this.injector = Audio.playSound(_this.sound, { position: _this.homePos, volume: AUDIO_VOLUME_LEVEL });
             if (sound.downloaded && !playing) {
                 Audio.playSound(sound, {
                     position: _this.homePos,
@@ -47,12 +60,12 @@
                 // Script.setTimeout(function() {
                 //     playing = false;
                 // }, TIMEOUT_10_MS);
-                Script.setTimeout(function() {
+                Script.setTimeout(function () {
                     playing = false;
                 }, TIMEOUT_100_MS);
             }
         },
-        clickReleaseOnEntity: function(entityID, mouseEvent) {
+        clickReleaseOnEntity: function (entityID, mouseEvent) {
             if (mouseEvent.isLeftButton) {
                 this.playSound();
             }
