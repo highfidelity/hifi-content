@@ -27,12 +27,10 @@
     TriggerBell.prototype = {
 
         preload: function(entityID) {
-            print("hello");
             _this.entityID = entityID;
         },
 
         startEquip: function(id, params) {
-            print("equip");
             equipped = true;
             currentHand = params[0] === "left" ? 0 : 1;
         },
@@ -50,10 +48,8 @@
         toggleWithTriggerPressure: function() {
             var triggerValue = Controller.getValue(TRIGGER_CONTROLS[currentHand]);
             if (triggerValue >= TRIGGER_TOGGLE_VALUE && triggerReleased) {
-                print("trigger released...playing sound");
                 _this.playSound();
             } else if (triggerValue < TRIGGER_TOGGLE_VALUE && !triggerReleased) {
-                print("trigger released");
                 triggerReleased = true;
             }
         },
@@ -64,9 +60,7 @@
         },
 
         playSound: function() {
-            print("sound");
             if (BELL_SOUND.downloaded) {
-                print("downloaded");
                 var position = Entities.getEntityProperties(_this.entityID, 'position').position;
                 Audio.playSound(BELL_SOUND, {
                     position: position,
