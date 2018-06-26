@@ -1,14 +1,22 @@
-/* globals Entity */
-
+/* globals Entities */
 
 (function() {
     var _this;
-    var JANGGU_CLIENT_SCRIPT_URL = Script.resolvePath("janggu.js?v1" + Math.random());
+    var JANGGU_CLIENT_SCRIPT_URL = "C:/Users/robin/Documents/code/hifi-content/Prototyping/Domains/Korea/Instruments/Janggu/janggu.js"; // Script.resolvePath("janggu.js?v1" + Math.random());
 
-    var Janggu = function () {
+    var Janggu = function() {
+        _this = this;
         this.topListener = null;
         this.botListener = null;
     };
+
+    function duplicateObject(obj) {
+        var ret = {};
+        for (var prop in obj) {
+            ret[prop] = obj[prop];
+        }
+        return ret;
+    }
 
     Janggu.prototype = {
         preload: function (entityID) {
@@ -23,11 +31,11 @@
         deleteListeners: function () {
 
             if (this.topListener) {
-                Entity.deleteEntity(this.topListener);
+                Entities.deleteEntity(this.topListener);
                 this.topListener = null;
             }
             if (this.botListener) {
-                Entity.deleteEntity(this.botListener);
+                Entities.deleteEntity(this.botListener);
                 this.botListener = null;
             }
 
@@ -35,21 +43,24 @@
 
         makeNewDrumListeners: function () {
 
-            var topJoint = Entity.getJointIndex(_this.entityID, "Joint1");
-            var botJoint = Entity.getJointIndex(_this.entityID, "Joint2");
+            var topJoint = Entities.getJointIndex(_this.entityID, "joint1");
+            var botJoint = Entities.getJointIndex(_this.entityID, "joint2");
 
-            var topJointPos = Entity.getLocalJointTranslation(_this.entityID, topJoint);
-            var botJointPos = Entity.getLocalJointTranslation(_this.entityID, botJoint);
-
-            var jangguProps = Entity.getProperties(_this.entityID, ["rotation", "dimensions"]);
+            var topJointPos = Entities.getLocalJointTranslation(_this.entityID, topJoint);
+            var botJointPos = Entities.getLocalJointTranslation(_this.entityID, botJoint);
+            
+            var jangguProps = Entities.getEntityProperties(_this.entityID, ["rotation", "position", "dimensions"]);
             var jangguDimens = jangguProps.dimensions;
-
+            
+            // var scalar = Vec3.dot({x: 0, y: jangguProps.dimensions.y, z:0}, {x: 0, y: topJointPos.y, z:0});
+            
             var name = "JangguListener_";
 
             var listenerProps = {
-                locked: true,
+                locked: false,
                 rotation: jangguProps.rotation,
-                shapeType: "Cylinder",
+                type: "Shape",
+                shape: "Cylinder",
                 name: name,
                 dynamic: false,
                 gravity: {
@@ -75,21 +86,30 @@
                 script: JANGGU_CLIENT_SCRIPT_URL
                 // userData: userData
             };
+            
+            var topPos = duplicateObject(jangguProps.position);
+            topPos.y = topPos.y + jangguDimens.y / 2;
+            var botPos = duplicateObject(jangguProps.position);
+            botPos.y = botPos.y - jangguDimens.y / 2;
 
-            var topProps = Object.create(listenerProps);
+            var topProps = duplicateObject(listenerProps);
             topProps.name = topProps.name + "top";
-            topProps.parentJointIndex = topJoint;
-            topProps.position = topJointPos;
+            topProps.parentJointIndex = topPos;
+            topProps.position = topPos;
             topProps.color = { red: 255, green: 0, blue: 0 };
+            print("topProps", 
+            // JSON.stringify(topProps), 
+            JSON.stringify(topJointPos));
 
-            var botProps = Object.create(listenerProps);
+            var botProps = duplicateObject(listenerProps);
             botProps.name = botProps.name + "bot";
             botProps.parentJointIndex = botJoint;
-            botProps.position = botJointPos;
+            botProps.position = botPos;
             botProps.color = { red: 0, green: 0, blue: 255 };
-
-            this.topListener = Entity.addEntity(topProps);
-            this.botListener = Entity.addEntity(botProps);
+            
+            this.topListener = Entities.addEntity(topProps);
+            this.botListener = Entities.addEntity(botProps);
+            print("topListener", this.topListener, "botListener", this.botListener);
         },
 
         unload: function () {
@@ -99,4 +119,4 @@
 
     return new Janggu();
 
-})();
+});
