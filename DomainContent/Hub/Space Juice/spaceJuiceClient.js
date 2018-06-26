@@ -33,6 +33,7 @@
     var DRUNK_HAZE_100_M = 100;
     var DRUNK_HAZE_50_M = 50;
     var DRUNK_HAZE_10_M = 10;
+    var LIFETIME = 30;
 
     var interval;
     var drunkZone = null;
@@ -46,7 +47,7 @@
         _this = this;
     }
 
-    var shouldBreak = function(velocity){
+    var shouldBreak = function(velocity) {
         return Math.abs(velocity.x) >= VELOCITY_TO_BREAK ||
         Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
         Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
@@ -58,13 +59,13 @@
             _this = this;
             _this.entityID = entityID;
             _this.position = Entities.getEntityProperties(_this.entityID, 'position').position;
-            Entities.findEntities(_this.position, SEARCH_RADIUS).forEach(function(element){
+            Entities.findEntities(_this.position, SEARCH_RADIUS).forEach(function(element) {
                 var name = Entities.getEntityProperties(element, 'name').name;
                 if (name === "space juice spawner") {
                     spawner = element;
                 }
             });
-            Entities.getChildrenIDs(_this.entityID).forEach(function(element){
+            Entities.getChildrenIDs(_this.entityID).forEach(function(element) {
                 if (Entities.getEntityProperties(element, 'name').name === "Space Shot") {
                     drink = element;
                 }
@@ -96,6 +97,9 @@
         },
 
         startNearGrab: function(entityID, mouseEvent) {
+            Entities.editEntity(_this.entityID, {
+                dynamic: true
+            });
             if (stillFull) {
                 interval = Script.setInterval(function() {
                     _this.distanceCheck();
@@ -110,12 +114,19 @@
         },
 
         startFarGrab: function(entityID, mouseEvent) {
+            Entities.editEntity(_this.entityID, {
+                dynamic: true
+            });
+
             _this.startNearGrab();
         },
 
 
         // this is called on release of far grab
         mouseReleaseOnEntity: function(entityID, mouseEvent) {
+            Entities.editEntity(_this.entityID, {
+                dynamic: true
+            });
             if (canCreateNew) {
                 Entities.callEntityServerMethod(spawner, 'spawnNewGlass');
                 canCreateNew = false;
@@ -142,8 +153,9 @@
             var distanceToFace = Vec3.distance(facePosition, position);
             if (distanceToFace < DRINK_IT_DISTANCE && !drinking) {
                 _this.drinkShot();
+                var age = Entities.getEntityProperties(_this.entityID, "age").age;
                 Entities.editEntity(_this.entityID, {
-                    lifetime: LIFETIME
+                    lifetime: age + LIFETIME
                 });
                 Entities.deleteEntity(drink);
                 stillFull = false;
@@ -155,34 +167,34 @@
             if (stillFull) {
                 _this.playSound(DRINK_SOUND, MyAvatar.getJointPosition("Head"));
                 if (_this.checkForDrunkZone()) {
-                    Entities.editEntity(drunkZone, {lifetime: LIFETIME});
+                    var age = Entities.getEntityProperties(_this.entityID, "age").age;
                     var zoneHazeProperties = Entities.getEntityProperties(drunkZone, 'haze').haze;
                     var hazeRange = zoneHazeProperties.hazeRange;
                     switch (hazeRange) {
                         case DRUNK_HAZE_1000_M:
                             Entities.editEntity(drunkZone, {haze: {
-                                hazeColor:{
+                                hazeColor: {
                                     red: 0,
                                     green: 0,
                                     blue: 0
                                 },
                                 hazeRange: 100,
                                 hazeBackgroundBlend: 0.5,
-                                lifetime: 30
+                                lifetime: age + LIFETIME
                             }});
                             break;
                         case DRUNK_HAZE_100_M:
                             Entities.editEntity(drunkZone, {haze: {
                                 hazeRange: 50,
                                 hazeBackgroundBlend: 0.25,
-                                lifetime: 30
+                                lifetime: age + LIFETIME
                             }});
                             break;
                         case DRUNK_HAZE_50_M:
                             Entities.editEntity(drunkZone, {haze: {
                                 hazeRange: 10,
                                 hazeBackgroundBlend: 0.1,
-                                lifetime: 30
+                                lifetime: age + LIFETIME
                             }});
                             _this.fallDown();
                             break;
@@ -218,6 +230,7 @@
                     drinking = false;
                 }, DONE_DRINKING_SHOT);
             }
+            Entities.callEntityServerMethod(spawner, 'spawnIfNeeded');
         },
 
         playSound: function(sound, position) {
@@ -231,7 +244,7 @@
 
         fallDown: function(entityID, mouseEvent) {
             MyAvatar.overrideAnimation(FALL_ANIMATION, FRAMES_PER_SECOND, 0, START_FRAME, END_FRAME);
-            Script.setTimeout(function(){
+            Script.setTimeout(function() {
                 MyAvatar.restoreAnimation();
             }, FALL_TIMEOUT_MS);
         },
