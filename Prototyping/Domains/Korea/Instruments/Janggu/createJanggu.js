@@ -43,16 +43,8 @@
 
         makeNewDrumListeners: function () {
 
-            var topJoint = Entities.getJointIndex(_this.entityID, "joint1");
-            var botJoint = Entities.getJointIndex(_this.entityID, "joint2");
-
-            var topJointPos = Entities.getLocalJointTranslation(_this.entityID, topJoint);
-            var botJointPos = Entities.getLocalJointTranslation(_this.entityID, botJoint);
-            
             var jangguProps = Entities.getEntityProperties(_this.entityID, ["rotation", "position", "dimensions"]);
             var jangguDimens = jangguProps.dimensions;
-            
-            // var scalar = Vec3.dot({x: 0, y: jangguProps.dimensions.y, z:0}, {x: 0, y: topJointPos.y, z:0});
             
             var name = "JangguListener_";
 
@@ -75,7 +67,7 @@
                 },
                 dimensions: {
                     x: jangguDimens.x,
-                    y: 0.01,
+                    y: 0.001,
                     z: jangguDimens.z
                 },
                 parentID: _this.entityID,
@@ -86,25 +78,15 @@
                 script: JANGGU_CLIENT_SCRIPT_URL
                 // userData: userData
             };
-            
-            var topPos = duplicateObject(jangguProps.position);
-            topPos.y = topPos.y + jangguDimens.y / 2;
-            var botPos = duplicateObject(jangguProps.position);
-            botPos.y = botPos.y - jangguDimens.y / 2;
 
             var topProps = duplicateObject(listenerProps);
             topProps.name = topProps.name + "top";
-            topProps.parentJointIndex = topPos;
-            topProps.position = topPos;
+            topProps.position = Vec3.sum(jangguProps.position, Vec3.multiplyQbyV(jangguProps.rotation, { x: 0, y: jangguDimens.y / 2, z: 0 }));
             topProps.color = { red: 255, green: 0, blue: 0 };
-            print("topProps", 
-            // JSON.stringify(topProps), 
-            JSON.stringify(topJointPos));
 
             var botProps = duplicateObject(listenerProps);
             botProps.name = botProps.name + "bot";
-            botProps.parentJointIndex = botJoint;
-            botProps.position = botPos;
+            botProps.position = Vec3.sum(jangguProps.position, Vec3.multiplyQbyV(jangguProps.rotation, { x: 0, y: -jangguDimens.y / 2, z: 0 }));
             botProps.color = { red: 0, green: 0, blue: 255 };
             
             this.topListener = Entities.addEntity(topProps);
