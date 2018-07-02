@@ -9,7 +9,7 @@
 //
 // Helper for live events to capture camera positions
 
-(function () {
+(function() {
     // Polyfills
     Script.require(Script.resolvePath('./Polyfills.js'));
 
@@ -153,8 +153,17 @@
 
     function keyPressHandler(event) {
         if (settings.mapping[event.text]) {
-            MyAvatar.position = settings.mapping[event.text].position;
-            MyAvatar.headOrientation = settings.mapping[event.text].orientation;
+            var position =  settings.mapping[event.text].position;
+            var orientation = settings.mapping[event.text].orientation;
+            var string = "/" +
+                        position.x + "," +
+                        position.y + "," +
+                        position.z + "/" +
+                        orientation.x + "," +
+                        orientation.y + "," +
+                        orientation.z + "," +
+                        orientation.w;
+            location.handleLookupString(string);
         }
     }
     
