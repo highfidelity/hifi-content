@@ -59,6 +59,8 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
         footerLabelOverlays = [],
         footerEnabled = [],
 
+        hiddenOverlays = [],
+
         swatchHighlightOverlay = null,
 
         staticOverlays = [],
@@ -2687,6 +2689,21 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
         return Overlays.getProperty(optionsOverlays[optionsOverlaysIDs.indexOf(overlayID)], overlayProperty);
     }
 
+    function markHiddenOverlay(overlayID) {
+        hiddenOverlays.push(overlayID);
+    }
+
+    function unmarkHiddenOverlay(overlayID) {
+        var index = hiddenOverlays.indexOf(overlayID);
+        if (index !== -1) {
+            hiddenOverlays.splice(index, 1);
+        }
+    }
+
+    function isHiddenOverlay(overlayID) {
+        return hiddenOverlays.indexOf(overlayID) !== -1;
+    }
+
     doCommand = function (command, parameter) {
         var index,
             value,
@@ -2830,9 +2847,11 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             localPosition: Vec3.ZERO,
                             visible: false
                         });
+                        markHiddenOverlay(optionsOverlays[index]);
                         Overlays.editOverlay(optionsOverlaysLabels[index], {
                             visible: false
                         });
+                        markHiddenOverlay(optionsOverlaysLabels[index]);
                     }
                 }
 
@@ -2860,9 +2879,11 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
                             localPosition: { x: 0, y: (i + 1) * UI_ELEMENTS.picklistItem.properties.dimensions.y, z: 0 },
                             visible: true
                         });
+                        unmarkHiddenOverlay(optionsOverlays[index]);
                         Overlays.editOverlay(optionsOverlaysLabels[index], {
                             visible: true
                         });
+                        unmarkHiddenOverlay(optionsOverlaysLabels[index]);
                     }
                 }
                 break;
@@ -2959,54 +2980,58 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
         var i,
             length;
 
+        function doSetVisible(overlayID, visible) {
+            Overlays.editOverlay(overlayID, { visible: visible && !isHiddenOverlay(overlayID) });
+        }
+
         for (i = 0, length = staticOverlays.length; i < length; i++) {
-            Overlays.editOverlay(staticOverlays[i], { visible: visible });
+            doSetVisible(staticOverlays[i], visible);
         }
 
         if (isOptionsOpen) {
-            Overlays.editOverlay(menuHeaderBackOverlay, { visible: visible });
-            Overlays.editOverlay(menuHeaderIconOverlay, { visible: visible });
+            doSetVisible(menuHeaderBackOverlay, visible);
+            doSetVisible(menuHeaderIconOverlay, visible);
             for (i = 0, length = optionsOverlays.length; i < length; i++) {
-                Overlays.editOverlay(optionsOverlays[i], { visible: visible });
+                doSetVisible(optionsOverlays[i], visible);
             }
             for (i = 0, length = optionsOverlaysLabels.length; i < length; i++) {
-                Overlays.editOverlay(optionsOverlaysLabels[i], { visible: visible });
+                doSetVisible(optionsOverlaysLabels[i], visible);
             }
             for (i = 0, length = optionsOverlaysSublabels.length; i < length; i++) {
-                Overlays.editOverlay(optionsOverlaysSublabels[i], { visible: visible });
+                doSetVisible(optionsOverlaysSublabels[i], visible);
             }
             for (i = 0, length = optionsExtraOverlays.length; i < length; i++) {
-                Overlays.editOverlay(optionsExtraOverlays[i], { visible: visible });
+                doSetVisible(optionsExtraOverlays[i], visible);
             }
         } else {
             for (i = 0, length = menuOverlays.length; i < length; i++) {
-                Overlays.editOverlay(menuOverlays[i], { visible: visible });
+                doSetVisible(menuOverlays[i], visible);
             }
             for (i = 0, length = menuIconOverlays.length; i < length; i++) {
-                Overlays.editOverlay(menuIconOverlays[i], { visible: visible });
+                doSetVisible(menuIconOverlays[i], visible);
             }
             for (i = 0, length = menuLabelOverlays.length; i < length; i++) {
-                Overlays.editOverlay(menuLabelOverlays[i], { visible: visible });
+                doSetVisible(menuLabelOverlays[i], visible);
             }
             if (!visible) {
                 for (i = 0, length = menuHoverOverlays.length; i < length; i++) {
-                    Overlays.editOverlay(menuHoverOverlays[i], { visible: false });
+                    doSetVisible(menuHoverOverlays[i], false);
                 }
             }
         }
 
         for (i = 0, length = footerOverlays.length; i < length; i++) {
-            Overlays.editOverlay(footerOverlays[i], { visible: visible });
+            doSetVisible(footerOverlays[i], visible);
         }
         for (i = 0, length = footerIconOverlays.length; i < length; i++) {
-            Overlays.editOverlay(footerIconOverlays[i], { visible: visible });
+            doSetVisible(footerIconOverlays[i], visible);
         }
         for (i = 0, length = footerLabelOverlays.length; i < length; i++) {
-            Overlays.editOverlay(footerLabelOverlays[i], { visible: visible });
+            doSetVisible(footerLabelOverlays[i], visible);
         }
         if (!visible) {
             for (i = 0, length = footerHoverOverlays.length; i < length; i++) {
-                Overlays.editOverlay(footerHoverOverlays[i], { visible: false });
+                doSetVisible(footerHoverOverlays[i], false);
             }
         }
 
