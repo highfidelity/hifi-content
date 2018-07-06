@@ -20,7 +20,7 @@
         "daegeum/Sounds/chung_sung_gok_4.wav"
     ];
 
-    var instrument = new InstrumentClone(MUSIC_URLS)
+    var instrument = new InstrumentClone(MUSIC_URLS);
 
     return instrument;
 });
