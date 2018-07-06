@@ -93,6 +93,7 @@ Highlights = function (side) {
 
         // Show/hide hand overlay.
         Overlays.editOverlay(handOverlay, {
+            parentID: Uuid.SELF, // Re-parent in case have changed domains.
             color: overlayColor,
             visible: handIntersected
         });
