@@ -17,6 +17,7 @@
     var BEAM_LOCAL_OFFSET = {x: 0, y: -0.0055, z: -0.045};
     var BEAM_LOCAL_DIRECTION = {x: 0, y: 0, z: -1000};
     var BEAM_MIN_SIZE = 0.04;
+    var BEAM_NOINTERSECTION_SIZE = 100; // In meters; long enough to feel like "infinity"
     var TRIGGER_TOGGLE_VALUE = 0.97;
     var ORIGIN_SIZE_RATIO = 0.6;
     var BEAM_OFFSET_RATIO = 0.5;
@@ -161,9 +162,9 @@
                 direction: beamDirectionNormalized
             });
             var entityIntersection = Entities.findRayIntersection(beamPickRay, true, [], doNotRayPick);
-            var entityIntersectionDistance = entityIntersection.intersects ? entityIntersection.distance : 100;
+            var entityIntersectionDistance = entityIntersection.intersects ? entityIntersection.distance : BEAM_NOINTERSECTION_SIZE;
             var avatarIntersection = AvatarList.findRayIntersection(beamPickRay);
-            var avatarIntersectionDistance = avatarIntersection.intersects ? avatarIntersection.distance : 100;
+            var avatarIntersectionDistance = avatarIntersection.intersects ? avatarIntersection.distance : BEAM_NOINTERSECTION_SIZE;
             var intersection = null;
             var intersectEntityID = null;
 
