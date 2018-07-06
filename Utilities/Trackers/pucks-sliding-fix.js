@@ -34,7 +34,7 @@
     var ZERO = 0;
     var ONE = 1;
     var SECS_TO_MS = 1000;
-    var START_FASTER = 2;
+    var START_FASTER = 4;
 
     var OVERRIDDEN_DRIVE_KEYS = [
         DriveKeys.TRANSLATE_X,
@@ -78,7 +78,7 @@
                 currentVal = ONE;
                 cleanUpUnLerp();
             }
-        }, dt * SECS_TO_MS);
+        }, dt * SECS_TO_MS / START_FASTER);
 
     }
 
