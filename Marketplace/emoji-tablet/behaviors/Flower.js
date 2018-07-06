@@ -10,7 +10,8 @@
 // See accompanying license file or http://apache.org/
 //
 (function () {
-    FlowerEmoji = function () {
+    var _this;
+    var FlowerEmoji = function () {
         _this = this;
     };
 

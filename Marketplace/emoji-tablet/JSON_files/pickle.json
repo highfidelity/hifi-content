@@ -28,6 +28,6 @@
     "lifetime":30,
     "grabbable":true,
     "collisionless":false,
-    "script":"https://hifi-content.s3.amazonaws.com/elisalj/emoji_scripts/behaviors/crunch.js",
+    "script":"file:///D:/hifi-content/Marketplace/emoji-tablet/emoji_scripts/behaviors/crunch.js",
     "shapeType":"Box"
 }
