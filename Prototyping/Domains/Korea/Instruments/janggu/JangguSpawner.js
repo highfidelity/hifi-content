@@ -19,7 +19,7 @@
         x: 0.2150,
         y: 0.2171,
         z: 0.2150
-    }
+    };
     var CLONE_LIFETIME = 18;
     var SCRIPT_URL = Script.resolvePath("JangguClone.js?v1" + Math.random());
 

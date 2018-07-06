@@ -19,7 +19,7 @@
         x: 0.0495,
         y: 1.0530,
         z: 0.0522
-    }
+    };
     var CLONE_LIFETIME = 17;
     var SCRIPT_URL = Script.resolvePath("DaegeumClone.js?v1" + Math.random());
 
