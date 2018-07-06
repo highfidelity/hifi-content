@@ -14,8 +14,6 @@
     // Helper Functions
     var Util = Script.require("./Helper.js?" + Date.now());
     var clamp = Util.Maths.clamp,
-        colorMix = Util.Color.colorMix,
-        hslToRgb = Util.Color.hslToRgb,
         lerp = Util.Maths.lerp;
 
     // Log Setup
@@ -34,10 +32,11 @@
     var log = Util.Debug.log(LOG_CONFIG);
 
     // Init
-    var entityID = null,
-        sessionID = null,
+    var entityID,
+        sessionID,
         DEBUG = false,
         debugCubeID = null,
+        NORMAL = 0,
         REVERSE = 1,
         X = 0,
         Y = 1,
@@ -48,86 +47,48 @@
     var currentProperties = {},
         userData = {},
         userdataProperties = {},
-        lightOff = { intensity: 0 },
-        lightOn = { intensity: 0 },
-        range = {},
+        range = {}, 
         eventProperties = {},
+        off = { property: 0 },
+        on = { property: 0 },
         directionArray = [];
-
+    
     // Procedural Functions
     function turnOnLight() {
-        Entities.editEntity(entityID, lightOn);
+        Entities.editEntity(entityID, off);
     }
 
     function turnOffLight() {
-        Entities.editEntity(entityID, lightOff);
+        Entities.editEntity(entityID, on);
     }
 
     function editLight() {
         var inMin = 0,
             inMax = 1,
-            outIntensityMin = 0,
-            outIntensityMax = 100,
-            outColorMin = 0,
-            outColorMax = 255,
-            outFalloffRadiusMin = 0,
-            outFalloffRadiusMax = 5,
-            colorMixAmount = 0.5,
-            tempOut,
-            lightDivsor = 3,
-            intenstyChange,
-            falloffRadiusChange,
-            colorChangeRed,
-            colorChangeBlue;
+            outMin = 0,
+            outMax = 1,
+            valueChange,
+            tempOut;
 
-        range.x = clamp(inMin, inMax, range.x);
-        range.y = clamp(inMin, inMax, range.y);
-        range.z = clamp(inMin, inMax, range.z);
+        range.x = clamp(inMin,inMax, range.x);
+        range.y = clamp(inMin,inMax, range.y);
+        range.z = clamp(inMin,inMax, range.z);
 
         if (directionArray[X] === REVERSE) {
-            tempOut = outFalloffRadiusMin;
-            outFalloffRadiusMin = outFalloffRadiusMax;
-            outFalloffRadiusMax = tempOut;
+            tempOut = outMin;
+            outMin = outMax;
+            outMax = tempOut;
         }
-        
-        var hsl = {
-            h: range.x,
-            s: range.y,
-            l: range.z / lightDivsor
-        };
 
-        var hslColor = hslToRgb(hsl);
-
-        intenstyChange = lerp(
-            inMin, inMax, outIntensityMax, outIntensityMin, range.y
-        );
-        falloffRadiusChange = lerp(
-            inMin, inMax, outFalloffRadiusMin, outFalloffRadiusMax, range.x
-        );
-        colorChangeRed = lerp(
-            inMin, inMax, outColorMin, outColorMax, range.z
-        );
-        colorChangeBlue = lerp(
-            inMin, inMax, outColorMax, outColorMin, range.z
-        );
+        valueChange = lerp(inMin, inMax, outMin ,outMax, range.y);
         
-        var newColor = {
-            red: colorChangeRed,
-            blue: colorChangeBlue,
-            green: 0
-        };
-        
-        var mixedColor = colorMix(newColor, hslColor, colorMixAmount);
-
         eventProperties = {
-            intensity: intenstyChange,
-            falloffRadius: falloffRadiusChange,
-            color: mixedColor
+            valueChange: valueChange
         };
 
         if (DEBUG) {
             Entities.callEntityClientMethod(
-                sessionID, debugCubeID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), currentProperties.name]
+                sessionID, debugCubeID, "storeDebugInfo", [JSON.stringify(eventProperties), currentProperties.name]
             );
         }
         Entities.editEntity(entityID, eventProperties);
@@ -135,11 +96,11 @@
 
     // Entity Definition
 
-    function DJ_Endpoint_Light_Server() {
+    function DJ_Endpoint_Template_Server() {
         self = this;
     }
 
-    DJ_Endpoint_Light_Server.prototype = {
+    DJ_Endpoint_Template_Server.prototype = {
         remotelyCallable: [
             'turnOn',
             'turnOff',
@@ -175,6 +136,6 @@
         }
     };
 
-    return new DJ_Endpoint_Light_Server();
+    return new DJ_Endpoint_Template_Server();
 
 });
