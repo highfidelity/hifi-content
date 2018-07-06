@@ -1,0 +1,171 @@
+﻿/*
+shapes.css
+
+Created by David Rowe on 14 May 2018.
+Copyright 2018 High Fidelity, Inc.
+
+Distributed under the Apache License, Version 2.0.
+See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+Attributions:
+- Raleway font created by Matt McInerney, Pablo Impallari, & Rodrigo Fuenzalida and licensed under OFL (SIL Open Font License,
+  Version 1.1): https://fontlibrary.org/en/font/raleway, http://scripts.sil.org/OFL
+- Fira Sans font created by Carrois Corporate & Edenspiekermann AG and licensed under OFL (SIL Open Font License, Version 1.1):
+  https://fontlibrary.org/en/font/fira-sans, http://scripts.sil.org/OFL
+*/
+
+@font-face {
+    font-family: Raleway-Regular;
+    src: url(./fonts/Raleway-Regular.ttf);
+}
+
+@font-face {
+    font-family: FiraSans-Regular;
+    src: url(./fonts/FiraSans-Regular.otf);
+}
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    user-select: none;
+}
+
+html {
+    padding: 20px 20px 0 20px;
+    background-color: #170f4a;
+    font-family: "Raleway-Regular";
+}
+
+h1 {
+    font-weight: normal;
+    font-size: 18px;
+    color: #ffffff;
+    text-shadow: 1px 1px #252525;
+    margin-bottom: -3px;
+    position: relative;
+    top: -11px;
+}
+
+hr {
+    margin-left: -20px;
+    margin-right: -20px;
+    height: 2px;
+    border: none;
+    border-top: 1px solid #252525;
+    border-bottom: 1px solid #575757;
+}
+
+h2 {
+    color: #e3e3e3;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+    h2 + ul, h2 + p {
+        margin-top: 5px;
+    }
+
+    ul + h2 {
+        margin-top: 15px;
+    }
+
+p {
+    font-size: 14px;
+    color: #e3e3e3;
+    margin-top: 20px;
+}
+
+    p.blurb {
+        text-align: center;
+    }
+
+ul {
+    font-size: 14px;
+    color: #e3e3e3;
+    margin-left: 16px;
+    margin-right: -5px; /* Hack for desktop dialog line length. */
+}
+
+input {
+    width: 100%;
+    height: 70px;
+    margin-top: 60px;
+    margin-bottom: 40px;
+    border: none;
+    border-radius: 7.5px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+    input:focus {
+        outline: none;
+    }
+
+    input.off {
+        background: linear-gradient(#00b4ef, #1080b8);
+    }
+
+        input.off:hover {
+            background: linear-gradient(#00b4ef, #00b4ef);
+        }
+
+        input.off:active {
+            background: linear-gradient(#1080b8, #1080b8);
+        }
+
+    input.on {
+        background: linear-gradient(#d42043, #94132e);
+    }
+
+        input.on:hover {
+            background: linear-gradient(#d42043, #d42043);
+        }
+
+        input.on:active {
+            background: linear-gradient(#94132e, #94132e);
+        }
+
+#icon {
+    margin: 60px auto 60px auto;
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    position: relative;
+    text-align: center;
+    opacity: 1.0;
+}
+
+    #icon.off {
+        border: 2px solid #6a6a6a;
+        background-color: #303030;
+    }
+
+        #icon.off #label {
+            color: #e3e3e3;
+        }
+
+    #icon.on {
+        border: 2px solid #1fc6a6;
+        background-color: #1fc6a6;
+    }
+
+        #icon.on #label {
+            color: #121212;
+        }
+
+#logo {
+    margin-top: 4px;
+    opacity: 0.91;
+    width: 80px;
+}
+
+#label {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-family: "FiraSans-Regular";
+    font-size: 16px;
+}
