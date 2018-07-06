@@ -17,6 +17,7 @@
     var BEAM_LOCAL_OFFSET = {x: 0, y: -0.0055, z: -0.045};
     var BEAM_LOCAL_DIRECTION = {x: 0, y: 0, z: -1000};
     var BEAM_MIN_SIZE = 0.04;
+    var BEAM_NOINTERSECTION_SIZE = 100; // In meters; long enough to feel like "infinity"
     var TRIGGER_TOGGLE_VALUE = 0.97;
     var ORIGIN_SIZE_RATIO = 0.6;
     var BEAM_OFFSET_RATIO = 0.5;
@@ -131,10 +132,24 @@
                     injector.stop();
                 }
                 injector = Audio.playSound(sound, {
-                    position: MyAvatar.position,
+                    position: Entities.getEntityProperties(_this.entityID, ['position']).position,
                     volume: AUDIO_VOLUME_LEVEL
                 });
             }
+        },
+        
+        addFocus: function(size, position) {
+            _this.focus = Entities.addEntity({
+                type: 'Model',
+                modelURL: Script.resolvePath("models/Glow-ball-red.fbx"),
+                dimensions: {x: size, y: size, z: size},
+                name: "Laser Focus",
+                color: {red: 255, green: 0, blue: 0},
+                position: position,
+                collisionless: true,
+                userData: "{\"grabbableKey\":{\"grabbable\":false}}"
+            }, true);
+            doNotRayPick.push(_this.focus);
         },
 
         turnOn: function() {
@@ -147,88 +162,90 @@
                 direction: beamDirectionNormalized
             });
             var entityIntersection = Entities.findRayIntersection(beamPickRay, true, [], doNotRayPick);
-            var entityIntersectionDistance = entityIntersection.intersects ? entityIntersection.distance : Number.MAX_VALUE;
+            var entityIntersectionDistance = entityIntersection.intersects ? entityIntersection.distance : BEAM_NOINTERSECTION_SIZE;
             var avatarIntersection = AvatarList.findRayIntersection(beamPickRay);
-            var avatarIntersectionDistance = avatarIntersection.intersects ? avatarIntersection.distance : Number.MAX_VALUE;
+            var avatarIntersectionDistance = avatarIntersection.intersects ? avatarIntersection.distance : BEAM_NOINTERSECTION_SIZE;
             var intersection = null;
             var intersectEntityID = null;
 
-            if (entityIntersection.intersects && entityIntersectionDistance < avatarIntersectionDistance && 
-                entityIntersectionDistance < beamDirectionLength) {
+            if (entityIntersection.intersects && entityIntersectionDistance <= avatarIntersectionDistance) {
                 intersectEntityID = entityIntersection.entityID;
                 intersection = entityIntersection;
-            } else if (avatarIntersection.intersects && avatarIntersectionDistance < entityIntersectionDistance && 
-                avatarIntersectionDistance < beamDirectionLength) {
+            } else if (avatarIntersection.intersects && avatarIntersectionDistance < entityIntersectionDistance) {
                 intersectEntityID = avatarIntersection.avatarID;
                 intersection = avatarIntersection;
             }
 
+            var intersectionPosition = false;
+            var beamPointDistance = false;
+            var beamSize = false;
             if (intersectEntityID) {
-                var intersectionPosition = intersection.intersection;
-                var beamPointDistance = Vec3.distance(intersectionPosition, beamStart);
-                var beamSize = MIN_FOCUS_SIZE * beamPointDistance;
-
-                if (beamSize < BEAM_MIN_SIZE) {
-                    beamSize = BEAM_MIN_SIZE;
-                }
-
-                if (!_this.on) {
-                    _this.playSound(LASER_ON_SOUND);
-                    _this.focus = Entities.addEntity({
-                        type: 'Model',
-                        modelURL: Script.resolvePath("models/Glow-ball-red.fbx"),
-                        dimensions: {x: beamSize, y: beamSize, z: beamSize},
-                        name: "Laser Focus",
-                        color: {red: 255, green: 0, blue: 0},
-                        position: intersectionPosition,
-                        collisionless: true,
-                        userData: "{\"grabbableKey\":{\"grabbable\":false}}"
-                    }, true);
-                    doNotRayPick.push(_this.focus);
-    
-                    var originDiameter = ORIGIN_SIZE_RATIO * _this.diameter;
-
-                    _this.origin = Entities.addEntity({
-                        type: 'Model',
-                        modelURL: Script.resolvePath("models/Glow-ball-red.fbx"),
-                        name: "Laser Origin",
-                        parentID: _this.entityID,
-                        localPosition: _this.beamOffset,
-                        dimensions: {x: originDiameter, y: originDiameter, z: originDiameter},
-                        collisionless: true,
-                        userData: "{\"grabbableKey\":{\"grabbable\":false}}",
-                        description: "CC_BY Alan Zimmerman"
-                    }, true);
-
-                    doNotRayPick.push(_this.origin);
-        
-                    _this.beam = Entities.addEntity({
-                        type: 'Model',
-                        modelURL: Script.resolvePath("models/laser-beam-red.fbx"),
-                        name: "Laser Beam",
-                        parentID: _this.origin,
-                        localPosition: {x: 0, y: 0, z: -(HALF * beamPointDistance)},
-                        localRotation: Quat.normalize({}),
-                        dimensions: {x: BEAM_WIDTH, y: BEAM_WIDTH, z: beamPointDistance},
-                        userData: "{\"grabbableKey\":{\"grabbable\":false}}",
-                        description: "CC_BY Alan Zimmerman"
-                    }, true);
-                    
-                    doNotRayPick.push(_this.beam);
-                } else {
-                    Entities.editEntity(_this.focus, {
-                        dimensions: {x: beamSize, y: beamSize, z: beamSize},
-                        position: intersectionPosition
-                    });
-
-                    Entities.editEntity(_this.beam, {
-                        localPosition: {x: 0, y: 0, z: -(HALF * beamPointDistance)},
-                        localRotation: Quat.normalize({}),
-                        dimensions: {x: BEAM_WIDTH, y: BEAM_WIDTH, z: beamPointDistance}
-                    });
-                }
+                intersectionPosition = intersection.intersection;
+                beamPointDistance = Vec3.distance(intersectionPosition, beamStart);
             } else {
-                print("no intersection");
+                beamPointDistance = Math.min(entityIntersectionDistance, avatarIntersectionDistance);
+            }
+            beamSize = MIN_FOCUS_SIZE * beamPointDistance;
+
+            if (beamSize < BEAM_MIN_SIZE) {
+                beamSize = BEAM_MIN_SIZE;
+            }
+
+            if (!_this.on) {
+                _this.playSound(LASER_ON_SOUND);
+                
+                if (intersectionPosition) {
+                    _this.addFocus(beamSize, intersectionPosition);
+                }                
+
+                var originDiameter = ORIGIN_SIZE_RATIO * _this.diameter;
+                _this.origin = Entities.addEntity({
+                    type: 'Model',
+                    modelURL: Script.resolvePath("models/Glow-ball-red.fbx"),
+                    name: "Laser Origin",
+                    parentID: _this.entityID,
+                    localPosition: _this.beamOffset,
+                    dimensions: {x: originDiameter, y: originDiameter, z: originDiameter},
+                    collisionless: true,
+                    userData: "{\"grabbableKey\":{\"grabbable\":false}}",
+                    description: "CC_BY Alan Zimmerman"
+                }, true);
+                doNotRayPick.push(_this.origin);
+    
+                _this.beam = Entities.addEntity({
+                    type: 'Model',
+                    modelURL: Script.resolvePath("models/laser-beam-red.fbx"),
+                    name: "Laser Beam",
+                    parentID: _this.origin,
+                    registrationPoint: {x: 0.5, y: 0.5, z: 1.0},
+                    localPosition: {x: 0, y: 0, z: 0},
+                    localRotation: Quat.normalize({}),
+                    dimensions: {x: BEAM_WIDTH, y: BEAM_WIDTH, z: beamPointDistance},
+                    userData: "{\"grabbableKey\":{\"grabbable\":false}}",
+                    description: "CC_BY Alan Zimmerman"
+                }, true);
+                doNotRayPick.push(_this.beam);
+            } else {
+                if (intersectionPosition) {
+                    if (_this.focus) {
+                        Entities.editEntity(_this.focus, {
+                            dimensions: {x: beamSize, y: beamSize, z: beamSize},
+                            position: intersectionPosition
+                        });
+                    } else {
+                        _this.addFocus(beamSize, intersectionPosition);
+                    }
+                } else {
+                    if (_this.focus) {
+                        Entities.deleteEntity(_this.focus);
+                        _this.focus = false;
+                    }
+                }
+
+                Entities.editEntity(_this.beam, {
+                    localRotation: Quat.normalize({}),
+                    dimensions: {x: BEAM_WIDTH, y: BEAM_WIDTH, z: beamPointDistance}
+                });
             }
 
             _this.on = true;
