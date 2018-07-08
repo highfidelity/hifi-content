@@ -1,45 +1,70 @@
+// DJ_EndPoint_Particle_Server.js
+//
+// Created by Milad Nazeri on 2018-06-19
+//
+// Copyright 2018 High Fidelity, Inc.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 (function () {
-    // Init
-    var _entityID,
-        directionArray,
-        NORMAL = 0,
-        REVERSE = 1,
-        event;
-
-
     // Polyfill
-    Script.require(Script.resolvePath("./Polyfills.js"))();
-    
-    // Collections
-    var emitOff = { emitRate: 0 },
-        emitOn = { emitRate: 1000 };
+    Script.require("./Polyfills.js?" + Date.now())();
 
     // Helper Functions
-    function lerp(InputLow, InputHigh, OutputLow, OutputHigh, Input) {
-        return ((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow;
-    }
+    var Util = Script.require("./Helper.js?" + Date.now());
+    var clamp = Util.Maths.clamp,
+        lerp = Util.Maths.lerp;
 
-    function clamp(min, max, num) {
-        return Math.min(Math.max(num, min), max);
-    }
+    // Log Setup
+    var LOG_CONFIG = {},
+        LOG_ENTER = Util.Debug.LOG_ENTER,
+        LOG_UPDATE = Util.Debug.LOG_UPDATE,
+        LOG_ERROR = Util.Debug.LOG_ERROR,
+        LOG_VALUE = Util.Debug.LOG_VALUE,
+        LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
+
+    LOG_CONFIG[LOG_ENTER] = true;
+    LOG_CONFIG[LOG_UPDATE] = true;
+    LOG_CONFIG[LOG_ERROR] = true;
+    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_ARCHIVE] = false;
+    var log = Util.Debug.log(LOG_CONFIG);
+
+    // Init
+    var entityID = null,
+        sessionID = null,
+        DEBUG = false,
+        debugCubeID = null,
+        name = null,
+        REVERSE = 1,
+        X = 0,
+        Y = 1,
+        Z = 2,
+        self;
+
+    // Collections
+    var currentProperties = {},
+        userData = {},
+        userdataProperties = {},
+        emitOff = { emitRate: 0 },
+        emitOn = { emitRate: 1000 },
+        range = {},
+        eventProperties = {},
+        directionArray = [];
 
     // Procedural Functions
     function turnOnFire() {
-        Entities.editEntity(_entityID, emitOn);
+        Entities.editEntity(entityID, emitOn);
     }
-
     
     function turnOffFire() {
-        Entities.editEntity(_entityID, emitOff);
+        Entities.editEntity(entityID, emitOff);
     }
 
-    function editParticle(event, directionArray) {
-        var inEmitMin = 0,
-            inEmitMax = 1,
-            inColorMin = 0,
-            inColorMax = 1,
-            inRadiusStartMin = 0,
-            inRadiusStartMax = 1,
+    function editParticle() {
+        var inMin = 0,
+            inMax = 1,
             outEmitMin = 0,
             outEmitMax = 10,
             outColorMin = 0,
@@ -50,27 +75,40 @@
             emitSpeedChange,
             radiusStartChange,
             colorChangeRed,
-            colorChangeBlue,
-            props;
+            colorChangeBlue;
 
-        event.x = clamp(0,1, event.x);
-        event.y = clamp(0,1, event.y);
-        event.z = clamp(0,1, event.z);
+        range.x = clamp(inMin, inMax, range.x);
+        range.y = clamp(inMin, inMax, range.y);
+        range.z = clamp(inMin, inMax, range.z);
 
-        if (directionArray[0] === REVERSE) {
+        if (directionArray[X] === REVERSE) {
             tempOut = outEmitMin;
             outEmitMin = outEmitMax;
             outEmitMax = tempOut;
         }
         
-        emitSpeedChange = lerp(inEmitMin,inEmitMax, outEmitMin, outEmitMax, event.x);
-        radiusStartChange = lerp(inRadiusStartMin,inRadiusStartMax,outRadiusStartMax,outRadiusStartMin , event.y);
-        colorChangeRed = lerp(inColorMin,inColorMax, outColorMin, outColorMax, event.z);
-        colorChangeBlue = lerp(inColorMin,inColorMax, outColorMax, outColorMin, event.z);
+        emitSpeedChange = lerp(
+            inMin, inMax, outEmitMin, outEmitMax, range.x
+        );
+        radiusStartChange = lerp(
+            inMin, inMax, outRadiusStartMax, outRadiusStartMin, range.y
+        );
+        colorChangeRed = lerp(
+            inMin, inMax, outColorMin, outColorMax, range.z
+        );
+        colorChangeBlue = lerp(
+            inMin, inMax, outColorMax, outColorMin, range.z
+        
+        );
 
-        props = {
+        eventProperties = {
             emitSpeed: emitSpeedChange,
             radiusStart: radiusStartChange,
+            color: {
+                red: colorChangeRed,
+                blue: colorChangeBlue,
+                green: 0
+            },
             colorStart: {
                 red: colorChangeRed,
                 blue: colorChangeBlue,
@@ -78,35 +116,55 @@
             }
         };
 
-        Entities.editEntity(_entityID, props);
+        if (DEBUG) {
+            Entities.callEntityClientMethod(
+                sessionID, debugCubeID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
+            );
+        }
+        Entities.editEntity(entityID, eventProperties);
     }
 
     // Entity Definition
 
     function DJ_Endpoint_Particle_Server() {
+        self = this;
     }
 
     DJ_Endpoint_Particle_Server.prototype = {
         remotelyCallable: [
             'turnOn',
             'turnOff',
-            'edit'
+            'edit',
+            'updateDebugCubeID'
         ],
-        preload: function (entityID) {
-            _entityID = entityID;
+        preload: function (id) {
+            entityID = id;
+            currentProperties = Entities.getEntityProperties(entityID);
+            name = currentProperties.name;
+
+            userData = currentProperties.userData;
+            try {
+                userdataProperties = JSON.parse(userData);
+                DEBUG = userdataProperties.performance.DEBUG;
+            } catch (e) {
+                log(LOG_ERROR, "ERROR READING USERDATA", e);
+            }
         },
         turnOn: function () {
-            console.log("Turn on Fire");
             turnOnFire();
         },
         turnOff: function () {
-            console.log("Turn off Fire");
             turnOffFire();
         },
         edit: function (id, param) {
-            event = JSON.parse(param[0]);
+            range = JSON.parse(param[0]);
             directionArray = JSON.parse(param[1]);
-            editParticle(event, directionArray);
+            sessionID = param[2];
+            editParticle();
+        },
+        updateDebugCubeID: function(id, param) {
+            var newDebugCubeID = param[0];
+            debugCubeID = newDebugCubeID;
         }
     };
 

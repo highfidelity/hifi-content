@@ -1,88 +1,128 @@
+// DJ_Tools_Spawner.js
+//
+// Created by Milad Nazeri on 2018-06-19
+//
+// Copyright 2018 High Fidelity, Inc.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 (function () {
+    // Polyfill
+    Script.require("./Polyfills.js")();
+
+    // Helper Functions
+    var Util = Script.require("./Helper.js?" + Date.now());
+    
+    var getNameProps = Util.Entity.getNameProps,
+        makeColor = Util.Color.makeColor,
+        vec = Util.Maths.vec;
+
+    // Log Setup
+    var LOG_CONFIG = {},
+        LOG_ENTER = Util.Debug.LOG_ENTER,
+        LOG_UPDATE = Util.Debug.LOG_UPDATE,
+        LOG_ERROR = Util.Debug.LOG_ERROR,
+        LOG_VALUE = Util.Debug.LOG_VALUE,
+        LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
+
+    LOG_CONFIG[LOG_ENTER] = false;
+    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ERROR] = true;
+    LOG_CONFIG[LOG_VALUE] = false;
+    LOG_CONFIG[LOG_ARCHIVE] = false;
+    var log = Util.Debug.log(LOG_CONFIG);
+
     // Init
-    var PHLASH_TABLE_NAME = "Set_Phlash_Tables",
-        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/Projects/Hifi/Scripts/DJ-Tools/",
+    var DJ_NAME = "Phlash",
+        DJ_TABLE_NAME = "Set_" + DJ_NAME + "_Tables",
+        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools/",
         particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
         particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
-        particleScriptServer = baseURL + 'DJ_EndPoint_Particle_Server.js',
-        lightScriptServer = baseURL + 'DJ_EndPoint_Light_Server.js',        
-        zoneScript = baseURL + 'DJ_Input_Zone_Client.js',
-        DEBUG = true,
+        shortSoundURL = baseURL + 'FlameThrowerBurst.wav',
+        longSoundURL = baseURL + 'FlameThrowerRun.wav',
+        endPointParticleServerScript = baseURL + 'DJ_EndPoint_Particle_Server.js',
+        endPointLightServerScript = baseURL + 'DJ_EndPoint_Light_Server.js',
+        endPointSoundServerScript = baseURL + 'DJ_EndPoint_Sound_Server.js',        
+        sensorZoneClientScript = baseURL + 'DJ_Sensor_Zone_Client.js',
+        sensorBoxClientScript = baseURL + 'DJ_Sensor_Box_Client.js',
+        generatorDebugCubeScript = baseURL + 'DJ_Generator_Debug_Cube_Client.js',
+        DEBUG = false,
         LEFT = "Left",
         RIGHT = "Right",
-        GROUP_LEFT = "Group_Left",
+        LEFT_HAND = "LeftHand",
+        RIGHT_HAND = "RightHand",
+        DEBUG_CUBE = "debugCube",
+        GROUP_LEFT = "Group_Left", 
         GROUP_RIGHT = "Group_Right",
-        DEBUG_CUBE = "debugCube",      
-        INPUT = "input",
+        GROUP_ALL = "Group_All",
+        GENERATOR = "generator",
+        SENSOR = "sensor",
         ENDPOINT = "endPoint";
 
-    // Polyfill
-    Script.require(Script.resolvePath("./Polyfills.js"))();
-
     // Colections
-    var phlashProps = gProps(PHLASH_TABLE_NAME),
-        allEnts = [],
+    var djTableProps = getNameProps(DJ_TABLE_NAME),
         particleBaseProps = {
-            "type": "ParticleEffect",
-            "isEmitting": true,
-            "lifespan": "2.0299999713897705",
-            "maxParticles": "6717",
-            "textures": "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Bokeh-Particle.png",
-            "emitRate": "0",
-            "emitSpeed": "1.47",
-            "emitDimensions": {
-                "x": "0.5",
-                "y": "0.5",
-                "z": "0.5"
+            type: "ParticleEffect",
+            isEmitting: true,
+            lifespan: 2.0299999713897705,
+            maxParticles: 6717,
+            textures: "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Bokeh-Particle.png",
+            emitRate: 0,
+            emitSpeed: 1.47,
+            emitDimensions: {
+                x: 0.5,
+                y: 0.5,
+                z: 0.5
             },
-            "emitOrientation": {
-                "x": "-90.01",
-                "y": "0",
-                "z": "0"
+            emitOrientation: {
+                x: -90.01,
+                y: 0,
+                z: 0
             },
-            "emitterShouldTrail": true,
-            "particleRadius": "0",
-            "radiusSpread": "4",
-            "radiusStart": "0.5799999833106995",
-            "radiusFinish": "0",
-            "color": {
-                "red": "255",
-                "blue": "255",
-                "green": "255"
+            emitterShouldTrail: true,
+            particleRadius: 0,
+            radiusSpread: 4,
+            radiusStart: 0.5799999833106995,
+            radiusFinish: 0,
+            color: {
+                red: 255,
+                blue: 255,
+                green: 255
             },
-            "colorSpread": {
-                "red": "0",
-                "blue": "0",
-                "green": "0"
+            colorSpread: {
+                red: 0,
+                blue: 0,
+                green: 0
             },
-            "colorStart": {
-                "red": "255",
-                "blue": "33",
-                "green": "33"
+            colorStart: {
+                red: 255,
+                blue: 33,
+                green: 33
             },
-            "colorFinish": {
-                "red": "239",
-                "blue": "255",
-                "green": "13"
+            colorFinish: {
+                red: 239,
+                blue: 255,
+                green: 13
             },
-            "emitAcceleration": {
-                "x": "0.01",
-                "y": "0.01",
-                "z": "0.01"
+            emitAcceleration: {
+                x: 0.01,
+                y: 0.01,
+                z: 0.01
             },
-            "accelerationSpread": {
-                "x": "1",
-                "y": "1",
-                "z": "1"
+            accelerationSpread: {
+                x: 1,
+                y: 1,
+                z: 1
             },
-            "alpha": "0.6000000238418579",
-            "alphaSpread": "0",
-            "alphaStart": "0.09000000357627869",
-            "alphaFinish": "0",
-            "polarStart": "0",
-            "polarFinish": "1.02974",
-            "azimuthStart": "-180.00000500895632",
-            "azimuthFinish": "180.00000500895632"
+            alpha: 0.6000000238418579,
+            alphaSpread: 0,
+            alphaStart: 0.09000000357627869,
+            alphaFinish: 0,
+            polarStart: 0,
+            polarFinish: 1.02974,
+            azimuthStart: -180.00000500895632,
+            azimuthFinish: 180.00000500895632
         },
         lightBaseProps = {
             type: "Light",
@@ -95,7 +135,7 @@
             intensity: 0,
             falloffRadius: 0,
             isSpotlight: 0,
-            exponent: 1,
+            exponent: 0,
             cutoff: 10,
             collisionless: true
         },
@@ -109,170 +149,171 @@
             y: 4989.5752,
             z: -23.3843
         },
-        entityNames = [
-            "Set_Phlash_Pad_Models_Left",
-            "Set_Phlash_Pad_Models_Right",
-            "Set_Phlash_Pad_Left",
-            "Set_Phlash_Pad_Right",
-            "Set_Phlash_Pad_Zone",
-            "Set_Phlash_Particles_Left",
-            "Set_Phlash_Particles_Right",
-            "Set_Phlash_Debug-Cube",
-            "Set_Phlash_Lights_Stage_Left",
-            "Set_Phlash_Lights_Stage_Right",
-            "Set_Phlash_Lights_Back_Left",
-            "Set_Phlash_Lights_Back_Right"           
-        ];
+        barrelBackRightPosition = {
+            x: -37.1513,
+            y: 4992.7041,
+            z: -9.9410
+        },
+        barrelBackLeftPosition = {
+            x: -22.6895,
+            y: 4992.4863,
+            z: -14.6075
+        },
+        allEnts = [],
+        entityNames = [];
 
-    // Helper Functions
-    function col(r, g, b) {
-        var obj = {};
-        obj.red = r;
-        obj.green = g;
-        obj.blue = b;
-        return obj;
-    }
-
-    function vec(x, y, z) {
-        var obj = {};
-        obj.x = x;
-        obj.y = y;
-        obj.z = z;
-        return obj;
-    }
-
-    function gProps(name) {
-        var ents = Entities.findEntitiesByName(name, MyAvatar.position, 20)[0];
-        if (ents.length > 0) {
-            return [ents, Entities.getEntityProperties(ents)];
+    // Procedural Functions
+    function deleteIfExists() {
+        var deleteNames = Settings.getValue(DJ_NAME + "_EFFECTS");
+        var SEARCH_RADIUS = 100;
+        if (deleteNames) {
+            deleteNames.forEach(function (name) {
+                var found = Entities.findEntitiesByName(name, djTableProps[1].position, SEARCH_RADIUS);
+                try {
+                    if (found[0]) {
+                        Entities.deleteEntity(found[0]);
+                    }
+                } catch (e) {
+                    log(LOG_ERROR, "DELETING ENTITY", e);
+                }
+            });
         }
     }
 
-    function makeDebugCube(name, pos, dim, color, userData) {
+    function createGeneratorDebugCube(name, position, dimensions, color, userData) {
         name = name || 1;
-        dim = dim || vec(1, 1, 1);
-        color = color || col(1, 1, 1);
+        dimensions = dimensions || vec(1, 1, 1);
+        color = color || makeColor(1, 1, 1);
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             type: "Box",
-            position: pos,
+            position: position,
             locked: false,
-            dimensions: dim,
+            script: generatorDebugCubeScript + "?v=" + Date.now(),
+            dimensions: dimensions,
             color: color,
             visible: true,
             collisionless: true,
             userData: userData
         };
-        var id = Entities.addEntity(props);
+        var id = Entities.addEntity(properties);
         return id;
     }
 
-    function makeBox(name, pos, dim, color, userData) {
+    function createSensorBox(name, position, dimensions, color, userData) {
         name = name || 1;
-        dim = dim || vec(1, 1, 1);
-        color = color || col(1, 1, 1);
+        dimensions = dimensions || vec(1, 1, 1);
+        color = color || makeColor(1, 1, 1);
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             type: "Box",
-            position: pos,
+            position: position,
             locked: false,
-            dimensions: dim,
+            script: sensorBoxClientScript + "?v=" + Date.now(),
+            dimensions: dimensions,
             color: color,
             visible: false,
             collisionless: true,
             userData: userData
         };
-        var id = Entities.addEntity(props);
+        var id = Entities.addEntity(properties);
         return id;
     }
 
-    function makeZone(name, pos, dim, userData) {
+    function createSensorZone(name, position, dimensions, userData) {
         name = name || 1;
-        dim = dim || vec(1, 1, 1);
+        dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             type: "Zone",
-            position: pos,
+            position: position,
             locked: false,
-            script: zoneScript + "?v=" + Date.now(),
-            dimensions: dim,
+            script: sensorZoneClientScript + "?v=" + Date.now(),
+            dimensions: dimensions,
             collisionless: true,
             userData: userData
         };
-        var id = Entities.addEntity(props);
+        var id = Entities.addEntity(properties);
         return id;
     }
 
-    function makeModel(name, pos, dim, rot, url, userData) {
+    function createSensorModel(name, position, dimensions, rotation, url, userData) {
         name = name || "";
-        dim = dim || vec(1, 1, 1);
+        dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             type: "Model",
             modelURL: url,
-            position: pos,
-            rotation: rot,
+            position: position,
+            rotation: rotation,
             locked: false,
-            dimensions: dim,
+            dimensions: dimensions,
             collisionless: true,
             userData: userData
         };
-        var id = Entities.addEntity(props);
+        var id = Entities.addEntity(properties);
         return id;
     }
 
-    function makeParticle(name, pos, userData) {
+    function createParticle(name, position, userData) {
         name = name || "";
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             locked: false,
-            position: pos,
-            serverScripts: particleScriptServer + "?v=" + Date.now(),
+            position: position,
+            serverScripts: endPointParticleServerScript + "?v=" + Date.now(),
             userData: userData
         };
-        var finalParticleProps = Object.assign({}, particleBaseProps, props);
+        var finalParticleProps = Object.assign({}, particleBaseProps, properties);
         var id = Entities.addEntity(finalParticleProps);
+        return id;
+    }
+
+    function createSound(name, position, dimensions, userData) {
+        name = name || "";
+        userData = userData || {};
+        var properties = {
+            name: name,
+            type: "Zone",
+            locked: false,
+            position: position,
+            dimensions: dimensions,
+            serverScripts: endPointSoundServerScript + "?v=" + Date.now(),
+            collisionless: true,
+            userData: userData
+        };
+        var id = Entities.addEntity(properties);
         return id;
     } 
 
-    function makeLight(name, pos, dim, rot, color, isSpot, userData) {
+    function createLight(name, position, dimensions, rotation, color, isSpot, userData) {
         name = name || "";
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
-            position: pos,
-            dimensions: dim,
-            rotation: rot,
+            position: position,
+            dimensions: dimensions,
+            rotation: rotation,
             color: color,     
             locked: false,
             isSpotlight: isSpot,
-            serverScripts: lightScriptServer + "?v=" + Date.now(),
+            serverScripts: endPointLightServerScript + "?v=" + Date.now(),
             userData: userData
         };
-        var finalLightProps = Object.assign({}, lightBaseProps, props);
+        var finalLightProps = Object.assign({}, lightBaseProps, properties);
         var id = Entities.addEntity(finalLightProps);
         return id;
     }
 
-    // Procedural Functions
-    function deleteIfExists() {
-        entityNames.forEach(function (names) {
-            var found = Entities.findEntitiesByName(names, phlashProps[1].position, 20);
-            if (found.length === 1) {
-                Entities.deleteEntity(found[0]);
-            }
-        });
-    }
-
-    function createDebugCube() {
+    function createGeneratorDebugCubes() {
         var name,
             entID,
-            debugPos,
+            debugPosition,
             stringified,       
             userData = {},
             HEIGHT = 0.0,
@@ -281,30 +322,34 @@
             DEBUG_HEIGHT = 0.05,
             DEBUG_DEPTH = 0.05;
         
-        debugPos = Vec3.sum(
-            phlashProps[1].position, 
+        debugPosition = Vec3.sum(
+            djTableProps[1].position, 
             vec(0, HEIGHT, DISTANCE_BACK)
         );
 
-        name = "Set_Phlash_Debug-Cube";
+        name = "Set_" + DJ_NAME + "_Debug-Cube";
         userData.grabbableKey = { grabbable: true };   
-        userData.performance = { type: DEBUG_CUBE };     
+        userData.performance = { type: GENERATOR };
         stringified = JSON.stringify(userData);
-        entID = makeDebugCube(
+        entID = createGeneratorDebugCube(
             name,             
-            debugPos, 
+            debugPosition, 
             vec(DEBUG_WIDTH, DEBUG_HEIGHT, DEBUG_DEPTH),
-            col(255,70,0),
+            makeColor(255,70,0),
             stringified
         );
         allEnts.push(entID);
+        entityNames.push(name);
     }
 
-    function createDJEndpointParticles() {
+    function createEndPointParticles() {
         [LEFT, RIGHT].forEach(function (side) {
             var name,
+                name2,
                 entID,
-                partPos,
+                entID2,
+                particlePosition,
+                particlePosition2,
                 stringified,
                 userData = {},
                 HEIGHT = 1;
@@ -314,106 +359,172 @@
             };
 
             if (side === LEFT) {
-                partPos = Vec3.sum(
+                particlePosition = Vec3.sum(
                     barrelStageLeftPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                particlePosition2 = Vec3.sum(
+                    barrelBackLeftPosition, 
                     vec(0, HEIGHT, 0)
                 );
                 userData.performance.endPointGroupID = GROUP_LEFT;
             } else {
-                partPos = Vec3.sum(
+                particlePosition = Vec3.sum(
                     barrelStageRightPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                particlePosition2 = Vec3.sum(
+                    barrelBackRightPosition, 
                     vec(0, HEIGHT, 0)
                 );
                 userData.performance.endPointGroupID = GROUP_RIGHT;
             }
 
-            name = "Set_Phlash_Particles_" + side;
+            name = "Set_" + DJ_NAME + "_Particles_" + side;
+            name2 = "Set_" + DJ_NAME + "_Particles_Back_" + side;
             userData.grabbableKey = { grabbable: false };
+            userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
-            console.log("particle uderdata:", stringified);
-            
-            entID = makeParticle(name, partPos, stringified);
-            allEnts.push(entID);
+            entID = createParticle(name, particlePosition, stringified);
+            entID2 = createParticle(name2, particlePosition2, stringified);
+            allEnts.push(entID, entID2);
+            entityNames.push(name, name2);
+        });
+    }
+
+    function createEndPointSounds() {
+        [LEFT, RIGHT].forEach(function (side) {
+            var name,
+                name2,
+                entID,
+                entID2,
+                soundPosition,
+                soundPosition2,
+                stringified,
+                userData = {},
+                ZONE_SIZE = 1,
+                HEIGHT = 1;
+
+            userData.performance = {
+                type: ENDPOINT,
+                shortSoundURL: shortSoundURL,
+                longSoundURL: longSoundURL
+            };
+
+            if (side === LEFT) {
+                soundPosition = Vec3.sum(
+                    barrelStageLeftPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                soundPosition2 = Vec3.sum(
+                    barrelBackLeftPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                userData.performance.endPointGroupID = GROUP_LEFT;
+            } else {
+                soundPosition = Vec3.sum(
+                    barrelStageRightPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                soundPosition2 = Vec3.sum(
+                    barrelBackRightPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                userData.performance.endPointGroupID = GROUP_RIGHT;
+            }
+
+            name = "Set_" + DJ_NAME + "_Sounds_" + side;
+            name2 = "Set_" + DJ_NAME + "_Sounds_Back_" + side;
+            userData.grabbableKey = { grabbable: false };
+            userData.performance.DEBUG = DEBUG;
+            stringified = JSON.stringify(userData);
+            entID = createSound(name, soundPosition, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified);
+            entID2 = createSound(name2, soundPosition2, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified);
+            allEnts.push(entID, entID2);
+            entityNames.push(name, name2);
         });
     }
     
-    function createDJEndpointLights() {
+    function createEndPointLights() {
         [LEFT, RIGHT].forEach(function (side) {
             var name,
                 name2,
                 entID,
                 entID2,                
-                lightPos,
-                lightPos2,                
-                DIM_SIZE = 10,
-                lightDim = vec(DIM_SIZE,DIM_SIZE,DIM_SIZE),
-                lightRot = Quat.fromPitchYawRollDegrees(0,0,0),
-                color = col(70, 90, 100),
+                lightPosition,
+                lightPosition2,                
+                DIMENSION_SIZE = 30,
+                lightDimensions = vec(DIMENSION_SIZE, DIMENSION_SIZE, DIMENSION_SIZE),
+                lightRotation = Quat.fromPitchYawRollDegrees(0,0,0),
+                color = makeColor(70, 90, 100),
                 isSpot = false,
                 stringified,
                 userData = {},
-                HEIGHT = -1,
-                DISTANCE_LEFT = 1,
+                HEIGHT = 1,
+                DISTANCE_LEFT = 0,
                 DISTANCE_BACK = 0,
-                DISTANCE_BACK2 = 10;
+                DISTANCE_BACK2 = 0;
 
             userData.performance = {
                 type: ENDPOINT
             };
 
             if (side === LEFT) {
-                lightPos = Vec3.sum(
-                    phlashProps[1].position, 
+                lightPosition = Vec3.sum(
+                    barrelStageLeftPosition, 
                     vec(DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
                 );
-                lightPos2 = Vec3.sum(
-                    phlashProps[1].position, 
+                lightPosition2 = Vec3.sum(
+                    barrelBackLeftPosition, 
                     vec(DISTANCE_LEFT, HEIGHT, DISTANCE_BACK2)
                 );
                 userData.performance.endPointGroupID = GROUP_LEFT;
             } else {
-                lightPos = Vec3.sum(
-                    phlashProps[1].position, 
+                lightPosition = Vec3.sum(
+                    barrelStageRightPosition, 
                     vec(-DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
                 );
-                lightPos2 = Vec3.sum(
-                    phlashProps[1].position, 
+                lightPosition2 = Vec3.sum(
+                    barrelBackRightPosition, 
                     vec(-DISTANCE_LEFT, HEIGHT, DISTANCE_BACK2)
                 );
                 userData.performance.endPointGroupID = GROUP_RIGHT;
             }
 
-            name = "Set_Phlash_Lights_Stage_" + side;
-            name2 = "Set_Phlash_Lights_Back_" + side;            
+            name = "Set_" + DJ_NAME + "_Lights_Stage_" + side;
+            name2 = "Set_" + DJ_NAME + "_Lights_Back_" + side;            
             userData.grabbableKey = { grabbable: false };
+            userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
-            entID = makeLight(
+            entID = createLight(
                 name, 
-                lightPos, 
-                lightDim,
-                lightRot,
+                lightPosition, 
+                lightDimensions,
+                lightRotation,
                 color,
                 isSpot,
                 stringified
             );
-            entID2 = makeLight(
+            entID2 = createLight(
                 name2, 
-                lightPos2, 
-                lightDim,
-                lightRot,
+                lightPosition2, 
+                lightDimensions,
+                lightRotation,
                 color,
                 isSpot,
                 stringified
             );
             allEnts.push(entID, entID2);
+            entityNames.push(name, name2);
+
         });
     }
 
-    function createDJInputPadSensors() {
+    function createSensorBoxes() {
         [LEFT, RIGHT].forEach(function (side) {
             var name,
                 entID,
-                boxPos,
+                boxPosition,
                 color,
                 stringified,
                 userData = {},
@@ -427,46 +538,54 @@
                 REVERSE = 1;
 
             userData.performance = {
-                type: INPUT
+                type: SENSOR
             };
 
             if (side === LEFT) {
-                boxPos = Vec3.sum(
-                    phlashProps[1].position, 
+                boxPosition = Vec3.sum(
+                    djTableProps[1].position, 
                     vec(DISTANCE_LEFT, DISTANCE_HEIGHT, DISTANCE_BACK)
                 );
-                color = col(20, 200, 0);
+                color = makeColor(20, 200, 0);
                 userData.performance.directionArray = [NORMAL, NORMAL, NORMAL];
                 userData.performance.endPointGroups = [GROUP_LEFT];
             } else {
-                boxPos = Vec3.sum(
-                    phlashProps[1].position,
+                boxPosition = Vec3.sum(
+                    djTableProps[1].position,
                     vec(-DISTANCE_LEFT, DISTANCE_HEIGHT, DISTANCE_BACK)
                 );
-                color = col(200, 20, 0);
+                color = makeColor(200, 20, 0);
                 userData.performance.directionArray = [REVERSE, NORMAL, NORMAL];
                 userData.performance.endPointGroups = [GROUP_RIGHT];
+            }
+            userData.performance.DEBUG = DEBUG;
+            // userData.performance.generatorAccepts = [];
+            userData.performance.generatorAccepts = [LEFT_HAND, RIGHT_HAND];
+            if (DEBUG) {
+                userData.performance.generatorAccepts.push(DEBUG_CUBE);
             }
 
             userData.grabbableKey = { grabbable: false };
             stringified = JSON.stringify(userData);
-            name = "Set_Phlash_Pad_" + side;
-            entID = makeBox(
+            name = "Set_" + DJ_NAME + "_Pad_" + side;
+            entID = createSensorBox(
                 name,                 
-                boxPos, 
+                boxPosition, 
                 vec(BOX_WIDTH, BOX_HEIGHT, BOX_DEPTH), 
                 color, 
                 stringified
             );
             allEnts.push(entID);
+            entityNames.push(name);
+
         });
     }
 
-    function createDJInputPadModels() {
+    function createSensorBoxModels() {
         [LEFT, RIGHT].forEach(function (side) {
             var name,
                 entID,
-                modelPos,
+                modelPosition,
                 rotation,
                 url,
                 stringified,
@@ -479,39 +598,41 @@
                 MODEL_DEPTH = 0.4;
 
             if (side === LEFT) {
-                modelPos = Vec3.sum(
-                    phlashProps[1].position, 
+                modelPosition = Vec3.sum(
+                    djTableProps[1].position, 
                     vec(DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
                 );
                 url = particlePadLeftModel;
             } else {
-                modelPos = Vec3.sum(
-                    phlashProps[1].position, 
+                modelPosition = Vec3.sum(
+                    djTableProps[1].position, 
                     vec(-DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
                 );
                 url = particlePadRightModel;
             }
             
-            name = "Set_Phlash_Pad_Models_" + side;
+            name = "Set_" + DJ_NAME + "_Pad_Models_" + side;
             rotation = Quat.fromPitchYawRollDegrees(0, 180, 0);
             userData.grabbableKey = { grabbable: false };
+            userData.performance = { DEBUG: DEBUG };
             stringified = JSON.stringify(userData);
-            entID = makeModel(
+            entID = createSensorModel(
                 name,                 
-                modelPos,
+                modelPosition,
                 vec(MODEL_WIDTH, MODEL_HEIGHT, MODEL_DEPTH), 
                 rotation,                
                 url,
                 stringified
             );
             allEnts.push(entID);
+            entityNames.push(name);
         });
     }
 
-    function createDJInputZone() {
+    function createSensorZones() {
         var name,
             entID,
-            zonePos,
+            zonePosition,
             stringified,       
             userData = {},
             HEIGHT = 0.0,
@@ -520,37 +641,41 @@
             ZONE_HEIGHT = 2,
             ZONE_DEPTH = 1.3;
 
-        zonePos = Vec3.sum(
-            phlashProps[1].position, 
+        zonePosition = Vec3.sum(
+            djTableProps[1].position, 
             vec(0, HEIGHT, DISTANCE_BACK)
         );
 
-        name = "Set_Phlash_Pad_Zone";
-        userData.grabbableKey = { grabbable: false };        
+        name = "Set_" + DJ_NAME + "_Pad_Zone";
+        userData.grabbableKey = { grabbable: false };
+        userData.performance = { DEBUG: DEBUG };
         stringified = JSON.stringify(userData);
-        entID = makeZone(
+        entID = createSensorZone(
             name,             
-            zonePos, 
+            zonePosition, 
             vec(ZONE_WIDTH, ZONE_HEIGHT, ZONE_DEPTH), 
             stringified
         );
         allEnts.push(entID);
+        entityNames.push(name);
     }
 
     // Main
     deleteIfExists();
     if (DEBUG) {
-        createDebugCube();
+        createGeneratorDebugCubes();
     }
-    createDJInputZone();
-    createDJInputPadSensors();
-    createDJInputPadModels();
-    createDJEndpointParticles();
-    createDJEndpointLights();
+    createSensorZones();
+    createSensorBoxes();
+    createSensorBoxModels();
+    createEndPointParticles();
+    createEndPointLights();
+    createEndPointSounds();
+
+    Settings.setValue(DJ_NAME + "_EFFECTS", entityNames);
 
     // Cleanup
     function scriptEnding() {
-        console.log("### in script ending");
         allEnts.forEach(function (ent) {
             Entities.deleteEntity(ent);
         });

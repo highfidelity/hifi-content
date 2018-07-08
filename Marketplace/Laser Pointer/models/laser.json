@@ -1,0 +1,25 @@
+{
+    "DataVersion": 0,
+    "Entities": [
+        {
+            "clientOnly": false,
+            "collisionless": true,
+            "description": "CC_BY Alan Zimmerman",
+            "dimensions": {
+                "x": 0.029899807646870613,
+                "y": 0.029899807646870613,
+                "z": 0.11062929779291153
+            },
+            "ignoreForCollisions": true,
+            "lastEdited": 1526942999175096,
+            "lastEditedBy": "{e73b069e-933e-4e39-9b56-d0fb0bbc1170}",
+            "modelURL": "http://hifi-content.s3.amazonaws.com/alan/dev/laser-pointer.fbx",
+            "name": "laser pointer",
+            "script": "https://hifi-content.s3.amazonaws.com/rebecca/laser/laser.js",
+            "shapeType": "simple-compound",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"invertSolidWhileHeld\":true},\"wearable\":{\"joints\":{\"RightHand\":[{\"x\":0.005133628845214844,\"y\":0.0886240005493164,\"z\":0.0679941177368164},{\"x\":-0.5153224468231201,\"y\":0.39883291721343994,\"z\":0.044368743896484375,\"w\":-0.7572215795516968}],\"LeftHand\":[{\"x\":0.0013141632080078125,\"y\":0.10050678253173828,\"z\":0.04808616638183594},{\"x\":-0.4234726130962372,\"y\":-0.4645879864692688,\"z\":0.14066995680332184,\"w\":-0.7648793458938599}]}}}"
+        }
+    ],
+    "Version": 87
+}

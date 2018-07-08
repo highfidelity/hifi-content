@@ -1,112 +1,180 @@
+// DJ_EndPoint_Light_Server.js
+//
+// Created by Milad Nazeri on 2018-06-19
+//
+// Copyright 2018 High Fidelity, Inc.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 (function () {
-    // Init
-    var _entityID,
-        directionArray,
-        NORMAL = 0,
-        REVERSE = 1,
-        event;
-
-
     // Polyfill
-    Script.require(Script.resolvePath("./Polyfills.js"))();
-    
-    // Collections
-    var lightOff = { intensity: 0 },
-        LightOn = { intensity: 1000 };
+    Script.require("./Polyfills.js?" + Date.now())();
 
     // Helper Functions
-    function lerp(InputLow, InputHigh, OutputLow, OutputHigh, Input) {
-        return ((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow;
-    }
+    var Util = Script.require("./Helper.js?" + Date.now());
+    var clamp = Util.Maths.clamp,
+        colorMix = Util.Color.colorMix,
+        hslToRgb = Util.Color.hslToRgb,
+        lerp = Util.Maths.lerp;
 
-    function clamp(min, max, num) {
-        return Math.min(Math.max(num, min), max);
-    }
+    // Log Setup
+    var LOG_CONFIG = {},
+        LOG_ENTER = Util.Debug.LOG_ENTER,
+        LOG_UPDATE = Util.Debug.LOG_UPDATE,
+        LOG_ERROR = Util.Debug.LOG_ERROR,
+        LOG_VALUE = Util.Debug.LOG_VALUE,
+        LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
+
+    LOG_CONFIG[LOG_ENTER] = true;
+    LOG_CONFIG[LOG_UPDATE] = true;
+    LOG_CONFIG[LOG_ERROR] = true;
+    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_ARCHIVE] = false;
+    var log = Util.Debug.log(LOG_CONFIG);
+
+    // Init
+    var entityID = null,
+        sessionID = null,
+        DEBUG = false,
+        debugCubeID = null,
+        name = null,
+        REVERSE = 1,
+        X = 0,
+        Y = 1,
+        Z = 2,
+        self;
+    
+    // Collections
+    var currentProperties = {},
+        userData = {},
+        userdataProperties = {},
+        lightOff = { intensity: 0 },
+        lightOn = { intensity: 0 },
+        range = {},
+        eventProperties = {},
+        directionArray = [];
 
     // Procedural Functions
     function turnOnLight() {
-        Entities.editEntity(_entityID, LightOn);
+        Entities.editEntity(entityID, lightOn);
     }
 
-    
     function turnOffLight() {
-        Entities.editEntity(_entityID, lightOff);
+        Entities.editEntity(entityID, lightOff);
     }
 
-    function editLight(event, directionArray) {
-        var inCutoffMin = 0,
-            inCutoffMax = 1,
-            inColorMin = 0,
-            inColorMax = 1,
-            inFalloffRadiusMin = 0,
-            inFalloffRadiusMax = 1,
-            outCutoffMin = 0,
-            outCutoffMax = 10,
+    function editLight() {
+        var inMin = 0,
+            inMax = 1,
+            outIntensityMin = 0,
+            outIntensityMax = 100,
             outColorMin = 0,
             outColorMax = 255,
             outFalloffRadiusMin = 0,
-            outFalloffRadiusMax = 1.25,
+            outFalloffRadiusMax = 5,
+            colorMixAmount = 0.5,
             tempOut,
-            cutoffChange,
+            lightDivsor = 3,
+            intenstyChange,
             falloffRadiusChange,
             colorChangeRed,
-            colorChangeBlue,
-            props;
+            colorChangeBlue;
 
-        event.x = clamp(0,1, event.x);
-        event.y = clamp(0,1, event.y);
-        event.z = clamp(0,1, event.z);
+        range.x = clamp(inMin, inMax, range.x);
+        range.y = clamp(inMin, inMax, range.y);
+        range.z = clamp(inMin, inMax, range.z);
 
-        if (directionArray[0] === REVERSE) {
-            tempOut = outCutoffMin;
-            outCutoffMin = outCutoffMax;
-            outCutoffMax = tempOut;
+        if (directionArray[X] === REVERSE) {
+            tempOut = outFalloffRadiusMin;
+            outFalloffRadiusMin = outFalloffRadiusMax;
+            outFalloffRadiusMax = tempOut;
         }
         
-        cutoffChange = lerp(inCutoffMin,inCutoffMax, outCutoffMin, outCutoffMax, event.x);
-        falloffRadiusChange = lerp(inFalloffRadiusMin, inFalloffRadiusMax, outFalloffRadiusMax, outFalloffRadiusMin, event.y);
-        colorChangeRed = lerp(inColorMin,inColorMax, outColorMin, outColorMax, event.z);
-        colorChangeBlue = lerp(inColorMin,inColorMax, outColorMax, outColorMin, event.z);
-
-        props = {
-            cutoff: cutoffChange,
-            falloffRadius: falloffRadiusChange,
-            color: {
-                red: colorChangeRed,
-                blue: colorChangeBlue,
-                green: 0
-            }
+        var hsl = {
+            h: range.x,
+            s: range.y,
+            l: range.z / lightDivsor
         };
 
-        Entities.editEntity(_entityID, props);
+        var hslColor = hslToRgb(hsl);
+
+        intenstyChange = lerp(
+            inMin, inMax, outIntensityMax, outIntensityMin, range.y
+        );
+        falloffRadiusChange = lerp(
+            inMin, inMax, outFalloffRadiusMin, outFalloffRadiusMax, range.x
+        );
+        colorChangeRed = lerp(
+            inMin, inMax, outColorMin, outColorMax, range.z
+        );
+        colorChangeBlue = lerp(
+            inMin, inMax, outColorMax, outColorMin, range.z
+        );
+        
+        var newColor = {
+            red: colorChangeRed,
+            blue: colorChangeBlue,
+            green: 0
+        };
+        
+        var mixedColor = colorMix(newColor, hslColor, colorMixAmount);
+
+        eventProperties = {
+            intensity: intenstyChange,
+            falloffRadius: falloffRadiusChange,
+            color: mixedColor
+        };
+
+        if (DEBUG) {
+            Entities.callEntityClientMethod(
+                sessionID, debugCubeID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
+            );
+        }
+        Entities.editEntity(entityID, eventProperties);
     }
 
     // Entity Definition
 
     function DJ_Endpoint_Light_Server() {
+        self = this;
     }
 
     DJ_Endpoint_Light_Server.prototype = {
         remotelyCallable: [
             'turnOn',
             'turnOff',
-            'edit'
+            'edit',
+            'updateDebugCubeID'
         ],
-        preload: function (entityID) {
-            _entityID = entityID;
+        preload: function (id) {
+            entityID = id;
+            currentProperties = Entities.getEntityProperties(entityID);
+            name = currentProperties.name;
+
+            userData = currentProperties.userData;
+            try {
+                userdataProperties = JSON.parse(userData);
+                DEBUG = userdataProperties.performance.DEBUG;
+            } catch (e) {
+                log(LOG_ERROR, "ERROR READING USERDATA", e);
+            }
         },
         turnOn: function () {
-            console.log("Turn on Fire");
             turnOnLight();
         },
         turnOff: function () {
-            console.log("Turn off Fire");
             turnOffLight();
         },
         edit: function (id, param) {
-            event = JSON.parse(param[0]);
+            range = JSON.parse(param[0]);
             directionArray = JSON.parse(param[1]);
-            editLight(event, directionArray);
+            sessionID = param[2];
+            editLight();
+        },
+        updateDebugCubeID: function(id, param) {
+            var newDebugCubeID = param[0];
+            debugCubeID = newDebugCubeID;
         }
     };
 
