@@ -14,8 +14,14 @@
     // Helper Functions
     var Util = Script.require("./Helper.js?" + Date.now());
     var checkIfIn = Util.Maths.checkIfIn,
+        fireEvery = Util.Maths.fireEvery(),
         makeMinMax = Util.Maths.makeMinMax,
+        smoothing = Util.Maths.smoothing,
+        SMOOTHING_AMOUNT = 50,
+        smoothRange = Util.Maths.smoothRange({x: 0,y: 0,z: 0}, SMOOTHING_AMOUNT, smoothing),
+        withinDistance = Util.Maths.withinDistance,
         whereOnRange = Util.Maths.whereOnRange;
+
 
     function getGeneratorPosition(generator) {
         var generatorPosition;
@@ -55,10 +61,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = false;
-    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ENTER] = true;
+    LOG_CONFIG[LOG_UPDATE] = true;
     LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = false;
+    LOG_CONFIG[LOG_VALUE] = true;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -67,9 +73,14 @@
         DEBUG = false,
         debugCubeID = null,
         deltaTotal = 0,
-        DELTA_UPDATE_INTERVAL = 0.01,
         result = false,
         check = null,
+        name = null,
+        initalized = false,
+        STARTUP_TIME = 5000,
+        DELTA_UPDATE_INTERVAL = 0.01,
+        STEPS_BEFORE_FIRE = 10,
+        DISTANCE_TO_IGNORE = 0.0005,
         LEFT_HAND = "LeftHand",
         RIGHT_HAND = "RightHand",
         DEBUG_CUBE = "debugCube",
@@ -86,6 +97,9 @@
         position = {},
         positionToCheck = {},
         dimensions = {},
+        newRange = {},
+        oldRange = {},
+        smoothedRange = {},
         inBox = {
             inBoxLeftHand: false,
             inBoxRightHand: false,
@@ -112,20 +126,19 @@
         preload: function (id) {
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
+            name = currentProperties.name;
+            position = currentProperties.position;
+            dimensions = currentProperties.dimensions;
+
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
                 directionArray = userdataProperties.performance.directionArray;
-                endPointGroups = userdataProperties.performance.endPointGroups;
                 generatorAccepts = userdataProperties.performance.generatorAccepts;
                 DEBUG = userdataProperties.performance.DEBUG;
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }
-
-            name = currentProperties.name;
-            position = currentProperties.position;
-            dimensions = currentProperties.dimensions;
 
             minMax = makeMinMax(dimensions, position);
         },
@@ -138,9 +151,20 @@
             debugCubeID = newDebugCubeID;
         },
         turnOn: function() {
-            Script.update.connect(this.onUpdate);
+            if (!initalized) {
+                Script.setTimeout(function() {
+                    Script.update.connect(self.onUpdate);
+                    initalized = true;
+                }, STARTUP_TIME);
+            } else {
+                Script.update.connect(this.onUpdate);
+                Script.scriptEnding.connect(this.onScriptEnding);
+            }
         },
         turnOff: function() {
+            if (!initalized) {
+                return;
+            }
             Script.update.disconnect(this.onUpdate);
         },
         sendOn: function() {
@@ -166,8 +190,16 @@
             }
         },
         sendEdit: function(positionToCheck) {
-            var range = whereOnRange(positionToCheck, minMax);
-            var stringifiedRange = JSON.stringify(range);
+            oldRange = smoothedRange;
+            newRange = whereOnRange(positionToCheck, minMax);
+            smoothedRange = smoothRange(newRange);
+            if (!fireEvery(STEPS_BEFORE_FIRE)) {
+                return;
+            }
+            if (withinDistance(oldRange, smoothedRange, DISTANCE_TO_IGNORE)) { 
+                return;
+            }
+            var stringifiedRange = JSON.stringify(smoothedRange);
             var stringifiedDirections = JSON.stringify(directionArray);
             endPoints.forEach(function(endPoint) {
                 Entities.callEntityServerMethod(
@@ -193,7 +225,7 @@
                         result = checkIfIn(positionToCheck, minMax);
                         check = returnCheck(generator);
                     } catch (e) {
-                        log(LOG_ERROR, "error trying to get target position", e, 1000);
+                        log(LOG_ERROR, "ERROR TRYING TO GET TARGET POSITION FOR " + generator, e, 1000);
                     }
                     if (result) {
                         if (!inBox[check]) {
@@ -212,14 +244,11 @@
                 });
             }
             deltaTotal = 0;
+        },
+        onScriptEnding: function() {
+            Script.update.disconnect(self.onUpdate);
         }
     };
-
-    function onScriptEnding() {
-        Script.update.disconnect(DJ_Sensor_Box_Client.onUpdate);
-    }
-
-    Script.scriptEnding.connect(onScriptEnding);
 
     return new DJ_Sensor_Box_Client();
 });

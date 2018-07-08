@@ -39,8 +39,11 @@
         baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools/",
         particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
         particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
+        shortSoundURL = baseURL + 'FlameThrowerBurst.wav',
+        longSoundURL = baseURL + 'FlameThrowerRun.wav',
         endPointParticleServerScript = baseURL + 'DJ_EndPoint_Particle_Server.js',
-        endPointLightServerScript = baseURL + 'DJ_EndPoint_Light_Server.js',        
+        endPointLightServerScript = baseURL + 'DJ_EndPoint_Light_Server.js',
+        endPointSoundServerScript = baseURL + 'DJ_EndPoint_Sound_Server.js',        
         sensorZoneClientScript = baseURL + 'DJ_Sensor_Zone_Client.js',
         sensorBoxClientScript = baseURL + 'DJ_Sensor_Box_Client.js',
         generatorDebugCubeScript = baseURL + 'DJ_Generator_Debug_Cube_Client.js',
@@ -182,7 +185,7 @@
         dimensions = dimensions || vec(1, 1, 1);
         color = color || makeColor(1, 1, 1);
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             type: "Box",
             position: position,
@@ -194,7 +197,7 @@
             collisionless: true,
             userData: userData
         };
-        var id = Entities.addEntity(props);
+        var id = Entities.addEntity(properties);
         return id;
     }
 
@@ -203,7 +206,7 @@
         dimensions = dimensions || vec(1, 1, 1);
         color = color || makeColor(1, 1, 1);
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             type: "Box",
             position: position,
@@ -215,7 +218,7 @@
             collisionless: true,
             userData: userData
         };
-        var id = Entities.addEntity(props);
+        var id = Entities.addEntity(properties);
         return id;
     }
 
@@ -223,7 +226,7 @@
         name = name || 1;
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             type: "Zone",
             position: position,
@@ -233,7 +236,7 @@
             collisionless: true,
             userData: userData
         };
-        var id = Entities.addEntity(props);
+        var id = Entities.addEntity(properties);
         return id;
     }
 
@@ -241,7 +244,7 @@
         name = name || "";
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             type: "Model",
             modelURL: url,
@@ -252,29 +255,46 @@
             collisionless: true,
             userData: userData
         };
-        var id = Entities.addEntity(props);
+        var id = Entities.addEntity(properties);
         return id;
     }
 
     function createParticle(name, position, userData) {
         name = name || "";
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             locked: false,
             position: position,
             serverScripts: endPointParticleServerScript + "?v=" + Date.now(),
             userData: userData
         };
-        var finalParticleProps = Object.assign({}, particleBaseProps, props);
+        var finalParticleProps = Object.assign({}, particleBaseProps, properties);
         var id = Entities.addEntity(finalParticleProps);
+        return id;
+    }
+
+    function createSound(name, position, dimensions, userData) {
+        name = name || "";
+        userData = userData || {};
+        var properties = {
+            name: name,
+            type: "Zone",
+            locked: false,
+            position: position,
+            dimensions: dimensions,
+            serverScripts: endPointSoundServerScript + "?v=" + Date.now(),
+            collisionless: true,
+            userData: userData
+        };
+        var id = Entities.addEntity(properties);
         return id;
     } 
 
     function createLight(name, position, dimensions, rotation, color, isSpot, userData) {
         name = name || "";
         userData = userData || {};
-        var props = {
+        var properties = {
             name: name,
             position: position,
             dimensions: dimensions,
@@ -285,7 +305,7 @@
             serverScripts: endPointLightServerScript + "?v=" + Date.now(),
             userData: userData
         };
-        var finalLightProps = Object.assign({}, lightBaseProps, props);
+        var finalLightProps = Object.assign({}, lightBaseProps, properties);
         var id = Entities.addEntity(finalLightProps);
         return id;
     }
@@ -322,14 +342,14 @@
         entityNames.push(name);
     }
 
-    function createEndpointParticles() {
+    function createEndPointParticles() {
         [LEFT, RIGHT].forEach(function (side) {
             var name,
                 name2,
                 entID,
                 entID2,
-                partPosition,
-                partPosition2,
+                particlePosition,
+                particlePosition2,
                 stringified,
                 userData = {},
                 HEIGHT = 1;
@@ -339,21 +359,21 @@
             };
 
             if (side === LEFT) {
-                partPosition = Vec3.sum(
+                particlePosition = Vec3.sum(
                     barrelStageLeftPosition, 
                     vec(0, HEIGHT, 0)
                 );
-                partPosition2 = Vec3.sum(
+                particlePosition2 = Vec3.sum(
                     barrelBackLeftPosition, 
                     vec(0, HEIGHT, 0)
                 );
                 userData.performance.endPointGroupID = GROUP_LEFT;
             } else {
-                partPosition = Vec3.sum(
+                particlePosition = Vec3.sum(
                     barrelStageRightPosition, 
                     vec(0, HEIGHT, 0)
                 );
-                partPosition2 = Vec3.sum(
+                particlePosition2 = Vec3.sum(
                     barrelBackRightPosition, 
                     vec(0, HEIGHT, 0)
                 );
@@ -365,14 +385,67 @@
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
-            entID = createParticle(name, partPosition, stringified);
-            entID2 = createParticle(name2, partPosition2, stringified);
+            entID = createParticle(name, particlePosition, stringified);
+            entID2 = createParticle(name2, particlePosition2, stringified);
+            allEnts.push(entID, entID2);
+            entityNames.push(name, name2);
+        });
+    }
+
+    function createEndPointSounds() {
+        [LEFT, RIGHT].forEach(function (side) {
+            var name,
+                name2,
+                entID,
+                entID2,
+                soundPosition,
+                soundPosition2,
+                stringified,
+                userData = {},
+                ZONE_SIZE = 1,
+                HEIGHT = 1;
+
+            userData.performance = {
+                type: ENDPOINT,
+                shortSoundURL: shortSoundURL,
+                longSoundURL: longSoundURL
+            };
+
+            if (side === LEFT) {
+                soundPosition = Vec3.sum(
+                    barrelStageLeftPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                soundPosition2 = Vec3.sum(
+                    barrelBackLeftPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                userData.performance.endPointGroupID = GROUP_LEFT;
+            } else {
+                soundPosition = Vec3.sum(
+                    barrelStageRightPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                soundPosition2 = Vec3.sum(
+                    barrelBackRightPosition, 
+                    vec(0, HEIGHT, 0)
+                );
+                userData.performance.endPointGroupID = GROUP_RIGHT;
+            }
+
+            name = "Set_" + DJ_NAME + "_Sounds_" + side;
+            name2 = "Set_" + DJ_NAME + "_Sounds_Back_" + side;
+            userData.grabbableKey = { grabbable: false };
+            userData.performance.DEBUG = DEBUG;
+            stringified = JSON.stringify(userData);
+            entID = createSound(name, soundPosition, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified);
+            entID2 = createSound(name2, soundPosition2, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified);
             allEnts.push(entID, entID2);
             entityNames.push(name, name2);
         });
     }
     
-    function createEndpointLights() {
+    function createEndPointLights() {
         [LEFT, RIGHT].forEach(function (side) {
             var name,
                 name2,
@@ -595,8 +668,9 @@
     createSensorZones();
     createSensorBoxes();
     createSensorBoxModels();
-    createEndpointParticles();
-    createEndpointLights();
+    createEndPointParticles();
+    createEndPointLights();
+    createEndPointSounds();
 
     Settings.setValue(DJ_NAME + "_EFFECTS", entityNames);
 

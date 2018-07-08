@@ -24,16 +24,17 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = false;
-    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ENTER] = true;
+    LOG_CONFIG[LOG_UPDATE] = true;
     LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = false;
+    LOG_CONFIG[LOG_VALUE] = true;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
     // Init 
     var entityID = null,
         moveLarge = false,
+        name = null,
         overlay,
         DEBUG_HEIGHT = 0.8,
         AXIS = 0,
@@ -81,6 +82,9 @@
         preload: function (id) {
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
+            name = currentProperties.name;
+            position = currentProperties.position;
+
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
@@ -88,7 +92,6 @@
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }
 
-            position = currentProperties.position;
             overlay = Overlays.addOverlay("text3d", {
                 position: Vec3.sum(position, vec(0, DEBUG_HEIGHT, 0)),
                 rotation: Quat.fromPitchYawRollDegrees(0, 180, 0),

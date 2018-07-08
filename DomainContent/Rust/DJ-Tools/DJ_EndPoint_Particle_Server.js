@@ -24,10 +24,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = false;
-    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ENTER] = true;
+    LOG_CONFIG[LOG_UPDATE] = true;
     LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = false;
+    LOG_CONFIG[LOG_VALUE] = true;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -36,6 +36,7 @@
         sessionID = null,
         DEBUG = false,
         debugCubeID = null,
+        name = null,
         REVERSE = 1,
         X = 0,
         Y = 1,
@@ -117,7 +118,7 @@
 
         if (DEBUG) {
             Entities.callEntityClientMethod(
-                sessionID, debugCubeID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), currentProperties.name]
+                sessionID, debugCubeID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
             );
         }
         Entities.editEntity(entityID, eventProperties);
@@ -139,6 +140,8 @@
         preload: function (id) {
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
+            name = currentProperties.name;
+
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);

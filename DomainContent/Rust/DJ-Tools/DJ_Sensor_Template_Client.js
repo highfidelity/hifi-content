@@ -31,6 +31,7 @@
 
     // Init 
     var entityID,
+        name = null,
         DEBUG = false,
         NORMAL = 0,
         REVERSE = 1,
@@ -54,6 +55,8 @@
         preload: function (id) {
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
+            name = currentProperties.name;
+
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
