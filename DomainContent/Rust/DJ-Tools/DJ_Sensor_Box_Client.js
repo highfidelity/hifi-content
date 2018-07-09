@@ -22,37 +22,6 @@
         withinDistance = Util.Maths.withinDistance,
         whereOnRange = Util.Maths.whereOnRange;
 
-
-    function getGeneratorPosition(generator) {
-        var generatorPosition;
-
-        switch (generator) {
-            case LEFT_HAND :
-                generatorPosition = MyAvatar.getLeftPalmPosition();
-                break;
-            case RIGHT_HAND :
-                generatorPosition = MyAvatar.getRightPalmPosition();
-                break;
-            case DEBUG_CUBE :
-                generatorPosition = Entities.getEntityProperties(debugCubeID, ['position']).position;
-                break;
-            default :
-        }
-
-        return generatorPosition;
-    }
-
-    function returnCheck(generator) {
-        switch (generator) {
-            case LEFT_HAND:
-                return IN_BOX_LEFT_HAND;
-            case RIGHT_HAND:
-                return IN_BOX_RIGHT_HAND;
-            case DEBUG_CUBE:
-                return IN_BOX_DEBUG;
-        }
-    }
-
     // Log Setup
     var LOG_CONFIG = {},
         LOG_ENTER = Util.Debug.LOG_ENTER,
@@ -61,10 +30,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = true;
-    LOG_CONFIG[LOG_UPDATE] = true;
+    LOG_CONFIG[LOG_ENTER] = false;
+    LOG_CONFIG[LOG_UPDATE] = false;
     LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -158,7 +127,6 @@
                 }, STARTUP_TIME);
             } else {
                 Script.update.connect(this.onUpdate);
-                Script.scriptEnding.connect(this.onScriptEnding);
             }
         },
         turnOff: function() {
@@ -216,14 +184,41 @@
                 );
             }
         },
+        returnCheck: function (generator) {
+            switch (generator) {
+                case LEFT_HAND:
+                    return IN_BOX_LEFT_HAND;
+                case RIGHT_HAND:
+                    return IN_BOX_RIGHT_HAND;
+                case DEBUG_CUBE:
+                    return IN_BOX_DEBUG;
+            }
+        },
+        getGeneratorPosition: function (generator) {
+            var generatorPosition;
+    
+            switch (generator) {
+                case LEFT_HAND :
+                    generatorPosition = MyAvatar.getLeftPalmPosition();
+                    break;
+                case RIGHT_HAND :
+                    generatorPosition = MyAvatar.getRightPalmPosition();
+                    break;
+                case DEBUG_CUBE :
+                    generatorPosition = Entities.getEntityProperties(debugCubeID, ['position']).position;
+                    break;
+                default :
+            }
+            return generatorPosition;
+        },
         onUpdate: function(delta) {
             deltaTotal += delta;
             if (deltaTotal > DELTA_UPDATE_INTERVAL) {
                 generatorAccepts.forEach(function (generator) {
                     try {
-                        positionToCheck = getGeneratorPosition(generator);
+                        positionToCheck = self.getGeneratorPosition(generator);
                         result = checkIfIn(positionToCheck, minMax);
-                        check = returnCheck(generator);
+                        check = self.returnCheck(generator);
                     } catch (e) {
                         log(LOG_ERROR, "ERROR TRYING TO GET TARGET POSITION FOR " + generator, e, 1000);
                     }
@@ -245,8 +240,12 @@
             }
             deltaTotal = 0;
         },
-        onScriptEnding: function() {
-            Script.update.disconnect(self.onUpdate);
+        unload: function() {
+            try {
+                Script.update.disconnect(this.onUpdate);
+            } catch (e) {
+                log(LOG_ERROR, "NO UPDATE TO DISCONNECT");
+            }
         }
     };
 

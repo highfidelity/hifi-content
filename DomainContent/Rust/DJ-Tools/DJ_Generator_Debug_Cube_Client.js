@@ -24,10 +24,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = true;
-    LOG_CONFIG[LOG_UPDATE] = true;
+    LOG_CONFIG[LOG_ENTER] = false;
+    LOG_CONFIG[LOG_UPDATE] = false;
     LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -162,15 +162,14 @@
         },
         turnOff: function() {
             Controller.keyPressEvent.disconnect(this.debugKeys); 
+        },
+        unload: function() {
+            try {
+                Controller.keyPressEvent.disconnect(this.debugKeys); 
+            } catch(e) {
+                log(LOG_ERROR, "ERROR DISCONNECTING FROM DEBUG KEYS");
+            }
         }
     };
-
-    function onScriptEnding() {
-        // Script.update.disconnect(onUpdate);
-    }
-
-    Script.scriptEnding.connect(onScriptEnding);
-
     return new DJ_Generator_Debug_Cube();
 });
-

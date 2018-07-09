@@ -17,8 +17,6 @@
         debounce = Util.Functional.debounce,
         lerp = Util.Maths.lerp;
 
-    var debounceCheck = debounce();
-
     // Log Setup
     var LOG_CONFIG = {},
         LOG_ENTER = Util.Debug.LOG_ENTER,
@@ -27,10 +25,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = true;
-    LOG_CONFIG[LOG_UPDATE] = true;
+    LOG_CONFIG[LOG_ENTER] = false;
+    LOG_CONFIG[LOG_UPDATE] = false;
     LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -166,6 +164,9 @@
         updateDebugCubeID: function(id, param) {
             var newDebugCubeID = param[0];
             debugCubeID = newDebugCubeID;
+        },
+        unload: function() {
+            turnOffSound();
         }
     };
 
