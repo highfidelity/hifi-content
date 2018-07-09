@@ -2,6 +2,7 @@
 //
 // Copyright 2018 High Fidelity, Inc.
 // Created by Robin Wilson 7/5/2018
+// Expands on guitarMexico.js created by Rebecca Stankus 01/31/18
 //
 // Entity script that plays the sound while holding the entity. 
 // Chooses the sound bite randomly from a list passed in.
