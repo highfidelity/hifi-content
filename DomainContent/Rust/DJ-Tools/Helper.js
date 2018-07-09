@@ -76,23 +76,26 @@ function log(configGroup) {
     };
     return function (group, title, value, bounce) {
         if (configGroup[group]) {
+            var printString = arguments.length === 2 || value === null
+                ? group + " :: " + title
+                : group + " :: " + title + " :: " + JSON.stringify(value);
             if (bounce) {
                 var key = group+title+value+bounce;
+                
                 if (!deBounceGroup[key]) {
                     deBounceGroup[key] = Date.now();
-                    print(group + " :: " + title + " :: " + JSON.stringify(value));
+                    console.log(printString);
                 } else {
                     if (deBounceCheck(deBounceGroup[key], Date.now(), bounce)) {
                         deBounceGroup[key] = Date.now();
-                        print(group + " :: " + title + " :: " + JSON.stringify(value));
+                        console.log(printString);
                     } else {
                         return;
                     }
                 }
             } else {
-                print(group + " :: " + title + " :: " + JSON.stringify(value));
+                console.log(printString);
             }
-            
         }
     };
 }
