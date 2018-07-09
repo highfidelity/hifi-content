@@ -25,12 +25,12 @@
     var SEARCH_RADIUS = 1; // if isSearchingByJoints is true, will search this radius from the avatar
 
     var ZoneDeleteEntitiesOnExit = function () {
-        
+
     };
 
     ZoneDeleteEntitiesOnExit.prototype = {
         enterEntity: function (entityID) {
-            if(isSearchingByJoints){
+            if (isSearchingByJoints) {
                 // set joint indexes
                 this.jointIndex1 = MyAvatar.getJointIndex(JOINT1_NAME);
                 this.jointIndex2 = MyAvatar.getJointIndex(JOINT2_NAME);
@@ -44,15 +44,19 @@
 
         deleteEntities: function (name) {
             var entityList;
-            
+
             if (isSearchingByJoints) {
-                if (!this.jointIndex1 || !this.jointIndex2){
+                if (!this.jointIndex1 || !this.jointIndex2) {
                     this.jointIndex1 = MyAvatar.getJointIndex(JOINT1_NAME);
                     this.jointIndex2 = MyAvatar.getJointIndex(JOINT2_NAME);
                 }
 
-                var jointList1 = this.jointIndex1 !== -1 ? Entities.getChildrenIDsOfJoint(MyAvatar.sessionUUID, this.jointIndex1) : [];
-                var jointList2 = this.jointIndex2 !== -1 ? Entities.getChildrenIDsOfJoint(MyAvatar.sessionUUID, this.jointIndex2) : [];
+                var jointList1 = this.jointIndex1 !== -1
+                    ? Entities.getChildrenIDsOfJoint(MyAvatar.sessionUUID, this.jointIndex1)
+                    : [];
+                var jointList2 = this.jointIndex2 !== -1
+                    ? Entities.getChildrenIDsOfJoint(MyAvatar.sessionUUID, this.jointIndex2)
+                    : [];
 
                 entityList = jointList1.concat(jointList2);
             } else {
@@ -62,10 +66,10 @@
             entityList.forEach(function (entityID) {
                 var entityName = Entities.getEntityProperties(entityID, "name").name;
 
-                if(entityName.indexOf(name) > -1) {
+                if (entityName.indexOf(name) > -1) {
                     Entities.deleteEntity(entityID);
                 }
-                
+
             });
         }
     };

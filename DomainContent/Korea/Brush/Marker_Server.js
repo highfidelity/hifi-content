@@ -22,11 +22,11 @@
         return Vec3.multiplyQbyV(currentAvatarOrientation, Vec3.UNIT_NEG_Z);
     }
 
-    function BathroomMarkerServer() {
+    function MarkerServer() {
 
     }
 
-    BathroomMarkerServer.prototype = {
+    MarkerServer.prototype = {
         remotelyCallable: [
             "startLine",
             "drawLine",
@@ -120,8 +120,6 @@
             }
         },
         finishLine: function (id, params) {
-            var position = JSON.parse(params[0]);
-            var width = Number(params[1]);
             // Finish drawing polyline; delete if it has only 1 point.
 
             if (!isDrawingLine) {
@@ -177,5 +175,5 @@
         }
     };
 
-    return new BathroomMarkerServer();
-})
+    return new MarkerServer();
+});

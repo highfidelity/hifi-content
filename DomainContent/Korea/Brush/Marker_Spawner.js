@@ -25,11 +25,6 @@ var rightHandRotation = Quat.fromPitchYawRollDegrees(90, 45, 0);
 
 var userData = {
     "grabbableKey": {
-        "cloneLifetime": 500,
-        "cloneLimit": 0,
-        "cloneDynamic": false,
-        "cloneAvatarEntity": false,
-        "cloneable": true,
         "grabbable": true
     },
     "equipHotspots": [
@@ -52,7 +47,7 @@ var userData = {
             }
         }
     ]
-}
+};
 
 userData = JSON.stringify(userData);
 
@@ -80,6 +75,9 @@ var marker = Entities.addEntity({
         y: 0.0336,
         z: 0.6000
     },
+    cloneable: true,
+    cloneLifetime: 500,
+
     restitution: 0,
     friction: 0,
     collisionless: true,
