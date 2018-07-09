@@ -1,4 +1,6 @@
-x(function () {
+
+
+(function () {
     var entityID;
 
     var START_DRAW_TIMEOUT = 350, // MS
@@ -157,7 +159,7 @@ x(function () {
         }
     
         function tearDown() {
-            // blank
+            onTearDownCallback();
         }
     
         return {
@@ -460,11 +462,11 @@ x(function () {
         rightHand = null;
     }
 
-    function BathroomMarkerClient() {
+    function MarkerClient() {
 
     }
 
-    BathroomMarkerClient.prototype = {
+    MarkerClient.prototype = {
         grabbed: false,
         hand: "",
         preload: function (id) {
@@ -552,5 +554,5 @@ x(function () {
 
     Script.scriptEnding.connect(tearDown);
 
-    return new BathroomMarkerClient();
+    return new MarkerClient();
 });
