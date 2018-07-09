@@ -21,7 +21,7 @@
         z: 1.6474
     };
     var CLONE_LIFETIME = 18;
-    var SCRIPT_URL = Script.resolvePath("GayageumClone.js?v1" + Math.random());
+    var SCRIPT_URL = Script.resolvePath("GayageumClone.js");
 
     var gayageum = {
         name: NAME,

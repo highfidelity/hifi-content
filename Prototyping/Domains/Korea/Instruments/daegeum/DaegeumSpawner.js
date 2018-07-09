@@ -21,7 +21,7 @@
         z: 0.0522
     };
     var CLONE_LIFETIME = 17;
-    var SCRIPT_URL = Script.resolvePath("DaegeumClone.js?v1" + Math.random());
+    var SCRIPT_URL = Script.resolvePath("DaegeumClone.js");
 
     var daegeum = {
         name: NAME,

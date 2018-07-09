@@ -21,7 +21,7 @@
         z: 0.2150
     };
     var CLONE_LIFETIME = 18;
-    var SCRIPT_URL = Script.resolvePath("JangguClone.js?v1" + Math.random());
+    var SCRIPT_URL = Script.resolvePath("JangguClone.js");
 
     var janggu = {
         name: NAME,
