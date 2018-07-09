@@ -155,7 +155,7 @@
             triggerPressingCallback = onTriggerPressing;
             triggerReleasedCallback = onTriggerReleased;
             gripPressedCallback = onGripPressed;
-            onTearDownCallback = onTearDown;
+            onTearDownCallback = onTearDown ? onTearDown : utils.noop;
         }
     
         function tearDown() {
@@ -320,33 +320,22 @@
                 console.info("$$$ Setup ", hand);
             }
 
-            if (hand === LEFT || hand === RIGHT) {
+            var controllerMapping;
 
-                var handControl;
-                var controlMapName;
-                var controlTrigger;
-                var controlGrip;
-
-                if (hand === LEFT){
-                    leftHand = handController(LEFT);
-                    handControl = leftHand;
-                    controlMapName = CONTROLLER_MAPPING_LEFT;
-                    controlTrigger = Controller.Standard.LT;
-                    controlGrip = Controller.Standard.LeftGrip;
-                } else {
-                    rightHand = handController(RIGHT);
-                    handControl = rightHand;
-                    controlMapName = CONTROLLER_MAPPING_RIGHT;
-                    controlTrigger = Controller.Standard.RT;
-                    controlGrip = Controller.Standard.RightGrip;
-                }
-
-                var controllerMapping = Controller.newMapping(controlMapName);
-                controllerMapping.from(controlTrigger).to(handControl.onTriggerPress);
-                controllerMapping.from(controlGrip).to(handControl.onGripPress);
+            if (hand === LEFT){
+                leftHand = handController(LEFT);
+                controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_LEFT);
+                controllerMapping.from(Controller.Standard.LT).to(leftHand.onTriggerPress);
+                controllerMapping.from(Controller.Standard.LeftGrip).to(leftHand.onGripPress);
         
-                Controller.enableMapping(controlMapName);
-
+                Controller.enableMapping(CONTROLLER_MAPPING_LEFT);
+            } else if (hand === RIGHT){
+                rightHand = handController(RIGHT);
+                controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_RIGHT);
+                controllerMapping.from(Controller.Standard.RT).to(rightHand.onTriggerPress);
+                controllerMapping.from(Controller.Standard.RightGrip).to(rightHand.onGripPress);
+        
+                Controller.enableMapping(CONTROLLER_MAPPING_RIGHT);
             } else {
                 console.error("Error: Hand is neither right or left. Issue with mapControls.");
             }
