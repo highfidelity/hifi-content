@@ -33,7 +33,7 @@ var InstrumentClone = function (musicURLs, audioVolumeLevel) {
     this.firstLoad = true;
     this.handNum = 0;
     this.updatePositionInterval = null;
-    this.curPosition;
+    this.currentPosition;
 };
 
 InstrumentClone.prototype = {
@@ -42,7 +42,7 @@ InstrumentClone.prototype = {
     preload: function (entityID) {
         this.entityID = entityID;
 
-        this.curPosition = Entities.getEntityProperties(this.entityID, "position").position;
+        this.currentPosition = Entities.getEntityProperties(this.entityID, "position").position;
         this.handNum = 0;
 
         this.loadSounds();

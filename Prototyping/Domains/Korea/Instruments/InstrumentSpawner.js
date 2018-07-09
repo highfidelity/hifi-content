@@ -43,11 +43,6 @@ InstrumentSpawner.prototype = {
         var cloneLifetime = this.cloneLifetime;
         var userData = {
             "grabbableKey": {
-                "cloneLifetime": cloneLifetime,
-                "cloneLimit": 0,
-                "cloneDynamic": false,
-                "cloneAvatarEntity": false,
-                "cloneable": true,
                 "grabbable": true
             }
         };
@@ -70,6 +65,10 @@ InstrumentSpawner.prototype = {
                 y: 0,
                 z: 0
             },
+
+            cloneable: true,
+            cloneLifetime: cloneLifetime,
+
             position: spawnPosition,
             dimensions: this.dimensions,
             restitution: 0,
