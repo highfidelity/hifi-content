@@ -1,3 +1,15 @@
+// Marker_Server.js
+//
+// Copyright 2018 High Fidelity, Inc.
+// Created by Milad Nazeri and Robin Wilson 7/5/2018
+// Expands on fingerPaint.js created by David Rowe 15 Feb 2017
+// 
+// Server script to the marker. Creates lines server side to allow users without rez rights to draw polylines.
+// Listens to Marker_Client for marker positions. Works with Marker_Client.js.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 (function () {
     var STROKE_COLOR = {
             red: 250,

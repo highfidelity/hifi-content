@@ -1,3 +1,14 @@
+// Marker_Spawner.js
+//
+// Copyright 2018 High Fidelity, Inc.
+// Created by Robin Wilson and Milad Nazeri 7/5/2018
+//
+// Creates a brush that uses client and server script to draw 3D lines.
+// Allows users without Rez rights to draw.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 var modelURL = "https://hifi-content.s3.amazonaws.com/robin/models/korea/brushRotated2.fbx";
 
 var orientation = MyAvatar.orientation;
