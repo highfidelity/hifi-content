@@ -15,7 +15,7 @@
         CONTROLLER_MAPPING_RIGHT = "com.highfidelity.markerRight",
 
         ERASE_SEARCH_RADIUS = 0.1,
-        DEBUG_MARKER_CLIENT = false;
+        DEBUG_MARKER_CLIENT = true;
 
     function onEquip(hand) {
         if (DEBUG_MARKER_CLIENT){
