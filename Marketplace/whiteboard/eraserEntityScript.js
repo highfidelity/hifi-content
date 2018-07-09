@@ -30,7 +30,7 @@
     var SURFACE_OFFSET = 0.01;
     var hand = 2;
 
-    var lineResolution = 0.005;
+    var lineResolution = 0.008;
 
     var BLUE_MARKER_NAME = "hifi_model_marker_blue";
     var GREEN_MARKER_NAME = "hifi_model_marker_green";
@@ -117,9 +117,15 @@
             _this.startNearGrab();
         },
         continueEquip: function(entityID, paramsArray) {
+            if (!HMD.active) {
+                return;
+            }
             _this.continueNearGrab(entityID, paramsArray);
         },
         releaseEquip: function() {
+            if (!HMD.active) {
+                return;
+            }
             _this.equipped = false;
         },
         // MOUSE DESKTOP COMPATIBILITY
@@ -265,9 +271,10 @@
             // find nearby strokes with a big margin
             var nearbyStrokes = Entities.findEntitiesByName("hifi_polyline_markerStroke", 
                 _this.eraserPosition, 
-                Entities.getEntityProperties(_this.whiteboard, "dimensions").dimensions.x, 
+                Entities.getEntityProperties(_this.whiteboard, "dimensions").dimensions.x / 2.0, 
                 true
             );
+        
             
             var serverID = _this.whiteboard;
             
@@ -466,15 +473,19 @@
                     // RPC - calling server to erase
                     Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
                 }
-            });
-                
+            });    
         },
         getHighResolutionPointCache: function(strokeID) {
             var hires;
             if (strokeHighResolutionCache[strokeID] === undefined) {
                 hires = _this.createHighResolutionPointCache(strokeID);
             } else {
-                var currentNumberPoints = Entities.getEntityProperties(strokeID, "linePoints").linePoints.length;
+                var currentNumberPoints = Entities.getEntityProperties(strokeID, "linePoints").linePoints;
+                if (currentNumberPoints === undefined) {
+                    return undefined;
+                } else {
+                    currentNumberPoints = currentNumberPoints.length;
+                }
                 var cachedNumberPoints = strokeHighResolutionCache[strokeID].numberPoints;
                 hires = strokeHighResolutionCache[strokeID].highResolutionLinePoints;
                 if (currentNumberPoints !== cachedNumberPoints) {
@@ -485,6 +496,9 @@
         },
         createHighResolutionPointCache: function (lineID) {
             var linePoints = Entities.getEntityProperties(lineID, "linePoints").linePoints;
+            if (linePoints === undefined) {
+                return undefined;
+            }
             var highResolutionLinePoints = [linePoints[0]];
             var pointIndex = {};
             if (linePoints.length <= 1) {

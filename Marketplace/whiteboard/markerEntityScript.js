@@ -25,6 +25,9 @@
     var isMouseDown = false;
     var isStartingStroke = false;
 
+    var lastIntersectionPoint = undefined;
+    var lineResolution = 0.01;
+
     var BEGIN_STROKE_SOUND = SoundCache.getSound(Script.resolvePath('sfx/markerBeginStroke.wav'));
 
     var STROKEL1_SOUND = SoundCache.getSound(Script.resolvePath('sfx/strokeL1.wav'));
@@ -261,14 +264,24 @@
             }
         },
         startEquip: function() {
+            if (!HMD.active) {
+                return;
+            }
+            lastIntersectionPoint = undefined;
             _this.equipped = true;
             _this.startEquipTime = Date.now();
             _this.startNearGrab();
         },
         continueEquip: function(entityID, paramsArray) {
+            if (!HMD.active) {
+                return;
+            }
             _this.continueNearGrab(entityID, paramsArray);
         },
         releaseEquip: function() {
+            if (!HMD.active) {
+                return;
+            }
             _this.equipped = false;
             _this.releaseGrab();
         },
@@ -333,6 +346,8 @@
                     _this.colors.push(entity);
                 }
             });
+
+            lastIntersectionPoint = undefined;
             
             // Server side
             _this.findWhiteboard();
@@ -345,6 +360,7 @@
                 'serverEditEntity', 
                 [_this.entityID, JSON.stringify({collisionless: true, grabbable: false})]
             );
+
             if (_this.equipped) {
                 isMouseDown = true;
             }
@@ -368,6 +384,7 @@
                         entityName === YELLOW_MARKER_NAME) {
                         // unequip and delete
                         _this.equipped = false;
+                        lastIntersectionPoint = undefined;
                         Settings.setValue('io.highfidelity.isEditing', false);
                         var serverID = getServerID();
                         isMouseDown = false;
@@ -430,6 +447,14 @@
                             _this.whiteboardNormal
                         );
                         
+                        var shouldPaint = lastIntersectionPoint === undefined;
+
+                        if (!shouldPaint) {
+                            var distanceFromLastIntersection = Vec3.distance(lastIntersectionPoint, whiteBoardIntersection.intersection);
+                            shouldPaint = distanceFromLastIntersection > lineResolution;
+                            lastIntersectionPoint = whiteBoardIntersection.intersection;
+                        }
+
                         // Server Side
                         serverID = getServerID();
                         Entities.callEntityServerMethod(serverID, 
@@ -443,40 +468,42 @@
                                 })
                             ]
                         );
-
+                        
                         if (isMouseDown && event.isLeftButton) {
-                            _this.paint(whiteBoardIntersection.intersection, true);
-                            if (!isStartingStroke) {
-                                isStartingStroke = true;
-                                
-                                Audio.playSound(BEGIN_STROKE_SOUND, {
-                                    position: whiteBoardIntersection.intersection,
-                                    volume: clamp(Math.random(), STROKE_SOUND_VOLUME.min, STROKE_SOUND_VOLUME.max)
-                                });
-                                timestamp = Date.now();
-                                strokeSoundTimestamp0 = whiteBoardIntersection.intersection;
-                                strokeSoundTimestamp1 = null;
-                                
-                            } else if ((Date.now() - timestamp) > SOUND_TIMESTAMP) {
-                                timestamp = Date.now();
-                                playRandomStrokeSound(whiteBoardIntersection.intersection);
-                            } else {
-                                if (strokeSoundTimestamp1 === null) {
-                                    strokeSoundTimestamp1 = whiteBoardIntersection.intersection;
+                            if (shouldPaint) {
+                                _this.paint(whiteBoardIntersection.intersection, true);
+                                if (!isStartingStroke) {
+                                    isStartingStroke = true;
+                                    
+                                    Audio.playSound(BEGIN_STROKE_SOUND, {
+                                        position: whiteBoardIntersection.intersection,
+                                        volume: clamp(Math.random(), STROKE_SOUND_VOLUME.min, STROKE_SOUND_VOLUME.max)
+                                    });
+                                    timestamp = Date.now();
+                                    strokeSoundTimestamp0 = whiteBoardIntersection.intersection;
+                                    strokeSoundTimestamp1 = null;
+                                    
+                                } else if ((Date.now() - timestamp) > SOUND_TIMESTAMP) {
+                                    timestamp = Date.now();
+                                    playRandomStrokeSound(whiteBoardIntersection.intersection);
                                 } else {
-                                    var strokeSoundDirection1 = Vec3.normalize(
-                                        Vec3.subtract(strokeSoundTimestamp1, strokeSoundTimestamp0)
-                                    );
-                                    var strokeSoundDirection2 = Vec3.normalize(
-                                        Vec3.subtract(whiteBoardIntersection.intersection, strokeSoundTimestamp1)
-                                    );
-                                    var cosA = Vec3.dot(strokeSoundDirection1, strokeSoundDirection2);
-                                    if (cosA < STROKE_SOUND_THRESHOLD_DIRECTION) {
-                                        timestamp = Date.now();
-                                        playRandomStrokeSound(whiteBoardIntersection.intersection);
+                                    if (strokeSoundTimestamp1 === null) {
+                                        strokeSoundTimestamp1 = whiteBoardIntersection.intersection;
+                                    } else {
+                                        var strokeSoundDirection1 = Vec3.normalize(
+                                            Vec3.subtract(strokeSoundTimestamp1, strokeSoundTimestamp0)
+                                        );
+                                        var strokeSoundDirection2 = Vec3.normalize(
+                                            Vec3.subtract(whiteBoardIntersection.intersection, strokeSoundTimestamp1)
+                                        );
+                                        var cosA = Vec3.dot(strokeSoundDirection1, strokeSoundDirection2);
+                                        if (cosA < STROKE_SOUND_THRESHOLD_DIRECTION) {
+                                            timestamp = Date.now();
+                                            playRandomStrokeSound(whiteBoardIntersection.intersection);
+                                        }
+                                        strokeSoundTimestamp0 = strokeSoundTimestamp1;
+                                        strokeSoundTimestamp1 = whiteBoardIntersection.intersection;
                                     }
-                                    strokeSoundTimestamp0 = strokeSoundTimestamp1;
-                                    strokeSoundTimestamp1 = whiteBoardIntersection.intersection;
                                 }
                             }
                         } else {

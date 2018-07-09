@@ -627,7 +627,8 @@
             var color = utils.parseJSON(params[2]);
 
             Entities.editEntity(params[0], { lifetime: SHORT_TOOL_LIFETIME });
-
+            print("Spawn Marker + " + blueMarkerID);
+            print("Spawn Marker paman0 + " + params[0]);
             if (markerName === "hifi_model_marker_blue" &&
                 (blueMarkerID === null || params[0] === blueMarkerID)) {
                 blueMarkerID = _this.spawnMarkerWithColor(markerName, color);

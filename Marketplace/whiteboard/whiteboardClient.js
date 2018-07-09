@@ -10,67 +10,94 @@
         _this.whiteboard = null;
     };
 
-    var isTutorialCard1Enabled = false;
     var overlayTutorialCard1On;
     var overlayTutorialCard1Off;
+
+    var MARKER_TUTORIAL_OFFSET = {x: -0.8, y: 0.15, z: -0.15};
+    var MARKER_ARROW_TUTORIAL_OFFSET = {x: -0.52, y: 0.15, z: -0.15};
+
+    var MARKER_TUTORIAL_DIMENSIONS = {x: 1.5, y: 1.5};
+    var MARKER_ARROW_TUTORIAL_DIMENSIONS = {x: 0.5, y: 0.5};
+
+    var TUTORIAL_OVERLAY_RADIUS = 5.0;
 
     WhiteboardClient.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
-            
-            var overlayTutorialCard1On = Overlays.addOverlay("image3d", {
-                url: Script.resolvePath("tutorial/ClickOverlay.jpg"),
-                position: Vec3.sum(
-                    Entities.getEntityProperties(_this.entityID, "position").position,
-                    Vec3.multiply(
-                        Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.x, 
-                        Quat.getRight(Entities.getEntityProperties(_this.entityID, "rotation").rotation)
-                    )
-                ),
-                rotation: Entities.getEntityProperties(_this.entityID, "rotation").rotation,
-                dimensions: { x:2, y: 2},
-                isFacingAvatar: true
+            var whiteboardPosition = Entities.getEntityProperties(_this.entityID, "position").position;
+            var whiteboardDimensions = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions;
+            var whiteboardRotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+            var whiteboardRight = Quat.getRight(whiteboardRotation);
+            var whiteboardFront = Quat.getFront(whiteboardRotation);
+            var whiteboardUp = Quat.getUp(whiteboardRotation);
+
+
+            var ov = Overlays.findOverlays(whiteboardPosition, TUTORIAL_OVERLAY_RADIUS);
+            ov.forEach(function(overlay) {
+                Overlays.deleteOverlay(overlay);
+            });
+    
+            var markerOverlayPosition = Vec3.sum(
+                whiteboardPosition,
+                Vec3.multiply(
+                    whiteboardDimensions.x * MARKER_TUTORIAL_OFFSET.x, 
+                    whiteboardRight
+                )
+            );
+            markerOverlayPosition = Vec3.sum(
+                markerOverlayPosition, 
+                Vec3.multiply(
+                    whiteboardDimensions.y * MARKER_TUTORIAL_OFFSET.y, 
+                    whiteboardUp
+                )
+            );
+            markerOverlayPosition = Vec3.sum(
+                markerOverlayPosition, 
+                Vec3.multiply(
+                    whiteboardDimensions.z * MARKER_TUTORIAL_OFFSET.z, 
+                    whiteboardFront
+                )
+            );
+
+            overlayTutorialCard1On = Overlays.addOverlay("image3d", {
+                url: Script.resolvePath("tutorial/Whiteboard-desktopmode-instructions-markers.png"),
+                position: markerOverlayPosition,
+                rotation: whiteboardRotation,
+                dimensions: MARKER_TUTORIAL_DIMENSIONS,
+                name: "Tutorial Marker Desktop",
+                isFacingAvatar: false
             });
 
-            var overlayTutorialCard1Off = Overlays.addOverlay("image3d", {
-                url: Script.resolvePath("tutorial/DismissClickOverlay.jpg"),
-                position: Vec3.sum(
-                    Entities.getEntityProperties(_this.entityID, "position").position,
-                    Vec3.multiply(
-                        Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.x, 
-                        Quat.getRight(Entities.getEntityProperties(_this.entityID, "rotation").rotation)
-                    )
-                ),
-                rotation: Entities.getEntityProperties(_this.entityID, "rotation").rotation,
-                dimensions: { x:2, y: 2},
-                isFacingAvatar: true,
-                visible: false
-            });
-              
+            var markerArrowOverlayPosition = Vec3.sum(
+                whiteboardPosition,
+                Vec3.multiply(
+                    whiteboardDimensions.x * MARKER_ARROW_TUTORIAL_OFFSET.x, 
+                    whiteboardRight
+                )
+            );
+            markerArrowOverlayPosition = Vec3.sum(
+                markerArrowOverlayPosition, 
+                Vec3.multiply(
+                    whiteboardDimensions.y * MARKER_ARROW_TUTORIAL_OFFSET.y, 
+                    whiteboardUp
+                )
+            );
+            markerArrowOverlayPosition = Vec3.sum(
+                markerArrowOverlayPosition,
+                Vec3.multiply(
+                    whiteboardDimensions.z * MARKER_ARROW_TUTORIAL_OFFSET.z, 
+                    whiteboardFront
+                )
+            );
 
-            Overlays.hoverEnterOverlay.connect(function(overlayTutorialCard1On, event) {
-               
-                if (!isTutorialCard1Enabled) {
-                    isTutorialCard1Enabled = true;
-                    Overlays.editOverlay(overlayTutorialCard1On, {visible: false});
-                    Overlays.editOverlay(overlayTutorialCard1Off, {visible: true});
-                }
-                
-            });
-
-            Overlays.hoverLeaveOverlay.connect(function(overlayTutorialCard1Off, event) {
-                
-                if (isTutorialCard1Enabled) {
-                    isTutorialCard1Enabled = false;
-                    Overlays.editOverlay(overlayTutorialCard1On, {visible: true});
-                    Overlays.editOverlay(overlayTutorialCard1Off, {visible: false});
-                }
-            });
-
-            Overlays.mouseReleaseOnOverlay.connect(function(overlayID, event) {
-                print("Delete: " + overlayID);
-                Overlays.deleteOverlay(overlayTutorialCard1Off);
-                Overlays.deleteOverlay(overlayTutorialCard1On);
+            overlayTutorialCard1Off = Overlays.addOverlay("image3d", {
+                url: Script.resolvePath("tutorial/Whiteboard-instructions-arrow.png"),
+                position: markerArrowOverlayPosition,
+                rotation: whiteboardRotation,
+                dimensions: MARKER_ARROW_TUTORIAL_DIMENSIONS,
+                name: "Tutorial Marker Desktop Arrow",
+                isFacingAvatar: false,
+                visible: true
             });
         },        
         clearBoard: function() {
@@ -97,6 +124,10 @@
         },
         startFarTrigger: function(entityID) {      
             
+        },
+        unload: function() {
+            Overlays.deleteOverlay(overlayTutorialCard1Off);
+            Overlays.deleteOverlay(overlayTutorialCard1On);
         }
     };
 
