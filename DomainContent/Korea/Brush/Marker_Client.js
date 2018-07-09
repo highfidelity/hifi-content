@@ -1,4 +1,14 @@
-
+// Marker_Server.js
+//
+// Copyright 2018 High Fidelity, Inc.
+// Created by Robin Wilson and Milad Nazeri 7/5/2018
+// Expands on fingerPaint.js created by David Rowe 15 Feb 2017
+// 
+// Client script to the marker entity. Maps controls to users and sends requests to Marker_Server to create polylines.
+// Works with Marker_Server.js.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function () {
     var entityID;
