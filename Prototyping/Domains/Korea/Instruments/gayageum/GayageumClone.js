@@ -10,13 +10,13 @@
 
 (function () {
 
-    var clone = Script.require(Script.resolvePath("../InstrumentClone.js"));
+    var clone = Script.require(Script.resolvePath("../InstrumentClone.js?v" + Math.random()));
     var InstrumentClone = clone.instrumentClone;
     
     var MUSIC_URLS = [
-        "gayageum/Sounds/gayageum1.wav",
-        "gayageum/Sounds/gayageum2.wav",
-        "gayageum/Sounds/gayageum3.wav"
+        "Gayageum/Sounds/gayageum1.wav",
+        "Gayageum/Sounds/gayageum2.wav",
+        "Gayageum/Sounds/gayageum3.wav"
     ];
 
     var instrument = new InstrumentClone(MUSIC_URLS);
