@@ -10,7 +10,7 @@
 
 (function () {
 
-    var clone = Script.require(Script.resolvePath("../InstrumentClone.js?v" + Math.random()));
+    var clone = Script.require(Script.resolvePath("../InstrumentClone.js"));
     var InstrumentClone = clone.instrumentClone;
     
     var MUSIC_URLS = [
