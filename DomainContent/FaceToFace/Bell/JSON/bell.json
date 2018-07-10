@@ -1,0 +1,37 @@
+{
+    "DataVersion": 0,
+    "Entities": [
+        {
+            "clientOnly": false,
+            "created": "2018-06-26T17:57:10Z",
+            "dimensions": {
+                "x": 0.05858992040157318,
+                "y": 0.05858992040157318,
+                "z": 0.05858992040157318
+            },
+            "id": "{10757ff1-6218-4ba5-a55c-d1cb4f12cc60}",
+            "lastEdited": 1530036056261704,
+            "lastEditedBy": "{2fcf1855-c1da-47df-9db1-db82e21e857b}",
+            "modelURL": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/Today/models/bell.fbx",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 0.10148072242736816,
+                "x": -0.05074036121368408,
+                "y": -0.05074036121368408,
+                "z": -0.05074036121368408
+            },
+            "rotation": {
+                "w": 0.5789425373077393,
+                "x": 0.11201643943786621,
+                "y": 0.8066986799240112,
+                "z": -0.038681626319885254
+            },
+            "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/Today/triggerBell.js",
+            "scriptTimestamp": 1530033015940,
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"invertSolidWhileHeld\":true,\"grabbable\":true},\"equipHotspots\":[{\"position\":{\"x\":0,\"y\":0,\"z\":0},\"radius\":0.2,\"joints\":{\"RightHand\":[{\"x\":0.049451351165771484,\"y\":0.14407777786254883,\"z\":-0.006419658660888672},{\"x\":-0.3376973867416382,\"y\":-0.7138933539390564,\"z\":0.3195391893386841,\"w\":0.5236133337020874}],\"LeftHand\":[{\"x\":-0.05040407180786133,\"y\":0.14345920085906982,\"z\":-0.0070896148681640625},{\"x\":-0.4805523753166199,\"y\":0.3820401430130005,\"z\":-0.45275044441223145,\"w\":0.6466621160507202}]}}]}"
+        }
+    ],
+    "Id": "{1d6791cf-2c14-490a-bf62-8d23f7ec212a}",
+    "Version": 87
+}
