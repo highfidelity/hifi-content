@@ -117,7 +117,8 @@ function createWhiteboard() {
 
     // Spawn drawing surface
     drawingSurfaceID = spawnTemplate("Whiteboard - Drawing Surface", {
-        parentID: whiteboardFrameID
+        parentID: whiteboardFrameID,
+        collisionMask: 7
     });
     entityIDs.push(drawingSurfaceID);
     
@@ -130,6 +131,7 @@ function createWhiteboard() {
     resetButtonID = spawnTemplate("Whiteboard - Reset Button", {
         parentID: whiteboardFrameID,
         script: Script.resolvePath("resetWhiteBoard.js"),
+        collisionMask: 7,        
         userData: JSON.stringify({
             grabbableKey: {
                 grabbable: false,
