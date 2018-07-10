@@ -130,14 +130,23 @@
             Controller.mouseReleaseEvent.connect(_this.mouseReleaseEvent);
         },
         findWhiteboard: function() {
+            var markerPos = Entities.getEntityProperties(_this.entityID, "position").position;
             var results = Entities.findEntities(
-                Entities.getEntityProperties(_this.entityID, "position").position,
+                markerPos,
                 WHITEBOARD_SEARCH_RADIUS
             );
             results.forEach(function(entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
                 if (entityName === _this.WHITEBOARD_NAME) {
-                    _this.wb = entity;
+                    if (_this.wb !== null) {
+                        if (Vec3.distance(Entities.getEntityProperties(entity, "position").position, markerPos) <
+                            Vec3.distance(Entities.getEntityProperties(_this.wb, "position").position, markerPos)
+                        ) {
+                            _this.wb = entity;
+                        }
+                    } else {
+                        _this.wb = entity;
+                    }
                 }
             });
         },
@@ -352,6 +361,8 @@
             // Server side
             _this.findWhiteboard();
             var serverID = _this.wb;
+            print("Server ID : " + serverID);
+            print("Another Server ID : " + getServerID());
             Entities.callEntityServerMethod(serverID, 
                 'spawnMarker', 
                 [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]
@@ -450,7 +461,10 @@
                         var shouldPaint = lastIntersectionPoint === undefined;
 
                         if (!shouldPaint) {
-                            var distanceFromLastIntersection = Vec3.distance(lastIntersectionPoint, whiteBoardIntersection.intersection);
+                            var distanceFromLastIntersection = Vec3.distance(
+                                lastIntersectionPoint, 
+                                whiteBoardIntersection.intersection
+                            );
                             shouldPaint = distanceFromLastIntersection > lineResolution;
                             lastIntersectionPoint = whiteBoardIntersection.intersection;
                         }
