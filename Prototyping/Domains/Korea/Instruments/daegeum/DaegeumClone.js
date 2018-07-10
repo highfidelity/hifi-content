@@ -14,10 +14,10 @@
     var InstrumentClone = clone.instrumentClone;
 
     var MUSIC_URLS = [
-        "daegeum/Sounds/chung_sung_gok_1.wav",
-        "daegeum/Sounds/chung_sung_gok_2.wav",
-        "daegeum/Sounds/chung_sung_gok_3.wav",
-        "daegeum/Sounds/chung_sung_gok_4.wav"
+        "Daegeum/Sounds/chung_sung_gok_1.wav",
+        "Daegeum/Sounds/chung_sung_gok_2.wav",
+        "Daegeum/Sounds/chung_sung_gok_3.wav",
+        "Daegeum/Sounds/chung_sung_gok_4.wav"
     ];
 
     var instrument = new InstrumentClone(MUSIC_URLS);

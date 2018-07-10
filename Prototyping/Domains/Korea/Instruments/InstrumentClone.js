@@ -24,6 +24,7 @@ var LIFETIME_ON_RELEASE = 8;
 var SECS_TO_MS = 1000;
 var UPDATE_POSITION_MS = 50;
 var FIRST_LOAD_TIMEOUT = 50;
+var DEBUG = false;
 
 var InstrumentClone = function (musicURLs, audioVolumeLevel) {
     this.musicURLs = musicURLs;
@@ -43,14 +44,27 @@ InstrumentClone.prototype = {
     preload: function (entityID) {
         this.entityID = entityID;
 
-        this.currentPosition = Entities.getEntityProperties(this.entityID, "position").position;
+        var entityProperties = Entities.getEntityProperties(this.entityID, ["position", "name", "age"]);
+        this.currentPosition = entityProperties.position;
         this.handNum = 0;
 
-        this.loadSounds();
+        Script.setTimeout(function(){
+            if(entityProperties.name && entityProperties.name.indexOf("clone") !== -1){
+                if (DEBUG) {
+                    print("Instrument clone: preload edit lifetime ", entityProperties.name);
+                }
+                Entities.editEntity(this.entityID, { lifetime: entityProperties.age + LIFETIME_ON_PICKUP });
+            }
+        }, FIRST_LOAD_TIMEOUT);
 
+        this.loadSounds();
     },
 
     startNearGrab: function (thisEntity, otherEntity, collision) {
+
+        if (DEBUG) {
+            print("Instrument clone: Start near grab");
+        }
 
         if (this.handNum === NO_HANDS) {
             this.handNum = ONE_HAND;
@@ -64,6 +78,9 @@ InstrumentClone.prototype = {
     },
 
     releaseGrab: function () {
+        if (DEBUG) {
+            print("Instrument clone: release grab");
+        }
 
         if (this.handNum === BOTH_HANDS) {
             this.handNum = ONE_HAND;
@@ -96,6 +113,10 @@ InstrumentClone.prototype = {
     // SOUND UTILITIES
     loadSounds: function () {
 
+        if (DEBUG) {
+            print("Instrument clone: load sounds ", JSON.stringify(this.musicURLs));
+        }
+
         var _this = this;
 
         this.musicURLs.forEach(function (soundURL, idx) {
@@ -103,10 +124,18 @@ InstrumentClone.prototype = {
         });
 
         this.firstLoad = true;
+
+        if (DEBUG) {
+            print("Instrument clone: Sounds are:", JSON.stringify(this.sounds));
+        }
     },
 
     startSound: function () {
         var _this = this;
+
+        if (DEBUG) {
+            print("Instrument clone: Start sound, first load is ", this.firstLoad);
+        }
 
         if (this.firstLoad) {
             // Give time to ensure random sound is downloaded on first pickup
@@ -129,6 +158,11 @@ InstrumentClone.prototype = {
 
         var _this = this;
         var sound = this.getRandomSound();
+
+        if (DEBUG) {
+            print("Instrument clone: isPlaying ", !this.playing, " soundDownloaded", sound.downloaded);
+            print("Instrument clone: Random soung ", JSON.stringify(sound));
+        }
 
         if (!this.playing && sound.downloaded) {
 
@@ -163,6 +197,10 @@ InstrumentClone.prototype = {
     },
 
     stopSound: function () {
+
+        if (DEBUG) {
+            print("Instrument clone: stop sound");
+        }
 
         this.playing = false;
 
