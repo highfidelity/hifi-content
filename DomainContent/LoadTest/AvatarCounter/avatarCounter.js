@@ -22,15 +22,13 @@
 
         preload: function(entityID) {
             _this.entityID = entityID;
-            _this.interval = Script.setInterval(_this.update(), UPDATE_INTERVAL);
-        },
-
-        update: function() {
-            request("https://highfidelity.com/api/v1/domains/d7dc9a4c-6d90-4515-9d51-770aa1004f54", function (error, data) {
-                if (!error) {
-                    Entities.editEntity(_this.entityID, { text: data.domain.online_users });
-                }
-            });
+            _this.interval = Script.setInterval(function() {
+                request("https://highfidelity.com/api/v1/domains/d7dc9a4c-6d90-4515-9d51-770aa1004f54", function (error, data) {
+                    if (!error) {
+                        Entities.editEntity(_this.entityID, { text: data.domain.online_users });
+                    }
+                });
+            }, UPDATE_INTERVAL);
         },
 
         unload: function() {
