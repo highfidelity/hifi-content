@@ -130,8 +130,8 @@ ToolIcon = function (side) {
         properties.parentID = modelOverlay;
         properties.url = iconInfo.icon.properties.url;
         properties.dimensions = {
-            x: ICON_SCALE_FACTOR * iconInfo.icon.properties.dimensions.x,
-            y: ICON_SCALE_FACTOR * iconInfo.icon.properties.dimensions.y
+            x: ICON_SCALE_FACTOR * iconInfo.icon.properties.scale,
+            y: ICON_SCALE_FACTOR * iconInfo.icon.properties.scale
         };
         properties.localPosition.y += ICON_SCALE_FACTOR * iconInfo.icon.headerOffset.y;
         Overlays.addOverlay(IMAGE_TYPE, properties);
