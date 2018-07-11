@@ -1,5 +1,5 @@
 //
-//  todayButtonTargetServer.js
+//  stageManagerTargetServer.js
 //
 //  Created by Rebecca Stankus on 6/6/18.
 //  Copyright 2018 High Fidelity, Inc.

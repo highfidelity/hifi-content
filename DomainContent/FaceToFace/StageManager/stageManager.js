@@ -10,7 +10,7 @@
 (function() {
     var TABLET_BUTTON_IMAGE = Script.resolvePath('svg/megaphone-i.svg');
     var TABLET_BUTTON_PRESSED = Script.resolvePath('svg/megaphone-a.svg');
-    var CLIP_1 = SoundCache.getSound(Script.resolvePath('sounds/audio1.wav'));
+    var CLIP_1 = SoundCache.getSound(Script.resolvePath('sounds/audio1.wav?0986'));
     var CLIP_2 = SoundCache.getSound(Script.resolvePath('sounds/audio2.wav?12367'));
     var SEARCH_RADIUS = 100;
     var NUMBER_OF_MUTE_BALLS = 4;
