@@ -113,42 +113,42 @@
             <input type="button" class="gray" id="home" value="Back">  </input>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
-var id_update = $("#update");
-var id_Next = $("#next");
-var id_Prev = $("#prev");
-var url = "https://hifi-slides.glitch.me/";
-var id_SlideUrl = $("#slideUrl");
-var slideVal;
-var hasQuery = false;
+            var id_update = $("#update");
+            var id_Next = $("#next");
+            var id_Prev = $("#prev");
+            var url = "https://hifi-slides.glitch.me/";
+            var id_SlideUrl = $("#slideUrl");
+            var slideVal;
+            var hasQuery = false;
 
-id_update.on("click", function() {
-    if(id_SlideUrl.val().indexOf("token") > -1) {
- hasQuery = true;
-}
-    hasQuery === false ? 
-      slideVal = "https:" + id_SlideUrl.val() + "?postMessageEvents=true" :
-      slideVal = "https:" + id_SlideUrl.val() + "&postMessageEvents=true";
-    $.post(url + "slideUrl", { url: slideVal });
-});
+            id_update.on("click", function() {
+                if (id_SlideUrl.val().indexOf("token") > -1) {
+                    hasQuery = true;
+                }
+                hasQuery === false ? 
+                slideVal = "https:" + id_SlideUrl.val() + "?postMessageEvents=true" :
+                slideVal = "https:" + id_SlideUrl.val() + "&postMessageEvents=true";
+                $.post(url + "slideUrl", { url: slideVal });
+            });
 
-id_Next.on("click", function() {
-    $.get(url + "fwd");
-});
+            id_Next.on("click", function() {
+                $.get(url + "fwd");
+            });
 
-id_Prev.on("click", function() {
-    $.get(url + "bwd");
-});
+            id_Prev.on("click", function() {
+                $.get(url + "bwd");
+            });
 
-$('#home').click(function(){
-    var event = {
-        type: "home"                
-    };
-    EventBridge.emitWebEvent(JSON.stringify(event));
-});
+            $('#home').click(function(){
+                var event = {
+                    type: "home"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
 
-$('#reset').click(function(){
-    $.get(url + "reset");
-});
+            $('#reset').click(function(){
+                $.get(url + "reset");
+            });
         </script>
     </body>
 

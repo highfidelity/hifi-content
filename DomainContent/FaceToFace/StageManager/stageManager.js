@@ -10,16 +10,16 @@
 (function() {
     var TABLET_BUTTON_IMAGE = Script.resolvePath('svg/megaphone-i.svg');
     var TABLET_BUTTON_PRESSED = Script.resolvePath('svg/megaphone-a.svg');
-    var CLIP_1 = SoundCache.getSound(Script.resolvePath('sounds/audio1.wav?0986'));
-    var CLIP_2 = SoundCache.getSound(Script.resolvePath('sounds/audio2.wav?12367'));
+    var CLIP_1 = SoundCache.getSound(Script.resolvePath('sounds/audio1.wav'));
+    var CLIP_2 = SoundCache.getSound(Script.resolvePath('sounds/audio2.wav'));
     var SEARCH_RADIUS = 100;
     var NUMBER_OF_MUTE_BALLS = 4;
     var ONE_HUNDRED=100;
 
     var audioVolume = 0.7;
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-    var appPage = Script.resolvePath('stageManager.html?482');
-    var screenSetupPage = Script.resolvePath('screenSetup.html?12');
+    var appPage = Script.resolvePath('stageManager.html');
+    var screenSetupPage = Script.resolvePath('screenSetup.html');
     var button = tablet.addButton({
         text: 'STAGE',
         icon: TABLET_BUTTON_IMAGE,
@@ -64,47 +64,67 @@
         if (typeof event === 'string') {
             findTargets();
             event = JSON.parse(event);
-            if (event.type === 'webUpLeft') {
-                Entities.callEntityServerMethod(screens[0], 'raise');
-            } else if (event.type === 'webDownLeft') {
-                Entities.callEntityServerMethod(screens[0], 'lower');
-            } else if (event.type === 'webUpRight') {
-                Entities.callEntityServerMethod(screens[1], 'raise');
-            } else if (event.type === 'webDownRight') {
-                Entities.callEntityServerMethod(screens[1], 'lower');
-            } else if (event.type === 'webUpBoth') {
-                screens.forEach(function(element) {
-                    Entities.callEntityServerMethod(element, 'raise');
-                });
-            } else if (event.type === 'webDownBoth') {
-                screens.forEach(function(element) {
-                    Entities.callEntityServerMethod(element, 'lower');
-                });
-            } else if (event.type === 'screenSetup') {
-                tablet.gotoWebScreen(screenSetupPage);
-            } else if (event.type === 'backdropDown') {
-                Entities.callEntityServerMethod(backdrop, 'lower');
-            } else if (event.type === 'backdropUp') {
-                Entities.callEntityServerMethod(backdrop, 'raise');
-            } else if (event.type === 'silence') {
-                silence();
-            } else if (event.type === 'sound') {
-                sound();
-            } else if (event.type === 'audio1') {
-                playSound(CLIP_1);
-            } else if (event.type === 'audio2') {
-                playSound(CLIP_2);
-            } else if (event.type === 'home') {
-                tablet.gotoWebScreen(appPage);
-            } else if (event.type === 'changeSet') {
-                Entities.callEntityServerMethod(junglecube, 'raise');
-            } else if (event.type === 'restoreSet') {
-                Entities.callEntityServerMethod(junglecube, 'lower');
-            } else if (event.type === 'volumeSlider') {
-                if (injector) {
-                    injector.setOptions( { volume: event.volume / ONE_HUNDRED } );
-                }
-            }
+            switch (event.type) {
+                case 'backdropDown':
+                    Entities.callEntityServerMethod(backdrop, 'lower');
+                    break;
+                case 'backdropUp':
+                    Entities.callEntityServerMethod(backdrop, 'raise');
+                    break;
+                case 'silence':
+                    silence();
+                    break;
+                case 'sound':
+                    soundRestore();
+                    break;
+                case 'audio1':
+                    playSound(CLIP_1);
+                    break;
+                case 'audio2':
+                    playSound(CLIP_2);
+                    break;
+                case 'home':
+                    tablet.gotoWebScreen(appPage);
+                    break;
+                case 'changeSet':
+                    Entities.callEntityServerMethod(junglecube, 'raise');
+                    break;
+                case 'restoreSet':
+                    Entities.callEntityServerMethod(junglecube, 'lower');
+                    break;
+                case 'volumeSlider':
+                    if (injector) {
+                        injector.setOptions( { volume: event.volume / ONE_HUNDRED } );
+                    }
+                    break;
+                case 'screenSetup':
+                    tablet.gotoWebScreen(screenSetupPage);
+                    break;
+                case 'webUpBoth':
+                    screens.forEach(function(element) {
+                        Entities.callEntityServerMethod(element, 'raise');
+                    });
+                    break;
+                case 'webDownBoth':
+                    screens.forEach(function(element) {
+                        Entities.callEntityServerMethod(element, 'lower');
+                    });
+                    break;
+                case 'webUpLeft':
+                    Entities.callEntityServerMethod(screens[0], 'raise');
+                    break;
+                case 'webDownLeft':
+                    Entities.callEntityServerMethod(screens[0], 'lower');
+                    break;
+                case 'webUpRight':
+                    Entities.callEntityServerMethod(screens[1], 'raise');
+                    break;
+                case 'webDownRight':
+                    Entities.callEntityServerMethod(screens[1], 'lower');
+                    break;
+                default:
+                    print("error in detecting event.type");
+            } 
         }
     }
 
@@ -114,7 +134,7 @@
     }
 
     function appEnding() {
-        sound();
+        soundRestore();
         button.clicked.disconnect(onClicked);
         tablet.removeButton(button);
         tablet.screenChanged.disconnect(onScreenChanged);
@@ -167,7 +187,7 @@
                 z: 0.20000000298023224
             },
             name: "Mute All",
-            script: "http://hifi-content.s3.amazonaws.com/rebecca/Today/muteTest.js?125",
+            script: "http://hifi-content.s3.amazonaws.com/rebecca/Today/muteTest.js",
             type: "Sphere",
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",
             visible: false
@@ -175,7 +195,7 @@
         muteBalls.push(muteBall);
     }
 
-    function sound() {
+    function soundRestore() {
         if (silent) {
             ambisonicProperties.forEach(function(element) {
                 Entities.addEntity(element);
