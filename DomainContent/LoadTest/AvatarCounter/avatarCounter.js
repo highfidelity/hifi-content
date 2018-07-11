@@ -10,6 +10,7 @@
 
 (function() {
     var UPDATE_INTERVAL = 1000;
+    var BEGIN_DOMAIN_API_URL = "https://highfidelity.com/api/v1/domains/";
     var request = Script.require('./modules/request.js').request;
     var _this;
 
@@ -23,7 +24,9 @@
         preload: function(entityID) {
             _this.entityID = entityID;
             _this.interval = Script.setInterval(function() {
-                request("https://highfidelity.com/api/v1/domains/d7dc9a4c-6d90-4515-9d51-770aa1004f54", function (error, data) {
+                var userData = JSON.parse(Entities.getEntityProperties(_this.entityID, 'userData').userData);
+                var requestURL = BEGIN_DOMAIN_API_URL + userData.domainAPIURL;
+                request(requestURL, function (error, data) {
                     if (!error) {
                         Entities.editEntity(_this.entityID, { text: data.domain.online_users });
                     }
@@ -36,7 +39,6 @@
                 Script.clearInterval(_this.interval);
             }
         }
-        
     };
         
     return new AvatarCounter;
