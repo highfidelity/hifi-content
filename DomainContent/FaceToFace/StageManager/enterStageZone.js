@@ -12,6 +12,8 @@
     var overlays = [];
     var arrowLeft;
     var arrowRight;
+    var slideURL = "https://hifi-slides.glitch.me/";
+    
     this.enterEntity = function() {
         var webOverlay = Overlays.addOverlay("web3d", {
             dimensions: {
@@ -87,8 +89,6 @@
 
         overlays.push(arrowLeft);
     };
-
-    var slideURL = "https://hifi-slides.glitch.me/";
 
     function XHR(url) {
         this.req = new XMLHttpRequest();

@@ -10,11 +10,11 @@
 /* global AccountServices */
 
 (function() {
+    var DO_NOT_MUTE = ['philip', 'theextendedmind'];
 
     var ignore;
 
-    if (AccountServices.username === "Philip" || AccountServices.username === "theextendedmind" || 
-        Audio.muted) {
+    if ( DO_NOT_MUTE.includes(AccountServices.username) || Audio.muted) {
         ignore = true;
     }
 
