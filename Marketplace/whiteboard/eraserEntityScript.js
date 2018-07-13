@@ -11,6 +11,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
+
+    var wantDebug = false;
     
     var _this;
 
@@ -63,10 +65,12 @@
     // Performance Debug
     var totalThrottled = 0;
     var totalCalled = 0.00001;
-    // 
-    var throttleTimeoutMSFindPoints = 2 / 60.0 *1000;
+    // 2 / 60.0 *1000
+    var throttleTimeoutMSFindPoints = 33.3;
     function throttle(callback , throttleLock, throttleTimeoutMS) {
-        totalCalled += 1;
+        if (wantDebug) {
+            totalCalled += 1;
+        }
         if (throttleLock) {
             throttleLock = false;
             Script.setTimeout(function () {
@@ -75,8 +79,10 @@
             if (callback !== undefined) {
                 callback();
             }
-            totalThrottled += 1;
-            print("Throttle percentage : " + totalThrottled/totalCalled);
+            if (wantDebug) {
+                totalThrottled += 1;
+                print("Throttle percentage : " + totalThrottled/totalCalled);
+            }
         }
     }
 

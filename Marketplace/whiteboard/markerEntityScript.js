@@ -87,6 +87,33 @@
 
     }
 
+    var wantDebug = false;
+    var throttleLockPaint = true;
+    var throttleLockUpdatePosition = true; 
+    // Performance Debug
+    var totalThrottled = 0;
+    var totalCalled = 0.00001;
+    // 2 / 60.0 *1000
+    var throttleTimeoutMS = 33.3;
+    function throttle(callback , throttleLock, throttleTimeoutMS) {
+        if (wantDebug) {
+            totalCalled += 1;
+        }
+        if (throttleLock) {
+            throttleLock = false;
+            Script.setTimeout(function () {
+                throttleLock = true;
+            }, throttleTimeoutMS);
+            if (callback !== undefined) {
+                callback();
+            }
+            if (wantDebug) {
+                totalThrottled += 1;
+                print("Throttle percentage : " + totalThrottled/totalCalled);
+            }
+        }
+    }
+
     // subscribe to channel 
     var MarkerTip = function() {
         _this = this;
@@ -295,21 +322,23 @@
             _this.releaseGrab();
         },
         paint: function(position, isDesktopMode) {
-            // whiteboard server ID
-            var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
-            // RPC - call server paint [position, markerColor, creatorMarker, parentID]
-            if (isDesktopMode) {
-                Entities.callEntityServerMethod(serverID, 
-                    'paintDesktop', 
-                    [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
-                );
-            } else {
-                Entities.callEntityServerMethod(serverID, 
-                    'paint', 
-                    [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
-                );
+            if (throttleLockPaint) {
+                // whiteboard server ID
+                var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
+                // RPC - call server paint [position, markerColor, creatorMarker, parentID]
+                if (isDesktopMode) {
+                    Entities.callEntityServerMethod(serverID, 
+                        'paintDesktop', 
+                        [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
+                    );
+                } else {
+                    Entities.callEntityServerMethod(serverID, 
+                        'paint', 
+                        [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
+                    );
+                }
             }
-            
+            throttle(undefined, throttleLockPaint, throttleTimeoutMS); 
         },
         resetStroke: function(isDesktopMode) {
             // reset stroke
@@ -361,8 +390,6 @@
             // Server side
             _this.findWhiteboard();
             var serverID = _this.wb;
-            print("Server ID : " + serverID);
-            print("Another Server ID : " + getServerID());
             Entities.callEntityServerMethod(serverID, 
                 'spawnMarker', 
                 [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]
@@ -432,6 +459,7 @@
                             'serverSetEntityData', 
                             [_this.entityID, JSON.stringify(data)]
                         );
+
                     }
                 } 
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
@@ -471,17 +499,20 @@
 
                         // Server Side
                         serverID = getServerID();
-                        Entities.callEntityServerMethod(serverID, 
-                            'serverEditEntity', 
-                            [_this.entityID, 
-                                JSON.stringify({
-                                    position: Vec3.sum(whiteBoardIntersection.intersection, markerZOffset),
-                                    rotation:  whiteboardRotation,
-                                    collisionless: true, 
-                                    grabbable: false
-                                })
-                            ]
-                        );
+                        if (throttleLockUpdatePosition) {
+                            Entities.callEntityServerMethod(serverID, 
+                                'serverEditEntity', 
+                                [_this.entityID, 
+                                    JSON.stringify({
+                                        position: Vec3.sum(whiteBoardIntersection.intersection, markerZOffset),
+                                        rotation:  whiteboardRotation,
+                                        collisionless: true, 
+                                        grabbable: false
+                                    })
+                                ]
+                            );
+                        }
+                        throttle(undefined, throttleLockUpdatePosition, throttleTimeoutMS);
                         
                         if (isMouseDown && event.isLeftButton) {
                             if (shouldPaint) {
