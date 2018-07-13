@@ -24,13 +24,17 @@
         preload: function(entityID) {
             _this.entityID = entityID;
             _this.interval = Script.setInterval(function() {
-                var userData = JSON.parse(Entities.getEntityProperties(_this.entityID, 'userData').userData);
-                var requestURL = BEGIN_DOMAIN_API_URL + userData.domainAPIURL;
-                request(requestURL, function (error, data) {
-                    if (!error) {
-                        Entities.editEntity(_this.entityID, { text: data.domain.online_users });
-                    }
-                });
+                try {
+                    var userData = JSON.parse(Entities.getEntityProperties(_this.entityID, 'userData').userData);
+                    var requestURL = BEGIN_DOMAIN_API_URL + userData.domainAPIURL;
+                    request(requestURL, function (error, data) {
+                        if (!error) {
+                            Entities.editEntity(_this.entityID, { text: data.domain.online_users });
+                        }
+                    });
+                } catch (err) {
+                    print("Could not get domain data using userData domainAPIURL");
+                }
             }, UPDATE_INTERVAL);
         },
 
@@ -42,4 +46,5 @@
     };
         
     return new AvatarCounter;
-}); 
+});
+ 
