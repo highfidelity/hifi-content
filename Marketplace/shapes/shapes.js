@@ -1975,6 +1975,19 @@
         }
     }
 
+    function onCameraModeUpdated(mode) {
+        if (isAppActive) {
+            stopApp();
+        }
+
+        // Reparent UI to appropriate joint.
+        ui.setHand(otherHand(dominantHand));
+
+        if (isAppActive) {
+            // Resume operations.
+            startApp();
+        }
+    }
 
     function setUp() {
         var hasRezPermissions;
@@ -2031,6 +2044,7 @@
         Messages.messageReceived.connect(onMessageReceived);
         MyAvatar.dominantHandChanged.connect(onDominantHandChanged);
         MyAvatar.skeletonChanged.connect(onSkeletonChanged);
+        Camera.modeUpdated.connect(onCameraModeUpdated);
     }
 
     function tearDown() {
@@ -2055,6 +2069,7 @@
         // Messages.subscribe works script engine-wide which would mess things up if they're both run in the same engine.
         MyAvatar.dominantHandChanged.disconnect(onDominantHandChanged);
         MyAvatar.skeletonChanged.disconnect(onSkeletonChanged);
+        Camera.modeUpdated.disconnect(onCameraModeUpdated);
 
         isAppActive = false;
         updateControllerDispatcher();

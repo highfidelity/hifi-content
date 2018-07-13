@@ -123,3 +123,28 @@ if (typeof Object.merge !== "function") {
         return JSON.parse(a.slice(0, -1) + "," + b.slice(1));
     };
 }
+
+if (typeof Controller.handJointName !== "function") {
+    Controller.handJointName = function (hand) {
+        var LEFT_HAND = 0,
+            jointName;
+        if (hand === LEFT_HAND) {
+            if (Camera.mode === "first person") {
+                jointName = "_CONTROLLER_LEFTHAND";
+            } else if (Camera.mode === "third person") {
+                jointName = "_CAMERA_RELATIVE_CONTROLLER_LEFTHAND";
+            } else {
+                jointName = "LeftHand";
+            }
+        } else {
+            if (Camera.mode === "first person") {
+                jointName = "_CONTROLLER_RIGHTHAND";
+            } else if (Camera.mode === "third person") {
+                jointName = "_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND";
+            } else {
+                jointName = "RightHand";
+            }
+        }
+        return jointName;
+    };
+}

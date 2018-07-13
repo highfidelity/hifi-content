@@ -343,7 +343,7 @@ CreatePalette = function (side, leftInputs, rightInputs, uiCommandCallback) {
         side = hand;
         otherSide = (side + 1) % NUMBER_OF_HANDS;
         controlHand = side === LEFT_HAND ? rightInputs.hand() : leftInputs.hand();
-        controlJointName = side === LEFT_HAND ? "LeftHand" : "RightHand";
+        controlJointName = Controller.handJointName(side);
         paletteLateralOffset = side === LEFT_HAND ? -UIT.dimensions.handLateralOffset : UIT.dimensions.handLateralOffset;
     }
 
