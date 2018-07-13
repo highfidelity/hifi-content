@@ -148,6 +148,10 @@
         laser = new Laser(side);
 
 
+        function setHandJoint() {
+            hand.setHandJoint();
+        }
+
         function setUIOverlays(overlayIDs) {
             laser.setUIOverlays(overlayIDs);
         }
@@ -212,6 +216,7 @@
         }
 
         return {
+            setHandJoint: setHandJoint,
             setUIOverlays: setUIOverlays,
             hand: getHand,
             laser: getLaser,
@@ -417,6 +422,11 @@
         selection = new SelectionManager(side);
         highlights = new Highlights(side);
         handles = new Handles(side);
+
+        function setHandJoint() {
+            highlights.setHandJoint();
+        }
+        setHandJoint();
 
         function setReferences(inputs, editor) {
             hand = inputs.hand(); // Object.
@@ -1285,6 +1295,7 @@
         }
 
         return {
+            setHandJoint: setHandJoint,
             setReferences: setReferences,
             hoverHandle: hoverHandle,
             enableAutoGrab: enableAutoGrab,
@@ -1980,8 +1991,12 @@
             stopApp();
         }
 
-        // Reparent UI to appropriate joint.
+        // Update UI and inputs' hand joints.
         ui.setHand(otherHand(dominantHand));
+        inputs[LEFT_HAND].setHandJoint();
+        inputs[RIGHT_HAND].setHandJoint();
+        editors[LEFT_HAND].setHandJoint();
+        editors[RIGHT_HAND].setHandJoint();
 
         if (isAppActive) {
             // Resume operations.

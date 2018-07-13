@@ -62,7 +62,7 @@ ToolIcon = function (side) {
         ICON_SCALE_FACTOR = 3.0,
         LABEL_SCALE_FACTOR = 1.8,
 
-        handJointName,
+        handJointIndex,
         localPosition,
         localRotation,
 
@@ -85,7 +85,7 @@ ToolIcon = function (side) {
             localPosition = MODEL_POSITION_RIGHT_HAND;
             localRotation = MODEL_ROTATION_RIGHT_HAND;
         }
-        handJointName = Controller.handJointName(side);
+        handJointIndex = MyAvatar.handJointIndex(side);
     }
 
     setHand(side);
@@ -100,10 +100,8 @@ ToolIcon = function (side) {
 
     function display(iconInfo) {
         // Displays icon on hand.
-        var handJointIndex,
-            properties;
+        var properties;
 
-        handJointIndex = MyAvatar.getJointIndex(handJointName);
         if (handJointIndex === -1) {
             // Don't display if joint isn't available (yet) to attach to.
             // User can clear this condition by toggling the app off and back on once avatar finishes loading.
