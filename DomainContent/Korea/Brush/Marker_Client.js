@@ -1,4 +1,4 @@
-// Marker_Server.js
+// Marker_Client.js
 //
 // Copyright 2018 High Fidelity, Inc.
 // Created by Robin Wilson and Milad Nazeri 7/5/2018
@@ -49,7 +49,7 @@
             console.info("$$$ Un-Equip", hand);
         }
 
-        drawing.oncancelLine();
+        drawing.onCancelLine();
 
         var oppositeMarkerID = utils.hasMarkerInOppositeHand(hand);
         if (oppositeMarkerID){
@@ -191,15 +191,15 @@
             
             if (markerProperties.position){
 
-                var markerTipPosition = Vec3.sum(
+                var markerTipPositionition = Vec3.sum(
                     markerProperties.position, 
                     Vec3.multiplyQbyV(markerProperties.rotation, { x: 0, y: 0, z: -(markerProperties.dimensions.z/2) })
                 );
-                return markerTipPosition;
+                return markerTipPositionition;
 
             } else {
 
-                drawing.oncancelLine();
+                drawing.onCancelLine();
                 return;
 
             }
@@ -240,8 +240,8 @@
             // else returns undefined
 
             if (hand === LEFT || hand === RIGHT){
-                var curHand = hand === LEFT ? "LeftHand" : "RightHand";
-                var markerID = this.getEquippedMarkerID(curHand);
+                var currentHand = hand === LEFT ? "LeftHand" : "RightHand";
+                var markerID = this.getEquippedMarkerID(currentHand);
         
                 return markerID;
             } else {
@@ -257,68 +257,66 @@
                 console.info("startline");
             }
 
-            var markerTipPos = utils.getMarkerTipPosition();
+            var markerTipPosition = utils.getMarkerTipPosition();
 
-            if (markerTipPos){
-                var position = JSON.stringify(markerTipPos);
-                var strWidth = String(width);    
+            if (markerTipPosition){
+                var position = JSON.stringify(markerTipPosition);
+                var widthText = String(width);    
                 var markerRotation = Entities.getEntityProperties(entityID, ["rotation"]).rotation;
                 var orientation = JSON.stringify(markerRotation);
         
-                Entities.callEntityServerMethod(entityID, "startLine", [position, strWidth, orientation]);
+                Entities.callEntityServerMethod(entityID, "startLine", [position, widthText, orientation]);
             } else {
-                console.error("Error: markerTipPosition has an issue in startLine.");
+                console.error("Error: markerTipPositionition has an issue in startLine.");
             }
         },
 
         onDrawLine: function (width){
     
-            var markerTipPos = utils.getMarkerTipPosition();
+            var markerTipPosition = utils.getMarkerTipPosition();
 
-            if (markerTipPos) {
-                var position = JSON.stringify(markerTipPos);
-                var strWidth = String(width);
+            if (markerTipPosition) {
+                var position = JSON.stringify(markerTipPosition);
+                var widthText = String(width);
         
-                Entities.callEntityServerMethod(entityID, "drawLine", [position, strWidth]);
+                Entities.callEntityServerMethod(entityID, "drawLine", [position, widthText]);
             } else {
-                console.error("Error: markerTipPosition has an issue in drawLine.");
+                console.error("Error: markerTipPositionition has an issue in drawLine.");
             }
         },
 
         onFinishLine: function (width){
 
-            var markerTipPos = utils.getMarkerTipPosition();
+            var markerTipPosition = utils.getMarkerTipPosition();
 
-            if (markerTipPos) {
-                var position = JSON.stringify(markerTipPos);
-                var strWidth = String(width);
+            if (markerTipPosition) {
+                var position = JSON.stringify(markerTipPosition);
+                var widthText = String(width);
         
-                Entities.callEntityServerMethod(entityID, "finishLine", [position, strWidth]);
+                Entities.callEntityServerMethod(entityID, "finishLine", [position, widthText]);
             } else {
-                console.error("Error: markerTipPosition has an issue in FinishLine.");
+                console.error("Error: markerTipPositionition has an issue in FinishLine.");
             }
         },
 
         onEraseClosestLine: function (position){
     
             // Find entities with bounding box within search radius.
-            var entities = Entities.findEntities(position, ERASE_SEARCH_RADIUS);
+            var entities = Entities.findEntitiesByType("PolyLine", position, ERASE_SEARCH_RADIUS);
             var polylines = [];
             
             // Find polyline entity with closest point within search radius.
             for (var i = 0, entitiesLength = entities.length; i < entitiesLength; i += 1) {
-                var properties = Entities.getEntityProperties(entities[i], ["type", "position", "linePoints"]);
-                if (properties.type === "PolyLine") {
-                    polylines.push(properties);
-                }
+                var properties = Entities.getEntityProperties(entities[i], ["position", "linePoints"]);
+                polylines.push(properties);
             }
-            var strPosition = JSON.stringify(position);
-            var strPolylines = JSON.stringify(polylines);
+            var positionString = JSON.stringify(position);
+            var polylinesString = JSON.stringify(polylines);
 
-            Entities.callEntityServerMethod(entityID, "eraseClosestLine", [strPosition, strPolylines]);
+            Entities.callEntityServerMethod(entityID, "eraseClosestLine", [positionString, polylinesString]);
         },
         
-        oncancelLine: function (){
+        onCancelLine: function (){
             Entities.callEntityServerMethod(entityID, "cancelLine");
         }
     };
