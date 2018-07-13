@@ -21,8 +21,8 @@ var markerRotation = Quat.fromVec3Degrees({
 
 var markerPosition = Vec3.sum(MyAvatar.position, Vec3.multiply(3, Quat.getForward(MyAvatar.orientation)));
 
-var MARKER_CLIENT_SCRIPT_URL = Script.resolvePath("Marker_Client.js?v1" + Math.random());
-var MARKER_SERVER_SCRIPT_URL = Script.resolvePath("Marker_Server.js?v1" + Math.random());
+var MARKER_CLIENT_SCRIPT_URL = Script.resolvePath("Marker_Client.js");
+var MARKER_SERVER_SCRIPT_URL = Script.resolvePath("Marker_Server.js");
 
 var leftHandPosition = {
     "x": -0.02,
