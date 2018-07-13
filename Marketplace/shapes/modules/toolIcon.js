@@ -79,14 +79,13 @@ ToolIcon = function (side) {
     function setHand(side) {
         // Assumes UI is not displaying.
         if (side === LEFT_HAND) {
-            handJointName = "LeftHand";
             localPosition = MODEL_POSITION_LEFT_HAND;
             localRotation = MODEL_ROTATION_LEFT_HAND;
         } else {
-            handJointName = "RightHand";
             localPosition = MODEL_POSITION_RIGHT_HAND;
             localRotation = MODEL_ROTATION_RIGHT_HAND;
         }
+        handJointName = Controller.handJointName(side);
     }
 
     setHand(side);
