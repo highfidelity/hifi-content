@@ -29,6 +29,7 @@
     var LINE_HEIGHT_3 =0.115;
     var LINE_HEIGHT_4 =0.075;
     var DEFAULT_LINE_HEIGHT = 0.3;
+    var SHUFFLE_DELAY = 200;
 
 
     var _this;
@@ -80,13 +81,15 @@
                     angularVelocity: ANGULAR_VELOCITY
                 });
                 Script.setTimeout(function() {
+                    shuffle(_this.usernameList);
+                }, SHUFFLE_DELAY);
+                Script.setTimeout(function() {
                     if (_this.interval) {
                         Script.clearInterval(_this.interval);
                     }
                     var winner;
                     _this.interval = Script.setInterval(function() {
                         var lineHeight;
-                        shuffle(_this.usernameList);
                         var currentAngularVelocity = Entities.getEntityProperties(
                             _this.entityID, 'angularVelocity').angularVelocity;
                         if (currentAngularVelocity.x <= _this.angularVelocityLimit && currentAngularVelocity.x > 0) {
