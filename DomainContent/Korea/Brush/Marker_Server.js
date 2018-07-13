@@ -26,9 +26,8 @@
         timeOfLastPoint,
         MIN_STROKE_LENGTH = 0.005, // m
         MIN_STROKE_INTERVAL = 66, // ms
-        MAX_POINTS_PER_LINE = 70; // Hard-coded limit in PolyLineEntityItem.h.
-
-    var currentAvatarOrientation;
+        MAX_POINTS_PER_LINE = 70, // Hard-coded limit in PolyLineEntityItem.h.
+        currentAvatarOrientation;
 
     function strokeNormal() {
         return Vec3.multiplyQbyV(currentAvatarOrientation, Vec3.UNIT_NEG_Z);
@@ -51,11 +50,23 @@
 
         },
         startLine: function (id, params) {
-            console.log("startLine");
 
-            var position = JSON.parse(params[0]);
-            var width = Number(params[1]);
-            var orientation = JSON.parse(params[2]);                   
+            if (!params && params.length < 3) {
+                return;
+            }
+
+            var position;
+            var width;
+            var orientation; 
+
+            try {
+                position = JSON.parse(params[0]);
+                width = Number(params[1]);
+                orientation = JSON.parse(params[2]); 
+            } catch (err) {
+                console.error("Error in startLine: ", err);
+            }
+
             currentAvatarOrientation = orientation;
             // Start drawing a polyline.
             if (isDrawingLine) {
@@ -70,7 +81,7 @@
             strokeWidths = [width];
             timeOfLastPoint = Date.now();
 
-            var props = {
+            var properties = {
                 type: "PolyLine",
                 name: "fingerPainting",
                 color: STROKE_COLOR,
@@ -86,14 +97,25 @@
                 }
             };
 
-            entityID = Entities.addEntity(props);
+            entityID = Entities.addEntity(properties);
 
             isDrawingLine = true;
         },
         drawLine: function (id, params) {
 
-            var position = JSON.parse(params[0]);
-            var width = Number(params[1]);
+            if (!params && params.length < 2) {
+                return;
+            }
+
+            var position;
+            var width;
+
+            try {
+                position = JSON.parse(params[0]);
+                width = Number(params[1]);
+            } catch (err) {
+                console.error("Error in drawLine: ",err);
+            }
 
             // Add a stroke to the polyline if stroke is a sufficient length.
             var localPosition,
@@ -121,13 +143,13 @@
                 strokeWidths.push(width);
                 timeOfLastPoint = Date.now();
 
-                var props = {
+                var properties = {
                     linePoints: strokePoints,
                     normals: strokeNormals,
                     strokeWidths: strokeWidths
                 };
 
-                Entities.editEntity(entityID, props);
+                Entities.editEntity(entityID, properties);
 
             }
         },
@@ -154,8 +176,21 @@
             }
         },
         eraseClosestLine: function (id, params) {
-            var position = JSON.parse(params[0]);
-            var polyLines = JSON.parse(params[1]);
+
+            if (!params || params.length < 2) {
+                return;
+            }
+
+            var position;
+            var polyLines;
+
+            try {
+                position = JSON.parse(params[0]);
+                polyLines = JSON.parse(params[1]);
+            } catch (err) {
+                console.error("Error in eraseClosestLine: ",err);
+            }
+
             // Erase closest line that is within search radius of finger tip.
             var pointsLength,
                 j,
