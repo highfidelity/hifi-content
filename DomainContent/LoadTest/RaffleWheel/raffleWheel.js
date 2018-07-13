@@ -69,7 +69,6 @@
             }
             var position = Entities.getEntityProperties(_this.entityID, 'position').position;
             var winnerTextEntitiesArray = Entities.findEntitiesByName("Raffle Wheel Winner", position, 1);
-            print(JSON.stringify(winnerTextEntitiesArray));
             _this.usernameList = [];
             if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0) {
                 _this.angularVelocityLimit = 10;
@@ -84,13 +83,14 @@
                     if (_this.interval) {
                         Script.clearInterval(_this.interval);
                     }
+                    var winner;
                     _this.interval = Script.setInterval(function() {
                         var lineHeight;
                         shuffle(_this.usernameList);
                         var currentAngularVelocity = Entities.getEntityProperties(
                             _this.entityID, 'angularVelocity').angularVelocity;
                         if (currentAngularVelocity.x <= _this.angularVelocityLimit && currentAngularVelocity.x > 0) {
-                            var winner = _this.usernameList[_this.listCounter];
+                            winner = _this.usernameList[_this.listCounter];
                             if (winner.length <= MAX_CHAR_PER_LINE) {
                                 lineHeight = DEFAULT_LINE_HEIGHT;
                             } else if (winner.length <= CUT_OFF_1) {
