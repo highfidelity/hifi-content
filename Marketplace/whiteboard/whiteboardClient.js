@@ -30,8 +30,6 @@
     var ERASER_TUTORIAL_HMD_URL = "tutorial/Whiteboard-VRmode-instructions-eraser.png";
     var ARROW_TUTORIAL_URL = "tutorial/Whiteboard-instructions-arrow.png";
 
-
-
     WhiteboardClient.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
@@ -181,19 +179,6 @@
         clearBoard: function() {
                       
         },
-        findWhiteboard: function() {
-            var results = Entities.findEntities(
-                Entities.getEntityProperties(_this.entityID, "position").position,
-                _this.WHITEBOARD_SEARCH_RADIUS
-            );
-            results.forEach(function(entity) {
-                var entityName = Entities.getEntityProperties(entity, "name").name;
-                if (entityName === _this.WHITEBOARD_NAME) {
-                    _this.whiteboard = entity;
-                    return;
-                }
-            });
-        },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
             
         },
@@ -206,6 +191,8 @@
         unload: function() {
             Overlays.deleteOverlay(overlayTutorialMarkerArrow);
             Overlays.deleteOverlay(overlayTutorialMarker);
+            Overlays.deleteOverlay(overlayTutorialEraserArrow);
+            Overlays.deleteOverlay(overlayTutorialEraser);
             HMD.displayModeChanged.disconnect(_this.onHmdChanged);
         }
     };

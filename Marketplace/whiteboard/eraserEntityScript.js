@@ -58,6 +58,28 @@
     var strokeHighResolutionCache = {};
     var lastEraserPosition;
 
+    var throttleLockFindPoints = true;
+    var throttleLockUpdatePosition = true; 
+    // Performance Debug
+    var totalThrottled = 0;
+    var totalCalled = 0.00001;
+    // 
+    var throttleTimeoutMSFindPoints = 2 / 60.0 *1000;
+    function throttle(callback , throttleLock, throttleTimeoutMS) {
+        totalCalled += 1;
+        if (throttleLock) {
+            throttleLock = false;
+            Script.setTimeout(function () {
+                throttleLock = true;
+            }, throttleTimeoutMS);
+            if (callback !== undefined) {
+                callback();
+            }
+            totalThrottled += 1;
+            print("Throttle percentage : " + totalThrottled/totalCalled);
+        }
+    }
+
     Eraser.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
@@ -104,7 +126,7 @@
            
             if (Vec3.distance(lastEraserPosition, _this.eraserPosition) > lineResolution * 2) {
                 lastEraserPosition = _this.eraserPosition;
-                _this.pointsWithInBoundsOfEraser();
+                throttle(_this.pointsWithInBoundsOfEraser, throttleLockFindPoints, throttleTimeoutMSFindPoints);
             }
             
         },
@@ -227,21 +249,25 @@
                         _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
 
                         serverID = Entities.getEntityProperties(_this.whiteboard, "parentID").parentID;
-                        Entities.callEntityServerMethod(
-                            serverID, 
-                            'serverEditEntity', 
-                            [_this.entityID, 
-                                JSON.stringify({
-                                    position: whiteBoardIntersection.intersection,
-                                    rotation:  Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(90, 0, 45))
-                                })]
-                        );
+                        
+                        if (throttleLockUpdatePosition) {
+                            Entities.callEntityServerMethod(
+                                serverID, 
+                                'serverEditEntity', 
+                                [_this.entityID, 
+                                    JSON.stringify({
+                                        position: whiteBoardIntersection.intersection,
+                                        rotation:  Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(90, 0, 45))
+                                    })]
+                            );
+                        }
+                        throttle(undefined, throttleLockUpdatePosition, throttleTimeoutMSFindPoints);
                         
                         if (isMouseDown) {
                             _this.eraserPosition = Entities.getEntityProperties(_this.entityID, "position").position;
                             if (Vec3.distance(lastEraserPosition, _this.eraserPosition) > lineResolution * 2) {
                                 lastEraserPosition = _this.eraserPosition;
-                                _this.pointsWithInBoundsOfEraser();
+                                throttle(_this.pointsWithInBoundsOfEraser, throttleLockFindPoints, throttleTimeoutMSFindPoints);
                             }
                         } else {
                             isErasing = false;
@@ -261,7 +287,7 @@
                 }
             }
         },
-        mouseReleaseEvent: function(event) {
+        mouseReleaseEvent: function(serverID, position) {
             if (isMouseDown) {              
                 isMouseDown = false;
             }
