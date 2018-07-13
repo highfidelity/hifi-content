@@ -124,8 +124,8 @@ if (typeof Object.merge !== "function") {
     };
 }
 
-if (typeof Controller.handJointName !== "function") {
-    Controller.handJointName = function (hand) {
+if (typeof MyAvatar.handJointName !== "function") {
+    MyAvatar.handJointName = function (hand) {
         var LEFT_HAND = 0,
             jointName;
         if (hand === LEFT_HAND) {
@@ -146,5 +146,11 @@ if (typeof Controller.handJointName !== "function") {
             }
         }
         return jointName;
+    };
+}
+
+if (typeof MyAvatar.handJointIndex !== "function") {
+    MyAvatar.handJointIndex = function (hand) {
+        return MyAvatar.getJointIndex(MyAvatar.handJointName(hand));
     };
 }

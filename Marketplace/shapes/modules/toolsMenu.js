@@ -2067,7 +2067,7 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
             menuOriginLocalPosition = PANEL_ORIGIN_POSITION_RIGHT_HAND;
             menuOriginLocalRotation = PANEL_ORIGIN_ROTATION_RIGHT_HAND;
         }
-        attachmentJointName = Controller.handJointName(side);
+        attachmentJointName = MyAvatar.handJointName(side);
         otherSide = (side + 1) % NUMBER_OF_HANDS;
     }
 
