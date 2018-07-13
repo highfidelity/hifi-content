@@ -16,17 +16,19 @@
     var overlayTutorialEraserArrow;
     var overlayTutorialEraser;
 
-    var MARKER_TUTORIAL_OFFSET = {x: -0.8, y: 0.15, z: -0.15};
+    var MARKER_TUTORIAL_OFFSET = {x: -0.82, y: 0.15, z: -0.15};
     var MARKER_ARROW_TUTORIAL_OFFSET = {x: -0.52, y: 0.15, z: -0.2};
 
     var MARKER_TUTORIAL_DIMENSIONS = {x: 1.5, y: 1.5};
     var MARKER_ARROW_TUTORIAL_DIMENSIONS = {x: 0.5, y: 0.5};
 
+    var ERASER_TUTORIAL_DIMENSIONS = {x: 0.4, y: 0.4};
+
     var TUTORIAL_OVERLAY_RADIUS = 5.0;
 
     var MARKER_TUTORIAL_DESKTOP_URL = "tutorial/Whiteboard-desktopmode-instructions-markers.png";
     var MARKER_TUTORIAL_HMD_URL = "tutorial/Whiteboard-VRmode-instructions-markers.png";
-    var ERASER_TUTORIAL_DESKTOP_URL = "tutorial/Whiteboard-VRmode-instructions-eraser.png";
+    var ERASER_TUTORIAL_DESKTOP_URL = "tutorial/Whiteboard-desktopmode-instructions-eraser.png";
     var ERASER_TUTORIAL_HMD_URL = "tutorial/Whiteboard-VRmode-instructions-eraser.png";
     var ARROW_TUTORIAL_URL = "tutorial/Whiteboard-instructions-arrow.png";
 
@@ -74,7 +76,8 @@
                 rotation: whiteboardRotation,
                 dimensions: MARKER_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop",
-                isFacingAvatar: false
+                isFacingAvatar: false,
+                alpha: 0.9
             });
             var overlayTutorialEraserPosition = Vec3.sum(
                 markerOverlayPosition, 
@@ -86,7 +89,7 @@
             overlayTutorialEraserPosition = Vec3.sum(
                 overlayTutorialEraserPosition, 
                 Vec3.multiply(
-                    -1.5*whiteboardDimensions.y * MARKER_TUTORIAL_OFFSET.y, 
+                    -1.4*whiteboardDimensions.y * MARKER_TUTORIAL_OFFSET.y, 
                     whiteboardUp
                 )
             );
@@ -96,7 +99,8 @@
                 rotation: whiteboardRotation,
                 dimensions: MARKER_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop",
-                isFacingAvatar: false
+                isFacingAvatar: false,
+                alpha: 0.9
             });
 
             var markerArrowOverlayPosition = Vec3.sum(
@@ -128,7 +132,8 @@
                 dimensions: MARKER_ARROW_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop Arrow",
                 isFacingAvatar: false,
-                visible: true
+                visible: true,
+                alpha: 0.9
             });
             var eraserArrowOverlayPosition = Vec3.sum(
                 whiteboardPosition,
@@ -140,7 +145,7 @@
             eraserArrowOverlayPosition = Vec3.sum(
                 eraserArrowOverlayPosition,
                 Vec3.multiply(
-                    -1.0 * whiteboardDimensions.y * MARKER_ARROW_TUTORIAL_OFFSET.y, 
+                    -0.65 * whiteboardDimensions.y * MARKER_ARROW_TUTORIAL_OFFSET.y, 
                     whiteboardUp
                 )
             );
@@ -156,10 +161,11 @@
                 position: eraserArrowOverlayPosition,
                 rotation: whiteboardRotation,
                 localRotation: Quat.fromVec3Degrees({ x: 0, y: 0, z: 180 }),
-                dimensions: MARKER_ARROW_TUTORIAL_DIMENSIONS,
+                dimensions: ERASER_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop Arrow",
                 isFacingAvatar: false,
-                visible: true
+                visible: true,
+                alpha: 0.9
             });
 
             HMD.displayModeChanged.connect(_this.onHmdChanged);
