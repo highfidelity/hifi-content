@@ -6,8 +6,11 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-//  Using entity names, can edit the 
-//
+//  Toggles the korean instruments from from grabbable to ungrabbable with a mouse click
+//  or swiping hand above the lantern entity. Lanterns and lights toggle on and off to 
+//  indicate which grabbable state the instruments are in.
+
+/* global AccountServices */
 
 (function () {
 
