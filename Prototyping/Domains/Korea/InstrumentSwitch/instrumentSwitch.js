@@ -14,7 +14,7 @@
 
 (function () {
 
-    var ALLOWED_USERS = ['Firebird25', 'Alan_', 'jyoum', 'tinydancer', 'MissLiviRose'];
+    var ALLOWED_USERS = ["Firebird25", "Alan_", "jyoum", "tinydancer", "MissLiviRose"];
 
     var isAllowedUser = false;
 
@@ -29,11 +29,14 @@
     var isGrabbable = false;
     var SEARCH_RADIUS = 20;
     var timeOutSet = false;
+    
+    var HALF = 0.5;
+    var ONE_AND_HALF = 1.5;
 
     var checkHandInterval = null;
 
     function getEntityListByName(name) {
-        var properties = Entities.getEntityProperties(entityID, 'position');
+        var properties = Entities.getEntityProperties(entityID, "position");
         var entityIDs = Entities.findEntitiesByName(name, properties.position, SEARCH_RADIUS);
         return entityIDs;
     }
@@ -65,16 +68,16 @@
     function isColliding(vector3) {
         // does not factor in rotation
 
-        var properties = Entities.getEntityProperties(entityID, ['position', 'dimensions']);
+        var properties = Entities.getEntityProperties(entityID, ["position", "dimensions"]);
         var dimensions = properties.dimensions;
         var position = properties.position;
 
-        var minX = position.x - dimensions.x / 2;
-        var maxX = position.x + dimensions.x / 2;
-        var minY = position.y + dimensions.y / 2;
-        var maxY = position.y + dimensions.y * 1.5;
-        var minZ = position.z - dimensions.z / 2;
-        var maxZ = position.z + dimensions.z / 2;
+        var minX = position.x - dimensions.x * HALF;
+        var maxX = position.x + dimensions.x * HALF;
+        var minY = position.y + dimensions.y * HALF;
+        var maxY = position.y + dimensions.y * ONE_AND_HALF;
+        var minZ = position.z - dimensions.z * HALF;
+        var maxZ = position.z + dimensions.z * HALF;
 
         if (vector3.x >= minX && vector3.x <= maxX
             && vector3.y >= minY && vector3.y <= maxY
@@ -134,7 +137,7 @@
             if (isAllowedUser) {
                 checkHandInterval = Script.setInterval(function () {
 
-                    var properties = Entities.getEntityProperties(entityID, 'position');
+                    var properties = Entities.getEntityProperties(entityID, "position");
 
                     if (Vec3.distance(MyAvatar.position, properties.position) < 5) {
                         var leftHandIndex = MyAvatar.getJointIndex("LeftHandIndex3");
