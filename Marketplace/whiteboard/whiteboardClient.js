@@ -36,18 +36,6 @@
     var HMD_ROTATION_OFFSET = 45.0;
     var HMD_FORWARD_OFFSET = -1.0;
 
-    var markerTutorialPositionDesktop;
-    var markerTutorialPositionHMD;
-
-    var eraserTutorialPositionDesktop;
-    var eraserTutorialPositionHMD;
-
-    var arrowLeftPositionDesktop;
-    var arrowLeftPositionHMD;
-
-    var arrowRightPositionDesktop;
-    var arrowRightPositionHMD;
-
     WhiteboardClient.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
@@ -94,8 +82,14 @@
                 )
             );
 
-            var panelRotationLeft = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, HMD_ROTATION_OFFSET, 0.0));
-            var panelRotationRight = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, -HMD_ROTATION_OFFSET, 0.0));
+            var panelRotationLeft = Quat.multiply(
+                whiteboardRotation, 
+                Quat.fromPitchYawRollDegrees(0.0, HMD_ROTATION_OFFSET, 0.0)
+            );
+            var panelRotationRight = Quat.multiply(
+                whiteboardRotation, 
+                Quat.fromPitchYawRollDegrees(0.0, -HMD_ROTATION_OFFSET, 0.0)
+            );
             overlayTutorialMarker = Overlays.addOverlay("image3d", {
                 url: Script.resolvePath(HMD.active ? MARKER_TUTORIAL_HMD_URL : MARKER_TUTORIAL_DESKTOP_URL),
                 position: markerOverlayPositionHMD,
@@ -126,11 +120,6 @@
                     whiteboardFront
                 )
             );
-
-            markerTutorialPositionDesktop = markerOverlayPosition;
-            markerTutorialPositionHMD = markerOverlayPositionHMD;
-            eraserTutorialPositionDesktop = overlayTutorialEraserPosition;
-            eraserTutorialPositionHMD = overlayTutorialEraserPositionHMD;
         
             overlayTutorialEraser = Overlays.addOverlay("image3d", {
                 url: Script.resolvePath(HMD.active ? ERASER_TUTORIAL_HMD_URL : ERASER_TUTORIAL_DESKTOP_URL),
@@ -209,9 +198,6 @@
             HMD.displayModeChanged.connect(_this.onHmdChanged);
         },
         onHmdChanged: function(isHMDActive) {
-            var whiteboardRotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
-            var panelRotationLeft = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, HMD_ROTATION_OFFSET, 0.0));
-            var panelRotationRight = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, -HMD_ROTATION_OFFSET, 0.0));
             // change marker instructions overlay
             Overlays.editOverlay(overlayTutorialMarker, {
                 url: Script.resolvePath(isHMDActive ? MARKER_TUTORIAL_HMD_URL : MARKER_TUTORIAL_DESKTOP_URL)
