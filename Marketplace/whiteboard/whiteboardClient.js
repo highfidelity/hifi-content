@@ -31,6 +31,7 @@
     var ERASER_TUTORIAL_DESKTOP_URL = "tutorial/Whiteboard-desktopmode-instructions-eraser.png";
     var ERASER_TUTORIAL_HMD_URL = "tutorial/Whiteboard-VRmode-instructions-eraser.png";
     var ARROW_TUTORIAL_URL = "tutorial/Whiteboard-instructions-arrow.png";
+    var ARROW_TUTORIAL_ALT_URL = "tutorial/Whiteboard-instructions-arrow - alt.png";
 
     WhiteboardClient.prototype = {
         preload: function(entityID) {
@@ -157,10 +158,9 @@
                 )
             );
             overlayTutorialEraserArrow = Overlays.addOverlay("image3d", {
-                url: Script.resolvePath(ARROW_TUTORIAL_URL),
+                url: Script.resolvePath(ARROW_TUTORIAL_ALT_URL),
                 position: eraserArrowOverlayPosition,
                 rotation: whiteboardRotation,
-                localRotation: Quat.fromVec3Degrees({ x: 0, y: 0, z: 180 }),
                 dimensions: ERASER_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop Arrow",
                 isFacingAvatar: false,
