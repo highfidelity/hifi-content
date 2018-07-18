@@ -71,10 +71,12 @@
                 )
             );
 
+            var panelRotationLeft = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, 45.0, 0.0));
+            var panelRotationRight = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, -45.0, 0.0));
             overlayTutorialMarker = Overlays.addOverlay("image3d", {
                 url: Script.resolvePath(HMD.active ? MARKER_TUTORIAL_HMD_URL : MARKER_TUTORIAL_DESKTOP_URL),
                 position: markerOverlayPosition,
-                rotation: whiteboardRotation,
+                rotation: HMD.active ? panelRotationRight : whiteboardRotation,
                 dimensions: MARKER_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop",
                 isFacingAvatar: false,
@@ -97,7 +99,7 @@
             overlayTutorialEraser = Overlays.addOverlay("image3d", {
                 url: Script.resolvePath(HMD.active ? ERASER_TUTORIAL_HMD_URL : ERASER_TUTORIAL_DESKTOP_URL),
                 position: overlayTutorialEraserPosition,
-                rotation: whiteboardRotation,
+                rotation: HMD.active ? panelRotationRight : whiteboardRotation,
                 dimensions: MARKER_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop",
                 isFacingAvatar: false,
@@ -171,14 +173,19 @@
             HMD.displayModeChanged.connect(_this.onHmdChanged);
         },
         onHmdChanged: function(isHMDActive) {
+            var whiteboardRotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+            var panelRotationLeft = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, 45.0, 0.0));
+            var panelRotationRight = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, -45.0, 0.0));
             // change marker instructions overlay
             Overlays.editOverlay(overlayTutorialMarker, {
-                url: Script.resolvePath(isHMDActive ? MARKER_TUTORIAL_HMD_URL : MARKER_TUTORIAL_DESKTOP_URL)
+                url: Script.resolvePath(isHMDActive ? MARKER_TUTORIAL_HMD_URL : MARKER_TUTORIAL_DESKTOP_URL),
+                rotation: isHMDActive ? panelRotationLeft : whiteboardRotation
             });
 
             // change eraser instructions overlay
             Overlays.editOverlay(overlayTutorialEraser, {
-                url: Script.resolvePath(isHMDActive ? ERASER_TUTORIAL_HMD_URL : ERASER_TUTORIAL_DESKTOP_URL)
+                url: Script.resolvePath(isHMDActive ? ERASER_TUTORIAL_HMD_URL : ERASER_TUTORIAL_DESKTOP_URL),
+                rotation: isHMDActive ? panelRotationRight : whiteboardRotation
             });
                       
         },        
