@@ -9,7 +9,7 @@ var utils = Script.require('./utils.js');
 var whiteboardEntities = Script.require('./whiteboardEntities.js');
 
 var WHITEBOARD_FWD_OFFSET = 4;
-var WHITEBOARD_UP_OFFSET = 1.28;
+var WHITEBOARD_UP_OFFSET = 1.13;
 
 var TEMPLATES = whiteboardEntities.WHITEBOARD_ENTITIES.Entities;
 
