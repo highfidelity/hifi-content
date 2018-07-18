@@ -16,8 +16,8 @@
     var overlayTutorialEraserArrow;
     var overlayTutorialEraser;
 
-    var MARKER_TUTORIAL_OFFSET = {x: -0.82, y: 0.15, z: -0.15};
-    var MARKER_ARROW_TUTORIAL_OFFSET = {x: -0.52, y: 0.15, z: -0.2};
+    var MARKER_TUTORIAL_OFFSET = {x: -0.75, y: 0.15, z: -0.15};
+    var MARKER_ARROW_TUTORIAL_OFFSET = {x: -0.53, y: 0.15, z: -0.8};
 
     var MARKER_TUTORIAL_DIMENSIONS = {x: 1.5, y: 1.5};
     var MARKER_ARROW_TUTORIAL_DIMENSIONS = {x: 0.5, y: 0.5};
@@ -98,8 +98,8 @@
             var panelRotationRight = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, -HMD_ROTATION_OFFSET, 0.0));
             overlayTutorialMarker = Overlays.addOverlay("image3d", {
                 url: Script.resolvePath(HMD.active ? MARKER_TUTORIAL_HMD_URL : MARKER_TUTORIAL_DESKTOP_URL),
-                position: !HMD.active ? markerOverlayPositionHMD : markerOverlayPosition,
-                rotation: !HMD.active ? panelRotationLeft : whiteboardRotation,
+                position: markerOverlayPositionHMD,
+                rotation: panelRotationLeft,
                 dimensions: MARKER_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop",
                 isFacingAvatar: false,
@@ -134,8 +134,8 @@
         
             overlayTutorialEraser = Overlays.addOverlay("image3d", {
                 url: Script.resolvePath(HMD.active ? ERASER_TUTORIAL_HMD_URL : ERASER_TUTORIAL_DESKTOP_URL),
-                position: !HMD.active ? overlayTutorialEraserPositionHMD : overlayTutorialEraserPosition,
-                rotation: !HMD.active ? panelRotationRight : whiteboardRotation,
+                position: overlayTutorialEraserPositionHMD,
+                rotation: panelRotationRight,
                 dimensions: MARKER_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop",
                 isFacingAvatar: false,
@@ -167,7 +167,7 @@
             overlayTutorialMarkerArrow = Overlays.addOverlay("image3d", {
                 url: Script.resolvePath(ARROW_TUTORIAL_URL),
                 position: markerArrowOverlayPosition,
-                rotation: !HMD.active ? panelRotationLeft : whiteboardRotation,
+                rotation: panelRotationLeft,
                 dimensions: MARKER_ARROW_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop Arrow",
                 isFacingAvatar: false,
@@ -198,7 +198,7 @@
             overlayTutorialEraserArrow = Overlays.addOverlay("image3d", {
                 url: Script.resolvePath(ARROW_TUTORIAL_ALT_URL),
                 position: eraserArrowOverlayPosition,
-                rotation: !HMD.active ? panelRotationRight : whiteboardRotation,
+                rotation: panelRotationRight,
                 dimensions: ERASER_TUTORIAL_DIMENSIONS,
                 name: "Tutorial Marker Desktop Arrow",
                 isFacingAvatar: false,
@@ -214,28 +214,12 @@
             var panelRotationRight = Quat.multiply(whiteboardRotation, Quat.fromPitchYawRollDegrees(0.0, -HMD_ROTATION_OFFSET, 0.0));
             // change marker instructions overlay
             Overlays.editOverlay(overlayTutorialMarker, {
-                url: Script.resolvePath(isHMDActive ? MARKER_TUTORIAL_HMD_URL : MARKER_TUTORIAL_DESKTOP_URL),
-                position: !HMD.active ? markerTutorialPositionHMD : markerTutorialPositionDesktop,
-                rotation: !isHMDActive ? panelRotationLeft : whiteboardRotation
+                url: Script.resolvePath(isHMDActive ? MARKER_TUTORIAL_HMD_URL : MARKER_TUTORIAL_DESKTOP_URL)
             });
 
             // change eraser instructions overlay
             Overlays.editOverlay(overlayTutorialEraser, {
-                url: Script.resolvePath(isHMDActive ? ERASER_TUTORIAL_HMD_URL : ERASER_TUTORIAL_DESKTOP_URL),
-                position: HMD.active ? eraserTutorialPositionHMD : eraserTutorialPositionDesktop,
-                rotation: isHMDActive ? panelRotationRight : whiteboardRotation
-            });
-
-             // change arrow left instructions overlay
-            Overlays.editOverlay(overlayTutorialMarkerArrow, {
-                // position: HMD.active ? markerTutorialPositionHMD : markerTutorialPositionDesktop,
-                rotation: isHMDActive ? panelRotationLeft : whiteboardRotation
-            });
-
-            // change arrow right instructions overlay
-            Overlays.editOverlay(overlayTutorialEraserArrow, {
-                // position: HMD.active ? eraserTutorialPositionHMD : eraserTutorialPositionDesktop,
-                rotation: isHMDActive ? panelRotationRight : whiteboardRotation
+                url: Script.resolvePath(isHMDActive ? ERASER_TUTORIAL_HMD_URL : ERASER_TUTORIAL_DESKTOP_URL)
             });
                       
         },        
