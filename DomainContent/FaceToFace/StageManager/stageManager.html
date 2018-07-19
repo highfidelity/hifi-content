@@ -97,6 +97,11 @@
         <p>
         <input type="button" class="gray" id="screenSetup" value="Set Up Screens">  </input>   
         <br>
+        <h3>
+            <input type ="button" class="gray" id="spawnWebOverlay" value="Spawn Web Overlay">  </input>
+            <input type ="button" class="gray" id="removeSpawnedOverlay" value="Remove Web Overlay"> </input>
+            
+        </h3>
         <h3>Backdrop</h3>
         <input type="button" class="gray" id="backdropDown" value="Lower Backdrop">  </input>
         <input type="button" class="gray" id="backdropUp" value = "Hide Backdrop"></input>
@@ -116,6 +121,20 @@
         <input type="button" class="gray" id="restoreSet" value="Restore">  </input>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
+            $('#spawnWebOverlay').click(function(){
+                var event = {
+                    type: 'spawnWebOverlay'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#removeSpawnedOverlay').click(function() {
+                var event = {
+                    type: 'removeSpawnedOverlay'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
             $('#webUpLeft').click(function(){
                 var event = {
                     type: "webUpLeft"                
