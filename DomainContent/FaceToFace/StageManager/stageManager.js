@@ -34,6 +34,7 @@
     var stageCenterPosition;
     var ambisonicProperties = [];
     var junglecube;
+    var webOverlaySpawner;
     
     function findTargets() {
         Entities.findEntities(MyAvatar.position, SEARCH_RADIUS).forEach(function(element) {
@@ -65,6 +66,21 @@
             findTargets();
             event = JSON.parse(event);
             switch (event.type) {
+                case 'spawnWebOverlay' :
+                    webOverlaySpawner = Entities.addEntity({
+                        type: 'Box',
+                        position: stageCenterPosition,
+                        visible: true,
+                        userData: JSON.stringify({"time": 0}),
+                        grabbable: false,
+                        name: "Web Overlay Spawner",
+                        script: Script.resolvePath('webOverlaySpawner.js'),
+                        // serverScripts: Script.resolvePath('webOverlaySpawnerServer.js')
+                    });
+                    break;
+                case 'removeSpawnedOverlay' :
+                    Entities.deleteEntity(webOverlaySpawner); 
+                    break;
                 case 'backdropDown':
                     Entities.callEntityServerMethod(backdrop, 'lower');
                     break;
