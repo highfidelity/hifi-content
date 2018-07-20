@@ -2,55 +2,52 @@
     "DataVersion": 0,
     "Entities": [
         {
-            "animation": {
-                "currentFrame": 91.60862731933594,
-                "firstFrame": 1,
-                "hold": true,
-                "loop": false
-            },
             "clientOnly": false,
             "collidesWith": "static,dynamic,kinematic,",
             "collisionMask": 7,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 255
+            },
             "created": "2018-07-20T12:22:15Z",
             "dimensions": {
-                "blue": 0.11389999836683273,
-                "green": 0.2669999897480011,
-                "red": 0.03150000050663948,
-                "x": 0.03150000050663948,
-                "y": 0.2669999897480011,
-                "z": 0.11389999836683273
+                "blue": 0.01600000075995922,
+                "green": 1.5,
+                "red": 3,
+                "x": 3,
+                "y": 1.5,
+                "z": 0.01600000075995922
             },
-            "id": "{435cd638-b019-47aa-afdc-28066930fa50}",
-            "lastEdited": 1532090094611633,
-            "lastEditedBy": "{5c017349-e267-4402-9794-2c9d0841ad52}",
-            "modelURL": "file:///d:/hifiWhiteboard/hifi-content/Marketplace/whiteboard/models/resetButton.fbx",
-            "name": "Whiteboard - Reset Button",
+            "id": "{e1c6441d-f6f7-4d46-b69e-f7394acf9349}",
+            "lastEdited": 1532105323080140,
+            "lastEditedBy": "{a20ff022-340e-41f3-8fed-164c747e401e}",
+            "name": "Whiteboard - Drawing Surface",
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "parentID": "{153d8d3c-3724-465a-bbdb-cbd6be0d9953}",
             "position": {
-                "blue": 0.003738468512892723,
-                "green": 0.516538143157959,
-                "red": 1.6386796236038208,
-                "x": 1.6386796236038208,
-                "y": 0.516538143157959,
-                "z": 0.003738468512892723
+                "blue": 1.1407646525185555e-05,
+                "green": 0.37379980087280273,
+                "red": -1.1407297279220074e-05,
+                "x": -1.1407297279220074e-05,
+                "y": 0.37379980087280273,
+                "z": 1.1407646525185555e-05
             },
             "queryAACube": {
-                "scale": 0.2919836640357971,
-                "x": -1.7846556901931763,
-                "y": 2.0233964920043945,
-                "z": -0.1497645378112793
+                "scale": 3.354140043258667,
+                "x": -1.6770472526550293,
+                "y": 0.349429726600647,
+                "z": -1.6770700216293335
             },
             "rotation": {
-                "w": 0.7070267200469971,
-                "x": 1.52587890625e-05,
-                "y": -0.7072098851203918,
-                "z": -1.52587890625e-05
+                "w": -1.52587890625e-05,
+                "x": -1.52587890625e-05,
+                "y": 1,
+                "z": 1.52587890625e-05
             },
-            "script": "file:///d:/hifiWhiteboard/hifi-content/Marketplace/whiteboard/resetWhiteBoard.js",
-            "shapeType": "box",
-            "type": "Model",
-            "userData": "{\"grabbableKey\":{\"grabbable\":false,\"wantsTrigger\":true}}"
+            "shape": "Cube",
+            "type": "Box",
+            "visible": false
         },
         {
             "clientOnly": false,
@@ -75,8 +72,8 @@
                 "z": 0
             },
             "id": "{153d8d3c-3724-465a-bbdb-cbd6be0d9953}",
-            "lastEdited": 1532090064745791,
-            "lastEditedBy": "{5c017349-e267-4402-9794-2c9d0841ad52}",
+            "lastEdited": 1532105260658410,
+            "lastEditedBy": "{a20ff022-340e-41f3-8fed-164c747e401e}",
             "marketplaceID": "b40db216-ac1e-48bf-b6a5-09973c527987",
             "modelURL": "file:///d:/hifiWhiteboard/hifi-content/Marketplace/whiteboard/models/wbFrameNew_framed.fbx",
             "name": "Whiteboard",
@@ -101,54 +98,57 @@
             "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
         },
         {
+            "animation": {
+                "currentFrame": 91.60862731933594,
+                "firstFrame": 1,
+                "hold": true,
+                "loop": false
+            },
             "clientOnly": false,
             "collidesWith": "static,dynamic,kinematic,",
             "collisionMask": 7,
-            "color": {
-                "blue": 0,
-                "green": 0,
-                "red": 255
-            },
             "created": "2018-07-20T12:22:15Z",
             "dimensions": {
-                "blue": 0.01600000075995922,
-                "green": 1.5,
-                "red": 3,
-                "x": 3,
-                "y": 1.5,
-                "z": 0.01600000075995922
+                "blue": 0.11389999836683273,
+                "green": 0.2669999897480011,
+                "red": 0.03150000050663948,
+                "x": 0.03150000050663948,
+                "y": 0.2669999897480011,
+                "z": 0.11389999836683273
             },
-            "id": "{e1c6441d-f6f7-4d46-b69e-f7394acf9349}",
-            "lastEdited": 1532090098497966,
-            "lastEditedBy": "{5c017349-e267-4402-9794-2c9d0841ad52}",
-            "name": "Whiteboard - Drawing Surface",
+            "id": "{435cd638-b019-47aa-afdc-28066930fa50}",
+            "lastEdited": 1532105149314240,
+            "lastEditedBy": "{a20ff022-340e-41f3-8fed-164c747e401e}",
+            "modelURL": "file:///d:/hifiWhiteboard/hifi-content/Marketplace/whiteboard/models/resetButton.fbx",
+            "name": "Whiteboard - Reset Button",
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "parentID": "{153d8d3c-3724-465a-bbdb-cbd6be0d9953}",
             "position": {
-                "blue": 1.1407646525185555e-05,
-                "green": 0.3737999200820923,
-                "red": -1.1407293641241267e-05,
-                "x": -1.1407293641241267e-05,
-                "y": 0.3737999200820923,
-                "z": 1.1407646525185555e-05
+                "blue": 0.003738468512892723,
+                "green": 0.516538143157959,
+                "red": 1.6386796236038208,
+                "x": 1.6386796236038208,
+                "y": 0.516538143157959,
+                "z": 0.003738468512892723
             },
             "queryAACube": {
-                "scale": 3.354140043258667,
-                "x": -1.6770472526550293,
-                "y": 0.34952986240386963,
-                "z": -1.6770700216293335
+                "scale": 0.2919836640357971,
+                "x": -1.7846556901931763,
+                "y": 2.023296356201172,
+                "z": -0.1497645378112793
             },
             "rotation": {
-                "w": 1,
+                "w": 0.7070267200469971,
                 "x": 1.52587890625e-05,
-                "y": 1.52587890625e-05,
-                "z": 1.52587890625e-05
+                "y": -0.7072098851203918,
+                "z": -1.52587890625e-05
             },
-            "shape": "Cube",
-            "type": "Box",
-            "visible": false
+            "script": "file:///d:/hifiWhiteboard/hifi-content/Marketplace/whiteboard/resetWhiteBoard.js",
+            "shapeType": "box",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false,\"wantsTrigger\":true}}"
         }
     ],
-    "Id": "{409da098-8ccf-4750-96a3-69045a7fe216}",
+    "Id": "{9dffc91a-d22e-4a80-a31f-b9d235660437}",
     "Version": 91
 }

@@ -21,6 +21,9 @@
 
     var ERASER_HIT_BOARD_SOUND = SoundCache.getSound(Script.resolvePath('sfx/eraserHitBoard.wav'));
 
+    var EQUIP_SOUND = SoundCache.getSound(Script.resolvePath('sfx/equip_marker.wav'));
+    var UNEQUIP_SOUND = SoundCache.getSound(Script.resolvePath('sfx/unequip_marker.wav'));
+
     var ERASER_SOUND_VOLUME = 0.6;
 
     var HAPTIC_PARAMETERS = {
@@ -140,6 +143,10 @@
             if (!HMD.active) {
                 return;
             }
+            Audio.playSound(EQUIP_SOUND, {
+                position: Entities.getEntityProperties(_this.entityID, "position").position,
+                volume: 1
+            });
             _this.equipped = true;
             _this.startEquipTime = Date.now();
             _this.startNearGrab();
@@ -154,11 +161,15 @@
             if (!HMD.active) {
                 return;
             }
+            Audio.playSound(UNEQUIP_SOUND, {
+                position: Entities.getEntityProperties(_this.entityID, "position").position,
+                volume: 1
+            });
             _this.equipped = false;
         },
         // MOUSE DESKTOP COMPATIBILITY
         clickDownOnEntity: function(entityID, mouseEvent) {
-            if (HMD.active) {
+            if (HMD.active || _this.desktopEquipped) {
                 return;
             }
             
@@ -183,9 +194,10 @@
                 }
             });
             
-            if (_this.desktopEquipped) {
-                isMouseDown = true;
-            }
+            Audio.playSound(EQUIP_SOUND, {
+                position: Entities.getEntityProperties(_this.entityID, "position").position,
+                volume: 1
+            });
             _this.desktopEquipped = true;
             Settings.setValue('io.highfidelity.isEditing', true);
 
@@ -208,6 +220,10 @@
                         entityName === YELLOW_MARKER_NAME) {
                         // unequip and delete
                         _this.desktopEquipped = false;
+                        Audio.playSound(UNEQUIP_SOUND, {
+                            position: Entities.getEntityProperties(_this.entityID, "position").position,
+                            volume: 1
+                        });
                         _this.findWhiteboard();
                         var serverID = _this.whiteboard;
                         isMouseDown = false;
@@ -281,6 +297,10 @@
                     }
                 } else {
                     _this.desktopEquipped = false;
+                    Audio.playSound(UNEQUIP_SOUND, {
+                        position: Entities.getEntityProperties(_this.entityID, "position").position,
+                        volume: 1
+                    });
                     _this.findWhiteboard();
                     serverID = _this.whiteboard;
                     isMouseDown = false;

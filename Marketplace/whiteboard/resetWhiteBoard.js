@@ -10,6 +10,8 @@
 
 (function() {
     var _this;
+
+    var RESET_SOUND = SoundCache.getSound(Script.resolvePath('sfx/reset_whiteboard.wav'));
     
     var ResetBoard = function() {
         _this = this;
@@ -29,6 +31,11 @@
             var results = Entities.findEntities(_this.resetPosition, _this.RESET_STROKE_SEARCH_RADIUS);
             _this.findWhiteboard();
             var serverID = _this.whiteboard;
+
+            Audio.playSound(RESET_SOUND, {
+                position: _this.resetPosition,
+                volume: 1
+            });
             
             results.forEach(function(stroke) {
                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);

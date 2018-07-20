@@ -39,6 +39,11 @@
     WhiteboardClient.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
+            Script.setTimeout(function () {
+                _this.setUp();
+            }, 1500);
+        },
+        setUp: function() {
             var whiteboardPosition = Entities.getEntityProperties(_this.entityID, "position").position;
             var whiteboardDimensions = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions;
             var whiteboardRotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
