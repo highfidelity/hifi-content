@@ -28,13 +28,13 @@
         DEBUG_MARKER_CLIENT = true;
 
     function onEquip(hand) {
-        if (DEBUG_MARKER_CLIENT){
+        if (DEBUG_MARKER_CLIENT) {
             console.info("$$$ onEquip ", hand);
         }
 
         Script.setTimeout(function() {
             var oppositeMarkerID = utils.hasMarkerInOppositeHand(hand);
-            if (oppositeMarkerID){
+            if (oppositeMarkerID) {
                 Entities.callEntityMethod(oppositeMarkerID, "oppositeHandDisableProcessing", [hand]);
                 processing.enableOneHand(hand);
             } else {
@@ -45,20 +45,20 @@
 
 
     function onUnequip(hand) {
-        if (DEBUG_MARKER_CLIENT){
+        if (DEBUG_MARKER_CLIENT) {
             console.info("$$$ Un-Equip", hand);
         }
 
         drawing.onCancelLine();
 
         var oppositeMarkerID = utils.hasMarkerInOppositeHand(hand);
-        if (oppositeMarkerID){
-            if (DEBUG_MARKER_CLIENT){
+        if (oppositeMarkerID) {
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ opp", hand);
             }
             processing.disableOneHand(hand, oppositeMarkerID);
         } else {
-            if (DEBUG_MARKER_CLIENT){
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ both", hand);
             }
             processing.disableBothHands();
@@ -185,11 +185,11 @@
         noop: function() {
             // blank
         },
-        getMarkerTipPosition: function (){
+        getMarkerTipPosition: function () {
 
             var markerProperties = Entities.getEntityProperties(entityID, ["position", "dimensions", "rotation"]);
             
-            if (markerProperties.position){
+            if (markerProperties.position) {
 
                 var markerTipPositionition = Vec3.sum(
                     markerProperties.position, 
@@ -204,7 +204,7 @@
 
             }
         },
-        getEquippedMarkerID: function (hand){
+        getEquippedMarkerID: function (hand) {
             // function called in hasMarkerInOppositeHand and hasMarkerInHand
             // hand is  "RightHand" or "LeftHand"
             var markerID;
@@ -213,7 +213,7 @@
             equippedItemIDs.forEach(function (itemID) {
 
                 var itemName = Entities.getEntityProperties(itemID, ['name']).name;
-                if (itemName && itemName.indexOf("marker-clone") !== -1){
+                if (itemName && itemName.indexOf("marker-clone") !== -1) {
                     markerID = itemID;
                 }
             });
@@ -225,7 +225,7 @@
             // if opposite hand is equipped with a marker clone, will return the markerID
             // else returns undefined
 
-            if (hand === LEFT || hand === RIGHT){
+            if (hand === LEFT || hand === RIGHT) {
                 var oppositeHand = hand === LEFT ? "RightHand" : "LeftHand";
                 var oppositeHandMarkerID = this.getEquippedMarkerID(oppositeHand);
 
@@ -239,7 +239,7 @@
             // if hand is equipped with a marker clone, will return the markerID
             // else returns undefined
 
-            if (hand === LEFT || hand === RIGHT){
+            if (hand === LEFT || hand === RIGHT) {
                 var currentHand = hand === LEFT ? "LeftHand" : "RightHand";
                 var markerID = this.getEquippedMarkerID(currentHand);
         
@@ -252,14 +252,14 @@
 
     var drawing = {
         // handles the drawing methods
-        onStartLine: function (width){
-            if (DEBUG_MARKER_CLIENT){
+        onStartLine: function (width) {
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("startline");
             }
 
             var markerTipPosition = utils.getMarkerTipPosition();
 
-            if (markerTipPosition){
+            if (markerTipPosition) {
                 var position = JSON.stringify(markerTipPosition);
                 var widthText = String(width);    
                 var markerRotation = Entities.getEntityProperties(entityID, ["rotation"]).rotation;
@@ -271,7 +271,7 @@
             }
         },
 
-        onDrawLine: function (width){
+        onDrawLine: function (width) {
     
             var markerTipPosition = utils.getMarkerTipPosition();
 
@@ -285,7 +285,7 @@
             }
         },
 
-        onFinishLine: function (width){
+        onFinishLine: function (width) {
 
             var markerTipPosition = utils.getMarkerTipPosition();
 
@@ -299,7 +299,7 @@
             }
         },
 
-        onEraseClosestLine: function (position){
+        onEraseClosestLine: function (position) {
     
             // Find entities with bounding box within search radius.
             var entities = Entities.findEntitiesByType("PolyLine", position, ERASE_SEARCH_RADIUS);
@@ -316,28 +316,28 @@
             Entities.callEntityServerMethod(entityID, "eraseClosestLine", [positionString, polylinesString]);
         },
         
-        onCancelLine: function (){
+        onCancelLine: function () {
             Entities.callEntityServerMethod(entityID, "cancelLine");
         }
     };
 
     var hands = {
         // handles hand setups and disabling 
-        mapControls: function (hand){
-            if (DEBUG_MARKER_CLIENT){
+        mapControls: function (hand) {
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ Setup ", hand);
             }
 
             var controllerMapping;
 
-            if (hand === LEFT){
+            if (hand === LEFT) {
                 leftHand = handController(LEFT);
                 controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_LEFT);
                 controllerMapping.from(Controller.Standard.LT).to(leftHand.onTriggerPress);
                 controllerMapping.from(Controller.Standard.LeftGrip).to(leftHand.onGripPress);
         
                 Controller.enableMapping(CONTROLLER_MAPPING_LEFT);
-            } else if (hand === RIGHT){
+            } else if (hand === RIGHT) {
                 rightHand = handController(RIGHT);
                 controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_RIGHT);
                 controllerMapping.from(Controller.Standard.RT).to(rightHand.onTriggerPress);
@@ -348,12 +348,12 @@
                 console.error("Error: Hand is neither right or left. Issue with mapControls.");
             }
         },
-        setupErase: function (hand){
-            if (DEBUG_MARKER_CLIENT){
+        setupErase: function (hand) {
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ Setup Erase ", hand);
             }
 
-            if (hand === LEFT){
+            if (hand === LEFT) {
 
                 leftHand.setUp(utils.noop, utils.noop, utils.noop, drawing.onEraseClosestLine);
                 Script.update.connect(leftHand.onUpdate);
@@ -367,12 +367,12 @@
                 console.error("Error: Hand is neither right or left. Issue with setupErase.");
             }
         },
-        setupDraw: function (hand){
-            if (DEBUG_MARKER_CLIENT){
+        setupDraw: function (hand) {
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ Setup Draw ", hand);
             }
 
-            if (hand === LEFT){
+            if (hand === LEFT) {
                 leftHand.setUp(drawing.onStartLine, drawing.onDrawLine, drawing.onFinishLine, utils.noop);
                 Script.update.connect(leftHand.onUpdate);
             } else if (hand === RIGHT) {
@@ -383,27 +383,27 @@
             }
         },
         disableProcessing: function (hand) {
-            if (DEBUG_MARKER_CLIENT){
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ Disable ", hand);
             }
 
-            if (hand === LEFT){
+            if (hand === LEFT) {
 
-                if (leftHand){
+                if (leftHand) {
                     Script.update.disconnect(leftHand.onUpdate);
                 } 
                 Controller.disableMapping(CONTROLLER_MAPPING_LEFT);
-                if (leftHand){
+                if (leftHand) {
                     leftHand.tearDown();
                 } 
 
             } else if (hand === RIGHT) {
 
-                if (rightHand){
+                if (rightHand) {
                     Script.update.disconnect(rightHand.onUpdate);
                 } 
                 Controller.disableMapping(CONTROLLER_MAPPING_RIGHT);
-                if (rightHand){
+                if (rightHand) {
                     rightHand.tearDown();
                 } 
 
@@ -429,7 +429,7 @@
             hands.setupDraw(hand);
         },
         disableBothHands: function () {
-            if (DEBUG_MARKER_CLIENT){
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ BOTH Hand Disable ");
             }
 
@@ -439,7 +439,7 @@
             onTearDown();
         },
         disableOneHand: function (hand, oppositeMarkerID) {
-            if (DEBUG_MARKER_CLIENT){
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ ONE Hand Disable ", hand);
             }
             // other hand hasMarker
@@ -453,7 +453,7 @@
         }
     };
     
-    function onTearDown(){
+    function onTearDown() {
         Entities.callEntityServerMethod(entityID, "tearDown"); // calls cancel line
         leftHand = null;
         rightHand = null;
@@ -469,8 +469,8 @@
         preload: function (id) {
             // blank
         },
-        startEquip: function (id, handInfo){
-            if (DEBUG_MARKER_CLIENT){
+        startEquip: function (id, handInfo) {
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ $$$ $$$ Start Equip ");
             }
 
@@ -481,8 +481,8 @@
             
             // FOR CLONING
             // timeout ensures drawing.cancelLine is not called too soon
-            if (this.grabbed === false){
-                Script.setTimeout(function(){
+            if (this.grabbed === false) {
+                Script.setTimeout(function() {
                     this.hand = hand;
                     self.grabbed = true;
                     onEquip(hand);
@@ -492,7 +492,7 @@
         releaseEquip: function (id, handInfo) {
             var hand = handInfo[0];
 
-            if (DEBUG_MARKER_CLIENT){
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ $$$ $$$ Releasing ");
             }
 
@@ -508,11 +508,11 @@
             if (hand === LEFT || hand === RIGHT) {
                 var markerIDInHand = utils.hasMarkerInHand(hand === LEFT ? RIGHT : LEFT);
                 
-                if (markerIDInHand && markerIDInHand === entityID){
+                if (markerIDInHand && markerIDInHand === entityID) {
                     hands.mapControls(hand);
                     hands.setupErase(hand);
 
-                    if (DEBUG_MARKER_CLIENT){
+                    if (DEBUG_MARKER_CLIENT) {
                         console.info("$$$ Opp Hand Setup Erase ", hand);
                     }
                 }
@@ -526,7 +526,7 @@
             var hand = handInfo[0];
             hands.disableProcessing(hand);
 
-            if (DEBUG_MARKER_CLIENT){
+            if (DEBUG_MARKER_CLIENT) {
                 console.info("$$$ Opp Hand Disable ", hand);
             }
         },
@@ -539,7 +539,7 @@
 
     function tearDown() {
         
-        if (DEBUG_MARKER_CLIENT){
+        if (DEBUG_MARKER_CLIENT) {
             console.info("$$$ ScriptEnding TearDown Both Hands");
         }
 
