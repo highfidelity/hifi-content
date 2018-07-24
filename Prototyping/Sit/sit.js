@@ -47,7 +47,7 @@
     
     var SETTING_KEY = "com.highfidelity.avatar.isSitting";
 
-    var ANIMATION_URL = "http://hifi-content.s3.amazonaws.com/alexia/Sitting_Idle.fbx";
+    var ANIMATION_URL = "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/animations/Sitting_Idle.fbx";
     var ANIMATION_FPS = 30;
     var ANIMATION_FIRST_FRAME = 1;
     var ANIMATION_LAST_FRAME = 350;
@@ -61,15 +61,19 @@
     var OVERLAY_SITTABLE_DISTANCE_MAX = 5; // m
     var OVERLAY_SITTABLE_ALPHA_START = 0.7; 
     var OVERLAY_SITTABLE_MIN_ALPHA = 0.075; // fades to this alpha value
-    var OVERLAY_URL_SITTABLE_HMD = "http://hifi-content.s3.amazonaws.com/alexia/TriggerToSit.png";
-    var OVERLAY_URL_SITTABLE_DESKTOP = "http://hifi-content.s3.amazonaws.com/alexia/ClickToSit.png";
-    var OVERLAY_URL_STANDUP = "https://hifi-production.s3.amazonaws.com/robin/sit/HoldToStandUp.png";
+    var OVERLAY_URL_SITTABLE_HMD = 
+        "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/sittable/TriggerToSit.png";
+    var OVERLAY_URL_SITTABLE_DESKTOP = 
+        "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/sittable/ClickToSit.png";
+    var OVERLAY_URL_STANDUP = "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/standup/HoldToStandUp.png";
     
     var OVERLAY_PRESIT_FRAME_DURATION = 160; // ms time duration for HMD presit overlay
-    var OVERLAY_PRESIT_URL_ROOT = "https://hifi-production.s3.amazonaws.com/robin/sit/sitOverlayConfirm/sit-overlay-confirm-";
+    var OVERLAY_PRESIT_URL_ROOT = 
+        "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/presit/sit-overlay-confirm-";
     var OVERLAY_PRESIT_URL_POSTFIX = ".png";
     var OVERLAY_PRESIT_URL_NUM = 12;
-    var OVERLAY_PRESIT_URL_TEXT = "https://hifi-production.s3.amazonaws.com/robin/sit/sitOverlayConfirm/please-face-forward.png";
+    var OVERLAY_PRESIT_URL_TEXT = 
+        "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/presit/please-face-forward.png";
     
     var SITTING_DEBUG = false; // turn on sitting debug print statements
     
