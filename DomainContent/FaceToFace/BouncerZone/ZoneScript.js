@@ -18,7 +18,7 @@
 // Add this to the zone userData : 
 // {
 //     "whitelist" : {
-//         "rejectTeleportLocation:" : <<INSERT HIFI ADDRESS>>
+//         "rejectTeleportLocation" : <<INSERT HIFI ADDRESS>>
 //         "marketplaceID" : <<INSERT MARKETPLACE ITEM ID>>,
 //         "usernames" : []
 //     },
