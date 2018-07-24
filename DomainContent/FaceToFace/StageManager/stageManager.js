@@ -35,6 +35,7 @@
     var ambisonicProperties = [];
     var junglecube;
     var webOverlaySpawner;
+    var webOverlayURL = "https://www.youtube.com/tv#/watch?v=zb2NUs0IDm4";
     
     function findTargets() {
         Entities.findEntities(MyAvatar.position, SEARCH_RADIUS).forEach(function(element) {
@@ -64,18 +65,21 @@
     function onWebEventReceived(event) {
         if (typeof event === 'string') {
             findTargets();
+            print(event);
             event = JSON.parse(event);
             switch (event.type) {
+                case 'setWebOverlayUrl' : 
+                    webOverlayURL = event.url;
+                    break;
                 case 'spawnWebOverlay' :
                     webOverlaySpawner = Entities.addEntity({
                         type: 'Box',
                         position: stageCenterPosition,
                         visible: true,
-                        userData: JSON.stringify({"time": 0}),
+                        userData: JSON.stringify({"url": webOverlayURL}),
                         grabbable: false,
                         name: "Web Overlay Spawner",
-                        script: Script.resolvePath('webOverlaySpawner.js'),
-                        // serverScripts: Script.resolvePath('webOverlaySpawnerServer.js')
+                        script: Script.resolvePath('webOverlaySpawner.js')
                     });
                     break;
                 case 'removeSpawnedOverlay' :
