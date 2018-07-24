@@ -25,9 +25,12 @@
     var LAMP_ON_MODEL_URL = "https://hifi-content.s3.amazonaws.com/jimi/environment/2018_Korea/tableLantern.fbx";
     var LAMP_OFF_MODEL_URL = "https://hifi-content.s3.amazonaws.com/jimi/environment/2018_Korea/tableLantern_off.fbx";
 
+    var SEARCH_RADIUS = 20; // m
+    var IS_TOGGLEABLE_TIMEOUT = 2000; // ms
+    var CHECK_INTERVAL = 50; // ms
+
     var entityID;
     var isGrabbable = false;
-    var SEARCH_RADIUS = 20;
     var timeOutSet = false;
     
     var HALF = 0.5;
@@ -152,11 +155,11 @@
                             timeOutSet = true;
                             Script.setTimeout(function() {
                                 timeOutSet = false;
-                            }, 2000);
+                            }, IS_TOGGLEABLE_TIMEOUT);
                         }
                     }
 
-                }, 50);
+                }, CHECK_INTERVAL);
             }
         },
 
