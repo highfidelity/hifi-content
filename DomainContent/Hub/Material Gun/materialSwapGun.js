@@ -302,16 +302,11 @@ function exponentialSmoothing(target, current) {
                 _this.particleInterval = null;
             } else {
                 Entities.editEntity(_this.particleEffect, {
-                    polarStart: 0,
-                    polarFinish: 17,
-                    emitDimensions: {x: 0,y: 0,z: 0},
-                    emitOrientation: {x: 0,y: 180,z: 0},
                     color: nextColor,
                     colorSpread: nextColor,
                     colorStart: nextColor,
                     colorFinish: nextColor,
-                    isEmitting: true,
-                    emitRate: 200
+                    isEmitting: true
                 });
             }
 

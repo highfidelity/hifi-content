@@ -172,7 +172,7 @@
                 emitOrientation: { x: -90, y: 0, z: 0 },
                 emitterShouldTrail: false,
                 particleRadius: 0.02,
-                radiusSpread: 6,
+                radiusSpread: 0.03,
                 radiusStart: 0.01,
                 radiusFinish: 0,
                 color: _this.currentColor,
