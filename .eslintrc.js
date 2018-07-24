@@ -69,7 +69,7 @@ module.exports = {
         "new-cap": ["error"],
         "no-console": "off",
         "no-floating-decimal": ["error"],
-        //"no-magic-numbers": ["error", { "ignore": [0, 1], "ignoreArrayIndexes": true }],
+        "no-magic-numbers": ["error", { "ignore": [0, 1], "ignoreArrayIndexes": true }],
         "no-multiple-empty-lines": ["error"],
         "no-multi-spaces": ["error"],
         "no-unused-vars": ["error", { "args": "none", "vars": "local" }],
