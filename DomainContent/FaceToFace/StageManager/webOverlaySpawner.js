@@ -1,11 +1,6 @@
 (function(){
-
-    var BASE_URL_YOUTUBE = "https://www.youtube.com/tv#/watch?v=zb2NUs0IDm4";
-    var BASE_URL_SCREENLEAP= "https://www.screenleap.com/535356234";
-
     var FPS = 60;
-    var overlayYoutube;
-    var overlayScreenLeap;
+    var overlay;
     
     var OVERLAY_PROPERTIES_BASE = {
         maxFPS: FPS,
@@ -16,38 +11,28 @@
     };
 
     var _entityID;
+    var _url;
 
-    function createYoutubeDirectOverlay() {
+    function createOverlay() {
         var overlayProperties = OVERLAY_PROPERTIES_BASE;
         overlayProperties.position = {x: -0.6, y: -10.2, z: -1.9};
         overlayProperties.parentID = _entityID;
-        overlayProperties.url = BASE_URL_YOUTUBE; 
-        overlayYoutube = Overlays.addOverlay('web3d', overlayProperties);
+        overlayProperties.url = _url; 
+        overlay = Overlays.addOverlay('web3d', overlayProperties);
     }
 
-    function createScreenLeapOverlay() {
-        var overlayProperties = OVERLAY_PROPERTIES_BASE;
-        overlayProperties.position = {x: -1.29, y: -10.2, z: 0.07};
-        overlayProperties.parentID = _entityID;
-        overlayProperties.url = BASE_URL_SCREENLEAP;
-        overlayProperties.dpi = 10;
-        overlayScreenLeap = Overlays.addOverlay('web3d', overlayProperties);
-    }
-    
     var WebOverlaySpawner = function(){};
 
     WebOverlaySpawner.prototype = {
         preload: function(entityID) {
             _entityID = entityID;
-            createYoutubeDirectOverlay();
-            createScreenLeapOverlay();
+            _url = JSON.parse(Entities.getEntityProperties(entityID, 'userData').userData).url;
+            createOverlay();
         },
         unload: function() {
-            Overlays.editOverlay(overlayYoutube, {'url': 'https://highfidelity.com'});
-            Overlays.editOverlay(overlayScreenLeap, {'url' : 'https://highfidelity.com'});
+            Overlays.editOverlay(overlay, {'url': 'https://highfidelity.com'});
             Script.setTimeout(function(){ 
-                Overlays.deleteOverlay(overlayScreenLeap);
-                Overlays.deleteOverlay(overlayYoutube);
+                Overlays.deleteOverlay(overlay);
             }, 1000);
         }
     };
