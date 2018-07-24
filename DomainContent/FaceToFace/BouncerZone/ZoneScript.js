@@ -21,10 +21,10 @@
 //         "rejectTeleportLocation:" : <<INSERT HIFI ADDRESS>>
 //         "marketplaceID" : <<INSERT MARKETPLACE ITEM ID>>,
 //         "usernames" : []
-//     }
+//     },
 //    "grabbableKey": {
 //       "grabbable": false
-//     },
+//     }
 // }
 //
 // whitelist - (required) contains variables for the zone
@@ -40,16 +40,15 @@
 (function () {
 
     // username lookup variables
-    var APPROVED_USERNAMES = ["philip", "ryan", "Firebird25"]; // hardcoded
+    var APPROVED_USERNAMES = ["philip", "ryan", "alan_"]; // hardcoded
     var whitelist = []; // stores lowercase usernames from APPROVED_USERNAMES
 
     // usernames inside userData
     var CHECK_USERDATA_INTERVAL = 5000; // updates usernames on userData every 5 seconds
     var _usernames; // userData names
     var checkUserDataInterval;
-
-    var DEBUG = false;
-
+    
+    
     // marketplace lookup variables
     var WEARABLE_SEARCH_RADIUS = 10;
     var foundValidTestable = false;
@@ -57,8 +56,10 @@
     var _passMarketplaceID;
     var _userDataProperties;
     var _backupLocation;
-
+    
     var _entityID;
+    var LOAD_TIME = 50;
+    var DEBUG = false;
 
     var marketplaceItem = {
         verificationSuccess: function (entityID) {
@@ -118,7 +119,6 @@
             } else {
                 return false;
             }
-
         }
     };
 
@@ -131,6 +131,7 @@
     };
 
     var rejectTeleportAvatar = function () {
+        print("REJECTED", _backupLocation);
         Window.location.handleLookupString(_backupLocation);
     };
 
@@ -150,13 +151,15 @@
 
             updateUserData();
 
-            if (_userDataProperties.whitelist) {
-
-                _passMarketplaceID = _userDataProperties.whitelist.marketplaceID || "";
-                _backupLocation = _userDataProperties.whitelist.rejectTeleportLocation;
-                _usernames = _userDataProperties.whitelist.usernames || [];
-
-            }
+            Script.setTimeout(function () {
+                if (_userDataProperties.whitelist) {
+    
+                    _passMarketplaceID = _userDataProperties.whitelist.marketplaceID || "";
+                    _backupLocation = _userDataProperties.whitelist.rejectTeleportLocation;
+                    _usernames = _userDataProperties.whitelist.usernames || [];
+    
+                }
+            }, LOAD_TIME);
 
             if (APPROVED_USERNAMES.length > 0) {
                 APPROVED_USERNAMES.forEach(function (username) {
