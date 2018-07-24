@@ -28,6 +28,7 @@
     var SEARCH_RADIUS = 20; // m
     var IS_TOGGLEABLE_TIMEOUT = 2000; // ms
     var CHECK_INTERVAL = 50; // ms
+    var MIN_DISTANCE_CHECK = 5; // Minimum distance to start checking avatar hand positions
 
     var entityID;
     var isGrabbable = false;
@@ -142,7 +143,7 @@
 
                     var properties = Entities.getEntityProperties(entityID, "position");
 
-                    if (Vec3.distance(MyAvatar.position, properties.position) < 5) {
+                    if (Vec3.distance(MyAvatar.position, properties.position) < MIN_DISTANCE_CHECK) {
                         var leftHandIndex = MyAvatar.getJointIndex("LeftHandIndex3");
                         var rightHandIndex = MyAvatar.getJointIndex("RightHandIndex3");
 
