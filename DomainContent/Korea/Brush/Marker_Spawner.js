@@ -9,7 +9,7 @@
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-var modelURL = "https://hifi-content.s3.amazonaws.com/robin/models/korea/brushRotated2.fbx";
+var modelURL = "http://hifi-production.s3-us-west-1.amazonaws.com/robin/models/domains/korea/writingRoom/brushRotated2.fbx";
 
 var orientation = MyAvatar.orientation;
 orientation = Quat.safeEulerAngles(orientation);

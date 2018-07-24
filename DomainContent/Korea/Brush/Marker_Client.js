@@ -267,7 +267,7 @@
         
                 Entities.callEntityServerMethod(entityID, "startLine", [position, widthText, orientation]);
             } else {
-                console.error("Error: markerTipPositionition has an issue in startLine.");
+                console.error("Error: markerTipPosition has an issue in startLine.");
             }
         },
 
