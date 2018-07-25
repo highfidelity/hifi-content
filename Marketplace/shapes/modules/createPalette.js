@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global CreatePalette:true, App, Feedback, History, Preload, UIT */
+/* global CreatePalette:true, App, Feedback, History, Preload, UIT, MyAvatarUtils */
 
 CreatePalette = function (side, leftInputs, rightInputs, uiCommandCallback) {
     // Tool menu displayed on top of forearm.
@@ -343,7 +343,7 @@ CreatePalette = function (side, leftInputs, rightInputs, uiCommandCallback) {
         side = hand;
         otherSide = (side + 1) % NUMBER_OF_HANDS;
         controlHand = side === LEFT_HAND ? rightInputs.hand() : leftInputs.hand();
-        controlJointName = MyAvatar.handJointName(side);
+        controlJointName = MyAvatarUtils.handJointName(side);
         paletteLateralOffset = side === LEFT_HAND ? -UIT.dimensions.handLateralOffset : UIT.dimensions.handLateralOffset;
     }
 

@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global Highlights: true */
+/* global Highlights:true, MyAvatarUtils */
 
 Highlights = function (side) {
     // Draws highlights on selected entities.
@@ -51,7 +51,7 @@ Highlights = function (side) {
 
     function setHandJoint() {
         Overlays.editOverlay(handOverlay, {
-            parentJointIndex: MyAvatar.handJointIndex(side),
+            parentJointIndex: MyAvatarUtils.handJointIndex(side),
             localPosition: HAND_HIGHLIGHT_OFFSET
         });
     }

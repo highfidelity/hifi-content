@@ -8,6 +8,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* global MyAvatarUtils:true */
+
 if (typeof Vec3.min !== "function") {
     Vec3.min = function (a, b) {
         return { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), z: Math.min(a.z, b.z) };
@@ -124,8 +126,8 @@ if (typeof Object.merge !== "function") {
     };
 }
 
-if (typeof MyAvatar.handJointName !== "function") {
-    MyAvatar.handJointName = function (hand) {
+MyAvatarUtils = {
+    handJointName: function (hand) {
         var LEFT_HAND = 0,
             jointName;
         if (hand === LEFT_HAND) {
@@ -146,11 +148,9 @@ if (typeof MyAvatar.handJointName !== "function") {
             }
         }
         return jointName;
-    };
-}
+    },
 
-if (typeof MyAvatar.handJointIndex !== "function") {
-    MyAvatar.handJointIndex = function (hand) {
-        return MyAvatar.getJointIndex(MyAvatar.handJointName(hand));
-    };
-}
+    handJointIndex: function (hand) {
+        return MyAvatar.getJointIndex(MyAvatarUtils.handJointName(hand));
+    }
+};
