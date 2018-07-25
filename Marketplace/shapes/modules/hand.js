@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global Hand:true */
+/* global Hand:true, MyAvatarUtils */
 
 Hand = function (side) {
 
@@ -64,7 +64,7 @@ Hand = function (side) {
     }
 
     function setHandJoint() {
-        handJointIndex = MyAvatar.handJointIndex(side);
+        handJointIndex = MyAvatarUtils.handJointIndex(side);
     }
     setHandJoint();
 

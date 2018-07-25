@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global ToolIcon:true, App, UIT */
+/* global ToolIcon:true, App, UIT, MyAvatarUtils */
 
 ToolIcon = function (side) {
     // Tool icon displayed on non-dominant hand.
@@ -85,7 +85,7 @@ ToolIcon = function (side) {
             localPosition = MODEL_POSITION_RIGHT_HAND;
             localRotation = MODEL_ROTATION_RIGHT_HAND;
         }
-        handJointIndex = MyAvatar.handJointIndex(side);
+        handJointIndex = MyAvatarUtils.handJointIndex(side);
     }
 
     setHand(side);
