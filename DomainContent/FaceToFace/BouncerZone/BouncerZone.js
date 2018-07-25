@@ -65,7 +65,7 @@
     var avatarInsideCheckInterval;
     var avatarCheckStep = 0;
     var HALF = 0.5;
-    var DEBUG = true;
+    var DEBUG = false;
 
     var marketplaceItem = {
 
