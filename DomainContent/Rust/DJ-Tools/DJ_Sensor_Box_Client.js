@@ -7,7 +7,7 @@
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-(function() {
+(function () {
     // Polyfill
     Script.require("./Polyfills.js?" + Date.now())();
 
@@ -20,7 +20,7 @@
         makeOriginMinMax = Util.Maths.makeOriginMinMax,
         smoothing = Util.Maths.smoothing,
         SMOOTHING_AMOUNT = 15,
-        smoothRange = Util.Maths.smoothRange({x: 0,y: 0,z: 0}, SMOOTHING_AMOUNT, smoothing),
+        smoothRange = Util.Maths.smoothRange({ x: 0, y: 0, z: 0 }, SMOOTHING_AMOUNT, smoothing),
         vec = Util.Maths.vec,
         withinDistance = Util.Maths.withinDistance,
         whereOnRange = Util.Maths.whereOnRange;
@@ -66,7 +66,7 @@
         IN_BOX_RIGHT_HAND = "inBoxRightHand",
         IN_BOX_DEBUG = "inBoxDebug",
         self;
-        
+
     // Collections
     var currentProperties = {},
         userData = {},
@@ -123,72 +123,66 @@
 
             minMax = makeMinMax(dimensions, position);
             originMinMax = makeOriginMinMax(dimensions);
-            minMaxOffMargin = makeMinMax(Vec3.sum(dimensions, vec(MARGIN_CHECK,MARGIN_CHECK,MARGIN_CHECK)), position);
-            originMinMaxOffMargin = makeOriginMinMax(Vec3.sum(dimensions, vec(MARGIN_CHECK,MARGIN_CHECK,MARGIN_CHECK)));
+            minMaxOffMargin = makeMinMax(Vec3.sum(dimensions, vec(MARGIN_CHECK, MARGIN_CHECK, MARGIN_CHECK)), position);
+            originMinMaxOffMargin = makeOriginMinMax(Vec3.sum(dimensions, vec(MARGIN_CHECK, MARGIN_CHECK, MARGIN_CHECK)));
 
         },
-        turnOn: function() {
+        turnOn: function () {
             Script.update.connect(self.onUpdate);
         },
-        turnOff: function() {
+        turnOff: function () {
             Script.update.disconnect(this.onUpdate);
         },
-        submitEvent: function(positionToCheck, generator, box) {
+        submitEvent: function (positionToCheck, generator, box) {
             newRange = whereOnRange(positionToCheck, minMax);
             var stringifiedRange = JSON.stringify(newRange);
             var stringifiedDirections = JSON.stringify(directionArray);
-            Entities.callEntityServerMethod(dispatchZoneID, "submitEvent", 
+            Entities.callEntityServerMethod(dispatchZoneID, "submitEvent",
                 [stringifiedRange, stringifiedDirections, generator, box, entityID]
             );
         },
         getGeneratorPosition: function (generator) {
             var generatorPosition;
-    
+
             switch (generator) {
-                case LEFT_HAND :
+                case LEFT_HAND:
                     generatorPosition = MyAvatar.getLeftPalmPosition();
                     break;
-                case RIGHT_HAND :
+                case RIGHT_HAND:
                     generatorPosition = MyAvatar.getRightPalmPosition();
                     break;
-                case DEBUG_CUBE :
+                case DEBUG_CUBE:
                     generatorPosition = Entities.getEntityProperties(debugCubeID, ['position']).position;
                     break;
-                default :
+                default:
             }
             return generatorPosition;
         },
-        onUpdate: function(delta) {
-            deltaTotal += delta;
-            if (deltaTotal > DELTA_UPDATE_INTERVAL) {
-                generatorAccepts.forEach(function (generator) {
-                    try {
-                        positionToCheck = self.getGeneratorPosition(generator);
-                        resultInMargin = checkIfIn(positionToCheck, minMaxOffMargin);
-                        resultInBox = checkIfIn(positionToCheck, minMax);
-                        resultInMargin = checkIfIn(positionToCheck, minMaxOffMargin);
-                        resultInBox = checkIfIn(positionToCheck, minMax);
-                    } catch (e) {
-                        log(LOG_ERROR, "ERROR TRYING TO GET TARGET POSITION FOR " + generator, e, 1000);
-                    }
-                    if (resultInBox) {
-                        self.submitEvent(positionToCheck, generator, IN_BOX);
-                    }
-                    if (resultInMargin && !resultInBox) {
-                        self.submitEvent(positionToCheck, generator, IN_MARGIN);
-                    }
-                });
-            }
-            deltaTotal = 0;
+        onUpdate: function (delta) {
+            generatorAccepts.forEach(function (generator) {
+                try {
+                    positionToCheck = self.getGeneratorPosition(generator);
+                    resultInMargin = checkIfInNonAligned(positionToCheck, position, rotation, originMinMaxOffMargin);
+                    resultInBox = checkIfInNonAligned(positionToCheck, position, rotation, originMinMax);
+                } catch (e) {
+                    log(LOG_ERROR, "ERROR TRYING TO GET TARGET POSITION FOR " + generator, e, 1000);
+                }
+                if (resultInBox) {
+                    self.submitEvent(positionToCheck, generator, IN_BOX);
+                }
+                if (resultInMargin && !resultInBox) {
+                    self.submitEvent(positionToCheck, generator, IN_MARGIN);
+                }
+            });
         },
-        unload: function() {
+        unload: function () {
             try {
                 Script.update.disconnect(this.onUpdate);
             } catch (e) {
                 log(LOG_ERROR, "NO UPDATE TO DISCONNECT");
             }
         },
-        updateDebugCubeID: function(id, param) {
+        updateDebugCubeID: function (id, param) {
             var newDebugCubeID = param[0];
             debugCubeID = newDebugCubeID;
         }

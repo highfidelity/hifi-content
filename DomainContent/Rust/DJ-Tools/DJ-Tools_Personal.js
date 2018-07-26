@@ -17,6 +17,7 @@
     
     var getNameProps = Util.Entity.getNameProps,
         getUserData = Util.Entity.getUserData,
+        inFrontOf = Util.Avatar.inFrontOf,
         updateUserData = Util.Entity.updateUserData,
         makeColor = Util.Color.makeColor,
         vec = Util.Maths.vec;
@@ -37,9 +38,9 @@
     var log = Util.Debug.log(LOG_CONFIG);
 
     // Init
-    var DJ_NAME = "Phlash",
+    var DJ_NAME = "Milad",
         DJ_TABLE_NAME = "Set_" + DJ_NAME + "_Tables",
-        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools/",
+        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools_Staging/",
         particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
         particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
         shortSoundURL = baseURL + 'FlameThrowerBurst.wav',
@@ -68,6 +69,8 @@
 
     // Colections
     var djTableProps = getNameProps(DJ_TABLE_NAME),
+        avatarPosition = MyAvatar.position,
+        inFrontOfAvatar = inFrontOf(avatarPosition),
         particleBaseProps = {
             type: "ParticleEffect",
             isEmitting: true,
@@ -372,14 +375,16 @@
             userData.performance = {
                 type: ENDPOINT
             };
-
+            var localOffset = {x: 0.5, y: 0.0, z: 1.0};
+            var worldOffset = Vec3.multiplyQByV(carRotation, localOffset);
+            var worldLightPosition = Vec3.sum(carPosition, worldOffset);
             if (side === LEFT) {
                 particlePosition = Vec3.sum(
-                    barrelStageLeftPosition, 
+                    avatarPosition, 
                     vec(0, HEIGHT, 0)
                 );
                 particlePosition2 = Vec3.sum(
-                    barrelBackLeftPosition, 
+                    avatarPosition, 
                     vec(0, HEIGHT, 0)
                 );
                 userData.performance.endPointGroupID = GROUP_LEFT;
