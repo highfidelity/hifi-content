@@ -75,8 +75,8 @@
                     webOverlaySpawner = Entities.addEntity({
                         type: 'Box',
                         position: stageCenterPosition,
-                        visible: true,
-                        userData: JSON.stringify({"url": webOverlayURL}),
+                        visible: false,
+                        userData: JSON.stringify({"url": webOverlayURL, "dpi" : 3}),
                         grabbable: false,
                         name: "Web Overlay Spawner",
                         script: Script.resolvePath('webOverlaySpawner.js')

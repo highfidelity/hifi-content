@@ -1,13 +1,15 @@
 (function(){
     var FPS = 60;
+    var _dpi = 4;
     var overlay;
     
     var OVERLAY_PROPERTIES_BASE = {
         maxFPS: FPS,
         locked: true,
         dimensions: {x: 11.6894, y: 4.9342, z: 0.01},
-        rotation: Quat.fromVec3Degrees({x: 0, y: -3, z: 0}),
-        alpha: 1.0
+        rotation: Quat.fromVec3Degrees({x: 0, y: 0, z: 0}),
+        alpha: 1.0,
+        dpi: _dpi
     };
 
     var _entityID;
