@@ -41,7 +41,7 @@
 (function () {
 
     // username lookup variables
-    var APPROVED_USERNAMES = ["philip", "ryan", "alan_"]; // hardcoded
+    var APPROVED_USERNAMES = ["philip", "ryan", "alan_", "miladn", "phlash", "nbaldassini"]; // hardcoded
     var whitelist = []; // stores lowercase usernames from APPROVED_USERNAMES
 
     // usernames inside userData
@@ -114,15 +114,17 @@
             }
         },
         isInUserData: function () {
-            var username = AccountServices.username;
-            if (_usernames.indexOf(username) >= 0) {
-                if (DEBUG) {
-                    print("Username is on userData whitelist");
+            var username = AccountServices.username.toLowerCase();
+
+            for (var i = 0; i < _usernames.length; i++) {
+                if (_usernames[i].toLowerCase() === username) {
+                    if (DEBUG) {
+                        print("Username is on userData whitelist");
+                    }
+                    return true;
                 }
-                return true;
-            } else {
-                return false;
             }
+            return false;
         }
     };
 
@@ -214,8 +216,6 @@
                     _usernames = _userDataProperties.whitelist.usernames || [];
     
                 }
-                
-
                 _this.insideEntityCheck();
 
             }, LOAD_TIME);
