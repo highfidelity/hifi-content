@@ -41,7 +41,7 @@
 (function () {
 
     // username lookup variables
-    var APPROVED_USERNAMES = ["philip", "ryan", "alan_", "Firebird25"]; // hardcoded
+    var APPROVED_USERNAMES = ["philip", "ryan", "alan_"]; // hardcoded
     var whitelist = []; // stores lowercase usernames from APPROVED_USERNAMES
 
     // usernames inside userData
@@ -197,8 +197,15 @@
             _entityID = entityID;
             var _this = this;
 
+            
+            if (APPROVED_USERNAMES.length > 0) {
+                APPROVED_USERNAMES.forEach(function (username) {
+                    whitelist.push(username.toLowerCase());
+                });
+            }
+            
             utils.updateUserData();
-
+            
             Script.setTimeout(function () {
                 if (_userDataProperties.whitelist) {
     
@@ -207,17 +214,12 @@
                     _usernames = _userDataProperties.whitelist.usernames || [];
     
                 }
+                
 
                 _this.insideEntityCheck();
 
             }, LOAD_TIME);
 
-            if (APPROVED_USERNAMES.length > 0) {
-                APPROVED_USERNAMES.forEach(function (username) {
-                    whitelist.push(username.toLowerCase());
-                });
-            }
-            
         },
         insideEntityCheck: function () {
             // ensures every avatar experiences the enterEntity method
