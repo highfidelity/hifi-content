@@ -153,7 +153,7 @@
 
     function keyPressHandler(event) {
         if (settings.mapping[event.text]) {
-            var position =  settings.mapping[event.text].position;
+            var position = settings.mapping[event.text].position;
             var orientation = settings.mapping[event.text].orientation;
             var string = "/" +
                         position.x + "," +
