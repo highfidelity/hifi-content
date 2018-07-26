@@ -9,6 +9,9 @@
 //
 // Util Library for Common Tasks
 
+// DEPENDENCIES
+Script.include("./VectorMath.js?" + Date.now());
+
 // Avatar
 // ----------------------------------------------------------------------------
 function inFrontOf(distance, position, orientation) {
@@ -342,8 +345,8 @@ function checkIfIn(currentPosition, minMaxObj, margin) {
 // }
 
 function checkIfInNonAligned(pointToCheck, position, orientation, minMaxObj, margin) {
-    var worldOffset = Vec3.subtract(pointToCheck, position),
-    pointToCheck = Vec3.multiplyQbyV(Quat.inverse(orientation), worldOffset);
+    var worldOffset = VEC3.subtract(pointToCheck, position),
+    pointToCheck = VEC3.multiplyQbyV(QUAT.inverse(orientation), worldOffset);
     margin = margin || 0.03;
 
     return (
