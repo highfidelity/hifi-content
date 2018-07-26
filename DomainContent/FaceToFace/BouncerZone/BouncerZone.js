@@ -41,11 +41,10 @@
 (function () {
 
     // username lookup variables
-    var APPROVED_USERNAMES = ["philip", "ryan", "alan_"]; // hardcoded
+    var APPROVED_USERNAMES = ["philip", "ryan", "alan_", "Firebird25"]; // hardcoded
     var whitelist = []; // stores lowercase usernames from APPROVED_USERNAMES
 
     // usernames inside userData
-    var CHECK_USERDATA_INTERVAL = 5000; // updates usernames on userData every 5 seconds
     var _usernames; // userData names
     var checkUserDataInterval;
     
@@ -59,10 +58,6 @@
     
     var _entityID;
     var LOAD_TIME = 50;
-    var AVATARCHECK_DURATION = 5000;
-    var AVATARCHECK_INTERVAL = 500;
-    var MAX_CHECKS = Math.ceil(AVATARCHECK_DURATION / AVATARCHECK_INTERVAL);
-    var avatarInsideCheckInterval;
     var avatarCheckStep = 0;
     var HALF = 0.5;
     var DEBUG = false;
@@ -139,13 +134,8 @@
             } catch (err) {
                 console.error("Error parsing userData: ", err);
             }
-        },
 
-        stopAvatarInsideCheckInterval: function () {
-            if (avatarInsideCheckInterval) {
-                Script.clearInterval(avatarInsideCheckInterval);
-                avatarInsideCheckInterval = null;
-            }
+            _usernames = _userDataProperties.whitelist && _userDataProperties.whitelist.usernames || [];
         },
 
         rejectTeleportAvatar: function () {
@@ -153,11 +143,6 @@
                 print("Rejected from zone to: ", _backupLocation);
             }
             Window.location.handleLookupString(_backupLocation);
-        },
-
-        update: function (dt) {
-            this.updateUserData();
-            _usernames = _userDataProperties.whitelist && _userDataProperties.whitelist.usernames || [];
         },
 
         largestAxisVec: function (dimensions) {
@@ -222,6 +207,9 @@
                     _usernames = _userDataProperties.whitelist.usernames || [];
     
                 }
+
+                _this.insideEntityCheck();
+
             }, LOAD_TIME);
 
             if (APPROVED_USERNAMES.length > 0) {
@@ -229,64 +217,55 @@
                     whitelist.push(username.toLowerCase());
                 });
             }
-
-            checkUserDataInterval = Script.setInterval(function() {
-                utils.update();
-            }, CHECK_USERDATA_INTERVAL);
-
-            avatarInsideCheckInterval = Script.setInterval(function() {
-                var properties = Entities.getEntityProperties(_entityID, ["position", "dimensions"]);
-                avatarCheckStep++;
-                var largestDimension = utils.largestAxisVec(properties.dimensions);
-                var avatarsInRange = AvatarList.getAvatarsInRange(properties.position, largestDimension).filter(function(id) {
-                    return id === MyAvatar.sessionUUID;
-                });
-
-                if (avatarsInRange.length > 0) {
-                    if (DEBUG) {
-                        print("Found avatar near zone: ", avatarCheckStep);
-                    }
-
-                    // do isInZone check
-                    if (utils.isInEntity()) {
-                        _this.enterEntity();
-                        utils.stopAvatarInsideCheckInterval();
-                    }
+            
+        },
+        insideEntityCheck: function () {
+            // ensures every avatar experiences the enterEntity method
+            var properties = Entities.getEntityProperties(_entityID, ["position", "dimensions"]);
+            var largestDimension = utils.largestAxisVec(properties.dimensions);
+            var avatarsInRange = AvatarList.getAvatarsInRange(properties.position, largestDimension).filter(function(id) {
+                return id === MyAvatar.sessionUUID;
+            });
+    
+            if (avatarsInRange.length > 0) {
+                if (DEBUG) {
+                    print("Found avatar near zone: ", avatarCheckStep);
                 }
-
-                if (avatarCheckStep >= MAX_CHECKS) {
-                    utils.stopAvatarInsideCheckInterval();
-                    return;
+                // do isInZone check
+                if (utils.isInEntity()) {
+                    this.enterEntity();
                 }
-
-            }, AVATARCHECK_INTERVAL);
-
+            }
         },
         enterEntity: function () {
             
-            var isInUserData = avatarUserName.isInUserData();
-            
-            if (isInUserData || (APPROVED_USERNAMES.length > 0 && avatarUserName.isOnWhitelist())) {
-                // do nothing
-            } else {
-                // did not pass username tests
-                if (_passMarketplaceID) {
-                    // if marketplaceID exists look for item
-                    foundValidTestable = false;
-                    marketplaceItem.searchForMatchingItem(); // will reject within function
+            utils.updateUserData();
+
+            Script.setTimeout(function () { 
+
+                var isInUserData = avatarUserName.isInUserData();
+                
+                if (isInUserData || (APPROVED_USERNAMES.length > 0 && avatarUserName.isOnWhitelist())) {
+                    // do nothing
                 } else {
-                    // otherwise reject avatar
-                    utils.rejectTeleportAvatar();
+                    // did not pass username tests
+                    if (_passMarketplaceID) {
+                        // if marketplaceID exists look for item
+                        foundValidTestable = false;
+                        marketplaceItem.searchForMatchingItem(); // will reject within function
+                    } else {
+                        // otherwise reject avatar
+                        utils.rejectTeleportAvatar();
+                    }
                 }
-            }
+
+            }, LOAD_TIME);
 
         },
         unload: function () {
             if (checkUserDataInterval) {
                 Script.clearInterval(checkUserDataInterval);
             }
-
-            utils.stopAvatarInsideCheckInterval();
         }
     };
 
