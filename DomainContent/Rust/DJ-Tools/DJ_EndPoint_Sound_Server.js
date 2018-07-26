@@ -43,6 +43,7 @@
         longInjector,
         DEBUG = false,
         debugCubeID = null,
+        dispatchZoneID = null,
         canEdit = false,
         name = null,
         CAN_EDIT_TIMEOUT = 500,
@@ -77,8 +78,12 @@
     }
 
     function turnOffSound() {
-        shortInjector.stop();
-        longInjector.stop();
+        try {
+            // shortInjector.stop();
+            longInjector.stop();
+        } catch (e) {
+            log(LOG_ERROR, "ERROR STOPPING INJECTORS", e);
+        }
     }
 
     function editLongSound() {
@@ -100,8 +105,8 @@
         };
 
         if (DEBUG) {
-            Entities.callEntityClientMethod(
-                sessionID, debugCubeID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
+            Entities.callEntityMethod(
+                dispatchZoneID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
             );
         }
         // longInjector.setOptions({
@@ -126,6 +131,7 @@
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
             name = currentProperties.name;
+            dispatchZoneID = currentProperties.parentID;
 
             userData = currentProperties.userData;
             try {
@@ -141,15 +147,8 @@
         },
         turnOn: function () {
             turnOnSound();
-            Script.setTimeout(function() {
-                canEdit = true;
-            }, CAN_EDIT_TIMEOUT);
-            Script.setTimeout(function() {
-                turnOffSound();
-            }, TURNOFF_AFTER_CHECK);
         },
         turnOff: function () {
-            canEdit = false;
             turnOffSound();
         },
         edit: function (id, param) {

@@ -6,6 +6,7 @@
 //
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+// Currently custom made for Rust content set (relies on Phlash's tables for layout)
 
 (function () {
     // Polyfill
@@ -15,6 +16,8 @@
     var Util = Script.require("./Helper.js?" + Date.now());
     
     var getNameProps = Util.Entity.getNameProps,
+        getUserData = Util.Entity.getUserData,
+        updateUserData = Util.Entity.updateUserData,
         makeColor = Util.Color.makeColor,
         vec = Util.Maths.vec;
 
@@ -26,28 +29,31 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = false;
-    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ENTER] = true;
+    LOG_CONFIG[LOG_UPDATE] = true;
     LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = false;
+    LOG_CONFIG[LOG_VALUE] = true;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
     // Init
     var DJ_NAME = "Phlash",
         DJ_TABLE_NAME = "Set_" + DJ_NAME + "_Tables",
-        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools/",
+        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools_Staging/",
         particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
         particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
         shortSoundURL = baseURL + 'FlameThrowerBurst.wav',
         longSoundURL = baseURL + 'FlameThrowerRun.wav',
         endPointParticleServerScript = baseURL + 'DJ_EndPoint_Particle_Server.js',
         endPointLightServerScript = baseURL + 'DJ_EndPoint_Light_Server.js',
-        endPointSoundServerScript = baseURL + 'DJ_EndPoint_Sound_Server.js',        
-        sensorZoneClientScript = baseURL + 'DJ_Sensor_Zone_Client.js',
+        endPointSoundServerScript = baseURL + 'DJ_EndPoint_Sound_Server.js',   
+        dispatchZoneClientScript = baseURL + 'DJ_Dispatch_Zone_Client.js',
+        dispatchZoneServerScript = baseURL + 'DJ_Dispatch_Zone_Server.js',
         sensorBoxClientScript = baseURL + 'DJ_Sensor_Box_Client.js',
         generatorDebugCubeScript = baseURL + 'DJ_Generator_Debug_Cube_Client.js',
+        dispatchZoneID = null,
         DEBUG = false,
+        CREATE_TIMEOUT = 250,
         LEFT = "Left",
         RIGHT = "Right",
         LEFT_HAND = "LeftHand",
@@ -82,7 +88,7 @@
             },
             emitterShouldTrail: true,
             particleRadius: 0,
-            radiusSpread: 4,
+            radiusSpread: 0,
             radiusStart: 0.5799999833106995,
             radiusFinish: 0,
             color: {
@@ -141,22 +147,22 @@
         },
         barrelStageLeftPosition = {
             x: -26.4579,
-            y: 4989.7456,
+            y: -9.517,
             z: -23.3428
         },
         barrelStageRightPosition = {
             x: -38.6957,
-            y: 4989.5752,
+            y: -9.6874,
             z: -23.3843
         },
         barrelBackRightPosition = {
             x: -37.1513,
-            y: 4992.7041,
+            y: -6.5585,
             z: -9.9410
         },
         barrelBackLeftPosition = {
             x: -22.6895,
-            y: 4992.4863,
+            y: -6.7763,
             z: -14.6075
         },
         allEnts = [],
@@ -180,7 +186,7 @@
         }
     }
 
-    function createGeneratorDebugCube(name, position, dimensions, color, userData) {
+    function createGeneratorDebugCubeEntity(name, position, dimensions, color, userData, parentID) {
         name = name || 1;
         dimensions = dimensions || vec(1, 1, 1);
         color = color || makeColor(1, 1, 1);
@@ -195,13 +201,14 @@
             color: color,
             visible: true,
             collisionless: true,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
         return id;
     }
 
-    function createSensorBox(name, position, dimensions, color, userData) {
+    function createSensorBoxEntity(name, position, dimensions, color, userData, parentID) {
         name = name || 1;
         dimensions = dimensions || vec(1, 1, 1);
         color = color || makeColor(1, 1, 1);
@@ -216,13 +223,14 @@
             color: color,
             visible: false,
             collisionless: true,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
         return id;
     }
 
-    function createSensorZone(name, position, dimensions, userData) {
+    function createDispatchZoneEntity(name, position, dimensions, userData, parentID) {
         name = name || 1;
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
@@ -231,16 +239,18 @@
             type: "Zone",
             position: position,
             locked: false,
-            script: sensorZoneClientScript + "?v=" + Date.now(),
+            script: dispatchZoneClientScript + "?v=" + Date.now(),
+            serverScripts: dispatchZoneServerScript + "?v=" + Date.now(),
             dimensions: dimensions,
             collisionless: true,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
         return id;
     }
 
-    function createSensorModel(name, position, dimensions, rotation, url, userData) {
+    function createSensorModelEntity(name, position, dimensions, rotation, url, userData, parentID) {
         name = name || "";
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
@@ -253,13 +263,14 @@
             locked: false,
             dimensions: dimensions,
             collisionless: true,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
         return id;
     }
 
-    function createParticle(name, position, userData) {
+    function createParticleEntity(name, position, userData, parentID) {
         name = name || "";
         userData = userData || {};
         var properties = {
@@ -267,6 +278,7 @@
             locked: false,
             position: position,
             serverScripts: endPointParticleServerScript + "?v=" + Date.now(),
+            parentID: parentID,
             userData: userData
         };
         var finalParticleProps = Object.assign({}, particleBaseProps, properties);
@@ -274,7 +286,7 @@
         return id;
     }
 
-    function createSound(name, position, dimensions, userData) {
+    function createSoundEntity(name, position, dimensions, userData, parentID) {
         name = name || "";
         userData = userData || {};
         var properties = {
@@ -285,13 +297,14 @@
             dimensions: dimensions,
             serverScripts: endPointSoundServerScript + "?v=" + Date.now(),
             collisionless: true,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
         return id;
     } 
 
-    function createLight(name, position, dimensions, rotation, color, isSpot, userData) {
+    function createLightEntity(name, position, dimensions, rotation, color, isSpot, userData, parentID) {
         name = name || "";
         userData = userData || {};
         var properties = {
@@ -303,6 +316,7 @@
             locked: false,
             isSpotlight: isSpot,
             serverScripts: endPointLightServerScript + "?v=" + Date.now(),
+            parentID: parentID,
             userData: userData
         };
         var finalLightProps = Object.assign({}, lightBaseProps, properties);
@@ -331,12 +345,13 @@
         userData.grabbableKey = { grabbable: true };   
         userData.performance = { type: GENERATOR };
         stringified = JSON.stringify(userData);
-        entID = createGeneratorDebugCube(
+        entID = createGeneratorDebugCubeEntity(
             name,             
             debugPosition, 
             vec(DEBUG_WIDTH, DEBUG_HEIGHT, DEBUG_DEPTH),
             makeColor(255,70,0),
-            stringified
+            stringified,
+            dispatchZoneID
         );
         allEnts.push(entID);
         entityNames.push(name);
@@ -385,8 +400,8 @@
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
-            entID = createParticle(name, particlePosition, stringified);
-            entID2 = createParticle(name2, particlePosition2, stringified);
+            entID = createParticleEntity(name, particlePosition, stringified, dispatchZoneID);
+            entID2 = createParticleEntity(name2, particlePosition2, stringified, dispatchZoneID);
             allEnts.push(entID, entID2);
             entityNames.push(name, name2);
         });
@@ -438,8 +453,8 @@
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
-            entID = createSound(name, soundPosition, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified);
-            entID2 = createSound(name2, soundPosition2, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified);
+            entID = createSoundEntity(name, soundPosition, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
+            entID2 = createSoundEntity(name2, soundPosition2, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
             allEnts.push(entID, entID2);
             entityNames.push(name, name2);
         });
@@ -496,23 +511,25 @@
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
-            entID = createLight(
+            entID = createLightEntity(
                 name, 
                 lightPosition, 
                 lightDimensions,
                 lightRotation,
                 color,
                 isSpot,
-                stringified
+                stringified,
+                dispatchZoneID
             );
-            entID2 = createLight(
+            entID2 = createLightEntity(
                 name2, 
                 lightPosition2, 
                 lightDimensions,
                 lightRotation,
                 color,
                 isSpot,
-                stringified
+                stringified,
+                dispatchZoneID
             );
             allEnts.push(entID, entID2);
             entityNames.push(name, name2);
@@ -568,12 +585,13 @@
             userData.grabbableKey = { grabbable: false };
             stringified = JSON.stringify(userData);
             name = "Set_" + DJ_NAME + "_Pad_" + side;
-            entID = createSensorBox(
+            entID = createSensorBoxEntity(
                 name,                 
                 boxPosition, 
                 vec(BOX_WIDTH, BOX_HEIGHT, BOX_DEPTH), 
                 color, 
-                stringified
+                stringified,
+                dispatchZoneID
             );
             allEnts.push(entID);
             entityNames.push(name);
@@ -616,22 +634,23 @@
             userData.grabbableKey = { grabbable: false };
             userData.performance = { DEBUG: DEBUG };
             stringified = JSON.stringify(userData);
-            entID = createSensorModel(
+            entID = createSensorModelEntity(
                 name,                 
                 modelPosition,
                 vec(MODEL_WIDTH, MODEL_HEIGHT, MODEL_DEPTH), 
                 rotation,                
                 url,
-                stringified
+                stringified,
+                dispatchZoneID
             );
             allEnts.push(entID);
             entityNames.push(name);
         });
     }
 
-    function createSensorZones() {
+    function createDispatchZones() {
         var name,
-            entID,
+            entityID,
             zonePosition,
             stringified,       
             userData = {},
@@ -646,31 +665,53 @@
             vec(0, HEIGHT, DISTANCE_BACK)
         );
 
-        name = "Set_" + DJ_NAME + "_Pad_Zone";
+        name = "Set_" + DJ_NAME + "_Dispatch_Zone";
         userData.grabbableKey = { grabbable: false };
-        userData.performance = { DEBUG: DEBUG };
+        userData.performance = { 
+            DEBUG: DEBUG,
+            childNamesUpdated: false
+        };
         stringified = JSON.stringify(userData);
-        entID = createSensorZone(
+        entityID = createDispatchZoneEntity(
             name,             
             zonePosition, 
             vec(ZONE_WIDTH, ZONE_HEIGHT, ZONE_DEPTH), 
             stringified
         );
-        allEnts.push(entID);
+        allEnts.push(entityID);
         entityNames.push(name);
+        dispatchZoneID = entityID;
+    }
+
+    function updateDispatchZoneChildNames() {
+        var namesToUpdate = entityNames.filter(function(name) {
+            return name.indexOf("_Dispatch_Zone") === -1;
+        });
+
+        var dispatchZoneUserData = getUserData(dispatchZoneID);
+        dispatchZoneUserData.performance.childNames = namesToUpdate;
+        dispatchZoneUserData.performance.childNamesUpdated = true;
+        updateUserData(dispatchZoneID, dispatchZoneUserData);
     }
 
     // Main
     deleteIfExists();
-    if (DEBUG) {
-        createGeneratorDebugCubes();
-    }
-    createSensorZones();
-    createSensorBoxes();
-    createSensorBoxModels();
-    createEndPointParticles();
-    createEndPointLights();
-    createEndPointSounds();
+
+    createDispatchZones();
+
+    Script.setTimeout(function() {
+        if (DEBUG) {
+            createGeneratorDebugCubes();
+        }
+        createSensorBoxes();
+        createSensorBoxModels();
+        createEndPointParticles();
+        createEndPointLights();
+        createEndPointSounds();
+        updateDispatchZoneChildNames();
+
+    }, CREATE_TIMEOUT);
+
 
     Settings.setValue(DJ_NAME + "_EFFECTS", entityNames);
 

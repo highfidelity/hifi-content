@@ -38,6 +38,7 @@
         sessionID = null,
         DEBUG = false,
         debugCubeID = null,
+        dispatchZoneID = null,
         name = null,
         REVERSE = 1,
         X = 0,
@@ -127,8 +128,8 @@
         };
 
         if (DEBUG) {
-            Entities.callEntityClientMethod(
-                sessionID, debugCubeID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
+            Entities.callEntityMethod(
+                dispatchZoneID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
             );
         }
         Entities.editEntity(entityID, eventProperties);
@@ -151,7 +152,8 @@
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
             name = currentProperties.name;
-
+            dispatchZoneID = currentProperties.parentID;
+            
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
