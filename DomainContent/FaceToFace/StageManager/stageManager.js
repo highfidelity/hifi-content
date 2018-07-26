@@ -76,7 +76,7 @@
                         type: 'Box',
                         position: stageCenterPosition,
                         visible: false,
-                        userData: JSON.stringify({"url": webOverlayURL, "dpi" : 3}),
+                        userData: JSON.stringify({"url": webOverlayURL}),
                         grabbable: false,
                         name: "Web Overlay Spawner",
                         script: Script.resolvePath('webOverlaySpawner.js')
