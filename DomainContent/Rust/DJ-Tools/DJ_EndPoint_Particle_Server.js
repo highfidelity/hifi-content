@@ -24,10 +24,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = false;
-    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ENTER] = true;
+    LOG_CONFIG[LOG_UPDATE] = true;
     LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = false;
+    LOG_CONFIG[LOG_VALUE] = true;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -36,6 +36,7 @@
         sessionID = null,
         DEBUG = false,
         debugCubeID = null,
+        dispatchZoneID = null,
         name = null,
         REVERSE = 1,
         X = 0,
@@ -113,12 +114,17 @@
                 red: colorChangeRed,
                 blue: colorChangeBlue,
                 green: 0
+            },
+            colorFinish: {
+                red: 180,
+                blue: 255,
+                green: 0
             }
         };
-
-        if (DEBUG) {
-            Entities.callEntityClientMethod(
-                sessionID, debugCubeID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
+        
+        if (DEBUG) { 
+            Entities.callEntityMethod(
+                dispatchZoneID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
             );
         }
         Entities.editEntity(entityID, eventProperties);
@@ -141,11 +147,13 @@
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
             name = currentProperties.name;
+            dispatchZoneID = currentProperties.parentID;
 
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
                 DEBUG = userdataProperties.performance.DEBUG;
+
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }

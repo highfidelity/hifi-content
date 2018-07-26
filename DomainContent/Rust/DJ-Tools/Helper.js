@@ -9,6 +9,13 @@
 //
 // Util Library for Common Tasks
 
+// Avatar
+// ----------------------------------------------------------------------------
+function inFrontOf(distance, position, orientation) {
+    return Vec3.sum(position || MyAvatar.position,
+        Vec3.multiply(distance, Quat.getForward(orientation || MyAvatar.orientation)));
+}
+
 // Color
 // ----------------------------------------------------------------------------
 function colorMix(colorA, colorB, mix) {
@@ -75,6 +82,7 @@ function log(configGroup) {
         return false;
     };
     return function (group, title, value, bounce) {
+
         if (configGroup[group]) {
             var printString = arguments.length === 2 || value === null
                 ? group + " :: " + title
@@ -110,6 +118,7 @@ function makeColor(red, green, blue) {
 
 // Entities
 // ----------------------------------------------------------------------------
+
 function getNameProps(name, position, radius) {
     position = position || MyAvatar.position;
     radius = radius || 20;
@@ -125,6 +134,101 @@ function getProps(id, props) {
     } else {
         return Entities.getEntityProperties(id);
     }
+}
+
+function getUserData(id, defaultObject, cb) {
+    defaultObject = defaultObject || {};
+    var userData = Entities.getEntityProperties(id, ["userData"]).userData;
+    var parsedData = defaultObject;
+    try {
+        parsedData = JSON.parse(userData);
+        if (cb) {
+            cb(parsedData);
+        }
+        return parsedData;
+    } catch (e) {
+        return parsedData;
+    }
+}
+
+function searchForChildren(parentID, names, callback, timeoutMs, outputPrint) {
+    // Map from name to entity ID for the children that have been found
+    var foundEntities = {};
+    for (var i = 0; i < names.length; ++i) {
+        foundEntities[names[i]] = null;
+    }
+
+    const CHECK_EVERY_MS = 500;
+    const maxChecks = Math.ceil(timeoutMs / CHECK_EVERY_MS);
+
+    var check = 0;
+    var intervalID = Script.setInterval(function() {
+        check++;
+
+        var childrenIDs = Entities.getChildrenIDs(parentID);
+        if (outputPrint) {
+            print("\tNumber of children:", childrenIDs.length);
+        }
+        for (var i = 0; i < childrenIDs.length; ++i) {
+            if (outputPrint) {
+                print("names: " + JSON.stringify(names));
+                print("\t\t" + i + ".", Entities.getEntityProperties(childrenIDs[i]).name);
+            }
+
+            var id = childrenIDs[i];
+            var name = Entities.getEntityProperties(id, 'name').name;
+            var idx = names.indexOf(name);
+            if (idx > -1) {
+                foundEntities[name] = id;
+                print(name, id);
+                names.splice(idx, 1);
+                childrenIDs.splice(i, 1)
+            }
+        }
+
+        if (names.length === 0 || check >= maxChecks) {
+            Script.clearInterval(intervalID);
+            callback(foundEntities);
+        }
+    }, CHECK_EVERY_MS);
+}
+
+function searchForEntityNames(names, position, callback, timeoutMs, outputPrint) {
+    var foundEntities = {};
+    names.forEach(function(name) {
+        foundEntities[name] = null;
+    })
+
+    const CHECK_EVERY_MS = 500;
+    const maxChecks = Math.ceil(timeoutMs / CHECK_EVERY_MS);
+
+    var check = 0;
+    var intervalID = Script.setInterval(function() {
+        check++;
+
+        names.forEach(function(name, index) {
+            var ents = Entities.findEntitiesByName(name, position, 50);
+            if (ents.length === 1) {
+                foundEntities[name] = ents[0];
+                if (outputPrint) {
+                    print(name, ents[0]);
+                }
+                names.splice(index, 1);
+            }
+            
+        })
+
+        if (names.length === 0 || check >= maxChecks) {
+            Script.clearInterval(intervalID);
+            callback(foundEntities);
+        }
+    }, CHECK_EVERY_MS)
+}
+
+function updateUserData(id, userData) {
+    var stringified = JSON.stringify(userData);
+    var props = { userData: stringified};
+    Entities.editEntity(id, props);
 }
 
 // Functional
@@ -161,12 +265,91 @@ function fireEvery() {
 
 // Math
 // ----------------------------------------------------------------------------
+
+function axisAlignedOrientation(orientation) {
+    if (!Math.sign) {
+        Math.sign = function(x) {
+          return ((x > 0) - (x < 0)) || +x;
+        };
+      }
+
+    var rotation = MyAvatar.orientation;
+    var getForward = Quat.getForward(rotation);
+
+    var sign = {
+        x: Math.sign(getForward.x),
+        y: Math.sign(getForward.y),
+        z: Math.sign(getForward.z)
+    };
+
+    var newObj = {
+        x: Math.abs(getForward.x),
+        y: Math.abs(getForward.y),
+        z: Math.abs(getForward.z)
+    };
+
+    var keys = Object.keys(newObj);
+
+    function getLargest(obj) {
+        var largestKey = "x";
+        keys.forEach(function (key) {
+            if (newObj[largestKey] < newObj[key]) {
+                largestKey = key;
+            }
+        });
+        return largestKey;
+    }
+
+    var largestKey = getLargest(newObj);
+    keys.splice(keys.indexOf(largestKey), 1);
+
+    var finalObj = {};
+    finalObj[largestKey] = sign[largestKey];
+    keys.forEach(function (key) {
+        finalObj[key] = 0;
+    });
+    var finalRotation = Quat.fromVec3Degrees(finalObj);
+
+    return [finalRotation, finalObj];
+}
+
 function checkIfIn(currentPosition, minMaxObj, margin) {
     margin = margin || 0.05;
     return (
         (currentPosition.x >= minMaxObj.xMin - margin && currentPosition.x <= minMaxObj.xMax + margin) &&
         (currentPosition.y >= minMaxObj.yMin - margin && currentPosition.y <= minMaxObj.yMax + margin) &&
         (currentPosition.z >= minMaxObj.zMin - margin && currentPosition.z <= minMaxObj.zMax + margin)
+    );
+}
+
+// function checkIfInNonAligned(pointToCheck, position, orientation, dimensions, margin) {
+//     var worldOffset = Vec3.subtract(pointToCheck, position),
+//         minX = 0 - dimensions.x * 0.5,
+//         maxX = 0 + dimensions.x * 0.5,
+//         minY = 0 - dimensions.y * 0.5,
+//         maxY = 0 + dimensions.y * 0.5,
+//         minZ = 0 - dimensions.z * 0.5,
+//         maxZ = 0 + dimensions.z * 0.5;
+
+//     pointToCheck = Vec3.multiplyQbyV(Quat.inverse(orientation), worldOffset);
+//     margin = margin || 0.03;
+
+//     return (
+//         (pointToCheck.x >= minX - margin && pointToCheck.x <= maxX + margin) &&
+//         (pointToCheck.y >= minY - margin && pointToCheck.y <= maxY + margin) &&
+//         (pointToCheck.z >= minZ - margin && pointToCheck.z <= maxZ + margin)
+//     );
+// }
+
+function checkIfInNonAligned(pointToCheck, position, orientation, minMaxObj, margin) {
+    var worldOffset = Vec3.subtract(pointToCheck, position),
+    pointToCheck = Vec3.multiplyQbyV(Quat.inverse(orientation), worldOffset);
+    margin = margin || 0.03;
+
+    return (
+        (pointToCheck.x >= minMaxObj.xMin - margin && pointToCheck.x <= minMaxObj.xMax + margin) &&
+        (pointToCheck.y >= minMaxObj.yMin - margin && pointToCheck.y <= minMaxObj.yMax + margin) &&
+        (pointToCheck.z >= minMaxObj.zMin - margin && pointToCheck.z <= minMaxObj.zMax + margin)
     );
 }
 
@@ -194,6 +377,19 @@ function makeMinMax(dimensions, position) {
         yMax: position.y + dimensions.y / 2,
         zMin: position.z - dimensions.z / 2,
         zMax: position.z + dimensions.z / 2
+    };
+
+    return minMaxObj;
+}
+
+function makeOriginMinMax(dimensions) {
+    var minMaxObj = {
+        xMin: 0 - dimensions.x / 2,
+        xMax: 0 + dimensions.x / 2,
+        yMin: 0 - dimensions.y / 2,
+        yMax: 0 + dimensions.y / 2,
+        zMin: 0 - dimensions.z / 2,
+        zMax: 0 + dimensions.z / 2
     };
 
     return minMaxObj;
@@ -267,6 +463,9 @@ function whereOnRange(currentPosition, minMax) {
 // ----------------------------------------------------------------------------
 
 module.exports = {
+    Avatar: {
+        inFrontOf: inFrontOf
+    },
     Color: {
         colorMix: colorMix,
         hslToRgb: hslToRgb,
@@ -279,23 +478,31 @@ module.exports = {
         LOG_UPDATE: "Log_Update",
         LOG_ERROR: "Log_Error",
         LOG_VALUE: "Log_Value",
+        LOG_VALUE_EZ: "Log_Value_EZ",
         LOG_ARCHIVE: "Log_Archive"
     },
     Entity: {
         getNameProps: getNameProps,
-        getProps: getProps
+        getProps: getProps,
+        getUserData: getUserData,
+        searchForChildren: searchForChildren,
+        searchForEntityNames: searchForEntityNames,
+        updateUserData: updateUserData
     },
     Functional: {
         debounce: debounce,
         fireEvery: fireEvery
     },
     Maths: {
+        axisAlignedOrientation: axisAlignedOrientation,
         checkIfIn: checkIfIn,
+        checkIfInNonAligned: checkIfInNonAligned,
         clamp: clamp,
         fireEvery: fireEvery,
         largestAxisVec: largestAxisVec,
         lerp: lerp,
         makeMinMax: makeMinMax,
+        makeOriginMinMax: makeOriginMinMax,
         smoothing: smoothing,
         smoothRange: smoothRange,
         vec: vec,
