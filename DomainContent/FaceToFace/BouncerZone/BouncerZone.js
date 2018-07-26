@@ -19,9 +19,9 @@
 // Add this to the zone userData : 
 // {
 //     "whitelist" : {
-//         "rejectTeleportLocation" : <<INSERT HIFI ADDRESS>>
-//         "marketplaceID" : <<INSERT MARKETPLACE ITEM ID>>,
-//         "usernames" : []
+//         "rejectTeleportLocation" : "<<INSERT HIFI ADDRESS>>"
+//         "marketplaceID" : "<<INSERT MARKETPLACE ITEM ID>>",
+//         "usernames" : [""]
 //     },
 //    "grabbableKey": {
 //       "grabbable": false
@@ -41,7 +41,7 @@
 (function () {
 
     // username lookup variables
-    var APPROVED_USERNAMES = ["philip", "ryan", "alan_", "miladn", "phlash", "nbaldassini"]; // hardcoded
+    var APPROVED_USERNAMES = ["philip", "ryan"]; // hardcoded
     var whitelist = []; // stores lowercase usernames from APPROVED_USERNAMES
 
     // usernames inside userData
