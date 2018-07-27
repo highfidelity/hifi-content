@@ -7,18 +7,21 @@
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-(function() {
+(function () {
     // Polyfill
     Script.require("./Polyfills.js?" + Date.now())();
 
     // Helper Functions
     var Util = Script.require("./Helper.js?" + Date.now());
     var checkIfIn = Util.Maths.checkIfIn,
+        checkIfInNonAligned = Util.Maths.checkIfInNonAligned,
         fireEvery = Util.Maths.fireEvery(),
         makeMinMax = Util.Maths.makeMinMax,
+        makeOriginMinMax = Util.Maths.makeOriginMinMax,
         smoothing = Util.Maths.smoothing,
         SMOOTHING_AMOUNT = 15,
-        smoothRange = Util.Maths.smoothRange({x: 0,y: 0,z: 0}, SMOOTHING_AMOUNT, smoothing),
+        smoothRange = Util.Maths.smoothRange({ x: 0, y: 0, z: 0 }, SMOOTHING_AMOUNT, smoothing),
+        vec = Util.Maths.vec,
         withinDistance = Util.Maths.withinDistance,
         whereOnRange = Util.Maths.whereOnRange;
 
@@ -32,7 +35,7 @@
 
     LOG_CONFIG[LOG_ENTER] = false;
     LOG_CONFIG[LOG_UPDATE] = false;
-    LOG_CONFIG[LOG_ERROR] = true;
+    LOG_CONFIG[LOG_ERROR] = false;
     LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
@@ -42,14 +45,20 @@
         DEBUG = false,
         debugCubeID = null,
         deltaTotal = 0,
-        result = false,
+        resultInBox = false,
+        resultInMargin = false,
         check = null,
         name = null,
         initalized = false,
-        STARTUP_TIME = 5000,
+        dispatchZoneID = null,
+        STARTUP_TIME = 2000,
         DELTA_UPDATE_INTERVAL = 0.01,
-        STEPS_BEFORE_FIRE = 3,
+        STEPS_BEFORE_FIRE = 1,
         DISTANCE_TO_IGNORE = 0.0001,
+        POSITION_DISTANCE_TO_IGNORE = 0.2,
+        MARGIN_CHECK = 0.3,
+        IN_BOX = "inBox",
+        IN_MARGIN = "inMargin",
         LEFT_HAND = "LeftHand",
         RIGHT_HAND = "RightHand",
         DEBUG_CUBE = "debugCube",
@@ -57,29 +66,27 @@
         IN_BOX_RIGHT_HAND = "inBoxRightHand",
         IN_BOX_DEBUG = "inBoxDebug",
         self;
-        
+
     // Collections
     var currentProperties = {},
         userData = {},
         userdataProperties = {},
         minMax = {},
+        originMinMax = {},
+        minMaxOffMargin = {},
+        originMinMaxOffMargin = {},
         position = {},
+        rotation = {},
         positionToCheck = {},
+        lastPositionToCheck = {},
         dimensions = {},
         newRange = {},
         oldRange = {},
         smoothedRange = {},
-        inBox = {
-            inBoxLeftHand: false,
-            inBoxRightHand: false,
-            inBoxDebug: false
-        },
         generatorAccepts = [],
         endPoints = [],
         directionArray = [];
 
-    // Constructor Functions
-    // Procedural Functions
     // Entity Definition
     function DJ_Sensor_Box_Client() {
         self = this;
@@ -87,17 +94,19 @@
 
     DJ_Sensor_Box_Client.prototype = {
         remotelyCallable: [
-            "updateEndPoints",
-            'updateDebugCubeID',
             'turnOn',
-            'turnOff'
+            'turnOff',
+            "updateEndPoints",
+            'updateDebugCubeID'
         ],
         preload: function (id) {
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
             name = currentProperties.name;
             position = currentProperties.position;
+            rotation = currentProperties.rotation;
             dimensions = currentProperties.dimensions;
+            dispatchZoneID = currentProperties.parentID;
 
             userData = currentProperties.userData;
             try {
@@ -105,147 +114,77 @@
                 directionArray = userdataProperties.performance.directionArray;
                 generatorAccepts = userdataProperties.performance.generatorAccepts;
                 DEBUG = userdataProperties.performance.DEBUG;
+                if (DEBUG) {
+                    debugCubeID = Entities.findEntitiesByName("Set_Phlash_Debug-Cube", position, 10)[0];
+                }
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }
 
             minMax = makeMinMax(dimensions, position);
+            originMinMax = makeOriginMinMax(dimensions);
+            minMaxOffMargin = makeMinMax(Vec3.sum(dimensions, vec(MARGIN_CHECK, MARGIN_CHECK, MARGIN_CHECK)), position);
+            originMinMaxOffMargin = makeOriginMinMax(Vec3.sum(dimensions, vec(MARGIN_CHECK, MARGIN_CHECK, MARGIN_CHECK)));
+
         },
-        updateEndPoints: function(id, param) {
-            var newEndPoints = JSON.parse(param[0]);
-            endPoints = newEndPoints;
+        turnOn: function () {
+            Script.update.connect(self.onUpdate);
         },
-        updateDebugCubeID: function(id, param) {
-            var newDebugCubeID = param[0];
-            debugCubeID = newDebugCubeID;
-        },
-        turnOn: function() {
-            if (!initalized) {
-                Script.setTimeout(function() {
-                    Script.update.connect(self.onUpdate);
-                    initalized = true;
-                }, STARTUP_TIME);
-            } else {
-                Script.update.connect(this.onUpdate);
-            }
-        },
-        turnOff: function() {
-            if (!initalized) {
-                return;
-            }
+        turnOff: function () {
             Script.update.disconnect(this.onUpdate);
         },
-        sendOn: function() {
-            endPoints.forEach(function(endPoint) {
-                Entities.callEntityServerMethod(endPoint.id, 'turnOn');
-            });
-            if (DEBUG) {
-                Entities.callEntityMethod(
-                    debugCubeID, 
-                    'clearDebugEndpointInfo'
-                );
-            }
-        },
-        sendOff: function() {
-            endPoints.forEach(function(endPoint) {
-                Entities.callEntityServerMethod(endPoint.id, 'turnOff');
-            });
-            if (DEBUG) {
-                Entities.callEntityMethod(
-                    debugCubeID, 
-                    'clearDebugEndpointInfo'
-                );
-            }
-        },
-        sendEdit: function(positionToCheck) {
-            oldRange = smoothedRange;
+        submitEvent: function (positionToCheck, generator, box, uuid) {
             newRange = whereOnRange(positionToCheck, minMax);
-            smoothedRange = smoothRange(newRange);
-            if (!fireEvery(STEPS_BEFORE_FIRE)) {
-                return;
-            }
-            if (withinDistance(oldRange, smoothedRange, DISTANCE_TO_IGNORE)) { 
-                return;
-            }
-            var stringifiedRange = JSON.stringify(smoothedRange);
+            var stringifiedRange = JSON.stringify(newRange);
             var stringifiedDirections = JSON.stringify(directionArray);
-            endPoints.forEach(function(endPoint) {
-                Entities.callEntityServerMethod(
-                    endPoint.id, 
-                    'edit', 
-                    [stringifiedRange, stringifiedDirections, MyAvatar.sessionUUID]
-                );
-            });
-            if (DEBUG) {
-                Entities.callEntityMethod(
-                    debugCubeID, 
-                    'storeDebugSensorInfo', 
-                    [stringifiedRange]
-                );
-            }
-        },
-        returnCheck: function (generator) {
-            switch (generator) {
-                case LEFT_HAND:
-                    return IN_BOX_LEFT_HAND;
-                case RIGHT_HAND:
-                    return IN_BOX_RIGHT_HAND;
-                case DEBUG_CUBE:
-                    return IN_BOX_DEBUG;
-            }
+            Entities.callEntityServerMethod(dispatchZoneID, "submitEvent",
+                [stringifiedRange, stringifiedDirections, generator, box, entityID, uuid]
+            );
         },
         getGeneratorPosition: function (generator) {
             var generatorPosition;
-    
+
             switch (generator) {
-                case LEFT_HAND :
+                case LEFT_HAND:
                     generatorPosition = MyAvatar.getLeftPalmPosition();
                     break;
-                case RIGHT_HAND :
+                case RIGHT_HAND:
                     generatorPosition = MyAvatar.getRightPalmPosition();
                     break;
-                case DEBUG_CUBE :
+                case DEBUG_CUBE:
                     generatorPosition = Entities.getEntityProperties(debugCubeID, ['position']).position;
                     break;
-                default :
+                default:
             }
             return generatorPosition;
         },
-        onUpdate: function(delta) {
-            deltaTotal += delta;
-            if (deltaTotal > DELTA_UPDATE_INTERVAL) {
-                generatorAccepts.forEach(function (generator) {
-                    try {
-                        positionToCheck = self.getGeneratorPosition(generator);
-                        result = checkIfIn(positionToCheck, minMax);
-                        check = self.returnCheck(generator);
-                    } catch (e) {
-                        log(LOG_ERROR, "ERROR TRYING TO GET TARGET POSITION FOR " + generator, e, 1000);
-                    }
-                    if (result) {
-                        if (!inBox[check]) {
-                            inBox[check] = true;
-                            self.sendOn();
-                            
-                        } else {
-                            self.sendEdit(positionToCheck);
-                        }
-                    } else {
-                        if (inBox[check]) {
-                            self.sendOff();
-                            inBox[check] = false;
-                        }
-                    }
-                });
-            }
-            deltaTotal = 0;
+        onUpdate: function (delta) {
+            generatorAccepts.forEach(function (generator) {
+                try {
+                    positionToCheck = self.getGeneratorPosition(generator);
+                    resultInMargin = checkIfInNonAligned(positionToCheck, position, rotation, originMinMaxOffMargin);
+                    resultInBox = checkIfInNonAligned(positionToCheck, position, rotation, originMinMax);
+                } catch (e) {
+                    log(LOG_ERROR, "ERROR TRYING TO GET TARGET POSITION FOR " + generator, e, 1000);
+                }
+                if (resultInBox) {
+                    self.submitEvent(positionToCheck, generator, IN_BOX, MyAvatar.sessionUUID);
+                }
+                if (resultInMargin && !resultInBox) {
+                    self.submitEvent(positionToCheck, generator, IN_MARGIN, MyAvatar.sessionUUID);
+                }
+            });
         },
-        unload: function() {
+        unload: function () {
             try {
                 Script.update.disconnect(this.onUpdate);
             } catch (e) {
                 log(LOG_ERROR, "NO UPDATE TO DISCONNECT");
             }
+        },
+        updateDebugCubeID: function (id, param) {
+            var newDebugCubeID = param[0];
+            debugCubeID = newDebugCubeID;
         }
     };
 

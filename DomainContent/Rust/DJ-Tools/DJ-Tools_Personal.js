@@ -17,6 +17,7 @@
     
     var getNameProps = Util.Entity.getNameProps,
         getUserData = Util.Entity.getUserData,
+        inFrontOf = Util.Avatar.inFrontOf,
         updateUserData = Util.Entity.updateUserData,
         makeColor = Util.Color.makeColor,
         vec = Util.Maths.vec;
@@ -37,9 +38,9 @@
     var log = Util.Debug.log(LOG_CONFIG);
 
     // Init
-    var DJ_NAME = "Phlash",
+    var DJ_NAME = "Milad",
         DJ_TABLE_NAME = "Set_" + DJ_NAME + "_Tables",
-        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools/",
+        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools_Staging/",
         particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
         particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
         shortSoundURL = baseURL + 'FlameThrowerBurst.wav',
@@ -68,6 +69,9 @@
 
     // Colections
     var djTableProps = getNameProps(DJ_TABLE_NAME),
+        avatarPosition = MyAvatar.position,
+        avatarOrientation = MyAvatar.orientation,
+        inFrontOfAvatar = inFrontOf(0.5),
         particleBaseProps = {
             type: "ParticleEffect",
             isEmitting: true,
@@ -174,7 +178,7 @@
         var SEARCH_RADIUS = 100;
         if (deleteNames) {
             deleteNames.forEach(function (name) {
-                var found = Entities.findEntitiesByName(name, djTableProps[1].position, SEARCH_RADIUS);
+                var found = Entities.findEntitiesByName(name, avatarPosition, SEARCH_RADIUS);
                 try {
                     if (found[0]) {
                         Entities.deleteEntity(found[0]);
@@ -363,10 +367,14 @@
                 name2,
                 entID,
                 entID2,
+                localOffset,
+                worldOffset,
                 particlePosition,
                 particlePosition2,
                 stringified,
                 userData = {},
+                DISTANCE_LEFT = -1,
+                DISTANCE_DEPTH = -1,
                 HEIGHT = 1;
 
             userData.performance = {
@@ -374,23 +382,31 @@
             };
 
             if (side === LEFT) {
+                localOffset = vec(DISTANCE_LEFT, 0, DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 particlePosition = Vec3.sum(
-                    barrelStageLeftPosition, 
-                    vec(0, HEIGHT, 0)
+                    avatarPosition, 
+                    worldOffset
                 );
+                localOffset = vec(DISTANCE_LEFT, 0, -DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 particlePosition2 = Vec3.sum(
-                    barrelBackLeftPosition, 
-                    vec(0, HEIGHT, 0)
+                    avatarPosition, 
+                    worldOffset
                 );
                 userData.performance.endPointGroupID = GROUP_LEFT;
             } else {
+                localOffset = vec(-DISTANCE_LEFT, 0, DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 particlePosition = Vec3.sum(
-                    barrelStageRightPosition, 
-                    vec(0, HEIGHT, 0)
+                    avatarPosition, 
+                    worldOffset
                 );
+                localOffset = vec(-DISTANCE_LEFT, 0, -DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 particlePosition2 = Vec3.sum(
-                    barrelBackRightPosition, 
-                    vec(0, HEIGHT, 0)
+                    avatarPosition, 
+                    worldOffset
                 );
                 userData.performance.endPointGroupID = GROUP_RIGHT;
             }
@@ -413,6 +429,10 @@
                 name2,
                 entID,
                 entID2,
+                localOffset,
+                worldOffset,
+                DISTANCE_LEFT = -1,
+                DISTANCE_DEPTH = -1,
                 soundPosition,
                 soundPosition2,
                 stringified,
@@ -427,23 +447,31 @@
             };
 
             if (side === LEFT) {
+                localOffset = vec(DISTANCE_LEFT, 0, DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 soundPosition = Vec3.sum(
-                    barrelStageLeftPosition, 
-                    vec(0, HEIGHT, 0)
+                    avatarPosition, 
+                    worldOffset
                 );
+                localOffset = vec(DISTANCE_LEFT, 0, -DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 soundPosition2 = Vec3.sum(
-                    barrelBackLeftPosition, 
-                    vec(0, HEIGHT, 0)
+                    avatarPosition, 
+                    worldOffset
                 );
                 userData.performance.endPointGroupID = GROUP_LEFT;
             } else {
+                localOffset = vec(-DISTANCE_LEFT, 0, DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 soundPosition = Vec3.sum(
-                    barrelStageRightPosition, 
-                    vec(0, HEIGHT, 0)
+                    avatarPosition, 
+                    worldOffset
                 );
+                localOffset = vec(-DISTANCE_LEFT, 0, -DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 soundPosition2 = Vec3.sum(
-                    barrelBackRightPosition, 
-                    vec(0, HEIGHT, 0)
+                    avatarPosition, 
+                    worldOffset
                 );
                 userData.performance.endPointGroupID = GROUP_RIGHT;
             }
@@ -469,39 +497,48 @@
                 lightPosition,
                 lightPosition2,                
                 DIMENSION_SIZE = 30,
+                localOffset,
+                worldOffset,
+                DISTANCE_LEFT = -1,
+                DISTANCE_DEPTH = -1,
                 lightDimensions = vec(DIMENSION_SIZE, DIMENSION_SIZE, DIMENSION_SIZE),
                 lightRotation = Quat.fromPitchYawRollDegrees(0,0,0),
                 color = makeColor(70, 90, 100),
                 isSpot = false,
                 stringified,
                 userData = {},
-                HEIGHT = 1,
-                DISTANCE_LEFT = 0,
-                DISTANCE_BACK = 0,
-                DISTANCE_BACK2 = 0;
+                HEIGHT = 1;
 
             userData.performance = {
                 type: ENDPOINT
             };
 
             if (side === LEFT) {
+                localOffset = vec(DISTANCE_LEFT, 0, DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 lightPosition = Vec3.sum(
-                    barrelStageLeftPosition, 
-                    vec(DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
+                    avatarPosition, 
+                    worldOffset
                 );
+                localOffset = vec(DISTANCE_LEFT, 0, -DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 lightPosition2 = Vec3.sum(
-                    barrelBackLeftPosition, 
-                    vec(DISTANCE_LEFT, HEIGHT, DISTANCE_BACK2)
+                    avatarPosition, 
+                    worldOffset
                 );
                 userData.performance.endPointGroupID = GROUP_LEFT;
             } else {
+                localOffset = vec(-DISTANCE_LEFT, 0, DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 lightPosition = Vec3.sum(
-                    barrelStageRightPosition, 
-                    vec(-DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
+                    avatarPosition, 
+                    worldOffset
                 );
+                localOffset = vec(-DISTANCE_LEFT, 0, -DISTANCE_DEPTH);
+                worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 lightPosition2 = Vec3.sum(
-                    barrelBackRightPosition, 
-                    vec(-DISTANCE_LEFT, HEIGHT, DISTANCE_BACK2)
+                    avatarPosition, 
+                    worldOffset
                 );
                 userData.performance.endPointGroupID = GROUP_RIGHT;
             }
@@ -560,7 +597,7 @@
 
             if (side === LEFT) {
                 boxPosition = Vec3.sum(
-                    djTableProps[1].position, 
+                    inFrontOfAvatar, 
                     vec(DISTANCE_LEFT, DISTANCE_HEIGHT, DISTANCE_BACK)
                 );
                 color = makeColor(20, 200, 0);
@@ -568,7 +605,7 @@
                 userData.performance.endPointGroups = [GROUP_LEFT];
             } else {
                 boxPosition = Vec3.sum(
-                    djTableProps[1].position,
+                    inFrontOfAvatar,
                     vec(-DISTANCE_LEFT, DISTANCE_HEIGHT, DISTANCE_BACK)
                 );
                 color = makeColor(200, 20, 0);
@@ -617,13 +654,13 @@
 
             if (side === LEFT) {
                 modelPosition = Vec3.sum(
-                    djTableProps[1].position, 
+                    inFrontOfAvatar, 
                     vec(DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
                 );
                 url = particlePadLeftModel;
             } else {
                 modelPosition = Vec3.sum(
-                    djTableProps[1].position, 
+                    inFrontOfAvatar, 
                     vec(-DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
                 );
                 url = particlePadRightModel;
@@ -661,7 +698,7 @@
             ZONE_DEPTH = 1.3;
 
         zonePosition = Vec3.sum(
-            djTableProps[1].position, 
+            inFrontOfAvatar, 
             vec(0, HEIGHT, DISTANCE_BACK)
         );
 
