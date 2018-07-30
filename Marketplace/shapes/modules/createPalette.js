@@ -81,7 +81,7 @@ CreatePalette = function (side, leftInputs, rightInputs, uiCommandCallback) {
 
         PALETTE_TITLE_PROPERTIES = {
             url: Script.resolvePath("../assets/create/create-heading.svg"),
-            scale: 0.0363,
+            scale: 0.0384,
             localPosition: {
                 x: 0,
                 y: 0,
