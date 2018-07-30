@@ -46,7 +46,6 @@
 
     // usernames inside userData
     var _usernames; // userData names
-    var checkUserDataInterval;
     
     // marketplace lookup variables
     var WEARABLE_SEARCH_RADIUS = 10;
@@ -263,11 +262,6 @@
 
             }, LOAD_TIME);
 
-        },
-        unload: function () {
-            if (checkUserDataInterval) {
-                Script.clearInterval(checkUserDataInterval);
-            }
         }
     };
 
