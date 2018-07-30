@@ -94,16 +94,16 @@ InstrumentClone.prototype = {
         }
     },
 
-    clickReleaseOnEntity: function (entityID, mouseEvent) {
+    // clickReleaseOnEntity: function (entityID, mouseEvent) {
 
-        if (mouseEvent.isLeftButton) {
-            if (!this.playing) {
-                this.startSound();
-            } else {
-                this.stopSound();
-            }
-        }
-    },
+    //     if (mouseEvent.isLeftButton) {
+    //         if (!this.playing) {
+    //             this.startSound();
+    //         } else {
+    //             this.stopSound();
+    //         }
+    //     }
+    // },
 
     unload: function () {
         this.stopSound();
