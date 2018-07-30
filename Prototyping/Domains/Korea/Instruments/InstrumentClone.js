@@ -24,11 +24,12 @@ var LIFETIME_ON_RELEASE = 8;
 var SECS_TO_MS = 1000;
 var UPDATE_POSITION_MS = 50;
 var FIRST_LOAD_TIMEOUT = 50;
+var DEFAULT_VOLUME_LEVEL = 0.1;
 var DEBUG = false;
 
 var InstrumentClone = function (musicURLs, audioVolumeLevel) {
     this.musicURLs = musicURLs;
-    this.audioVolumeLevel = audioVolumeLevel || 0.3;
+    this.audioVolumeLevel = audioVolumeLevel || DEFAULT_VOLUME_LEVEL;
     this.injector = null;
     this.playing = false;
     this.sounds = [];
