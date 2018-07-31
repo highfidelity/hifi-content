@@ -172,7 +172,7 @@ InstrumentClone.prototype = {
             // Play sound
             this.injector = Audio.playSound(sound, {
                 position: position,
-                volume: _this.audioVolumeLevel
+                inputVolume: _this.audioVolumeLevel
             });
 
             this.playing = true;
