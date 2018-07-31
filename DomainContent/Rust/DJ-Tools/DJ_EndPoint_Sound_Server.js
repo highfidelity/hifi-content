@@ -27,7 +27,7 @@
 
     LOG_CONFIG[LOG_ENTER] = false;
     LOG_CONFIG[LOG_UPDATE] = false;
-    LOG_CONFIG[LOG_ERROR] = true;
+    LOG_CONFIG[LOG_ERROR] = false;
     LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
@@ -44,7 +44,6 @@
         DEBUG = false,
         debugCubeID = null,
         dispatchZoneID = null,
-        canEdit = false,
         name = null,
         CAN_EDIT_TIMEOUT = 500,
         TURNOFF_AFTER_CHECK = 15000,
@@ -65,25 +64,34 @@
     
     // Procedural Functions
     function turnOnSound() {
-        shortInjector = Audio.playSound(shortSoundObject, {
-            position: currentProperties.position,
-            volume: 0.7,
-            loop: false
-        });
-        longInjector = Audio.playSound(longSoundObject, {
-            position: currentProperties.position,
-            volume: 0.2,
-            loop: false
-        });
+        if (!shortInjector) {
+            shortInjector = Audio.playSound(shortSoundObject, {
+                position: currentProperties.position,
+                volume: 0.7,
+                loop: false
+            });
+        } else {
+            shortInjector.restart();
+        }
+
+        // if (!longInjector) {
+        //     longInjector = Audio.playSound(longSoundObject, {
+        //         position: currentProperties.position,
+        //         volume: 0.2,
+        //         loop: false
+        //     });
+        // } else {
+        //     longInjector.restart();
+        // }
     }
 
     function turnOffSound() {
-        try {
-            // shortInjector.stop();
-            longInjector.stop();
-        } catch (e) {
-            log(LOG_ERROR, "ERROR STOPPING INJECTORS", e);
+        if (shortInjector.isPlaying) {
+            shortInjector.stop();
         }
+        // if (longInjector.isPlaying) {
+        //     longInjector.stop();
+        // }
     }
 
     function editLongSound() {
@@ -146,19 +154,19 @@
             }
         },
         turnOn: function () {
+            log(LOG_ENTER, name + " TURN ON");
             turnOnSound();
         },
         turnOff: function () {
+            log(LOG_ENTER, name + " TURN OFF");
             turnOffSound();
         },
         edit: function (id, param) {
+            log(LOG_ENTER, name + " EDIT");
             range = JSON.parse(param[0]);
             directionArray = JSON.parse(param[1]);
             sessionID = param[2];
-            if (!canEdit) {
-                return;
-            }
-            editLongSound();
+            // editLongSound();
         },
         updateDebugCubeID: function(id, param) {
             var newDebugCubeID = param[0];

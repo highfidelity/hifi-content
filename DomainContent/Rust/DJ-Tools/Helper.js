@@ -157,6 +157,7 @@ function getUserData(id, defaultObject, cb) {
 function searchForChildren(parentID, names, callback, timeoutMs, outputPrint) {
     // Map from name to entity ID for the children that have been found
     var foundEntities = {};
+    var foundAllEntities = false;
     for (var i = 0; i < names.length; ++i) {
         foundEntities[names[i]] = null;
     }
@@ -171,12 +172,11 @@ function searchForChildren(parentID, names, callback, timeoutMs, outputPrint) {
         var childrenIDs = Entities.getChildrenIDs(parentID);
         if (outputPrint) {
             print("\tNumber of children:", childrenIDs.length);
+            print("\check:", check);
+
         }
         for (var i = 0; i < childrenIDs.length; ++i) {
-            if (outputPrint) {
-                print("names: " + JSON.stringify(names));
-                print("\t\t" + i + ".", Entities.getEntityProperties(childrenIDs[i]).name);
-            }
+
 
             var id = childrenIDs[i];
             var name = Entities.getEntityProperties(id, 'name').name;
@@ -190,8 +190,16 @@ function searchForChildren(parentID, names, callback, timeoutMs, outputPrint) {
         }
 
         if (names.length === 0 || check >= maxChecks) {
+            if (outputPrint) {
+                print("names: " + JSON.stringify(names));
+            }
+            if (names.length > 0) {
+                callback(foundEntities, foundAllEntities, names);
+            } else {
+                foundAllEntities = true;
+                callback(foundEntities, foundAllEntities);
+            }
             Script.clearInterval(intervalID);
-            callback(foundEntities);
         }
     }, CHECK_EVERY_MS);
 }
