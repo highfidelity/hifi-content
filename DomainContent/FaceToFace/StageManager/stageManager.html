@@ -80,6 +80,15 @@
                 input[type=button][pressed=pressed] {
                     color: #00b4ef;
                 }
+                input[type=text] {
+                    padding: 2px 10px;
+                    margin: 2px 0;
+                    box-sizing: border-box;
+                    border: 3px solid #ccc;
+                    outline: none;
+                    font-family: 'Raleway';
+                    margin-right: 6px;
+                }
     
             </style>
     </head>
@@ -97,6 +106,11 @@
         <p>
         <input type="button" class="gray" id="screenSetup" value="Set Up Screens">  </input>   
         <br>
+        <h3>Synchronized Web Overlays</h3>
+        <input type ="button" class="gray" id="spawnWebOverlay" value="Spawn Web Overlay">  </input>
+        <input type ="button" class="gray" id="removeSpawnedOverlay" value="Remove Web Overlay"> </input> <br><br>
+        <input type="text" id="setOverlayWebUrl" value ="Web Overlay URL"> </input>
+        <input type="button" class="gray" id="setOverlayWebUrlButton" value ="Set"></input>
         <h3>Backdrop</h3>
         <input type="button" class="gray" id="backdropDown" value="Lower Backdrop">  </input>
         <input type="button" class="gray" id="backdropUp" value = "Hide Backdrop"></input>
@@ -116,6 +130,27 @@
         <input type="button" class="gray" id="restoreSet" value="Restore">  </input>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
+            $('#setOverlayWebUrlButton').click(function(){
+                var event = {
+                    type: 'setWebOverlayUrl',
+                    url: $('#setOverlayWebUrl').val()
+                }
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#spawnWebOverlay').click(function(){
+                var event = {
+                    type: 'spawnWebOverlay'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#removeSpawnedOverlay').click(function() {
+                var event = {
+                    type: 'removeSpawnedOverlay'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
             $('#webUpLeft').click(function(){
                 var event = {
                     type: "webUpLeft"                
