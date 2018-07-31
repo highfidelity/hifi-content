@@ -154,15 +154,12 @@
             }
         },
         turnOn: function () {
-            log(LOG_ENTER, name + " TURN ON");
             turnOnSound();
         },
         turnOff: function () {
-            log(LOG_ENTER, name + " TURN OFF");
             turnOffSound();
         },
         edit: function (id, param) {
-            log(LOG_ENTER, name + " EDIT");
             range = JSON.parse(param[0]);
             directionArray = JSON.parse(param[1]);
             sessionID = param[2];
