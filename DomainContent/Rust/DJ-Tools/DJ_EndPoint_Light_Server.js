@@ -28,7 +28,7 @@
 
     LOG_CONFIG[LOG_ENTER] = false;
     LOG_CONFIG[LOG_UPDATE] = false;
-    LOG_CONFIG[LOG_ERROR] = true;
+    LOG_CONFIG[LOG_ERROR] = false;
     LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
@@ -163,12 +163,15 @@
             }
         },
         turnOn: function () {
+            log(LOG_ENTER, name + " TURN ON");
             turnOnLight();
         },
         turnOff: function () {
+            log(LOG_ENTER, name + " TURN OFF");
             turnOffLight();
         },
         edit: function (id, param) {
+            log(LOG_ENTER, name + " EDIT")
             range = JSON.parse(param[0]);
             directionArray = JSON.parse(param[1]);
             sessionID = param[2];

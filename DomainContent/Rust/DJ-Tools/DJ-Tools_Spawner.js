@@ -51,9 +51,10 @@
         dispatchZoneServerScript = baseURL + 'DJ_Dispatch_Zone_Server.js',
         sensorBoxClientScript = baseURL + 'DJ_Sensor_Box_Client.js',
         generatorDebugCubeScript = baseURL + 'DJ_Generator_Debug_Cube_Client.js',
+        emptyServerScript = baseURL = "DJ_Empty_ServerScript.js",
         dispatchZoneID = null,
         DEBUG = false,
-        CREATE_TIMEOUT = 250,
+        CREATE_TIMEOUT = 100,
         LEFT = "Left",
         RIGHT = "Right",
         LEFT_HAND = "LeftHand",
@@ -197,6 +198,7 @@
             position: position,
             locked: false,
             script: generatorDebugCubeScript + "?v=" + Date.now(),
+            serverScripts: emptyServerScript,
             dimensions: dimensions,
             color: color,
             visible: true,
@@ -219,6 +221,7 @@
             position: position,
             locked: false,
             script: sensorBoxClientScript + "?v=" + Date.now(),
+            serverScripts: emptyServerScript,
             dimensions: dimensions,
             color: color,
             visible: false,
@@ -260,6 +263,7 @@
             modelURL: url,
             position: position,
             rotation: rotation,
+            serverScripts: emptyServerScript,
             locked: false,
             dimensions: dimensions,
             collisionless: true,
@@ -684,6 +688,7 @@
     }
 
     function updateDispatchZoneChildNames() {
+        log(LOG_ENTER, "updating children");
         var namesToUpdate = entityNames.filter(function(name) {
             return name.indexOf("_Dispatch_Zone") === -1;
         });

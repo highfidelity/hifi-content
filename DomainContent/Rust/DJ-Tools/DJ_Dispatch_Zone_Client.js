@@ -16,7 +16,8 @@
     var checkIfIn = Util.Maths.checkIfIn,
         checkIfInNonAligned = Util.Maths.checkIfInNonAligned,
         largestAxisVec = Util.Maths.largestAxisVec,
-        makeMinMax = Util.Maths.makeMinMax;
+        makeMinMax = Util.Maths.makeMinMax,
+        makeOriginMinMax = Util.Maths.makeOriginMinMax;
 
     // Log Setup
     var LOG_CONFIG = {},
@@ -26,10 +27,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = true;
-    LOG_CONFIG[LOG_UPDATE] = true;
-    LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_ENTER] = false;
+    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ERROR] = false;
+    LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -40,9 +41,10 @@
         name = null,
         avatarInsideCheckTimer = null,
         avatarCheckStep = 0,
-        HEARTBEAT_INTERVAL = 3000,
+        HEARTBEAT_INTERVAL = 1000,
         AVATARCHECK_DURATION = 4000,
         AVATARCHECK_INTERVAL = 500,
+        WAIT_TO_TURN_ON_TIME = 2500,
         MAX_CHECKS = Math.ceil(AVATARCHECK_DURATION / AVATARCHECK_INTERVAL),
         GENERATOR = "generator",       
         SENSOR = "sensor",
@@ -56,6 +58,7 @@
         position = {},
         rotation = {},
         minMax = {},
+        originMinMax = {},
         userData = {},
         userdataProperties = {};
 
@@ -75,6 +78,7 @@
             rotation = currentProperties.rotation;
             dimensions = currentProperties.dimensions;
             minMax = makeMinMax(dimensions, position);
+            originMinMax = makeOriginMinMax(dimensions);
 
             userData = currentProperties.userData;
             try {
@@ -84,50 +88,46 @@
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }
 
-            avatarInsideCheckTimer = Script.setInterval(function() {
-                avatarCheckStep++;
-                var largestDimension = largestAxisVec(dimensions);
-                var avatarsInRange = AvatarList.getAvatarsInRange(position, largestDimension).filter(function(id) {
-                    return id === MyAvatar.sessionUUID;
-                });
+            avatarInsideCheckTimer = Script.setInterval(this.avatarInRange, AVATARCHECK_INTERVAL);
+        },
+        avatarInRange: function () {
+            avatarCheckStep++;
+            var largestDimension = largestAxisVec(dimensions);
+            var avatarsInRange = AvatarList.getAvatarsInRange(position, largestDimension).filter(function(id) {
+                return id === MyAvatar.sessionUUID;
+            });
 
-                if (avatarsInRange.length > 0) {
-                    if (checkIfIn(MyAvatar.position, minMax)) {
-                        self.enterEntity();
-                        Script.clearInterval(avatarInsideCheckTimer);
-                        avatarInsideCheckTimer = null;
-                        return;
-                    }
-                }
-
-                if (avatarCheckStep >= MAX_CHECKS) {
+            if (avatarsInRange.length > 0) {
+                if (checkIfInNonAligned(MyAvatar.position, position, rotation, originMinMax)) {
+                    Script.setTimeout(self.enterEntity,WAIT_TO_TURN_ON_TIME);
                     Script.clearInterval(avatarInsideCheckTimer);
                     avatarInsideCheckTimer = null;
+                    avatarCheckStep = 0;
                     return;
                 }
-            }, AVATARCHECK_INTERVAL);
+            }
+
+            if (avatarCheckStep >= MAX_CHECKS) {
+                Script.clearInterval(avatarInsideCheckTimer);
+                avatarInsideCheckTimer = null;
+                avatarCheckStep = 0;
+                return;
+            }
         },
         enterEntity: function () {
             Entities.callEntityServerMethod(entityID, "turnOn", [MyAvatar.sessionUUID]);
-            this.startHeartBeats();
+            self.startHeartBeats();
         },
         leaveEntity: function () {
             Entities.callEntityServerMethod(entityID, "requestTurnOff");
-
-            if (heartBeatTimer) {
-                Script.clearInterval(heartBeatTimer);
-                heartBeatTimer = null;
-            }
         },
         startHeartBeats: function () {
-            heartBeatTimer = Script.setInterval(function() {
+            if (checkIfInNonAligned(MyAvatar.position, position, rotation, originMinMax)) {            
                 Entities.callEntityServerMethod(entityID, "receiveHeartBeat", [MyAvatar.sessionUUID]);
-            }, HEARTBEAT_INTERVAL);
+                Script.setTimeout(self.startHeartBeats, HEARTBEAT_INTERVAL);
+            }
         },
         unload: function () {
-            if (heartBeatTimer) {
-                Script.clearInterval(heartBeatTimer);
-            }
             if (avatarInsideCheckTimer) {
                 Script.clearInterval(avatarInsideCheckTimer);
             }

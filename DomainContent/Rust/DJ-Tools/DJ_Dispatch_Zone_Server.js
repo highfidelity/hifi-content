@@ -25,10 +25,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = true;
-    LOG_CONFIG[LOG_UPDATE] = true;
-    LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_ENTER] = false;
+    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ERROR] = false;
+    LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -42,6 +42,8 @@
         HEARTBEAT_CHECK_INTERVAL = 1500,
         HEARTBEAT_TIMEOUT = 2000,
         heartbeatCheck = null,
+        lastEdit = 0,
+        LAST_EDIT_TIMEOUT = 2500,
         SEARCH_FOR_CHILDREN_TIMEOUT = 5000,
         SEARCH_FOR_CHILDNAME_TIMEOUT = 1000,
         TURN_ON = "turnOn",
@@ -121,7 +123,10 @@
         this.endPointGroups = endPointGroups;
         this.endPoints = [];
         this.currentGenerators = {};
-        this.canEdit = false;2
+        this.canEdit = false;
+        this.activeGenerator = null;
+        this.activeUUID = null;
+        this.lastEdit = 0;
     }
 
     Sensor.prototype = {
@@ -179,7 +184,7 @@
         clearDebugEndpointInfo: function (id) {
             generators[0].clearDebugEndpointInfo();
         },
-        heartBeatHelper: function (id) {
+        heartBeatHelper: function () {
             var shouldKeepActive = false,
                 now = Date.now(),
                 avatars = Object.keys(avatarsInZone);
@@ -209,7 +214,7 @@
 
                 var childNameTimeOutFunction = function () {
                     userdataProperties = getUserData(entityID);
-                    if (userdataProperties.childNamesUpdated === false) {
+                    if (!userdataProperties.performance.childNamesUpdated) {
                         Script.setTimeout(childNameTimeOutFunction, SEARCH_FOR_CHILDNAME_TIMEOUT);
                     } else {
                         childNames = userdataProperties.performance.childNames;
@@ -218,12 +223,16 @@
                             childrenIDS[name] = null;
                         });
 
-                        var searchCallback = function (children) {
-                            loadedChildren = true;
-                            Object.keys(children).forEach(function (name) {
-                                childrenIDS[name] = children[name];
-                            });
-                            self.updateComponents();
+                        var searchCallback = function (children, foundAllEntities, names) {
+                            if (foundAllEntities) {
+                                loadedChildren = true;
+                                Object.keys(children).forEach(function (name) {
+                                    childrenIDS[name] = children[name];
+                                });
+                                self.updateComponents();
+                            } else {
+                                searchForChildren(entityID, names, searchCallback, SEARCH_FOR_CHILDREN_TIMEOUT, true);
+                            }
                         };
 
                         searchForChildren(entityID, childNamesToSearch, searchCallback, SEARCH_FOR_CHILDREN_TIMEOUT, true);
@@ -241,7 +250,15 @@
         receiveHeartBeat: function (id, param) {
             var avatarID = param[0];
             avatarsInZone[avatarID] = Date.now();
-            lastHeartBeat = Date.now();
+            sensors.forEach(function(sensor) {
+                if (sensor.canEdit && Date.now() - sensor.lastEdit > LAST_EDIT_TIMEOUT) {
+                    var sensorEndpoints = sensor.endPoints;
+                    sensor.activeUUID = null;
+                    sensor.activeGenerator = null;
+                    self.sendOff(sensorEndpoints);
+                    sensor.canEdit = false;
+                }
+            });
         },
         requestTurnOff: function() {
             this.heartBeatHelper();
@@ -327,41 +344,39 @@
                 direction = param[1],
                 generator = param[2],
                 box = param[3],
-                sensorID = param[4];            
+                sensorID = param[4],
+                uuid = param[5];    
             
             var sensorIndex = this.returnSensorIndex(sensorID);
-            
-            var prevKeysLength = Object.keys(sensors[sensorIndex].currentGenerators).length;
-            if (box === IN_BOX) {
-                sensors[sensorIndex].currentGenerators[generator] = true;
-            }
-            if (box === IN_MARGIN) {
-                try {
-                    delete sensors[sensorIndex].currentGenerators[generator];
-                } catch (e) {
-                    // 
-                }
-            }
-            var currentKeysLength = Object.keys(sensors[sensorIndex].currentGenerators).length;
-
+            var sensor = sensors[sensorIndex];
             var sensorEndpoints = sensors[sensorIndex].endPoints;
 
-            if (prevKeysLength === 0 && currentKeysLength > 0) {
-                sensors[sensorIndex].canEdit = true;
-                this.sendOn(sensorEndpoints);
-                return;
+            if (box === IN_BOX) {
+                if (!sensor.activeUUID && !sensor.activeGenerator) {
+                    sensor.activeUUID = uuid;
+                    sensor.activeGenerator = generator;
+                    this.sendOn(sensorEndpoints);
+                    sensors[sensorIndex].canEdit = true;
+                    return;
+                }
+                if (sensor.activeGenerator === generator && 
+                    sensor.activeUUID === uuid &&
+                    sensor.canEdit) {
+                    sensor.lastEdit = Date.now();
+                    this.sendEdit(sensorEndpoints, range, direction);
+                    return;
+                }
             }
 
-            if (prevKeysLength > 0 && currentKeysLength === 0) {
-                sensors[sensorIndex].canEdit = false;
-                this.sendOff(sensorEndpoints);
-                return;
+            if (box === IN_MARGIN) {
+                if (sensor.activeUUID === uuid &&
+                    sensor.activeGenerator === generator) {
+                    sensor.activeUUID = null;
+                    sensor.activeGenerator = null;
+                    this.sendOff(sensorEndpoints);
+                    sensor.canEdit = false;
+                }
             }
-
-            if (sensors[sensorIndex].canEdit) {
-                this.sendEdit(sensorEndpoints, range, direction);
-            }
-        
         },
         turnOff: function () {
             isOn = false;

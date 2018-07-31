@@ -33,10 +33,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = true;
-    LOG_CONFIG[LOG_UPDATE] = true;
-    LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_ENTER] = false;
+    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ERROR] = false;
+    LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -133,12 +133,12 @@
         turnOff: function () {
             Script.update.disconnect(this.onUpdate);
         },
-        submitEvent: function (positionToCheck, generator, box) {
+        submitEvent: function (positionToCheck, generator, box, uuid) {
             newRange = whereOnRange(positionToCheck, minMax);
             var stringifiedRange = JSON.stringify(newRange);
             var stringifiedDirections = JSON.stringify(directionArray);
             Entities.callEntityServerMethod(dispatchZoneID, "submitEvent",
-                [stringifiedRange, stringifiedDirections, generator, box, entityID]
+                [stringifiedRange, stringifiedDirections, generator, box, entityID, uuid]
             );
         },
         getGeneratorPosition: function (generator) {
@@ -168,10 +168,10 @@
                     log(LOG_ERROR, "ERROR TRYING TO GET TARGET POSITION FOR " + generator, e, 1000);
                 }
                 if (resultInBox) {
-                    self.submitEvent(positionToCheck, generator, IN_BOX);
+                    self.submitEvent(positionToCheck, generator, IN_BOX, MyAvatar.sessionUUID);
                 }
                 if (resultInMargin && !resultInBox) {
-                    self.submitEvent(positionToCheck, generator, IN_MARGIN);
+                    self.submitEvent(positionToCheck, generator, IN_MARGIN, MyAvatar.sessionUUID);
                 }
             });
         },
