@@ -15,7 +15,7 @@
 (function () {
 
     // Helper Functions
-    var Util = Script.require("./Helper.js?" + Date.now());
+    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
 
     // Log Setup
     var LOG_CONFIG = {},
@@ -41,7 +41,6 @@
         kioskZoneID,
         self,
         currentHand = 0,
-        event = 0,
         rating = 1;
 
     // Const
@@ -75,7 +74,6 @@
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
-                event = userdataProperties.event;
                 rating = userdataProperties.rating;
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
@@ -95,7 +93,7 @@
             currentUUID = param[0];
 
             Entities.callEntityClientMethod(currentUUID, entityID, "makeHaptic");
-            Entities.callEntityMethod(kioskZoneID, "sendInput", [event, new Date(), rating]);
+            Entities.callEntityMethod(kioskZoneID, "sendInput", [new Date(), rating]);
 
             self.lowerButton();
             Script.setTimeout(function() {

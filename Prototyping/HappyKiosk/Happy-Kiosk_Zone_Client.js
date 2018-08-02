@@ -13,7 +13,8 @@
 
 (function () {
     // Helper Functions
-    var Util = Script.require("./Helper.js?" + Date.now());
+    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
+    
     var checkIfInNonAligned = Util.Maths.checkIfInNonAligned,
         largestAxisVec = Util.Maths.largestAxisVec,
         makeOriginMinMax = Util.Maths.makeOriginMinMax;
@@ -26,10 +27,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = true;
-    LOG_CONFIG[LOG_UPDATE] = true;
-    LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_ENTER] = false;
+    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ERROR] = false;
+    LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -45,7 +46,8 @@
     var AVATARCHECK_DURATION = 4000,
         AVATARCHECK_INTERVAL = 500,
         WAIT_TO_TURN_ON_TIME = 2500,
-        MAX_CHECKS = Math.ceil(AVATARCHECK_DURATION / AVATARCHECK_INTERVAL);
+        MAX_CHECKS = Math.ceil(AVATARCHECK_DURATION / AVATARCHECK_INTERVAL),
+        HEARTBEAT_INTERVAL = 1000;
 
     // Collections
     var currentProperties = {},
@@ -109,13 +111,19 @@
         },
         enterEntity: function () {
             log(LOG_ENTER, name + " enterEntity");
-
             Entities.callEntityServerMethod(entityID, "turnOn", [MyAvatar.sessionUUID, AccountServices.username]);
+            self.startHeartBeats();
         },
         leaveEntity: function () {
             log(LOG_ENTER, name + " leaveEntity");
 
             Entities.callEntityServerMethod(entityID, "requestTurnOff", [MyAvatar.sessionUUID]);
+        },
+        startHeartBeats: function () {
+            if (checkIfInNonAligned(MyAvatar.position, position, rotation, originMinMax)) {            
+                Entities.callEntityServerMethod(entityID, "receiveHeartBeat", [MyAvatar.sessionUUID]);
+                Script.setTimeout(self.startHeartBeats, HEARTBEAT_INTERVAL);
+            }
         },
         unload: function () {
         }

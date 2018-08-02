@@ -15,7 +15,7 @@
 (function () {
 
     // Helper Functions
-    var Util = Script.require("./Helper.js?" + Date.now());
+    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
 
     // Log Setup
     var LOG_CONFIG = {},
