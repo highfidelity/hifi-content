@@ -40,12 +40,15 @@
         position,
         kioskZoneID,
         self,
+        originalTextures,
+        onTexture,
+        offTexture,
         currentHand = 0,
         rating = 1;
 
     // Const
     var BASE_NAME = "Happy-Kiosk_",
-        BUTTON_PRESS_OFFSET = 0.03,
+        BUTTON_PRESS_OFFSET = 0.04,
         DOWN_TIME_MS = 2000;
 
         // Collections
@@ -70,26 +73,38 @@
             name = currentProperties.name;
             position = currentProperties.position;
             kioskZoneID = currentProperties.parentID;
+            originalTextures = JSON.parse(currentProperties.originalTextures);
 
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
                 rating = userdataProperties.rating;
+                onTexture = userdataProperties.onTexture;
+                offTexture = userdataProperties.offTexture;
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }
         },
         lowerButton: function() {
+            var data = {
+                Texture: onTexture
+            };
+
             log(LOG_ENTER, name + " lowerButton");
             position.y -= BUTTON_PRESS_OFFSET;
+            log(LOG_VALUE, "POSITION", position.y);
             Entities.editEntity(entityID, {
-                position: position
+                position: position,
+                textures: JSON.stringify(data)
             });
             position.y += BUTTON_PRESS_OFFSET;
+
+            log(LOG_VALUE, "POSITION", position.y);
+
         },
         pressButton: function(id, param) {
             log(LOG_ENTER, name + " pressButton");
-
+            position = Entities.getEntityProperties(entityID, ["position"]).position;
             currentUUID = param[0];
 
             Entities.callEntityClientMethod(currentUUID, entityID, "makeHaptic");
@@ -103,9 +118,13 @@
         },
         raiseButton: function() {
             log(LOG_ENTER, name + " raiseButton");
+            var data = {
+                Texture: offTexture
+            };
 
             Entities.editEntity(entityID, {
-                position: position
+                position: position,
+                textures: JSON.stringify(data)
             });
         },
         updateCurrentHand: function(id, param) {
