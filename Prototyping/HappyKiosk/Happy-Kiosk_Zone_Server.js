@@ -14,7 +14,7 @@
 
 (function () {
     // Helper Functions
-    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
+    var Util = Script.require("../../Utilities/Helper.js?");
     
     var searchForChildren = Util.Entity.searchForChildren;
 
@@ -58,7 +58,8 @@
         SEARCH_FOR_CHILDNAME_TIMEOUT = 1000,
         HEARTBEAT_TIMEOUT = 2000,
         HEARTBEAT_CHECK_INTERVAL = 2500,
-        PRESS_DEBOUNCE_TIME = 3000;
+        PRESS_DEBOUNCE_TIME = 3000,
+        CHIME_VOLUME = 0.75;
 
     // Collections
     var currentProperties = {},
@@ -151,7 +152,8 @@
 
             if (isAvailableToPress) {
                 soundInjector = Audio.playSound(sound, {
-                    position: position
+                    position: position,
+                    volume: CHIME_VOLUME
                 });
                 Entities.callEntityMethod(childrenIDS[buttonName], "pressButton", [currentAvatarUUID]);
                 isAvailableToPress = false;

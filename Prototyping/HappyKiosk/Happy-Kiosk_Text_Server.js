@@ -5,16 +5,14 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
-// Temporary file that will be replaced with a model, but will probably use the same interface
+// Makes the thank you visible
 
 /* global Pointers */
 
 (function () {
 
     // Helper Functions
-    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
-
-    var vec = Util.Maths.vec;
+    var Util = Script.require("../../Utilities/Helper.js?");
 
     // Log Setup
     var LOG_CONFIG = {},
@@ -33,21 +31,14 @@
 
     // Init 
     var entityID,
-        name,
-        kioskZoneID,
-        isVisible = false;
+        name;
 
     // Const
-    var BASE_NAME = "Happy-Kiosk_",
-        DISTANCE_ABOVE = 0.5,
-        VISIBLE_TIME = 2000;
+    var VISIBLE_TIME = 2000;
 
-        // Collections
-    var currentProperties = {},
-        position = {},
-        userData = {},
-        userdataProperties = {};
-
+    // Collections
+    var currentProperties = {};
+    
     // Entity Definition
     function HappyKiosk_Text_Server() {
         self = this;
@@ -61,14 +52,6 @@
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
             name = currentProperties.name;
-            kioskZoneID = currentProperties.parentID;
-
-            userData = currentProperties.userData;
-            try {
-                userdataProperties = JSON.parse(userData);
-            } catch (e) {
-                log(LOG_ERROR, "ERROR READING USERDATA", e);
-            }
         },
         makeVisible: function(id, param) {
             log(LOG_ENTER, name + " makeVisible");
