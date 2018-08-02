@@ -149,7 +149,7 @@
                 isAvailableToPress = false;
                 Script.setTimeout(function() {
                     isAvailableToPress = true;
-                    Entities.callEntityMethod(childrenIDS[TEXT], "makeVisible", [JSON.stringify(childrenProps[buttonName].position)]);
+                    Entities.callEntityMethod(childrenIDS[TEXT], "makeVisible");
                 }, PRESS_DEBOUNCE_TIME);
             }
         },

@@ -72,19 +72,7 @@
         },
         makeVisible: function(id, param) {
             log(LOG_ENTER, name + " makeVisible");
-            var position = param[0];
-
-            try {
-                position = JSON.parse(position);
-            } catch (e) {
-                log(LOG_ERROR, "CANT PARSE POSITION");
-            }
-            var sumPosition = Vec3.sum(
-                position,
-                vec(0, DISTANCE_ABOVE, 0)
-            );
             var props = {
-                position: sumPosition,
                 visible: true
             };
 
