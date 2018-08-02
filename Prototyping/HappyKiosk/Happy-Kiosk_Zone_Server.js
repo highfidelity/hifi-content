@@ -46,6 +46,9 @@
         currentAvatarUUID = null,
         currentAvatarUserName = null,
         heartbeatCheck = null,
+        soundURL = Script.resolvePath("./bell.wav"),
+        sound = null,
+        soundInjector = null,
         self;
 
     // Consts
@@ -60,6 +63,7 @@
     // Collections
     var currentProperties = {},
         userData = {},
+        position = {},
         userdataProperties = {},
         childrenIDS = {},
         childrenProps = {},
@@ -90,6 +94,7 @@
             currentProperties = Entities.getEntityProperties(entityID);
             name = currentProperties.name;
 
+            sound = SoundCache.getSound(soundURL);
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
@@ -145,6 +150,9 @@
             }
 
             if (isAvailableToPress) {
+                soundInjector = Audio.playSound(sound, {
+                    position: position
+                });
                 Entities.callEntityMethod(childrenIDS[buttonName], "pressButton", [currentAvatarUUID]);
                 isAvailableToPress = false;
                 Entities.callEntityMethod(childrenIDS[TEXT], "makeVisible");
