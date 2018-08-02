@@ -441,7 +441,6 @@
             strokeBasePositionInProgress.splice(currentIndex, 1);
         },
         reeditStroke: function (entityID, params) {
-            // print("Server Reedit " + JSON.stringify(params));
             var lineID = params[0];
             var segments = utils.parseJSON(params[1]);
             var keepPointIndexes = utils.parseJSON(params[2]);
@@ -612,8 +611,9 @@
             pinkMarkerID = _this.spawnMarkerWithColor(PINK_MARKER_NAME, PINK_MARKER_COLOR);
             yellowMarkerID = _this.spawnMarkerWithColor(YELLOW_MARKER_NAME, YELLOW_MARKER_COLOR);
 
-            eraserID = null;
-            _this.spawnEraser(_this.entityID, [null]);
+            // This version does not use erasers
+            // eraserID = null;
+            // _this.spawnEraser(_this.entityID, [null]);
         },
         /// Remotely callable function that creates a new marker
         /// 
@@ -627,8 +627,6 @@
             var color = utils.parseJSON(params[2]);
 
             Entities.editEntity(params[0], { lifetime: SHORT_TOOL_LIFETIME });
-            print("Spawn Marker + " + blueMarkerID);
-            print("Spawn Marker paman0 + " + params[0]);
             if (markerName === "hifi_model_marker_blue" &&
                 (blueMarkerID === null || params[0] === blueMarkerID)) {
                 blueMarkerID = _this.spawnMarkerWithColor(markerName, color);

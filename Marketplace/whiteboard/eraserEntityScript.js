@@ -12,8 +12,6 @@
 
 (function() {
 
-    var wantDebug = false;
-    
     var _this;
 
     var isErasing = false;
@@ -65,15 +63,9 @@
 
     var throttleLockFindPoints = true;
     var throttleLockUpdatePosition = true; 
-    // Performance Debug
-    var totalThrottled = 0;
-    var totalCalled = 0.00001;
     // 2 / 60.0 *1000
     var throttleTimeoutMSFindPoints = 33.3;
     function throttle(callback , throttleLock, throttleTimeoutMS) {
-        if (wantDebug) {
-            totalCalled += 1;
-        }
         if (throttleLock) {
             throttleLock = false;
             Script.setTimeout(function () {
@@ -81,10 +73,6 @@
             }, throttleTimeoutMS);
             if (callback !== undefined) {
                 callback();
-            }
-            if (wantDebug) {
-                totalThrottled += 1;
-                print("Throttle percentage : " + totalThrottled/totalCalled);
             }
         }
     }
@@ -327,9 +315,7 @@
                 true
             );
         
-            
             var serverID = _this.whiteboard;
-            
             
             // Get projection vectors taking into account the eraser position and rotation
             var rotation = Quat.normalize(Entities.getEntityProperties(_this.entityID, "rotation").rotation);

@@ -90,18 +90,12 @@
 
     }
 
-    var wantDebug = false;
     var throttleLockPaint = true;
     var throttleLockUpdatePosition = true; 
     // Performance Debug
-    var totalThrottled = 0;
-    var totalCalled = 0.00001;
     // 2 / 60.0 *1000
     var throttleTimeoutMS = 33.3;
     function throttle(callback , throttleLock, throttleTimeoutMS) {
-        if (wantDebug) {
-            totalCalled += 1;
-        }
         if (throttleLock) {
             throttleLock = false;
             Script.setTimeout(function () {
@@ -109,10 +103,6 @@
             }, throttleTimeoutMS);
             if (callback !== undefined) {
                 callback();
-            }
-            if (wantDebug) {
-                totalThrottled += 1;
-                print("Throttle percentage : " + totalThrottled/totalCalled);
             }
         }
     }
@@ -455,6 +445,11 @@
             }
         },
         mouseMoveEvent: function(event) {
+            if (throttleLockUpdatePosition) {
+                throttle(undefined, throttleLockUpdatePosition, throttleTimeoutMS);
+            } else {
+                return;
+            }
             var serverID;
             if (_this.equipped && event.x !== undefined) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
@@ -517,20 +512,17 @@
 
                         // Server Side
                         serverID = getServerID();
-                        if (throttleLockUpdatePosition) {
-                            Entities.callEntityServerMethod(serverID, 
-                                'serverEditEntity', 
-                                [_this.entityID, 
-                                    JSON.stringify({
-                                        position: Vec3.sum(whiteBoardIntersection.intersection, markerZOffset),
-                                        rotation:  whiteboardRotation,
-                                        collisionless: true, 
-                                        grabbable: false
-                                    })
-                                ]
-                            );
-                        }
-                        throttle(undefined, throttleLockUpdatePosition, throttleTimeoutMS);
+                        Entities.callEntityServerMethod(serverID, 
+                            'serverEditEntity', 
+                            [_this.entityID, 
+                                JSON.stringify({
+                                    position: Vec3.sum(whiteBoardIntersection.intersection, markerZOffset),
+                                    rotation:  whiteboardRotation,
+                                    collisionless: true, 
+                                    grabbable: false
+                                })
+                            ]
+                        );
                         
                         if (isMouseDown && event.isLeftButton) {
                             if (shouldPaint) {
