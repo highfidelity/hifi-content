@@ -52,7 +52,7 @@
     // Const
     var BASE_NAME = "Happy-Kiosk_",
         BUTTON_PRESS_OFFSET = 0.05,
-        DOWN_TIME_MS = 3000;
+        DOWN_TIME_MS = 2000;
 
         // Collections
     var currentProperties = {},
