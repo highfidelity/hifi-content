@@ -15,7 +15,7 @@
 (function () {
 
     // Helper Functions
-    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
+    var Util = Script.require("../../Utilities/Helper.js?");
 
     // Log Setup
     var LOG_CONFIG = {},
@@ -36,19 +36,15 @@
     var 
         entityID,
         name,
-        currentUUID = null,
         position,
         kioskZoneID,
         self,
-        originalTextures,
         onTexture,
         offTexture,
-        currentHand = 0,
         rating = 1;
 
     // Const
-    var BASE_NAME = "Happy-Kiosk_",
-        BUTTON_PRESS_OFFSET = 0.04,
+    var BUTTON_PRESS_OFFSET = 0.04,
         DOWN_TIME_MS = 2000;
 
         // Collections
@@ -64,8 +60,7 @@
 
     HappyKiosk_Button.prototype = {
         remotelyCallable: [
-            "pressButton",
-            "updateCurrentHand"
+            "pressButton"
         ],
         preload: function (id) {
             entityID = id;
@@ -73,7 +68,6 @@
             name = currentProperties.name;
             position = currentProperties.position;
             kioskZoneID = currentProperties.parentID;
-            originalTextures = JSON.parse(currentProperties.originalTextures);
 
             userData = currentProperties.userData;
             try {
@@ -94,29 +88,23 @@
             }
         },
         lowerButton: function() {
+            log(LOG_ENTER, name + " lowerButton");
+
             var data = {
                 Texture: onTexture
             };
 
-            log(LOG_ENTER, name + " lowerButton");
             position.y -= BUTTON_PRESS_OFFSET;
-            log(LOG_VALUE, "POSITION", position.y);
-            log(LOG_VALUE, "DATA", data)
             Entities.editEntity(entityID, {
                 position: position,
                 textures: JSON.stringify(data)
             });
             position.y += BUTTON_PRESS_OFFSET;
-
-            log(LOG_VALUE, "POSITION", position.y);
-
         },
         pressButton: function(id, param) {
             log(LOG_ENTER, name + " pressButton");
             position = Entities.getEntityProperties(entityID, ["position"]).position;
-            currentUUID = param[0];
 
-            Entities.callEntityClientMethod(currentUUID, entityID, "makeHaptic");
             Entities.callEntityMethod(kioskZoneID, "sendInput", [new Date(), rating]);
 
             self.lowerButton();
@@ -130,15 +118,11 @@
             var data = {
                 Texture: offTexture
             };
-            log(LOG_VALUE, "DATA", data)
 
             Entities.editEntity(entityID, {
                 position: position,
                 textures: JSON.stringify(data)
             });
-        },
-        updateCurrentHand: function(id, param) {
-            currentHand = Number(param[0]);
         },
         unload: function () {
         }

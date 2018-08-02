@@ -1,21 +1,18 @@
 // Happy-Kiosk_Availability_Server.js
 // 
-// Further Edited by Milad Nazeri on 07/31-2018 from Zombie-Gate Button
-// Edited by Rebecca Stankus on 03/07/2018
-// from button1.js by Elisa Lupin-Jimenez
 // Copyright High Fidelity 2018
 //
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
-// Temporary file to show if the kiosk is available to be used.  Will use a similar interface.
+// Temporary file to show if the kiosk is available to be used.  Will use a similar interface.  Currently not being used but keeping in case needed for future iterations.
 
 /* global Pointers */
 
 (function () {
 
     // Helper Functions
-    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
+    var Util = Script.require("../../Utilities/Helper.js?");
 
     // Log Setup
     var LOG_CONFIG = {},
@@ -33,22 +30,14 @@
     var log = Util.Debug.log(LOG_CONFIG);
 
     // Init 
-    var entityID,
-        name,
-        kioskZoneID,
-        isVisible = false;
+    var entityID;
 
     // Const
-    var BASE_NAME = "Happy-Kiosk_",
-        AVAILABLE_TEXT = "Available to rate",
-        UNAVAILABLE_TEXT = "Occupied",
-        DISTANCE_ABOVE = 0.5,
-        VISIBLE_TIME = 2000;
+    var AVAILABLE_TEXT = "Available to rate",
+        UNAVAILABLE_TEXT = "Occupied";
 
         // Collections
-    var currentProperties = {},
-        userData = {},
-        userdataProperties = {};
+    var currentProperties = {};
 
     // Entity Definition
     function HappyKiosk_Availability_Server() {
@@ -63,15 +52,6 @@
         preload: function (id) {
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
-            name = currentProperties.name;
-            kioskZoneID = currentProperties.parentID;
-
-            userData = currentProperties.userData;
-            try {
-                userdataProperties = JSON.parse(userData);
-            } catch (e) {
-                log(LOG_ERROR, "ERROR READING USERDATA", e);
-            }
         },
         makeAvailable: function(id, param) {
             var props = {

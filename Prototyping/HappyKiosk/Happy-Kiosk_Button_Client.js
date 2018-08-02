@@ -15,13 +15,7 @@
 (function () {
 
     // Helper Functions
-    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
-
-    var getNameProps = Util.Entity.getNameProps,
-        getUserData = Util.Entity.getUserData,
-        updateUserData = Util.Entity.updateUserData,
-        makeColor = Util.Color.makeColor,
-        vec = Util.Maths.vec;
+    var Util = Script.require("../../Utilities/Helper.js?");
 
     // Log Setup
     var LOG_CONFIG = {},
@@ -43,22 +37,10 @@
         entityID,
         name,
         kioskZoneID,
-        userName,
-        self,
-        currentHand = 0,
-        event = 0,
-        rating = 1;
-
-    // Const
-    var BASE_NAME = "Happy-Kiosk_",
-        BUTTON_PRESS_OFFSET = 0.05,
-        DOWN_TIME_MS = 2000;
+        self;
 
         // Collections
-    var currentProperties = {},
-        position = {},
-        userData = {},
-        userdataProperties = {};
+    var currentProperties = {};
 
     // Entity Definition
     function Happy_Kiosk_Button() {
@@ -66,32 +48,11 @@
     }
 
     Happy_Kiosk_Button.prototype = {
-        remotelyCallable: [
-            "makeHaptic"
-        ],
         preload: function (id) {
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID);
             name = currentProperties.name;
-            position = currentProperties.position;
             kioskZoneID = currentProperties.parentID;
-
-            userData = currentProperties.userData;
-            try {
-                userdataProperties = JSON.parse(userData);
-                event = userdataProperties.event;
-                rating = userdataProperties.rating;
-            } catch (e) {
-                log(LOG_ERROR, "ERROR READING USERDATA", e);
-            }
-        },
-        makeHaptic: function(id, param) {
-            log(LOG_ENTER, "makeHaptic");
-            log(LOG_VALUE, "currentHand", currentHand);
-
-            var HAPTIC_STRENGTH = 1;
-            var HAPTIC_DURATION = 20;
-            Controller.triggerHapticPulse(HAPTIC_STRENGTH, HAPTIC_DURATION, currentHand);
         },
         mousePressOnEntity: function(entityID, mouseEvent) {
             log(LOG_ENTER, "MOUSE PRESS ON ENTITY");
@@ -103,13 +64,7 @@
         },
         stopNearTrigger: function(entityID, mouseEvent) {
             log(LOG_ENTER, "stopNearTrigger");
-            if (Pointers.isLeftHand(mouseEvent.id)) {
-                currentHand = 0;
-            } else if (Pointers.isRightHand(mouseEvent.id)) {
-                currentHand = 1;
-            }
-            Entities.callEntityServerMethod(entityID, "updateCurrentHand", [String(currentHand)]);
-            Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID]);
+            Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID, name]);
         },
         unload: function () {
         }

@@ -1,4 +1,4 @@
-// Happy-Kiosk_Zone_Server.js
+// Happy-Kiosk_Zone_Client.js
 //
 // Created by Milad Nazeri on 2018-06-19
 //
@@ -13,7 +13,7 @@
 
 (function () {
     // Helper Functions
-    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
+    var Util = Script.require("../../Utilities/Helper.js?");
     
     var checkIfInNonAligned = Util.Maths.checkIfInNonAligned,
         largestAxisVec = Util.Maths.largestAxisVec,
@@ -38,7 +38,6 @@
     var entityID,
         name = null,
         avatarInsideCheckTimer = null,
-        DEBUG = null,
         avatarCheckStep = 0,
         self;
 
@@ -54,9 +53,7 @@
         dimensions = {},
         position = {},
         rotation = {},
-        originMinMax = {},
-        userData = {},
-        userdataProperties = {};
+        originMinMax = {};
 
     // Entity Definition
     function HappyKiosk_Zone_Client() {
@@ -76,12 +73,6 @@
             dimensions = currentProperties.dimensions;
 
             originMinMax = makeOriginMinMax(dimensions);
-            userData = currentProperties.userData;
-            try {
-                userdataProperties = JSON.parse(userData);
-            } catch (e) {
-                log(LOG_ERROR, "ERROR READING USERDATA", e);
-            }
 
             avatarInsideCheckTimer = Script.setInterval(this.avatarInRange, AVATARCHECK_INTERVAL);
         },
