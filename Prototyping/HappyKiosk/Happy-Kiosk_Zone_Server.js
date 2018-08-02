@@ -55,7 +55,7 @@
         SEARCH_FOR_CHILDNAME_TIMEOUT = 1000,
         HEARTBEAT_TIMEOUT = 2000,
         HEARTBEAT_CHECK_INTERVAL = 2500,
-        PRESS_DEBOUNCE_TIME = 3500;
+        PRESS_DEBOUNCE_TIME = 3000;
 
     // Collections
     var currentProperties = {},
@@ -147,9 +147,9 @@
             if (isAvailableToPress) {
                 Entities.callEntityMethod(childrenIDS[buttonName], "pressButton", [currentAvatarUUID]);
                 isAvailableToPress = false;
+                Entities.callEntityMethod(childrenIDS[TEXT], "makeVisible");
                 Script.setTimeout(function() {
                     isAvailableToPress = true;
-                    Entities.callEntityMethod(childrenIDS[TEXT], "makeVisible");
                 }, PRESS_DEBOUNCE_TIME);
             }
         },
