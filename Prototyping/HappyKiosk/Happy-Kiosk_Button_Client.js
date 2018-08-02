@@ -51,7 +51,7 @@
 
     // Const
     var BASE_NAME = "Happy-Kiosk_",
-        BUTTON_PRESS_OFFSET = 0.1,
+        BUTTON_PRESS_OFFSET = 0.05,
         DOWN_TIME_MS = 3000;
 
         // Collections
@@ -86,7 +86,6 @@
             }
         },
         makeHaptic: function(id, param) {
-            var currentHand = Number(param[0]);
             log(LOG_ENTER, "makeHaptic");
             log(LOG_VALUE, "currentHand", currentHand);
 
