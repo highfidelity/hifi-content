@@ -55,7 +55,7 @@
         SEARCH_FOR_CHILDNAME_TIMEOUT = 1000,
         HEARTBEAT_TIMEOUT = 2000,
         HEARTBEAT_CHECK_INTERVAL = 2500,
-        PRESS_DEBOUNCE_TIME = 1500;
+        PRESS_DEBOUNCE_TIME = 3500;
 
     // Collections
     var currentProperties = {},
