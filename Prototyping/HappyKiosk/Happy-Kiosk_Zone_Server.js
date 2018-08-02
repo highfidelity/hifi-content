@@ -14,7 +14,8 @@
 
 (function () {
     // Helper Functions
-    var Util = Script.require("./Helper.js?" + Date.now());
+    var Util = Script.require("../../Utilities/Helper.js?" + Date.now());
+    
     var searchForChildren = Util.Entity.searchForChildren;
 
     // Log Setup
@@ -38,7 +39,9 @@
         DEBUG = false,
         loadedChildren = false,
         isOn = false,
+        lastHeartBeat = null,
         url = "",
+        event = "",
         isAvailableToPress = true,
         currentAvatarUUID = null,
         currentAvatarUserName = null,
@@ -50,6 +53,8 @@
         AVAILABILTY = "KIOSK_Availability",
         SEARCH_FOR_CHILDREN_TIMEOUT = 5000,
         SEARCH_FOR_CHILDNAME_TIMEOUT = 1000,
+        HEARTBEAT_TIMEOUT = 2000,
+        HEARTBEAT_CHECK_INTERVAL = 2500,
         PRESS_DEBOUNCE_TIME = 1500;
 
     // Collections
@@ -63,8 +68,7 @@
             "KIOSK_Button_2",
             "KIOSK_Button_3",
             "KIOSK_Button_4",
-            "KIOSK_Text",
-            "KIOSK_Availability"
+            "KIOSK_Text"
         ];
 
     // Entity Definition
@@ -74,6 +78,7 @@
 
     HappyKiosk_Zone_Server.prototype = {
         remotelyCallable: [
+            "receiveHeartBeat",
             "requestTurnOff",
             "requestPress",
             "sendInput",
@@ -90,6 +95,8 @@
                 userdataProperties = JSON.parse(userData);
                 DEBUG = userdataProperties;
                 url = userdataProperties.url;
+                event = userdataProperties.event;
+
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }
@@ -118,6 +125,14 @@
         },
         findChildren: function () {
             Script.setTimeout(self.childNameTimeOutFunction, SEARCH_FOR_CHILDNAME_TIMEOUT);
+        },
+        receiveHeartBeat: function (id, param) {
+            lastHeartBeat = Date.now();
+            Script.setTimeout(function() {
+                if (Date.now() - lastHeartBeat > HEARTBEAT_TIMEOUT) {
+                    self.turnOff();
+                }
+            }, HEARTBEAT_CHECK_INTERVAL);
         },
         requestPress: function (id, param) {
             log(LOG_ENTER, name + " requestPress");
@@ -152,9 +167,8 @@
         sendInput: function (id, param) {
             log(LOG_ENTER, name + " sendInput");
 
-            var event = param[0];
-            var date = param[1];
-            var rating = Number(param[2]);
+            var date = param[0];
+            var rating = Number(param[1]);
 
             var paramString = this.encodeURLParams({
                 userName: currentAvatarUserName,
