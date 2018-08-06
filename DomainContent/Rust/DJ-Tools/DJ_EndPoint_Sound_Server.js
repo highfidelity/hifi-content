@@ -67,31 +67,36 @@
         if (!shortInjector) {
             shortInjector = Audio.playSound(shortSoundObject, {
                 position: currentProperties.position,
-                volume: 0.7,
+                volume: 0.5,
                 loop: false
             });
         } else {
             shortInjector.restart();
         }
 
-        // if (!longInjector) {
-        //     longInjector = Audio.playSound(longSoundObject, {
-        //         position: currentProperties.position,
-        //         volume: 0.2,
-        //         loop: false
-        //     });
-        // } else {
-        //     longInjector.restart();
-        // }
+        if (!longInjector) {
+            longInjector = Audio.playSound(longSoundObject, {
+                position: currentProperties.position,
+                volume: 0.09,
+                loop: false
+            });
+        } else {
+            longInjector.restart();
+        }
     }
 
     function turnOffSound() {
-        if (shortInjector.isPlaying) {
-            shortInjector.stop();
+        try {
+            if (longInjector.isPlaying) {
+                longInjector.stop();
+            }
+            if (shortInjector.isPlaying) {
+                shortInjector.stop();
+            }
+        } catch(e) {
+            log(LOG_ERROR, "Issues stopping sound", e);
         }
-        // if (longInjector.isPlaying) {
-        //     longInjector.stop();
-        // }
+
     }
 
     function editLongSound() {
