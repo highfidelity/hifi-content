@@ -39,9 +39,9 @@
     // Init
     var DJ_NAME = "Phlash",
         DJ_TABLE_NAME = "Set_" + DJ_NAME + "_Tables",
-        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools/",
-        particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
-        particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
+        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DJ-Tools/",
+        particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
+        particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
         shortSoundURL = baseURL + 'FlameThrowerBurst.wav',
         longSoundURL = baseURL + 'FlameThrowerRun.wav',
         endPointParticleServerScript = baseURL + 'DJ_EndPoint_Particle_Server.js',
@@ -65,7 +65,9 @@
         GROUP_ALL = "Group_All",
         GENERATOR = "generator",
         SENSOR = "sensor",
-        ENDPOINT = "endPoint";
+        ENDPOINT = "endPoint",
+        SENSOR_BOX_DISTANCE_BACK = -0.70,
+        SENSOR_BOX_DISTANCE_LEFT = 0.75;
 
     // Colections
     var djTableProps = getNameProps(DJ_TABLE_NAME),
@@ -552,9 +554,9 @@
                 BOX_WIDTH = 0.4,
                 BOX_HEIGHT = 0.4,
                 BOX_DEPTH = 0.4,
-                DISTANCE_LEFT = 0.52,
+                DISTANCE_LEFT = SENSOR_BOX_DISTANCE_LEFT,
                 DISTANCE_HEIGHT = BOX_HEIGHT / 2,
-                DISTANCE_BACK = -0.70,
+                DISTANCE_BACK = SENSOR_BOX_DISTANCE_BACK,
                 NORMAL = 0,
                 REVERSE = 1;
 
@@ -612,9 +614,9 @@
                 url,
                 stringified,
                 userData = {},                
-                DISTANCE_LEFT = 0.52,
+                DISTANCE_LEFT = SENSOR_BOX_DISTANCE_LEFT,
                 HEIGHT = 0,
-                DISTANCE_BACK = -0.70,
+                DISTANCE_BACK = SENSOR_BOX_DISTANCE_BACK,
                 MODEL_WIDTH = 0.4,
                 MODEL_HEIGHT = 0.05,
                 MODEL_DEPTH = 0.4;
