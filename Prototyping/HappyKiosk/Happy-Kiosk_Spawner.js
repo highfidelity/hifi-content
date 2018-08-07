@@ -47,7 +47,10 @@
         kioskButtonScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Button_Server.js"),
         kioskEmptyScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Empty_Server.js"),
         kioskBaseModel = baseURL + "Models/NPS-Machine-base.fbx",
-        kioskButtonModel = baseURL + "Models/NPS-button-1.fbx",
+        kioskButtonModel1 = baseURL + "Models/NPS-button-1.fbx",
+        kioskButtonModel2 = baseURL + "Models/NPS-button-2.fbx",
+        kioskButtonModel3 = baseURL + "Models/NPS-button-3.fbx",
+        kioskButtonModel4 = baseURL + "Models/NPS-button-4.fbx",
         kioskFeetModel = baseURL + "Models/footprint-standpoint.fbx",
         button1OnTexture = baseURL + "Models/NPS-button-1.fbx/NPS-button-1.fbm/button1-on.jpg",
         button1OffTexture = baseURL + "Models/NPS-button-1.fbx/NPS-button-1.fbm/button1-off.jpg",
@@ -65,7 +68,7 @@
         CREATE_TIMEOUT = 1000;
         
     // Collections
-    var allEnts = [],
+    var allEntities = [],
         entityNames = [];
 
     // Procedural
@@ -120,7 +123,7 @@
             DEBUG: debug,
             childNamesUpdated: false,
             event: "test",
-            url: "https://script.google.com/macros/s/AKfycbyWC4btUmE3LD6_dV2Nfkoc6C9FPKtRwtQRr23dNAMcX2ur-f0u/exec"
+            url: ""
         };
         stringified = JSON.stringify(userData);
         entityID = createHappyKioskZoneEntity(
@@ -130,7 +133,7 @@
             vec(ZONE_WIDTH, ZONE_HEIGHT, ZONE_DEPTH), 
             stringified
         );
-        allEnts.push(entityID);
+        allEntities.push(entityID);
         entityNames.push(name);
         kioskZoneID = entityID;
     }
@@ -158,7 +161,7 @@
 
     function createBaseModel() {
         var name,
-            entID,
+            entityID,
             modelPosition,
             url,
             stringified,
@@ -180,7 +183,7 @@
         userData.grabbableKey = { grabbable: false };
         userData.kiosk = { DEBUG: debug };
         stringified = JSON.stringify(userData);
-        entID = createBaseModelEntity(
+        entityID = createBaseModelEntity(
             name,                 
             modelPosition,
             vec(MODEL_WIDTH, MODEL_HEIGHT, MODEL_DEPTH), 
@@ -189,11 +192,11 @@
             stringified,
             kioskZoneID
         );
-        allEnts.push(entID);
+        allEntities.push(entityID);
         entityNames.push(name);
     }
 
-    function createBaseModelEntity(name, position, dimensions, rotation, url, userData, parentID) {
+    function createBaseModelEntity(name, position, dimensions, rotation, url, userData, parentityID) {
         log(LOG_ENTER, "in crate base model entity");
 
         name = name || "";
@@ -210,7 +213,7 @@
             locked: false,
             dimensions: dimensions,
             collisionless: false,
-            parentID: parentID,
+            parentityID: parentityID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -219,7 +222,7 @@
     
     function createBaseShape() {
         var name,
-            entID,
+            entityID,
             basePosition,
             stringified,
             userData = {},                
@@ -241,7 +244,7 @@
         userData.grabbableKey = { grabbable: false };
         userData.kiosk = { DEBUG: debug };
         stringified = JSON.stringify(userData);
-        entID = createBaseShapeEntity(
+        entityID = createBaseShapeEntity(
             name,                 
             basePosition,
             vec(MODEL_WIDTH, MODEL_HEIGHT, MODEL_DEPTH), 
@@ -250,11 +253,11 @@
             stringified,
             kioskZoneID
         );
-        allEnts.push(entID);
+        allEntities.push(entityID);
         entityNames.push(name);
     }
 
-    function createBaseShapeEntity(name, position, dimensions, rotation, color, userData, parentID) {
+    function createBaseShapeEntity(name, position, dimensions, rotation, color, userData, parentityID) {
         name = name || 1;
         dimensions = dimensions || vec(1, 1, 1);
         color = color || makeColor(1, 1, 1);
@@ -270,7 +273,7 @@
             color: color,
             visible: true,
             collisionless: true,
-            parentID: parentID,
+            parentityID: parentityID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -280,7 +283,7 @@
     function createButtonModels() {
         ["1", "2", "3", "4"].forEach(function(rating, index){
             var name,
-                entID,
+                entityID,
                 modelPosition,
                 url,
                 stringified,
@@ -290,35 +293,40 @@
                 HEIGHT = 0.035,
                 DISTANCE_BACK = -1.45,
                 DISTANCE_BETWEEN = 0.05,
+                ADDITIONAL_CENTER_SPACING = 0.02,
                 MODEL_WIDTH = 0.2019,
                 MODEL_HEIGHT = 0.1501,
                 MODEL_DEPTH = 0.2019;
 
-            url = kioskButtonModel; 
+            
             userData.kiosk = { 
                 DEBUG: debug
             };
             switch (rating) {
                 case "1":
+                    url = kioskButtonModel1; 
                     localOffset = {x: DISTANCE_LEFT, y: HEIGHT, z: DISTANCE_BACK};
                     userData.kiosk.rating = 1;
                     userData.kiosk.onTexture = button1OnTexture;
                     userData.kiosk.offTexture = button1OffTexture;
                     break;
                 case "2":
+                    url = kioskButtonModel2;
                     localOffset = {x: DISTANCE_LEFT + ((MODEL_WIDTH + DISTANCE_BETWEEN) * index), y: HEIGHT, z: DISTANCE_BACK};
                     userData.kiosk.rating = 2;
                     userData.kiosk.onTexture = button2OnTexture;
                     userData.kiosk.offTexture = button2OffTexture;
                     break;
                 case "3":
-                    localOffset = {x: DISTANCE_LEFT + ((MODEL_WIDTH + DISTANCE_BETWEEN) * index + 0.02), y: HEIGHT, z: DISTANCE_BACK};
+                    url = kioskButtonModel3;
+                    localOffset = {x: DISTANCE_LEFT + ((MODEL_WIDTH + DISTANCE_BETWEEN) * index + ADDITIONAL_CENTER_SPACING), y: HEIGHT, z: DISTANCE_BACK};
                     userData.kiosk.rating = 3;
                     userData.kiosk.onTexture = button3OnTexture;
                     userData.kiosk.offTexture = button3OffTexture;
                     break;
                 case "4":
-                    localOffset = {x: DISTANCE_LEFT + ((MODEL_WIDTH + DISTANCE_BETWEEN ) * index + 0.02), y: HEIGHT, z: DISTANCE_BACK};
+                    url = kioskButtonModel4;
+                    localOffset = {x: DISTANCE_LEFT + ((MODEL_WIDTH + DISTANCE_BETWEEN ) * index + ADDITIONAL_CENTER_SPACING), y: HEIGHT, z: DISTANCE_BACK};
                     userData.kiosk.rating = 4;
                     userData.kiosk.onTexture = button4OnTexture;
                     userData.kiosk.offTexture = button4OffTexture;
@@ -333,7 +341,7 @@
             userData.grabbableKey = { grabbable: false, wantsTrigger: true };
 
             stringified = JSON.stringify(userData);
-            entID = createButtonModelEntities(
+            entityID = createButtonModelEntities(
                 name,                 
                 modelPosition,
                 vec(MODEL_WIDTH, MODEL_HEIGHT, MODEL_DEPTH), 
@@ -342,12 +350,12 @@
                 stringified,
                 kioskZoneID
             );
-            allEnts.push(entID);
+            allEntities.push(entityID);
             entityNames.push(name);
         });
     }
 
-    function createButtonModelEntities(name, position, dimensions, rotation, url, userData, parentID) {
+    function createButtonModelEntities(name, position, dimensions, rotation, url, userData, parentityID) {
         name = name || "";
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
@@ -363,7 +371,7 @@
             locked: false,
             dimensions: dimensions,
             collisionless: false,
-            parentID: parentID,
+            parentityID: parentityID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -372,7 +380,7 @@
     
     function createFeetModel() {
         var name,
-            entID,
+            entityID,
             modelPosition,
             url,
             stringified,
@@ -398,7 +406,7 @@
         userData.grabbableKey = { grabbable: false };
         userData.kiosk = { DEBUG: debug };
         stringified = JSON.stringify(userData);
-        entID = createFeetModelEntity(
+        entityID = createFeetModelEntity(
             name,                 
             modelPosition,
             vec(MODEL_WIDTH, MODEL_HEIGHT, MODEL_DEPTH), 
@@ -407,11 +415,11 @@
             stringified,
             kioskZoneID
         );
-        allEnts.push(entID);
+        allEntities.push(entityID);
         entityNames.push(name);
     }
 
-    function createFeetModelEntity(name, position, dimensions, rotation, url, userData, parentID) {
+    function createFeetModelEntity(name, position, dimensions, rotation, url, userData, parentityID) {
         name = name || "";
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
@@ -427,7 +435,7 @@
             locked: false,
             dimensions: dimensions,
             collisionless: true,
-            parentID: parentID,
+            parentityID: parentityID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -436,7 +444,7 @@
 
     function createTextBox() {
         var name,
-            entID,
+            entityID,
             basePosition,
             stringified,
             userData = {},                
@@ -458,7 +466,7 @@
         userData.grabbableKey = { grabbable: false };
         userData.kiosk = { DEBUG: debug };
         stringified = JSON.stringify(userData);
-        entID = createTextBoxEntity(
+        entityID = createTextBoxEntity(
             name,                 
             basePosition,
             vec(TEXT_WIDTH, TEXT_HEIGHT, TEXT_DEPTH), 
@@ -468,11 +476,11 @@
             stringified,
             kioskZoneID
         );
-        allEnts.push(entID);
+        allEntities.push(entityID);
         entityNames.push(name);
     }
 
-    function createTextBoxEntity(name, position, dimensions, rotation, textColor, backgroundColor, userData, parentID) {
+    function createTextBoxEntity(name, position, dimensions, rotation, textColor, backgroundColor, userData, parentityID) {
         name = name || 1;
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
@@ -490,7 +498,7 @@
             backgroundColor: backgroundColor,
             visible: false,
             collisionless: true,
-            parentID: parentID,
+            parentityID: parentityID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -511,14 +519,12 @@
         updateDispatchZoneChildNames();
     }, CREATE_TIMEOUT);
 
-    log(LOG_VALUE, "allEnts", allEnts);
-
     Settings.setValue(BASE_NAME, entityNames);
 
     // Cleanup
     function scriptEnding() {
         if (debug) {
-            allEnts.forEach(function (ent) {
+            allEntities.forEach(function (ent) {
                 Entities.deleteEntity(ent);
             });
         }
