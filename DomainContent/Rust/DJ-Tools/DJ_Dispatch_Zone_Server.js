@@ -259,7 +259,6 @@
                     sensor.canEdit = false;
                 }
             });
-            log(LOG_VALUE, "avatarsInZone", avatarsInZone);
         },
         requestTurnOff: function() {
             this.heartBeatHelper();
