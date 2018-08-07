@@ -505,6 +505,17 @@ function clamp(min, max, num) {
     return Math.min(Math.max(num, min), max);
 }
 
+function findSurfaceBelowPosition (pos) {
+    var result = Entities.findRayIntersection({
+        origin: pos,
+        direction: { x: 0.0, y: -1.0, z: 0.0 }
+    }, true);
+    if (result.intersects) {
+        return result.intersection;
+    }
+    return pos;
+}
+
 function lerp(InputLow, InputHigh, OutputLow, OutputHigh, Input) {
     return ((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow;
 }
@@ -573,6 +584,44 @@ function smoothRange(range, smoothingAmount, smoothFunction) {
     };
 }
 
+function V(x, y, z) {
+    if (arguments.length === 0) {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+    }
+    if (arguments.length === 1) {
+        this.x = x;
+        this.y = x;
+        this.z = x;
+    }
+    if (arguments.length === 3) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+}
+
+V.prototype = {
+    length: function() {
+        return Math.sqrt(
+            this.x * this.x +
+            this.y * this.y +
+            this.z * this.z
+        )
+    },
+    normalize: function() {
+        var len = this.length();
+        if (len > 0) {
+            var invLen = 1 / len;
+            this.x *= invLen;
+            this.y *= invLen;
+            this.z *= invLen;
+        }
+        return this;
+    }
+};
+
 function vec(x, y, z) {
     var obj = {};
     obj.x = x;
@@ -605,6 +654,17 @@ function whereOnRange(currentPosition, minMax) {
         whereOnRange[key] = normalizedTotal;
     }
     return whereOnRange;
+}
+
+// Scripts
+// ----------------------------------------------------------------------------
+
+function cacheBuster(debug, baseName, scriptName) {
+    if (debug) {
+        return baseName + scriptName + "?" + Date.now();
+    } else {
+        return baseName + scriptName;
+    }
 }
 
 // Export
@@ -649,6 +709,7 @@ module.exports = {
         checkIfIn: checkIfIn,
         checkIfInNonAligned: checkIfInNonAligned,
         clamp: clamp,
+        findSurfaceBelowPosition: findSurfaceBelowPosition,
         fireEvery: fireEvery,
         largestAxisVec: largestAxisVec,
         lerp: lerp,
@@ -656,8 +717,12 @@ module.exports = {
         makeOriginMinMax: makeOriginMinMax,
         smoothing: smoothing,
         smoothRange: smoothRange,
+        V: V,
         vec: vec,
         withinDistance: withinDistance,
         whereOnRange: whereOnRange
+    },
+    Scripts: {
+        cacheBuster: cacheBuster
     }
 };
