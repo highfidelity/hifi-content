@@ -140,6 +140,8 @@
 
 // Avatar
 // ----------------------------------------------------------------------------
+
+// Place something in front of your avatar
 function inFrontOf(distance, position, orientation) {
     return Vec3.sum(position || MyAvatar.position,
         Vec3.multiply(distance, Quat.getForward(orientation || MyAvatar.orientation)));
@@ -147,6 +149,8 @@ function inFrontOf(distance, position, orientation) {
 
 // Color
 // ----------------------------------------------------------------------------
+
+// Mix between two colors
 function colorMix(colorA, colorB, mix) {
     var result = {};
     for (var key in colorA) {
@@ -155,6 +159,7 @@ function colorMix(colorA, colorB, mix) {
     return result;
 }
 
+// Going from hsl color space to RGB
 function hslToRgb(hsl) {
     var r, g, b;
     if (hsl.s == 0) {
@@ -186,6 +191,7 @@ function hslToRgb(hsl) {
 // Debug
 // ----------------------------------------------------------------------------
 
+// Formating an object in debug log for overlay windows
 function formatObj(obj) {
     var formatedOBj = {};        
     for (var key in obj) {
@@ -202,6 +208,7 @@ function formatObj(obj) {
     return formatedOBj;
 }
 
+// Custom log functions for groups and custom debouncing
 function log(configGroup) {
     var deBounceGroup = {};
     var deBounceCheck = function(oldTime, newTime, bounceTime) {
@@ -248,6 +255,7 @@ function makeColor(red, green, blue) {
 // Entities
 // ----------------------------------------------------------------------------
 
+// Get props of particular name
 function getNameProps(name, position, radius) {
     position = position || MyAvatar.position;
     radius = radius || 20;
@@ -257,6 +265,7 @@ function getNameProps(name, position, radius) {
     }
 }
 
+// Get props
 function getProps(id, props) {
     if (props) {
         return Entities.getEntityProperties(id, props);
@@ -265,6 +274,7 @@ function getProps(id, props) {
     }
 }
 
+// Get only userData for an entity
 function getUserData(id, defaultObject, cb) {
     defaultObject = defaultObject || {};
     var userData = Entities.getEntityProperties(id, ["userData"]).userData;
@@ -280,6 +290,7 @@ function getUserData(id, defaultObject, cb) {
     }
 }
 
+// Search for Children of an entity and then run a callback after they are found
 function searchForChildren(parentID, names, callback, timeoutMs, outputPrint) {
     // Map from name to entity ID for the children that have been found
     var foundEntities = {};
@@ -330,6 +341,7 @@ function searchForChildren(parentID, names, callback, timeoutMs, outputPrint) {
     }, CHECK_EVERY_MS);
 }
 
+// Search for a list of entity names and then run a callback after they are found
 function searchForEntityNames(names, position, callback, timeoutMs, outputPrint) {
     var foundEntities = {};
     names.forEach(function(name) {
@@ -362,6 +374,7 @@ function searchForEntityNames(names, position, callback, timeoutMs, outputPrint)
     }, CHECK_EVERY_MS)
 }
 
+// Update userData with an object
 function updateUserData(id, userData) {
     var stringified = JSON.stringify(userData);
     var props = { userData: stringified};
@@ -371,6 +384,7 @@ function updateUserData(id, userData) {
 // Functional
 // ----------------------------------------------------------------------------
 
+// Return back true or false for debouncing
 function debounce() {
     var date = Date.now();
     return function(timeToPass) {
@@ -387,6 +401,7 @@ function debounce() {
     }; 
 }
 
+// Fire every n count
 function fireEvery() {
     var currentCount = 0;
     return function(steps) {
@@ -403,6 +418,7 @@ function fireEvery() {
 // HTTP
 // ----------------------------------------------------------------------------
 
+// Encode params for get request helper
 function encodeURLParams (params) {
     var paramPairs = [];
     for (var key in params) {
@@ -414,6 +430,7 @@ function encodeURLParams (params) {
 // Math
 // ----------------------------------------------------------------------------
 
+// Get an orientation that is in front of you but to the closet axis
 function axisAlignedOrientation(orientation) {
     if (!Math.sign) {
         Math.sign = function(x) {
@@ -461,6 +478,7 @@ function axisAlignedOrientation(orientation) {
     return [finalRotation, finalObj];
 }
 
+// Check if a point is in an axis aligned space
 function checkIfIn(currentPosition, minMaxObj, margin) {
     margin = margin || 0.05;
     return (
@@ -470,25 +488,7 @@ function checkIfIn(currentPosition, minMaxObj, margin) {
     );
 }
 
-// function checkIfInNonAligned(pointToCheck, position, orientation, dimensions, margin) {
-//     var worldOffset = Vec3.subtract(pointToCheck, position),
-//         minX = 0 - dimensions.x * 0.5,
-//         maxX = 0 + dimensions.x * 0.5,
-//         minY = 0 - dimensions.y * 0.5,
-//         maxY = 0 + dimensions.y * 0.5,
-//         minZ = 0 - dimensions.z * 0.5,
-//         maxZ = 0 + dimensions.z * 0.5;
-
-//     pointToCheck = Vec3.multiplyQbyV(Quat.inverse(orientation), worldOffset);
-//     margin = margin || 0.03;
-
-//     return (
-//         (pointToCheck.x >= minX - margin && pointToCheck.x <= maxX + margin) &&
-//         (pointToCheck.y >= minY - margin && pointToCheck.y <= maxY + margin) &&
-//         (pointToCheck.z >= minZ - margin && pointToCheck.z <= maxZ + margin)
-//     );
-// }
-
+// Check if a point is in a non axis aligned space
 function checkIfInNonAligned(pointToCheck, position, orientation, minMaxObj, margin) {
     var worldOffset = VEC3.subtract(pointToCheck, position),
     pointToCheck = VEC3.multiplyQbyV(QUAT.inverse(orientation), worldOffset);
@@ -501,10 +501,12 @@ function checkIfInNonAligned(pointToCheck, position, orientation, minMaxObj, mar
     );
 }
 
+// Clamp a value by a min and max
 function clamp(min, max, num) {
     return Math.min(Math.max(num, min), max);
 }
 
+// Find the area below you 
 function findSurfaceBelowPosition (pos) {
     var result = Entities.findRayIntersection({
         origin: pos,
@@ -516,10 +518,12 @@ function findSurfaceBelowPosition (pos) {
     return pos;
 }
 
+// Get a value between 2 ranges
 function lerp(InputLow, InputHigh, OutputLow, OutputHigh, Input) {
     return ((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow;
 }
 
+// Get the dimension that is the largest 
 function largestAxisVec(dimensions) {
     var dimensionArray = [];
     for (var key in dimensions) {
@@ -528,6 +532,7 @@ function largestAxisVec(dimensions) {
     return Math.max.apply(null, dimensionArray);
 }
 
+// Make an object of min and max
 function makeMinMax(dimensions, position) {
     var minMaxObj = {
         xMin: position.x - dimensions.x / 2,
@@ -541,6 +546,8 @@ function makeMinMax(dimensions, position) {
     return minMaxObj;
 }
 
+
+// Make an object of min and max based off the origin
 function makeOriginMinMax(dimensions) {
     var minMaxObj = {
         xMin: 0 - dimensions.x / 2,
@@ -554,6 +561,7 @@ function makeOriginMinMax(dimensions) {
     return minMaxObj;
 }
 
+// Smoothing Low Pass Filter
 function smoothing(initialValue, smoothingAmount) {
     var smoothed = initialValue;
     var smoothing = smoothingAmount;
@@ -567,6 +575,7 @@ function smoothing(initialValue, smoothingAmount) {
     };
 }
 
+// Smooth a range
 function smoothRange(range, smoothingAmount, smoothFunction) {
     var smoothing = smoothFunction;
     var x = range.x;
@@ -584,6 +593,7 @@ function smoothRange(range, smoothingAmount, smoothFunction) {
     };
 }
 
+// V Vector libary that is object oriented #WIP
 function V(x, y, z) {
     if (arguments.length === 0) {
         this.x = 0;
@@ -603,12 +613,40 @@ function V(x, y, z) {
 }
 
 V.prototype = {
+    add: function(vector) {
+        var returnVector = {};
+        returnVector.x = this.x + vector.x;
+        returnVector.y = this.y + vector.y;
+        returnVector.z = this.z + vector.z;
+        return returnVector;
+    },
+    cross: function(vector) {
+        var returnVector = {};
+        returnVector.x = this.y * vector.z - this.z * vector.y;
+        returnVector.y = this.z * vector.x - this.x * vector.z;
+        returnVector.z = this.x * vector.y - this.y * vector.x;
+        return returnVector;
+    },
+    dot: function(vector) {
+        return ( 
+            this.x * vector.x +
+            this.y * vector.y +
+            this.z * vector.z
+        );
+    },
     length: function() {
         return Math.sqrt(
             this.x * this.x +
             this.y * this.y +
             this.z * this.z
         )
+    },
+    multiply: function(scalar) {
+        var returnVector = {};
+        returnVector.x = this.x * scalar;
+        returnVector.y = this.y * scalar;
+        returnVector.z = this.z * scalar;
+        return returnVector;
     },
     normalize: function() {
         var len = this.length();
@@ -619,9 +657,17 @@ V.prototype = {
             this.z *= invLen;
         }
         return this;
+    },
+    subtract: function(vector) {
+        var returnVector = {};
+        returnVector.x = this.x - vector.x;
+        returnVector.y = this.y - vector.y;
+        returnVector.z = this.z - vector.z;
+        return returnVector;
     }
 };
 
+// Make a quick vector (V should replace this)
 function vec(x, y, z) {
     var obj = {};
     obj.x = x;
@@ -630,6 +676,7 @@ function vec(x, y, z) {
     return obj;
 }
 
+// Quick distance true/false return
 function withinDistance(vec1, vec2, distance) {
     var vecDistance = Vec3.distance(vec1,vec2);
     return vecDistance <= distance 
@@ -637,6 +684,7 @@ function withinDistance(vec1, vec2, distance) {
         : false;
 }
 
+// Where on the range is a point
 function whereOnRange(currentPosition, minMax) {
     var whereOnRange = {
         x: 0,
@@ -659,6 +707,7 @@ function whereOnRange(currentPosition, minMax) {
 // Scripts
 // ----------------------------------------------------------------------------
 
+// Helps with managing cache busting
 function cacheBuster(debug, baseName, scriptName) {
     if (debug) {
         return baseName + scriptName + "?" + Date.now();
