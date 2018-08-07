@@ -10,12 +10,13 @@
 
 (function () {
     // Polyfill
-    Script.require("./Polyfills.js")();
+    Script.require("../../../Utilities/Polyfills.js")();
 
     // Helper Functions
-    var Util = Script.require("./Helper.js?" + Date.now());
+    var Util = Script.require("../../../Utilities/Helper.js");
     
-    var getNameProps = Util.Entity.getNameProps,
+    var cacheBuster = Util.Scripts.cacheBuster,
+        getNameProps = Util.Entity.getNameProps,
         getUserData = Util.Entity.getUserData,
         updateUserData = Util.Entity.updateUserData,
         makeColor = Util.Color.makeColor,
@@ -39,21 +40,21 @@
     // Init
     var DJ_NAME = "Phlash",
         DJ_TABLE_NAME = "Set_" + DJ_NAME + "_Tables",
+        DEBUG = true,
         baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DJ-Tools/",
         particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
         particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
         shortSoundURL = baseURL + 'FlameThrowerBurst.wav',
         longSoundURL = baseURL + 'FlameThrowerRun.wav',
-        endPointParticleServerScript = baseURL + 'DJ_EndPoint_Particle_Server.js',
-        endPointLightServerScript = baseURL + 'DJ_EndPoint_Light_Server.js',
-        endPointSoundServerScript = baseURL + 'DJ_EndPoint_Sound_Server.js',   
-        dispatchZoneClientScript = baseURL + 'DJ_Dispatch_Zone_Client.js',
-        dispatchZoneServerScript = baseURL + 'DJ_Dispatch_Zone_Server.js',
-        sensorBoxClientScript = baseURL + 'DJ_Sensor_Box_Client.js',
-        generatorDebugCubeScript = baseURL + 'DJ_Generator_Debug_Cube_Client.js',
-        emptyServerScript = baseURL = "DJ_Empty_ServerScript.js",
+        endPointParticleServerScript = cacheBuster(DEBUG, baseURL, 'DJ_EndPoint_Particle_Server.js'),
+        endPointLightServerScript = cacheBuster(DEBUG, baseURL, 'DJ_EndPoint_Light_Server.js'),
+        endPointSoundServerScript = cacheBuster(DEBUG, baseURL, 'DJ_EndPoint_Sound_Server.js'),   
+        dispatchZoneClientScript = cacheBuster(DEBUG, baseURL, 'DJ_Dispatch_Zone_Client.js'),
+        dispatchZoneServerScript = cacheBuster(DEBUG, baseURL, 'DJ_Dispatch_Zone_Server.js'),
+        sensorBoxClientScript = cacheBuster(DEBUG, baseURL, 'DJ_Sensor_Box_Client.js'),
+        generatorDebugCubeScript = cacheBuster(DEBUG, baseURL, 'DJ_Generator_Debug_Cube_Client.js'),
+        emptyServerScript = cacheBuster(DEBUG, baseURL, 'DJ_Empty_ServerScript.js'),
         dispatchZoneID = null,
-        DEBUG = false,
         CREATE_TIMEOUT = 100,
         LEFT = "Left",
         RIGHT = "Right",
@@ -168,7 +169,7 @@
             y: -6.7763,
             z: -14.6075
         },
-        allEnts = [],
+        allEntities = [],
         entityNames = [];
 
     // Procedural Functions
@@ -199,7 +200,7 @@
             type: "Box",
             position: position,
             locked: false,
-            script: generatorDebugCubeScript + "?v=" + Date.now(),
+            script: generatorDebugCubeScript,
             serverScripts: emptyServerScript,
             dimensions: dimensions,
             color: color,
@@ -222,7 +223,7 @@
             type: "Box",
             position: position,
             locked: false,
-            script: sensorBoxClientScript + "?v=" + Date.now(),
+            script: sensorBoxClientScript,
             serverScripts: emptyServerScript,
             dimensions: dimensions,
             color: color,
@@ -244,8 +245,8 @@
             type: "Zone",
             position: position,
             locked: false,
-            script: dispatchZoneClientScript + "?v=" + Date.now(),
-            serverScripts: dispatchZoneServerScript + "?v=" + Date.now(),
+            script: dispatchZoneClientScript,
+            serverScripts: dispatchZoneServerScript,
             dimensions: dimensions,
             collisionless: true,
             parentID: parentID,
@@ -283,7 +284,7 @@
             name: name,
             locked: false,
             position: position,
-            serverScripts: endPointParticleServerScript + "?v=" + Date.now(),
+            serverScripts: endPointParticleServerScript,
             parentID: parentID,
             userData: userData
         };
@@ -301,7 +302,7 @@
             locked: false,
             position: position,
             dimensions: dimensions,
-            serverScripts: endPointSoundServerScript + "?v=" + Date.now(),
+            serverScripts: endPointSoundServerScript,
             collisionless: true,
             parentID: parentID,
             userData: userData
@@ -321,7 +322,7 @@
             color: color,     
             locked: false,
             isSpotlight: isSpot,
-            serverScripts: endPointLightServerScript + "?v=" + Date.now(),
+            serverScripts: endPointLightServerScript,
             parentID: parentID,
             userData: userData
         };
@@ -332,7 +333,7 @@
 
     function createGeneratorDebugCubes() {
         var name,
-            entID,
+            entityID,
             debugPosition,
             stringified,       
             userData = {},
@@ -351,7 +352,7 @@
         userData.grabbableKey = { grabbable: true };   
         userData.performance = { type: GENERATOR };
         stringified = JSON.stringify(userData);
-        entID = createGeneratorDebugCubeEntity(
+        entityID = createGeneratorDebugCubeEntity(
             name,             
             debugPosition, 
             vec(DEBUG_WIDTH, DEBUG_HEIGHT, DEBUG_DEPTH),
@@ -359,7 +360,7 @@
             stringified,
             dispatchZoneID
         );
-        allEnts.push(entID);
+        allEntities.push(entityID);
         entityNames.push(name);
     }
 
@@ -367,7 +368,7 @@
         [LEFT, RIGHT].forEach(function (side) {
             var name,
                 name2,
-                entID,
+                entityID,
                 entID2,
                 particlePosition,
                 particlePosition2,
@@ -406,9 +407,9 @@
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
-            entID = createParticleEntity(name, particlePosition, stringified, dispatchZoneID);
+            entityID = createParticleEntity(name, particlePosition, stringified, dispatchZoneID);
             entID2 = createParticleEntity(name2, particlePosition2, stringified, dispatchZoneID);
-            allEnts.push(entID, entID2);
+            allEntities.push(entityID, entID2);
             entityNames.push(name, name2);
         });
     }
@@ -417,7 +418,7 @@
         [LEFT, RIGHT].forEach(function (side) {
             var name,
                 name2,
-                entID,
+                entityID,
                 entID2,
                 soundPosition,
                 soundPosition2,
@@ -459,9 +460,9 @@
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
-            entID = createSoundEntity(name, soundPosition, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
+            entityID = createSoundEntity(name, soundPosition, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
             entID2 = createSoundEntity(name2, soundPosition2, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
-            allEnts.push(entID, entID2);
+            allEntities.push(entityID, entID2);
             entityNames.push(name, name2);
         });
     }
@@ -470,7 +471,7 @@
         [LEFT, RIGHT].forEach(function (side) {
             var name,
                 name2,
-                entID,
+                entityID,
                 entID2,                
                 lightPosition,
                 lightPosition2,                
@@ -517,7 +518,7 @@
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
-            entID = createLightEntity(
+            entityID = createLightEntity(
                 name, 
                 lightPosition, 
                 lightDimensions,
@@ -537,7 +538,7 @@
                 stringified,
                 dispatchZoneID
             );
-            allEnts.push(entID, entID2);
+            allEntities.push(entityID, entID2);
             entityNames.push(name, name2);
 
         });
@@ -546,7 +547,7 @@
     function createSensorBoxes() {
         [LEFT, RIGHT].forEach(function (side) {
             var name,
-                entID,
+                entityID,
                 boxPosition,
                 color,
                 stringified,
@@ -591,7 +592,7 @@
             userData.grabbableKey = { grabbable: false };
             stringified = JSON.stringify(userData);
             name = "Set_" + DJ_NAME + "_Pad_" + side;
-            entID = createSensorBoxEntity(
+            entityID = createSensorBoxEntity(
                 name,                 
                 boxPosition, 
                 vec(BOX_WIDTH, BOX_HEIGHT, BOX_DEPTH), 
@@ -599,7 +600,7 @@
                 stringified,
                 dispatchZoneID
             );
-            allEnts.push(entID);
+            allEntities.push(entityID);
             entityNames.push(name);
 
         });
@@ -608,7 +609,7 @@
     function createSensorBoxModels() {
         [LEFT, RIGHT].forEach(function (side) {
             var name,
-                entID,
+                entityID,
                 modelPosition,
                 rotation,
                 url,
@@ -640,7 +641,7 @@
             userData.grabbableKey = { grabbable: false };
             userData.performance = { DEBUG: DEBUG };
             stringified = JSON.stringify(userData);
-            entID = createSensorModelEntity(
+            entityID = createSensorModelEntity(
                 name,                 
                 modelPosition,
                 vec(MODEL_WIDTH, MODEL_HEIGHT, MODEL_DEPTH), 
@@ -649,7 +650,7 @@
                 stringified,
                 dispatchZoneID
             );
-            allEnts.push(entID);
+            allEntities.push(entityID);
             entityNames.push(name);
         });
     }
@@ -684,7 +685,7 @@
             vec(ZONE_WIDTH, ZONE_HEIGHT, ZONE_DEPTH), 
             stringified
         );
-        allEnts.push(entityID);
+        allEntities.push(entityID);
         entityNames.push(name);
         dispatchZoneID = entityID;
     }
@@ -724,8 +725,8 @@
 
     // Cleanup
     function scriptEnding() {
-        allEnts.forEach(function (ent) {
-            Entities.deleteEntity(ent);
+        allEntities.forEach(function (entity) {
+            Entities.deleteEntity(entity);
         });
     }
 

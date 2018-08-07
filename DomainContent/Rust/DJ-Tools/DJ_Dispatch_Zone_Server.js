@@ -6,13 +6,17 @@
 //
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+// Dispatcher that manages Generators(things that create data), Sensors(things that take that data and normalize it), 
+// Endpoints(Where the disptach will send to Sensors input)
 
 (function () {
     // Polyfill
-    Script.require("./Polyfills.js?" + Date.now())();
+    Script.require("../../../Utilities/Polyfills.js")();
 
     // Helper Functions
-    var Util = Script.require("./Helper.js?" + Date.now());
+    var Util = Script.require("../../../Utilities/Helper.js");
+
     var getProps = Util.Entity.getProps,
         getUserData = Util.Entity.getUserData,
         searchForChildren = Util.Entity.searchForChildren;
@@ -204,7 +208,7 @@
 
         preload: function (id) {
             entityID = id;
-            currentProperties = Entities.getEntityProperties(entityID);
+            currentProperties = Entities.getEntityProperties(entityID, ["name", "userData"]);
             name = currentProperties.name;
 
             userData = currentProperties.userData;
