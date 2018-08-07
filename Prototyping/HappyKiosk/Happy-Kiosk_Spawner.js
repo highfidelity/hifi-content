@@ -196,7 +196,7 @@
         entityNames.push(name);
     }
 
-    function createBaseModelEntity(name, position, dimensions, rotation, url, userData, parentityID) {
+    function createBaseModelEntity(name, position, dimensions, rotation, url, userData, parentID) {
         log(LOG_ENTER, "in crate base model entity");
 
         name = name || "";
