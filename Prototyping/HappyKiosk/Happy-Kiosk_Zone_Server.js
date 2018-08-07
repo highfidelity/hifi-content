@@ -25,11 +25,11 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE, 
         LOG_CONFIG = {
-            LOG_ENTER: false,
-            LOG_UPDATE: false,
-            LOG_ERROR: false,
-            LOG_VALUE: false,
-            LOG_ARCHIVE: false
+            "Log_Enter": true,
+            "Log_Update": true,
+            "Log_Error": true,
+            "Log_Value": true,
+            "LOG_ARCHIVE": false
         },
         log = Util.Debug.log(LOG_CONFIG);
 
@@ -52,7 +52,7 @@
         self;
 
     // Consts
-    var TEXT = "KIOSK_Text",
+    var TEXT = "HappyKiosk_Text",
         AVAILABILTY = "KIOSK_Availability",
         SEARCH_FOR_CHILDREN_TIMEOUT = 5000,
         SEARCH_FOR_CHILDNAME_TIMEOUT = 1000,
@@ -69,11 +69,11 @@
         childrenIDS = {},
         childrenProperties = {},
         childNames = [
-            "KIOSK_Button_1",
-            "KIOSK_Button_2",
-            "KIOSK_Button_3",
-            "KIOSK_Button_4",
-            "KIOSK_Text"
+            "HappyKiosk_Button_1",
+            "HappyKiosk_Button_2",
+            "HappyKiosk_Button_3",
+            "HappyKiosk_Button_4",
+            "HappyKiosk_Text"
         ];
 
     // Entity Definition
@@ -100,8 +100,8 @@
             try {
                 userdataProperties = JSON.parse(userData);
                 DEBUG = userdataProperties;
-                url = userdataProperties.url;
-                event = userdataProperties.event;
+                url = userdataProperties.kiosk.url;
+                event = userdataProperties.kiosk.event;
 
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
@@ -147,10 +147,13 @@
             var buttonName = param[1];
 
             if (avatarUUID !== currentAvatarUUID) {
+                log(LOG_VALUE, name + "avatarUUID and currentAvatarUUID Not equal", [avatarUUID, currentAvatarUUID]);
                 return;
             }
 
+            log(LOG_ENTER, "Checking if is available to press");
             if (isAvailableToPress) {
+                log(LOG_ENTER, "IT IS available to press");
                 soundInjector = Audio.playSound(sound, {
                     position: position,
                     volume: CHIME_VOLUME
