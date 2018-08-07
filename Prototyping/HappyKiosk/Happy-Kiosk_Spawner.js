@@ -213,7 +213,7 @@
             locked: false,
             dimensions: dimensions,
             collisionless: false,
-            parentityID: parentityID,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -257,7 +257,7 @@
         entityNames.push(name);
     }
 
-    function createBaseShapeEntity(name, position, dimensions, rotation, color, userData, parentityID) {
+    function createBaseShapeEntity(name, position, dimensions, rotation, color, userData, parentID) {
         name = name || 1;
         dimensions = dimensions || vec(1, 1, 1);
         color = color || makeColor(1, 1, 1);
@@ -273,7 +273,7 @@
             color: color,
             visible: true,
             collisionless: true,
-            parentityID: parentityID,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -355,7 +355,7 @@
         });
     }
 
-    function createButtonModelEntities(name, position, dimensions, rotation, url, userData, parentityID) {
+    function createButtonModelEntities(name, position, dimensions, rotation, url, userData, parentID) {
         name = name || "";
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
@@ -371,7 +371,7 @@
             locked: false,
             dimensions: dimensions,
             collisionless: false,
-            parentityID: parentityID,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -419,7 +419,7 @@
         entityNames.push(name);
     }
 
-    function createFeetModelEntity(name, position, dimensions, rotation, url, userData, parentityID) {
+    function createFeetModelEntity(name, position, dimensions, rotation, url, userData, parentID) {
         name = name || "";
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
@@ -435,7 +435,7 @@
             locked: false,
             dimensions: dimensions,
             collisionless: true,
-            parentityID: parentityID,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -480,7 +480,7 @@
         entityNames.push(name);
     }
 
-    function createTextBoxEntity(name, position, dimensions, rotation, textColor, backgroundColor, userData, parentityID) {
+    function createTextBoxEntity(name, position, dimensions, rotation, textColor, backgroundColor, userData, parentID) {
         name = name || 1;
         dimensions = dimensions || vec(1, 1, 1);
         userData = userData || {};
@@ -498,7 +498,7 @@
             backgroundColor: backgroundColor,
             visible: false,
             collisionless: true,
-            parentityID: parentityID,
+            parentID: parentID,
             userData: userData
         };
         var id = Entities.addEntity(properties);
