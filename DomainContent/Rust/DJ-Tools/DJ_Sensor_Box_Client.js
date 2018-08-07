@@ -117,6 +117,11 @@
                 DEBUG = userdataProperties.performance.DEBUG;
                 if (DEBUG) {
                     debugCubeID = Entities.findEntitiesByName("Set_Phlash_Debug-Cube", position, 10)[0];
+                    LOG_CONFIG[LOG_ENTER] = true;
+                    LOG_CONFIG[LOG_UPDATE] = true;
+                    LOG_CONFIG[LOG_ERROR] = true;
+                    LOG_CONFIG[LOG_VALUE] = true;
+                    log = Util.Debug.log(LOG_CONFIG);
                 }
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);

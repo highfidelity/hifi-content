@@ -40,7 +40,8 @@
     // Init
     var DJ_NAME = "Phlash",
         DJ_TABLE_NAME = "Set_" + DJ_NAME + "_Tables",
-        DEBUG = true,
+        DEBUG = false,
+        wantsCube = false,
         baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DJ-Tools/",
         particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
         particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
@@ -406,6 +407,7 @@
             name2 = "Set_" + DJ_NAME + "_Particles_Back_" + side;
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
+            userData.performance.wantsCube = wantsCube;
             stringified = JSON.stringify(userData);
             entityID = createParticleEntity(name, particlePosition, stringified, dispatchZoneID);
             entID2 = createParticleEntity(name2, particlePosition2, stringified, dispatchZoneID);
@@ -459,6 +461,7 @@
             name2 = "Set_" + DJ_NAME + "_Sounds_Back_" + side;
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
+            userData.performance.wantsCube = wantsCube;
             stringified = JSON.stringify(userData);
             entityID = createSoundEntity(name, soundPosition, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
             entID2 = createSoundEntity(name2, soundPosition2, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
@@ -517,6 +520,7 @@
             name2 = "Set_" + DJ_NAME + "_Lights_Back_" + side;            
             userData.grabbableKey = { grabbable: false };
             userData.performance.DEBUG = DEBUG;
+            userData.performance.wantsCube = wantsCube;
             stringified = JSON.stringify(userData);
             entityID = createLightEntity(
                 name, 
@@ -585,7 +589,7 @@
             userData.performance.DEBUG = DEBUG;
             // userData.performance.generatorAccepts = [];
             userData.performance.generatorAccepts = [LEFT_HAND, RIGHT_HAND];
-            if (DEBUG) {
+            if (DEBUG && wantsCube) {
                 userData.performance.generatorAccepts.push(DEBUG_CUBE);
             }
 
@@ -676,6 +680,7 @@
         userData.grabbableKey = { grabbable: false };
         userData.performance = { 
             DEBUG: DEBUG,
+            wantsCube: wantsCube,
             childNamesUpdated: false
         };
         stringified = JSON.stringify(userData);
@@ -708,7 +713,7 @@
     createDispatchZones();
 
     Script.setTimeout(function() {
-        if (DEBUG) {
+        if (DEBUG && wantsCube) {
             createGeneratorDebugCubes();
         }
         createSensorBoxes();

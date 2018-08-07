@@ -36,6 +36,7 @@
     var entityID = null,
         sessionID = null,
         DEBUG = false,
+        wantsCube = false,
         debugCubeID = null,
         dispatchZoneID = null,
         name = null,
@@ -123,7 +124,7 @@
             }
         };
         
-        if (DEBUG) { 
+        if (DEBUG && wantsCube) { 
             Entities.callEntityMethod(
                 dispatchZoneID, "storeDebugEndpointInfo", [JSON.stringify(eventProperties), name]
             );
@@ -154,6 +155,15 @@
             try {
                 userdataProperties = JSON.parse(userData);
                 DEBUG = userdataProperties.performance.DEBUG;
+                wantsCube = userdataProperties.performance.wantsCube;
+
+                if (DEBUG) {
+                    LOG_CONFIG[LOG_ENTER] = true;
+                    LOG_CONFIG[LOG_UPDATE] = true;
+                    LOG_CONFIG[LOG_ERROR] = true;
+                    LOG_CONFIG[LOG_VALUE] = true;
+                    log = Util.Debug.log(LOG_CONFIG);
+                }
 
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
