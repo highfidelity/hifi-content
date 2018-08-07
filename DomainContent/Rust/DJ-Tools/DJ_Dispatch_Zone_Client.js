@@ -11,10 +11,10 @@
 
 (function () {
     // Polyfill
-    Script.require("./Polyfills.js?" + Date.now())();
+    Script.require("../../../Utilities/Polyfills.js")();
 
     // Helper Functions
-    var Util = Script.require("../../Utilities/Helper.js?");
+    var Util = Script.require("../../../Utilities/Helper.js");
 
     var checkIfInNonAligned = Util.Maths.checkIfInNonAligned,
         largestAxisVec = Util.Maths.largestAxisVec,
@@ -85,7 +85,15 @@
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
+                
                 DEBUG = userdataProperties.performance.DEBUG;
+                if (DEBUG) {
+                    LOG_CONFIG[LOG_ENTER] = true;
+                    LOG_CONFIG[LOG_UPDATE] = true;
+                    LOG_CONFIG[LOG_ERROR] = true;
+                    LOG_CONFIG[LOG_VALUE] = true;
+                    log = Util.Debug.log(LOG_CONFIG);
+                }
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }

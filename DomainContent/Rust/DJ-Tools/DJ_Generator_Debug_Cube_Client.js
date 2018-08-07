@@ -25,10 +25,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE;
 
-    LOG_CONFIG[LOG_ENTER] = true;
-    LOG_CONFIG[LOG_UPDATE] = true;
-    LOG_CONFIG[LOG_ERROR] = true;
-    LOG_CONFIG[LOG_VALUE] = true;
+    LOG_CONFIG[LOG_ENTER] = false;
+    LOG_CONFIG[LOG_UPDATE] = false;
+    LOG_CONFIG[LOG_ERROR] = false;
+    LOG_CONFIG[LOG_VALUE] = false;
     LOG_CONFIG[LOG_ARCHIVE] = false;
     var log = Util.Debug.log(LOG_CONFIG);
 
@@ -40,6 +40,7 @@
         DEBUG_HEIGHT = 0.8,
         AXIS = 0,
         SIGN = 1,
+        DEBUG = false,
         self;
 
     // Collections
@@ -89,6 +90,15 @@
             userData = currentProperties.userData;
             try {
                 userdataProperties = JSON.parse(userData);
+                DEBUG = userdataProperties.performance.DEBUG;
+
+                if (DEBUG) {
+                    LOG_CONFIG[LOG_ENTER] = true;
+                    LOG_CONFIG[LOG_UPDATE] = true;
+                    LOG_CONFIG[LOG_ERROR] = true;
+                    LOG_CONFIG[LOG_VALUE] = true;
+                    log = Util.Debug.log(LOG_CONFIG);
+                }
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }
