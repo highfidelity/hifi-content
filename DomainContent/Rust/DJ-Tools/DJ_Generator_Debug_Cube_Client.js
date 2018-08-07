@@ -9,10 +9,11 @@
 
 (function () {
     // Polyfill
-    Script.require("./Polyfills.js?" + Date.now())();
+    Script.require("../../../Utilities/Polyfills.js")();
 
     // Helper Functions
-    var Util = Script.require("./Helper.js?" + Date.now());
+    var Util = Script.require("../../../Utilities/Helper.js");
+
     var formatObj = Util.Debug.formatObj,
         vec = Util.Maths.vec;
 
@@ -81,7 +82,7 @@
         ],
         preload: function (id) {
             entityID = id;
-            currentProperties = Entities.getEntityProperties(entityID);
+            currentProperties = Entities.getEntityProperties(entityID, ["name", "position", "userData"]);
             name = currentProperties.name;
             position = currentProperties.position;
 

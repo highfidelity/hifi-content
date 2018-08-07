@@ -9,10 +9,11 @@
 
 (function () {
     // Polyfill
-    Script.require("./Polyfills.js?" + Date.now())();
+    Script.require("../../../Utilities/Polyfills.js")();
 
     // Helper Functions
-    var Util = Script.require("./Helper.js?" + Date.now());
+    var Util = Script.require("../../../Utilities/Helper.js");
+
     var clamp = Util.Maths.clamp,
         colorMix = Util.Color.colorMix,
         hslToRgb = Util.Color.hslToRgb,
@@ -150,7 +151,7 @@
         ],
         preload: function (id) {
             entityID = id;
-            currentProperties = Entities.getEntityProperties(entityID);
+            currentProperties = Entities.getEntityProperties(entityID, ["name", "parentID", "userData"]);
             name = currentProperties.name;
             dispatchZoneID = currentProperties.parentID;
             

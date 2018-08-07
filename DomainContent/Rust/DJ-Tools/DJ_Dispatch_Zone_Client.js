@@ -6,15 +6,17 @@
 //
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+// Manages physics interactions to log when avatars are in the zone to start update timers
 
 (function () {
     // Polyfill
     Script.require("./Polyfills.js?" + Date.now())();
 
     // Helper Functions
-    var Util = Script.require("./Helper.js?" + Date.now());
-    var checkIfIn = Util.Maths.checkIfIn,
-        checkIfInNonAligned = Util.Maths.checkIfInNonAligned,
+    var Util = Script.require("../../Utilities/Helper.js?");
+
+    var checkIfInNonAligned = Util.Maths.checkIfInNonAligned,
         largestAxisVec = Util.Maths.largestAxisVec,
         makeMinMax = Util.Maths.makeMinMax,
         makeOriginMinMax = Util.Maths.makeOriginMinMax;
@@ -72,7 +74,7 @@
         ],
         preload: function (id) {
             entityID = id;
-            currentProperties = Entities.getEntityProperties(entityID);
+            currentProperties = Entities.getEntityProperties(entityID, ["name", "position", "rotation", "dimensions", "userData"]);
             name = currentProperties.name;
             position = currentProperties.position;
             rotation = currentProperties.rotation;
