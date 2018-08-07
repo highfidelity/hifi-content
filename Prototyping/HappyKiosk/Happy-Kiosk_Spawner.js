@@ -434,66 +434,6 @@
         return id;
     }
 
-    function createBaseShape() {
-        var name,
-            entID,
-            basePosition,
-            stringified,
-            userData = {},                
-            DISTANCE_LEFT = 0.52,
-            HEIGHT = -0.5,
-            DISTANCE_BACK = -1.5,
-            MODEL_WIDTH = 0.2394,
-            MODEL_HEIGHT = 1.0097,
-            MODEL_DEPTH = 0.6113;
-
-        var localOffset = {x: 0.0, y: HEIGHT, z: DISTANCE_BACK};
-        var worldOffset = Vec3.multiplyQbyV(MyAvatar.orientation, localOffset);
-        basePosition = Vec3.sum(MyAvatar.position, worldOffset);
-
-        var localRotation = Quat.fromPitchYawRollDegrees(0,90,0);
-        var finalRotation = Quat.multiply(MyAvatar.orientation, localRotation);
-
-        name = BASE_NAME + "Base_Shape";
-        userData.grabbableKey = { grabbable: false };
-        userData.kiosk = { DEBUG: debug };
-        stringified = JSON.stringify(userData);
-        entID = createBaseShapeEntity(
-            name,                 
-            basePosition,
-            vec(MODEL_WIDTH, MODEL_HEIGHT, MODEL_DEPTH), 
-            finalRotation,                
-            makeColor(227, 225, 225),
-            stringified,
-            kioskZoneID
-        );
-        allEnts.push(entID);
-        entityNames.push(name);
-    }
-
-    function createBaseShapeEntity(name, position, dimensions, rotation, color, userData, parentID) {
-        name = name || 1;
-        dimensions = dimensions || vec(1, 1, 1);
-        color = color || makeColor(1, 1, 1);
-        userData = userData || {};
-        var properties = {
-            name: name,
-            type: "Shape",
-            shape: "Cylinder",
-            position: position,
-            locked: false,
-            dimensions: dimensions,
-            rotation: rotation,
-            color: color,
-            visible: true,
-            collisionless: true,
-            parentID: parentID,
-            userData: userData
-        };
-        var id = Entities.addEntity(properties);
-        return id;
-    }
-
     function createTextBox() {
         var name,
             entID,
