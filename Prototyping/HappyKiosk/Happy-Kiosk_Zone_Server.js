@@ -187,7 +187,8 @@
                 userName: currentAvatarUserName,
                 date: date,
                 event: event,
-                rating: rating
+                rating: rating,
+                UUID: currentAvatarUUID
             });
         
             var request = new XMLHttpRequest();
