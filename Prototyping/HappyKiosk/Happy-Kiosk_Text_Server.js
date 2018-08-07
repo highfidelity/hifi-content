@@ -21,11 +21,11 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE, 
         LOG_CONFIG = {
-            LOG_ENTER: false,
-            LOG_UPDATE: false,
-            LOG_ERROR: false,
-            LOG_VALUE: false,
-            LOG_ARCHIVE: false
+            "Log_Enter": true,
+            "Log_Update": true,
+            "Log_Error": true,
+            "Log_Value": true,
+            "LOG_ARCHIVE": false
         },
         log = Util.Debug.log(LOG_CONFIG);
 
