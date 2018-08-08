@@ -273,6 +273,8 @@
                     sensor.canEdit = false;
                 }
             });
+
+            log(LOG_VALUE, "AVATRS IN ZONE ON RECEIVE HEART BEAT", avatarsInZone);
         },
         requestTurnOff: function() {
             this.heartBeatHelper();
