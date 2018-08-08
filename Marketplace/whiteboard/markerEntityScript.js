@@ -404,7 +404,13 @@
             
             Entities.callEntityServerMethod(serverID, 
                 'serverEditEntity', 
-                [_this.entityID, JSON.stringify({parentID: Uuid.NULL, collisionless: true, grabbable: false, visible: false, lifetime: SHORT_TOOL_LIFETIME})]
+                [_this.entityID, JSON.stringify({
+                    parentID: Uuid.NULL, 
+                    collisionless: true, 
+                    grabbable: false, 
+                    visible: false, 
+                    lifetime: SHORT_TOOL_LIFETIME
+                })]
             );
             
             cursorID = Overlays.addOverlay("circle3d", {
