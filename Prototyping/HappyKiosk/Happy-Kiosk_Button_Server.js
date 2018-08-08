@@ -24,10 +24,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE, 
         LOG_CONFIG = {
-            "Log_Enter": true,
-            "Log_Update": true,
-            "Log_Error": true,
-            "Log_Value": true,
+            "Log_Enter": false,
+            "Log_Update": false,
+            "Log_Error": false,
+            "Log_Value": false,
             "LOG_ARCHIVE": false
         },
         log = Util.Debug.log(LOG_CONFIG);
@@ -75,12 +75,11 @@
                 onTexture = userdataProperties.kiosk.onTexture;
                 offTexture = userdataProperties.kiosk.offTexture;
 
-                var data = {
-                    Texture: offTexture
-                };
-    
+                var textureData = {};
+                textureData["button" + rating + "-off"] = offTexture;
+                
                 Entities.editEntity(entityID, {
-                    textures: JSON.stringify(data)
+                    textures: JSON.stringify(textureData)
                 });
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
@@ -89,14 +88,13 @@
         lowerButton: function() {
             log(LOG_ENTER, name + " lowerButton");
 
-            var data = {
-                Texture: onTexture
-            };
+            var textureData = {};
+            textureData["button" + rating + "-off"] = onTexture;
 
             position.y -= BUTTON_PRESS_OFFSET;
             Entities.editEntity(entityID, {
                 position: position,
-                textures: JSON.stringify(data)
+                textures: JSON.stringify(textureData)
             });
             position.y += BUTTON_PRESS_OFFSET;
         },
@@ -114,13 +112,12 @@
         },
         raiseButton: function() {
             log(LOG_ENTER, name + " raiseButton");
-            var data = {
-                Texture: offTexture
-            };
+            var textureData = {};
+            textureData["button" + rating + "-off"] = offTexture;
 
             Entities.editEntity(entityID, {
                 position: position,
-                textures: JSON.stringify(data)
+                textures: JSON.stringify(textureData)
             });
         },
         unload: function () {
