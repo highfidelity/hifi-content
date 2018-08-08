@@ -71,6 +71,13 @@
     var YELLOW_MARKER_NAME = "hifi_model_marker_yellow";
     var ERASER_NAME = "hifi_model_whiteboardEraser";
 
+    var cursorID = undefined;
+    var mouseMoveTimestamp = Date.now();
+    var hmdMoveTimestamp = Date.now();
+
+    var MARKERKEY = "markerEntityScript/currentMarker";
+    var SHORT_TOOL_LIFETIME = 3600;
+
     function clamp(value, min, max) {
         if (value < min) {
             return min;
@@ -89,23 +96,12 @@
         SOUND_TIMESTAMP = Math.floor(Math.random() * SOUND_TIMESTAMP_LIMIT.max) + SOUND_TIMESTAMP_LIMIT.min;
 
     }
-
-    var throttleLockPaint = true;
-    var throttleLockUpdatePosition = true; 
+   
     // Performance Debug
     // 2 / 60.0 *1000
-    var throttleTimeoutMS = 33.3;
-    function throttle(callback , throttleLock, throttleTimeoutMS) {
-        if (throttleLock) {
-            throttleLock = false;
-            Script.setTimeout(function () {
-                throttleLock = true;
-            }, throttleTimeoutMS);
-            if (callback !== undefined) {
-                callback();
-            }
-        }
-    }
+    // 1/ 60.0*1000
+    var throttleTimeoutMS = 16.6;
+    
 
     // subscribe to channel 
     var MarkerTip = function() {
@@ -142,7 +138,9 @@
 
     MarkerTip.prototype = {
         preload: function(entityID) {
-            this.entityID = entityID;
+            _this.entityID = entityID;
+            _this.basePosition = Entities.getEntityProperties(_this.entityID, "position").position;
+            _this.baseRotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
             _this.WHITEBOARD_NAME = "Whiteboard";
             _this.wb = null;
             Controller.mousePressEvent.connect(_this.mousePressEvent);
@@ -200,6 +198,11 @@
             _this.resetStroke(false);
         },
         continueNearGrab: function(entityID, paramsArray) {
+            if ((Date.now() - hmdMoveTimestamp) > throttleTimeoutMS) {
+                hmdMoveTimestamp = Date.now();
+            } else {
+                return;
+            }
             // cast a ray from marker and see if it hits anything
             var markerProps = Entities.getEntityProperties(_this.entityID);
             var serverID = null;
@@ -323,23 +326,22 @@
             _this.releaseGrab();
         },
         paint: function(position, isDesktopMode) {
-            if (throttleLockPaint) {
-                // whiteboard server ID
-                var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
-                // RPC - call server paint [position, markerColor, creatorMarker, parentID]
-                if (isDesktopMode) {
-                    Entities.callEntityServerMethod(serverID, 
-                        'paintDesktop', 
-                        [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
-                    );
-                } else {
-                    Entities.callEntityServerMethod(serverID, 
-                        'paint', 
-                        [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
-                    );
-                }
+            
+            // whiteboard server ID
+            var serverID = Entities.getEntityProperties(_this.currentWhiteboard, "parentID").parentID;
+            // RPC - call server paint [position, markerColor, creatorMarker, parentID]
+            if (isDesktopMode) {
+                Entities.callEntityServerMethod(serverID, 
+                    'paintDesktop', 
+                    [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
+                );
+            } else {
+                Entities.callEntityServerMethod(serverID, 
+                    'paint', 
+                    [JSON.stringify(position), JSON.stringify(_this.markerColor), _this.entityID, _this.currentWhiteboard]
+                );
             }
-            throttle(undefined, throttleLockPaint, throttleTimeoutMS); 
+            
         },
         resetStroke: function(isDesktopMode) {
             // reset stroke
@@ -363,11 +365,23 @@
 
         // MOUSE DESKTOP COMPATIBILITY
         clickDownOnEntity: function(entityID, mouseEvent) {
-            if (HMD.active || _this.equipped) {
+            if (HMD.active || _this.equippedDesktop) {
                 return;
             }
-            Settings.setValue('io.highfidelity.isEditing', true);
+            // Server side
+            _this.findWhiteboard();
+            var serverID = _this.wb;
+            // Settings.setValue('io.highfidelity.isEditing', true);
+            if (Settings.getValue(MARKERKEY) !== undefined) {
+                print(" Stored marker " + Settings.getValue(MARKERKEY));
+                Entities.callEntityServerMethod(serverID, 
+                    'erase', 
+                    [Settings.getValue(MARKERKEY)]
+                );
+            }
 
+
+            Settings.setValue('io.highfidelity.isEditing', true);
             _this.whiteboards = [];
             _this.colors = [];
             var userData = utils.getEntityUserData(_this.entityID);
@@ -388,28 +402,40 @@
 
             lastIntersectionPoint = undefined;
             
-            // Server side
-            _this.findWhiteboard();
-            var serverID = _this.wb;
-            Entities.callEntityServerMethod(serverID, 
-                'spawnMarker', 
-                [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]
-            );
             Entities.callEntityServerMethod(serverID, 
                 'serverEditEntity', 
-                [_this.entityID, JSON.stringify({collisionless: true, grabbable: false})]
+                [_this.entityID, JSON.stringify({parentID: Uuid.NULL, collisionless: true, grabbable: false, visible: false, lifetime: SHORT_TOOL_LIFETIME})]
             );
+            
+            cursorID = Overlays.addOverlay("circle3d", {
+                position: Entities.getEntityProperties(_this.entityID, "position").position,
+                rotation: Entities.getEntityProperties(_this.wb, "rotation").rotation,
+                dimensions: { x: 0.05, y: 0.05, z: 0.05 },
+                color: _this.markerColor,
+                solid: true,
+                ignorePickIntersection: true,
+                drawInFront: true
+            });
+
             Audio.playSound(EQUIP_SOUND, {
                 position: Entities.getEntityProperties(_this.entityID, "position").position,
                 volume: 1
             });
-            if (_this.equipped) {
+            if (_this.equippedDesktop) {
                 isMouseDown = true;
             }
-            _this.equipped = true;
+            _this.equippedDesktop = true;
+            _this.equipped = false;
+            
+            Settings.setValue(MARKERKEY, _this.entityID);
+            Entities.callEntityServerMethod(serverID, 
+                'spawnMarker', 
+                [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]
+            );
+            Settings.setValue('io.highfidelity.isEditing', false);
         },
         mousePressEvent: function(event) {
-            if (_this.equipped) {
+            if (_this.equippedDesktop) {
                 isMouseDown = true;
 
                 var pickRay = Camera.computePickRay(event.x, event.y);
@@ -425,33 +451,39 @@
                         entityName === PINK_MARKER_NAME || 
                         entityName === YELLOW_MARKER_NAME) {
                         // unequip and delete
-                        _this.equipped = false;
+                        _this.equippedDesktop = false;
                         lastIntersectionPoint = undefined;
-                        Settings.setValue('io.highfidelity.isEditing', false);
+                        // Settings.setValue('io.highfidelity.isEditing', false);
                         var serverID = getServerID();
                         isMouseDown = false;
                         _this.resetStroke(true);
                         // delete marker
-                        Entities.callEntityServerMethod(serverID, 
-                            'erase', 
-                            [_this.entityID]
-                        );
+                        Overlays.deleteOverlay(cursorID);
+                        cursorID = undefined;
+
                         Audio.playSound(UNEQUIP_SOUND, {
                             position: Entities.getEntityProperties(_this.entityID, "position").position,
                             volume: 1
                         });
+                        Settings.setValue(MARKERKEY, undefined);
+                        Entities.callEntityServerMethod(serverID, 
+                            'erase', 
+                            [_this.entityID]
+                        );
                     }
                 }
             }
         },
         mouseMoveEvent: function(event) {
-            if (throttleLockUpdatePosition) {
-                throttle(undefined, throttleLockUpdatePosition, throttleTimeoutMS);
+            if ((Date.now() - mouseMoveTimestamp) > throttleTimeoutMS) {
+                mouseMoveTimestamp = Date.now();
             } else {
                 return;
             }
+
+
             var serverID;
-            if (_this.equipped && event.x !== undefined) {
+            if (_this.equippedDesktop && event.x !== undefined) {
                 var pickRay = Camera.computePickRay(event.x, event.y);
                 var colorIntersection = Entities.findRayIntersection(pickRay, true, _this.colors);
                 var isIntersectingColorWell = false;
@@ -494,10 +526,10 @@
                         _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
 
                         // my marker offset
-                        var markerZOffset = Vec3.multiply(
-                            Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.z / 2, 
-                            _this.whiteboardNormal
-                        );
+                        // var markerZOffset = Vec3.multiply(
+                        //     Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.z / 2, 
+                        //     _this.whiteboardNormal
+                        // );
                         
                         var shouldPaint = lastIntersectionPoint === undefined;
 
@@ -512,18 +544,22 @@
 
                         // Server Side
                         serverID = getServerID();
-                        Entities.callEntityServerMethod(serverID, 
-                            'serverEditEntity', 
-                            [_this.entityID, 
-                                JSON.stringify({
-                                    position: Vec3.sum(whiteBoardIntersection.intersection, markerZOffset),
-                                    rotation:  whiteboardRotation,
-                                    collisionless: true, 
-                                    grabbable: false
-                                })
-                            ]
-                        );
-                        
+                        // Entities.callEntityServerMethod(serverID, 
+                        //     'serverEditEntity', 
+                        //     [_this.entityID, 
+                        //         JSON.stringify({
+                        //             position: Vec3.sum(whiteBoardIntersection.intersection, markerZOffset),
+                        //             rotation:  whiteboardRotation,
+                        //             collisionless: true, 
+                        //             grabbable: false
+                        //         })
+                        //     ]
+                        // );
+
+                        Overlays.editOverlay(cursorID, {
+                            position: whiteBoardIntersection.intersection
+                        });
+
                         if (isMouseDown && event.isLeftButton) {
                             if (shouldPaint) {
                                 _this.paint(whiteBoardIntersection.intersection, true);
@@ -566,16 +602,27 @@
                         }   
                     }  
                 } else {
-                    _this.equipped = false;
+                    _this.equippedDesktop = false;
                     serverID = getServerID();
                     isMouseDown = false;
-                    Settings.setValue('io.highfidelity.isEditing', false);
+                    // Settings.setValue('io.highfidelity.isEditing', false);
                     _this.resetStroke(true);
                     Audio.playSound(UNEQUIP_SOUND, {
                         position: Entities.getEntityProperties(_this.entityID, "position").position,
                         volume: 1
                     });
                     // delete marker
+                    Overlays.deleteOverlay(cursorID);
+                    cursorID = undefined;
+                    // var userData = utils.getEntityUserData(_this.entityID);
+                    // _this.markerColor = userData.markerColor;
+        
+                    // var markerProps = Entities.getEntityProperties(_this.entityID);
+                    // Entities.callEntityServerMethod(serverID, 
+                    //     'spawnMarker', 
+                    //     [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]
+                    // );
+                    Settings.setValue(MARKERKEY, undefined);
                     Entities.callEntityServerMethod(serverID, 
                         'erase', 
                         [_this.entityID]
@@ -595,6 +642,9 @@
             Controller.mousePressEvent.disconnect(_this.mousePressEvent);
             Controller.mouseMoveEvent.disconnect(_this.mouseMoveEvent);
             Controller.mouseReleaseEvent.disconnect(_this.mouseReleaseEvent);
+            if (cursorID !== undefined) {
+                Overlays.deleteOverlay(cursorID);
+            }
         }
     };
 
