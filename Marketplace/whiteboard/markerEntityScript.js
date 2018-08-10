@@ -76,7 +76,12 @@
     var hmdMoveTimestamp = Date.now();
 
     var MARKERKEY = "markerEntityScript/currentMarker";
+    var MARKERCOLOR = "markerEntityScript/currentColor";
     var SHORT_TOOL_LIFETIME = 3600;
+
+    var equipTimestamp = undefined;
+    var EQUIP_MINIMUM_TIME = 1000;
+    var CURSOR_TEXTURE_URL = Script.resolvePath("cursor.png");
 
     function clamp(value, min, max) {
         if (value < min) {
@@ -373,20 +378,20 @@
             var serverID = _this.wb;
             // Settings.setValue('io.highfidelity.isEditing', true);
             if (Settings.getValue(MARKERKEY) !== undefined) {
-                print(" Stored marker " + Settings.getValue(MARKERKEY));
                 Entities.callEntityServerMethod(serverID, 
                     'erase', 
                     [Settings.getValue(MARKERKEY)]
                 );
             }
-
+            Settings.setValue(MARKERKEY, _this.entityID);
+           
 
             Settings.setValue('io.highfidelity.isEditing', true);
             _this.whiteboards = [];
             _this.colors = [];
             var userData = utils.getEntityUserData(_this.entityID);
             _this.markerColor = userData.markerColor;
-
+            Settings.setValue(MARKERCOLOR, JSON.stringify(_this.markerColor));
             var markerProps = Entities.getEntityProperties(_this.entityID);
             _this.DRAW_ON_BOARD_DISTANCE = markerProps.dimensions.x / 2;
             var markerPosition = markerProps.position;
@@ -413,14 +418,19 @@
                 })]
             );
             
-            cursorID = Overlays.addOverlay("circle3d", {
+            cursorID = Overlays.addOverlay("image3d", {
                 position: Entities.getEntityProperties(_this.entityID, "position").position,
-                rotation: Entities.getEntityProperties(_this.wb, "rotation").rotation,
+                rotation: Quat.multiply(
+                    Camera.getOrientation(),
+                    Quat.fromPitchYawRollDegrees(0.0, 180.0, 0.0)
+                ),
+                url: CURSOR_TEXTURE_URL,
                 dimensions: { x: 0.05, y: 0.05, z: 0.05 },
                 color: _this.markerColor,
                 solid: true,
                 ignorePickIntersection: true,
-                drawInFront: true
+                drawInFront: true,
+                emissive: true
             });
 
             Audio.playSound(EQUIP_SOUND, {
@@ -433,7 +443,8 @@
             _this.equippedDesktop = true;
             _this.equipped = false;
             
-            Settings.setValue(MARKERKEY, _this.entityID);
+            
+            equipTimestamp = Date.now();
             Entities.callEntityServerMethod(serverID, 
                 'spawnMarker', 
                 [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]
@@ -481,8 +492,10 @@
             }
         },
         mouseMoveEvent: function(event) {
-            if ((Date.now() - mouseMoveTimestamp) > throttleTimeoutMS) {
-                mouseMoveTimestamp = Date.now();
+            var currentTime = Date.now();
+            if ((currentTime - mouseMoveTimestamp) > throttleTimeoutMS && 
+            (equipTimestamp !== undefined)) {
+                mouseMoveTimestamp = currentTime;
             } else {
                 return;
             }
@@ -514,7 +527,18 @@
                     }
                 } 
                 var whiteBoardIntersection = Entities.findRayIntersection(pickRay, true, _this.whiteboards);
-
+                
+                if ((currentTime - equipTimestamp > EQUIP_MINIMUM_TIME) &&
+                 (Settings.getValue(MARKERCOLOR) !== JSON.stringify(_this.markerColor))) {
+                    // delete marker in order to prevent double marker effect
+                    Overlays.deleteOverlay(cursorID);
+                    cursorID = undefined;
+                    Entities.callEntityServerMethod(serverID, 
+                        'erase', 
+                        [_this.entityID]
+                    );
+                    return;
+                }
                 
                 if (whiteBoardIntersection.intersects) {
                     if (!isMouseDown && isPainting) {
@@ -550,18 +574,7 @@
 
                         // Server Side
                         serverID = getServerID();
-                        // Entities.callEntityServerMethod(serverID, 
-                        //     'serverEditEntity', 
-                        //     [_this.entityID, 
-                        //         JSON.stringify({
-                        //             position: Vec3.sum(whiteBoardIntersection.intersection, markerZOffset),
-                        //             rotation:  whiteboardRotation,
-                        //             collisionless: true, 
-                        //             grabbable: false
-                        //         })
-                        //     ]
-                        // );
-
+                        
                         Overlays.editOverlay(cursorID, {
                             position: whiteBoardIntersection.intersection
                         });

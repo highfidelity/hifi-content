@@ -51,15 +51,27 @@
             Entities.callEntityServerMethod(serverID, 'clearBoard', []);            
         },
         findWhiteboard: function() {
+            var resetButtonPosition = Entities.getEntityProperties(_this.entityID, "position").position;
             var results = Entities.findEntities(
-                Entities.getEntityProperties(_this.entityID, "position").position,
+                resetButtonPosition,
                 _this.WHITEBOARD_SEARCH_RADIUS
             );
             results.forEach(function(entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
                 if (entityName === _this.WHITEBOARD_NAME) {
-                    _this.whiteboard = entity;
-                    return;
+                    if (_this.whiteboard !== null) {
+                        if (Vec3.distance(
+                            Entities.getEntityProperties(entity, "position").position, 
+                            resetButtonPosition) < 
+                        Vec3.distance(
+                            Entities.getEntityProperties(_this.whiteboard, "position").position, 
+                            resetButtonPosition)
+                        ) {
+                            _this.whiteboard = entity;
+                        }
+                    } else {
+                        _this.whiteboard = entity;
+                    }
                 }
             });
         },
