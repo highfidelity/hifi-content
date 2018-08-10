@@ -410,6 +410,7 @@
             Entities.callEntityServerMethod(serverID, 
                 'serverEditEntity', 
                 [_this.entityID, JSON.stringify({
+                    position: MyAvatar.position,
                     parentID: Uuid.NULL, 
                     collisionless: true, 
                     grabbable: false, 
@@ -440,7 +441,6 @@
             if (_this.equippedDesktop) {
                 isMouseDown = true;
             }
-            _this.equippedDesktop = true;
             _this.equipped = false;
             
             
@@ -450,6 +450,7 @@
                 [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]
             );
             Settings.setValue('io.highfidelity.isEditing', false);
+            _this.equippedDesktop = true;
         },
         mousePressEvent: function(event) {
             if (_this.equippedDesktop) {
@@ -459,7 +460,10 @@
                 var toolIntersection = Entities.findRayIntersection(pickRay, true, [], [_this.entityID], true, true);
                 if (toolIntersection.intersects) {
                     var entityName = Entities.getEntityProperties(toolIntersection.entityID, "name").name;
-                    
+                    var markerName = Entities.getEntityProperties(_this.entityID, "name").name;
+                    if (markerName === entityName) {
+                        return;
+                    }
                     if (entityName === ERASER_NAME || 
                         entityName === BLUE_MARKER_NAME || 
                         entityName === GREEN_MARKER_NAME || 
@@ -477,7 +481,7 @@
                         // delete marker
                         Overlays.deleteOverlay(cursorID);
                         cursorID = undefined;
-
+                        print(" RELEASE HERE ");
                         Audio.playSound(UNEQUIP_SOUND, {
                             position: Entities.getEntityProperties(_this.entityID, "position").position,
                             volume: 1
@@ -530,6 +534,7 @@
                 
                 if ((currentTime - equipTimestamp > EQUIP_MINIMUM_TIME) &&
                  (Settings.getValue(MARKERCOLOR) !== JSON.stringify(_this.markerColor))) {
+                   
                     // delete marker in order to prevent double marker effect
                     Overlays.deleteOverlay(cursorID);
                     cursorID = undefined;
