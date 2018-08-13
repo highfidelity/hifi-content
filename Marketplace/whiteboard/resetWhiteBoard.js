@@ -15,10 +15,8 @@
     
     var ResetBoard = function() {
         _this = this;
-        _this.RESET_STROKE_SEARCH_RADIUS = 5;
         _this.STROKE_NAME = "hifi_polyline_markerStroke";
         _this.WHITEBOARD_NAME = "Whiteboard";
-        _this.WHITEBOARD_SEARCH_RADIUS = 2;
         _this.whiteboard = null;
     };
 
@@ -27,9 +25,20 @@
             _this.entityID = entityID;
         },        
         clearBoard: function() {
+            _this.whiteboard = Entities.getEntityProperties(_this.entityID, "parentID").parentID;
             _this.resetPosition = Entities.getEntityProperties(_this.entityID, "position").position;
-            var results = Entities.findEntities(_this.resetPosition, _this.RESET_STROKE_SEARCH_RADIUS);
-            _this.findWhiteboard();
+
+            // bounding box is too big
+            var boundingBox = Entities.getEntityProperties(_this.whiteboard, "boundingBox").boundingBox; 
+            var halfDimensions = Entities.getEntityProperties(_this.whiteboard, "dimensions").dimensions;
+            halfDimensions = Vec3.multiply(0.5, halfDimensions);
+            var position = Entities.getEntityProperties(_this.whiteboard, "position").position;
+            var rotation = Entities.getEntityProperties(_this.whiteboard, "rotation").rotation;
+            var front = Quat.getFront(rotation);
+            var up = Quat.getUp(rotation);
+            var right = Quat.getRight(rotation);
+            var results = Entities.findEntitiesInBox(boundingBox.brn, boundingBox.dimensions);
+            
             var serverID = _this.whiteboard;
 
             Audio.playSound(RESET_SOUND, {
@@ -39,41 +48,21 @@
             
             results.forEach(function(stroke) {
                 var props = Entities.getEntityProperties(stroke, ["position", "name"]);
-                if (props.name === _this.STROKE_NAME && 
-                    Vec3.distance(_this.resetPosition, props.position) < _this.RESET_STROKE_SEARCH_RADIUS) {
-                    // Calling server to delete stroke 
-                    // Server side equivalent of Entities.deleteEntity(stroke);
-                    Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
+                if (props.name === _this.STROKE_NAME) {
+                    if (Math.abs(Vec3.dot(Vec3.subtract(props.position, position), right)) <= halfDimensions.x) {
+                        if (Math.abs(Vec3.dot(Vec3.subtract(props.position, position), up)) <= halfDimensions.y) {
+                            if (Math.abs(Vec3.dot(Vec3.subtract(props.position, position), front)) <= halfDimensions.z) {
+                                // Calling server to delete stroke 
+                                // Server side equivalent of Entities.deleteEntity(stroke);
+                                Entities.callEntityServerMethod(serverID, 'erase', [stroke]);
+                            }
+                        }
+                    }
                 }
             });
             
             // Calling server to clear board and reset markers and erasers
             Entities.callEntityServerMethod(serverID, 'clearBoard', []);            
-        },
-        findWhiteboard: function() {
-            var resetButtonPosition = Entities.getEntityProperties(_this.entityID, "position").position;
-            var results = Entities.findEntities(
-                resetButtonPosition,
-                _this.WHITEBOARD_SEARCH_RADIUS
-            );
-            results.forEach(function(entity) {
-                var entityName = Entities.getEntityProperties(entity, "name").name;
-                if (entityName === _this.WHITEBOARD_NAME) {
-                    if (_this.whiteboard !== null) {
-                        if (Vec3.distance(
-                            Entities.getEntityProperties(entity, "position").position, 
-                            resetButtonPosition) < 
-                        Vec3.distance(
-                            Entities.getEntityProperties(_this.whiteboard, "position").position, 
-                            resetButtonPosition)
-                        ) {
-                            _this.whiteboard = entity;
-                        }
-                    } else {
-                        _this.whiteboard = entity;
-                    }
-                }
-            });
         },
         clickReleaseOnEntity: function(entityID, mouseEvent) {
             _this.clearBoard();

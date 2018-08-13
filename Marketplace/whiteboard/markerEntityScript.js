@@ -78,6 +78,7 @@
     var MARKERKEY = "markerEntityScript/currentMarker";
     var MARKERCOLOR = "markerEntityScript/currentColor";
     var SHORT_TOOL_LIFETIME = 3600;
+    var MARKER_TOOL_LIFETIME = 60;
 
     var equipTimestamp = undefined;
     var EQUIP_MINIMUM_TIME = 1000;
@@ -198,9 +199,25 @@
                 'spawnMarker', 
                 [_this.entityID, JSON.stringify(markerProps.name), JSON.stringify(_this.markerColor)]
             );
+            Entities.callEntityServerMethod(serverID, 
+                'serverEditEntity', 
+                [_this.entityID, JSON.stringify({
+                    lifetime: -1
+                })]
+            );
         },
         releaseGrab: function() {
             _this.resetStroke(false);
+            // Make the discarded marker disappear after a certain time
+            // Server side
+            _this.findWhiteboard();
+            var serverID = _this.wb;
+            Entities.callEntityServerMethod(serverID, 
+                'serverEditEntity', 
+                [_this.entityID, JSON.stringify({
+                    lifetime: MARKER_TOOL_LIFETIME
+                })]
+            );
         },
         continueNearGrab: function(entityID, paramsArray) {
             if ((Date.now() - hmdMoveTimestamp) > throttleTimeoutMS) {

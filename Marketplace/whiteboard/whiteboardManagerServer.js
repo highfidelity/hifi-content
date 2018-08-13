@@ -86,8 +86,6 @@
         z: 10
     };
 
-
-    var RESET_MARKERS_AND_ERASERS_RADIUS = 3;
     var SHORT_TOOL_LIFETIME = 300;
     var TOOL_LIFETIME = -1;
 
@@ -584,13 +582,23 @@
         },
         resetMarkersAndErasers: function (entityID, params) {
             // delete all markers and erasers
-            var results = Entities.findEntities(
-                Entities.getEntityProperties(_this.entityID, "position").position,
-                RESET_MARKERS_AND_ERASERS_RADIUS
-            );
-
+            // var results = Entities.findEntities(
+            //     Entities.getEntityProperties(_this.entityID, "position").position,
+            //     RESET_MARKERS_AND_ERASERS_RADIUS
+            // );
+            var boundingBox = Entities.getEntityProperties(_this.entityID, "boundingBox").boundingBox; 
+            var halfDimensions = Entities.getEntityProperties(_this.entityID, "dimensions").dimensions;
+            halfDimensions = Vec3.multiply(0.5, halfDimensions);
+            var position = Entities.getEntityProperties(_this.entityID, "position").position;
+            var rotation = Entities.getEntityProperties(_this.entityID, "rotation").rotation;
+            var front = Quat.getFront(rotation);
+            var up = Quat.getUp(rotation);
+            var right = Quat.getRight(rotation);
+            var results = Entities.findEntitiesInBox(boundingBox.brn, boundingBox.dimensions);
+            
             results.forEach(function (entity) {
                 var entityName = Entities.getEntityProperties(entity, "name").name;
+                var entityPosition = Entities.getEntityProperties(entity, "position").position;
                 if (entityName === ERASER_NAME ||
                     entityName === BLUE_MARKER_NAME ||
                     entityName === GREEN_MARKER_NAME ||
@@ -598,7 +606,14 @@
                     entityName === RED_MARKER_NAME ||
                     entityName === PINK_MARKER_NAME ||
                     entityName === YELLOW_MARKER_NAME) {
-                    Entities.deleteEntity(entity);
+                    
+                    if (Math.abs(Vec3.dot(Vec3.subtract(entityPosition, position), right)) <= halfDimensions.x) {
+                        if (Math.abs(Vec3.dot(Vec3.subtract(entityPosition, position), up)) <= halfDimensions.y) {
+                            if (Math.abs(Vec3.dot(Vec3.subtract(entityPosition, position), front)) <= halfDimensions.z) {
+                                Entities.deleteEntity(entity);
+                            }
+                        }
+                    }
                 }
             });
         },
