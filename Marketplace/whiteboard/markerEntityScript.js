@@ -74,11 +74,12 @@
     var cursorID = undefined;
     var mouseMoveTimestamp = Date.now();
     var hmdMoveTimestamp = Date.now();
+    var hapticPulseTimestamp = Date.now();
 
     var MARKERKEY = "markerEntityScript/currentMarker";
     var MARKERCOLOR = "markerEntityScript/currentColor";
     var SHORT_TOOL_LIFETIME = 3600;
-    var MARKER_TOOL_LIFETIME = 60;
+    var MARKER_TOOL_LIFETIME = 90;
 
     var equipTimestamp = undefined;
     var EQUIP_MINIMUM_TIME = 1000;
@@ -107,6 +108,8 @@
     // 2 / 60.0 *1000
     // 1/ 60.0*1000
     var throttleTimeoutMS = 16.6;
+
+    var hapticTimeoutMS = 1000;
     
 
     // subscribe to channel 
@@ -307,12 +310,15 @@
                 }
 
                 isPainting = true;
-                var hand = paramsArray[0] === 'left' ? 0 : 1;
-                Controller.triggerHapticPulse(
-                    HAPTIC_PARAMETERS.strength, 
-                    HAPTIC_PARAMETERS.duration, 
-                    hand
-                );
+                if ((Date.now() - hapticPulseTimestamp) > hapticTimeoutMS) {
+                    hapticPulseTimestamp = Date.now();
+                    var hand = paramsArray[0] === 'left' ? 0 : 1;
+                    Controller.triggerHapticPulse(
+                        HAPTIC_PARAMETERS.strength, 
+                        HAPTIC_PARAMETERS.duration, 
+                        hand
+                    );
+                }
             } else {
                 _this.resetStroke(false);
             }
@@ -498,7 +504,6 @@
                         // delete marker
                         Overlays.deleteOverlay(cursorID);
                         cursorID = undefined;
-                        print(" RELEASE HERE ");
                         Audio.playSound(UNEQUIP_SOUND, {
                             position: Entities.getEntityProperties(_this.entityID, "position").position,
                             volume: 1
@@ -577,12 +582,6 @@
                         var whiteboardRotation = Entities.getEntityProperties(_this.currentWhiteboard, "rotation").rotation;
                         _this.whiteboardNormal = Quat.getFront(whiteboardRotation);
 
-                        // my marker offset
-                        // var markerZOffset = Vec3.multiply(
-                        //     Entities.getEntityProperties(_this.entityID, "dimensions").dimensions.z / 2, 
-                        //     _this.whiteboardNormal
-                        // );
-                        
                         var shouldPaint = lastIntersectionPoint === undefined;
 
                         if (!shouldPaint) {
