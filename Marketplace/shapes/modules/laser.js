@@ -157,7 +157,7 @@ Laser = function (side) {
             if (HMD.homeButtonID) {
                 tabletIDs.push(HMD.homeButtonID);
             }
-            if (Reticle.pointingAtSystemOverlay || (intersection.overlayID
+            if (Reticle.visible && Reticle.pointingAtSystemOverlay || (intersection.overlayID
                     && tabletIDs.indexOf(intersection.overlayID) !== -1)) {
                 // No laser if pointing at HUD overlay or tablet; system provides lasers for these cases.
                 if (isLaserOn) {
