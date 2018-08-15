@@ -54,7 +54,7 @@
 
     var HAPTIC_PARAMETERS = {
         strength: 1,
-        duration: 70,
+        duration: 50,
         hand: 2
     };
 
@@ -109,7 +109,7 @@
     // 1/ 60.0*1000
     var throttleTimeoutMS = 16.6;
 
-    var hapticTimeoutMS = 1000;
+    var hapticTimeoutMS = 140;
     
 
     // subscribe to channel 

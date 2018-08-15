@@ -74,7 +74,7 @@
     var MAX_POINTS_PER_STROKE = 60;
     // 35
     var MARKER_TEXTURE_URL = Script.resolvePath("markerStroke.png");
-    var strokeForwardOffset = 0.02;
+    var strokeForwardOffset = 0.01;
     var STROKE_WIDTH_RANGE = {
         min: 0.002,
         max: 0.005
