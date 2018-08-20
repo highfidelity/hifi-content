@@ -10,3 +10,13 @@
     padding: 0;
   }
   
+  .list-complete-item {
+    padding: 4px;
+    margin-top: 4px;
+    border: solid 1px;
+    transition: all 0.2s;
+  }
+  
+  .list-complete-enter, .list-complete-leave-active {
+    opacity: 0;
+  }

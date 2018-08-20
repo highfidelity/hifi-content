@@ -35,7 +35,8 @@
     var isAppActive = false,
         isTabletUIOpen = false,
         rustDancing = false,
-        overlay = null;
+        overlay = null,
+        animationSTateHandler = null;
         
     
     // Consts
@@ -45,29 +46,51 @@
         PREVIEW_DANCE = "preview_dance",
         PREVIEW_DANCE_STOP = "preview_dance_stop",
         STOP_DANCE = "stop_dance",
-        TRY_DANCE = "try_dance";
+        START_DANCING = "start_dancing",
+        TRY_DANCE = "try_dance",
+        ADD_DANCE = "add_dance",
+        REMOVE_DANCE = "remove_dance",
+        CLEAR_ALL_DANCES = "clear_all_dances",
+        UPDATE_DANCE_ARRAY = "update_dance_array",
+        CURRENT_DANCE = "current_dance",
+        DEFAULT_DURATION = "1500",
+        DEFAULT_START_FRAME = 0;
 
     // Constructor
     // /////////////////////////////////////////////////////////////////////////
     function DanceAnimation(name, url, frames, fps) {
         this.name = name;
         this.url = url;
-        this.frames = frames;
+        this.startFrame = DEFAULT_START_FRAME;
+        this.endFrame = frames;
+        this.fps = fps;
+    }
+
+    function DanceListEntry(name, url, startFrame, endFrame, duration, fps) {
+        this.name = name;
+        this.url = url;
+        this.startFrame = startFrame;
+        this.endFrame = endFrame;
+        this.duration = duration;
         this.fps = fps;
     }
 
     // Collections
     // /////////////////////////////////////////////////////////////////////////
-    var danceUrls = Script.require("./Dance-URLS.js"),
+    var danceUrls = Script.require("./Dance-URLS.js?"+ Date.now()),
         defaultSettings = {
+            shouldBeRunning: true,
+            danceArray: [],
+            currentIndex: 0,
             ui: {
-                currentDance: false
+                currentDance: false,
+                danceArray: false
             }
         },
         settings = Object.assign({}, defaultSettings),
         danceObjects = [];
 
-    log(LOG_VALUE, "danceUrls", danceUrls);
+    log(LOG_ARCHIVE, "danceUrls", danceUrls);
 
     // Helper Functions
     // /////////////////////////////////////////////////////////////////////////
@@ -106,13 +129,67 @@
         Overlays.deleteOverlay(overlay);
     }
 
+    function addDanceAnimation(danceObj) {
+        settings.danceArray.push(
+            new DanceListEntry(
+                danceObj.name,
+                danceObj.url,
+                danceObj.startFrame,
+                danceObj.endFrame,
+                DEFAULT_DURATION,
+                danceObj.fps
+            )
+        );
+        settings.ui.danceArray = true;
+    }
+
+    function removeDanceAnimations(danceObj) {
+        settings.danceArray = [];
+        settings.ui.danceArray = false;
+    }
+
+    function removeDanceAnimation(index) {
+        settings.danceArray.splice(index,1);
+        if (settings.danceArray.length === 0) {
+            stopDanceAnimation();
+            settings.ui.danceArray = false;
+        }
+    }
+
+    function playDanceArray(){
+        settings.shouldBeRunning = true;
+        settings.currentIndex = 0;
+        playNextDance(settings.currentIndex);
+    }
+
+    function playNextDance(index) {
+        log(LOG_VALUE, "INDEX", index);
+        log(LOG_VALUE, "settings.danceArray", settings.danceArray);
+        if ( index >= settings.danceArray.length) {
+            index = 0;
+        }
+        var danceArrayObject = settings.danceArray[index];
+        settings.currentIndex++;
+        settings.currentIndex = 
+            settings.currentIndex >= settings.danceArray.length
+                ? 0
+                : settings.currentIndex;
+
+        tryDanceAnimation(danceArrayObject);
+        Script.setTimeout(function(){
+            if (settings.shouldBeRunning) {
+                playNextDance(settings.currentIndex);
+            }
+        }, danceArrayObject.duration);
+    }
+
     function tryDanceAnimation(danceObj) {
         rustDancing = Settings.getValue("isRustDancing", false);
-
-        MyAvatar.overrideAnimation(danceObj.url, danceObj.fps, true, 0, danceObj.frames);
+        MyAvatar.overrideAnimation(danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
         Settings.setValue("isRustDancing", true);
         settings.ui.currentDance = true; 
         settings.currentDance = danceObj;
+        doUIUpdate({slice: CURRENT_DANCE});
     }
 
     function stopDanceAnimation() {
@@ -120,6 +197,11 @@
         Settings.setValue("isRustDancing", false);
         settings.ui.currentDance = false; 
         settings.currentDance = null;
+        settings.shouldBeRunning = false;
+    }
+
+    function updateDanceArray(danceArray) {
+        settings.danceArray = danceArray;
     }
 
     // Procedural Functions
@@ -166,16 +248,21 @@
         Messages.messageReceived.connect(onMessageReceived);
     }
 
-    function doUIUpdate() {
+    function doUIUpdate(update) {
         tablet.emitScriptEvent(JSON.stringify({
             type: UPDATE_UI,
-            value: settings
+            value: settings,
+            update: update || {}
         }));
     }
 
     function splitDanceUrls() {
         var regex = /(https:\/\/.*\/)([a-zA-Z0-9 ]+) (\d+)(.fbx)/;
-        danceUrls.forEach(function(dance) {
+        danceUrls.sort(function(a,b) { 
+            if (a < b) return -1;
+            else if (a > b) return 1;
+            return 0; 
+        }).forEach(function(dance) {
             var regMatch = regex.exec(dance);
             danceObjects.push(
                 new DanceAnimation(
@@ -188,6 +275,7 @@
         });
         settings.danceObjects = danceObjects;
     }
+
     // Tablet
     // /////////////////////////////////////////////////////////////////////////
     var tablet = null,
@@ -249,8 +337,23 @@
                 }
                 tablet.gotoHomeScreen(); // Automatically close app.
                 break;
+            case ADD_DANCE:
+                addDanceAnimation(message.value);
+                doUIUpdate();
+                break;
+            case REMOVE_DANCE:
+                removeDanceAnimation(message.value);
+                doUIUpdate();
+                break;
+            case START_DANCING:
+                playDanceArray();
+                doUIUpdate();
+                break;
             case TRY_DANCE:
                 tryDanceAnimation(message.value);
+                break;
+            case UPDATE_DANCE_ARRAY:
+                updateDanceArray(message.value);
                 doUIUpdate();
                 break;
             case STOP_DANCE:
@@ -273,6 +376,17 @@
     // /////////////////////////////////////////////////////////////////////////
     splitDanceUrls();
     setup();
+    animationSTateHandler = MyAvatar.addAnimationStateHandler(function (props) {
+        var keys = Object.keys(props).filter(function(prop){
+            return prop.indexOf("anim") > -1;
+        });
+        if (keys.length > 0) {
+            keys.forEach(function(key) {
+                log(LOG_VALUE, key, props[key]);
+            });
+        }
+        return {};
+    }, null);
 
     // Cleanup
     // /////////////////////////////////////////////////////////////////////////
@@ -293,6 +407,7 @@
 
         Messages.messageReceived.disconnect(onMessageReceived);
         Messages.unsubscribe(MESSAGE_CHANNEL);
+        MyAvatar.removeAnimationStateHandler(animationSTateHandler); 
     }
 
     Script.scriptEnding.connect(scriptEnding);
