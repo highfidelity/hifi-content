@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global ToolsMenu:true, App, Feedback, Preload, UIT */
+/* global ToolsMenu:true, App, Feedback, Preload, UIT, MyAvatarUtils */
 
 ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
     // Tool menu displayed on top of forearm.
@@ -2058,17 +2058,16 @@ ToolsMenu = function (side, leftInputs, rightInputs, uiCommandCallback) {
         side = hand;
         if (side === LEFT_HAND) {
             controlHand = rightInputs.hand();
-            attachmentJointName = "LeftHand";
             panelLateralOffset = -UIT.dimensions.handLateralOffset;
             menuOriginLocalPosition = PANEL_ORIGIN_POSITION_LEFT_HAND;
             menuOriginLocalRotation = PANEL_ORIGIN_ROTATION_LEFT_HAND;
         } else {
             controlHand = leftInputs.hand();
-            attachmentJointName = "RightHand";
             panelLateralOffset = UIT.dimensions.handLateralOffset;
             menuOriginLocalPosition = PANEL_ORIGIN_POSITION_RIGHT_HAND;
             menuOriginLocalRotation = PANEL_ORIGIN_ROTATION_RIGHT_HAND;
         }
+        attachmentJointName = MyAvatarUtils.handJointName(side);
         otherSide = (side + 1) % NUMBER_OF_HANDS;
     }
 
