@@ -12,6 +12,7 @@
 
     var overlayTutorialMarker;
     var overlayTutorialMarkerArrow;
+    var DEFAULT_DIMENSIONS = {x: 3.2, y: 2.7, z: 0.2};
 
     var MARKER_TUTORIAL_OFFSET = {x: -0.75, y: 0.15, z: -0.15};
     var MARKER_ARROW_TUTORIAL_OFFSET = {x: -0.53, y: 0.15, z: -0.8};
@@ -44,6 +45,9 @@
             var whiteboardFront = Quat.getFront(whiteboardRotation);
             var whiteboardUp = Quat.getUp(whiteboardRotation);
 
+            if (whiteboardDimensions === undefined) {
+                whiteboardDimensions = DEFAULT_DIMENSIONS;
+            }
 
             var ov = Overlays.findOverlays(whiteboardPosition, TUTORIAL_OVERLAY_RADIUS);
             ov.forEach(function(overlay) {
