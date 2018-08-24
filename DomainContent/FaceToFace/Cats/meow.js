@@ -16,10 +16,8 @@
 
     var MEOW_SOUND_URL = Script.resolvePath('./resources/sounds/meow.mp3');
 
-    var MEOW_ANIMATION_URL = Script.resolvePath('./resources/kitten_Meow.fbx');
-    var IDLE_ANIMATION_URL = Script.resolvePath('./resources/kitten_Idle.fbx');
-    var MSEC_PER_SEC = 1000;
-    var FPS = 30;
+    var MEOW_ANIMATION_URL = 'atp:/kitten_Meow.fbx';
+    var IDLE_ANIMATION_URL = 'atp:/kitten_Idle.fbx';
 
     var meowSound = SoundCache.getSound(MEOW_SOUND_URL);
     var meowInterval;
