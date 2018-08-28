@@ -1,15 +1,22 @@
 // Particle Array Consts
-var IS_EMITTING = "isEmitting",
-    LIFESPAN = "lifespan",
+var LIFESPAN = "lifespan",
     MAX_PARTICLES = "maxParticles",
     TEXTURES = "textures",
+    SPEED_SPREAD = "speedSpread",
+    IS_EMITTING = "isEmitting",
+    EMIT_RADIUS_START = "emitRadiusStart",
     EMIT_RATE = "emitRate",
     EMIT_SPEED = "emitSpeed",
-    SPEED_SPREAD = "speedSpread",
     EMIT_DIMENSIONS = "emitDimensions",
     EMIT_ORIENTATION = "emitOrientation",
+    EMIT_ACCELERATION = "emitAcceleration",
     EMITTER_SHOULD_TRAIL = "emitterShouldTrail",
     PARTICLE_RADIUS = "particleRadius",
+    SPIN_SPREAD = "spinSpread",
+    SPIN_START = "spinStart",
+    SPIN_FINISH = "spinFinish",
+    ROTATE_WITH_ENTITY = "rotateWithEntity",
+    PARTICLE_SPIN = "particleSpin",
     RADIUS_SPREAD = "radiusSpread",
     RADIUS_START = "radiusStart",
     RADIUS_FINISH = "radiusFinish",
@@ -17,7 +24,6 @@ var IS_EMITTING = "isEmitting",
     COLOR_SPREAD = "colorSpread",
     COLOR_START = "colorStart",
     COLOR_FINISH = "colorFinish",
-    EMIT_ACCELERATION = "emitAcceleration",
     ACCELERATION_SPREAD = "accelerationSpread",
     ALPHA = "alpha",
     ALPHA_SPREAD = "alphaSpread",
@@ -26,7 +32,9 @@ var IS_EMITTING = "isEmitting",
     POLOR_START = "polarStart",
     POLOR_FINISH = "polarFinish",
     AZIMUTH_START = "azimuthStart",
-    AZIMUTH_FINISH = "azimuthFinish";
+    AZIMUTH_FINISH = "azimuthFinish",
+    POSITION = "position",
+    ROTATION = "rotation";
 
 // Get Particle in front of you
 function getPosition(x, y, z) {
@@ -43,6 +51,36 @@ var particleArray = [
 // Particles get stored here:
 var particleEntities = [];
 
+// Particle Constructor
+function Particle(id, props){
+    this.id = id;
+    this.props = props;
+    this.currentIndex = 0;
+    this.currentChangeValue = null;
+    this.currentToValue = null;
+    this.sequence = {};
+}
+
+Particle.prototype.change = function(property){
+    this.currentChangeProperty = property;
+    return this;
+};
+
+Particle.prototype.to = function(value){
+    this.currentToValue = value;
+    return this;
+};
+
+Particle.prototype.at = function(time){
+    if (!this.sequence[String(time)]) {
+        this.sequence[String(time)] = [];
+    } else {
+        this.sequence[String(time)].push({change: this.currentChangeValue, to: this.currentToValue});
+        this.currentChangeProperty = null;
+        this.currentToValue = null;
+    }
+}
+
 // Create the particles
 particleArray.forEach(function(particle){
     particle.type = "ParticleEffect";
@@ -54,10 +92,12 @@ particleArray.forEach(function(particle){
 particle[0].at(100)
     .change(AZIMUTH_START).to(PI/2).at(200)
     .change(EMIT_ACCELERATION).to(500).at(200)
-    .change(EMIT_ACCELERATION).from().to().at(500)
     .exec();
 particle[1]
 
+function editEntity(id, props){
+
+}
 
 // Delete the Entities on cleanup
 Script.scriptEnding.connect(function(){
