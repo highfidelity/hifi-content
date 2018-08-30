@@ -50,7 +50,7 @@ InstrumentClone.prototype = {
         this.handNum = 0;
 
         Script.setTimeout(function(){
-            if(entityProperties.name && entityProperties.name.indexOf("clone") !== -1){
+            if (entityProperties.name && entityProperties.name.indexOf("clone") !== -1){
                 if (DEBUG) {
                     print("Instrument clone: preload edit lifetime ", entityProperties.name);
                 }
