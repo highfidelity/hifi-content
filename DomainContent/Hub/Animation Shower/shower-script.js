@@ -23,7 +23,7 @@
     var AUDIO_VOLUME_LEVEL = 0.5;
     var NUMBER_OF_ANIMATIONS = 6;
 
-    var walkRoles = ["walkFwd", "idleToWalkFwd", "walkBwdNormal"];
+    var walkRoles = ["walkFwdNormal", "idleToWalkFwd", "walkBwdNormal"];
     var Animations = Array();
     var sound;
     var _this;
@@ -58,12 +58,13 @@
             var animationIndex = Math.floor(Math.random()* NUMBER_OF_ANIMATIONS);
             _this.playSound(MyAvatar.position);
             resetAnimations();
+            MyAvatar.overrideRoleAnimation("walkFwdNormal", Animations[animationIndex].url, FPS, true, 0, 
+                Animations[animationIndex].animation.frames.length);
             MyAvatar.overrideRoleAnimation("idleToWalkFwd", Animations[animationIndex].url, FPS, true, 0, 
                 Animations[animationIndex].animation.frames.length);
             MyAvatar.overrideRoleAnimation("walkBwdNormal", Animations[animationIndex].url, -FPS, true, 0, 
                 Animations[animationIndex].animation.frames.length);
         },
-        
         playSound: function(position) {
             if (sound.downloaded) {
                 Audio.playSound(sound, {
