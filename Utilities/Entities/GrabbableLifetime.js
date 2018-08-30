@@ -40,7 +40,6 @@
             try {
 
                 var userData = JSON.parse(properties.userData);
-                print(JSON.stringify(userData));
                 
                 if (userData && userData[PROPERTY_NAME]) {
                     this.pickupLifetime = userData[PROPERTY_NAME].pickup || LIFETIME_ON_PICKUP;
@@ -51,9 +50,8 @@
                 console.error("Error parsing userData :", error);
             }
             
-            if (properties.name && properties.name.indexOf("clone") !== -1){
-                this.setAge(this.pickupLifetime, "preload");
-            }
+            // checks if clone inside this.setAge()
+            this.setAge(this.pickupLifetime, "preload");
 
         },
 
@@ -65,14 +63,21 @@
             this.setAge(this.releaseLifetime, "releaseGrab");
         },
 
+        isClone: function () {
+            var name = Entities.getEntityProperties(this.entityID, ["name"]).name;
+            return name && name.indexOf("clone") !== -1;
+        },
+
         setAge: function(secondsToDespawn, functionName) {
 
             if (DEBUG) {
                 this.printDebug("Start " + functionName);
             }
-
-            var currentAge = Entities.getEntityProperties(this.entityID, "age").age;
-            Entities.editEntity(this.entityID, { lifetime: currentAge + secondsToDespawn });
+            
+            if (this.isClone()) {
+                var currentAge = Entities.getEntityProperties(this.entityID, "age").age;
+                Entities.editEntity(this.entityID, { lifetime: currentAge + secondsToDespawn });
+            }
         
             if (DEBUG) {
                 this.printDebug("End " + functionName);
