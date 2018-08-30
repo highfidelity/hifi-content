@@ -11,7 +11,7 @@
 (function() {
     var SOUND_URL = Script.resolvePath("Sounds/undo-notif.wav");
 
-    var walkRoles = ["walkFwd", "idleToWalkFwd", "walkBwdNormal"];
+    var walkRoles = ["walkFwdNormal", "idleToWalkFwd", "walkBwdNormal"];
     var sound = SoundCache.getSound(SOUND_URL);
 
     function resetAnimations() {
