@@ -168,7 +168,8 @@ Laser = function (side) {
                 if (!intersection.intersects) {
                     intersection = Entities.findRayIntersection(pickRay, PRECISION_PICKING, NO_INCLUDE_IDS, NO_EXCLUDE_IDS,
                         VISIBLE_ONLY);
-                    intersection.editableEntity = intersection.intersects && Entities.hasEditableRoot(intersection.entityID);
+                    intersection.editableEntity = intersection.intersects && Entities.isEditableType(intersection.entityID)
+                        && Entities.hasEditableRoot(intersection.entityID);
                     intersection.overlayID = null;
                 }
                 intersection.laserIntersected = intersection.intersects;
