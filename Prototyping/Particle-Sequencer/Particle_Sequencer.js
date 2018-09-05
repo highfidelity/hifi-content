@@ -1,278 +1,297 @@
-// Particle Array Consts
-var LIFESPAN = "lifespan",
-    MAX_PARTICLES = "maxParticles",
-    TEXTURES = "textures",
-    SPEED_SPREAD = "speedSpread",
-    IS_EMITTING = "isEmitting",
-    EMIT_RADIUS_START = "emitRadiusStart",
-    EMIT_RATE = "emitRate",
-    EMIT_SPEED = "emitSpeed",
-    EMIT_DIMENSIONS = "emitDimensions",
-    EMIT_ORIENTATION = "emitOrientation",
-    EMIT_ACCELERATION = "emitAcceleration",
-    EMITTER_SHOULD_TRAIL = "emitterShouldTrail",
-    PARTICLE_RADIUS = "particleRadius",
-    SPIN_SPREAD = "spinSpread",
-    SPIN_START = "spinStart",
-    SPIN_FINISH = "spinFinish",
-    ROTATE_WITH_ENTITY = "rotateWithEntity",
-    PARTICLE_SPIN = "particleSpin",
-    RADIUS_SPREAD = "radiusSpread",
-    RADIUS_START = "radiusStart",
-    RADIUS_FINISH = "radiusFinish",
-    COLOR = "color",
-    COLOR_SPREAD = "colorSpread",
-    COLOR_START = "colorStart",
-    COLOR_FINISH = "colorFinish",
-    ACCELERATION_SPREAD = "accelerationSpread",
-    ALPHA = "alpha",
-    ALPHA_SPREAD = "alphaSpread",
-    ALPHA_START = "alphaStart",
-    ALPHA_FINISH = "alphaFinish",
-    POLOR_START = "polarStart",
-    POLOR_FINISH = "polarFinish",
-    AZIMUTH_START = "azimuthStart",
-    AZIMUTH_FINISH = "azimuthFinish",
-    POSITION = "position",
-    ROTATION = "rotation",
-    LOOP = "loop";
 
-// Min and Max
-var MINIMUM_MAX_PARTICLES = 1,
-    MAXIMUM_MAX_PARTICLES = 100000,
-    MINIMUM_LIFESPAN = 0.0,
-    MAXIMUM_LIFESPAN = 86400.0,  // 1 day
-    MINIMUM_EMIT_RATE = 0.0,
-    MAXIMUM_EMIT_RATE = 100000.0,
-    MINIMUM_EMIT_SPEED = -1000.0,
-    MAXIMUM_EMIT_SPEED = 1000.0,  // Approx mach 3
-    MINIMUM_EMIT_DIMENSION = 0.0,
-    MAXIMUM_EMIT_DIMENSION = 32768,
-    MINIMUM_EMIT_RADIUS_START = 0.0,
-    MAXIMUM_EMIT_RADIUS_START = 1.0,
-    MINIMUM_EMIT_ACCELERATION = -100.0, // ~ 10g
-    MAXIMUM_EMIT_ACCELERATION = 100.0,
-    MINIMUM_ACCELERATION_SPREAD = 0.0,
-    MAXIMUM_ACCELERATION_SPREAD = 100.0,
-    MINIMUM_PARTICLE_RADIUS = 0.0,
-    MAXIMUM_PARTICLE_RADIUS = 32768,
-    MINIMUM_PARTICLE_SPIN = -2.0 * Math.PI,
-    MAXIMUM_PARTICLE_SPIN = 2.0 * Math.PI;
+// PARTICLE SEQUENCER CONSTS
+// ////////////////////////////////////////////////////////////////////////
+    var
+        LOOP = "loop",
+        POSITION = "position",
+        ROTATION = "rotation"
+    ;
 
-// Init Variables
-var totalDelta = 0,
-    ENTITY_POSITION = getPosition(0, 0, -2);
-
-// Log Helper
-function log(label, value){
-    print(label, JSON.stringify(value));
-}
-
-// Get Particle in front of you
-function getPosition(x, y, z) {
-    var localOffset = { x: x, y: y, z: z };
-    var worldOffset = Vec3.multiplyQbyV(MyAvatar.orientation, localOffset);
-    return Vec3.sum(MyAvatar.position, worldOffset);
-}
-
-// Paste the properties given to you by a particle, comma separated
-var particleArray = [
-    { "isEmitting": true, "lifespan": "1.5", "maxParticles": "10", "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png", "emitRate": "95", "emitSpeed": "1.35", "speedSpread": "1.35", "emitDimensions": { "x": "0", "y": "20", "z": "0" }, "emitOrientation": { "x": "0", "y": "90", "z": "0" }, "emitterShouldTrail": true, "particleRadius": "0.25", "radiusSpread": "0", "radiusStart": "0", "radiusFinish": "0.10000000149011612", "color": { "red": "200", "blue": "200", "green": "200" }, "colorSpread": { "red": "0", "blue": "0", "green": "0" }, "colorStart": { "red": "200", "blue": "200", "green": "200" }, "colorFinish": { "red": "0", "blue": "0", "green": "0" }, "emitAcceleration": { "x": "-0.5", "y": "2.5", "z": "-0.5" }, "accelerationSpread": { "x": "0.5", "y": "1", "z": "0.5" }, "alpha": "0", "alphaSpread": "0", "alphaStart": "1", "alphaFinish": "0", "particleSpin": 0, "spinSpread": 0, "spinStart": 0, "spinFinish": 0, "rotateWithEntity": false, "polarStart": 0, "polarFinish": 0, "azimuthStart": -3.1415927410125732, "azimuthFinish": 3.1415927410125732 },
-    { "isEmitting": true, "lifespan": "1.5", "maxParticles": "10", "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png", "emitRate": "95", "emitSpeed": "1.35", "speedSpread": "1.35", "emitDimensions": { "x": "0", "y": "20", "z": "0" }, "emitOrientation": { "x": "0", "y": "90", "z": "0" }, "emitterShouldTrail": true, "particleRadius": "0.25", "radiusSpread": "0", "radiusStart": "0", "radiusFinish": "0.10000000149011612", "color": { "red": "200", "blue": "200", "green": "200" }, "colorSpread": { "red": "0", "blue": "0", "green": "0" }, "colorStart": { "red": "200", "blue": "200", "green": "200" }, "colorFinish": { "red": "0", "blue": "0", "green": "0" }, "emitAcceleration": { "x": "-0.5", "y": "2.5", "z": "-0.5" }, "accelerationSpread": { "x": "0.5", "y": "1", "z": "0.5" }, "alpha": "0", "alphaSpread": "0", "alphaStart": "1", "alphaFinish": "0", "particleSpin": 0, "spinSpread": 0, "spinStart": 0, "spinFinish": 0, "rotateWithEntity": false, "polarStart": 0, "polarFinish": 0, "azimuthStart": -3.1415927410125732, "azimuthFinish": 3.1415927410125732 }
-];
-
-
-// Particles get stored here:
-var particleEntities = [];
-
-// Particle Constructor
-function Particle(id, props) {
-    this.id = id;
-    this.props = props;
-    this.rotation = Entities.getEntityProperties(id,'rotation').rotation;
-    this.currentIndex = 0;
-    this.currentChangeProperty = null;
-    this.currentToValue = null;
-    this.sequence = {};
-    this.currentKeys = [];
-    this.sequenceStartDelta = 0;
-    this.shouldLoop = false;
-    this.loopStart = 0;
-    this.loopEnd = 0;
-}
-
-Particle.prototype.change = function (property) {
-    log("in change");
-
-    this.currentChangeProperty = property;
-    log("currentChangeProperty", this.currentChangeProperty);
-    return this;
-};
-
-Particle.prototype.to = function (value) {
-    var newValue = value;
-    if (arguments.length === 3) {
-        if (this.currentChangeProperty.toLowerCase().indexOf("color") > -1) {
-            newValue = {
-                red: arguments[0],
-                green: arguments[1],
-                blue: arguments[2]
-            };
-        } else {
-            newValue = {
-                x: arguments[0],
-                y: arguments[1],
-                z: arguments[2]
-            };
-        }
-
+// HELPER FUNCTIONS 
+// ////////////////////////////////////////////////////////////////////////
+    function log(label, value){
+        print(label, JSON.stringify(value));
     }
-    this.currentToValue = newValue;
-    log("currentToValue", this.currentToValue);
-    return this;
-};
 
-Particle.prototype.at = function (time) {
-    log("in at");
-    if (!this.sequence[String(time)]) {
-        this.sequence[String(time)] = [];
-    } 
-    if (this.currentChangeProperty === LOOP) {
-        this.shouldLoop = true;
-        this.loopStart = this.currentToValue;
-        this.loopEnd = time;
+    // Get Particle in front of you
+    function getPosition(x, y, z) {
+        var localOffset = { x: x, y: y, z: z };
+        var worldOffset = Vec3.multiplyQbyV(MyAvatar.orientation, localOffset);
+        return Vec3.sum(MyAvatar.position, worldOffset);
     }
-    this.sequence[String(time)].push({ change: this.currentChangeProperty, to: this.currentToValue });
-    this.currentChangeProperty = null;
-    this.currentToValue = null;
-    this.updateKeys();
-    // log("updateKeys", this.currentKeys);
-    // log("sequence", this.sequence);
-    return this;
-};
 
-Particle.prototype.edit = function (propArray) {
-    log("in Edit");
-    var self = this;
-    var propertiesToChange = propArray.reduce(function (prev, cur) {
-        var changeAmount = cur.to;
-        if (cur.change === LOOP) {
-            log("About to loop");
-            self.sequenceStartDelta = totalDelta;
-        }
-        if (cur.change === POSITION) {
-            var worldOffset = Vec3.multiplyQbyV(self.rotation, cur.to);
-            log("worldOffset", worldOffset);
-            var moveTo = Vec3.sum(ENTITY_POSITION, worldOffset);
-            log("moveTo", moveTo);
-            changeAmount = moveTo;
-        }
-        prev[cur.change] = changeAmount;
-        // log("currentPrev", prev);
-        return prev;
-    }, {});
-    log("propertiesToChange", propertiesToChange);
-    Entities.editEntity(this.id, propertiesToChange);
-    log("currentIndex", this.currentIndex);
-    log("this.currentKeys.length",this.currentKeys.length);
-    this.currentIndex = 
-        this.currentIndex >= this.currentKeys.length - 1
-            ? (log("currentIndex is over"), this.currentIndex = 0)
-            : (log("currentIndex is under"), this.currentIndex += 1);
-    log("currentIndex", this.currentIndex);
+var _this;
+
+var TRIGGER_START = 0,
+    TRIGGER_STOP = 0;
+// GROUP DEFINITIONS
+// ////////////////////////////////////////////////////////////////////////
+var _Sequence = function () {
+    this._entities = {};
+    this._nameMap = {};
+    this._sequences = {};
+    this._anchorPosition = {};
+    this._totalDelta = 0;
+    this._currentSequence;
+    this._isRunning = false;
+    _this = this;
+}
+
+_Sequence.prototype = {
+    add: function(entity){
+        this._entities[entity.getID()] = entity;
+    },
+    addSequence: function(name) {
+        this._sequences[name] = {
+            start: [],
+            stop: []
+        };
+    },
+    remove: function(){},
+    getAll: function(){},
+    removeAll: function(){},
     
-};
+    getIsRunning: function(){
+        return this._isRunning;
+    },
+    getHooks: function(){
+        var hookObject = {};
+        var sequenceKeys = Object.keys(this._sequences);
+        sequenceKeys.forEach(function(sequence){
+            // Create an object of the registered hooks
+            ["start", "stop"].forEach(function(type){
+                this._sequences[sequence][type].forEach(function(hook){
+                    if (!hookObject[hook]) {
+                        hookObject[hook] = {
+                            start: [],
+                            stop: []
+                        };
+                    }
+                    hookObject[hook][type].push(sequence);
+                });
+            }, _this);
+        });
+        return hookObject;
+    },
+    update: function(){},
 
-Particle.prototype.editCurrentIndex = function(){
-    log("in editCurrentIndex");
+    getAnchorPosition: function(position) {
+        return this._anchorPosition; 
+    },
+    setAnchorPosition: function(position) {
+        this._anchorPosition = position;
+    },
 
-    this.edit(this.sequence[this.currentKeys[this.currentIndex]]);
-};
+    addNameToMap: function(name, id){
+        this.nameMap[name] = id;
+    },
+    getIdFromNameMap: function(name) {
+        return _this.nameMap[name];
+    },
+    onUpdate: function(delta) {
+        var deltaInMs = delta * 1000;
+        var withinMargin = 15;
+        var entityIDs = Object.keys(_this._entities);
+        _this._totalDelta += deltaInMs;
 
-Particle.prototype.updateKeys = function () {
-    log("in updateKeys");
-    this.currentKeys = Object.keys(this.sequence);
-};
-
-// Create the particles
-particleArray.forEach(function (particle) {
-    particle.type = "ParticleEffect";
-    particle.position = ENTITY_POSITION;
-    var id = Entities.addEntity(particle);
-    particleEntities.push(new Particle(id, particle));
-});
-
-// Particle Alias
-var FIRE = 0,
-    SMOKE = 1;
-
-// Sequencing section
-particleEntities[FIRE]
-    .change(POSITION).to(0.5,0,0).at(500)
-    .change(COLOR).to(0,255,0).at(500)
-    .change(COLOR_START).to(0,255,0).at(500)
-    .change(COLOR_FINISH).to(0,255,0).at(500)
-    .change(POSITION).to(0,0.5,0).at(1000)
-    .change(COLOR).to(255,0,0).at(1000)
-    .change(COLOR_START).to(255,0,0).at(1000)
-    .change(COLOR_FINISH).to(255,0,0).at(1000)
-    .change(COLOR).to(0,0,255).at(1500)
-    .change(COLOR_START).to(0,0,255).at(1500)
-    .change(COLOR_FINISH).to(0,0,255).at(1500)
-    .change(COLOR).to(50,0,255).at(2000)
-    .change(COLOR_START).to(50,0,255).at(2000)
-    .change(COLOR_FINISH).to(50,0,255).at(2000)
-    .change(LOOP).to(0).at(2500);
-particleEntities[SMOKE]
-    .change(COLOR).to(150,80,0).at(500)
-    .change(COLOR_START).to(255,80,0).at(500)
-    .change(COLOR_FINISH).to(150,80,0).at(500)
-    .change(COLOR).to(255,0,0).at(1000)
-    .change(COLOR_START).to(255,0,0).at(1000)
-    .change(COLOR_FINISH).to(0,0,0).at(1000)
-    .change(COLOR).to(255,0,80).at(1500)
-    .change(COLOR_START).to(0,0,80).at(1500)
-    .change(COLOR_FINISH).to(0,0,80).at(1500)
-    .change(COLOR).to(0,0,80).at(2000)
-    .change(COLOR_START).to(255,0,80).at(2000)
-    .change(COLOR_FINISH).to(255,0,80).at(2000)
-    .change(LOOP).to(0).at(2500);
-
-// particleEntities[1]
-startUpdate();
-
-// Run on update
-function onUpdate(delta) {
-    var deltaInMs = delta * 1000;
-    var withinMargin = 15;
-    totalDelta += deltaInMs;
-    // Run through all the particles I have
-    particleEntities.forEach(function(particle){
-        // log("particle", particle);
-        var currentIndexTimeStamp = particle.sequenceStartDelta + Number(particle.currentKeys[particle.currentIndex]);
-        // log("totalDelta", totalDelta);
-        // log("currentIndexTimeStamp", currentIndexTimeStamp);
-        var timeStampDifference = Math.abs(totalDelta - currentIndexTimeStamp);
-        if (timeStampDifference <= withinMargin) {
-            // log("timeStampDifference <= withinMargin === TRUE", timeStampDifference);
-            particle.editCurrentIndex();
+        // Run through the entities and check if any are ready for edits
+        entityIDs.forEach(function(ID){
+            var entity = _this._entities[ID];
+            var currentIndexTimeStamp = entity._sequenceStartDelta + Number(entity._currentKeys[entity._currentIndex]);
+            var timeStampDifference = Math.abs(_this._totalDelta - currentIndexTimeStamp);
+            if (timeStampDifference <= withinMargin) {
+                entity.editCurrentIndex();
+            }
+        });
+    },
+    onStart: function(name, hook) {
+        this._sequences[name].start = this._sequences[name].start.concat(hook);
+        return this;
+    },
+    onStop: function(name, hook) {
+        this._sequences[name].stop.push(hook);
+        return this;
+    },
+    start: function(){
+        log("starting animation")
+        this._isRunning = true;
+        var entityIDs = Object.keys(_this._entities);
+        entityIDs.forEach(function(ID){
+            var entity = _this._entities[ID];
+            entity.setRunningSequence(this._currentSequence);
+            entity.updateKeys();
+        }, this);
+        Script.update.connect(this.onUpdate);
+    },
+    stop: function(){
+        log("stop is called");
+        this._totalDelta = 0;
+        log("this._isRunning", this._isRunning);
+        if (this._isRunning) {
+            log("about to discconect")
+            Script.update.disconnect(this.onUpdate);
         }
-    });
-    // Check if the current TotalDelta is within the currentIndex 
+        this._isRunning = false;
+    },
+    triggerOn: function(name){
+        log("trigger on called with", name);
+        if (this._isRunning) {
+            return;
+        }
+        this._currentSequence = name;
+        this._isRunning = true;
+        this.start();
+    },
+    triggerOff: function(name){
+        log("trigger off called with", name);
+        if (!this._isRunning) {
+            return;
+        }
+        this._currentSequence = null;
+        this.stop();
+        this._isRunning = false;
+    }
 }
 
-function startUpdate() {
-    Script.update.connect(onUpdate);
+
+// SEQUENCER DEFINITIONS
+// ////////////////////////////////////////////////////////////////////////
+var SEQUENCER = new _Sequence();
+
+SEQUENCER.Particle = function (properties, name) {
+
+    var orientation = properties["emitOrientation"];
+    orientation = Quat.fromPitchYawRollDegrees(orientation.x,orientation.y,orientation.z);
+    properties["emitOrientation"] = orientation;
+    properties.type = "ParticleEffect";
+    // console.log("this", JSON.stringify(this));
+    properties.position = SEQUENCER.getAnchorPosition();
+    properties.name = name;
+    
+    this._id = Entities.addEntity(properties);
+    this._name = name;
+    this._properties = properties;
+    this._rotation = Entities.getEntityProperties(this._id,'rotation').rotation;
+    this._currentIndex = 0;
+    this._currentChangeProperty = null;
+    this._currentToValue = null;
+    this._currentSequenceName = null;
+    this._currentTempSequence = {};
+    this._runningSequence = null;
+    this._sequence = {};
+    this._currentKeys = [];
+    this._sequenceStartDelta = 0;
+    this._shouldLoop = false;
+    this._loopStart = 0;
+    this._loopEnd = 0;
+    this._duration = 0;
+    
+    SEQUENCER.add(this);
+};
+
+SEQUENCER.Particle.prototype = {
+    at: function(time) {
+        if (!this._currentTempSequence[String(time)]) {
+            this._currentTempSequence[String(time)] = [];
+        } 
+        if (this._currentChangeProperty === LOOP) {
+            this._shouldLoop = true;
+            this._loopStart = this.currentToValue;
+            this._loopEnd = time;
+        }
+        this._currentTempSequence[String(time)].push({ change: this._currentChangeProperty, to: this._currentToValue });
+        this._currentChangeProperty = null;
+        this._currentToValue = null;
+        // log("updateKeys", this.currentKeys);
+        // log("sequence", this.sequence);
+        return this;
+    },
+    change: function (property) {
+        this._currentChangeProperty = property;
+        return this;
+    },
+    to: function (value) {
+        var newValue = value;
+        if (arguments.length === 3) {
+            if (this._currentChangeProperty.toLowerCase().indexOf("color") > -1) {
+                newValue = {
+                    red: arguments[0],
+                    green: arguments[1],
+                    blue: arguments[2]
+                };
+            } else if (
+                this._currentChangeProperty.toLowerCase().indexOf("rotation") > -1 ||
+                this._currentChangeProperty.toLowerCase().indexOf("orientation") > -1) {
+                newValue = Quat.fromPitchYawRollDegrees(arguments[0], arguments[1], arguments[2]);
+            } else {
+                newValue = {
+                    x: arguments[0],
+                    y: arguments[1],
+                    z: arguments[2]
+                };
+            }
+    
+        }
+        this._currentToValue = newValue;
+        // log("currentToValue", this.currentToValue);
+        return this;
+    },
+    start: function(name) {
+        this._sequence[this._currentSequenceName]
+        this._currentSequenceName = name;
+        return this;
+    },
+    end: function() {
+        this._sequence[this._currentSequenceName] = this._currentTempSequence;
+        SEQUENCER.addSequence(this._currentSequenceName);
+        this._currentTempSequence = {};
+        this._currentSequenceName = null;
+        this._currentOnHooks = [];
+        return this;
+    },
+    incrementIndex: function() {
+        this._currentIndex = 
+            this._currentIndex >= this._currentKeys.length - 1
+                ? this._currentIndex = 0
+                : this._currentIndex += 1;
+    },
+    edit: function (propArray) {
+        var self = this;
+        var propertiesToChange = propArray.reduce(function (prev, cur) {
+            var changeAmount = cur.to;
+            if (cur.change === LOOP) {
+                self._sequenceStartDelta = SEQUENCER._totalDelta;
+            }
+            if (cur.change === POSITION) {
+                var worldOffset = Vec3.multiplyQbyV(self._rotation, cur.to);
+                var moveTo = Vec3.sum(SEQUENCER.getAnchorPosition(), worldOffset);
+                changeAmount = moveTo;
+            }
+            prev[cur.change] = changeAmount;
+            return prev;
+        }, {});
+        Entities.editEntity(this._id, propertiesToChange);
+        this.incrementIndex();
+    },
+    editCurrentIndex: function() {
+        this.edit(this._sequence[this._currentSequenceName][this._currentKeys[this._currentIndex]]);      
+    },
+    getID: function() {
+        return this._id;
+    },
+    updateKeys: function() {
+        // log("this.sequence", this._sequence);
+        // log("this._currentSequenceName", this._currentSequenceName);
+        this._currentKeys = Object.keys(this._sequence[this._currentSequenceName]);
+    },
+    
+    setName: function(name) {
+        this._name = name;
+    },
+    setRunningSequence: function(name) {
+        log("setRunningSequence called with", name)
+        this._currentSequenceName = name;
+    }
 }
 
-function stopUpdate() {
-    Script.update.disconnect(onUpdate);
-}
-
-// Delete the Entities on cleanup
-Script.scriptEnding.connect(function () {
-    particleEntities.forEach(function (particle) {
-        Entities.deleteEntity(particle.id);
-    });
-    stopUpdate();
-});
+module.exports = SEQUENCER;
