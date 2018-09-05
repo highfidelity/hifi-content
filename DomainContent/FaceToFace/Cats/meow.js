@@ -16,8 +16,8 @@
 
     var MEOW_SOUND_URL = Script.resolvePath('./resources/sounds/meow.mp3');
 
-    var MEOW_ANIMATION_URL = 'atp:/kitten_Meow.fbx';
-    var IDLE_ANIMATION_URL = 'atp:/kitten_Idle.fbx';
+    var MEOW_ANIMATION_URL = Script.resolvePath('kitten_Meow.fbx');
+    var IDLE_ANIMATION_URL = Script.resolvePath('kitten_Idle.fbx');
 
     var meowSound = SoundCache.getSound(MEOW_SOUND_URL);
     var meowInterval;
@@ -34,7 +34,11 @@
             selfPosition = Entities.getEntityProperties(entityID, 'position').position;
         },
 
-        mousePressOnEntity : function(){
+        mousePressOnEntity : function() {
+            this.meow();
+        },
+
+        startTrigger: function() {
             this.meow();
         },
         
@@ -44,7 +48,8 @@
                 Audio.playSound(meowSound, {
                     position: selfPosition,
                     volume: 0.5,
-                    pitch: 1 + Math.random()
+                    pitch: 1 + Math.random(),
+                    local: true
                 });
                 Entities.editEntity(selfEntityID, {
                     animation: {url: MEOW_ANIMATION_URL, loop: false, fps: 10}
