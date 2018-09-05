@@ -1,0 +1,158 @@
+{
+  "grabbableKey": {
+    "grabbable": true
+  },
+  "runningOnLoad": false,
+  "sequencedEntities": {
+    "FIRE": {
+      "isEmitting": true,
+      "lifespan": "1.5",
+      "maxParticles": "10",
+      "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
+      "emitRate": "95",
+      "emitSpeed": "1.35",
+      "speedSpread": "1.35",
+      "emitDimensions": {
+        "x": "0",
+        "y": "20",
+        "z": "0"
+      },
+      "emitOrientation": {
+        "x": "0",
+        "y": "90",
+        "z": "0"
+      },
+      "emitterShouldTrail": true,
+      "particleRadius": "0.25",
+      "radiusSpread": "0",
+      "radiusStart": "0",
+      "radiusFinish": "0.10000000149011612",
+      "color": {
+        "red": "200",
+        "blue": "200",
+        "green": "200"
+      },
+      "colorSpread": {
+        "red": "0",
+        "blue": "0",
+        "green": "0"
+      },
+      "colorStart": {
+        "red": "200",
+        "blue": "200",
+        "green": "200"
+      },
+      "colorFinish": {
+        "red": "0",
+        "blue": "0",
+        "green": "0"
+      },
+      "emitAcceleration": {
+        "x": "-0.5",
+        "y": "2.5",
+        "z": "-0.5"
+      },
+      "accelerationSpread": {
+        "x": "0.5",
+        "y": "1",
+        "z": "0.5"
+      },
+      "alpha": "0",
+      "alphaSpread": "0",
+      "alphaStart": "1",
+      "alphaFinish": "0",
+      "particleSpin": 0,
+      "spinSpread": 0,
+      "spinStart": 0,
+      "spinFinish": 0,
+      "rotateWithEntity": false,
+      "polarStart": 0,
+      "polarFinish": 0,
+      "azimuthStart": -3.1415927410125732,
+      "azimuthFinish": 3.1415927410125732
+    },
+    "SMOKE": {
+      "isEmitting": true,
+      "lifespan": "1.5",
+      "maxParticles": "10",
+      "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
+      "emitRate": "95",
+      "emitSpeed": "1.35",
+      "speedSpread": "1.35",
+      "emitDimensions": {
+        "x": "0",
+        "y": "20",
+        "z": "0"
+      },
+      "emitOrientation": {
+        "x": "0",
+        "y": "90",
+        "z": "0"
+      },
+      "emitterShouldTrail": true,
+      "particleRadius": "0.25",
+      "radiusSpread": "0",
+      "radiusStart": "0",
+      "radiusFinish": "0.10000000149011612",
+      "color": {
+        "red": "200",
+        "blue": "200",
+        "green": "200"
+      },
+      "colorSpread": {
+        "red": "0",
+        "blue": "0",
+        "green": "0"
+      },
+      "colorStart": {
+        "red": "200",
+        "blue": "200",
+        "green": "200"
+      },
+      "colorFinish": {
+        "red": "0",
+        "blue": "0",
+        "green": "0"
+      },
+      "emitAcceleration": {
+        "x": "-0.5",
+        "y": "2.5",
+        "z": "-0.5"
+      },
+      "accelerationSpread": {
+        "x": "0.5",
+        "y": "1",
+        "z": "0.5"
+      },
+      "alpha": "0",
+      "alphaSpread": "0",
+      "alphaStart": "1",
+      "alphaFinish": "0",
+      "particleSpin": 0,
+      "spinSpread": 0,
+      "spinStart": 0,
+      "spinFinish": 0,
+      "rotateWithEntity": false,
+      "polarStart": 0,
+      "polarFinish": 0,
+      "azimuthStart": -3.1415927410125732,
+      "azimuthFinish": 3.1415927410125732
+    }
+  },
+  "sequence": [
+    {
+      "FIRE": [
+        "START explode",
+        "CHANGE color TO 0,255,0 AT 500",
+        "CHANGE loop TO 0 AT 1000",
+        "END"
+      ]
+    }
+  ],
+  "sequenceHooks": {
+      "explode": {
+          "start": ["CLICK_DOWN"],
+          "stop": ["CLICK_DOWN"]
+      }
+  }
+}
