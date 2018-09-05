@@ -114,10 +114,52 @@
             SEQUENCER = Script.require("./Particle_Sequencer.js?" + Date.now())
         ;
     // HELPER FUNCTIONS
-    // ////////////////////////////////////////////////////////////////////////
+    // //////////////////////////////////////////////////////////////////////// 
         function log(label, value){
             print(label, JSON.stringify(value));
         }
+
+        var array = [
+            "START explode",
+            "CHANGE color TO 0,255,0 AT 500",
+            "CHANGE colorStart TO 0,255,0 AT 500",
+            "CHANGE loop TO 0 AT 2500",
+            "END"
+        ]
+        
+        function parseSequence(sequence) {
+            var lines = [];
+
+            sequence.forEach(function(line){
+                var obj = {};
+                var lineArray = line.split(" ");
+                while(lineArray.length > 0) {
+                    obj[lineArray.shift()] = lineArray.shift()
+                }
+                if(obj["TO"]){
+                    var toValue = obj["TO"].split(",");
+                    toValue = toValue.length === 1 
+                        ? Number(toValue)
+                        : toValue.map(function(value){
+                            return Number(value);
+                        })
+                    obj["TO"] = toValue;
+                }
+                if(obj["AT"]){
+                    obj["AT"] = Number(obj["AT"]);
+                }
+                lines.push(obj);    
+            })
+
+            return lines;
+        }
+
+        function processParsedSequence(sequence) {
+            sequence.forEach(function(line){
+            })
+            this._sequencedEntities[line]
+        }
+        
 
     // PARTICLES
     // ////////////////////////////////////////////////////////////////////////
@@ -131,7 +173,7 @@
     // ////////////////////////////////////////////////////////////////////////
         // Add the sequence in the function below
         function registerSequence(){
-
+        
             sequencedEntities["FIRE"]
                 .start("explode")
                     .change(POSITION).to(0.5,0,0).at(500)
@@ -174,6 +216,11 @@
         function Particle_Sequencer_Server() {
             this._entityID = null;
             this._position = {};
+            this._userData = {};
+            this._userDataProperties = {};
+            this._sequencedEntities = {};
+            this._sequencedEntitiesKeys = [];
+            this._sequence = {};
         }
 
         Particle_Sequencer_Server.prototype = {
@@ -183,57 +230,31 @@
             preload: function(id){
                 this._entityID = id;
                 this._position = Entities.getEntityProperties(this._entityID, 'position').position;
+                // Set the anchor point for elements to be relative to
                 SEQUENCER.setAnchorPosition(this._position);
 
+                this._userData = Entities.getEntityProperties(this._entityID, 'userData').userData;
+                try {
+                    // If Sequence is in userProperties
+                    this._userDataProperties = JSON.parse(this._userData);
+                    this._sequencedEntities = this._userDataProperties.sequencedEntities;
+                    this._sequencedEntitiesKeys = Object.keys(this._userDataProperties.sequencedEntities);
+                    this._sequence = this._userDataProperties._sequence;
+
+                    this._sequencedEntitiesKeys.forEach(function(entity){
+                        this._sequencedEntities[entity] = new SEQUENCER.Particle(this._sequencedEntities[entity], entity);
+                    });
+
+                } catch (error) {
+                    log("error", error);
+                }
+                // Go through all the above Particles and register Particle Object with the Sequencer
                 sequencedEntitiesKeys.forEach(function(entity){
                     sequencedEntities[entity] = new SEQUENCER.Particle(sequencedEntities[entity], entity);
                 });
                 registerSequence();
 
-                // REGISTER HOOKS HERE!
-                // ////////////////////////////////////////////////////////////
-                SEQUENCER.onStart("explode", [CLICK_DOWN]);
-                SEQUENCER.onStop("explode", [CLICK_DOWN]);
-
-                var sequenceHooks = SEQUENCER.getHooks();
-                // SEQUENCER.triggerOn("explode");
-
-                // Script.setTimeout(function(){
-                //     SEQUENCER.triggerOff("explode");
-                // }, 3000);
-                // TODO: This only supports one sequence per hook type
-                // TODO: ADD RANDOM if more then one sequence given
-                // TODO: ADD callback hook to combine for original callbacks
-                // log("sequenceHooks", sequenceHooks);
-                for (var key in sequenceHooks) {
-                    var startFunctions = [];
-                    var stopFunctions = [];
-                    // log("sequenceHooks[key]", sequenceHooks[key]);
-                    // log("startFunctions", startFunctions);
-                    if (sequenceHooks[key].start.length > 0) {
-                        startFunctions.push(function(){
-                            // log("this is being triggered");
-                            SEQUENCER.triggerOn(sequenceHooks[key].start[0]);
-                        });
-
-                    }
-                    if (sequenceHooks[key].stop.length > 0) {
-                        stopFunctions.push(function(){
-                            // log("this is being triggered");
-                            SEQUENCER.triggerOff(sequenceHooks[key].stop[0]);
-                        });
-                    }
-                    // log("stopFunctions", stopFunctions[0]);
-
-                    this[key] = function(){
-                        startFunctions.forEach(function(fn){
-                            fn();
-                        });
-                        stopFunctions.forEach(function(fn){
-                            fn();
-                        });
-                    };
-                }
+                
             },
             unload: function(){
                 SEQUENCER.stop();
@@ -245,13 +266,25 @@
                 log("callTrigger", param);
                 var sequenceName = param[0];
                 var type = param[1];
-                if (type === "true" && !SEQUENCER.getIsRunning()){
-                    log("TriggerOn being called", sequenceName)
+                if (type === "true"){
+                    log("TriggerOn being called", sequenceName);
                     SEQUENCER.triggerOn(sequenceName);
-                } else {
-                    log("TriggerOff being called", sequenceName)
-                    SEQUENCER.triggerOff(sequenceName);
+                    return;
                 }
+                if (type === "false"){
+                    log("TriggerOff being called", sequenceName);
+                    SEQUENCER.triggerOff(sequenceName);;
+                    return;
+                }  
+                if (type === "toggle" && !SEQUENCER.getIsRunning()){
+                    log("trigger Toggle On being called", sequenceName);
+                    SEQUENCER.triggerOn(sequenceName);
+                    return;
+                } 
+                log("trigger Toggle Off being called", sequenceName);
+
+                SEQUENCER.triggerOff(sequenceName);
+
             }
             // trigger: function(sequenceName){
             //     SEQUENCER.trigger(sequenceName);

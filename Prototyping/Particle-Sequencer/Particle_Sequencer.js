@@ -126,11 +126,15 @@ _Sequence.prototype = {
     stop: function(){
         log("stop is called");
         this._totalDelta = 0;
-        log("this._isRunning", this._isRunning);
         if (this._isRunning) {
             log("about to discconect")
             Script.update.disconnect(this.onUpdate);
         }
+        var entityIDs = Object.keys(_this._entities);
+        entityIDs.forEach(function(ID){
+            var entity = _this._entities[ID];
+            entity.reset();
+        }, this);
         this._isRunning = false;
     },
     triggerOn: function(name){
@@ -284,7 +288,10 @@ SEQUENCER.Particle.prototype = {
         // log("this._currentSequenceName", this._currentSequenceName);
         this._currentKeys = Object.keys(this._sequence[this._currentSequenceName]);
     },
-    
+    reset: function() {
+        Entities.editEntity(this._id, this._properties);
+        this._sequenceStartDelta = 0;
+    },
     setName: function(name) {
         this._name = name;
     },
