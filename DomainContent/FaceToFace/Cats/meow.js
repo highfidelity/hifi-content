@@ -1,4 +1,4 @@
-// A script for making a kitten meow when you stand near it
+// A script for making a kitten meow when you click it
 // I promise this won't get annoying
 // One of those statements is a lie
 //
@@ -14,7 +14,7 @@
     var selfEntityID;
     var selfPosition;
 
-    var MEOW_SOUND_URL = Script.resolvePath('./resources/sounds/meow.mp3');
+    var MEOW_SOUND_URL = Script.resolvePath('./resources/sounds/meow.wav');
 
     var MEOW_ANIMATION_URL = Script.resolvePath('kitten_Meow.fbx');
     var IDLE_ANIMATION_URL = Script.resolvePath('kitten_Idle.fbx');
@@ -38,7 +38,7 @@
             this.meow();
         },
 
-        startTrigger: function() {
+        startNearTrigger: function() {
             this.meow();
         },
         
@@ -49,7 +49,7 @@
                     position: selfPosition,
                     volume: 0.5,
                     pitch: 1 + Math.random(),
-                    local: true
+                    localOnly: true
                 });
                 Entities.editEntity(selfEntityID, {
                     animation: {url: MEOW_ANIMATION_URL, loop: false, fps: 10}
