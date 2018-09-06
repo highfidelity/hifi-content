@@ -1,158 +1,48 @@
 {
-  "grabbableKey": {
-    "grabbable": true
-  },
-  "runningOnLoad": false,
-  "sequencedEntities": {
-    "FIRE": {
-      "isEmitting": true,
-      "lifespan": "1.5",
-      "maxParticles": "10",
-      "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
-      "emitRate": "95",
-      "emitSpeed": "1.35",
-      "speedSpread": "1.35",
-      "emitDimensions": {
-        "x": "0",
-        "y": "20",
-        "z": "0"
-      },
-      "emitOrientation": {
-        "x": "0",
-        "y": "90",
-        "z": "0"
-      },
-      "emitterShouldTrail": true,
-      "particleRadius": "0.25",
-      "radiusSpread": "0",
-      "radiusStart": "0",
-      "radiusFinish": "0.10000000149011612",
-      "color": {
-        "red": "200",
-        "blue": "200",
-        "green": "200"
-      },
-      "colorSpread": {
-        "red": "0",
-        "blue": "0",
-        "green": "0"
-      },
-      "colorStart": {
-        "red": "200",
-        "blue": "200",
-        "green": "200"
-      },
-      "colorFinish": {
-        "red": "0",
-        "blue": "0",
-        "green": "0"
-      },
-      "emitAcceleration": {
-        "x": "-0.5",
-        "y": "2.5",
-        "z": "-0.5"
-      },
-      "accelerationSpread": {
-        "x": "0.5",
-        "y": "1",
-        "z": "0.5"
-      },
-      "alpha": "0",
-      "alphaSpread": "0",
-      "alphaStart": "1",
-      "alphaFinish": "0",
-      "particleSpin": 0,
-      "spinSpread": 0,
-      "spinStart": 0,
-      "spinFinish": 0,
-      "rotateWithEntity": false,
-      "polarStart": 0,
-      "polarFinish": 0,
-      "azimuthStart": -3.1415927410125732,
-      "azimuthFinish": 3.1415927410125732
-    },
-    "SMOKE": {
-      "isEmitting": true,
-      "lifespan": "1.5",
-      "maxParticles": "10",
-      "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
-      "emitRate": "95",
-      "emitSpeed": "1.35",
-      "speedSpread": "1.35",
-      "emitDimensions": {
-        "x": "0",
-        "y": "20",
-        "z": "0"
-      },
-      "emitOrientation": {
-        "x": "0",
-        "y": "90",
-        "z": "0"
-      },
-      "emitterShouldTrail": true,
-      "particleRadius": "0.25",
-      "radiusSpread": "0",
-      "radiusStart": "0",
-      "radiusFinish": "0.10000000149011612",
-      "color": {
-        "red": "200",
-        "blue": "200",
-        "green": "200"
-      },
-      "colorSpread": {
-        "red": "0",
-        "blue": "0",
-        "green": "0"
-      },
-      "colorStart": {
-        "red": "200",
-        "blue": "200",
-        "green": "200"
-      },
-      "colorFinish": {
-        "red": "0",
-        "blue": "0",
-        "green": "0"
-      },
-      "emitAcceleration": {
-        "x": "-0.5",
-        "y": "2.5",
-        "z": "-0.5"
-      },
-      "accelerationSpread": {
-        "x": "0.5",
-        "y": "1",
-        "z": "0.5"
-      },
-      "alpha": "0",
-      "alphaSpread": "0",
-      "alphaStart": "1",
-      "alphaFinish": "0",
-      "particleSpin": 0,
-      "spinSpread": 0,
-      "spinStart": 0,
-      "spinFinish": 0,
-      "rotateWithEntity": false,
-      "polarStart": 0,
-      "polarFinish": 0,
-      "azimuthStart": -3.1415927410125732,
-      "azimuthFinish": 3.1415927410125732
-    }
-  },
-  "sequence": [
-    {
-      "FIRE": [
-        "START explode",
-        "CHANGE color TO 0,255,0 AT 500",
-        "CHANGE loop TO 0 AT 1000",
-        "END"
-      ]
-    }
-  ],
-  "sequenceHooks": {
-      "explode": {
-          "start": ["CLICK_DOWN"],
-          "stop": ["CLICK_DOWN"]
+  "DataVersion": 0,
+  "Entities": [
+      {
+          "clientOnly": false,
+          "collisionless": true,
+          "color": {
+              "blue": 0,
+              "green": 0,
+              "red": 255
+          },
+          "created": "2018-09-06T20:43:20Z",
+          "dimensions": {
+              "blue": 0.20000000298023224,
+              "green": 0.20000000298023224,
+              "red": 0.20000000298023224,
+              "x": 0.20000000298023224,
+              "y": 0.20000000298023224,
+              "z": 0.20000000298023224
+          },
+          "id": "{c0de91fa-b22b-435e-b467-33f9de5107a0}",
+          "ignoreForCollisions": true,
+          "lastEdited": 1536267550936570,
+          "lastEditedBy": "{8c631646-434d-4831-bfc2-a949925d110d}",
+          "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+          "queryAACube": {
+              "scale": 0.3464101552963257,
+              "x": -0.17320507764816284,
+              "y": -0.17320507764816284,
+              "z": -0.17320507764816284
+          },
+          "rotation": {
+              "w": 0.7517967224121094,
+              "x": -1.52587890625e-05,
+              "y": 0.6593575477600098,
+              "z": -1.52587890625e-05
+          },
+          "script": "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Particle-Sequencer/Particle_Sequencer_Entity_Client.js",
+          "scriptTimestamp": 1536267527557,
+          "serverScripts": "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Particle-Sequencer/Particle_Sequencer_Entity_Server.js",
+          "shape": "Cube",
+          "type": "Box",
+          "userData": "{\"sequenceURL\":\"https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Particle-Sequencer/Particle_JS_Example.js\",\"noTrigger\":false,\"defaultSequence\":\"\",\"sequenceHooks\":null,\"sequence\":null}"
       }
-  }
+  ],
+  "Id": "{ecf80b59-6a73-4f34-839a-d8e54a322bcf}",
+  "Version": 92
 }
