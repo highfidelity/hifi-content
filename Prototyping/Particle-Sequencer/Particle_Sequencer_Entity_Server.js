@@ -76,17 +76,19 @@
                         var obj = {};
                         var lineArray = line.split(" ");
                         while (lineArray.length > 0) {
-                            obj[lineArray.shift()] = lineArray.shift();
+                            obj[lineArray.shift().toUpperCase()] = lineArray.shift();
                         }
+                        log("obj1", obj, true)
                         if (obj["CHANGE"]){
-                            if(nameMap[obj["CHANGE"].toUpperCase()]){
+                            if (nameMap[obj["CHANGE"].toUpperCase()]){
                                 obj["CHANGE"] = nameMap[obj["CHANGE"].toUpperCase()];
                             }
                         }
                         if (obj["TO"]){
                             var toValue = obj["TO"].split(",");
+                            log("TOVALUE IN PARSED SEQUENCER", toValue);
                             toValue = toValue.length === 1 
-                                ? Number(toValue)
+                                ? Number(toValue) ? Number(toValue) :toValue[0]
                                 : toValue.map(function(value){
                                     return Number(value);
                                 })
@@ -95,7 +97,8 @@
                         if (obj["AT"]){
                             obj["AT"] = Number(obj["AT"]);
                         }
-                        lines.push(obj);    
+                        lines.push(obj);
+                        log("obj2", obj, true)    
                     })
                     parsedSequences[key].push(lines);
 

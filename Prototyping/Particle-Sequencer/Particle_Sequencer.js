@@ -115,9 +115,9 @@
             entityIDs.forEach(function(ID){
                 var entity = _this._entities[ID];
                 var currentIndexTimeStamp = entity._sequenceStartDelta + Number(entity._currentKeys[entity._currentIndex]);
-                log("CURRENT TIMESTAMP", currentIndexTimeStamp, false)
+                log("CURRENT TIMESTAMP", currentIndexTimeStamp, false);
                 var timeStampDifference = Math.abs(_this._totalDelta - currentIndexTimeStamp);
-                log("timeStampDifference", timeStampDifference, false)
+                log("timeStampDifference", timeStampDifference, false);
 
                 if (timeStampDifference <= withinMargin) {
                     log("entity within timestamp");
@@ -244,8 +244,8 @@
             return this;
         },
         to: function (value) {
-            log("IN TO", this._currentChangeProperty, false);
-            log("VALUE", value, false)
+            log("IN TO", this._currentChangeProperty, true);
+            log("VALUE", value, true)
             var newValue = value;
             if (arguments.length === 3 || (value instanceof Array && value.length > 1)) {
                 if (this._currentChangeProperty.toLowerCase().indexOf("color") > -1) {
