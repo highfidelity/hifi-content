@@ -19,7 +19,10 @@
 // HELPER FUNCTIONS 
 // ////////////////////////////////////////////////////////////////////////
 
-    function log(label, value){
+    function log(label, value, isActive){
+        if (!isActive) {
+            return;
+        }
         print("\n" + label + "\n" + "***************************************\n", JSON.stringify(value));
     }
 
@@ -41,6 +44,7 @@
         this._totalDelta = 0;
         this._currentSequence;
         this._isRunning = false;
+        this._textures = null;
         _this = this;
     };
 
@@ -53,6 +57,9 @@
                 start: [],
                 stop: []
             };
+        },
+        addTextures: function(textures) {
+            this._textures = textures;
         },
         remove: function(){},
         getAll: function(){},
@@ -80,6 +87,9 @@
             });
             return hookObject;
         },
+        getTexture: function(key){
+            return this._textures[key];
+        },
         update: function(){},
 
         getAnchorPosition: function(position) {
@@ -105,8 +115,12 @@
             entityIDs.forEach(function(ID){
                 var entity = _this._entities[ID];
                 var currentIndexTimeStamp = entity._sequenceStartDelta + Number(entity._currentKeys[entity._currentIndex]);
+                log("CURRENT TIMESTAMP", currentIndexTimeStamp, false)
                 var timeStampDifference = Math.abs(_this._totalDelta - currentIndexTimeStamp);
+                log("timeStampDifference", timeStampDifference, false)
+
                 if (timeStampDifference <= withinMargin) {
+                    log("entity within timestamp");
                     entity.editCurrentIndex();
                 }
             });
@@ -175,9 +189,9 @@
 
     SEQUENCER.Particle = function (properties, name) {
 
-        log("properties", properties)
+        log("properties", properties, false)
         var orientation = properties.emitOrientation;
-        log("ORIENTATION:", orientation);
+        log("ORIENTATION:", orientation, false);
         orientation = Quat.fromPitchYawRollDegrees(orientation.x,orientation.y,orientation.z);
         properties["emitOrientation"] = orientation;
         properties.type = "ParticleEffect";
@@ -207,7 +221,7 @@
 
     SEQUENCER.Particle.prototype = {
         at: function(time) {
-            log("AT", time)
+            log("AT", time, false);
             if (!this._currentTempSequence[String(time)]) {
                 this._currentTempSequence[String(time)] = [];
             } 
@@ -224,19 +238,18 @@
             return this;
         },
         change: function (property) {
-            log("CHANGE", property);
+            log("CHANGE", property, false);
             this._currentChangeProperty = property;
-            log("IN CHANGE", this._currentChangeProperty);
+            log("IN CHANGE", this._currentChangeProperty, false);
             return this;
         },
         to: function (value) {
-            log("this", this);
-            log("ARGUMENTS", arguments);
-            log("IN TO", this._currentChangeProperty);
-
+            log("IN TO", this._currentChangeProperty, false);
+            log("VALUE", value, false)
             var newValue = value;
             if (arguments.length === 3 || (value instanceof Array && value.length > 1)) {
                 if (this._currentChangeProperty.toLowerCase().indexOf("color") > -1) {
+
                     if (arguments.length === 3) {
                         newValue = {
                             red: arguments[0],
@@ -252,6 +265,7 @@
                     }
 
                 } else if (
+                    
                     (this._currentChangeProperty.toLowerCase().indexOf("rotation") > -1 ||
                     this._currentChangeProperty.toLowerCase().indexOf("orientation") > -1) ) {
                         if (arguments.length === 3) {
@@ -274,9 +288,11 @@
                             z: value[2]
                         };
                     }
-
                 }
-        
+            }
+            if (this._currentChangeProperty.toLowerCase().indexOf("textures") > -1){
+                newValue = SEQUENCER.getTexture(value);
+                log("newValue Texture", newValue, false)
             }
             this._currentToValue = newValue;
             // log("currentToValue", this.currentToValue);
@@ -308,8 +324,10 @@
             var self = this;
             var propertiesToChange = propArray.reduce(function (prev, cur) {
                 var changeAmount = cur.to;
+                log("CUR.CHANGE", cur.change, true);
                 if (cur.change === LOOP) {
                     self._sequenceStartDelta = SEQUENCER._totalDelta;
+                    log("self._sequenceStartDelta", self._sequenceStartDelta);
                 }
                 if (cur.change === POSITION) {
                     var worldOffset = Vec3.multiplyQbyV(self._rotation, cur.to);
@@ -319,7 +337,7 @@
                 prev[cur.change] = changeAmount;
                 return prev;
             }, {});
-            log("propertiesToChange", propertiesToChange)
+            log("propertiesToChange", propertiesToChange, true)
             Entities.editEntity(this._id, propertiesToChange);
             this.incrementIndex();
         },
@@ -329,10 +347,15 @@
         getID: function() {
             return this._id;
         },
+        sortKeys: function(keys) {
+            return keys.map(function(key){
+                return +key
+            }).sort(function(a, b){return a-b});
+        },
         updateKeys: function() {
-            log("this.sequence", this._sequence);
-            log("this._currentSequenceName", this._currentSequenceName);
-            this._currentKeys = Object.keys(this._sequence[this._currentSequenceName]);
+            log("this.sequence", this._sequence, false);
+            log("this._currentSequenceName", this._currentSequenceName, false);
+            this._currentKeys = this.sortKeys(Object.keys(this._sequence[this._currentSequenceName]));
         },
         reset: function() {
             Entities.editEntity(this._id, this._properties);
@@ -342,7 +365,7 @@
             this._name = name;
         },
         setRunningSequence: function(name) {
-            log("setRunningSequence called with", name)
+            log("setRunningSequence called with", name, false)
             this._currentSequenceName = name;
         }
     };

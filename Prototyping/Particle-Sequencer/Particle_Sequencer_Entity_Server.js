@@ -1,6 +1,49 @@
 (function(){
     /* eslint-disable indent */
 
+    // ENTITY CONSTS
+    // ////////////////////////////////////////////////////////////////////////
+
+        var nameMap = {
+            LIFESPAN: "lifespan",
+            MAX_PARTICLES: "maxParticles",
+            TEXTURES: "textures",
+            SPEED_SPREAD: "speedSpread",
+            IS_EMITTING: "isEmitting",
+            EMIT_RADIUS_START: "emitRadiusStart",
+            EMIT_RATE: "emitRate",
+            EMIT_SPEED: "emitSpeed",
+            EMIT_DIMENSIONS: "emitDimensions",
+            EMIT_ORIENTATION: "emitOrientation",
+            EMIT_ACCELERATION: "emitAcceleration",
+            EMITTER_SHOULD_TRAIL: "emitterShouldTrail",
+            PARTICLE_RADIUS: "particleRadius",
+            SPIN_SPREAD: "spinSpread",
+            SPIN_START: "spinStart",
+            SPIN_FINISH: "spinFinish",
+            ROTATE_WITH_ENTITY: "rotateWithEntity",
+            PARTICLE_SPIN: "particleSpin",
+            RADIUS_SPREAD: "radiusSpread",
+            RADIUS_START: "radiusStart",
+            RADIUS_FINISH: "radiusFinish",
+            COLOR: "color",
+            COLOR_SPREAD: "colorSpread",
+            COLOR_START: "colorStart",
+            COLOR_FINISH: "colorFinish",
+            ACCELERATION_SPREAD: "accelerationSpread",
+            ALPHA: "alpha",
+            ALPHA_SPREAD: "alphaSpread",
+            ALPHA_START: "alphaStart",
+            ALPHA_FINISH: "alphaFinish",
+            POLOR_START: "polarStart",
+            POLOR_FINISH: "polarFinish",
+            AZIMUTH_START: "azimuthStart",
+            AZIMUTH_FINISH: "azimuthFinish",
+            POSITION: "position",
+            ROTATION: "rotation",
+            LOOP: "loop"
+        };
+
      // DEPENDENCIES
     // ////////////////////////////////////////////////////////////////////////
 
@@ -13,12 +56,15 @@
     // HELPER FUNCTIONS
     // //////////////////////////////////////////////////////////////////////// 
 
-        function log(label, value){
+        function log(label, value, isActive){
+            if (!isActive) {
+                return;
+            }
             print("\n" + label + "\n" + "***************************************\n", JSON.stringify(value));
         }
 
         function parseSequence(sequence) {
-            log("sequence", sequence)
+            log("sequence", sequence, false)
             var parsedSequences = {};
             var sequenceKeys = Object.keys(sequence);
 
@@ -31,6 +77,11 @@
                         var lineArray = line.split(" ");
                         while (lineArray.length > 0) {
                             obj[lineArray.shift()] = lineArray.shift();
+                        }
+                        if (obj["CHANGE"]){
+                            if(nameMap[obj["CHANGE"].toUpperCase()]){
+                                obj["CHANGE"] = nameMap[obj["CHANGE"].toUpperCase()];
+                            }
                         }
                         if (obj["TO"]){
                             var toValue = obj["TO"].split(",");
@@ -66,6 +117,7 @@
             this._sequencedEntities = {};
             this._sequencedEntitiesKeys = [];
             this._sequence = null;
+            this._textures = null;
             this._runningOnLoad = false;
             this._defaultSequence = null;
         }
@@ -79,7 +131,6 @@
                 this._position = Entities.getEntityProperties(this._entityID, 'position').position;
                 // Set the anchor point for elements to be relative to
                 SEQUENCER.setAnchorPosition(this._position);
-                log("test");
                 this._userData = Entities.getEntityProperties(this._entityID, 'userData').userData;
                 try {
                     // If Sequence is in userProperties
@@ -96,7 +147,7 @@
                     this._noTrigger = this._userDataProperties.noTrigger;
                     this._defaultSequence = this._userDataProperties.defaultSequence;
                     this._sequenceURL = this._userDataProperties.sequenceURL;
-                    log("_sequenceURL", this._sequenceURL);
+                    log("_sequenceURL", this._sequenceURL, false);
                     if (this._sequencedEntitiesKeys) {
                         this._sequencedEntitiesKeys.forEach(function(entity){
                             this._sequencedEntities[entity] = new SEQUENCER.Particle(this._sequencedEntities[entity], entity);
@@ -104,26 +155,28 @@
                     }
                    
                     if (this._sequence) {
-                        log("### this.sequence", this._sequence);
+                        log("### this.sequence", this._sequence, false);
                         var parsedSequence = parseSequence(this._sequence);
-                        log("parsedSequence", parsedSequence); 
+                        log("parsedSequence", parsedSequence, false); 
                     }
                   
 
                 } catch (error) {
-                    log("error", error);
+                    log("error", error, false);
                 }
 
                 if (this._sequenceURL) {
                     this._sequenceFile = Script.require(this._sequenceURL + "?" + Date.now());
 
+                    this._textures = this._sequenceFile.textures;
+                    SEQUENCER.addTextures(this._textures);
                     this._sequencedEntitiesKeys = Object.keys(this._sequenceFile.sequencedEntities);
                     this._sequencedEntitiesKeys.forEach(function(entity){
                         this._sequenceFile.sequencedEntities[entity] = new SEQUENCER.Particle(this._sequenceFile.sequencedEntities[entity], entity);
                     }, this);
 
                     this._sequenceFile.sequence = parseSequence(this._sequenceFile.sequence);
-                    log("this._sequenceFile.sequence", this._sequenceFile.sequence);
+                    log("this._sequenceFile.sequence", this._sequenceFile.sequence, false);
                     var sequenceKeys = Object.keys(this._sequenceFile.sequence);
                     // sequenceKeys ["FIRE","SMOKE"]
                     sequenceKeys.forEach(function(key){
@@ -133,12 +186,8 @@
                             sequence.forEach(function(line){
                                 // {"CHANGE":"color","TO":[0,255,0],"AT":500}
                                 var lineKeys = Object.keys(line).forEach(function(command){
-                                    if(line[command] instanceof Array) {
-                                        log("%%%line[command]", line[command])
-                                        this._sequenceFile.sequencedEntities[key][command.toLowerCase()](line[command]);
-                                    } else {
-                                        this._sequenceFile.sequencedEntities[key][command.toLowerCase()](line[command]);
-                                    }
+                                    log("%%%line[command]", line[command], false)
+                                    this._sequenceFile.sequencedEntities[key][command.toLowerCase()](line[command]);
                                 },this);
                             }, this);
                         }, this);
