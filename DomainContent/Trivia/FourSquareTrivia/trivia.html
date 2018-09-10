@@ -89,8 +89,8 @@
     </head>
     <body>
         <h1>Trivia</h1>
-        <input type="button" class="gray" id="begin" value="Let's get started!"></input>
-        <input type="button" class="gray" id="end" value="Game Over"></input>
+        <input type="button" class="gray" id="begin" value="Let's get started!">
+        <input type="button" class="gray" id="end" value="Game Over">
         <h3>Questions</h3>
         <select class="gray" id="type">
             <option value="anyType">Any Type</option>
@@ -136,10 +136,10 @@
             <option value="24">Politics</option>
         </select>
         <p>
-        <input type="button" class="gray" id="newQuestion" value="New Question"></input>
+        <input type="button" class="gray" id="newQuestion" value="New Question">
         <p>
-        <input type="button" class="gray" id="showQuestion" value="Show This Question"></input>
-        <input type="button" class="gray" id="showAnswers" value="Show The Answers"></input>
+        <input type="button" class="gray" id="showQuestion" value="Show This Question">
+        <input type="button" class="gray" id="showAnswers" value="Show The Answers">
         <p>
         <div id="question">
             Your question will show here for preview. Make sure the question and answers do not have special 
@@ -151,14 +151,14 @@
         </div>
         <p></p>
         <h3>Sound Effects</h3>
-        <input type="button" class="gray" id="correctAnswer" value="Correct Answer"></input>
-        <input type="button" class="gray" id="wrongAnswer" value="Wrong Answer"></input>
+        <input type="button" class="gray" id="correctAnswer" value="Correct Answer">
+        <input type="button" class="gray" id="wrongAnswer" value="Wrong Answer">
         <p>
-        <input type="button" class="gray" id="gameBegin" value="Begin Game"></input>
-        <input type="button" class="gray" id="nextRound" value="Next Round"></input>
-        <input type="button" class="gray" id="gameEnd" value="Game Over"> </input>
+        <input type="button" class="gray" id="gameBegin" value="Begin Game">
+        <input type="button" class="gray" id="nextRound" value="Next Round">
+        <input type="button" class="gray" id="gameEnd" value="Game Over">
         <p>
-        <input type="range" class="gray" id="volumeSlider" min="0" max="100" value="70"></input>
+        <input type="range" class="gray" id="volumeSlider" min="0" max="100" value="70">
         <br>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
@@ -229,56 +229,6 @@
             $('#showAnswers').click(function() {
                 var event = {
                     type: "showAnswers"                
-                };
-                EventBridge.emitWebEvent(JSON.stringify(event));
-            });
-            $('#correctAnswer').click(function() {
-                var event = {
-                    type: "correctAnswer"                
-                };
-                EventBridge.emitWebEvent(JSON.stringify(event));
-            });
-            $('#wrongAnswer').click(function() {
-                var event = {
-                    type: "wrongAnswer"                
-                };
-                EventBridge.emitWebEvent(JSON.stringify(event));
-            });
-            $('#gameBegin').click(function(){
-                var event = {
-                    type: "gameBegin"                
-                };
-                EventBridge.emitWebEvent(JSON.stringify(event));
-            });
-            $('#nextRound').click(function() {
-                var event = {
-                    type: "nextRound"                
-                };
-                EventBridge.emitWebEvent(JSON.stringify(event));
-            });
-            $('#gameEnd').click(function() {
-                var event = {
-                    type: "gameEnd"                
-                };
-                EventBridge.emitWebEvent(JSON.stringify(event));
-                // clear tablet question/answers
-            });
-            $('#volumeSlider').change(function() {
-                var event = {
-                    type: "volumeSlider",
-                    volume: $(this).val()               
-                };
-                EventBridge.emitWebEvent(JSON.stringify(event));
-            });
-            $('#backdropDown').click(function() {
-                var event = {
-                    type: "backdropDown"                
-                };
-                EventBridge.emitWebEvent(JSON.stringify(event));
-            });
-            $('#backdropUp').click(function() {
-                var event = {
-                    type: "backdropUp"                
                 };
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
