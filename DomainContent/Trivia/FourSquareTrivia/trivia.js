@@ -29,7 +29,7 @@
 
     var audioVolume = 0.7;
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-    var appPage = Script.resolvePath('trivia.html?096');
+    var appPage = Script.resolvePath('trivia.html');
     var button = tablet.addButton({
         text: 'TRIVIA',
         icon: TABLET_BUTTON_IMAGE,
@@ -83,12 +83,12 @@
         function addCharacterEntities(newEntities) {
             var charKeys = [],
                 entityKeys = [],
-                key, echar;
+                key, encodedChar;
             for (key in newEntities) {
-                echar = newEntities[key];
-                entityToChar[key] = echar;
-                charToEntity[echar] = key;
-                charKeys.push(echar);
+                encodedChar = newEntities[key];
+                entityToChar[key] = encodedChar;
+                charToEntity[encodedChar] = key;
+                charKeys.push(encodedChar);
                 entityKeys.push(key);
             }
             charToEntityRegex = new RegExp('(' + charKeys.join('|') + ')', 'g');
@@ -96,11 +96,11 @@
         }
     
         function htmlEncode(value) {
-            var htmlEncodeReplaceFn = function(match, capture) {
+            var htmlEncodeReplace = function(match, capture) {
                 return charToEntity[capture];
             };
     
-            return (!value) ? value : String(value).replace(charToEntityRegex, htmlEncodeReplaceFn);
+            return (!value) ? value : String(value).replace(charToEntityRegex, htmlEncodeReplace);
         }
     
         function htmlDecode(value) {
@@ -182,7 +182,6 @@
                                 ["position", "dimensions", "rotation", "userData"]);
                             break;
                         case "Trivia Bubble":
-                            // print("found bubble");
                             bubble = element;
                             break;
                     }

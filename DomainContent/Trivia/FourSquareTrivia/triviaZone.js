@@ -65,10 +65,7 @@
                     _this.newQuestion(message.question, message.choices);
                 } else if (channel === "TriviaChannel" && message.type === 'timeUp') {
                     finalAnswer = myColor;
-                    // print("My answer is ", finalAnswer);
-                    
                 } else if (channel === "TriviaChannel" && message.type === 'check') {
-                    // print("received message to show who got answer correct");
                     _this.showIfCorrect(message.correct);
                 }
             }
@@ -93,7 +90,6 @@
         },
 
         showIfCorrect: function(correctColor) {
-            // print("Correct color received via message is ", correctColor);
             if (finalAnswer !== correctColor) {
                 MyAvatar.position = _this.disqualifiedPosition;
             }

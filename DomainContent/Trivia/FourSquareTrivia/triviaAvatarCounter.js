@@ -1,7 +1,7 @@
 //
-//  avatarCounter.js
+//  triviaAvatarCounter.js
 //
-//  Created by Rebecca Stankus on 07/09/2018.
+//  Created by Rebecca Stankus on 08/19/2018.
 //  Copyright 2018 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -23,13 +23,11 @@
         },
 
         enterEntity: function() {
-            // print("SUBSCRIBING");
             Messages.subscribe("TriviaChannel");
         },
 
         leaveEntity: function() {
             Messages.unsubscribe("TriviaChannel");
-            // print("unsubscribing");
         },
 
         unload: function() {
