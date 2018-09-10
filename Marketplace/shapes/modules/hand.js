@@ -15,7 +15,9 @@ Hand = function (side) {
     "use strict";
 
     // Hand controller input.
-    var handController,
+    var isReady = false,
+
+        handController,
         controllerTrigger,
         controllerTriggerClicked,
         controllerGrip,
@@ -128,12 +130,19 @@ Hand = function (side) {
             i,
             length;
 
-
         // Hand pose.
         handPose = Controller.getPoseValue(handController);
         if (!handPose.valid) {
             intersection = {};
             return;
+        }
+
+        // Hand is disabled at app start until any trigger pressed is released.
+        if (!isReady) {
+            isReady = Controller.getValue(controllerTrigger) < TRIGGER_OFF_VALUE;
+            if (!isReady) {
+                return;
+            }
         }
 
         // Hand data.
@@ -235,7 +244,7 @@ Hand = function (side) {
     }
 
     function clear() {
-        // Nothing to do.
+        isReady = false;
     }
 
     function destroy() {
