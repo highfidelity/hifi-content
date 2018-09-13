@@ -17,22 +17,36 @@
     var isOn = false;
 
     this.remotelyCallable = [
-        "turnOn"
+        "turnOn",
+        "turnOff"
     ];
 
-    this.turnOn = function (deltaTime) {
+    // this.turnOn = function (deltaTime) {
 
+    //     Entities.editEntity(id, {
+    //         intensity: maxLightIntensity
+    //     });
+
+    //     Script.setTimeout(function () {
+    //         Entities.editEntity(id, {
+    //             intensity: 0
+    //         });
+    //     }, deltaTime);
+
+    // };
+
+    this.turnOn = function () {
         Entities.editEntity(id, {
             intensity: maxLightIntensity
         });
-
-        Script.setTimeout(function () {
-            Entities.editEntity(id, {
-                intensity: 0
-            });
-        }, deltaTime);
-
     };
+
+    this.turnOff = function () {
+        Entities.editEntity(id, {
+            intensity: 0
+        });
+    };
+
 
     function flash() {
         isOn = !isOn;
