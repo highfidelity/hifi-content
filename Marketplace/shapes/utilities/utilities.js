@@ -73,6 +73,35 @@ if (typeof Entities.rootOf !== "function") {
     };
 }
 
+if (typeof Entities.isEditableType !== "function") {
+    Entities.isEditableTypeCache = {
+        CACHE_ENTRY_EXPIRY_TIME: 5000 // ms
+    };
+
+    Entities.isEditableType = function (entityID) {
+        if (Entities.isEditableTypeCache[entityID]) {
+            if (Date.now() - Entities.isEditableTypeCache[entityID].timeStamp
+                < Entities.isEditableTypeCache.CACHE_ENTRY_EXPIRY_TIME) {
+                return Entities.isEditableTypeCache[entityID].isEditableType;
+            }
+            delete Entities.isEditableTypeCache[entityID];
+        }
+
+        var NONEDITABLE_ENTITY_TYPES = ["Unknown", "Zone", "Light", "ParticleEffect"],
+            properties,
+            isEditable;
+
+        properties = Entities.getEntityProperties(entityID, ["type"]);
+        isEditable = NONEDITABLE_ENTITY_TYPES.indexOf(properties.type) === -1;
+
+        Entities.isEditableTypeCache[entityID] = {
+            isEditableType: isEditable,
+            timeStamp: Date.now()
+        };
+        return isEditable;
+    };
+}
+
 if (typeof Entities.hasEditableRoot !== "function") {
     Entities.hasEditableRootCache = {
         CACHE_ENTRY_EXPIRY_TIME: 5000 // ms
