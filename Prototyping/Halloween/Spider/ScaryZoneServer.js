@@ -31,7 +31,8 @@
                 Audio.playSound(audioElement, {
                     position: AUDIO_POSITION,
                     volume: Math.random(),
-                    pitch: 1
+                    pitch: 1, 
+                    localOnly: true
                 });
                 Script.setTimeout(function(){
                     Entities.editEntity(SPIDER_ENTITY_ID, {'visible' : true});
