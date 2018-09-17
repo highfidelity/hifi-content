@@ -1,37 +1,51 @@
-// Sounds from: 
+// Sounds from:
 // Laugh : https://freesound.org/people/RaspberryTickle/sounds/203230/
 // Whispher: https://freesound.org/people/DRFX/sounds/350763/
 
 (function () {
 
-    var lightID;
-    var objectID;
+    var overlayID;
     var entityID;
+    var flickerInterval;
 
     var DELTA_DISTANCE;
 
     var endCondition = false;
 
-    var curPosition;
+    var startPosition;
 
-    var BASE_TIME = 500;
+    var distances = [8, 6, 3, 1.5];
+    var count = 0;
+
+    var MIN_DELTA_MOVE = 750;
+    var MAX_DELTA_INVISIBLE = 1750;
+    var MAX_DELTA_VISIBLE = 1750;
+
+    var MIN_DELTA_END = 2000;
+    var MAX_DELTA_END = 5000;
+
+    var END_VISIBLE = 1250;
+
     var SECS_TO_MS = 1000;
 
     var isRunning = false;
 
     var SOUND_WHISPER_URL = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/domains/halloween/flashingLight/whisper1.wav";
     var SOUND_LAUGH_URL = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/domains/halloween/flashingLight/childlaugh.wav";
+    var SOUND_THUMP_URL = "https://hifi-content.s3.amazonaws.com/alan/dev/Audio/thud1.wav";
 
     var soundWhisper;
     var soundLaugh;
+    var soundThump;
+
     var injectorWhispher;
     var injectorLaugh;
+    var injectorThump;
 
-    var modelProperties = {
-        name: "test_hello",
-        type: "Model",
-        modelURL: "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/domains/halloween/flashingLight/boyStatue.fbx",
-        lifetime: 180,
+    var overlayProperties = {
+        type: "model",
+        name: "test_hello", // https://hifi-content.s3.amazonaws.com/alan/dev/Statue-Scary.fbx
+        url: "https://hifi-content.s3.amazonaws.com/alan/dev/Statue-Scary2.fbx",
         dimensions: { x: 0.5015, y: 0.9090, z: 0.5014 }
     };
 
@@ -71,13 +85,37 @@
         }
     };
 
-    var DELTA_TIME = 1500;
+    function findSurfaceBelowPosition(pos) {
+        var result = Entities.findRayIntersection({
+            origin: pos,
+            direction: { x: 0.0, y: -1.0, z: 0.0 }
+        }, true);
 
-    // var MIN_DELTA_TIME = 10;
-    // var MAX_DELTA_TIME = 1000;
-
+        JSON.stringify("findSurfaceBelowPosition", JSON.stringify(result));
+        if (result.intersects) {
+            return result.intersection;
+        }
+        return pos;
+    }
 
     function getNextPosition(deltaDistance) {
+
+        // use distances array
+        if (count >= distances.length) {
+            endCondition = true;
+            return null;
+        }
+
+        var deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.getForward(MyAvatar.orientation)));
+
+        count++;
+        print(JSON.stringify(deltaMove));
+
+        print("count is :", count, JSON.stringify(deltaMove));
+
+        /*
+
+        // follow Avatar
         var moveTowards = MyAvatar.position;
 
         // END CONDITION
@@ -90,21 +128,40 @@
         // calculate next closer position to user
         var deltaMove = Vec3.multiply(deltaDistance, Vec3.normalize(Vec3.subtract(moveTowards, curPosition)));
 
+        */
+
+
         var newPos = {
-            x: curPosition.x + deltaMove.x,
-            y: curPosition.y,
-            z: curPosition.z + deltaMove.z
+            x: MyAvatar.position.x + deltaMove.x, // was curPosition
+            y: MyAvatar.position.y + 2,
+            z: MyAvatar.position.z + deltaMove.z
         };
+
+        print("1  :", JSON.stringify(newPos));
+
+        var surfacePos = findSurfaceBelowPosition(newPos);
+
+        print("2 new Pos  :", JSON.stringify(surfacePos));
+
+        newPos.y = surfacePos.y + (overlayProperties.dimensions.y / 2);
+
+        print("3 new Pos  :", JSON.stringify(newPos));
 
         return newPos;
     }
 
-    function startEnd() {
+    function getStartPosition(position) {
+        var surfacePos = findSurfaceBelowPosition(position);
+        var startPos = {
+            x: surfacePos.x, // was curPosition
+            y: surfacePos.y + (overlayProperties.dimensions.y / 2),
+            z: surfacePos.z
+        };
 
-        // var lightNextPosition = {
-        //     position: Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, lightFacePosition)),
-        //     rotation: Camera.orientation
-        // };
+        return startPos;
+    }
+
+    function startEnd() {
 
         Script.setTimeout(function () {
 
@@ -112,7 +169,8 @@
 
                 injectorLaugh = Audio.playSound(soundLaugh, {
                     position: MyAvatar.position,
-                    inputVolume: 0.3
+                    volume: 0.6,
+                    localOnly: true
                 });
 
                 var soundLength = soundLaugh.duration * SECS_TO_MS;
@@ -135,7 +193,7 @@
                 var modelFacePosition = { x: 0, y: -0.3, z: -0.5 };
                 var endPosition = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, modelFacePosition));
                 // var lightFacePosition = { x: 0, y: -0.3, z: -0.9 };
-        
+
                 var modelEndPosition = {
                     position: endPosition,
                     rotation: Quat.cancelOutRollAndPitch(Quat.lookAtSimple(endPosition, Camera.position))
@@ -145,10 +203,10 @@
 
                 Script.setTimeout(function () {
                     scriptEnding();
-                }, 1500);
+                }, END_VISIBLE); // 1500);
             }
 
-        }, 3000); // BASE_TIME + random?
+        }, getRandomDeltaTime(MIN_DELTA_END, MAX_DELTA_END)); // 3000); // BASE_TIME + random?
     }
 
     function updateModelPosition(nextPlacement) {
@@ -166,31 +224,19 @@
                 : MyAvatar.getJointIndex("Hips");
         }
 
-        Entities.editEntity(lightID, { visible: true });
-        Entities.editEntity(objectID, properties);
+        // Entities.editEntity(lightID, { visible: true });
+        Overlays.editOverlay(overlayID, properties); // Overlays.editOverlay
     }
 
-    // function updateLightPosition (nextPlacement) {
-    //     Entities.editEntity(lightID, {
-    //         position: nextPlacement.position, // check closer to user?
-    //         rotation: nextPlacement.rotation ? nextPlacement.rotation : Quat.getUp(Camera.orientation) // check
-    //     });
-    // }
+    function flickerModel() {
 
-    // function getInFrontOverlayProperties (positionInFront, dimensions, url) {
-    //     var index = MyAvatar.getJointIndex("Head");
+        // flickerInterval = Script.setInterval(function () {
+        //     Overlays.editOverlay(overlayID, {
+        //         alpha: Math.abs(Math.sin(Date.now())) // Math.random() * (1 - 0.2) + 0.2 // Math.abs(Math.sin(Date.now()))
+        //     });
+        // }, 150);
 
-    //     return {
-    //         position: Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, positionInFront)),
-    //         rotation: Camera.orientation,
-    //         parentID: MyAvatar.sessionUUID,
-    //         parentJointIndex: index,
-    //         dimensions: dimensions,
-    //         ignoreRayIntersection: false,
-    //         drawInFront: true,
-    //         visible: true,
-    //         emissive: true
-    // }
+    }
 
     function turnOn() {
 
@@ -199,12 +245,35 @@
             var nextPosition = getNextPosition(DELTA_DISTANCE);
 
             if (!endCondition) {
+
                 updateModelPosition({ position: nextPosition });
-                curPosition = nextPosition;
+
+                var soundPosition = getPositionFromObject(nextPosition);
+
+
+                if (soundThump.downloaded) {
+                    injectorThump = Audio.playSound(soundThump, {
+                        position: soundPosition,
+                        localOnly: true
+                    });
+        
+                    var soundLength = soundThump.duration * SECS_TO_MS;
+        
+                    Script.setTimeout(function () {
+                        if (injectorThump) {
+                            injectorThump.stop();
+                            injectorThump = null;
+        
+                            turnOff();
+                        }
+                    }, soundLength);
+                }
+
+                // curPosition = nextPosition;
 
                 Script.setTimeout(function () {
                     turnOff();
-                }, DELTA_TIME);
+                }, getRandomDeltaTime(MIN_DELTA_MOVE, MAX_DELTA_VISIBLE)); // DELTA_TIME);
 
             } else {
                 turnOff();
@@ -222,8 +291,7 @@
 
         if (isRunning) {
 
-            setVisibleFalse(objectID);
-            setVisibleFalse(lightID);
+            setVisibleFalse(overlayID);
 
             Script.setTimeout(function () {
 
@@ -231,7 +299,7 @@
                     turnOn();
                 }
 
-            }, DELTA_TIME);
+            }, getRandomDeltaTime(MIN_DELTA_MOVE, MAX_DELTA_INVISIBLE)); // DELTA_TIME);
 
         } else {
             scriptEnding();
@@ -240,19 +308,36 @@
     }
 
     function setVisibleFalse(id) {
-        Entities.editEntity(id, {
+        Overlays.editOverlay(id, {
             visible: false
         });
     }
 
-    function setVisibleTrue(id) {
-        Entities.editEntity(id, {
-            visible: true
-        });
+    // function setVisibleFalse(id) {
+    //     Entities.editEntity(id, {
+    //         visible: false
+    //     });
+    // }
+
+    // function setVisibleTrue(id) {
+    //     Entities.editEntity(id, {
+    //         visible: true
+    //     });
+    // }
+
+
+    function getPositionFromObject(position) {
+
+        var headIdx = MyAvatar.getJointIndex("Head");
+        var headPos = MyAvatar.getJointPosition(headIdx);
+
+        var focusPosition = position;
+
+        return Vec3.sum(Vec3.multiply(0.2, Vec3.normalize(Vec3.subtract(focusPosition, headPos))), headPos);
     }
 
-    function getRandomTime(max) {
-        return Math.floor(Math.random() * (max - BASE_TIME)) + BASE_TIME;
+    function getRandomDeltaTime(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 
     function start() {
@@ -261,8 +346,8 @@
 
         if (soundWhisper.downloaded) {
             injectorWhispher = Audio.playSound(soundWhisper, {
-                position: curPosition,
-                inputVolume: 0.3
+                position: MyAvatar.position,
+                localOnly: true
             });
 
             var soundLength = soundWhisper.duration * SECS_TO_MS;
@@ -278,14 +363,18 @@
         }
     }
 
-    function createObjectAndLight() {
-        objectID = Entities.addEntity(modelProperties);
-        lightProperties.parentID = objectID;
-        lightID = Entities.addEntity(lightProperties);
+    function createStatue() {
+
+        if (!overlayID) {
+            overlayID = Overlays.addOverlay("model", overlayProperties);
+        }
+
+        flickerModel();
+
     }
 
     var Zone = function () {
-        this.objectID;
+        this.overlayID;
     };
 
     Zone.prototype = {
@@ -295,6 +384,7 @@
 
             soundWhisper = SoundCache.getSound(SOUND_WHISPER_URL);
             soundLaugh = SoundCache.getSound(SOUND_LAUGH_URL);
+            soundThump = SoundCache.getSound(SOUND_THUMP_URL);
 
             var properties = Entities.getEntityProperties(entityID, ["userData", "position"]);
             var userData = properties.userData;
@@ -310,8 +400,12 @@
                 DELTA_DISTANCE = data.deltaDistance;
             }
 
-            modelProperties.position = properties.position;
-            curPosition = properties.position;
+            print("POSITION IS", JSON.stringify(properties.position));
+
+            startPosition = getStartPosition(properties.position);
+            overlayProperties.position = startPosition;
+
+            createStatue();
         },
 
         enterEntity: function () {
@@ -319,19 +413,21 @@
         },
 
         leaveEntity: function () {
-            this.unload();
+            // this.unload();
         },
+
         unload: scriptEnding
     };
 
     function scriptEnding() {
 
-        if (objectID && lightID) {
-            Entities.deleteEntity(objectID);
-            Entities.deleteEntity(lightID);
+        if (flickerInterval) {
+            Script.clearInterval(flickerInterval);
+        }
 
-            objectID = null;
-            lightID = null;
+        if (overlayID) {
+            Overlays.deleteOverlay(overlayID);
+            overlayID = null;
         }
 
         if (injectorWhispher) {
@@ -344,14 +440,86 @@
             injectorLaugh = null;
         }
 
+        if (injectorThump) {
+            injectorThump.stop();
+            injectorThump = null;
+        }
+
         var properties = Entities.getEntityProperties(entityID, ["position"]);
 
-        curPosition = properties.position;
+        startPosition = getStartPosition(properties.position);
+        overlayProperties.position = startPosition;
         endCondition = false;
         isRunning = false;
+        count = 0;
 
-        createObjectAndLight();
+        createStatue();
     }
 
     return new Zone();
 });
+
+
+// function Sound(url) {
+//     this.url = url;
+//     this.sound;
+//     this.injector;
+//     this.SECS_TO_MS = 1000;
+// }
+
+// Sound.prototype = {
+//     prefetch: function () {
+//         this.sound = SoundCache.getSound(this.url);
+//     },
+//     isLoaded: function() {
+//         return this.sound.downloaded;
+//     },
+//     getDurationSeconds: function () {
+//         if (this.sound.downloaded) {
+//             return this.sound.length;
+//         }
+//     },
+//     getDurationMS: function () {
+//         if (this.sound.downloaded) {
+//             return this.sound.length;
+//         }
+//     },
+//     playSoundStaticPosition: function(position, inputVolume, callback, args) {
+//         if (this.sound.downloaded) {
+//             this.injector = Audio.playSound(this.sound, {
+//                 position: position,
+//                 volume: inputVolume
+//             });
+
+//             var soundLength = this.getDurationMS();
+//             var injector;
+
+//             Script.setTimeout(function () {
+//                 if (this.injector) {
+//                     this.injector.stop();
+//                     this.injector = null;
+//                 }
+//                 callback(args);
+//             }, soundLength);
+//         }
+//     },
+//     playSoundUpdateEntityPositon: function(inputVolume, entityID, callback, args) {
+//         if (this.sound.downloaded) {
+//             this.injector = Audio.playSound(this.sound, {
+//                 position: position,
+//                 volume: inputVolume
+//             });
+
+//             var soundLength = this.getDurationMS();
+//             var injector;
+
+//             Script.setTimeout(function () {
+//                 if (this.injector) {
+//                     this.injector.stop();
+//                     this.injector = null;
+//                 }
+//                 callback(args);
+//             }, soundLength);
+//         }
+//     }
+// };
