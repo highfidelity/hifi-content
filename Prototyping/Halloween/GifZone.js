@@ -19,6 +19,7 @@
     var IMAGE_SCALE = {width: 800, height: 600 };
     var ALPHA_INITIAL = 0.1;
     var overlay;
+    var sound;
 
     var GifZone = function(){
 
@@ -36,11 +37,13 @@
     }
 
     GifZone.prototype = {
+        preload: function() {
+            sound = SoundCache.getSound(AUDIO_URL);
+        },
         enterEntity : function() {
             var position = HMD.active ? HMD_POSITION : DESKTOP_POSITION;
             overlay = Overlays.addOverlay('image', {"imageURL" : GIF_URL,
                 x: position.x, y: position.y, width: IMAGE_SCALE.width, height: IMAGE_SCALE.height, alpha: ALPHA_INITIAL});
-            var sound = SoundCache.getSound(AUDIO_URL);
             Audio.playSound(sound, {localOnly : true});
             animateInGif();
         },
