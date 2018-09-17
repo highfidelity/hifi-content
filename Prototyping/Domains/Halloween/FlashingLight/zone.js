@@ -14,17 +14,22 @@
 
     var startPosition;
 
-    var distances = [8, 6, 3, 1.5];
+    var distances = [8, 6, 3, 1.5, 1];
     var count = 0;
 
-    var MIN_DELTA_MOVE = 750;
-    var MAX_DELTA_INVISIBLE = 1750;
-    var MAX_DELTA_VISIBLE = 1750;
+    var MIN_DELTA_MOVE = 1000;
 
-    var MIN_DELTA_END = 2000;
-    var MAX_DELTA_END = 5000;
 
-    var END_VISIBLE = 1250;
+    var MIN_DELTA_INVISIBLE = 1000;
+    var MAX_DELTA_INVISIBLE = 3000;
+    
+    var MIN_DELTA_VISIBLE = 1500;
+    var MAX_DELTA_VISIBLE = 3500;
+
+    var MIN_DELTA_END = 3000;
+    var MAX_DELTA_END = 6000;
+
+    var END_VISIBLE = 1500;
 
     var SECS_TO_MS = 1000;
 
@@ -34,55 +39,24 @@
     var SOUND_LAUGH_URL = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/domains/halloween/flashingLight/childlaugh.wav";
     var SOUND_THUMP_URL = "https://hifi-content.s3.amazonaws.com/alan/dev/Audio/thud1.wav";
 
+    var SOUND_SCREAM_URL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/Halloween/sounds/fleshed/_robin_scream_mono.wav";
+
     var soundWhisper;
     var soundLaugh;
     var soundThump;
+    var soundScream;
 
     var injectorWhispher;
     var injectorLaugh;
     var injectorThump;
+    var injectorScream;
 
     var overlayProperties = {
         type: "model",
         name: "test_hello", // https://hifi-content.s3.amazonaws.com/alan/dev/Statue-Scary.fbx
-        url: "https://hifi-content.s3.amazonaws.com/alan/dev/Statue-Scary2.fbx",
-        dimensions: { x: 0.5015, y: 0.9090, z: 0.5014 }
-    };
-
-    var lightProperties = {
-        name: "robin_test_Flicker Light",
-        type: "Light",
-        userData: "{\"grabbableKey\":{\"grabbable\":false},\"maxLightIntensity\":5,\"interval\":150}",
-        serverScripts: "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/zombies/flicker.js",
-        visible: true,
-        canCastShadow: true,
-        collisionless: true,
-        color: {
-            red: 164,
-            green: 224,
-            blue: 197
-        },
-        isSpotlight: true,
-        falloffRadius: 10,
-        exponent: 10,
-        cutoff: 60,
-        clientOnly: false,
-        localPosition: {
-            x: 0.16131210327148438,
-            y: -0.13422012329101562,
-            z: -0.9129418730735779
-        },
-        localRotation: {
-            x: 0.996185302734375,
-            y: -0.0000457763671875,
-            z: -0.0001068115234375,
-            w: 0.08711373805999756
-        },
-        localDimensions: {
-            x: 23.510772705078125,
-            y: 23.510772705078125,
-            z: 27.147899627685547
-        }
+        url: "https://hifi-content.s3.amazonaws.com/alan/dev/Statue-Scary3.fbx",
+        dimensions: { x: 0.6769, y: 1.7771, z: 0.7370 }, //  2.0453 0.8890 // dimensions: { x: 0.5015, y: 0.9090, z: 0.5014 }
+        visible: false
     };
 
     function findSurfaceBelowPosition(pos) {
@@ -100,15 +74,21 @@
 
     function getNextPosition(deltaDistance) {
 
+        var deltaMove;
+
         // use distances array
         if (count >= distances.length) {
             endCondition = true;
             return null;
+        } else if (count === distances.length - 1) {
+            deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.getRight(MyAvatar.orientation)));
+        } else {
+            deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.getForward(MyAvatar.orientation)));
         }
 
-        var deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.getForward(MyAvatar.orientation)));
 
         count++;
+
         print(JSON.stringify(deltaMove));
 
         print("count is :", count, JSON.stringify(deltaMove));
@@ -165,7 +145,7 @@
 
         Script.setTimeout(function () {
 
-            if (soundLaugh.downloaded) {
+            if (soundLaugh && soundLaugh.downloaded) {
 
                 injectorLaugh = Audio.playSound(soundLaugh, {
                     position: MyAvatar.position,
@@ -175,22 +155,33 @@
 
                 var soundLength = soundLaugh.duration * SECS_TO_MS;
 
+
+                Script.setTimeout(function () {
+
+                    lastVisible();
+
+                }, soundLength - 4500);
+
                 Script.setTimeout(function () {
                     if (injectorLaugh) {
                         injectorLaugh.stop();
                         injectorLaugh = null;
                     }
 
-                    lastVisible();
+                    // lastVisible();
 
                 }, soundLength);
+
+                // lastVisible();
+
             } else {
                 lastVisible();
             }
 
             function lastVisible() {
 
-                var modelFacePosition = { x: 0, y: -0.3, z: -0.5 };
+
+                var modelFacePosition = { x: 0, y: -0.5, z: -0.5 };
                 var endPosition = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, modelFacePosition));
                 // var lightFacePosition = { x: 0, y: -0.3, z: -0.9 };
 
@@ -198,6 +189,25 @@
                     position: endPosition,
                     rotation: Quat.cancelOutRollAndPitch(Quat.lookAtSimple(endPosition, Camera.position))
                 };
+
+                                
+                if (soundScream.downloaded) {
+                    injectorThump = Audio.playSound(soundScream, {
+                        position: modelEndPosition,
+                        localOnly: true
+                    });
+        
+                    var soundLength = soundScream.duration * SECS_TO_MS;
+        
+                    Script.setTimeout(function () {
+                        if (injectorThump) {
+                            injectorThump.stop();
+                            injectorThump = null;
+        
+                            turnOff();
+                        }
+                    }, soundLength);
+                }
 
                 updateModelPosition(modelEndPosition);
 
@@ -273,7 +283,7 @@
 
                 Script.setTimeout(function () {
                     turnOff();
-                }, getRandomDeltaTime(MIN_DELTA_MOVE, MAX_DELTA_VISIBLE)); // DELTA_TIME);
+                }, getRandomDeltaTime(MIN_DELTA_VISIBLE, MAX_DELTA_VISIBLE)); // DELTA_TIME);
 
             } else {
                 turnOff();
@@ -299,7 +309,7 @@
                     turnOn();
                 }
 
-            }, getRandomDeltaTime(MIN_DELTA_MOVE, MAX_DELTA_INVISIBLE)); // DELTA_TIME);
+            }, getRandomDeltaTime(MIN_DELTA_INVISIBLE, MAX_DELTA_INVISIBLE)); // DELTA_TIME);
 
         } else {
             scriptEnding();
@@ -383,8 +393,9 @@
             entityID = id;
 
             soundWhisper = SoundCache.getSound(SOUND_WHISPER_URL);
-            soundLaugh = SoundCache.getSound(SOUND_LAUGH_URL);
+            soundLaugh = SoundCache.getSound("https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/Halloween/sounds/fleshed/_robin_hit_stereo.wav"); // soundLaugh = SoundCache.getSound(SOUND_LAUGH_URL);  https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/Halloween/sounds/fleshed/_robin_hit_stereo.wav
             soundThump = SoundCache.getSound(SOUND_THUMP_URL);
+            soundScream = SoundCache.getSound(SOUND_SCREAM_URL);
 
             var properties = Entities.getEntityProperties(entityID, ["userData", "position"]);
             var userData = properties.userData;
@@ -443,6 +454,11 @@
         if (injectorThump) {
             injectorThump.stop();
             injectorThump = null;
+        }
+
+        if (injectorScream) {
+            injectorScream.stop();
+            injectorScream = null;
         }
 
         var properties = Entities.getEntityProperties(entityID, ["position"]);
