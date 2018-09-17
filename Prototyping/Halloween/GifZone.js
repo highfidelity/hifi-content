@@ -11,7 +11,7 @@
 
 (function(){
 
-    var AUDIO_URL = Script.resolvePath("219110__zyrytsounds__evil-laugh.wav");
+    var AUDIO_URL = Script.resolvePath("219110__zyrytsounds__evil-laugh.mp3");
     var GIF_URL = "https://media.giphy.com/media/3s4vKvmoHwK5bpHyZa/giphy.gif";
     var ALPHA_INTERVAL = 0.05;
     var HMD_POSITION = {x: 1750, y : 0};
