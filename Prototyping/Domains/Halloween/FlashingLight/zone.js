@@ -86,7 +86,6 @@
             deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.getForward(MyAvatar.orientation)));
         }
 
-
         count++;
 
         print(JSON.stringify(deltaMove));
