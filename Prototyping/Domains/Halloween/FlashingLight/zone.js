@@ -14,19 +14,19 @@
 
     var startPosition;
 
-    var distances = [8, 6, 3, 1.5, 1];
+    var distances = [8, 6, 2, 1.5, 1];
     var count = 0;
 
     var MIN_DELTA_MOVE = 1000;
 
 
-    var MIN_DELTA_INVISIBLE = 1000;
-    var MAX_DELTA_INVISIBLE = 3000;
-    
-    var MIN_DELTA_VISIBLE = 1500;
-    var MAX_DELTA_VISIBLE = 3500;
+    var MIN_DELTA_INVISIBLE = 100;
+    var MAX_DELTA_INVISIBLE = 2000;
 
-    var MIN_DELTA_END = 3000;
+    var MIN_DELTA_VISIBLE = 500;
+    var MAX_DELTA_VISIBLE = 1500;
+
+    var MIN_DELTA_END = 5000;
     var MAX_DELTA_END = 6000;
 
     var END_VISIBLE = 1500;
@@ -80,7 +80,9 @@
         if (count >= distances.length) {
             endCondition = true;
             return null;
-        } else if (count === distances.length - 1) {
+        } else if (count === distances.length - 3) {
+            deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.inverse(Quat.getRight(MyAvatar.orientation))));
+        } else if (count === distances.length - 2) {
             deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.getRight(MyAvatar.orientation)));
         } else {
             deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.getForward(MyAvatar.orientation)));
@@ -141,41 +143,70 @@
     }
 
     function startEnd() {
+        print("STARTING END ++++ ");
 
         Script.setTimeout(function () {
 
-            if (soundLaugh && soundLaugh.downloaded) {
-
-                injectorLaugh = Audio.playSound(soundLaugh, {
+            ///////*** 
+            if (soundScream.downloaded) {
+                injectorScream = Audio.playSound(soundScream, {
                     position: MyAvatar.position,
-                    volume: 0.6,
                     localOnly: true
                 });
-
-                var soundLength = soundLaugh.duration * SECS_TO_MS;
-
 
                 Script.setTimeout(function () {
 
                     lastVisible();
 
-                }, soundLength - 4500);
+                }, 500);
+
+                var soundLengthScream = soundScream.duration * SECS_TO_MS;
 
                 Script.setTimeout(function () {
-                    if (injectorLaugh) {
-                        injectorLaugh.stop();
-                        injectorLaugh = null;
+                    if (injectorScream) {
+                        injectorScream.stop();
+                        injectorScream = null;
+
+                        turnOff();
                     }
-
-                    // lastVisible();
-
-                }, soundLength);
-
-                // lastVisible();
-
+                }, soundLengthScream + 1000);
             } else {
                 lastVisible();
             }
+
+            ///////*** 
+
+            // if (soundLaugh && soundLaugh.downloaded) {
+
+            //     injectorLaugh = Audio.playSound(soundLaugh, {
+            //         position: MyAvatar.position,
+            //         volume: 0.6,
+            //         localOnly: true
+            //     });
+
+            //     var soundLength = soundLaugh.duration * SECS_TO_MS;
+
+
+            //     Script.setTimeout(function () {
+
+            //         lastVisible();
+
+            //     }, soundLength - 4750);
+
+            //     Script.setTimeout(function () {
+            //         if (injectorLaugh) {
+            //             injectorLaugh.stop();
+            //             injectorLaugh = null;
+            //         }
+
+            //         // lastVisible();
+
+            //     }, soundLength);
+
+            // lastVisible();
+            // else {
+            //     lastVisible();
+            // }
 
             function lastVisible() {
 
@@ -189,24 +220,25 @@
                     rotation: Quat.cancelOutRollAndPitch(Quat.lookAtSimple(endPosition, Camera.position))
                 };
 
-                                
-                if (soundScream.downloaded) {
-                    injectorThump = Audio.playSound(soundScream, {
-                        position: modelEndPosition,
-                        localOnly: true
-                    });
-        
-                    var soundLength = soundScream.duration * SECS_TO_MS;
-        
-                    Script.setTimeout(function () {
-                        if (injectorThump) {
-                            injectorThump.stop();
-                            injectorThump = null;
-        
-                            turnOff();
-                        }
-                    }, soundLength);
-                }
+
+                // SCREAM AT END         
+                // if (soundScream.downloaded) {
+                //     injectorThump = Audio.playSound(soundScream, {
+                //         position: modelEndPosition,
+                //         localOnly: true
+                //     });
+
+                //     var soundLength = soundScream.duration * SECS_TO_MS;
+
+                //     Script.setTimeout(function () {
+                //         if (injectorThump) {
+                //             injectorThump.stop();
+                //             injectorThump = null;
+
+                //             turnOff();
+                //         }
+                //     }, soundLength);
+                // }
 
                 updateModelPosition(modelEndPosition);
 
@@ -255,6 +287,8 @@
 
             if (!endCondition) {
 
+                print("5 ++++ ", endCondition);
+
                 updateModelPosition({ position: nextPosition });
 
                 var soundPosition = getPositionFromObject(nextPosition);
@@ -265,32 +299,74 @@
                         position: soundPosition,
                         localOnly: true
                     });
-        
+
                     var soundLength = soundThump.duration * SECS_TO_MS;
-        
+
                     Script.setTimeout(function () {
                         if (injectorThump) {
                             injectorThump.stop();
                             injectorThump = null;
-        
-                            turnOff();
+
+                            // turnOff();
                         }
                     }, soundLength);
-                }
 
-                // curPosition = nextPosition;
+                    if (count === distances.length) {
 
-                Script.setTimeout(function () {
-                    turnOff();
-                }, getRandomDeltaTime(MIN_DELTA_VISIBLE, MAX_DELTA_VISIBLE)); // DELTA_TIME);
+                        // SCREAM LAST MOVE
+                        // if (soundScream.downloaded) {
+                        //     injectorThump = Audio.playSound(soundScream, {
+                        //         position: soundPosition,
+                        //         localOnly: true
+                        //     });
+
+                        //     var soundLengthScream = soundScream.duration * SECS_TO_MS;
+
+                        //     Script.setTimeout(function () {
+                        //         if (injectorThump) {
+                        //             injectorThump.stop();
+                        //             injectorThump = null;
+
+                        //             turnOff();
+                        //         }
+                        //     }, soundLengthScream + 1000);
+                        // }
+
+                        if (soundLaugh.downloaded) {
+                            injectorLaugh = Audio.playSound(soundLaugh, {
+                                position: soundPosition,
+                                localOnly: true
+                            });
+
+                            var soundLengthLaugh = soundLaugh.duration * SECS_TO_MS;
+
+                            Script.setTimeout(function () {
+                                if (injectorLaugh) {
+                                    injectorLaugh.stop();
+                                    injectorLaugh = null;
+
+                                    // turnOff();
+                                }
+                            }, soundLengthLaugh);
+
+                        }
+                    }
+
+                    // curPosition = nextPosition;
+
+                    Script.setTimeout(function () {
+                        turnOff();
+                    }, count === distances.length ? 2000 : getRandomDeltaTime(MIN_DELTA_VISIBLE, MAX_DELTA_VISIBLE)); // DELTA_TIME);
+
+                } 
+
+                print(JSON.stringify(nextPosition));
 
             } else {
+                print("3 ++++ ");
                 turnOff();
                 startEnd();
             }
-
-            print(JSON.stringify(nextPosition));
-
         } else {
             scriptEnding();
         }
@@ -311,6 +387,7 @@
             }, getRandomDeltaTime(MIN_DELTA_INVISIBLE, MAX_DELTA_INVISIBLE)); // DELTA_TIME);
 
         } else {
+            print("1 ++++ ");
             scriptEnding();
         }
 
