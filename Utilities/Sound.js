@@ -19,7 +19,7 @@ Sound.prototype = {
     },
     getDurationSeconds: function () {
         if (this.sound.downloaded) {
-            return this.sound.length;
+            return this.sound.duration;
         }
     },
     getDurationMS: function () {
@@ -30,6 +30,7 @@ Sound.prototype = {
     playSoundStaticPosition: function(injectorOptions, bufferTime, onCompleteCallback, args) {
         print("Sound.js downloaded ", this.sound.downloaded, this.getDurationMS());
         print("Sound.js args ", JSON.stringify(injectorOptions), bufferTime, onCompleteCallback, args);
+        
         if (this.sound.downloaded) {
 
             this.injector = Audio.playSound(this.sound, injectorOptions);
@@ -44,6 +45,7 @@ Sound.prototype = {
             Script.setTimeout(function () {
 
                 print("Sound.js injector is ", soundLength, injector);
+
                 if (injector) {
                     injector.stop();
                     injector = null;
@@ -56,7 +58,7 @@ Sound.prototype = {
                 }
 
             }, soundLength);
-        }
+        } 
     },
     unload: function () {
         if (this.injector) {
