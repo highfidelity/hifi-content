@@ -10,9 +10,6 @@
 
     var overlayID;
     var entityID;
-    var flickerInterval;
-
-    var DELTA_DISTANCE;
 
     var endCondition = false;
 
@@ -21,26 +18,18 @@
     var distances = [8, 6, 2, 1.5, 1];
     var count = 0;
 
-    var MIN_DELTA_MOVE = 1000;
+    var MIN_TIME_INVISIBLE = 100;
+    var MAX_TIME_INVISIBLE = 2000;
 
+    var MIN_TIME_VISIBLE = 500;
+    var MAX_TIME_VISIBLE = 1500;
 
-    var MIN_DELTA_INVISIBLE = 100;
-    var MAX_DELTA_INVISIBLE = 2000;
+    var MIN_WAIT_TIME_JUMPSCARE = 5000;
+    var MAX_WAIT_TIME_JUMPSCARE = 6000;
 
-    var MIN_DELTA_VISIBLE = 500;
-    var MAX_DELTA_VISIBLE = 1500;
-
-    var MIN_DELTA_END = 5000;
-    var MAX_DELTA_END = 6000;
-
-    var END_VISIBLE = 1500;
-
-    var SECS_TO_MS = 1000;
-
-    var isRunning = false;
+    var TIME_JUMPSCARE_VISIBLE = 1500;
 
     var SOUND_WHISPER_URL = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/domains/halloween/flashingLight/whisper1.wav";
-    var SOUND_LAUGH_URL = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/domains/halloween/flashingLight/childlaugh.wav";
     var SOUND_THUMP_URL = "https://hifi-content.s3.amazonaws.com/alan/dev/Audio/thud1.wav";
     var SOUND_FINAL_THUMP_URL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/Halloween/sounds/fleshed/_robin_hit_stereo.wav";
     var SOUND_SCREAM_URL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/Halloween/sounds/fleshed/_robin_scream_mono.wav";
@@ -50,18 +39,29 @@
     var soundThump;
     var soundScream;
 
-    var injectorWhispher;
-    var injectorFinalThump;
-    var injectorThump;
-    var injectorScream;
-
     var overlayProperties = {
         type: "model",
-        name: "test_hello", // https://hifi-content.s3.amazonaws.com/alan/dev/Statue-Scary.fbx
+        name: "statue_apparition",
         url: "https://hifi-content.s3.amazonaws.com/alan/dev/Statue-Scary3.fbx",
-        dimensions: { x: 0.6769, y: 1.7771, z: 0.7370 }, //  2.0453 0.8890 // dimensions: { x: 0.5015, y: 0.9090, z: 0.5014 }
+        dimensions: { x: 0.6769, y: 1.7771, z: 0.7370 },
         visible: false
     };
+
+    var utils = {
+
+        findSurfaceBelowPosition: function (pos) {
+            var result = Entities.findRayIntersection({
+                origin: pos,
+                direction: { x: 0.0, y: -1.0, z: 0.0 }
+            }, true);
+    
+            if (result.intersects) {
+                return result.intersection;
+            }
+            return pos;
+        },
+
+    }
 
     function findSurfaceBelowPosition(pos) {
         var result = Entities.findRayIntersection({
@@ -69,14 +69,13 @@
             direction: { x: 0.0, y: -1.0, z: 0.0 }
         }, true);
 
-        JSON.stringify("findSurfaceBelowPosition", JSON.stringify(result));
         if (result.intersects) {
             return result.intersection;
         }
         return pos;
     }
 
-    function getNextPosition(deltaDistance) {
+    function getNextPosition() {
 
         var deltaMove;
         var direction;
@@ -132,62 +131,40 @@
         return startPos;
     }
 
-    function startEnd() {
-        print("STARTING END ++++ ");
+    function startJumpScare() {
 
         Script.setTimeout(function () {
 
-            if (soundScream.isLoaded()) {
+            soundScream.playSoundStaticPosition({
+                position: MyAvatar.position,
+                localOnly: true
+            }, 1000);
 
-                soundScream.playSoundStaticPosition({
-                    position: MyAvatar.position,
-                    localOnly: true
-                }, 1000, turnOff);
+            Script.setTimeout(function () {
+                // scream starts just before the jump scare
+                jumpScare();
 
-                // injectorScream = Audio.playSound(soundScream, {
-                //     position: MyAvatar.position,
-                //     localOnly: true
-                // });
+            }, 500);
 
-                Script.setTimeout(function () {
+        }, getRandomDeltaTime(MIN_WAIT_TIME_JUMPSCARE, MAX_WAIT_TIME_JUMPSCARE));
+    }
 
-                    lastVisible();
+    function jumpScare() {
 
-                }, 500);
+        var modelFacePosition = { x: 0, y: -0.5, z: -0.5 };
+        var endPosition = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, modelFacePosition));
 
-                // var soundLengthScream = soundScream.duration * SECS_TO_MS;
+        var modelEndPosition = {
+            position: endPosition,
+            rotation: Quat.cancelOutRollAndPitch(Quat.lookAtSimple(endPosition, Camera.position))
+        };
 
-                // Script.setTimeout(function () {
-                //     if (injectorScream) {
-                //         injectorScream.stop();
-                //         injectorScream = null;
+        updateModelPosition(modelEndPosition);
 
-                //         turnOff();
-                //     }
-                // }, soundLengthScream + 1000);
+        Script.setTimeout(function () {
+            scriptEnding();
+        }, TIME_JUMPSCARE_VISIBLE);
 
-            } else {
-                lastVisible();
-            }
-
-            function lastVisible() {
-
-                var modelFacePosition = { x: 0, y: -0.5, z: -0.5 };
-                var endPosition = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, modelFacePosition));
-
-                var modelEndPosition = {
-                    position: endPosition,
-                    rotation: Quat.cancelOutRollAndPitch(Quat.lookAtSimple(endPosition, Camera.position))
-                };
-
-                updateModelPosition(modelEndPosition);
-
-                Script.setTimeout(function () {
-                    scriptEnding();
-                }, END_VISIBLE);
-            }
-
-        }, getRandomDeltaTime(MIN_DELTA_END, MAX_DELTA_END)); // 3000); // BASE_TIME + random?
     }
 
     function updateModelPosition(nextPlacement) {
@@ -208,113 +185,109 @@
         Overlays.editOverlay(overlayID, properties);
     }
 
-    function turnOn() {
+    function makeVisible() {
 
-        if (isRunning) {
+        var nextPosition = getNextPosition();
+        var isLast = count === distances.length;
 
-            var nextPosition = getNextPosition(DELTA_DISTANCE);
+        updateModelPosition({ position: nextPosition });
+        var soundPosition = getPositionFromObject(nextPosition);
 
-            if (!endCondition) {
+        if (endCondition) {
 
-                print("5 ++++ ", endCondition);
+            // begin jump scare
+            makeInvisible();
+            startJumpScare();
 
-                updateModelPosition({ position: nextPosition });
+        } else if (isLast) {
 
-                var soundPosition = getPositionFromObject(nextPosition);
-
-                if (count === distances.length) {
-                    // final thump
-
-                    if (soundFinalThump.isLoaded()) {
-                        soundFinalThump.playSoundStaticPosition({
-                            position: soundPosition,
-                            localOnly: true
-                        });
-
-                        // injectorFinalThump = Audio.playSound(soundFinalThump, {
-                        //     position: soundPosition,
-                        //     localOnly: true
-                        // });
-
-                        // var soundLengthLaugh = soundFinalThump.duration * SECS_TO_MS;
-
-                        // Script.setTimeout(function () {
-                        //     if (injectorFinalThump) {
-                        //         injectorFinalThump.stop();
-                        //         injectorFinalThump = null;
-
-                        //     }
-                        // }, soundLengthLaugh);
-
-                    }
-
-                } else if (soundThump.isLoaded()) { //(soundThump.downloaded) {
-
-                    soundThump.playSoundStaticPosition({
-                        position: soundPosition,
-                        localOnly: true
-                    });
-
-                    // injectorThump = Audio.playSound(soundThump, {
-                    //     position: soundPosition,
-                    //     localOnly: true
-                    // });
-
-                    // var soundLength = soundThump.duration * SECS_TO_MS;
-
-                    // Script.setTimeout(function () {
-                    //     if (injectorThump) {
-                    //         injectorThump.stop();
-                    //         injectorThump = null;
-
-                    //     }
-                    // }, soundLength);
-
-                }
-
-                // turn off
-                Script.setTimeout(function () {
-                    turnOff();
-                }, count === distances.length ? 2000 : getRandomDeltaTime(MIN_DELTA_VISIBLE, MAX_DELTA_VISIBLE)); // DELTA_TIME);
-
-            } else {
-                print("3 ++++ ");
-                turnOff();
-                startEnd();
-            }
-        } else {
-            scriptEnding();
-        }
-    }
-
-    function turnOff() {
-
-        if (isRunning) {
-
-            setVisibleFalse(overlayID);
+            // final move
+            soundFinalThump.playSoundStaticPosition({
+                position: soundPosition,
+                localOnly: true
+            });
 
             Script.setTimeout(function () {
-
-                if (!endCondition) {
-                    turnOn();
-                }
-
-            }, getRandomDeltaTime(MIN_DELTA_INVISIBLE, MAX_DELTA_INVISIBLE)); // DELTA_TIME);
+                makeInvisible();
+            }, 2000);
 
         } else {
-            print("1 ++++ ");
-            scriptEnding();
+
+            // regular move
+            soundThump.playSoundStaticPosition({
+                position: soundPosition,
+                localOnly: true
+            });
+
+            Script.setTimeout(function () {
+                makeInvisible();
+            }, getRandomDeltaTime(MIN_TIME_VISIBLE, MAX_TIME_VISIBLE));
+
         }
+
+        // if (!endCondition) {
+
+        //     print("5 ++++ ", endCondition);
+
+        //     updateModelPosition({ position: nextPosition });
+
+        //     var soundPosition = getPositionFromObject(nextPosition);
+
+        //     if (count === distances.length) {
+        //         // final thump
+
+        //         if (soundFinalThump.isLoaded()) {
+
+        //             soundFinalThump.playSoundStaticPosition({
+        //                 position: soundPosition,
+        //                 localOnly: true
+        //             });
+
+        //         }
+
+        //     } else if (soundThump.isLoaded()) {
+
+        //         soundThump.playSoundStaticPosition({
+        //             position: soundPosition,
+        //             localOnly: true
+        //         });
+
+        //     }
+
+        //     // turn off
+        //     Script.setTimeout(function () {
+        //         makeInvisible();
+        //     }, count === distances.length ? 2000 : getRandomDeltaTime(MIN_TIME_VISIBLE, MAX_TIME_VISIBLE)); // DELTA_TIME);
+
+        // } else {
+        //     print("3 ++++ ");
+        //     makeInvisible();
+        //     startJumpScare();
+        // }
 
     }
 
-    function setVisibleFalse(id) {
+    function makeInvisible() {
+
+        setInvisible(overlayID);
+
+        Script.setTimeout(function () {
+
+            if (!endCondition) {
+                makeVisible();
+            }
+
+        }, getRandomDeltaTime(MIN_TIME_INVISIBLE, MAX_TIME_INVISIBLE)); // DELTA_TIME);
+
+    }
+
+    function setInvisible(id) {
         Overlays.editOverlay(id, {
             visible: false
         });
     }
 
-    function getPositionFromObject(position) {
+    function getPositionFromObject(position) { // getSoundPosition 
         // makes the sounds sound close to the user
 
         var headIdx = MyAvatar.getJointIndex("Head");
@@ -330,7 +303,7 @@
     }
 
     function start() {
-        isRunning = true;
+
         endCondition = false;
 
         if (soundWhisper.isLoaded()) {
@@ -338,23 +311,8 @@
             soundWhisper.playSoundStaticPosition({
                 position: MyAvatar.position,
                 localOnly: true
-            }, null, turnOff);
+            }, null, makeInvisible);
 
-            // injectorWhispher = Audio.playSound(soundWhisper, {
-            //     position: MyAvatar.position,
-            //     localOnly: true
-            // });
-
-            // var soundLength = soundWhisper.duration * SECS_TO_MS;
-
-            // Script.setTimeout(function () {
-            //     if (injectorWhispher) {
-            //         injectorWhispher.stop();
-            //         injectorWhispher = null;
-
-            //         turnOff(); // not necessary since it's already visible false
-            //     }
-            // }, soundLength);
         }
     }
 
@@ -379,14 +337,6 @@
             soundWhisper = new Sound(SOUND_WHISPER_URL);
             soundFinalThump = new Sound(SOUND_FINAL_THUMP_URL);
             soundScream = new Sound(SOUND_SCREAM_URL);
-
-            print(soundThump);
-            print(Sound);
-
-            // soundWhisper = SoundCache.getSound(SOUND_WHISPER_URL);
-            // soundFinalThump = SoundCache.getSound(SOUND_FINAL_THUMP_URL);
-            // soundThump = SoundCache.getSound(SOUND_THUMP_URL);
-            // soundScream = SoundCache.getSound(SOUND_SCREAM_URL);
 
             var properties = Entities.getEntityProperties(entityID, ["position"]);
 
@@ -414,37 +364,16 @@
             overlayID = null;
         }
 
-        // if (injectorWhispher) {
-        //     injectorWhispher.stop();
-        //     injectorWhispher = null;
-        // }
-
-        // if (injectorFinalThump) {
-        //     injectorFinalThump.stop();
-        //     injectorFinalThump = null;
-        // }
-
         soundThump.unload();
         soundWhisper.unload();
         soundFinalThump.unload();
         soundScream.unload();
-
-        // if (injectorThump) {
-        //     injectorThump.stop();
-        //     injectorThump = null;
-        // }
-
-        // if (injectorScream) {
-        //     injectorScream.stop();
-        //     injectorScream = null;
-        // }
 
         var properties = Entities.getEntityProperties(entityID, ["position"]);
 
         startPosition = getStartPosition(properties.position);
         overlayProperties.position = startPosition;
         endCondition = false;
-        isRunning = false;
         count = 0;
 
         createStatue();

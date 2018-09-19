@@ -1,12 +1,8 @@
 // Sounds from:
+// Laugh : https://freesound.org/people/RaspberryTickle/sounds/203230/
 // Whispher: https://freesound.org/people/DRFX/sounds/350763/
 
-
-// http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/utils/Sound.js
-
 (function () {
-
-    var Sound = Script.require("http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/utils/Sound.js?v" + Math.random());
 
     var overlayID;
     var entityID;
@@ -42,16 +38,16 @@
     var SOUND_WHISPER_URL = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/domains/halloween/flashingLight/whisper1.wav";
     var SOUND_LAUGH_URL = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/domains/halloween/flashingLight/childlaugh.wav";
     var SOUND_THUMP_URL = "https://hifi-content.s3.amazonaws.com/alan/dev/Audio/thud1.wav";
-    var SOUND_FINAL_THUMP_URL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/Halloween/sounds/fleshed/_robin_hit_stereo.wav";
+
     var SOUND_SCREAM_URL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/Halloween/sounds/fleshed/_robin_scream_mono.wav";
 
     var soundWhisper;
-    var soundFinalThump;
+    var soundLaugh;
     var soundThump;
     var soundScream;
 
     var injectorWhispher;
-    var injectorFinalThump;
+    var injectorLaugh;
     var injectorThump;
     var injectorScream;
 
@@ -79,52 +75,66 @@
     function getNextPosition(deltaDistance) {
 
         var deltaMove;
-        var direction;
 
-        var isEnding = count >= distances.length;
-        var is2ndLast = count === distances.length - 2;
-        var is3rdLast = count === distances.length - 3;
-
-        if (isEnding) {
-            // start jumpscare
+        // use distances array
+        if (count >= distances.length) {
             endCondition = true;
             return null;
-
-        } else if (is2ndLast) {
-            // right
-            direction = Quat.getRight(MyAvatar.orientation);
-
-        } else if (is3rdLast) {
-            // left
-            direction = Quat.inverse(Quat.getRight(MyAvatar.orientation));
-
+        } else if (count === distances.length - 3) {
+            deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.inverse(Quat.getRight(MyAvatar.orientation))));
+        } else if (count === distances.length - 2) {
+            deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.getRight(MyAvatar.orientation)));
         } else {
-            // forward for all other cases
-            direction = Quat.getForward(MyAvatar.orientation);
-
+            deltaMove = Vec3.multiply(distances[count], Vec3.normalize(Quat.getForward(MyAvatar.orientation)));
         }
 
-        deltaMove = Vec3.multiply(distances[count], Vec3.normalize(direction));
         count++;
 
+        print(JSON.stringify(deltaMove));
+
+        print("count is :", count, JSON.stringify(deltaMove));
+
+        /*
+
+        // follow Avatar
+        var moveTowards = MyAvatar.position;
+
+        // END CONDITION
+        // model current position is within deltaDistance
+        if (Vec3.distance(curPosition, MyAvatar.position) < deltaDistance) {
+            endCondition = true;
+            return null;
+        }
+
+        // calculate next closer position to user
+        var deltaMove = Vec3.multiply(deltaDistance, Vec3.normalize(Vec3.subtract(moveTowards, curPosition)));
+
+        */
+
+
         var newPos = {
-            x: MyAvatar.position.x + deltaMove.x,
-            y: MyAvatar.position.y + 2, // 2 m above ground for hills
+            x: MyAvatar.position.x + deltaMove.x, // was curPosition
+            y: MyAvatar.position.y + 2,
             z: MyAvatar.position.z + deltaMove.z
         };
 
-        // place on ground
+        print("1  :", JSON.stringify(newPos));
+
         var surfacePos = findSurfaceBelowPosition(newPos);
+
+        print("2 new Pos  :", JSON.stringify(surfacePos));
+
         newPos.y = surfacePos.y + (overlayProperties.dimensions.y / 2);
+
+        print("3 new Pos  :", JSON.stringify(newPos));
 
         return newPos;
     }
 
     function getStartPosition(position) {
-        // starts as invisible overlay so do not see where this places the overlay
         var surfacePos = findSurfaceBelowPosition(position);
         var startPos = {
-            x: surfacePos.x,
+            x: surfacePos.x, // was curPosition
             y: surfacePos.y + (overlayProperties.dimensions.y / 2),
             z: surfacePos.z
         };
@@ -137,17 +147,12 @@
 
         Script.setTimeout(function () {
 
-            if (soundScream.isLoaded()) {
-
-                soundScream.playSoundStaticPosition({
+            ///////*** 
+            if (soundScream.downloaded) {
+                injectorScream = Audio.playSound(soundScream, {
                     position: MyAvatar.position,
                     localOnly: true
-                }, 1000, turnOff);
-
-                // injectorScream = Audio.playSound(soundScream, {
-                //     position: MyAvatar.position,
-                //     localOnly: true
-                // });
+                });
 
                 Script.setTimeout(function () {
 
@@ -155,36 +160,91 @@
 
                 }, 500);
 
-                // var soundLengthScream = soundScream.duration * SECS_TO_MS;
+                var soundLengthScream = soundScream.duration * SECS_TO_MS;
 
-                // Script.setTimeout(function () {
-                //     if (injectorScream) {
-                //         injectorScream.stop();
-                //         injectorScream = null;
+                Script.setTimeout(function () {
+                    if (injectorScream) {
+                        injectorScream.stop();
+                        injectorScream = null;
 
-                //         turnOff();
-                //     }
-                // }, soundLengthScream + 1000);
-
+                        turnOff();
+                    }
+                }, soundLengthScream + 1000);
             } else {
                 lastVisible();
             }
 
+            ///////*** 
+
+            // if (soundLaugh && soundLaugh.downloaded) {
+
+            //     injectorLaugh = Audio.playSound(soundLaugh, {
+            //         position: MyAvatar.position,
+            //         volume: 0.6,
+            //         localOnly: true
+            //     });
+
+            //     var soundLength = soundLaugh.duration * SECS_TO_MS;
+
+
+            //     Script.setTimeout(function () {
+
+            //         lastVisible();
+
+            //     }, soundLength - 4750);
+
+            //     Script.setTimeout(function () {
+            //         if (injectorLaugh) {
+            //             injectorLaugh.stop();
+            //             injectorLaugh = null;
+            //         }
+
+            //         // lastVisible();
+
+            //     }, soundLength);
+
+            // lastVisible();
+            // else {
+            //     lastVisible();
+            // }
+
             function lastVisible() {
+
 
                 var modelFacePosition = { x: 0, y: -0.5, z: -0.5 };
                 var endPosition = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, modelFacePosition));
+                // var lightFacePosition = { x: 0, y: -0.3, z: -0.9 };
 
                 var modelEndPosition = {
                     position: endPosition,
                     rotation: Quat.cancelOutRollAndPitch(Quat.lookAtSimple(endPosition, Camera.position))
                 };
 
+
+                // SCREAM AT END         
+                // if (soundScream.downloaded) {
+                //     injectorThump = Audio.playSound(soundScream, {
+                //         position: modelEndPosition,
+                //         localOnly: true
+                //     });
+
+                //     var soundLength = soundScream.duration * SECS_TO_MS;
+
+                //     Script.setTimeout(function () {
+                //         if (injectorThump) {
+                //             injectorThump.stop();
+                //             injectorThump = null;
+
+                //             turnOff();
+                //         }
+                //     }, soundLength);
+                // }
+
                 updateModelPosition(modelEndPosition);
 
                 Script.setTimeout(function () {
                     scriptEnding();
-                }, END_VISIBLE);
+                }, END_VISIBLE); // 1500);
             }
 
         }, getRandomDeltaTime(MIN_DELTA_END, MAX_DELTA_END)); // 3000); // BASE_TIME + random?
@@ -205,7 +265,18 @@
                 : MyAvatar.getJointIndex("Hips");
         }
 
-        Overlays.editOverlay(overlayID, properties);
+        // Entities.editEntity(lightID, { visible: true });
+        Overlays.editOverlay(overlayID, properties); // Overlays.editOverlay
+    }
+
+    function flickerModel() {
+
+        // flickerInterval = Script.setInterval(function () {
+        //     Overlays.editOverlay(overlayID, {
+        //         alpha: Math.abs(Math.sin(Date.now())) // Math.random() * (1 - 0.2) + 0.2 // Math.abs(Math.sin(Date.now()))
+        //     });
+        // }, 150);
+
     }
 
     function turnOn() {
@@ -222,60 +293,74 @@
 
                 var soundPosition = getPositionFromObject(nextPosition);
 
-                if (count === distances.length) {
-                    // final thump
 
-                    if (soundFinalThump.isLoaded()) {
-                        soundFinalThump.playSoundStaticPosition({
-                            position: soundPosition,
-                            localOnly: true
-                        });
-
-                        // injectorFinalThump = Audio.playSound(soundFinalThump, {
-                        //     position: soundPosition,
-                        //     localOnly: true
-                        // });
-
-                        // var soundLengthLaugh = soundFinalThump.duration * SECS_TO_MS;
-
-                        // Script.setTimeout(function () {
-                        //     if (injectorFinalThump) {
-                        //         injectorFinalThump.stop();
-                        //         injectorFinalThump = null;
-
-                        //     }
-                        // }, soundLengthLaugh);
-
-                    }
-
-                } else if (soundThump.isLoaded()) { //(soundThump.downloaded) {
-
-                    soundThump.playSoundStaticPosition({
+                if (soundThump.downloaded) {
+                    injectorThump = Audio.playSound(soundThump, {
                         position: soundPosition,
                         localOnly: true
                     });
 
-                    // injectorThump = Audio.playSound(soundThump, {
-                    //     position: soundPosition,
-                    //     localOnly: true
-                    // });
+                    var soundLength = soundThump.duration * SECS_TO_MS;
 
-                    // var soundLength = soundThump.duration * SECS_TO_MS;
+                    Script.setTimeout(function () {
+                        if (injectorThump) {
+                            injectorThump.stop();
+                            injectorThump = null;
 
-                    // Script.setTimeout(function () {
-                    //     if (injectorThump) {
-                    //         injectorThump.stop();
-                    //         injectorThump = null;
+                            // turnOff();
+                        }
+                    }, soundLength);
 
-                    //     }
-                    // }, soundLength);
+                    if (count === distances.length) {
 
-                }
+                        // SCREAM LAST MOVE
+                        // if (soundScream.downloaded) {
+                        //     injectorThump = Audio.playSound(soundScream, {
+                        //         position: soundPosition,
+                        //         localOnly: true
+                        //     });
 
-                // turn off
-                Script.setTimeout(function () {
-                    turnOff();
-                }, count === distances.length ? 2000 : getRandomDeltaTime(MIN_DELTA_VISIBLE, MAX_DELTA_VISIBLE)); // DELTA_TIME);
+                        //     var soundLengthScream = soundScream.duration * SECS_TO_MS;
+
+                        //     Script.setTimeout(function () {
+                        //         if (injectorThump) {
+                        //             injectorThump.stop();
+                        //             injectorThump = null;
+
+                        //             turnOff();
+                        //         }
+                        //     }, soundLengthScream + 1000);
+                        // }
+
+                        if (soundLaugh.downloaded) {
+                            injectorLaugh = Audio.playSound(soundLaugh, {
+                                position: soundPosition,
+                                localOnly: true
+                            });
+
+                            var soundLengthLaugh = soundLaugh.duration * SECS_TO_MS;
+
+                            Script.setTimeout(function () {
+                                if (injectorLaugh) {
+                                    injectorLaugh.stop();
+                                    injectorLaugh = null;
+
+                                    // turnOff();
+                                }
+                            }, soundLengthLaugh);
+
+                        }
+                    }
+
+                    // curPosition = nextPosition;
+
+                    Script.setTimeout(function () {
+                        turnOff();
+                    }, count === distances.length ? 2000 : getRandomDeltaTime(MIN_DELTA_VISIBLE, MAX_DELTA_VISIBLE)); // DELTA_TIME);
+
+                } 
+
+                print(JSON.stringify(nextPosition));
 
             } else {
                 print("3 ++++ ");
@@ -314,8 +399,20 @@
         });
     }
 
+    // function setVisibleFalse(id) {
+    //     Entities.editEntity(id, {
+    //         visible: false
+    //     });
+    // }
+
+    // function setVisibleTrue(id) {
+    //     Entities.editEntity(id, {
+    //         visible: true
+    //     });
+    // }
+
+
     function getPositionFromObject(position) {
-        // makes the sounds sound close to the user
 
         var headIdx = MyAvatar.getJointIndex("Head");
         var headPos = MyAvatar.getJointPosition(headIdx);
@@ -333,28 +430,22 @@
         isRunning = true;
         endCondition = false;
 
-        if (soundWhisper.isLoaded()) {
-
-            soundWhisper.playSoundStaticPosition({
+        if (soundWhisper.downloaded) {
+            injectorWhispher = Audio.playSound(soundWhisper, {
                 position: MyAvatar.position,
                 localOnly: true
-            }, null, turnOff);
+            });
 
-            // injectorWhispher = Audio.playSound(soundWhisper, {
-            //     position: MyAvatar.position,
-            //     localOnly: true
-            // });
+            var soundLength = soundWhisper.duration * SECS_TO_MS;
 
-            // var soundLength = soundWhisper.duration * SECS_TO_MS;
+            Script.setTimeout(function () {
+                if (injectorWhispher) {
+                    injectorWhispher.stop();
+                    injectorWhispher = null;
 
-            // Script.setTimeout(function () {
-            //     if (injectorWhispher) {
-            //         injectorWhispher.stop();
-            //         injectorWhispher = null;
-
-            //         turnOff(); // not necessary since it's already visible false
-            //     }
-            // }, soundLength);
+                    turnOff();
+                }
+            }, soundLength);
         }
     }
 
@@ -363,6 +454,8 @@
         if (!overlayID) {
             overlayID = Overlays.addOverlay("model", overlayProperties);
         }
+
+        flickerModel();
 
     }
 
@@ -375,20 +468,26 @@
         preload: function (id) {
             entityID = id;
 
-            soundThump = new Sound(SOUND_THUMP_URL);
-            soundWhisper = new Sound(SOUND_WHISPER_URL);
-            soundFinalThump = new Sound(SOUND_FINAL_THUMP_URL);
-            soundScream = new Sound(SOUND_SCREAM_URL);
+            soundWhisper = SoundCache.getSound(SOUND_WHISPER_URL);
+            soundLaugh = SoundCache.getSound("https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/Halloween/sounds/fleshed/_robin_hit_stereo.wav"); // soundLaugh = SoundCache.getSound(SOUND_LAUGH_URL);  https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/Halloween/sounds/fleshed/_robin_hit_stereo.wav
+            soundThump = SoundCache.getSound(SOUND_THUMP_URL);
+            soundScream = SoundCache.getSound(SOUND_SCREAM_URL);
 
-            print(soundThump);
-            print(Sound);
+            var properties = Entities.getEntityProperties(entityID, ["userData", "position"]);
+            var userData = properties.userData;
+            var data;
 
-            // soundWhisper = SoundCache.getSound(SOUND_WHISPER_URL);
-            // soundFinalThump = SoundCache.getSound(SOUND_FINAL_THUMP_URL);
-            // soundThump = SoundCache.getSound(SOUND_THUMP_URL);
-            // soundScream = SoundCache.getSound(SOUND_SCREAM_URL);
+            try {
+                data = JSON.parse(userData);
+            } catch (e) {
+                console.error(e);
+            }
 
-            var properties = Entities.getEntityProperties(entityID, ["position"]);
+            if (data) {
+                DELTA_DISTANCE = data.deltaDistance;
+            }
+
+            print("POSITION IS", JSON.stringify(properties.position));
 
             startPosition = getStartPosition(properties.position);
             overlayProperties.position = startPosition;
@@ -409,35 +508,34 @@
 
     function scriptEnding() {
 
+        if (flickerInterval) {
+            Script.clearInterval(flickerInterval);
+        }
+
         if (overlayID) {
             Overlays.deleteOverlay(overlayID);
             overlayID = null;
         }
 
-        // if (injectorWhispher) {
-        //     injectorWhispher.stop();
-        //     injectorWhispher = null;
-        // }
+        if (injectorWhispher) {
+            injectorWhispher.stop();
+            injectorWhispher = null;
+        }
 
-        // if (injectorFinalThump) {
-        //     injectorFinalThump.stop();
-        //     injectorFinalThump = null;
-        // }
+        if (injectorLaugh) {
+            injectorLaugh.stop();
+            injectorLaugh = null;
+        }
 
-        soundThump.unload();
-        soundWhisper.unload();
-        soundFinalThump.unload();
-        soundScream.unload();
+        if (injectorThump) {
+            injectorThump.stop();
+            injectorThump = null;
+        }
 
-        // if (injectorThump) {
-        //     injectorThump.stop();
-        //     injectorThump = null;
-        // }
-
-        // if (injectorScream) {
-        //     injectorScream.stop();
-        //     injectorScream = null;
-        // }
+        if (injectorScream) {
+            injectorScream.stop();
+            injectorScream = null;
+        }
 
         var properties = Entities.getEntityProperties(entityID, ["position"]);
 
@@ -452,3 +550,68 @@
 
     return new Zone();
 });
+
+
+// function Sound(url) {
+//     this.url = url;
+//     this.sound;
+//     this.injector;
+//     this.SECS_TO_MS = 1000;
+// }
+
+// Sound.prototype = {
+//     prefetch: function () {
+//         this.sound = SoundCache.getSound(this.url);
+//     },
+//     isLoaded: function() {
+//         return this.sound.downloaded;
+//     },
+//     getDurationSeconds: function () {
+//         if (this.sound.downloaded) {
+//             return this.sound.length;
+//         }
+//     },
+//     getDurationMS: function () {
+//         if (this.sound.downloaded) {
+//             return this.sound.length;
+//         }
+//     },
+//     playSoundStaticPosition: function(position, inputVolume, callback, args) {
+//         if (this.sound.downloaded) {
+//             this.injector = Audio.playSound(this.sound, {
+//                 position: position,
+//                 volume: inputVolume
+//             });
+
+//             var soundLength = this.getDurationMS();
+//             var injector;
+
+//             Script.setTimeout(function () {
+//                 if (this.injector) {
+//                     this.injector.stop();
+//                     this.injector = null;
+//                 }
+//                 callback(args);
+//             }, soundLength);
+//         }
+//     },
+//     playSoundUpdateEntityPositon: function(inputVolume, entityID, callback, args) {
+//         if (this.sound.downloaded) {
+//             this.injector = Audio.playSound(this.sound, {
+//                 position: position,
+//                 volume: inputVolume
+//             });
+
+//             var soundLength = this.getDurationMS();
+//             var injector;
+
+//             Script.setTimeout(function () {
+//                 if (this.injector) {
+//                     this.injector.stop();
+//                     this.injector = null;
+//                 }
+//                 callback(args);
+//             }, soundLength);
+//         }
+//     }
+// };
