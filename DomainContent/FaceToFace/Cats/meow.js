@@ -41,21 +41,26 @@
         },
         
         meow: function() {
+            var _timeout = 1000;
+            var _volume = 0.5;
+            var _meowFPS = 10;
+            var _idleFPS = 30;
+
             if (meowSound.downloaded) {
                 Audio.playSound(meowSound, {
                     position: selfPosition,
-                    volume: 0.5,
+                    volume: _volume,
                     pitch: 1 + Math.random(),
                     localOnly: true
                 });
                 Entities.editEntity(selfEntityID, {
-                    animation: {url: MEOW_ANIMATION_URL, loop: false, fps: 10}
+                    animation: {url: MEOW_ANIMATION_URL, loop: false, fps: _meowFPS}
                 });
                 Script.setTimeout(function(){ 
                     Entities.editEntity(selfEntityID, {
-                        animation: {url: IDLE_ANIMATION_URL, loop: true, fps: 30}
+                        animation: {url: IDLE_ANIMATION_URL, loop: true, fps: _idleFPS}
                     });
-                }, 1000);
+                }, _timeout);
             }
         }
     };
