@@ -164,9 +164,10 @@
                         orientation.z + "," +
                         orientation.w;
             MyAvatar.orientation = orientation;
-            Camera.orientation = orientation;
+            // Camera.orientation = orientation;
             MyAvatar.headOrientation = orientation;
-            location.handleLookupString(string);
+            MyAvatar.position = position;
+            // location.handleLookupString(string);
         }
     }
     
