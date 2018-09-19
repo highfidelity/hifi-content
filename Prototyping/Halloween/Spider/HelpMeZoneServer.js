@@ -30,7 +30,6 @@
                 Audio.playSound(audioElement, {
                     position: AUDIO_POSITION,
                     volume: Math.random(),
-                    pitch: 1
                 });
             }
         }, 
