@@ -14,21 +14,19 @@
     var selfEntityID;
     var selfPosition;
 
-    var MEOW_SOUND_URL = Script.resolvePath('./resources/sounds/meow.wav');
+    var MEOW_SOUND_URL = Script.resolvePath('./resources/sounds/meow.mp3');
 
     var MEOW_ANIMATION_URL = Script.resolvePath('kitten_Meow.fbx');
     var IDLE_ANIMATION_URL = Script.resolvePath('kitten_Idle.fbx');
 
     var meowSound = SoundCache.getSound(MEOW_SOUND_URL);
-    var meowInterval;
+
 
     var MeowEngine = function(){
 
     };
 
     MeowEngine.prototype = {
-        remotelyCallable : ['meow'],
-
         preload : function(entityID) {
             selfEntityID = entityID;
             selfPosition = Entities.getEntityProperties(entityID, 'position').position;
@@ -43,7 +41,6 @@
         },
         
         meow: function() {
-            print('Meowing');
             if (meowSound.downloaded) {
                 Audio.playSound(meowSound, {
                     position: selfPosition,
@@ -60,10 +57,6 @@
                     });
                 }, 1000);
             }
-        }, 
-        
-        unload: function(){
-            Script.clearInterval(meowInterval);
         }
     };
 
