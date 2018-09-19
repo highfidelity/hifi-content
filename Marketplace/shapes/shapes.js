@@ -2073,6 +2073,7 @@
 
         if (isTabletUIOpen) {
             tablet.webEventReceived.disconnect(onTabletWebEventReceived);
+            tablet.gotoHomeScreen(); // Close the dialog.
         }
 
         tablet.screenChanged.disconnect(onTabletScreenChanged);
