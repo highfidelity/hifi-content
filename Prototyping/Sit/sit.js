@@ -137,7 +137,7 @@
                     ? OVERLAY_URL_SITTABLE_HMD
                     : OVERLAY_URL_SITTABLE_DESKTOP;
 
-                var overlayPosition = Vec3.sum(chairProperties.position, { x: 0, y: 0, z: 0 });
+                var overlayPosition = Vec3.sum(chairProperties.position, { x: 0, y: 0.01, z: 0 });
 
                 overlaySittable = Overlays.addOverlay("image3d", {
                     position: overlayPosition,
