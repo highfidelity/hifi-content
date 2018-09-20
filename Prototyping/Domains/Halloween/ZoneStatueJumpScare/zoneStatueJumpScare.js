@@ -9,7 +9,7 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
-// Whispher Sound: https://freesound.org/people/DRFX/sounds/350763/ by DRFX
+// Whisper Sound: https://freesound.org/people/DRFX/sounds/350763/ by DRFX
 
 (function () {
 
@@ -27,7 +27,6 @@
 
     var MIN_TIME_INVISIBLE = 100;
     var MAX_TIME_INVISIBLE = 2000;
-
     
     var MIN_TIME_VISIBLE = 500;
     var MAX_TIME_VISIBLE = 1500;
@@ -59,17 +58,17 @@
     var utils = {
 
         position: {
-            findSurfaceCollision: function (pos) {
+            findSurfaceCollision: function (position) {
                 // from position above ground, finds collision with ground
                 var result = Entities.findRayIntersection({
-                    origin: pos,
+                    origin: position,
                     direction: { x: 0.0, y: -1.0, z: 0.0 }
                 }, true);
 
                 if (result.intersects) {
                     return result.intersection;
                 }
-                return pos;
+                return position;
             },
             getNext: function () {
                 // statue movement using distances array
@@ -130,7 +129,9 @@
                 var properties = {
                     visible: true,
                     position: nextPlacement.position,
-                    rotation: nextPlacement.rotation ? nextPlacement.rotation : Quat.cancelOutRollAndPitch(Quat.lookAtSimple(nextPlacement.position, MyAvatar.position))
+                    rotation: nextPlacement.rotation 
+                        ? nextPlacement.rotation 
+                        : Quat.cancelOutRollAndPitch(Quat.lookAtSimple(nextPlacement.position, MyAvatar.position))
                 };
 
                 if (endCondition) {
@@ -158,11 +159,11 @@
             // makes the sounds sound close to the user
 
             var headIdx = MyAvatar.getJointIndex("Head");
-            var headPos = MyAvatar.getJointPosition(headIdx);
+            var headPosition = MyAvatar.getJointPosition(headIdx);
 
             var focusPosition = position;
 
-            return Vec3.sum(Vec3.multiply(0.2, Vec3.normalize(Vec3.subtract(focusPosition, headPos))), headPos);
+            return Vec3.sum(Vec3.multiply(0.2, Vec3.normalize(Vec3.subtract(focusPosition, headPosition))), headPosition);
         }
     };
 
