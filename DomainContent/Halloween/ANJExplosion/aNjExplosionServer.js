@@ -1,3 +1,13 @@
+//
+// aNjExplosionServer.js
+// 
+// Created by Rebecca Stankus on 09/13/2018
+// Copyright High Fidelity 2018
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
+
 (function () {
 
     var Explosion = function() {
