@@ -11,9 +11,6 @@ Sound.prototype = {
         return this.url;
     },
     
-    // prefetch: function () {
-    //     this.sound = SoundCache.getSound(this.url);
-    // },
     isLoaded: function() {
         return this.sound.downloaded;
     },
@@ -28,8 +25,6 @@ Sound.prototype = {
         }
     },
     playSoundStaticPosition: function(injectorOptions, bufferTime, onCompleteCallback, args) {
-        print("Sound.js downloaded ", this.sound.downloaded, this.getDurationMS());
-        print("Sound.js args ", JSON.stringify(injectorOptions), bufferTime, onCompleteCallback, args);
         
         if (this.sound.downloaded) {
 
@@ -44,14 +39,10 @@ Sound.prototype = {
 
             Script.setTimeout(function () {
 
-                print("Sound.js injector is ", soundLength, injector);
-
                 if (injector) {
                     injector.stop();
                     injector = null;
                 }
-
-                print("Sound.js calling callback");
  
                 if (onCompleteCallback) {
                     onCompleteCallback(args);

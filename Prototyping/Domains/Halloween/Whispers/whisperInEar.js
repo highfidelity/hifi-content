@@ -1,5 +1,24 @@
+//
+// whisperInEar.js
+// 
+// Created by Robin Wilson on 09/20/2018
+// Copyright High Fidelity 2018
+// 
+// Plays a sound in the direction of a named entity.
+// 
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+//
+// Sound from https://freesound.org/people/phatkatz4/sounds/192172/ by phatkatz4
+
 (function () {
 
+    var FOCUS_OBJECT_NAME = "focusObj";
+
+    var RADIUS = 0.2;
+    var SEARCH_RADIUS = 100;
+
+    var WAIT_LOAD_TIME = 100;
     var SECS_TO_MS = 1000;
     var AUDIO_VOLUME_LEVEL = 0.3;
     var UPDATE_POSITION_MS = 50;
@@ -18,40 +37,25 @@
         if (entityList.length > 0) {
             return Entities.getEntityProperties(entityList[0], arrayOfProperties);
         } else {
-            console.log("GOT NOTHIGN");
             return null;
         }
 
     }
-
 
     function getPositionFromObject() {
 
         var headIdx = MyAvatar.getJointIndex("Head");
         var headPos = MyAvatar.getJointPosition(headIdx);
 
-        var focusPosition = getPropertiesFromNamedObj("focusObj", MyAvatar.position, 100, ["position"]).position;
+        var focusPosition = getPropertiesFromNamedObj(FOCUS_OBJECT_NAME, MyAvatar.position, SEARCH_RADIUS, ["position"]).position;
 
-
-        console.log(JSON.stringify(headPos, focusPosition));
-
-        // Entities.addEntity({
-        //     name: "test_hello",
-        //     type: "Box",
-        //     lifetime: 180,
-        //     position: Vec3.sum(Vec3.multiply(0.5, Vec3.normalize(Vec3.subtract(focusPosition, headPos))), headPos),
-        //     dimensions: { x: 0.1, y: 0.1, z: 0.1 }
-        // });
-
-        return Vec3.sum(Vec3.multiply(0.2, Vec3.normalize(Vec3.subtract(focusPosition, headPos))), headPos);
+        return Vec3.sum(Vec3.multiply(RADIUS, Vec3.normalize(Vec3.subtract(focusPosition, headPos))), headPos);
     }
 
     function playSound() {
 
-        var position = Entities.getEntityProperties(this.entityID, 'position').position;
+        var position = Entities.getEntityProperties(this.entityID, "position").position;
 
-
-        console.log(JSON.stringify(sound));
         // Play sound
         var injector = Audio.playSound(sound, {
             position: position,
@@ -80,6 +84,6 @@
 
     Script.setTimeout(function () {
         playSound();
-    }, 100);
+    }, WAIT_LOAD_TIME);
 
 })();
