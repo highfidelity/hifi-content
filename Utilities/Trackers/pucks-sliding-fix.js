@@ -1,10 +1,11 @@
 
-// pucks-sliding-fix1.js
+// pucks-sliding-fix.js
 // 
 // Script allows users in full body trackers to utilize High Fidelity's avatar 
 // movement animations. 
 //
 // Created by Robin Wilson 6/20/2018
+// Patched by Tony Thibault 9/20/2018
 // Copyright 2018 High Fidelity, Inc.
 //
 // Distributed under the Apache License, Version 2.0.
@@ -35,6 +36,9 @@
     var ONE = 1;
     var SECS_TO_MS = 1000;
     var START_FASTER = 4;
+    var END_FASTER = 3;
+
+    var NINTY_PERCENT = 0.9;
 
     var OVERRIDDEN_DRIVE_KEYS = [
         DriveKeys.TRANSLATE_X,
@@ -46,7 +50,13 @@
     ];
 
     function animStateHandler(props) {
-        return { ikOverlayAlpha: currentVal };
+        return {
+            ikOverlayAlpha: currentVal,
+            rightFootIKAlpha: currentVal,
+            leftFootIKAlpha: currentVal,
+            leftFootPoleVectorEnabled: currentVal >= NINTY_PERCENT,
+            rightFootPoleVectorEnabled: currentVal >= NINTY_PERCENT
+        };
     }
 
     function setUp() {
@@ -78,7 +88,7 @@
                 currentVal = ONE;
                 cleanUpUnLerp();
             }
-        }, dt * SECS_TO_MS / START_FASTER);
+        }, dt * SECS_TO_MS / END_FASTER);
 
     }
 
