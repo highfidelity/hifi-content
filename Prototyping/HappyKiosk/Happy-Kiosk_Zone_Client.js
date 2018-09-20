@@ -102,7 +102,7 @@
         },
         enterEntity: function () {
             log(LOG_ENTER, name + " enterEntity");
-            Entities.callEntityServerMethod(entityID, "turnOn", [MyAvatar.sessionUUID, AccountServices.username]);
+            Entities.callEntityServerMethod(entityID, "turnOn", [MyAvatar.sessionUUID, AccountServices.username, MyAvatar.displayName]);
             self.startHeartBeats();
         },
         leaveEntity: function () {
