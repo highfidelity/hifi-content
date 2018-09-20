@@ -36,8 +36,6 @@
                 Entities.findEntities(_this.position, SEARCH_RADIUS).forEach(function(element) {
                     var name = Entities.getEntityProperties(element, 'name').name;
                     if (name === "Flashlight") {
-                        print("found another flashlight ", element, " at ", JSON.stringify(
-                            Entities.getEntityProperties(element, 'position').position));
                         needClone = false;
                     }
                 });
