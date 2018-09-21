@@ -15,7 +15,9 @@ Hand = function (side) {
     "use strict";
 
     // Hand controller input.
-    var handController,
+    var isReady = false,
+
+        handController,
         controllerTrigger,
         controllerTriggerClicked,
         controllerGrip,
@@ -123,16 +125,24 @@ Hand = function (side) {
             entityID,
             entityIDs,
             entitySize,
+            id,
             size,
             i,
             length;
-
 
         // Hand pose.
         handPose = Controller.getPoseValue(handController);
         if (!handPose.valid) {
             intersection = {};
             return;
+        }
+
+        // Hand is disabled at app start until any trigger pressed is released.
+        if (!isReady) {
+            isReady = Controller.getValue(controllerTrigger) < TRIGGER_OFF_VALUE;
+            if (!isReady) {
+                return;
+            }
         }
 
         // Hand data.
@@ -195,17 +205,19 @@ Hand = function (side) {
             entityIDs = Entities.findEntities(palmPosition, NEAR_GRAB_RADIUS);
             if (entityIDs.length > 0) {
                 // Typically, there will be only one entity; optimize for that case.
-                if (Entities.hasEditableRoot(entityIDs[0])) {
-                    entityID = entityIDs[0];
+                id = entityIDs[0];
+                if (Entities.isEditableType(id) && Entities.hasEditableRoot(id)) {
+                    entityID = id;
                 }
                 if (entityIDs.length > 1) {
                     // Find smallest, editable entity.
                     entitySize = HALF_TREE_SCALE;
                     for (i = 0, length = entityIDs.length; i < length; i++) {
-                        if (Entities.hasEditableRoot(entityIDs[i])) {
-                            size = Vec3.length(Entities.getEntityProperties(entityIDs[i], "dimensions").dimensions);
+                        id = entityIDs[i];
+                        if (Entities.isEditableType(id) && Entities.hasEditableRoot(id)) {
+                            size = Vec3.length(Entities.getEntityProperties(id, "dimensions").dimensions);
                             if (size < entitySize) {
-                                entityID = entityIDs[i];
+                                entityID = id;
                                 entitySize = size;
                             }
                         }
@@ -232,7 +244,7 @@ Hand = function (side) {
     }
 
     function clear() {
-        // Nothing to do.
+        isReady = false;
     }
 
     function destroy() {
