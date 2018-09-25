@@ -21,6 +21,7 @@
     var endCondition = false;
 
     var startPosition;
+    var isRunning = false;
 
     var distances = [8, 6, 2, 1.5, 1];
     var count = 0;
@@ -311,7 +312,10 @@
         },
 
         enterEntity: function () {
-            start();
+            if (isRunning === false){
+                isRunning = true;
+                start();
+            }
         },
 
         unload: scriptEnding
@@ -335,6 +339,7 @@
         overlayProperties.position = startPosition;
         endCondition = false;
         count = 0;
+        isRunning = false;
 
         utils.createStatue();
     }
