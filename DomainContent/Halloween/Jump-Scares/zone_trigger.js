@@ -1,3 +1,14 @@
+//
+//  zone_trigger.js
+//
+//  Created by Milad Nazeri on 09/11/18
+//  Copyright 2018 High Fidelity, Inc.
+//
+//  Zone script to help trigger entties that share a common trigger interface.  Can handle single id or an array of ids in the userdata.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 (function() {
     var namesToFind = {};
     var idsToFind = {};
