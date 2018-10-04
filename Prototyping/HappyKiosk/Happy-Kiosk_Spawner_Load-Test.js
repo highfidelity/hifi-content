@@ -45,7 +45,7 @@
         kioskZoneScriptClient = cacheBuster(debug, baseURL, "Happy-Kiosk_Zone_Client.js"),
         kioskTextScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Text_Server.js"),
         kioskButtonScriptClient = cacheBuster(debug, baseURL, "Happy-Kiosk_Button_Client.js"),
-        kioskButtonScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Button_Server.js"),
+        kioskButtonScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Button_Server_Load-Test.js"),
         kioskEmptyScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Empty_Server.js"),
         kioskBaseModel = baseURL + "Models/NPS-Machine-base.fbx",
         kioskFeetModel = baseURL + "Models/footprint-standpoint.fbx",
