@@ -1,0 +1,41 @@
+{
+    "DataVersion": 0,
+    "Entities": [
+        {
+            "clientOnly": false,
+            "created": "2018-09-18T18:42:51Z",
+            "dimensions": {
+                "blue": 0.49127650260925293,
+                "green": 0.17218483984470367,
+                "red": 0.49127650260925293,
+                "x": 0.49127650260925293,
+                "y": 0.17218483984470367,
+                "z": 0.49127650260925293
+            },
+            "id": "{54241cc1-85cc-4f30-ab4f-470d4c64c38d}",
+            "lastEdited": 1537304899291438,
+            "lastEditedBy": "{6e89dbb4-5324-41a4-bf8f-05f3108ac73c}",
+            "name": "_SOUND ambulance radio static speaker",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 0.7157882452011108,
+                "x": -0.3578941226005554,
+                "y": -0.3578941226005554,
+                "z": -0.3578941226005554
+            },
+            "rotation": {
+                "w": 0.6825207471847534,
+                "x": 0.08952462673187256,
+                "y": 0.09440755844116211,
+                "z": 0.7191729545593262
+            },
+            "scriptTimestamp": 1537300122627,
+            "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/soundEmitterV2/speakerServer.js",
+            "shape": "Cone",
+            "type": "Shape",
+            "userData": "{\n  \"soundURL\": \"http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/halloween/sounds/radioStatic.wav\",\n  \"soundVolume\": 0.5,\n  \"intervalMax\": 60000,\n  \"intervalMin\": 20000\n}"
+        }
+    ],
+    "Id": "{f327d61b-80e8-4546-b744-57a4c7f09344}",
+    "Version": 92
+}

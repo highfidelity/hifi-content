@@ -1,0 +1,254 @@
+<html>
+    <head>
+            <title>Stage Manager</title>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+            <style>
+                body {
+                    margin: 10;
+                    width: 100% - 10px;
+                    font-family: 'Raleway', sans-serif;
+                    color: #cccbcb;
+                    background: linear-gradient(#2b2b2b, #303030);
+                }
+    
+                .top-bar {
+                    height: 90px;
+                    background: linear-gradient(#2b2b2b, #303030);
+                    font-weight: bold;
+                    padding-left: 30px;
+                    padding-right: 30px;
+                    display: flex;
+                    align-items: center;
+                    position: fixed;
+                    width: 480px;
+                    top: 0;
+                    z-index: 1;
+                }
+    
+                .content {
+                    margin-top: 90px;
+                    padding: 30px;
+                }
+    
+                input[type=button] {
+                    font-family: 'Raleway';
+                    font-weight: bold;
+                    font-size: 13px;
+                    text-transform: uppercase;
+                    vertical-align: top;
+                    height: 28px;
+                    min-width: 120px;
+                    padding: 0px 18px;
+                    margin-right: 6px;
+                    border-radius: 5px;
+                    border: none;
+                    color: #fff;
+                    background-color: #000;
+                    background: linear-gradient(#343434 20%, #000 100%);
+                    cursor: pointer;
+                }
+                input[type=button].gray {
+                    color: #121212;
+                    background-color: #949494;
+                    background: linear-gradient(#949494 20%, #cacaca 100%);
+                }
+    
+                input[type=button]:enabled:hover {
+                    background: linear-gradient(#000, #000);
+                    border: none;
+                }
+               
+                input[type=button].gray:enabled:hover {
+                    background: linear-gradient(#fff, #fff);
+                    border: none;
+                }
+    
+                input[type=button]:active {
+                    background: linear-gradient(#343434, #343434);
+                }
+                input[type=button].gray:active {
+                    background: linear-gradient(#afafaf, #afafaf);
+                }
+    
+                input[type=button]:disabled {
+                    color: #252525;
+                    background: linear-gradient(#575757 20%, #252525 100%);
+                }
+    
+                input[type=button][pressed=pressed] {
+                    color: #00b4ef;
+                }
+                input[type=text] {
+                    padding: 2px 10px;
+                    margin: 2px 0;
+                    box-sizing: border-box;
+                    border: 3px solid #ccc;
+                    outline: none;
+                    font-family: 'Raleway';
+                    margin-right: 6px;
+                }
+    
+            </style>
+    </head>
+    <body>
+        <h1>Stage Manager</h1>
+        <h3>Web Screens</h3>
+        <input type="button" class="gray" id="webUpLeft" value="Raise Left Screen">  </input>
+        <input type="button" class="gray" id="webDownLeft" value="Hide Left Screen">  </input>
+        <p>
+        <input type="button" class="gray" id="webUpRight" value="Raise Right Screen">  </input>
+        <input type="button" class="gray" id="webDownRight" value="Hide Right Screen">  </input>
+        <p>
+        <input type="button" class="gray" id="webUpBoth" value="Raise Both Screens">  </input>
+        <input type="button" class="gray" id="webDownBoth" value="Hide Both Screens">  </input>
+        <p>
+        <input type="button" class="gray" id="screenSetup" value="Set Up Screens">  </input>   
+        <br>
+        <h3>Synchronized Web Overlays</h3>
+        <input type ="button" class="gray" id="spawnWebOverlay" value="Spawn Web Overlay">  </input>
+        <input type ="button" class="gray" id="removeSpawnedOverlay" value="Remove Web Overlay"> </input> <br><br>
+        <input type="text" id="setOverlayWebUrl" value ="Web Overlay URL"> </input>
+        <input type="button" class="gray" id="setOverlayWebUrlButton" value ="Set"></input>
+        <h3>Backdrop</h3>
+        <input type="button" class="gray" id="backdropDown" value="Lower Backdrop">  </input>
+        <input type="button" class="gray" id="backdropUp" value = "Hide Backdrop"></input>
+        <br>
+        <h3>Mute Audience</h3>
+        <input type="button" class="gray" id="silence" value="Silence">  </input>
+        <input type="button" class="gray" id="sound" value="Sound">  </input>
+        <br>
+        <h3>Audio Queue</h3>
+        <input type="button" class="gray" id="audio1" value="Play Clip 1">  </input>
+        <input type="button" class="gray" id="audio2" value="Play Clip 2">  </input>
+        <p>
+        <input type="range" class="gray" id="volumeSlider" min="0" max="100" value="70">  </input>
+        <br>
+        <h3>Change Set Background</h3>
+        <input type="button" class="gray" id="changeSet" value="Change">  </input>
+        <input type="button" class="gray" id="restoreSet" value="Restore">  </input>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script>
+            $('#setOverlayWebUrlButton').click(function(){
+                var event = {
+                    type: 'setWebOverlayUrl',
+                    url: $('#setOverlayWebUrl').val()
+                }
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#spawnWebOverlay').click(function(){
+                var event = {
+                    type: 'spawnWebOverlay'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#removeSpawnedOverlay').click(function() {
+                var event = {
+                    type: 'removeSpawnedOverlay'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#webUpLeft').click(function(){
+                var event = {
+                    type: "webUpLeft"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#webDownLeft').click(function(){
+                var event = {
+                    type: "webDownLeft",
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#webUpRight').click(function(){
+                var event = {
+                    type: "webUpRight"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#webDownRight').click(function(){
+                var event = {
+                    type: "webDownRight",
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#webUpBoth').click(function(){
+                var event = {
+                    type: "webUpBoth"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#webDownBoth').click(function(){
+                var event = {
+                    type: "webDownBoth",
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#screenSetup').click(function(){
+                var event = {
+                    type: "screenSetup",
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#backdropDown').click(function(){
+                var event = {
+                    type: "backdropDown"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#backdropUp').click(function(){
+                var event = {
+                    type: "backdropUp"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#silence').click(function(){
+                var event = {
+                    type: "silence"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#sound').click(function(){
+                var event = {
+                    type: "sound"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#audio1').click(function(){
+                var event = {
+                    type: "audio1"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#audio2').click(function(){
+                var event = {
+                    type: "audio2"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#changeSet').click(function(){
+                var event = {
+                    type: "changeSet"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#restoreSet').click(function(){
+                var event = {
+                    type: "restoreSet"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#volumeSlider').change(function(){
+                var event = {
+                    type: "volumeSlider",
+                    volume: $(this).val()               
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+        </script>
+    </body>
+
+</html>
