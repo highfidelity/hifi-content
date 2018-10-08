@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global Highlights: true */
+/* global Highlights:true, MyAvatarUtils */
 
 Highlights = function (side) {
     // Draws highlights on selected entities.
@@ -25,8 +25,7 @@ Highlights = function (side) {
         HAND_HIGHLIGHT_ALPHA = 0.35,
         ENTITY_HIGHLIGHT_ALPHA = 0.8,
         BOUNDING_BOX_ALPHA = 0.8,
-        HAND_HIGHLIGHT_OFFSET = { x: 0.0, y: 0.11, z: 0.02 },
-        LEFT_HAND = 0;
+        HAND_HIGHLIGHT_OFFSET = { x: 0.0, y: 0.11, z: 0.02 };
 
     if (!(this instanceof Highlights)) {
         return new Highlights();
@@ -35,10 +34,6 @@ Highlights = function (side) {
     handOverlay = Overlays.addOverlay("sphere", {
         dimension: Vec3.ZERO,
         parentID: Uuid.SELF,
-        parentJointIndex: MyAvatar.getJointIndex(side === LEFT_HAND
-            ? "_CONTROLLER_LEFTHAND"
-            : "_CONTROLLER_RIGHTHAND"),
-        localPosition: HAND_HIGHLIGHT_OFFSET,
         alpha: HAND_HIGHLIGHT_ALPHA,
         solid: true,
         drawInFront: true,
@@ -53,6 +48,14 @@ Highlights = function (side) {
         ignoreRayIntersection: true,
         visible: false
     });
+
+    function setHandJoint() {
+        Overlays.editOverlay(handOverlay, {
+            parentJointIndex: MyAvatarUtils.handJointIndex(side),
+            localPosition: HAND_HIGHLIGHT_OFFSET
+        });
+    }
+    setHandJoint();
 
     function setHandHighlightRadius(radius) {
         var dimension = 2 * radius;
@@ -93,6 +96,7 @@ Highlights = function (side) {
 
         // Show/hide hand overlay.
         Overlays.editOverlay(handOverlay, {
+            parentID: Uuid.SELF, // Re-parent in case have changed domains.
             color: overlayColor,
             visible: handIntersected
         });
@@ -157,6 +161,7 @@ Highlights = function (side) {
         HIGHLIGHT_COLOR: HIGHLIGHT_COLOR,
         SCALE_COLOR: SCALE_COLOR,
         GROUP_COLOR: GROUP_COLOR,
+        setHandJoint: setHandJoint,
         setHandHighlightRadius: setHandHighlightRadius,
         display: display,
         clear: clear,

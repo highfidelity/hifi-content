@@ -8,14 +8,16 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global Hand:true */
+/* global Hand:true, MyAvatarUtils */
 
 Hand = function (side) {
 
     "use strict";
 
     // Hand controller input.
-    var handController,
+    var isReady = false,
+
+        handController,
         controllerTrigger,
         controllerTriggerClicked,
         controllerGrip,
@@ -38,9 +40,11 @@ Hand = function (side) {
         HALF_TREE_SCALE = 16384,
 
         handPose,
+        handJointIndex,
         handPosition,
         handOrientation,
         palmPosition,
+        HAND_TO_PALM_OFFSET = { x: 0, y: 0.1, z: 0.02 },
 
         handleOverlayIDs = [],
         intersection = {};
@@ -60,6 +64,11 @@ Hand = function (side) {
         controllerTriggerClicked = Controller.Standard.RTClick;
         controllerGrip = Controller.Standard.RightGrip;
     }
+
+    function setHandJoint() {
+        handJointIndex = MyAvatarUtils.handJointIndex(side);
+    }
+    setHandJoint();
 
     function setHandleOverlays(overlayIDs) {
         handleOverlayIDs = overlayIDs;
@@ -116,10 +125,10 @@ Hand = function (side) {
             entityID,
             entityIDs,
             entitySize,
+            id,
             size,
             i,
             length;
-
 
         // Hand pose.
         handPose = Controller.getPoseValue(handController);
@@ -127,8 +136,20 @@ Hand = function (side) {
             intersection = {};
             return;
         }
-        handPosition = Vec3.sum(Vec3.multiplyQbyV(MyAvatar.orientation, handPose.translation), MyAvatar.position);
-        handOrientation = Quat.multiply(MyAvatar.orientation, handPose.rotation);
+
+        // Hand is disabled at app start until any trigger pressed is released.
+        if (!isReady) {
+            isReady = Controller.getValue(controllerTrigger) < TRIGGER_OFF_VALUE;
+            if (!isReady) {
+                return;
+            }
+        }
+
+        // Hand data.
+        handPosition = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation,
+            MyAvatar.getAbsoluteJointTranslationInObjectFrame(handJointIndex)));
+        handOrientation = Quat.multiply(MyAvatar.orientation, MyAvatar.getAbsoluteJointRotationInObjectFrame(handJointIndex));
+        palmPosition = Vec3.sum(handPosition, Vec3.multiplyQbyV(handOrientation, HAND_TO_PALM_OFFSET));
 
         // Controller trigger.
         isTriggerPressed = Controller.getValue(controllerTrigger) > (isTriggerPressed
@@ -151,7 +172,6 @@ Hand = function (side) {
 
         // Hand-overlay intersection, if any handle overlays.
         overlayID = null;
-        palmPosition = side === LEFT_HAND ? MyAvatar.getLeftPalmPosition() : MyAvatar.getRightPalmPosition();
         if (handleOverlayIDs.length > 0) {
             overlayIDs = Overlays.findOverlays(palmPosition, NEAR_HOVER_RADIUS);
             if (overlayIDs.length > 0) {
@@ -185,17 +205,19 @@ Hand = function (side) {
             entityIDs = Entities.findEntities(palmPosition, NEAR_GRAB_RADIUS);
             if (entityIDs.length > 0) {
                 // Typically, there will be only one entity; optimize for that case.
-                if (Entities.hasEditableRoot(entityIDs[0])) {
-                    entityID = entityIDs[0];
+                id = entityIDs[0];
+                if (Entities.isEditableType(id) && Entities.hasEditableRoot(id)) {
+                    entityID = id;
                 }
                 if (entityIDs.length > 1) {
                     // Find smallest, editable entity.
                     entitySize = HALF_TREE_SCALE;
                     for (i = 0, length = entityIDs.length; i < length; i++) {
-                        if (Entities.hasEditableRoot(entityIDs[i])) {
-                            size = Vec3.length(Entities.getEntityProperties(entityIDs[i], "dimensions").dimensions);
+                        id = entityIDs[i];
+                        if (Entities.isEditableType(id) && Entities.hasEditableRoot(id)) {
+                            size = Vec3.length(Entities.getEntityProperties(id, "dimensions").dimensions);
                             if (size < entitySize) {
-                                entityID = entityIDs[i];
+                                entityID = id;
                                 entitySize = size;
                             }
                         }
@@ -222,7 +244,7 @@ Hand = function (side) {
     }
 
     function clear() {
-        // Nothing to do.
+        isReady = false;
     }
 
     function destroy() {
@@ -230,6 +252,7 @@ Hand = function (side) {
     }
 
     return {
+        setHandJoint: setHandJoint,
         setHandleOverlays: setHandleOverlays,
         valid: valid,
         position: position,
