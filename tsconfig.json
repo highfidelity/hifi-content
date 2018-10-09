@@ -6,6 +6,7 @@
             "es5"
         ],
         "allowJs": true,
+        "noEmit": true,
         "typeRoots": ["./typings"]
     },
     "include": [
