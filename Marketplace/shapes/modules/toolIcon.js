@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global ToolIcon:true, App, UIT */
+/* global ToolIcon:true, App, UIT, MyAvatarUtils */
 
 ToolIcon = function (side) {
     // Tool icon displayed on non-dominant hand.
@@ -62,7 +62,7 @@ ToolIcon = function (side) {
         ICON_SCALE_FACTOR = 3.0,
         LABEL_SCALE_FACTOR = 1.8,
 
-        handJointName,
+        handJointIndex,
         localPosition,
         localRotation,
 
@@ -79,14 +79,13 @@ ToolIcon = function (side) {
     function setHand(side) {
         // Assumes UI is not displaying.
         if (side === LEFT_HAND) {
-            handJointName = "LeftHand";
             localPosition = MODEL_POSITION_LEFT_HAND;
             localRotation = MODEL_ROTATION_LEFT_HAND;
         } else {
-            handJointName = "RightHand";
             localPosition = MODEL_POSITION_RIGHT_HAND;
             localRotation = MODEL_ROTATION_RIGHT_HAND;
         }
+        handJointIndex = MyAvatarUtils.handJointIndex(side);
     }
 
     setHand(side);
@@ -101,10 +100,8 @@ ToolIcon = function (side) {
 
     function display(iconInfo) {
         // Displays icon on hand.
-        var handJointIndex,
-            properties;
+        var properties;
 
-        handJointIndex = MyAvatar.getJointIndex(handJointName);
         if (handJointIndex === -1) {
             // Don't display if joint isn't available (yet) to attach to.
             // User can clear this condition by toggling the app off and back on once avatar finishes loading.

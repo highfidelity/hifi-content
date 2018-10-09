@@ -8,6 +8,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* global MyAvatarUtils:true */
+
 if (typeof Vec3.min !== "function") {
     Vec3.min = function (a, b) {
         return { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), z: Math.min(a.z, b.z) };
@@ -71,6 +73,35 @@ if (typeof Entities.rootOf !== "function") {
     };
 }
 
+if (typeof Entities.isEditableType !== "function") {
+    Entities.isEditableTypeCache = {
+        CACHE_ENTRY_EXPIRY_TIME: 5000 // ms
+    };
+
+    Entities.isEditableType = function (entityID) {
+        if (Entities.isEditableTypeCache[entityID]) {
+            if (Date.now() - Entities.isEditableTypeCache[entityID].timeStamp
+                < Entities.isEditableTypeCache.CACHE_ENTRY_EXPIRY_TIME) {
+                return Entities.isEditableTypeCache[entityID].isEditableType;
+            }
+            delete Entities.isEditableTypeCache[entityID];
+        }
+
+        var NONEDITABLE_ENTITY_TYPES = ["Unknown", "Zone", "Light", "ParticleEffect"],
+            properties,
+            isEditable;
+
+        properties = Entities.getEntityProperties(entityID, ["type"]);
+        isEditable = NONEDITABLE_ENTITY_TYPES.indexOf(properties.type) === -1;
+
+        Entities.isEditableTypeCache[entityID] = {
+            isEditableType: isEditable,
+            timeStamp: Date.now()
+        };
+        return isEditable;
+    };
+}
+
 if (typeof Entities.hasEditableRoot !== "function") {
     Entities.hasEditableRootCache = {
         CACHE_ENTRY_EXPIRY_TIME: 5000 // ms
@@ -123,3 +154,32 @@ if (typeof Object.merge !== "function") {
         return JSON.parse(a.slice(0, -1) + "," + b.slice(1));
     };
 }
+
+MyAvatarUtils = {
+    handJointName: function (hand) {
+        var LEFT_HAND = 0,
+            jointName;
+        if (hand === LEFT_HAND) {
+            if (Camera.mode === "first person") {
+                jointName = "_CONTROLLER_LEFTHAND";
+            } else if (Camera.mode === "third person") {
+                jointName = "_CAMERA_RELATIVE_CONTROLLER_LEFTHAND";
+            } else {
+                jointName = "LeftHand";
+            }
+        } else {
+            if (Camera.mode === "first person") {
+                jointName = "_CONTROLLER_RIGHTHAND";
+            } else if (Camera.mode === "third person") {
+                jointName = "_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND";
+            } else {
+                jointName = "RightHand";
+            }
+        }
+        return jointName;
+    },
+
+    handJointIndex: function (hand) {
+        return MyAvatar.getJointIndex(MyAvatarUtils.handJointName(hand));
+    }
+};
