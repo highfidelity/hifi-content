@@ -22,7 +22,7 @@
         updateUserData = Util.Entity.updateUserData,
         makeColor = Util.Color.makeColor,
         vec = Util.Maths.vec;
-
+    
     // Log Setup
     var LOG_CONFIG = {},
         LOG_ENTER = Util.Debug.LOG_ENTER,
@@ -39,9 +39,9 @@
     var log = Util.Debug.log(LOG_CONFIG);
 
     // Init
-    var DJ_NAME = "Milad",
+    var DJ_NAME = AccountServices.username,
         DJ_TABLE_NAME = "Set_" + DJ_NAME + "_Tables",
-        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/DJ-Tools_Staging/",
+        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DJ-Tools/",
         particlePadLeftModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-1.fbx",
         particlePadRightModel = "https://hifi-content.s3.amazonaws.com/alan/dev/particle-pad-2.fbx",
         shortSoundURL = baseURL + 'FlameThrowerBurst.wav',
@@ -63,7 +63,6 @@
         DEBUG_CUBE = "debugCube",
         GROUP_LEFT = "Group_Left", 
         GROUP_RIGHT = "Group_Right",
-        GROUP_ALL = "Group_All",
         GENERATOR = "generator",
         SENSOR = "sensor",
         ENDPOINT = "endPoint";
@@ -213,7 +212,7 @@
         return id;
     }
 
-    function createSensorBoxEntity(name, position, dimensions, color, userData, parentID) {
+    function createSensorBoxEntity(name, position, dimensions, rotation, color, userData, parentID) {
         name = name || 1;
         dimensions = dimensions || vec(1, 1, 1);
         color = color || makeColor(1, 1, 1);
@@ -225,6 +224,7 @@
             locked: false,
             script: sensorBoxClientScript + "?v=" + Date.now(),
             dimensions: dimensions,
+            rotation: rotation,
             color: color,
             visible: false,
             collisionless: true,
@@ -386,13 +386,13 @@
                 localOffset = vec(DISTANCE_LEFT, 0, DISTANCE_DEPTH);
                 worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 particlePosition = Vec3.sum(
-                    avatarPosition, 
+                    avatarPosition,
                     worldOffset
                 );
                 localOffset = vec(DISTANCE_LEFT, 0, -DISTANCE_DEPTH);
                 worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 particlePosition2 = Vec3.sum(
-                    avatarPosition, 
+                    avatarPosition,
                     worldOffset
                 );
                 userData.performance.endPointGroupID = GROUP_LEFT;
@@ -400,13 +400,13 @@
                 localOffset = vec(-DISTANCE_LEFT, 0, DISTANCE_DEPTH);
                 worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 particlePosition = Vec3.sum(
-                    avatarPosition, 
+                    avatarPosition,
                     worldOffset
                 );
                 localOffset = vec(-DISTANCE_LEFT, 0, -DISTANCE_DEPTH);
                 worldOffset = Vec3.multiplyQbyV(avatarOrientation, localOffset);
                 particlePosition2 = Vec3.sum(
-                    avatarPosition, 
+                    avatarPosition,
                     worldOffset
                 );
                 userData.performance.endPointGroupID = GROUP_RIGHT;
@@ -586,9 +586,10 @@
                 BOX_WIDTH = 0.4,
                 BOX_HEIGHT = 0.4,
                 BOX_DEPTH = 0.4,
+                HEIGHT = 0,
                 DISTANCE_LEFT = 0.52,
                 DISTANCE_HEIGHT = BOX_HEIGHT / 2,
-                DISTANCE_BACK = -0.70,
+                DISTANCE_BACK = -0.5,
                 NORMAL = 0,
                 REVERSE = 1;
 
@@ -599,7 +600,7 @@
             if (side === LEFT) {
                 boxPosition = Vec3.sum(
                     inFrontOfAvatar, 
-                    vec(DISTANCE_LEFT, DISTANCE_HEIGHT, DISTANCE_BACK)
+                    Vec3.multiplyQbyV(MyAvatar.orientation, vec(-DISTANCE_LEFT, DISTANCE_HEIGHT, DISTANCE_BACK))
                 );
                 color = makeColor(20, 200, 0);
                 userData.performance.directionArray = [NORMAL, NORMAL, NORMAL];
@@ -607,7 +608,8 @@
             } else {
                 boxPosition = Vec3.sum(
                     inFrontOfAvatar,
-                    vec(-DISTANCE_LEFT, DISTANCE_HEIGHT, DISTANCE_BACK)
+                    Vec3.multiplyQbyV(MyAvatar.orientation, vec(DISTANCE_LEFT, DISTANCE_HEIGHT, DISTANCE_BACK))
+                    // vec(-DISTANCE_LEFT, DISTANCE_HEIGHT, DISTANCE_BACK)
                 );
                 color = makeColor(200, 20, 0);
                 userData.performance.directionArray = [REVERSE, NORMAL, NORMAL];
@@ -627,6 +629,7 @@
                 name,                 
                 boxPosition, 
                 vec(BOX_WIDTH, BOX_HEIGHT, BOX_DEPTH), 
+                MyAvatar.orientation,
                 color, 
                 stringified,
                 dispatchZoneID
@@ -648,7 +651,7 @@
                 userData = {},                
                 DISTANCE_LEFT = 0.52,
                 HEIGHT = 0,
-                DISTANCE_BACK = -0.70,
+                DISTANCE_BACK = -0.5,
                 MODEL_WIDTH = 0.4,
                 MODEL_HEIGHT = 0.05,
                 MODEL_DEPTH = 0.4;
@@ -656,19 +659,19 @@
             if (side === LEFT) {
                 modelPosition = Vec3.sum(
                     inFrontOfAvatar, 
-                    vec(DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
+                    Vec3.multiplyQbyV(MyAvatar.orientation, vec(-DISTANCE_LEFT, HEIGHT, DISTANCE_BACK))
                 );
                 url = particlePadLeftModel;
             } else {
                 modelPosition = Vec3.sum(
                     inFrontOfAvatar, 
-                    vec(-DISTANCE_LEFT, HEIGHT, DISTANCE_BACK)
+                    Vec3.multiplyQbyV(MyAvatar.orientation, vec(DISTANCE_LEFT, HEIGHT, DISTANCE_BACK))
                 );
                 url = particlePadRightModel;
             }
             
             name = "Set_" + DJ_NAME + "_Pad_Models_" + side;
-            rotation = Quat.fromPitchYawRollDegrees(0, 180, 0);
+            // rotation = Quat.fromPitchYawRollDegrees(0, 180, 0);
             userData.grabbableKey = { grabbable: false };
             userData.performance = { DEBUG: DEBUG };
             stringified = JSON.stringify(userData);
@@ -676,7 +679,7 @@
                 name,                 
                 modelPosition,
                 vec(MODEL_WIDTH, MODEL_HEIGHT, MODEL_DEPTH), 
-                rotation,                
+                MyAvatar.orientation,                
                 url,
                 stringified,
                 dispatchZoneID
