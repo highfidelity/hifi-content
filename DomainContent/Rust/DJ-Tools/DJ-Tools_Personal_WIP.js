@@ -7,7 +7,7 @@
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-// Creates a personal one around you, not relying on rust #WIP, PLEASE IGNORE FOR NOW
+// Creates a personal one around you, not relying on rust 
 
 (function () {
     // Polyfill
@@ -169,7 +169,7 @@
             y: -6.7763,
             z: -14.6075
         },
-        allEnts = [],
+        allEntities = [],
         entityNames = [];
 
     // Procedural Functions
@@ -358,7 +358,7 @@
             stringified,
             dispatchZoneID
         );
-        allEnts.push(entityID);
+        allEntities.push(entityID);
         entityNames.push(name);
     }
 
@@ -419,7 +419,7 @@
             stringified = JSON.stringify(userData);
             entityID = createParticleEntity(name, particlePosition, stringified, dispatchZoneID);
             entID2 = createParticleEntity(name2, particlePosition2, stringified, dispatchZoneID);
-            allEnts.push(entityID, entID2);
+            allEntities.push(entityID, entID2);
             entityNames.push(name, name2);
         });
     }
@@ -484,7 +484,7 @@
             stringified = JSON.stringify(userData);
             entityID = createSoundEntity(name, soundPosition, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
             entID2 = createSoundEntity(name2, soundPosition2, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
-            allEnts.push(entityID, entID2);
+            allEntities.push(entityID, entID2);
             entityNames.push(name, name2);
         });
     }
@@ -569,7 +569,7 @@
                 stringified,
                 dispatchZoneID
             );
-            allEnts.push(entityID, entID2);
+            allEntities.push(entityID, entID2);
             entityNames.push(name, name2);
 
         });
@@ -634,7 +634,7 @@
                 stringified,
                 dispatchZoneID
             );
-            allEnts.push(entityID);
+            allEntities.push(entityID);
             entityNames.push(name);
 
         });
@@ -684,7 +684,7 @@
                 stringified,
                 dispatchZoneID
             );
-            allEnts.push(entityID);
+            allEntities.push(entityID);
             entityNames.push(name);
         });
     }
@@ -719,7 +719,7 @@
             vec(ZONE_WIDTH, ZONE_HEIGHT, ZONE_DEPTH), 
             stringified
         );
-        allEnts.push(entityID);
+        allEntities.push(entityID);
         entityNames.push(name);
         dispatchZoneID = entityID;
     }
@@ -758,7 +758,7 @@
 
     // Cleanup
     function scriptEnding() {
-        allEnts.forEach(function (entities) {
+        allEntities.forEach(function (entities) {
             Entities.deleteEntity(entities);
         });
     }
