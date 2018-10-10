@@ -58,6 +58,7 @@
         DISTANCE_TO_IGNORE = 0.0001,
         POSITION_DISTANCE_TO_IGNORE = 0.2,
         MARGIN_CHECK = 0.3,
+        DEBUG_SEARCH_RADIUS = 10,
         IN_BOX = "inBox",
         IN_MARGIN = "inMargin",
         LEFT_HAND = "LeftHand",
@@ -116,7 +117,7 @@
                 generatorAccepts = userdataProperties.performance.generatorAccepts;
                 DEBUG = userdataProperties.performance.DEBUG;
                 if (DEBUG) {
-                    debugCubeID = Entities.findEntitiesByName("Set_Phlash_Debug-Cube", position, 10)[0];
+                    debugCubeID = Entities.findEntitiesByName("Set_Phlash_Debug-Cube", position, DEBUG_SEARCH_RADIUS)[0];
                     LOG_CONFIG[LOG_ENTER] = true;
                     LOG_CONFIG[LOG_UPDATE] = true;
                     LOG_CONFIG[LOG_ERROR] = true;
