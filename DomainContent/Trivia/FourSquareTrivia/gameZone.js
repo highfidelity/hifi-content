@@ -14,7 +14,7 @@
     var _this;
 
     var zoneProperties;
-    var preloadWhileInZone = false;
+    //var preloadWhileInZone = false;
 
     var GameZone = function() {
         _this = this;
@@ -27,9 +27,9 @@
             _this.entityID = entityID;
             zoneProperties = Entities.getEntityProperties(_this.entityID, 
                 ['name', 'parentID', 'rotation', 'position', 'dimensions']);
-            if (_this.isAvatarInsideZone()) {
-                _this.enterEntity();
-            }
+            //if (_this.isAvatarInsideZone()) {
+            //    _this.enterEntity();
+            //}
         },
 
         isAvatarInsideZone: function() {

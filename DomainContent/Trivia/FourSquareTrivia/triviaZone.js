@@ -11,8 +11,9 @@
     var ZONE_COLOR_INDEX = 12;
     var DISQUALIFIED_POSITION = { x: -59.8319, y: -76.5082, z: 53.2938 };
     var HALF_MULTIPLIER = 0.5;
-    var MIN_SCRIPT_TIMESTAMP = 100;
+    // var MIN_SCRIPT_TIMESTAMP = 100;
     var ZONE_SQUARE_RADIUS = 1.5;
+    var RADIUS = 50;
 
     var myColor;
     var currentZoneOverlayPosition;
@@ -20,7 +21,7 @@
     var finalAnswer;
     var zoneProperties;
     var _this;
-    var preloadWhileInZone = false;
+    //var preloadWhileInZone = false;
 
     var TriviaZone = function() {
         _this = this;
@@ -41,29 +42,16 @@
                 zoneMarkerPosition.y += 0.01;
                 currentZoneOverlayPosition = zoneMarkerPosition;
             }
-            if (_this.isAvatarInsideZone()) {
-                _this.enterEntity();
-                preloadWhileInZone = true;
-            }
+            //if (_this.isAvatarInsideZone(MyAvatar.position, zoneProperties)) {
+                //_this.enterEntity();
+                //preloadWhileInZone = true;
+            //}
         },
 
-        isAvatarInsideZone: function() {
+        isAvatarInsideZone: function(position, zoneProperties) {
             var localPosition = Vec3.multiplyQbyV(Quat.inverse(zoneProperties.rotation),
-                Vec3.subtract(MyAvatar.position, zoneProperties.position));
+                Vec3.subtract(position, zoneProperties.position));
             var halfDimensions = Vec3.multiply(zoneProperties.dimensions, HALF_MULTIPLIER);
-            return -halfDimensions.x <= localPosition.x &&
-                    halfDimensions.x >= localPosition.x &&
-                   -halfDimensions.y <= localPosition.y &&
-                    halfDimensions.y >= localPosition.y &&
-                   -halfDimensions.z <= localPosition.z &&
-                    halfDimensions.z >= localPosition.z;
-        },
-
-        isPositionInsideZone: function(position, boxProperties) {
-            var localPosition = Vec3.multiplyQbyV(Quat.inverse(boxProperties.rotation),
-                Vec3.subtract(position, boxProperties.position));
-                console.log(JSON.stringify("Distance is: ", JSON.stringify(Vec3.distance(position, boxProperties.position))));
-            var halfDimensions = Vec3.multiply(boxProperties.dimensions, HALF_MULTIPLIER);
             return -halfDimensions.x <= localPosition.x &&
                     halfDimensions.x >= localPosition.x &&
                    -halfDimensions.y <= localPosition.y &&
@@ -106,11 +94,11 @@
             Messages.messageReceived.connect(_this.triviaListener);
             myColor = _this.color;
             if (_this.color !== "Game Protection") {
-                if (!preloadWhileInZone || !currentZoneOverlay) {
+                //if (!preloadWhileInZone || !currentZoneOverlay) {
                     _this.createChoiceOverlay();
-                } else {
-                    preloadWhileInZone = false;
-                }
+                //} else {
+                //    preloadWhileInZone = false;
+                //}
             }   
         },
 
@@ -121,34 +109,38 @@
 
         isAnyAvatarCorrect: function(correctColor) {
             var result = false;
+            var correctZoneColorID = null;
             console.log(correctColor, " is the correct color");
-            switch(correctColor){
+            switch (correctColor){
                 case "Red":
-                    zoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, 50);
+                    correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, RADIUS);
                     break;
                 case "Green":
-                    zoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, 50);
+                    correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, RADIUS);
                     break;
                 case "Yellow":
-                    zoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, 50);
+                    correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, RADIUS);
                     break;
                 case "Blue":
-                    zoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, 50);
+                    correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, RADIUS);
                     break;
             }
-            var correctColorZoneProperties = Entities.getEntityProperties(zoneColorID[0], ["position", "dimensions", "rotation"]);
+            var correctColorZoneProperties = Entities.getEntityProperties(
+                correctZoneColorID[0], 
+                ["position", "dimensions", "rotation"]);
             var correctAvatarsList = AvatarList.getAvatarsInRange(correctColorZoneProperties.position, ZONE_SQUARE_RADIUS);
             console.log(JSON.stringify(correctAvatarsList.length)," avatars within 1.5m of the ", correctColor, " zone.");
             var i = 0;
             while ( i < correctAvatarsList.length){
                 var correctAvatarPosition = AvatarList.getAvatar(correctAvatarsList[i]).position;
                 console.log(JSON.stringify("The correct avatar position is: ", JSON.stringify(correctAvatarPosition)));
-                result = _this.isPositionInsideZone(correctAvatarPosition, correctColorZoneProperties) ? true : false;
+                result = _this.isAvatarInsideZone(correctAvatarPosition, correctColorZoneProperties) ? true : false;
                 if ( result === true ) { 
                     console.log("The ", i, "th element was actually in the right zone, which means someone was right.");
                     return result;
+                } else { 
+                    i++; 
                 }
-                else { i++; }
             }
             return result;
         },
@@ -156,18 +148,16 @@
         showIfCorrect: function(correctColor) {
             console.log(correctColor, " is the correct color");
             var someOneIsCorrect = _this.isAnyAvatarCorrect(correctColor) ? true : false;
-            if(someOneIsCorrect){
+            if (someOneIsCorrect){
                 console.log( "Someone has the right answer", JSON.stringify(someOneIsCorrect));
                 if (finalAnswer !== correctColor) {
                     console.log("...But it isn't me.");
                     MyAvatar.orientation = { x: 0, y: 0, z: 0 };
                     MyAvatar.position = DISQUALIFIED_POSITION;
-                }
-                else{
+                } else {
                     console.log("...And it's ME!");
                 }
-            }
-            else {
+            } else {
                 console.log("Nobody got the right answer, keep playing");
             }
         },
@@ -182,7 +172,7 @@
         },
 
         unload: function() {
-            if (_this.isAvatarInsideZone()) {
+            if (_this.isAvatarInsideZone(MyAvatar.position, zoneProperties)) {
                 _this.leaveEntity();
             }
         }
