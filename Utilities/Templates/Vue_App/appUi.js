@@ -34,10 +34,13 @@ function AppUi(properties) {
         that[name] = (base.indexOf('/') >= 0) ? base : (that.graphicsDirectory + base); // poor man's merge
     }
 
+    // Consts:
+    var UPDATE_UI = "update_ui";
+
     // Defaults:
     that.tabletName = "com.highfidelity.interface.tablet.system";
     that.inject = "";
-    that.graphicsDirectory = "./assets/icons/tablet-icons/"; // Where to look for button svgs. See below.
+    that.graphicsDirectory = "./Assets/icons/tablet-icons/"; // Where to look for button svgs. See below.
     that.additionalAppScreens = [];
     that.checkIsOpen = function checkIsOpen(type, tabletUrl) { // Are we active? Value used to set isOpen.
         // Actual url may have prefix or suffix.
@@ -146,7 +149,14 @@ function AppUi(properties) {
         that.tablet.emitScriptEvent(JSON.stringify(messageObject));
     };
     that.fromHtml = function (messageString) {
-        var parsedMessage = JSON.parse(messageString);
+        var parsedMessage;
+
+        try {
+            parsedMessage = JSON.parse(messageString);
+        } catch (e) {
+            return;
+        }
+
         parsedMessage.messageSrc = "HTML";
         that.onMessage(parsedMessage);
     };
@@ -219,6 +229,15 @@ function AppUi(properties) {
             Script.clearInterval(that.notificationPollTimeout);
             that.notificationPollTimeout = false;
         }
+    };
+    that.updateUI = function (dataStore, update) {
+        var messageObject = {
+            type: UPDATE_UI,
+            value: dataStore,
+            update: update || {}
+        };
+
+        that.sendToHtml(messageObject);
     };
     // Set up the handlers.
     that.tablet.screenChanged.connect(that.onScreenChanged);
