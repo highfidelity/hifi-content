@@ -33,7 +33,6 @@
     // Change our photos based on the photos array and change speed
     // Return to the start after going through all our photos
     var changePhotos = function() {
-        Entities.editEntity(_entityID, {'locked' : false});
         if (activeIndex < photos.length - 1) {
             Entities.editEntity(_entityID, {'textures' : JSON.stringify({'tex.picture' : photos[activeIndex]})});
             activeIndex++;
@@ -41,7 +40,6 @@
             Entities.editEntity(_entityID, {'textures' : JSON.stringify({'tex.picture' : photos[0]})});
             activeIndex = 0;
         }
-        Entities.editEntity(_entityID, {'locked' : true});
     };
 
     // The preload function is called when the script is added, reloaded, or the server starts up
