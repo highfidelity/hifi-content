@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "none",
+        "lib": [
+            "es5"
+        ],
+        "allowJs": true,
+        "noEmit": true,
+        "typeRoots": ["./typings"]
+    },
+    "include": [
+        "**/*.js"
+    ]
+}

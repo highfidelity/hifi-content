@@ -148,6 +148,10 @@
         laser = new Laser(side);
 
 
+        function setHandJoint() {
+            hand.setHandJoint();
+        }
+
         function setUIOverlays(overlayIDs) {
             laser.setUIOverlays(overlayIDs);
         }
@@ -212,6 +216,7 @@
         }
 
         return {
+            setHandJoint: setHandJoint,
             setUIOverlays: setUIOverlays,
             hand: getHand,
             laser: getLaser,
@@ -417,6 +422,11 @@
         selection = new SelectionManager(side);
         highlights = new Highlights(side);
         handles = new Handles(side);
+
+        function setHandJoint() {
+            highlights.setHandJoint();
+        }
+        setHandJoint();
 
         function setReferences(inputs, editor) {
             hand = inputs.hand(); // Object.
@@ -1285,6 +1295,7 @@
         }
 
         return {
+            setHandJoint: setHandJoint,
             setReferences: setReferences,
             hoverHandle: hoverHandle,
             enableAutoGrab: enableAutoGrab,
@@ -1975,6 +1986,23 @@
         }
     }
 
+    function onCameraModeUpdated(mode) {
+        if (isAppActive) {
+            stopApp();
+        }
+
+        // Update UI and inputs' hand joints.
+        ui.setHand(otherHand(dominantHand));
+        inputs[LEFT_HAND].setHandJoint();
+        inputs[RIGHT_HAND].setHandJoint();
+        editors[LEFT_HAND].setHandJoint();
+        editors[RIGHT_HAND].setHandJoint();
+
+        if (isAppActive) {
+            // Resume operations.
+            startApp();
+        }
+    }
 
     function setUp() {
         var hasRezPermissions;
@@ -2031,6 +2059,7 @@
         Messages.messageReceived.connect(onMessageReceived);
         MyAvatar.dominantHandChanged.connect(onDominantHandChanged);
         MyAvatar.skeletonChanged.connect(onSkeletonChanged);
+        Camera.modeUpdated.connect(onCameraModeUpdated);
     }
 
     function tearDown() {
@@ -2044,6 +2073,7 @@
 
         if (isTabletUIOpen) {
             tablet.webEventReceived.disconnect(onTabletWebEventReceived);
+            tablet.gotoHomeScreen(); // Close the dialog.
         }
 
         tablet.screenChanged.disconnect(onTabletScreenChanged);
@@ -2055,6 +2085,7 @@
         // Messages.subscribe works script engine-wide which would mess things up if they're both run in the same engine.
         MyAvatar.dominantHandChanged.disconnect(onDominantHandChanged);
         MyAvatar.skeletonChanged.disconnect(onSkeletonChanged);
+        Camera.modeUpdated.disconnect(onCameraModeUpdated);
 
         isAppActive = false;
         updateControllerDispatcher();
