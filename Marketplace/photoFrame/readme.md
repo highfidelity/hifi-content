@@ -19,8 +19,6 @@ If there is an error with the userdata properties, the default photos and speed 
 
 `Script.setInterval` is used to call the function `changePhoto` repeatedly after the set amount of time (this is in milliseconds, so we adjust it with a multiplier).
 
-The `changePhoto` function unlocks the image entity, changes the photo, and re-locks the image entity to prevent it from as freely being changed to an unauthorized photo from a malicious user. For greater security, it's recommended to secure your domain with an edit and delete filter to prevent unwanted modifications.
-
 ![Userdata properties for the digital photo frame](images/userdata.png)
 
 When the script ends, the `unload` function is called and we disconnect our interval via `Script.clearInterval` so that we are not continuing to change photos. 
