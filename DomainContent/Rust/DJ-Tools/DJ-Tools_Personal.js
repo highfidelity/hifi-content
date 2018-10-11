@@ -367,7 +367,7 @@
             var name,
                 name2,
                 entityID,
-                entID2,
+                entityID2,
                 localOffset,
                 worldOffset,
                 particlePosition,
@@ -418,8 +418,8 @@
             userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
             entityID = createParticleEntity(name, particlePosition, stringified, dispatchZoneID);
-            entID2 = createParticleEntity(name2, particlePosition2, stringified, dispatchZoneID);
-            allEntities.push(entityID, entID2);
+            entityID2 = createParticleEntity(name2, particlePosition2, stringified, dispatchZoneID);
+            allEntities.push(entityID, entityID2);
             entityNames.push(name, name2);
         });
     }
@@ -429,7 +429,7 @@
             var name,
                 name2,
                 entityID,
-                entID2,
+                entityID2,
                 localOffset,
                 worldOffset,
                 DISTANCE_LEFT = -1,
@@ -483,8 +483,8 @@
             userData.performance.DEBUG = DEBUG;
             stringified = JSON.stringify(userData);
             entityID = createSoundEntity(name, soundPosition, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
-            entID2 = createSoundEntity(name2, soundPosition2, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
-            allEntities.push(entityID, entID2);
+            entityID2 = createSoundEntity(name2, soundPosition2, vec(ZONE_SIZE, ZONE_SIZE, ZONE_SIZE), stringified, dispatchZoneID);
+            allEntities.push(entityID, entityID2);
             entityNames.push(name, name2);
         });
     }
@@ -494,7 +494,7 @@
             var name,
                 name2,
                 entityID,
-                entID2,                
+                entityID2,                
                 lightPosition,
                 lightPosition2,                
                 DIMENSION_SIZE = 30,
@@ -559,7 +559,7 @@
                 stringified,
                 dispatchZoneID
             );
-            entID2 = createLightEntity(
+            entityID2 = createLightEntity(
                 name2, 
                 lightPosition2, 
                 lightDimensions,
@@ -569,7 +569,7 @@
                 stringified,
                 dispatchZoneID
             );
-            allEntities.push(entityID, entID2);
+            allEntities.push(entityID, entityID2);
             entityNames.push(name, name2);
 
         });
