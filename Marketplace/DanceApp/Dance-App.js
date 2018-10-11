@@ -26,7 +26,6 @@
     // /////////////////////////////////////////////////////////////////////////
         var 
             AppUi = Script.require('./AppUi.js?' + Date.now()),
-            Helper = Script.require("../../Helper.js")
         ;
 
     // Consts
@@ -275,8 +274,5 @@
         dataStore.danceObjects = danceObjects;
         splitDanceUrls();
         startup();
-        for (var key in ui) {
-            print ("ui key: " + key);
-        }
 
 }()); // END LOCAL_SCOPE
