@@ -1,0 +1,239 @@
+<!--
+    app/app.html
+    Created by Liv Erickson on 1/15/18
+    Copyright 2017 High Fidelity, Inc.
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
+<html>
+    <title>#Mood</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                width: 100%;
+                font-family: 'Raleway', sans-serif;
+                color: white;
+                background: linear-gradient(#2b2b2b, #0f212e);
+            }
+
+            .top-bar {
+                height: 90px;
+                background: linear-gradient(#2b2b2b, #1e1e1e);
+                padding-left: 30px;
+                padding-right: 30px;
+                display: flex;
+                position: fixed;
+                width: 480px;
+                top: 0;
+                z-index: 1;
+            }
+
+            .footer {
+                height: 45px;
+                background: linear-gradient(#2b2b2b, #1e1e1e);
+                padding-left: 30px;
+                padding-right: 30px;
+                width: 480px;
+                bottom: 0;
+                z-index: 1;
+                display: flex;
+                position: fixed;
+            }
+
+            .content {
+                margin-top: 90px;
+                padding: 30px;
+            }
+
+            input[type=button] {
+                font-family: 'Raleway';
+                font-weight: bold;
+                font-size: 13px;
+                text-transform: uppercase;
+                vertical-align: top;
+                height: 28px;
+                min-width: 120px;
+                padding: 5px 18px;
+                margin-right: 6px;
+                border-radius: 5px;
+                border: none;
+                color: #fff;
+                background-color: #000;
+                background: linear-gradient(#343434 20%, #000 100%);
+                cursor: pointer;
+            }
+
+            input[type=button].red {
+                color: #fff;
+                background-color: #94132e;
+                background: linear-gradient(#d42043 20%, #94132e 100%);
+            }
+            input[type=button].blue {
+                color: #fff;
+                background-color: #1080b8;
+                background: linear-gradient(#00b4ef 20%, #1080b8 100%);
+            }
+            input[type=button].white {
+                color: #121212;
+                background-color: #afafaf;
+                background: linear-gradient(#fff 20%, #afafaf 100%);
+            }
+
+            input[type=button]:enabled:hover {
+                background: linear-gradient(#000, #000);
+                border: none;
+            }
+            input[type=button].red:enabled:hover {
+                background: linear-gradient(#d42043, #d42043);
+                border: none;
+            }
+            input[type=button].blue:enabled:hover {
+                background: linear-gradient(#00b4ef, #00b4ef);
+                border: none;
+            }
+            input[type=button].white:enabled:hover {
+                background: linear-gradient(#fff, #fff);
+                border: none;
+            }
+
+            input[type=button]:active {
+                background: linear-gradient(#343434, #343434);
+            }
+            input[type=button].red:active {
+                background: linear-gradient(#94132e, #94132e);
+            }
+            input[type=button].blue:active {
+                background: linear-gradient(#1080b8, #1080b8);
+            }
+            input[type=button].white:active {
+                background: linear-gradient(#afafaf, #afafaf);
+            }
+
+            input[type=button]:disabled {
+                color: #252525;
+                background: linear-gradient(#575757 20%, #252525 100%);
+            }
+
+            input[type=button][pressed=pressed] {
+                color: #00b4ef;
+            }
+            input[type="button"].randomBTN {
+                color: black;
+                background: red; /* For browsers that do not support gradients */
+                background: -webkit-linear-gradient(left,red, orange , yellow, green, cyan, blue, violet); /* For Safari 5.1 to 6.0 */
+            }
+            input[type="button"].randomBTN:enabled:hover {
+                color: black;
+                background: red; /* For browsers that do not support gradients */
+                background: -webkit-linear-gradient(right,red, orange , yellow, green, cyan, blue, violet); /* For Safari 5.1 to 6.0 */
+            }
+            a {
+                color: white;
+                margin: 10;
+                font-size: 12;
+            }
+            a:visited {
+                color: white;
+            }
+
+        </style>
+    <body>
+        <div class="top-bar">
+            <h1> #Mood </h1>
+        </div>
+        <div class = "content">
+            <form id = "ratingButtons">
+                <div>
+                    <text>Rating</text>
+                    <input type="radio" id="G" value = "G" name = "rate">
+                    <label for="contactChoice1">G</label>
+                    <input type="radio" id="PG" value = "PG" name = "rate" checked = "true">
+                    <label for="contactChoice1">PG</label>
+                    <input type="radio" id="PG-13" value = "PG-13" name = "rate">
+                    <label for="contactChoice1">PG-13</label>
+                    <input type="radio" id="R" value = "R" name = "rate">
+                    <label for="contactChoice1">R</label>
+                </div>
+            </form>
+            <input type="button" class =" white" value = "SAD"/>
+            <input type = "button" class = "white" value = "ANGRY" />
+            <input type="button" class =" white" value = "HAPPY"/><br><br>
+            <input type = "button" class = "white" value = "DELIGHTED" /> 
+            <input type="button" class =" white" value = "AMUSED"/>
+            <input type = "button" class = "white" value = "EYE ROLL" /><br><br> 
+            <input type="button" class =" white" value = "YEAH OKAY"/>
+            <input type = "button" class = "white" value = "SALTY" />
+            <input type="button" class =" white" value = "PARTY TIME"/><br><br>
+            <input type = "button" class = "white" value = "OUTRAGED" />
+            <input type = "button" class = "white" value = "KITTENS" />
+            <input type = "button" class = "white" value = "LAUGHING" /> <br><br>
+            <input type = "button" class = "custom" value = "CUSTOM"/> 
+            <input type = "text" id = "textQuery" placeholder="Search"> <br> <br>
+            <input type = "button" class = "randomBTN" value = "RANDOM"/>
+            <input type = "button" class = "blue" value = "Show"> 
+            <h3>Gif Preview </h3>
+            <img id="preview" style="height:150px"></img> 
+        </div>
+        <div class = "footer">
+            <img style="width:100px; height: 27px; margin-top: 9px" src="./resources/Poweredby_100px-Black_VertLogo.png">
+            <text style = "font-size: 10px; position:fixed; right:10px; margin-top: 15px;">App Icon made by Freepik from www.flaticon.com</text>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script>
+           function main() {
+               EventBridge.scriptEventReceived.connect(function(scriptEvent) {
+                   $('#preview').attr('src', scriptEvent);
+               });
+               $(".blue").click(function() {
+                   if ($(".blue").attr("value") == "Show") {
+                    EventBridge.emitWebEvent(JSON.stringify({
+                            'event' : 'showGif'
+                        }));
+                    $(".blue").attr("value", "Hide");
+                   } else {
+                    EventBridge.emitWebEvent(JSON.stringify({
+                            'event' : 'hideGif'
+                        }));
+                    $(".blue").attr("value", "Show");
+                   }
+        
+               })
+
+               $(".white").click(function() {
+                   EventBridge.emitWebEvent(JSON.stringify({
+                       'event' : 'requestGIFMood', 
+                       'rating' : document.querySelector('input[name = "rate"]:checked').value,
+                       'mood' : $(this).attr("value").replace(/ /g, '%20')
+                   }));
+                   $(".blue").attr("value", "Show");
+               });
+               $(".randomBTN").click(function() {
+                   EventBridge.emitWebEvent(JSON.stringify({
+                       'event' : 'requestRandomGIF'
+                   }));
+                   $(".blue").attr("value", "Show");
+               });
+
+               $(".custom").click(function() {
+                   EventBridge.emitWebEvent(JSON.stringify({
+                       'event' : 'requestCustomGif', 
+                       'mood' : $('#textQuery').val().replace(/ /g, '%20')
+                   }));
+                   $(".blue").attr("value", "Show");
+               });
+           };
+           $(document).ready(main);
+           $(document).on('keydown', '#textQuery', function(key){
+                if (key.which === 13) {
+                    EventBridge.emitWebEvent(JSON.stringify({
+                       'event' : 'requestCustomGif', 
+                       'mood' : $('#textQuery').val().replace(/ /g, '%20')
+                   }));
+                }
+           })
+        </script>
+    </body>
+</html>
