@@ -16,7 +16,6 @@
         CHANGE_AVATAR_TO_CAMERA = "changeAvatarToCamera",
         CHANGE_AVATAR_TO_INVISIBLE = "changeAvatarToInvisible",
         TOGGLE_AVATAR_COLLISIONS = "toggleAvatarCollisions",
-        CURRENT_DANCE = "current_dance",
         EVENTBRIDGE_SETUP_DELAY = 50;
 
     Vue.component('config', {
