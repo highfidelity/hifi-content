@@ -25,14 +25,14 @@
     // Dependencies
     // /////////////////////////////////////////////////////////////////////////
         var 
-            AppUi = Script.require('./AppUi.js?' + Date.now()),
+            AppUi = Script.require('./AppUi.js?' + Date.now())
         ;
 
     // Consts
     // /////////////////////////////////////////////////////////////////////////
         var 
             URL = Script.resolvePath("./Tablet/Dance-App_Tablet.html"),
-            BUTTON_NAME = "BUTTON_NAME",
+            BUTTON_NAME = "Dance_App",
 
             PREVIEW_DANCE = "preview_dance",
             PREVIEW_DANCE_STOP = "preview_dance_stop",
@@ -124,8 +124,8 @@
     // /////////////////////////////////////////////////////////////////////////
         function previewDanceAnimation(danceObj) {
             var localOffset = vec(0,0,-2),
-                worldOffset = VEC3.multiplyQbyV(MyAvatar.orientation, localOffset),
-                modelPosition = VEC3.sum(MyAvatar.position, worldOffset);
+                worldOffset = Vec3.multiplyQbyV(MyAvatar.orientation, localOffset),
+                modelPosition = Vec3.sum(MyAvatar.position, worldOffset);
 
             overlay = Overlays.addOverlay("model", {
                 url: MyAvatar.skeletonModelURL,

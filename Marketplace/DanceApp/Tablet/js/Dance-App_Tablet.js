@@ -5,8 +5,9 @@
     // Consts
     // /////////////////////////////////////////////////////////////////////////
         var 
+            BUTTON_NAME = "Dance_App",
             EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-            UPDATE_UI = "update_ui",
+            UPDATE_UI = BUTTON_NAME + "_update_ui",
             TRY_DANCE = "try_dance",
             STOP_DANCE = "stop_dance",
             START_DANCING = "start_dancing",
@@ -17,7 +18,7 @@
             UPDATE_DANCE_ARRAY = "update_dance_array",
             CURRENT_DANCE = "current_dance",
             
-            EVENTBRIDGE_SETUP_DELAY = 1000
+            EVENTBRIDGE_SETUP_DELAY = 150
         ;
 
     // Components
@@ -36,10 +37,10 @@
             template:`
                 <div class="card">
                     <div class="card-header">
-                        <h4> Current Dance </h4>
+                        <h6> Current Dance </h6>
                     </div>
                     <div class="card-body">
-                        <h4> {{ current.name }} </h4>
+                        <h6> {{ current.name }} </h6>
                         <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="stopDance()">Stop Dance</button>
                     </div>
                 </div>
@@ -74,57 +75,64 @@
                     <div class="card">
                         <div class="card-header">
                             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne">
-                            <h4>Dance List - click to open/close</h4>
-                                
+                                <h6>Dance List - click to open/close</h6>
                             </button>
-                            <br>
-                            
                         </div>
                         <div id="collapseOne" class="collapse show" data-parent="#dance-accordian">
-                            <div class="card-body">
-                                <draggable :dances="dances">
-                                    <transition-group name="list-complete">
-                                        <div v-for="(dance, index) in dances" 
-                                            v-bind:key="(dance.name + index)"
-                                            class="list-complete-item" 
-                                        >
-                                            <form class="form-inline">
-                                                        <h3> {{dance.name}}</h3>
-                                                        <div class="input-group mb-3 ">
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text">Start Frame</span>
-                                                            </div>
-                                                            <input type="text" col-sm-1 v-on:blur="onBlur" v-model="dance.startFrame" class="form-control" placeholder="start frame">
-                                                        </div>
-
-                                                        <div class="input-group mb-3">
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text">End Frame</span>
-                                                            </div>
-                                                            <input type="text" v-on:blur="onBlur" v-model="dance.endFrame" class="form-control" placeholder="end frame">
-                                                        </div>
-
-                                                        <div class="input-group mb-3">
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text">Duration</span>
-                                                            </div>
-                                                            <input type="text" v-on:blur="onBlur" v-model="dance.duration" class="form-control" placeholder="duration">
-                                                        </div>
-                                                        <div class="input-group mb-3">
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text">fps</span>
-                                                            </div>
-                                                            <input type="text" v-on:blur="onBlur" v-model="dance.fps" class="form-control" placeholder="fps">
-                                                        </div>
-                                                <div>
-                                                    <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="removeDance(index)">Remove</button>
+                            <div class="card-body main-font-size">
+                                <div v-for="(dance, index) in dances" 
+                                    v-bind:key="(dance.name + index)"
+                                    class="list-complete-item p-2" 
+                                >
+                                    <form class="form-inline">
+                                        <h6> {{dance.name}}</h6>
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="input-group mb-1 ">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text main-font-size">Start Frame</span>
+                                                    </div>
+                                                    <input type="text" v-on:blur="onBlur" v-model="dance.startFrame" class="form-control main-font-size" placeholder="start frame">
                                                 </div>
-                                            </form>
+                                            </div>
+                                            <div class="col">
+                                                <div class="input-group mb-1">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text main-font-size">End Frame</span>
+                                                    </div>
+                                                    <input type="text" v-on:blur="onBlur" v-model="dance.endFrame" class="form-control main-font-size" placeholder="end frame">
+                                                </div>
+                                            </div>
+                                        </div class="row">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="input-group mb-1">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text main-font-size">Duration</span>
+                                                    </div>
+                                                    <input type="text" v-on:blur="onBlur" v-model="dance.duration" class="form-control main-font-size" placeholder="duration">
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="input-group mb-1">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text main-font-size">fps</span>
+                                                    </div>
+                                                    <input type="text" v-on:blur="onBlur" v-model="dance.fps" class="form-control main-font-size" placeholder="fps">
+                                                </div>
+                                            </div>
                                         </div>
-                                    </transition-group>
-                                </draggable>
-                                <div>
-                                    <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="startDancing()">start Dance</button>
+                                        <div class="row">
+                                            <div class="col">
+                                                <button class="btn-sm btn-warning mt-1" v-on:click="removeDance(index)">Remove</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <button class="btn-sm btn-primary mt-3 mr-1" v-on:click="startDancing()">start Dance</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -166,12 +174,14 @@
                 },
             },
             template:`
-                <div class="card">
-                    <div class="card-header">
-                        {{ dance.name }}
-                    </div>
-                    <div class="card-body">
-                        <button class="btn-sm btn-primary mt-1 mr-1" v-on:mouseover="previewDance()" v-on:mouseleave="previewDanceStop()" v-on:click="addDance()">Add Dance!</button>
+                <div class="card p-2">
+                    <div class="row">
+                        <div class="col-8">
+                            <span> {{ dance.name }} </span>
+                        </div>
+                        <div class="col-4">
+                            <span><button class="btn-sm btn-primary mr-1" v-on:mouseover="previewDance()" v-on:mouseleave="previewDanceStop()" v-on:click="addDance()">Add Dance!</button></span>
+                        </div>
                     </div>
                 </div>
             `
@@ -194,7 +204,6 @@
     // Procedural
     // /////////////////////////////////////////////////////////////////////////
         function onScriptEventReceived(message) {
-            console.log(JSON.stringify(message));
             var data;
             try {
                 data = JSON.parse(message);

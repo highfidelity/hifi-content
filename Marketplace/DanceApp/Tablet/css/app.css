@@ -9,6 +9,10 @@
     margin: 0;
     padding: 0;
   }
+
+  .main-font-size {
+    font-size: 0.75rem;
+  }
   
   .list-complete-item {
     padding: 4px;

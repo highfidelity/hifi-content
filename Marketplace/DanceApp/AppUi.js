@@ -35,7 +35,7 @@ function AppUi(properties) {
     }
 
     // Consts:
-    var UPDATE_UI = "update_ui";
+    var UPDATE_UI = properties.buttonName + "_update_ui";
 
     // Defaults:
     that.tabletName = "com.highfidelity.interface.tablet.system";
