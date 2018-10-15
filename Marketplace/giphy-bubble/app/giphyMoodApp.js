@@ -40,6 +40,7 @@
         Entities.deletingEntity.disconnect(checkForDeletedEntities);
         tablet.removeButton(button);
         Entities.deleteEntity(giphyMoodThoughtBubble);
+        Entities.deletedEntityID(giphyMoodWebEntityID);
     });
 
     function onClicked() {
@@ -95,7 +96,7 @@
             "id": "{9d900dff-901b-4b3f-b2f2-0655dbd0ec95}",
             "modelURL": Script.resolvePath('./resources/ThoughtBubble.fbx'),
             "name": "ThoughtBubble-Giphy",
-            "parentID": "{00000000-0000-0000-0000-000000000001}",
+            "parentID": MyAvatar.sessionUUID,
             "parentJointIndex": MyAvatar.getJointIndex("Head"),
             "position" : MyAvatar.getJointPosition("HeadTop_End"),
             "localPosition": {
@@ -125,7 +126,6 @@
             "clientOnly": 1,
             "collidesWith": "",
             "collisionMask": 0,
-            "position" : MyAvatar.getJointPosition("Head"),
             "dimensions": {
                 "x": 0.9472649097442627,
                 "y": 0.5328364968299866,
@@ -133,11 +133,13 @@
             },
             "id": "{a5a315aa-8169-4767-b66f-ffb27d25a54a}",
             "name" : "WebEntity-Giphy",
-            "parentID": giphyMoodThoughtBubble,
+            "parentID": MyAvatar.sessionUUID, 
+            "parentJointIndex" : MyAvatar.getJointIndex("Head"),
+            "position" : MyAvatar.getJointPosition("HeadTop_End"),
             "localPosition": {
-                "x": -0.0618896484375,
-                "y": 0.0847482681274414,
-                "z": 0.04634639248251915
+                "x":0.8114402294158936,
+                "y":0.9220905303955078,
+                "z":-0.10172748565673828
             },
             "queryAACube": {
                 "scale": 3.2606639862060547,
@@ -146,10 +148,10 @@
                 "z": -1.059478998184204
             },
             "localRotation": {
-                "w": 0.7071175575256348,
-                "x": 2.15791860682657e-05,
-                "y": -0.7070959806442261,
-                "z": 0
+                "x":-0.004176754504442215,
+                "y":-0.9858834147453308,
+                "z":0.1655092090368271,
+                "w":0.024976519867777824
             },
             "sourceUrl": "http://giphy.com",
             "type": "Web",

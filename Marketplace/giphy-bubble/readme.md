@@ -59,4 +59,23 @@ In the application logic file `giphyMoodApp.js`, we handle this event by connect
  ```
 
 ## Adding Gifs
-When we first open up the tablet page for our #Mood application, we check to see if an existing thought bubble and web 
+When we first open up the tablet page for our #Mood application, we check to see if an existing thought bubble and web entity exist to display the gif on. If not, we create new _avatar entities_, which are entities that belong to your client (and only your client) that other people can see, but not interact with. Avatar entities are sent over the avatar mixer, rather than as part of the domain's entity tree, and are used for things that need to travel with your avatar from one place to another.
+
+When we get a web event from the tablet that a user has selected a gif, we use the `request` module to access the Giphy API and update the tablet with a preview. We also use the `Entities.editEntity` API call to modify our web entity to display the new gif. When the user chooses to display the gif, we call `editEntity` again to make the thought bubble and web entity visible again.
+
+**Note**: If you want to create this project yourself, replace `var GIPHY_API_KEY = ' ' ` with your own key. 
+
+## Cleanup
+When we are done with our application and stop our script from running, we want to make sure that it's cleaned up by removing our button from the tablet and disconnecting our functions. We tie this into the `scriptEnding` signal:
+
+```
+ Script.scriptEnding.connect(function() {
+        button.clicked.disconnect(onClicked);
+        tablet.screenChanged.disconnect(onScreenChanged);
+        tablet.webEventReceived.disconnect(onWebEventReceived);
+        Entities.deletingEntity.disconnect(checkForDeletedEntities);
+        tablet.removeButton(button);
+        Entities.deleteEntity(giphyMoodThoughtBubble);
+        Entities.deletedEntityID(giphyMoodWebEntityID);
+    });
+```
