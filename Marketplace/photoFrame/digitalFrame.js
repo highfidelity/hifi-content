@@ -29,6 +29,7 @@
 
     // Keep a reference to the Image Entity entityID for editing
     var _entityID;
+    var _interval = null;
 
     // Change our photos based on the photos array and change speed
     // Return to the start after going through all our photos
@@ -49,19 +50,20 @@
             var customProperties = JSON.parse(Entities.getEntityProperties(_entityID, 'userData').userData).digitalFrame;
             photos = customProperties.photos;
             speed = customProperties.changeSpeed * SECONDS_TO_MILLISECONDS;
-            Script.setInterval(changePhotos, speed);
+            _interval = Script.setInterval(changePhotos, speed);
 
         } catch (e) {
             print ("Error loading details from userdata - using defaults");
             photos = DEFAULT_PHOTO_ARRAY;
             speed = DEFAULT_TRANSITION_SPEED * SECONDS_TO_MILLISECONDS;
-            Script.setInterval(changePhotos, speed);
+            _interval = Script.setInterval(changePhotos, speed);
         }
     };
 
     // The unload function is called when the script is removed, reloaded, or the server shuts down
     this.unload = function() {
-        Script.clearInterval(changePhotos);
+        Script.clearInterval(_interval);
+        _interval = null;
     };
 
 });
