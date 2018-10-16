@@ -152,7 +152,7 @@
             // EventBridge message from HTML script.
             switch (data.type) {
                 case EVENT_BRIDGE_OPEN_MESSAGE:
-                    ui.updateUI(dataStore);
+                    // ***  ui.updateUI(dataStore);
                     break;
                 case EXAMPLE_MESSAGE:
                     exampleFunctionToRun();

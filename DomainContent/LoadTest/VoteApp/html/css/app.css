@@ -50,3 +50,11 @@
 .card {
     border-radius: 0px;
 }
+
+.row {
+  flex-wrap: nowrap;
+}
+
+.ghost {
+  visibility: hidden;
+}
