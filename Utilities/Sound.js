@@ -1,3 +1,14 @@
+//
+// Sound.js
+// 
+// Created by Robin Wilson on 09/20/2018
+// Copyright High Fidelity 2018
+//
+// Utility simplifying sound scripting.
+//
+// Licensed under the Apache 2.0 License
+// See accompanying license file or http://apache.org/
+
 function Sound(url) {
     this.url = url;
     this.sound = SoundCache.getSound(url);
