@@ -28,6 +28,12 @@
 
     var MIN_TIME_INVISIBLE = 100;
     var MAX_TIME_INVISIBLE = 2000;
+
+    var DISTANCE_SOUND_PLAYS = DISTANCE_SOUND_PLAYS;
+
+    var TWO = 2;
+    var THREE = 3;
+    var HALF = 0.5;
     
     var MIN_TIME_VISIBLE = 500;
     var MAX_TIME_VISIBLE = 1500;
@@ -77,8 +83,8 @@
                 var direction;
 
                 var isEnding = count >= distances.length;
-                var is2ndLast = count === distances.length - 2;
-                var is3rdLast = count === distances.length - 3;
+                var is2ndLast = count === distances.length - TWO;
+                var is3rdLast = count === distances.length - THREE;
 
                 if (isEnding) {
                     // start jumpscare
@@ -104,13 +110,13 @@
 
                 var newPos = {
                     x: MyAvatar.position.x + deltaMove.x,
-                    y: MyAvatar.position.y + 2, // 2 m above ground for hills
+                    y: MyAvatar.position.y + TWO, // 2 m above ground for hills
                     z: MyAvatar.position.z + deltaMove.z
                 };
 
                 // place on ground
                 var surfacePos = this.findSurfaceCollision(newPos);
-                newPos.y = surfacePos.y + (overlayProperties.dimensions.y / 2);
+                newPos.y = surfacePos.y + (overlayProperties.dimensions.y * HALF);
 
                 return newPos;
             },
@@ -119,7 +125,7 @@
                 var surfacePos = this.findSurfaceCollision(position);
                 var startPos = {
                     x: surfacePos.x,
-                    y: surfacePos.y + (overlayProperties.dimensions.y / 2),
+                    y: surfacePos.y + (overlayProperties.dimensions.y * HALF),
                     z: surfacePos.z
                 };
 
@@ -164,7 +170,9 @@
 
             var focusPosition = position;
 
-            return Vec3.sum(Vec3.multiply(0.2, Vec3.normalize(Vec3.subtract(focusPosition, headPosition))), headPosition);
+            var direction = Vec3.normalize(Vec3.subtract(focusPosition, headPosition));
+
+            return Vec3.sum(Vec3.multiply(DISTANCE_SOUND_PLAYS, direction), headPosition);
         }
     };
 
