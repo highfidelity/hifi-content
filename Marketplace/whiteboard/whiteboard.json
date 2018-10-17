@@ -53,7 +53,7 @@
             "clientOnly": false,
             "collidesWith": "static,dynamic,kinematic,otherAvatar,",
             "collisionMask": 23,
-            "compoundShapeURL": "http://mpassets.highfidelity.com/56a47283-67b1-447d-9d9b-9e4cdd153d21-v1/whiteboard/models/whiteBoard_collider.obj",
+            "compoundShapeURL": "http://mpassets.highfidelity.com/bda997ac-7b04-44a8-a281-54ea51579e54-v1/whiteboard/models/whiteBoard_collider.obj",
             "created": "2018-07-20T12:22:15Z",
             "dimensions": {
                 "blue": 0.6126075983047485,
@@ -75,7 +75,7 @@
             "lastEdited": 1532105260658410,
             "lastEditedBy": "{a20ff022-340e-41f3-8fed-164c747e401e}",
             "marketplaceID": "b40db216-ac1e-48bf-b6a5-09973c527987",
-            "modelURL": "http://mpassets.highfidelity.com/56a47283-67b1-447d-9d9b-9e4cdd153d21-v1/whiteboard/models/wbFrameNew_framed.fbx",
+            "modelURL": "http://mpassets.highfidelity.com/bda997ac-7b04-44a8-a281-54ea51579e54-v1/whiteboard/models/wbFrameNew_framed.fbx",
             "name": "Whiteboard",
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "queryAACube": {
@@ -90,9 +90,9 @@
                 "y": -1,
                 "z": -1.52587890625e-05
             },
-            "script": "http://mpassets.highfidelity.com/56a47283-67b1-447d-9d9b-9e4cdd153d21-v1/whiteboard/whiteboardClient.js",
+            "script": "http://mpassets.highfidelity.com/bda997ac-7b04-44a8-a281-54ea51579e54-v1/whiteboard/whiteboardClient.js",
             "scriptTimestamp": 1485288066226,
-            "serverScripts": "http://mpassets.highfidelity.com/56a47283-67b1-447d-9d9b-9e4cdd153d21-v1/whiteboard/whiteboardManagerServer.js",
+            "serverScripts": "http://mpassets.highfidelity.com/bda997ac-7b04-44a8-a281-54ea51579e54-v1/whiteboard/whiteboardManagerServer.js",
             "shapeType": "compound",
             "type": "Model",
             "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
@@ -119,7 +119,7 @@
             "id": "{435cd638-b019-47aa-afdc-28066930fa50}",
             "lastEdited": 1532105149314240,
             "lastEditedBy": "{a20ff022-340e-41f3-8fed-164c747e401e}",
-            "modelURL": "http://mpassets.highfidelity.com/56a47283-67b1-447d-9d9b-9e4cdd153d21-v1/whiteboard/models/resetButton.fbx",
+            "modelURL": "http://mpassets.highfidelity.com/bda997ac-7b04-44a8-a281-54ea51579e54-v1/whiteboard/models/resetButton.fbx",
             "name": "Whiteboard - Reset Button",
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "parentID": "{153d8d3c-3724-465a-bbdb-cbd6be0d9953}",
@@ -143,7 +143,7 @@
                 "y": -0.7072098851203918,
                 "z": -1.52587890625e-05
             },
-            "script": "http://mpassets.highfidelity.com/56a47283-67b1-447d-9d9b-9e4cdd153d21-v1/whiteboard/resetWhiteBoard.js",
+            "script": "http://mpassets.highfidelity.com/bda997ac-7b04-44a8-a281-54ea51579e54-v1/whiteboard/resetWhiteBoard.js",
             "shapeType": "box",
             "type": "Model",
             "userData": "{\"grabbableKey\":{\"grabbable\":false,\"wantsTrigger\":true}}"
