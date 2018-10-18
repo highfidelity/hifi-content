@@ -9,7 +9,7 @@
 
 (function() {
     var ZONE_COLOR_INDEX = 12;
-    var DISQUALIFIED_POSITION = { x: -59.8319, y: -76.5082, z: 53.2938 };
+    var DISQUALIFIED_POSITION = { x: 2.57328, y: 5, z: -47.86263 };
     var HALF_MULTIPLIER = 0.5;
     // var MIN_SCRIPT_TIMESTAMP = 100;
     var ZONE_SQUARE_RADIUS = 1.5;

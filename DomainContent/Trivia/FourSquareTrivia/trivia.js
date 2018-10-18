@@ -7,31 +7,37 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-/* global EventBridge */
+/* global EventBridge Users AccountServices */
 
 (function() {
+
     var TRIVIA_CHANNEL = "TriviaChannel";
+    var url="put_google_script_URL_here";
     var TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/questionMark-i.png');
     var TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/questionMark-a.png');
     var NEXT_QUESTION_SFX = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/new-question.wav'));
     var TIMER_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/intense-countdown-10-sec.wav'));
     var GAME_INTRO = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/game-show-intro-music-cheer.wav'));
+    var NEW_GAME_SFX = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/new-game.wav'));
     var POT_INCREASE_SFX = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/pot-increase-1.wav'));
     var POT_DECREASE_SFX = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/everyone-wrong-combo.wav'));
-    var WINNER_MUSIC = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/winner-ta-dah-horns-onehsot-cheers.wav'));
+    var WINNER_MUSIC = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/winner-ta-dah-horns-oneshot-cheers.wav'));
     var SEARCH_RADIUS = 100;
     var ONE_SECOND_MS = 1000;
+    var FOUR_SECOND_MS = 4000;
     var TEN_SECONDS_MS = 10000;
     var ZONE_COLOR_INDEX = 19;
     var HALF_MULTIPLIER = 0.5;
-    var FIRST_WAIT_TO_COUNT_AVATARS = 3000;
+    var FIRST_WAIT_TO_COUNT_AVATARS = 1500;
     var WAIT_TO_SHOW_QUESTION = 500;
     var MIN_PLAYERS = 3;
     var HFC_INCREMENT = 100;
     var HFC_HALVER = 0.5;
     var MIN_PRIZE = 300;
+    var HOST_PERCENTAGE = 0.1;
+    var AC_SCRIPT_RUNNING = false;
 
-    var audioVolume = 0.7;
+    var audioVolume = 0.1;
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
     var appPage = Script.resolvePath('trivia.html?006');
     var button = tablet.addButton({
@@ -57,13 +63,15 @@
     var gameZoneProperties;
     var avatarCounter;
     var bubble;
+    var introPlayed = false;
     var correctCount = null;
     var previousCount = null;
     var prizeDisplay;
     var prizeMoney;
     var confetti = [];
-    var increaseParticle;
-    var decreaseParticle;
+    var increaseParticle = [];
+    var decreaseParticle = [];
+    var winnerID = null;
 
     var htmlEnDeCode = (function() {
         var charToEntityRegex,
@@ -141,7 +149,18 @@
         bubbleOn();
         updateAvatarCounter();
         prizeCalculator("new game");
-        playSound(GAME_INTRO);
+        if (!introPlayed) {
+            playSound(GAME_INTRO);
+            introPlayed = true;
+        } else {
+            playSound(NEW_GAME_SFX);
+        }
+        for (var j = 0; j < confetti.length; j++){
+            Entities.editEntity(confetti[j], { locked: false });
+            Entities.editEntity(confetti[j], { visible: false });
+            Entities.editEntity(confetti[j], { locked: true });
+        }
+        
     }
 
     function bubbleOn() {
@@ -212,10 +231,16 @@
                             confetti.push(element);
                             break;
                         case "Trivia Pot Decrease Particle":
-                            decreaseParticle = element;
+                            decreaseParticle.push(element);
                             break;
                         case "Trivia Pot Increase Particle":
-                            increaseParticle = element;
+                            increaseParticle.push(element);
+                            break;
+                        case "Trivia Particle Coin Lose":
+                            decreaseParticle.push(element);
+                            break;
+                        case "Trivia Particle Coin Increase":
+                            increaseParticle.push(element);
                             break;
                     }
                 }
@@ -366,6 +391,7 @@
         previousCount = null;
         correctCount = null;
         prizeMoney = null;
+        winnerID = null;
         bubbleOff();
         lights.forEach(function(light) {
             Entities.editEntity(light, { locked: false });
@@ -467,52 +493,105 @@
                     prizeMoney = MIN_PRIZE;
                 }
                 playSound(POT_DECREASE_SFX);
-                Entities.editProperties(decreaseParticle, { locked: false });
-                Entities.editProperties(decreaseParticle, { visible: true });
-                Entities.editProperties(decreaseParticle, { locked: true });
+                for (var i = 0; i < decreaseParticle.length; i++){
+                    Entities.editEntity(decreaseParticle[i], { locked: false });
+                    Entities.editEntity(decreaseParticle[i], { visible: true });
+                    Entities.editEntity(decreaseParticle[i], { locked: true });
+                }
                 Script.setTimeout( function(){
-                    Entities.editProperties(decreaseParticle, { locked: false });
-                    Entities.editProperties(decreaseParticle, { visible: false });
-                    Entities.editProperties(decreaseParticle, { locked: true });
-                }, ONE_SECOND_MS );
+                    for (var i = 0; i < decreaseParticle.length; i++){
+                        Entities.editEntity(decreaseParticle[i], { locked: false });
+                        Entities.editEntity(decreaseParticle[i], { visible: false });
+                        Entities.editEntity(decreaseParticle[i], { locked: true });
+                    }
+                }, FOUR_SECOND_MS );
                 console.log("Everyone is Wrong, halving HFC ", JSON.stringify(prizeMoney));
                 break;
             case "increase pot":
                 prizeMoney += HFC_INCREMENT;
                 playSound(POT_INCREASE_SFX);
-                Entities.editProperties(increaseParticle, { locked: false });
-                Entities.editProperties(increaseParticle, { visible: true });
-                Entities.editProperties(increaseParticle, { locked: true });
+                for (var i = 0; i < increaseParticle.length; i++){
+                    Entities.editEntity(increaseParticle[i], { locked: false });
+                    Entities.editEntity(increaseParticle[i], { visible: true });
+                    Entities.editEntity(increaseParticle[i], { locked: true });
+                }
                 Script.setTimeout( function(){
-                    Entities.editProperties(increaseParticle, { locked: false });
-                    Entities.editProperties(increaseParticle, { visible: false });
-                    Entities.editProperties(increaseParticle, { locked: true });
-                }, ONE_SECOND_MS );
+                    for (var i = 0; i < increaseParticle.length; i++){
+                        Entities.editEntity(increaseParticle[i], { locked: false });
+                        Entities.editEntity(increaseParticle[i], { visible: false });
+                        Entities.editEntity(increaseParticle[i], { locked: true });
+                    }
+                }, FOUR_SECOND_MS );
                 console.log("Increase the pot! HFC ", JSON.stringify(prizeMoney));
                 break;
             case "game over":
                 prizeMoney += HFC_INCREMENT;
-                playSound(WINNER_MUSIC);
-                // confetti.forEach(function(element){
-                //     Entities.editProperties(element, { locked: false });
-                //     Entities.editProperties(element, { visible: true });
-                //     Entities.editProperties(element, { locked: true });
-                //     Script.setTimeout( function(){
-                //         Entities.editProperties(element, { locked: false });
-                //         Entities.editProperties(element, { visible: false });
-                //         Entities.editProperties(element, { locked: true });
-                //     }, TEN_SECONDS_MS );
-                // });
-                console.log("We have a winner! They get HFC", JSON.stringify(prizeMoney));
-                // send prize amount to a Google Sheet with winner username/displayname, date, 
-                // trivia master username.
-                // play win music, instantiate confetti.
-                // award winner's crown.
+                playSound(WINNER_MUSIC);                
+                for (var i = 0; i < confetti.length; i++){
+                    Entities.editEntity(confetti[i], { locked: false });
+                    Entities.editEntity(confetti[i], { visible: true });
+                    Entities.editEntity(confetti[i], { locked: true });
+                }
+                Script.setTimeout( function(){
+                    for (var j = 0; j < confetti.length; j++){
+                        Entities.editEntity(confetti[j], { locked: false });
+                        Entities.editEntity(confetti[j], { visible: false });
+                        Entities.editEntity(confetti[j], { locked: true });
+                    }
+                }, TEN_SECONDS_MS );
+                console.log("We have a winner! They get HFC", JSON.stringify(prizeMoney));   
+                if (AC_SCRIPT_RUNNING){
+                    Messages.sendMessage(TRIVIA_CHANNEL, 
+                        JSON.stringify({
+                            type: "winner", 
+                            winnerID: winnerID, 
+                            winningPayout: prizeMoney, 
+                            triviaMaster: AccountServices.username
+                        })
+                    );          
+                } else {
+                    if (prizeMoney >= 300 && winnerID !== MyAvatar.sessionUUID) {
+                        Users.requestUsernameFromID(winnerID);
+                    }
+                }
+                // TODO: award winner's crown.
                 break;
         }   
         Entities.editEntity(prizeDisplay, { locked: false });
         Entities.editEntity(prizeDisplay, { text: prizeMoney });
         Entities.editEntity(prizeDisplay, { locked: true });
+    }
+
+    function sendInput(winningUserName) {     
+        var hostPayout = prizeMoney * HOST_PERCENTAGE;    
+        var paramString = encodeURLParams({
+            date: new Date(),
+            triviaMasterUserName: AccountServices.username,
+            triviaMasterPayout: hostPayout,
+            winnerUserName: winningUserName,
+            winnings: prizeMoney,
+            senderID: AccountServices.username
+        });
+
+        print("sendInput is", JSON.stringify(paramString));
+
+        var request = new XMLHttpRequest();
+        request.open('GET', url + "?" + paramString);
+        request.timeout = 10000;
+        request.send();
+    }
+
+    function encodeURLParams(params) {
+        var paramPairs = [];
+        for (var key in params) {
+            paramPairs.push(key + "=" + params[key]);
+        }
+        return paramPairs.join("&");
+    }
+
+    function setUserName(uuid, userName) {     
+        sendInput(userName);
+        console.log("the winning user is: ", userName);
     }
 
     function clearBoard() {
@@ -586,8 +665,19 @@
         var correctColorZoneProperties = Entities.getEntityProperties(
             correctZoneColorID[0], 
             ["position", "dimensions", "rotation"]);
-        result = usersInZone(correctColorZoneProperties);        
-        return result;
+        result = usersInZone(correctColorZoneProperties);    
+        if (result === 1) {
+            AvatarList.getAvatarIdentifiers().forEach(function(avatarID) {
+                var avatar = AvatarList.getAvatar(avatarID);
+                if (avatar.sessionUUID) {
+                    if (isPositionInsideBox(avatar.position, correctColorZoneProperties)) {
+                        winnerID = avatar.sessionUUID;
+                        console.log("The winnerID is: ", JSON.stringify(winnerID));
+                    }    
+                }
+            });
+        }
+        return result;          
     }
 
     function showCorrect() {
@@ -801,7 +891,7 @@
                 injector.stop();
             }
             injector = Audio.playSound(sound, {
-                position: MyAvatar.position,
+                position: gameZoneProperties.position,
                 volume: audioVolume
             });
         }
@@ -809,10 +899,13 @@
 
     this.unload = function() {
         clearGame();
+        introPlayed = false;
+        Users.usernameFromIDReply.disconnect(setUserName);
     };
 
     findTargets();
     Messages.subscribe(TRIVIA_CHANNEL);
+    Users.usernameFromIDReply.connect(setUserName);
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);
     tablet.webEventReceived.connect(onWebEventReceived);
