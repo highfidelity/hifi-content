@@ -31,6 +31,10 @@
     border: 8px solid green;
 }
 
+.col-sm {
+    padding: 0px;
+}
+
 .align-bottom-wrapper {
     height: 100px;
     position: relative;
@@ -49,12 +53,13 @@
 
 .card {
     border-radius: 0px;
+    max-height: 200px;
 }
 
 .row {
-  flex-wrap: nowrap;
+flex-wrap: nowrap;
 }
 
 .ghost {
-  visibility: hidden;
+visibility: hidden;
 }
