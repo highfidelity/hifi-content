@@ -364,6 +364,7 @@
 
         if (needToUpdateUI) {
             ui.updateUI(dataStore);
+
         }
     }
 

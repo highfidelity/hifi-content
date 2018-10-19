@@ -237,6 +237,9 @@ function AppUi(properties) {
             update: update || {}
         };
 
+        print("ROBIN NEEDS DATA");
+        print (JSON.stringify(dataStore));
+
         that.sendToHtml(messageObject);
     };
     // Set up the handlers.

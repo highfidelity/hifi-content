@@ -5,7 +5,7 @@
   }
   
   body {
-    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-family: 'Cairo', sans-serif;
     margin: 0;
     padding: 0;
   }
@@ -21,6 +21,11 @@
     opacity: 0;
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+  }
+
 .nav-tabs .nav-link {
     border: 2px solid transparent;
     border-top-left-radius: 0; /* .25rem; */
@@ -28,7 +33,7 @@
 }
 
 .card-visited {
-    border: 8px solid green;
+    border: 5px solid green;
 }
 
 .col-sm {
@@ -36,7 +41,7 @@
 }
 
 .align-bottom-wrapper {
-    height: 100px;
+    min-height: 64px; /* min-height: 25px; */
     position: relative;
 }
 
@@ -53,13 +58,51 @@
 
 .card {
     border-radius: 0px;
-    max-height: 200px;
+    /* max-height: 200px; */
+}
+
+.card-body {
+    padding: 0.5rem;
+    /* height: 150px; */
 }
 
 .row {
-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    margin-left: 0;
+    margin-right: 0;
+}
+.col-sm {
+    padding: 5px;
 }
 
 .ghost {
-visibility: hidden;
+    visibility: hidden;
+}
+
+/* #nav-domains {
+    height: 700px;
+} */
+
+.avatar-card {
+    min-height: 150px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-size-icon {
+    font-size: 4em;
+    margin-left: -10px;
+    margin-bottom: -10px;
+}
+
+.stroke {
+    color: transparent;
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: green;
+}
+
+.stroke:hover {
+    color: green;
 }
