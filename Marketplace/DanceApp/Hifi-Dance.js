@@ -1,12 +1,3 @@
-// Neuroscape_Diagnostic.js
-//
-// Created by Milad Nazeri and Liv Erikson on 2018-07-16
-//
-// Copyright 2018 High Fidelity, Inc.
-//
-// Distributed under the Apache License, Version 2.0.
-// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-
 "use strict";
 /* eslint-disable indent */
 //
@@ -31,8 +22,8 @@
     // Consts
     // /////////////////////////////////////////////////////////////////////////
         var 
-            URL = Script.resolvePath("./Tablet/Dance-App_Tablet.html"),
-            BUTTON_NAME = "Dance_App",
+            URL = Script.resolvePath("./Tablet/Hifi-Dance_Tablet.html"),
+            BUTTON_NAME = "Hifi-Dance",
 
             PREVIEW_DANCE = "preview_dance",
             PREVIEW_DANCE_STOP = "preview_dance_stop",
@@ -90,14 +81,17 @@
             },
             danceObjects = []
         ;
-    
+        
     // Helper Functions
     // /////////////////////////////////////////////////////////////////////////
         function splitDanceUrls() {
             var regex = /(https:\/\/.*\/)([a-zA-Z0-9 ]+) (\d+)(.fbx)/;
             danceUrls.sort(function(a,b) { 
-                if (a < b) return -1;
-                else if (a > b) return 1;
+                if (a < b) { 
+                    return -1;
+                } else if (a > b) {
+                    return 1;
+                }
                 return 0; 
             }).forEach(function(dance) {
                 var regMatch = regex.exec(dance);
@@ -232,7 +226,8 @@
                 buttonName: BUTTON_NAME,
                 sortOrder: 6,
                 home: URL,
-                onMessage: onMessage
+                onMessage: onMessage,
+
             });
         }
 

@@ -31,7 +31,8 @@ function AppUi(properties) {
     var that = this;
     function defaultButton(name, suffix) {
         var base = that[name] || (that.buttonPrefix + suffix);
-        that[name] = (base.indexOf('/') >= 0) ? base : (that.graphicsDirectory + base); // poor man's merge
+        that[name] = (base.indexOf('/') >= 0) ? base : (that.graphicsDirectory + base);
+        console.log("that[name] : ", that[name]); // poor man's merge
     }
 
     // Consts:
@@ -40,7 +41,7 @@ function AppUi(properties) {
     // Defaults:
     that.tabletName = "com.highfidelity.interface.tablet.system";
     that.inject = "";
-    that.graphicsDirectory = "./Assets/icons/tablet-icons/"; // Where to look for button svgs. See below.
+    that.graphicsDirectory = Script.resolvePath("./icons/tablet-icons/"); // Where to look for button svgs. See below.
     that.additionalAppScreens = [];
     that.checkIsOpen = function checkIsOpen(type, tabletUrl) { // Are we active? Value used to set isOpen.
         // Actual url may have prefix or suffix.
