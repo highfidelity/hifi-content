@@ -106,6 +106,29 @@ function exponentialSmoothing(target, current) {
                 notHomeCount = 0;
                 Script.update.disconnect(this.updateNotHome);
             }
+
+            if (!flameEntity) {
+                flameEntity = Entities.addEntity({
+                    accelerationSpread: { x:5, y:5, z:5 },
+                    alpha: 0.4,
+                    alphaStart: 0.1,
+                    alphaFinish: 0.4,
+                    emitRate: BASE_EMIT_RATE,
+                    emitSpeed: 0,
+                    emitterShouldTrail: true,
+                    isEmitting: false,
+                    lifespan: fireLifespan,
+                    localPosition: BARREL_LOCAL_OFFSET,
+                    maxParticles: 500,
+                    name: "Flamethrower Flame",
+                    parentID: this.entityID,
+                    radiusSpread: 0.3,
+                    radiusStart: 0.05,
+                    speedSpread: 0,
+                    textures: RAINBOW_IMAGE,
+                    type: "ParticleEffect"
+                }, clientOnly);
+            }
         },
 
         continueEquip: function(id, params) {
@@ -663,28 +686,9 @@ function exponentialSmoothing(target, current) {
                 Script.update.connect(this.updateDebugFiring);
             }
             
-            flameEntity = Entities.addEntity({
-                accelerationSpread: { x:5, y:5, z:5 },
-                alpha: 0.4,
-                alphaStart: 0.1,
-                alphaFinish: 0.4,
-                emitRate: BASE_EMIT_RATE,
-                emitSpeed: 0,
-                emitterShouldTrail: true,
-                isEmitting: false,
-                lifespan: fireLifespan,
-                localPosition: BARREL_LOCAL_OFFSET,
-                maxParticles: 500,
-                name: "Flamethrower Flame",
-                parentID: this.entityID,
-                radiusSpread: 0.3,
-                radiusStart: 0.05,
-                speedSpread: 0,
-                textures: RAINBOW_IMAGE,
-                type: "ParticleEffect"
-            }, clientOnly);
         }
     };
+
 
     return new Flamethrower();
 });
