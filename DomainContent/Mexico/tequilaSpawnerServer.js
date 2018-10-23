@@ -15,8 +15,6 @@
     var SEARCH_RADIUS = 0.1;
     var SPAWN_CHECK_MS = 10000;
 
-    var DEFAULT_LIFETIME = 60;
-
     function TequilaSpawner() {
         _this = this;
     }
@@ -82,8 +80,7 @@
                 serverScripts: "http://hifi-content.s3.amazonaws.com/rebecca/Mexico/tequilaServer.js",
                 shapeType: "simple-hull",
                 type: "Model",
-                dynamic: true,
-                lifetime: DEFAULT_LIFETIME
+                dynamic: true
             });
 
             Entities.addEntity({
@@ -98,7 +95,6 @@
                     y: 0.05231950804591179,
                     z: 0.049671873450279236
                 },
-                lifetime: DEFAULT_LIFETIME,
                 parentID: glass,
                 localPosition: {x:0, y:0, z:0},
                 localRotation: {x:0, y:0, z:90, w:0},

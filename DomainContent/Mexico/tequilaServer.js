@@ -15,8 +15,6 @@
     var pieces = Array();
     var _entityID;
 
-    var DEFAULT_LIFETIME = 60;
-
     var Glass = function(){
     };
   
@@ -35,8 +33,7 @@
                     collidesWith: "",
                     collisionMask: 0,
                     shapeType: "None",
-                    grabbable: false,
-                    lifetime: DEFAULT_LIFETIME
+                    grabbable: false
                 }));
             }
         },

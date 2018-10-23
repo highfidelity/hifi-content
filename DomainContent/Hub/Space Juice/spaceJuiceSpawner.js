@@ -15,6 +15,8 @@
     var SEARCH_RADIUS = 0.1;
     var SPAWN_CHECK_MS = 5000;
 
+    var LIFETIME = 60;
+
     function SpaceJuiceSpawner() {
         _this = this;
     }
@@ -67,7 +69,8 @@
                 serverScripts: Script.resolvePath("spaceJuiceServer.js"),
                 shapeType: "simple-hull",
                 type: "Model",
-                dynamic: false
+                dynamic: false,
+                lifetime: LIFETIME
             });
 
             Entities.addEntity({
@@ -89,7 +92,8 @@
                 shape: "Cone",
                 type: "Shape",
                 userData: "{\"grabbableKey\":{\"grabbable\":false}}",
-                script: Script.resolvePath("glassPrimitiveCatch.js")
+                script: Script.resolvePath("glassPrimitiveCatch.js"),
+                lifetime: LIFETIME
             });
         }
     };
