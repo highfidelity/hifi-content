@@ -173,6 +173,12 @@ function exponentialSmoothing(target, current) {
             this.removeDesktopOverlay();
             this.stopFiring();
             this.setupNotHomeUpdate();
+
+            if (flameEntity !== null) {
+                Entities.deleteEntity(flameEntity);
+                flameEntity = null;
+            }
+
         },
 
         startNearGrab: function() {
