@@ -178,7 +178,6 @@ function exponentialSmoothing(target, current) {
                 Entities.deleteEntity(flameEntity);
                 flameEntity = null;
             }
-
         },
 
         startNearGrab: function() {
