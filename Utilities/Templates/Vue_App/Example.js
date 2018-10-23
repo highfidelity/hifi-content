@@ -4,9 +4,8 @@
 //
 //  Example Vue App
 //
-//  Created by Milad Nazeri on 2018-10-11
-//  Modified from AppUi.js by Howard Stearns on 2 Nov 2016
-//  Copyright 2016 High Fidelity, Inc.
+//  Created by Milad Nazeri and Robin Wilson on 2018-10-11
+//  Copyright 2018 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -17,23 +16,29 @@
     // Dependencies
     // /////////////////////////////////////////////////////////////////////////
         var 
-            AppUi = Script.require('./AppUi.js')
+            AppUi = Script.require('appUi.js')
         ;
     
     // Consts
     // /////////////////////////////////////////////////////////////////////////
         var 
-            URL = Script.resolvePath("./html/tablet.html"),
+            URL = Script.resolvePath("./html/Tablet.html"),
             BUTTON_NAME = "BUTTON_NAME",
 
             EXAMPLE_MESSAGE = "EXAMPLE_MESSAGE",
-            EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen"
+            EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
+
+            UPDATE_UI = "update_ui"
         ;
 
     // Init
     // /////////////////////////////////////////////////////////////////////////
         var 
-            ui
+            ui,
+            dataStore = {
+                ui: {
+                }
+            }
         ;
     // Constructors
     // /////////////////////////////////////////////////////////////////////////
@@ -54,15 +59,24 @@
                 buttonName: BUTTON_NAME,
                 sortOrder: 6,
                 home: URL,
-                onMessage: onMessage
+                onMessage: onMessage,
+                updateUI: updateUI
             });
+        }
+
+        function updateUI(dataStore) {
+            var messageObject = {
+                type: UPDATE_UI,
+                value: dataStore  
+            };
+            ui.sendToHtml(messageObject);
         }
 
         function onMessage(data) {
             // EventBridge message from HTML script.
             switch (data.type) {
                 case EVENT_BRIDGE_OPEN_MESSAGE:
-                    ui.uiUpdate();
+                    ui.updateUI(dataStore);
                     break;
                 case EXAMPLE_MESSAGE:
                     exampleFunctionToRun();
