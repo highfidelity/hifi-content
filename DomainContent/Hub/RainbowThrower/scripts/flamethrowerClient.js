@@ -694,6 +694,5 @@ function exponentialSmoothing(target, current) {
         }
     };
 
-
     return new Flamethrower();
 });
