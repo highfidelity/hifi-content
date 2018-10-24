@@ -69,8 +69,7 @@
                 serverScripts: Script.resolvePath("spaceJuiceServer.js"),
                 shapeType: "simple-hull",
                 type: "Model",
-                dynamic: false,
-                lifetime: LIFETIME
+                dynamic: false
             });
 
             Entities.addEntity({
@@ -92,8 +91,7 @@
                 shape: "Cone",
                 type: "Shape",
                 userData: "{\"grabbableKey\":{\"grabbable\":false}}",
-                script: Script.resolvePath("glassPrimitiveCatch.js"),
-                lifetime: LIFETIME
+                script: Script.resolvePath("glassPrimitiveCatch.js")
             });
         }
     };

@@ -22,7 +22,6 @@
     var PLATE_DIMENSIONS = {x: 0.4040, y: 0.0303, z: 0.4040};
     var POSITION_Y_OFFSET = 0.1;
 
-    var LIFETIME = 60;
     var position;
 
     var dishProperties = {};
@@ -63,7 +62,6 @@
             dishProperties.collidesWith = "";
             dishProperties.friction = 0.9;
             dishProperties.restitution = 0.1;
-            dishProperties.lifetime = LIFETIME;
             position = dishProperties.position;
 
             Script.setInterval(checkClonesAndUpdate, INTERVAL);
