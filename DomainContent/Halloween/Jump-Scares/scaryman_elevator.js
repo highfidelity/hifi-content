@@ -132,19 +132,30 @@
                         var currentPosition = Entities.getEntityProperties(_entityID, 'position').position;
                         
                         musicPosition = musicPosition ? musicPosition : currentPosition;
-                        Script.setTimeout(function() {
-                            playSound(musicObject, musicInjector, musicPosition, musicVolume, false, musicOffset);
 
-                        }, musicDelay);
+                        if (musicDelay) {
+                            Script.setTimeout(function() {
+                                playSound(musicObject, musicInjector, musicPosition, musicVolume, false, musicOffset);
+                            }, musicDelay);
+                        } else {
+                            playSound(musicObject, musicInjector, musicPosition, musicVolume, false, musicOffset);
+                        }
 
                         fxPosition = fxPosition ? fxPosition : currentPosition;
-                        Script.setTimeout(function() {
-                            playSound(fxObject, fxInjector, fxPosition, fxVolume, false, fxOffset);
 
-                        }, fxDelay);
-                        Entities.editEntity(_entityID,{ 
-                            animation: { loop: false, hold: false, running: true, currentFrame: 20, firstFrame: 20
-                            } });
+                        if (fxDelay) {
+                            Script.setTimeout(function() {
+                                playSound(fxObject, fxInjector, fxPosition, fxVolume, false, fxOffset);
+                            }, fxDelay);
+                        } else {
+                            playSound(fxObject, fxInjector, fxPosition, fxVolume, false, fxOffset);
+                        }
+
+                        Entities.editEntity(_entityID, { 
+                            animation: { 
+                                loop: false, hold: false, running: true, currentFrame: 20, firstFrame: 20
+                            } 
+                        });
                     })
                     .easing(TWEEN.Easing.Quintic.InOut)
                     .onUpdate(function (object) {
