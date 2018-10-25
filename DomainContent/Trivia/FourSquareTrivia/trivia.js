@@ -7,7 +7,6 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-<<<<<<< HEAD
 /* global EventBridge Users AccountServices */
 
 (function() {
@@ -41,31 +40,6 @@
     var audioVolume = 0.1;
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
     var appPage = Script.resolvePath('trivia.html?006');
-=======
-/* global EventBridge */
-
-(function() {
-    var TRIVIA_CHANNEL = "TriviaChannel";
-    var TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/questionMark-i.png?1234');
-    var TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/questionMark-a.png?1234');
-    var CORRECT_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/correct.wav'));
-    var WRONG_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/audio1.wav'));
-    var TIMER_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/timer.wav'));
-    var NEXT_ROUND_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/ding.wav'));
-    var GAME_OVER_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/oohAah.wav?3425'));
-    var SEARCH_RADIUS = 100;
-    var ONE_HUNDRED = 100;
-    var ONE_SECOND_MS = 1000;
-    var TEN_SECONDS_MS = 10000;
-    var ZONE_COLOR_INDEX = 19;
-    var HALF_MULTIPLIER = 0.5;
-    var WAIT_TO_COUNT_AVATARS = 1000;
-    var WAIT_TO_SHOW_QUESTION = 500;
-
-    var audioVolume = 0.7;
-    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-    var appPage = Script.resolvePath('trivia.html');
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
     var button = tablet.addButton({
         text: 'TRIVIA',
         icon: TABLET_BUTTON_IMAGE,
@@ -85,7 +59,6 @@
     var lights = [];
     var correctHighlights = [];
     var timer;
-<<<<<<< HEAD
     var gameZone;
     var gameZoneProperties;
     var avatarCounter;
@@ -99,12 +72,6 @@
     var increaseParticle = [];
     var decreaseParticle = [];
     var winnerID = null;
-=======
-    var playerCounterZone;
-    var playerCounterZoneProperties;
-    var avatarCounter;
-    var bubble;
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
 
     var htmlEnDeCode = (function() {
         var charToEntityRegex,
@@ -175,7 +142,6 @@
         findTargets();
         clearGame();
         lights.forEach(function(light) {
-<<<<<<< HEAD
             Entities.editEntity(light, { locked: false });
             Entities.editEntity(light, { visible: true });
             Entities.editEntity(light, { locked: true });
@@ -214,25 +180,6 @@
             collidesWith: "static,dynamic,kinematic"
         });
         Entities.editEntity(bubble, { locked: true });
-=======
-            Entities.editEntity(light, { visible: true });
-        });
-        bubbleOn();
-        updateAvatarCounter();
-    }
-
-    function bubbleOn() {
-        Entities.editEntity(bubble, {
-            visible: true,
-            collidesWith: "static,dynamic,kinematic,myAvatar,otherAvatar"
-        });
-    }
-
-    function bubbleOff() {
-        Entities.editEntity(bubble, { visible: false,
-            collidesWith: "static,dynamic,kinematic"
-        });
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
     }
   
     function findTargets() {
@@ -270,7 +217,6 @@
                             avatarCounter = element;
                             break;
                         case "Trivia Player Counter Zone":
-<<<<<<< HEAD
                             gameZone = element;
                             gameZoneProperties = Entities.getEntityProperties(gameZone, 
                                 ["position", "dimensions", "rotation", "userData"]);
@@ -296,15 +242,6 @@
                         case "Trivia Particle Coin Increase":
                             increaseParticle.push(element);
                             break;
-=======
-                            playerCounterZone = element;
-                            playerCounterZoneProperties = Entities.getEntityProperties(playerCounterZone, 
-                                ["position", "dimensions", "rotation", "userData"]);
-                            break;
-                        case "Trivia Bubble":
-                            bubble = element;
-                            break;
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
                     }
                 }
             }
@@ -320,10 +257,7 @@
     }
 
     function getQuestion() {
-<<<<<<< HEAD
         playSound(NEXT_QUESTION_SFX);
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         try {
             var triviaURL = "https://opentdb.com/api.php?amount=1";
             if (type) {
@@ -363,15 +297,11 @@
         clearBoard();
         Script.setTimeout(function() {
             choiceTexts.forEach(function(choice) {
-<<<<<<< HEAD
                 Entities.editEntity(choice, { locked: false });
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
                 Entities.editEntity(choice, {
                     text: "",
                     visible: true
                 });
-<<<<<<< HEAD
                 Entities.editEntity(choice, { locked: true });
             });
             var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
@@ -381,20 +311,12 @@
             Entities.editEntity(questionText, { locked: true });
 
             Entities.editEntity(answerText, { locked: false });
-=======
-            });
-            var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
-            Entities.editEntity(questionText, { text: formattedQuestion });
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             Entities.editEntity(answerText, {
                 text: "",
                 visible: false
             });
-<<<<<<< HEAD
             Entities.editEntity(answerText, { locked: true });
 
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
                 type: "newQuestion"
             }));
@@ -403,57 +325,40 @@
 
     function showAnswers() {
         if (triviaData[0].type === "boolean") {
-<<<<<<< HEAD
             Entities.editEntity(choiceTexts[0], { locked: false });
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             Entities.editEntity(choiceTexts[0], {
                 text: "",
                 visible: false
             });
-<<<<<<< HEAD
             Entities.editEntity(choiceTexts[0], { locked: true });
 
             Entities.editEntity(choiceTexts[1], { locked: false });
-=======
-            // randomize this
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             Entities.editEntity(choiceTexts[1], {
                 text: "True",
                 visible: true
             });
-<<<<<<< HEAD
             Entities.editEntity(choiceTexts[1], { locked: true });
 
             Entities.editEntity(choiceTexts[2], { locked: false });
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             Entities.editEntity(choiceTexts[2], {
                 text: "False",
                 visible: true
             });
-<<<<<<< HEAD
             Entities.editEntity(choiceTexts[2], { locked: true });
 
             Entities.editEntity(choiceTexts[3], { locked: false });
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             Entities.editEntity(choiceTexts[3], {
                 text: "",
                 visible: false
             });
-<<<<<<< HEAD
             Entities.editEntity(choiceTexts[3], { locked: true });
 
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             currentChoices = [];
             currentChoices.push("True");
             currentChoices.push("False");
             lights.forEach(function(light) {
                 var lightName = Entities.getEntityProperties(light, 'name').name;
                 if (lightName.indexOf("Green") !== -1) {
-<<<<<<< HEAD
                     Entities.editEntity(light, { locked: false });
                     Entities.editEntity(light, { visible: false });
                     Entities.editEntity(light, { locked: true });
@@ -461,11 +366,6 @@
                     Entities.editEntity(light, { locked: false });
                     Entities.editEntity(light, { visible: false });
                     Entities.editEntity(light, { locked: true });
-=======
-                    Entities.editEntity(light, { visible: false });
-                } else if (lightName.indexOf("Blue") !== -1) {
-                    Entities.editEntity(light, { visible: false });
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
                 }
             });
         } else {
@@ -476,15 +376,11 @@
             });
             shuffle(currentChoices);
             currentChoices.forEach(function(choice, index) {
-<<<<<<< HEAD
                 Entities.editEntity(choiceTexts[index], { locked: false });
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
                 Entities.editEntity(choiceTexts[index], {
                     text: choice,
                     visible: true
                 });
-<<<<<<< HEAD
                 Entities.editEntity(choiceTexts[index], { locked: true });
             });
         }
@@ -515,44 +411,18 @@
 
         choiceTexts.forEach(function(choice) {
             Entities.editEntity(choice, { locked: false });
-=======
-            });
-        }
-        startTimer();
-        Script.setTimeout(function() {
-            Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({type: "timeUp"}));
-            showCorrect();
-        }, TEN_SECONDS_MS);
-    }
-
-    function clearGame() {
-        bubbleOff();
-        lights.forEach(function(light) {
-            Entities.editEntity(light, { visible: false });
-        });
-        correctHighlights.forEach(function(highlight) {
-            Entities.editEntity(highlight, { visible: false });
-        });
-        Entities.editEntity(questionText, { text: "Questions will appear here" });
-        choiceTexts.forEach(function(choice) {
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             Entities.editEntity(choice, {
                 text: "Answers appear here",
                 visible: true
             });
-<<<<<<< HEAD
             Entities.editEntity(choice, { locked: true });
         });
 
         Entities.editEntity(answerText, { locked: false });
-=======
-        });
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         Entities.editEntity(answerText, {
             text: "",
             visible: false
         });
-<<<<<<< HEAD
         Entities.editEntity(answerText, { locked: true });
 
         Entities.editEntity(avatarCounter, { locked: false });
@@ -568,15 +438,6 @@
         var localPosition = Vec3.multiplyQbyV(Quat.inverse(gameZoneProperties.rotation),
             Vec3.subtract(position, gameZoneProperties.position));
         var halfDimensions = Vec3.multiply(gameZoneProperties.dimensions, HALF_MULTIPLIER);
-=======
-        Entities.editEntity(avatarCounter, { text: 0});
-    }
-
-    function isPositionInsideBox(position) {
-        var localPosition = Vec3.multiplyQbyV(Quat.inverse(playerCounterZoneProperties.rotation),
-            Vec3.subtract(position, playerCounterZoneProperties.position));
-        var halfDimensions = Vec3.multiply(playerCounterZoneProperties.dimensions, HALF_MULTIPLIER);
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         return -halfDimensions.x <= localPosition.x &&
                 halfDimensions.x >= localPosition.x &&
                -halfDimensions.y <= localPosition.y &&
@@ -585,20 +446,12 @@
                 halfDimensions.z >= localPosition.z;
     }
 
-<<<<<<< HEAD
     function usersInZone(gameZoneProperties) {
-=======
-    function usersInZone() {
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         var count = 0;
         AvatarList.getAvatarIdentifiers().forEach(function(avatarID) {
             var avatar = AvatarList.getAvatar(avatarID);
             if (avatar.sessionUUID) {
-<<<<<<< HEAD
                 if (isPositionInsideBox(avatar.position, gameZoneProperties)) {
-=======
-                if (isPositionInsideBox(avatar.position, playerCounterZoneProperties)) {
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
                     count++;
                 }
             }
@@ -607,7 +460,6 @@
     }
 
     function updateAvatarCounter() {
-<<<<<<< HEAD
         var count = usersInZone(gameZoneProperties);
         Entities.editEntity(avatarCounter, { locked: false });
         Entities.editEntity(avatarCounter, { text: count});
@@ -740,15 +592,10 @@
     function setUserName(uuid, userName) {     
         sendInput(userName);
         console.log("the winning user is: ", userName);
-=======
-        var count = usersInZone(playerCounterZoneProperties);
-        Entities.editEntity(avatarCounter, { text: count});
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
     }
 
     function clearBoard() {
         lights.forEach(function(light) {
-<<<<<<< HEAD
             Entities.editEntity(light, { locked: false });
             Entities.editEntity(light, { visible: true });
             Entities.editEntity(light, { locked: true });
@@ -766,41 +613,24 @@
 
         choiceTexts.forEach(function(choice) {
             Entities.editEntity(choice, { locked: false });
-=======
-            Entities.editEntity(light, { visible: true });
-        });
-        correctHighlights.forEach(function(highlight) {
-            Entities.editEntity(highlight, { visible: false });
-        });
-        Entities.editEntity(questionText, { text: "" });
-        choiceTexts.forEach(function(choice) {
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             Entities.editEntity(choice, {
                 text: "",
                 visible: true
             });
-<<<<<<< HEAD
             Entities.editEntity(choice, { locked: true });
         });
 
         Entities.editEntity(answerText, { locked: false });
-=======
-        });
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         Entities.editEntity(answerText, {
             text: "",
             visible: false
         });
-<<<<<<< HEAD
         Entities.editEntity(answerText, { locked: true });
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
     }
 
     function startTimer() {
         playSound(TIMER_SOUND);
         var seconds = 10;
-<<<<<<< HEAD
         Entities.editEntity(timer, { locked: false });
         Entities.editEntity(timer, { text: JSON.stringify(seconds) });
         Entities.editEntity(timer, { locked: true });
@@ -809,19 +639,12 @@
             Entities.editEntity(timer, { locked: false });
             Entities.editEntity(timer, { text: JSON.stringify(seconds) });
             Entities.editEntity(timer, { locked: true });
-=======
-        Entities.editEntity(timer, { text: JSON.stringify(seconds) });
-        var interval = Script.setInterval(function() {
-            seconds--;
-            Entities.editEntity(timer, { text: JSON.stringify(seconds) });
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             if (seconds === 0) {
                 Script.clearInterval(interval);
             }
         }, ONE_SECOND_MS);
     }
 
-<<<<<<< HEAD
     function isAnyAvatarCorrect(correctColor) {
         var result = null;
         var correctZoneColorID = null;
@@ -857,8 +680,6 @@
         return result;          
     }
 
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
     function showCorrect() {
         var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
         var correctColor;
@@ -872,41 +693,29 @@
         lights.forEach(function(light) {
             var lightName = Entities.getEntityProperties(light, 'name').name;
             if (lightName.indexOf(correctColor) === -1) {
-<<<<<<< HEAD
                 Entities.editEntity(light, { locked: false });
                 Entities.editEntity(light, { visible: false });
                 Entities.editEntity(light, { locked: true });
-=======
-                Entities.editEntity(light, { visible: false });
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             }
         });
         correctHighlights.forEach(function(highlight) {
             var highlightName = Entities.getEntityProperties(highlight, 'name').name;
             if (highlightName.indexOf(correctColor) !== -1) {
-<<<<<<< HEAD
                 Entities.editEntity(highlight, { locked: false });
                 Entities.editEntity(highlight, { visible: true });
                 Entities.editEntity(highlight, { locked: true });
-=======
-                Entities.editEntity(highlight, { visible: true });
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             }
         });
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
             type: "check",
             correct: correctColor
         }));
-<<<<<<< HEAD
 
         Entities.editEntity(answerText, { locked: false });
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         Entities.editEntity(answerText, {
             text: formattedAnswer,
             visible: true
         });
-<<<<<<< HEAD
         Entities.editEntity(answerText, { locked: true });
 
         Script.setTimeout(function() {
@@ -916,17 +725,11 @@
         // Script.setTimeout(function() {
         //     updateAvatarCounter();
         // }, SECOND_WAIT_TO_COUNT_AVATARS);
-=======
-        Script.setTimeout(function() {
-            updateAvatarCounter();
-        }, WAIT_TO_COUNT_AVATARS);
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
     }
 
     function onWebEventReceived(event) {
         if (typeof event === 'string') {
             event = JSON.parse(event);
-<<<<<<< HEAD
             if (event.app === 'trivia') {
                 switch (event.type) {
                     case 'begin':
@@ -1065,73 +868,6 @@
                         print("error in detecting event.type");
                 }
             }
-=======
-            switch (event.type) {
-                case 'begin':
-                    begin();
-                    break;
-                case 'end':
-                    clearGame();
-                    break;
-                case 'type':
-                    if (event.selectedIndex === 0) {
-                        category = null;
-                    } else {
-                        type = event.value;
-                    }
-                    break;
-                case 'difficulty':
-                    if (event.selectedIndex === 0) {
-                        category = null;
-                    } else {
-                        difficulty = event.value;
-                    }
-                    break;
-                case 'category':
-                    if (event.selectedIndex === 0) {
-                        category = null;
-                    } else {
-                        category = event.value;
-                    }
-                    break;
-                case 'newQuestion':
-                    getQuestion();
-                    break;
-                case 'showQuestion':
-                    showQuestion();
-                    break;
-                case 'showAnswers':
-                    showAnswers();
-                    break;
-                case 'showCorrect':
-                    showCorrect();
-                    break;
-                case 'clearBoard':
-                    clearBoard();
-                    break;
-                case 'correctAnswer':
-                    playSound(CORRECT_SOUND);
-                    break;
-                case 'wrongAnswer':
-                    playSound(WRONG_SOUND);
-                    break;
-                case 'gameBegin':
-                    break;
-                case 'nextRound':
-                    playSound(NEXT_ROUND_SOUND);
-                    break;
-                case 'gameEnd':
-                    playSound(GAME_OVER_SOUND);
-                    break;
-                case 'volumeSlider':
-                    if (injector) {
-                        injector.setOptions( { volume: event.volume / ONE_HUNDRED } );
-                    }
-                    break;    
-                default:
-                    print("error in detecting event.type");
-            } 
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         }
     }
 
@@ -1155,11 +891,7 @@
                 injector.stop();
             }
             injector = Audio.playSound(sound, {
-<<<<<<< HEAD
                 position: gameZoneProperties.position,
-=======
-                position: MyAvatar.position,
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
                 volume: audioVolume
             });
         }
@@ -1167,19 +899,13 @@
 
     this.unload = function() {
         clearGame();
-<<<<<<< HEAD
         introPlayed = false;
         Users.usernameFromIDReply.disconnect(setUserName);
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
     };
 
     findTargets();
     Messages.subscribe(TRIVIA_CHANNEL);
-<<<<<<< HEAD
     Users.usernameFromIDReply.connect(setUserName);
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);
     tablet.webEventReceived.connect(onWebEventReceived);
