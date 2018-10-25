@@ -476,7 +476,6 @@
     }
        
     function prizeCalculator(gameState) {
-        console.log("CALCULATING PRIZE POT");
         var count = usersInZone(gameZoneProperties);
         switch (gameState) {
             case "new game":
@@ -485,7 +484,6 @@
                 } else {
                     prizeMoney = count * HFC_INCREMENT; 
                 }
-                console.log("NEW GAME, POT IS HFC", JSON.stringify(prizeMoney));
                 break;
             case "everyone wrong":                
                 prizeMoney *= HFC_HALVER;
@@ -505,7 +503,6 @@
                         Entities.editEntity(decreaseParticle[i], { locked: true });
                     }
                 }, FOUR_SECOND_MS );
-                console.log("Everyone is Wrong, halving HFC ", JSON.stringify(prizeMoney));
                 break;
             case "increase pot":
                 prizeMoney += HFC_INCREMENT;
@@ -522,7 +519,6 @@
                         Entities.editEntity(increaseParticle[i], { locked: true });
                     }
                 }, FOUR_SECOND_MS );
-                console.log("Increase the pot! HFC ", JSON.stringify(prizeMoney));
                 break;
             case "game over":
                 prizeMoney += HFC_INCREMENT;
@@ -539,7 +535,6 @@
                         Entities.editEntity(confetti[j], { locked: true });
                     }
                 }, TEN_SECONDS_MS );
-                console.log("We have a winner! They get HFC", JSON.stringify(prizeMoney));   
                 if (AC_SCRIPT_RUNNING){
                     Messages.sendMessage(TRIVIA_CHANNEL, 
                         JSON.stringify({
@@ -554,7 +549,6 @@
                         Users.requestUsernameFromID(winnerID);
                     }
                 }
-                // TODO: award winner's crown.
                 break;
         }   
         Entities.editEntity(prizeDisplay, { locked: false });
@@ -572,9 +566,6 @@
             winnings: prizeMoney,
             senderID: AccountServices.username
         });
-
-        print("sendInput is", JSON.stringify(paramString));
-
         var request = new XMLHttpRequest();
         request.open('GET', url + "?" + paramString);
         request.timeout = 10000;
@@ -591,7 +582,6 @@
 
     function setUserName(uuid, userName) {     
         sendInput(userName);
-        console.log("the winning user is: ", userName);
     }
 
     function clearBoard() {
@@ -672,7 +662,6 @@
                 if (avatar.sessionUUID) {
                     if (isPositionInsideBox(avatar.position, correctColorZoneProperties)) {
                         winnerID = avatar.sessionUUID;
-                        console.log("The winnerID is: ", JSON.stringify(winnerID));
                     }    
                 }
             });

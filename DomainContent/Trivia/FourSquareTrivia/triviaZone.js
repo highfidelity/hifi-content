@@ -7,7 +7,6 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-<<<<<<< HEAD
 (function() {
     var ZONE_COLOR_INDEX = 12;
     var DISQUALIFIED_POSITION = { x: 2.57328, y: 5, z: -47.86263 };
@@ -23,23 +22,6 @@
     var zoneProperties;
     var _this;
     //var preloadWhileInZone = false;
-=======
-// show choices as overlays
-// on clicking/triggering an overlay, the choice is saved
-// on time up, the choice is shown as an entity on the front of the podium
-
-(function() {
-    var ZONE_COLOR_INDEX = 12;
-    var SEARCH_RADIUS_M = 100;
-
-    var myColor;
-    var currentZoneOverlayPosition;
-    var currentZoneOverlayRotation;
-    var currentZoneOverlay;
-    var finalAnswer;
-
-    var _this;
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
 
     var TriviaZone = function() {
         _this = this;
@@ -50,7 +32,6 @@
 
         preload: function(entityID) {
             _this.entityID = entityID;
-<<<<<<< HEAD
             zoneProperties = Entities.getEntityProperties(_this.entityID, 
                 ['name', 'parentID', 'rotation', 'position', 'dimensions']);
             var name = zoneProperties.name;
@@ -77,16 +58,6 @@
                     halfDimensions.y >= localPosition.y &&
                    -halfDimensions.z <= localPosition.z &&
                     halfDimensions.z >= localPosition.z;
-=======
-            var properties = Entities.getEntityProperties(_this.entityID, ['name', 'parentID', 'rotation']);
-            currentZoneOverlayRotation = properties.rotation;
-            var zoneMarker = properties.parentID;
-            var zoneMarkerPosition = Entities.getEntityProperties(zoneMarker, 'position').position;
-            zoneMarkerPosition.y += 0.01;
-            currentZoneOverlayPosition = zoneMarkerPosition;
-            var name = properties.name;
-            _this.color = name.substr(ZONE_COLOR_INDEX);
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         },
 
         createChoiceOverlay: function() {
@@ -94,11 +65,7 @@
                 url: Script.resolvePath("assets/models/highlight.fbx"),
                 dimensions: { x: 4, y: 0.01, z: 4 },
                 position: currentZoneOverlayPosition,
-<<<<<<< HEAD
                 rotation: zoneProperties.rotation,
-=======
-                rotation: currentZoneOverlayRotation,
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
                 glow: 1
             });
         },
@@ -106,10 +73,7 @@
         deleteOverlay: function() {
             if (currentZoneOverlay) {
                 Overlays.deleteOverlay(currentZoneOverlay);
-<<<<<<< HEAD
                 currentZoneOverlay = null;
-=======
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
             }
         },
 
@@ -129,7 +93,6 @@
         enterEntity: function() {
             Messages.messageReceived.connect(_this.triviaListener);
             myColor = _this.color;
-<<<<<<< HEAD
             if (_this.color !== "Game Protection") {
                 //if (!preloadWhileInZone || !currentZoneOverlay) {
                     _this.createChoiceOverlay();
@@ -137,16 +100,6 @@
                 //    preloadWhileInZone = false;
                 //}
             }   
-=======
-            _this.createChoiceOverlay();
-            Entities.findEntities(MyAvatar.position, SEARCH_RADIUS_M).forEach(function(entity) {
-                var properties = Entities.getEntityProperties(entity, ['name', 'position']);
-                if (properties.name === "Trivia Zone Out Marker") {
-                    _this.disqualifiedPosition = properties.position;
-                    _this.disqualifiedPosition.y++;
-                }
-            });   
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         },
 
         newQuestion: function() {
@@ -154,11 +107,9 @@
             myColor = _this.color;
         },
 
-<<<<<<< HEAD
         isAnyAvatarCorrect: function(correctColor) {
             var result = false;
             var correctZoneColorID = null;
-            console.log(correctColor, " is the correct color");
             switch (correctColor){
                 case "Red":
                     correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, RADIUS);
@@ -177,14 +128,11 @@
                 correctZoneColorID[0], 
                 ["position", "dimensions", "rotation"]);
             var correctAvatarsList = AvatarList.getAvatarsInRange(correctColorZoneProperties.position, ZONE_SQUARE_RADIUS);
-            console.log(JSON.stringify(correctAvatarsList.length)," avatars within 1.5m of the ", correctColor, " zone.");
             var i = 0;
             while ( i < correctAvatarsList.length){
                 var correctAvatarPosition = AvatarList.getAvatar(correctAvatarsList[i]).position;
-                console.log(JSON.stringify("The correct avatar position is: ", JSON.stringify(correctAvatarPosition)));
                 result = _this.isAvatarInsideZone(correctAvatarPosition, correctColorZoneProperties) ? true : false;
                 if ( result === true ) { 
-                    console.log("The ", i, "th element was actually in the right zone, which means someone was right.");
                     return result;
                 } else { 
                     i++; 
@@ -194,25 +142,13 @@
         },
 
         showIfCorrect: function(correctColor) {
-            console.log(correctColor, " is the correct color");
             var someOneIsCorrect = _this.isAnyAvatarCorrect(correctColor) ? true : false;
             if (someOneIsCorrect){
-                console.log( "Someone has the right answer", JSON.stringify(someOneIsCorrect));
                 if (finalAnswer !== correctColor) {
-                    console.log("...But it isn't me.");
                     MyAvatar.orientation = { x: 0, y: 0, z: 0 };
                     MyAvatar.position = DISQUALIFIED_POSITION;
-                } else {
-                    console.log("...And it's ME!");
-                }
-            } else {
-                console.log("Nobody got the right answer, keep playing");
-=======
-        showIfCorrect: function(correctColor) {
-            if (finalAnswer !== correctColor) {
-                MyAvatar.position = _this.disqualifiedPosition;
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
-            }
+                } 
+            } 
         },
 
         leaveEntity: function() {
@@ -225,13 +161,9 @@
         },
 
         unload: function() {
-<<<<<<< HEAD
             if (_this.isAvatarInsideZone(MyAvatar.position, zoneProperties)) {
                 _this.leaveEntity();
             }
-=======
-            _this.leaveEntity();
->>>>>>> 016bccad9fe2ee172dc0115aacab873088a38e22
         }
     };
 
