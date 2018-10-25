@@ -24,26 +24,19 @@
         senderID;
 
     if (IS_AC_SCRIPT) {
-        print("AC script running");
         var messageHandler = Messages.messageReceived.connect(function(channel, message, senderUUID, localOnly) {
             if (channel !== TRIVIA_CHANNEL) {
-                print("not on channel");
                 return;
             } else {
                 message = JSON.parse(message);
-                print("message contents ",JSON.stringify(message));
             }
             if (message.type === 'winner') {
-                print("message type is winner");
                 prizeMoney = message.winningPayout;
                 triviaMaster = message.triviaMaster;
-                winnerID = JSON.stringify(message.winnerID);
-                print("winnerID is:::", winnerID);
+                winnerID = message.winnerID;
                 senderID = senderUUID;
-                Users.requestUsernameFromID(JSON.stringify(message.winnerID));
-            } else {
-                print("message type isn't winner");
-            }
+                Users.requestUsernameFromID(winnerID);
+            } 
         });
     
         Messages.subscribe(TRIVIA_CHANNEL);
@@ -60,8 +53,6 @@
             senderID: senderID
         });
 
-        print("sendInput is", JSON.stringify(paramString));
-
         var request = new XMLHttpRequest();
         request.open('GET', url + "?" + paramString);
         request.timeout = 10000;
@@ -69,13 +60,7 @@
     }
 
     function setUserName(nodeID, userName, machineFingerprint, isAdmin) {     
-        console.log("setUserName Args: 1 ",JSON.stringify(machineFingerprint));
-        console.log("setUserName Args: 2 ",JSON.stringify(userName));
-        console.log("setUserName Args: 3 ",JSON.stringify(nodeID));
-        console.log("setUserName Args: 4 ",JSON.stringify(isAdmin));
-        console.log("setUserName Args: 5 ",JSON.stringify(arguments));
         sendInput(JSON.stringify(userName));
-        print("the winning user is: ", JSON.stringify(userName));
     }
 
     function encodeURLParams(params) {
@@ -87,7 +72,6 @@
     }
 
     function appEnding() {
-        print("app ending");
         Messages.unsubscribe(TRIVIA_CHANNEL);
         Messages.messageReceived.disconnect(messageHandler);
         Users.usernameFromIDReply.disconnect(setUserName);
@@ -96,4 +80,4 @@
     Messages.subscribe(TRIVIA_CHANNEL);
     Users.usernameFromIDReply.connect(setUserName);
     Script.scriptEnding.connect(appEnding);
-}());
+})();
