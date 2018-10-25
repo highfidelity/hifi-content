@@ -435,7 +435,9 @@
 
             getIntersection, // Function.
             intersection,
-            isUIVisible = true;
+            isUIVisible = true,
+
+            isHandEditing = false;
 
 
         if (!(this instanceof Editor)) {
@@ -705,10 +707,26 @@
             initialSelectionOrientation = selectionPositionAndOrientation.orientation;
         }
 
+        function signalIsEditing(editing) {
+            var HIFI_EDIT_MANIPULATION_CHANNEL = "HiFi-Edit-Manipulation";
+
+            if (editing === isHandEditing) {
+                return;
+            }
+
+            Messages.sendLocalMessage(HIFI_EDIT_MANIPULATION_CHANNEL, JSON.stringify({
+                action: editing ? "startEdit" : "finishEdit",
+                hand: side === LEFT_HAND ? Controller.Standard.LeftHand : Controller.Standard.RightHand
+            }));
+
+            isHandEditing = editing;
+        }
+
 
         function enterEditorIdle() {
             laser.clear();
             selection.clear();
+            signalIsEditing(false);
         }
 
         function exitEditorIdle() {
@@ -721,6 +739,7 @@
             rootEntityID = null;
             hoveredOverlayID = intersection.overlayID;
             otherEditor.hoverHandle(hoveredOverlayID);
+            signalIsEditing(false);
         }
 
         function updateEditorSearching() {
@@ -748,6 +767,7 @@
             }
             isOtherEditorEditingEntityID = otherEditor.isEditing(rootEntityID);
             wasScaleTool = toolSelected === TOOL_SCALE;
+            signalIsEditing(false);
         }
 
         function updateEditorHighlighting() {
@@ -789,6 +809,7 @@
             }
             startEditing();
             wasScaleTool = toolSelected === TOOL_SCALE;
+            signalIsEditing(true);
         }
 
         function updateEditorGrabbing() {
@@ -821,6 +842,7 @@
                 laser.disable();
             }
             otherEditor.startDirectScaling(getScaleTargetPosition());
+            signalIsEditing(true);
         }
 
         function updateEditorDirectScaling() {
@@ -842,6 +864,7 @@
                 laser.disable();
             }
             otherEditor.startHandleScaling(getScaleTargetPosition(), intersection.overlayID);
+            signalIsEditing(true);
         }
 
         function updateEditorHandleScaling() {
