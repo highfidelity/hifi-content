@@ -43,7 +43,7 @@
             "emitOrientation":{"x":"-90","y":"0","z":"0"},
             "emitterShouldTrail":false,
             "particleRadius":"0.02",
-            "radiusSpread":"6",
+            "radiusSpread":"0.03",
             "radiusStart":"0.01",
             "radiusFinish":"0",
             "color":{"red":"171","blue":"171","green":"171"},
@@ -57,9 +57,9 @@
             "alphaStart":"1",
             "alphaFinish":"1",
             "polarStart":"0",
-            "polarFinish":"17",
-            "azimuthStart":"-180",
-            "azimuthFinish":"180"
+            "polarFinish":"0.296706",
+            "azimuthStart":"-3.14159",
+            "azimuthFinish":"3.14159"
         }, true);
         Entities.editEntity(_entityID, {visible: false, collidesWith: "", collisionless: true});
         Script.setTimeout(function() {
