@@ -27,6 +27,7 @@
                 4. Custom Made Music
             TODO:
                 1. Better Smoke Particles
+                2. Create Text 
     
         */
     // Init
@@ -67,19 +68,18 @@
                     Script.resolvePath("./Sounds/Music/03B_Eww Baby_INST.mp3")
                 ],
                 Lights = new LightMaker(),
-                Particles = {},
-                FBX_Animations = {},
-                Images = {},
-                Text = {},
-                Sounds = new SoundArray()
+                Particles = new ParticleMaker(),
+                FBX_Animations = new FBXMaker(),
+                Images = new ImageMaker(),
+                Text = new TextMaker(),
+                Sounds = new SoundMaker(),
+                Duds = new DudMaker()
             ;
 
     // Constructors
     // ////////////////////////////////////////////////////////////////////////
     // Object Definitions
     // ////////////////////////////////////////////////////////////////////////
-    
-
     // Helper Functions
     // ////////////////////////////////////////////////////////////////////////
         function log(label, value, isActive) {
@@ -107,7 +107,27 @@
             return obj;
         }
 
-        function SoundArray(audioOptions, autoUpdateAudioPosition) {
+        function DudMaker() {
+
+        }
+
+        function ParticleMaker() {
+            
+        }
+
+        function TextMaker() {
+
+        }
+
+        function FBXMaker() {
+
+        }
+
+        function ImageMaker() {
+
+        }
+
+        function SoundMaker(audioOptions, autoUpdateAudioPosition) {
             this.audioOptions = audioOptions !== undefined ? audioOptions : {};
             this.autoUpdateAudioPosition = autoUpdateAudioPosition !== undefined ? autoUpdateAudioPosition : false;
             if (this.audioOptions.position === undefined) {
@@ -150,42 +170,48 @@
             };
         }
 
-        function LightMaker(position){
+        function LightMaker(){
+            var that = this;
             this.box = null;
             this.lights = [];
             this.spotLight = null;
-            this.lightProps = {
-                name: "Suprise lights",
-                type: "Light",
-                position: position,
-                dimensions: {
-                    x: 10,
-                    y: 10,
-                    z: 10
-                },
-                angularDamping: 0,
-                color:{red: 255,
-                    blue: 255,
-                    green: 255
-                },
-                intensity: 1000,
-                falloffRadius: 0,
-                isSpotlight: 0,
-                exponent: 1,
-                cutoff: 10,
-                collisionless: true,
-                userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
-                parentID: this.box
+            this.lightProps = {};
+            this.makeProps = function(position) {
+                this.lightProps = {
+                    name: "Suprise lights",
+                    type: "Light",
+                    position: this.position,
+                    dimensions: {
+                        x: 10,
+                        y: 10,
+                        z: 10
+                    },
+                    angularDamping: 0,
+                    color:{red: 255,
+                        blue: 255,
+                        green: 255
+                    },
+                    intensity: 1000,
+                    falloffRadius: 0,
+                    isSpotlight: 0,
+                    exponent: 1,
+                    cutoff: 10,
+                    collisionless: true,
+                    userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
+                    parentID: this.box
+                };
             };
-            this.create = function(){
+            this.create = function(position){
+                this.position = position;
+                this.makeProps();
                 this.makeBox();
                 this.makeLights();
             };
-            this.makeBox = function() {
+            this.makeBox = function(position) {
                 this.box = Entities.addEntity({
                     name: "Spot Light",
                     type: "Box",
-                    position: position,
+                    position: this.position,
                     dimensions: {
                         x: 0.35,
                         y: 0.35,
@@ -237,13 +263,13 @@
     // Procedural Functions
     // ////////////////////////////////////////////////////////////////////////
 
-        function explodeTest(){
+        function startParty(){
             log("Starting Explode Test");
 
-            var currentPosition = Entities.getEntityProperties(_entityID, ["position"]);
+            var currentPosition = Entities.getEntityProperties(_entityID, ["position"]).position;
             createSmoke();
-            Sounds.playRandom();
-            Lights.create(currentPosition);
+            // Sounds.playRandom();
+            // Lights.create(currentPosition);
 
             explodeTestID = Entities.addEntity({
                 type: "Text",
@@ -269,7 +295,7 @@
                     dynamic: true,
                     visible: true
                 }); 
-            }, 30000);
+            }, randomDurationTime);
         }
         
         // Start the timer for things to happen
@@ -288,7 +314,7 @@
                     visible: false,
                     rotation: Quat.IDENTITY
                 }); 
-                explodeTest();
+                startParty();
             }, randomTimeToExplode);
         } 
 
@@ -364,7 +390,7 @@
                 "polarFinish": 0.10471975511965978,
                 "azimuthStart": -3.141592653589793,
                 "azimuthFinish": 3.141592653589793
-            })
+            });
 
             Script.setTimeout(function() {
                 Entities.deleteEntity(splat);
@@ -409,16 +435,16 @@
                 canStartTimer = true;
             },
 
-            startFarGrab: function(){
-                log("startFarGrab");
-                var actionsIds = Entities.getActionIDs(_entityID);
-                log("actionIds", actionsIds);
-            },
+            // startFarGrab: function(){
+            //     log("startFarGrab");
+            //     var actionsIds = Entities.getActionIDs(_entityID);
+            //     log("actionIds", actionsIds);
+            // },
 
-            startEquip: function(){
-                log("startEquip");
+            // startEquip: function(){
+            //     log("startEquip");
 
-            },
+            // },
 
             releaseGrab: function(id, hand){
                 log("releaseGrab");
