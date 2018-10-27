@@ -67,11 +67,13 @@
                     Script.resolvePath("./Sounds/Music/03B_Eww Baby_INST.mp3")
                 ],
                 Lights = new LightMaker(),
-                Particles = {},
-                FBX_Animations = {},
-                Images = {},
-                Text = {},
-                Sounds = new SoundArray()
+                Particles = new ParticleMaker(),
+                FBX_Animations = new FBXMaker(),
+                Images = new ImageMaker(),
+                Text = new TextMaker(),
+                Music = new SoundArray(),
+                Effects = new SoundArray(),
+                Duds = new DudMaker()
             ;
 
     // Constructors
@@ -92,8 +94,7 @@
 
         function randomFloat (low, high) {
                 return low + Math.random() * (high - low);
-        }
-            
+        }         
             
         function randomInt(low, high) {
             return Math.floor(randomFloat(low, high));
@@ -105,6 +106,51 @@
             obj.y = y;
             obj.z = z;
             return obj;
+        }
+
+        function ParticleMaker(){
+            this.create = function() {
+
+            };
+            this.destory = function() {
+                
+            };
+        }
+
+        function FBXMaker(){
+            this.create = function() {
+
+            };
+            this.destory = function() {
+                
+            };
+        }
+
+        function ImageMaker(){
+            this.create = function() {
+
+            };
+            this.destory = function() {
+                
+            };
+        }
+
+        function TextMaker(){
+            this.create = function() {
+
+            };
+            this.destory = function() {
+                
+            };
+        }
+        
+        function DudMaker(){
+            this.create = function() {
+
+            };
+            this.destory = function() {
+                
+            };
         }
 
         function SoundArray(audioOptions, autoUpdateAudioPosition) {
@@ -150,34 +196,38 @@
             };
         }
 
-        function LightMaker(position){
+        function LightMaker(){
             this.box = null;
             this.lights = [];
             this.spotLight = null;
-            this.lightProps = {
-                name: "Suprise lights",
-                type: "Light",
-                position: position,
-                dimensions: {
-                    x: 10,
-                    y: 10,
-                    z: 10
-                },
-                angularDamping: 0,
-                color:{red: 255,
-                    blue: 255,
-                    green: 255
-                },
-                intensity: 1000,
-                falloffRadius: 0,
-                isSpotlight: 0,
-                exponent: 1,
-                cutoff: 10,
-                collisionless: true,
-                userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
-                parentID: this.box
+            this.makeProps = function() {
+                return {
+                    name: "Suprise lights",
+                    type: "Light",
+                    position: this.position,
+                    dimensions: {
+                        x: 10,
+                        y: 10,
+                        z: 10
+                    },
+                    angularDamping: 0,
+                    color:{red: 255,
+                        blue: 255,
+                        green: 255
+                    },
+                    intensity: 1000,
+                    falloffRadius: 0,
+                    isSpotlight: 0,
+                    exponent: 1,
+                    cutoff: 10,
+                    collisionless: true,
+                    userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
+                    parentID: this.box
+                };
             };
-            this.create = function(){
+            this.create = function(position){
+                this.position = position;
+                this.makeProps();
                 this.makeBox();
                 this.makeLights();
             };
@@ -185,7 +235,7 @@
                 this.box = Entities.addEntity({
                     name: "Spot Light",
                     type: "Box",
-                    position: position,
+                    position: this.position,
                     dimensions: {
                         x: 0.35,
                         y: 0.35,
@@ -240,9 +290,9 @@
         function explodeTest(){
             log("Starting Explode Test");
 
-            var currentPosition = Entities.getEntityProperties(_entityID, ["position"]);
+            var currentPosition = Entities.getEntityProperties(_entityID, ["position"]).position;
             createSmoke();
-            Sounds.playRandom();
+            Music.playRandom();
             Lights.create(currentPosition);
 
             explodeTestID = Entities.addEntity({
@@ -259,7 +309,7 @@
             Script.setTimeout(function(){
                 log("Deleting Entities", explodeTestID);
                 Entities.deleteEntity(explodeTestID);
-                Sounds.stop();
+                Music.stop();
                 Lights.destroy();
 
                 log("Reseting Ball");
@@ -269,7 +319,7 @@
                     dynamic: true,
                     visible: true
                 }); 
-            }, 30000);
+            }, randomDurationTime);
         }
         
         // Start the timer for things to happen
@@ -394,15 +444,13 @@
                 });
 
                 musicCollection.forEach(function(sound){
-                    Sounds.addSound(sound);
+                    Music.addSound(sound);
                 });
 
             },
 
             startNearGrab: function(){
                 log("startNearGrab");
-                var actionsIds = Entities.getActionIDs(_entityID);
-                log("actionIds", actionsIds);
             },
 
             continueNearGrab: function(id, hand){
@@ -411,8 +459,6 @@
 
             startFarGrab: function(){
                 log("startFarGrab");
-                var actionsIds = Entities.getActionIDs(_entityID);
-                log("actionIds", actionsIds);
             },
 
             startEquip: function(){
