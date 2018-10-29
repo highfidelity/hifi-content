@@ -52,7 +52,7 @@ Overlays have many similar properties to entities, and can be 2D or 3D, models, 
 
 ![](https://hifi-content.s3-us-west-1.amazonaws.com/liv/Courses/Zombies/overlays-1.png)
 
-The cat eye overlays are added to a cat entity when the user is in a specific range. Each client has its own instance of the client script running on the model, and their own set of eye overlays. When the user is near the cat, a [script interval](https://www.w3schools.com/js/js_timing.asp updates the rotation of the eyes to look at the user. The snippet below shows how the [Script API](https://docs.highfidelity.com/api-reference/namespaces/script) sets an interval to update the rotations.
+The cat eye overlays are added to a cat entity when the user is in a specific range. Each client has its own instance of the client script running on the model, and their own set of eye overlays. When the user is near the cat, a [script interval](https://www.w3schools.com/js/js_timing.asp) updates the rotation of the eyes to look at the user. The snippet below shows how the [Script API](https://docs.highfidelity.com/api-reference/namespaces/script) sets an interval to update the rotations.
 
 ```
 interval = Script.setInterval(function() {
