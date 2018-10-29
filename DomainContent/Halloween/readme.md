@@ -64,3 +64,6 @@ interval = Script.setInterval(function() {
    });
  }, UPDATE_EYES_INTERVAL_MS);
 ```
+
+## Basic Mechanics - Audio 
+Audio plays a big role in an immersive experience. The halloween domains, Zombies in particular, make heavy use of audio effects to convery mood and sentiment in the space.
