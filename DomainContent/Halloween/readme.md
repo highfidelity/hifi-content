@@ -8,7 +8,7 @@ The content in this directory was created for the 2018 Halloween season. This fo
 * A "whisper in your ear" utility
 * A ghostly statue scare
 
-## Basic Mechanics - enterEntity
+## Entities.enterEntity
 Much of the halloween content is triggered by a basic [zone or box `enterEntity` call](https://docs.highfidelity.com/api-reference/namespaces/entities#.enterEntity). This API call is triggered when an avatar's collision shape enters within the bounding box of an entity. 
 
 ![](https://hifi-content.s3-us-west-1.amazonaws.com/liv/Courses/Zombies/zombies_class2.png) 
@@ -41,7 +41,7 @@ There are several reasons why you would choose to put these into a server script
 
 In this directory, examples of these types of objects include the resources in the /jumpscares/ folder.
 
-## Basic Mechanics - Overlays
+## Overlays
 Several of the Halloween effects utilize [overlays](https://docs.highfidelity.com/api-reference/namespaces/overlays), which render separately for each individual user (e.g. my overlays don't show up for you). The tablet UI is an example of content built with overlays. These are helpful to use when creating pieces of content that shouldn't be visible or affected by other people in the domain with you. 
 
 There are two main elements in the Halloween content pieces that rely on overlays: 
@@ -65,9 +65,41 @@ interval = Script.setInterval(function() {
  }, UPDATE_EYES_INTERVAL_MS);
 ```
 
-## Basic Mechanics - Audio 
-Audio plays a big role in an immersive experience. The halloween domains, Zombies in particular, make heavy use of audio effects to convery mood and sentiment in the space. This directory contains three types of audio techniques that we used within the Halloween domains: 
+## Audio 
+Audio plays a big role in an immersive experience. The Halloween domains, Zombies in particular, make heavy use of audio effects to convery mood and sentiment in the space. This directory contains three types of audio techniques that we used within the Halloween domains: 
 
 * Audio that plays on a random interval
 * Audio that loops
 * Positional "whispering" audio 
+
+High Fidelity supports the following audio types: 
+
+* WAV: 16-bit uncompressed WAV at any sample rate, with 1 (mono), 2(stereo), or 4 (ambisonic) channels.
+* MP3: Mono or stereo, at any sample rate.
+* RAW: 48khz 16-bit mono or stereo. Filename must include ".stereo" to be interpreted as stereo.
+
+![](https://hifi-content.s3-us-west-1.amazonaws.com/liv/Courses/Zombies/audio.png)
+
+Audio files in High Fidelity can be ambisonic, stereo, or mono format, which each play back in different ways. They are downloaded and played through an audio injector. Both the sounds and the injector itself have properties that can be set to change the effects of the audio, including things like position, volume, reverb, whether or not the injector should loop the audio clip, and more.
+
+The snippet below taken from `whisperInEar.js` shows how an audio injector plays a sound locally and sets an interval to update the position of the sound to follow a user's head:
+
+```
+var sound = SoundCache.getSound(SOUND_URL);
+// Play sound
+var injector = Audio.playSound(sound, {
+    position: position,
+    inputVolume: AUDIO_VOLUME_LEVEL,
+    localOnly: true
+});
+
+// Update sound position using interval
+var updatePositionInterval = Script.setInterval(function () {
+var position = getPositionFromObject();
+    injector.options = {
+    position: position,
+    inputVolume: AUDIO_VOLUME_LEVEL,
+    localOnly: true
+    };
+}, UPDATE_POSITION_MS);
+```
