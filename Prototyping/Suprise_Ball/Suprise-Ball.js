@@ -94,7 +94,7 @@
                     "http://hifi-content.s3.amazonaws.com/alexia/LoadingScreens/Portals/circle.png",
                     "http://hifi-content.s3.amazonaws.com/alexia/Models/Portal/stripe.png",
                     "http://hifi-content.s3.amazonaws.com/alexia/Models/Portal/star.png",
-                    "http://hifi-content.s3.amazonaws.com/alexia/Avatars/Bevi/bubble.png",
+                    "http://hifi-content.s3.amazonaws.com/alexia/Avatars/Bevi/bubble.png"
                 ],
                 danceUrls = [ 
                     'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Ballet 372.fbx',
@@ -154,7 +154,7 @@
             print("\n" + label + "\n" + "***************************************\n", JSON.stringify(value));
         }
 
-        function randomFloat (low, high) {
+        function randomFloat(low, high) {
             return low + Math.random() * (high - low);
         }
             
@@ -196,7 +196,7 @@
             this.interval = null;
             this.makeRandomParticleProps = function() {
 
-            }
+            };
             this.animate = function() {
                                    
                 var SEED_MIN = 0;
@@ -222,29 +222,29 @@
                         emitAcceleration: {
                             "x": clamp(-0.5, 0.5, lerp(SEED_MIN, SEED_MAX, -0.5, 0.5, Math.sin(seed))),
                             "y": clamp(-0.5, 0.5, lerp(SEED_MIN, SEED_MAX, -0.5, 0.5, Math.cos(seed))),
-                            "z": clamp(-0.5, 0.5, lerp(SEED_MIN, SEED_MAX, -0.5, 0.5, Math.tan(seed))),
+                            "z": clamp(-0.5, 0.5, lerp(SEED_MIN, SEED_MAX, -0.5, 0.5, Math.tan(seed)))
                         },
                         emitOrientation: Quat.fromPitchYawRollDegrees(
                             clamp(-180, 180, lerp(SEED_MIN, SEED_MAX, -180, 180, Math.sin(seed))),
                             clamp(-180, 180, lerp(SEED_MIN, SEED_MAX, -180, 180, Math.cos(seed))),
                             clamp(-180, 180, lerp(SEED_MIN, SEED_MAX, -180, 180, Math.tan(seed)))
-                        ),
-                    }
+                        )
+                    };
                         textureCount <= textureSwitchCount && 
                         (particleProps.textures = textureCollection[randomInt(0, textureCollection.length - 1)]) &&
-                        textureCount++
+                        textureCount++;
 
                         textureCount >= textureSwitchCount && 
-                        (textureCount = 0)
+                        (textureCount = 0);
                         
-                    Entities.editEntity(that.particle, particleProps)
-                }, intervalAmount)
+                    Entities.editEntity(that.particle, particleProps);
+                }, intervalAmount);
 
-            }
+            };
             this.create = function(position) {
                 this.makeParticle();
                 this.animate();
-            }
+            };
             this.makeParticle = function() {
                 var bubbles = {
                     "accelerationSpread": {
@@ -327,7 +327,7 @@
                     "spinStart": 1.2042771577835083,
                     "textures": "http://hifi-content.s3.amazonaws.com/alexia/Avatars/Bevi/bubble.png",
                     "type": "ParticleEffect"
-                }
+                };
                 var smoke = {
                     "accelerationSpread": {
                         "blue": 0,
@@ -396,7 +396,7 @@
                     "spinStart": 0,
                     "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
                     "type": "ParticleEffect"
-                }
+                };
 
                 var star = {
                     "alpha": 0,
@@ -460,7 +460,7 @@
                     "textures": "http://hifi-content.s3.amazonaws.com/alexia/Models/Portal/star.png",
                     "type": "ParticleEffect",
                     "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
-                }
+                };
 
                 var circle = {
                     "alpha": 0,
@@ -528,7 +528,7 @@
                     "textures": "http://hifi-content.s3.amazonaws.com/alexia/LoadingScreens/Portals/circle.png",
                     "type": "ParticleEffect",
                     "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
-                }
+                };
 
                 var rays = {
                     "alpha": 0,
@@ -605,17 +605,17 @@
                     "textures": "http://hifi-content.s3.amazonaws.com/alexia/Models/Portal/stripe.png",
                     "type": "ParticleEffect",
                     "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
-                }
+                };
 
                 var particleArray = [bubbles, smoke, star, circle, rays];
                 var particle = particleArray[randomInt(0, 4)];
-                particle.parentID = _entityID
+                particle.parentID = _entityID;
                 this.particle = Entities.addEntity(particle);
-            }
+            };
             this.destory = function() {
                 Entities.deleteEntity(this.particle);
                 Script.clearInterval(this.interval);
-            }
+            };
         }
 
         function DanceMaker() {
@@ -632,15 +632,19 @@
                         url: dance,
                         running: true
                     },
-                    visible: true
-                })
+                    visible: false
+                });
 
-            }
+            };
+            this.makeVisible = function() {
+                Entities.editEntity(this.dancer, {
+                    visible: true
+                });
+            };
             this.destroy = function() {
                 Entities.deleteEntity(this.dancer);
-            }
+            };
         }
-
 
         function SoundMaker(audioOptions, autoUpdateAudioPosition) {
             this.audioOptions = audioOptions !== undefined ? audioOptions : {};
@@ -684,7 +688,7 @@
                 try {
                     this.injector.stop();
 
-                } catch(e) {
+                } catch (e) {
                     // e
                 }
             };
@@ -717,7 +721,7 @@
                     exponent: 1,
                     cutoff: 10,
                     collisionless: true,
-                    userData: "{ \"grabbableKey\": { \"grabbable\": false} }"                };
+                    userData: "{ \"grabbableKey\": { \"grabbable\": false} }" };
             };
             this.makeRandomLightProps = function(){
                 var SEED_MIN = 0;
@@ -733,9 +737,9 @@
                     ),
                     falloffRadius: clamp(0, 10, lerp(SEED_MIN, SEED_MAX, 0, 10, Math.sin(seed))),
                     cutoff: clamp(0, 100, lerp(SEED_MIN, SEED_MAX, 0, 100, Math.cos(seed)))
-                }        
+                };        
                 return lightProps;        
-            }
+            };
 
             this.interval = null, 
             this.animate = function(){
@@ -743,8 +747,8 @@
                 var SEED_MIN = 0;
                 var SEED_MAX = 1;
                 
-                var UDPATE_MIN = 25
-                var UPDATE_MAX = 150
+                var UDPATE_MIN = 25;
+                var UPDATE_MAX = 150;
 
                 var seed = randomFloat(SEED_MIN, SEED_MAX);
                 var intervalAmount = parseInt(lerp(SEED_MIN, SEED_MAX, UDPATE_MIN, UPDATE_MAX, seed));
@@ -754,17 +758,17 @@
                     var angularVelocity = {
                         x: clamp(1, 5, lerp(SEED_MIN, SEED_MAX, 1, 5, Math.sin(seed))),
                         y: clamp(1, 5, lerp(SEED_MIN, SEED_MAX, 1, 5, Math.cos(seed))),
-                        z: clamp(1, 5, lerp(SEED_MIN, SEED_MAX, 1, 5, Math.tan(seed))), 
-                    }
+                        z: clamp(1, 5, lerp(SEED_MIN, SEED_MAX, 1, 5, Math.tan(seed))) 
+                    };
                     Entities.editEntity(that.box, {
                         angularVelocity: angularVelocity
-                    })
+                    });
                 
                     Entities.editEntity(that.spotLight, that.makeRandomLightProps());
                     that.lights.forEach(function(light){
                         Entities.editEntity(light, that.makeRandomLightProps());
-                    })
-                }, intervalAmount)
+                    });
+                }, intervalAmount);
             },
             this.create = function(position){
                 this.position = position;
@@ -855,14 +859,16 @@
                 Music.playRandom();
                 Lights.create(currentPosition);
                 Particles.create(currentPosition);
-                Dancers.create(currentPosition);
+                Dancers.makeVisible();
 
-            }, START_TIME)
+            }, START_TIME);
 
             var randomDurationTime = randomInt(MIN_DURATION_TIME, MAX_DURATION_TIME);
 
             Script.setTimeout(function(){
                 log("Deleting Entities");
+                createSmoke();
+                SFX.playRandom();
                 Music.stop();
                 Lights.destroy();
                 Particles.destory();
@@ -1011,8 +1017,15 @@
                 });
 
                 dance = danceUrls[randomInt(0, danceUrls.length - 1)];
+                var resourced = AnimationCache.prefetch(dance);
 
-                AnimationCache.prefetch(dance);
+                Dancers.create(_entityProperties.position);
+                
+                // log("resourced", resourced);
+            },
+
+            mouseReleaseOnEntity: function() {
+                this.start();
             },
 
             continueNearGrab: function(id, hand){
@@ -1029,10 +1042,15 @@
                 (canStartTimer = false);
             },
 
+            start: function() {
+                log("Manually calling start");
+                startTimer(); 
+            },
+
             unload: function(){
                 log("running unload");
 
-                explodeTimer && Script.clearInterval(explodeTimer)
+                explodeTimer && Script.clearInterval(explodeTimer);
             }
         };
 
