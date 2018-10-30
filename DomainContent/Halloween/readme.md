@@ -66,4 +66,8 @@ interval = Script.setInterval(function() {
 ```
 
 ## Basic Mechanics - Audio 
-Audio plays a big role in an immersive experience. The halloween domains, Zombies in particular, make heavy use of audio effects to convery mood and sentiment in the space.
+Audio plays a big role in an immersive experience. The halloween domains, Zombies in particular, make heavy use of audio effects to convery mood and sentiment in the space. This directory contains three types of audio techniques that we used within the Halloween domains: 
+
+* Audio that plays on a random interval
+* Audio that loops
+* Positional "whispering" audio 
