@@ -12,7 +12,11 @@
             canStartTimer,
             explodeTimer = false,
             dancer = null,
-            dance = null
+            dance = null,
+            modelLoaded = false,
+            danceLoaded = false,
+            currentPosition = null,
+            debug = true
         ;
     
     // Consts
@@ -78,65 +82,77 @@
                     Script.resolvePath("./Sounds/SFX/twisty-hit-whoosh_GkZPorNu.mp3")
                 ],
                 textureCollection = [
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/atmosphere-particle-2.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/Bokeh-Particle-2.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/cloud-sprite.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/Fireball.jpg",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/heart-2.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/Particle-Spark.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/plasma-sprite.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/playaDust.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/rainbow.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/mist-sprite.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/Star-sprite.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/water-bubble.png",
-                    "https://hifi-content.s3.amazonaws.com/alan/dev/Particle-Triangle.png",
-                    "http://hifi-content.s3.amazonaws.com/alexia/LoadingScreens/Portals/circle.png",
-                    "http://hifi-content.s3.amazonaws.com/alexia/Models/Portal/stripe.png",
-                    "http://hifi-content.s3.amazonaws.com/alexia/Models/Portal/star.png",
-                    "http://hifi-content.s3.amazonaws.com/alexia/Avatars/Bevi/bubble.png"
+                    
+                    Script.resolvePath("./Textures/atmosphere-particle-2.png"),
+                    Script.resolvePath("./Textures/Bokeh-Particle-2.png"),
+                    Script.resolvePath("./Textures/cloud-sprite.png"),
+                    Script.resolvePath("./Textures/Fireball.jpg"),
+                    Script.resolvePath("./Textures/heart-2.png"),
+                    Script.resolvePath("./Textures/Particle-Spark.png"),
+                    Script.resolvePath("./Textures/plasma-sprite.png"),
+                    Script.resolvePath("./Textures/playaDust.png"),
+                    Script.resolvePath("./Textures/rainbow.png"),
+                    Script.resolvePath("./Textures/mist-sprite.png"),
+                    Script.resolvePath("./Textures/Star-sprite.png"),
+                    Script.resolvePath("./Textures/water-bubble.png"),
+                    Script.resolvePath("./Textures/Particle-Triangle.png"),
+                    Script.resolvePath("./Textures/circle.png"),
+                    Script.resolvePath("./Textures/stripe.png"),
+                    Script.resolvePath("./Textures/star.png"),
+                    Script.resolvePath("./Textures/bubble.png"),
+                    Script.resolvePath("./Textures/meowlad.png")
                 ],
-                danceUrls = [ 
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Ballet 372.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/BBoy Look at me be Booooi 202.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Belly Dance 590.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Belly Dancing 643.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Beyonce Boogie 235.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Body Rocka 64.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Booty Booty Booty 148.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Breakdance 1990 16.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Chicken Dance 144.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Every day Im shuffelin 226.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Flair it Up 75.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Gangnam Style 372.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Hokey Pokey 351.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/In Yo Own World 392.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Jiggle Jangle 474.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/King Tut 509.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Mad attitude 184.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Raise the roof 124.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Runnin Man 326.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Salsa and Chips 566.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Salsa Papi 136.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Salsa spinna 79.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Shake it like you mean it 360.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Shoppin like its Costco 479.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Slider with cheese 520.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Smoov Playa 489.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/So into it 244.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Swing Batta Batta 742.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Swing so happy 628.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Swinga 700.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Thriller Idle 131.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Thriller Part 1 896.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Thriller Part 2 566.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Thriller Part 3 768.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Thriller Part 4 1113.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Twerk it Twerk it 457.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Twista 284.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Wavy baby 213.fbx',
-                    'https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Rust/DanceApp/Animations/Ymca Dance 136.fbx' 
-                ];
+                danceCollection = [ 
+                    Script.resolvePath("./Animations/Ballet 372.fbx"),
+                    Script.resolvePath("./Animations/BBoy Look at me be Booooi 202.fbx"),
+                    Script.resolvePath("./Animations/Belly Dance 590.fbx"),
+                    Script.resolvePath("./Animations/Belly Dancing 643.fbx"),
+                    Script.resolvePath("./Animations/Beyonce Boogie 235.fbx"),
+                    Script.resolvePath("./Animations/Body Rocka 64.fbx"),
+                    Script.resolvePath("./Animations/Booty Booty Booty 148.fbx"),
+                    Script.resolvePath("./Animations/Breakdance 1990 16.fbx"),
+                    Script.resolvePath("./Animations/Chicken Dance 144.fbx"),
+                    Script.resolvePath("./Animations/Every day Im shuffelin 226.fbx"),
+                    Script.resolvePath("./Animations/Flair it Up 75.fbx"),
+                    Script.resolvePath("./Animations/Gangnam Style 372.fbx"),
+                    Script.resolvePath("./Animations/Hokey Pokey 351.fbx"),
+                    Script.resolvePath("./Animations/In Yo Own World 392.fbx"),
+                    Script.resolvePath("./Animations/Jiggle Jangle 474.fbx"),
+                    Script.resolvePath("./Animations/King Tut 509.fbx"),
+                    Script.resolvePath("./Animations/Mad attitude 184.fbx"),
+                    Script.resolvePath("./Animations/Raise the roof 124.fbx"),
+                    Script.resolvePath("./Animations/Runnin Man 326.fbx"),
+                    Script.resolvePath("./Animations/Salsa and Chips 566.fbx"),
+                    Script.resolvePath("./Animations/Salsa Papi 136.fbx"),
+                    Script.resolvePath("./Animations/Salsa spinna 79.fbx"),
+                    Script.resolvePath("./Animations/Shake it like you mean it 360.fbx"),
+                    Script.resolvePath("./Animations/Shoppin like its Costco 479.fbx"),
+                    Script.resolvePath("./Animations/Slider with cheese 520.fbx"),
+                    Script.resolvePath("./Animations/Smoov Playa 489.fbx"),
+                    Script.resolvePath("./Animations/So into it 244.fbx"),
+                    Script.resolvePath("./Animations/Swing Batta Batta 742.fbx"),
+                    Script.resolvePath("./Animations/Swing so happy 628.fbx"),
+                    Script.resolvePath("./Animations/Swinga 700.fbx"),
+                    Script.resolvePath("./Animations/Thriller Idle 131.fbx"),
+                    Script.resolvePath("./Animations/Thriller Part 1 896.fbx"),
+                    Script.resolvePath("./Animations/Thriller Part 2 566.fbx"),
+                    Script.resolvePath("./Animations/Thriller Part 3 768.fbx"),
+                    Script.resolvePath("./Animations/Thriller Part 4 1113.fbx"),
+                    Script.resolvePath("./Animations/Twerk it Twerk it 457.fbx"),
+                    Script.resolvePath("./Animations/Twista 284.fbx"),
+                    Script.resolvePath("./Animations/Wavy baby 213.fbx"),
+                    Script.resolvePath("./Animations/Ymca Dance 136.fbx")
+                ],
+                dancerCollection = [ 
+                    Script.resolvePath("./Models/alan.fst"),
+                    Script.resolvePath("./Models/alisa.fst"),
+                    Script.resolvePath("./Models/andrew.fst"),
+                    Script.resolvePath("./Models/austin.fst"),
+                    Script.resolvePath("./Models/birarda.fst"),
+                    Script.resolvePath("./Models/brad.fst"),
+                    Script.resolvePath("./Models/caitlyn.fst"),
+                    Script.resolvePath("./Models/clement.fst")
+                ],
                 Lights = new LightMaker(),
                 Particles = new ParticleMaker(),
                 Dancers = new DanceMaker(),
@@ -147,6 +163,9 @@
     // Helper Functions
     // ////////////////////////////////////////////////////////////////////////
         function log(label, value, isActive) {
+            if (!debug) {
+                return;
+            }
             isActive = isActive || true;
             if (!isActive) {
                 return;
@@ -209,7 +228,7 @@
                 var intervalAmount = parseInt(lerp(SEED_MIN, SEED_MAX, UDPATE_MIN, UPDATE_MAX, seed));
                 
                 var textureCount = 0;
-                var textureSwitchCount = 50;
+                var textureSwitchCount = 15;
                 this.interval = Script.setInterval(function(){
                     var SEED_MIN = 0;
                     var SEED_MAX = 1;
@@ -621,24 +640,63 @@
         function DanceMaker() {
             var that = this;
             this.dancer = null;
+            this.randomAnimation = null;
+            this.randomDancer = null;
+            this.dancerLoaded = false;
+            this.animationLoaded = false;
+            this.modelResource = null;
+            this.animationResource = null;
+            this.handleModelFetch = function(state){
+                log("state change on model", state);
+                log("dancerLoaded", that.dancerLoaded);
+                log("animationLoaded", that.animationLoaded);
+                if (state === 3) {
+                    // state === 3 &&
+                    log("state is finished");
+                    (that.dancerLoaded = true);
+                    log("that.dancer Loaded after assign:", that.dancerLoaded);
+                    that.animationLoaded;
+                    (log("About to start the party!"));
+                    startParty();
+                }
+                
+            };
+            this.handleAnimationFetch = function(state){
+                log("state change on animation", state);
+                log("dancerLoaded", that.dancerLoaded);
+                log("animationLoaded", that.animationLoaded);
+
+                if (state === 3) {
+                    log("state is finished");
+                    (that.animationLoaded = true);
+                    log("that.animationLoaded Loaded after assign:", that.animationLoaded);
+                    that.dancerLoaded;
+                    (log("About to start the party!"));
+                    startParty();
+                }
+               
+            };
+            this.prefetch = function() {
+                log("prefetch started");
+                this.randomAnimation = danceCollection[randomInt(0, danceCollection.length -1)];
+                this.randomDancer = dancerCollection[randomInt(0, dancerCollection.length -1)];
+                log("chosen dancer", this.randomDancer);
+                this.modelResource = ModelCache.prefetch(this.randomDancer);
+                this.animationResource = AnimationCache.prefetch(this.randomAnimation);
+                this.modelResource.stateChanged.connect(this.handleModelFetch);
+                this.animationResource.stateChanged.connect(this.handleAnimationFetch);
+            };
             this.create = function(position) {
                 this.dancer = Entities.addEntity({
                     type: "Model",
                     name: "supriseDancer",
-                    modelURL: "http://mpassets.highfidelity.com/ad348528-de38-420c-82bb-054cb22163f5-v1/mannequin.fst",
+                    modelURL: that.randomDancer,
                     position: Vec3.sum(position, vec(0,0.75,0)),
                     parentID: _entityID,
                     animation: {
-                        url: dance,
+                        url: that.randomAnimation,
                         running: true
-                    },
-                    visible: false
-                });
-
-            };
-            this.makeVisible = function() {
-                Entities.editEntity(this.dancer, {
-                    visible: true
+                    }
                 });
             };
             this.destroy = function() {
@@ -850,7 +908,7 @@
         function startParty(){
             log("Starting Party");
 
-            var currentPosition = Entities.getEntityProperties(_entityID, ["position"]).position;
+            currentPosition = Entities.getEntityProperties(_entityID, ["position"]).position;
 
             var START_TIME = 500;
             createSmoke();
@@ -859,8 +917,7 @@
                 Music.playRandom();
                 Lights.create(currentPosition);
                 Particles.create(currentPosition);
-                Dancers.makeVisible();
-
+                Dancers.create(currentPosition);
             }, START_TIME);
 
             var randomDurationTime = randomInt(MIN_DURATION_TIME, MAX_DURATION_TIME);
@@ -877,23 +934,19 @@
                 explodeTimer = false;
                 log("Reseting Ball");
                 Entities.deleteEntity(_entityID);
-                // Entities.editEntity(_entityID, {
-                //     gravity: vec(0, GRAVITY, 0),
-                //     velocity: vec(0, -3, 0),
-                //     dynamic: true,
-                //     visible: true
-                // }); 
             }, randomDurationTime);
             // }, 12000);
 
         }
-        
         // Start the timer for things to happen
         function startTimer(){
+            log("inside start Timer");
             if (explodeTimer) {
+                log("returning from Explode");
                 return;
             }
             var randomTimeToExplode = randomInt(MIN_START_TIME, MAX_START_TIME);
+            log("starting explode timer");
             explodeTimer = Script.setTimeout(function(){
                 log("About to explode");
                 Entities.editEntity(_entityID, {
@@ -904,7 +957,8 @@
                     visible: false,
                     rotation: Quat.IDENTITY
                 }); 
-                startParty();
+                log("starting prefetch");
+                Dancers.prefetch();
             }, randomTimeToExplode);
         } 
 
@@ -1016,12 +1070,6 @@
                     SFX.addSound(sound);
                 });
 
-                dance = danceUrls[randomInt(0, danceUrls.length - 1)];
-                var resourced = AnimationCache.prefetch(dance);
-
-                Dancers.create(_entityProperties.position);
-                
-                // log("resourced", resourced);
             },
 
             mouseReleaseOnEntity: function() {

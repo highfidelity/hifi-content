@@ -82,7 +82,7 @@
                 "y": 0.08461129665374756,
                 "z": -0.547051191329956
             },
-            "script": "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/Suprise-Ball.js",
+            "script": "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/Suprise-Ball.js?1",
             "type": "Sphere",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
         }
