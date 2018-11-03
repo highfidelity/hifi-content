@@ -4,7 +4,6 @@
 //  Dance-App
 //
 //  Created by Milad Nazeri on 2018-10-11
-//  with Mmdified Code from Howard Stearns
 //  Copyright 2016 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -16,7 +15,7 @@
     // Dependencies
     // /////////////////////////////////////////////////////////////////////////
         var 
-            AppUi = Script.require('./AppUi.js?' + Date.now())
+            AppUi = Script.require('appUi')
         ;
 
     // Consts
@@ -36,7 +35,9 @@
             CURRENT_DANCE = "current_dance",
             DEFAULT_DURATION = "1500",
             DEFAULT_START_FRAME = 0,
-            EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen"
+            EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
+
+            UPDATE_UI = "update_ui"
         ;
     
     // Init
@@ -219,6 +220,14 @@
             ui.updateUI(dataStore);
         }
 
+        function updateUI(dataStore) {
+            var messageObject = {
+                type: UPDATE_UI,
+                value: dataStore  
+            };
+            ui.sendToHtml(messageObject);
+        }
+
     // Tablet
     // /////////////////////////////////////////////////////////////////////////
         function startup() {
@@ -227,7 +236,7 @@
                 sortOrder: 6,
                 home: URL,
                 onMessage: onMessage,
-
+                updateUI: updateUI
             });
         }
 
