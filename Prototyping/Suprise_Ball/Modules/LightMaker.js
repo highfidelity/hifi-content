@@ -1,8 +1,8 @@
 var 
-    common = Script.require("./Common.js"),
+    common = Script.require("./Common.js?" + Date.now()),     
     randomFloat = common.randomFloat,
     lerp = common.lerp,
-    clamp = common.lerp,
+    clamp = common.clamp,
     makeColor = common.makeColor
 ;
 
@@ -49,7 +49,8 @@ function LightMaker(){
             ),
             falloffRadius: clamp(0, 10, lerp(SEED_MIN, SEED_MAX, 0, 10, Math.sin(seed))),
             cutoff: clamp(0, 100, lerp(SEED_MIN, SEED_MAX, 0, 100, Math.cos(seed)))
-        };        
+        };     
+        
         return lightProps;        
     };
 
@@ -107,48 +108,48 @@ function LightMaker(){
                 green: 0
             },
             visible: false
-        }, true);
+        });
     };
     this.makeLights = function() {
         this.lightProps.parentID = this.box;
         this.lightProps.isSpotlight = 0;
-        this.spotLight = Entities.addEntity(this.lightProps, true);
+        this.spotLight = Entities.addEntity(this.lightProps);
 
         this.lightProps.isSpotlight = 1;
         this.lightProps.rotation = Quat.fromPitchYawRollDegrees(90,0,0);
-        this.lights.push(Entities.addEntity(this.lightProps, true));
+        this.lights.push(Entities.addEntity(this.lightProps));
 
         this.lightProps.isSpotlight = 1;
         this.lightProps.rotation = Quat.fromPitchYawRollDegrees(180,0,0);
-        this.lights.push(Entities.addEntity(this.lightProps, true));
+        this.lights.push(Entities.addEntity(this.lightProps));
 
         this.lightProps.isSpotlight = 1;
         this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,90,0);
-        this.lights.push(Entities.addEntity(this.lightProps, true));
+        this.lights.push(Entities.addEntity(this.lightProps));
 
         this.lightProps.isSpotlight = 1;
         this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,-90,0);
-        this.lights.push(Entities.addEntity(this.lightProps, true));
+        this.lights.push(Entities.addEntity(this.lightProps));
 
         this.lightProps.isSpotlight = 1;
         this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,45,0);
-        this.lights.push(Entities.addEntity(this.lightProps, true));
+        this.lights.push(Entities.addEntity(this.lightProps));
 
         this.lightProps.isSpotlight = 1;
         this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,-45,0);
-        this.lights.push(Entities.addEntity(this.lightProps, true));
+        this.lights.push(Entities.addEntity(this.lightProps));
 
         this.lightProps.isSpotlight = 1;
         this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,0);
-        this.lights.push(Entities.addEntity(this.lightProps, true));
+        this.lights.push(Entities.addEntity(this.lightProps));
 
         this.lightProps.isSpotlight = 1;
         this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,180);
-        this.lights.push(Entities.addEntity(this.lightProps, true));
+        this.lights.push(Entities.addEntity(this.lightProps));
 
         this.lightProps.isSpotlight = 1;
         this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,-180);
-        this.lights.push(Entities.addEntity(this.lightProps, true));
+        this.lights.push(Entities.addEntity(this.lightProps));
     };
     this.destroy = function() {
         Script.clearInterval(this.interval);

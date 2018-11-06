@@ -3,7 +3,7 @@ module.exports = {
         return low + Math.random() * (high - low);
     },
     randomInt: function randomInt(low, high) {
-        return Math.floor(randomFloat(low, high));
+        return Math.floor(this.randomFloat(low, high));
     },
     lerp: function lerp(InputLow, InputHigh, OutputLow, OutputHigh, Input) {
         return ((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow;

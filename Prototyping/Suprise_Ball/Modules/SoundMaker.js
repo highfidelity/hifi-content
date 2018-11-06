@@ -2,11 +2,15 @@ function SoundMaker(audioOptions, autoUpdateAudioPosition) {
     this.audioOptions = audioOptions !== undefined ? audioOptions : {};
     this.autoUpdateAudioPosition = autoUpdateAudioPosition !== undefined ? autoUpdateAudioPosition : false;
     if (this.audioOptions.position === undefined) {
-        this.audioOptions.position = Vec3.sum(MyAvatar.position, { x: 0, y: 1, z: 0});
+        this.audioOptions.position = Vec3.sum(this.position, { x: 0, y: 1, z: 0});
     }
     if (this.audioOptions.volume === undefined) {
         this.audioOptions.volume = 1.0;
     }
+    this.position = null;
+    this.updatePosition = function(position){
+        this.position = position;
+    };
     this.injector = null;
     this.sounds = new Array();
     this.addSound = function (soundURL) {

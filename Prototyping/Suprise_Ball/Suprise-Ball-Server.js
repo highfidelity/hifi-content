@@ -7,7 +7,8 @@
             _entityID,
             canStartTimer = true,
             explodeTimer = false,
-            currentPosition = null        
+            currentPosition = null,
+            entities = []  
         ;
     
     // Consts
@@ -151,10 +152,10 @@
             randomInt = common.randomInt,
             vec = common.vec,
             
-            LightMaker = Script.require("./Modules/LightMaker.js"),
-            ParticleMaker = Script.require("./Modules/ParticleMaker.js"),
-            DanceMaker = Script.require("./Modules/DanceMaker.js"),
-            SoundMaker = Script.require("./Modules/SoundMaker.js"),
+            LightMaker = Script.require("./Modules/LightMaker.js?" + Date.now()),
+            ParticleMaker = Script.require("./Modules/ParticleMaker.js?" + Date.now()),
+            DanceMaker = Script.require("./Modules/DanceMaker.js?" + Date.now()),
+            SoundMaker = Script.require("./Modules/SoundMaker.js?" + Date.now()),
 
             Lights = new LightMaker(),
             Particles = new ParticleMaker(textureCollection),
@@ -169,18 +170,24 @@
             log("Starting Party");
 
             currentPosition = Entities.getEntityProperties(_entityID, ["position"]).position;
+            log("current position", currentPosition);
 
             var START_TIME = 500;
             createSmoke();
+            SFX.updatePosition(currentPosition);
             SFX.playRandom();
             Script.setTimeout(function(){
-                Music.playRandom();
+                // Music.updatePosition(currentPosition);
+                // Music.playRandom();
                 Lights.create(currentPosition);
                 Particles.create(currentPosition);
-                Dancers.create(currentPosition);
+                // Dancers.create(currentPosition);
             }, START_TIME);
 
             var randomDurationTime = randomInt(MIN_DURATION_TIME, MAX_DURATION_TIME);
+            // var randomDurationTime = 60000;
+
+            log("randomDuration", randomDurationTime);
 
             Script.setTimeout(function(){
                 log("Deleting Entities");
@@ -216,8 +223,8 @@
                     visible: false,
                     rotation: Quat.IDENTITY
                 }); 
-                log("starting prefetch");
-                Dancers.prefetch();
+                log("starting party");
+                startParty();
             }, randomTimeToExplode);
         } 
 
@@ -294,7 +301,7 @@
                 "polarFinish": 0.10471975511965978,
                 "azimuthStart": -3.141592653589793,
                 "azimuthFinish": 3.141592653589793
-            }, true);
+            });
 
             Script.setTimeout(function() {
                 Entities.deleteEntity(splat);
@@ -308,7 +315,7 @@
         }
 
         SupriseBall.prototype = {
-            remotelyCallabe: [
+            remotelyCallable: [
                 "startTimer"
             ],
             preload: function(entityID){
@@ -316,7 +323,7 @@
                 _entityID = entityID;
 
                 Particles.registerEntity(_entityID);
-                DanceMaker.registerEntity(_entityID);
+                Dancers.registerEntity(_entityID);
 
                 Entities.editEntity(entityID, {
                     gravity: vec(0, GRAVITY, 0),

@@ -1,9 +1,9 @@
 var 
-    common = Script.require("./Common.js"),
+    common = Script.require("./Common.js?" + Date.now()),     
     randomFloat = common.randomFloat,
     randomInt = common.randomInt,
     lerp = common.lerp,
-    clamp = common.lerp
+    clamp = common.clamp
 ;
 
 function ParticleMaker(textureCollection) {
@@ -47,13 +47,16 @@ function ParticleMaker(textureCollection) {
                     clamp(-180, 180, lerp(SEED_MIN, SEED_MAX, -180, 180, Math.tan(seed)))
                 )
             };
-                textureCount <= textureSwitchCount && 
-                (particleProps.textures = textureCollection[randomInt(0, textureCollection.length - 1)]) &&
+
+            if (textureCount <= textureSwitchCount ) {
+                particleProps.textures = textureCollection[randomInt(0, textureCollection.length - 1)];
                 textureCount++;
 
-                textureCount >= textureSwitchCount && 
-                (textureCount = 0);
-                
+                textureCount >= textureSwitchCount;
+                textureCount = 0;
+            }
+            
+            console.log("Particle props: ", particleProps);
             Entities.editEntity(that.particle, particleProps);
         }, intervalAmount);
 
@@ -427,7 +430,7 @@ function ParticleMaker(textureCollection) {
         var particleArray = [bubbles, smoke, star, circle, rays];
         var particle = particleArray[randomInt(0, 4)];
         particle.parentID = this.entityID;
-        this.particle = Entities.addEntity(particle, true);
+        this.particle = Entities.addEntity(particle);
     };
     this.destory = function() {
         Entities.deleteEntity(this.particle);

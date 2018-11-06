@@ -1,10 +1,6 @@
 var 
-    common = Script.require("./Common.js"),     
-    randomFloat = common.randomFloat,
+    common = Script.require("./Common.js?" + Date.now()),     
     randomInt = common.randomInt,
-    lerp = common.lerp,
-    clamp = common.lerp,
-    makeColor = common.makeColor,
     log = common.log,
     vec = common.vec
 ;
@@ -30,10 +26,10 @@ function DanceMaker(partyFN, danceCollection, dancerCollection) {
         if (state === READY) {
             // state === READY &&
             log("state is finished");
-            (that.dancerLoaded = true);
+            that.dancerLoaded = true;
             log("that.dancer Loaded after assign:", that.dancerLoaded);
             that.animationLoaded;
-            (log("About to start the party!"));
+            log("About to start the party!");
             partyFN();
         }
         
@@ -45,10 +41,10 @@ function DanceMaker(partyFN, danceCollection, dancerCollection) {
 
         if (state === READY) {
             log("state is finished");
-            (that.animationLoaded = true);
+            that.animationLoaded = true;
             log("that.animationLoaded Loaded after assign:", that.animationLoaded);
             that.dancerLoaded;
-            (log("About to start the party!"));
+            log("About to start the party!");
             partyFN();
         }
        
@@ -57,24 +53,26 @@ function DanceMaker(partyFN, danceCollection, dancerCollection) {
         log("prefetch started");
         this.randomAnimation = danceCollection[randomInt(0, danceCollection.length -1)];
         this.randomDancer = dancerCollection[randomInt(0, dancerCollection.length -1)];
-        log("chosen dancer", this.randomDancer);
+        // log("chosen dancer", this.randomDancer);
         this.modelResource = ModelCache.prefetch(this.randomDancer);
         this.animationResource = AnimationCache.prefetch(this.randomAnimation);
         this.modelResource.stateChanged.connect(this.handleModelFetch);
         this.animationResource.stateChanged.connect(this.handleAnimationFetch);
     };
     this.create = function(position) {
+        this.randomAnimation = danceCollection[randomInt(0, danceCollection.length -1)];
+        this.randomDancer = dancerCollection[randomInt(0, dancerCollection.length -1)];
         this.dancer = Entities.addEntity({
             type: "Model",
             name: "Suprise-Dancer",
-            modelURL: that.randomDancer,
+            modelURL: this.randomDancer,
             position: Vec3.sum(position, vec(0,0.75,0)),
             parentID: this.entityID,
             animation: {
-                url: that.randomAnimation,
+                url: this.randomAnimation,
                 running: true
             }
-        }, true);
+        });
     };
     this.destroy = function() {
         Entities.deleteEntity(this.dancer);

@@ -78,8 +78,8 @@
                 "y": 0.08461129665374756,
                 "z": -0.547051191329956
             },
-            "script": "file:///D:/ROLC_High-Fidelity/01_Reference/R_Drives/Dropbox/_ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/Suprise-Ball-Client.js?v317",
-            "serverScripts": "file:///D:/ROLC_High-Fidelity/01_Reference/R_Drives/Dropbox/_ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/Suprise-Ball-Server.js?v317",
+            "script": "file:///D:/Dropbox%20(milad%20productions)/_ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/Suprise-Ball-Client.js",
+            "serverScripts": "file:///D:/Dropbox%20(milad%20productions)/_ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/Suprise-Ball-Server.js",
             "type": "Sphere",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
         }
