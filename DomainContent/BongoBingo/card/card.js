@@ -14,14 +14,14 @@
     var WIN_SOUND = SoundCache.getSound(Script.resolvePath("../assets/sounds/bingoWin.wav"));
     var SELECT_SOUND = SoundCache.getSound(Script.resolvePath("../assets/sounds/bingoSelect.wav"));
     var DESELECT_SOUND = SoundCache.getSound(Script.resolvePath("../assets/sounds/bingoDeselect.wav"));
-    var WINNER_AUDIO_VOLUME = 0.8;
+    var WINNER_AUDIO_VOLUME = 0.2;
     var BINGO_STRING = "BINGO";
 
     var headerSounds = [];
     var currentHeaderSounds = [];
     var injector;
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-    var appPage = Script.resolvePath('card.html?002');
+    var appPage = Script.resolvePath('card.html?010');
     var button = tablet.addButton({
         text: 'BINGO',
         icon: TABLET_BUTTON_IMAGE,

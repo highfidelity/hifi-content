@@ -17,16 +17,14 @@
     };
     var ANGULAR_VELOCITY_CHECK_MS = 100;
     var CHECKING_INTERVAL_DELAY = 100;
-    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan'];
+    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan', 'andy_batman', 'Becky'];
     var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/blip.wav'));
-    var SEARCH_RADIUS = 200;
-    var LIGHT_BLINK_INTERVAL = 500;
+    var WAIT_BETWEEN_SPINS = 4000;
 
     var _this;
     var audioVolume = 0.4;
     var injector;
     var bingoSquares = [];
-    var bingoWallLights = [];
     var listCounter = 0;
     var angularVelocityDecrement = 0.5;
     var position;
@@ -51,14 +49,13 @@
     };
 
     Wheel.prototype = {
-        remotelyCallable: ['reset', 'getNumbersFromServer'],
+        remotelyCallable: ['getNumbersFromServer'],
         interval: null,
         angularVelocityLimit: 10,
         nameText: null,
         
         preload: function(entityID) {
             _this.entityID = entityID;
-            _this.getLights();
             position = Entities.getEntityProperties(_this.entityID, 'position').position;
         },
 
@@ -104,40 +101,6 @@
             shuffle(bingoSquares);
         },
 
-        getLights: function() {
-            Entities.findEntities(position, SEARCH_RADIUS).forEach(function(nearbyEntity) {
-                var name = Entities.getEntityProperties(nearbyEntity, 'name').name;
-                if (name.indexOf("Bingo Wall Light") !== -1) {
-                    var lightNumber = name.substring(17, name.length);
-                    bingoWallLights[lightNumber] = nearbyEntity;
-                }
-            });
-        },
-
-        reset: function() {
-            Entities.callEntityServerMethod(_this.entityID, 'clearCalledNumbers');
-            bingoWallLights.forEach(function(light) {
-                Entities.editEntity(light, { locked: false });
-                Entities.editEntity(light, { visible: false });
-                Entities.editEntity(light, { locked: true });
-            });
-            var position = Entities.getEntityProperties(_this.entityID, 'position').position;
-            var bingoNumberTexts = Entities.findEntitiesByName("Bingo Wheel Number", position, 1);
-            Entities.editEntity(bingoNumberTexts[0], {
-                locked: false
-            });
-            Entities.editEntity(bingoNumberTexts[0], {
-                text: "BINGO",
-                lineHeight: 1.1
-            });
-            Entities.editEntity(bingoNumberTexts[0], {
-                locked: true
-            });
-            if (_this.interval) {
-                Script.clearInterval(_this.interval);
-            }
-        },
-
         mousePressOnEntity: function(entityID, mouseEvent) {
             if (!mouseEvent.button === "Primary") {
                 return;
@@ -158,21 +121,14 @@
                         }
                         var finalNumber = false;
                         var bingoCall;
-                        var callNumber;
                         _this.interval = Script.setInterval(function() {
                             var currentAngularVelocity = Entities.getEntityProperties(
                                 _this.entityID, 'angularVelocity').angularVelocity;
                             if (currentAngularVelocity.z >= _this.angularVelocityLimit && currentAngularVelocity.z 
                                     < 0 && !finalNumber) {
                                 Entities.editEntity(bingoNumberTexts[0], {
-                                    locked: false
-                                });
-                                Entities.editEntity(bingoNumberTexts[0], {
                                     text: bingoSquares[listCounter],
                                     lineHeight: 1.58
-                                });
-                                Entities.editEntity(bingoNumberTexts[0], {
-                                    locked: true
                                 });
                                 listCounter++;
                                 listCounter = listCounter >= bingoSquares.length ? 0 : listCounter;
@@ -186,67 +142,23 @@
                                     return;
                                 }
                                 Entities.callEntityServerMethod(_this.entityID, 'addCalledNumber', [bingoCall]);
-                                callNumber = bingoCall.substring(2, bingoCall.length);
-                                Entities.editEntity(bingoNumberTexts[0], {
-                                    locked: false
-                                });
                                 Entities.editEntity(bingoNumberTexts[0], {
                                     text: bingoCall
-                                });
-                                Entities.editEntity(bingoNumberTexts[0], {
-                                    locked: true
                                 });
                             } else if (currentAngularVelocity.z >= -0.05) {
                                 if (_this.interval) {
                                     _this.playSound(BLIP_SOUND);
                                     Script.clearInterval(_this.interval);
                                     bingoSquares = [];
-                                    var lightOn = false;
-                                    var blinks = 0;
-                                    _this.interval = Script.setInterval(function() {
-                                        blinks++;
-                                        if (lightOn) {
-                                            _this.lightOff(callNumber);
-                                            lightOn = false;
-                                        } else {
-                                            _this.lightOn(callNumber);
-                                            lightOn = true;
-                                        }
-                                        if (blinks > 6) {
-                                            Script.clearInterval(_this.interval);
-                                            canSpin = true;
-                                        }
-                                    }, LIGHT_BLINK_INTERVAL);
+                                    Script.setTimeout(function() {
+                                        canSpin = true;
+                                    }, WAIT_BETWEEN_SPINS);
                                 }
                             }
                         }, ANGULAR_VELOCITY_CHECK_MS);
                     }, CHECKING_INTERVAL_DELAY);
                 }
             }
-        },
-
-        lightOn: function(lightNumber) {
-            Entities.editEntity(bingoWallLights[lightNumber], {
-                locked: false
-            });
-            Entities.editEntity(bingoWallLights[lightNumber], {
-                visible: true
-            });
-            Entities.editEntity(bingoWallLights[lightNumber], {
-                locked: true
-            });
-        },
-
-        lightOff: function(lightNumber) {
-            Entities.editEntity(bingoWallLights[lightNumber], {
-                locked: false
-            });
-            Entities.editEntity(bingoWallLights[lightNumber], {
-                visible: false
-            });
-            Entities.editEntity(bingoWallLights[lightNumber], {
-                locked: true
-            });
         },
 
         playSound: function(sound) {

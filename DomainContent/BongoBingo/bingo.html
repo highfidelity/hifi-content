@@ -7,11 +7,11 @@
         <link rel="stylesheet" href="bingo.css">
     </head>
     <body>
-        <h1>Bingo</h1>
+        <img src="assets/images/bingo-card-head.png" width="300" alt="BINGO"/><br><br>
         <input type="button" class="gray" id="gameOn" value="Lights On"><br><br>
         <input type="button" class="gray" id="openRegistration" value="Open Registration"><br><br>
         <input type="button" class="gray" id="closeRegistration" value="Close Registration"><br><br>
-        <input type="button" class="gray" id="resetGame" value="New Round"><br><br>
+        <input type="button" class="gray" id="newRound" value="New Round"><br><br>
         <input type="button" class="gray" id="gameOver" value="Lights Out"><br><br><br>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
@@ -36,10 +36,10 @@
                 };
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
-            $('#resetGame').click(function() {
+            $('#newRound').click(function() {
                 var event = {
                     app: 'bingo',
-                    type: "resetGame"
+                    type: "newRound"
                 };
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });

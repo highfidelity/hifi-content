@@ -4,18 +4,20 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
-        <link rel="stylesheet" href="card.css">
+        <link rel="stylesheet" href="card.css?018">
     </head>
     <body>
         <table>
             <tr> 
         </table>
+        <div class="button-headers-container">
+            <button class="button-letter" id ="B"></button><!--
+            --><button class="button-letter" id ="I"></button><!--
+            --><button class="button-letter" id ="N"></button><!--
+            --><button class="button-letter" id ="G"></button><!--
+            --><button class="button-letter" id= "O"></button>
+        </div>
         <div class="button-container">
-            <button class="button-letter" id ="B">B</button>
-            <button class="button-letter" id ="I">I</button>
-            <button class="button-letter" id ="N">N</button>
-            <button class="button-letter" id ="G">G</button>
-            <button class="button-letter" id= "O">O</button>
             <button class="button-number" id="0"></button>
             <button class="button-number" id="5"></button>
             <button class="button-number" id="10"></button>
@@ -41,8 +43,8 @@
             <button class="button-number" id="13"></button>
             <button class="button-number" id="18"></button>
             <button class="button-number" id="23"></button>
-        </div>
-        <div class="bottomPanel">
+        </div><!--
+        --><div class="bottomPanel">
             <button id="BingoButton">Call Bingo</button><br>
             <text id="numbers">Getting numbers...</text>
         </div>
@@ -83,8 +85,16 @@
                 $(".button-free").click(function() {
                     if ($(this).hasClass("selected")){
                         $(this).removeClass("selected");
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            type : 'playSoundFromBingoButton',
+                            index: -3
+                        }));
                     } else {
                         $(this).addClass("selected");
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            type : 'playSoundFromBingoButton',
+                            index: -2
+                        }));
                     }
                 });
                 $(".button-letter").click(function() {

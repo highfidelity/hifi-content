@@ -25,7 +25,7 @@
     var canClick = true;
 
     var isRunningStandaloneBingoApp = function() {
-        var _standaloneScriptName = 'card.js?007';
+        var _standaloneScriptName = 'card.js?031';
         var isRunning = false;
         ScriptDiscoveryService.getRunning().forEach(function(script){
             if (script.name === _standaloneScriptName) {
@@ -83,7 +83,7 @@
                             userCardNumbers = userNumbersToSplit.split(",");
                         }
                         if (!isRunningStandaloneBingoApp()) {
-                            ScriptDiscoveryService.loadScript(Script.resolvePath('./card/card.js'));
+                            ScriptDiscoveryService.loadScript(Script.resolvePath('./card/card.js?002'));
                         } 
                     }
                 };

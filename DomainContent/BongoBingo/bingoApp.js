@@ -14,35 +14,32 @@
     var TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/bingo-i.svg');
     var TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/bingo-a.svg');
     var SEARCH_RADIUS = 100;
-    var PLAY_BINGO_SCRIPT = Script.resolvePath('bingoCardSpawner.js?003');
+    var SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbzFuuJ30c_qUZmBB8PnjLtunaJx1VbhSRFjsy_6wocR2_p7wohJ/exec";
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-    var appPage = Script.resolvePath('bingo.html?008');
+    var appPage = Script.resolvePath('bingo.html?018');
     var button = tablet.addButton({
         text: 'BOSS',
         icon: TABLET_BUTTON_IMAGE,
         activeIcon: TABLET_BUTTON_PRESSED
     });
     var open = false;
-    var gameOnLights = [];
     var numberWheel;
-    var registrationLight;
-    var registrationSign;
+
+    function encodeURLParams(params) {
+        var paramPairs = [];
+        for (var key in params) {
+            paramPairs.push(key + "=" + params[key]);
+        }
+        return paramPairs.join("&");
+    }
     
     function findTargets() {
         Entities.findEntities(MyAvatar.position, SEARCH_RADIUS).forEach(function(nearbyEntity) {
             var name = Entities.getEntityProperties(nearbyEntity, ['name']).name;
-            if (name.indexOf("Bingo") !== -1) {
-                if (name.indexOf("Wall Light") !== -1) {
-                    // skip it--handled in wheel script
-                } else if (name.indexOf("Bingo Click To Play Light") !== -1) {
-                    registrationLight = nearbyEntity;
-                } else if (name.indexOf("Light") !== -1) {
-                    gameOnLights.push(nearbyEntity);
-                } else if (name === "Bingo Wheel") {
+            if (name && name.indexOf("Bingo") !== -1) {
+                if (name === "Bingo Wheel") {
                     numberWheel = nearbyEntity;
-                } else if (name === "Bingo Click To Play") {
-                    registrationSign = nearbyEntity;
                 }
             }
         });
@@ -53,48 +50,40 @@
             tablet.gotoHomeScreen();
         } else {
             tablet.gotoWebScreen(appPage);
+            findTargets();
         }
     }
 
     function gameOn() {
-        resetGame();
-        gameOnLights.forEach(function(light) {
-            Entities.editEntity(light, { locked: false });
-            Entities.editEntity(light, { visible: true });
-            Entities.editEntity(light, { locked: true });
-        });
+        Entities.callEntityServerMethod(numberWheel, 'gameOn');
     }
 
-    function resetGame() {
-        Entities.callEntityMethod(numberWheel, 'reset');
+    function newRound() {
+        Entities.callEntityServerMethod(numberWheel, 'newRound');
+        print("new round... clearing server list and calling sheet to clear stored users");
+        var searchParamString = encodeURLParams({
+            username: "Boss",
+            type: "clear"
+        });
+        var searchRequest = new XMLHttpRequest();
+        searchRequest.open('GET', SPREADSHEET_URL + "?" + searchParamString);
+        searchRequest.timeout = 10000;
+        searchRequest.ontimeout = function() {
+            print("bingo: request timed out");
+        };
+        searchRequest.send();
     }
 
     function gameOver() {
-        resetGame();
-        closeRegistration();
-        gameOnLights.forEach(function(light) {
-            Entities.editEntity(light, { locked: false });
-            Entities.editEntity(light, { visible: false });
-            Entities.editEntity(light, { locked: true });
-        });
+        Entities.callEntityServerMethod(numberWheel, 'gameOver');
     }
 
     function openRegistration() {
-        Entities.editEntity(registrationLight, { locked: false });
-        Entities.editEntity(registrationLight, { visible: true });
-        Entities.editEntity(registrationLight, { locked: true });
-        Entities.editEntity(registrationSign, { locked: false });
-        Entities.editEntity(registrationSign, { script: PLAY_BINGO_SCRIPT });
-        Entities.editEntity(registrationSign, { locked: true });
+        Entities.callEntityServerMethod(numberWheel, 'openRegistration');
     }
 
     function closeRegistration() {
-        Entities.editEntity(registrationLight, { locked: false });
-        Entities.editEntity(registrationLight, { visible: false });
-        Entities.editEntity(registrationLight, { locked: true });
-        Entities.editEntity(registrationSign, { locked: false });
-        Entities.editEntity(registrationSign, { script: "" });
-        Entities.editEntity(registrationSign, { locked: true });
+        Entities.callEntityServerMethod(numberWheel, 'closeRegistration');
     }
 
     function onWebEventReceived(event) {
@@ -105,8 +94,8 @@
                     case 'gameOn':
                         gameOn();
                         break;
-                    case 'resetGame':
-                        resetGame();
+                    case 'newRound':
+                        newRound();
                         break;
                     case 'gameOver':
                         gameOver();
@@ -140,11 +129,9 @@
     this.unload = function() {
     };
 
-    findTargets();
     Messages.subscribe(BINGO_CHANNEL);
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);
     tablet.webEventReceived.connect(onWebEventReceived);
-
     Script.scriptEnding.connect(appEnding);
 }());

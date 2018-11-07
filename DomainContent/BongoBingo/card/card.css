@@ -178,6 +178,14 @@ input[type=button][pressed=pressed] {
     grid-template-rows: repeat(6, 90px);
 }
 
+.button-headers-container {
+    background-image:url("../assets/images/bingo-card-head.png");
+    background-size: 452px 86px;
+    background-position:center;
+    width:450px;
+    height:90px;
+}
+
 .button-number {
     background-color: white;
     font-size: 2em;
@@ -190,6 +198,10 @@ input[type=button][pressed=pressed] {
 
 .button-letter {
     font-size: 5em;
+    background-color: rgba(255, 255, 255, 0);
+    height: 90px;
+    width: 90px;
+    border: 0;
 }
 
 .card-pink {
@@ -214,12 +226,29 @@ input[type=button][pressed=pressed] {
 }
 
 .bottomPanel {
+    margin-top: -60px;
     text-align: center;
     width: 100%;
 }
 
 #BingoButton {
-    margin: 5px;
+    margin: 0px;
     padding: 10px;
     font-size: 2em;
+    font-family: 'Raleway';
+    font-weight: bold;
+    vertical-align: top;
+    border-radius: 5px;
+    border: none;
+    color: #000;
+    background-color: #fff;
+    background: linear-gradient(#f59ee6 20%, rgb(132, 124, 240) 100%);
+    cursor: pointer;
 }
+
+#BingoButton:enabled:hover {
+    background: linear-gradient(#8f0070, #43008f);
+    color: #fff;
+    border: none;
+}
+
