@@ -1,0 +1,43 @@
+{
+    "DataVersion": 0,
+    "Entities": [
+        {
+            "clientOnly": false,
+            "collidesWith": "static,dynamic,kinematic,",
+            "collisionMask": 7,
+            "created": "2018-10-22T19:50:19Z",
+            "description": "CC-BY by Mario Tofani",
+            "dimensions": {
+                "blue": 0.17524905502796173,
+                "green": 0.37769192457199097,
+                "red": 1.1774611473083496,
+                "x": 1.1774611473083496,
+                "y": 0.37769192457199097,
+                "z": 0.17524905502796173
+            },
+            "id": "{9d3a086e-18d5-4f5e-a990-105c3cfe4f02}",
+            "lastEdited": 1540237900066952,
+            "lastEditedBy": "{14147514-1eb7-41d7-a3ff-382c74506e26}",
+            "modelURL": "https://cdn.highfidelity.com/DomainContent/production/TheSpot/rainbow-gun/baked/rainbow-gun.baked.fbx",
+            "name": "Rainbow-Thrower Spawner",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 1.2489107847213745,
+                "x": -0.6244553923606873,
+                "y": -0.6244553923606873,
+                "z": -0.6244553923606873
+            },
+            "rotation": {
+                "w": 0.7171893119812012,
+                "x": -7.62939453125e-05,
+                "y": -0.6968947649002075,
+                "z": -1.52587890625e-05
+            },
+            "serverScripts": "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/DomainContent/Hub/RainbowThrower/scripts/rainbowThrowerGunSpawner.js?5",
+            "shapeType": "simple-compound",
+            "type": "Model"
+        }
+    ],
+    "Id": "{f66232c6-7c27-471c-8f92-076be8bcbfae}",
+    "Version": 93
+}

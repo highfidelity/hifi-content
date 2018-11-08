@@ -137,6 +137,9 @@
             hand,
             laser,
 
+            INVREDIT_MODULE_RUNNING_CHANNEL = "Hifi-InVREdit-Module-Running",
+            inVREditMode = false,
+
             intersection = {};
 
 
@@ -173,8 +176,8 @@
                 handIntersection;
 
             hand.update();
+            laser.update(hand, inVREditMode);
             if (hand.valid()) {
-                laser.update(hand);
                 // Use intersections in order to achieve entity manipulation while inside an entity:
                 // - Use laser overlay intersection if there is one (for UI).
                 // - Otherwise use hand overlay if there is one (for UI).
@@ -204,7 +207,24 @@
             laser.clear();
         }
 
+        function onMessageReceived(channel, data, sender, localOnly) {
+            var message;
+            if (channel === INVREDIT_MODULE_RUNNING_CHANNEL && localOnly) {
+                try {
+                    message = JSON.parse(data);
+                } catch (e) {
+                    return;
+                }
+                if (message.hand === side) {
+                    inVREditMode = message.running;
+                }
+            }
+        }
+
         function destroy() {
+            Messages.unsubscribe(INVREDIT_MODULE_RUNNING_CHANNEL);
+            Messages.messageReceived.disconnect(onMessageReceived);
+
             if (hand) {
                 hand.destroy();
                 hand = null;
@@ -214,6 +234,9 @@
                 laser = null;
             }
         }
+
+        Messages.subscribe(INVREDIT_MODULE_RUNNING_CHANNEL);
+        Messages.messageReceived.connect(onMessageReceived);
 
         return {
             setHandJoint: setHandJoint,
@@ -2073,6 +2096,7 @@
 
         if (isTabletUIOpen) {
             tablet.webEventReceived.disconnect(onTabletWebEventReceived);
+            tablet.gotoHomeScreen(); // Close the dialog.
         }
 
         tablet.screenChanged.disconnect(onTabletScreenChanged);

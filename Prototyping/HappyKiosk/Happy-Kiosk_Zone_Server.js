@@ -45,6 +45,7 @@
         isAvailableToPress = true,
         currentAvatarUUID = null,
         currentAvatarUserName = null,
+        currentAvatarDisplayName = null,
         heartbeatCheck = null,
         soundURL = Script.resolvePath("./bell.wav"),
         sound = null,
@@ -185,6 +186,7 @@
 
             var paramString = this.encodeURLParams({
                 userName: currentAvatarUserName,
+                displayName: currentAvatarDisplayName,
                 date: date,
                 event: event,
                 rating: rating,
@@ -209,11 +211,15 @@
 
             var avatarID = param[0];
             var avatarUserName = param[1];
+            var displayName = param[2];
+
             if (isOn) {
                 return;
             }
             currentAvatarUUID = avatarID;
             currentAvatarUserName = avatarUserName;
+            currentAvatarDisplayName = displayName;
+
             Entities.callEntityMethod(childrenIDS[AVAILABILTY], "makeUnAvailable");
             isOn = true;
 

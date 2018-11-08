@@ -15,6 +15,8 @@
     var SEARCH_RADIUS = 0.1;
     var SPAWN_CHECK_MS = 5000;
 
+    var LIFETIME = 60;
+
     function SpaceJuiceSpawner() {
         _this = this;
     }
