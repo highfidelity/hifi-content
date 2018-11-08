@@ -14,7 +14,8 @@
             <config class="m-3" v-bind:config_name="settings.configName"></config>
             <listener class="m-3" 
                 v-bind:is_enabled="settings.listener.isCustomListening" 
-                v-bind:position="settings.listener.customPosition" 
+                v-bind:position="settings.listener.customPosition"
+                v-bind:mode="settings.listener.currentMode"
                 v-bind:orientation="settings.listener.customOrientation">
             </listener>
             <position class="m-3" 

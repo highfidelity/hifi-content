@@ -101,7 +101,7 @@
     })
 
     Vue.component('listener', {
-        props: ["is_enabled", "position", "orientation"],
+        props: ["is_enabled", "position", "orientation", "mode"],
         data: function(){
             return {
                 enabled: false,
@@ -133,6 +133,9 @@
                 </div>
                 <div class="card-body">
                     <div>
+                        <div>
+                            <strong>Current Mode:</strong> {{mode}}
+                        </div>
                         <div v-if="is_enabled">
                             <strong>Position: </strong>
                             <br>

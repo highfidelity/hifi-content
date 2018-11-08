@@ -20,6 +20,9 @@
         cameraAvatarURL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/camera/fst/camera.fst",
         SETTINGS_STRING = "io.kayla.camera.settings",
         LOAD_JSON = "loadJSON",
+        AUDIO_LISTENER_MODE_HEAD = 0,
+        AUDIO_LISTENER_MODE_CAMERA = 1,
+        AUDIO_LISTENER_MODE_CUSTOM = 2,
         UPDATE_CONFIG_NAME = "updateConfigName",
         ENABLE_CUSTOM_LISTENER = "enableCustomListener",
         DISABLE_CUSTOM_LISTENER = "disableCustomListener",
@@ -39,6 +42,7 @@
         mapping: {},
         listener: {
             isCustomListening: false,
+            currentMode: getCurrentListener(),
             customPosition: {
                 x: 0,
                 y: 0,
@@ -129,6 +133,24 @@
         settings.mapping[newKey].key = newKey;
     }
 
+    function getCurrentListener() {
+        var currentListenerMode = MyAvatar.audioListenerMode;
+        var returnedModeString = "";
+        switch (currentListenerMode) {
+            case AUDIO_LISTENER_MODE_HEAD:
+                returnedModeString = "Head";
+                break;
+            case AUDIO_LISTENER_MODE_CAMERA:
+                returnedModeString = "Camera";
+                break;
+            case AUDIO_LISTENER_MODE_CUSTOM:
+                returnedModeString = "Custom";
+                break;
+            default:
+        }
+        return returnedModeString;
+    }
+
     function removeCameraPosition(key) {
         if (settings.mapping[key]) {
             delete settings.mapping[key];
@@ -155,17 +177,8 @@
         if (settings.mapping[event.text]) {
             var position = settings.mapping[event.text].position;
             var orientation = settings.mapping[event.text].orientation;
-            var string = "/" +
-                        position.x + "," +
-                        position.y + "," +
-                        position.z + "/" +
-                        orientation.x + "," +
-                        orientation.y + "," +
-                        orientation.z + "," +
-                        orientation.w;
             MyAvatar.headOrientation = orientation;
             MyAvatar.position = position;
-            // location.handleLookupString(string);
         }
     }
     
@@ -196,6 +209,7 @@
 
     function doUIUpdate() {
         console.log("SETTINGs", JSON.stringify(settings));
+        settings.listener.currentMode = getCurrentListener();
         tablet.emitScriptEvent(JSON.stringify({
             type: UPDATE_UI,
             value: settings
