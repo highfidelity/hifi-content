@@ -138,7 +138,7 @@
             Entities.callEntityServerMethod(light, "lightsOn");
         });
         bubbleOn();
-        updateAvatarCounter(true);
+        updateAvatarCounter(false);
         prizeCalculator("new game");
         if (!introPlayed) {
             Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['GAME_INTRO']);
