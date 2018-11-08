@@ -32,10 +32,12 @@
     var userName = AccountServices.username;
     var userCardNumbers = [];
     var spreadsheetURL = "https://script.google.com/macros/s/AKfycbzFuuJ30c_qUZmBB8PnjLtunaJx1VbhSRFjsy_6wocR2_p7wohJ/exec";
+    var confettiParticle;
 
     function onClicked() { 
         if (open) {
             tablet.gotoHomeScreen();
+            Entities.deleteEntity(confettiParticle);
             Entities.deleteEntity(playingMarker);
         } else {
             tablet.gotoWebScreen(appPage);
@@ -44,6 +46,9 @@
             entitySpawnPosition.y = yPositionOverHead;
             if (playingMarker) {
                 Entities.deleteEntity(playingMarker);
+            }
+            if (confettiParticle) {
+                Entities.deleteEntity(confettiParticle);
             }
             playingMarker = Entities.addEntity({
                 name: "Playing Bingo",
@@ -124,7 +129,6 @@
 
         if (open) {
             loadSounds();
-            print("Searching...");
             var searchParamString = encodeURLParams({
                 type: "search",
                 username: userName
@@ -150,6 +154,7 @@
             searchRequest.send();
         } else {
             Entities.deleteEntity(playingMarker);
+            Entities.deleteEntity(confettiParticle);
         }
     }
 
@@ -180,11 +185,87 @@
             }
             if (event.type === 'calledBingo') {
                 playSound(WIN_SOUND, WINNER_AUDIO_VOLUME, false);
+                confettiParticle = Entities.addEntity({
+                    accelerationSpread: {
+                        x: 0.10000000149011612,
+                        y: 0,
+                        z: 0.10000000149011612
+                    },
+                    alphaFinish: 1,
+                    alphaStart: 1,
+                    colorFinish: {
+                        blue: 0,
+                        green: 0,
+                        red: 0
+                    },
+                    colorSpread: {
+                        blue: 255,
+                        green: 255,
+                        red: 255
+                    },
+                    colorStart: {
+                        blue: 200,
+                        green: 200,
+                        red: 200
+                    },
+                    dimensions: {
+                        x: 50.30699920654297,
+                        y: 50.30699920654297,
+                        z: 50.30699920654297
+                    },
+                    emitAcceleration: {
+                        x: -0.10000000149011612,
+                        y: -2.5,
+                        z: -0.10000000149011612
+                    },
+                    emitDimensions: {
+                        x: 1,
+                        y: 1,
+                        z: 1
+                    },
+                    emitOrientation: {
+                        w: 0.7068167924880981,
+                        x: -0.7073966860771179,
+                        y: -1.5258869098033756e-05,
+                        z: -1.5258869098033756e-05
+                    },
+                    emitRate: 61,
+                    emitSpeed: 3.2699999809265137,
+                    emitterShouldTrail: true,
+                    ignoreForCollisions: true,
+                    isEmitting: true,
+                    maxParticles: 3200,
+                    name: "Bingo Confetti Particle",
+                    parentID: MyAvatar.sessionUUID,
+                    particleRadius: 0.25,
+                    polarFinish: 0.05235987901687622,
+                    localPosition: {
+                        x: 0,
+                        y: 0.5,
+                        z: 0
+                    },
+                    radiusFinish: 0.23999999463558197,
+                    radiusStart: 0.009999999776482582,
+                    localRotation: Quat.fromVec3Degrees({
+                        x: 0,
+                        y: 0,
+                        z: 0
+                    }),
+                    speedSpread: 0,
+                    spinFinish: 6.2831854820251465,
+                    spinSpread: 6.2831854820251465,
+                    spinStart: null,
+                    textures: "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/sprite-confetti.jpg",
+                    type: "ParticleEffect",
+                    serverScripts: "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/BongoBingo/particleServer.js",
+                    userData: "{\"grabbableKey\":{\"grabbable\":false}}"
+                }, true);
             }
         }
     }
 
     function appEnding() {
+        Entities.deleteEntity(confettiParticle);
         Entities.deleteEntity(playingMarker);
         button.clicked.disconnect(onClicked);
         tablet.screenChanged.disconnect(onScreenChanged);
@@ -193,9 +274,10 @@
     }
 
     function sessionChanged() {
-        ScriptDiscoveryService.stopScript(Script.resolvePath('card.js'));
+        ScriptDiscoveryService.stopScript(Script.resolvePath('card.js?007'));
     }
 
+    tablet.gotoWebScreen(appPage);
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);
     tablet.webEventReceived.connect(onWebEventReceived);

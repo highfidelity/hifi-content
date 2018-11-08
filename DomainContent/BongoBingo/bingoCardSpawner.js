@@ -10,10 +10,11 @@
 /* global EventBridge, AccountServices Script, Xform */
 
 (function() {
-   
     var GET_CARD_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWish.wav"));
     var BINGO_STRING = "BINGO";
     var COLUMN_RANGE = 15;
+    var WAIT_TO_CLICK = 5000;
+    var WAIT_TO_LOAD_CARD_APP = 1000;
 
     var _this;
 
@@ -25,7 +26,7 @@
     var canClick = true;
 
     var isRunningStandaloneBingoApp = function() {
-        var _standaloneScriptName = 'card.js';
+        var _standaloneScriptName = 'card.js?007';
         var isRunning = false;
         ScriptDiscoveryService.getRunning().forEach(function(script){
             if (script.name === _standaloneScriptName) {
@@ -78,12 +79,16 @@
                             userCardNumbers = userNumbersToSplit.split(",");
                         }
                         if (!isRunningStandaloneBingoApp()) {
-                            ScriptDiscoveryService.loadScript(Script.resolvePath('./card/card.js'));
+                            Script.setTimeout(function() {
+                                ScriptDiscoveryService.loadScript(Script.resolvePath('./card/card.js?007'));
+                            }, WAIT_TO_LOAD_CARD_APP);
                         } 
                     }
                 };
                 searchRequest.send();
-                canClick = true;
+                Script.setTimeout(function() {
+                    canClick = true;
+                }, WAIT_TO_CLICK);
             }
         },
 
@@ -154,7 +159,7 @@
         },
 
         unload: function() {
-            ScriptDiscoveryService.stopScript(Script.resolvePath('./card/card.js'));
+            ScriptDiscoveryService.stopScript(Script.resolvePath('./card/card.js?007'));
         }
     };
 

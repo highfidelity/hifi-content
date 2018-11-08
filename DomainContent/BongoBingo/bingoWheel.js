@@ -138,7 +138,6 @@
                                 finalNumber = true;
                                 bingoCall = bingoSquares.pop();
                                 if (!bingoCall) {
-                                    print("ALL NUMBERS HAVE BEEN CALLED. START A NEW GAME");
                                     return;
                                 }
                                 Entities.callEntityServerMethod(_this.entityID, 'addCalledNumber', [bingoCall]);

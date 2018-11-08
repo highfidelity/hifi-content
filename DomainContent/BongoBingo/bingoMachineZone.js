@@ -39,14 +39,14 @@
         enterEntity: function() {
             if (mayEnterZone) {
                 mayEnterZone = false;
-                // print("YOU MAY NOT ENTER THE ZONE!!!!!");
-                // print("entered bingo checking zone");
+                Entities.findEntities(MyAvatar.position, 2).forEach(function(nearbyEntity) {
+                    var properties = Entities.getEntityProperties(nearbyEntity, ['parentID', 'name']);
+                    if (properties.name === "Bingo Confetti Particle" && properties.parentID === MyAvatar.sessionUUID) {
+                        Entities.deleteEntity(nearbyEntity);
+                    }
+                });
                 if (!Entities.getEntityProperties(machineSpotlight, 'visible').visible) {
-                    print("OVER TO YOU, SERVER! WE NEED THOSE NUMBERS STAT!!!!");
-                    // Entities.callEntityServerMethod(wheel, 'getCalledNumbers', [MyAvatar.sessionUUID, _this.entityID]);
                     Entities.callEntityServerMethod(_this.entityID, 'scanCard', [userName, wheel]);    
-                } else {
-                    print("another user is in the zone");
                 }
             }
         },
@@ -55,7 +55,6 @@
             Entities.callEntityServerMethod(_this.entityID, 'userLeftZone', [userName]);
             Script.setTimeout(function() {
                 mayEnterZone = true;
-                print("YOU MAY ENTER THE ZONE AGAIN SIRE OR MADAME");
             }, WAIT_TO_DELETE_CARD);
         },
 

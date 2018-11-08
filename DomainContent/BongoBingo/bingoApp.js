@@ -44,7 +44,6 @@
             var name = Entities.getEntityProperties(nearbyEntity, ['name']).name;
             if (name && name.indexOf("Bingo") !== -1) {
                 if (name === "Bingo Wheel") {
-                    print("found the wheel from the app");
                     numberWheel = nearbyEntity;
                 }
             }
@@ -61,16 +60,15 @@
     }
 
     function gameOn() {
-        playSound(BEGINNING_SOUND);
+        playSound(BEGINNING_SOUND, 0.1);
         Script.setTimeout(function() {
             Entities.callEntityServerMethod(numberWheel, 'gameOn');
         }, BEGINNING_SOUND.duration * 1000 * 0.5);
     }
 
     function newRound() {
-        playSound(NEW_SOUND);
+        playSound(NEW_SOUND, 1);
         Entities.callEntityServerMethod(numberWheel, 'newRound');
-        print("new round... clearing server list and calling sheet to clear stored users");
         var searchParamString = encodeURLParams({
             username: "Boss",
             type: "clear"
@@ -85,28 +83,27 @@
     }
 
     function gameOver() {
-        playSound(FAREWELL_SOUND);
+        playSound(FAREWELL_SOUND, 0.5);
         Script.setTimeout(function() {
             Entities.callEntityServerMethod(numberWheel, 'gameOver');
         }, FAREWELL_SOUND.duration * 1000 * 0.9);
     }
 
     function openRegistration() {
-        playSound(OPEN_SOUND);
+        playSound(OPEN_SOUND, 1);
         Script.setTimeout(function() {
             Entities.callEntityServerMethod(numberWheel, 'openRegistration');
         }, OPEN_SOUND.duration * 1000 * 0.2);
     }
 
     function closeRegistration() {
-        playSound(CLOSE_SOUND);
+        playSound(CLOSE_SOUND, 1);
         Script.setTimeout(function() {
             Entities.callEntityServerMethod(numberWheel, 'closeRegistration');
-        }, CLOSE_SOUND.duration * 1000);
+        }, CLOSE_SOUND.duration * 1000 * 0.35);
     }
 
     function onWebEventReceived(event) {
-        print(JSON.stringify(event));
         if (typeof event === 'string') {
             event = JSON.parse(event);
             if (event.app === 'bingo') {
@@ -145,15 +142,14 @@
         tablet.webEventReceived.disconnect(onWebEventReceived);
     }
 
-    function playSound(sound, volume, localOnly) {
+    function playSound(sound, volume) {
         if (sound.downloaded) {
             if (injector) {
                 injector.stop();
             }
             injector = Audio.playSound(sound, {
                 position: MyAvatar.position,
-                volume: volume,
-                localOnly: localOnly
+                volume: volume
             });
         }
     }
