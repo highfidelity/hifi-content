@@ -14,6 +14,7 @@
     var _this;
     var zoneProperties;
     var isSubscribedToChannel = false;
+    var gameZone;
 
     var GameZone = function() {
         _this = this;
@@ -26,11 +27,13 @@
             _this.entityID = entityID;
             zoneProperties = Entities.getEntityProperties(_this.entityID, 
                 ['name', 'parentID', 'rotation', 'position', 'dimensions']);
-            if (this.isAvatarInsideZone() & !isSubscribedToChannel) {
+            if (this.isAvatarInsideZone() && !isSubscribedToChannel) {
                 print("Subscribing to messages in preload");
                 Messages.subscribe("TriviaChannel");
                 isSubscribedToChannel = true;
             }
+            gameZone = Entities.getEntityProperties(Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, 100)[0], ['position']);
+
         },
 
         isAvatarInsideZone: function() {
@@ -54,10 +57,15 @@
         },
 
         leaveEntity: function() {
+            Messages.sendMessage("TriviaChannel", JSON.stringify({ type: "remove user"}));
             if (isSubscribedToChannel) {
                 print("Unsubscribed from messages in leaveEntity");
                 Messages.unsubscribe("TriviaChannel");
                 isSubscribedToChannel = false;
+            }
+            var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
+            for (var i = 0; i < playerValidator.length; i++){
+                Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
             }
         },
 

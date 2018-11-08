@@ -15,13 +15,6 @@
     var url="put_google_script_URL_here";
     var TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/questionMark-i.png');
     var TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/questionMark-a.png');
-    var NEXT_QUESTION_SFX = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/new-question.wav'));
-    var TIMER_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/intense-countdown-10-sec.wav'));
-    var GAME_INTRO = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/game-show-intro-music-cheer.wav'));
-    var NEW_GAME_SFX = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/new-game.wav'));
-    var POT_INCREASE_SFX = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/pot-increase-1.wav'));
-    var POT_DECREASE_SFX = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/everyone-wrong-combo.wav'));
-    var WINNER_MUSIC = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/winner-ta-dah-horns-oneshot-cheers.wav'));
     var SEARCH_RADIUS = 100;
     var ONE_SECOND_MS = 1000;
     var FOUR_SECOND_MS = 4000;
@@ -37,7 +30,6 @@
     var HOST_PERCENTAGE = 0.1;
     var AC_SCRIPT_RUNNING = false;
 
-    var audioVolume = 0.1;
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
     var appPage = Script.resolvePath('trivia.html?006');
     var button = tablet.addButton({
@@ -46,7 +38,6 @@
         activeIcon: TABLET_BUTTON_PRESSED
     });
     var open = false;
-    var injector;
     var interval;
     var questionText;
     var choiceTexts = [];
@@ -144,55 +135,42 @@
         findTargets();
         clearGame();
         lights.forEach(function(light) {
-            Entities.editEntity(light, { locked: false });
-            Entities.editEntity(light, { visible: true });
-            Entities.editEntity(light, { locked: true });
+            Entities.callEntityServerMethod(light, "lightsOn");
         });
         bubbleOn();
         updateAvatarCounter(true);
         prizeCalculator("new game");
         if (!introPlayed) {
-            playSound(GAME_INTRO);
+            Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['GAME_INTRO']);
             introPlayed = true;
         } else {
-            playSound(NEW_GAME_SFX);
+            Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEW_GAME_SFX']);
         }
         for (var j = 0; j < confetti.length; j++){
-            Entities.editEntity(confetti[j], { locked: false });
-            Entities.editEntity(confetti[j], { visible: false });
-            Entities.editEntity(confetti[j], { locked: true });
+            Entities.editEntity(confetti[j], {visible: false});
+            console.log("Stopping Confetti");
         }        
         interval = Script.setInterval(function(){
             updateAvatarCounter(false);
+            Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [prizeMoney, true]);
         }, TEN_SECONDS_MS);
     }
 
     function bubbleOn() {
         gameOn = true;
         console.log("Bubble on Gamestate is: ", gameOn);
-        Entities.editEntity(bubble, { locked: false });
-        Entities.editEntity(bubble, {
-            visible: true,
-            collisionless: false,
-            collidesWith: "static,dynamic,kinematic,myAvatar,otherAvatar"
-        });
-        Entities.editEntity(bubble, { locked: true });
+        Entities.callEntityServerMethod(bubble, "bubbleOn");
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "game on" }));
-        if (interval) {
-            Script.clearInterval(interval);
-        }
     }
 
     function bubbleOff() {
         gameOn = false;
         console.log("Bubble off Gamestate is: ", gameOn);
-        Entities.editEntity(bubble, { locked: false });
-        Entities.editEntity(bubble, {
-            visible: false,
-            collidesWith: "static,dynamic,kinematic"
-        });
-        Entities.editEntity(bubble, { locked: true });
+        Entities.callEntityServerMethod(bubble, "bubbleOff");
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "game off" }));
+        if (interval) {
+            Script.clearInterval(interval);
+        }
     }
   
     function findTargets() {
@@ -232,7 +210,7 @@
                         case "Trivia Player Game Zone":
                             gameZone = element;
                             gameZoneProperties = Entities.getEntityProperties(gameZone, 
-                                ["position", "dimensions", "rotation", "userData"]);
+                                ["id", "position", "dimensions", "rotation", "userData"]);
                             break;
                         case "Trivia Prize Amount":
                             prizeDisplay = element;
@@ -270,7 +248,7 @@
     }
 
     function getQuestion() {
-        playSound(NEXT_QUESTION_SFX);
+        Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
         try {
             var triviaURL = "https://opentdb.com/api.php?amount=1";
             if (type) {
@@ -310,25 +288,11 @@
         clearBoard();
         Script.setTimeout(function() {
             choiceTexts.forEach(function(choice) {
-                Entities.editEntity(choice, { locked: false });
-                Entities.editEntity(choice, {
-                    text: "",
-                    visible: true
-                });
-                Entities.editEntity(choice, { locked: true });
+                Entities.callEntityServerMethod(choice, "textUpdate", ["", true]);
             });
             var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
-
-            Entities.editEntity(questionText, { locked: false });
-            Entities.editEntity(questionText, { text: formattedQuestion });
-            Entities.editEntity(questionText, { locked: true });
-
-            Entities.editEntity(answerText, { locked: false });
-            Entities.editEntity(answerText, {
-                text: "",
-                visible: false
-            });
-            Entities.editEntity(answerText, { locked: true });
+            Entities.callEntityServerMethod(questionText, "textUpdate", [formattedQuestion, true]);
+            Entities.callEntityServerMethod(answerText, "textUpdate", ["", false]);
 
             Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
                 type: "newQuestion"
@@ -338,33 +302,13 @@
 
     function showAnswers() {
         if (triviaData[0].type === "boolean") {
-            Entities.editEntity(choiceTexts[0], { locked: false });
-            Entities.editEntity(choiceTexts[0], {
-                text: "",
-                visible: false
-            });
-            Entities.editEntity(choiceTexts[0], { locked: true });
+            Entities.callEntityServerMethod(choiceTexts[0], "textUpdate", ["",false]);
 
-            Entities.editEntity(choiceTexts[1], { locked: false });
-            Entities.editEntity(choiceTexts[1], {
-                text: "True",
-                visible: true
-            });
-            Entities.editEntity(choiceTexts[1], { locked: true });
+            Entities.callEntityServerMethod(choiceTexts[1], "textUpdate", ["True", true]);
 
-            Entities.editEntity(choiceTexts[2], { locked: false });
-            Entities.editEntity(choiceTexts[2], {
-                text: "False",
-                visible: true
-            });
-            Entities.editEntity(choiceTexts[2], { locked: true });
+            Entities.callEntityServerMethod(choiceTexts[2], "textUpdate", ["False", true]);
 
-            Entities.editEntity(choiceTexts[3], { locked: false });
-            Entities.editEntity(choiceTexts[3], {
-                text: "",
-                visible: false
-            });
-            Entities.editEntity(choiceTexts[3], { locked: true });
+            Entities.callEntityServerMethod(choiceTexts[3], "textUpdate", ["", false]);
 
             currentChoices = [];
             currentChoices.push("True");
@@ -372,13 +316,9 @@
             lights.forEach(function(light) {
                 var lightName = Entities.getEntityProperties(light, 'name').name;
                 if (lightName.indexOf("Green") !== -1) {
-                    Entities.editEntity(light, { locked: false });
-                    Entities.editEntity(light, { visible: false });
-                    Entities.editEntity(light, { locked: true });
+                    Entities.callEntityServerMethod(light, "lightsOff");
                 } else if (lightName.indexOf("Blue") !== -1) {
-                    Entities.editEntity(light, { locked: false });
-                    Entities.editEntity(light, { visible: false });
-                    Entities.editEntity(light, { locked: true });
+                    Entities.callEntityServerMethod(light, "lightsOff");
                 }
             });
         } else {
@@ -389,12 +329,7 @@
             });
             shuffle(currentChoices);
             currentChoices.forEach(function(choice, index) {
-                Entities.editEntity(choiceTexts[index], { locked: false });
-                Entities.editEntity(choiceTexts[index], {
-                    text: choice,
-                    visible: true
-                });
-                Entities.editEntity(choiceTexts[index], { locked: true });
+                Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice, true]);
             });
         }
         
@@ -407,44 +342,24 @@
         winnerID = null;
         bubbleOff();
         lights.forEach(function(light) {
-            Entities.editEntity(light, { locked: false });
-            Entities.editEntity(light, { visible: false });
-            Entities.editEntity(light, { locked: true });
+            Entities.callEntityServerMethod(light, "lightsOff");
         });
 
         correctHighlights.forEach(function(highlight) {
-            Entities.editEntity(highlight, { locked: false });
-            Entities.editEntity(highlight, { visible: false });
-            Entities.editEntity(highlight, { locked: true });
+            Entities.callEntityServerMethod(highlight, "lightsOff");
         });
 
-        Entities.editEntity(questionText, { locked: false });
-        Entities.editEntity(questionText, { text: "Questions will appear here" });
-        Entities.editEntity(questionText, { locked: true });
+        Entities.callEntityServerMethod(questionText, "textUpdate", ["Questions will appear here", true]);
 
         choiceTexts.forEach(function(choice) {
-            Entities.editEntity(choice, { locked: false });
-            Entities.editEntity(choice, {
-                text: "Answers appear here",
-                visible: true
-            });
-            Entities.editEntity(choice, { locked: true });
+            Entities.callEntityServerMethod(choice, "textUpdate", ["Answers appear here", true]);
         });
 
-        Entities.editEntity(answerText, { locked: false });
-        Entities.editEntity(answerText, {
-            text: "",
-            visible: false
-        });
-        Entities.editEntity(answerText, { locked: true });
+        Entities.callEntityServerMethod(answerText, "textUpdate", ["", true]);
 
-        Entities.editEntity(avatarCounter, { locked: false });
-        Entities.editEntity(avatarCounter, { text: 0});
-        Entities.editEntity(avatarCounter, { locked: true });
+        Entities.callEntityServerMethod(avatarCounter, "textUpdate", [0, true]);
 
-        Entities.editEntity(prizeDisplay, { locked: false });
-        Entities.editEntity(prizeDisplay, { text: 0});
-        Entities.editEntity(prizeDisplay, { locked: true });
+        Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [0, true]);
     }
 
     function isPositionInsideBox(position, gameZoneProperties) {
@@ -461,8 +376,8 @@
 
     function usersInZone(gameZoneProperties) {
         var count = 0;
-        AvatarList.getAvatarIdentifiers().forEach(function(avatarID) {
-            var avatar = AvatarList.getAvatar(avatarID);
+        AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
+            var avatar = AvatarManager.getAvatar(avatarID);
             if (avatar.sessionUUID) {
                 if (isPositionInsideBox(avatar.position, gameZoneProperties)) {
                     count++;
@@ -475,9 +390,7 @@
     function updateAvatarCounter(roundOver) {
         console.log("UPDATING AVATAR COUNT");
         var count = usersInZone(gameZoneProperties);
-        Entities.editEntity(avatarCounter, { locked: false });
-        Entities.editEntity(avatarCounter, { text: count});
-        Entities.editEntity(avatarCounter, { locked: true });
+        Entities.callEntityServerMethod(avatarCounter, "textUpdate", [count, true]);
         if (roundOver) {
             if (count === previousCount && correctCount === 0) {
                 prizeCalculator("everyone wrong");
@@ -495,9 +408,11 @@
         var count = usersInZone(gameZoneProperties);
         switch (gameState) {
             case "new game":
-                if ( count < MIN_PLAYERS ) {
+                if ( count <= MIN_PLAYERS ) {
                     prizeMoney = MIN_PRIZE;
+                    print("player count", count," pot size ", prizeMoney);
                 } else {
+                    print("player count >3", count);
                     prizeMoney = count * HFC_INCREMENT; 
                 }
                 break;
@@ -506,49 +421,43 @@
                 if (prizeMoney <= MIN_PRIZE) { 
                     prizeMoney = MIN_PRIZE;
                 }
-                playSound(POT_DECREASE_SFX);
+                Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_DECREASE_SFX']);
                 for (var i = 0; i < decreaseParticle.length; i++){
-                    Entities.editEntity(decreaseParticle[i], { locked: false });
-                    Entities.editEntity(decreaseParticle[i], { visible: true });
-                    Entities.editEntity(decreaseParticle[i], { locked: true });
+                    console.log("Starting Decrease");
+                    Entities.editEntity(decreaseParticle[i], {visible: true});
                 }
                 Script.setTimeout( function(){
                     for (var i = 0; i < decreaseParticle.length; i++){
-                        Entities.editEntity(decreaseParticle[i], { locked: false });
-                        Entities.editEntity(decreaseParticle[i], { visible: false });
-                        Entities.editEntity(decreaseParticle[i], { locked: true });
+                        Entities.editEntity(decreaseParticle[i], {visible: false});
+                        console.log("Stopping Decrease");                       
                     }
                 }, FOUR_SECOND_MS );
                 break;
             case "increase pot":
                 prizeMoney += HFC_INCREMENT;
-                playSound(POT_INCREASE_SFX);
+                Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_INCREASE_SFX']);
                 for (var i = 0; i < increaseParticle.length; i++){
-                    Entities.editEntity(increaseParticle[i], { locked: false });
-                    Entities.editEntity(increaseParticle[i], { visible: true });
-                    Entities.editEntity(increaseParticle[i], { locked: true });
+                    console.log("Starting Increase");
+                    Entities.editEntity(increaseParticle[i], {visible: true});
                 }
                 Script.setTimeout( function(){
                     for (var i = 0; i < increaseParticle.length; i++){
-                        Entities.editEntity(increaseParticle[i], { locked: false });
-                        Entities.editEntity(increaseParticle[i], { visible: false });
-                        Entities.editEntity(increaseParticle[i], { locked: true });
+                        Entities.editEntity(increaseParticle[i], {visible: false});
+                        console.log("Stopping Increase");
                     }
                 }, FOUR_SECOND_MS );
                 break;
             case "game over":
                 prizeMoney += HFC_INCREMENT;
-                playSound(WINNER_MUSIC);                
+                Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['WINNER_MUSIC']);                
                 for (var i = 0; i < confetti.length; i++){
-                    Entities.editEntity(confetti[i], { locked: false });
-                    Entities.editEntity(confetti[i], { visible: true });
-                    Entities.editEntity(confetti[i], { locked: true });
+                    console.log("Starting Confetti");
+                    Entities.editEntity(confetti[i], {visible: true});
                 }
                 Script.setTimeout( function(){
                     for (var j = 0; j < confetti.length; j++){
-                        Entities.editEntity(confetti[j], { locked: false });
-                        Entities.editEntity(confetti[j], { visible: false });
-                        Entities.editEntity(confetti[j], { locked: true });
+                        Entities.editEntity(confetti[j], {visible: false});
+                        console.log("Stopping Confetti");
                     }
                 }, TEN_SECONDS_MS );
                 if (AC_SCRIPT_RUNNING){
@@ -567,9 +476,6 @@
                 }
                 break;
         }   
-        Entities.editEntity(prizeDisplay, { locked: false });
-        Entities.editEntity(prizeDisplay, { text: prizeMoney });
-        Entities.editEntity(prizeDisplay, { locked: true });
     }
 
     function sendInput(winningUserName) {     
@@ -602,49 +508,30 @@
 
     function clearBoard() {
         lights.forEach(function(light) {
-            Entities.editEntity(light, { locked: false });
-            Entities.editEntity(light, { visible: true });
-            Entities.editEntity(light, { locked: true });
+            Entities.callEntityServerMethod(light,"lightsOn");
         });
 
         correctHighlights.forEach(function(highlight) {
-            Entities.editEntity(highlight, { locked: false });
-            Entities.editEntity(highlight, { visible: false });
-            Entities.editEntity(highlight, { locked: true });
+            Entities.callEntityServerMethod(highlight, "lightsOff");
+
         });
 
-        Entities.editEntity(questionText, { locked: false });
-        Entities.editEntity(questionText, { text: "" });
-        Entities.editEntity(questionText, { locked: true });
+        Entities.callEntityServerMethod(questionText, "textUpdate", ["", true]);
 
         choiceTexts.forEach(function(choice) {
-            Entities.editEntity(choice, { locked: false });
-            Entities.editEntity(choice, {
-                text: "",
-                visible: true
-            });
-            Entities.editEntity(choice, { locked: true });
+            Entities.callEntityServerMethod(choice, "textUpdate", ["", true]);
         });
 
-        Entities.editEntity(answerText, { locked: false });
-        Entities.editEntity(answerText, {
-            text: "",
-            visible: false
-        });
-        Entities.editEntity(answerText, { locked: true });
+        Entities.callEntityServerMethod(answerText, "textUpdate", ["", false]);
     }
 
     function startTimer() {
-        playSound(TIMER_SOUND);
+        Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['TIMER_SOUND']);
         var seconds = 10;
-        Entities.editEntity(timer, { locked: false });
-        Entities.editEntity(timer, { text: JSON.stringify(seconds) });
-        Entities.editEntity(timer, { locked: true });
+        Entities.callEntityServerMethod(timer, "textUpdate", [seconds, true]);
         var interval = Script.setInterval(function() {
             seconds--;
-            Entities.editEntity(timer, { locked: false });
-            Entities.editEntity(timer, { text: JSON.stringify(seconds) });
-            Entities.editEntity(timer, { locked: true });
+            Entities.callEntityServerMethod(timer, "textUpdate", [seconds, true]);
             if (seconds === 0) {
                 Script.clearInterval(interval);
             }
@@ -673,8 +560,8 @@
             ["position", "dimensions", "rotation"]);
         result = usersInZone(correctColorZoneProperties);    
         if (result === 1) {
-            AvatarList.getAvatarIdentifiers().forEach(function(avatarID) {
-                var avatar = AvatarList.getAvatar(avatarID);
+            AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
+                var avatar = AvatarManager.getAvatar(avatarID);
                 if (avatar.sessionUUID) {
                     if (isPositionInsideBox(avatar.position, correctColorZoneProperties)) {
                         winnerID = avatar.sessionUUID;
@@ -698,17 +585,14 @@
         lights.forEach(function(light) {
             var lightName = Entities.getEntityProperties(light, 'name').name;
             if (lightName.indexOf(correctColor) === -1) {
-                Entities.editEntity(light, { locked: false });
-                Entities.editEntity(light, { visible: false });
-                Entities.editEntity(light, { locked: true });
+                Entities.callEntityServerMethod(light, "lightsOff");
             }
         });
         correctHighlights.forEach(function(highlight) {
             var highlightName = Entities.getEntityProperties(highlight, 'name').name;
             if (highlightName.indexOf(correctColor) !== -1) {
-                Entities.editEntity(highlight, { locked: false });
-                Entities.editEntity(highlight, { visible: true });
-                Entities.editEntity(highlight, { locked: true });
+
+                Entities.callEntityServerMethod(highlight, "lightsOn");
             }
         });
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
@@ -716,12 +600,7 @@
             correct: correctColor
         }));
 
-        Entities.editEntity(answerText, { locked: false });
-        Entities.editEntity(answerText, {
-            text: formattedAnswer,
-            visible: true
-        });
-        Entities.editEntity(answerText, { locked: true });
+        Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
 
         Script.setTimeout(function() {
             correctCount = isAnyAvatarCorrect(correctColor);
@@ -890,25 +769,13 @@
         gameOn = false;
         button.clicked.disconnect(onClicked);
         tablet.removeButton(button);
-        AvatarList.avatarRemovedEvent.disconnect(function(){
+        AvatarManager.avatarRemovedEvent.disconnect(function(){
             updateAvatarCounter(false);
         });
         tablet.screenChanged.disconnect(onScreenChanged);
         tablet.webEventReceived.disconnect(onWebEventReceived);
         Users.usernameFromIDReply.disconnect(setUserName);
         Messages.messageReceived.disconnect(triviaListener);
-    }
-
-    function playSound(sound) {
-        if (sound.downloaded) {
-            if (injector) {
-                injector.stop();
-            }
-            injector = Audio.playSound(sound, {
-                position: gameZoneProperties.position,
-                volume: audioVolume
-            });
-        }
     }
 
     function triviaListener(channel, message, sender) {
@@ -947,7 +814,7 @@
     findTargets();
     Messages.subscribe(TRIVIA_CHANNEL);
     Messages.messageReceived.connect(triviaListener);
-    AvatarList.avatarRemovedEvent.connect(function(){
+    AvatarManager.avatarRemovedEvent.connect(function(){
         updateAvatarCounter(false);
     });
     Users.usernameFromIDReply.connect(setUserName);
