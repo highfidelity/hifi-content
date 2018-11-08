@@ -10,7 +10,7 @@
 
 (function() {
     var LIGHT_BLINK_INTERVAL = 500;
-    var PLAY_BINGO_SCRIPT = Script.resolvePath('bingoCardSpawner.js?003');
+    var PLAY_BINGO_SCRIPT = Script.resolvePath('bingoCardSpawner.js');
 
     var _this;
 
@@ -33,6 +33,9 @@
             _this.entityID = entityID;
             Script.setTimeout(function() {
                 _this.getLights();
+            }, 1000);
+            Script.setTimeout(function() {
+                _this.newRound();
             }, 1000);
         },
 
@@ -82,6 +85,7 @@
             if (_this.interval) {
                 Script.clearInterval(_this.interval);
             }
+            _this.closeRegistration();
         },
         
         gameOn: function() {
@@ -124,13 +128,15 @@
         },
 
         getCalledNumbers: function(thisID, params) {
+            print("I AM WHEEL! I GET CALLED NUMBERS FOR YOU!");
             if (!params[1]) {
+                print("I'M SENDING THOSE NUMBERS TO MY CLIENT SCRIPT!");
                 Entities.callEntityClientMethod(params[0], _this.entityID, 'getNumbersFromServer', 
                     [JSON.stringify(_this.calledNumbers)]);
             } else {
-                print("THIS IS WHEEL...I'M SENDING THOSE NUMBERS TO YOU< ZONE!");
+                print("I'M SENDING THOSE NUMBERS TO YOU, ZONE!");
                 var machineZoneID = params[1];
-                Entities.callEntityServerMethod(machineZoneID, 'getNumbersFromServer', 
+                Entities.callEntityMethod(machineZoneID, 'getNumbersFromServer', 
                     [JSON.stringify(_this.calledNumbers)]);
             }
         },

@@ -41,7 +41,8 @@
     var machineSpotlight;
     var cardEntity = null;
     var bingoNumberSquares = [];
-    var winParticleEffects = [];
+    var confettiParticleEffect;
+    var bingoParticleEffect;
     var wheel;
     var calledNumbers;
     // var white;
@@ -51,7 +52,7 @@
     };
 
     BingoMachineZone.prototype = {
-        remotelyCallable: ['createCard', 'scanCard', 'saveWheelEntityID', 'userLeftZone'],
+        remotelyCallable: ['createCard', 'scanCard', 'userLeftZone'],
         preload: function(entityID) {
             _this.entityID = entityID;
             var properties = Entities.getEntityProperties(_this.entityID, ['userData', 'parentID', 'position']);
@@ -75,15 +76,13 @@
             });
             Entities.getChildrenIDs(bingoMachine).forEach(function(entityNearMachine) {
                 var name = Entities.getEntityProperties(entityNearMachine, 'name').name;
-                if (name.indexOf("Bingo") !== -1 && name.indexOf("Particle") !== -1) {
-                    winParticleEffects.push(entityNearMachine);
+                if (name === "Bingo Particle Bingo") {
+                    bingoParticleEffect = entityNearMachine;
+                } else if (name === "Bingo Particle Confetti") {
+                    print("FOUND CONFETTI PARTICLE");
+                    confettiParticleEffect = entityNearMachine;
                 }
             });
-        },
-
-        saveWheelEntityID: function (thisID, params) {
-            print("I'M SAVING THE WHEEL ID: ", params[0]);
-            wheel = JSON.stringify(params[0]);
         },
 
         encodeURLParams: function (params) {
@@ -396,9 +395,8 @@
 
         win: function() {
             _this.playSound(MACHINE_WIN_SOUND);
-            winParticleEffects.forEach(function(particle) {
-                Entities.editEntity(particle, { isEmitting: true });
-            });
+            Entities.editEntity(bingoParticleEffect, { emitRate: 19 });
+            Entities.editEntity(confettiParticleEffect, { emitRate: 61 });
         },
 
         lose: function() {
@@ -420,17 +418,14 @@
 
         scanCard: function(thisID, params) {
             userName = params[0];
+            wheel = params[1];
             userCardNumbers = [];
-            
-            // print("YOU MAY NOT ENTER THE ZONE!!!!!");
-            // print("entered bingo checking zone");
             print("THANKS CLIENT, I'LL GET THE USER'S NUMBERS, GET THE CALLED NUMBERS, AND CREATE A CARD");
             // the zero is because when the wheel client uses this function of the wheel server script, 
             // it needs to send an avatar id to return the data back, but when the scanner zone server 
             // calls the wheel server script, it only needs to send the zone ID to return data back
             // this lets me differentiate between the two
-            print("Entities.callEntityServerMethod(", wheel, ", 'getCalledNumbers', [-1, _this.entityID]);");
-            Entities.callEntityServerMethod(wheel, 'getCalledNumbers', [-1, _this.entityID]);
+            Entities.callEntityMethod(wheel, 'getCalledNumbers', [-1, _this.entityID]);
             _this.getCardNumbers();
             _this.deleteCard();
             Entities.editEntity(machineSpotlight, { visible: true });
@@ -467,13 +462,18 @@
         },
 
         userLeftZone: function(thisID, userID) {
-            Entities.editEntity(machineSpotlight, { visible: false });
+            print("TURNING OFF PARTICLE ", bingoParticleEffect);
+            Entities.editEntity(bingoParticleEffect, { emitRate: 0 });
+            print("TURNING OFF PARTICLE ", confettiParticleEffect);
+            Entities.editEntity(confettiParticleEffect, { emitRate: 0 });
             Script.setTimeout(function() {
+                Entities.editEntity(machineSpotlight, { visible: false });
                 bingoNumberSquares = [];
                 _this.deleteCard();
-                winParticleEffects.forEach(function(particleEffect){
-                    Entities.editEntity(particleEffect, { isEmitting: false });
-                });
+                print("TURNING OFF PARTICLE ", bingoParticleEffect);
+                Entities.editEntity(bingoParticleEffect, { emitRate: 0 });
+                print("TURNING OFF PARTICLE ", confettiParticleEffect);
+                Entities.editEntity(confettiParticleEffect, { emitRate: 0 });
             }, WAIT_TO_DELETE_CARD);
         },
 
@@ -495,9 +495,8 @@
             _this.deleteCard();
             bingoNumberSquares = [];
             Entities.editEntity(machineSpotlight, { visible: false });
-            winParticleEffects.forEach(function(particleEffect){
-                Entities.editEntity(particleEffect, { isEmitting: false });
-            });
+            Entities.editEntity(bingoParticleEffect, { emitRate: 0 });
+            Entities.editEntity(confettiParticleEffect, { emitRate: 0 });
             if (interval) {
                 Script.clearInterval(interval);
             }

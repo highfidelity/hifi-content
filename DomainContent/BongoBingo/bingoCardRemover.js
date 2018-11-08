@@ -25,7 +25,7 @@
     var canClick = true;
 
     var isRunningStandaloneBingoApp = function() {
-        var _standaloneScriptName = 'card.js';
+        var _standaloneScriptName = 'card.js?031';
         var isRunning = false;
         ScriptDiscoveryService.getRunning().forEach(function(script){
             if (script.name === _standaloneScriptName) {
@@ -43,6 +43,11 @@
         preload: function(entityID){
             _this.entityID = entityID;
             spreadsheetURL = "https://script.google.com/macros/s/AKfycbzFuuJ30c_qUZmBB8PnjLtunaJx1VbhSRFjsy_6wocR2_p7wohJ/exec";
+        },
+
+        endGame: function() {
+            ScriptDiscoveryService.stopScript(Script.resolvePath('./card/card.js'));     
+            canClick = true;
         },
 
         encodeURLParams: function (params) {
@@ -78,7 +83,7 @@
                             userCardNumbers = userNumbersToSplit.split(",");
                         }
                         if (!isRunningStandaloneBingoApp()) {
-                            ScriptDiscoveryService.loadScript(Script.resolvePath('./card/card.js'));
+                            ScriptDiscoveryService.loadScript(Script.resolvePath('./card/card.js?002'));
                         } 
                     }
                 };
@@ -151,10 +156,6 @@
                     localOnly: localOnly
                 });
             }
-        },
-
-        unload: function() {
-            ScriptDiscoveryService.stopScript(Script.resolvePath('./card/card.js'));
         }
     };
 

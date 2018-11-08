@@ -16,7 +16,7 @@
     var machineSpotlight;
     var mayEnterZone = true;
     var userName;
-
+    var wheel;
     var BingoMachineZone = function() {
         _this = this;
     };
@@ -31,8 +31,7 @@
             Entities.findEntities(position, SEARCH_RADIUS).forEach(function(nearbyEntity) {
                 var name = Entities.getEntityProperties(nearbyEntity, 'name').name;
                 if (name === "Bingo Wheel") {
-                    print("I'VE FOUND THE WHEEL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                    Entities.callEntityServerMethod(_this.entityID, 'saveWheelEntityID', [nearbyEntity]);
+                    wheel = nearbyEntity;
                 }
             });
         },
@@ -45,7 +44,7 @@
                 if (!Entities.getEntityProperties(machineSpotlight, 'visible').visible) {
                     print("OVER TO YOU, SERVER! WE NEED THOSE NUMBERS STAT!!!!");
                     // Entities.callEntityServerMethod(wheel, 'getCalledNumbers', [MyAvatar.sessionUUID, _this.entityID]);
-                    Entities.callEntityServerMethod(_this.entityID, 'scanCard', [userName]);    
+                    Entities.callEntityServerMethod(_this.entityID, 'scanCard', [userName, wheel]);    
                 } else {
                     print("another user is in the zone");
                 }
