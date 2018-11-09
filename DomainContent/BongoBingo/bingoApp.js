@@ -61,7 +61,13 @@
 
     function gameOn() {
         playSound(BEGINNING_SOUND, 0.1);
+        if (!numberWheel) {
+            findTargets();
+        }
         Script.setTimeout(function() {
+            if (!numberWheel) {
+                print("ERROR: Unable to find wheel");
+            }
             Entities.callEntityServerMethod(numberWheel, 'gameOn');
         }, BEGINNING_SOUND.duration * 1000 * 0.5);
     }
