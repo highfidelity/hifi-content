@@ -175,7 +175,7 @@
             var laserIntersection,
                 handIntersection;
 
-            hand.update();
+            hand.update(inVREditMode);
             laser.update(hand, inVREditMode);
             if (hand.valid()) {
                 // Use intersections in order to achieve entity manipulation while inside an entity:
