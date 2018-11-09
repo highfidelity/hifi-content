@@ -32,6 +32,8 @@ Script.include(Script.resolvePath("./VectorMath.js"));
     var HAPTIC_THRESHOLD = 40;
     
     var FLOW_JOINT_PREFIX = "flow";
+    var SIM_JOINT_PREFIX = "sim";
+    
     var JOINT_COLLISION_PREFIX = "joint_";
     var HAND_COLLISION_PREFIX = "hand_";
     var HAND_COLLISION_RADIUS = 0.03;
@@ -42,6 +44,9 @@ Script.include(Script.resolvePath("./VectorMath.js"));
     var DUMMY_KEYWORD = "Extra";
     var DUMMY_JOINT_COUNT = 8;
     var DUMMY_JOINT_DISTANCE = 0.05;
+    
+    var ISOLATED_JOINT_STIFFNESS = 0.85;
+    var ISOLATED_JOINT_LENGTH = 0.05;
         
     // Joint groups by keyword
 
@@ -72,6 +77,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
     var CUSTOM_FLOW_DATA, CUSTOM_COLLISION_DATA;
     
     // CUSTOM DATA STARTS HERE
+
 
     CUSTOM_FLOW_DATA = {
         "hair": {
@@ -123,6 +129,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             }
         }
     };
+
     
     // CUSTOM DATA ENDS HERE
     
@@ -902,7 +909,7 @@ Script.include(Script.resolvePath("./VectorMath.js"));
         
         this.update = function () {
             var accelerationOffset = {x: 0, y: 0, z: 0};
-            if (!self.isDummy && self.recoveryPosition) {
+            if (self.recoveryPosition) {
                 var recoveryVector = VEC3.subtract(self.recoveryPosition, self.node.currentPosition);   
                 accelerationOffset = VEC3.multiply(recoveryVector, Math.pow(self.stiffness, 3));
             }
@@ -1149,37 +1156,57 @@ Script.include(Script.resolvePath("./VectorMath.js"));
             }
         }
     };
-    
+
     var calculateConstraints = function() {
         var collisionKeys = Object.keys(CUSTOM_COLLISION_DATA);
         flowSkeleton = MyAvatar.getSkeleton().filter(
             function(jointInfo){
                 var name = jointInfo.name;
                 var namesplit = name.split("_");
-                var isFlowJoint = (namesplit.length > 2 && namesplit[0].toUpperCase() === FLOW_JOINT_PREFIX.toUpperCase());
-                if (isFlowJoint) {
-                    var group = namesplit[1];
-                    FLOW_JOINT_KEYWORDS.push(group);
-                    var jointSettings;
-                    if (CUSTOM_FLOW_DATA[group] !== undefined) {
-                        jointSettings = CUSTOM_FLOW_DATA[group];
-                    } else if (PRESET_FLOW_DATA[group] !== undefined){
-                        jointSettings = PRESET_FLOW_DATA[group];
+                console.log("FLOW checking: " + name);
+                var isSimJoint = (name.substring(0, 3).toUpperCase() === SIM_JOINT_PREFIX.toUpperCase());
+                var isFlowJoint = (namesplit.length > 2 &&
+                                    namesplit[0].toUpperCase() === FLOW_JOINT_PREFIX.toUpperCase());
+                if (isFlowJoint || isSimJoint) {
+                    var group = undefined;
+                    if (isSimJoint) {
+                        for (var k = 1; k < name.length-1; k++) {
+                            var subname = parseFloat(name.substring(name.length-k));
+                            if (isNaN(subname) && name.length-k > SIM_JOINT_PREFIX.length) {
+                                group = name.substring(SIM_JOINT_PREFIX.length, name.length - k + 1);
+                                break;
+                            }
+                        }
+                        if (group === undefined) {
+                            group = name.substring(SIM_JOINT_PREFIX.length, name.length - 1);
+                        }
                     } else {
-                        jointSettings = DEFAULT_JOINT_SETTINGS.get();
+                        group = namesplit[1];
                     }
-                    
-                    FLOW_JOINT_DATA[group] = jointSettings;
-                    if (flowJointData[jointInfo.index] === undefined) {
-                        flowJointData[jointInfo.index] = new FlowJoint(jointInfo.index, jointInfo.parentIndex, name, group, jointSettings);
-                    } 
-                } else {
+                    if (group !== undefined) {
+                        FLOW_JOINT_KEYWORDS.push(group);
+                        var jointSettings;
+                        if (CUSTOM_FLOW_DATA[group] !== undefined) {
+                            jointSettings = CUSTOM_FLOW_DATA[group];
+                        } else if (PRESET_FLOW_DATA[group] !== undefined){
+                            jointSettings = PRESET_FLOW_DATA[group];
+                        } else {
+                            jointSettings = DEFAULT_JOINT_SETTINGS.get();
+                        }
+
+                        FLOW_JOINT_DATA[group] = jointSettings;
+                        if (flowJointData[jointInfo.index] === undefined) {
+                            flowJointData[jointInfo.index] = new FlowJoint(jointInfo.index, jointInfo.parentIndex, name, group, jointSettings);
+                        }
+                    }
+                }
+                else {
                     var collisionSettings = (collisionKeys.length > 0) ? CUSTOM_COLLISION_DATA[name] : PRESET_COLLISION_DATA[name];
                     if (collisionSettings) {
                         collisionSystem.addCollisionShape(jointInfo.index, name, collisionSettings);
                     }
                 }
-                return isFlowJoint;
+                return (isFlowJoint || isSimJoint);
             }
         );
         
@@ -1200,7 +1227,28 @@ Script.include(Script.resolvePath("./VectorMath.js"));
         for (i = 0; i < roots.length; i++) {
             var thread = new FlowThread(roots[i]);
             // add threads with at least 2 joints
-            if (thread.joints.length > 1) {
+            if (thread.joints.length > 0) {
+                if (thread.joints.length == 1) {
+                    var jointIndex = roots[i];
+                    var joint = flowJointData[jointIndex];
+                    var jointPosition = MyAvatar.getJointPosition(jointIndex);
+                    var settings = {
+                        "active": joint.node.active,
+                        "radius": joint.node.radius,
+                        "gravity": joint.node.gravity,
+                        "damping": joint.node.damping,
+                        "inertia": joint.node.inertia,
+                        "delta": joint.node.delta,
+                        "stiffness": ISOLATED_JOINT_STIFFNESS
+                    }
+                    var extraIndex = flowJointData.length;
+                    flowJointData[extraIndex] = new FlowJointDummy(jointPosition, extraIndex, jointIndex, -1, settings);
+                    flowJointData[extraIndex].isDummy = false;
+                    flowJointData[extraIndex].length = ISOLATED_JOINT_LENGTH;
+                    flowJointData[jointIndex].childIndex = extraIndex;
+                    flowJointData[extraIndex].group = flowJointData[jointIndex].group;
+                    thread = new FlowThread(jointIndex);
+                }
                 flowThreads.push(thread);
             }
         }
