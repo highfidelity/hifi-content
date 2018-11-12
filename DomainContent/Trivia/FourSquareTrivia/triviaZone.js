@@ -145,7 +145,6 @@
                 console.log("Error finding validator, nothing to delete", e);
             }
             _this.leaveEntity();
-            Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "remove user"}));
         },
 
         enterEntity: function() {
@@ -172,8 +171,6 @@
                 }
             } catch (e) {
                 console.log(e, "no validator present");
-                console.log("REQUESTING GAME ENTRY");
-                Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({type: "user entry request"}));
             }
             myColor = _this.color;
             if (_this.color !== "Game Protection") {

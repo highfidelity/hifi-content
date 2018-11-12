@@ -12,7 +12,7 @@
 (function() {
 
     var TRIVIA_CHANNEL = "TriviaChannel";
-    var url="put_google_script_URL_here";
+    var url="";
     var TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/questionMark-i.png');
     var TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/questionMark-a.png');
     var SEARCH_RADIUS = 100;
