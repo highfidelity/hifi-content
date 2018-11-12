@@ -1,0 +1,171 @@
+<html>
+    <head>
+            <title>Stage Manager</title>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+            <style>
+                body {
+                    margin: 10;
+                    width: 100% - 10px;
+                    font-family: 'Raleway', sans-serif;
+                    color: #cccbcb;
+                    background: linear-gradient(#2b2b2b, #303030);
+                }
+    
+                .top-bar {
+                    height: 90px;
+                    background: linear-gradient(#2b2b2b, #303030);
+                    font-weight: bold;
+                    padding-left: 30px;
+                    padding-right: 30px;
+                    display: flex;
+                    align-items: center;
+                    position: fixed;
+                    width: 480px;
+                    top: 0;
+                    z-index: 1;
+                }
+    
+                .content {
+                    margin-top: 90px;
+                    padding: 30px;
+                }
+    
+                input[type=button] {
+                    font-family: 'Raleway';
+                    font-weight: bold;
+                    font-size: 13px;
+                    text-transform: uppercase;
+                    vertical-align: top;
+                    height: 28px;
+                    min-width: 120px;
+                    padding: 0px 18px;
+                    margin-right: 6px;
+                    border-radius: 5px;
+                    border: none;
+                    color: #fff;
+                    background-color: #000;
+                    background: linear-gradient(#343434 20%, #000 100%);
+                    cursor: pointer;
+                }
+                input[type=button].gray {
+                    color: #121212;
+                    background-color: #949494;
+                    background: linear-gradient(#949494 20%, #cacaca 100%);
+                }
+    
+                input[type=button]:enabled:hover {
+                    background: linear-gradient(#000, #000);
+                    border: none;
+                }
+               
+                input[type=button].gray:enabled:hover {
+                    background: linear-gradient(#fff, #fff);
+                    border: none;
+                }
+    
+                input[type=button]:active {
+                    background: linear-gradient(#343434, #343434);
+                }
+                input[type=button].gray:active {
+                    background: linear-gradient(#afafaf, #afafaf);
+                }
+    
+                input[type=button]:disabled {
+                    color: #252525;
+                    background: linear-gradient(#575757 20%, #252525 100%);
+                }
+    
+                input[type=button][pressed=pressed] {
+                    color: #00b4ef;
+                }
+                input[type=text] {
+                    padding: 2px 10px;
+                    margin: 2px 0;
+                    box-sizing: border-box;
+                    border: 3px solid #ccc;
+                    outline: none;
+                    font-family: 'Raleway';
+                    margin-right: 6px;
+                }
+    
+            </style>
+    </head>
+    <body>
+        <h1>Stage Manager</h1>
+        <h3>Content Swapping</h3>
+        <input type ="button" class="gray" id="addTrivia" value="Add Trivia"><br>
+        <p>Give people a minute to move before adding collisions to the avatar contest stage content. 
+            You must be within 100m of the content to remove it.</p>
+        <input type ="button" class="gray" id="addTriviaCollisions" value="Add Trivia Collisions"><br><br>
+        <input type ="button" class="gray" id="removeTrivia" value="Remove Trivia"><br><br>
+        <input type ="button" class="gray" id="avatarContestVisible" value="Add Avatar Contest"><br>
+        <p>Give people a minute to move before adding collisions to the avatar contest stage content. 
+            You must be within 100m of the content to remove it.</p>
+        <input type ="button" class="gray" id="avatarContestCollisions" value="Add Avatar Contest Collisions"><br><br>
+        <input type ="button" class="gray" id="removeAvatarContest" value="Remove Avatar Contest"><br>
+        <p>This button will change the model URL of the main building in the spot to an empty string and then 
+            immediately change it back to the correct URL in case of griefing emergency.</p>
+        <input type ="button" class="gray" id="modelURL" value="Reset Model URL"><br><br>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script>
+            $('#addTrivia').click(function(){
+                var event = {
+                    app: 'stage',
+                    type: 'addTrivia'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#addTriviaCollisions').click(function(){
+                var event = {
+                    app: 'stage',
+                    type: 'addTriviaCollisions'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#removeTrivia').click(function(){
+                var event = {
+                    app: 'stage',
+                    type: 'removeTrivia'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#avatarContestVisible').click(function() {
+                var event = {
+                    app: 'stage',
+                    type: 'avatarContestVisible'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#avatarContestCollisions').click(function() {
+                var event = {
+                    app: 'stage',
+                    type: 'avatarContestCollisions'
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#removeAvatarContest').click(function(){
+                var event = {
+                    app: 'stage',
+                    type: "removeAvatarContest"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#modelURL').click(function(){
+                var event = {
+                    app: 'stage',
+                    type: "modelURL"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+        </script>
+    </body>
+
+</html>
