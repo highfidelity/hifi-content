@@ -25,6 +25,7 @@
     var entityProperties;
     var injector;
     var gameZone;
+    var gameOn;
 
     this.remotelyCallable = [
         "lightsOn",
@@ -39,7 +40,7 @@
 
     this.preload = function(entityID){
         _entityID = entityID;
-        entityProperties = Entities.getEntityProperties(_entityID, ['position', 'name']);
+        entityProperties = Entities.getEntityProperties(_entityID, ['position', 'name', 'type']);
         gameZone = Entities.getEntityProperties(Entities.findEntitiesByName("Trivia Player Game Zone", entityProperties.position, 100)[0], ['position']);
 
         if (entityProperties.name == 'Trivia Player Game Zone') {
@@ -109,6 +110,7 @@
     };
 
     this.bubbleOn = function() {
+        gameOn = true;
         Entities.editEntity(_entityID, {
             visible: true,
             collisionless: false,
@@ -116,7 +118,14 @@
         });
     };
 
+    this.getGameState = function(id, uuid) {
+        if (entityProperties.type === "Zone") {
+            Entities.callEntityClientMethod(uuid, _entityID, "setGameState", [gameOn]);
+        }
+    };
+
     this.bubbleOff = function() {
+        gameOn = false;
         Entities.editEntity(_entityID, {
             visible: false,
             collidesWith: "static,dynamic,kinematic"

@@ -16,6 +16,7 @@
     var TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/questionMark-i.png');
     var TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/questionMark-a.png');
     var SEARCH_RADIUS = 100;
+    var TENTH_SECOND_MS = 100;
     var ONE_SECOND_MS = 1000;
     var FOUR_SECOND_MS = 4000;
     var TEN_SECONDS_MS = 10000;
@@ -38,7 +39,7 @@
         activeIcon: TABLET_BUTTON_PRESSED
     });
     var open = false;
-    var interval;
+    var intervalBoard;
     var questionText;
     var choiceTexts = [];
     var answerText;
@@ -48,7 +49,6 @@
     var category = null;
     var difficulty = null;
     var currentChoices = [];
-    var gameOn = false;
     var lights = [];
     var correctHighlights = [];
     var timer;
@@ -64,7 +64,8 @@
     var confetti = [];
     var increaseParticle = [];
     var decreaseParticle = [];
-    var winnerID = null;
+    var winnerID = null,
+        correctColor = null;
 
     var htmlEnDeCode = (function() {
         var charToEntityRegex,
@@ -138,7 +139,6 @@
             Entities.callEntityServerMethod(light, "lightsOn");
         });
         bubbleOn();
-        updateAvatarCounter(false);
         prizeCalculator("new game");
         if (!introPlayed) {
             Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['GAME_INTRO']);
@@ -149,27 +149,23 @@
         for (var j = 0; j < confetti.length; j++){
             Entities.editEntity(confetti[j], {visible: false});
             console.log("Stopping Confetti");
-        }        
-        interval = Script.setInterval(function(){
-            updateAvatarCounter(false);
-            Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [prizeMoney, true]);
-        }, TEN_SECONDS_MS);
+        }           
     }
 
     function bubbleOn() {
-        gameOn = true;
-        console.log("Bubble on Gamestate is: ", gameOn);
         Entities.callEntityServerMethod(bubble, "bubbleOn");
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "game on" }));
+        intervalBoard = Script.setInterval(function(){
+            updateAvatarCounter(false);
+            Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [prizeMoney, true]);
+        }, TENTH_SECOND_MS);
     }
 
     function bubbleOff() {
-        gameOn = false;
-        console.log("Bubble off Gamestate is: ", gameOn);
         Entities.callEntityServerMethod(bubble, "bubbleOff");
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "game off" }));
-        if (interval) {
-            Script.clearInterval(interval);
+        if (intervalBoard) {
+            Script.clearInterval(intervalBoard);
         }
     }
   
@@ -390,18 +386,45 @@
     function updateAvatarCounter(roundOver) {
         console.log("UPDATING AVATAR COUNT");
         var count = usersInZone(gameZoneProperties);
-        Entities.callEntityServerMethod(avatarCounter, "textUpdate", [count, true]);
+        console.log("correct count is", correctCount, "previous count ", previousCount, "current count", count);
         if (roundOver) {
-            if (count === previousCount && correctCount === 0) {
-                prizeCalculator("everyone wrong");
-            } else if (count <= 1) {
+            var trial = 0;
+            while (correctCount !== count && trial < 10) {
+                console.log("correct count is", correctCount, "previous count ", previousCount, "current count", count);
+                Script.setTimeout(function(){
+                    if (correctCount === 0) {
+                        prizeCalculator("everyone wrong");
+                        previousCount = count;
+                        return;
+                    } else {
+                        try {
+                            Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
+                                type: "check",
+                                correct: correctColor
+                            }));
+                            var count = usersInZone(gameZoneProperties);
+                            trial++;
+                        } catch (e) {
+                            console.log("Error correcting player count", e);
+                            trial = 11;
+                        }
+                    }
+                }, 100);
+            } 
+            if (correctCount === 1) {
                 prizeCalculator("game over");
+                Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
+                    type: "check",
+                    correct: correctColor
+                }));
                 previousCount = count;
             } else {
                 prizeCalculator("increase pot");
                 previousCount = count;
             }
         }
+        previousCount = count;
+        Entities.callEntityServerMethod(avatarCounter, "textUpdate", [count, true]);
     }
        
     function prizeCalculator(gameState) {
@@ -479,19 +502,21 @@
     }
 
     function sendInput(winningUserName) {     
-        var hostPayout = prizeMoney * HOST_PERCENTAGE;    
-        var paramString = encodeURLParams({
-            date: new Date(),
-            triviaMasterUserName: AccountServices.username,
-            triviaMasterPayout: hostPayout,
-            winnerUserName: winningUserName,
-            winnings: prizeMoney,
-            senderID: AccountServices.username
-        });
-        var request = new XMLHttpRequest();
-        request.open('GET', url + "?" + paramString);
-        request.timeout = 10000;
-        request.send();
+        if (prizeMoney >= 300 && winnerID !== MyAvatar.sessionUUID) {
+            var hostPayout = prizeMoney * HOST_PERCENTAGE;    
+            var paramString = encodeURLParams({
+                date: new Date(),
+                triviaMasterUserName: AccountServices.username,
+                triviaMasterPayout: hostPayout,
+                winnerUserName: winningUserName,
+                winnings: prizeMoney,
+                senderID: AccountServices.username
+            });
+            var request = new XMLHttpRequest();
+            request.open('GET', url + "?" + paramString);
+            request.timeout = 10000;
+            request.send();
+        }
     }
 
     function encodeURLParams(params) {
@@ -541,24 +566,65 @@
     function isAnyAvatarCorrect(correctColor) {
         var result = null;
         var correctZoneColorID = null;
+        var incorrectZoneID = [];
         switch (correctColor){
             case "Red":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS);
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0];
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0]);
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0]);
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0]);
                 break;
             case "Green":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS);
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0];
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0]);
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0]);
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0]);
                 break;
             case "Yellow":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS);
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0];
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0]);
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0]);
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0]);
                 break;
             case "Blue":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS);
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0];
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0]);
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0]);
+                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0]);
                 break;
         }
         var correctColorZoneProperties = Entities.getEntityProperties(
-            correctZoneColorID[0], 
+            correctZoneColorID, 
             ["position", "dimensions", "rotation"]);
-        result = usersInZone(correctColorZoneProperties);    
+        result = usersInZone(correctColorZoneProperties);  
+
+        var incorrectZoneProperties;  
+            
+        incorrectZoneID.forEach(function(zoneID){
+            incorrectZoneProperties = Entities.getEntityProperties(
+                zoneID, 
+                ["position", "dimensions", "rotation"]);
+            AvatarManager.getAvatarsInRange(incorrectZoneProperties, 1.5).forEach(function(avatarID) {
+                var avatar = AvatarManager.getAvatar(avatarID);
+                var validator = Entities.findEntitiesByName(avatarID, MyAvatar.position, SEARCH_RADIUS)[0];
+                if (avatar.sessionUUID && validator) {
+                    if (isPositionInsideBox(avatar.position, incorrectZoneProperties)) {
+                        Entities.callEntityServerMethod(zoneID, "deleteValidator", [validator[0]]);
+                    } 
+                } else if (!avatar.sessionUUID && validator) {
+                    Entities.callEntityServerMethod(zoneID, "deleteValidator", [validator[0]]);
+                    Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
+                        type: 'reject',
+                        uuid: avatarID
+                    }));
+                } else {
+                    Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
+                        type: 'reject',
+                        uuid: avatarID
+                    }));
+                }                   
+            });
+        });
         if (result === 1) {
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
@@ -574,7 +640,7 @@
 
     function showCorrect() {
         var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
-        var correctColor;
+        correctColor = null;
         choiceTexts.forEach(function(textEntity) {
             var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
             if (properties.text === htmlEnDeCode.htmlDecode(triviaData[0].correct_answer)) {
@@ -606,9 +672,6 @@
             correctCount = isAnyAvatarCorrect(correctColor);
             updateAvatarCounter(true);
         }, FIRST_WAIT_TO_COUNT_AVATARS);
-        // Script.setTimeout(function() {
-        //     updateAvatarCounter();
-        // }, SECOND_WAIT_TO_COUNT_AVATARS);
     }
 
     function onWebEventReceived(event) {
@@ -761,12 +824,11 @@
     }
 
     function appEnding() {
-        if (interval) {
-            Script.clearInterval(interval);
+        if (intervalBoard) {
+            Script.clearInterval(intervalBoard);
         }
         Messages.unsubscribe(TRIVIA_CHANNEL);
         clearGame();
-        gameOn = false;
         button.clicked.disconnect(onClicked);
         tablet.removeButton(button);
         AvatarManager.avatarRemovedEvent.disconnect(function(){
@@ -775,35 +837,6 @@
         tablet.screenChanged.disconnect(onScreenChanged);
         tablet.webEventReceived.disconnect(onWebEventReceived);
         Users.usernameFromIDReply.disconnect(setUserName);
-        Messages.messageReceived.disconnect(triviaListener);
-    }
-
-    function triviaListener(channel, message, sender) {
-        if (channel === "TriviaChannel") {
-            console.log("Message contents: ", message);
-            message = JSON.parse(message);
-            if (message.type === 'remove user') {
-                updateAvatarCounter(false);
-            }
-            if (message.type === 'user entry request') {
-                console.log("user is requesting entry to game");
-                if (gameOn) {
-                    console.log("game already in progress, reject the user");
-                    Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({type: "reject", uuid: sender}));
-                    Script.setTimeout(function(){
-                        console.log("count avatars after one sec delay");
-                        updateAvatarCounter(false);
-                    }, ONE_SECOND_MS);
-                } else {
-                    console.log("game not started, accept the user");
-                    Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({type: 'accepted', uuid: sender}));
-                    Script.setTimeout(function(){
-                        console.log("count avatars after one sec delay");
-                        updateAvatarCounter(false);
-                    }, ONE_SECOND_MS);
-                }
-            }
-        }
     }
 
     this.unload = function() {
@@ -813,7 +846,6 @@
 
     findTargets();
     Messages.subscribe(TRIVIA_CHANNEL);
-    Messages.messageReceived.connect(triviaListener);
     AvatarManager.avatarRemovedEvent.connect(function(){
         updateAvatarCounter(false);
     });

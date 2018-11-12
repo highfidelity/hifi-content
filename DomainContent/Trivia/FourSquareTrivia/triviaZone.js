@@ -9,7 +9,8 @@
 
 (function() {
     var ZONE_COLOR_INDEX = 12;
-    var DISQUALIFIED_POSITION = { x: 84.8138, y: 12.5, z: 88.744 }; // trivia
+    var DISQUALIFIED_POSITION = { x: 30.3719, y: -9, z: -1.45635 }; // warroom
+    // var DISQUALIFIED_POSITION = { x: 84.8138, y: 12.5, z: 88.744 }; // trivia
     // var DISQUALIFIED_POSITION = { x: -64.7559, y: -75, z: 57.1503 }; // studio
     // var DISQUALIFIED_POSITION = { x: 2.57328, y: 5, z: -47.86263 }; // zombies
     var HALF_MULTIPLIER = 0.5;
@@ -32,7 +33,7 @@
 
     TriviaZone.prototype = {
         disqualifiedPosition: null,
-
+        
         preload: function(entityID) {
             _this.entityID = entityID;
             zoneProperties = Entities.getEntityProperties(_this.entityID, 
@@ -46,7 +47,13 @@
                 currentZoneOverlayPosition = zoneMarkerPosition;
             }
             MyAvatar.wentAway.connect(_this.ejectUser);
-            gameZone = Entities.getEntityProperties(Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, 100)[0], ['position']);
+            gameZone = Entities.getEntityProperties(
+                Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, 100)[0], ['position']);
+        },
+            
+        setGameState: function(onOrOff) {
+            console.log("Setting Game State", onOrOff);
+            gameOn = onOrOff;
         },
 
         isAvatarInsideZone: function(position, zoneProperties) {
@@ -102,73 +109,65 @@
                     _this.showIfCorrect(message.correct);
                 } else if (message.type === 'game on') {
                     console.log("Trivia Master started the game");
-                    Entities.callEntityServerMethod(_this.entityID, "rezValidator", [MyAvatar.sessionUUID]);
-                    gameOn = true;
-                    myColor = _this.color;
-                    if (_this.color !== "Game Protection") {
-                        _this.createChoiceOverlay();
-                    } 
+                    Entities.callEntityServerMethod(_this.entityID, "getGameState", [MyAvatar.sessionUUID]);
+                    Script.setTimeout(function(){
+                        if (gameOn) {
+                            Entities.callEntityServerMethod(_this.entityID, "rezValidator", [MyAvatar.sessionUUID]);
+                        }
+                    }, 100);
                 } else if (message.type === 'game off') {
                     console.log("Trivia Master ended the game");
-                    var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
-                    for (var i = 0; i < playerValidator.length; i++){
-                        Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
-                    }
-                    playerValidator = null;
-                    gameOn = false;
-                } else if (message.type === 'reject') {
-                    console.log("REJECTION INCOMING");
-                    if ( message.uuid === MyAvatar.sessionUUID){
-                        console.log("UH OH I'M NOT SUPPOSED TO BE HERE");
-                        gameOn = true;
-                        _this.ejectUser();
-                    }
-                } else if (message.type === 'accepted') {
-                    console.log("ACCEPTED INCOMING");
-                    if ( message.uuid === MyAvatar.sessionUUID){
-                        console.log("I'M SUPPOSED TO BE HERE");
-                        Entities.callEntityServerMethod(_this.entityID, "rezValidator", [MyAvatar.sessionUUID]);
-                        gameOn = true;
-                        myColor = _this.color;
-                        if (_this.color !== "Game Protection") {
-                            _this.createChoiceOverlay();
-                        } 
-                    }
+                    Entities.callEntityServerMethod(_this.entityID, "getGameState", [MyAvatar.sessionUUID]);
+                    Script.setTimeout(function(){
+                        if (!gameOn) {
+                            var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
+                            for (var i = 0; i < playerValidator.length; i++){
+                                Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
+                            }
+                            playerValidator = null;
+                        }
+                    }, 100);
                 }
             }
         },
 
         ejectUser: function() {
             console.log("Ejecting user");
-            if ( _this.isAvatarInsideZone && gameOn) {
-                MyAvatar.orientation = { x: 0, y: 0, z: 0 };
-                MyAvatar.position = DISQUALIFIED_POSITION;
+            MyAvatar.orientation = { x: 0, y: 0, z: 0 };
+            MyAvatar.position = DISQUALIFIED_POSITION;
+            try {
                 var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
                 for (var i = 0; i < playerValidator.length; i++){
                     Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
                 }
                 playerValidator = null;
-                _this.leaveEntity();
-                Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "remove user"}));
-            } 
+            } catch (e) {
+                console.log("Error finding validator, nothing to delete", e);
+            }
+            _this.leaveEntity();
+            Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "remove user"}));
         },
 
         enterEntity: function() {
+            Entities.callEntityServerMethod(_this.entityID, "isGameOn", [MyAvatar.sessionUUID]);
+            console.log("Entering zone");
             if (_this.color === "Game Protection") {
                 return;
             } 
             Messages.messageReceived.connect(_this.triviaListener);
             Messages.subscribe(TRIVIA_CHANNEL);
-            var validEntities = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
-            var playerValidator = [];
-            for (var i = 0; i < validEntities.length; i++){
-                playerValidator[i] = Entities.getEntityProperties(validEntities[i], ['name']);
-                console.log(JSON.stringify(playerValidator[i].name));
-            }
+
+            var playerValidator = Entities.getEntityProperties(
+                Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5)[0],['name']);
             try {
-                if (playerValidator[0].name === MyAvatar.sessionUUID){
-                    gameOn = true;
-                    validEntities = null;
+                if (playerValidator.name === MyAvatar.sessionUUID && !gameOn){
+                    console.log("Game not started, and no validator present, user can stay");
+                    playerValidator = null;
+                } else if (playerValidator.name !== MyAvatar.sessionUUID && gameOn){
+                    console.log("Game in progress, and no validator present, eject user");
+                    playerValidator = null;
+                    _this.ejectUser();
+                } else {
                     playerValidator = null;
                 }
             } catch (e) {
@@ -176,7 +175,6 @@
                 console.log("REQUESTING GAME ENTRY");
                 Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({type: "user entry request"}));
             }
-            console.log("Entering zone");
             myColor = _this.color;
             if (_this.color !== "Game Protection") {
                 _this.createChoiceOverlay();
@@ -223,9 +221,15 @@
         },
 
         showIfCorrect: function(correctColor) {
+            if ( finalAnswer === null) {
+                finalAnswer = myColor;
+            }
+            console.log("The correct color is,", correctColor, "but my color is,", finalAnswer);
             var someOneIsCorrect = _this.isAnyAvatarCorrect(correctColor) ? true : false;
+            console.log("is any one correct?", someOneIsCorrect);
             if (someOneIsCorrect){
                 if (finalAnswer !== correctColor) {
+                    console.log("ejecting myself");
                     _this.ejectUser();
                 } 
             } 
@@ -243,7 +247,6 @@
                 print("could not disconnect from messages");
             }
             _this.deleteOverlay();
-            gameOn = false;
         },
 
         unload: function() {
