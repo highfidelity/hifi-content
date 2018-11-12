@@ -389,26 +389,26 @@
         console.log("correct count is", correctCount, "previous count ", previousCount, "current count", count);
         if (roundOver) {
             var trial = 0;
+            if (correctCount === 0) {
+                prizeCalculator("everyone wrong");
+                previousCount = count;
+                return;
+            }
             while (correctCount !== count && trial < 10) {
                 console.log("correct count is", correctCount, "previous count ", previousCount, "current count", count);
                 Script.setTimeout(function(){
-                    if (correctCount === 0) {
-                        prizeCalculator("everyone wrong");
-                        previousCount = count;
-                        return;
-                    } else {
-                        try {
-                            Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
-                                type: "check",
-                                correct: correctColor
-                            }));
-                            var count = usersInZone(gameZoneProperties);
-                            trial++;
-                        } catch (e) {
-                            console.log("Error correcting player count", e);
-                            trial = 11;
-                        }
-                    }
+                    try {
+                        Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
+                            type: "check",
+                            correct: correctColor
+                        }));
+                        count = usersInZone(gameZoneProperties);
+                        correctCount = isAnyAvatarCorrect(correctColor);
+                        trial++;
+                    } catch (e) {
+                        console.log("Error correcting player count", e);
+                        trial = 11;
+                    }                    
                 }, 100);
             } 
             if (correctCount === 1) {

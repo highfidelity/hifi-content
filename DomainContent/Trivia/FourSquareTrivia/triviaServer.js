@@ -35,7 +35,8 @@
         "playSound",
         "textUpdate",
         "rezValidator",
-        "deleteValidator"
+        "deleteValidator",
+        "isGameOn"
     ];
 
     this.preload = function(entityID){
@@ -119,8 +120,9 @@
     };
 
     this.getGameState = function(id, uuid) {
+        console.log("Game State");
         if (entityProperties.type === "Zone") {
-            Entities.callEntityClientMethod(uuid, _entityID, "setGameState", [gameOn]);
+            Entities.callEntityClientMethod(uuid[0], _entityID, "setGameState", [gameOn]);
         }
     };
 
@@ -130,6 +132,9 @@
             visible: false,
             collidesWith: "static,dynamic,kinematic"
         });
+        if (injector) {
+            injector.stop();
+        }
     };
 
     this.lightsOn = function(){
