@@ -28,6 +28,7 @@
     var BINGO_STRING = "BINGO";
     var IMAGE_MODEL = "https://hifi-content.s3.amazonaws.com/DomainContent/production/default-image-model.fbx";
     var HEADER_IMAGE = Script.resolvePath("assets/images/bingo-card-head.png");
+    var WAIT_FOR_ENTITIES_TO_LOAD = 2000;
 
     var _this;
     var audioVolume = 0.05;
@@ -55,30 +56,33 @@
         remotelyCallable: ['createCard', 'scanCard', 'userLeftZone'],
         preload: function(entityID) {
             _this.entityID = entityID;
-            var properties = Entities.getEntityProperties(_this.entityID, ['userData', 'parentID', 'position']);
-            position = properties.position;
-            try {
-                var userdataProperties = JSON.parse(properties.userData);
-                spreadsheetURL = userdataProperties.bingoURL;
-            } catch (e) {
-                print("Could not get URL for bingo users spreadsheet");
-            }
-            var zoneMarker = properties.parentID;
-            bingoMachine = Entities.getEntityProperties(zoneMarker, 'parentID').parentID;
-            Entities.getChildrenIDs(zoneMarker).forEach(function(childOfZoneMarker) {
-                var name = Entities.getEntityProperties(childOfZoneMarker, 'name').name;
-                if (name === "Bingo Machine Spotlight") {
-                    machineSpotlight = childOfZoneMarker;
+            Script.setTimeout(function() {
+                var properties = Entities.getEntityProperties(_this.entityID, ['userData', 'parentID', 'position']);
+                position = properties.position;
+                try {
+                    var userdataProperties = JSON.parse(properties.userData);
+                    spreadsheetURL = userdataProperties.bingoURL;
+                } catch (e) {
+                    print("Could not get URL for bingo users spreadsheet");
                 }
-            });
-            Entities.getChildrenIDs(bingoMachine).forEach(function(entityNearMachine) {
-                var name = Entities.getEntityProperties(entityNearMachine, 'name').name;
-                if (name === "Bingo Particle Bingo") {
-                    bingoParticleEffect = entityNearMachine;
-                } else if (name === "Bingo Particle Confetti") {
-                    confettiParticleEffect = entityNearMachine;
-                }
-            });
+                var zoneMarker = properties.parentID;
+                bingoMachine = Entities.getEntityProperties(zoneMarker, 'parentID').parentID;
+                Entities.getChildrenIDs(zoneMarker).forEach(function(childOfZoneMarker) {
+                    var name = Entities.getEntityProperties(childOfZoneMarker, 'name').name;
+                    if (name === "Bingo Machine Spotlight") {
+                        machineSpotlight = childOfZoneMarker;
+                    }
+                });
+                Entities.getChildrenIDs(bingoMachine).forEach(function(entityNearMachine) {
+                    var name = Entities.getEntityProperties(entityNearMachine, 'name').name;
+                    if (name === "Bingo Particle Bingo") {
+                        bingoParticleEffect = entityNearMachine;
+                    } else if (name === "Bingo Particle Confetti") {
+                        confettiParticleEffect = entityNearMachine;
+                    }
+                });
+            }, WAIT_FOR_ENTITIES_TO_LOAD);
+            
         },
 
         encodeURLParams: function (params) {
