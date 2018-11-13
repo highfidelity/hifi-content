@@ -63,6 +63,7 @@
             }
             var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
             for (var i = 0; i < playerValidator.length; i++){
+                console.log("LEAVE ENTITY CALLED FROM GAME ZONE");
                 Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
             }
             Settings.setValue("activeTriviaColor", null);

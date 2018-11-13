@@ -133,7 +133,7 @@
 
     function begin() {
         findTargets();
-        clearGame();
+        // clearGame();
         bubbleOn();
         prizeCalculator("new game");
         if (!introPlayed) {
@@ -149,7 +149,7 @@
             lights.forEach(function(light) {
                 Entities.callEntityServerMethod(light, "lightsOn");
             });
-        }, 500)       
+        }, 500);       
     }
 
     function bubbleOn() {
@@ -554,24 +554,24 @@
             ["position", "dimensions", "rotation"]);
         result = usersInZone(correctColorZoneProperties);  
 
-        var incorrectZoneProperties;  
+        // var incorrectZoneProperties;  
             
-        incorrectZoneID.forEach(function(zoneID){
-            incorrectZoneProperties = Entities.getEntityProperties(
-                zoneID, 
-                ["position", "dimensions", "rotation"]);
-            AvatarManager.getAvatarsInRange(incorrectZoneProperties, 1.5).forEach(function(avatarID) {
-                var avatar = AvatarManager.getAvatar(avatarID);
-                var validator = Entities.findEntitiesByName(avatarID, MyAvatar.position, SEARCH_RADIUS)[0];
-                if (avatar.sessionUUID && validator) {
-                    if (isPositionInsideBox(avatar.position, incorrectZoneProperties)) {
-                        Entities.callEntityServerMethod(zoneID, "deleteValidator", [validator[0]]);
-                    } 
-                } else if (!avatar.sessionUUID && validator) {
-                    Entities.callEntityServerMethod(zoneID, "deleteValidator", [validator[0]]);
-                }           
-            });
-        });
+        // incorrectZoneID.forEach(function(zoneID){
+        //     incorrectZoneProperties = Entities.getEntityProperties(
+        //         zoneID, 
+        //         ["position", "dimensions", "rotation"]);
+        //     AvatarManager.getAvatarsInRange(incorrectZoneProperties, 1.5).forEach(function(avatarID) {
+        //         var avatar = AvatarManager.getAvatar(avatarID);
+        //         var validator = Entities.findEntitiesByName(avatarID, MyAvatar.position, SEARCH_RADIUS)[0];
+        //         // if (avatar.sessionUUID && validator) {
+        //         //     if (isPositionInsideBox(avatar.position, incorrectZoneProperties)) {
+        //         //         Entities.callEntityServerMethod(zoneID, "deleteValidator", [validator[0]]);
+        //         //     } 
+        //         // } else if (!avatar.sessionUUID && validator) {
+        //         //     Entities.callEntityServerMethod(zoneID, "deleteValidator", [validator[0]]);
+        //         // }           
+        //     });
+        // });
         if (result === 1) {
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
@@ -800,7 +800,7 @@
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);
     tablet.webEventReceived.connect(onWebEventReceived);
-    clearGame();
+    // clearGame();
 
     Script.scriptEnding.connect(appEnding);
 }());

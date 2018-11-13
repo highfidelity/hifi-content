@@ -126,6 +126,7 @@
                         gameOn = bubble.visible;
                         var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
                         for (var i = 0; i < playerValidator.length; i++){
+                            console.log("GAME OFF CALLED FROM TRIVIA ZONE");
                             Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
                         }
                         playerValidator = null;
@@ -145,6 +146,7 @@
                 try {
                     var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
                     for (var i = 0; i < playerValidator.length; i++){
+                        console.log("EJECT ENTITY CALLED FROM TRIVIA ZONE");
                         Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
                     }
                     playerValidator = null;
