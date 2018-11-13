@@ -109,15 +109,14 @@
                 //     _this.showIfCorrect(message.correct);
                 if (message.type === 'game on') {
                     console.log("Trivia Master started the game");
-                    var valid = 0;
-                    while (valid < 1) {
-                        valid = 1;
-                        Script.setTimeout(function(){
-                            bubble = Entities.getEntityProperties(
-                                Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, 100)[0], ['visible']);
-                            gameOn = bubble.visible;
-                            Entities.callEntityServerMethod(_this.entityID, "rezValidator", [MyAvatar.sessionUUID]);
-                        }, 200);
+                    bubble = Entities.getEntityProperties(
+                        Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, 100)[0], ['visible']);
+                    gameOn = bubble.visible;
+                    try {
+                        Entities.callEntityServerMethod(_this.entityID, "rezValidator", [MyAvatar.sessionUUID]);
+                        console.log("GENERATED VALIDATOR");
+                    } catch (e) {
+                        console.log("FAILED TO GENERATE VALIDATOR", e);
                     }
                 } else if (message.type === 'game off') {
                     console.log("Trivia Master ended the game");

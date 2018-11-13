@@ -57,13 +57,19 @@
     };
 
     this.rezValidator = function(id, params){
-        Entities.addEntity({
-            type: "Box", 
-            name: params[0],
-            collisionless: true,
-            visible: false,
-            position: gameZone.position
-        });
+        console.log("VALIDATOR PARAMS,", params);
+        var exists = Entities.findEntitiesByName(params[0], entityProperties.position, 100);
+        console.log("DOES ONE EXIST?,", JSON.stringify(exists));
+        if (exists.length === 0) {
+            Entities.addEntity({
+                type: "Box", 
+                name: params[0],
+                collisionless: true,
+                visible: false,
+                position: gameZone.position
+            });
+            console.log("CREATED VALIDATOR");
+        }
     };
 
     this.deleteValidator = function(id, params){
