@@ -33,7 +33,6 @@
                 isSubscribedToChannel = true;
             }
             gameZone = Entities.getEntityProperties(Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, 100)[0], ['position']);
-
         },
 
         isAvatarInsideZone: function() {
@@ -57,7 +56,6 @@
         },
 
         leaveEntity: function() {
-            Messages.sendMessage("TriviaChannel", JSON.stringify({ type: "remove user"}));
             if (isSubscribedToChannel) {
                 print("Unsubscribed from messages in leaveEntity");
                 Messages.unsubscribe("TriviaChannel");
@@ -67,14 +65,11 @@
             for (var i = 0; i < playerValidator.length; i++){
                 Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
             }
+            Settings.setValue("activeTriviaColor", null);
         },
 
         unload: function() {
-            if (isSubscribedToChannel) {
-                print("Unsubscribed from messages in unload");
-                Messages.unsubscribe("TriviaChannel");
-                isSubscribedToChannel = false;
-            }
+            _this.leaveEntity();
         }
     };
         

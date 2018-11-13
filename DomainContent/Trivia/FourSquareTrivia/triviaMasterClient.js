@@ -11,60 +11,59 @@
 
 (function() {
 
-    var TRIVIA_CHANNEL = "TriviaChannel";
-    var url="";
-    var TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/questionMark-i.png');
-    var TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/questionMark-a.png');
-    var SEARCH_RADIUS = 100;
-    var TENTH_SECOND_MS = 100;
-    var ONE_SECOND_MS = 1000;
-    var FOUR_SECOND_MS = 4000;
-    var TEN_SECONDS_MS = 10000;
-    var ZONE_COLOR_INDEX = 19;
-    var HALF_MULTIPLIER = 0.5;
-    var FIRST_WAIT_TO_COUNT_AVATARS = 1500;
-    var WAIT_TO_SHOW_QUESTION = 500;
-    var MIN_PLAYERS = 3;
-    var HFC_INCREMENT = 100;
-    var HFC_HALVER = 0.5;
-    var MIN_PRIZE = 300;
-    var HOST_PERCENTAGE = 0.1;
-    var AC_SCRIPT_RUNNING = false;
+    var TRIVIA_CHANNEL = "TriviaChannel",
+        url="",
+        TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/questionMark-i.png'),
+        TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/questionMark-a.png'),
+        SEARCH_RADIUS = 100,
+        ONE_SECOND_MS = 1000,
+        FOUR_SECOND_MS = 4000,
+        TEN_SECONDS_MS = 10000,
+        ZONE_COLOR_INDEX = 19,
+        HALF_MULTIPLIER = 0.5,
+        FIRST_WAIT_TO_COUNT_AVATARS = 1500,
+        WAIT_TO_SHOW_QUESTION = 500,
+        MIN_PLAYERS = 3,
+        HFC_INCREMENT = 100,
+        HFC_HALVER = 0.5,
+        MIN_PRIZE = 300,
+        HOST_PERCENTAGE = 0.1;
 
-    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-    var appPage = Script.resolvePath('trivia.html?006');
-    var button = tablet.addButton({
-        text: 'TRIVIA',
-        icon: TABLET_BUTTON_IMAGE,
-        activeIcon: TABLET_BUTTON_PRESSED
-    });
-    var open = false;
-    var intervalBoard;
-    var questionText;
-    var choiceTexts = [];
-    var answerText;
-    var triviaData;
-    var request = Script.require('./modules/request.js').request;
-    var type = null;
-    var category = null;
-    var difficulty = null;
-    var currentChoices = [];
-    var lights = [];
-    var correctHighlights = [];
-    var timer;
-    var gameZone;
-    var gameZoneProperties;
-    var avatarCounter;
-    var bubble;
-    var introPlayed = false;
-    var correctCount = null;
-    var previousCount = null;
-    var prizeDisplay;
-    var prizeMoney;
-    var confetti = [];
-    var increaseParticle = [];
-    var decreaseParticle = [];
-    var winnerID = null,
+    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system'),
+        appPage = Script.resolvePath('trivia.html?006'),
+        button = tablet.addButton({
+            text: 'TRIVIA',
+            icon: TABLET_BUTTON_IMAGE,
+            activeIcon: TABLET_BUTTON_PRESSED
+        });
+
+    var open = false,
+        intervalBoard,
+        questionText,
+        choiceTexts = [],
+        answerText,
+        triviaData,
+        request = Script.require('./modules/request.js').request,
+        type = null,
+        category = null,
+        difficulty = null,
+        currentChoices = [],
+        lights = [],
+        correctHighlights = [],
+        timer,
+        gameZone,
+        gameZoneProperties,
+        avatarCounter,
+        bubble,
+        introPlayed = false,
+        correctCount = null,
+        previousCount = null,
+        prizeDisplay,
+        prizeMoney,
+        confetti = [],
+        increaseParticle = [],
+        decreaseParticle = [],
+        winnerID = null,
         correctColor = null;
 
     var htmlEnDeCode = (function() {
@@ -135,9 +134,6 @@
     function begin() {
         findTargets();
         clearGame();
-        lights.forEach(function(light) {
-            Entities.callEntityServerMethod(light, "lightsOn");
-        });
         bubbleOn();
         prizeCalculator("new game");
         if (!introPlayed) {
@@ -148,17 +144,23 @@
         }
         for (var j = 0; j < confetti.length; j++){
             Entities.editEntity(confetti[j], {visible: false});
-            console.log("Stopping Confetti");
-        }           
+        }    
+        Script.setTimeout(function(){
+            lights.forEach(function(light) {
+                Entities.callEntityServerMethod(light, "lightsOn");
+            });
+        }, 500)       
     }
 
     function bubbleOn() {
         Entities.callEntityServerMethod(bubble, "bubbleOn");
-        Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "game on" }));
+        Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ 
+            type: "game on" 
+        }));
         intervalBoard = Script.setInterval(function(){
             updateAvatarCounter(false);
             Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [prizeMoney, true]);
-        }, TENTH_SECOND_MS);
+        }, ONE_SECOND_MS);
     }
 
     function bubbleOff() {
@@ -289,21 +291,14 @@
             var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
             Entities.callEntityServerMethod(questionText, "textUpdate", [formattedQuestion, true]);
             Entities.callEntityServerMethod(answerText, "textUpdate", ["", false]);
-
-            Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
-                type: "newQuestion"
-            }));
         }, WAIT_TO_SHOW_QUESTION);
     }
 
     function showAnswers() {
         if (triviaData[0].type === "boolean") {
             Entities.callEntityServerMethod(choiceTexts[0], "textUpdate", ["",false]);
-
             Entities.callEntityServerMethod(choiceTexts[1], "textUpdate", ["True", true]);
-
             Entities.callEntityServerMethod(choiceTexts[2], "textUpdate", ["False", true]);
-
             Entities.callEntityServerMethod(choiceTexts[3], "textUpdate", ["", false]);
 
             currentChoices = [];
@@ -327,8 +322,7 @@
             currentChoices.forEach(function(choice, index) {
                 Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice, true]);
             });
-        }
-        
+        }        
     }
 
     function clearGame() {
@@ -336,25 +330,20 @@
         correctCount = null;
         prizeMoney = null;
         winnerID = null;
+
         bubbleOff();
         lights.forEach(function(light) {
             Entities.callEntityServerMethod(light, "lightsOff");
         });
-
         correctHighlights.forEach(function(highlight) {
             Entities.callEntityServerMethod(highlight, "lightsOff");
         });
-
         Entities.callEntityServerMethod(questionText, "textUpdate", ["Questions will appear here", true]);
-
         choiceTexts.forEach(function(choice) {
             Entities.callEntityServerMethod(choice, "textUpdate", ["Answers appear here", true]);
         });
-
         Entities.callEntityServerMethod(answerText, "textUpdate", ["", true]);
-
         Entities.callEntityServerMethod(avatarCounter, "textUpdate", [0, true]);
-
         Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [0, true]);
     }
 
@@ -384,39 +373,25 @@
     }
 
     function updateAvatarCounter(roundOver) {
-        console.log("UPDATING AVATAR COUNT");
         var count = usersInZone(gameZoneProperties);
         console.log("correct count is", correctCount, "previous count ", previousCount, "current count", count);
         if (roundOver) {
-            var trial = 0;
             if (correctCount === 0) {
                 prizeCalculator("everyone wrong");
                 previousCount = count;
                 return;
-            }
-            while (correctCount !== count && trial < 10) {
+            } else if (correctCount !== count) {
                 console.log("correct count is", correctCount, "previous count ", previousCount, "current count", count);
                 Script.setTimeout(function(){
                     try {
-                        Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
-                            type: "check",
-                            correct: correctColor
-                        }));
                         count = usersInZone(gameZoneProperties);
                         correctCount = isAnyAvatarCorrect(correctColor);
-                        trial++;
                     } catch (e) {
                         console.log("Error correcting player count", e);
-                        trial = 11;
                     }                    
                 }, 100);
-            } 
-            if (correctCount === 1) {
+            } else if (correctCount === 1) {
                 prizeCalculator("game over");
-                Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
-                    type: "check",
-                    correct: correctColor
-                }));
                 previousCount = count;
             } else {
                 prizeCalculator("increase pot");
@@ -433,9 +408,7 @@
             case "new game":
                 if ( count <= MIN_PLAYERS ) {
                     prizeMoney = MIN_PRIZE;
-                    print("player count", count," pot size ", prizeMoney);
                 } else {
-                    print("player count >3", count);
                     prizeMoney = count * HFC_INCREMENT; 
                 }
                 break;
@@ -446,13 +419,11 @@
                 }
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_DECREASE_SFX']);
                 for (var i = 0; i < decreaseParticle.length; i++){
-                    console.log("Starting Decrease");
                     Entities.editEntity(decreaseParticle[i], {visible: true});
                 }
                 Script.setTimeout( function(){
                     for (var i = 0; i < decreaseParticle.length; i++){
-                        Entities.editEntity(decreaseParticle[i], {visible: false});
-                        console.log("Stopping Decrease");                       
+                        Entities.editEntity(decreaseParticle[i], {visible: false});                      
                     }
                 }, FOUR_SECOND_MS );
                 break;
@@ -460,13 +431,11 @@
                 prizeMoney += HFC_INCREMENT;
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_INCREASE_SFX']);
                 for (var i = 0; i < increaseParticle.length; i++){
-                    console.log("Starting Increase");
                     Entities.editEntity(increaseParticle[i], {visible: true});
                 }
                 Script.setTimeout( function(){
                     for (var i = 0; i < increaseParticle.length; i++){
                         Entities.editEntity(increaseParticle[i], {visible: false});
-                        console.log("Stopping Increase");
                     }
                 }, FOUR_SECOND_MS );
                 break;
@@ -474,29 +443,16 @@
                 prizeMoney += HFC_INCREMENT;
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['WINNER_MUSIC']);                
                 for (var i = 0; i < confetti.length; i++){
-                    console.log("Starting Confetti");
                     Entities.editEntity(confetti[i], {visible: true});
                 }
                 Script.setTimeout( function(){
                     for (var j = 0; j < confetti.length; j++){
                         Entities.editEntity(confetti[j], {visible: false});
-                        console.log("Stopping Confetti");
                     }
-                }, TEN_SECONDS_MS );
-                if (AC_SCRIPT_RUNNING){
-                    Messages.sendMessage(TRIVIA_CHANNEL, 
-                        JSON.stringify({
-                            type: "winner", 
-                            winnerID: winnerID, 
-                            winningPayout: prizeMoney, 
-                            triviaMaster: AccountServices.username
-                        })
-                    );          
-                } else {
-                    if (prizeMoney >= 300 && winnerID !== MyAvatar.sessionUUID) {
-                        Users.requestUsernameFromID(winnerID);
-                    }
-                }
+                }, TEN_SECONDS_MS );                
+                if (prizeMoney >= 300 && winnerID !== MyAvatar.sessionUUID) {
+                    Users.requestUsernameFromID(winnerID);
+                }                
                 break;
         }   
     }
@@ -613,16 +569,7 @@
                     } 
                 } else if (!avatar.sessionUUID && validator) {
                     Entities.callEntityServerMethod(zoneID, "deleteValidator", [validator[0]]);
-                    Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
-                        type: 'reject',
-                        uuid: avatarID
-                    }));
-                } else {
-                    Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
-                        type: 'reject',
-                        uuid: avatarID
-                    }));
-                }                   
+                }           
             });
         });
         if (result === 1) {
@@ -641,13 +588,16 @@
     function showCorrect() {
         var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
         correctColor = null;
+        console.log("correct color PRE", correctColor);
         choiceTexts.forEach(function(textEntity) {
             var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
             if (properties.text === htmlEnDeCode.htmlDecode(triviaData[0].correct_answer)) {
                 var color = properties.name.substr(ZONE_COLOR_INDEX);
                 correctColor = color;
+                console.log("color is", color);
             }
         });
+        console.log("correct color POST", correctColor);
         lights.forEach(function(light) {
             var lightName = Entities.getEntityProperties(light, 'name').name;
             if (lightName.indexOf(correctColor) === -1) {
@@ -661,14 +611,12 @@
                 Entities.callEntityServerMethod(highlight, "lightsOn");
             }
         });
-        Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({
-            type: "check",
-            correct: correctColor
-        }));
+        Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
 
         Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
 
         Script.setTimeout(function() {
+            console.log("correct color is", correctColor);
             correctCount = isAnyAvatarCorrect(correctColor);
             updateAvatarCounter(true);
         }, FIRST_WAIT_TO_COUNT_AVATARS);
@@ -800,7 +748,6 @@
                         showAnswers();
                         startTimer();
                         Script.setTimeout(function() {
-                            Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({type: "timeUp"}));
                             showCorrect();
                         }, TEN_SECONDS_MS);
                         break;

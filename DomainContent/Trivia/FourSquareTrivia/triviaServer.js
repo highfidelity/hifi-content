@@ -1,7 +1,7 @@
 //
-//  trivia.js
+//  triviaServer.js
 //
-//  Created by Rebecca Stankus on 06/11/18
+//  Created by Mark Brosche on 11/11/18
 //  Copyright 2018 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -25,7 +25,6 @@
     var entityProperties;
     var injector;
     var gameZone;
-    var gameOn;
 
     this.remotelyCallable = [
         "lightsOn",
@@ -36,13 +35,14 @@
         "textUpdate",
         "rezValidator",
         "deleteValidator",
-        "isGameOn"
+        "checkAnswer"
     ];
 
     this.preload = function(entityID){
         _entityID = entityID;
         entityProperties = Entities.getEntityProperties(_entityID, ['position', 'name', 'type']);
-        gameZone = Entities.getEntityProperties(Entities.findEntitiesByName("Trivia Player Game Zone", entityProperties.position, 100)[0], ['position']);
+        gameZone = Entities.getEntityProperties(
+            Entities.findEntitiesByName("Trivia Player Game Zone", entityProperties.position, 100)[0], ['position']);
 
         if (entityProperties.name == 'Trivia Player Game Zone') {
             console.log("LOADING SOUNDS");
@@ -55,6 +55,7 @@
             WINNER_MUSIC = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/winner-ta-dah-horns-oneshot-cheers.wav'));
         }
     };
+
     this.rezValidator = function(id, params){
         Entities.addEntity({
             type: "Box", 
@@ -111,7 +112,6 @@
     };
 
     this.bubbleOn = function() {
-        gameOn = true;
         Entities.editEntity(_entityID, {
             visible: true,
             collisionless: false,
@@ -119,15 +119,7 @@
         });
     };
 
-    this.getGameState = function(id, uuid) {
-        console.log("Game State");
-        if (entityProperties.type === "Zone") {
-            Entities.callEntityClientMethod(uuid[0], _entityID, "setGameState", [gameOn]);
-        }
-    };
-
     this.bubbleOff = function() {
-        gameOn = false;
         Entities.editEntity(_entityID, {
             visible: false,
             collidesWith: "static,dynamic,kinematic"
@@ -155,6 +147,28 @@
             visible: params[1]
         });
     };  
+
+    this.checkAnswer = function(id, params){
+        var scriptURL = null;
+        switch (params[0]) {
+            case 'Blue':
+                scriptURL = Script.resolvePath('triviaColorCheckBlue.js');
+                break;
+            case 'Green':
+                scriptURL = Script.resolvePath('triviaColorCheckGreen.js');
+                break;
+            case 'Yellow':
+                scriptURL = Script.resolvePath('triviaColorCheckYellow.js');
+                break;
+            case 'Red':
+                scriptURL = Script.resolvePath('triviaColorCheckRed.js');
+                break;
+        }
+        var checkObject = Entities.findEntitiesByName("Trivia Bubble", entityProperties.position, 100)[0];
+        Entities.editEntity(checkObject, {
+            script: scriptURL
+        });
+    };
   
     this.unload = function() {
         if (injector) {
