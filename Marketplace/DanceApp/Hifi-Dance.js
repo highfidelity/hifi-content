@@ -37,7 +37,7 @@
             DEFAULT_START_FRAME = 0,
             EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
 
-            UPDATE_UI = "update_ui"
+            UPDATE_UI = BUTTON_NAME + "_update_ui"
         ;
     
     // Init
@@ -235,6 +235,7 @@
                 buttonName: BUTTON_NAME,
                 sortOrder: 6,
                 home: URL,
+                graphicsDirectory: Script.resolvePath("./icons/tablet-icons/"),
                 onMessage: onMessage,
                 updateUI: updateUI
             });

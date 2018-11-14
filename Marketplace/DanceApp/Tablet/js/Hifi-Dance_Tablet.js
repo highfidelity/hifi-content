@@ -79,8 +79,8 @@
                         </div>
                         <div id="collapseOne" class="collapse show" data-parent="#dance-accordian">
                             <div class="card-body main-font-size">
-                                <div v-for="(dance, index) in dances" 
-                                    v-bind:key="(dance.name + index)"
+                                <div v-for="{dance, index} in dances" 
+                                    key="index"
                                     class="list-complete-item p-2" 
                                 >
                                     <form class="form-inline">
@@ -212,15 +212,16 @@
     // Procedural
     // /////////////////////////////////////////////////////////////////////////
         function onScriptEventReceived(message) {
-            console.log("MESSAGE: " + message);
+            // console.log("MESSAGE: " + message);
             var data;
             try {
                 data = JSON.parse(message);
                 switch (data.type) {
                     case UPDATE_UI:
-                        if (data.update.slice === CURRENT_DANCE) {
+                        if (data.slice === CURRENT_DANCE) {
                             app.dataStore.currentDance = data.value.currentDance;
                         } else {
+                            console.log("dataStore")
                             app.dataStore = data.value;
                         }
                         break;
