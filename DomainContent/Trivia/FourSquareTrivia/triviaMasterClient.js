@@ -17,7 +17,6 @@
         TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/questionMark-a.png'),
         SEARCH_RADIUS = 100,
         ONE_SECOND_MS = 1000,
-        FOUR_SECOND_MS = 4000,
         TEN_SECONDS_MS = 10000,
         ZONE_COLOR_INDEX = 19,
         HALF_MULTIPLIER = 0.5,
@@ -42,6 +41,7 @@
         questionText,
         choiceTexts = [],
         answerText,
+        previousCount,
         triviaData,
         request = Script.require('./modules/request.js').request,
         type = null,
@@ -57,12 +57,8 @@
         bubble,
         introPlayed = false,
         correctCount = null,
-        previousCount = null,
         prizeDisplay,
         prizeMoney,
-        confetti = [],
-        increaseParticle = [],
-        decreaseParticle = [],
         winnerID = null,
         correctColor = null;
 
@@ -142,9 +138,7 @@
         } else {
             Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEW_GAME_SFX']);
         }
-        for (var j = 0; j < confetti.length; j++){
-            Entities.editEntity(confetti[j], {visible: false});
-        }    
+        Entities.callEntityServerMethod(gameZoneProperties.id, "stopConfetti");
         Script.setTimeout(function(){
             lights.forEach(function(light) {
                 Entities.callEntityServerMethod(light, "lightsOn");
@@ -216,21 +210,21 @@
                         case "Trivia Bubble":
                             bubble = element;
                             break;
-                        case "Trivia Confetti Particle":
-                            confetti.push(element);
-                            break;
-                        case "Trivia Pot Decrease Particle":
-                            decreaseParticle.push(element);
-                            break;
-                        case "Trivia Pot Increase Particle":
-                            increaseParticle.push(element);
-                            break;
-                        case "Trivia Particle Coin Lose":
-                            decreaseParticle.push(element);
-                            break;
-                        case "Trivia Particle Coin Increase":
-                            increaseParticle.push(element);
-                            break;
+                        // case "Trivia Confetti Particle":
+                        //     confetti.push(element);
+                        //     break;
+                        // case "Trivia Pot Decrease Particle":
+                        //     decreaseParticle.push(element);
+                        //     break;
+                        // case "Trivia Pot Increase Particle":
+                        //     increaseParticle.push(element);
+                        //     break;
+                        // case "Trivia Particle Coin Lose":
+                        //     decreaseParticle.push(element);
+                        //     break;
+                        // case "Trivia Particle Coin Increase":
+                        //     increaseParticle.push(element);
+                        //     break;
                     }
                 }
             }
@@ -328,7 +322,7 @@
     function clearGame() {
         previousCount = null;
         correctCount = null;
-        prizeMoney = null;
+        prizeMoney = 0;
         winnerID = null;
 
         bubbleOff();
@@ -374,14 +368,12 @@
 
     function updateAvatarCounter(roundOver) {
         var count = usersInZone(gameZoneProperties);
-        console.log("correct count is", correctCount, "previous count ", previousCount, "current count", count);
         if (roundOver) {
             if (correctCount === 0) {
                 prizeCalculator("everyone wrong");
                 previousCount = count;
                 return;
             } else if (correctCount !== count) {
-                console.log("correct count is", correctCount, "previous count ", previousCount, "current count", count);
                 Script.setTimeout(function(){
                     try {
                         count = usersInZone(gameZoneProperties);
@@ -418,38 +410,43 @@
                     prizeMoney = MIN_PRIZE;
                 }
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_DECREASE_SFX']);
-                for (var i = 0; i < decreaseParticle.length; i++){
-                    Entities.editEntity(decreaseParticle[i], {visible: true});
-                }
-                Script.setTimeout( function(){
-                    for (var i = 0; i < decreaseParticle.length; i++){
-                        Entities.editEntity(decreaseParticle[i], {visible: false});                      
-                    }
-                }, FOUR_SECOND_MS );
+                Entities.callEntityServerMethod(gameZoneProperties.id, "loseCoins");
+                Entities.callEntityServerMethod(gameZoneProperties.id, "halfHFC");
+                // for (var i = 0; i < decreaseParticle.length; i++){
+                //     Entities.editEntity(decreaseParticle[i], {visible: true});
+                // }
+                // Script.setTimeout( function(){
+                //     for (var i = 0; i < decreaseParticle.length; i++){
+                //         Entities.editEntity(decreaseParticle[i], {visible: false});                      
+                //     }
+                // }, FOUR_SECOND_MS );
                 break;
             case "increase pot":
                 prizeMoney += HFC_INCREMENT;
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_INCREASE_SFX']);
-                for (var i = 0; i < increaseParticle.length; i++){
-                    Entities.editEntity(increaseParticle[i], {visible: true});
-                }
-                Script.setTimeout( function(){
-                    for (var i = 0; i < increaseParticle.length; i++){
-                        Entities.editEntity(increaseParticle[i], {visible: false});
-                    }
-                }, FOUR_SECOND_MS );
+                Entities.callEntityServerMethod(gameZoneProperties.id, "winCoins");
+                Entities.callEntityServerMethod(gameZoneProperties.id, "plusHFC");
+                // for (var i = 0; i < increaseParticle.length; i++){
+                //     Entities.editEntity(increaseParticle[i], {visible: true});
+                // }
+                // Script.setTimeout( function(){
+                //     for (var i = 0; i < increaseParticle.length; i++){
+                //         Entities.editEntity(increaseParticle[i], {visible: false});
+                //     }
+                // }, FOUR_SECOND_MS );
                 break;
             case "game over":
                 prizeMoney += HFC_INCREMENT;
-                Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['WINNER_MUSIC']);                
-                for (var i = 0; i < confetti.length; i++){
-                    Entities.editEntity(confetti[i], {visible: true});
-                }
-                Script.setTimeout( function(){
-                    for (var j = 0; j < confetti.length; j++){
-                        Entities.editEntity(confetti[j], {visible: false});
-                    }
-                }, TEN_SECONDS_MS );                
+                Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['WINNER_MUSIC']);    
+                Entities.callEntityServerMethod(gameZoneProperties.id, "startConfetti");        
+                // for (var i = 0; i < confetti.length; i++){
+                //     Entities.editEntity(confetti[i], {visible: true});
+                // }
+                // Script.setTimeout( function(){
+                //     for (var j = 0; j < confetti.length; j++){
+                //         Entities.editEntity(confetti[j], {visible: false});
+                //     }
+                // }, TEN_SECONDS_MS );                
                 if (prizeMoney >= 300 && winnerID !== MyAvatar.sessionUUID) {
                     Users.requestUsernameFromID(winnerID);
                 }                
@@ -554,24 +551,6 @@
             ["position", "dimensions", "rotation"]);
         result = usersInZone(correctColorZoneProperties);  
 
-        // var incorrectZoneProperties;  
-            
-        // incorrectZoneID.forEach(function(zoneID){
-        //     incorrectZoneProperties = Entities.getEntityProperties(
-        //         zoneID, 
-        //         ["position", "dimensions", "rotation"]);
-        //     AvatarManager.getAvatarsInRange(incorrectZoneProperties, 1.5).forEach(function(avatarID) {
-        //         var avatar = AvatarManager.getAvatar(avatarID);
-        //         var validator = Entities.findEntitiesByName(avatarID, MyAvatar.position, SEARCH_RADIUS)[0];
-        //         // if (avatar.sessionUUID && validator) {
-        //         //     if (isPositionInsideBox(avatar.position, incorrectZoneProperties)) {
-        //         //         Entities.callEntityServerMethod(zoneID, "deleteValidator", [validator[0]]);
-        //         //     } 
-        //         // } else if (!avatar.sessionUUID && validator) {
-        //         //     Entities.callEntityServerMethod(zoneID, "deleteValidator", [validator[0]]);
-        //         // }           
-        //     });
-        // });
         if (result === 1) {
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
@@ -588,16 +567,13 @@
     function showCorrect() {
         var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
         correctColor = null;
-        console.log("correct color PRE", correctColor);
         choiceTexts.forEach(function(textEntity) {
             var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
             if (properties.text === htmlEnDeCode.htmlDecode(triviaData[0].correct_answer)) {
                 var color = properties.name.substr(ZONE_COLOR_INDEX);
                 correctColor = color;
-                console.log("color is", color);
             }
         });
-        console.log("correct color POST", correctColor);
         lights.forEach(function(light) {
             var lightName = Entities.getEntityProperties(light, 'name').name;
             if (lightName.indexOf(correctColor) === -1) {
@@ -616,7 +592,6 @@
         Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
 
         Script.setTimeout(function() {
-            console.log("correct color is", correctColor);
             correctCount = isAnyAvatarCorrect(correctColor);
             updateAvatarCounter(true);
         }, FIRST_WAIT_TO_COUNT_AVATARS);
@@ -775,7 +750,7 @@
             Script.clearInterval(intervalBoard);
         }
         Messages.unsubscribe(TRIVIA_CHANNEL);
-        clearGame();
+        clearGame(); 
         button.clicked.disconnect(onClicked);
         tablet.removeButton(button);
         AvatarManager.avatarRemovedEvent.disconnect(function(){
