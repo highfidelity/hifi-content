@@ -14,6 +14,9 @@
     // var DISQUALIFIED_POSITION = { x: 84.8138, y: 12.5, z: 88.744 }; // trivia
     // var DISQUALIFIED_POSITION = { x: -64.7559, y: -75, z: 57.1503 }; // studio
     // var DISQUALIFIED_POSITION = { x: 2.57328, y: 5, z: -47.86263 }; // zombies
+    var RANGE = 100;
+    var DELAY = 200;
+    var MIN_RANGE = 5;
     var HALF_MULTIPLIER = 0.5;
     var TRIVIA_CHANNEL = "TriviaChannel";
 
@@ -46,9 +49,9 @@
             }
             MyAvatar.wentAway.connect(_this.ejectUser);
             gameZone = Entities.getEntityProperties(
-                Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, 100)[0], ['position', 'rotation', 'dimensions']);
+                Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, RANGE)[0], ['position', 'rotation', 'dimensions']);
             bubble = Entities.getEntityProperties(
-                Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, 100)[0], ['visible']);
+                Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
         },
 
         isAvatarInsideZone: function(position, zoneProperties) {
@@ -74,7 +77,7 @@
         },
 
         deleteOverlay: function() {
-            var foundOverlays = Overlays.findOverlays(MyAvatar.position, 5);
+            var foundOverlays = Overlays.findOverlays(MyAvatar.position, MIN_RANGE);
             if (currentZoneOverlay || foundOverlays) {
                 try {
                     Overlays.deleteOverlay(currentZoneOverlay);
@@ -94,59 +97,37 @@
 
         triviaListener: function(channel, message, sender) {
             if (channel === "TriviaChannel") {
-                console.log("Trivia Zone Message Contents", message);
                 message = JSON.parse(message);
-                // if (message.type === 'newQuestion') {
-                //     _this.newQuestion(message.question, message.choices);
-                // } else if (message.type === 'timeUp') {
-                //     finalAnswer = _this.color;
-                // } else if (message.type === 'check') {
-                //     if (finalAnswer === "Game Protection"){
-                //         while (finalAnswer === "Game Protection") {
-                //             finalAnswer = _this.color;
-                //         }
-                //     }
-                //     _this.showIfCorrect(message.correct);
                 if (message.type === 'game on') {
-                    console.log("Trivia Master started the game");
                     bubble = Entities.getEntityProperties(
-                        Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, 100)[0], ['visible']);
+                        Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
                     gameOn = bubble.visible;
-                    try {
-                        Entities.callEntityServerMethod(_this.entityID, "rezValidator", [MyAvatar.sessionUUID]);
-                        console.log("GENERATED VALIDATOR");
-                    } catch (e) {
-                        console.log("FAILED TO GENERATE VALIDATOR", e);
-                    }
+                    Entities.callEntityServerMethod(_this.entityID, "rezValidator", [MyAvatar.sessionUUID]);
                 } else if (message.type === 'game off') {
-                    console.log("Trivia Master ended the game");
                     Script.setTimeout(function(){
                         bubble = Entities.getEntityProperties(
-                            Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, 100)[0], ['visible']);
+                            Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
                         gameOn = bubble.visible;
-                        var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
+                        var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, MIN_RANGE);
                         for (var i = 0; i < playerValidator.length; i++){
-                            console.log("GAME OFF CALLED FROM TRIVIA ZONE");
                             Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
                         }
                         playerValidator = null;
-                    }, 200);
+                    }, DELAY);
                 }
             }
         },
 
         ejectUser: function() {
             bubble = Entities.getEntityProperties(
-                Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, 100)[0], ['visible']);
+                Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
             gameOn = bubble.visible;
             if (gameOn === true && _this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
-                console.log("Ejecting user from zone");
                 MyAvatar.orientation = { x: 0, y: 0, z: 0 };
                 MyAvatar.position = DISQUALIFIED_POSITION;
                 try {
-                    var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
+                    var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, MIN_RANGE);
                     for (var i = 0; i < playerValidator.length; i++){
-                        console.log("EJECT ENTITY CALLED FROM TRIVIA ZONE");
                         Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
                     }
                     playerValidator = null;
@@ -159,20 +140,17 @@
 
         enterEntity: function() {
             if (_this.color !== "Game Protection") {
-                console.log("Entering zone");
                 bubble = Entities.getEntityProperties(
-                    Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, 100)[0], ['visible']);
+                    Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
                 gameOn = bubble.visible;
                 Messages.messageReceived.connect(_this.triviaListener);
                 Messages.subscribe(TRIVIA_CHANNEL);    
                 var playerValidator = Entities.getEntityProperties(
-                    Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5)[0],['name']);
+                    Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, MIN_RANGE)[0],['name']);
                 try {
                     if (playerValidator.name === MyAvatar.sessionUUID && gameOn === false){
-                        console.log("Game not started, and no validator present, user can stay");
                         playerValidator = null;
                     } else if (playerValidator.name !== MyAvatar.sessionUUID && gameOn === true){
-                        console.log("Game in progress, and no validator present, eject user");
                         playerValidator = null;
                         _this.ejectUser();
                     } else {
@@ -193,7 +171,6 @@
             try {
                 Messages.messageReceived.disconnect(_this.triviaListener);
                 Messages.unsubscribe(TRIVIA_CHANNEL);
-                console.log("Exiting zone");
             } catch (err) {
                 print("could not disconnect from messages");
             }
@@ -201,7 +178,6 @@
         },
 
         unload: function() {
-            console.log("UNLOADING");
             if (_this.isAvatarInsideZone(MyAvatar.position, zoneProperties)) {
                 _this.leaveEntity();
             } 

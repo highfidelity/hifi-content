@@ -129,7 +129,6 @@
 
     function begin() {
         findTargets();
-        // clearGame();
         bubbleOn();
         prizeCalculator("new game");
         if (!introPlayed) {
@@ -139,11 +138,9 @@
             Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEW_GAME_SFX']);
         }
         Entities.callEntityServerMethod(gameZoneProperties.id, "stopConfetti");
-        Script.setTimeout(function(){
-            lights.forEach(function(light) {
-                Entities.callEntityServerMethod(light, "lightsOn");
-            });
-        }, 500);       
+        lights.forEach(function(light) {
+            Entities.callEntityServerMethod(light, "lightsOn");
+        }); 
     }
 
     function bubbleOn() {
@@ -210,21 +207,6 @@
                         case "Trivia Bubble":
                             bubble = element;
                             break;
-                        // case "Trivia Confetti Particle":
-                        //     confetti.push(element);
-                        //     break;
-                        // case "Trivia Pot Decrease Particle":
-                        //     decreaseParticle.push(element);
-                        //     break;
-                        // case "Trivia Pot Increase Particle":
-                        //     increaseParticle.push(element);
-                        //     break;
-                        // case "Trivia Particle Coin Lose":
-                        //     decreaseParticle.push(element);
-                        //     break;
-                        // case "Trivia Particle Coin Increase":
-                        //     increaseParticle.push(element);
-                        //     break;
                     }
                 }
             }
@@ -412,41 +394,17 @@
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_DECREASE_SFX']);
                 Entities.callEntityServerMethod(gameZoneProperties.id, "loseCoins");
                 Entities.callEntityServerMethod(gameZoneProperties.id, "halfHFC");
-                // for (var i = 0; i < decreaseParticle.length; i++){
-                //     Entities.editEntity(decreaseParticle[i], {visible: true});
-                // }
-                // Script.setTimeout( function(){
-                //     for (var i = 0; i < decreaseParticle.length; i++){
-                //         Entities.editEntity(decreaseParticle[i], {visible: false});                      
-                //     }
-                // }, FOUR_SECOND_MS );
                 break;
             case "increase pot":
                 prizeMoney += HFC_INCREMENT;
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_INCREASE_SFX']);
                 Entities.callEntityServerMethod(gameZoneProperties.id, "winCoins");
                 Entities.callEntityServerMethod(gameZoneProperties.id, "plusHFC");
-                // for (var i = 0; i < increaseParticle.length; i++){
-                //     Entities.editEntity(increaseParticle[i], {visible: true});
-                // }
-                // Script.setTimeout( function(){
-                //     for (var i = 0; i < increaseParticle.length; i++){
-                //         Entities.editEntity(increaseParticle[i], {visible: false});
-                //     }
-                // }, FOUR_SECOND_MS );
                 break;
             case "game over":
                 prizeMoney += HFC_INCREMENT;
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['WINNER_MUSIC']);    
-                Entities.callEntityServerMethod(gameZoneProperties.id, "startConfetti");        
-                // for (var i = 0; i < confetti.length; i++){
-                //     Entities.editEntity(confetti[i], {visible: true});
-                // }
-                // Script.setTimeout( function(){
-                //     for (var j = 0; j < confetti.length; j++){
-                //         Entities.editEntity(confetti[j], {visible: false});
-                //     }
-                // }, TEN_SECONDS_MS );                
+                Entities.callEntityServerMethod(gameZoneProperties.id, "startConfetti");              
                 if (prizeMoney >= 300 && winnerID !== MyAvatar.sessionUUID) {
                     Users.requestUsernameFromID(winnerID);
                 }                
@@ -488,18 +446,13 @@
         lights.forEach(function(light) {
             Entities.callEntityServerMethod(light,"lightsOn");
         });
-
         correctHighlights.forEach(function(highlight) {
             Entities.callEntityServerMethod(highlight, "lightsOff");
-
         });
-
         Entities.callEntityServerMethod(questionText, "textUpdate", ["", true]);
-
         choiceTexts.forEach(function(choice) {
             Entities.callEntityServerMethod(choice, "textUpdate", ["", true]);
         });
-
         Entities.callEntityServerMethod(answerText, "textUpdate", ["", false]);
     }
 
@@ -519,31 +472,18 @@
     function isAnyAvatarCorrect(correctColor) {
         var result = null;
         var correctZoneColorID = null;
-        var incorrectZoneID = [];
         switch (correctColor){
             case "Red":
                 correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0];
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0]);
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0]);
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0]);
                 break;
             case "Green":
                 correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0];
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0]);
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0]);
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0]);
                 break;
             case "Yellow":
                 correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0];
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0]);
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0]);
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0]);
                 break;
             case "Blue":
                 correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0];
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0]);
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0]);
-                incorrectZoneID.push(Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0]);
                 break;
         }
         var correctColorZoneProperties = Entities.getEntityProperties(
@@ -775,7 +715,6 @@
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);
     tablet.webEventReceived.connect(onWebEventReceived);
-    // clearGame();
 
     Script.scriptEnding.connect(appEnding);
 }());

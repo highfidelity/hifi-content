@@ -11,21 +11,25 @@
 
 (function() {
 
-    var NEXT_QUESTION_SFX;
-    var TIMER_SOUND;
-    var GAME_INTRO;
-    var NEW_GAME_SFX;
-    var POT_INCREASE_SFX;
-    var POT_DECREASE_SFX;
-    var WINNER_MUSIC;
+    var NEXT_QUESTION_SFX,
+        TIMER_SOUND,
+        GAME_INTRO,
+        NEW_GAME_SFX,
+        POT_INCREASE_SFX,
+        POT_DECREASE_SFX,
+        WINNER_MUSIC,
+        RANGE = 100000;
 
     var AUDIO_VOLUME = 0.1;
 
-    var _entityID;
-    var entityProperties;
-    var injector;
-    var gameZone;
-    var confetti;
+    var _entityID,
+        entityProperties,
+        injector,
+        gameZone,
+        confetti,
+        prize,
+        coin,
+        boardCorners;
 
     this.remotelyCallable = [
         "lightsOn",
@@ -49,10 +53,17 @@
         _entityID = entityID;
         entityProperties = Entities.getEntityProperties(_entityID, ['position', 'name', 'type']);
         gameZone = Entities.getEntityProperties(
-            Entities.findEntitiesByName("Trivia Player Game Zone", entityProperties.position, 100)[0], ['position']);
+            Entities.findEntitiesByName("Trivia Player Game Zone", entityProperties.position, RANGE)[0], ['position']);
+        coin = Entities.getEntityProperties(
+            Entities.findEntitiesByName("Trivia Coin Model", gameZone.position, RANGE)[0], ['position']);
+        boardCorners = [
+            Vec3.sum(gameZone.position, {x:  4.5, y: -2, z:  4.5}),
+            Vec3.sum(gameZone.position, {x: -4.5, y: -2, z: -4.5}),
+            Vec3.sum(gameZone.position, {x:  4.5, y: -2, z: -4.5}),
+            Vec3.sum(gameZone.position, {x: -4.5, y: -2, z:  4.5})
+        ];   
 
         if (entityProperties.name == 'Trivia Player Game Zone') {
-            console.log("LOADING SOUNDS");
             NEXT_QUESTION_SFX = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/new-question.wav'));
             TIMER_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/intense-countdown-10-sec.wav'));
             GAME_INTRO = SoundCache.getSound(Script.resolvePath('assets/sounds/finished/game-show-intro-music-cheer.wav'));
@@ -64,9 +75,7 @@
     };
 
     this.rezValidator = function(id, params){
-        console.log("VALIDATOR PARAMS,", params);
-        var exists = Entities.findEntitiesByName(params[0], entityProperties.position, 100);
-        console.log("DOES ONE EXIST?,", exists);
+        var exists = Entities.findEntitiesByName(params[0], entityProperties.position, RANGE);
         if (exists.length === 0) {
             Entities.addEntity({
                 type: "Box", 
@@ -75,8 +84,6 @@
                 visible: false,
                 position: gameZone.position
             });
-            var exists2 = Entities.findEntitiesByName(params[0], entityProperties.position, 100);
-            console.log("CREATED VALIDATOR", exists2);
         }
     };
 
@@ -84,12 +91,12 @@
         confetti = [];
         confetti.push(Entities.addEntity({
             type: "ParticleEffect",
-            name: "Confetti Particle",            
+            name: "Trivia Confetti Particle",            
             lifetime: 10,
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  { x: -77.8265, y: -20.6236, z: 10.3893 },
+            position:  boardCorners[0],
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -97,12 +104,12 @@
             },
             isEmitting: true,                           
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",          
-            lifespan: 3.29,
+            lifespan: 5,
             maxParticles: 3200,
             textures: "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/sprite-confetti.jpg",
-            emitRate: 164,
-            emitSpeed: 3.48,
-            speedSpread: 2.69,
+            emitRate: 150,
+            emitSpeed:5.27,
+            speedSpread: 0,
             emitDimensions: {
                 x: 1,
                 y: 1,
@@ -110,7 +117,7 @@
             },
             emitOrientation: {
                 x: 90,
-                y: 0,
+                y: 10,
                 z: 0
             },
             emitterShouldTrail: false,
@@ -139,14 +146,14 @@
                 green: 0
             },
             emitAcceleration:{
-                x:2,
-                y:-3.5,
-                z:2
+                x:0,
+                y:-2.5,
+                z:0
             },
             accelerationSpread:{
-                x:0,
-                y:1,
-                z:2
+                x:1,
+                y:0,
+                z:1
             },
             alpha: 1,
             alphaSpread: 0,
@@ -160,12 +167,12 @@
         }));
         confetti.push(Entities.addEntity({
             type: "ParticleEffect",
-            name: "Confetti Particle",            
+            name: "Trivia Confetti Particle",            
             lifetime: 10,
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  { x: -86.0814, y: -20.6284, z: 10.5321 },
+            position:  boardCorners[1],
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -173,12 +180,12 @@
             },
             isEmitting: true,                           
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",          
-            lifespan: 3.29,
+            lifespan: 5,
             maxParticles: 3200,
             textures: "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/sprite-confetti.jpg",
-            emitRate: 164,
-            emitSpeed: 3.48,
-            speedSpread: 2.69,
+            emitRate: 150,
+            emitSpeed:5.27,
+            speedSpread: 0,
             emitDimensions: {
                 x: 1,
                 y: 1,
@@ -186,7 +193,7 @@
             },
             emitOrientation: {
                 x: 90,
-                y: 0,
+                y: 10,
                 z: 0
             },
             emitterShouldTrail: false,
@@ -215,14 +222,14 @@
                 green: 0
             },
             emitAcceleration:{
-                x:-2,
-                y:-3.5,
-                z:2
+                x:0,
+                y:-2.5,
+                z:0
             },
             accelerationSpread:{
-                x:0,
-                y:1,
-                z:2
+                x:1,
+                y:0,
+                z:1
             },
             alpha: 1,
             alphaSpread: 0,
@@ -236,12 +243,12 @@
         }));
         confetti.push(Entities.addEntity({
             type: "ParticleEffect",
-            name: "Confetti Particle",            
+            name: "Trivia Confetti Particle",            
             lifetime: 10,
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  { x: -77.8265, y: -20.6255, z: 1.4926 },
+            position:  boardCorners[2],
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -249,12 +256,12 @@
             },
             isEmitting: true,                           
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",          
-            lifespan: 3.29,
+            lifespan: 5,
             maxParticles: 3200,
             textures: "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/sprite-confetti.jpg",
-            emitRate: 164,
-            emitSpeed: 3.48,
-            speedSpread: 2.69,
+            emitRate: 150,
+            emitSpeed:5.27,
+            speedSpread: 0,
             emitDimensions: {
                 x: 1,
                 y: 1,
@@ -262,7 +269,7 @@
             },
             emitOrientation: {
                 x: 90,
-                y: 0,
+                y: 10,
                 z: 0
             },
             emitterShouldTrail: false,
@@ -291,14 +298,14 @@
                 green: 0
             },
             emitAcceleration:{
-                x:2,
-                y:-3.5,
-                z:-2
+                x:0,
+                y:-2.5,
+                z:0
             },
             accelerationSpread:{
-                x:0,
-                y:1,
-                z:2
+                x:1,
+                y:0,
+                z:1
             },
             alpha: 1,
             alphaSpread: 0,
@@ -312,12 +319,12 @@
         }));
         confetti.push(Entities.addEntity({
             type: "ParticleEffect",
-            name: "Confetti Particle",            
+            name: "Trivia Confetti Particle",            
             lifetime: 10,
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  { x: -86.73, y: -20.6305, z: 1.644 },
+            position:  boardCorners[3],
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -325,12 +332,12 @@
             },
             isEmitting: true,                           
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",          
-            lifespan: 3.29,
+            lifespan: 5,
             maxParticles: 3200,
             textures: "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/sprite-confetti.jpg",
-            emitRate: 164,
-            emitSpeed: 3.48,
-            speedSpread: 2.69,
+            emitRate: 150,
+            emitSpeed:5.27,
+            speedSpread: 0,
             emitDimensions: {
                 x: 1,
                 y: 1,
@@ -338,7 +345,7 @@
             },
             emitOrientation: {
                 x: 90,
-                y: 0,
+                y: 10,
                 z: 0
             },
             emitterShouldTrail: false,
@@ -367,14 +374,14 @@
                 green: 0
             },
             emitAcceleration:{
-                x:-2,
-                y:-3.5,
-                z:-2
+                x:0,
+                y:-2.5,
+                z:0
             },
             accelerationSpread:{
-                x:0,
-                y:1,
-                z:2
+                x:1,
+                y:0,
+                z:1
             },
             alpha: 1,
             alphaSpread: 0,
@@ -389,13 +396,13 @@
     };
 
     this.stopConfetti = function(){
-        var findConfetti = Entities.findEntitiesByName("Confetti Particle", entityProperties.position, 100);
+        var findConfetti = Entities.findEntitiesByName("Trivia Confetti Particle", entityProperties.position, RANGE);
         findConfetti.forEach(function(particle){
             Entities.deleteEntity(particle);
         });
     };
 
-    this.plusHFC = function(){        
+    this.plusHFC = function(){      
         Entities.addEntity({
             type: "ParticleEffect",
             name: "Trivia Pot Increase Particle",            
@@ -403,7 +410,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  { x: -87.2123, y: -16.8897, z: -0.2675 },
+            position:  {x:-88.83515167236328, y:-14.600690841674805, z:-1.5558716058731079}, // Vec3.sum(coin.position, {x: 1, y: 3, z: -2}),
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -482,7 +489,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  { x: -87.1885, y: -13.2606, z: -0.2737 },
+            position:  {"x":-88.83515167236328,"y":-14.600690841674805,"z":-1.5558716058731079}, // Vec3.sum(coin.position, {x: 1, y: 3, z: -2}),
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -557,7 +564,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  { x: -89.8551, y: -17.9604, z: 0.4738 },
+            position:  Vec3.sum(coin.position, { x: 0, y: -1.25, z: 0 }),
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -565,11 +572,11 @@
             },
             isEmitting: true,                           
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",          
-            lifespan: 1.11,
-            maxParticles: 100,
+            lifespan: 2,
+            maxParticles: 200,
             textures: "https://hifi-content.s3.amazonaws.com/brosche/Trivia/Four%20Square/assets/pictures/tempsnip.png",
-            emitRate: 25,
-            emitSpeed: 2,
+            emitRate: 50,
+            emitSpeed: 4,
             speedSpread: 0,
             emitDimensions: {
                 x: 1,
@@ -578,14 +585,14 @@
             },
             emitOrientation: {
                 x: 0,
-                y: 0,
+                y: 10,
                 z: 0
             },
             emitterShouldTrail: false,
-            particleRadius: 0.2,
+            particleRadius: 0.25,
             radiusSpread: 0,
             radiusStart: 0.25,
-            radiusFinish: 0.1,
+            radiusFinish: 0.25,
             color:{
                 red:255,
                 blue:255,
@@ -612,9 +619,9 @@
                 z:0
             },
             accelerationSpread:{
-                x:3,
+                x:1,
                 y:2,
-                z:3
+                z:1
             },
             alpha: 1,
             alphaSpread: 0,
@@ -628,7 +635,9 @@
         });
     };
 
-    this.winCoins = function(){        
+    this.winCoins = function(){       
+        console.log("COIN POSITION IS", JSON.stringify(prize.position));
+
         Entities.addEntity({
             type: "ParticleEffect",
             name: "Trivia Particle Coin Increase",            
@@ -636,7 +645,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  { x: -89.6846, y: -15.0534, z: 0.5463 },
+            position:  Vec3.sum(coin.position, { x: 0, y: 3, z: 0 }),
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -695,7 +704,7 @@
                 y:0,
                 z:0
             },
-            alpha: 0,
+            alpha: 1,
             alphaSpread: 0,
             alphaStart: 1,
             alphaFinish: 1,
@@ -704,7 +713,6 @@
     };
 
     this.deleteValidator = function(id, params){
-        console.log("DELETING VALIDATOR", params[0]);
         Entities.deleteEntity(params[0]);
     };
 
@@ -802,7 +810,7 @@
                 scriptURL = Script.resolvePath('triviaColorCheckRed.js');
                 break;
         }
-        var checkObject = Entities.findEntitiesByName("Trivia Bubble", entityProperties.position, 100)[0];
+        var checkObject = Entities.findEntitiesByName("Trivia Bubble", entityProperties.position, RANGE)[0];
         Entities.editEntity(checkObject, {
             script: scriptURL
         });

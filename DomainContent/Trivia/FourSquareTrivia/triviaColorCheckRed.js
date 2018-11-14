@@ -17,7 +17,8 @@
     var DISQUALIFIED_POSITION = { x: -69.4697, y: -19, z: 6.3204 },
         HALF_MULTIPLIER = 0.5,
         ZONE_SQUARE_RADIUS = 1.5,
-        RADIUS = 50;
+        RADIUS = 50,
+        RANGE = 5;
 
     var ColorCheck = function(){
         _this = this;
@@ -27,9 +28,9 @@
         preload: function(entityID){
             _this.entityID = entityID;
             gameZone = Entities.getEntityProperties(
-                Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, 100)[0], ['position', 'rotation', 'dimensions']);
+                Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, RADIUS)[0], ['position', 'rotation', 'dimensions']);
             bubble = Entities.getEntityProperties(
-                Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, 100)[0], ['visible']);
+                Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RADIUS)[0], ['visible']);
             if (Settings.getValue("activeTriviaColor") !== "Red") {
                 var someOneIsCorrect = _this.isAnyAvatarCorrect("Red") ? true : false;
                 if (someOneIsCorrect){
@@ -88,11 +89,10 @@
         ejectUser: function() {
             gameOn = bubble.visible;
             if (gameOn === true && _this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
-                console.log("YOU ARE WRONG, GOOD-BYE!");
                 MyAvatar.orientation = { x: 0, y: 0, z: 0 };
                 MyAvatar.position = DISQUALIFIED_POSITION;
                 try {
-                    var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, 5);
+                    var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, RANGE);
                     for (var i = 0; i < playerValidator.length; i++){
                         Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
                     }
