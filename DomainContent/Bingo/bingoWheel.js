@@ -17,7 +17,7 @@
     };
     var ANGULAR_VELOCITY_CHECK_MS = 100;
     var CHECKING_INTERVAL_DELAY = 100;
-    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan', 'andy_batman', 'Becky'];
+    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ThaPhlash', 'andy_batman', 'Becky'];
     var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/blip.wav'));
     var WAIT_BETWEEN_SPINS = 4000;
 

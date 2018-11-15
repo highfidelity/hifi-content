@@ -14,7 +14,7 @@
 
     var _this;
 
-    var bingoWall = "{df943175-984e-4240-9acd-311351195a64}";
+    var bingoWall = "{df198d93-a9b7-4619-9128-97a53fea2451}";
     var bingoWallLights = [];
     var gameOnLights = [];
     var registrationLight;
@@ -96,12 +96,11 @@
         },
 
         openRegistration: function() {
-            Entities.editEntity(registrationLight, { visible: true });
-            Entities.editEntity(registrationSign, { script: PLAY_BINGO_SCRIPT });
+            Entities.editEntity(registrationSign, { visible: true });
         },
 
         closeRegistration: function() {
-            Entities.editEntity(registrationLight, { visible: false });
+            Entities.editEntity(registrationSign, { visible: false});
         },
 
         lightOn: function(lightNumber) {

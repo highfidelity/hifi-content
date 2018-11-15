@@ -29,7 +29,7 @@
     });
     var open = false;
     var numberWheel;
-    var wheelPosition;
+    var soundPosition;
     var injector;
 
     function encodeURLParams(params) {
@@ -46,8 +46,9 @@
             if (properties.name && properties.name.indexOf("Bingo") !== -1) {
                 if (properties.name === "Bingo Wheel") {
                     numberWheel = nearbyEntity;
-                    wheelPosition = properties.position;
                 }
+            } else if (properties.name === "Game Podium") {
+                soundPosition = properties.position;
             }
         });
     }
@@ -62,7 +63,7 @@
     }
 
     function gameOn() {
-        playSound(BEGINNING_SOUND, 0.2);
+        playSound(BEGINNING_SOUND, 1);
         if (!numberWheel) {
             findTargets();
         }
@@ -75,7 +76,7 @@
     }
 
     function newRound() {
-        playSound(NEW_SOUND, 0.2);
+        playSound(NEW_SOUND, 1);
         Entities.callEntityServerMethod(numberWheel, 'newRound');
         var searchParamString = encodeURLParams({
             username: "Boss",
@@ -91,21 +92,21 @@
     }
 
     function gameOver() {
-        playSound(FAREWELL_SOUND, 0.2);
+        playSound(FAREWELL_SOUND, 1);
         Script.setTimeout(function() {
             Entities.callEntityServerMethod(numberWheel, 'gameOver');
         }, FAREWELL_SOUND.duration * 1000 * 0.9);
     }
 
     function openRegistration() {
-        playSound(OPEN_SOUND, 0.7);
+        playSound(OPEN_SOUND, 1);
         Script.setTimeout(function() {
             Entities.callEntityServerMethod(numberWheel, 'openRegistration');
         }, OPEN_SOUND.duration * 1000 * 0.2);
     }
 
     function closeRegistration() {
-        playSound(CLOSE_SOUND, 0.2);
+        playSound(CLOSE_SOUND, 1);
         Script.setTimeout(function() {
             Entities.callEntityServerMethod(numberWheel, 'closeRegistration');
         }, CLOSE_SOUND.duration * 1000 * 0.35);
@@ -156,7 +157,7 @@
                 injector.stop();
             }
             injector = Audio.playSound(sound, {
-                position: wheelPosition,
+                position: soundPosition,
                 volume: volume
             });
         }
