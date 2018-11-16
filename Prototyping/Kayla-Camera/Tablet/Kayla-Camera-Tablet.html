@@ -18,6 +18,8 @@
                 v-bind:mode="settings.listener.currentMode"
                 v-bind:orientation="settings.listener.customOrientation">
             </listener>
+            <move_options v-bind:move="settings.DEFAULT_PARAMETERS" class="m-3" ></move_options>
+            <brake_options v-bind:brake="settings.BRAKE_PARAMETERS" class="m-3" ></brake_options>
             <position class="m-3" 
                 v-for="n in settings.mapping" 
                 v-bind:name="n.name" 
@@ -25,6 +27,7 @@
                 v-bind:position="n.position" 
                 v-bind:orientation="n.orientation">
             </position>
+
             <button id="new-position" v-on:click="createPosition" type="button" class="btn-sm btn-primary m-3">New Position</button>
         </div>
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
