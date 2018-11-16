@@ -1,0 +1,194 @@
+{
+    "DataVersion": 0,
+    "Entities": [
+        {
+            "clientOnly": false,
+            "collisionless": true,
+            "created": "2018-10-11T16:46:46Z",
+            "dimensions": {
+                "blue": 0.023791495710611343,
+                "green": 0.7719596028327942,
+                "red": 1.468200922012329,
+                "x": 1.468200922012329,
+                "y": 0.7719596028327942,
+                "z": 0.023791495710611343
+            },
+            "id": "{d59373f4-86d9-4a76-a70f-11aad99d9518}",
+            "ignoreForCollisions": true,
+            "lastEdited": 1539278790129462,
+            "lastEditedBy": "{6301f4c4-5bcf-45fe-83d2-308320ab2d24}",
+            "modelURL": "https://hifi-content.s3.amazonaws.com/DomainContent/production/default-image-model.fbx",
+            "name": "digital-photo-picture",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{42af9f3e-5462-4ebe-9d6b-1fa862be4127}",
+            "position": {
+                "blue": 0.022817259654402733,
+                "green": 0.0043506622314453125,
+                "red": 0.0076751708984375,
+                "x": 0.0076751708984375,
+                "y": 0.0043506622314453125,
+                "z": 0.022817259654402733
+            },
+            "queryAACube": {
+                "scale": 1.658945918083191,
+                "x": -186.08685302734375,
+                "y": 27.811513900756836,
+                "z": -81.90691375732422
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/liv/dev/PhotoFrame/digitalFrame.js",
+            "shapeType": "box",
+            "textures": "{\"tex.picture\":\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image1.jpg\"}",
+            "type": "Model",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false},\"digitalFrame\":{\"changeSpeed\":10,\"photos\":[\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image1.jpg\",\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image2.jpg\",\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image3.jpg\",\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image4.jpg\",\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image5.jpg\"]}}"
+        },
+        {
+            "clientOnly": false,
+            "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+            "collisionMask": 23,
+            "color": {
+                "blue": 215,
+                "green": 217,
+                "red": 216
+            },
+            "created": "2018-10-11T17:21:43Z",
+            "cutoff": 90,
+            "dimensions": {
+                "blue": 4,
+                "green": 4,
+                "red": 4,
+                "x": 4,
+                "y": 4,
+                "z": 4
+            },
+            "exponent": null,
+            "falloffRadius": 1,
+            "id": "{dae9735c-1e76-4204-9f93-cba98fccf399}",
+            "intensity": 5,
+            "lastEdited": 1539278777207838,
+            "lastEditedBy": "{d3bc2f21-c03a-4213-8fe5-afae8be4d5d0}",
+			"locked" : true,
+            "name": "digital-photo-light",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{42af9f3e-5462-4ebe-9d6b-1fa862be4127}",
+            "position": {
+                "blue": 0.12371440976858139,
+                "green": 0.4810314178466797,
+                "red": -0.5385284423828125,
+                "x": -0.5385284423828125,
+                "y": 0.4810314178466797,
+                "z": 0.12371440976858139
+            },
+            "queryAACube": {
+                "scale": 6.928203105926514,
+                "x": -189.07432556152344,
+                "y": 25.653564453125,
+                "z": -84.97052764892578
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Light",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
+        },
+        {
+            "clientOnly": false,
+            "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+            "collisionMask": 23,
+            "color": {
+                "blue": 215,
+                "green": 217,
+                "red": 216
+            },
+            "created": "2018-10-11T17:23:55Z",
+            "cutoff": 90,
+            "dimensions": {
+                "blue": 4,
+                "green": 4,
+                "red": 4,
+                "x": 4,
+                "y": 4,
+                "z": 4
+            },
+            "exponent": null,
+            "falloffRadius": 1,
+            "id": "{5db83a7c-c41f-4573-8b05-c94e186feb83}",
+            "intensity": 5,
+            "lastEdited": 1539278777207838,
+            "lastEditedBy": "{d3bc2f21-c03a-4213-8fe5-afae8be4d5d0}",
+			"locked" : true,
+            "name": "digital-photo-light",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "parentID": "{42af9f3e-5462-4ebe-9d6b-1fa862be4127}",
+            "position": {
+                "blue": 0.2944367229938507,
+                "green": 0.4810295104980469,
+                "red": 0.4828033447265625,
+                "x": 0.4828033447265625,
+                "y": 0.4810295104980469,
+                "z": 0.2944367229938507
+            },
+            "queryAACube": {
+                "scale": 6.928203105926514,
+                "x": -188.72889709472656,
+                "y": 25.653600692749023,
+                "z": -83.99433135986328
+            },
+            "rotation": {
+                "w": 1,
+                "x": -1.52587890625e-05,
+                "y": -1.52587890625e-05,
+                "z": -1.52587890625e-05
+            },
+            "type": "Light",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
+        },
+        {
+            "clientOnly": false,
+            "color": {
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "created": "2018-10-11T16:48:57Z",
+            "dimensions": {
+                "blue": 0.052380964159965515,
+                "green": 0.830861508846283,
+                "red": 1.5547958612442017,
+                "x": 1.5547958612442017,
+                "y": 0.830861508846283,
+                "z": 0.052380964159965515
+            },
+            "id": "{42af9f3e-5462-4ebe-9d6b-1fa862be4127}",
+            "lastEdited": 1539278777207838,
+            "lastEditedBy": "{d3bc2f21-c03a-4213-8fe5-afae8be4d5d0}",
+            "name": "digital-photo-frame",
+            "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
+            "queryAACube": {
+                "scale": 1.763650894165039,
+                "x": -0.8818254470825195,
+                "y": -0.8818254470825195,
+                "z": -0.8818254470825195
+            },
+            "rotation": {
+                "w": 0.8615396022796631,
+                "x": -4.57763671875e-05,
+                "y": -0.5077134370803833,
+                "z": -1.52587890625e-05
+            },
+            "shape": "Cube",
+            "type": "Box",
+            "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
+        }
+    ],
+    "Id": "{3356be81-6cc9-421d-9b6f-33c06cdf403f}",
+    "Version": 93
+}
