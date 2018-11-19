@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Christmas</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+        <link rel="stylesheet" href="christmas.css?104">
+    </head>
+    <body>
+        <h1>Christmas</h1>
+        <input type="button" class="gray" id="snow" value="Snow On/Off">
+        <h4>Music</h4>
+        <input type="button" class="gray" id="song1" value="Holly Jolly Christmas">
+        <input type="button" class="gray" id="song3" value="Rudolph"><br><br>
+        <input type="button" class="gray" id="song2" value="White Christmas">
+        <input type="button" class="gray" id="song5" value="Silver Bells"><br><br>
+        <input type="button" class="gray" id="song4" value="Winter Wonderland">
+        <input type="button" class="gray" id="musicOff" value="Off">
+        <h4 class="decorations">Decorations</h4>
+        <input type="image" width="48" height="48" id="redLight" alt="Red Light" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/redStarLight.PNG">
+        <input type="image" width="48" height="48" id="blueLight" alt ="BlueLight" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/blueStarLight.PNG">
+        <input type="image" width="48" height="48" id="yellowLight" alt="Yellow Light" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/yellowStarLight.PNG">
+        <input type="image" width="48" height="48" id="greenLight" alt="Green Light" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/greenStarLight.PNG">
+        <input type="image" width="48" height="48" id="whiteLight" alt="White Light" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/whiteStarLight.PNG"><br><br>
+        <input type="image" width="48" height="48" id="silverOrnament" alt="Silver Ornament" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/silverOrnament.PNG">
+        <input type="image" width="48" height="48" id="goldOrnament" alt="Gold Ornament" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/goldOrnament.PNG">
+        <input type="image" width="48" height="48" id="redOrnament" alt="Red Ornament" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/redOrnament.PNG">
+        <input type="image" width="48" height="48" id="greenOrnament" alt="Green Ornament" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/greenOrnament.PNG"><br><br>
+        <input type="image" width="48" height="48" id="tree" alt="Tree" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/tree.PNG" autofocus>
+        <input type="image" width="48" height="48" id="snowman" alt="Snowman" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/snowman.PNG">
+        <input type="image" width="48" height="48" id="candyCane" alt="Candy Cane" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/candyCane.PNG"><br><br>
+        <input type="image" width="48" height="48" id="gift" alt="Gift" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/gift.PNG">
+        <input type="image" width="48" height="48" id="gifts" alt="Gifts" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/gifts.PNG"><br><br>
+        <input type="image" width="48" height="48" id="star" alt="Star" src="http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/ChristmasGun/assets/images/star.PNG">
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script>
+            $('#snow').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "snow"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#song1').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "song1"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#song2').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "song2"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#song3').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "song3"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#song4').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "song4"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#song5').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "song5"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#musicOff').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "musicOff"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#redLight').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "redLight"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#blueLight').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "blueLight"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            
+            $('#yellowLight').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "yellowLight"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#greenLight').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "greenLight"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#whiteLight').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "whiteLight"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#silverOrnament').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "silverOrnament"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#goldOrnament').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "goldOrnament"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#redOrnament').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "redOrnament"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#greenOrnament').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "greenOrnament"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#tree').click(function() {
+                var event = {
+                        app: 'christmas1982',
+                        type: "tree"
+                    };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#snowman').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "snowman"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#candyCane').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "candyCane"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            
+            $('#gift').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "gift"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+
+            $('#gifts').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "gifts"                
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            
+            $('#star').click(function() {
+                var event = {
+                    app: 'christmas1982',
+                    type: "star"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            
+        </script>
+    </body>
+
+</html>
