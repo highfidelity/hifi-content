@@ -9,10 +9,11 @@
 
 ![Flow Thread](https://hifi-content.s3.amazonaws.com/luis/flowFiles/reference/flow.png)
 
-A **Flow Thread** is a set with as least 2 connected joints that comply with the following rules:
+A **Flow Thread** is a set with as least one joint that comply with the following rules:
 
 * The first joint is connected to an existing avatar joint (“Hips” for example).
 * Every “Flow Joint” should be named **flow_[TYPE]_[INDEX]**, where **TYPE** defines a group of joints that share a common physics setup and **INDEX** is an integer. For example, if the thread is used to simulate a skirt, all the “skirt” joints should be named flow_skirt_01, flow_skirt_02, etc.
+* Added support for SIM joints (Mikomiko avatar) with names **sim[TYPE][INDEX]**
 
 ## Display Panel
 
