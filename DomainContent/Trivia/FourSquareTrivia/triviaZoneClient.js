@@ -44,7 +44,7 @@
             if (_this.color !== "Game Protection") {
                 var zoneMarker = zoneProperties.parentID;
                 var zoneMarkerPosition = Entities.getEntityProperties(zoneMarker, 'position').position;
-                zoneMarkerPosition.y += 0.01;
+                zoneMarkerPosition.y += 0.02;
                 currentZoneOverlayPosition = zoneMarkerPosition;
             }
             MyAvatar.wentAway.connect(_this.ejectUser);

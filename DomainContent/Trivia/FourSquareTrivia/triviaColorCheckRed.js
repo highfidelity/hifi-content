@@ -32,12 +32,14 @@
             bubble = Entities.getEntityProperties(
                 Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RADIUS)[0], ['visible']);
             if (Settings.getValue("activeTriviaColor") !== "Red") {
-                var someOneIsCorrect = _this.isAnyAvatarCorrect("Red") ? true : false;
-                if (someOneIsCorrect){
-                    _this.ejectUser();
-                } 
+                console.log("I'm wrong");
+                _this.ejectUser();
+            } else {
+                console.log("I'm right");
             }
-            _this.unload();
+            Script.setTimeout(function(){
+                _this.unload();
+            }, 15000);
         },
         
         isAvatarInsideZone: function(position, zoneProperties) {

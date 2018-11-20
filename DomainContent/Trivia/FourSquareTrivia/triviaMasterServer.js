@@ -27,7 +27,6 @@
         injector,
         gameZone,
         confetti,
-        prize,
         coin,
         boardCorners;
 
@@ -636,8 +635,6 @@
     };
 
     this.winCoins = function(){       
-        console.log("COIN POSITION IS", JSON.stringify(prize.position));
-
         Entities.addEntity({
             type: "ParticleEffect",
             name: "Trivia Particle Coin Increase",            
@@ -717,7 +714,6 @@
     };
 
     this.playSound = function(id, sound) {
-        console.log("play sound called", sound[0]);
         switch (sound[0]){
             case 'NEXT_QUESTION_SFX':
                 sound = NEXT_QUESTION_SFX;
@@ -742,9 +738,7 @@
                 break;
         }
         if (sound.downloaded) {
-            console.log("sound downloaded", sound);
             if (injector) {
-                console.log("stopping sound");
                 injector.stop();
             }
             injector = Audio.playSound(sound, {

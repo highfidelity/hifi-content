@@ -12,7 +12,7 @@
 (function() {
 
     var TRIVIA_CHANNEL = "TriviaChannel",
-        url="",
+        url="https://script.google.com/macros/s/AKfycbz2Xm72EFPCEPMFnyKdcAA3AFCqzK13PX6CnSwLCuS51xM0YIhD/exec",
         TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/questionMark-i.png'),
         TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/questionMark-a.png'),
         SEARCH_RADIUS = 100,
@@ -41,7 +41,6 @@
         questionText,
         choiceTexts = [],
         answerText,
-        previousCount,
         triviaData,
         request = Script.require('./modules/request.js').request,
         type = null,
@@ -302,7 +301,6 @@
     }
 
     function clearGame() {
-        previousCount = null;
         correctCount = null;
         prizeMoney = 0;
         winnerID = null;
@@ -351,28 +349,14 @@
     function updateAvatarCounter(roundOver) {
         var count = usersInZone(gameZoneProperties);
         if (roundOver) {
-            if (correctCount === 0) {
-                prizeCalculator("everyone wrong");
-                previousCount = count;
-                return;
-            } else if (correctCount !== count) {
-                Script.setTimeout(function(){
-                    try {
-                        count = usersInZone(gameZoneProperties);
-                        correctCount = isAnyAvatarCorrect(correctColor);
-                    } catch (e) {
-                        console.log("Error correcting player count", e);
-                    }                    
-                }, 100);
-            } else if (correctCount === 1) {
-                prizeCalculator("game over");
-                previousCount = count;
-            } else {
-                prizeCalculator("increase pot");
-                previousCount = count;
-            }
-        }
-        previousCount = count;
+            Script.setTimeout(function(){
+                if (correctCount === 1) {
+                    prizeCalculator("game over");
+                } else {
+                    prizeCalculator("increase pot");
+                }
+            }, 5000);
+        } 
         Entities.callEntityServerMethod(avatarCounter, "textUpdate", [count, true]);
     }
        
@@ -527,14 +511,20 @@
                 Entities.callEntityServerMethod(highlight, "lightsOn");
             }
         });
-        Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
+        var anyCorrect = isAnyAvatarCorrect(correctColor);
+        if (anyCorrect === 0) {
+            Script.setTimeout(function() {
+                prizeCalculator("everyone wrong");
+            }, FIRST_WAIT_TO_COUNT_AVATARS);
+        } else {
+            Script.setTimeout(function() {
+                Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
+                correctCount = isAnyAvatarCorrect(correctColor);
+                updateAvatarCounter(true);
+            }, FIRST_WAIT_TO_COUNT_AVATARS);
+        }
 
         Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
-
-        Script.setTimeout(function() {
-            correctCount = isAnyAvatarCorrect(correctColor);
-            updateAvatarCounter(true);
-        }, FIRST_WAIT_TO_COUNT_AVATARS);
     }
 
     function onWebEventReceived(event) {
