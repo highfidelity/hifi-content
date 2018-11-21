@@ -61,7 +61,7 @@
         },
 
         // At this point, the object has basically stopped moving. We will clear any gravity properties, make it not 
-        // dynamic, reset its rotation, and change its sp=hpetype to the desired collsion hull first. Then we increase 
+        // dynamic, reset its rotation, and change its shappetype to the desired collsion hull first. Then we increase 
         // its size every 50ms until it has reached its max and then we stop the growth interval. If it's a tree, 
         // we reset rotaion again during every interval to keep it from tipping.
         grow: function() {
