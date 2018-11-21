@@ -75,7 +75,8 @@
         // Miscellaneous
         UPDATE_LOOP_TIMEOUT = 16,
         updateTimer = null,
-        DOMAIN_CHANGED_MESSAGE = "Toolbar-DomainChanged",
+        INVREDIT_STATUS_CHANNEL = "Hifi-InVREdit-Status",
+        DOMAIN_CHANGED_CHANNEL = "Toolbar-DomainChanged",
 
         DEBUG = false;
 
@@ -708,15 +709,14 @@
         }
 
         function signalIsEditing(editing) {
-            var HIFI_EDIT_MANIPULATION_CHANNEL = "HiFi-Edit-Manipulation";
-
             if (editing === isHandEditing) {
                 return;
             }
 
-            Messages.sendLocalMessage(HIFI_EDIT_MANIPULATION_CHANNEL, JSON.stringify({
-                action: editing ? "startEdit" : "finishEdit",
-                hand: side === LEFT_HAND ? Controller.Standard.LeftHand : Controller.Standard.RightHand
+            Messages.sendLocalMessage(INVREDIT_STATUS_CHANNEL, JSON.stringify({
+                method: "editing",
+                hand: side,
+                editing: editing
             }));
 
             isHandEditing = editing;
@@ -1671,10 +1671,11 @@
     }
 
     function updateControllerDispatcher() {
-        // Communicate app status to controllerDispatcher.js.
-        var DISABLE_HANDS = "both",
-            ENABLE_HANDS = "none";
-        Messages.sendLocalMessage("Hifi-InVREdit-Disabler", isAppActive ? DISABLE_HANDS : ENABLE_HANDS);
+        // Communicate app status to controller module.
+        Messages.sendLocalMessage(INVREDIT_STATUS_CHANNEL, JSON.stringify({
+            method: "active",
+            active: isAppActive
+        }));
     }
 
     function onUICommand(command, parameter) {
@@ -1994,7 +1995,7 @@
     function onMessageReceived(channel) {
         // Hacky but currently the only way of detecting server stopping or restarting. Also occurs if changing domains.
         // TODO: Remove this when Window.domainChanged or other signal is emitted when you disconnect from a domain.
-        if (channel === DOMAIN_CHANGED_MESSAGE) {
+        if (channel === DOMAIN_CHANGED_CHANNEL) {
             // Happens a little while after server goes away.
             if (isAppActive && !location.isConnected) {
                 // Interface deletes all overlays when domain connection is lost; restart app to work around this.
@@ -2101,7 +2102,7 @@
         Window.domainChanged.connect(onDomainChanged);
         Entities.canRezChanged.connect(onCanRezChanged);
         Entities.canRezTmpChanged.connect(onCanRezChanged);
-        Messages.subscribe(DOMAIN_CHANGED_MESSAGE);
+        Messages.subscribe(DOMAIN_CHANGED_CHANNEL);
         Messages.messageReceived.connect(onMessageReceived);
         MyAvatar.dominantHandChanged.connect(onDominantHandChanged);
         MyAvatar.skeletonChanged.connect(onSkeletonChanged);
@@ -2127,7 +2128,7 @@
         Entities.canRezChanged.disconnect(onCanRezChanged);
         Entities.canRezTmpChanged.disconnect(onCanRezChanged);
         Messages.messageReceived.disconnect(onMessageReceived);
-        // Messages.unsubscribe(DOMAIN_CHANGED_MESSAGE);  Do not unsubscribe because edit.js also subscribes and 
+        // Messages.unsubscribe(DOMAIN_CHANGED_CHANNEL);  Do not unsubscribe because edit.js also subscribes and 
         // Messages.subscribe works script engine-wide which would mess things up if they're both run in the same engine.
         MyAvatar.dominantHandChanged.disconnect(onDominantHandChanged);
         MyAvatar.skeletonChanged.disconnect(onSkeletonChanged);
