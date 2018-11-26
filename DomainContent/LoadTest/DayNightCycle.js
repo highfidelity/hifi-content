@@ -1,6 +1,8 @@
 //
 //  DayNightCycle.js
 //
+//  Uses server time to rotate skybox and set key lighting attributes to mimic a day/night cycle on a skybox zone
+// 
 //  created by Liv Erickson on 11/26/18
 //  Copyright 2018 High Fidelity, Inc.
 //
