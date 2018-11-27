@@ -72,6 +72,5 @@
         if (_interval) {
             Script.clearInterval(_interval);
         }
-      };
-
+    };
 });
