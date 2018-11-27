@@ -69,7 +69,9 @@
     };
 
     this.unload = function() {
-        Script.clearInterval(_interval);
-    };
+        if (_interval) {
+            Script.clearInterval(_interval);
+        }
+      };
 
 });
