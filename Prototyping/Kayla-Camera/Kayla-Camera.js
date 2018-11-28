@@ -119,7 +119,7 @@
     var KEY_UP = "Space";
     var KEY_DOWN = "C";
     var KEY_TOGGLE = "M";
-    var KEY_MOUSE_VISIBLE = "N";
+    // var KEY_MOUSE_VISIBLE = "N";
 
 
     var KEYS;
@@ -300,7 +300,7 @@
     function disable() {
         if (enabled) {
             enabled = false;
-            // Reticle.setVisible(true);
+            Reticle.setVisible(true);
 
             MyAvatar.motorVelocity = { x: 0, y: 0, z: 0 };
 
@@ -320,7 +320,7 @@
     var MAPPING_MOUSE_VISIBLE_NAME = 'io.highfidelity.gracefulControls.visibleMouse';
     var keyControllerMapping = Controller.newMapping(MAPPING_KEYS_NAME);
     var enableControllerMapping = Controller.newMapping(MAPPING_ENABLE_NAME);
-    var makeMouseVisibleMapping = Controller.newMapping(MAPPING_MOUSE_VISIBLE_NAME);
+    // var makeMouseVisibleMapping = Controller.newMapping(MAPPING_MOUSE_VISIBLE_NAME);
 
     function onKeyPress(key, value) {
         print(key, value);
@@ -329,9 +329,11 @@
         if (value > 0) {
             if (key == KEY_TOGGLE) {
                 toggleEnabled();
-            } else if (key == KEY_MOUSE_VISIBLE) {
-                toggleMouseVisible();
-            } else if (key == KEY_BRAKE) {
+            } 
+            // else if (key == KEY_MOUSE_VISIBLE) {
+            //     toggleMouseVisible();
+            // } 
+            else if (key == KEY_BRAKE) {
                 settings.movementParameters = settings.BRAKE_PARAMETERS;
                 currentSetting = BRAKE;
             }
@@ -361,9 +363,9 @@
         onKeyPress(KEY_TOGGLE, value);
     });
 
-    makeMouseVisibleMapping.from(Controller.Hardware.Keyboard[KEY_MOUSE_VISIBLE]).to(function (value) {
-        onKeyPress(KEY_MOUSE_VISIBLE, value);
-    });
+    // makeMouseVisibleMapping.from(Controller.Hardware.Keyboard[KEY_MOUSE_VISIBLE]).to(function (value) {
+    //     onKeyPress(KEY_MOUSE_VISIBLE, value);
+    // });
 
     Controller.enableMapping(MAPPING_ENABLE_NAME);
     Controller.enableMapping(MAPPING_MOUSE_VISIBLE_NAME);
