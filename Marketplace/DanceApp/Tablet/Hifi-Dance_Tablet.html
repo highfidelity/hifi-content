@@ -11,17 +11,17 @@
 
     <body class="background">
         <div class="container p-3" id="app">
-                <!-- <div class="jumbotron jumbotron-fluid jumbotron-logo">
-                    <div class="container">
-                            <img src="./Assets/hifi-dance.svg" class="img-fluid" alt="Responsive image">
-                    </div>
-                </div>
-             -->
+                <!-- <div class="jumbotron jumbotron-logo">
+                    <div class="container"> -->
+                            <img src="./Assets/hifi-dance.svg" class="img w-25" alt="Responsive image">
+                    <!-- </div>
+                </div> -->
+            
             <div class="sticky-top">
                 <current-dance class="shadow-lg" v-if="dataStore.ui.currentDance" :current="dataStore.currentDance"></current-dance>
             </div>
             <dance-list v-if="dataStore.ui.danceArray" :dances="dataStore.danceArray" class="shadow"></dance-list>
-            <dance v-for="dance in dataStore.danceObjects" :dance="dance" class="transparent shadow-sm"></dance>
+            <dance v-for="(dance, index) in dataStore.danceObjects" :key="index" :dance="dance" class="transparent shadow-sm"></dance>
         </div>
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

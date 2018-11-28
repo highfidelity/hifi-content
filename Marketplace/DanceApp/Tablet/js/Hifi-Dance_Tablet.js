@@ -69,6 +69,15 @@
                     }));
                 }
             },
+            mounted: function(){
+                console.log("dances: " + JSON.stringify(this.dances));
+            },
+            watch: {
+                dances: function(newValue, oldValue){
+                    console.log("newValue", JSON.stringify(newValue));
+                    console.log("oldValue", JSON.stringify(oldValue));
+                }
+            },
             template: /*html*/`
                 <div class="accordian " id="dance-accordian">
                     <div class="card transparent">
@@ -79,19 +88,20 @@
                         </div>
                         <div id="collapseOne" class="collapse show" data-parent="#dance-accordian">
                             <div class="card-body main-font-size">
-                                <div v-for="{dance, index} in dances" 
-                                    key="index"
+                                <div v-for="(dance, index) in dances"
+                                 
+                                    :key="index"
                                     class="list-complete-item p-2" 
                                 >
                                     <form class="form-inline">
-                                        <h6 class="font-weight-bold"> {{dance.name}}</h6>
+                                        <h5> {{dance.name}}</h5>
                                         <div class="row">
                                             <div class="col">
                                                 <div class="input-group mb-1 ">
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text main-font-size font-weight-bold">Start Frame</span>
                                                     </div>
-                                                    <input type="text" v-on:blur="onBlur" v-model="dance.startFrame" class="form-control main-font-size" placeholder="start frame">
+                                                    <input v-if="dance" type="text" v-on:blur="onBlur" v-model="dance.startFrame" class="form-control main-font-size" placeholder="start frame">
                                                 </div>
                                             </div>
                                             <div class="col">
@@ -99,7 +109,7 @@
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text main-font-size font-weight-bold">End Frame</span>
                                                     </div>
-                                                    <input type="text" v-on:blur="onBlur" v-model="dance.endFrame" class="form-control main-font-size" placeholder="end frame">
+                                                    <input v-if="dance" type="text" v-on:blur="onBlur" v-model="dance.endFrame" class="form-control main-font-size" placeholder="end frame">
                                                 </div>
                                             </div>
                                         </div class="row">
@@ -109,7 +119,7 @@
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text main-font-size font-weight-bold">Duration</span>
                                                     </div>
-                                                    <input type="text" v-on:blur="onBlur" v-model="dance.duration" class="form-control main-font-size" placeholder="duration">
+                                                    <input v-if="dance" type="text" v-on:blur="onBlur" v-model="dance.duration" class="form-control main-font-size" placeholder="duration">
                                                 </div>
                                             </div>
                                             <div class="col">
@@ -117,7 +127,7 @@
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text main-font-size font-weight-bold">FPS</span>
                                                     </div>
-                                                    <input type="text" v-on:blur="onBlur" v-model="dance.fps" class="form-control main-font-size" placeholder="fps">
+                                                    <input v-if="dance" type="text" v-on:blur="onBlur" v-model="dance.fps" class="form-control main-font-size" placeholder="fps">
                                                 </div>
                                             </div>
                                         </div>
@@ -221,7 +231,6 @@
                         if (data.slice === CURRENT_DANCE) {
                             app.dataStore.currentDance = data.value.currentDance;
                         } else {
-                            console.log("dataStore")
                             app.dataStore = data.value;
                         }
                         break;
