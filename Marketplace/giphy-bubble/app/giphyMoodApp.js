@@ -101,7 +101,6 @@
                 "y": 1.1516592502593994,
                 "z": 1.2351282835006714
             },
-            "id": "{9d900dff-901b-4b3f-b2f2-0655dbd0ec95}",
             "modelURL": Script.resolvePath('./resources/ThoughtBubble.fbx'),
             "name": "ThoughtBubble-Giphy",
             "parentID": MyAvatar.sessionUUID,
@@ -111,12 +110,6 @@
                 "x": 0.807220458984375,
                 "y": 0.8286701202392578,
                 "z": -0.188949584960
-            },
-            "queryAACube": {
-                "scale": 5.248152732849121,
-                "x": -1.4032782316207886,
-                "y": -11.526137351989746,
-                "z": -2.0149528980255127
             },
             "localRotation": {
                 "w": -0.6794636845588684,
@@ -139,7 +132,6 @@
                 "y": 0.5328364968299866,
                 "z": 0.009999999776482582
             },
-            "id": "{a5a315aa-8169-4767-b66f-ffb27d25a54a}",
             "name" : "WebEntity-Giphy",
             "parentID": MyAvatar.sessionUUID, 
             "parentJointIndex" : MyAvatar.getJointIndex("Head"),
@@ -148,12 +140,6 @@
                 "x":0.8114402294158936,
                 "y":0.9220905303955078,
                 "z":-0.10172748565673828
-            },
-            "queryAACube": {
-                "scale": 3.2606639862060547,
-                "x": -0.30625295639038086,
-                "y": -10.532992362976074,
-                "z": -1.059478998184204
             },
             "localRotation": {
                 "x":-0.004176754504442215,
