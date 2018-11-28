@@ -223,26 +223,54 @@
     function getQuestion() {
         Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
         try {
-            var triviaURL = "https://opentdb.com/api.php?amount=1";
-            if (type) {
-                triviaURL = triviaURL + "&type=" + type;
-            }
-            if (difficulty) {
-                triviaURL = triviaURL + "&difficulty=" + difficulty;
-            }
-            if (category) {
-                triviaURL = triviaURL + "&category=" + category;
-            }
+            var triviaURL = "https://script.google.com/macros/s/AKfycbwwKdRHuSLQX5Ay595PXmKLmJnwzSX13SojHUH9or5LCdclzHg/exec?";
+            
+            // if (type) {
+            //     triviaURL = triviaURL + "&type=" + type;
+            // }
+            // if (difficulty) {
+            //     triviaURL = triviaURL + "&difficulty=" + difficulty;
+            // }
+            // if (category) {
+            //     triviaURL = triviaURL + "&category=" + category;
+            // }
+            triviaURL = triviaURL + "category=" + "Halloween";
             request(triviaURL, function (error, data) {
                 if (!error) {
-                    tablet.emitScriptEvent(JSON.stringify(data.results[0]));
-                    triviaData = data.results;
+                    console.log(JSON.stringify(data));
+                    tablet.emitScriptEvent(JSON.stringify(data));
+                    triviaData = data;
                 }
             });
         } catch (err) {
+            console.log("err:", err);
             print("Could not get domain data using userData domainAPIURL");
         }
     }
+
+    // function getQuestion() {
+    //     Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
+    //     try {
+    //         var triviaURL = "https://opentdb.com/api.php?amount=1";
+    //         if (type) {
+    //             triviaURL = triviaURL + "&type=" + type;
+    //         }
+    //         if (difficulty) {
+    //             triviaURL = triviaURL + "&difficulty=" + difficulty;
+    //         }
+    //         if (category) {
+    //             triviaURL = triviaURL + "&category=" + category;
+    //         }
+    //         request(triviaURL, function (error, data) {
+    //             if (!error) {
+    //                 tablet.emitScriptEvent(JSON.stringify(data.results[0]));
+    //                 triviaData = data.results;
+    //             }
+    //         });
+    //     } catch (err) {
+    //         print("Could not get domain data using userData domainAPIURL");
+    //     }
+    // }
 
     function shuffle(array) {
         var currentIndex = array.length, temporaryValue, randomIndex;
@@ -263,14 +291,15 @@
             choiceTexts.forEach(function(choice) {
                 Entities.callEntityServerMethod(choice, "textUpdate", ["", true]);
             });
-            var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
+            // var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
+            var formattedQuestion = triviaData.question;
             Entities.callEntityServerMethod(questionText, "textUpdate", [formattedQuestion, true]);
             Entities.callEntityServerMethod(answerText, "textUpdate", ["", false]);
         }, WAIT_TO_SHOW_QUESTION);
     }
 
     function showAnswers() {
-        if (triviaData[0].type === "boolean") {
+        if (triviaData.type === "boolean") {
             Entities.callEntityServerMethod(choiceTexts[0], "textUpdate", ["",false]);
             Entities.callEntityServerMethod(choiceTexts[1], "textUpdate", ["True", true]);
             Entities.callEntityServerMethod(choiceTexts[2], "textUpdate", ["False", true]);
@@ -289,9 +318,9 @@
             });
         } else {
             currentChoices = [];
-            currentChoices.push(htmlEnDeCode.htmlDecode(triviaData[0].correct_answer));
-            triviaData[0].incorrect_answers.forEach(function(choice) {
-                currentChoices.push(htmlEnDeCode.htmlDecode(choice));
+            currentChoices.push(triviaData.correct_answer);
+            triviaData.incorrect_answers.forEach(function(choice) {
+                currentChoices.push(choice);
             });
             shuffle(currentChoices);
             currentChoices.forEach(function(choice, index) {
@@ -489,11 +518,11 @@
     }
 
     function showCorrect() {
-        var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
+        var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData.correct_answer);
         correctColor = null;
         choiceTexts.forEach(function(textEntity) {
             var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
-            if (properties.text === htmlEnDeCode.htmlDecode(triviaData[0].correct_answer)) {
+            if (properties.text === htmlEnDeCode.htmlDecode(triviaData.correct_answer)) {
                 var color = properties.name.substr(ZONE_COLOR_INDEX);
                 correctColor = color;
             }
