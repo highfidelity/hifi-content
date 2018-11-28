@@ -1,4 +1,12 @@
-/* globals EventBridge */
+//
+//  giphyMoodApp.js
+//
+//  Created by Liv Erickson on 11/28/2018.
+//  Copyright 2018 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
 (function () {
     var GIPHY_BASE_URL = "https://api.giphy.com/v1/gifs/";
     var GIPHY_API_KEY = " "; // You will need to supply your own key
