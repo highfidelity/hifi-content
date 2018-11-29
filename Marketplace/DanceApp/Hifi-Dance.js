@@ -106,19 +106,11 @@
                 );
             });
         }
-        
-        function vec(x, y, z) {
-            var obj = {};
-            obj.x = x;
-            obj.y = y;
-            obj.z = z;
-            return obj;
-        }
 
     // Procedural Functions
     // /////////////////////////////////////////////////////////////////////////
         function previewDanceAnimation(danceObj) {
-            var localOffset = vec(0,0,-2),
+            var localOffset = [0,0,-2],
                 worldOffset = Vec3.multiplyQbyV(MyAvatar.orientation, localOffset),
                 modelPosition = Vec3.sum(MyAvatar.position, worldOffset);
 

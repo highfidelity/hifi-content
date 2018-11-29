@@ -17,7 +17,7 @@
             UPDATE_DANCE_ARRAY = "update_dance_array",
             CURRENT_DANCE = "current_dance",
             
-            EVENTBRIDGE_SETUP_DELAY = 150
+            EVENTBRIDGE_SETUP_DELAY = 10
         ;
 
     // Components
@@ -93,7 +93,7 @@
                                     :key="index"
                                     class="list-complete-item p-2" 
                                 >
-                                    <form class="form-inline">
+                                    <form class="form-inline" onsubmit="event.preventDefault()">
                                         <h5> {{dance.name}}</h5>
                                         <div class="row">
                                             <div class="col">
