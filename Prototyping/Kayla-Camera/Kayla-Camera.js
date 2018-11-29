@@ -494,9 +494,6 @@
             doUIUpdate();
         }
         if (event.text === SET_LISTENER_TOGGLE_KEY){
-            updateCustomListener();
-            updateSettings();
-            doUIUpdate();
             if (settings.listener.isCustomListening) {
                 disableCustomListener();
                 updateSettings();
