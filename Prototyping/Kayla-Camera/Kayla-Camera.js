@@ -37,7 +37,10 @@
         TOGGLE_AVATAR_COLLISIONS = "toggleAvatarCollisions",
         EDIT_DEFAULT = "editDefault",
         EDIT_BRAKE = "editBrake",
-        UPDATE_UI = "update_ui";
+        UPDATE_UI = "update_ui",
+        SET_LISTENER_POSITION_KEY = "t",
+        SET_LISTENER_TOGGLE_KEY = "y"
+    ;
 
     // Collections
     var defaultSettings = {
@@ -484,6 +487,25 @@
             var orientation = settings.mapping[event.text].orientation;
             MyAvatar.headOrientation = orientation;
             MyAvatar.position = position;
+        }
+        if (event.text === SET_LISTENER_POSITION_KEY){
+            updateCustomListener();
+            updateSettings();
+            doUIUpdate();
+        }
+        if (event.text === SET_LISTENER_TOGGLE_KEY){
+            updateCustomListener();
+            updateSettings();
+            doUIUpdate();
+            if (settings.listener.isCustomListening) {
+                disableCustomListener();
+                updateSettings();
+                doUIUpdate();
+            } else {
+                enableCustomListener();
+                updateSettings();
+                doUIUpdate();
+            }
         }
     }
 
