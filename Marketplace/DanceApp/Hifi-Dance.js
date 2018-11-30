@@ -34,10 +34,12 @@
             UPDATE_DANCE_ARRAY = "update_dance_array",
             CURRENT_DANCE = "current_dance",
             DEFAULT_DURATION = "1500",
+            PREVIEW_TIMEOUT = 10000,
             DEFAULT_START_FRAME = 0,
             EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-
+            PREVIEW_DISTANCE = -2,
             UPDATE_UI = BUTTON_NAME + "_update_ui"
+            
         ;
     
     // Init
@@ -45,7 +47,8 @@
         var 
             rustDancing = false,
             overlay = null,
-            ui
+            ui,
+            lastPreviewTimeStamp
         ;
 
     // Constructor
@@ -86,7 +89,7 @@
     // Helper Functions
     // /////////////////////////////////////////////////////////////////////////
         function splitDanceUrls() {
-            var regex = /(https:\/\/.*\/)([a-zA-Z0-9 ]+) (\d+)(.fbx)/;
+            var regex = /((?:https:|file:\/)\/\/.*\/)([a-zA-Z0-9 ]+) (\d+)(.fbx)/;
             danceUrls.sort(function(a,b) { 
                 if (a < b) { 
                     return -1;
@@ -95,7 +98,9 @@
                 }
                 return 0; 
             }).forEach(function(dance) {
+                console.log("Dance:", dance);
                 var regMatch = regex.exec(dance);
+                console.log("DANCE URL:" + regMatch[2]);
                 danceObjects.push(
                     new DanceAnimation(
                         regMatch[2],
@@ -110,7 +115,7 @@
     // Procedural Functions
     // /////////////////////////////////////////////////////////////////////////
         function previewDanceAnimation(danceObj) {
-            var localOffset = [0,0,-2],
+            var localOffset = [0, 0, PREVIEW_DISTANCE],
                 worldOffset = Vec3.multiplyQbyV(MyAvatar.orientation, localOffset),
                 modelPosition = Vec3.sum(MyAvatar.position, worldOffset);
 
@@ -125,6 +130,13 @@
                     lastFrame: danceObj.frames
                 }
             });
+            lastPreviewTimeStamp = Date.now();
+            Script.setTimeout(function(){
+                var currentTime = Date.now();
+                if (currentTime - lastPreviewTimeStamp > PREVIEW_TIMEOUT) {
+                    stopPreviewDanceAnimation();
+                }
+            }, PREVIEW_TIMEOUT + 500);
         }
 
         function stopPreviewDanceAnimation() {
@@ -132,6 +144,8 @@
         }
 
         function addDanceAnimation(danceObj) {
+            
+            
             dataStore.danceArray.push(
                 new DanceListEntry(
                     danceObj.name,
@@ -143,12 +157,6 @@
                 )
             );
             dataStore.ui.danceArray = true;
-            ui.updateUI(dataStore);
-        }
-
-        function removeDanceAnimations(danceObj) {
-            dataStore.danceArray = [];
-            dataStore.ui.danceArray = false;
             ui.updateUI(dataStore);
         }
 
@@ -212,12 +220,28 @@
             ui.updateUI(dataStore);
         }
 
-        function updateUI(dataStore) {
+        function updateUI(dataStore, slice) {
+            if (!slice) {
+                slice = {};
+            }
             var messageObject = {
                 type: UPDATE_UI,
-                value: dataStore  
+                value: dataStore
             };
+            Object.keys(slice).forEach(function(key){
+                if (slice.hasOwnProperty(key)) {
+                    messageObject[key] = slice[key];
+                }
+            });
             ui.sendToHtml(messageObject);
+        }
+        
+        function onEnding(){
+            MyAvatar.restoreAnimation();
+        }
+
+        function onDomainChange(){
+            
         }
 
     // Tablet
@@ -231,6 +255,7 @@
                 onMessage: onMessage,
                 updateUI: updateUI
             });
+            MyAvatar.restoreAnimation();
         }
 
         function onMessage(data) {
@@ -266,6 +291,9 @@
             }
         }
      
+    Script.scriptEnding.connect(onEnding);
+    Window.domainChanged.connect(onDomainChange);
+
     // Main
     // /////////////////////////////////////////////////////////////////////////
         dataStore.danceObjects = danceObjects;

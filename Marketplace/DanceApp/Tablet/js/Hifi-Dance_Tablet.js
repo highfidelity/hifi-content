@@ -69,15 +69,6 @@
                     }));
                 }
             },
-            mounted: function(){
-                console.log("dances: " + JSON.stringify(this.dances));
-            },
-            watch: {
-                dances: function(newValue, oldValue){
-                    console.log("newValue", JSON.stringify(newValue));
-                    console.log("oldValue", JSON.stringify(oldValue));
-                }
-            },
             template: /*html*/`
                 <div class="accordian " id="dance-accordian">
                     <div class="card transparent">
@@ -222,10 +213,10 @@
     // Procedural
     // /////////////////////////////////////////////////////////////////////////
         function onScriptEventReceived(message) {
-            // console.log("MESSAGE: " + message);
             var data;
             try {
                 data = JSON.parse(message);
+                console.log("Date.slice: ", data.slice);
                 switch (data.type) {
                     case UPDATE_UI:
                         if (data.slice === CURRENT_DANCE) {
