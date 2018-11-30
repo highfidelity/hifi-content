@@ -39,7 +39,8 @@
         EDIT_BRAKE = "editBrake",
         UPDATE_UI = "update_ui",
         SET_LISTENER_POSITION_KEY = "t",
-        SET_LISTENER_TOGGLE_KEY = "y"
+        SET_LISTENER_TOGGLE_KEY = "y",
+        TOGGLE_COLLISION_KEY = "u"
     ;
 
     // Collections
@@ -503,6 +504,9 @@
                 updateSettings();
                 doUIUpdate();
             }
+        }
+        if (event.text === TOGGLE_COLLISION_KEY){
+            toggleAvatarCollisions();
         }
     }
 
