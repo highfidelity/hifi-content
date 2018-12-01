@@ -78,18 +78,14 @@
                         </div>
                         <div id="collapseOne" class="collapse show" data-parent="#dance-accordian">
                             <div v-for="(dance, index) in dances" :key="index">
-
-                                    <div 
-                                    
-                                        
-                                        class="list-complete-item p-2" 
-                                    >
-                                    <div class="card-header transparent">
-                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne">
-                                            <h6 class="font-weight-bold">{{dance.name}}</h6>
-                                        </button>
-                                    </div>
-                                        <form class="form-inline" onsubmit="event.preventDefault()">
+                                    <div class="list-complete-item p-2">
+                                        <div class="card-header transparent">
+                                            <span class="font-weight-bold">{{dance.name}}</span>
+                                            <a href="#" class="float-right" data-toggle="collapse" :data-target="'#collapse' + dance.name">
+                                                <i class="far fa-angle-down"></i>
+                                            </a>
+                                        </div>
+                                        <form class="form-inline collapse show" :id="'collapse' + dance.name" onsubmit="event.preventDefault()">
                                             
                                             <div class="row">
                                                 <div class="col">
@@ -113,7 +109,7 @@
                                                 <div class="col">
                                                     <div class="input-group mb-1">
                                                         <div class="input-group-prepend">
-                                                            <span class="input-group-text main-font-size font-weight-bold">Duration</span>
+                                                            <span class="input-group-text main-font-size font-weight-bold">Duration (ms)</span>
                                                         </div>
                                                         <input v-if="dance" type="text" v-on:blur="onBlur" v-model="dance.duration" class="form-control main-font-size" placeholder="duration">
                                                     </div>
