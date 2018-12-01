@@ -22,7 +22,7 @@
     // /////////////////////////////////////////////////////////////////////////
         var 
             URL = Script.resolvePath("./Tablet/Hifi-Dance_Tablet.html"),
-            BUTTON_NAME = "Hifi-Dance",
+            BUTTON_NAME = "HIFI-DANCE",
 
             PREVIEW_DANCE = "preview_dance",
             PREVIEW_DANCE_STOP = "preview_dance_stop",

@@ -21,13 +21,17 @@
   }
 
   .current-dance-background-header {
-    background-color: rgba(190, 200, 255, 0.6);
+    background-color: rgba(20, 50, 80, 0.6);
     background-image: url("./hifi-dance-a.svg");
   }
 
   .current-dance-background {
-    background-color: rgba(240, 250, 255, 0.6);
+    background-color: rgba(40, 70, 100, 0.6);
     background-image: url("./hifi-dance-a.svg");
+  }
+
+  .current-dance-text {
+    color: rgba(255, 255, 255, 1.0);
   }
 
   .transparent {
