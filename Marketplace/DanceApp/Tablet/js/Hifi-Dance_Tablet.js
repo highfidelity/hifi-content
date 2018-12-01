@@ -178,20 +178,12 @@
             template: /*html*/`
                 <div class="card p-2">
                     <div class="row">
-                        <div class="col-8">
-                            <span class="font-weight-bold"> {{ dance.name }} </span>
-                        </div>
-                        <div class="col-4">
-                            <span>
-                                <button 
-                                    class="btn-sm btn-primary mr-1 font-weight-bold"
-                                    v-on:mouseover="previewDance()" 
-                                    v-on:mouseleave="previewDanceStop()" 
-                                    v-on:click="addDance()"
-                                >
-                                    Add Dance!
-                                </button>
-                            </span>
+                        <div class="col-1 grid"                                     
+                            v-on:mouseover="previewDance()" 
+                            v-on:mouseleave="previewDanceStop()" 
+                            v-on:click="addDance()"
+                            >
+                            test
                         </div>
                     </div>
                 </div>

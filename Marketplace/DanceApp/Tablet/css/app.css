@@ -20,6 +20,11 @@
     background-color: rgba(190, 200, 255, 0.0);
   }
 
+  .grid {
+    height: 5px;
+    width: 5px;
+  }
+
   .current-dance-background-header {
     background-color: rgba(20, 50, 80, 0.6);
     background-image: url("./hifi-dance-a.svg");
