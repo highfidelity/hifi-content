@@ -21,8 +21,8 @@
     // Consts
     // /////////////////////////////////////////////////////////////////////////
         var 
-            URL = Script.resolvePath("./Tablet/Hifi-Dance_Tablet.html"),
-            BUTTON_NAME = "HIFI-DANCE",
+            URL = Script.resolvePath("./Tablet/Dance_Tablet.html"),
+            BUTTON_NAME = "DANCE",
 
             PREVIEW_DANCE = "preview_dance",
             PREVIEW_DANCE_STOP = "preview_dance_stop",
@@ -75,7 +75,7 @@
         var 
             danceUrls = Script.require("./Dance-URLS.js?"+ Date.now()),
             dataStore = {
-                shouldBeRunning: true,
+                shouldBeRunning: false,
                 danceArray: [],
                 currentIndex: 0,
                 ui: {
@@ -98,9 +98,7 @@
                 }
                 return 0; 
             }).forEach(function(dance) {
-                console.log("Dance:", dance);
                 var regMatch = regex.exec(dance);
-                console.log("DANCE URL:" + regMatch[2]);
                 danceObjects.push(
                     new DanceAnimation(
                         regMatch[2],
@@ -115,6 +113,9 @@
     // Procedural Functions
     // /////////////////////////////////////////////////////////////////////////
         function previewDanceAnimation(danceObj) {
+            if (overlay) {
+                stopPreviewDanceAnimation();
+            }
             var localOffset = [0, 0, PREVIEW_DISTANCE],
                 worldOffset = Vec3.multiplyQbyV(MyAvatar.orientation, localOffset),
                 modelPosition = Vec3.sum(MyAvatar.position, worldOffset);
@@ -130,6 +131,8 @@
                     lastFrame: danceObj.frames
                 }
             });
+            dataStore.ui.addThisDance = true;
+            dataStore.addThisDanceName = danceObj.name;
             lastPreviewTimeStamp = Date.now();
             Script.setTimeout(function(){
                 var currentTime = Date.now();
@@ -137,10 +140,15 @@
                     stopPreviewDanceAnimation();
                 }
             }, PREVIEW_TIMEOUT + 500);
+            ui.updateUI(dataStore);
         }
 
         function stopPreviewDanceAnimation() {
+            dataStore.ui.addThisDance = false;
+            dataStore.addThisDanceName = null;
             Overlays.deleteOverlay(overlay);
+            overlay = null;
+            ui.updateUI(dataStore);
         }
 
         function addDanceAnimation(danceObj) {

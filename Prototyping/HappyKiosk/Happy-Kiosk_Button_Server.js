@@ -35,9 +35,9 @@
     // Init 
     var entityID,
         name,
-        position,
         kioskZoneID,
         self,
+        rotation,
         onTexture,
         offTexture,
         rating = 1;
@@ -46,7 +46,7 @@
     var BUTTON_PRESS_OFFSET = 0.04,
         DOWN_TIME_MS = 2000;
 
-        // Collections
+    // Collections
     var currentProperties = {},
         position = {},
         userData = {},
@@ -67,6 +67,7 @@
             name = currentProperties.name;
             position = currentProperties.position;
             kioskZoneID = currentProperties.parentID;
+            log("Current Position", position);
 
             userData = currentProperties.userData;
             try {
@@ -90,10 +91,14 @@
 
             var textureData = {};
             textureData["button" + rating + "-off"] = onTexture;
-
+            position = Entities.getEntityProperties(entityID, ["position"]).position;
+            rotation = Entities.getEntityProperties(entityID, ["rotation"]).rotation;
             position.y -= BUTTON_PRESS_OFFSET;
+
             Entities.editEntity(entityID, {
+                parentID: Uuid.NULL,
                 position: position,
+                rotation: rotation,
                 textures: JSON.stringify(textureData)
             });
             position.y += BUTTON_PRESS_OFFSET;
@@ -101,7 +106,6 @@
         pressButton: function(id, param) {
             log(LOG_ENTER, name + " pressButton");
             position = Entities.getEntityProperties(entityID, ["position"]).position;
-
             Entities.callEntityMethod(kioskZoneID, "sendInput", [new Date(), rating]);
 
             self.lowerButton();
@@ -111,14 +115,17 @@
             return;
         },
         raiseButton: function() {
-            log(LOG_ENTER, name + " raiseButton");
+            log(LOG_ENTER,LOG_ENTER, name + " raiseButton");
             var textureData = {};
             textureData["button" + rating + "-off"] = offTexture;
 
             Entities.editEntity(entityID, {
                 position: position,
-                textures: JSON.stringify(textureData)
+                rotation: rotation,
+                textures: JSON.stringify(textureData),
+                parentID: kioskZoneID
             });
+
         },
         unload: function () {
         }
