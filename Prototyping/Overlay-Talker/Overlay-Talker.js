@@ -12,20 +12,29 @@
 (function () {
          
     Script.require("./Polyfills.js")();
-      
+    var AppUi = Script.require('appUi');
+    
+    // Tablet
+    var tablet = null,
+        BUTTON_NAME = "Overlay-Talker",
+        APP_URL = Script.resolvePath('./Tablet/OverlayTalker-Tablet.html'),
+        EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
+        SET_ACTIVE_MESSAGE = "setActive",
+        CLOSE_DIALOG_MESSAGE = "closeDialog";
+
     // Init
-    var isAppActive = false,
-        isTabletUIOpen = false,
+    var ui = null,
         currentText = "",
         currentLines = 0,
         currentLength = 0,
         MESSAGE_CHANNEL = "messages.overlay-talker",
-        UPDATE_UI = "update_ui",
+        UPDATE_UI = BUTTON_NAME + "_update_ui",
         connection = new WebSocket('ws://tan-cheetah.glitch.me/');
 
+    // Websocket
     connection.onopen = function () {
-        console.log("on open");
         // connection is opened and ready to use
+        console.log("on open");
     };
 
     connection.onerror = function (error) {
@@ -33,7 +42,9 @@
     };
 
     connection.onmessage = function (message) {
-        console.log("got message");
+        console.log("got message", message);
+        console.log("ROBIN 1", JSON.stringify(message));
+
         try {
             var json = JSON.parse(message.data);
         } catch (e) {
@@ -55,25 +66,13 @@
 
     settings = Object.assign({}, defaultSettings);
 
-
     // Helper Functions
-    function setAppActive(active) {
-        // Start/stop application activity.
-        if (active) {
-            console.log("Start app");
-            // TODO: Start app activity.
-        } else {
-            console.log("Stop app");
-            // TODO: Stop app activity.
-        }
-        isAppActive = active;
-    }
 
     // Constructor Functions
 
     // Procedural Functions
 
-    function onMessageReceived(channel, message, sender, localOnly) {
+    function onTalkerMessageReceived(channel, message, sender, localOnly) {
         if (channel !== MESSAGE_CHANNEL) {
             return;
         }
@@ -81,6 +80,7 @@
         var data;
         try {
             data = JSON.parse(message);
+            print("ROBIN 1 message was: ", JSON.stringify(data));
         } catch (e) {
             return;
         }
@@ -91,25 +91,23 @@
     }
 
     function setup() {
-        tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-        tabletButton = tablet.addButton({
-            text: buttonName,
-            icon: "icons/tablet-icons/raise-hand-i.svg",
-            activeIcon: "icons/tablet-icons/raise-hand-a.svg",
-            isActive: isAppActive
+
+        ui = new AppUi({
+            buttonName: BUTTON_NAME,
+            home: APP_URL,
+            onMessage: onTabletWebEventReceived
+            // graphicsDirectory: Script.resolvePath("./icons/"),
+            // onOpened: onOpened
         });
-        if (tabletButton) {
-            tabletButton.clicked.connect(onTabletButtonClicked);
-        } else {
-            console.error("ERROR: Tablet button not created! App not started.");
-            tablet = null;
-            return;
-        }
-        tablet.gotoHomeScreen();
-        tablet.screenChanged.connect(onTabletScreenChanged);
 
         Messages.subscribe(MESSAGE_CHANNEL);
-        Messages.messageReceived.connect(onMessageReceived);
+        Messages.messageReceived.connect(onTalkerMessageReceived);
+
+        Script.scriptEnding.connect(scriptEnding);
+        HMD.displayModeChanged.connect(function(isHMDMode){
+            hide();
+            show();
+        });
 
     }
 
@@ -120,44 +118,7 @@
         }));
     }
 
-    // Tablet
-    var tablet = null,
-        buttonName = "Overlay-Talker",
-        tabletButton = null,
-        APP_URL = Script.resolvePath('./Tablet/OverlayTalker-Tablet.html'),
-        EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-        SET_ACTIVE_MESSAGE = "setActive",
-        CLOSE_DIALOG_MESSAGE = "closeDialog";
-
-
-    function onTabletButtonClicked() {
-        // Application tablet/toolbar button clicked.
-        if (isTabletUIOpen) {
-            tablet.gotoHomeScreen();
-        } else {
-            // Initial button active state is communicated via URL parameter so that active state is set immediately without 
-            // waiting for the event bridge to be established.
-            tablet.gotoWebScreen(APP_URL + "?active=" + isAppActive);
-        }
-    }
-
-    function onTabletScreenChanged(type, url) {
-        // Tablet screen changed / desktop dialog changed.
-        var wasTabletUIOpen = isTabletUIOpen;
-
-        isTabletUIOpen = url.substring(0, APP_URL.length) === APP_URL; // Ignore URL parameter.
-        if (isTabletUIOpen === wasTabletUIOpen) {
-            return;
-        }
-
-        if (isTabletUIOpen) {
-            tablet.webEventReceived.connect(onTabletWebEventReceived);
-        } else {
-            // setUIUpdating(false);
-            tablet.webEventReceived.disconnect(onTabletWebEventReceived);
-        }
-    }
-
+    // ROBIN onMessage
     function onTabletWebEventReceived(data) {
         // EventBridge message from HTML script.
         var message;
@@ -171,18 +132,18 @@
             case EVENT_BRIDGE_OPEN_MESSAGE:
                 doUIUpdate();
                 break;
-            case SET_ACTIVE_MESSAGE:
-                if (isAppActive !== message.value) {
-                    tabletButton.editProperties({
-                        isActive: message.value
-                    });
-                    setAppActive(message.value);
-                }
-                tablet.gotoHomeScreen(); // Automatically close app.
-                break;
-            case CLOSE_DIALOG_MESSAGE:
-                tablet.gotoHomeScreen();
-                break;
+            // case SET_ACTIVE_MESSAGE:
+            //     if (isAppActive !== message.value) {
+            //         tabletButton.editProperties({
+            //             isActive: message.value
+            //         });
+            //         setAppActive(message.value);
+            //     }
+            //     tablet.gotoHomeScreen(); // Automatically close app.
+            //     break;
+            // case CLOSE_DIALOG_MESSAGE:
+            //     tablet.gotoHomeScreen();
+            //     break;
         }
     }
 
@@ -205,36 +166,17 @@
 
     // Main
     setup();
-
     show();
 
     // Cleanup
     function scriptEnding() {
         console.log("### in script ending");
-        if (isAppActive) {
-            setAppActive(false);
-        }
-        if (isTabletUIOpen) {
-            tablet.webEventReceived.disconnect(onTabletWebEventReceived);
-        }
-        if (tabletButton) {
-            tabletButton.clicked.disconnect(onTabletButtonClicked);
-            tablet.removeButton(tabletButton);
-            tabletButton = null;
-        }
-        tablet = null;
+        hide();
 
-        Messages.messageReceived.disconnect(onMessageReceived);
+        Messages.messageReceived.disconnect(onTalkerMessageReceived);
         Messages.unsubscribe(MESSAGE_CHANNEL);
 
-        hide();
     }
-
-    Script.scriptEnding.connect(scriptEnding);
-    HMD.displayModeChanged.connect(function(isHMDMode){
-        hide();
-        show();
-    });
 
     var hmdOverlay,
         desktopOverlay;
@@ -318,14 +260,16 @@
     }
 
     function hide() {
-        console.log("CALLING HIDE");
 
         if (desktopOverlay) {
             Overlays.deleteOverlay(desktopOverlay);
+            // Overlays.editOverlay(desktopOverlay, { visible: true });
         }
+
         if (hmdOverlay) {
             Overlays.deleteOverlay(hmdOverlay);
         }
+
     }
 
 })();
