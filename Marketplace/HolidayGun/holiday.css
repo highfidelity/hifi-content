@@ -1,0 +1,84 @@
+
+body {
+    margin: 10;
+    width: 100% - 10px;
+    font-family: 'Raleway', sans-serif;
+    background: linear-gradient(#005707, #00200c);
+    background-image: url('https://media.giphy.com/media/b7oAGYlzPtFpC/giphy.gif');
+    background-size: cover;
+}
+
+h1 {
+    color: #0d2708;
+    margin-bottom: 10px;  
+}
+
+h4 {
+    color: #0d2708;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+input[type=button] {
+    font-family: 'Raleway';
+    font-weight: bold;
+    font-size: 13px;
+    text-transform: uppercase;
+    vertical-align: top;
+    height: 28px;
+    min-width: 50px;
+    padding: 0px 18px;
+    margin-right: 6px;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    background-color: #000;
+    background: linear-gradient(rgb(185, 0, 0) 20%, rgb(90, 0, 0) 100%);
+    cursor: pointer;
+    box-shadow: 0 0 10px #0d2708;
+}
+
+input[type=button].gray {
+    color: #fffee1;
+    background-color: #949494;
+    background: linear-gradient(#206113 20%, #0d2708 100%);
+}
+
+input[type=button].gray:enabled:hover {
+    color: #968c60;
+    background: linear-gradient(#163f0e, #050f03);
+    border: none;
+}
+
+input[type=image] {
+    vertical-align: top;
+    height: 50px;
+    width: 50px;
+    border-radius: 5px;
+    border: 2px outset #0d2708;
+    cursor: pointer;
+    box-shadow: 0 0 5px #0d2708;
+    margin-right: 6px;
+}
+
+input[type=image]:enabled:hover {
+    opacity: 0.4;
+}
+
+input[type=image]:focus {
+    outline: none;
+    border: 4px outset rgb(255, 0, 0);
+    box-shadow: 0 0 10px rgb(255, 0, 0);
+    margin: -2px;
+    margin-right: 4px;
+}
+
+#musicOff {
+    background: linear-gradient(#da1010, #850c0c);
+}
+
+#musicOff:enabled:hover {
+    color: #916a6a;
+    background: linear-gradient(#850c0c, #530707);
+    border: none;
+}
