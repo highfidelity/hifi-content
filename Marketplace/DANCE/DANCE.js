@@ -115,7 +115,7 @@
             });
         }
 
-        function findObjectByKey(array, key, value) {
+        function findObjectIndexByKey(array, key, value) {
             for (var i = 0; i < array.length; i++) {
                 if (array[i][key] === value) {
                     return i;
@@ -183,7 +183,7 @@
         }
 
         function removeDanceAnimation(index) {
-            var danceIndex = findObjectByKey(dataStore.danceObjects, "name", dataStore.danceArray[index].name);
+            var danceIndex = findObjectIndexByKey(dataStore.danceObjects, "name", dataStore.danceArray[index].name);
             dataStore.danceObjects[danceIndex].selected = false;
             dataStore.danceArray.splice(index,1);
             if (dataStore.danceArray.length === 0) {
@@ -292,7 +292,7 @@
         }
 
         function removeDanceFromMenu(danceToRemove){
-            var index = findObjectByKey(dataStore.danceArray, "name", danceToRemove.dance.name);
+            var index = findObjectIndexByKey(dataStore.danceArray, "name", danceToRemove.dance.name);
             if (index > -1) {
                 dataStore.danceArray.splice(index, 1);
                 dataStore.danceObjects[danceToRemove.index].selected = false;
