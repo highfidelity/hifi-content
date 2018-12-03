@@ -1,6 +1,7 @@
 (function () {
     var EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-        UPDATE_UI = "update_ui",
+    BUTTON_NAME = "Overlay-Talker",
+        UPDATE_UI = BUTTON_NAME + "_update_ui",
         SAVE_JSON = "saveJSON",
         EVENTBRIDGE_SETUP_DELAY = 200,
         connection = new WebSocket('ws://tan-cheetah.glitch.me/');
@@ -86,7 +87,10 @@
         data: {
             settings: {
                 username: "",
-                history: [ {message: "test"}, {message: "test2"} ] 
+                history: [ 
+                    {to: [], message: "test"}, 
+                    {to: [], message: "test2"} 
+                ] 
             }
         }
     });
