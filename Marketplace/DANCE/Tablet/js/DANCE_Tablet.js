@@ -1,4 +1,4 @@
-(function() {
+(function() { 
     "use strict";
 
     // Consts
@@ -11,12 +11,13 @@
             STOP_DANCE = "stop_dance",
             START_DANCING = "start_dancing",
             REMOVE_DANCE = "remove_dance",
+            REMOVE_DANCE_FROM_MENU = "remove_dance_from_menu",
             ADD_DANCE = "add_dance",
             PREVIEW_DANCE = "preview_dance",
             PREVIEW_DANCE_STOP = "preview_dance_stop",
             UPDATE_DANCE_ARRAY = "update_dance_array",
             CURRENT_DANCE = "current_dance",
-            
+            TOGGLE_HMD = "toggle_hmd",
             EVENTBRIDGE_SETUP_DELAY = 10
         ;
 
@@ -29,7 +30,8 @@
                 should_be_running: { type: Boolean },
                 dance_array: { type: Boolean },
                 add_dance_name: { type: String },
-                current_dance_name: { type: String }
+                current_dance_name: { type: String },
+                toggle_hmd: {type: Boolean}
             },
             methods: {
                 startDancing(){
@@ -40,6 +42,11 @@
                 stopDance(){
                     EventBridge.emitWebEvent(JSON.stringify({
                         type: STOP_DANCE
+                    }));
+                },
+                toggleHMD(){
+                    EventBridge.emitWebEvent(JSON.stringify({
+                        type: TOGGLE_HMD
                     }));
                 }
             },
@@ -54,9 +61,9 @@
                             <div class="col-8">
                                 <div class="row" style="height: 5rem">
                                     <div class="col display-3 instructions white-text">
-                                        <h5 v-if="add_this_dance">Add this Dance</h5>
+                                        <h5 v-if="add_this_dance">Preview Dance</h5>
                                         <h5 v-else-if="current_dance">Current Dance</h5>
-                                        <h5 v-else>Add a dance to your routine</h5>
+                                        <h5 v-else>Add a dance!</h5>
                                     </div>
                                 </div>
                                 <div class="row" style="height: 5rem">
@@ -70,6 +77,10 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-check mt-3">
+                            <input type="checkbox" class="form-check-input" id="checkbox" :checked="toggle_hmd" v-on:click="toggleHMD()">
+                            <label class="form-check-label" for="checkbox">Use in HMD</label>
                         </div>
                         <div v-if="dance_array" class="row">
                             <div class="justify-content-center align-items-center mx-auto ">
@@ -100,7 +111,10 @@
                 onBlur(){
                     EventBridge.emitWebEvent(JSON.stringify({
                         type: UPDATE_DANCE_ARRAY,
-                        value: this.dances
+                        value: {
+                            dance: this.dance,
+                            index: this.index
+                        }
                     }));
                 },
                 onClicked(){
@@ -177,14 +191,29 @@
 
         Vue.component('dance', {
             props: {
-                dance: { type: Object}
+                dance: { type: Object },
+                index: { type: Number }
             },
             methods: {
                 addDance(){
-                    EventBridge.emitWebEvent(JSON.stringify({
-                        type: ADD_DANCE,
-                        value: this.dance
-                    }));
+                    if (!this.dance.selected) {
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            type: ADD_DANCE,
+                            value: {
+                                dance: this.dance,
+                                index: this.index
+                            }
+                        }));
+                    } else {
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            type: REMOVE_DANCE_FROM_MENU,
+                            value: {
+                                dance: this.dance,
+                                index: this.index
+                            }
+                        }));
+                    }
+
                 },
                 tryDance(){
                     EventBridge.emitWebEvent(JSON.stringify({
@@ -193,14 +222,12 @@
                     }));
                 },
                 previewDance(){
-                    // console.log("preview Dance")
                     EventBridge.emitWebEvent(JSON.stringify({
                         type: PREVIEW_DANCE,
                         value: this.dance
                     }));
                 },
                 previewDanceStop(){
-                    // console.log("preview Dance Stop")
                     EventBridge.emitWebEvent(JSON.stringify({
                         type: PREVIEW_DANCE_STOP,
                         value: this.dance

@@ -21,7 +21,7 @@
     // Consts
     // /////////////////////////////////////////////////////////////////////////
         var 
-            URL = Script.resolvePath("./Tablet/Dance_Tablet.html"),
+            URL = Script.resolvePath("./Tablet/DANCE_Tablet.html"),
             BUTTON_NAME = "DANCE",
 
             PREVIEW_DANCE = "preview_dance",
@@ -31,9 +31,11 @@
             TRY_DANCE = "try_dance",
             ADD_DANCE = "add_dance",
             REMOVE_DANCE = "remove_dance",
+            REMOVE_DANCE_FROM_MENU = "remove_dance_from_menu",
             UPDATE_DANCE_ARRAY = "update_dance_array",
             CURRENT_DANCE = "current_dance",
-            DEFAULT_DURATION = "1500",
+            TOGGLE_HMD = "toggle_hmd",
+            DEFAULT_DURATION = 3000,
             PREVIEW_TIMEOUT = 10000,
             DEFAULT_START_FRAME = 0,
             EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
@@ -68,6 +70,8 @@
             this.endFrame = endFrame;
             this.duration = duration;
             this.fps = fps;
+            this.default_end = endFrame;
+            this.selected = false;
         }
     
     // Collections
@@ -78,6 +82,7 @@
                 shouldBeRunning: false,
                 danceArray: [],
                 currentIndex: 0,
+                toggleHMD: false,
                 ui: {
                     currentDance: false,
                     danceArray: false
@@ -108,6 +113,15 @@
                     )
                 );
             });
+        }
+
+        function findObjectByKey(array, key, value) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i][key] === value) {
+                    return i;
+                }
+            }
+            return null;
         }
 
     // Procedural Functions
@@ -144,6 +158,7 @@
         }
 
         function stopPreviewDanceAnimation() {
+
             dataStore.ui.addThisDance = false;
             dataStore.addThisDanceName = null;
             Overlays.deleteOverlay(overlay);
@@ -151,30 +166,41 @@
             ui.updateUI(dataStore);
         }
 
-        function addDanceAnimation(danceObj) {
-            
-            
+        function addDanceAnimation(danceToAdd) {
             dataStore.danceArray.push(
                 new DanceListEntry(
-                    danceObj.name,
-                    danceObj.url,
-                    danceObj.startFrame,
-                    danceObj.endFrame,
+                    danceToAdd.dance.name,
+                    danceToAdd.dance.url,
+                    danceToAdd.dance.startFrame,
+                    danceToAdd.dance.endFrame,
                     DEFAULT_DURATION,
-                    danceObj.fps
+                    danceToAdd.dance.fps
                 )
             );
+            dataStore.danceObjects[danceToAdd.index].selected = true;
             dataStore.ui.danceArray = true;
             ui.updateUI(dataStore);
         }
 
         function removeDanceAnimation(index) {
+            var danceIndex = findObjectByKey(dataStore.danceObjects, "name", dataStore.danceArray[index].name);
+            dataStore.danceObjects[danceIndex].selected = false;
             dataStore.danceArray.splice(index,1);
             if (dataStore.danceArray.length === 0) {
                 stopDanceAnimation();
                 dataStore.ui.danceArray = false;
             }
             ui.updateUI(dataStore);
+        }
+
+        function hmdCheck(){
+            if (HMD.active && dataStore.toggleHMD) {
+                playDanceArray();
+            }
+
+            if (!HMD.active) {
+                playDanceArray();
+            }
         }
 
         function playDanceArray(){
@@ -201,13 +227,20 @@
                     playNextDance(dataStore.currentIndex);
                 }
             }, danceArrayObject.duration);
-
-            ui.updateUI(dataStore);
         }
 
         function tryDanceAnimation(danceObj) {
             rustDancing = Settings.getValue("isDancing", false);
-            MyAvatar.overrideAnimation(danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
+            if (!HMD.active) {
+                MyAvatar.overrideAnimation(danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
+            } else {
+                MyAvatar.getAnimationRoles().filter(function (role) {
+                    return !(role.startsWith("right") || role.startsWith("left"));
+                }).forEach(function (role) {
+                    MyAvatar.overrideRoleAnimation(role, danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
+                });
+            }
+
             Settings.setValue("isDancing", true);
             dataStore.ui.currentDance = true; 
             dataStore.currentDance = danceObj;
@@ -223,8 +256,8 @@
             ui.updateUI(dataStore);
         }
 
-        function updateDanceArray(danceArray) {
-            dataStore.danceArray = danceArray;
+        function updateDanceArray(danceUpdate) {
+            dataStore.danceArray[danceUpdate.index] = danceUpdate.dance;
             ui.updateUI(dataStore);
         }
 
@@ -249,7 +282,26 @@
         }
 
         function onDomainChange(){
+            MyAvatar.restoreAnimation();
+        }
+
+        function toggleHMD(){
             
+            dataStore.toggleHMD = !dataStore.toggleHMD;
+            ui.updateUI(dataStore);
+        }
+
+        function removeDanceFromMenu(danceToRemove){
+            var index = findObjectByKey(dataStore.danceArray, "name", danceToRemove.dance.name);
+            if (index > -1) {
+                dataStore.danceArray.splice(index, 1);
+                dataStore.danceObjects[danceToRemove.index].selected = false;
+            }
+            if (dataStore.danceArray.length === 0) {
+                stopDanceAnimation();
+                dataStore.ui.danceArray = false;
+            }
+            ui.updateUI(dataStore);
         }
 
     // Tablet
@@ -264,6 +316,12 @@
                 updateUI: updateUI
             });
             MyAvatar.restoreAnimation();
+            
+            Script.scriptEnding.connect(onEnding);
+            Window.domainChanged.connect(onDomainChange);
+
+            dataStore.danceObjects = danceObjects;
+            splitDanceUrls();
         }
 
         function onMessage(data) {
@@ -272,14 +330,20 @@
                 case EVENT_BRIDGE_OPEN_MESSAGE:
                     ui.updateUI(dataStore);
                     break;
+                case TOGGLE_HMD:
+                    toggleHMD();
+                    break;
                 case ADD_DANCE:
                     addDanceAnimation(data.value);
                     break;
                 case REMOVE_DANCE:
                     removeDanceAnimation(data.value);
                     break;
+                case REMOVE_DANCE_FROM_MENU:
+                    removeDanceFromMenu(data.value);
+                    break;
                 case START_DANCING:
-                    playDanceArray();
+                    hmdCheck();
                     break;
                 case TRY_DANCE:
                     tryDanceAnimation(data.value);
@@ -299,13 +363,9 @@
             }
         }
      
-    Script.scriptEnding.connect(onEnding);
-    Window.domainChanged.connect(onDomainChange);
-
     // Main
     // /////////////////////////////////////////////////////////////////////////
-        dataStore.danceObjects = danceObjects;
-        splitDanceUrls();
+
         startup();
 
 }()); // END LOCAL_SCOPE

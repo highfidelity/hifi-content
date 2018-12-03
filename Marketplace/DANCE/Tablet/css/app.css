@@ -5,7 +5,7 @@
   }
   
   body {
-    /* font-family: 'Roboto', sans-serif;
+    /* font-family: 'Roboto', sans-serif; */
     /* font-family: 'Black Han Sans', sans-serif; */
     /* font-family: 'Neucha', cursive; */
     /* font-family: 'Audiowide', cursive; */
@@ -69,6 +69,15 @@
 
   .dance {
     height: 6rem;
+  }
+
+  .border-3 {
+    border-width:3px !important;
+  }
+
+  .select-border {
+    border-width: 2rem;
+    border-color: white;
   }
 
   .current-dance-background-header {
