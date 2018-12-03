@@ -18,9 +18,7 @@
     var tablet = null,
         BUTTON_NAME = "Overlay-Talker",
         APP_URL = Script.resolvePath('./Tablet/OverlayTalker-Tablet.html'),
-        EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-        SET_ACTIVE_MESSAGE = "setActive",
-        CLOSE_DIALOG_MESSAGE = "closeDialog";
+        EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen";
 
     // Init
     var ui = null,
@@ -132,18 +130,6 @@
             case EVENT_BRIDGE_OPEN_MESSAGE:
                 doUIUpdate();
                 break;
-            // case SET_ACTIVE_MESSAGE:
-            //     if (isAppActive !== message.value) {
-            //         tabletButton.editProperties({
-            //             isActive: message.value
-            //         });
-            //         setAppActive(message.value);
-            //     }
-            //     tablet.gotoHomeScreen(); // Automatically close app.
-            //     break;
-            // case CLOSE_DIALOG_MESSAGE:
-            //     tablet.gotoHomeScreen();
-            //     break;
         }
     }
 
@@ -196,19 +182,6 @@
         if (HMD.active) {
             // 3D overlay attached to avatar.
             hmdOverlay = Overlays.addOverlay("text3d", {
-                // text: recordingText,
-                // dimensions: { x: 3 * HMD_FONT_SIZE, y: HMD_FONT_SIZE },
-                // parentID: MyAvatar.sessionUUID,
-                // parentJointIndex: CAMERA_JOINT_INDEX,
-                // localPosition: { x: 0.95, y: 0.95, z: -2.0 },
-                // color: { red: 255, green: 0, blue: 0 },
-                // alpha: 0.9,
-                // lineHeight: HMD_FONT_SIZE,
-                // backgroundAlpha: 0,
-                // ignoreRayIntersection: true,
-                // isFacingAvatar: true,
-                // drawInFront: true,
-                // visible: true
                 text: currentText,
                 dimensions: { x: (20) * HMD_FONT_SIZE, y: (HMD_FONT_SIZE) * 5 },
                 parentID: MyAvatar.sessionUUID,
@@ -223,23 +196,6 @@
                 drawInFront: true,
                 visible: true
             });
-            // } else {
-            //     // 2D overlay on desktop.
-            //     desktopOverlay = Overlays.addOverlay("text", {
-            //         text: "test",
-            //         width: recordingText.length * DESKTOP_FONT_SIZE,
-            //         height: DESKTOP_FONT_SIZE,
-            //         x: screenSize.x - recordingText.length * DESKTOP_FONT_SIZE / 4,
-            //         y: DESKTOP_FONT_SIZE,
-            //         margin: 4,
-            //         font: { size: DESKTOP_FONT_SIZE / 2 },
-            //         color: { red: 255, green: 8, blue: 8 },
-            //         backgroundColor: { red: 0, green: 8, blue: 8 },
-            //         backgroundAlpha: 1.0,
-            //         alpha: 1.0,
-            //         visible: true
-            //     });
-            // }
         } else {
             // 2D overlay on desktop.
             desktopOverlay = Overlays.addOverlay("text", {
@@ -263,7 +219,6 @@
 
         if (desktopOverlay) {
             Overlays.deleteOverlay(desktopOverlay);
-            // Overlays.editOverlay(desktopOverlay, { visible: true });
         }
 
         if (hmdOverlay) {
@@ -273,18 +228,3 @@
     }
 
 })();
-
-/*
-(may do this through sockets)
-var request = new XMLHttpRequest();
-request.onreadystatechange = function () {
-    if (request.readyState === request.DONE && request.status === 200) {
-        var response = JSON.parse(request.responseText);
-        cb(response);
-    }
-};
-
-request.open("GET", URL + "?" + paramString)
-request.timeout = 10000;
-request.send();
-*/
