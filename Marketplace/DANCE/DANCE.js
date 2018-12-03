@@ -68,7 +68,7 @@
             this.url = url;
             this.startFrame = startFrame;
             this.endFrame = endFrame;
-            this.duration = duration;
+            this.duration = (endFrame / fps) * 1000;
             this.fps = fps;
             this.default_end = endFrame;
             this.selected = false;
@@ -309,7 +309,6 @@
         function startup() {
             ui = new AppUi({
                 buttonName: BUTTON_NAME,
-                sortOrder: 6,
                 home: URL,
                 graphicsDirectory: Script.resolvePath("./icons/tablet-icons/"),
                 onMessage: onMessage,
