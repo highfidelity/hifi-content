@@ -15,7 +15,6 @@
 
     var SEARCH_RADIUS = 0.1;
     var CHECKING_INTERVAL_MS = 5000;
-    var NEGATIVE = -1;
 
     var checking;
 
@@ -28,6 +27,7 @@
         preload: function(entityID) {
             _this.entityID = entityID;
             _this.position = Entities.getEntityProperties(_this.entityID, 'position').position;
+            _this.rotation = Entities.getEntityProperties(_this.entityID, 'rotation').rotation;
             _this.checkingStatus();
         },
 
@@ -61,14 +61,9 @@
                 name: "Rainbow-Thrower",
                 description: "CC-BY by Mario Tofani",
                 position: _this.position,
-                rotation: {
-                    w: 0.7510643005371094,
-                    x: -0.020492851734161377,
-                    y: 0.6523995399475098,
-                    z: 0.09913790225982666
-                },
-                script: Script.resolvePath("flamethrowerClient.js"),
-                serverScripts: Script.resolvePath("flamethrowerServer.js"),
+                rotation: _this.rotation,
+                script: Script.resolvePath("./flamethrowerClient.js"),
+                serverScripts: Script.resolvePath("./flamethrowerServer.js"),
                 shapeType: "compound",
                 type: "Model",
                 userData: JSON.stringify({
@@ -78,26 +73,26 @@
                     wearable: {
                         joints:{
                             RightHand: [{
-                                x: 0.0764474868774414,
-                                y: 0.40706944465637207,
-                                z: -0.13648319244384766
+                                x: -0.007518768310546875,
+                                y: 0.5544962882995605,
+                                z: 0.16308164596557617
                             },
                             {
-                                x: -0.8103914260864258,
-                                y: -0.494316041469574,
-                                z: 0.11076521873474121,
-                                w: -0.29436177015304565
+                                x: 0.7010452747344971,
+                                y: 0.7008621692657471,
+                                z: 0.09294271469116211,
+                                w: -0.09321737289428711
                             }],
                             LeftHand:[{
-                                x: -0.0677480697631836,
-                                y: 0.420626163482666,
-                                z: -0.10563850402832031
+                                x: 0.19799518585205078,
+                                y: 0.48479366302490234,
+                                z: -0.00713348388671875
                             },
                             {
-                                x: 0.057083964347839355,
-                                y: -0.15535211563110352,
-                                z: -0.8364232778549194,
-                                w: -0.5225147008895874
+                                x: 0.005630612373352051,
+                                y: -0.05073624849319458,
+                                z: -0.5772640705108643,
+                                w: -0.8149996399879456
                             }]
                         }
                     }
