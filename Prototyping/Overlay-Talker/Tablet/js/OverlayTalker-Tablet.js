@@ -1,6 +1,6 @@
 (function () {
     var EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-    BUTTON_NAME = "Overlay-Talker",
+        BUTTON_NAME = "Overlay-Talker",
         UPDATE_UI = BUTTON_NAME + "_update_ui",
         SAVE_JSON = "saveJSON",
         EVENTBRIDGE_SETUP_DELAY = 200,
@@ -57,18 +57,51 @@
         `
     })
 
+    Vue.component('usernamelist', {
+        props: ["users"],
+        methods: {
+
+        },
+        // computed: {
+        //     formatedMessage() {
+        //         console.log("FORMATTED MESSAGES")
+        //         var newMessage = JSON.stringify(this.message)
+        //             .replace(/\\n/g, "<br>")
+        //             .replace(/\"/g, "")
+        //             .replace(/\\t/g, "    ")
+        //             .split(",").join("<br>\   ")
+        //             .split("{").join("")
+        //             .split("}").join("<br>").replace(/"/g, "");
+        //         return newMessage;
+        //     }
+        // },
+        template: `
+            <div class="card">
+                <div class="card-header">
+                    Connected Users:
+                </div>
+                <div v-for="username in users">
+                    <p>{{ username }}</p>
+                </div>
+            </div>
+        `
+    })
+
     Vue.component('input-text', {
+        props: ["users"],
         data: function(){
             return {
                 input_text: "",
+                checkedNames: []
             }
         },
         methods: {
             sendInput: function(text) {
                 console.log("sendInput", text)
                 var message = {
-                    name: this.$parent.settings.username,
-                    message: this.input_text
+                    author: this.$parent.settings.username,
+                    message: this.input_text,
+                    to: this.checkedNames
                 }
                 connection.send(JSON.stringify(message));
                 this.input_text = "";
@@ -78,6 +111,15 @@
             <div>
                 <input id="input" type="text" class="form-control" v-model="input_text" />
                 <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="sendInput(input_text)">send chat</button>
+                <div class="card">
+                    <div class="card-header">
+                        Connected Users:
+                    </div>
+                    <div v-for="username in users">
+                        <input type="checkbox" :id="username" :value="username" v-model="checkedNames">
+                        <label :for="username">{{ username }}</label>
+                    </div>
+                </div>
             </div>
         `
     })
@@ -87,10 +129,11 @@
         data: {
             settings: {
                 username: "",
-                history: [ 
-                    {to: [], message: "test"}, 
-                    {to: [], message: "test2"} 
-                ] 
+                history: [
+                    {to: [], author: "cat", message: "test"}, 
+                    {to: [], author: "cat", message: "test2"} 
+                ],
+                connectedUsernames: ["hello", "cat", "dog"]
             }
         }
     });
