@@ -43,6 +43,7 @@
         TOGGLE_COLLISION_KEY = "u"
     ;
 
+    // Graceful Camera Code from Ryan Huffman
     // Collections
     var defaultSettings = {
         configName: "Rename config",
@@ -63,6 +64,7 @@
             }
         }
     };
+
     var settings;
     var oldSettings = Settings.getValue(SETTINGS_STRING);
     console.log("oldSettings", JSON.stringify(oldSettings));
@@ -72,9 +74,6 @@
     } else {
         settings = oldSettings;
     }
-
-    // GRACEFUL CAMERA
-    // CLEAN UP WHEN WE CAN
 
     var DEFAULT = "default";
     var BRAKE = "brake";
@@ -255,7 +254,6 @@
     }
 
     function toggleMouseVisible() {
-        print("IN MOUSE VISIBLE");
         if (mouseVisible) {
             Reticle.setVisible(false);
             mouseVisible = false;
@@ -331,7 +329,7 @@
         keys[key] = value > 0;
 
         if (value > 0) {
-            if (key == KEY_TOGGLE) {
+            if (key === KEY_TOGGLE) {
                 toggleEnabled();
             } 
             // else if (key == KEY_MOUSE_VISIBLE) {
@@ -367,6 +365,7 @@
         onKeyPress(KEY_TOGGLE, value);
     });
 
+    // Keeping in case Kayla would like mouse visibility control again
     // makeMouseVisibleMapping.from(Controller.Hardware.Keyboard[KEY_MOUSE_VISIBLE]).to(function (value) {
     //     onKeyPress(KEY_MOUSE_VISIBLE, value);
     // });
