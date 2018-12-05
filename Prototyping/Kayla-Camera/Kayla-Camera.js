@@ -67,7 +67,6 @@
 
     var settings;
     var oldSettings = Settings.getValue(SETTINGS_STRING);
-    console.log("oldSettings", JSON.stringify(oldSettings));
     if (oldSettings === "") {
         settings = defaultSettings;
         Settings.setValue(SETTINGS_STRING, settings);
@@ -137,7 +136,6 @@
     var velocity = { x: 0, y: 0, z: 0 };
     var velocityVertical = 0;
     var enabled = false;
-    var mouseVisible = true;
 
     var lastX = Reticle.getPosition().x;
     var lastY = Reticle.getPosition().y;
@@ -146,6 +144,8 @@
 
     var yawSpeed = 0;
     var pitchSpeed = 0;
+    var pitchAccel = 0;
+    var yawAccel = 0;
 
 
     function update(dt) {
@@ -233,10 +233,6 @@
         }
     }
 
-    function vecToString(vec) {
-        return vec.x + ", " + vec.y + ", " + vec.z;
-    }
-
     function resetCursorPosition() {
         var newX = Math.floor(Window.x + Window.innerWidth / 2);
         var newY = Math.floor(Window.y + Window.innerHeight / 2);
@@ -250,16 +246,6 @@
             disable();
         } else {
             enable();
-        }
-    }
-
-    function toggleMouseVisible() {
-        if (mouseVisible) {
-            Reticle.setVisible(false);
-            mouseVisible = false;
-        } else {
-            Reticle.setVisible(true);
-            mouseVisible = true;
         }
     }
 
@@ -322,7 +308,6 @@
     var MAPPING_MOUSE_VISIBLE_NAME = 'io.highfidelity.gracefulControls.visibleMouse';
     var keyControllerMapping = Controller.newMapping(MAPPING_KEYS_NAME);
     var enableControllerMapping = Controller.newMapping(MAPPING_ENABLE_NAME);
-    // var makeMouseVisibleMapping = Controller.newMapping(MAPPING_MOUSE_VISIBLE_NAME);
 
     function onKeyPress(key, value) {
         print(key, value);
@@ -331,16 +316,12 @@
         if (value > 0) {
             if (key === KEY_TOGGLE) {
                 toggleEnabled();
-            } 
-            // else if (key == KEY_MOUSE_VISIBLE) {
-            //     toggleMouseVisible();
-            // } 
-            else if (key == KEY_BRAKE) {
+            } else if (key === KEY_BRAKE) {
                 settings.movementParameters = settings.BRAKE_PARAMETERS;
                 currentSetting = BRAKE;
             }
         } else {
-            if (key == KEY_BRAKE) {
+            if (key === KEY_BRAKE) {
                 settings.movementParameters = settings.DEFAULT_PARAMETERS;
                 currentSetting = DEFAULT;
             }
@@ -365,25 +346,12 @@
         onKeyPress(KEY_TOGGLE, value);
     });
 
-    // Keeping in case Kayla would like mouse visibility control again
-    // makeMouseVisibleMapping.from(Controller.Hardware.Keyboard[KEY_MOUSE_VISIBLE]).to(function (value) {
-    //     onKeyPress(KEY_MOUSE_VISIBLE, value);
-    // });
-
     Controller.enableMapping(MAPPING_ENABLE_NAME);
     Controller.enableMapping(MAPPING_MOUSE_VISIBLE_NAME);
 
 
     // Helper Functions
     function setAppActive(active) {
-        // Start/stop application activity.
-        if (active) {
-            console.log("Start app");
-            // TODO: Start app activity.
-        } else {
-            console.log("Stop app");
-            // TODO: Stop app activity.
-        }
         isAppActive = active;
     }
 
@@ -551,7 +519,6 @@
     }
 
     function doUIUpdate() {
-        console.log("SETTINGs", JSON.stringify(settings));
         settings.listener.currentMode = getCurrentListener();
         tablet.emitScriptEvent(JSON.stringify({
             type: UPDATE_UI,
@@ -605,6 +572,8 @@
         } catch (e) {
             return;
         }
+        var name;
+        var key;
 
         switch (message.type) {
             case EVENT_BRIDGE_OPEN_MESSAGE:
@@ -626,7 +595,7 @@
                 doUIUpdate();
                 break;
             case UPDATE_CONFIG_NAME:
-                var name = message.value;
+                name = message.value;
                 updateConfigName(name);
                 updateSettings();
                 doUIUpdate();
@@ -647,28 +616,28 @@
                 doUIUpdate();
                 break;
             case ADD_CAMERA_POSITION:
-                var name = message.value.name;
-                var key = message.value.key;
+                name = message.value.name;
+                key = message.value.key;
                 addCameraPosition(name, key);
                 updateSettings();
                 doUIUpdate();
                 break;
             case EDIT_CAMERA_POSITION_KEY:
-                var key = message.value.key;
+                key = message.value.key;
                 var newKey = message.value.newKey;
                 editCameraPositionKey(key, newKey);
                 updateSettings();
                 doUIUpdate();
                 break;
             case REMOVE_CAMERA_POSITION:
-                var key = message.value;
+                key = message.value;
                 removeCameraPosition(key);
                 updateSettings();
                 doUIUpdate();
                 break;
             case EDIT_CAMERA_POSITION_NAME:
-                var name = message.value.name;
-                var key = message.value.key;
+                name = message.value.name;
+                key = message.value.key;
                 editCameraPositionName(key, name);
                 updateSettings();
                 doUIUpdate();
@@ -699,7 +668,6 @@
 
     // Cleanup
     function cameraScriptEnding() {
-        console.log("### in script ending");
         if (isAppActive) {
             setAppActive(false);
         }
