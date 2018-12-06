@@ -1,13 +1,13 @@
 (function () {
     var EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-        BUTTON_NAME = "Overlay-Talker",
+        BUTTON_NAME = "OVR-TALK",
         UPDATE_UI = BUTTON_NAME + "_update_ui",
         SAVE_JSON = "saveJSON",
         EVENTBRIDGE_SETUP_DELAY = 200,
         connection = new WebSocket('ws://tan-cheetah.glitch.me/');
 
     connection.onopen = function () {
-        console.log("on open")
+        console.log("on open");
         // connection is opened and ready to use
     };
 
@@ -15,16 +15,16 @@
         // an error occurred when sending/receiving data
     };
 
-    connection.onmessage = function (message) {
-        try {
-            var json = JSON.parse(message.data);
-          } catch (e) {
-            console.log('Invalid JSON: ', message.data);
-            return;
-          }
-          app.settings.history = json.data;
-        // handle incoming message
-    };
+    // connection.onmessage = function (message) {
+    //     try {
+    //         var json = JSON.parse(message.data);
+    //       } catch (e) {
+    //         console.log('Invalid JSON: ', message.data);
+    //         return;
+    //       }
+    //       app.settings.history = json.data;
+    //     // handle incoming message
+    // };
 
     Vue.component('chat', {
         props: ["history", "username"],
@@ -97,7 +97,20 @@
         },
         methods: {
             sendInput: function(text) {
-                console.log("sendInput", text)
+                console.log("sendInput", text);
+
+                if (text.length === 0) {
+                    return;
+                }
+
+                var users = this.users;
+
+                var toList = this.checkedNames.filter(function (username) {
+                    return users.indexOf(username) !== -1;
+                });
+
+                this.checkedNames = toList;
+                
                 var message = {
                     author: this.$parent.settings.username,
                     message: this.input_text,
@@ -109,9 +122,9 @@
         },
         template: `
             <div>
-                <input id="input" type="text" class="form-control" v-model="input_text" />
-                <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="sendInput(input_text)">send chat</button>
-                <div class="card">
+                <input id="input" type="text" maxlength="40" class="form-control" v-model="input_text"  @keyup.enter="sendInput(input_text)" />
+                <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="sendInput(input_text)">Send Chat</button>
+                <div class="card">  
                     <div class="card-header">
                         Connected Users:
                     </div>
@@ -170,6 +183,8 @@
             EventBridge.emitWebEvent(JSON.stringify({
                 type: EVENT_BRIDGE_OPEN_MESSAGE
             }));
+
+
         }, EVENTBRIDGE_SETUP_DELAY);
     }
 
