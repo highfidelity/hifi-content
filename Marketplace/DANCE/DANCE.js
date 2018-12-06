@@ -55,15 +55,16 @@
 
     // Constructor
     // /////////////////////////////////////////////////////////////////////////
-        function DanceAnimation(name, url, frames, fps) {
+        function DanceAnimation(name, url, frames, fps, icon) {
             this.name = name;
             this.url = url;
             this.startFrame = DEFAULT_START_FRAME;
             this.endFrame = frames;
             this.fps = fps;
+            this.icon = icon;
         }
 
-        function DanceListEntry(name, url, startFrame, endFrame, duration, fps) {
+        function DanceListEntry(name, url, startFrame, endFrame, duration, fps, icon) {
             this.name = name;
             this.url = url;
             this.startFrame = startFrame;
@@ -72,6 +73,7 @@
             this.fps = fps;
             this.default_end = endFrame;
             this.selected = false;
+            this.icon = icon;
         }
     
     // Collections
@@ -102,14 +104,15 @@
                     return 1;
                 }
                 return 0; 
-            }).forEach(function(dance) {
+            }).forEach(function(dance, index) {
                 var regMatch = regex.exec(dance);
                 danceObjects.push(
                     new DanceAnimation(
                         regMatch[2],
                         dance,
                         regMatch[3],
-                        30
+                        30,
+                        (index + 1) + ".jpg"
                     )
                 );
             });
@@ -174,7 +177,8 @@
                     danceToAdd.dance.startFrame,
                     danceToAdd.dance.endFrame,
                     DEFAULT_DURATION,
-                    danceToAdd.dance.fps
+                    danceToAdd.dance.fps,
+                    danceToAdd.dance.icon
                 )
             );
             dataStore.danceObjects[danceToAdd.index].selected = true;

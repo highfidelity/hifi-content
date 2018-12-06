@@ -2,7 +2,7 @@ var danceurls = [
     Script.resolvePath('./Animations/Ballet 372.fbx'),
     Script.resolvePath('./Animations/BBoy Look at me be Booooi 202.fbx'),
     Script.resolvePath('./Animations/Belly Dance 590.fbx'),
-    Script.resolvePath('./Animations/Belly Dancing 643.fbx'),
+    Script.resolvePath('./Animations/Snaker 643.fbx'),
     Script.resolvePath('./Animations/Beyonce Boogie 235.fbx'),
     Script.resolvePath('./Animations/Body Rocka 64.fbx'),
     Script.resolvePath('./Animations/Booty Booty Booty 148.fbx'),

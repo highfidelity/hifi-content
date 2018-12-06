@@ -16,10 +16,20 @@
     padding: 0;
   }
 
+  .maindiv {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
   .background {
-    background-image: url("./images/hifi-dance-i.svg");
     background: linear-gradient(to bottom, #FFAAFF 0%,#2D5D7B 100%);
 
+  }
+
+  .header-background {
+    background-color: rgb(91,64,250);
   }
 
   .jumbotron-logo {
@@ -27,13 +37,49 @@
   }
 
   .logo {
-    background-color: #457EAC;
     /* background-color: #C2AFF0; */
+    border-color: #FFFFFF !important;
+    border-width: 1rem !important;
+    min-height: 1.9rem;
+    max-height: 1.9rem;
   }
 
   .blue {
     background-color: #457EAC;
 
+  }
+
+  .label-text {
+    position: absolute;
+    top: 4rem;
+    left: 2rem;
+    color: rgb(250,200,220);
+  }
+
+  .options-left {
+    position: absolute;
+    left: 2rem;
+    top: 5.7rem;
+  }
+
+  .options-right {
+    position: absolute;
+    left: 17rem;
+    top: 5.1rem;
+  }
+
+  .dance-name {
+    position: absolute;
+    left: 6.55rem;
+    top: 3.5rem;
+    font-size: 1.4rem;
+    vertical-align: baseline;
+
+  }
+  .divider {
+    background-color: #FFFFFF;
+    min-height: 0.05rem;
+    height: 0.05rem;
   }
 
   .dance-names {
@@ -46,29 +92,47 @@
   }
 
   .instructions {
-    background-color: #C2AFF0;
+    min-height: 6rem;
+    max-height: 6rem;
   }
 
   .menu {
-    color: #2D5D7B;
+    position: relative;
+    color: #FFFFFF;
+    font-size: 1rem;
+    vertical-align: baseline;
+    top: 3px;
   }
 
   .delete {
-    color: #FF5555;
+    color: #000000;
+    font-size: 1.5rem;
   }
 
   .grid {
-    height: 6rem;
-    background: #C2AFF0;
+    min-width: 85px;
+    min-height: 170px;
+    max-width: 85px;
+    max-height: 170px;
+    /* height: 20%; */
+  }
+ 
+  .dance-toggle-start {
+    background-color: rgb(102,151,252);
+    color: #FFFFFF;
   }
 
-  .dance-toggle {
-    background-color: #9191E9;
+  .list-background {
+    background-color: rgb(102,151,252);
+  }
+
+  .dance-toggle-stop {
+    background-color: rgb(237,149,208);
     color: #FFFFFF;
   }
 
   .dance {
-    height: 6rem;
+    width: 18%
   }
 
   .border-3 {
