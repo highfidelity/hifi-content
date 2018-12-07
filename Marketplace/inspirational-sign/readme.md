@@ -1,11 +1,11 @@
 Inspiration Sign
 =================
 
-This is an entity server script for use in High Fidelity that posts an inspirational quote. The script is meant to be added to the `serverScripts` property of a [Text Entity](https://docs.highfidelity.com/create-and-explore/entities/text-entities) in a High Fidelity domain.
+This is an entity server script for use in High Fidelity that posts an inspirational quote. The script is meant to be added to the `serverScripts` property of a [Text Entity](https://docs.highfidelity.com/create-and-explore/entities/text-entities) in a High Fidelity domain. [View project on Glitch](https://glitch.com/~inspirational-sign).
 
 ![an inspirational sign](https://cdn.glitch.com/1188aac9-efda-4030-b0f3-3ce9aaff74f0%2Finsp.PNG?1543452496960)
 
-### ← script.js
+### ← getInspirationalQuoteOfDay.js
 
 The bulk of this script file, which should be added to an entity under the `serverScripts` property, is to create an HTTP request to the 'They Said So' quote database provided at [https://quotes.rest/#!/qod/get_qod](https://quotes.rest/#!/qod/get_qod). This app uses the public endpoint to access the API, which returns a new quote of the day each day that we'll put onto a text entity in a High Fidelity domain. 
 
@@ -52,4 +52,4 @@ From there, we simply edit our entity text to reflect the combination of the quo
 
 ### ← assets
 
-This project uses built-in text entities to display the daily quote, and does not rely on any additional assets. However, you can find a copy of the Inspirational Text JSON to import the entities into your own domain inside of the glitch 'assets' directory for this project.
+This project uses built-in text entities to display the daily quote, and does not rely on any additional assets. However, you can find a copy of the Inspirational Text JSON to import the entities into your own domain [here](https://cdn.glitch.com/1188aac9-efda-4030-b0f3-3ce9aaff74f0%2FInspirational_Sign.json?1543451939453)
