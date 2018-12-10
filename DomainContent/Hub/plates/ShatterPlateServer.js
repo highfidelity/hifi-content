@@ -15,6 +15,8 @@
     var pieces = Array();
     var _entityID;
 
+    var LIFETIME_DEFAULT = 60;
+
     var Plate = function(){
     };
   
@@ -28,6 +30,7 @@
                 pieces.push(Entities.addEntity({
                     type: "Model",
                     name: "Plate Piece",
+                    lifetime: LIFETIME_DEFAULT,
                     modelURL: PIECE_MODEL,
                     visible: false,
                     parentID: entityID,
