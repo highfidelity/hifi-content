@@ -12,7 +12,7 @@ The painting set is a set of shortcuts for editing the color property on entitie
 
 ### ← brushScript.js
 
-The brushScript.js file hooks into the `collisionWithEntity` function that the physics engine triggers on entities when they collide wiwth other entities in the space. In this script, we use a specific naming convention for our entities to define what should be edited.
+The brushScript.js file hooks into the `collisionWithEntity` function that the physics engine triggers on entities when they collide with other entities in the space. In this script, we use a specific naming convention for our entities to define what should be edited.
 
 If the paintbrush touches an entity with the name 'Paint-Color', it changes the brush head to the colliding entity's color. Any other entity, as long as it isn't the brush handle or the palette, will be "painted" by the brush head.
 
