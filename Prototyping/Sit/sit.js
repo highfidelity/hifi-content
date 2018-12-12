@@ -2,7 +2,7 @@
 // sit.js
 //
 // Created by Clement Brisset on 3/3/17
-// Modified by Rebecca Rebecca Stankus, Robin Wilson, and Alexia Mandeville June 2018
+// Modified by Rebecca Stankus, Robin Wilson, and Alexia Mandeville June 2018
 //
 // Copyright 2017 High Fidelity, Inc.
 //
