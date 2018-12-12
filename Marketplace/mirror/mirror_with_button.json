@@ -23,11 +23,11 @@
         "z": -0.496269166469574,
         "w": 0.4949873685836792
     },
-    "script": "file:///D:/mirrorButton.js",
+    "script": "http://mpassets.highfidelity.com/40b93ca0-c08f-42a8-9034-462f8bfa5fcb-v1/mirrorButton.js",
     "scriptTimestamp": 1544550106612,
     "userData": "{\"grabbableKey\":{\"grabbable\":false,\"triggerable\":true}}",
     "name": "mirror button",
-    "modelURL": "atp:/Simple_button.fbx",
+    "modelURL": "http://mpassets.highfidelity.com/40b93ca0-c08f-42a8-9034-462f8bfa5fcb-v1/Simple_button.fbx",
     "shapeType": "box",
     "parentID": "{014b7434-4859-4360-b8ff-7a8a8adf83af}",
     "queryAACube": {
@@ -72,7 +72,7 @@
         "z": 0.0000457763671875,
         "w": 0.7660486698150635
     },
-    "script": "https://www.dropbox.com/s/3p80rmrx2zwghoq/mirrorClient.js?dl=1",
+    "script": "http://mpassets.highfidelity.com/40b93ca0-c08f-42a8-9034-462f8bfa5fcb-v1/mirrorClient.js",
     "scriptTimestamp": 1539903100302,
     "collisionless": true,
     "ignoreForCollisions": true,
@@ -80,7 +80,7 @@
     "collidesWith": "",
     "userData": "{\"grabbableKey\":{\"grabbable\":false,\"ignoreIK\":false}}",
     "name": "mirror plane",
-    "modelURL": "http://content.highfidelity.com/baked/avatar_island/mirror_without_backface/baked/mirror_without_backface.baked.fbx",
+    "modelURL": "http://mpassets.highfidelity.com/40b93ca0-c08f-42a8-9034-462f8bfa5fcb-v1/mirror_without_backface.baked.fbx",
     "queryAACube": {
         "x": -1.9930245876312256,
         "y": -1.9930245876312256,
