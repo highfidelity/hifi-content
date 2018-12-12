@@ -1,0 +1,112 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{d861ef39-ccc1-4043-823d-3dd556c186b7}",
+    "type": "Model",
+    "created": "2018-12-11T17:39:17Z",
+    "lastEdited": 1544550676904426,
+    "lastEditedBy": "{1585d0ec-8585-401c-8a17-f2d5cb9deb88}",
+    "position": {
+        "x": -1.5153486728668213,
+        "y": -0.09689140319824219,
+        "z": 0.116668701171875
+    },
+    "dimensions": {
+        "x": 0.19999998807907104,
+        "y": 0.055087409913539886,
+        "z": 0.19999997317790985
+    },
+    "rotation": {
+        "x": 0.5044175386428833,
+        "y": -0.5042954087257385,
+        "z": -0.496269166469574,
+        "w": 0.4949873685836792
+    },
+    "script": "file:///D:/mirrorButton.js",
+    "scriptTimestamp": 1544550106612,
+    "userData": "{\"grabbableKey\":{\"grabbable\":false,\"triggerable\":true}}",
+    "name": "mirror button",
+    "modelURL": "atp:/Simple_button.fbx",
+    "shapeType": "box",
+    "parentID": "{014b7434-4859-4360-b8ff-7a8a8adf83af}",
+    "queryAACube": {
+        "x": -1.9554603099822998,
+        "y": -10.316746711730957,
+        "z": 11.40438175201416,
+        "scale": 0.28815725445747375
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "owningAvatarID": "{00000000-0000-0000-0000-000000000000}"
+},
+    {
+    "id": "{014b7434-4859-4360-b8ff-7a8a8adf83af}",
+    "type": "Model",
+    "created": "2018-12-11T17:39:17Z",
+    "lastEdited": 1544550676904426,
+    "lastEditedBy": "{1585d0ec-8585-401c-8a17-f2d5cb9deb88}",
+    "dimensions": {
+        "x": 3.376735210418701,
+        "y": 2.118041515350342,
+        "z": 0.01209999993443489
+    },
+    "rotation": {
+        "x": 0.0000762939453125,
+        "y": 0.6427557468414307,
+        "z": 0.0000457763671875,
+        "w": 0.7660486698150635
+    },
+    "script": "https://www.dropbox.com/s/3p80rmrx2zwghoq/mirrorClient.js?dl=1",
+    "scriptTimestamp": 1539903100302,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "collisionMask": 0,
+    "collidesWith": "",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false,\"ignoreIK\":false}}",
+    "name": "mirror plane",
+    "modelURL": "http://content.highfidelity.com/baked/avatar_island/mirror_without_backface/baked/mirror_without_backface.baked.fbx",
+    "queryAACube": {
+        "x": -1.9930245876312256,
+        "y": -1.9930245876312256,
+        "z": -1.9930245876312256,
+        "scale": 3.986049175262451
+    },
+    "grab": {
+        "grabbable": false,
+        "grabFollowsController": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "owningAvatarID": "{00000000-0000-0000-0000-000000000000}"
+}
+    ],
+  "Id": "{6aa00329-b7bb-4dac-9faa-54d706ba7505}",
+  "Version": 96
+}
