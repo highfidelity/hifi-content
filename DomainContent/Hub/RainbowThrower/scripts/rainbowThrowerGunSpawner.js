@@ -26,8 +26,9 @@
         position: null,
         preload: function(entityID) {
             _this.entityID = entityID;
-            _this.position = Entities.getEntityProperties(_this.entityID, 'position').position;
-            _this.rotation = Entities.getEntityProperties(_this.entityID, 'rotation').rotation;
+            var properties = Entities.getEntityProperties(_this.entityID, ['rotation', 'position']);
+            _this.position = properties.position;
+            _this.rotation = properties.rotation;
             _this.checkingStatus();
         },
 
