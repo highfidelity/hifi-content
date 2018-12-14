@@ -12,16 +12,17 @@
 (function() {
     var TABLET_BUTTON_IMAGE = Script.resolvePath('assets/icons/bingo-i.svg');
     var TABLET_BUTTON_PRESSED = Script.resolvePath('assets/icons/bingo-a.svg');
-    var SEARCH_RADIUS = 100;
+    var SEARCH_RADIUS = 200;
     var SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbzFuuJ30c_qUZmBB8PnjLtunaJx1VbhSRFjsy_6wocR2_p7wohJ/exec";
     var BEGINNING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBeginning.wav"));
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBoomOpener.wav"));
     var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoGong.wav"));
     var NEW_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoOrgan.wav"));
     var FAREWELL_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoFarewell.wav"));
+    var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-    var appPage = Script.resolvePath('bingo.html?018');
+    var appPage = Script.resolvePath('bingo.html');
     var button = tablet.addButton({
         text: 'BOSS',
         icon: TABLET_BUTTON_IMAGE,
@@ -31,6 +32,7 @@
     var numberWheel;
     var soundPosition;
     var injector;
+    var clickToPlaySign;
 
     function encodeURLParams(params) {
         var paramPairs = [];
@@ -46,6 +48,13 @@
             if (properties.name && properties.name.indexOf("Bingo") !== -1) {
                 if (properties.name === "Bingo Wheel") {
                     numberWheel = nearbyEntity;
+                } else if (properties.name === "Bingo Wall") {
+                    Entities.getChildrenIDs(nearbyEntity).forEach(function(childOfWall) {
+                        var childName = Entities.getEntityProperties(childOfWall, 'name').name;
+                        if (childName === "Bingo Click To Play Sign") {
+                            clickToPlaySign = nearbyEntity;
+                        }
+                    });
                 }
             } else if (properties.name === "Game Podium") {
                 soundPosition = properties.position;
@@ -78,6 +87,7 @@
     function newRound() {
         playSound(NEW_SOUND, 1);
         Entities.callEntityServerMethod(numberWheel, 'newRound');
+        Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'reset');
         var searchParamString = encodeURLParams({
             username: "Boss",
             type: "clear"
@@ -89,6 +99,11 @@
             print("bingo: request timed out");
         };
         searchRequest.send();
+        var bingoNumberTexts = Entities.findEntitiesByName("Bingo Wheel Number", MyAvatar.position, 100);
+        Entities.editEntity(bingoNumberTexts[0], {
+            text: "BINGO",
+            lineHeight: 1.1
+        });
     }
 
     function gameOver() {
@@ -166,6 +181,7 @@
     this.unload = function() {
     };
 
+    Entities.callEntityMethod(clickToPlaySign, 'removeCards');
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);
     tablet.webEventReceived.connect(onWebEventReceived);

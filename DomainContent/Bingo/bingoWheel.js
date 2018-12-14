@@ -17,8 +17,9 @@
     };
     var ANGULAR_VELOCITY_CHECK_MS = 100;
     var CHECKING_INTERVAL_DELAY = 100;
-    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ThaPhlash', 'andy_batman', 'Becky'];
+    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan','Kaceyton', 'kaceytron', "Kaceytron"];
     var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/blip.wav'));
+    var SPIN_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/wheelSpin4Stretch.mp3'));
     var WAIT_BETWEEN_SPINS = 4000;
 
     var _this;
@@ -108,13 +109,13 @@
             if (canSpin){
                 canSpin = false;
                 Entities.callEntityServerMethod(_this.entityID, 'getCalledNumbers', [MyAvatar.sessionUUID]);
-                var position = Entities.getEntityProperties(_this.entityID, 'position').position;
                 var bingoNumberTexts = Entities.findEntitiesByName("Bingo Wheel Number", position, 1);
                 if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0) {
                     _this.angularVelocityLimit = -10;
                     Entities.editEntity(_this.entityID, {
                         angularVelocity: ANGULAR_VELOCITY
                     });
+                    _this.playSound(SPIN_SOUND);
                     Script.setTimeout(function() {
                         if (_this.interval) {
                             Script.clearInterval(_this.interval);
@@ -165,6 +166,7 @@
                 if (injector) {
                     injector.stop();
                 }
+                // print("PLAYING SOUND AT ", JSON.stringify(position));
                 injector = Audio.playSound(sound, {
                     position: position,
                     volume: audioVolume

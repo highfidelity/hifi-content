@@ -17,11 +17,11 @@
 
     var injector;
     var canClick = true;
-    var appPage = Script.resolvePath('./card/card.html?010');
+    var appPage = Script.resolvePath('./card/card.html');
 
     var isRunningStandaloneBingoApp = function() {
         var isRunning = false;
-        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("card.js") !== -1) {
+        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("card.js?000") !== -1) {
             isRunning = true;
         }
         return isRunning;
@@ -32,6 +32,7 @@
     };
 
     BingoCardSpawner.prototype = {
+        remotelyCallable: ['removeCards'],
         preload: function(entityID){
             _this.entityID = entityID;
         },
@@ -41,7 +42,7 @@
                 canClick = false;
                 _this.playSound(GET_CARD_SOUND, 0.2, true);
                 if (!isRunningStandaloneBingoApp()) {
-                    ScriptDiscoveryService.loadScript(Script.resolvePath('./card/card.js?010'));
+                    ScriptDiscoveryService.loadScript(Script.resolvePath('./card/card.js?000'));
                 } else {
                     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
                     tablet.gotoWebScreen(appPage);
@@ -50,6 +51,10 @@
                     canClick = true;
                 }, WAIT_TO_CLICK);
             }
+        },
+
+        removeCards: function() {
+            ScriptDiscoveryService.stopScript(Script.resolvePath('./card/card.js?000'));
         },
 
         playSound: function(sound, volume, localOnly) {
@@ -66,8 +71,7 @@
         },
 
         unload: function() {
-            ScriptDiscoveryService.stopScript(Script.resolvePath('./card/card.js?010'));
-
+            ScriptDiscoveryService.stopScript(Script.resolvePath('./card/card.js?000'));
         }
     };
 

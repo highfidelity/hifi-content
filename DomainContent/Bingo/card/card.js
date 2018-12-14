@@ -20,12 +20,13 @@
     var WAIT_TO_STOP_PARTICLE = 1000;
     var COLUMN_RANGE = 15;
     var WAIT_TO_SEND_NUMBERS = 1000;
+    var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
 
     var headerSounds = [];
     var currentHeaderSounds = [];
     var injector;
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-    var appPage = Script.resolvePath('card.html?010');
+    var appPage = Script.resolvePath('card.html');
     var button = tablet.addButton({
         text: 'BINGO',
         icon: TABLET_BUTTON_IMAGE,
@@ -165,10 +166,11 @@
         searchRequest.ontimeout = function() {
             print("bingo: request timed out");
         };
-        searchRequest.onreadystatechange = function() { 
+        searchRequest.onreadystatechange = function() {
             if (searchRequest.readyState === 4) {
                 if (searchRequest.response === "New username") {
                     createCard(true);
+                    Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
                 } else if (searchRequest.response) {
                     var userNumbersToSplit = searchRequest.response.substring(2, searchRequest.response.length - 2);
                     userCardNumbers = userNumbersToSplit.split(",");
@@ -317,7 +319,7 @@
     }
 
     function sessionChanged() {
-        ScriptDiscoveryService.stopScript(Script.resolvePath('card.js?010'));
+        ScriptDiscoveryService.stopScript(Script.resolvePath('card.js?000'));
         tablet.gotoHomeScreen();
     }
 
