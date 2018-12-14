@@ -115,7 +115,7 @@ Hand = function (side) {
         return NEAR_GRAB_RADIUS;
     }
 
-    function update() {
+    function update(inVREditMode) {
         var gripValue,
             overlayID,
             overlayIDs,
@@ -132,7 +132,7 @@ Hand = function (side) {
 
         // Hand pose.
         handPose = Controller.getPoseValue(handController);
-        if (!handPose.valid) {
+        if (!handPose.valid || !inVREditMode) {
             intersection = {};
             return;
         }
