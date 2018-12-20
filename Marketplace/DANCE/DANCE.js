@@ -23,7 +23,6 @@
         var 
             URL = Script.resolvePath("./Tablet/DANCE_Tablet.html"),
             BUTTON_NAME = "DANCE",
-
             PREVIEW_DANCE = "preview_dance",
             PREVIEW_DANCE_STOP = "preview_dance_stop",
             STOP_DANCE = "stop_dance",
@@ -37,20 +36,20 @@
             TOGGLE_HMD = "toggle_hmd",
             DEFAULT_DURATION = 3000,
             PREVIEW_TIMEOUT = 10000,
+            SECOND = 1000,
             DEFAULT_START_FRAME = 0,
             EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
             PREVIEW_DISTANCE = -2,
             UPDATE_UI = BUTTON_NAME + "_update_ui"
-            
         ;
     
     // Init
     // /////////////////////////////////////////////////////////////////////////
         var 
-            rustDancing = false,
             overlay = null,
             ui,
-            lastPreviewTimeStamp
+            lastPreviewTimeStamp,
+            in3rdPerson = false
         ;
 
     // Constructor
@@ -69,9 +68,9 @@
             this.url = url;
             this.startFrame = startFrame;
             this.endFrame = endFrame;
-            this.duration = (endFrame / fps) * 1000;
+            this.duration = (endFrame / fps) * SECOND;
             this.fps = fps;
-            this.default_end = endFrame;
+            this.defaultEnd = endFrame;
             this.selected = false;
             this.icon = icon;
         }
@@ -88,9 +87,9 @@
                 ui: {
                     currentDance: false,
                     danceArray: false
-                }
-            },
-            danceObjects = []
+                },
+                danceObjects: []
+            }
         ;
         
     // Helper Functions
@@ -98,7 +97,7 @@
         function splitDanceUrls() {
             var regex = /((?:https:|file:\/)\/\/.*\/)([a-zA-Z0-9 ]+) (\d+)(.fbx)/;
             danceUrls.sort(function(a,b) { 
-                if (a < b) { 
+                if (a.toLowerCase() < b.toLowerCase()) { 
                     return -1;
                 } else if (a > b) {
                     return 1;
@@ -106,7 +105,7 @@
                 return 0; 
             }).forEach(function(dance, index) {
                 var regMatch = regex.exec(dance);
-                danceObjects.push(
+                dataStore.danceObjects.push(
                     new DanceAnimation(
                         regMatch[2],
                         dance,
@@ -125,6 +124,14 @@
                 }
             }
             return null;
+        }
+
+        if (!String.prototype.startsWith) {
+            Object.defineProperty(String.prototype, 'startsWith', {
+                value: function(search, pos) {
+                    return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+                }
+            });
         }
 
     // Procedural Functions
@@ -199,10 +206,12 @@
 
         function hmdCheck(){
             if (HMD.active && dataStore.toggleHMD) {
+                console.log("\n\n\tHMD IS ACTIVE AND TOGGLE HMD IS TRUE")
                 playDanceArray();
             }
 
             if (!HMD.active) {
+                console.log("\n\n\tHMD IS NOT ACTIVE")
                 playDanceArray();
             }
         }
@@ -234,18 +243,14 @@
         }
 
         function tryDanceAnimation(danceObj) {
-            rustDancing = Settings.getValue("isDancing", false);
             if (!HMD.active) {
+                console.log("\n\n\tIN TRYDANCE ANIMATION AND HMD IS NOT ACTIVE")
                 MyAvatar.overrideAnimation(danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
             } else {
-                MyAvatar.getAnimationRoles().filter(function (role) {
-                    return !(role.startsWith("right") || role.startsWith("left"));
-                }).forEach(function (role) {
-                    MyAvatar.overrideRoleAnimation(role, danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
-                });
+                in3rdPerson = true;
+                Camera.mode = "third person";
             }
 
-            Settings.setValue("isDancing", true);
             dataStore.ui.currentDance = true; 
             dataStore.currentDance = danceObj;
             ui.updateUI(dataStore, {slice: CURRENT_DANCE});
@@ -253,7 +258,9 @@
 
         function stopDanceAnimation() {
             MyAvatar.restoreAnimation();
-            Settings.setValue("isDancing", false);
+            if (in3rdPerson) {
+                Camera.mode = "first person";
+            }
             dataStore.ui.currentDance = false; 
             dataStore.currentDance = null;
             dataStore.shouldBeRunning = false;
@@ -323,7 +330,6 @@
             Script.scriptEnding.connect(onEnding);
             Window.domainChanged.connect(onDomainChange);
 
-            dataStore.danceObjects = danceObjects;
             splitDanceUrls();
         }
 

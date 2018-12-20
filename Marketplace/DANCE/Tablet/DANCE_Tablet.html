@@ -27,14 +27,9 @@
                 ></current-dance>
             </div> 
             <dance-list v-if="dataStore.ui.danceArray" :dances="dataStore.danceArray" class="shadow" :should_be_running="dataStore.shouldBeRunning"></dance-list>
-            <!-- <div class="card transparent">
-                <div class="card-body "> -->
-                    <!-- <img src="./Assets/Dance-Images/1.jpg"> -->
-                    <div class="mt-1 ml-3 justify-content-center align-items-center">
-                        <dance class="mb-4 mr-2 shadow-lg" v-for="(dance, index) in dataStore.danceObjects" v-bind:class="{ 'border border-white border-3': dance.selected }" :index="index" :key="index" :dance="dance"></dance>
-                    </div>
-                <!-- </div>
-            </div> -->
+            <div class="mt-1 ml-3 justify-content-center align-items-center">
+                <dance class="mb-4 mr-2 shadow-lg" v-for="(dance, index) in dataStore.danceObjects" v-bind:class="{ 'border border-white border-3': dance.selected }" :index="index" :key="index" :dance="dance"></dance>
+            </div>
         </div>
         <script defer src="https://use.fontawesome.com/releases/v5.5.0/js/all.js" integrity="sha384-GqVMZRt5Gn7tB9D9q7ONtcp4gtHIUEW/yG7h98J7IpE3kpi+srfFyyB/04OV6pG0" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
