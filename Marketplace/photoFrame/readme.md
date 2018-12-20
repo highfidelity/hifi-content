@@ -3,7 +3,7 @@ This is a digital photo frame built for High Fidelity using an image entity, a c
 
 You can purchase a completed, ready-to-use Digital Photo Frame on the High Fidelity Marketplace, or modify the code here with the imported JSON file to make your own version of the digital photo frame for your domain!
 
-![A digial photo on a virtual reality wall](images/keyImage.png) 
+![A digial photo on a virtual reality wall](https://github.com/highfidelity/hifi-content/blob/master/Marketplace/photoFrame/images/keyImage.PNG?raw=true) 
 
 # How it works
 There are four entities and one script that make up the Digital Photo Frame: 
@@ -19,7 +19,7 @@ If there is an error with the userdata properties, the default photos and speed 
 
 `Script.setInterval` is used to call the function `changePhoto` repeatedly after the set amount of time (this is in milliseconds, so we adjust it with a multiplier).
 
-![Userdata properties for the digital photo frame](images/userdata.png)
+![Userdata properties for the digital photo frame](https://github.com/highfidelity/hifi-content/blob/master/Marketplace/photoFrame/images/userdata.PNG?raw=true)
 
 When the script ends, the `unload` function is called and we disconnect our interval via `Script.clearInterval` so that we are not continuing to change photos. 
 
