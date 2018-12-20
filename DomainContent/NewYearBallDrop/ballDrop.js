@@ -111,7 +111,7 @@
         },
 
         synchronize: function() {
-            var currentTime = new Date().getTime();
+            var currentTime = Date.getNow();
             var untilTargetTime = targetTime - currentTime;
             var targetPassed = false;
             var hours = Math.floor((untilTargetTime % (ONE_THOUSAND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY))
