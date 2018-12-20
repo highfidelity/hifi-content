@@ -138,11 +138,68 @@ function updateUI(dataStore, slice) {
     ui.sendToHtml(messageObject);
 }
 ```
-What the above does is see if there is only a slice of the data you care about sending over, or if you want to send over the whole thing.  The UI takes care of it from there.  
-sendToHTML 
+What the above does is see if there is only a slice of the data you care about sending over, or if you want to send over the whole thing.  The Vue UI takes care of it from there.  
+sendToHTML takes an object and creates a string to send over the EventBridge.  If you weren't using AppUi, then this is something you would have to wire up yourself. 
 
+Beofre we talk about the Tablet app itself, let's look over a few of the functions that take care of the bulk of the work: 
 
+### previewDanceAnimation
+This will preview an animation overlay in front of you.  In Hifi, overlays are like entities, but only you can see them.  They are made with var overlay = Overlay.addOverlay("type", options).  You want to assign a variable to what that returns in case you need to delete an overlay.  Here we are taking advantage of model overlays ability to play animations.  
 
+We would like the overlay to appear in front of your Avatar.  If you know the local position you would like to offset to, here is an easier and clean way to take care of that: 
+```
+var localOffset = [0, 0, -1], // creates an offset of -1 from a point of origin
+    worldOffset = Vec3.multiplyQbyV(MyAvatar.orientation, localOffset), // Gets the correct vector by multiplying that offset by your orientation
+    modelPosition = Vec3.sum(MyAvatar.position, worldOffset); // Adds that value to your current position
+```
 
+The rest of this function sets up features of the UI.  One of the nice things about Vue, is that you can use it to have full control of how your UI looks by assigning flags to your UI,such as when you want a button to show up or not.  
+
+We also include a timeout that checks to see how long this overlay is playing for so that we don't get in a bad state where the overlay plays forever for some reason. 
+
+### stopPreviewDanceAnimation
+
+The main thing here is our deletion of the overlay using ```Overlays.deleteOverlay(overlay)```
+Other then that, we are just settung up more UI related flags.  After we set those flags, we use the update UI method.  
+
+### addDanceAnimation
+
+Whenever a user clicks on one of the Dance Animation icons, this function is called.  All it is doing is using another constructor function based on the original Dance Animation object maker above, but with a few extra items for use in the dance playlist.  
+
+### hmdCheck
+
+Instead of allowing the user to just play the dance array playlist directly, first we check to see if a user is in HMD using HMD.active and also checking to see if the user had checked the option to use the danceApp in HMD.  This is all so the user might not feel strange seeing their avatar body doing something unexpected without expressily allowing it themselves.  
+
+### playDanceArray
+
+This is how the danceArray gets kicked off when we click start.  This just inits us to start from the first dance by setting the ```currentIndex``` to 0 and then passing that to playNextDance, which takes in an index number to play.
+
+### playNextDance
+
+First we do some checks to make sure we aren't at the end of the list, then we get the actual danceObject from our danceArray based on the desired index.  
+After we do, we pass this object to ```tryDanceAnimation``` which actually takes care of the dance animation.  After we pass it in, we do a timeout based on how long this oassed danceAnimation should actually play for based on the duration.  Then we recursively call playNextDance again with the next index.
+
+### tryDanceAnimation
+Three things to take note here. 
+#1 The animation is used on your avatar by MyAvatar.overrideAnimation.  This method replaces your current main animation with the dance animation you have picked.  It's parameters are basically the same ones we set in the dance object above. 
+
+#2 If the user is in HMD mode, then the only difference is that we switch their Camera mode.  There are several camera modes including first person, third person, independent, and entity mode.  All of them allow different camera operation modes that are described in more depth in our API guide.  We are simply putting the user in third person mode.  When the user clicks stop. we change the camera mode back to first person. 
+
+#3 We are using a UI Slick here this time instead of the normal just dataStore update:
+```ui.updateUI(dataStore, {slice: CURRENT_DANCE});```
+
+The reason for this is because we are taking advantage of the onBlur functionality of HTML inputs so that we actually update the danceArray in realtime.  The only problem with this, is that if we didn't do just a slice, the entire app would keep getting dataStore updates which can affect inputting new values to our individual dances.  Basically, if you didn't move off in time, the value you entered would go back to where it was before.  This makes sure only the section marked to display the current dance is updated. 
+
+### updateDanceArray
+
+Instead of updating a dance object directly. we simply just overwrite the changes from the UI on the danceArray.  That way this function is taken care of in just two lines. wheeew.
 
 # The Tablet App
+
+We won't focus too deeply on the tablet app side, except to touch on a few key concepts.  Much of it deal with how Vue operates.  If anything is too confusing here, the Vue documentation is fantastic.  Hopefully this gives you an idea of how to use Vue in conjection with Hifi. 
+
+We will first begin with the onMessage function that is on the interface app side
+
+### onMessage
+
+In a HTML app, we use a class called the EventBridge

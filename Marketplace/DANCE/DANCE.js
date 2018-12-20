@@ -54,6 +54,9 @@
 
     // Constructor
     // /////////////////////////////////////////////////////////////////////////
+        
+        // General Dance Objects used 
+        
         function DanceAnimation(name, url, frames, fps, icon) {
             this.name = name;
             this.url = url;
@@ -62,6 +65,8 @@
             this.fps = fps;
             this.icon = icon;
         }
+
+        // Specific Dance Objects used for the dance playlist 
 
         function DanceListEntry(name, url, startFrame, endFrame, duration, fps, icon) {
             this.name = name;
@@ -95,8 +100,10 @@
     // Helper Functions
     // /////////////////////////////////////////////////////////////////////////
         function splitDanceUrls() {
+            // Capture the different parts of the Dance URL to be used for the dance object
             var regex = /((?:https:|file:\/)\/\/.*\/)([a-zA-Z0-9 ]+) (\d+)(.fbx)/;
             danceUrls.sort(function(a,b) { 
+                // Sort the urls by charachter 
                 if (a.toLowerCase() < b.toLowerCase()) { 
                     return -1;
                 } else if (a > b) {
@@ -117,6 +124,7 @@
             });
         }
 
+        // Finds the index that matches an object in an Array.  Used to splice/edit dances in our playlist
         function findObjectIndexByKey(array, key, value) {
             for (var i = 0; i < array.length; i++) {
                 if (array[i][key] === value) {
@@ -126,16 +134,10 @@
             return null;
         }
 
-        if (!String.prototype.startsWith) {
-            Object.defineProperty(String.prototype, 'startsWith', {
-                value: function(search, pos) {
-                    return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
-                }
-            });
-        }
-
     // Procedural Functions
     // /////////////////////////////////////////////////////////////////////////
+        
+        // Creates an overlay animation in front of you to see what your dance looks like
         function previewDanceAnimation(danceObj) {
             if (overlay) {
                 stopPreviewDanceAnimation();
@@ -249,6 +251,7 @@
             } else {
                 in3rdPerson = true;
                 Camera.mode = "third person";
+                MyAvatar.overrideAnimation(danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
             }
 
             dataStore.ui.currentDance = true; 
