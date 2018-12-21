@@ -288,7 +288,7 @@ Vue.component('component-name), {  // component names are lower case since they 
 ### Vue bindings
 
 In order to distinguish from normal HTML attributes, vue uses special bindings that allow you to have access to certain vue functionality, or to work reactively with data changes. 
-For example if you wanted to dynamically change a img tag's source, you would change <img src="http://..."> to <img v-bind:src="url">.  Url, in this case, may be a prop that is passed down, or a member of the data object.  Since this is used so much, there is a shorthand of just :src="url" that can be used.
+For example if you wanted to dynamically change a img tag's source, you would change ```<img src="http://...">``` to ```<img v-bind:src="url">```.  Url, in this case, may be a prop that is passed down, or a member of the data object.  Since this is used so much, there is a shorthand of just :src="url" that can be used.
 
 There are other handy Vue attributes like v-if which you feed it an expression so that it knows whether to render an element or not, v-on which is how events are handled like v-on:click.  The shorthand for this would be @click="functionToRun"
 
