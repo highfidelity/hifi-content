@@ -1,13 +1,16 @@
 # So you think you can DANCE! ...app
+
 DANCE! is a fun tablet application that lets you choose from different Mixamo dance animations that you can sequence together to make your own funky dance routine!  
 
 # How it works
+
 Dance animations created in Mixamo are selected through a UI that is built with [Vue.JS](https://vuejs.org/).  The animations are placed in an array that is cycled through and switch after the desired duration time is up.  Easy, peezy, Beyonce boogie squeezy.
 
 ![Beyonce boogie](./Images/Docs/4.jpg "Beyonce boogie")
 
 
 # Setup
+
 We first start with a file that lists all of our possible dance URLs which is imported in as an array.  
 
 The Avatar Animations used in this app come from [Mixamo](https://www.mixamo.com/) This allows you to easily animate an Avatar Skeleton by importing an existing HIFI FST file.  After customizing the dance moves the way you like, you can then download them.
@@ -28,13 +31,16 @@ ui = new AppUi({
 Home is the main URL for the UI, onMessage is the function used to handle messages from the tablet, and updateUI is a custom function added to appUi that takes care of updating the Vue UI.
 
 ***
+
 ### Note Re: [Vue.JS](https://vuejs.org/)
  
 Vue is a declarative javascript framework that is like a light-weight version of React.  It takes care of all the bindings and event handling for you.  If you update an object/array contained in it, then the UI will update accordingly based on how you set it up.  We won't touch into too many Vue specific details in here, but we will cover some of the essential basics.  If you have further questions, feel free to ask on the forum! 
 ***
 
 # The Main App
+
 ### Startup
+
 When the app starts, the function ```startup()``` is run which contains a few basic wirings such as the AppUi init above.  We also make sure the Avatar's default animation is restored with ```MyAvatar.restoreAnimation()``` before any dancing happens. 
 
 In Hifi, we use a concept called signals/slots on the C++ engine side that connects events with functions on objects.  On the javascript side, if you ever see any code that says ```ClassName.connect```, what that means is that Interface has given a signal, and we are connecting a function to it. 
@@ -42,6 +48,7 @@ In Hifi, we use a concept called signals/slots on the C++ engine side that conne
 The functions being connected in this case are ```onEnding``` to the signal Script.scriptEnding and ```onDomainChange``` to the signal Window.domainChanged.  These just run ```MyAvatar.restoreAnimation();``` which makes sure we do not continue to dance if the script ends or if we change domains.   
 
 ### Modules
+
 All the URLs are stored in a module file called Dance-URLS.js.  If you aren't familiar with modules and how to use them in HIFI, they are a very nice way to reuse code between applications or to help break up large files to make them more manageable.  
 
 The way they work is that they are created in a separate file that looks similar to the bottom:
@@ -112,6 +119,7 @@ dataStore.danceObjects.push(
 To sum it up, this function transforms our list of dance animation URLs into usable Dance Animation objects.
 
 ## The DataStore
+
 So what is the dataStore?  Well, it's where the data is stored! :)
 What it is, is just a collection of data that is important to the UI.  This allows a very simple way to update the UI for the Vue framework.  The process looks like this
 
@@ -142,6 +150,7 @@ sendToHTML takes an object and creates a string to send over the EventBridge.  I
 Beofre we talk about the Tablet app itself, let's look over a few of the functions that take care of the bulk of the work: 
 
 ### previewDanceAnimation
+
 This will preview an animation overlay in front of you.  In HIFI, overlays are like entities, but only you can see them.  They are made with var overlay = Overlay.addOverlay("type", options).  You want to assign a variable to what that returns in case you need to delete an overlay.  Here we are taking advantage of model overlays ability to play animations.  
 
 We would like the overlay to appear in front of your Avatar.  If you know the local position you would like to offset to, here is an easy and clean way to take care of that: 
@@ -201,7 +210,9 @@ First we do some checks to make sure we aren't at the end of the list, then we g
 After we do, we pass this object to ```tryDanceAnimation``` which actually takes care of the dance animation.  After we pass it in, we do a timeout based on how long this danceAnimation should actually play by its set duration.  Then we recursively call playNextDance again with the next index.
 
 ### tryDanceAnimation
-Three things to take note here. 
+
+Three things to take note here.
+
 #1 The animation is used on your avatar by MyAvatar.overrideAnimation.  This method replaces your current main animation with the dance animation you have picked.  Its parameters are basically the same ones we set in the dance object above. 
 
 #2 If the user is in HMD mode, then the only difference is that we switch their Camera mode.  There are several camera modes including first person, third person, independent, and entity mode.  All of them allow different camera operation modes that are described in more depth in our API guide.  We are simply putting the user in third person mode.  When the user clicks stop. we change the camera mode back to first person. 
@@ -250,6 +261,7 @@ el, is the element we marked in our html file that we want to let Vue use.  data
 
 
 ### Vue components
+
 Vue componetns are javascript objects that can be used as HTML tags.  We have 3 main ones which are ```<dance>, <dance-list>, and <current-dance>```
 These are defined on the javascript side. 
 
