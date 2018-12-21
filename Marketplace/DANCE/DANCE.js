@@ -37,6 +37,7 @@
             DEFAULT_DURATION = 3000,
             PREVIEW_TIMEOUT = 10000,
             SECOND = 1000,
+            TABLET_OPEN_TIME = 300,
             DEFAULT_START_FRAME = 0,
             EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
             PREVIEW_DISTANCE = -2,
@@ -49,7 +50,9 @@
             overlay = null,
             ui,
             lastPreviewTimeStamp,
-            in3rdPerson = false
+            in3rdPerson = false, 
+            zoomMapping,
+            numberOfZooms = 3
         ;
 
     // Constructor
@@ -246,9 +249,13 @@
             if (!HMD.active) {
                 console.log("\n\n\tIN TRYDANCE ANIMATION AND HMD IS NOT ACTIVE")
                 MyAvatar.overrideAnimation(danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
+
             } else {
-                in3rdPerson = true;
-                Camera.mode = "third person";
+                MyAvatar.overrideAnimation(danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
+                if (!in3rdPerson) {
+                    in3rdPerson = true;
+                    enableZoom();
+                }
             }
 
             dataStore.ui.currentDance = true; 
@@ -256,10 +263,43 @@
             ui.updateUI(dataStore, {slice: CURRENT_DANCE});
         }
 
+        function enableZoom() {
+            HMD.closeTablet();
+            zoomMapping = Controller.newMapping('zoom');
+            numberOfZooms = 2;
+            zoomMapping.from(function () {
+                numberOfZooms = numberOfZooms - 1; 
+                return numberOfZooms >= 0 ? 1 : (
+                    zoomMapping.disable(), 0);
+            }).to(Controller.Actions.BOOM_OUT);
+            Script.setTimeout(function(){
+                HMD.openTablet();
+            }, TABLET_OPEN_TIME);
+            zoomMapping.enable();
+        }
+
+        function disableZoom() {
+            HMD.closeTablet();
+            zoomMapping = Controller.newMapping('zoom');
+            zoomMapping.enable();
+            numberOfZooms = 0;
+            zoomMapping.from(function () { 
+                numberOfZooms = numberOfZooms + 1;
+                return numberOfZooms <= 2 ? 1 : (
+                    zoomMapping.disable(), 0);
+            }).to(Controller.Actions.BOOM_IN);
+            Script.setTimeout(function(){
+                HMD.openTablet();
+            }, TABLET_OPEN_TIME);
+            zoomMapping.enable();
+        }
+
         function stopDanceAnimation() {
             MyAvatar.restoreAnimation();
             if (in3rdPerson) {
                 Camera.mode = "first person";
+                disableZoom();
+                in3rdPerson = false;
             }
             dataStore.ui.currentDance = false; 
             dataStore.currentDance = null;
@@ -374,7 +414,6 @@
      
     // Main
     // /////////////////////////////////////////////////////////////////////////
-
         startup();
 
 }()); // END LOCAL_SCOPE

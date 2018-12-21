@@ -102,12 +102,13 @@
                     }));
                 },
                 onBlur(){
-                    var sanitizedObject = {
+                    
+                    var sanitizedObject = Object.assign({}, this.dance, {
                         startFrame: parseInt(Math.max(this.dance.startFrame, 0)),
                         endFrame: parseInt(Math.min(this.dance.endFrame, this.maxEndFrame)),
                         duration: parseInt(Math.max(1, this.dance.duration)),
                         fps: parseInt(Math.min(this.dance.fps, 500))
-                    }
+                    });
                     console.log(JSON.stringify(sanitizedObject));
                     EventBridge.emitWebEvent(JSON.stringify({
                         type: UPDATE_DANCE_ARRAY,
