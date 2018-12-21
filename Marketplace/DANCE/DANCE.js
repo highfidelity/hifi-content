@@ -66,6 +66,7 @@
             this.startFrame = DEFAULT_START_FRAME;
             this.endFrame = frames;
             this.fps = fps;
+            this.duration = (this.endFrame / this.fps) * SECOND;
             this.icon = icon;
         }
 
@@ -76,7 +77,7 @@
             this.url = url;
             this.startFrame = startFrame;
             this.endFrame = endFrame;
-            this.duration = (endFrame / fps) * SECOND;
+            this.duration = duration;
             this.fps = fps;
             this.defaultEnd = endFrame;
             this.selected = false;
@@ -188,7 +189,7 @@
                     danceToAdd.dance.url,
                     danceToAdd.dance.startFrame,
                     danceToAdd.dance.endFrame,
-                    DEFAULT_DURATION,
+                    danceToAdd.dance.duration,
                     danceToAdd.dance.fps,
                     danceToAdd.dance.icon
                 )

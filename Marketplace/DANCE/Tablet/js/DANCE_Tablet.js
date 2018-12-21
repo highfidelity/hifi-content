@@ -133,40 +133,38 @@
                             <i class="float-right mr-2 icon icon-close"></i>
                         </span>
                     </div>
-                    <form class="form-inline collapse" :id="'collapse' + dance.name + index" onsubmit="event.preventDefault()">
+                    <form class="form-inline collapse p-2" :id="'collapse' + dance.name + index" onsubmit="event.preventDefault()">
                         <div class="row">
-                            <div class="col">
+                            <div class="col-3">
                                 <div class="input-group mb-1 ">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text main-font-size font-weight-bold">Start Frame</span>
+                                        <span class="input-group-text main-font-size font-weight-bold input-size">Start Frame</span>
                                     </div>
-                                    <input v-if="dance" type="number" min="0" v-on:blur="onBlur" v-model="dance.startFrame" class="form-control main-font-size" placeholder="start frame">
+                                    <input v-if="dance" type="number" min="0" v-on:blur="onBlur" v-model="dance.startFrame" class="form-control main-font-size field-size" placeholder="start frame">
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="col-3">
                                 <div class="input-group mb-1">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text main-font-size font-weight-bold">End Frame</span>
+                                        <span class="input-group-text main-font-size font-weight-bold input-size">End Frame</span>
                                     </div>
-                                    <input v-if="dance" type="number" min="0" v-on:blur="onBlur" v-model="dance.endFrame" class="form-control main-font-size" placeholder="end frame">
+                                    <input v-if="dance" type="number" min="0" v-on:blur="onBlur" v-model="dance.endFrame" class="form-control main-font-size field-size" placeholder="end frame">
                                 </div>
                             </div>
-                        </div class="row">
-                        <div class="row">
-                            <div class="col">
+                            <div class="col-3">
                                 <div class="input-group mb-1">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text main-font-size font-weight-bold">Duration (ms)</span>
+                                        <span class="input-group-text main-font-size font-weight-bold input-size">Duration(ms)</span>
                                     </div>
-                                    <input v-if="dance" type="number" min="0" v-on:blur="onBlur" v-model="dance.duration" class="form-control main-font-size" placeholder="duration">
+                                    <input v-if="dance" type="number" min="0" v-on:blur="onBlur" v-model="dance.duration" class="form-control main-font-size field-size" placeholder="duration">
                                 </div>
                             </div>
-                            <div class="col">
-                                <div class="input-group mb-1">
+                            <div class="col-3">
+                                <div class="iput-group mb-1">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text main-font-size font-weight-bold">FPS</span>
+                                        <span class="input-group-text main-font-size font-weight-bold input-size">Frames/Sec</span>
                                     </div>
-                                    <input v-if="dance" type="number" min="0" max="300" v-on:blur="onBlur" v-model="dance.fps" class="form-control main-font-size" placeholder="fps">
+                                    <input v-if="dance" type="number" min="0" max="300" v-on:blur="onBlur" v-model="dance.fps" class="form-control main-font-size field-size" placeholder="fps">
                                 </div>
                             </div>
                         </div>

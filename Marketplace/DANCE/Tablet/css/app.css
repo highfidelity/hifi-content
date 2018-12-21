@@ -44,6 +44,16 @@
     max-height: 1.9rem;
   }
 
+  .input-size {
+    min-width: 5.75rem;
+    max-width: 5.75rem;
+  }
+
+  .field-size {
+    min-width: 5.75rem;
+    max-width: 5.75rem;
+  }
+
   .blue {
     background-color: #457EAC;
 
