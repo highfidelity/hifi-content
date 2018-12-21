@@ -10,8 +10,6 @@ Dance animations created in Mixamo are selected through a UI that is built with 
 # Setup
 We first start with a file that lists all of our possible dance URLs which is imported in as an array.  
 
-That list populates our Tablet app.  The tablet app 
-
 The Avatar Animations used in this app come from [Mixamo](https://www.mixamo.com/) This allows you to easily animate an Avatar Skeleton by importing an existing HIFI FST file.  After customizing the dance moves the way you like, you can then download them.
 
 This app is created with appUi which is a module included in the HIFI Standard library that helps in creating new apps by simplifying much of the process.  You can view the module [here](https://github.com/highfidelity/hifi/blob/91df342ae98b763fbe8eb194b0def9308ce66a9d/scripts/modules/appUi.js) which has more information on how to configure it.  
