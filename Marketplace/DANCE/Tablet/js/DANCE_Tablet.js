@@ -191,10 +191,7 @@
         })
 
         Vue.component('dance', {
-            props: {
-                dance: { type: Object },
-                index: { type: Number }
-            },
+            props: ['dance', 'index'],
             methods: {
                 addDance(){
                     if (!this.dance.selected) {
