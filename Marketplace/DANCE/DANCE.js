@@ -15,7 +15,7 @@
     // Dependencies
     // /////////////////////////////////////////////////////////////////////////
         var 
-            AppUi = Script.require('appUi')
+            appUi = Script.require('appUi')
         ;
 
     // Consts
@@ -34,7 +34,6 @@
             UPDATE_DANCE_ARRAY = "update_dance_array",
             CURRENT_DANCE = "current_dance",
             TOGGLE_HMD = "toggle_hmd",
-            DEFAULT_DURATION = 3000,
             PREVIEW_TIMEOUT = 10000,
             SECOND = 1000,
             TABLET_OPEN_TIME = 300,
@@ -103,6 +102,9 @@
         
     // Helper Functions
     // /////////////////////////////////////////////////////////////////////////
+        
+        // Gets the dances from Dance-URLS and makes dance objects
+
         function splitDanceUrls() {
             // Capture the different parts of the Dance URL to be used for the dance object
             var regex = /((?:https:|file:\/)\/\/.*\/)([a-zA-Z0-9 ]+) (\d+)(.fbx)/;
@@ -115,6 +117,7 @@
                 }
                 return 0; 
             }).forEach(function(dance, index) {
+                // Use the regex match to make DanceAnimation objects
                 var regMatch = regex.exec(dance);
                 dataStore.danceObjects.push(
                     new DanceAnimation(
@@ -142,6 +145,7 @@
     // /////////////////////////////////////////////////////////////////////////
         
         // Creates an overlay animation in front of you to see what your dance looks like
+
         function previewDanceAnimation(danceObj) {
             if (overlay) {
                 stopPreviewDanceAnimation();
@@ -173,6 +177,8 @@
             ui.updateUI(dataStore);
         }
 
+        // Stops the overlay preview after a timer is called 
+
         function stopPreviewDanceAnimation() {
 
             dataStore.ui.addThisDance = false;
@@ -181,6 +187,8 @@
             overlay = null;
             ui.updateUI(dataStore);
         }
+
+        // Called when a dance in UI is picked 
 
         function addDanceAnimation(danceToAdd) {
             dataStore.danceArray.push(
@@ -199,6 +207,8 @@
             ui.updateUI(dataStore);
         }
 
+        // When a dance is removed from your routine, we splice it out from the array
+
         function removeDanceAnimation(index) {
             var danceIndex = findObjectIndexByKey(dataStore.danceObjects, "name", dataStore.danceArray[index].name);
             dataStore.danceObjects[danceIndex].selected = false;
@@ -210,17 +220,19 @@
             ui.updateUI(dataStore);
         }
 
+        // Check to see if wee are in HMD and have it toggled before we play the dances
+
         function hmdCheck(){
             if (HMD.active && dataStore.toggleHMD) {
-                console.log("\n\n\tHMD IS ACTIVE AND TOGGLE HMD IS TRUE")
                 playDanceArray();
             }
 
             if (!HMD.active) {
-                console.log("\n\n\tHMD IS NOT ACTIVE")
                 playDanceArray();
             }
         }
+
+        // Init the dance array and plays the first on the list 
 
         function playDanceArray(){
             dataStore.shouldBeRunning = true;
@@ -228,6 +240,8 @@
             playNextDance(dataStore.currentIndex);
             ui.updateUI(dataStore);
         }
+
+        // Play the index supplied and then get the next dance ready 
 
         function playNextDance(index) {
             if ( index >= dataStore.danceArray.length) {
@@ -248,9 +262,10 @@
             }, danceArrayObject.duration);
         }
 
+        // Executes the actual dance animation
+        
         function tryDanceAnimation(danceObj) {
             if (!HMD.active) {
-                console.log("\n\n\tIN TRYDANCE ANIMATION AND HMD IS NOT ACTIVE")
                 MyAvatar.overrideAnimation(danceObj.url, danceObj.fps, true, danceObj.startFrame, danceObj.endFrame);
 
             } else {
@@ -266,6 +281,8 @@
             ui.updateUI(dataStore, {slice: CURRENT_DANCE});
         }
 
+        // Emulates the scroll wheel zoom out
+
         function enableZoom() {
             HMD.closeTablet();
             zoomMapping = Controller.newMapping('zoom');
@@ -280,6 +297,8 @@
             }, TABLET_OPEN_TIME);
             zoomMapping.enable();
         }
+
+        // Emulates the scroll wheel zoom in
 
         function disableZoom() {
             HMD.closeTablet();
@@ -297,6 +316,8 @@
             zoomMapping.enable();
         }
 
+        // Stop the dance animations
+
         function stopDanceAnimation() {
             MyAvatar.restoreAnimation();
             if (in3rdPerson) {
@@ -310,10 +331,14 @@
             ui.updateUI(dataStore);
         }
 
+        // If an update is made to how a dance should be played, replace the original in the array
+
         function updateDanceArray(danceUpdate) {
             dataStore.danceArray[danceUpdate.index] = danceUpdate.dance;
             ui.updateUI(dataStore);
         }
+
+        // Send an update to the Vue UI
 
         function updateUI(dataStore, slice) {
             if (!slice) {
@@ -331,19 +356,26 @@
             ui.sendToHtml(messageObject);
         }
         
+        // Stop dancing if the script ends
+
         function onEnding(){
             MyAvatar.restoreAnimation();
         }
+
+        // Stop dancing if the domain location is changed
 
         function onDomainChange(){
             MyAvatar.restoreAnimation();
         }
 
+        // Handles if toggleHMD is picked from the UI
+
         function toggleHMD(){
-            
             dataStore.toggleHMD = !dataStore.toggleHMD;
             ui.updateUI(dataStore);
         }
+
+        // Handles removing the dance directly from the icon menu 
 
         function removeDanceFromMenu(danceToRemove){
             var index = findObjectIndexByKey(dataStore.danceArray, "name", danceToRemove.dance.name);
@@ -361,7 +393,7 @@
     // Tablet
     // /////////////////////////////////////////////////////////////////////////
         function startup() {
-            ui = new AppUi({
+            ui = new appUI({
                 buttonName: BUTTON_NAME,
                 home: URL,
                 graphicsDirectory: Script.resolvePath("./icons/tablet-icons/"),

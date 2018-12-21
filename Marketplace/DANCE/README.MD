@@ -14,12 +14,12 @@ We first start with a file that lists all our possible dance URLs imported in as
 
 Mixamo allows you to easily animate a HIFI Avatar Skeleton by importing an existing HIFI Avatar FST file.  After customizing the dance moves the way you like, you can then download them and use them to animate your Avatar.
 
-This app is created with appUI which is a module included in the HIFI standard library to help simplify creating new apps.  You can view the module [here](https://github.com/highfidelity/hifi/blob/91df342ae98b763fbe8eb194b0def9308ce66a9d/scripts/modules/appUi.js).  There are instructions for how to set it up in the comments.
+This app is created with appUi which is a module included in the HIFI standard library to help simplify creating new apps.  You can view the module [here](https://github.com/highfidelity/hifi/blob/91df342ae98b763fbe8eb194b0def9308ce66a9d/scripts/modules/appUi.js).  There are instructions for how to set it up in the comments.
 
 The basic configuration looks like this:
 ```
-var AppUi = Script.require('appUi');
-ui = new AppUi({
+var appUi = Script.require('appUi');
+ui = new appUi({
     buttonName: BUTTON_NAME,
     home: URL,
     graphicsDirectory: Script.resolvePath("./icons/tablet-icons/"),
@@ -27,7 +27,7 @@ ui = new AppUi({
     updateUI: updateUI
 });
 ```
-Home is the main URL for the UI, onMessage is the function used to handle messages from the tablet, and updateUI is a custom function added to appUI that takes care of updating our Vue UI.
+Home is the main URL for the UI, onMessage is the function used to handle messages from the tablet, and updateUI is a custom function added to appUi that takes care of updating our Vue UI.
 
 ***
 
@@ -40,7 +40,7 @@ Vue is a declarative JavaScript framework that is like a light-weight version of
 
 ### Startup
 
-When the app starts, the function ```startup()``` is run.  It contains a few basic wirings such as the appUI init above.  We also make sure the Avatar's default animation is restored with ```MyAvatar.restoreAnimation()``` before any dancing happens. 
+When the app starts, the function ```startup()``` is run.  It contains a few basic wirings such as the appUi init above.  We also make sure the Avatar's default animation is restored with ```MyAvatar.restoreAnimation()``` before any dancing happens. 
 
 In HIFI, we use a concept called signals/slots on the C++ engine side that connects events with functions on objects.  On the JavaScript side, if you ever see any code that says ```ClassName.connect(function)```, what that means is that Interface has given a signal, and we are connecting a function to run when it is received. 
 
@@ -147,7 +147,7 @@ function updateUI(dataStore, slice) {
 ```
 The above checks to see if there is only a slice of the data you care about sending over, or if you want to update the whole thing.  The Vue UI takes care of it from there.  To simplify things, we generally just send the entire datastore, but there are cases where sending just the slice is important.
  
-Next, appUI has a method sendToHTML that takes an object and creates a string to send over the EventBridge, our class that helps communicate between different context like the Interface and the Tablet.  If you weren't using appUI, then this is something you would have to wire up yourself. 
+Next, appUi has a method sendToHTML that takes an object and creates a string to send over the EventBridge, our class that helps communicate between different context like the Interface and the Tablet.  If you weren't using appUi, then this is something you would have to wire up yourself. 
 
 Before we talk about the Tablet app itself, let's look over a few of the functions that take care of the bulk of the work: 
 
@@ -237,7 +237,7 @@ We will first begin with the onMessage function that is on the interface app sid
 
 ### onMessage
 
-In a HTML app, we use a class called the EventBridge to send messages between the tablet's JS files to be received by the interface app.  There is a function that is set to handle these messages called onMessage that has a switch statement.  All the messages on the tablet side are set with a type and a value.  The type determines which function gets called, and the value is passed into that function if it needs one.  All of these must be strings.  JSON.stringify is used to make sure they are turned into strings so our objects can be handled properly.  However, appUI takes care of parsing these strings into actual objects.
+In a HTML app, we use a class called the EventBridge to send messages between the tablet's JS files to be received by the interface app.  There is a function that is set to handle these messages called onMessage that has a switch statement.  All the messages on the tablet side are set with a type and a value.  The type determines which function gets called, and the value is passed into that function if it needs one.  All of these must be strings.  JSON.stringify is used to make sure they are turned into strings so our objects can be handled properly.  However, appUi takes care of parsing these strings into actual objects.
 
 ### General Vue Concepts
 
@@ -313,7 +313,7 @@ Vue has great [documentation](https://vuejs.org/v2/guide/).  Look at the code an
 
 The dance app has been so much fun to work on and has been a constant source of amusement as well as irritation during all-hands meetings at the virtual office :)  
 Some of the takeaways are:
-- Using appUI to simplify the tablet making process
+- Using appUi to simplify the tablet making process
 - Applying animations to your Avatar
 - Working with Controller Actions
 - How the Tablet and Interface communicate together
