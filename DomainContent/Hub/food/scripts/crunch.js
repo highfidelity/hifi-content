@@ -25,10 +25,15 @@
 
     _this.preload = function(entityID) {
         _this.entityID = entityID;
-        CRUNCH_SOUND_URLS = JSON.parse(Entities.getEntityProperties(entityID, "userData").userData).sounds;
-        CRUNCH_SOUND_URLS.forEach(function(crunch) {
-            CRUNCH_SOUNDS.push(SoundCache.getSound(crunch));
-        });
+        try {
+            CRUNCH_SOUND_URLS = JSON.parse(Entities.getEntityProperties(entityID, "userData").userData).sounds;
+            CRUNCH_SOUND_URLS.forEach(function(crunch) {
+                CRUNCH_SOUNDS.push(SoundCache.getSound(crunch));
+            });
+        } catch (err) {
+            print("Could not retrieve sound URLs");
+        }
+        
     };
 
     var setUpFood = function() {
