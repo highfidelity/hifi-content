@@ -59,7 +59,8 @@ The functions being connected in this case are ```onEnding``` to the signal ```S
 
 All the URLs are stored in a module file called Dance-URLS.js. If you aren't familiar with Javascript modules and how to use them in HIFI, they are a very nice way to reuse code between applications or to help break up large files to make them more manageable. 
 
-The way module files work is that they are created in a separate file and has a “module.exports” line at the bottom```
+The way module files work is that they are created in a separate file and has a “module.exports” line at the bottom
+```
 // Create an object with functions like this:
 function functionToUseInModule(){ ... }
 
@@ -275,6 +276,7 @@ Vue components are JavaScript objects that can be used as HTML tags. We have 3 m
 These are defined in the tablet JS file. 
 
 Components have the following structure:
+
 ```
 Vue.component('component-name), {  // component names are lower case since they are HTML tags
     props: ['prop1', 'prop2'],  // props are a powerful way to pass data into components and change the way a tag looks/works. 
