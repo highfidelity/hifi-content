@@ -10,7 +10,7 @@
 
 (function(){
     var LIFETIME = 30; // seconds
-    var NOISEMAKER_SCRIPT = Script.resolvePath("./noisemaker.js?002");
+    var NOISEMAKER_SCRIPT = Script.resolvePath("./noisemaker.js");
     var INTERVAL = 5000;
     var DISTANCE = 0.5;
     var DEBUG = false;
