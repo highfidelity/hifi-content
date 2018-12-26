@@ -17,7 +17,7 @@
     };
     var ANGULAR_VELOCITY_CHECK_MS = 100;
     var CHECKING_INTERVAL_DELAY = 100;
-    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan','Kaceyton', 'kaceytron', "Kaceytron"];
+    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan','Becky'];
     var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/blip.wav'));
     var SPIN_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/wheelSpin4Stretch.mp3'));
     var WAIT_BETWEEN_SPINS = 4000;

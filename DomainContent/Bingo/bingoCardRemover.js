@@ -1,5 +1,5 @@
 //
-//  bingoCardSpawner.js
+//  bingoCardRemover.js
 //
 //  Created by Rebecca Stankus on 06/11/18
 //  Copyright 2018 High Fidelity, Inc.
