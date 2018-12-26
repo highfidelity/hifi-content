@@ -12,7 +12,7 @@
     var _this;
 
     var TIME_CHECK_INTERVAL_MS = 50;
-    var FIREWORK_INTERVAL = 1000;
+    var FIREWORK_INTERVAL = 500;
     var ONE_THOUSAND = 1000;
     var SECONDS_PER_MINUTE = 60;
     var MINUTES_PER_HOUR = 60;
@@ -20,7 +20,16 @@
     var TARGET_TIME_INDEX = 13;
     var BALL_START_POSITION = { x: -29.8177, y: 6.8299, z: -108.6157 };
     var INTERVAL_DROP_DISTANCE_M = 0.0090;
-    var MUSIC = SoundCache.getSound(Script.resolvePath("assets/audio/auldJimi.mp3"));
+    var SONGS = [
+        SoundCache.getSound(Script.resolvePath("assets/audio/auldBoogie.mp3")),
+        SoundCache.getSound(Script.resolvePath("assets/audio/auldBrassy.mp3")),
+        SoundCache.getSound(Script.resolvePath("assets/audio/auldElectro.mp3")),
+        SoundCache.getSound(Script.resolvePath("assets/audio/auldGamey.mp3")),
+        SoundCache.getSound(Script.resolvePath("assets/audio/auldJazzy.mp3")),
+        SoundCache.getSound(Script.resolvePath("assets/audio/auldJimi.mp3")),
+        SoundCache.getSound(Script.resolvePath("assets/audio/auldMarchy.mp3"))
+    ];
+    var NUMBER_OF_SONGS = 7;
     var EXPLOSION = SoundCache.getSound(Script.resolvePath("assets/audio/explosion.mp3"));
     var FIREWORK = SoundCache.getSound(Script.resolvePath("assets/audio/firework.mp3"));
     var TICK = SoundCache.getSound(Script.resolvePath("assets/audio/tick.wav"));
@@ -28,6 +37,8 @@
     var HOURS_PER_DAY = 24;
     var MAX_NUMBER_OF_DROPS = 27;
 
+    var currentSongDuration;
+    var songVersion = 0;
     var injector;
     var ballDropInterval;
     var currentPosition = { x: -29.8177, y: 6.8299, z: -108.6157 };
@@ -41,6 +52,7 @@
     var targetName;
     var targetDate;
     var targetTime;
+    var target5Minutes;
     var targetHour;
     var targetDay;
     var targetMonth = "Dec";
@@ -106,6 +118,7 @@
             targetYear = targetDate.getFullYear();
             targetDay = targetDate.getDate();
             targetHour = targetDate.getHours();
+            target5Minutes = targetDate.getMinutes();
         },
 
         synchronize: function() {
@@ -157,6 +170,7 @@
         },
 
         timeUp: function() {
+            _this.playSound("auldLang", currentPosition);
             _this.playSound(EXPLOSION, currentPosition);
             numberOfDrops++;
             Script.clearInterval(_this.interval);
@@ -180,45 +194,76 @@
             }, FIREWORK_INTERVAL);
             Entities.editEntity(ballParticle, { isEmitting: true });
             Entities.editEntity(ball, { animation: { hold: false }});
-            _this.playSound(MUSIC, currentPosition);
             currentPosition = BALL_START_POSITION;
             Entities.editEntity(confetti, { isEmitting: true });
             Script.setTimeout(function() {
                 Script.clearInterval(_this.interval);
+                fireworks.forEach(function(firework) {
+                    var newX = (Math.random() * 60) + (BALL_START_POSITION.x - 30);
+                    var newY = (Math.random() * 20) + (BALL_START_POSITION.y + 5);
+                    var newZ = (Math.random() * 60) + (BALL_START_POSITION.z - 30);
+                    var newPosition = { x: newX, y: newY, z: newZ };
+                    Entities.editEntity(firework, { 
+                        position: newPosition,
+                        isEmitting: true
+                    });
+                    _this.playSound(FIREWORK, Entities.getEntityProperties( newPosition, 'position').position);
+                });
                 Entities.editEntity(ball, {
                     position: BALL_START_POSITION,
                     animation: { hold: true, currentFrame: 1 }
                 });
                 Entities.editEntity(innerBall, { position: BALL_START_POSITION});
-                Entities.editEntity(_this.entityID, { text: "DONE!" });
                 Entities.editEntity(confetti, { isEmitting: false });
                 Script.setTimeout(function() {
                     Entities.editEntity(ballParticle, { isEmitting: false });
                     if (numberOfDrops === MAX_NUMBER_OF_DROPS) {
+                        Entities.editEntity(_this.entityID, { text: "2019!" });
                         Entities.editEntity(cityListText, { text: "HAPPY NEW YEAR EVERYONE!" });
                     } else {
-                        targetHour++;
-                        if (targetHour > 23) {
-                            targetHour -= 24;
-                            targetDay++;
-                            if (targetDay > 30) {
-                                targetDay-= 31;
-                                targetMonth = "Jan";
-                                targetYear = 2019;
+                        target5Minutes += 5;
+                        if (target5Minutes > 59) {
+                            target5Minutes -= 60;
+                            targetHour++;
+                            if (targetHour > 23) {
+                                targetHour -= 24;
+                                targetDay++;
+                                if (targetDay > 30) {
+                                    targetDay-= 31;
+                                    targetMonth = "Jan";
+                                    targetYear = 2019;
+                                }
                             }
                         }
-                        targetTime = new Date(targetMonth + " " + targetDay + ", " + targetYear + " " + targetHour + 
-                            ":" + "00:00").getTime();
+                        targetTime = new Date(targetMonth + " " + targetDay + ", " + targetYear + " " + targetHour + ":" +
+                        target5Minutes + ":00").getTime();
                         currentCities++;
                         Entities.editEntity(cityListText, { text: cities[currentCities] });
                         _this.startSyncing();
                     }
                 }, 500);
-            }, MUSIC.duration * 1000);
+            }, currentSongDuration);
+            Script.setTimeout(function() {
+                fireworks.forEach(function (firework) {
+                    Entities.editEntity(firework, { isEmitting: false });
+                });
+            }, currentSongDuration + 1000);
         },
 
         playSound: function(sound, position) {
-            if (sound.downloaded) {
+            if (sound === "auldLang") {
+                if (SONGS[songVersion].downloaded) {
+                    currentSongDuration = SONGS[songVersion].duration * 1000;
+                    injector = Audio.playSound(SONGS[songVersion], {
+                        position: Entities.getEntityProperties(ball, 'position').position,
+                        volume: 1
+                    });
+                    songVersion++;
+                    if (songVersion === NUMBER_OF_SONGS) {
+                        songVersion = 0;
+                    }
+                }
+            } else if (sound.downloaded) {
                 injector = Audio.playSound(sound, {
                     position: Entities.getEntityProperties(ball, 'position').position,
                     volume: 1
@@ -237,7 +282,6 @@
                 Script.clearInterval(ballDropInterval);
             }
         }
-
     };
 
     return new Countdown;
