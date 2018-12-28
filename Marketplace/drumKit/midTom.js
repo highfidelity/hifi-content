@@ -2,6 +2,7 @@
 //  midTom.js
 //
 //  created by Rebecca Stankus on 01/24/18
+//  updated 12/26/18
 //  Copyright 2018 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -17,11 +18,11 @@
     var COLOR_3 = { blue: 87, green: 214, red: 71 };
     var COLOR_4 = { blue: 64, green: 170, red: 219 };
     var OFF_WHITE = { blue: 145, green: 145, red: 145 };
-    var TIMEOUT_10_MS = 10;
-    var TIMEOUT_100_MS = 100;
+    var TIMEOUT_MS = 100;
+    var MID_TOM_SOUND = SoundCache.getSound(Script.resolvePath("Assets/Sounds/midTom.wav"));
 
     var playing = false;
-    var sound;
+    var injector;
 
     var MidTom = function() {
         _this = this;
@@ -30,14 +31,38 @@
     MidTom.prototype = {
         preload: function(entityID){
             _this.entityID = entityID;
-            sound = SoundCache.getSound(Script.resolvePath("DrumKit/ambient_tom_2.wav"));
         },
+        
+        // In HMD, listen for collisions and then change to a random color and play a sound. Collision type 0 is the 
+        // start of a collision, whereas 1 would be the continuation and 2 would be the end. The use of the variable 
+        // "playing" with a timeout prevents the drum from being played too quickly in succession.
         collisionWithEntity: function(thisEntity, otherEntity, collision) {
-            if (collision.type === 0) {
-                this.playSound();
+            if (collision.type === 0 && !playing) {
+                _this.playSound(MID_TOM_SOUND);
+                _this.colorChange();
+                playing = true;
+                Script.setTimeout(function() {
+                    playing = false;
+                    Entities.editEntity(_this.entityID, {color: OFF_WHITE});
+                }, TIMEOUT_MS);
             }
         },
-        playSound: function() {
+
+        // In desktop, listen for mouse clicks and then check that it was the left mouse button before playing the drum.
+        // This will initiate the color change, sound, and timeout as above.
+        clickReleaseOnEntity: function(entityID, mouseEvent) {
+            if (mouseEvent.isLeftButton && !playing) {
+                _this.playSound(MID_TOM_SOUND);
+                _this.colorChange();
+                playing = true;
+                Script.setTimeout(function() {
+                    playing = false;
+                    Entities.editEntity(_this.entityID, {color: OFF_WHITE});
+                }, TIMEOUT_MS);
+            }
+        },
+
+        colorChange: function() {
             var colorChange = Math.floor(Math.random() * 4);
             var newColor;
             switch (colorChange) {
@@ -56,27 +81,21 @@
                 default:
                     newColor = COLOR_4;
             }
-            _this.homePos = Entities.getEntityProperties(_this.entityID, ["position"]).position;
-            _this.injector = Audio.playSound(_this.sound, {position: _this.homePos, volume: AUDIO_VOLUME_LEVEL});
-            if (sound.downloaded && !playing) {
-                Audio.playSound(sound, {
-                    position: _this.homePos,
+            Entities.editEntity(_this.entityID, {color: newColor});
+        },
+
+        playSound: function(sound) {
+            if (sound.downloaded) {
+                injector = Audio.playSound(sound, {
+                    position: Entities.getEntityProperties(_this.entityID, ["position"]).position,
                     volume: AUDIO_VOLUME_LEVEL
                 });
-                Entities.editEntity(_this.entityID, {color: newColor});
-                playing = true;
-                Script.setTimeout(function() {
-                    playing = false;
-                }, TIMEOUT_10_MS);
-                Script.setTimeout(function() {
-                    playing = false;
-                    Entities.editEntity(_this.entityID, {color: OFF_WHITE});
-                }, TIMEOUT_100_MS);
             }
         },
-        clickReleaseOnEntity: function(entityID, mouseEvent) {
-            if (mouseEvent.isLeftButton) {
-                this.playSound();
+        
+        unload: function() {
+            if (injector) {
+                injector.stop();
             }
         }
     };
