@@ -107,7 +107,7 @@
 
         function splitDanceUrls() {
             // Capture the different parts of the Dance URL to be used for the dance object
-            var regex = /((?:https:|file:\/)\/\/.*\/)([a-zA-Z0-9 ]+) (\d+)(.fbx)/;
+            var regex = /((?:https:|http:|file:\/)\/\/.*\/)([a-zA-Z0-9 ]+) (\d+)(.fbx)/;
             danceUrls.sort(function(a,b) { 
                 // Sort the urls by charachter 
                 if (a.toLowerCase() < b.toLowerCase()) { 
@@ -118,6 +118,7 @@
                 return 0; 
             }).forEach(function(dance, index) {
                 // Use the regex match to make DanceAnimation objects
+                console.log("\n\n### Dance: ", dance);
                 var regMatch = regex.exec(dance);
                 dataStore.danceObjects.push(
                     new DanceAnimation(
@@ -393,7 +394,7 @@
     // Tablet
     // /////////////////////////////////////////////////////////////////////////
         function startup() {
-            ui = new appUI({
+            ui = new appUi({
                 buttonName: BUTTON_NAME,
                 home: URL,
                 graphicsDirectory: Script.resolvePath("./icons/tablet-icons/"),
