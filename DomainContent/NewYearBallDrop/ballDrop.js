@@ -18,7 +18,7 @@
     var MINUTES_PER_HOUR = 60;
     var TWO_DIGITS = 10;
     var TARGET_TIME_INDEX = 13;
-    var BALL_START_POSITION = { x: -29.8177, y: 6.8299, z: -108.6157 };
+    var BALL_START_POSITION = { x: -30.8416, y: 21.7429, z: -110.2663 };
     var INTERVAL_DROP_DISTANCE_M = 0.0090;
     var SONGS = [
         SoundCache.getSound(Script.resolvePath("assets/audio/auldBoogie.mp3")),
@@ -36,12 +36,13 @@
     var TOCK = SoundCache.getSound(Script.resolvePath("assets/audio/tock.wav"));
     var HOURS_PER_DAY = 24;
     var MAX_NUMBER_OF_DROPS = 27;
+    var PRE_COUNTDOWN_TEXT = "Countdown Starts Soon!";
 
     var currentSongDuration;
     var songVersion = 0;
     var injector;
     var ballDropInterval;
-    var currentPosition = { x: -29.8177, y: 6.8299, z: -108.6157 };
+    var currentPosition = { x: -30.8416, y: 21.7429, z: -110.2663 };
     var confetti;
     var ball = "{6414271b-f0f4-4a62-b196-ac83dfd95253}";
     var innerBall = "{42910458-c9e3-4a83-93d4-f5732b6a516e}";
@@ -89,7 +90,7 @@
                 animation: { hold: true, currentFrame: 1 }
             });
             Entities.editEntity(innerBall, { position: BALL_START_POSITION });
-            Entities.editEntity(cityListText, { text: "" });
+            Entities.editEntity(cityListText, { text: PRE_COUNTDOWN_TEXT });
             _this.entityID = entityID;
             _this.getTargetTime();
             _this.startSyncing();
@@ -104,7 +105,7 @@
         },
 
         startSyncing: function() {
-            currentPosition = { x: -29.8177, y: 6.8299, z: -108.6157 };
+            currentPosition = { x: -30.8416, y: 21.7429, z: -110.2663 };
             _this.interval = Script.setInterval(function() {
                 _this.synchronize();
             }, TIME_CHECK_INTERVAL_MS);
@@ -126,10 +127,11 @@
             var hours = Math.floor((untilTargetTime % (ONE_THOUSAND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY))
                  / (ONE_THOUSAND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR ));
             if (hours > 0) {
+                Entities.editEntity(cityListText, { text: PRE_COUNTDOWN_TEXT });
                 Entities.editEntity(_this.entityID, { text: "--:--" });
                 return;
             } else {
-                if (!Entities.getEntityProperties(cityListText, 'text').text) {
+                if (Entities.getEntityProperties(cityListText, 'text').text === PRE_COUNTDOWN_TEXT) {
                     currentCities = 0;
                     Entities.editEntity(cityListText, { text: cities[currentCities] });
                 }
