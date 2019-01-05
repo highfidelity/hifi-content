@@ -1,0 +1,2939 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{5bdd3cf4-67cf-4c0e-8687-a344afb1c6a3}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873124749,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.4317626953125,
+        "y": 0.035999998450279236,
+        "z": -0.017806529998779297
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 4",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.857840538024902,
+        "y": -19.554805755615234,
+        "z": -20.56414794921875,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{59317587-e0dc-4507-b556-102b2c01d491}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873123566,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.3695182800292969,
+        "y": 0.035999998450279236,
+        "z": -0.017806529998779297
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 7",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.862187385559082,
+        "y": -19.5548152923584,
+        "z": -20.626237869262695,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{2d751d2a-f20c-47de-9aca-1ff78b6ff104}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873125405,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.4697456359863281,
+        "y": 0.035999998450279236,
+        "z": -0.017808914184570312
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 2",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.855186462402344,
+        "y": -19.55480194091797,
+        "z": -20.52625846862793,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{81b87ffe-c59d-4fac-a889-dfdc010493cf}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641218676255,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.05500030517578125,
+        "y": 0.035999998450279236,
+        "z": -0.017812252044677734
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 23",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.88414478302002,
+        "y": -19.554855346679688,
+        "z": -20.93997573852539,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{1ef59d74-262b-4901-acff-380a142ea0a5}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252585228,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.1981353759765625,
+        "y": 0.023000000044703484,
+        "z": -0.017807483673095703
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "scriptTimestamp": 1516230441805,
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 16",
+    "shape": "Cube",
+    "color": {
+        "red": 77,
+        "green": 2,
+        "blue": 48
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.874154090881348,
+        "y": -19.56783676147461,
+        "z": -20.79719352722168,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{4cce4bc4-a9cd-4a83-b9d3-60474ec24419}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252131014,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.2974205017089844,
+        "y": 0.035999998450279236,
+        "z": -0.01780843734741211
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 11",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.867219924926758,
+        "y": -19.55482292175293,
+        "z": -20.698156356811523,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{6009a8b0-0167-4ea5-bcdd-07cb7857cfb6}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873129991,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.08840560913085938,
+        "y": 0.035999998450279236,
+        "z": -0.01781463623046875
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 21",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.88180923461914,
+        "y": -19.554851531982422,
+        "z": -20.906654357910156,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{327790f0-ed6c-4269-80dd-c6149c1b27a2}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873121960,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.1254119873046875,
+        "y": 0.035999998450279236,
+        "z": -0.017812252044677734
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 19",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.879227638244629,
+        "y": -19.554845809936523,
+        "z": -20.869739532470703,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{e1ca01f6-24cc-49ef-bcbb-b8e10cfaa3a8}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641253255656,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.22892379760742188,
+        "y": 0.035999998450279236,
+        "z": -0.017809391021728516
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 14",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.872002601623535,
+        "y": -19.554832458496094,
+        "z": -20.766483306884766,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{4b7999eb-906a-4ad9-ae92-fc72447b8422}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873129510,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.330810546875,
+        "y": 0.035999998450279236,
+        "z": -0.01780843734741211
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000457763671875,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 9",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.864888191223145,
+        "y": -19.554819107055664,
+        "z": -20.66485023498535,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{ffe88040-a0c0-462a-84b2-c355f34521cd}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641251631103,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.013492584228515625,
+        "y": 0.035999998450279236,
+        "z": -0.017812728881835938
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 26",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.88892650604248,
+        "y": -19.55486488342285,
+        "z": -21.008298873901367,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{625edf0c-660e-418a-b381-94d78465890f}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641251411425,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.04705047607421875,
+        "y": 0.035999998450279236,
+        "z": -0.017817020416259766
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 28",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.891265869140625,
+        "y": -19.554868698120117,
+        "z": -21.04177474975586,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{c8aa1370-7ef1-47c8-8e06-ee8d9c0815a9}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641212535772,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.209564208984375,
+        "y": 0.019300000742077827,
+        "z": -0.000004291534423828125
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 15",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.866765975952148,
+        "y": -19.595884323120117,
+        "z": -20.80889892578125,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{9ef37ccd-fec8-4708-b11d-807b00e72eab}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873126742,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.4514923095703125,
+        "y": 0.019300000742077827,
+        "z": 0.00000476837158203125
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": -0.0000457763671875,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 3",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.849881172180176,
+        "y": -19.595853805541992,
+        "z": -20.567569732666016,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{2f59ed43-afaa-47de-9224-e73cd92d8fea}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641258099393,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.035888671875,
+        "y": 0.019300000742077827,
+        "z": -0.000007152557373046875
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 24",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.878890991210938,
+        "y": -19.59590721130371,
+        "z": -20.98214340209961,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{4731cf81-e4bb-4d7a-8dfd-feac74fef566}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641255990339,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.002414703369140625,
+        "y": 0.019300000742077827,
+        "z": -0.0000057220458984375
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 25",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.881229400634766,
+        "y": -19.595911026000977,
+        "z": -21.015535354614258,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{2a1a7710-2016-41b5-a343-2a9420ac9dba}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873127488,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.509876012802124,
+        "y": 0.020148277282714844,
+        "z": -0.000008285045623779297
+    },
+    "dimensions": {
+        "x": 0.028699999675154686,
+        "y": 0.06511684507131577,
+        "z": 0.20000000298023224
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Base Side",
+    "shape": "Cube",
+    "color": {
+        "red": 28,
+        "green": 15,
+        "blue": 2
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.888360023498535,
+        "y": -19.62377166748047,
+        "z": -21.55519676208496,
+        "scale": 0.21228258311748505
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{948793af-8e3f-4320-8b24-b8cdd4a07760}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873128850,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.3123970031738281,
+        "y": 0.019300000742077827,
+        "z": 4.76837158203125e-7
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 10",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.859589576721191,
+        "y": -19.595870971679688,
+        "z": -20.706321716308594,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{55e5caef-70a8-4e0a-940a-d2eaf2dccbe3}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873123097,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.3477668762207031,
+        "y": 0.019300000742077827,
+        "z": 0.00000286102294921875
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 8",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.857122421264648,
+        "y": -19.595867156982422,
+        "z": -20.671039581298828,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{f8e4a4b7-3beb-42f1-9de2-7f35c650a850}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873130897,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.38274383544921875,
+        "y": 0.019300000742077827,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 6",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.854677200317383,
+        "y": -19.595861434936523,
+        "z": -20.63614845275879,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{59e17083-a48c-4350-b5bd-83ac563b50ea}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641383352406,
+    "lastEditedBy": "{9d0d6fce-1fd5-4de0-94d7-b7b7271ca2b3}",
+    "position": {
+        "x": 0.3949623107910156,
+        "y": 0.035999998450279236,
+        "z": -0.017822265625
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 45",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.915555000305176,
+        "y": -19.554912567138672,
+        "z": -21.388822555541992,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{48a7ddef-f14b-431a-b6eb-9b3b11ada9c7}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873130289,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.13438796997070312,
+        "y": 0.019300000742077827,
+        "z": -0.000007152557373046875
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 32",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.89078140258789,
+        "y": -19.595928192138672,
+        "z": -21.15199851989746,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{725dc4a4-5234-4260-8f55-48e875ca65ca}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252089772,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.18595123291015625,
+        "y": 0.035999998450279236,
+        "z": -0.01781749725341797
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 35",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.900964736938477,
+        "y": -19.554885864257812,
+        "z": -21.180330276489258,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{a3a43829-382a-4367-80c3-c72c4163016a}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252413160,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.238800048828125,
+        "y": 0.019300000742077827,
+        "z": -0.000008106231689453125
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "scriptTimestamp": 1516230733912,
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 37",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.8980712890625,
+        "y": -19.5959415435791,
+        "z": -21.25615119934082,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{2af4c2a5-e43d-4031-84e9-b83bff9a1a28}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252395416,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.204742431640625,
+        "y": 0.019300000742077827,
+        "z": -0.000007152557373046875
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 36",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.8956937789917,
+        "y": -19.595937728881836,
+        "z": -21.222177505493164,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{ebe48474-621b-4388-b56c-7885236e8478}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641254397057,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.308837890625,
+        "y": 0.019300000742077827,
+        "z": -0.00000858306884765625
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 41",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.902961730957031,
+        "y": -19.595951080322266,
+        "z": -21.32601547241211,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{1f670da2-f6db-4e24-bb9d-bd20fd427f8e}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641382866292,
+    "lastEditedBy": "{9d0d6fce-1fd5-4de0-94d7-b7b7271ca2b3}",
+    "position": {
+        "x": 0.40926361083984375,
+        "y": 0.019300000742077827,
+        "z": -0.000011920928955078125
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": 0.0000457763671875,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 46",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.909971237182617,
+        "y": -19.595964431762695,
+        "z": -21.426191329956055,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{9683be65-f822-48e1-ae46-d2cc83668748}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641213442005,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.106842041015625,
+        "y": 0.019300000742077827,
+        "z": -0.00000286102294921875
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 20",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.873940467834473,
+        "y": -19.595897674560547,
+        "z": -20.911365509033203,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{bca5fd43-69a0-4232-b153-79ec77722edc}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873129054,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.16976165771484375,
+        "y": 0.019300000742077827,
+        "z": -0.000006198883056640625
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 34",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.8932523727417,
+        "y": -19.59593391418457,
+        "z": -21.187284469604492,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{cdef5731-65a3-47fd-8d3a-25fbbf7282f3}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873129645,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.4167213439941406,
+        "y": 0.019300000742077827,
+        "z": 0.0000019073486328125
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": -0.0000457763671875,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 5",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.852306365966797,
+        "y": -19.595857620239258,
+        "z": -20.60225486755371,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{4772bc41-8663-469d-a683-74a4c17038b9}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873130573,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.11554336547851562,
+        "y": 0.035999998450279236,
+        "z": -0.017813682556152344
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 31",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.896052360534668,
+        "y": -19.55487823486328,
+        "z": -21.110095977783203,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{ed0440b0-737b-4750-866d-20dcf96c0a48}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641256787661,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.03255462646484375,
+        "y": 0.019300000742077827,
+        "z": -0.0000057220458984375
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 27",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.883671760559082,
+        "y": -19.595914840698242,
+        "z": -21.050416946411133,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{7e633492-be4b-4872-ac0f-447deff5de1f}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641253434595,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.4777412414550781,
+        "y": 0.019300000742077827,
+        "z": -0.00001430511474609375
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": 0.0000457763671875,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "scriptTimestamp": 1516900762222,
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 49",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.914750099182129,
+        "y": -19.59597396850586,
+        "z": -21.49449920654297,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{8ee275bf-cf75-42d3-8b9c-30a2c28a6432}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252506531,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.289459228515625,
+        "y": 0.035999998450279236,
+        "z": -0.017818927764892578
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 40",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.908191680908203,
+        "y": -19.554899215698242,
+        "z": -21.283580780029297,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{46de8cf5-b6cf-4b16-92fb-ed1f27341b96}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641258572167,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.09941482543945312,
+        "y": 0.019300000742077827,
+        "z": -0.000006198883056640625
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 30",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.88833999633789,
+        "y": -19.595924377441406,
+        "z": -21.117111206054688,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{89b76938-9e87-4189-a0f6-a9b3a0f56a95}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641253676376,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.3754920959472656,
+        "y": 0.019300000742077827,
+        "z": -0.000010967254638671875
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 44",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.907613754272461,
+        "y": -19.59596061706543,
+        "z": -21.39250373840332,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{0133fa0f-871e-4b9e-92bb-9a19b565689e}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641258818008,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.07076263427734375,
+        "y": 0.019300000742077827,
+        "z": -0.000003337860107421875
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 22",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.876459121704102,
+        "y": -19.595901489257812,
+        "z": -20.947355270385742,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{f40e6143-1283-4697-ae6c-15a5f27b9c73}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641212864947,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.17579269409179688,
+        "y": 0.019300000742077827,
+        "z": -0.000004291534423828125
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": -0.0000457763671875,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "scriptTimestamp": 1546630721982,
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 17",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.869124412536621,
+        "y": -19.595888137817383,
+        "z": -20.842586517333984,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{03ac8961-2134-40bd-b5f2-5996f5c5394e}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641383964120,
+    "lastEditedBy": "{9d0d6fce-1fd5-4de0-94d7-b7b7271ca2b3}",
+    "position": {
+        "x": 0.3579597473144531,
+        "y": 0.035999998450279236,
+        "z": -0.017820358276367188
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 43",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.912973403930664,
+        "y": -19.554908752441406,
+        "z": -21.351911544799805,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{635110f8-5195-4b59-a576-d08fa68b01ec}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252507040,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.27371978759765625,
+        "y": 0.019300000742077827,
+        "z": -0.0000057220458984375
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 39",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.900511741638184,
+        "y": -19.595947265625,
+        "z": -21.290985107421875,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{b2f5c880-c551-4c4d-9687-9baeecba8844}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641211428469,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.2774200439453125,
+        "y": 0.019300000742077827,
+        "z": -4.76837158203125e-7
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 12",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.862030982971191,
+        "y": -19.595874786376953,
+        "z": -20.7412109375,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{fbcc9fa8-69d9-4e96-b75d-3ef91043cfce}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252942939,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.3423576354980469,
+        "y": 0.019300000742077827,
+        "z": -0.000008106231689453125
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 42",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.905303001403809,
+        "y": -19.59595489501953,
+        "z": -21.359451293945312,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{ff51775f-642f-41ae-922b-afb58658928e}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641257677452,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.06603622436523438,
+        "y": 0.019300000742077827,
+        "z": -0.00000476837158203125
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 29",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.88601016998291,
+        "y": -19.59592056274414,
+        "z": -21.083816528320312,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{6cfdaead-8ad1-4a60-9b59-55e2fde14cd9}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641253256391,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.4438514709472656,
+        "y": 0.019300000742077827,
+        "z": -0.000010967254638671875
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": 0.0000457763671875,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 48",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.912386894226074,
+        "y": -19.59596824645996,
+        "z": -21.460693359375,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{beeff4fb-0899-4bb7-92ab-b71020714407}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252177047,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.2439422607421875,
+        "y": 0.019300000742077827,
+        "z": 9.5367431640625e-7
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "scriptTimestamp": 1516230733912,
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 13",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.864370346069336,
+        "y": -19.59588050842285,
+        "z": -20.774606704711914,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{e4c7be30-73bb-493d-9f2d-477a74ce8f4d}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252505942,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.2544364929199219,
+        "y": 0.035999998450279236,
+        "z": -0.01781749725341797
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 38",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.905747413635254,
+        "y": -19.554895401000977,
+        "z": -21.248645782470703,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{5541ff0f-713a-4599-b4b1-363d952afd30}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641253352788,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.4286460876464844,
+        "y": 0.035999998450279236,
+        "z": -0.017807960510253906
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 47",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.917922019958496,
+        "y": -19.55491828918457,
+        "z": -21.422422409057617,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{a29b9687-2fd9-456a-8db5-c66953df55e6}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641213051115,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.14181900024414062,
+        "y": 0.019300000742077827,
+        "z": -0.0000019073486328125
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 18",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.871499061584473,
+        "y": -19.59589385986328,
+        "z": -20.876476287841797,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{dac8fccc-19a7-450e-9a1f-3ec999ef35d2}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873122606,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.48616790771484375,
+        "y": 0.019300000742077827,
+        "z": 0.000003814697265625
+    },
+    "dimensions": {
+        "x": 0.029999999329447746,
+        "y": 0.02500000037252903,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000762939453125,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "scriptTimestamp": 1516216380628,
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key White 1",
+    "shape": "Cube",
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.847458839416504,
+        "y": -19.595848083496094,
+        "z": -20.532981872558594,
+        "scale": 0.1550000011920929
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{3ab799b6-060b-4ee4-8102-4608c26eefa1}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546641252035832,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.15255355834960938,
+        "y": 0.035999998450279236,
+        "z": -0.017816543579101562
+    },
+    "dimensions": {
+        "x": 0.019999999552965164,
+        "y": 0.029999999329447746,
+        "z": 0.10000000149011612
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000762939453125,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Key Black 33",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.89863395690918,
+        "y": -19.554882049560547,
+        "z": -21.147014617919922,
+        "scale": 0.1063014566898346
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{1d614b16-fd99-445b-990b-3b4be09c254e}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873128659,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": -0.5150413513183594,
+        "y": 0.020051002502441406,
+        "z": -0.00031006336212158203
+    },
+    "dimensions": {
+        "x": 0.028699999675154686,
+        "y": 0.06511684507131577,
+        "z": 0.20000000298023224
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Base Side",
+    "shape": "Cube",
+    "color": {
+        "red": 28,
+        "green": 15,
+        "blue": 2
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.816488265991211,
+        "y": -19.623737335205078,
+        "z": -20.53284454345703,
+        "scale": 0.21228258311748505
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{9dc8ef0d-8e0c-4dd6-866a-fa7a9449510f}",
+    "type": "Zone",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640916322330,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.000003814697265625,
+        "y": 0,
+        "z": -0.000002384185791015625
+    },
+    "dimensions": {
+        "x": 2.0564804077148438,
+        "y": 1.532719612121582,
+        "z": 1.6730003356933594
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardZone.js",
+    "scriptTimestamp": 1546640913512,
+    "visible": false,
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Zone",
+    "shapeType": "box",
+    "flyingAllowed": false,
+    "ghostingAllowed": false,
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 8.427785873413086,
+        "y": -21.068828582763672,
+        "z": -22.471561431884766,
+        "scale": 3.0622332096099854
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{28262783-d0e0-49a8-8e4a-0badb31c5628}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546640873125971,
+    "lastEditedBy": "{80097f4f-1687-45ae-bced-de056c024fdb}",
+    "position": {
+        "x": 0.004052162170410156,
+        "y": 0.020114898681640625,
+        "z": -0.0835118293762207
+    },
+    "dimensions": {
+        "x": 1.0364999771118164,
+        "y": 0.06484540551900864,
+        "z": 0.03303997218608856
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/entityClientScripts/keyboardKey.js",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Base Back",
+    "shape": "Cube",
+    "color": {
+        "red": 28,
+        "green": 15,
+        "blue": 2
+    },
+    "parentID": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "queryAACube": {
+        "x": 9.35635757446289,
+        "y": -20.03712272644043,
+        "z": -21.4698429107666,
+        "scale": 1.0390517711639404
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{051d9352-a9c3-4617-a0da-ac7b2ad46d59}",
+    "type": "Box",
+    "created": "2019-01-02T18:53:40Z",
+    "lastEdited": 1546638779062839,
+    "lastEditedBy": "{6fde2565-aebb-4595-b189-4003fe7fb028}",
+    "dimensions": {
+        "x": 1.0364999771118164,
+        "y": 0.02449999935925007,
+        "z": 0.20000000298023224
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": 0.6819714307785034,
+        "z": -0.0000457763671875,
+        "w": 0.7313497066497803
+    },
+    "scriptTimestamp": 1516387996321,
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "name": "Keyboard Base Bottom",
+    "shape": "Cube",
+    "color": {
+        "red": 28,
+        "green": 15,
+        "blue": 2
+    },
+    "queryAACube": {
+        "x": -0.5279517769813538,
+        "y": -0.5279517769813538,
+        "z": -0.5279517769813538,
+        "scale": 1.0559035539627075
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+}
+    ],
+  "Id": "{ad69c723-a9dd-450f-87ea-2cf5e5258b6b}",
+  "Version": 98
+}
