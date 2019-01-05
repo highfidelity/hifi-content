@@ -6,14 +6,13 @@
     var debug = true;
     var FALSE = "false";
 
-
     function log(message, object, enabled){
         if (!debug || enabled === FALSE) {
             return;
         }
 
         print("\n\n");
-        print("\t" + message);
+        print("\t" + message + ":");
 
         if (object) {
             print("\t\t" + JSON.stringify(object));
@@ -23,7 +22,6 @@
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
-
 
     var isEnabled = true;
     // var appUi = Script.require('appUi');
@@ -64,27 +62,21 @@
         var res = Pointers.getPrevPickResult(pointer);
         print(res.objectID);
         if (typeof res.objectID === "string") {
-            if (!(soloAvatars.indexOf(res.objectID) !== -1)) {
-                soloAvatar(res.objectID);
-            }
+            soloAvatar(res.objectID);
         }
     });
 
     mapping.from(Controller.Standard.RT).to(function(value) {
         var res = Pointers.getPrevPickResult(pointerRightHand);
         if (typeof res.objectID === "string") {
-            if (!(soloAvatars.indexOf(res.objectID) !== -1)) {
-                soloAvatar(res.objectID);
-            }
+            soloAvatar(res.objectID);
         }
     });
 
     mapping.from(Controller.Standard.LT).to(function(value) {
         var res = Pointers.getPrevPickResult(pointerLeftHand);
         if (typeof res.objectID === "string") {
-            if (!(soloAvatars.indexOf(res.objectID) !== -1)) {
-                soloAvatar(res.objectID);
-            }
+            soloAvatar(res.objectID);
         }
     });
 
@@ -98,6 +90,7 @@
         var getAvatarClicked = AvatarList.getAvatar(entityClicked);
         // var entityPosition = getAvatarClicked.position;
         var displayUsername = getAvatarClicked.sessionDisplayName;
+        log("avatar clicked", displayUsername);
 
         soloAvatars.push(entityClicked);
     } 
