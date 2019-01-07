@@ -53,7 +53,7 @@
             template: /*html*/`
             <div>
                 <div class="logo">
-                    <img src="./Assets/DANCE-i.svg" class=" mt-2 ml-3" style="height: 1.95rem;" >  
+                    <img src="./Assets/DANCE-i.png" class=" mt-2 ml-3" style="height: 1.95rem;" >  
                     <span style="font-size: 1.25rem; position: relative; top: 5px;" class="mt-5 white-text">DANCE!</span>
                 </div>
                 <hr class="divider">
