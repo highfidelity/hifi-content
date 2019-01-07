@@ -118,7 +118,6 @@
                 return 0; 
             }).forEach(function(dance, index) {
                 // Use the regex match to make DanceAnimation objects
-                console.log("\n\n### Dance: ", dance);
                 var regMatch = regex.exec(dance);
                 dataStore.danceObjects.push(
                     new DanceAnimation(
