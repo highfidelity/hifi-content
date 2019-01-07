@@ -8,6 +8,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* global Entities, MyAvatar, Script */
+
 (function() {
     var MIN_DISTANCE_TO_FINGERTIP = 0.001;
     var FINGER_ENTITY_DIMENSIONS = {x: 0.005,y: 0.005,z: 0.005};
@@ -15,7 +17,6 @@
     var POSITION_CHECK_TIMEOUT_MS = 3000;
 
     var fingerEntities = [];
-    var distance;
     var interval;
     var _this;
 
@@ -24,10 +25,19 @@
     };
 
     Keyboard.prototype = {
+
+        /* ON PRELOAD: Save a reference to this key */
         preload: function(entityID) {
             _this.entityID = entityID;
         },
 
+        /* ENTER ENTITY: Upon entering this zone around the keyboard, create small sphere entities at the tip of each 
+        finger and set up an interval that checks the distance between each sphere entity and its respective fingertip 
+        every 100 MS for 3 seconds. This interval will account for cases where the entities were not placed in the 
+        correct position, usually due avatar movement upon entering the zone, by moving the sphere closer to the 
+        correct position on every interval check if possible. The keyboard base is found and hand touch is removed 
+        for it and all of its child entities as all parts of the keyboard are parented to this base. This will 
+        prevent fingers from moving uncontrollably upon approaching parts of the keyboard. */
         enterEntity: function() {
             _this.createFingertipEntity("LeftHandIndex4");
             _this.createFingertipEntity("LeftHandThumb4");
@@ -50,6 +60,8 @@
             });
         },
 
+        /* LEAVE ENTITY: Upon leaving the zone around the keyboard, clear the interval if it has not yet stopped and 
+        delete all spheres attached to the fingers*/
         leaveEntity: function() {
             if (interval) {
                 Script.clearInterval(interval);
@@ -60,6 +72,9 @@
             fingerEntities = [];
         },
 
+        /* CREATE FINGER TIP ENTITIES: Find the 4th joint (fingertip) for each finger and create a small sphere at its 
+        position that is parented to the avatar at that joint. If the 4th joint does not exist, fall back to using the 
+        3rd joint. Store the IDs of these spheres for later use and update the position for each one. */
         createFingertipEntity: function(finger) {
             if (MyAvatar.getJointIndex(finger) === -1) {
                 finger = finger.substr(0, finger.length + -1);
@@ -88,21 +103,21 @@
             _this.updatePositions();
         },
 
+        /* For each sphere entity at the finger tips, get its position and the position of its parent joint. If the 
+        distance is more than the preset minimum, the sphere is too far away from the actual finger joint. Move it closer.*/
         updatePositions: function() {
             fingerEntities.forEach(function(entity) {
                 var properties = Entities.getEntityProperties(entity, ['position', 'parentJointIndex']);
                 var fingerEntityPosition = properties.position;
                 var fingertipPosition = MyAvatar.getJointPosition(properties.parentJointIndex);
-                distance = Vec3.distance(fingerEntityPosition, fingertipPosition);
+                var distance = Vec3.distance(fingerEntityPosition, fingertipPosition);
                 if (distance > MIN_DISTANCE_TO_FINGERTIP) {
                     Entities.editEntity(entity, {position: fingertipPosition});
-                    fingerEntityPosition = Entities.getEntityProperties(entity, 'position').position;
-                    fingertipPosition = MyAvatar.getJointPosition(properties.parentJointIndex);
-                    distance = Vec3.distance(fingerEntityPosition, fingertipPosition);
                 }
             });
         },
 
+        /* ON UNLOADING THE SCRIPT: Make sure the avatar leaves the zone so extra entities are deleted and intervals ended */
         unload: function(){
             _this.leaveEntity();
         }

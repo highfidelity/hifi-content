@@ -9,15 +9,13 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* global Audio, Entities, Script, SoundCache */
+
 (function() { 
     var _this;
 
+    var COLOR_CHANGE_TIMEOUT_MS = 250;
     var AUDIO_VOLUME_LEVEL = 1;
-    var WHITE_KEY_LOCAL_Y_POSITION_UP = 0.0193;
-    var WHITE_KEY_LOCAL_Y_POSITION_DOWN = 0.0083;
-    var BLACK_KEY_LOCAL_Y_POSITION_UP = 0.0360;
-    var BLACK_KEY_LOCAL_Y_POSITION_DOWN = 0.0230;
-    var AUDIO_VOLUME = 1;
     var WHITE = { blue: 255, green: 255, red: 255 };
     var BLACK = { blue: 0, green: 0, red: 0 };
     var RANDOM_COLOR_LIGHT_1 = { blue: 162, green: 77, red: 214 };
@@ -31,11 +29,12 @@
     var KEY_COLOR_INDEX_START = 13;
     var KEY_COLOR_LENGTH = 5;
     var KEY_NUMBER_INDEX = 19;
-    var COLOR_CHANGE_TIMEOUT = 250;
+    var MINIMUM_KEY_REPEAT_MS = 10;
 
-    var playing = false;
     var sound;
-    var keyColor;
+    var keyDefaultColor;
+    var keyPosition;
+    var playing = false;
 
     var Key = function() {
         _this = this;
@@ -43,99 +42,111 @@
 
     Key.prototype = {
 
+        /* ON PRELOAD: Save a reference to this key and set up some data about its position, sound, and color */
         preload: function(entityID){
             _this.entityID = entityID;
             _this.setKeyData();
         },
 
-        /* ON COLLISION WITH AN ENTITY: When an entity collides with a keyboard key, play the corresponding key sound */
+        /* ON COLLISION WITH AN ENTITY: When an entity starts to collide with this keyboard key, change the key color, 
+        and play the corresponding key sound. When the entity stops colliding, return the key to its default color */
         collisionWithEntity: function(thisEntity, otherEntity, collision) {
-            if (collision.type === 0) {
-                _this.playSound();
-            } 
-        },
-
-        /* PLAY SOUND: Plays the specified sound at the position of the key */
-        playSound: function() {
-            var colorChange = Math.floor(Math.random() * 4);
-            var newColor;
-            _this.homePosition = Entities.getEntityProperties(_this.entityID, ["position"]).position;
-            _this.injector = Audio.playSound(_this.sound, {position: _this.homePos, volume: AUDIO_VOLUME});
-            if (sound.downloaded && !playing) {
-                var position = Entities.getEntityProperties(_this.entityID, 'localPosition').localPosition;
-                if (keyColor === "White") {
-                    switch (colorChange) {
-                        case 0:
-                            newColor = RANDOM_COLOR_LIGHT_1;
-                            break;
-                        case 1:
-                            newColor = RANDOM_COLOR_LIGHT_2;
-                            break;
-                        case 2:
-                            newColor = RANDOM_COLOR_LIGHT_3;
-                            break;
-                        case 3:
-                            newColor = RANDOM_COLOR_LIGHT_4;
-                            break;
-                        default:
-                            newColor = RANDOM_COLOR_LIGHT_4;
-                    } 
-                    position.y = WHITE_KEY_LOCAL_Y_POSITION_DOWN;
-                } else {
-                    switch (colorChange) {
-                        case 0:
-                            newColor = RANDOM_COLOR_DARK_1;
-                            break;
-                        case 1:
-                            newColor = RANDOM_COLOR_DARK_2;
-                            break;
-                        case 2:
-                            newColor = RANDOM_COLOR_DARK_3;
-                            break;
-                        case 3:
-                            newColor = RANDOM_COLOR_DARK_4;
-                            break;
-                        default:
-                            newColor = RANDOM_COLOR_DARK_4;
-                    }
-                    position.y = BLACK_KEY_LOCAL_Y_POSITION_DOWN;
-                }
-                Entities.editEntity(_this.entityID, {
-                    localPosition: position,
-                    color: newColor
-                });
-                Audio.playSound(sound, {
-                    position: _this.homePosition,
-                    volume: AUDIO_VOLUME_LEVEL
-                });
+            if (collision.type === 0 && playing === false) {
                 playing = true;
                 Script.setTimeout(function() {
-                    if (keyColor === "White") {
-                        position.y = WHITE_KEY_LOCAL_Y_POSITION_UP;
-                        newColor = WHITE;
-                    } else {
-                        position.y = BLACK_KEY_LOCAL_Y_POSITION_UP;
-                        newColor = BLACK;
-                    }
-                    Entities.editEntity(_this.entityID, {
-                        localPosition: position,
-                        color: newColor
-                    });
                     playing = false;
-                }, COLOR_CHANGE_TIMEOUT);
+                }, MINIMUM_KEY_REPEAT_MS);
+                var newColor = _this.getRandomColor();
+                Entities.editEntity(_this.entityID, { color: newColor });
+                _this.playSound();
+            } else if (collision.type === 2) {
+                print("keyDefaultColor is ", JSON.stringify(keyDefaultColor));
+                Entities.editEntity(_this.entityID, { color: keyDefaultColor });
             }
         },
 
-        clickReleaseOnEntity: function(entityID, mouseEvent) {
+        /* GET RANDOM COLOR: Return one randomly chosen color out of 4 light colors for a white key or one of 4 dark 
+        colors for a black key */
+        getRandomColor: function() {
+            var newColorIndex = Math.floor(Math.random() * 4);
+            var newColor;
+            if (keyDefaultColor === WHITE) {
+                switch (newColorIndex) {
+                    case 0:
+                        newColor = RANDOM_COLOR_LIGHT_1;
+                        break;
+                    case 1:
+                        newColor = RANDOM_COLOR_LIGHT_2;
+                        break;
+                    case 2:
+                        newColor = RANDOM_COLOR_LIGHT_3;
+                        break;
+                    case 3:
+                        newColor = RANDOM_COLOR_LIGHT_4;
+                        break;
+                    default:
+                        newColor = RANDOM_COLOR_LIGHT_4;
+                }
+            } else {
+                switch (newColorIndex) {
+                    case 0:
+                        newColor = RANDOM_COLOR_DARK_1;
+                        break;
+                    case 1:
+                        newColor = RANDOM_COLOR_DARK_2;
+                        break;
+                    case 2:
+                        newColor = RANDOM_COLOR_DARK_3;
+                        break;
+                    case 3:
+                        newColor = RANDOM_COLOR_DARK_4;
+                        break;
+                    default:
+                        newColor = RANDOM_COLOR_DARK_4;
+                }
+            }
+            return newColor;
+        },
+
+        /* PLAY SOUND: Plays the specified sound at the position of the key and a volume of 1 (loudest setting) */
+        playSound: function() {
+            Audio.playSound(sound, {
+                position: keyPosition,
+                volume: AUDIO_VOLUME_LEVEL
+            });
+        },
+
+        /* CLICK RELEASE ON ENTITY: Handle desktop clicks on this key by changing its color and playing the sound */
+        clickDownOnEntity: function(entityID, mouseEvent) {
             if (mouseEvent.isLeftButton) {
+                var newColor = _this.getRandomColor();
+                Entities.editEntity(_this.entityID, { color: newColor });
                 _this.playSound();
             }
         },
 
+        /* CLICK RELEASE ON ENTITY: Handle desktop click releases on this key by returning the color to normal */
+        clickReleaseOnEntity: function(entityID, mouseEvent) {
+            Script.setTimeout(function() {
+                print("keyDefaultColor is ", JSON.stringify(keyDefaultColor));
+                Entities.editEntity(_this.entityID, { color: keyDefaultColor });
+            }, COLOR_CHANGE_TIMEOUT_MS);
+        },
+
+        /* SET KEY DATA: Retrieve the name of the entity to get its color and key number, then set up the corresponding 
+        sound to be used later. Save it's initial position. */
         setKeyData: function(){
-            var keyName = Entities.getEntityProperties(_this.entityID, 'name').name;
-            keyColor = keyName.substr(KEY_COLOR_INDEX_START, KEY_COLOR_LENGTH);
-            var soundFile = Script.resolvePath("Assets/Sounds/" + keyName.substr(KEY_NUMBER_INDEX) + ".wav");
+            var keyProperties = Entities.getEntityProperties(_this.entityID, [ 'position', 'name']);
+            keyPosition = keyProperties.position;
+            var keyColorString = keyProperties.name.substr(KEY_COLOR_INDEX_START, KEY_COLOR_LENGTH);
+            if (keyColorString === "White") {
+                print("keyColorString is ", keyColorString, " key is white");
+                keyDefaultColor = WHITE;
+            } else {
+                print("keyColorString is ", keyColorString, " key is black");
+                keyDefaultColor = BLACK;
+            }
+            var soundFile = Script.resolvePath("../sounds/" + keyProperties.name.substr(KEY_NUMBER_INDEX) + ".wav");
             sound = SoundCache.getSound(Script.resolvePath(soundFile));
         }
     };
