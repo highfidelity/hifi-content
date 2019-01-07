@@ -64,7 +64,7 @@
 
         createChoiceOverlay: function() {
             currentZoneOverlay = Overlays.addOverlay("model", {
-                url: Script.resolvePath("../Entities/models/highlight.fbx"),
+                url: Script.resolvePath("../entities/models/highlight.fbx"),
                 dimensions: { x: 4, y: 0.01, z: 4 },
                 position: currentZoneOverlayPosition,
                 rotation: zoneProperties.rotation,
