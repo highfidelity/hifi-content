@@ -15,7 +15,7 @@
     var _this;
 
     var COLOR_CHANGE_TIMEOUT_MS = 250;
-    var AUDIO_VOLUME_LEVEL = 1;
+    var AUDIO_VOLUME_LEVEL = 0.5;
     var WHITE = { blue: 255, green: 255, red: 255 };
     var BLACK = { blue: 0, green: 0, red: 0 };
     var RANDOM_COLOR_LIGHT_1 = { blue: 162, green: 77, red: 214 };
@@ -60,7 +60,6 @@
                 Entities.editEntity(_this.entityID, { color: newColor });
                 _this.playSound();
             } else if (collision.type === 2) {
-                print("keyDefaultColor is ", JSON.stringify(keyDefaultColor));
                 Entities.editEntity(_this.entityID, { color: keyDefaultColor });
             }
         },
@@ -128,7 +127,6 @@
         /* CLICK RELEASE ON ENTITY: Handle desktop click releases on this key by returning the color to normal */
         clickReleaseOnEntity: function(entityID, mouseEvent) {
             Script.setTimeout(function() {
-                print("keyDefaultColor is ", JSON.stringify(keyDefaultColor));
                 Entities.editEntity(_this.entityID, { color: keyDefaultColor });
             }, COLOR_CHANGE_TIMEOUT_MS);
         },
@@ -140,10 +138,8 @@
             keyPosition = keyProperties.position;
             var keyColorString = keyProperties.name.substr(KEY_COLOR_INDEX_START, KEY_COLOR_LENGTH);
             if (keyColorString === "White") {
-                print("keyColorString is ", keyColorString, " key is white");
                 keyDefaultColor = WHITE;
             } else {
-                print("keyColorString is ", keyColorString, " key is black");
                 keyDefaultColor = BLACK;
             }
             var soundFile = Script.resolvePath("../sounds/" + keyProperties.name.substr(KEY_NUMBER_INDEX) + ".wav");
