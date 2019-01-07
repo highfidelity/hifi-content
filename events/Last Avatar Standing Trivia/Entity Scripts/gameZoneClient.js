@@ -31,7 +31,8 @@
                 Messages.subscribe(TRIVIA_CHANNEL);
                 isSubscribedToChannel = true;
             }
-            gameZone = Entities.getEntityProperties(Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, 100)[0], ['position']);
+            gameZone = Entities.getEntityProperties(
+                Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, 100)[0], ['position']);
         },
 
         isAvatarInsideZone: function() {

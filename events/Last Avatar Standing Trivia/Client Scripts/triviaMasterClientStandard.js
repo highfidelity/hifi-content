@@ -162,6 +162,9 @@
         if (intervalBoard) {
             Script.clearInterval(intervalBoard);
         }
+        type = null;
+        category = null;
+        difficulty = null;
     }
   
     function findTargets() {
@@ -732,7 +735,6 @@
 
     findTargets();
     Messages.subscribe(TRIVIA_CHANNEL);
-    console.log("channel is", TRIVIA_CHANNEL);
     AvatarManager.avatarRemovedEvent.connect(function(){
         updateAvatarCounter(false);
     });

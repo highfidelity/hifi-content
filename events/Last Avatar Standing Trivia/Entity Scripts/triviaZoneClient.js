@@ -8,11 +8,7 @@
 
 (function() {
     var ZONE_COLOR_INDEX = 12;
-    // var DISQUALIFIED_POSITION = { x: -69.4697, y: -19, z: 6.3204 }; // futvrelands
-    // var DISQUALIFIED_POSITION = { x: 30.3719, y: -9, z: -1.45635 }; // warroom
-    var DISQUALIFIED_POSITION = { x: 84.8138, y: 12.5, z: 88.744 }; // trivia
-    // var DISQUALIFIED_POSITION = { x: -64.7559, y: -75, z: 57.1503 }; // studio
-    // var DISQUALIFIED_POSITION = { x: 2.57328, y: 5, z: -47.86263 }; // zombies
+    var DISQUALIFIED_POSITION = { x: 84.8138, y: 12.5, z: 88.744 }; 
     var RANGE = 100;
     var DELAY = 200;
     var MIN_RANGE = 5;
@@ -48,7 +44,8 @@
             }
             MyAvatar.wentAway.connect(_this.ejectUser);
             gameZone = Entities.getEntityProperties(
-                Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, RANGE)[0], ['position', 'rotation', 'dimensions']);
+                Entities.findEntitiesByName(
+                    "Trivia Player Game Zone", MyAvatar.position, RANGE)[0], ['position', 'rotation', 'dimensions']);
             bubble = Entities.getEntityProperties(
                 Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
         },

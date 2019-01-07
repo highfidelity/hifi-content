@@ -28,14 +28,12 @@
         preload: function(entityID){
             _this.entityID = entityID;
             gameZone = Entities.getEntityProperties(
-                Entities.findEntitiesByName("Trivia Player Game Zone", MyAvatar.position, RADIUS)[0], ['position', 'rotation', 'dimensions']);
+                Entities.findEntitiesByName(
+                    "Trivia Player Game Zone", MyAvatar.position, RADIUS)[0], ['position', 'rotation', 'dimensions']);
             bubble = Entities.getEntityProperties(
                 Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RADIUS)[0], ['visible']);
             if (Settings.getValue("activeTriviaColor") !== "Blue") {
-                console.log("I'm wrong");
                 _this.ejectUser();
-            } else {
-                console.log("I'm right");
             }
             Script.setTimeout(function(){
                 _this.unload();
