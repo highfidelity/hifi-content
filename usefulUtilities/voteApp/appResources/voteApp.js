@@ -19,8 +19,8 @@
     // Modules
     var AppUi = Script.require('appUi'),
         GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
-        URL = Script.resolvePath("./resources/Tablet.html?v1234"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123"));
+        URL = Script.resolvePath("./resources/Tablet.html?v12344"),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12344"));
 
     // Configurable variables
     var EVENT_DATE = CONFIG.EVENT_DATE,

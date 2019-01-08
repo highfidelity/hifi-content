@@ -14,8 +14,6 @@
 
     "use strict";
 
-    var CONFIG = Script.require("../config.js");
-
     // Consts
     var EVENT_NAME = CONFIG.EVENT_NAME, // !important must match voteApp.js
 
@@ -96,8 +94,8 @@
                     <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
                         <a class="nav-item nav-link ml-2 active" id="info-tab" data-toggle="tab" href="#info" role="tab"
                         aria-controls="info" aria-selected="true">Info</a>
-                            <a class="nav-item nav-link" id="nav-domains-tab" data-toggle="tab" href="#nav-domains" role="tab"
-                            aria-controls="nav-domains" aria-selected="false">Favorite Domain</a> 
+                        <a class="nav-item nav-link" id="nav-domains-tab" data-toggle="tab" href="#nav-domains" role="tab"
+                        aria-controls="nav-domains" aria-selected="false">Favorite Domain</a> 
                         <a class="nav-item nav-link mr-2" id="nav-avatars-tab" data-toggle="tab" href="#nav-avatars" role="tab"
                         aria-controls="nav-avatars" aria-selected="false">Favorite Avatar</a>
                     </div>
@@ -139,7 +137,6 @@
                         <p class="fs-18">
                             ** Must visit trees to vote.
                         </p>
-
 
                     </div>
                 </div>
