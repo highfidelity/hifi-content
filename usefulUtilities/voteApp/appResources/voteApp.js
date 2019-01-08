@@ -54,7 +54,7 @@
         GOTO_LOCATION = "goto_location",
         GOTO_DOMAIN = "goto_domain",
         VOTE_AVATAR = "vote_avatar",
-        VOTE_DOMAIN = "vote_domain",
+        VOTE_DOMAIN = "vote_domain";
 
     // Google scripts type events
     var VOTE_GOOGLE = "vote",
