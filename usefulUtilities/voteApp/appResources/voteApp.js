@@ -1,7 +1,7 @@
 "use strict";
 
-//
-//  Vote App
+//  
+//  Vote App | voteApp.js
 //
 //  Created by Robin Wilson 2018-11-12
 //
@@ -18,8 +18,8 @@
 
     // Modules
     var AppUi = Script.require('appUi'),
-        GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./secrets.js")).googleScriptsUrl,
-        URL = Script.resolvePath("./html/Tablet.html?v123");
+        GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
+        URL = Script.resolvePath("./resources/Tablet.html?v123");
 
     // Configurable variables
     var EVENT_DATE = "11_17_2018",
@@ -880,7 +880,7 @@
                 buttonName: BUTTON_NAME,
                 home: URL,
                 onMessage: _this.onMessage,
-                graphicsDirectory: Script.resolvePath("./icons/"),
+                graphicsDirectory: Script.resolvePath("./resources/icons/"),
                 onOpened: _this.onOpened,
                 onClosed: _this.onClosed
             });

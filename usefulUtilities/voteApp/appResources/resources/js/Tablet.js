@@ -1,10 +1,20 @@
+//
+//  Tablet.js 
+//
+//  Created by Robin Wilson 2018-11-12
+//
+//  Using Example Vue App Created by Milad Nazeri on 2018-10-11
+//  Copyright 2016 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+
 (function () {
 
     "use strict";
 
     // Consts
-    // /////////////////////////////////////////////////////////////////////////
-
     var EVENT_DATE = "11_17_2018", // !important must match voteApp.js
         EVENT_TITLE = "Futvrelands", // !important must match voteApp.js
         EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE, // !important must match voteApp.js
@@ -19,11 +29,8 @@
 
         EVENTBRIDGE_SETUP_DELAY = 200;
 
-    var TREE_PATH = "../img/tree-voting-feature-img";
 
     // Components
-    // /////////////////////////////////////////////////////////////////////////
-
     Vue.component('loggedin-modal', {
         props: ['loggedin'],
         template: 
@@ -121,18 +128,6 @@
                             In a flurry of tinsel, the contestants decorated these trees using ONLY items from the marketplace. 
                         </p>
 
-                        <!-- <table border=0 class="plain">
-                            <tr>
-                                <td>
-                                <ol>
-                                <li><p class="fs-18">Decorating begins Wednesday Dec. 19th at 3pm PST</p></li>
-                                <li><p class="fs-18">Contestants finish and polls open at 4pm PST</p></li>
-                                <li><p class="color-main fs-18 bold">Pick your favorite!</p></li>
-                                </ol>
-                                </td>
-                            </tr>
-                        </table> -->
-
                         <p class="fs-18">
                             Now you vote for the winner.
                         </p>
@@ -195,7 +190,6 @@
         },
         methods: {
             closeVisitedModal() {
-                // console.log("closeModal");
                 this.isVisitedModalVisible = false;
                 this.showedVisited = true;
             }
@@ -309,7 +303,6 @@
 
                 <div class="card-body" v-bind:class="{ 'voted-domain': domain.voted }">
                     <h4 class="card-title txt-color-white">{{ domain.displayName }}</h4>
-                    <!-- <div v-if="domain.voted" v-bind:class="{ 'fill': domain.voted }" class="stroke voted-check icon icon-check"></div> -->
                     <div class="align-bottom-wrapper">
                         <div v-if="!visitedalldomains" class="align-bottom-left">{{ domain.visited ? "Visited." : "" }}</div> 
                         <div v-if="showCheckMark" v-on:click="showVoteModal" v-bind:class="{ 'fill': domain.voted }" class="align-bottom-left stroke text-size-icon icon icon-check"></div>
@@ -477,16 +470,9 @@
                     var styles = "background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0)), url('" + root + thumbnail + end +
                         "'); background-position: center; background-size: cover;"
 
-                    if (this.avatar.voted) {
-
-                        // styles = "border: 5px solid #FB0488 !important; background: linear-gradient(rgba(251, 4, 136, 0.3), rgba(251, 4, 136, 0.3)), url('" + root + thumbnail + end +
-                        // "'); background-position: center; background-size: cover;";
-
-                        // console.log("robin _1");
-                        
-                    } else {
+                    if (!this.avatar.voted) {
                         styles += "border:none";
-                    }
+                    } 
 
                     return styles;
                 }
@@ -570,26 +556,6 @@
         `
     })
 
-    // Vue.component('avatarview', {
-    //     props: {
-    //         avatar: { type: Object },
-    //         voted: { type: Boolean }
-    //     },
-    //     template: `
-    //         <modal v-show="isModalVisible" v-bind:hidex="false" v-bind:isavatar="true" @close="closeAvatarInfoModal">
-    //             <div slot="header"></div>
-    //             <div slot="body">
-    //                 <h4 class="avatar-name">{{ avatar.name }}</h4>
-    //                 <div class="card card-image modal-image flex-item" v-bind:style="modalStyles"></div>
-    //                 <div v-bind:class="{ 'vote-avatar-bar': !voted, 'votedfor-avatar-bar': voted && avatar.voted, 'notvotedfor-avatar-bar': voted && !avatar.voted }" v-on:click="voteavatar(avatar.name)" class="flex-container-row avatar-bar">
-    //                     <div v-if="avatar.voted || !voted" v-bind:class="{ 'fill': avatar.voted}" class="flex-item stroke stroke-pink avatar-icon-fill text-size-icon icon icon-check"></div>
-    //                     <h4 class="flex-item bold txt-modal-body">{{ voteBarText }}</h4>
-    //                 </div>
-    //             </div>
-    //         </modal>
-    //     `
-    // })
-
     Vue.component('modal', {
         props: {
             alert: { type: Boolean },
@@ -649,29 +615,9 @@
     })
 
     // App
-    // /////////////////////////////////////////////////////////////////////////
     var app = new Vue({
         el: '#app',
         data: {
-
-            // Example data store:
-            // dataStore: {
-            //     unload: false,
-            //     loading: true,
-            //     loggedin: true,
-            //     voted: {
-            //         domain: false,
-            //         avatar: false
-            //     },
-            //     openPolls: {
-            //         avatar: false,
-            //         domain: true
-            //     },
-            //     visitedalldomains: false,
-            //     domains: [],
-            //     avatars: []
-            // }
-
 
             dataStore: {
                 unload: false,
@@ -701,110 +647,10 @@
                     }
                 ]
             }
-
-            // dataStore: {  
-            //    "loading": true,
-            //    "loggedin": true,
-            //     "voted": {
-            //         "domain": false,
-            //         "avatar": true
-            //     },
-            //     "openPolls": {  
-            //        "avatar":true,
-            //        "domain":true
-            //     },
-            //     "visitedalldomains":false,
-            //     "domains": [  
-            //        {  
-            //           "name":"TheSpot",
-            //           "image":"https://hifi-metaverse.s3-us-west-1.amazonaws.com/images/places/previews/6bf/6ed/a7-/thumbnail/hifi-place-6bf6eda7-51d6-45ef-8ffc-28a6c4080af4.jpg?1527698357",
-            //           "visited":false,
-            //           "index":0
-            //        },
-            //        { 
-            //           "name":"Studio",
-            //           "image":"http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg",
-            //           "visited":true,
-            //           "index":1
-            //        },
-            //        {  
-            //           "name":"Help1",
-            //           "image":"https://hifi-metaverse.s3-us-west-1.amazonaws.com/images/places/previews/0ce/40e/14-/thumbnail/hifi-place-0ce40e14-7c49-4076-8bcf-be6f76fe7482.png?1529018633",
-            //           "visited":true,
-            //           "index":2
-            //        },
-            //        {  
-            //         "name":"Help2",
-            //         "image":"https://hifi-metaverse.s3-us-west-1.amazonaws.com/images/places/previews/0ce/40e/14-/thumbnail/hifi-place-0ce40e14-7c49-4076-8bcf-be6f76fe7482.png?1529018633",
-            //         "visited":true,
-            //         "index":2
-            //      },
-            //      {  
-            //         "name":"Help3",
-            //         "image":"https://hifi-metaverse.s3-us-west-1.amazonaws.com/images/places/previews/0ce/40e/14-/thumbnail/hifi-place-0ce40e14-7c49-4076-8bcf-be6f76fe7482.png?1529018633",
-            //         "visited":true,
-            //         "index":2
-            //      },
-            //      {  
-            //         "name":"Help4",
-            //         "image":"https://hifi-metaverse.s3-us-west-1.amazonaws.com/images/places/previews/0ce/40e/14-/thumbnail/hifi-place-0ce40e14-7c49-4076-8bcf-be6f76fe7482.png?1529018633",
-            //         "visited":true,
-            //         "index":2
-            //      },
-            //      {  
-            //         "name":"Help5",
-            //         "image":"https://hifi-metaverse.s3-us-west-1.amazonaws.com/images/places/previews/0ce/40e/14-/thumbnail/hifi-place-0ce40e14-7c49-4076-8bcf-be6f76fe7482.png?1529018633",
-            //         "visited":true,
-            //         "index":2
-            //      },
-            //      {  
-            //         "name":"Help6",
-            //         "image":"https://hifi-metaverse.s3-us-west-1.amazonaws.com/images/places/previews/0ce/40e/14-/thumbnail/hifi-place-0ce40e14-7c49-4076-8bcf-be6f76fe7482.png?1529018633",
-            //         "visited":true,
-            //         "index":2
-            //      }
-            //     ],
-            //     "avatars":[  
-            //        {  
-            //           "name":"Robin1",
-            //           "image":"http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/LoadTest/VoteApp/InProgress/V7/Artemis-Feature-Pic.jpg"
-            //           
-            // },
-            //        {  
-            //         "name":"Robin2",
-            //         "image":"http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg"
-            //      },
-            //      {  
-            //         "name":"Robin3",
-            //         "image":"http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg"
-            //      },
-            //      {  
-            //         "name":"Robin4",
-            //         "image":"http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg"
-            //      },
-            //      {  
-            //         "name":"Robin5",
-            //         "image":"http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg"
-            //      },
-            //      {  
-            //         "name":"Robin5",
-            //         "image":"http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg"
-            //      },
-            //      {  
-            //         "name":"Robin5",
-            //         "image":"http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg"
-            //      },
-            //      {  
-            //         "name":"Robin5",
-            //         "image":"http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg"
-            //      }
-            //     ]
-            //  }
         }
     });
 
     // Procedural
-    // /////////////////////////////////////////////////////////////////////////
     function onScriptEventReceived(message) {
         var data;
         try {
@@ -813,9 +659,6 @@
                 case UPDATE_UI:
                     app.dataStore = data.value;
                     break;
-                // case VISITED_ALL_DOMAINS:
-                //     app.dataStore.flagVisited = true;
-                //     break;
                 default:
             }
         } catch (e) {
@@ -839,8 +682,7 @@
         }, EVENTBRIDGE_SETUP_DELAY);
     }
 
-    // Main
-    // /////////////////////////////////////////////////////////////////////////    
+    // Main  
     onLoad();
 
 }());
