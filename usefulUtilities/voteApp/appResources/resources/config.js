@@ -17,16 +17,17 @@ var CONFIG = {
     // Configurable event details
     EVENT_DATE: EVENT_DATE,
     EVENT_TITLE: EVENT_TITLE,
-    EVENT_NAME: EVENT_TITLE + "_" + EVENT_DATE,
+    EVENT_NAME: EVENT_NAME,
 
     // Tablet events shared by Tablet.js and voteApp.js
     EVENT_BRIDGE_OPEN_MESSAGE: "eventBridgeOpen",
-    UPDATE_UI: EVENT_NAME + "_update_ui", // !important must match voteApp.js
+    UPDATE_UI: EVENT_NAME + "_update_ui",
     GOTO_LOCATION: "goto_location",
     GOTO_DOMAIN: "goto_domain",
     VOTE_AVATAR: "vote_avatar",
     VOTE_DOMAIN: "vote_domain",
 
+    // Distinguishes when the UTC time the app unloads itself from the user's tablet
     // year, month, day, hour, minutes
     UNLOAD_DATE: new Date(Date.UTC(UNLOAD.YEAR, UNLOAD.MONTH, UNLOAD.DAY, UNLOAD.HOUR, UNLOAD.MINUTE))
 };

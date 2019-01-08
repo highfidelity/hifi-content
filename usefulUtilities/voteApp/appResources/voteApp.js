@@ -19,7 +19,7 @@
     // Modules
     var AppUi = Script.require('appUi'),
         GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
-        URL = Script.resolvePath("./resources/Tablet.html?v12344"),
+        URL = Script.resolvePath("./resources/voteApp.html?v12344"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12344"));
 
     // Configurable variables
