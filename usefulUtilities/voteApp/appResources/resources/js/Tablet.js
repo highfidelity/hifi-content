@@ -14,21 +14,20 @@
 
     "use strict";
 
+    var CONFIG = Script.require("../config.js");
+
     // Consts
-    var EVENT_DATE = "11_17_2018", // !important must match voteApp.js
-        EVENT_TITLE = "Futvrelands", // !important must match voteApp.js
-        EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE, // !important must match voteApp.js
+    var EVENT_NAME = CONFIG.EVENT_NAME, // !important must match voteApp.js
 
-        EVENT_BRIDGE_OPEN_MESSAGE = EVENT_NAME + "eventBridgeOpen",
-        UPDATE_UI = EVENT_NAME + "_update_ui", // !important must match voteApp.js
+        EVENT_BRIDGE_OPEN_MESSAGE = EVENT_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
+        UPDATE_UI = CONFIG.UPDATE_UI, // !important must match voteApp.js
 
-        GOTO_LOCATION = EVENT_NAME + "goto_location",
-        GOTO_DOMAIN = EVENT_NAME + "goto_domain",
-        VOTE_AVATAR = EVENT_NAME + "vote_avatar",
-        VOTE_DOMAIN = EVENT_NAME + "vote_domain",
+        GOTO_LOCATION = EVENT_NAME + CONFIG.GOTO_LOCATION,
+        GOTO_DOMAIN = EVENT_NAME + CONFIG.GOTO_DOMAIN,
+        VOTE_AVATAR = EVENT_NAME + CONFIG.VOTE_AVATAR,
+        VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN,
 
         EVENTBRIDGE_SETUP_DELAY = 200;
-
 
     // Components
     Vue.component('loggedin-modal', {

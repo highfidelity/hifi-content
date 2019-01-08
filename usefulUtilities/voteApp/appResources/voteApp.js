@@ -19,18 +19,19 @@
     // Modules
     var AppUi = Script.require('appUi'),
         GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
-        URL = Script.resolvePath("./resources/Tablet.html?v123");
+        URL = Script.resolvePath("./resources/Tablet.html?v1234"),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123"));
 
     // Configurable variables
-    var EVENT_DATE = "11_17_2018",
-        EVENT_TITLE = "Futvrelands",
-        EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE;
+    var EVENT_DATE = CONFIG.EVENT_DATE,
+        EVENT_TITLE = CONFIG.EVENT_TITLE,
+        EVENT_NAME = CONFIG.EVENT_NAME;
 
     // Unload app variables
-    // Example: UTC month 0 = January ; month 10 = November
+    // Example: UTC month 0 = January ; month 10 = sNovember
     // year, month, day, hour, minutes
-    var UNLOAD_DATE = new Date(Date.UTC(2019, 11, 21, 0, 30)),
-        UNLOAD_TIME = 10000;
+    var UNLOAD_DATE = CONFIG.UNLOAD_DATE,
+        UNLOAD_TIME = 10000; // show app will unload screen for 10 seconds
     
     // App variables
     var BUTTON_NAME = "VOTE",
@@ -50,11 +51,11 @@
         GOTO_ADDRESS = "thespot//-26.8224,-11.1442,-67.663/0,0.068694,0,0.997638";
 
     // Web event types from UI
-    var EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-        GOTO_LOCATION = "goto_location",
-        GOTO_DOMAIN = "goto_domain",
-        VOTE_AVATAR = "vote_avatar",
-        VOTE_DOMAIN = "vote_domain";
+    var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
+        GOTO_LOCATION = CONFIG.GOTO_LOCATION,
+        GOTO_DOMAIN = CONFIG.GOTO_DOMAIN,
+        VOTE_AVATAR = CONFIG.VOTE_AVATAR,
+        VOTE_DOMAIN = CONFIG.VOTE_DOMAIN;
 
     // Google scripts type events
     var VOTE_GOOGLE = "vote",
