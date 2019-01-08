@@ -24,7 +24,6 @@
 
     // Configurable variables
     var EVENT_DATE = CONFIG.EVENT_DATE,
-        EVENT_TITLE = CONFIG.EVENT_TITLE,
         EVENT_NAME = CONFIG.EVENT_NAME;
 
     // Unload app variables
@@ -39,7 +38,9 @@
 
     // App status variables
     var firstLoad = true,
-        setupNotLoggedIn = false;
+        setupNotLoggedIn = false,
+        FIRST_LOAD_TIMEOUT = 500,
+        REQUEST_READY_STATE = 4;
 
     // Domains vs Zone visited
     var DOMAINS_ENABLED = true; // enable domains UI / domain visited checks
@@ -191,7 +192,10 @@
                 if (existingIndex !== -1) {
                     existingDomains.splice(existingIndex, 1);
                     if (DEBUG) {
-                        print("Domains existingDomains index: ", JSON.stringify(existingDomains), JSON.stringify(existingIndex));
+                        print("Domains existingDomains index: ", 
+                            JSON.stringify(existingDomains), 
+                            JSON.stringify(existingIndex)
+                        );
                     }
                 }
 
@@ -230,7 +234,7 @@
                 Script.setTimeout(function () {
                     _this.setDataStoreDomainsInfo();
                     updateUI();
-                }, 500);
+                }, FIRST_LOAD_TIMEOUT);
             }
 
             return changed;
@@ -533,7 +537,7 @@
             Script.setTimeout(function () {
                 firstLoad = false;
                 updateUI();
-            }, 500);
+            }, FIRST_LOAD_TIMEOUT);
     
             return changed;
         }
@@ -639,7 +643,7 @@
             request.ontimeout = onErrorCallback;
             request.onreadystatechange = function () {
                 // request.readyState === 4 indicates the request was complete and returned
-                if (request.readyState === 4) {
+                if (request.readyState === REQUEST_READY_STATE) {
                     onCompleteCallback(request);
                 }
             };
@@ -954,7 +958,7 @@
             // Check against EVENT_NAME to ensure we're getting the correct messages fromt eh correct app
             if (!data.type || data.type.indexOf(EVENT_NAME) === -1){
                 if (DEBUG) {
-                    print("Event type event name index check: ", !data.type, data.type.indexOf(EVENT_NAME) === -1)
+                    print("Event type event name index check: ", !data.type, data.type.indexOf(EVENT_NAME) === -1);
                 }
                 return;
             }

@@ -1,11 +1,20 @@
 /* global module */
 
-var EVENT_DATE = "11_17_2018";
-var EVENT_TITLE = "Futvrelands";
-var EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE;
+var EVENT_DATE = "11_17_2018",
+    EVENT_TITLE = "Futvrelands",
+    EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE;
+
+// Unload time variables
+var UNLOAD = {
+    YEAR: 2019,
+    MONTH: 11, // UTC month 0 = January ; month 10 = November
+    DAY: 21,
+    HOUR: 0, // 24 hour format ex - 3pm === 15
+    MINUTE: 30
+};
 
 var CONFIG = {
-    
+
     // Configurable event details
     EVENT_DATE: EVENT_DATE,
     EVENT_TITLE: EVENT_TITLE,
@@ -19,10 +28,8 @@ var CONFIG = {
     VOTE_AVATAR: "vote_avatar",
     VOTE_DOMAIN: "vote_domain",
 
-    // Unload app variables
-    // Example: UTC month 0 = January ; month 10 = sNovember
     // year, month, day, hour, minutes
-    UNLOAD_DATE: new Date(Date.UTC(2019, 11, 21, 0, 30))
+    UNLOAD_DATE: new Date(Date.UTC(UNLOAD.YEAR, UNLOAD.MONTH, UNLOAD.DAY, UNLOAD.HOUR, UNLOAD.MINUTE))
 };
 
 if (module) {
