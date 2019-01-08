@@ -11,13 +11,13 @@
 /* global Entities, MyAvatar, Script */
 
 (function() {
-    var MIN_DISTANCE_TO_FINGERTIP = 0.001;
+    var MIN_DISTANCE_TO_FINGERTIP_M = 0.001;
     var FINGER_ENTITY_DIMENSIONS = {x: 0.005,y: 0.005,z: 0.005};
     var POSITION_CHECK_INTERVAL_MS = 100;
     var POSITION_CHECK_TIMEOUT_MS = 3000;
 
     var fingerEntities = [];
-    var interval;
+    var updateSpherePositionInterval;
     var _this;
 
     var Keyboard = function() {
@@ -49,9 +49,12 @@
             _this.createFingertipEntity("RightHandPinky4");
             _this.createFingertipEntity("RightHandRing4");
             _this.createFingertipEntity("RightHandMiddle4");
-            interval = Script.setInterval(_this.updatePositions, POSITION_CHECK_INTERVAL_MS);
+            updateSpherePositionInterval = Script.setInterval(_this.updatePositions, POSITION_CHECK_INTERVAL_MS);
             Script.setTimeout(function () {
-                Script.clearInterval(interval);
+                if (updateSpherePositionInterval) {
+                    Script.clearInterval(updateSpherePositionInterval);
+                    updateSpherePositionInterval = null;
+                }
             }, POSITION_CHECK_TIMEOUT_MS);
             var keyboardBase = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
             MyAvatar.disableHandTouchForID(keyboardBase);
@@ -63,8 +66,9 @@
         /* LEAVE ENTITY: Upon leaving the zone around the keyboard, clear the interval if it has not yet stopped and 
         delete all spheres attached to the fingers*/
         leaveEntity: function() {
-            if (interval) {
-                Script.clearInterval(interval);
+            if (updateSpherePositionInterval) {
+                Script.clearInterval(updateSpherePositionInterval);
+                updateSpherePositionInterval = null;
             }
             fingerEntities.forEach(function(entity) {
                 Entities.deleteEntity(entity);
@@ -77,7 +81,7 @@
         3rd joint. Store the IDs of these spheres for later use and update the position for each one. */
         createFingertipEntity: function(finger) {
             if (MyAvatar.getJointIndex(finger) === -1) {
-                finger = finger.substr(0, finger.length + -1);
+                finger = finger.substr(0, finger.length - 1);
                 finger = finger.concat("3");
             }
             var entityData = {
@@ -111,7 +115,7 @@
                 var fingerEntityPosition = properties.position;
                 var fingertipPosition = MyAvatar.getJointPosition(properties.parentJointIndex);
                 var distance = Vec3.distance(fingerEntityPosition, fingertipPosition);
-                if (distance > MIN_DISTANCE_TO_FINGERTIP) {
+                if (distance > MIN_DISTANCE_TO_FINGERTIP_M) {
                     Entities.editEntity(entity, {position: fingertipPosition});
                 }
             });
