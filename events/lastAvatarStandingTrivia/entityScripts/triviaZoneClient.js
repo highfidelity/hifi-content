@@ -8,7 +8,7 @@
 
 (function() {
     var ZONE_COLOR_INDEX = 12;
-    var DISQUALIFIED_POSITION = { x: 84.8138, y: 12.5, z: 88.744 }; 
+    var DISQUALIFIED_POSITION = Script.require(Script.resolvePath('../clientScripts/triviaInfo.json')).DISQUALIFIED_POSITION; 
     var RANGE = 100;
     var DELAY = 200;
     var MIN_RANGE = 5;

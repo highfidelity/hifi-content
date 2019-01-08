@@ -63,7 +63,8 @@
         prizeMoney,
         winnerID = null,
         correctColor = null;
-
+    
+    // The following function from https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
     var htmlEnDeCode = (function() {
         var charToEntityRegex,
             entityToCharRegex,
@@ -150,10 +151,18 @@
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ 
             type: "game on" 
         }));
-        intervalBoard = Script.setInterval(function(){
-            updateAvatarCounter(false);
-            Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [prizeMoney, true]);
-        }, ONE_SECOND_MS);
+        if (!intervalBoard) {
+            intervalBoard = Script.setInterval(function(){
+                updateAvatarCounter(false);
+                Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [prizeMoney, true]);
+            }, ONE_SECOND_MS);
+        } else {
+            Script.clearInterval(intervalBoard);
+            intervalBoard = Script.setInterval(function(){
+                updateAvatarCounter(false);
+                Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [prizeMoney, true]);
+            }, ONE_SECOND_MS);
+        }
     }
 
     function bubbleOff() {
@@ -161,6 +170,7 @@
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "game off" }));
         if (intervalBoard) {
             Script.clearInterval(intervalBoard);
+            intervalBoard = false;
         }
         type = null;
         category = null;
@@ -316,9 +326,7 @@
             currentChoices.push("False");
             lights.forEach(function(light) {
                 var lightName = Entities.getEntityProperties(light, 'name').name;
-                if (lightName.indexOf("Green") !== -1) {
-                    Entities.callEntityServerMethod(light, "lightsOff");
-                } else if (lightName.indexOf("Blue") !== -1) {
+                if ((lightName.indexOf("Green") !== -1) || (lightName.indexOf("Blue") !== -1)) {
                     Entities.callEntityServerMethod(light, "lightsOff");
                 }
             });
@@ -372,10 +380,8 @@
         var count = 0;
         AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
             var avatar = AvatarManager.getAvatar(avatarID);
-            if (avatar.sessionUUID) {
-                if (isPositionInsideBox(avatar.position, gameZoneProperties)) {
-                    count++;
-                }
+            if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties) ) {
+                count++;                
             }
         });
         return count;
@@ -399,7 +405,7 @@
         var count = usersInZone(gameZoneProperties);
         switch (gameState) {
             case "new game":
-                if ( count <= MIN_PLAYERS ) {
+                if (count <= MIN_PLAYERS) {
                     prizeMoney = MIN_PRIZE;
                 } else {
                     prizeMoney = count * HFC_INCREMENT; 

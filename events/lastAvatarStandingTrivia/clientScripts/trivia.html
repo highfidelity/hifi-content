@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Trivia</title>
@@ -12,7 +13,7 @@
         <input type="button" class="gray" id="end" value="Game Over">
         <h3>Questions</h3>
         <div class="dropdown">
-            <input type="button" id="selectedType" onclick="toggleMenu('typeDropdown')" class="gray" value="Any Type   &#9660">
+            <input type="button" id="selectedType" onclick="toggleMenu('typeDropdown')" class="gray" value="Any Type   &#9660;">
             <ul class="dropdown-type">
                 <div id="typeDropdown" class="dropdown-items">
                     <li>Any Type</li>
@@ -21,7 +22,7 @@
                 </div>
             </ul>
             <br>
-            <input type="button" id="selectedDifficulty" onclick="toggleMenu('difficultyDropdown')" class="gray" value="Any Difficulty   &#9660">
+            <input type="button" id="selectedDifficulty" onclick="toggleMenu('difficultyDropdown')" class="gray" value="Any Difficulty   &#9660;">
             <ul class="dropdown-difficulty">
                 <div id="difficultyDropdown" class="dropdown-items">
                     <li>Any Difficulty</li>
@@ -31,7 +32,7 @@
                 </div>
             </ul>
             <br>
-            <input type="button" id="selectedCategory" onclick="toggleMenu('categoryDropdown')" class="gray" value="Any Category   &#9660">
+            <input type="button" id="selectedCategory" onclick="toggleMenu('categoryDropdown')" class="gray" value="Any Category   &#9660;">
             <ul class="dropdown-category">
                 <div id="categoryDropdown" class="dropdown-items">
                     <li value="9">General Knowledge</li>
@@ -77,25 +78,22 @@
         <br>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
-                function toggleMenu(menu) {
-                    document.getElementById(menu).classList.toggle("show");
-                }
-            
-                window.onclick = function(event) {
-                    if (!event.target.matches('#selectedType') && !event.target.matches('#selectedDifficulty')
-                        && !event.target.matches('#selectedCategory')) {
-                        var dropdowns = document.getElementsByClassName("dropdown-items");
-                        
-                        var i;
-                        for (i = 0; i < dropdowns.length; i++) {
-                            var openDropdown = dropdowns[i];
-                            if (openDropdown.classList.contains('show')) {
-                                openDropdown.classList.remove('show');
-                            }
+            function toggleMenu(menu) {
+                document.getElementById(menu).classList.toggle("show");
+            }        
+            window.onclick = function(event) {
+                if (!event.target.matches('#selectedType') && !event.target.matches('#selectedDifficulty')
+                    && !event.target.matches('#selectedCategory')) {
+                    var dropdowns = document.getElementsByClassName("dropdown-items");                    
+                    var i;
+                    for (i = 0; i < dropdowns.length; i++) {
+                        var openDropdown = dropdowns[i];
+                        if (openDropdown.classList.contains('show')) {
+                            openDropdown.classList.remove('show');
                         }
                     }
                 }
-
+            }
             function onScriptEventReceived(event) {
                 if (typeof event === "string") {
                     if (event.indexOf("question") !== -1) {
@@ -181,5 +179,4 @@
             });
         </script>
     </body>
-
 </html>

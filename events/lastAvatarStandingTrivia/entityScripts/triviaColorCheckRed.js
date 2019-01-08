@@ -14,7 +14,7 @@
         gameOn,
         gameZone;
     
-    var DISQUALIFIED_POSITION = { x: 84.8138, y: 12.5, z: 88.744 },
+    var DISQUALIFIED_POSITION = Script.require(Script.resolvePath('../clientScripts/triviaInfo.json')).DISQUALIFIED_POSITION,
         HALF_MULTIPLIER = 0.5,
         ZONE_SQUARE_RADIUS = 1.5,
         RADIUS = 50,
