@@ -236,33 +236,7 @@
         }
     }
 
-    // function getQuestion() {
-    //     Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
-    //     try {
-    //         var triviaURL = SECRETS.trivia_URL,
-            
-    //         // if (type) {
-    //         //     triviaURL = triviaURL + "&type=" + type;
-    //         // }
-    //         // if (difficulty) {
-    //         //     triviaURL = triviaURL + "&difficulty=" + difficulty;
-    //         // }
-    //         // if (category) {
-    //         //     triviaURL = triviaURL + "&category=" + category;
-    //         // }
-    //         triviaURL = triviaURL + "category=" + "Giraffage_Hemsworth";
-    //         request(triviaURL, function (error, data) {
-    //             if (!error) {
-    //                 console.log(JSON.stringify(data));
-    //                 tablet.emitScriptEvent(JSON.stringify(data));
-    //                 triviaData = data;
-    //             }
-    //         });
-    //     } catch (err) {
-    //         console.log("err:", err);
-    //         print("Could not get domain data using userData domainAPIURL");
-    //     }
-    // }
+
 
     function getQuestion() {
         Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
@@ -281,6 +255,8 @@
                 if (!error) {
                     tablet.emitScriptEvent(JSON.stringify(data.results[0]));
                     triviaData = data.results;
+                } else {
+                    tablet.emitScriptEvent("error");
                 }
             });
         } catch (err) {
