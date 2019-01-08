@@ -653,6 +653,8 @@
     var app = new Vue({
         el: '#app',
         data: {
+
+            // Example data store:
             // dataStore: {
             //     unload: false,
             //     loading: true,

@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable indent */
 
 //
 //  Vote App
