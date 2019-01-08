@@ -1,7 +1,5 @@
 # Keyboard
 
-![Image of Components](http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/keyboardBlueprint/marketplaceResources/Blueprint-Drum-Set.jpg)
-
 This blueprint item was created by the High Fidelity Experiences Team as a template to be copied and modified by our users. 
 
 The code is heavily commented for clarity and by following this README, users will learn more about creating using the High Fidelity API. We encourage people to create their own variations of this and other blueprint items.
