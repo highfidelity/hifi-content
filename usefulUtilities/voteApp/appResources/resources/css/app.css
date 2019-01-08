@@ -8,7 +8,7 @@
     font-family: 'Cairo', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #005916; /* #666666*/
+    background-color: #005916;
     color: #666666;
   }
 
@@ -34,12 +34,9 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Raleway', sans-serif;
-    /* font-weight: bold; */
-    /* color: #FF0012; */
   }
 
   .nav-tabs {
-    /* background-color: #005916; /* #666666  */
     border: none;
   }
 
@@ -83,14 +80,6 @@
       color: white;
   }
 
-/* .nav-tabs .nav-link .active {
-    /* border: 2px solid transparent;  
-    border-top-left-radius: 0; /* .25rem; 
-    border-top-right-radius: 0;
-    background-color: #005916; #666666
-    color: white;
-} */
-
 .nav-link:hover {
     border: none;
     background-color: #4c8a5b;
@@ -105,12 +94,12 @@
 }
 
 .align-bottom-wrapper {
-    min-height: 64px; /* min-height: 25px; */
+    min-height: 64px;
     position: relative;
 }
 
 .align-bottom-wrapper-avatar {
-    min-height: 129px; /* min-height: 25px; */
+    min-height: 129px;
     position: relative;
     z-index: 100;
     padding-left: 5px
@@ -129,12 +118,10 @@
 
 .card {
     border-radius: 0px;
-    /* max-height: 200px; */
 }
 
 .card-body {
     padding: 0.5rem;
-    /* height: 150px; */
 }
 
 .row {
@@ -203,26 +190,17 @@
     background: url('icons/go-button.png') no-repeat top left;
     background-size: cover;
     background-position: center;
-    /* background-color: white; */
-    /* background-repeat:no-repeat; */
     border: none;
     cursor:pointer;
     overflow: hidden;
     outline:none;
-    /* font-size: 1.5em; */
     width: 60px;
     height: 40px;
     color: black;
     padding: 0;
     z-index: 20;
-    /* border-radius: 50%; */
 }
 
-/* .go-button:hover { */
-    /* text-shadow: 5px 5px #666666; */
-    /* filter: drop-shadow( -2px -2px 2px #666 ); */
-    /* -webkit-filter: drop-shadow( -2px -2px 2px #666 );  */
-/* }  */
 
 .flex-container-row {
     display: flex;
@@ -348,25 +326,6 @@
     -webkit-mask-repeat: no-repeat;
 }
 
-.avatar-card-not-voted {
-    /* background-image: url("photographer.jpg"); The image used */
-    background-color: #cccccc; /* Used if the image is unavailable */
-    height: 500px; /* You must set a specified height */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Do not repeat the image */
-    background-size: cover; /* Resize the background image to cover the entire container */
-}
-
-.avatar-card-voted {
-    /* background-image: url("photographer.jpg"); The image used */
-    background-color: #cccccc; /* Used if the image is unavailable */
-    height: 500px; /* You must set a specified height */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Do not repeat the image */
-    background-size: cover; /* Resize the background image to cover the entire container */
-}
-
-
 /* modal config */
 
 .modal-backdrop {
@@ -401,11 +360,7 @@
 .btn-primary:hover {
     border: 2px solid #760008;
     background-color: #760008;
-    /* color: white; */
 }
-
-/* .back-btn:hover {
-} */
 
 .jumbotron {
     background-image: url("../images/tree-voting-feature-img.jpg");

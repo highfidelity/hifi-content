@@ -14,7 +14,6 @@ var UNLOAD = {
 };
 
 var CONFIG = {
-
     // Configurable event details
     EVENT_DATE: EVENT_DATE,
     EVENT_TITLE: EVENT_TITLE,
