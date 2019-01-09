@@ -4,7 +4,7 @@
 //  Created by Robin Wilson 2018-11-12
 //
 //  Using Example Vue App Created by Milad Nazeri on 2018-10-11
-//  Copyright 2016 High Fidelity, Inc.
+//  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html

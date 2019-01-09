@@ -6,7 +6,7 @@
 //  Created by Robin Wilson 2018-11-12
 //
 //  Using Example Vue App Created by Milad Nazeri on 2018-10-11
-//  Copyright 2016 High Fidelity, Inc.
+//  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -18,6 +18,7 @@
 
     // Modules
     var AppUi = Script.require('appUi'),
+        request = Script.require('request').request,
         GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
         URL = Script.resolvePath("./resources/voteApp.html?v12344"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12344"));
@@ -39,8 +40,7 @@
     // App status variables
     var firstLoad = true,
         setupNotLoggedIn = false,
-        FIRST_LOAD_TIMEOUT = 500,
-        REQUEST_READY_STATE = 4;
+        FIRST_LOAD_TIMEOUT = 500; // ms
 
     // Domains vs Zone visited
     var DOMAINS_ENABLED = true; // enable domains UI / domain visited checks
@@ -51,25 +51,15 @@
         HAS_VISITED_ZONE_CHECK = false, // if there's a zone to visit
         GOTO_ADDRESS = "thespot//-26.8224,-11.1442,-67.663/0,0.068694,0,0.997638";
 
-    // Web event types from UI
-    var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
-        GOTO_LOCATION = CONFIG.GOTO_LOCATION,
-        GOTO_DOMAIN = CONFIG.GOTO_DOMAIN,
-        VOTE_AVATAR = CONFIG.VOTE_AVATAR,
-        VOTE_DOMAIN = CONFIG.VOTE_DOMAIN;
-
     // Google scripts type events
     var VOTE_GOOGLE = "vote",
         GET_INFO_GOOGLE = "getInfo";
-
-    // Vue UI update event
-    var UPDATE_UI = EVENT_NAME + "_update_ui"; // !important must match Tablet.js
     
     // Static strings
     var DOMAIN = "domain";
     var AVATAR = "avatar";
     
-    var DEBUG = true;
+    var DEBUG = false;
 
     // Local Settings.setValue/getValue key
     var VOTE_APP_SETTINGS_NAME = EVENT_NAME + "_voteApp"; // "Futvrelands_11_17_2018_voteApp"
@@ -104,6 +94,7 @@
         avatars: []
     };
     
+    var DEFAULT_DOMAIN_IMAGE = "http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg";
 
     var domains = {
         DOMAIN: "domain",
@@ -125,39 +116,51 @@
 
             updateUI();
 
-            var params = utils.encodeURLParams({
-                type: VOTE_GOOGLE,
-                time: Date.now(),
-                uuid: MyAvatar.sessionUUID,
-                username: AccountServices.username,
-                name: name,
-                eventName: EVENT_NAME,
-                eventDate: EVENT_DATE,
-                contestName: DOMAIN
-            });
-            var onComplete = function (request) {
-
-                var voteAppSettings = utils.getVoteAppSettings();
-                voteAppSettings.voted[DOMAIN] = name.toLowerCase();
-                Settings.setValue(VOTE_APP_SETTINGS_NAME, voteAppSettings);
-
-                if (DEBUG) {
-                    print("Domain sendVote onComplete", JSON.stringify(voteAppSettings));
+            var options = {
+                url: GOOGLE_SCRIPTS_URL,
+                body: {
+                    type: VOTE_GOOGLE,
+                    time: Date.now(),
+                    uuid: MyAvatar.sessionUUID,
+                    username: AccountServices.username,
+                    name: name,
+                    eventName: EVENT_NAME,
+                    eventDate: EVENT_DATE,
+                    contestName: DOMAIN
                 }
-
-            };
-            var onError = function () {
-                if (DEBUG) {
-                    print("Error in VoteApp.js: Issue in sendDomainVote()");
-                }
-
-                _this.domainsInfo[name.toLowerCase()].voted = false;
-                dataStore.voted.domain = false;
-
-                updateUI();
             };
 
-            utils.sendRequest(GOOGLE_SCRIPTS_URL, params, onComplete, onError);
+            var callback = function(error, response) {
+                if (error) {
+                    // Error
+                    print("Issue in sendDomainVote() either error with the request or you've already voted", error);
+
+                    _this.domainsInfo[name.toLowerCase()].voted = false;
+                    dataStore.voted.domain = false;
+    
+                    updateUI();
+
+                } else {
+                    // Success
+
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        console.error("Issue with parsing response in domains sendVote: " + e);
+                    }
+
+                    var voteAppSettings = utils.getVoteAppSettings();
+                    voteAppSettings.voted[DOMAIN] = name.toLowerCase();
+                    Settings.setValue(VOTE_APP_SETTINGS_NAME, voteAppSettings);
+    
+                    if (DEBUG) {
+                        print("Domain sendVote onComplete", JSON.stringify(voteAppSettings));
+                    }
+
+                }
+            };
+
+            request(options, callback);
         },
 
         setDomains: function (gDomains) {
@@ -249,52 +252,51 @@
                 print("Domains sendDomainInfoRequest", domainName, _this.domainsInfo);
             }
 
-            var url = "https://metaverse.highfidelity.com/api/v1/places/" + domainName;
-            var paramString = "";
-            var onComplete = function (request) {
-
-                if (DEBUG) {
-                    print("Domains sendDomainInfoRequest onComplete");
-                }
-
-                try {
-                    var response = JSON.parse(request.responseText);
-                } catch (e) {
-                    console.error("Error parsing request in sendDomainInfoRequest");
-                }
-
-                var image = response.data.place.previews
-                    ? response.data.place.previews.thumbnail
-                    : "http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg"; // url to image
-                
-                _this.domainsInfo[domainName].image = image;
-                
-                // Display name is the name of the domain
-                _this.domainsInfo[domainName].displayName = response.data.place.name;
-
-                // Used for futvrelands where the displayName was different from the host name
-                // var displayName = response.data.place.description;
-                // displayName = displayName.split(" (")[0];
-                // _this.domainsInfo[domainName].displayName = displayName;
-
-                if (DEBUG) {
-                    print("Domains onComplete displayName:", _this.domainsInfo[domainName].displayName);
-                    print("Domains onComplete domainsInfo:", JSON.stringify(_this.domainsInfo[domainName]));
-                }
-
-                updateUI();
-
-                if (DEBUG) {
-                    print(JSON.stringify(image));
-                }
+            var options = {
+                url: "https://metaverse.highfidelity.com/api/v1/places/" + domainName
             };
-            var onError = function () {
-                if (DEBUG) {
+
+            var callback = function(error, response) {
+                if (error) {
+                    // Error
                     print("Error in VoteApp.js: Issue in sendDomainInfoRequest()");
+
+
+                } else {
+                    // Success
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        console.error("Domains onComplete displayName issue with parsing response: " + e);
+                    }
+
+                    if (DEBUG) {
+                        print("Domains sendDomainInfoRequest onComplete");
+                    }
+    
+                    var image = response.data.place.previews
+                        ? response.data.place.previews.thumbnail
+                        : DEFAULT_DOMAIN_IMAGE; // url to image
+                    
+                    _this.domainsInfo[domainName].image = image;
+                    
+                    // Display name is the name of the domain
+                    _this.domainsInfo[domainName].displayName = response.data.place.name;
+    
+                    if (DEBUG) {
+                        print("Domains onComplete displayName:", _this.domainsInfo[domainName].displayName);
+                        print("Domains onComplete domainsInfo:", JSON.stringify(_this.domainsInfo[domainName]));
+                    }
+    
+                    updateUI();
+    
+                    if (DEBUG) {
+                        print(JSON.stringify(image));
+                    }
                 }
             };
 
-            utils.sendRequest(url, paramString, onComplete, onError);
+            request(options, callback);
         }, 
 
         setDataStoreDomainsInfo: function () {
@@ -441,42 +443,56 @@
 
             updateUI();
 
-            var params = utils.encodeURLParams({
-                type: VOTE_GOOGLE,
-                time: Date.now(),
-                uuid: MyAvatar.sessionUUID,
-                username: AccountServices.username,
-                name: name,
-                eventName: EVENT_NAME,
-                eventDate: EVENT_DATE,
-                contestName: AVATAR
-            });
-            var onComplete = function (request) {
-
-                var voteAppSettings = utils.getVoteAppSettings();
-
-                if (DEBUG) {
-                    print("Avatars onComplete, settings are ", JSON.stringify(voteAppSettings));
+            var options = {
+                url: GOOGLE_SCRIPTS_URL,
+                body: {
+                    type: VOTE_GOOGLE,
+                    time: Date.now(),
+                    uuid: MyAvatar.sessionUUID,
+                    username: AccountServices.username,
+                    name: name,
+                    eventName: EVENT_NAME,
+                    eventDate: EVENT_DATE,
+                    contestName: AVATAR
                 }
-
-                voteAppSettings.voted[AVATAR] = name.toLowerCase();
-
-                Settings.setValue(VOTE_APP_SETTINGS_NAME, voteAppSettings);
-
-                updateUI();
-            };
-            var onError = function () {
-                if (DEBUG) {
-                    print("Error in VoteApp.js: Issue in sendAvatarVote()");
-                }
-
-                _this.avatarsInfo[name.toLowerCase()].voted = false;
-                dataStore.voted.avatar = false;
-
-                updateUI();
             };
 
-            utils.sendRequest(GOOGLE_SCRIPTS_URL, params, onComplete, onError);
+            var callback = function(error, response) {
+                if (error) {
+                    // Error
+
+                    print("Issue in sendAvatarVote() either error with the request or you've already voted", error);
+    
+                    _this.avatarsInfo[name.toLowerCase()].voted = false;
+                    dataStore.voted.avatar = false;
+    
+                    updateUI();
+                } else {
+                    // Success
+
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        console.error("Issue with parsing response in sendAvatarVote(): " + e);
+                    }
+
+                    
+                    var voteAppSettings = utils.getVoteAppSettings();
+
+                    if (DEBUG) {
+                        print("Avatars onComplete, settings are ", JSON.stringify(voteAppSettings));
+                    }
+
+                    voteAppSettings.voted[AVATAR] = name.toLowerCase();
+
+                    Settings.setValue(VOTE_APP_SETTINGS_NAME, voteAppSettings);
+
+                    updateUI();
+
+                }
+            };
+
+            request(options, callback);
         },
 
         setAvatars: function (gAvatars) {
@@ -586,68 +602,6 @@
             });
 
             updateUI();
-        },
-
-        // Takes an object as argument and creates the paramString for sendRequest() to send along with a GET request
-        // Example argument { username: "MyUsername", displayName: "MyDisplayName" }
-        encodeURLParams: function (params) {
-            var paramPairs = [];
-            for (var key in params) {
-                paramPairs.push(key + "=" + params[key]);
-            }
-            return paramPairs.join("&");
-        },
-
-        // url - the request url
-        // paramString - the encodedURLParams as arguments to be sent, if not needed can be null or ""
-        // onComplete - the callback after requst completes see defaultOnComplete for standards
-        // onError - the callback after an error
-        sendRequest: function (url, paramString, onComplete, onError) {
-
-            var defaultOnComplete = function (request) {
-                if (DEBUG) {
-                    print("sendRequest() is complete");
-                }
-                try {
-                    var info = JSON.parse(request.responseText);
-                } catch (e) {
-                    console.error("Error parsing response in defaultOnComplete");
-                }
-                if (DEBUG) {
-                    print("Response info is: ", JSON.stringify(info));
-                }
-            };
-
-            var defaultOnError = function () {
-                console.error("sendRequest() timed out or there was another error.");
-            };
-
-            // Set request callbacks or assign to the default
-            var onCompleteCallback = onComplete ? onComplete : defaultOnComplete;
-            var onErrorCallback = onError ? onError : defaultOnError;
-
-            // Create the request
-            var request = new XMLHttpRequest();
-            // If paramString is truthy (exists and is not an empty string) append the param string to the url
-            // For GET requests, this is how we send in arguments
-            var requestURL = paramString
-                ? url + "?" + paramString
-                : url;
-
-            if (DEBUG) {
-                print("Utils requtes url is: ", requestURL);
-            }
-
-            request.open('GET', requestURL);
-            request.timeout = 10000;
-            request.ontimeout = onErrorCallback;
-            request.onreadystatechange = function () {
-                // request.readyState === 4 indicates the request was complete and returned
-                if (request.readyState === REQUEST_READY_STATE) {
-                    onCompleteCallback(request);
-                }
-            };
-            request.send();
         },
 
         loggedIn: {
@@ -785,29 +739,34 @@
         getData: function () {
             var _this = this;
 
-            var params = utils.encodeURLParams({ type: GET_INFO_GOOGLE });
-            var onComplete = function (request) {
-
-                if (DEBUG) {
-                    print("Google getData");
-                    // print ("google info is :", JSON.stringify(request));
-                }
-
-                try {
-                    var gData = JSON.parse(request.responseText);
-                } catch (e) {
-                    console.error("Error parsing request in sendDomainInfoRequest");
-                }
-
-                _this.setData(gData);
+            var options = {
+                url: GOOGLE_SCRIPTS_URL,
+                body: { type: GET_INFO_GOOGLE }
             };
-            var onError = function () {
-                if (DEBUG) {
+
+            var callback = function(error, response) {
+                if (error) {
+                    // Error
                     print("Error in VoteApp.js: Issue in getGoogleData()");
+                } else {
+
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        console.error("Issue with parsing response in google.getData: " + e);
+                    }
+                    
+                    if (DEBUG) {
+                        print("Google getData");
+                    }
+                    
+                    var gData = response;
+    
+                    _this.setData(gData);
                 }
             };
 
-            utils.sendRequest(GOOGLE_SCRIPTS_URL, params, onComplete, onError);
+            request(options, callback);
         },
 
         setData: function (gData) {
@@ -876,6 +835,14 @@
         }
     
     };
+
+
+    // Web event types from UI
+    var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
+        GOTO_LOCATION = CONFIG.GOTO_LOCATION,
+        GOTO_DOMAIN = CONFIG.GOTO_DOMAIN,
+        VOTE_AVATAR = CONFIG.VOTE_AVATAR,
+        VOTE_DOMAIN = CONFIG.VOTE_DOMAIN;
 
     var app = {
         startup: function() {
@@ -1008,6 +975,9 @@
             }
         }
     };
+
+    // Vue UI update event
+    var UPDATE_UI = EVENT_NAME + "_update_ui"; // !important must match Tablet.js
 
     function updateUI() {
         var messageObject = {

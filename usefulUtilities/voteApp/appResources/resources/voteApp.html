@@ -12,15 +12,8 @@
     <link rel="stylesheet" href="css/modal/modal.css">
     <link rel="stylesheet" href="css/app.css">
 
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-    crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="config.js"></script>
-<script src="js/tablet.js"></script>
-
-
+    
+    
 </head>
 
 <body>
@@ -29,18 +22,24 @@
         <loggedin-modal :loggedIn="dataStore.loggedin"></loggedin-modal>
         <unload-modal :unload="dataStore.unload"></unload-modal>
         <loading-modal :loading="dataStore.loading"></loading-modal>
-
+        
         <navigation :polls="dataStore.openPolls"></navigation>
-
+        
         <div v-if="dataStore.loggedin" class="tab-content" id="nav-tabContent">
             <infotab></infotab>
             <domainlist :voted="dataStore.voted.domain" :open="dataStore.openPolls.domain" :visitedalldomains="dataStore.visitedAllDomains" :flagvisited="dataStore.flagVisited" :domains="dataStore.domains"></domainlist>
             <avatarlist :voted="dataStore.voted.avatar" :open="dataStore.openPolls.avatar" :avatars="dataStore.avatars" :visited="dataStore.visited"></avatarlist>
         </div>
-
+        
     </div>
-
- 
+    
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="config.js"></script>
+    <script src="js/tablet.js"></script>
 </body>
 
 </html>
