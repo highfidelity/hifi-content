@@ -1,4 +1,4 @@
-(function(){
+(function () {
 
     /*
         Solo Point
@@ -22,20 +22,80 @@
     var FALSE = "false";
 
     // Easy log function checking for message, an object to stringify, and whether it should be enabled or not
-    function log(message, object, enabled){
+    function log(message, object, enabled) {
         if (!debug || enabled === FALSE) {
             return;
         }
 
         var finalMessage;
 
-        finalMessage = "\n\n\t" + message + ":" + "\n\n";
+        finalMessage = "\n\t" + message + ":" + "\n";
 
-        if (object) {
+        if (typeof object !== 'undefined') {
             finalMessage += "\n\t\t" + JSON.stringify(object, null, 4) + "\n";
         }
 
         print(finalMessage);
+    }
+
+    function getGrabPointSphereOffset(handController, ignoreSensorToWorldScale) {
+        var GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 };  // x = upward, y = forward, z = lateral
+        var offset = GRAB_POINT_SPHERE_OFFSET;
+        if (handController === Controller.Standard.LeftHand) {
+            offset = {
+                x: -GRAB_POINT_SPHERE_OFFSET.x,
+                y: GRAB_POINT_SPHERE_OFFSET.y,
+                z: GRAB_POINT_SPHERE_OFFSET.z
+            };
+        }
+        if (ignoreSensorToWorldScale) {
+            return offset;
+        } else {
+            return Vec3.multiply(MyAvatar.sensorToWorldScale, offset);
+        }
+    }
+
+    // controllerWorldLocation is where the controller would be, in-world, with an added offset
+    function getControllerWorldLocation(handController, doOffset) {
+        var orientation;
+        var position;
+        var valid = false;
+
+        if (handController >= 0) {
+            var pose = Controller.getPoseValue(handController);
+            valid = pose.valid;
+            var controllerJointIndex;
+            if (pose.valid) {
+                if (handController === Controller.Standard.RightHand) {
+                    controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND");
+                } else {
+                    controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_LEFTHAND");
+                }
+                orientation = Quat.multiply(MyAvatar.orientation, MyAvatar.getAbsoluteJointRotationInObjectFrame(controllerJointIndex));
+                position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, MyAvatar.getAbsoluteJointTranslationInObjectFrame(controllerJointIndex)));
+
+                // add to the real position so the grab-point is out in front of the hand, a bit
+                if (doOffset) {
+                    var offset = getGrabPointSphereOffset(handController);
+                    position = Vec3.sum(position, Vec3.multiplyQbyV(orientation, offset));
+                }
+
+            } else if (!HMD.isHandControllerAvailable()) {
+                // NOTE: keep this offset in sync with scripts/system/controllers/handControllerPointer.js:493
+                var VERTICAL_HEAD_LASER_OFFSET = 0.1 * MyAvatar.sensorToWorldScale;
+                position = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, { x: 0, y: VERTICAL_HEAD_LASER_OFFSET, z: 0 }));
+                orientation = Quat.multiply(Camera.orientation, Quat.angleAxis(-90, { x: 1, y: 0, z: 0 }));
+                valid = true;
+            }
+        }
+
+        return {
+            position: position,
+            translation: position,
+            orientation: orientation,
+            rotation: orientation,
+            valid: valid
+        };
     }
 
     // #endregion
@@ -63,112 +123,87 @@
     // *************************************
     // #region Mapping
 
-    var pointer;
-    var pointerLeftHand;
-    var pointerRightHand;
-    var pointers;
+    var lastMouseX;
+    var lastMouseY;
 
-
-    // Create the pointers for the mouse and Left and Right controllers
-    function createPointers(){
-        pointer = Pointers.createPointer(PickType.Ray, {
-            joint: "Mouse",
-            filter: Picks.PICK_AVATARS,
-            distanceScaleEnd: true,
-            hover: false,
-            enabled: false
-        });
-        Pointers.setPrecisionPicking(pointer, true);
-
-        pointerLeftHand = Pointers.createPointer(PickType.Ray, {
-            joint: "_CAMERA_RELATIVE_CONTROLLER_LEFTHAND",
-            filter: Picks.PICK_AVATARS,
-            distanceScaleEnd: true,
-            hover: false,
-            enabled: false
-        });
-        Pointers.setPrecisionPicking(pointerLeftHand, true);
-
-        pointerRightHand = Pointers.createPointer(PickType.Ray, {
-            joint: "_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND",
-            filter: Picks.PICK_AVATARS,
-            distanceScaleEnd: true,
-            hover: false,
-            enabled: false
-        });
-        Pointers.setPrecisionPicking(pointerRightHand, true);
-
-        pointers = [pointer, pointerLeftHand, pointerRightHand];
+    // Record the last mousePressEvent
+    function mousePressEvent(event) {
+        lastMouseX = event.x;
+        lastMouseY = event.y;
     }
 
 
     // Enables all the pointers created and the mapping
-    function enablePointers(){
-        pointers.forEach(function(pointer){
-            Pointers.enablePointer(pointer);
-        });
-
+    function enable() {
         Controller.enableMapping(MAPPING_NAME);
     }
 
     // Disables all the pointers created and the mapping 
-    function disablePointers(){
-        pointers.forEach(function(pointer){
-            Pointers.disablePointer(pointer);
-        });
-
+    function disable() {
         Controller.disableMapping(MAPPING_NAME);
+    }
+
+    function getUUIDFromLaser(hand){
+        hand = hand === Controller.Standard.LeftHand 
+            ? Controller.Standard.LeftHand
+            : Controller.Standard.RightHand;
+        
+        var pose = getControllerWorldLocation(hand);
+        var start = pose.position;
+        var direction = Vec3.multiplyQbyV(pose.orientation, {x:0, y:1, z: 0});
+
+        var avatarIntersection = AvatarList.findRayIntersection({origin:start, direction:direction});
+        
+        var uuid = avatarIntersection.avatarID;
+
+        return uuid;
     }
 
 
     var MAPPING_NAME = "SOLO_POINTER";
     var mapping = Controller.newMapping(MAPPING_NAME);
 
-    mapping.from(Controller.Hardware.Keyboard.LeftMouseButton).to(function(value) {
-        if (value === 0 ) {
+    mapping.from(Controller.Hardware.Keyboard.LeftMouseButton).to(function (value) {
+        if (value === 1 || !HMD.active) {
             return;
         }
 
-        var result = Pointers.getPrevPickResult(pointer);
+        var pickRay = Camera.computePickRay(lastMouseX, lastMouseY);
+        var avatarIntersection = AvatarList.findRayIntersection(pickRay);
 
-        log("result from Left Mouse:", result, FALSE);
+        var uuid = avatarIntersection.avatarID;
 
-        if (typeof result.objectID === "string") {
-            soloAvatar(result.objectID);
+        if (uuid && uuid !== MyAvatar.sessionUUID) {
+            soloAvatar(avatarIntersection.avatarID);
         }
     });
 
-    mapping.from(Controller.Standard.LTClick).to(function(value) {
-        if (value === 1 ) {
-            return;
-        }
 
-        var result = Pointers.getPrevPickResult(pointerLeftHand);
-
-        log("result from Left Controller Value:", value, true);
-
-        log("result from Left Controller:", result, false);
-        
-        if (typeof result.objectID === "string") {
-            soloAvatar(result.objectID);
-        }
-    });
-
-    mapping.from(Controller.Standard.RTClick).to(function(value) {
-        if (value === 1 ) {
+    mapping.from(Controller.Standard.LTClick).to(function (value) {
+        if (value === 0) {
             return;
         }
         
-        var result = Pointers.getPrevPickResult(pointerRightHand);
+        var uuid = getUUIDFromLaser(Controller.Standard.LeftHand);
 
-        log("result from Right Controller Value:", value, true);
-
-        log("result from Right Controller:", result, false);
-
-        if (typeof result.objectID === "string") {
-            soloAvatar(result.objectID);
+        if (uuid && uuid !== MyAvatar.sessionUUID) {
+            soloAvatar(uuid);
         }
     });
+
+
+    mapping.from(Controller.Standard.RTClick).to(function (value) {
+        if (value === 0) {
+            return;
+        }
+        
+        var uuid = getUUIDFromLaser(Controller.Standard.RightHand);
+
+        if (uuid && uuid !== MyAvatar.sessionUUID) {
+            soloAvatar(uuid);
+        }
+    });
+
 
     // #endregion
     // *************************************
@@ -183,28 +218,28 @@
 
 
     // Adds avatar to the solo list
-    function addSolo(targetUUID){
+    function addSolo(targetUUID) {
         Audio.addToSoloList([targetUUID]);
         updateUI();
     }
 
 
     // Remove Avatar from the solo list
-    function removeSolo(targetUUID){
+    function removeSolo(targetUUID) {
         Audio.removeFromSoloList([targetUUID]);
         updateUI();
     }
 
 
     // Remove all avatars from the solo list
-    function resetSolo(){
+    function resetSolo() {
         Audio.resetSoloList();
         removeAllOverlays();
         soloAvatars = {};
         updateUI();
     }
 
-    function addAvatarToList(avatarUUID, displayUsername){
+    function addAvatarToList(avatarUUID, displayUsername) {
         soloAvatars[avatarUUID] = {
             id: avatarUUID,
             name: displayUsername
@@ -214,7 +249,7 @@
         addOverlayToUser(avatarUUID);
     }
 
-    function removeAvatarFromList(avatarUUID){
+    function removeAvatarFromList(avatarUUID) {
         removeOverlay(avatarUUID);
         delete soloAvatars[avatarUUID];
         removeSolo(avatarUUID);
@@ -235,7 +270,7 @@
 
         log("avatar clicked", displayUsername);
 
-        if (soloAvatars[avatarUUID]){
+        if (soloAvatars[avatarUUID]) {
             removeAvatarFromList(avatarUUID);
         } else {
             addAvatarToList(avatarUUID, displayUsername);
@@ -256,17 +291,19 @@
     function addOverlayToUser(uuid) {
         var user = soloAvatars[uuid];
         var overlayPosition = AvatarList.getAvatar(uuid).getNeckPosition(); // user.currentPosition
-    
-        var WHITE = [0, 0, 0];
-    
+
+        var WHITE = [255, 255, 255];
+
         var overlayProperties = {
             position: Vec3.sum(overlayPosition, [0, 0.75, 0]),
             dimensions: { x: 0.3, y: 0.3, z: 0.3 },
-            parentID: uuid, 
+            alpha: 1.0,
+            color: WHITE,
+            parentID: uuid,
             drawInFront: true,
             url: Script.resolvePath("./resources/images/speaker.png")
         };
-    
+
         var overlayID = Overlays.addOverlay("image3d", overlayProperties);
         user.overlayID = overlayID;
     }
@@ -274,12 +311,12 @@
 
     function removeOverlay(uuid) {
         var user = soloAvatars[uuid];
-    
+
         Overlays.deleteOverlay(user.overlayID);
-    
+
         user.overlayID = null;
     }
-    
+
 
     function removeAllOverlays() {
         // remove previous overlays
@@ -308,7 +345,7 @@
         buttonName: BUTTON_NAME,
         home: URL,
         graphicsDirectory: Script.resolvePath("./icons/tablet-icons/"),
-        onOpened : onOpened,
+        onOpened: onOpened,
         onClosed: onClosed,
         onMessage: onMessage
     });
@@ -316,23 +353,26 @@
     // function for appUi to call when opened
     function onOpened() {
         log("onOpened");
-        
-        enablePointers();
+
+        Controller.mousePressEvent.connect(mousePressEvent);
+        enable();
+
     }
 
     // function for appUi to call when closed    
     function onClosed() {
         log("onClosed");
 
-        disablePointers();
+        Controller.mousePressEvent.disconnect(mousePressEvent);
+        disable();
         resetSolo();
     }
 
     var EVENT_BRIDGE_OPEN_MESSAGE = "EVENT_BRIDGE_OPEN_MESSAGE";
     var CLEAR_LIST = "CLEAR_LIST";
 
-    function onMessage(data){
-        switch (data.type){
+    function onMessage(data) {
+        switch (data.type) {
             case EVENT_BRIDGE_OPEN_MESSAGE:
                 log("updatingUi!");
                 updateUI();
@@ -345,12 +385,12 @@
     }
 
     var UPDATE_SOLO = "UPDATE_SOLO";
-    function updateUI(){
+    function updateUI() {
         var avatarNames = [];
-        for (var key in soloAvatars){
+        for (var key in soloAvatars) {
             avatarNames.push(soloAvatars[key].name);
         }
-        ui.sendToHtml ({
+        ui.sendToHtml({
             type: UPDATE_SOLO,
             value: avatarNames
         });
@@ -367,11 +407,6 @@
     // *************************************
     // #region Main
 
-    createPointers();
-    // enablePointers();
-
-    Controller.enableMapping(MAPPING_NAME);
-
     // #endregion
     // *************************************
     // STOP MAIN
@@ -384,14 +419,16 @@
     // #region Cleanup
 
     // Handles reset of list if you change domains
-    function onDomainChange(){
+    function onDomainChange() {
         resetSolo();
     }
 
 
     // Handles removing an avatar from the list if they leave the domain
-    function onAvatarRemoved(sessionUUID){
-        removeAvatarFromList(sessionUUID);
+    function onAvatarRemoved(sessionUUID) {
+        if (sessionUUID in soloAvatars) {
+            removeAvatarFromList(sessionUUID);
+        }
     }
 
     Window.domainChanged.connect(onDomainChange);
@@ -404,7 +441,7 @@
         resetSolo();
     }
 
-    
+
     Script.scriptEnding.connect(scriptFinished);
 
     // #endregion

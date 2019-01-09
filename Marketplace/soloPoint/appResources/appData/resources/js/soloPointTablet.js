@@ -47,7 +47,6 @@ function createButton(){
     })
 }
 
-
 function onScriptEventReceived(message) {
     print(message);
     var data;
