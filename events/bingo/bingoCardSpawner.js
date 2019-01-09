@@ -7,11 +7,11 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-/* global EventBridge, AccountServices Script, Xform */
+/* global Audio, Script, ScriptDiscoveryService, SoundCache */
 
 (function() {
     var GET_CARD_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWish.wav"));
-    var WAIT_TO_CLICK = 5000;
+    var WAIT_TO_CLICK_MS = 5000;
 
     var _this;
 
@@ -19,6 +19,8 @@
     var canClick = true;
     var appPage = Script.resolvePath('./card/card.html');
 
+    /* CHECK IF A USER IS RUNNING THE CARD APP: Get a list of running scripts usingg the script discovery service API. 
+    Search that list for the card app script and return whether or not it was found */
     var isRunningStandaloneBingoApp = function() {
         var isRunning = false;
         if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("card.js") !== -1) {
@@ -32,11 +34,15 @@
     };
 
     BingoCardSpawner.prototype = {
-        remotelyCallable: ['removeCards'],
+
+        /* ON LOADING THE APP: Save a reference to this entity ID */
         preload: function(entityID){
             _this.entityID = entityID;
         },
 
+        /* WHEN A USER MOUSE CLICKS THIS ENTITY:  If it was left click and the user has not clicked it within the last 
+        5 seconds, play the sound for getting a card, and if the user is not running the card script, load it. If they 
+        are already running the script, go to the app page on the tablet. */
         mousePressOnEntity: function(id, event) {
             if (event.isLeftButton && canClick) {
                 canClick = false;
@@ -49,14 +55,12 @@
                 }
                 Script.setTimeout(function() {
                     canClick = true;
-                }, WAIT_TO_CLICK);
+                }, WAIT_TO_CLICK_MS);
             }
         },
 
-        removeCards: function() {
-            ScriptDiscoveryService.stopScript(Script.resolvePath('./card/card.js'));
-        },
-
+        /* PLAY A SOUND: If a sound is already playing via this script injector, stop it. Then, play the specified 
+        sound at specified volume and localOnly attributes. */
         playSound: function(sound, volume, localOnly) {
             if (sound.downloaded) {
                 if (injector) {
@@ -70,6 +74,7 @@
             }
         },
 
+        /* ON UNLOADING THE APP:  Close the card app by stopping its script. */
         unload: function() {
             ScriptDiscoveryService.stopScript(Script.resolvePath('./card/card.js'));
         }

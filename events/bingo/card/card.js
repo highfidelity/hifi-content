@@ -51,6 +51,14 @@
         return false;
     }
 
+    /* DEBUG PRINT: Enable or disable extra debugging messages */
+    var DEBUG = 1;
+    function debugPrint(msg) {
+        if (DEBUG) {
+            print(msg);
+        }
+    }
+
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
@@ -125,45 +133,26 @@
     
     }
 
-    /* DEBUG PRINT: Enable or disable extra debugging messages */
-    var DEBUG = 1;
-    function debugPrint(msg) {
-        if (DEBUG) {
-            print(msg);
-        }
-    }
-
     /* STORE USER: Store the user's name and assigned bingo card numbers for future reference*/
     // -------------------------MOVE THIS TO EXTERNAL FILE--------------------------------------------------------------
-    var SPREADSHEET_URL_FILE = Script.resolvePath("../bingoSheetURL.txt");
+    var SPREADSHEET_URL = Script.require(Script.resolvePath('../bingoSheetURL.json')).sheetURL;
     var request = Script.require('request').request;
     var userName = AccountServices.username;
     var userCardNumbers = [];
     function storeUser() {
-        var spreadsheetURL;
         var addParamString = encodeURLParams({
             type: "add",
             username: userName,
             cardNumbers: JSON.stringify(userCardNumbers)
         });
         request({
-            uri: SPREADSHEET_URL_FILE
-        }, function(error, response) {
+            uri: SPREADSHEET_URL + "?" + addParamString
+        }, function (error, response) {
             if (error || !response) {
-                debugPrint("bingoApp.js: ERROR getting spreadsheet URL" + error || response);
+                debugPrint("card.js: ERROR when adding new Bingo user entry!" + error || response);
                 return;
             }
-            spreadsheetURL = response;
-            debugPrint("bingoApp.js: Successfully read spreadsheet URL from file! " + spreadsheetURL);
-            request({
-                uri: spreadsheetURL + "?" + addParamString
-            }, function (error, response) {
-                if (error || !response) {
-                    debugPrint("card.js: ERROR when adding new Bingo user entry!" + error || response);
-                    return;
-                }
-                debugPrint("card.js: Successfully stored Bingo user entry in spreadsheet!");
-            });
+            debugPrint("card.js: Successfully stored Bingo user entry in spreadsheet!");
         });
     }
 
@@ -205,43 +194,32 @@
     var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
     var WAIT_TO_SEND_NUMBERS = 1000;
     function findOrCreateCard() {
-        var spreadsheetURL;
         var searchParamString = encodeURLParams({
             type: "search",
             username: userName
         });
         request({
-            uri: SPREADSHEET_URL_FILE
-        }, function(error, response) {
+            uri: SPREADSHEET_URL + "?" + searchParamString
+        }, function (error, response) {
+            debugPrint("card.js: Spreadsheet URL is " + SPREADSHEET_URL + "?" + searchParamString);
             if (error || !response) {
-                debugPrint("bingoApp.js: ERROR getting spreadsheet URL" + error || response);
+                debugPrint("card.js: ERROR when searching for Bingo user!" + error || response);
                 return;
             }
-            spreadsheetURL = response;
-            debugPrint("bingoApp.js: Successfully read spreadsheet URL from file! " + spreadsheetURL);
-            request({
-                uri: spreadsheetURL + "?" + searchParamString
-            }, function (error, response) {
-                debugPrint("card.js: Spreadsheet URL is " + spreadsheetURL + "?" + searchParamString);
-                if (error || !response) {
-                    debugPrint("card.js: ERROR when searching for Bingo user!" + error || response);
-                    return;
-                }
-                debugPrint("card.js: Successfully searched for Bingo user entry in spreadsheet!");
-                if (response === "New username") {
-                    createCard(true);
-                    Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
-                } else if (response) {
-                    var userNumbersToSplit = response.substring(2, response.length - 2);
-                    userCardNumbers = userNumbersToSplit.split(",");
-                }
-                Script.setTimeout(function() {
-                    ui.tablet.emitScriptEvent(JSON.stringify({
-                        type : 'displayNumbers',
-                        numbers: userCardNumbers
-                    }));
-                }, WAIT_TO_SEND_NUMBERS);
-            });
+            debugPrint("card.js: Successfully searched for Bingo user entry in spreadsheet!");
+            if (response === "New username") {
+                createCard(true);
+                Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
+            } else if (response) {
+                var userNumbersToSplit = response.substring(2, response.length - 2);
+                userCardNumbers = userNumbersToSplit.split(",");
+            }
+            Script.setTimeout(function() {
+                ui.tablet.emitScriptEvent(JSON.stringify({
+                    type : 'displayNumbers',
+                    numbers: userCardNumbers
+                }));
+            }, WAIT_TO_SEND_NUMBERS);
         });         
     }
 

@@ -7,7 +7,10 @@
 // See accompanying license file or http://apache.org/
 //
 
+/* global Audio, Entities, JSON, Math, Quat, Script, SoundCache */
+
 (function() {
+    var BINGO_WHEEL = "{57e5e385-3968-4ebf-8048-a7650423d83b}";
     var ENTER_ZONE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoEnter.wav"));
     var COMPUTING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoComputing.wav"));
     var MACHINE_WIN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoMachineWin.wav"));
@@ -29,42 +32,80 @@
     var IMAGE_MODEL = "https://hifi-content.s3.amazonaws.com/DomainContent/production/default-image-model.fbx";
     var HEADER_IMAGE = Script.resolvePath("assets/images/bingo-card-head.png");
     var WAIT_FOR_ENTITIES_TO_LOAD = 2000;
+    var SPREADSHEET_URL = Script.require(Script.resolvePath('bingoSheetURL.json')).sheetURL;
 
     var _this;
-    var audioVolume = 0.05;
-    var injector;
+    
     var position;
     var interval = null;
     var userName;
     var userCardNumbers = [];
-    var spreadsheetURL;
     var bingoMachine;
     var machineSpotlight;
     var cardEntity = null;
     var bingoNumberSquares = [];
     var confettiParticleEffect;
     var bingoParticleEffect;
-    var wheel;
     var calledNumbers;
+    var request = Script.resolvePath('modules/request').request;
     // var white;
+
+    // *************************************
+    // START UTILITY FUNCTIONS
+    // *************************************
+
+    /* ENCODE URL PARAMETERS: Formats data to send to Google sheet*/
+    function encodeURLParams(params) {
+        var paramPairs = [];
+        for (var key in params) {
+            paramPairs.push(key + "=" + params[key]);
+        }
+        return paramPairs.join("&");
+    }
+
+    /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
+    mode requested. */
+    var injector;
+    var audioVolume = 0.05;
+    function playSound(sound) {
+        if (sound.downloaded) {
+            if (injector) {
+                injector.stop();
+            }
+            injector = Audio.playSound(sound, {
+                position: position,
+                volume: audioVolume
+            });
+        }
+    }
+
+    /* DEBUG PRINT: Enable or disable extra debugging messages */
+    var DEBUG = 1;
+    function debugPrint(msg) {
+        if (DEBUG) {
+            print(msg);
+        }
+    }
+
+    // *************************************
+    // END UTILITY FUNCTIONS
+    // *************************************
 
     var BingoMachineZone = function() {
         _this = this;
     };
 
     BingoMachineZone.prototype = {
-        remotelyCallable: ['createCard', 'scanCard', 'userLeftZone'],
+
+        remotelyCallable: ['scanCard', 'userLeftZone'],
+
+        /* ON LOADING THE SCRIPT: Save a reference to this entity ID. Set a timeout for 2 seconds to ensure that entities 
+        have loaded and then find and save references to other necessary entities. */
         preload: function(entityID) {
             _this.entityID = entityID;
             Script.setTimeout(function() {
-                var properties = Entities.getEntityProperties(_this.entityID, ['userData', 'parentID', 'position']);
+                var properties = Entities.getEntityProperties(_this.entityID, ['parentID', 'position']);
                 position = properties.position;
-                try {
-                    var userdataProperties = JSON.parse(properties.userData);
-                    spreadsheetURL = userdataProperties.bingoURL;
-                } catch (e) {
-                    print("Could not get URL for bingo users spreadsheet");
-                }
                 var zoneMarker = properties.parentID;
                 bingoMachine = Entities.getEntityProperties(zoneMarker, 'parentID').parentID;
                 Entities.getChildrenIDs(zoneMarker).forEach(function(childOfZoneMarker) {
@@ -85,38 +126,31 @@
             
         },
 
-        encodeURLParams: function (params) {
-            var paramPairs = [];
-            for (var key in params) {
-                paramPairs.push(key + "=" + params[key]);
-            }
-            return paramPairs.join("&");
-        },
-
+        /* GET USER'S CARD NUMBERS: Get the Google sheet URL from a private text file, then search the sheet for the user. 
+        If the user is found, save their card numbers. */
         getCardNumbers: function() {
-            var searchParamString = _this.encodeURLParams({
+            var searchParamString = encodeURLParams({
                 type: "search",
                 username: userName
             });
-            var searchRequest = new XMLHttpRequest();
-            searchRequest.open('GET', spreadsheetURL + "?" + searchParamString);
-            searchRequest.timeout = 10000;
-            searchRequest.ontimeout = function() {
-                print("bingo: request timed out");
-            };
-            searchRequest.onreadystatechange = function() {
-                if (searchRequest.readyState === 4) {
-                    if (searchRequest.response === "New username") {
-                        print("Error...user not found in bingo players list");
-                    } else if (searchRequest.response) {
-                        var userNumbersToSplit = searchRequest.response.substring(2, searchRequest.response.length - 2);
-                        userCardNumbers = userNumbersToSplit.split(",");
-                    }
+            print("REQUEST_IS: ", request);
+            request({
+                uri: SPREADSHEET_URL + "?" + searchParamString
+            }, function (error, response) {
+                if (error || !response) {
+                    debugPrint("bingoMachineZoneServer.js: ERROR when searching for Bingo user entry!" + error || response);
+                    return;
                 }
-            };
-            searchRequest.send();
+                if (response === "New username") {
+                    print("Error...user not found in bingo players list");
+                } else if (response) {
+                    var userNumbersToSplit = response.substring(2, response.length - 2);
+                    userCardNumbers = userNumbersToSplit.split(",");
+                }
+            });
         },
 
+        /* GET A RANDOM COLOR FOR CARD:  Select one of 4 preset colors to use for the card base */
         getRandomCardColor: function() {
             var colorChange = Math.floor(Math.random() * 4);
             var newColor;
@@ -139,11 +173,9 @@
             return newColor;
         },
 
-        getNumbersFromServer: function(id, numbers) {
-            calledNumbers = JSON.parse(numbers[0]);
-        },
-
-        createCard: function() {
+        /* CREATE A REPLICA OF USER'S CARD: Create a base entity for the card and then iterate over each column 
+        (one for each letter in the word 'BINGO')  */
+        createCardReplica: function() {
             var cardEntityColor = _this.getRandomCardColor();
             cardEntity = Entities.addEntity({
                 isSolid: true,
@@ -241,6 +273,7 @@
             }
         },
 
+        /* VALIDATE A WIN:  */
         validateWin: function() {
             var rows = [1,1,1,1,1];
             var columns = [1,1,1,1,1];
@@ -348,19 +381,22 @@
             }
         },
 
+        /* WIN:  */
         win: function() {
-            _this.playSound(MACHINE_WIN_SOUND);
+            playSound(MACHINE_WIN_SOUND);
             Entities.callEntityMethod(bingoParticleEffect, 'turnOn');
             Entities.callEntityMethod(confettiParticleEffect, 'turnOn');
         },
 
+        /* LOSE:  */
         lose: function() {
-            _this.playSound(MACHINE_LOSE_SOUND);
+            playSound(MACHINE_LOSE_SOUND);
             Script.setTimeout(function() {
-                _this.playSound(SAD_TROMBONE_SOUND);
+                playSound(SAD_TROMBONE_SOUND);
             }, MACHINE_LOSE_SOUND.duration * 1000);
         },
 
+        /* DELETE CARD ABOVE MACHINE:  */
         deleteCard: function() {
             Entities.deleteEntity(cardEntity);
             Entities.getChildrenIDs(bingoMachine).forEach(function(entityNearMachine) {
@@ -371,19 +407,19 @@
             });
         },
 
+        /* SCAN USER'S CARD:  */
         scanCard: function(thisID, params) {
             userName = params[0];
-            wheel = params[1];
             userCardNumbers = [];
-            Entities.callEntityMethod(wheel, 'getCalledNumbers', [-1, _this.entityID]);
+            Entities.callEntityMethod(BINGO_WHEEL, 'getCalledNumbers', [-1, _this.entityID]);
             _this.getCardNumbers();
             _this.deleteCard();
             Entities.editEntity(machineSpotlight, { visible: true });
-            _this.playSound(ENTER_ZONE_SOUND);
+            playSound(ENTER_ZONE_SOUND);
             Script.setTimeout(function() {
                 if (userCardNumbers.length !== 0) {
-                    _this.playSound(COMPUTING_SOUND);
-                    _this.createCard();
+                    playSound(COMPUTING_SOUND);
+                    _this.createCardReplica();
                     Script.setTimeout(function() {
                         _this.validateWin();
                     }, ENTER_ZONE_SOUND.duration * 1000 - OVERLAP_SOUNDS_TIME);
@@ -409,6 +445,7 @@
             }, ENTER_ZONE_SOUND.duration * 1000);
         },
 
+        /* WHEN USER LEAVES ZONE:  */
         userLeftZone: function(thisID, userID) {
             Script.setTimeout(function() {
                 Entities.editEntity(machineSpotlight, { visible: false });
@@ -419,18 +456,7 @@
             }, WAIT_TO_DELETE_CARD);
         },
 
-        playSound: function(sound) {
-            if (sound.downloaded) {
-                if (injector) {
-                    injector.stop();
-                }
-                injector = Audio.playSound(sound, {
-                    position: position,
-                    volume: audioVolume
-                });
-            }
-        },
-
+        /* ON UNLOADING SCRIPT:  */
         unload: function(entityID) {
             _this.deleteCard();
             bingoNumberSquares = [];

@@ -68,46 +68,35 @@
     /* NEW ROUND: This will get the spreadsheet URL from an external file to clear the sheet,  play a sound, 
     call server methods on the wheel and avatar counter to reset the round, call the 
     sheet function that clears all entries, and reset the wheel text */
-    var SPREADSHEET_URL_FILE = Script.resolvePath("bingoSheetURL.txt");
+    var SPREADSHEET_URL = Script.require(Script.resolvePath('bingoSheetURL.json')).sheetURL;
     var NEW_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoOrgan.wav"));
     var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
     var BINGO_WHEEL_TEXT = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
     var CLEAR_URL_PARAM = encodeURLParams({ type: "clear" });
     var request = Script.require('request').request;
     function newRound() {
-        var spreadsheetURL;
+        playSound(NEW_SOUND, 1);
         request({
-            uri: SPREADSHEET_URL_FILE
-        }, function(error, response) {
+            uri: SPREADSHEET_URL + "?" + CLEAR_URL_PARAM
+        }, function (error, response) {
+            debugPrint("bingoApp.js: Spreadsheet URL is " + SPREADSHEET_URL + "?" + CLEAR_URL_PARAM);
             if (error || !response) {
-                debugPrint("bingoApp.js: ERROR getting spreadsheet URL" + error || response);
+                debugPrint("bingoApp.js: ERROR when clearing Bingo entries!" + error || response);
                 return;
             }
-            spreadsheetURL = response;
-            debugPrint("bingoApp.js: Successfully read spreadsheet URL from file! " + spreadsheetURL);
-            playSound(NEW_SOUND, 1);
-            request({
-                uri: spreadsheetURL + "?" + CLEAR_URL_PARAM
-            }, function (error, response) {
-                debugPrint("bingoApp.js: Spreadsheet URL is " + spreadsheetURL + "?" + CLEAR_URL_PARAM);
-                if (error || !response) {
-                    debugPrint("bingoApp.js: ERROR when clearing Bingo entries!" + error || response);
-                    return;
-                }
-                debugPrint("bingoApp.js: Successfully cleared Bingo entries from spreadsheet!");
+            debugPrint("bingoApp.js: Successfully cleared Bingo entries from spreadsheet!");
             
-                debugPrint("bingoApp.js: Resetting Bingo Wheel Number text (id: " + BINGO_WHEEL_TEXT + ")...");
-                Entities.editEntity(BINGO_WHEEL_TEXT, {
-                    text: "BINGO",
-                    lineHeight: 1.1
-                });
-            
-                debugPrint("bingoApp.js: Calling newRound on numberWheel (id: " + NUMBER_WHEEL + ")...");
-                Entities.callEntityServerMethod(NUMBER_WHEEL, 'newRound');
-            
-                debugPrint("bingoApp.js: Calling reset on PLAYER_COUNTER_TEXT (id: " + PLAYER_COUNTER_TEXT + ")...");
-                Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'reset');
+            debugPrint("bingoApp.js: Resetting Bingo Wheel Number text (id: " + BINGO_WHEEL_TEXT + ")...");
+            Entities.editEntity(BINGO_WHEEL_TEXT, {
+                text: "BINGO",
+                lineHeight: 1.1
             });
+            
+            debugPrint("bingoApp.js: Calling newRound on numberWheel (id: " + NUMBER_WHEEL + ")...");
+            Entities.callEntityServerMethod(NUMBER_WHEEL, 'newRound');
+            
+            debugPrint("bingoApp.js: Calling reset on PLAYER_COUNTER_TEXT (id: " + PLAYER_COUNTER_TEXT + ")...");
+            Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'reset');
         });
     }
 
