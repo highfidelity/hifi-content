@@ -168,7 +168,7 @@
     var mapping = Controller.newMapping(MAPPING_NAME);
 
     mapping.from(Controller.Hardware.Keyboard.LeftMouseButton).to(function (value) {
-        if (value === 1 || !HMD.active) {
+        if (value === 1 || HMD.active) {
             return;
         }
 
