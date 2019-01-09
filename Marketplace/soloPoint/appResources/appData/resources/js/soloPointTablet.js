@@ -29,8 +29,24 @@ function log(message, object, enabled){
 // *************************************
 
 var UPDATE_SOLO = "UPDATE_SOLO";
+var CLEAR_LIST = "CLEAR_LIST";
 
-var el = document.getElementById("avatar-list");
+var avatarList = document.getElementById("avatar-list");
+var soloNames = document.getElementById("solo-names");
+
+// Create the button to reset the sololist
+function createButton(){
+    var button = document.createElement("button");
+    button.innerHTML = "Clear the list";
+    button.setAttribute("id", "soloButton");
+    soloNames.appendChild(button);
+    button.addEventListener("click", function(){
+        EventBridge.emitWebEvent(JSON.stringify({
+            type: CLEAR_LIST
+        }));
+    })
+}
+
 
 function onScriptEventReceived(message) {
     print(message);
@@ -40,10 +56,27 @@ function onScriptEventReceived(message) {
         switch (data.type) {
             case UPDATE_SOLO:
                 log("in update solo");
+                var buttonSearch = document.getElementById("soloButton");
                 var finalList = data.value.map(function(avatar){
                     return `<li>${avatar}</li>`;
                 }).join("");
-                el.innerHTML = finalList;
+                
+                if (finalList.length > 0) {
+                    
+                    if (!buttonSearch) {
+                        createButton();
+                    }
+
+                } else {
+
+                    if (buttonSearch) {
+                        buttonSearch.remove();
+                    }
+
+                }
+
+                avatarList.innerHTML = finalList;
+                
                 break;
             default:
         }
@@ -55,14 +88,12 @@ function onScriptEventReceived(message) {
 
 var EVENTBRIDGE_SETUP_DELAY = 500;
 var EVENT_BRIDGE_OPEN_MESSAGE = "EVENT_BRIDGE_OPEN_MESSAGE";
+
+
+// Run when the JS is loaded and give enough time to for EventBridge to come back
 function onLoad() {
             
-    // Initial button active state is communicated via URL parameter.
-    // isActive = location.search.replace("?active=", "") === "true";
-
     setTimeout(function () {
-        // Open the EventBridge to communicate with the main script.
-        // Allow time for EventBridge to become ready.
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
             type: EVENT_BRIDGE_OPEN_MESSAGE
@@ -70,6 +101,14 @@ function onLoad() {
     }, EVENTBRIDGE_SETUP_DELAY);
 }
 
-// Main
-// /////////////////////////////////////////////////////////////////////////    
+
+// *************************************
+// START MAIN
+// *************************************
+// #region Main
 onLoad();
+
+// #endregion
+// *************************************
+// END MAIN 
+// *************************************

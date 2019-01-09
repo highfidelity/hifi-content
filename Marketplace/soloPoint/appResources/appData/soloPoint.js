@@ -78,6 +78,7 @@
             hover: false,
             enabled: false
         });
+        Pointers.setPrecisionPicking(pointer, true);
 
         pointerLeftHand = Pointers.createPointer(PickType.Ray, {
             joint: "_CAMERA_RELATIVE_CONTROLLER_LEFTHAND",
@@ -86,6 +87,7 @@
             hover: false,
             enabled: false
         });
+        Pointers.setPrecisionPicking(pointerLeftHand, true);
 
         pointerRightHand = Pointers.createPointer(PickType.Ray, {
             joint: "_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND",
@@ -94,6 +96,7 @@
             hover: false,
             enabled: false
         });
+        Pointers.setPrecisionPicking(pointerRightHand, true);
 
         pointers = [pointer, pointerLeftHand, pointerRightHand];
     }
@@ -135,20 +138,32 @@
         }
     });
 
-    mapping.from(Controller.Standard.LT).to(function(value) {
+    mapping.from(Controller.Standard.LTClick).to(function(value) {
+        if (value === 1 ) {
+            return;
+        }
+
         var result = Pointers.getPrevPickResult(pointerLeftHand);
 
-        log("result from Left Controller:", result, FALSE);
+        log("result from Left Controller Value:", value, true);
+
+        log("result from Left Controller:", result, false);
         
         if (typeof result.objectID === "string") {
             soloAvatar(result.objectID);
         }
     });
 
-    mapping.from(Controller.Standard.RT).to(function(value) {
+    mapping.from(Controller.Standard.RTClick).to(function(value) {
+        if (value === 1 ) {
+            return;
+        }
+        
         var result = Pointers.getPrevPickResult(pointerRightHand);
 
-        log("result from Right Controller:", result, FALSE);
+        log("result from Right Controller Value:", value, true);
+
+        log("result from Right Controller:", result, false);
 
         if (typeof result.objectID === "string") {
             soloAvatar(result.objectID);
@@ -159,7 +174,7 @@
     // *************************************
     // STOP MAPPING FUNCTIONS
     // *************************************
-    
+
 
     // *************************************
     // START SOLO FUNCTIONS
@@ -184,14 +199,30 @@
     // Remove all avatars from the solo list
     function resetSolo(){
         Audio.resetSoloList();
+        removeAllOverlays();
         soloAvatars = {};
         updateUI();
     }
 
+    function addAvatarToList(avatarUUID, displayUsername){
+        soloAvatars[avatarUUID] = {
+            id: avatarUUID,
+            name: displayUsername
+        };
+
+        addSolo(avatarUUID);
+        addOverlayToUser(avatarUUID);
+    }
+
+    function removeAvatarFromList(avatarUUID){
+        removeOverlay(avatarUUID);
+        delete soloAvatars[avatarUUID];
+        removeSolo(avatarUUID);
+    }
 
     // Handles avatar being
-    function soloAvatar(entityClicked) {
-        log("in soloAvatar", entityClicked);
+    function soloAvatar(avatarUUID) {
+        log("in soloAvatar", avatarUUID);
 
         log("soloAvatars", soloAvatars);
 
@@ -199,21 +230,15 @@
             return;
         }
 
-        var getAvatarClicked = AvatarList.getAvatar(entityClicked);
+        var getAvatarClicked = AvatarList.getAvatar(avatarUUID);
         var displayUsername = getAvatarClicked.sessionDisplayName;
 
         log("avatar clicked", displayUsername);
 
-        if ( soloAvatars[entityClicked]){
-            delete soloAvatars[entityClicked];
-            removeSolo(entityClicked);
+        if (soloAvatars[avatarUUID]){
+            removeAvatarFromList(avatarUUID);
         } else {
-            soloAvatars[entityClicked] = {
-                id: entityClicked,
-                name: displayUsername
-            };
-
-            addSolo(entityClicked);
+            addAvatarToList(avatarUUID, displayUsername);
         }
     }
 
@@ -221,6 +246,52 @@
     // #endregion
     // *************************************
     // STOP SOLO FUNCTIONS
+    // *************************************
+
+    // *************************************
+    // START OVERLAY FUNCTIONS
+    // *************************************
+    // #region Overlay
+
+    function addOverlayToUser(uuid) {
+        var user = soloAvatars[uuid];
+        var overlayPosition = AvatarList.getAvatar(uuid).getNeckPosition(); // user.currentPosition
+    
+        var WHITE = [0, 0, 0];
+    
+        var overlayProperties = {
+            position: Vec3.sum(overlayPosition, [0, 0.75, 0]),
+            dimensions: { x: 0.3, y: 0.3, z: 0.3 },
+            parentID: uuid, 
+            drawInFront: true,
+            url: Script.resolvePath("./resources/images/speaker.png")
+        };
+    
+        var overlayID = Overlays.addOverlay("image3d", overlayProperties);
+        user.overlayID = overlayID;
+    }
+
+
+    function removeOverlay(uuid) {
+        var user = soloAvatars[uuid];
+    
+        Overlays.deleteOverlay(user.overlayID);
+    
+        user.overlayID = null;
+    }
+    
+
+    function removeAllOverlays() {
+        // remove previous overlays
+        for (var uuid in soloAvatars) {
+            removeOverlay(uuid);
+        }
+    }
+
+
+    // #endregion
+    // *************************************
+    // STOP OVERLAY FUNCTIONS
     // *************************************
 
 
@@ -237,26 +308,28 @@
         buttonName: BUTTON_NAME,
         home: URL,
         graphicsDirectory: Script.resolvePath("./icons/tablet-icons/"),
-        onOpen: onOpen,
-        onClose: onClose,
+        onOpened : onOpened,
+        onClosed: onClosed,
         onMessage: onMessage
     });
 
     // function for appUi to call when opened
-    function onOpen() {
-        log("onOpen");
+    function onOpened() {
+        log("onOpened");
         
         enablePointers();
     }
 
     // function for appUi to call when closed    
-    function onClose() {
-        log("onClose");
+    function onClosed() {
+        log("onClosed");
 
         disablePointers();
+        resetSolo();
     }
 
     var EVENT_BRIDGE_OPEN_MESSAGE = "EVENT_BRIDGE_OPEN_MESSAGE";
+    var CLEAR_LIST = "CLEAR_LIST";
 
     function onMessage(data){
         switch (data.type){
@@ -264,6 +337,9 @@
                 log("updatingUi!");
                 updateUI();
                 break;
+            case CLEAR_LIST:
+                log("Clear List");
+                resetSolo();
             default:
         }
     }
@@ -292,7 +368,7 @@
     // #region Main
 
     createPointers();
-    enablePointers();
+    // enablePointers();
 
     Controller.enableMapping(MAPPING_NAME);
 
@@ -307,8 +383,24 @@
     // *************************************
     // #region Cleanup
 
+    // Handles reset of list if you change domains
+    function onDomainChange(){
+        resetSolo();
+    }
+
+
+    // Handles removing an avatar from the list if they leave the domain
+    function onAvatarRemoved(sessionUUID){
+        removeAvatarFromList(sessionUUID);
+    }
+
+    Window.domainChanged.connect(onDomainChange);
+
+    AvatarManager.avatarRemovedEvent.connect(onAvatarRemoved);
+
     function scriptFinished() {
         Controller.disableMapping(MAPPING_NAME);
+        Window.domainChanged.disconnect(onDomainChange);
         resetSolo();
     }
 
