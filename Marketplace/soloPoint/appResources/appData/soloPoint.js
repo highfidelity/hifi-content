@@ -38,6 +38,8 @@
         print(finalMessage);
     }
 
+
+    // Utility function for the ControllerWorldLocation offset 
     function getGrabPointSphereOffset(handController, ignoreSensorToWorldScale) {
         var GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 };  // x = upward, y = forward, z = lateral
         var offset = GRAB_POINT_SPHERE_OFFSET;
@@ -125,7 +127,6 @@
 
     var lastMouseX;
     var lastMouseY;
-
     // Record the last mousePressEvent
     function mousePressEvent(event) {
         lastMouseX = event.x;
@@ -138,11 +139,14 @@
         Controller.enableMapping(MAPPING_NAME);
     }
 
+
     // Disables all the pointers created and the mapping 
     function disable() {
         Controller.disableMapping(MAPPING_NAME);
     }
 
+
+    // Returns the right UUID based on hand triggered
     function getUUIDFromLaser(hand){
         hand = hand === Controller.Standard.LeftHand 
             ? Controller.Standard.LeftHand
@@ -239,6 +243,8 @@
         updateUI();
     }
 
+    
+    // Add an avatar to the list and give them an overlay
     function addAvatarToList(avatarUUID, displayUsername) {
         soloAvatars[avatarUUID] = {
             id: avatarUUID,
@@ -249,13 +255,16 @@
         addOverlayToUser(avatarUUID);
     }
 
+
+    // Remove an avatar from the list and remove their overlay
     function removeAvatarFromList(avatarUUID) {
         removeOverlay(avatarUUID);
         delete soloAvatars[avatarUUID];
         removeSolo(avatarUUID);
     }
 
-    // Handles avatar being
+
+    // Handles avatar being solo'd
     function soloAvatar(avatarUUID) {
         log("in soloAvatar", avatarUUID);
 
@@ -288,6 +297,7 @@
     // *************************************
     // #region Overlay
 
+    // Adds a speaker overlay above a user solo'd
     function addOverlayToUser(uuid) {
         var user = soloAvatars[uuid];
         var overlayPosition = AvatarList.getAvatar(uuid).getNeckPosition(); // user.currentPosition
@@ -309,6 +319,7 @@
     }
 
 
+    // Removes the overlay from a uuid
     function removeOverlay(uuid) {
         var user = soloAvatars[uuid];
 
@@ -318,6 +329,7 @@
     }
 
 
+    // Removes all overlays from a user
     function removeAllOverlays() {
         // remove previous overlays
         for (var uuid in soloAvatars) {
@@ -356,8 +368,8 @@
 
         Controller.mousePressEvent.connect(mousePressEvent);
         enable();
-
     }
+
 
     // function for appUi to call when closed    
     function onClosed() {
@@ -368,9 +380,11 @@
         resetSolo();
     }
 
+
     var EVENT_BRIDGE_OPEN_MESSAGE = "EVENT_BRIDGE_OPEN_MESSAGE";
     var CLEAR_LIST = "CLEAR_LIST";
 
+    // Handles incoming tablet messages
     function onMessage(data) {
         switch (data.type) {
             case EVENT_BRIDGE_OPEN_MESSAGE:
@@ -384,7 +398,9 @@
         }
     }
 
+
     var UPDATE_SOLO = "UPDATE_SOLO";
+    // Handles how the UI gets updated
     function updateUI() {
         var avatarNames = [];
         for (var key in soloAvatars) {
@@ -399,17 +415,6 @@
     // #endregion 
     // *************************************
     // STOP TABLET FUNCTIONS
-    // *************************************
-
-
-    // *************************************
-    // START MAIN
-    // *************************************
-    // #region Main
-
-    // #endregion
-    // *************************************
-    // STOP MAIN
     // *************************************
 
 
@@ -431,10 +436,12 @@
         }
     }
 
+
     Window.domainChanged.connect(onDomainChange);
 
     AvatarManager.avatarRemovedEvent.connect(onAvatarRemoved);
 
+    // Called when the script is closing
     function scriptFinished() {
         Controller.disableMapping(MAPPING_NAME);
         Window.domainChanged.disconnect(onDomainChange);

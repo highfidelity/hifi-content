@@ -1,3 +1,17 @@
+/*
+    Solo Point
+    Created by Milad Nazeri on 2019-01-07
+    Copyright 2016 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+    Point to solo someone to hear them better in a crowd!
+    TABLET JS
+    
+*/
+
+
 // *************************************
 // START UTILITY FUNCTIONS
 // *************************************
@@ -34,6 +48,7 @@ var CLEAR_LIST = "CLEAR_LIST";
 var avatarList = document.getElementById("avatar-list");
 var soloNames = document.getElementById("solo-names");
 
+
 // Create the button to reset the sololist
 function createButton(){
     var button = document.createElement("button");
@@ -47,6 +62,8 @@ function createButton(){
     })
 }
 
+
+// Handle incoming tablet messages
 function onScriptEventReceived(message) {
     print(message);
     var data;
