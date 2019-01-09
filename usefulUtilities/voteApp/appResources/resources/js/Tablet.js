@@ -23,15 +23,12 @@
         GOTO_LOCATION = EVENT_NAME + CONFIG.GOTO_LOCATION,
         GOTO_DOMAIN = EVENT_NAME + CONFIG.GOTO_DOMAIN,
         VOTE_AVATAR = EVENT_NAME + CONFIG.VOTE_AVATAR,
-        VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN,
-
-        EVENTBRIDGE_SETUP_DELAY = 200;
+        VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN;
 
     // Components
     Vue.component('loggedin-modal', {
         props: ['loggedin'],
-        template: 
-            `
+        template: `
             <modal v-bind:alert="true" v-if="!loggedin" v-bind:hidex="true" @close="">
                 <div slot="header"></div>
                 <div slot="body">
@@ -89,18 +86,18 @@
         props: {
             polls: { type: Object }
         },
-        template: `
-                <nav>
-                    <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link ml-2 active" id="info-tab" data-toggle="tab" href="#info" role="tab"
-                        aria-controls="info" aria-selected="true">Info</a>
-                        <a class="nav-item nav-link" id="nav-domains-tab" data-toggle="tab" href="#nav-domains" role="tab"
-                        aria-controls="nav-domains" aria-selected="false">Favorite Domain</a> 
-                        <a class="nav-item nav-link mr-2" id="nav-avatars-tab" data-toggle="tab" href="#nav-avatars" role="tab"
-                        aria-controls="nav-avatars" aria-selected="false">Favorite Avatar</a>
-                    </div>
-                </nav>
-            `
+        template: /*html*/ `
+            <nav>
+                <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link ml-2 active" id="info-tab" data-toggle="tab" href="#info" role="tab"
+                    aria-controls="info" aria-selected="true">Info</a>
+                    <a class="nav-item nav-link" id="nav-domains-tab" data-toggle="tab" href="#nav-domains" role="tab"
+                    aria-controls="nav-domains" aria-selected="false">Favorite Domain</a> 
+                    <a class="nav-item nav-link mr-2" id="nav-avatars-tab" data-toggle="tab" href="#nav-avatars" role="tab"
+                    aria-controls="nav-avatars" aria-selected="false">Favorite Avatar</a>
+                </div>
+            </nav>
+        `
     })
 
 
@@ -114,34 +111,84 @@
             }
         },
         template: `
-                <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
-                    <div class="p-2">
+            <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                <div class="p-2">
 
-                        <div class="jumbotron jumbotron-fluid">
-                        </div>
-
-                        <h4 class="color-main">Holiday Tree Decorating Contest</h4>
-                        <p class="fs-18 mt-3">
-                            In a flurry of tinsel, the contestants decorated these trees using ONLY items from the marketplace. 
-                        </p>
-
-                        <p class="fs-18">
-                            Now you vote for the winner.
-                        </p>
-                        <p class="fs-18 mt-3">
-                            Voting closes Dec 20, 4:30pm PST
-                        </p>
+                    <div class="jumbotron jumbotron-fluid">
                     </div>
 
-                    <div class="p-2">
-                        <p class="fs-18">
-                            ** Must visit trees to vote.
-                        </p>
+                    <h4 class="color-main">Holiday Tree Decorating Contest</h4>
+                    <p class="fs-18 mt-3">
+                        In a flurry of tinsel, the contestants decorated these trees using ONLY items from the marketplace. 
+                    </p>
 
-                    </div>
+                    <p class="fs-18">
+                        Now you vote for the winner.
+                    </p>
+                    <p class="fs-18 mt-3">
+                        Voting closes Dec 20, 4:30pm PST
+                    </p>
                 </div>
-            `
+
+                <div class="p-2">
+                    <p class="fs-18">
+                        ** Must visit trees to vote.
+                    </p>
+
+                </div>
+            </div>
+        `
     })
+
+    // Vue.component('grouped-list', {
+    //     props: [list, title, open],
+    //     computed: {
+    //         groupedItems() {
+    //             var grouped = [];
+    //             var index = -1;
+    //             if (this.list) {
+    //                 for (var i = 0; i < this.list.length; i++) {
+    //                     if (i % 2 == 0) {
+    //                         index++;
+    //                         grouped[index] = [];
+    //                         grouped[index].id = index;
+    //                     }
+    //                     grouped[index].push(this.list[i]);
+    //                 }
+    //             }
+
+    //             if (grouped.length && grouped[index].length === 1) {
+    //                 grouped[index].push({ hidden: true });
+    //             }
+    //             return grouped;
+    //         }
+    //     },
+    //     template: `
+    //         <div>
+    //             <div v-if="open" class="p-2">
+    //                 <h4 class="color-main">{{ title }}</h4>
+    //                 <template v-for="items in groupedItems">
+    //                     <div class="row" :key="items.id">
+    //                         <domaincard  v-for="item in items" :voted="voted" :domain="item" :key="item.name" :visitedalldomains="visitedalldomains"></domaincard>
+    //                     </div>
+    //                 </template>
+    //             </div>
+
+    //             <div v-if="!open" class="p-2 pt-5">
+    //                 <h4 class="text-center color-main">Favorite Domain voting isn't open yet, please check back later.</h4>
+    //             </div>
+    //         </div>
+    //     `
+    // })
+
+    // Vue.component('closed', {
+    //     props: [text],
+    //     computed: {
+    //     },
+    //     template: `
+        
+    //     `
+    // })
 
     Vue.component('domainlist', {
         props: {
@@ -214,6 +261,7 @@
                             </div>
                         </template>
                     </div>
+
                     <div v-if="!open" class="p-2 pt-5">
                         <h4 class="text-center color-main">Favorite Domain voting isn't open yet, please check back later.</h4>
                     </div>
@@ -664,21 +712,14 @@
     }
 
     function onLoad() {
-
-        // Initial button active state is communicated via URL parameter.
-        // isActive = location.search.replace("?active=", "") === "true";
-
-        setTimeout(function () {
-            // Open the EventBridge to communicate with the main script.
-            // Allow time for EventBridge to become ready.
-            EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-            EventBridge.emitWebEvent(JSON.stringify({
-                type: EVENT_BRIDGE_OPEN_MESSAGE
-            }));
-        }, EVENTBRIDGE_SETUP_DELAY);
+        // Open the EventBridge to communicate with the main script.
+        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+        EventBridge.emitWebEvent(JSON.stringify({
+            type: EVENT_BRIDGE_OPEN_MESSAGE
+        }));
     }
 
-    // Main  
-    onLoad();
+    // Main 
+    document.addEventListener('DOMContentLoaded', onLoad, false);
 
 }());
