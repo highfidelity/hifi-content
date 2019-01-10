@@ -1,7 +1,7 @@
 /*
     Solo Point
     Created by Milad Nazeri on 2019-01-07
-    Copyright 2016 High Fidelity, Inc.
+    Copyright 2019 High Fidelity, Inc.
 
     Distributed under the Apache License, Version 2.0.
     See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -47,48 +47,35 @@ var CLEAR_LIST = "CLEAR_LIST";
 
 var avatarList = document.getElementById("avatar-list");
 var soloNames = document.getElementById("solo-names");
+var button = document.getElementById("clear-button");
+var subheader = document.getElementById("sub-header");
 
 
-// Create the button to reset the sololist
-function createButton(){
-    var button = document.createElement("button");
-    button.innerHTML = "Clear the list";
-    button.setAttribute("id", "soloButton");
-    soloNames.appendChild(button);
-    button.addEventListener("click", function(){
-        EventBridge.emitWebEvent(JSON.stringify({
-            type: CLEAR_LIST
-        }));
-    })
-}
-
+button.addEventListener("click", function(){
+    EventBridge.emitWebEvent(JSON.stringify({
+        type: CLEAR_LIST
+    }));
+})
 
 // Handle incoming tablet messages
 function onScriptEventReceived(message) {
-    print(message);
     var data;
+
     try {
         data = JSON.parse(message);
         switch (data.type) {
             case UPDATE_SOLO:
                 log("in update solo");
-                var buttonSearch = document.getElementById("soloButton");
                 var finalList = data.value.map(function(avatar){
                     return `<li>${avatar}</li>`;
                 }).join("");
                 
                 if (finalList.length > 0) {
-                    
-                    if (!buttonSearch) {
-                        createButton();
-                    }
-
+                    button.style.visibility = "visible";
+                    subheader.style.visibility = "visible";
                 } else {
-
-                    if (buttonSearch) {
-                        buttonSearch.remove();
-                    }
-
+                    button.style.visibility = "hidden";
+                    subheader.style.visibility = "hidden";
                 }
 
                 avatarList.innerHTML = finalList;
@@ -100,6 +87,7 @@ function onScriptEventReceived(message) {
         console.log(e)
         return;
     }
+    
 }
 
 var EVENTBRIDGE_SETUP_DELAY = 500;

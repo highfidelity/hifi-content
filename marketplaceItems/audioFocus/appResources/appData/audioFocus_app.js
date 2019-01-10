@@ -3,7 +3,7 @@
     /*
         Solo Point
         Created by Milad Nazeri on 2019-01-07
-        Copyright 2016 High Fidelity, Inc.
+        Copyright 2019 High Fidelity, Inc.
     
         Distributed under the Apache License, Version 2.0.
         See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -349,8 +349,8 @@
     // *************************************
     // #region Tablet
 
-    var BUTTON_NAME = "SOLO POINT";
-    var URL = Script.resolvePath('./soloPoint.html');
+    var BUTTON_NAME = "AUDIO FOCUS";
+    var URL = Script.resolvePath('./resources/audioFocus_ui.html');
     var appUi = Script.require('appUi');
 
     var ui = new appUi({

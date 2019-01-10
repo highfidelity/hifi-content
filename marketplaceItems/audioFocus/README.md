@@ -1,4 +1,4 @@
-# Point and Solo
+# AUDIO FOCUS
 
 ## Description
 
