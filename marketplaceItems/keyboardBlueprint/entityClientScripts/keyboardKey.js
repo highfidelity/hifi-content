@@ -116,7 +116,7 @@
             } else {
                 keyDefaultColor = BLACK;
             }
-            var soundFile = Script.resolvePath("../sounds/" + keyProperties.name.substr(KEY_NUMBER_INDEX) + ".wav");
+            var soundFile = Script.resolvePath("../resources/sounds/" + keyProperties.name.substr(KEY_NUMBER_INDEX) + ".wav");
             sound = SoundCache.getSound(Script.resolvePath(soundFile));
         }
     };
