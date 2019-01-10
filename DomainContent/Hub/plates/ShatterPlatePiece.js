@@ -17,7 +17,7 @@
     var volumeLevel = 0.25;
     var canBreak = false;
     var _entityID;
-  
+
     var PlatePiece = function(){};
     var shouldBreak = function(velocity){
         return Math.abs(velocity.x) >= VELOCITY_TO_BREAK ||

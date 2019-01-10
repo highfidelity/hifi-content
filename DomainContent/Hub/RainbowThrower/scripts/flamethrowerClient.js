@@ -74,6 +74,7 @@ function exponentialSmoothing(target, current) {
     var previousRightYPosition = 0;
     var previousRightXRotation = 0;
     var previousRightZRotation = 0;
+    var offsetMultiplier = 0.8;
 
     var Flamethrower = function() {
         _this = this;
@@ -105,6 +106,29 @@ function exponentialSmoothing(target, current) {
             if (homePosition !== null && notHomeCount > 0) {
                 notHomeCount = 0;
                 Script.update.disconnect(this.updateNotHome);
+            }
+
+            if (!flameEntity) {
+                flameEntity = Entities.addEntity({
+                    accelerationSpread: { x:5, y:5, z:5 },
+                    alpha: 0.4,
+                    alphaStart: 0.1,
+                    alphaFinish: 0.4,
+                    emitRate: BASE_EMIT_RATE,
+                    emitSpeed: 0,
+                    emitterShouldTrail: true,
+                    isEmitting: false,
+                    lifespan: fireLifespan,
+                    localPosition: BARREL_LOCAL_OFFSET,
+                    maxParticles: 500,
+                    name: "Flamethrower Flame",
+                    parentID: this.entityID,
+                    radiusSpread: 0.3,
+                    radiusStart: 0.05,
+                    speedSpread: 0,
+                    textures: RAINBOW_IMAGE,
+                    type: "ParticleEffect"
+                }, clientOnly);
             }
         },
 
@@ -150,6 +174,11 @@ function exponentialSmoothing(target, current) {
             this.removeDesktopOverlay();
             this.stopFiring();
             this.setupNotHomeUpdate();
+
+            if (flameEntity !== null) {
+                Entities.deleteEntity(flameEntity);
+                flameEntity = null;
+            }
         },
 
         startNearGrab: function() {
@@ -535,7 +564,7 @@ function exponentialSmoothing(target, current) {
         
         leftHandMouseEquipAnimation: function() {
             var result = {};      
-            result.leftHandType = 1;                        
+            result.leftHandType = 0;                        
             
             var leftHandPosition = MyAvatar.getJointPosition("LeftHand");
             var leftShoulderPosition = MyAvatar.getJointPosition("LeftShoulder");
@@ -549,13 +578,12 @@ function exponentialSmoothing(target, current) {
             var headIndex = MyAvatar.getJointIndex("Head");
             var offset = 0.5;
             if (headIndex) {
-                offset = 0.8 * MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
+                offset = offsetMultiplier* MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
             }
-            result.leftHandPosition = Vec3.multiply(offset, {x: 0.25, y: 0.8, z: 1.3});
+            result.leftHandPosition = Vec3.multiply(offset, {x: 0.25, y: 0.6, z: 1.3});
             var yPosition = exponentialSmoothing(newLeftHandPositionAvatarFrame.y, previousLeftYPosition);
             result.leftHandPosition.y = yPosition;
             previousLeftYPosition = yPosition;
-            
             var leftHandPositionNew = Vec3.sum(MyAvatar.position, result.leftHandPosition);
             
             var rotation = Quat.lookAtSimple(leftHandPositionNew, leftShoulderPosition);
@@ -565,14 +593,14 @@ function exponentialSmoothing(target, current) {
             var newRotation = Quat.fromPitchYawRollDegrees(rotationAngles.x, 0, rotationAngles.z);
             previousLeftXRotation = xRotation;
             previousLeftZRotation = zRotation;
-            result.leftHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(110, 0, -90));
+            result.leftHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(80, -20, -90));
             
             return result;
         },
         
         rightHandMouseEquipAnimation: function() {
             var result = {};      
-            result.rightHandType = 1;                       
+            result.rightHandType = 0;                       
             
             var rightHandPosition = MyAvatar.getJointPosition("RightHand");
             var rightShoulderPosition = MyAvatar.getJointPosition("RightShoulder");
@@ -586,9 +614,9 @@ function exponentialSmoothing(target, current) {
             var headIndex = MyAvatar.getJointIndex("Head");
             var offset = 0.5;
             if (headIndex) {
-                offset = 0.8 * MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
+                offset = offsetMultiplier * MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
             }
-            result.rightHandPosition = Vec3.multiply(offset, {x: -0.25, y: 0.8, z: 1.3});
+            result.rightHandPosition = Vec3.multiply(offset, {x: -0.25, y: 0.6, z: 1.3});
             var yPosition = exponentialSmoothing(newRightHandPositionAvatarFrame.y, previousRightYPosition);
             result.rightHandPosition.y = yPosition;
             previousRightYPosition = yPosition;
@@ -602,7 +630,7 @@ function exponentialSmoothing(target, current) {
             var newRotation = Quat.fromPitchYawRollDegrees(rotationAngles.x, 0, rotationAngles.z);
             previousRightXRotation = xRotation;
             previousRightZRotation = zRotation;
-            result.rightHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(110, 0, 90));
+            result.rightHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(80, 00, 90));
             
             return result;
         },
@@ -663,26 +691,6 @@ function exponentialSmoothing(target, current) {
                 Script.update.connect(this.updateDebugFiring);
             }
             
-            flameEntity = Entities.addEntity({
-                accelerationSpread: { x:5, y:5, z:5 },
-                alpha: 0.4,
-                alphaStart: 0.1,
-                alphaFinish: 0.4,
-                emitRate: BASE_EMIT_RATE,
-                emitSpeed: 0,
-                emitterShouldTrail: true,
-                isEmitting: false,
-                lifespan: fireLifespan,
-                localPosition: BARREL_LOCAL_OFFSET,
-                maxParticles: 500,
-                name: "Flamethrower Flame",
-                parentID: this.entityID,
-                radiusSpread: 0.3,
-                radiusStart: 0.05,
-                speedSpread: 0,
-                textures: RAINBOW_IMAGE,
-                type: "ParticleEffect"
-            }, clientOnly);
         }
     };
 
