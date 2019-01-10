@@ -249,9 +249,9 @@
 
     // Handles avatar being solo'd
     function soloAvatar(avatarUUID) {
-        log("in soloAvatar", avatarUUID);
+        // log("in soloAvatar", avatarUUID);
 
-        log("soloAvatars", soloAvatars);
+        // log("soloAvatars", soloAvatars);
 
         if (!isEnabled) {
             return;
@@ -260,7 +260,7 @@
         var getAvatarClicked = AvatarList.getAvatar(avatarUUID);
         var displayUsername = getAvatarClicked.sessionDisplayName;
 
-        log("avatar clicked", displayUsername);
+        // log("avatar clicked", displayUsername);
 
         if (soloAvatars[avatarUUID]) {
             removeAvatarFromList(avatarUUID);
@@ -347,7 +347,7 @@
 
     // function for appUi to call when opened
     function onOpened() {
-        log("onOpened");
+        // log("onOpened");
 
         Controller.mousePressEvent.connect(mousePressEvent);
         enable();
@@ -356,7 +356,7 @@
 
     // function for appUi to call when closed    
     function onClosed() {
-        log("onClosed");
+        // log("onClosed");
 
         Controller.mousePressEvent.disconnect(mousePressEvent);
         disable();
@@ -371,11 +371,11 @@
     function onMessage(data) {
         switch (data.type) {
             case EVENT_BRIDGE_OPEN_MESSAGE:
-                log("updatingUi!");
+                // log("updatingUi!");
                 updateUI();
                 break;
             case CLEAR_LIST:
-                log("Clear List");
+                // log("Clear List");
                 resetSolo();
             default:
         }
