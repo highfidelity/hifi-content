@@ -20,7 +20,7 @@
     var AppUi = Script.require('appUi'),
         request = Script.require('request').request,
         GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
-        URL = Script.resolvePath("./resources/voteApp.html?v12344"),
+        URL = Script.resolvePath("./resources/voteApp_ui.html?v12344"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12344"));
 
     // Configurable variables

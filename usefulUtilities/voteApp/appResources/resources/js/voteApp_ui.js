@@ -26,6 +26,127 @@
         VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN;
 
     // Components
+
+       // ****
+
+       Vue.component('grouped-list', {
+        props: [list, title, isopen, isclosedtext],
+        computed: {
+            groupedItems() {
+                var grouped = [];
+                var index = -1;
+                if (this.list) {
+                    for (var i = 0; i < this.list.length; i++) {
+                        if (i % 2 == 0) {
+                            index++;
+                            grouped[index] = [];
+                            grouped[index].id = index;
+                        }
+                        grouped[index].push(this.list[i]);
+                    }
+                }
+
+                if (grouped.length && grouped[index].length === 1) {
+                    grouped[index].push({ hidden: true });
+                }
+                return grouped;
+            }
+        },
+        template: `
+            <div>
+                <div v-if="isopen" class="p-2">
+                    <h4 class="color-main">{{ title }}</h4>
+                    <template v-for="items in groupedItems">
+                        <div class="row" :key="items.id">
+                            <domaincard  v-for="item in items" :voted="voted" :domain="item" :key="item.name" :visitedalldomains="visitedalldomains"></domaincard>
+                        </div>
+                    </template>
+                </div>
+
+                <closed v-if="!isopen" :text="isclosedtext"></closed>
+
+            </div>
+        `
+    })
+
+    Vue.component('closed', {
+        props: [text, isopen],
+        computed: {
+        },
+        template: `
+            <div v-if="!isopen" class="p-2 pt-5">
+                <h4 class="text-center color-main">{{ text }}</h4>
+            </div>
+        `
+    })
+
+    Vue.component('visitedalldomains-modal', {
+        props: [closeVisitedModal],
+        computed: {
+        },
+        template: `
+            <modal v-bind:alert="true" v-if="!showedVisited" v-show="isVisitedModalVisible" @close="closeVisitedModal">
+
+                <div slot="header"></div>
+                
+                <div slot="body">
+                    <div class="p-3 mt-2">
+                        <h2 class="color-main">You've seen all the entries!</h2>
+                        <div class="flex-container-row pb-4">
+                            <p class="flex-item">Now you can vote for your favorite</p>
+                        </div>
+                    
+                        <div class="flex-container-row">
+                            <a href="#" class="flex-item btn btn-primary bkgd-pink" @click="closeVisitedModal">OK</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div slot="footer" class="text-center"></div>
+
+            </modal>
+        `
+    })
+
+    Vue.component('card', {
+        props: [bottitle, , hasborder, modal],
+        computed: {
+        },
+        template: `
+        
+        `
+    })
+
+    Vue.component('vote-modal', {
+        props: [bottitle, hasborder, modal],
+        computed: {
+        },
+        template: `
+            <modal v-show="isVoteModalVisible" v-bind:alert="true" v-bind:hidex="false" v-bind:isavatar="false" @close="closeVoteModal">
+                <div slot="header"></div>
+            
+                <div slot="body">
+                    <div class="p-3 mt-2">
+                        <div class="flex-container-row pb-4">
+                            <h2 class="flex-item">Vote for {{ domain.displayName }}?</h2>
+                        </div>
+                        <div class="flex-container-row pb-4">
+                            <p class="flex-item">You can only vote once. Your vote cannot be changed later.</p>
+                        </div>
+                
+                        <div class="flex-container-row">
+                            <a href="#" class="flex-item btn btn-secondary bkgd-pink m-2 back-btn" @click="closeVoteModal">Back</a>
+                            <a href="#" class="flex-item btn btn-primary bkgd-pink m-2" @click="votedomain(domain.name)">Vote for {{ domain.displayName }}</a>
+                        </div>
+                    </div>
+                </div>
+            </modal>
+        `
+    })
+
+    // ****
+
+
     Vue.component('loggedin-modal', {
         props: ['loggedin'],
         template: `
@@ -140,56 +261,6 @@
         `
     })
 
-    // Vue.component('grouped-list', {
-    //     props: [list, title, open],
-    //     computed: {
-    //         groupedItems() {
-    //             var grouped = [];
-    //             var index = -1;
-    //             if (this.list) {
-    //                 for (var i = 0; i < this.list.length; i++) {
-    //                     if (i % 2 == 0) {
-    //                         index++;
-    //                         grouped[index] = [];
-    //                         grouped[index].id = index;
-    //                     }
-    //                     grouped[index].push(this.list[i]);
-    //                 }
-    //             }
-
-    //             if (grouped.length && grouped[index].length === 1) {
-    //                 grouped[index].push({ hidden: true });
-    //             }
-    //             return grouped;
-    //         }
-    //     },
-    //     template: `
-    //         <div>
-    //             <div v-if="open" class="p-2">
-    //                 <h4 class="color-main">{{ title }}</h4>
-    //                 <template v-for="items in groupedItems">
-    //                     <div class="row" :key="items.id">
-    //                         <domaincard  v-for="item in items" :voted="voted" :domain="item" :key="item.name" :visitedalldomains="visitedalldomains"></domaincard>
-    //                     </div>
-    //                 </template>
-    //             </div>
-
-    //             <div v-if="!open" class="p-2 pt-5">
-    //                 <h4 class="text-center color-main">Favorite Domain voting isn't open yet, please check back later.</h4>
-    //             </div>
-    //         </div>
-    //     `
-    // })
-
-    // Vue.component('closed', {
-    //     props: [text],
-    //     computed: {
-    //     },
-    //     template: `
-        
-    //     `
-    // })
-
     Vue.component('domainlist', {
         props: {
             flagvisited: { type: Boolean },
@@ -200,8 +271,6 @@
         },
         computed: {
             groupedItems() {
-
-                console.log("domains are : " + this.domains + typeof this.domains);
 
                 var grouped = [];
                 var index = -1;
