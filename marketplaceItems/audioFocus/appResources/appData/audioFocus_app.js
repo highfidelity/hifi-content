@@ -21,23 +21,6 @@
     var debug = true;
     var FALSE = "false";
 
-    // Easy log function checking for message, an object to stringify, and whether it should be enabled or not
-    function log(message, object, enabled) {
-        if (!debug || enabled === FALSE) {
-            return;
-        }
-
-        var finalMessage;
-
-        finalMessage = "\n\t" + message + ":" + "\n";
-
-        if (typeof object !== 'undefined') {
-            finalMessage += "\n\t\t" + JSON.stringify(object, null, 4) + "\n";
-        }
-
-        print(finalMessage);
-    }
-
 
     // Utility function for the ControllerWorldLocation offset 
     function getGrabPointSphereOffset(handController, ignoreSensorToWorldScale) {
