@@ -1,7 +1,7 @@
 //
-//  Tablet.js 
+//  tablet.js 
 //
-//  Created by Robin Wilson 2018-11-12
+//  Created by Robin Wilson 2019-1-09
 //
 //  Using Example Vue App Created by Milad Nazeri on 2018-10-11
 //  Copyright 2019 High Fidelity, Inc.
@@ -15,10 +15,10 @@
     "use strict";
 
     // Consts
-    var EVENT_NAME = CONFIG.EVENT_NAME, // !important must match voteApp.js
+    var EVENT_NAME = CONFIG.EVENT_NAME,
 
         EVENT_BRIDGE_OPEN_MESSAGE = EVENT_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
-        UPDATE_UI = CONFIG.UPDATE_UI, // !important must match voteApp.js
+        UPDATE_UI = CONFIG.UPDATE_UI,
 
         GOTO_LOCATION = EVENT_NAME + CONFIG.GOTO_LOCATION,
         GOTO_DOMAIN = EVENT_NAME + CONFIG.GOTO_DOMAIN,

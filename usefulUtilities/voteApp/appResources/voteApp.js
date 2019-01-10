@@ -3,7 +3,7 @@
 //  
 //  Vote App | voteApp.js
 //
-//  Created by Robin Wilson 2018-11-12
+//  Created by Robin Wilson 2019-1-09
 //
 //  Using Example Vue App Created by Milad Nazeri on 2018-10-11
 //  Copyright 2019 High Fidelity, Inc.
@@ -26,12 +26,6 @@
     // Configurable variables
     var EVENT_DATE = CONFIG.EVENT_DATE,
         EVENT_NAME = CONFIG.EVENT_NAME;
-
-    // Unload app variables
-    // Example: UTC month 0 = January ; month 10 = sNovember
-    // year, month, day, hour, minutes
-    var UNLOAD_DATE = CONFIG.UNLOAD_DATE,
-        UNLOAD_TIME = 10000; // show app will unload screen for 10 seconds
     
     // App variables
     var BUTTON_NAME = "VOTE",
@@ -44,33 +38,16 @@
 
     // Domains vs Zone visited
     var DOMAINS_ENABLED = true; // enable domains UI / domain visited checks
-    
-    // Zone visited
-    var intervalCheckVisited,
-        TIME_CHECK = 1000,
-        HAS_VISITED_ZONE_CHECK = false, // if there's a zone to visit
-        GOTO_ADDRESS = "thespot//-26.8224,-11.1442,-67.663/0,0.068694,0,0.997638";
 
     // Google scripts type events
-    var VOTE_GOOGLE = "vote",
-        GET_INFO_GOOGLE = "getInfo";
+    var GOOGLE_VOTE = "vote",
+        GOOGLE_GET_INFO = "getInfo";
     
     // Static strings
     var DOMAIN = "domain";
     var AVATAR = "avatar";
     
     var DEBUG = false;
-
-    // Local Settings.setValue/getValue key
-    var VOTE_APP_SETTINGS_NAME = EVENT_NAME + "_voteApp"; // "Futvrelands_11_17_2018_voteApp"
-    
-    var DEFAULT_VOTE_APP_SETTINGS = {
-        visited: false,
-        domains: [],
-        voted: {
-            avatar: "", domain: ""
-        }
-    };
 
     // UI variables
     var ui;
@@ -97,7 +74,6 @@
     var DEFAULT_DOMAIN_IMAGE = "http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg";
 
     var domains = {
-        DOMAIN: "domain",
         domainsInfo: {},
         sendVote: function (name) {
 
@@ -119,7 +95,7 @@
             var options = {
                 url: GOOGLE_SCRIPTS_URL,
                 body: {
-                    type: VOTE_GOOGLE,
+                    type: GOOGLE_VOTE,
                     time: Date.now(),
                     uuid: MyAvatar.sessionUUID,
                     username: AccountServices.username,
@@ -342,6 +318,12 @@
     
     };
 
+    // Zone visited
+    var intervalCheckVisited,
+        TIME_CHECK = 1000, // ms
+        HAS_VISITED_ZONE_CHECK = false, // if there's a zone to visit
+        GOTO_ADDRESS = "thespot/-26.8224,-11.1442,-67.663/0,0.068694,0,0.997638";
+
     var visitedZone = {
 
         checkVisited: {
@@ -425,7 +407,6 @@
     };
 
     var avatars = {
-        AVATAR: "avatar",
         avatarsInfo: {},
         sendVote: function (name) {
 
@@ -446,7 +427,7 @@
             var options = {
                 url: GOOGLE_SCRIPTS_URL,
                 body: {
-                    type: VOTE_GOOGLE,
+                    type: GOOGLE_VOTE,
                     time: Date.now(),
                     uuid: MyAvatar.sessionUUID,
                     username: AccountServices.username,
@@ -476,18 +457,13 @@
                         console.error("Issue with parsing response in sendAvatarVote(): " + e);
                     }
 
-                    
-                    var voteAppSettings = utils.getVoteAppSettings();
-
                     if (DEBUG) {
                         print("Avatars onComplete, settings are ", JSON.stringify(voteAppSettings));
                     }
-
+                    
+                    var voteAppSettings = utils.getVoteAppSettings();
                     voteAppSettings.voted[AVATAR] = name.toLowerCase();
-
                     Settings.setValue(VOTE_APP_SETTINGS_NAME, voteAppSettings);
-
-                    updateUI();
 
                 }
             };
@@ -559,8 +535,16 @@
         }
     };
 
+    // Unload app variables
+    var UNLOAD_DATE = CONFIG.UNLOAD_DATE,
+        UNLOAD_TIME = 10000; // ms show app will unload screen for 10 seconds
+
+    // Local Settings.setValue/getValue key
+    var VOTE_APP_SETTINGS_NAME = EVENT_NAME + "_voteApp"; // "Futvrelands_11_17_2018_voteApp"
+
     var utils = {
 
+        // shuffles items in place in an array
         shuffle: function (a) {
             var j, x, i;
             for (i = a.length - 1; i > 0; i--) {
@@ -572,8 +556,9 @@
             return a;
         },
 
-        // AVATAR 
-        // delete, dataStore.avatars, avatars.avatarsInfo
+        // Takes an array with names, the dataStore list and the objWithKeys
+        // Will remove the names in the array from the dataStore list and the objWithKeys
+        // For example for avatars: the names to delete in an array, dataStore.avatars, avatars.avatarsInfo
         removeItems: function (listToDelete, dataStoreList, objWithKeys) {
 
             var list = dataStoreList;
@@ -603,6 +588,7 @@
 
             updateUI();
         },
+
 
         loggedIn: {
 
@@ -694,6 +680,14 @@
 
         getVoteAppSettings: function() {
 
+            var DEFAULT_VOTE_APP_SETTINGS = {
+                visited: false,
+                domains: [],
+                voted: {
+                    avatar: "", domain: ""
+                }
+            };
+
             var currentSettings = Settings.getValue(VOTE_APP_SETTINGS_NAME); // , DEFAULT_VOTE_APPSETTINGS);
             var toSet = JSON.parse(JSON.stringify(DEFAULT_VOTE_APP_SETTINGS));
             var voteAppSettings;
@@ -741,7 +735,7 @@
 
             var options = {
                 url: GOOGLE_SCRIPTS_URL,
-                body: { type: GET_INFO_GOOGLE }
+                body: { type: GOOGLE_GET_INFO }
             };
 
             var callback = function(error, response) {
@@ -977,7 +971,7 @@
     };
 
     // Vue UI update event
-    var UPDATE_UI = EVENT_NAME + "_update_ui"; // !important must match Tablet.js
+    var UPDATE_UI = CONFIG.UPDATE_UI;
 
     function updateUI() {
         var messageObject = {
