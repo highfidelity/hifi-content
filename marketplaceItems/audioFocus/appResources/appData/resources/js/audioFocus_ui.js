@@ -27,9 +27,9 @@ function onSpanClicked(user){
 }
 
 
+// Handle incoming tablet messages
 var avatarList = document.getElementById("avatar-list");
 var subheader = document.getElementById("sub-header");
-// Handle incoming tablet messages
 function onScriptEventReceived(message) {
     var data;
 
@@ -62,8 +62,8 @@ function onScriptEventReceived(message) {
 }
 
 // This is how much time to give the Eventbridge to wake up.  This won't be needed in RC78 and will be removed.
-var EVENTBRIDGE_SETUP_DELAY = 100;
 // Run when the JS is loaded and give enough time to for EventBridge to come back
+var EVENTBRIDGE_SETUP_DELAY = 100;
 function onLoad() {
     setTimeout(function () {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);

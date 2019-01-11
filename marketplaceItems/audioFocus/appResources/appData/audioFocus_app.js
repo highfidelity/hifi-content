@@ -17,7 +17,7 @@
     // #region Utilty
 
 
-    // the following two functions are a modified version of what's found in scripts/system/libraries/controllers.js
+    // The following two functions are a modified version of what's found in scripts/system/libraries/controllers.js
     // Utility function for the ControllerWorldLocation offset 
     function getGrabPointSphereOffset(handController) {
         // these values must match what's in scripts/system/libraries/controllers.js
@@ -93,7 +93,7 @@
 
     // Record the last mousePressEvent
     function mousePressEvent(event) {
-        if (value === 1 || HMD.active) {
+        if (HMD.active) {
             return;
         }
 
