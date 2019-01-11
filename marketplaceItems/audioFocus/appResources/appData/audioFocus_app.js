@@ -1,29 +1,25 @@
-(function () {
+/*
+    Audio Focus
+    Created by Milad Nazeri on 2019-01-07
+    Copyright 2019 High Fidelity, Inc.
 
-    /*
-        Solo Point
-        Created by Milad Nazeri on 2019-01-07
-        Copyright 2019 High Fidelity, Inc.
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+    Point to solo someone to hear them better in a crowd!
     
-        Distributed under the Apache License, Version 2.0.
-        See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+*/
 
-        Point to solo someone to hear them better in a crowd!
-        
-    */
-
-
+(function () {
     // *************************************
     // START UTILITY FUNCTIONS
     // *************************************
     // #region Utilty
 
-    var debug = true;
-    var FALSE = "false";
 
-
+    // the following two functions are a modified version of what's found in scripts/system/libraries/controllers.js
     // Utility function for the ControllerWorldLocation offset 
-    function getGrabPointSphereOffset(handController, ignoreSensorToWorldScale) {
+    function getGrabPointSphereOffset(handController) {
         var GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 };  // x = upward, y = forward, z = lateral
         var offset = GRAB_POINT_SPHERE_OFFSET;
         if (handController === Controller.Standard.LeftHand) {
@@ -33,12 +29,10 @@
                 z: GRAB_POINT_SPHERE_OFFSET.z
             };
         }
-        if (ignoreSensorToWorldScale) {
-            return offset;
-        } else {
-            return Vec3.multiply(MyAvatar.sensorToWorldScale, offset);
-        }
+
+        return Vec3.multiply(MyAvatar.sensorToWorldScale, offset);
     }
+
 
     // controllerWorldLocation is where the controller would be, in-world, with an added offset
     function getControllerWorldLocation(handController, doOffset) {
@@ -83,6 +77,7 @@
         };
     }
 
+
     // #endregion
     // *************************************
     // END UTILITY FUNCTIONS
@@ -94,7 +89,6 @@
     // *************************************
     // #region Init
 
-    var isEnabled = true;
     var soloAvatars = {};
 
     // #endregion
@@ -247,20 +241,20 @@
     }
 
 
+    // helper to match the UUID with the name in soloAvatars Object
+    function removeUser(avatarName) {
+        for (var key in soloAvatars) {
+            if (soloAvatars[key].name === avatarName) {
+                removeAvatarFromList(key);
+            }
+        }
+    }
+
+
     // Handles avatar being solo'd
     function soloAvatar(avatarUUID) {
-        // log("in soloAvatar", avatarUUID);
-
-        // log("soloAvatars", soloAvatars);
-
-        if (!isEnabled) {
-            return;
-        }
-
         var getAvatarClicked = AvatarList.getAvatar(avatarUUID);
         var displayUsername = getAvatarClicked.sessionDisplayName;
-
-        // log("avatar clicked", displayUsername);
 
         if (soloAvatars[avatarUUID]) {
             removeAvatarFromList(avatarUUID);
@@ -274,6 +268,7 @@
     // *************************************
     // STOP SOLO FUNCTIONS
     // *************************************
+
 
     // *************************************
     // START OVERLAY FUNCTIONS
@@ -332,7 +327,7 @@
     // *************************************
     // #region Tablet
 
-    var BUTTON_NAME = "AUDIO FOCUS";
+    var BUTTON_NAME = "FOCUS";
     var URL = Script.resolvePath('./resources/audioFocus_ui.html');
     var appUi = Script.require('appUi');
 
@@ -347,8 +342,6 @@
 
     // function for appUi to call when opened
     function onOpened() {
-        // log("onOpened");
-
         Controller.mousePressEvent.connect(mousePressEvent);
         enable();
     }
@@ -356,33 +349,29 @@
 
     // function for appUi to call when closed    
     function onClosed() {
-        // log("onClosed");
-
         Controller.mousePressEvent.disconnect(mousePressEvent);
         disable();
         resetSolo();
     }
 
 
-    var EVENT_BRIDGE_OPEN_MESSAGE = "EVENT_BRIDGE_OPEN_MESSAGE";
-    var CLEAR_LIST = "CLEAR_LIST";
-
     // Handles incoming tablet messages
     function onMessage(data) {
         switch (data.type) {
-            case EVENT_BRIDGE_OPEN_MESSAGE:
-                // log("updatingUi!");
+            case "EVENT_BRIDGE_OPEN_MESSAGE":
                 updateUI();
                 break;
-            case CLEAR_LIST:
-                // log("Clear List");
+            case "CLEAR_LIST":
                 resetSolo();
+                break;
+            case "REMOVE_USER":
+                removeUser(data.value);
+                break;
             default:
         }
     }
 
 
-    var UPDATE_SOLO = "UPDATE_SOLO";
     // Handles how the UI gets updated
     function updateUI() {
         var avatarNames = [];
@@ -390,7 +379,7 @@
             avatarNames.push(soloAvatars[key].name);
         }
         ui.sendToHtml({
-            type: UPDATE_SOLO,
+            type: "UPDATE_SOLO",
             value: avatarNames
         });
     }

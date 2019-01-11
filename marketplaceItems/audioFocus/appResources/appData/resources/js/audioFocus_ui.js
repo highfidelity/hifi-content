@@ -1,5 +1,5 @@
 /*
-    Solo Point
+    Audio Focus
     Created by Milad Nazeri on 2019-01-07
     Copyright 2019 High Fidelity, Inc.
 
@@ -7,56 +7,26 @@
     See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
     Point to solo someone to hear them better in a crowd!
-    TABLET JS
+    TABLET UI JS
     
 */
-
-
-// *************************************
-// START UTILITY FUNCTIONS
-// *************************************
-// #region Utilty
-
-var debug = true;
-var FALSE = "false";
-
-// Easy log function checking for message, an object to stringify, and whether it should be enabled or not
-function log(message, object, enabled){
-    if (!debug || enabled === FALSE) {
-        return;
-    }
-
-    var finalMessage;
-
-    finalMessage = "\n\n\t" + message + ":" + "\n\n";
-
-    if (object) {
-        finalMessage += "\n\t\t" + JSON.stringify(object, null, 4) + "\n";
-    }
-
-    print(finalMessage);
-}
-
-// #endregion
-// *************************************
-// END UTILITY FUNCTIONS
-// *************************************
-
-var UPDATE_SOLO = "UPDATE_SOLO";
-var CLEAR_LIST = "CLEAR_LIST";
-
-var avatarList = document.getElementById("avatar-list");
-var soloNames = document.getElementById("solo-names");
 var button = document.getElementById("clear-button");
-var subheader = document.getElementById("sub-header");
-
-
 button.addEventListener("click", function(){
     EventBridge.emitWebEvent(JSON.stringify({
-        type: CLEAR_LIST
+        type: "CLEAR_LIST"
     }));
 })
 
+function onSpanClicked(user){
+    console.log("user" + user);
+    EventBridge.emitWebEvent(JSON.stringify({
+        type: "REMOVE_USER",
+        value: user
+    }));
+}
+
+var avatarList = document.getElementById("avatar-list");
+var subheader = document.getElementById("sub-header");
 // Handle incoming tablet messages
 function onScriptEventReceived(message) {
     var data;
@@ -64,10 +34,9 @@ function onScriptEventReceived(message) {
     try {
         data = JSON.parse(message);
         switch (data.type) {
-            case UPDATE_SOLO:
-                log("in update solo");
+            case "UPDATE_SOLO":
                 var finalList = data.value.map(function(avatar){
-                    return `<li>${avatar}</li>`;
+                    return `<li class="shadow">${avatar}<span onclick="onSpanClicked('${avatar}')">X</span></li>`;
                 }).join("");
                 
                 if (finalList.length > 0) {
@@ -90,17 +59,14 @@ function onScriptEventReceived(message) {
     
 }
 
-var EVENTBRIDGE_SETUP_DELAY = 500;
-var EVENT_BRIDGE_OPEN_MESSAGE = "EVENT_BRIDGE_OPEN_MESSAGE";
-
-
+// This is how much time to give the Eventbridge to wake up.  This won't be needed in RC78 and will be removed.
+var EVENTBRIDGE_SETUP_DELAY = 100;
 // Run when the JS is loaded and give enough time to for EventBridge to come back
 function onLoad() {
-            
     setTimeout(function () {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
-            type: EVENT_BRIDGE_OPEN_MESSAGE
+            type: "EVENT_BRIDGE_OPEN_MESSAGE"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
 }
