@@ -20,6 +20,7 @@
     // the following two functions are a modified version of what's found in scripts/system/libraries/controllers.js
     // Utility function for the ControllerWorldLocation offset 
     function getGrabPointSphereOffset(handController) {
+        // these values must match what's in scripts/system/libraries/controllers.js
         var GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 };  // x = upward, y = forward, z = lateral
         var offset = GRAB_POINT_SPHERE_OFFSET;
         if (handController === Controller.Standard.LeftHand) {
@@ -85,41 +86,25 @@
 
 
     // *************************************
-    // START INIT
-    // *************************************
-    // #region Init
-
-    var soloAvatars = {};
-
-    // #endregion
-    // *************************************
-    // STOP INIT
-    // *************************************
-
-
-    // *************************************
     // START MAPPING FUNCTIONS
     // *************************************
     // #region Mapping
 
-    var lastMouseX;
-    var lastMouseY;
+
     // Record the last mousePressEvent
     function mousePressEvent(event) {
-        lastMouseX = event.x;
-        lastMouseY = event.y;
-    }
+        if (value === 1 || HMD.active) {
+            return;
+        }
 
+        var pickRay = Camera.computePickRay(event.x, event.y);
+        var avatarIntersection = AvatarList.findRayIntersection(pickRay, [], [MyAvatar.sessionUUID]);
 
-    // Enables all the pointers created and the mapping
-    function enable() {
-        Controller.enableMapping(MAPPING_NAME);
-    }
+        var uuid = avatarIntersection.avatarID;
 
-
-    // Disables all the pointers created and the mapping 
-    function disable() {
-        Controller.disableMapping(MAPPING_NAME);
+        if (uuid) {
+            soloAvatar(avatarIntersection.avatarID);
+        }
     }
 
 
@@ -131,9 +116,9 @@
         
         var pose = getControllerWorldLocation(hand);
         var start = pose.position;
-        var direction = Vec3.multiplyQbyV(pose.orientation, {x:0, y:1, z: 0});
+        var direction = Vec3.multiplyQbyV(pose.orientation, {x: 0, y: 1, z: 0});
 
-        var avatarIntersection = AvatarList.findRayIntersection({origin:start, direction:direction});
+        var avatarIntersection = AvatarList.findRayIntersection({origin:start, direction:direction}, [], [MyAvatar.sessionUUID]);
         
         var uuid = avatarIntersection.avatarID;
 
@@ -144,22 +129,6 @@
     var MAPPING_NAME = "SOLO_POINTER";
     var mapping = Controller.newMapping(MAPPING_NAME);
 
-    mapping.from(Controller.Hardware.Keyboard.LeftMouseButton).to(function (value) {
-        if (value === 1 || HMD.active) {
-            return;
-        }
-
-        var pickRay = Camera.computePickRay(lastMouseX, lastMouseY);
-        var avatarIntersection = AvatarList.findRayIntersection(pickRay);
-
-        var uuid = avatarIntersection.avatarID;
-
-        if (uuid && uuid !== MyAvatar.sessionUUID) {
-            soloAvatar(avatarIntersection.avatarID);
-        }
-    });
-
-
     mapping.from(Controller.Standard.LTClick).to(function (value) {
         if (value === 0) {
             return;
@@ -167,7 +136,7 @@
         
         var uuid = getUUIDFromLaser(Controller.Standard.LeftHand);
 
-        if (uuid && uuid !== MyAvatar.sessionUUID) {
+        if (uuid) {
             soloAvatar(uuid);
         }
     });
@@ -180,11 +149,23 @@
         
         var uuid = getUUIDFromLaser(Controller.Standard.RightHand);
 
-        if (uuid && uuid !== MyAvatar.sessionUUID) {
+        if (uuid) {
             soloAvatar(uuid);
         }
     });
 
+    
+    // Enables mouse press and trigger events 
+    function enable(){
+        Controller.mousePressEvent.connect(mousePressEvent);
+        Controller.enableMapping(MAPPING_NAME);
+    }
+
+
+    function disable(){
+        Controller.mousePressEvent.disconnect(mousePressEvent);
+        Controller.disableMapping(MAPPING_NAME);
+    }
 
     // #endregion
     // *************************************
@@ -252,9 +233,10 @@
 
 
     // Handles avatar being solo'd
+    var soloAvatars = {};
     function soloAvatar(avatarUUID) {
-        var getAvatarClicked = AvatarList.getAvatar(avatarUUID);
-        var displayUsername = getAvatarClicked.sessionDisplayName;
+        var clickedAvatarObject = AvatarList.getAvatar(avatarUUID);
+        var displayUsername = clickedAvatarObject.sessionDisplayName;
 
         if (soloAvatars[avatarUUID]) {
             removeAvatarFromList(avatarUUID);
@@ -278,15 +260,13 @@
     // Adds a speaker overlay above a user solo'd
     function addOverlayToUser(uuid) {
         var user = soloAvatars[uuid];
-        var overlayPosition = AvatarList.getAvatar(uuid).getNeckPosition(); // user.currentPosition
-
-        var WHITE = [255, 255, 255];
+        var overlayPosition = Vec3.sum(AvatarList.getAvatar(uuid).getNeckPosition(), [0, 0.75, 0]); 
 
         var overlayProperties = {
-            position: Vec3.sum(overlayPosition, [0, 0.75, 0]),
+            position: overlayPosition,
             dimensions: { x: 0.3, y: 0.3, z: 0.3 },
             alpha: 1.0,
-            color: WHITE,
+            color: [255, 255, 255],
             parentID: uuid,
             drawInFront: true,
             url: Script.resolvePath("./resources/images/speaker.png")
@@ -342,14 +322,12 @@
 
     // function for appUi to call when opened
     function onOpened() {
-        Controller.mousePressEvent.connect(mousePressEvent);
         enable();
     }
 
 
     // function for appUi to call when closed    
     function onClosed() {
-        Controller.mousePressEvent.disconnect(mousePressEvent);
         disable();
         resetSolo();
     }
@@ -415,8 +393,9 @@
 
     // Called when the script is closing
     function scriptFinished() {
-        Controller.disableMapping(MAPPING_NAME);
+        disable();
         Window.domainChanged.disconnect(onDomainChange);
+        AvatarManager.avatarRemovedEvent.disconnect(onAvatarRemoved);
         resetSolo();
     }
 

@@ -10,6 +10,7 @@
     TABLET UI JS
     
 */
+
 var button = document.getElementById("clear-button");
 button.addEventListener("click", function(){
     EventBridge.emitWebEvent(JSON.stringify({
@@ -77,6 +78,7 @@ function onLoad() {
 // START MAIN
 // *************************************
 // #region Main
+
 onLoad();
 
 // #endregion
