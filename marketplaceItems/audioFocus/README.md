@@ -12,3 +12,10 @@ You can either select in Desktop by clicking, or in HMD by triggering with eithe
 - Raypicking changed to findRayIntersection
 - Styling added
 - Error checking added
+
+2019-01-15_11:11:15 :: [soloPoint 504e306]
+
+- Updated to work only within 25 meters of someone
+- Updated styling
+- CR corrections
+

@@ -242,6 +242,9 @@
 
         var distance = Vec3.length(vectorBetweenAvatars);
         if (distance > MAXIMUM_ALLOWED_OTHER_AVATAR_DISTANCE_FROM_USER) {
+            ui.sendToHtml({
+                type: "DISPLAY_ERROR"
+            });
             return;
         }
 
@@ -270,13 +273,12 @@
         var avatar = AvatarList.getAvatar(uuid);
         var neckPosition = avatar.getNeckPosition();
         var avatarScale = avatar.scale;
-        var ABOVE_NECK = 1;
+        var ABOVE_NECK = 0.75;
         var overlayPosition = Vec3.sum(neckPosition, [0, avatarScale * ABOVE_NECK, 0]); 
         var IMAGE_SIZE = avatarScale * 0.3;
 
         var overlayProperties = {
             position: overlayPosition,
-            // dimensions: [IMAGE_SIZE, IMAGE_SIZE, IMAGE_SIZE],
             dimensions: {x: IMAGE_SIZE, y: IMAGE_SIZE, z: IMAGE_SIZE},
             alpha: 1.0,
             color: [255, 255, 255],
@@ -327,7 +329,7 @@
     var ui = new appUi({
         buttonName: BUTTON_NAME,
         home: URL,
-        graphicsDirectory: Script.resolvePath("./icons/tablet-icons/"),
+        graphicsDirectory: Script.resolvePath("./resources/images/icons/"),
         onOpened: onOpened,
         onClosed: onClosed,
         onMessage: onMessage

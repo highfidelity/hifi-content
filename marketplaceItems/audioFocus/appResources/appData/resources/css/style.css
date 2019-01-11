@@ -15,43 +15,6 @@ body {
     font-family: 'Raleway', sans-serif;
 }
 
-.center {
-    display: block;
-    margin: auto;
-    color: red;
-}
-
-#header {
-    margin-top: 2rem;
-}
-
-#avatar-list {
-    list-style: none;   
-}
-
-#avatar-list li span {
-    background-color: rgba(255, 255, 255, .5);
-    padding: 0.35 0.5rem;
-    float: right;
-}
-
-#avatar-list li span:hover {
-    background-color: rgba(255, 0, 255, .5);
-}
-
-.shadow {
-    box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2);
-}
-
-#avatar-list li {
-    background-color: rgba(0, 200, 255, .5);
-    margin-left: -2.5em;
-    margin-top: 1rem; 
-    padding: 0.75rem;
-    max-width: 15rem;
-    min-width: 15rem;
-}
-
 button {
     visibility: hidden;
     display: block;
@@ -75,8 +38,51 @@ button:hover {
     background: linear-gradient(to bottom, #4eb5e5 100%,#389ed5 0%); /* W3C */
 }
 
-subheader {
-    visibility: hidden;
+.center {
+    display: block;
+    margin: auto;
+    color: red;
+}
+
+.shadow {
+    box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2);
+}
+
+#logo {
+    vertical-align: text-bottom;
+    width: 2rem;
+    height: 2rem;
+}
+
+#header {
+    margin-top: 2rem;
+    display: inline-block;
+}
+
+#avatar-list {
+    list-style: none;   
+}
+
+#avatar-list li span {
+    background-color: rgba(255, 255, 255, .5);
+    padding: 0.15rem 0.15rem 0.05rem 0.15rem;
+    margin-left: 1rem;
+    float: right;
+}
+
+#avatar-list li span:hover {
+    background-color: rgba(255, 0, 255, .5);
+}
+
+
+#avatar-list li {
+    display: inline-block;
+    background-color: rgba(0, 200, 255, .5);
+    margin-left: -2.5em;
+    margin-top: 1rem; 
+    padding: 0.5rem 0.75rem;
+    min-width: 2rem;
+    max-width: 20rem;
 }
 
 #instructions {
@@ -84,3 +90,43 @@ subheader {
     background-color: rgba(0, 200, 255, .5);
     padding: 0.1rem 1rem 0.75rem 1rem;
 }
+
+#subheader {
+    visibility: hidden;
+}
+
+#error {
+    opacity: 0;
+    position: absolute;
+    bottom: 0;
+    left:0;
+    right: 0;
+    padding: 0.2rem 1rem;
+    margin: 0.5rem 0.5rem;
+    background-color: rgba(0, 200, 255, .5);
+    color: red;
+    font-size: 1.75rem;
+}
+
+.animated {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+.fade-out {
+    animation-name: fade-out;
+}
+
+.fade-in {
+    animation-name: fade-in;
+}
+
+@keyframes fade-out {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+ }
+
+ @keyframes fade-in {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+ }

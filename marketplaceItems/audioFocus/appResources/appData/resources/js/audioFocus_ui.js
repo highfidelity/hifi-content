@@ -30,6 +30,8 @@ function onSpanClicked(user){
 // Handle incoming tablet messages
 var avatarList = document.getElementById("avatar-list");
 var subheader = document.getElementById("sub-header");
+var error = document.getElementById("error");
+var showingError = false;
 function onScriptEventReceived(message) {
     var data;
 
@@ -38,7 +40,7 @@ function onScriptEventReceived(message) {
         switch (data.type) {
             case "UPDATE_SOLO":
                 var finalList = data.value.map(function(avatar){
-                    return `<li class="shadow">${avatar}<span onclick="onSpanClicked('${avatar}')">X</span></li>`;
+                    return `<li class="shadow">${avatar}<span onclick="onSpanClicked('${avatar}')">X</span></li><br>`;
                 }).join("");
                 
                 if (finalList.length > 0) {
@@ -52,6 +54,19 @@ function onScriptEventReceived(message) {
                 avatarList.innerHTML = finalList;
                 
                 break;
+            case "DISPLAY_ERROR":
+                if (showingError) {
+                    return;
+                }
+                var MS_TIMEOUT = 2500;
+                showingError = true;
+                error.classList.remove('fade-out');
+                error.classList.add('fade-in');
+                setTimeout(function(){
+                    error.classList.remove('fade-in');
+                    error.classList.add('fade-out');
+                    showingError = false;
+                }, MS_TIMEOUT)
             default:
         }
     } catch (e) {

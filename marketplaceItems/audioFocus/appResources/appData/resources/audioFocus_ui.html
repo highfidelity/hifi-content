@@ -12,11 +12,13 @@
 
         <div id="container">
 
-            <h1 id="header">AUDIO FOCUS</h1>
+            <img id="logo" src="./images/focus.png"> <h1 id="header">AUDIO FOCUS</h1>
 
             <div id="instructions" class="shadow">
                 <h2>Instructions</h2>
                 <p>Laser or click on an avatar to hear only them.</p>
+                <br>
+                <p>Closing the app will clear the list.</p>
             </div>
 
             <h3 id="sub-header">Current Solo List</h3>
@@ -27,6 +29,11 @@
                 </ul>
                 <button id="clear-button">CLEAR</button>
 
+            </div>
+
+            <div id="error" class="shadow animated">
+                <p>Target avatar cannot be selected:<p>
+                <p>Too far away!</p>
             </div>
 
         </div>
