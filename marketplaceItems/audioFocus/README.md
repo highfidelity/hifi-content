@@ -19,7 +19,7 @@ You can either select in Desktop by clicking, or in HMD by triggering with eithe
 - Updated styling
 - CR corrections
 
-2019-01-11_01:15:00 :: [soloPoint 5274039]
+2019-01-11_13:15:00 :: [soloPoint 5274039]
 
 - Added Icons
 - Removed old code
