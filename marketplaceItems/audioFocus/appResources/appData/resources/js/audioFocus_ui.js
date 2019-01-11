@@ -18,7 +18,7 @@ button.addEventListener("click", function(){
     }));
 })
 
-// removes the user when span is clicked
+// Removes the user when span is clicked
 function onSpanClicked(user){
     EventBridge.emitWebEvent(JSON.stringify({
         type: "REMOVE_USER",
@@ -79,7 +79,9 @@ function onLoad() {
 // *************************************
 // #region Main
 
+
 onLoad();
+
 
 // #endregion
 // *************************************

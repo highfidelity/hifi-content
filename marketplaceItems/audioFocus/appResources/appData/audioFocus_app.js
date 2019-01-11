@@ -20,8 +20,9 @@
     // The following two functions are a modified version of what's found in scripts/system/libraries/controllers.js
     // Utility function for the ControllerWorldLocation offset 
     function getGrabPointSphereOffset(handController) {
-        // these values must match what's in scripts/system/libraries/controllers.js
-        var GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 };  // x = upward, y = forward, z = lateral
+        // These values must match what's in scripts/system/libraries/controllers.js
+        // x = upward, y = forward, z = lateral
+        var GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 }; 
         var offset = GRAB_POINT_SPHERE_OFFSET;
         if (handController === Controller.Standard.LeftHand) {
             offset = {
@@ -84,14 +85,13 @@
     // END UTILITY FUNCTIONS
     // *************************************
 
-
     // *************************************
     // START MAPPING FUNCTIONS
     // *************************************
     // #region Mapping
 
 
-    // Record the last mousePressEvent
+    // Handle the solo when in desktop and a mouse is pressed
     function mousePressEvent(event) {
         if (HMD.active) {
             return;
@@ -116,7 +116,7 @@
         
         var pose = getControllerWorldLocation(hand);
         var start = pose.position;
-        var direction = Vec3.multiplyQbyV(pose.orientation, {x: 0, y: 1, z: 0});
+        var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
 
         var avatarIntersection = AvatarList.findRayIntersection({origin:start, direction:direction}, [], [MyAvatar.sessionUUID]);
         
@@ -161,17 +161,17 @@
         Controller.enableMapping(MAPPING_NAME);
     }
 
-
+    // Disables mouse press and trigger events   
     function disable(){
         Controller.mousePressEvent.disconnect(mousePressEvent);
         Controller.disableMapping(MAPPING_NAME);
     }
 
+
     // #endregion
     // *************************************
     // STOP MAPPING FUNCTIONS
     // *************************************
-
 
     // *************************************
     // START SOLO FUNCTIONS
@@ -205,7 +205,6 @@
     // Add an avatar to the list and give them an overlay
     function addAvatarToList(avatarUUID, displayUsername) {
         soloAvatars[avatarUUID] = {
-            id: avatarUUID,
             name: displayUsername
         };
 
@@ -234,14 +233,15 @@
 
     // Handles avatar being solo'd
     var soloAvatars = {};
-    var MAXIMUM_ALLOWED_AVATAR_DISTANCE_FROM_USER = 5;
+    var MAXIMUM_ALLOWED_OTHER_AVATAR_DISTANCE_FROM_USER = 25;
     function soloAvatar(avatarUUID) {
         var clickedAvatarObject = AvatarList.getAvatar(avatarUUID);
         var displayUsername = clickedAvatarObject.sessionDisplayName;
-        var avatarPosition = clickedAvatarObject.position;
+        var otherAvatarPosition = clickedAvatarObject.position;
+        var vectorBetweenAvatars = Vec3.subtract(MyAvatar.position, otherAvatarPosition);
 
-        var distance = Vec3.length(Vec3.subtract(MyAvatar.position, avatarPosition));
-        if (distance > MAXIMUM_ALLOWED_AVATAR_DISTANCE_FROM_USER) {
+        var distance = Vec3.length(vectorBetweenAvatars);
+        if (distance > MAXIMUM_ALLOWED_OTHER_AVATAR_DISTANCE_FROM_USER) {
             return;
         }
 
@@ -258,20 +258,26 @@
     // STOP SOLO FUNCTIONS
     // *************************************
 
-
     // *************************************
     // START OVERLAY FUNCTIONS
     // *************************************
     // #region Overlay
 
+
     // Adds a speaker overlay above a user solo'd
     function addOverlayToUser(uuid) {
         var user = soloAvatars[uuid];
-        var overlayPosition = Vec3.sum(AvatarList.getAvatar(uuid).getNeckPosition(), [0, 0.75, 0]); 
+        var avatar = AvatarList.getAvatar(uuid);
+        var neckPosition = avatar.getNeckPosition();
+        var avatarScale = avatar.scale;
+        var ABOVE_NECK = 1;
+        var overlayPosition = Vec3.sum(neckPosition, [0, avatarScale * ABOVE_NECK, 0]); 
+        var IMAGE_SIZE = avatarScale * 0.3;
 
         var overlayProperties = {
             position: overlayPosition,
-            dimensions: { x: 0.3, y: 0.3, z: 0.3 },
+            // dimensions: [IMAGE_SIZE, IMAGE_SIZE, IMAGE_SIZE],
+            dimensions: {x: IMAGE_SIZE, y: IMAGE_SIZE, z: IMAGE_SIZE},
             alpha: 1.0,
             color: [255, 255, 255],
             parentID: uuid,
@@ -308,11 +314,11 @@
     // STOP OVERLAY FUNCTIONS
     // *************************************
 
-
     // *************************************
     // START TABLET FUNCTIONS
     // *************************************
     // #region Tablet
+
 
     var BUTTON_NAME = "FOCUS";
     var URL = Script.resolvePath('./resources/audioFocus_ui.html');
@@ -374,11 +380,11 @@
     // STOP TABLET FUNCTIONS
     // *************************************
 
-
     // *************************************
     // START CLEANUP
     // *************************************
     // #region Cleanup
+
 
     // Handles reset of list if you change domains
     function onDomainChange() {
@@ -408,6 +414,7 @@
 
 
     Script.scriptEnding.connect(scriptFinished);
+
 
     // #endregion
     // *************************************
