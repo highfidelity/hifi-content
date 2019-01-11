@@ -17,12 +17,14 @@ button.addEventListener("click", function(){
     }));
 })
 
+// removes the user when span is clicked
 function onSpanClicked(user){
     EventBridge.emitWebEvent(JSON.stringify({
         type: "REMOVE_USER",
         value: user
     }));
 }
+
 
 var avatarList = document.getElementById("avatar-list");
 var subheader = document.getElementById("sub-header");
