@@ -242,7 +242,6 @@
 
         var distance = Vec3.length(Vec3.subtract(MyAvatar.position, avatarPosition));
         if (distance > MAXIMUM_ALLOWED_AVATAR_DISTANCE_FROM_USER) {
-            console.log("TOO FAR AWAY", console.log(distance))
             return;
         }
 
