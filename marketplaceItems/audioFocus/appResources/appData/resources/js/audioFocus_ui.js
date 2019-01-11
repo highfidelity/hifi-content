@@ -18,7 +18,6 @@ button.addEventListener("click", function(){
 })
 
 function onSpanClicked(user){
-    console.log("user" + user);
     EventBridge.emitWebEvent(JSON.stringify({
         type: "REMOVE_USER",
         value: user
