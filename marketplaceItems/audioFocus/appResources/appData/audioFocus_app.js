@@ -234,9 +234,17 @@
 
     // Handles avatar being solo'd
     var soloAvatars = {};
+    var MAXIMUM_ALLOWED_AVATAR_DISTANCE_FROM_USER = 5;
     function soloAvatar(avatarUUID) {
         var clickedAvatarObject = AvatarList.getAvatar(avatarUUID);
         var displayUsername = clickedAvatarObject.sessionDisplayName;
+        var avatarPosition = clickedAvatarObject.position;
+
+        var distance = Vec3.length(Vec3.subtract(MyAvatar.position, avatarPosition));
+        if (distance > MAXIMUM_ALLOWED_AVATAR_DISTANCE_FROM_USER) {
+            console.log("TOO FAR AWAY", console.log(distance))
+            return;
+        }
 
         if (soloAvatars[avatarUUID]) {
             removeAvatarFromList(avatarUUID);
