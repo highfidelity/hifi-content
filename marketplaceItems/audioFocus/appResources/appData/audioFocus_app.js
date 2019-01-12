@@ -93,7 +93,7 @@
 
     // Handle the solo when in desktop and a mouse is pressed
     function mousePressEvent(event) {
-        if (HMD.active) {
+        if (HMD.active || !event.isLeftButton) {
             return;
         }
 

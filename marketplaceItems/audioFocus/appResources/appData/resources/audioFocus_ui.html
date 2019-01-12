@@ -3,32 +3,29 @@
     <head>
         <title>Solo Point</title>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" type="text/css" href="./css/style.css">
         <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
     </head>
 
     <body>
 
-        <div id="container">
-
+        <div id="app">
             <img id="logo" src="./images/focus.png"> <h1 id="header">AUDIO FOCUS</h1>
 
             <div id="instructions" class="shadow">
                 <h2>Instructions</h2>
                 <p>Laser or click on an avatar to hear only them.</p>
-                <br>
                 <p>Closing the app will clear the list.</p>
             </div>
 
-            <h3 id="sub-header">Current Solo List</h3>
+            <h3 id="sub-header"  v-if="soloList.length > 0">Current Solo List</h3>
+
+            <div id="button-section">
+                    <button id="clear-button" @click="clear" v-if="soloList.length > 0">CLEAR</button>
+            </div>
 
             <div id="solo-names">
-
-                <ul id="avatar-list">
-                </ul>
-                <button id="clear-button">CLEAR</button>
-
+                <solo-list :list="soloList"></solo-list>
             </div>
 
             <div id="error" class="shadow animated">
@@ -37,9 +34,7 @@
             </div>
 
         </div>
-
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script type="text/javascript" src="./js/audioFocus_ui.js"></script>
     </body>
-
-    <script type="text/javascript" src="./js/audioFocus_ui.js"></script>
-
 </html>

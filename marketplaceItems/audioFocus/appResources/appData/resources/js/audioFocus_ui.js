@@ -11,48 +11,62 @@
     
 */
 
-var button = document.getElementById("clear-button");
-button.addEventListener("click", function(){
-    EventBridge.emitWebEvent(JSON.stringify({
-        type: "CLEAR_LIST"
-    }));
+
+Vue.component('solo-list', {
+    props: ['list'],
+    template: /*html*/`
+    <div id="avatar-list" >
+        <div v-for="(name, index) in list" :key="index">
+            <solo-item :name="name"></solo-item>
+        </div>
+    </div>
+    `
 })
 
-// Removes the user when span is clicked
-function onSpanClicked(user){
-    EventBridge.emitWebEvent(JSON.stringify({
-        type: "REMOVE_USER",
-        value: user
-    }));
-}
+
+Vue.component('solo-item', {
+    props: ['name'],
+    methods: {
+        clicked: function(name){
+            EventBridge.emitWebEvent(JSON.stringify({
+                type: "REMOVE_USER",
+                value: name
+            }));
+        }
+    },
+    template: /*html*/`
+        <div class="shadow name">
+            <span >{{name}}</span><span class="close" @click="clicked(name)">X</span>
+        </div>
+    `
+})
+
+
+var app = new Vue({
+    el: '#app',
+    methods: {
+        clear: function(){
+            EventBridge.emitWebEvent(JSON.stringify({
+                type: "CLEAR_LIST"
+            }));
+        }
+    },
+    data: {
+        soloList: []
+    }
+});
 
 
 // Handle incoming tablet messages
-var avatarList = document.getElementById("avatar-list");
-var subheader = document.getElementById("sub-header");
 var error = document.getElementById("error");
 var showingError = false;
 function onScriptEventReceived(message) {
     var data;
-
     try {
         data = JSON.parse(message);
         switch (data.type) {
             case "UPDATE_SOLO":
-                var finalList = data.value.map(function(avatar){
-                    return `<li class="shadow">${avatar}<span onclick="onSpanClicked('${avatar}')">X</span></li><br>`;
-                }).join("");
-                
-                if (finalList.length > 0) {
-                    button.style.visibility = "visible";
-                    subheader.style.visibility = "visible";
-                } else {
-                    button.style.visibility = "hidden";
-                    subheader.style.visibility = "hidden";
-                }
-
-                avatarList.innerHTML = finalList;
-                
+                app.soloList = data.value;
                 break;
             case "DISPLAY_ERROR":
                 if (showingError) {
@@ -75,6 +89,7 @@ function onScriptEventReceived(message) {
     }
     
 }
+
 
 // This is how much time to give the Eventbridge to wake up.  This won't be needed in RC78 and will be removed.
 // Run when the JS is loaded and give enough time to for EventBridge to come back
