@@ -20,7 +20,7 @@
     var AppUi = Script.require('appUi'),
         request = Script.require('request').request,
         GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
-        URL = Script.resolvePath("./resources/voteApp_ui.html?v12"),
+        URL = Script.resolvePath("./resources/voteApp_ui.html?v123"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12344"));
 
     // Configurable variables
@@ -239,15 +239,7 @@
 
                 } else {
                     // Success
-
-                    print("Domains onComplete response:", response, typeof response);
-
-                    try {
-                        response = JSON.parse(response);
-                    } catch (e) {
-                        console.error("Domains onComplete displayName issue with parsing response: " + e);
-                    }
-
+                    
                     if (DEBUG) {
                         print("Domains sendDomainInfoRequest onComplete");
                     }
@@ -976,6 +968,7 @@
     var UPDATE_UI = CONFIG.UPDATE_UI;
 
     function updateUI() {
+
         var messageObject = {
             type: UPDATE_UI,
             value: dataStore

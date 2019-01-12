@@ -1,7 +1,7 @@
 //
-//  tablet.js 
+//  Tablet.js 
 //
-//  Created by Robin Wilson 2019-1-09
+//  Created by Robin Wilson 2018-11-12
 //
 //  Using Example Vue App Created by Milad Nazeri on 2018-10-11
 //  Copyright 2019 High Fidelity, Inc.
@@ -15,10 +15,10 @@
     "use strict";
 
     // Consts
-    var EVENT_NAME = CONFIG.EVENT_NAME,
+    var EVENT_NAME = CONFIG.EVENT_NAME, // !important must match voteApp.js
 
         EVENT_BRIDGE_OPEN_MESSAGE = EVENT_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
-        UPDATE_UI = CONFIG.UPDATE_UI,
+        UPDATE_UI = CONFIG.UPDATE_UI, // !important must match voteApp.js
 
         GOTO_LOCATION = EVENT_NAME + CONFIG.GOTO_LOCATION,
         GOTO_DOMAIN = EVENT_NAME + CONFIG.GOTO_DOMAIN,
@@ -26,186 +26,9 @@
         VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN;
 
     // Components
-
-    // ****
-
-    //    Vue.component('grouped-list', {
-    //     props: [list, title, isopen, isclosedtext],
-    //     computed: {
-    //         groupedItems () {
-    //             var grouped = [];
-    //             var index = -1;
-    //             if (this.list) {
-    //                 for (var i = 0; i < this.list.length; i++) {
-    //                     if (i % 2 == 0) {
-    //                         index++;
-    //                         grouped[index] = [];
-    //                         grouped[index].id = index;
-    //                     }
-    //                     grouped[index].push(this.list[i]);
-    //                 }
-    //             }
-
-    //             if (grouped.length && grouped[index].length === 1) {
-    //                 grouped[index].push({ hidden: true });
-    //             }
-    //             return grouped;
-    //         }
-    //     },
-    //     template: /* html */ `
-    //         <div>
-    //             <div v-if="isopen" class="p-2">
-    //                 <h4 class="color-main">{{ title }}</h4>
-    //                 <template v-for="items in groupedItems">
-    //                     <div class="row" :key="items.id">
-    //                         <domaincard  v-for="item in items" :voted="voted" :domain="item" :key="item.name" :visitedalldomains="visitedalldomains"></domaincard>
-    //                     </div>
-    //                 </template>
-    //             </div>
-
-    //             <closed v-if="!isopen" :text="isclosedtext"></closed>
-
-    //         </div>
-    //     `
-    // })
-
-    // Vue.component('closed', {
-    //     props: ["text", "isopen"],
-    //     computed: {
-    //     },
-    //     template: /* html */ `
-    //         <div v-if="!isopen" class="p-2 pt-5">
-    //             <h4 class="text-center color-main">{{ text }}</h4>
-    //         </div>
-    //     `
-    // })
-
-    // Vue.component('visitedalldomains-modal', {
-    //     props: ["closeVisitedModal"],
-    //     template: /* html */ `
-    //         <modal v-bind:alert="true" v-if="!showedVisited" v-show="isVisitedModalVisible" @close="closeVisitedModal">
-
-    //             <div slot="header"></div>
-                
-    //             <div slot="body">
-    //                 <div class="p-3 mt-2">
-    //                     <h2 class="color-main">You've seen all the entries!</h2>
-    //                     <div class="flex-container-row pb-4">
-    //                         <p class="flex-item">Now you can vote for your favorite</p>
-    //                     </div>
-                    
-    //                     <div class="flex-container-row">
-    //                         <a href="#" class="flex-item btn btn-primary bkgd-pink" @click="closeVisitedModal">OK</a>
-    //                     </div>
-    //                 </div>
-    //             </div>
-                
-    //             <div slot="footer" class="text-center"></div>
-
-    //         </modal>
-    //     `
-    // })
-
-    // Vue.component('card', {
-    //     props: ["bottitle", "hasborder", "modal"],
-    //     computed: {
-    //     },
-    //     template: /* html */ `
-        
-    //     `
-    // })
-
-
-    /*
-        conditionalbuttoninfo: {
-            isVotingDisabled bool
-            buttonName
-            method
-        }
-    */
-    Vue.component('modal-vote', {
-        props: ["closefunc", "votefunc", "backfunc", "name", "conditionalbuttoninfo"],
-        computed: {
-            canVote() {
-                return this.conditionalbuttoninfo.hasConditional ? this.conditionalbuttoninfo.isMet : true;
-            },
-            conditionalBtn() {
-                return {
-                    method: this.conditionalbuttoninfo.buttonFunc ? this.conditionalbuttoninfo.method : () => {},
-                    buttonName: this.conditionalbuttoninfo.buttonFunc ? this.conditionalbuttoninfo.buttonName : ""
-                };
-            }
-        },
-        template: /* html */ `
-            <modal v-bind:alert="true" v-bind:hidex="false" v-bind:isfullscreen="false" @close="closefunc">
-                <div slot="header"></div>
-            
-                <div slot="body">
-                    <div class="p-3 mt-2">
-                        <div class="flex-container-row pb-4">
-                            <h2 class="flex-item">Vote for {{ name }}?</h2>
-                        </div>
-                        <div class="flex-container-row pb-4">
-                            <p class="flex-item">You can only vote once. Your vote cannot be changed later.</p>
-                        </div>
-                
-                        <div class="flex-container-row">
-                            <a @click="backfunc" href="#" class="flex-item btn btn-secondary bkgd-pink m-2 back-btn">Back</a>
-                            <a @click="votefunc(name)" v-bind:class="{ 'disabled': !canVote }" href="#" class="flex-item btn btn-primary bkgd-pink m-2">Vote for {{ name }}</a>
-                        </div>
-
-                        <div v-if="conditionalbuttoninfo.hasConditional" class="flex-container-row">
-                            <a href="#" class="flex-item btn btn-primary bkgd-pink m-2" @click="conditionalBtn.method()">{{ conditionalBtn.buttonName }}</a>
-                        </div>
-                    </div>
-                </div>
-            </modal>
-        `
-    })
-
-    /*
-        item = {
-            image: "",
-            name: "",
-
-
-        }
-    */
-    Vue.component('modal-image-votebar', {
-        props: ["closefunc", "votefunc", "onclickbar", "bartext", "item", "voted"],
-        computed: {
-            modalStyles() {
-                return "background: url('" + this.item.image +
-                    "'); background-position: center; background-size: cover; border:none";
-            },
-            votedFor() {
-                return this.voted && this.item.voted;
-            },
-            notVotedFor() {
-                return this.voted && !this.item.voted; // 
-            }
-        },
-        template: /* html */ `
-            <modal v-bind:hidex="false" v-bind:isfullscreen="true" @close="closefunc">
-                <div slot="header"></div>
-                <div slot="body">
-                    <h4 class="avatar-name color-main">{{ item.name }}</h4>
-                    <div class="card card-image modal-image flex-item" v-bind:style="modalStyles"></div>
-                    <div v-bind:class="{ 'vote-avatar-bar': !voted, 'votedfor-avatar-bar': votedFor, 'notvotedfor-avatar-bar': notVotedFor }" v-on:click="onclickbar" class="flex-container-row avatar-bar">
-                        <div v-if="item.voted || !voted" v-bind:class="{ 'fill': item.voted}" class="flex-item stroke stroke-pink avatar-icon-fill text-size-icon icon icon-check"></div>
-                        <h4 class="flex-item bold txt-modal-body">{{ bartext }}</h4>
-                    </div>
-                </div>
-            </modal>
-        `
-    })
-
-    // ****
-
-
     Vue.component('loggedin-modal', {
         props: ['loggedin'],
-        template: /* html */ `
+        template: `
             <modal v-bind:alert="true" v-if="!loggedin" v-bind:hidex="true" @close="">
                 <div slot="header"></div>
                 <div slot="body">
@@ -219,7 +42,7 @@
 
     Vue.component('unload-modal', {
         props: ['unload'], // v-if="dataStore.unload"
-        template: /* html */ `
+        template: `
             <modal v-bind:alert="true" v-if="unload" v-bind:hidex="true" @close="">
                 <div slot="header"></div>
                 <div slot="body">
@@ -237,10 +60,10 @@
         `
     })
 
-
+    
     Vue.component('loading-modal', {
         props: ['loading'],
-        template: /* html */ `
+        template: `
             <modal v-bind:alert="true" v-if="loading" v-bind:hidex="true" @close="">
                 <div slot="header"></div>
                 <div slot="body">
@@ -263,7 +86,7 @@
         props: {
             polls: { type: Object }
         },
-        template: /* html */ `
+        template: /*html*/ `
             <nav>
                 <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
                     <a class="nav-item nav-link ml-2 active" id="info-tab" data-toggle="tab" href="#info" role="tab"
@@ -287,7 +110,7 @@
                 }));
             }
         },
-        template: /* html */ `
+        template: `
             <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
                 <div class="p-2">
 
@@ -317,7 +140,56 @@
         `
     })
 
-/* OLD
+    // Vue.component('grouped-list', {
+    //     props: [list, title, open],
+    //     computed: {
+    //         groupedItems() {
+    //             var grouped = [];
+    //             var index = -1;
+    //             if (this.list) {
+    //                 for (var i = 0; i < this.list.length; i++) {
+    //                     if (i % 2 == 0) {
+    //                         index++;
+    //                         grouped[index] = [];
+    //                         grouped[index].id = index;
+    //                     }
+    //                     grouped[index].push(this.list[i]);
+    //                 }
+    //             }
+
+    //             if (grouped.length && grouped[index].length === 1) {
+    //                 grouped[index].push({ hidden: true });
+    //             }
+    //             return grouped;
+    //         }
+    //     },
+    //     template: `
+    //         <div>
+    //             <div v-if="open" class="p-2">
+    //                 <h4 class="color-main">{{ title }}</h4>
+    //                 <template v-for="items in groupedItems">
+    //                     <div class="row" :key="items.id">
+    //                         <domaincard  v-for="item in items" :voted="voted" :domain="item" :key="item.name" :visitedalldomains="visitedalldomains"></domaincard>
+    //                     </div>
+    //                 </template>
+    //             </div>
+
+    //             <div v-if="!open" class="p-2 pt-5">
+    //                 <h4 class="text-center color-main">Favorite Domain voting isn't open yet, please check back later.</h4>
+    //             </div>
+    //         </div>
+    //     `
+    // })
+
+    // Vue.component('closed', {
+    //     props: [text],
+    //     computed: {
+    //     },
+    //     template: `
+        
+    //     `
+    // })
+
     Vue.component('domainlist', {
         props: {
             flagvisited: { type: Boolean },
@@ -329,7 +201,7 @@
         computed: {
             groupedItems() {
 
-                console.log("domains are : " + this.domains + typeof this.domains);
+                console.log("domains are : " + JSON.stringify(this.domains));
 
                 var grouped = [];
                 var index = -1;
@@ -418,7 +290,6 @@
                 </div>
             `
     })
-
 
     Vue.component('domaincard', {
         props: {
@@ -506,187 +377,6 @@
         </div>
         `
     })
-    */
-
-    Vue.component('domainlist', {
-        props: {
-            flagvisited: { type: Boolean },
-            visitedalldomains: { type: Boolean },
-            domains: { type: Array },
-            open: { type: Boolean },
-            voted: { type: Boolean } // *** 
-        },
-        computed: {
-            groupedItems() {
-
-                var grouped = [];
-                var index = -1;
-                if (this.domains) {
-                    for (var i = 0; i < this.domains.length; i++) {
-                        if (i % 2 == 0) {
-                            index++;
-                            grouped[index] = [];
-                            grouped[index].id = index;
-                        }
-                        grouped[index].push(this.domains[i]);
-                    }
-                }
-
-                if (grouped.length && grouped[index].length === 1) {
-                    grouped[index].push({ hidden: true });
-                }
-                return grouped;
-            },
-            getTitle() {
-                if (!this.visitedalldomains) {
-                    return "Visit the entries then vote:";
-                } else if (this.voted) {
-                    return "Thanks for voting!";
-                } else {
-                    return "Vote for your favorite!";
-                }
-            }
-        },
-        methods: {
-            closeVisitedModal() {
-                this.isVisitedModalVisible = false;
-                this.showedVisited = true;
-            }
-        },
-        data() {
-            return {
-                isVisitedModalVisible: false,
-                showedVisited: false
-            };
-        },
-        watch: {
-            visitedalldomains: function (newVal, oldVal) {
-                console.log("Visited all modals");
-                if (newVal === true && oldVal === false && this.voted === false) {
-                    this.isVisitedModalVisible = true;
-                }
-            }
-        },
-        template: /* html */ `
-                <div class="tab-pane fade" id="nav-domains" role="tabpanel" aria-labelledby="nav-domains-tab">
-                    <div v-if="open" class="p-2">
-                        <h4 class="color-main">{{ getTitle }}</h4>
-                        <template v-for="items in groupedItems">
-                            <div class="row" :key="items.id">
-                                <domaincard  v-for="item in items" :voted="voted" :domain="item" :key="item.name" :visitedalldomains="visitedalldomains"></domaincard>
-                            </div>
-                        </template>
-                    </div>
-
-                    <div v-if="!open" class="p-2 pt-5">
-                        <h4 class="text-center color-main">Favorite Domain voting isn't open yet, please check back later.</h4>
-                    </div>
-
-                    <modal v-bind:alert="true" v-if="!showedVisited" v-show="isVisitedModalVisible" @close="closeVisitedModal">
-
-                        <div slot="header">
-                        </div>
-                        
-                        <div slot="body">
-                            <div class="p-3 mt-2">
-                                <h2 class="color-main">You've seen all the entries!</h2>
-                                <div class="flex-container-row pb-4">
-                                    <p class="flex-item">Now you can vote for your favorite</p>
-                                </div>
-                            
-                                <div class="flex-container-row">
-                                    <a href="#" class="flex-item btn btn-primary bkgd-pink" @click="closeVisitedModal">OK</a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div slot="footer" class="text-center"></div>
-                    </modal>
-
-                </div>
-            `
-    })
-
-    Vue.component('domaincard', {
-        props: {
-            visitedalldomains: { type: Boolean },
-            domain: { type: Object },
-            voted: { type: Boolean }
-        },
-        methods: {
-            goto(domainName) {
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: GOTO_DOMAIN,
-                    value: domainName
-                }));
-                console.log(domainName);
-            },
-            votedomain(domainName) {
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: VOTE_DOMAIN,
-                    value: domainName
-                }));
-                console.log(domainName);
-                this.closeVoteModal();
-            },
-            showVoteModal() {
-                if (!this.domain.hidden && !this.voted) {
-                    this.isVoteModalVisible = true;
-                }
-            },
-            closeVoteModal() {
-                console.log("closeVoteModal");
-                this.isVoteModalVisible = false;
-            }
-        },
-        computed: {
-            styles() {
-                return "background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0)), url('" + this.domain.image +
-                    "'); background-position: center; background-size: cover;";
-            },
-            showCheckMark() {
-                if (this.voted) {
-                    return this.domain.voted;
-                } else {
-                    return this.visitedalldomains;
-                }
-            },
-            conditionalButtonInfo() {
-                return { hasConditional: false };
-            }
-        },
-        data() {
-            return {
-                isVoteModalVisible: false
-            };
-        },
-        template: /* html */ `
-        <div class="col-sm">
-            <div class="card card-image" v-bind:class="{ 'ghost': domain.hidden, 'card-visited': domain.visited }" v-bind:style="styles">
-
-                <div class="card-body" v-bind:class="{ 'voted-domain': domain.voted }">
-                    <h4 class="card-title txt-color-white">{{ domain.displayName }}</h4>
-                    <div class="align-bottom-wrapper">
-                        <div v-if="!visitedalldomains" class="align-bottom-left">{{ domain.visited ? "Visited." : "" }}</div> 
-                        <div v-if="showCheckMark" v-on:click="showVoteModal" v-bind:class="{ 'fill': domain.voted }" class="align-bottom-left stroke text-size-icon icon icon-check"></div>
-                        <a href="#" class="align-bottom-right btn go-button" v-on:click="goto(domain.name)"></a>
-                    </div>
-                </div>
-            </div>
-
-            <modal-vote 
-                v-show="isVoteModalVisible"
-                :closefunc="closeVoteModal"
-                :backfunc="closeVoteModal"
-                :isfullscreen="false"
-                :votefunc="votedomain"
-                :name="domain.name"
-                :conditionalbuttoninfo="conditionalButtonInfo"
-            ></modal-vote>
-
-        </div>
-        `
-    })
 
     Vue.component('avatarlist', {
         props: {
@@ -717,7 +407,7 @@
                 return grouped;
             }
         },
-        template: /* html */ `
+        template: `
             <div  class="tab-pane fade" id="nav-avatars" role="tabpanel" aria-labelledby="nav-avatars-tab">
                 <div v-if="!open" class="p-2 pt-5">
                     <h4 class="color-main">Holiday Tree Decorating Contest isn't open yet, please check back later.</h4>
@@ -826,10 +516,14 @@
 
                     if (!this.avatar.voted) {
                         styles += "border:none";
-                    }
+                    } 
 
                     return styles;
                 }
+            },
+            modalStyles() {
+                return "background: url('" + this.avatar.image +
+                    "'); background-position: center; background-size: cover; border:none";
             },
             voteBarText() {
 
@@ -845,13 +539,13 @@
                 }
             },
             votedFor() {
-                return this.voted && this.item.voted;
+                return this.voted && this.avatar.voted;
             },
-            conditionalButtonInfo() {
-                return { hasConditional: false };
+            notVotedFor() {
+                return this.voted && !this.avatar.voted; // 
             }
         },
-        template: /* html */ `
+        template: `
         <div class="col-sm">
             <div @click="showAvatarInfoModal">
                 <div class="card card-image avatar-card" v-bind:class="{ 'ghost': avatar.hidden, 'card-visited': avatar.voted, 'voted-domain': avatar.voted }" v-bind:style="cardStyles">
@@ -864,26 +558,44 @@
                 <p class="card-title bold text-center">{{ avatar.name }}</p>
             </div>
 
-            <modal-image-votebar 
-                v-show="isAvatarInfoModalVisible"
-                :closefunc="closeAvatarInfoModal", 
-                :onclickbar="showVoteModal", 
-                :bartext="voteBarText", 
-                :item="avatar", 
-                :voted="voted"
-            ></modal-image-votebar>
+            <modal v-show="isAvatarInfoModalVisible" v-bind:hidex="false" v-bind:isavatar="true" @close="closeAvatarInfoModal">
+                <div slot="header"></div>
+                <div slot="body">
+                    <h4 class="avatar-name color-main">{{ avatar.name }}</h4>
+                    <div class="card card-image modal-image flex-item" v-bind:style="modalStyles"></div>
+                    <div v-bind:class="{ 'vote-avatar-bar': !voted, 'votedfor-avatar-bar': votedFor, 'notvotedfor-avatar-bar': notVotedFor }" v-on:click="showVoteModal" class="flex-container-row avatar-bar">
+                        <div v-if="avatar.voted || !voted" v-bind:class="{ 'fill': avatar.voted}" class="flex-item stroke stroke-pink avatar-icon-fill text-size-icon icon icon-check"></div>
+                        <h4 class="flex-item bold txt-modal-body">{{ voteBarText }}</h4>
+                    </div>
+                </div>
+            </modal>
 
-            <modal-vote 
-                v-show="isVoteModalVisible"
-                :closefunc="closeBothModals"
-                :backfunc="closeVoteModal"
-                :isfullscreen="false"
-                :votefunc="voteavatar"
-                :name="avatar.name"
-                :hasconditional="false"
-                :conditionalbuttoninfo="conditionalButtonInfo"
-            ></modal-vote>
-
+            <modal v-show="isVoteModalVisible" v-bind:alert="true" v-bind:hidex="false" v-bind:isavatar="false" @close="closeBothModals">
+                <div slot="header"></div>
+            
+                <div slot="body">
+                    <div class="p-3 mt-2">
+                        <div class="flex-container-row pb-4">
+                            <h2 class="flex-item">Vote for {{ avatar.name }}?</h2>
+                        </div>
+                        <div class="flex-container-row pb-4">
+                            <p class="flex-item">You can only vote once. Your vote cannot be changed later.</p>
+                        </div>
+                        <div class="flex-container-row pb-4">
+                            <p class="flex-item">** Must visit trees before voting.</p>
+                        </div>
+                
+                        <div class="flex-container-row">
+                            <a href="#" class="flex-item btn btn-secondary back-btn bkgd-pink m-2" @click="closeVoteModal">Back</a>
+                            <a href="#" class="flex-item btn btn-primary bkgd-pink m-2" @click="voteavatar(avatar.name)">Vote for {{ avatar.name }}</a> 
+                            <!-- <a href="#" class="flex-item btn btn-primary bkgd-pink m-2" v-bind:class="{ 'disabled': !visited }" @click="voteavatar(avatar.name)">Vote for {{ avatar.name }}</a> -->
+                        </div> 
+                        <!-- <div class="flex-container-row">
+                            <a href="#" class="flex-item btn btn-primary bkgd-pink m-2" @click="goto()">Visit the Trees</a>
+                        </div> -->
+                    </div>
+                </div>    
+            </modal>
         </div>
         `
     })
@@ -892,7 +604,7 @@
         props: {
             alert: { type: Boolean },
             hidex: { type: Boolean },
-            isfullscreen: { type: Boolean }
+            isavatar: { type: Boolean }
         },
         methods: {
             close() {
@@ -900,17 +612,17 @@
                 this.$emit('close');
             }
         },
-        template: /* html */ `
+        template: `
         <transition name="modal-fade">
             <div class="modal-backdrop">
                 <div class="modal" v-bind:class="{ 'modal-alert': alert }" > 
                     <header class="modal-header">
                         <slot name="header"></slot>
-                        <button v-if="!hidex" type="button" class="btn-close" @click="close">
+                        <button type="button" v-if="!hidex" class="btn-close" @click="close">
                             <div data-icon="w" class="icon"></div>
                         </button> 
                     </header>
-                    <section class="modal-body" v-bind:class="{ 'full-layout': isfullscreen }">
+                    <section class="modal-body" v-bind:class="{ 'isavatar': isavatar }">
                         <slot name="body"></slot>
                     </section>
                     <footer class="modal-footer">
@@ -920,6 +632,30 @@
             </div>
         </transition>
       `
+    })
+
+    Vue.component('example', {
+        props: {
+            example: { type: Object }
+        },
+        methods: {
+            example() {
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EXAMPLE_MESSAGE,
+                    value: this.example
+                }));
+            }
+        },
+        template: `
+                <div class="card">
+                    <div class="card-header">
+                        {{ example.name }}
+                    </div>
+                    <div class="card-body">
+                        <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="example()">Example</button>
+                    </div>
+                </div>
+            `
     })
 
     // App
@@ -958,14 +694,16 @@
         }
     });
 
+
+    console.log(UPDATE_UI);
     // Procedural
     function onScriptEventReceived(message) {
-        console.log("HELLO ROBIN");
         var data;
         try {
             data = JSON.parse(message);
             switch (data.type) {
                 case UPDATE_UI:
+                    console.log("Inside app robin" + JSON.stringify(data));
                     app.dataStore = data.value;
                     break;
                 default:
