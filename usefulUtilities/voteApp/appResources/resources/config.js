@@ -32,6 +32,6 @@ var CONFIG = {
     UNLOAD_DATE: new Date(Date.UTC(UNLOAD.YEAR, UNLOAD.MONTH, UNLOAD.DAY, UNLOAD.HOUR, UNLOAD.MINUTE))
 };
 
-if (module) {
-    module.exports = CONFIG;
-}
+// if (module) {
+//     module.exports = CONFIG;
+// }

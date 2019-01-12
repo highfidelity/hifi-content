@@ -20,7 +20,7 @@
     var AppUi = Script.require('appUi'),
         request = Script.require('request').request,
         GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
-        URL = Script.resolvePath("./resources/voteApp_ui.html?v12344"),
+        URL = Script.resolvePath("./resources/voteApp_ui.html?v12"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12344"));
 
     // Configurable variables
@@ -47,7 +47,7 @@
     var DOMAIN = "domain";
     var AVATAR = "avatar";
     
-    var DEBUG = false;
+    var DEBUG = true;
 
     // UI variables
     var ui;
@@ -237,9 +237,11 @@
                     // Error
                     print("Error in VoteApp.js: Issue in sendDomainInfoRequest()");
 
-
                 } else {
                     // Success
+
+                    print("Domains onComplete response:", response, typeof response);
+
                     try {
                         response = JSON.parse(response);
                     } catch (e) {

@@ -1,7 +1,7 @@
 //
-//  tablet.js 
+//  Tablet.js 
 //
-//  Created by Robin Wilson 2019-1-09
+//  Created by Robin Wilson 2018-11-12
 //
 //  Using Example Vue App Created by Milad Nazeri on 2018-10-11
 //  Copyright 2019 High Fidelity, Inc.
@@ -15,10 +15,10 @@
     "use strict";
 
     // Consts
-    var EVENT_NAME = CONFIG.EVENT_NAME,
+    var EVENT_NAME = CONFIG.EVENT_NAME, // !important must match voteApp.js
 
         EVENT_BRIDGE_OPEN_MESSAGE = EVENT_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
-        UPDATE_UI = CONFIG.UPDATE_UI,
+        UPDATE_UI = CONFIG.UPDATE_UI, // !important must match voteApp.js
 
         GOTO_LOCATION = EVENT_NAME + CONFIG.GOTO_LOCATION,
         GOTO_DOMAIN = EVENT_NAME + CONFIG.GOTO_DOMAIN,
@@ -26,141 +26,9 @@
         VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN;
 
     // Components
-
-       // ****
-
-       Vue.component('grouped-list', {
-        props: [list, title, isopen, isclosedtext],
-        computed: {
-            groupedItems() {
-                var grouped = [];
-                var index = -1;
-                if (this.list) {
-                    for (var i = 0; i < this.list.length; i++) {
-                        if (i % 2 == 0) {
-                            index++;
-                            grouped[index] = [];
-                            grouped[index].id = index;
-                        }
-                        grouped[index].push(this.list[i]);
-                    }
-                }
-
-                if (grouped.length && grouped[index].length === 1) {
-                    grouped[index].push({ hidden: true });
-                }
-                return grouped;
-            }
-        },
-        template: /* html */ `
-            <div>
-                <div v-if="isopen" class="p-2">
-                    <h4 class="color-main">{{ title }}</h4>
-                    <template v-for="items in groupedItems">
-                        <div class="row" :key="items.id">
-                            <domaincard  v-for="item in items" :voted="voted" :domain="item" :key="item.name" :visitedalldomains="visitedalldomains"></domaincard>
-                        </div>
-                    </template>
-                </div>
-
-                <closed v-if="!isopen" :text="isclosedtext"></closed>
-
-            </div>
-        `
-    })
-
-    Vue.component('closed', {
-        props: [text, isopen],
-        computed: {
-        },
-        template: /* html */ `
-            <div v-if="!isopen" class="p-2 pt-5">
-                <h4 class="text-center color-main">{{ text }}</h4>
-            </div>
-        `
-    })
-
-    Vue.component('visitedalldomains-modal', {
-        props: [closeVisitedModal],
-        computed: {
-        },
-        template: /* html */ `
-            <modal v-bind:alert="true" v-if="!showedVisited" v-show="isVisitedModalVisible" @close="closeVisitedModal">
-
-                <div slot="header"></div>
-                
-                <div slot="body">
-                    <div class="p-3 mt-2">
-                        <h2 class="color-main">You've seen all the entries!</h2>
-                        <div class="flex-container-row pb-4">
-                            <p class="flex-item">Now you can vote for your favorite</p>
-                        </div>
-                    
-                        <div class="flex-container-row">
-                            <a href="#" class="flex-item btn btn-primary bkgd-pink" @click="closeVisitedModal">OK</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div slot="footer" class="text-center"></div>
-
-            </modal>
-        `
-    })
-
-    Vue.component('card', {
-        props: [bottitle, , hasborder, modal],
-        computed: {
-        },
-        template: /* html */ `
-        
-        `
-    })
-
-
-    /*
-    conditionalbuttoninfo: {
-        isVotingDisabled bool
-        buttonName
-        buttonFunc
-    }
-    */
-    Vue.component('vote-modal', {
-        props: [closefunc, votefunc, texttitle, name, hasconditional, conditionalbuttoninfo],
-        computed: {
-            canVote() {
-                return this.hasconditional ? this.conditionalbuttoninfo.isMet : true;
-            }
-        },
-        template: /* html */ `
-            <modal v-show="isVoteModalVisible" v-bind:alert="true" v-bind:hidex="false" v-bind:isavatar="false" @close="closefunc">
-                <div slot="header"></div>
-            
-                <div slot="body">
-                    <div class="p-3 mt-2">
-                        <div class="flex-container-row pb-4">
-                            <h2 class="flex-item">Vote for {{ name }}?</h2>
-                        </div>
-                        <div class="flex-container-row pb-4">
-                            <p class="flex-item">You can only vote once. Your vote cannot be changed later.</p>
-                        </div>
-                
-                        <div class="flex-container-row">
-                            <a href="#" class="flex-item btn btn-secondary bkgd-pink m-2 back-btn" @click="closefunc">Back</a>
-                            <a href="#" class="flex-item btn btn-primary bkgd-pink m-2" v-bind:class="{ 'disabled': !canVote }" @click="vote(name)">Vote for {{ name }}</a>
-                        </div>
-                    </div>
-                </div>
-            </modal>
-        `
-    })
-
-    // ****
-
-
     Vue.component('loggedin-modal', {
         props: ['loggedin'],
-        template: /* html */ `
+        template: `
             <modal v-bind:alert="true" v-if="!loggedin" v-bind:hidex="true" @close="">
                 <div slot="header"></div>
                 <div slot="body">
@@ -174,7 +42,7 @@
 
     Vue.component('unload-modal', {
         props: ['unload'], // v-if="dataStore.unload"
-        template: /* html */ `
+        template: `
             <modal v-bind:alert="true" v-if="unload" v-bind:hidex="true" @close="">
                 <div slot="header"></div>
                 <div slot="body">
@@ -195,7 +63,7 @@
     
     Vue.component('loading-modal', {
         props: ['loading'],
-        template: /* html */ `
+        template: `
             <modal v-bind:alert="true" v-if="loading" v-bind:hidex="true" @close="">
                 <div slot="header"></div>
                 <div slot="body">
@@ -218,7 +86,7 @@
         props: {
             polls: { type: Object }
         },
-        template: /* html */ /*html*/ `
+        template: /*html*/ `
             <nav>
                 <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
                     <a class="nav-item nav-link ml-2 active" id="info-tab" data-toggle="tab" href="#info" role="tab"
@@ -242,7 +110,7 @@
                 }));
             }
         },
-        template: /* html */ `
+        template: `
             <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
                 <div class="p-2">
 
@@ -272,6 +140,56 @@
         `
     })
 
+    // Vue.component('grouped-list', {
+    //     props: [list, title, open],
+    //     computed: {
+    //         groupedItems() {
+    //             var grouped = [];
+    //             var index = -1;
+    //             if (this.list) {
+    //                 for (var i = 0; i < this.list.length; i++) {
+    //                     if (i % 2 == 0) {
+    //                         index++;
+    //                         grouped[index] = [];
+    //                         grouped[index].id = index;
+    //                     }
+    //                     grouped[index].push(this.list[i]);
+    //                 }
+    //             }
+
+    //             if (grouped.length && grouped[index].length === 1) {
+    //                 grouped[index].push({ hidden: true });
+    //             }
+    //             return grouped;
+    //         }
+    //     },
+    //     template: `
+    //         <div>
+    //             <div v-if="open" class="p-2">
+    //                 <h4 class="color-main">{{ title }}</h4>
+    //                 <template v-for="items in groupedItems">
+    //                     <div class="row" :key="items.id">
+    //                         <domaincard  v-for="item in items" :voted="voted" :domain="item" :key="item.name" :visitedalldomains="visitedalldomains"></domaincard>
+    //                     </div>
+    //                 </template>
+    //             </div>
+
+    //             <div v-if="!open" class="p-2 pt-5">
+    //                 <h4 class="text-center color-main">Favorite Domain voting isn't open yet, please check back later.</h4>
+    //             </div>
+    //         </div>
+    //     `
+    // })
+
+    // Vue.component('closed', {
+    //     props: [text],
+    //     computed: {
+    //     },
+    //     template: `
+        
+    //     `
+    // })
+
     Vue.component('domainlist', {
         props: {
             flagvisited: { type: Boolean },
@@ -282,6 +200,8 @@
         },
         computed: {
             groupedItems() {
+
+                console.log("domains are : " + this.domains + typeof this.domains);
 
                 var grouped = [];
                 var index = -1;
@@ -331,7 +251,7 @@
                 }
             }
         },
-        template: /* html */ `
+        template: `
                 <div class="tab-pane fade" id="nav-domains" role="tabpanel" aria-labelledby="nav-domains-tab">
                     <div v-if="open" class="p-2">
                         <h4 class="color-main">{{ getTitle }}</h4>
@@ -421,7 +341,7 @@
                 isVoteModalVisible: false
             };
         },
-        template: /* html */ `
+        template: `
         <div class="col-sm">
             <div class="card card-image" v-bind:class="{ 'ghost': domain.hidden, 'card-visited': domain.visited }" v-bind:style="styles">
 
@@ -487,7 +407,7 @@
                 return grouped;
             }
         },
-        template: /* html */ `
+        template: `
             <div  class="tab-pane fade" id="nav-avatars" role="tabpanel" aria-labelledby="nav-avatars-tab">
                 <div v-if="!open" class="p-2 pt-5">
                     <h4 class="color-main">Holiday Tree Decorating Contest isn't open yet, please check back later.</h4>
@@ -625,7 +545,7 @@
                 return this.voted && !this.avatar.voted; // 
             }
         },
-        template: /* html */ `
+        template: `
         <div class="col-sm">
             <div @click="showAvatarInfoModal">
                 <div class="card card-image avatar-card" v-bind:class="{ 'ghost': avatar.hidden, 'card-visited': avatar.voted, 'voted-domain': avatar.voted }" v-bind:style="cardStyles">
@@ -674,7 +594,7 @@
                             <a href="#" class="flex-item btn btn-primary bkgd-pink m-2" @click="goto()">Visit the Trees</a>
                         </div> -->
                     </div>
-                </div>
+                </div>    
             </modal>
         </div>
         `
@@ -692,7 +612,7 @@
                 this.$emit('close');
             }
         },
-        template: /* html */ `
+        template: `
         <transition name="modal-fade">
             <div class="modal-backdrop">
                 <div class="modal" v-bind:class="{ 'modal-alert': alert }" > 
@@ -726,7 +646,7 @@
                 }));
             }
         },
-        template: /* html */ `
+        template: `
                 <div class="card">
                     <div class="card-header">
                         {{ example.name }}
