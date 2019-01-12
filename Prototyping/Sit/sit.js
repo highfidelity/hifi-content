@@ -97,7 +97,7 @@
     var chairProperties = null;
     var lockChairOnStandUp = null;
     var seatCenterPosition = null;
-    var CHAIR_DISMOUNT_OFFSET = -0.5; // m in front of chair
+    var CHAIR_DISMOUNT_OFFSET = -0.5; // m in front of chair 
     
     var SITTING_SEARCH_RADIUS = 0.01; // m to check if avatar is sitting in chair
     
@@ -113,6 +113,11 @@
     
     var overlayIntervalHoverCheck = null;
     var overlayIntervalTransparency = null;
+
+    // alpha value change during edit mode
+    var checkAlpha = false;
+    var isAlphaChanged = false;
+    var MINIMUM_ALPHA = 0.5; // 50% alpha value
     
     // sit/stand variables
     var sittingDown = false;
@@ -402,9 +407,35 @@
                     "dimensions",
                     "registrationPoint",
                     "position",
-                    "rotation"
+                    "rotation",
+                    "alpha"
                 ]
             );
+        },
+
+        updateAlphaValue: function () {
+            if (!checkAlpha) {
+                return;
+            }
+
+            // check Alpha is enabled
+            if (checkAlpha) {
+                
+                // is in Edit mode && alpha value has not changed
+                if (isInEditMode() && !isAlphaChanged) {
+                    // set to visible
+                    Entities.editEntity(entityID, {alpha: MINIMUM_ALPHA});
+                    isAlphaChanged = true;
+                }
+
+                // is in Edit mode && alpha value has changed
+                if (!isInEditMode() && isAlphaChanged) {
+                    // set alpha back to 0
+                    Entities.editEntity(entityID, {alpha: 0});
+                    isAlphaChanged = false;
+                }
+
+            }
         }
 
     };
@@ -417,6 +448,9 @@
 
         overlays.preSit.preload();
         utils.setChairProperties();
+
+        checkAlpha = chairProperties.alpha <= MINIMUM_ALPHA;
+
     };
 
     this.startSitDown = function (id, param) {
@@ -714,6 +748,7 @@
     overlayIntervalHoverCheck = Script.setInterval(function () {
 
         overlays.showOrRemoveSittable();
+        utils.updateAlphaValue();
 
     }, OVERLAY_CHECK_INTERVAL);
 
