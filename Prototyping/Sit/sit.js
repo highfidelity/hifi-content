@@ -118,6 +118,8 @@
     var checkAlpha = false;
     var createOverlayID = null;
     var MINIMUM_ALPHA = 0.5; // 50% alpha value
+    var ALPHA = 0.1; // 10% alpha value
+    var CREATE_OVERLAY_DIMENSIONS_OFFSET = 0.1;
     
     // sit/stand variables
     var sittingDown = false;
@@ -431,9 +433,13 @@
                             z: chairProperties.position.z
                         },
                         rotation: chairProperties.orientation,
-                        dimensions: chairProperties.dimensions,
+                        dimensions: {
+                            x: chairProperties.dimensions.x + CREATE_OVERLAY_DIMENSIONS_OFFSET,
+                            y: chairProperties.dimensions.y + CREATE_OVERLAY_DIMENSIONS_OFFSET,
+                            z: chairProperties.dimensions.z + CREATE_OVERLAY_DIMENSIONS_OFFSET
+                        },
                         solid: true,
-                        alpha: MINIMUM_ALPHA,
+                        alpha: ALPHA,
                         parentID: entityID,
                         registrationPoint: chairProperties.registrationPoint
                     });
