@@ -4,10 +4,16 @@ Having trouble hearing in a noisey room?
 
 Domain attenuation getting you down?
 
-Is your Avatar generally hard of hearing?
+Feeling left out of the conversation?
 
 Introducing:
 
-# AUDIO FOCUS
+## AUDIO FOCUS
 
-Click on an avatar 
+once again that's 
+
+# AUDIO FOCUS!!!!!
+
+Just open the app, then click(desktop) or laser(HMD) on an avatar to hear just them.
+
+Click on more avatars to hear more of the conversation!
