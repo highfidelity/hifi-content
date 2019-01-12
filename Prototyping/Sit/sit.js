@@ -116,7 +116,7 @@
 
     // alpha value change during edit mode
     var checkAlpha = false;
-    var isAlphaChanged = false;
+    var createOverlayID = null;
     var MINIMUM_ALPHA = 0.5; // 50% alpha value
     
     // sit/stand variables
@@ -422,17 +422,28 @@
             if (checkAlpha) {
                 
                 // is in Edit mode && alpha value has not changed
-                if (isInEditMode() && !isAlphaChanged) {
+                if (isInEditMode() && !createOverlayID) {
                     // set to visible
-                    Entities.editEntity(entityID, {alpha: MINIMUM_ALPHA});
-                    isAlphaChanged = true;
+                    createOverlayID = Overlays.addOverlay("cube", {
+                        position: {
+                            x: chairProperties.position.x,
+                            y: chairProperties.position.y,
+                            z: chairProperties.position.z
+                        },
+                        rotation: chairProperties.orientation,
+                        dimensions: chairProperties.dimensions,
+                        solid: true,
+                        alpha: MINIMUM_ALPHA,
+                        parentID: entityID,
+                        registrationPoint: chairProperties.registrationPoint
+                    });
                 }
 
                 // is in Edit mode && alpha value has changed
-                if (!isInEditMode() && isAlphaChanged) {
+                if (!isInEditMode() && createOverlayID) {
                     // set alpha back to 0
-                    Entities.editEntity(entityID, {alpha: 0});
-                    isAlphaChanged = false;
+                    Overlays.deleteOverlay(createOverlayID);
+                    createOverlayID = null;
                 }
 
             }
@@ -494,6 +505,10 @@
         }
         if (overlayStandUp) {
             overlays.standUp.remove();
+        }
+
+        if (createOverlayID) {
+            Overlays.deleteOverlay(createOverlayID);
         }
 
     };
