@@ -20,8 +20,8 @@
     var AppUi = Script.require('appUi'),
         request = Script.require('request').request,
         GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
-        URL = Script.resolvePath("./resources/voteApp_ui.html?v123"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12344"));
+        URL = Script.resolvePath("./resources/voteApp_ui.html?v1234"),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12345"));
 
     // Configurable variables
     var EVENT_DATE = CONFIG.EVENT_DATE,
@@ -652,11 +652,13 @@
         loading: {
             start: function () {
                 dataStore.loading = true;
+                print("starting loading screen");
                 updateUI();
             },
 
             end: function () {
                 dataStore.loading = false;
+                print("ending loading screen");
                 updateUI();
             }
         },
@@ -727,6 +729,8 @@
         getData: function () {
             var _this = this;
 
+            utils.loading.start();
+
             var options = {
                 url: GOOGLE_SCRIPTS_URL,
                 body: { type: GOOGLE_GET_INFO }
@@ -761,8 +765,6 @@
             if (DEBUG) {
                 print("Google setData");
             }
-
-            utils.loading.start();
 
             if (DEBUG) {
                 print("Google compareGoogleData: ", dataStore.loading, dataStore.loggedin);
@@ -818,7 +820,6 @@
                     dataStore.openPolls.domain = gPolls.domain;
                 }
             }
-    
             return changed;
         }
     
@@ -849,6 +850,8 @@
     
             utils.unloadByDate.willUnload();
             Script.scriptEnding.connect(_this.unload);
+
+            // google.getData(); // asynchronous and will call compareGoogleData(gData) once complete
         },
         onClosed: function() {
 
@@ -969,10 +972,13 @@
 
     function updateUI() {
 
+        print("loading is:", dataStore.loading);
+
         var messageObject = {
             type: UPDATE_UI,
             value: dataStore
         };
+
         ui.sendToHtml(messageObject);
     }
 

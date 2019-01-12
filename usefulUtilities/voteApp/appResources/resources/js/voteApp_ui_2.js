@@ -12,7 +12,37 @@
 
 (function () {
 
-    "use strict";
+    var EVENT_DATE = "11_17_2018",
+    EVENT_TITLE = "Futvrelands",
+    EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE;
+
+// Unload time variables
+var UNLOAD = {
+    YEAR: 2019,
+    MONTH: 11, // UTC month 0 = January ; month 10 = November
+    DAY: 21,
+    HOUR: 0, // 24 hour format ex - 3pm === 15
+    MINUTE: 30
+};
+
+var CONFIG = {
+    // Configurable event details
+    EVENT_DATE: EVENT_DATE,
+    EVENT_TITLE: EVENT_TITLE,
+    EVENT_NAME: EVENT_NAME,
+
+    // Tablet events shared by Tablet.js and voteApp.js
+    EVENT_BRIDGE_OPEN_MESSAGE: "eventBridgeOpen",
+    UPDATE_UI: EVENT_NAME + "_update_ui",
+    GOTO_LOCATION: "goto_location",
+    GOTO_DOMAIN: "goto_domain",
+    VOTE_AVATAR: "vote_avatar",
+    VOTE_DOMAIN: "vote_domain",
+
+    // Distinguishes when the UTC time the app unloads itself from the user's tablet
+    // year, month, day, hour, minutes
+    UNLOAD_DATE: new Date(Date.UTC(UNLOAD.YEAR, UNLOAD.MONTH, UNLOAD.DAY, UNLOAD.HOUR, UNLOAD.MINUTE))
+};
 
     // Consts
     var EVENT_NAME = CONFIG.EVENT_NAME, // !important must match voteApp.js
@@ -24,6 +54,8 @@
         GOTO_DOMAIN = EVENT_NAME + CONFIG.GOTO_DOMAIN,
         VOTE_AVATAR = EVENT_NAME + CONFIG.VOTE_AVATAR,
         VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN;
+
+    var EVENTBRIDGE_SETUP_DELAY = 200;
 
     // Components
     Vue.component('loggedin-modal', {
@@ -698,6 +730,9 @@
     console.log(UPDATE_UI);
     // Procedural
     function onScriptEventReceived(message) {
+
+        console.log("RECIEVED ROBIN");
+
         var data;
         try {
             data = JSON.parse(message);
@@ -715,14 +750,22 @@
     }
 
     function onLoad() {
-        // Open the EventBridge to communicate with the main script.
-        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-        EventBridge.emitWebEvent(JSON.stringify({
-            type: EVENT_BRIDGE_OPEN_MESSAGE
-        }));
+
+        // Initial button active state is communicated via URL parameter.
+        // isActive = location.search.replace("?active=", "") === "true";
+
+        setTimeout(function () {
+            // Open the EventBridge to communicate with the main script.
+            // Allow time for EventBridge to become ready.
+            EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+            EventBridge.emitWebEvent(JSON.stringify({
+                type: EVENT_BRIDGE_OPEN_MESSAGE
+            }));
+        }, EVENTBRIDGE_SETUP_DELAY);
     }
 
-    // Main 
-    document.addEventListener('DOMContentLoaded', onLoad, false);
+    // Main  
+    onLoad();
 
 }());
+

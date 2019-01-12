@@ -12,8 +12,6 @@
 
 (function () {
 
-    "use strict";
-
     // Consts
     var EVENT_NAME = CONFIG.EVENT_NAME,
 
@@ -929,7 +927,7 @@
 
             dataStore: {
                 unload: false,
-                loading: false,
+                loading: true,
                 loggedin: true,
                 visited: false,
                 voted: {
@@ -977,11 +975,16 @@
     }
 
     function onLoad() {
-        // Open the EventBridge to communicate with the main script.
-        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-        EventBridge.emitWebEvent(JSON.stringify({
-            type: EVENT_BRIDGE_OPEN_MESSAGE
-        }));
+
+        Script.setTimeout(function () {
+            
+            // Open the EventBridge to communicate with the main script.
+            EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+            EventBridge.emitWebEvent(JSON.stringify({
+                type: EVENT_BRIDGE_OPEN_MESSAGE
+            }));
+
+        }, 200);
     }
 
     // Main 
