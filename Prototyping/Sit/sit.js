@@ -2,9 +2,9 @@
 // sit.js
 //
 // Created by Clement Brisset on 3/3/17
-// Modified by Rebecca Stankus, Robin Wilson, and Alexia Mandeville June 2018
+// Modified by Robin Wilson, Rebecca Stankus, and Alexia Mandeville January 2019
 //
-// Copyright 2017 High Fidelity, Inc.
+// Copyright 2019 High Fidelity, Inc.
 //
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -119,7 +119,7 @@
     var createOverlayID = null;
     var MINIMUM_ALPHA = 0.5; // 50% alpha value
     var ALPHA = 0.1; // 10% alpha value
-    var CREATE_OVERLAY_DIMENSIONS_OFFSET = 0.1;
+    var CREATE_OVERLAY_DIMENSIONS_OFFSET = 0.02; // add 0.02 m to the sides of the cube to avoid z fighting
     
     // sit/stand variables
     var sittingDown = false;
@@ -425,23 +425,27 @@
                 
                 // is in Edit mode && alpha value has not changed
                 if (isInEditMode() && !createOverlayID) {
-                    // set to visible
+
+                    var position = chairProperties.position;
+                    var registrationPoint = chairProperties.registrationPoint;
+                    var dimensions = chairProperties.dimensions;
+
+                    // create visible cube
                     createOverlayID = Overlays.addOverlay("cube", {
                         position: {
-                            x: chairProperties.position.x,
-                            y: chairProperties.position.y,
-                            z: chairProperties.position.z
+                            x: position.x - (registrationPoint.x - HALF) * (dimensions.x),
+                            y: position.y - (registrationPoint.y - HALF) * (dimensions.y),
+                            z: position.z - (registrationPoint.z - HALF) * (dimensions.z)
                         },
                         rotation: chairProperties.orientation,
                         dimensions: {
-                            x: chairProperties.dimensions.x + CREATE_OVERLAY_DIMENSIONS_OFFSET,
-                            y: chairProperties.dimensions.y + CREATE_OVERLAY_DIMENSIONS_OFFSET,
-                            z: chairProperties.dimensions.z + CREATE_OVERLAY_DIMENSIONS_OFFSET
+                            x: dimensions.x + CREATE_OVERLAY_DIMENSIONS_OFFSET,
+                            y: dimensions.y + CREATE_OVERLAY_DIMENSIONS_OFFSET,
+                            z: dimensions.z + CREATE_OVERLAY_DIMENSIONS_OFFSET
                         },
                         solid: true,
                         alpha: ALPHA,
-                        parentID: entityID,
-                        registrationPoint: chairProperties.registrationPoint
+                        parentID: entityID
                     });
                 }
 
