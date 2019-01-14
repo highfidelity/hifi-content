@@ -61,7 +61,7 @@ The method we used here is making use of Avatars.findRayIntersection.  If you ar
 ## Project links
 [trello](https://trello.com/c/iK9EtELU/12-loud-pointer-script)
 
-## Known Issues
+## Known issues
 
 ### Unreliable avatar picking
 Depending on the size of the avatar being picked on, sometimes it doesn't always accurately get them, or the result is unreliable.
