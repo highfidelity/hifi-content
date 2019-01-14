@@ -32,6 +32,11 @@ You can either select in Desktop by clicking, or in HMD by triggering with eithe
 - Switched to using Vue
 - Fixed Right mouse button issue
 
+2019-01-14_15-00-54 [soloPoint b93649b]
+- Marketplace V1
+- Fixed speaker facing avatar
+- Fixed Error from popping up when opened
+
 ## How this app was made
 
 ### Solo API
@@ -53,3 +58,5 @@ One is to use our Pointers API with Picks, but this is more for if you are conce
 
 The method we used here is making use of Avatars.findRayIntersection.  If you are curious how this works or need to do something similar, refer to the Mapping section.
 
+## Project links
+[trello](https://trello.com/c/iK9EtELU/12-loud-pointer-script)
