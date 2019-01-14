@@ -25,6 +25,13 @@ You can either select in Desktop by clicking, or in HMD by triggering with eithe
 - Removed old code
 - Added Error message if an avatar is too far away
 
+2019-01-12_13:05:00 :: [soloPoint 63a2a48]
+
+- Fixed the issue with the clear button losing focus
+- Added some code formatting to help with future apps
+- Switched to using Vue
+- Fixed Right mouse button issue
+
 ## How this app was made
 
 ### Solo API

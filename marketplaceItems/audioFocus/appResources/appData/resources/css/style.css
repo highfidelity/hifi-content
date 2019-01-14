@@ -1,13 +1,40 @@
-html {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-}
-  
+/* 
+
+*************************************
+START SETUP
+*************************************
+
+*/
+
+
 *, *:before, *:after {
     -webkit-box-sizing: inherit;
     -moz-box-sizing: inherit;
     box-sizing: inherit;
+}
+
+
+/* 
+
+*************************************
+END SETUP
+************************************* 
+
+*/
+
+/* 
+
+*************************************
+START ELEMENTS
+*************************************
+
+*/
+
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
@@ -37,6 +64,24 @@ button:hover {
     background: linear-gradient(to bottom, #4eb5e5 100%,#389ed5 0%); /* W3C */
 }
 
+
+/* 
+
+*************************************
+END ELEMENTS
+************************************* 
+
+*/
+
+/* 
+
+*************************************
+START CLASSES
+*************************************
+
+*/
+
+
 .center {
     display: block;
     margin: auto;
@@ -45,17 +90,6 @@ button:hover {
 
 .shadow {
     box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2);
-}
-
-#logo {
-    vertical-align: text-bottom;
-    width: 30px;
-    height: 30px;
-}
-
-#header {
-    margin-top: 10px;
-    display: inline-block;
 }
 
 .close {
@@ -78,6 +112,48 @@ button:hover {
     max-width: 250px;
 }
 
+.animated {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+.fade-out {
+    animation-name: fade-out;
+}
+
+.fade-in {
+    animation-name: fade-in;
+}
+
+
+/* 
+
+*************************************
+END CLASSES
+*************************************
+
+*/
+
+/* 
+
+*************************************
+START IDS
+*************************************
+
+*/
+
+
+#logo {
+    vertical-align: text-bottom;
+    width: 30px;
+    height: 30px;
+}
+
+#header {
+    margin-top: 10px;
+    display: inline-block;
+}
+
 #instructions {
     mix-blend-mode: multiply;
     background-color: rgba(0, 200, 255, .5);
@@ -96,24 +172,29 @@ button:hover {
     left:0;
     right: 0;
     padding: 5px 5px 15px 12px;
-    margin: 10px 10px;
-    background-color: rgba(0, 200, 255, 1);
+    margin: 8px 8px;
+    background-color: rgba(0, 0, 0, 1);
     color: red;
     font-size: 25px;
 }
 
-.animated {
-    animation-duration: 0.5s;
-    animation-fill-mode: both;
-}
 
-.fade-out {
-    animation-name: fade-out;
-}
+/* 
 
-.fade-in {
-    animation-name: fade-in;
-}
+*************************************
+END IDS
+*************************************
+
+*/
+
+/* 
+
+*************************************
+START ANIMATIONS
+*************************************
+
+*/
+
 
 @keyframes fade-out {
     0% {opacity: 1;}
@@ -124,3 +205,12 @@ button:hover {
     0% {opacity: 0;}
     100% {opacity: 1;}
  }
+
+
+ /* 
+
+*************************************
+END ANIMATIONS
+*************************************
+
+*/

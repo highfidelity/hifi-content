@@ -1,5 +1,19 @@
+<!--
+        
+    Audio Focus
+    Created by Milad Nazeri on 2019-01-07
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+    Point to solo someone to hear them better in a crowd!
+    TABLET UI HTML
+
+-->
+
 <html>
-    
+
     <head>
         <title>Solo Point</title>
         <meta charset="utf-8">
@@ -10,6 +24,7 @@
     <body>
 
         <div id="app">
+
             <img id="logo" src="./images/focus.png"> <h1 id="header">AUDIO FOCUS</h1>
 
             <div id="instructions" class="shadow">
@@ -28,13 +43,16 @@
                 <solo-list :list="soloList"></solo-list>
             </div>
 
-            <div id="error" class="shadow animated">
-                <p>Target avatar cannot be selected:<p>
+            <div id="error" class="shadow animated" :if="showingError" :class="{ 'fade-in': animation, 'fade-out': !animation }">
+                <p>Target avatar cannot be selected:<p> 
                 <p>Too far away!</p>
             </div>
 
         </div>
+
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script type="text/javascript" src="./js/audioFocus_ui.js"></script>
+
     </body>
+
 </html>
