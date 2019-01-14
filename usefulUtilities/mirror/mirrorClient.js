@@ -9,6 +9,9 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+// Attach `mirrorClient.js` to a box entity whose z dimension is very small,
+// and whose x and y dimensions are up to you. See comments in `mirrorReflection.js`
+// for more information about the mirror on/off zone.
 
 "use strict";
 

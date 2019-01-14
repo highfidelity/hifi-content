@@ -7,8 +7,10 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-// This script acts on the reflection box in front of the mirror so that when and avatar
-// enters the area, the mirror will reflect an image via the spectator camera
+// Attach `mirrorReflection.js` to a zone entity that is parented to
+// the box entity whose Script is `mirrorClient.js`.
+// When a user enters this zone, the mirror will turn on.
+// When a user leaves this zone, the mirror will turn off.
 
 (function () {
     var mirrorID, reflectionAreaID;
