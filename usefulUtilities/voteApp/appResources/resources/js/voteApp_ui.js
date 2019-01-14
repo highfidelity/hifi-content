@@ -14,7 +14,7 @@
 
 (function () {
 
-    var EVENTBRIDGE_SETUP_DELAY = 300;
+    var EVENTBRIDGE_SETUP_DELAY = 200;
 
     // Consts
     var EVENT_NAME = CONFIG.EVENT_NAME,
@@ -90,6 +90,7 @@
         },
         template: /* html */ `
             <modal v-bind:alert="true" v-bind:hidex="false" v-bind:isfullscreen="false" @close="closefunc">
+                
                 <div slot="header"></div>
             
                 <div slot="body">
@@ -110,7 +111,9 @@
                             <a href="#" class="flex-item btn btn-primary bkgd-pink m-2" @click="conditionalBtn.method()">{{ conditionalBtn.buttonName }}</a>
                         </div>
                     </div>
+
                 </div>
+
             </modal>
         `
     })
@@ -137,7 +140,9 @@
         },
         template: /* html */ `
             <modal v-bind:hidex="false" v-bind:isfullscreen="true" @close="closefunc">
+                
                 <div slot="header"></div>
+
                 <div slot="body">
                     <h4 class="avatar-name color-main">{{ item.name }}</h4>
                     <div class="card card-image modal-image flex-item" v-bind:style="modalStyles"></div>
@@ -146,6 +151,7 @@
                         <h4 class="flex-item bold txt-modal-body">{{ bartext }}</h4>
                     </div>
                 </div> 
+
             </modal>
         `
     })
@@ -154,12 +160,16 @@
         props: ['loggedin'],
         template: /* html */ `
             <modal v-bind:alert="true" v-if="!loggedin" v-bind:hidex="true" @close="">
+                
                 <div slot="header"></div>
+
                 <div slot="body">
                     <h2 class="color-main">You must be logged in to vote!</h2>
                     <p>Please log in.</p>
                 </div>
+
                 <div slot="footer" class="text-center"></div>
+                
             </modal>
             `
     })
@@ -168,7 +178,9 @@
         props: ['unload'],
         template: /* html */ `
             <modal v-bind:alert="true" v-if="unload" v-bind:hidex="true" @close="">
+                
                 <div slot="header"></div>
+
                 <div slot="body">
 
                     <div class="pt-5 flex-container-row">
@@ -179,7 +191,9 @@
                     </div>
 
                 </div>
+
                 <div slot="footer" class="text-center"></div>
+
             </modal>
         `
     })
@@ -189,7 +203,9 @@
         props: ['loading'],
         template: /* html */ `
             <modal v-bind:alert="true" v-if="loading" v-bind:hidex="true" @close="">
+                
                 <div slot="header"></div>
+
                 <div slot="body">
                     <div class="pt-5 flex-container-row">
                         <div class="loading-container flex-item">
@@ -201,7 +217,9 @@
                     </div>
                     
                 </div>
+
                 <div slot="footer" class="text-center"></div>
+
             </modal>
         `
     })
@@ -649,19 +667,23 @@
         template: /* html */ `
         <transition name="modal-fade">
             <div class="modal-backdrop">
-                <div class="modal" v-bind:class="{ 'modal-alert': alert }" > 
+                <div class="modal" v-bind:class="{ 'modal-alert': alert }">
+
                     <header class="modal-header">
                         <slot name="header"></slot>
                         <button v-if="!hidex" type="button" class="btn-close" @click="close">
                             <div data-icon="w" class="icon"></div>
                         </button> 
                     </header>
+
                     <section class="modal-body" v-bind:class="{ 'full-layout': isfullscreen }">
                         <slot name="body"></slot>
                     </section>
+
                     <footer class="modal-footer">
                         <slot name="footer"></slot>
                     </footer>
+
                 </div>
             </div>
         </transition>

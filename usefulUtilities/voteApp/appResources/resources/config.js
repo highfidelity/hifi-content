@@ -12,8 +12,8 @@
 
 /* global module */
 
-var EVENT_DATE = "11_17_2018",
-    EVENT_TITLE = "Futvrelands",
+var EVENT_DATE = "01_01_1970",
+    EVENT_TITLE = "EventTitle",
     EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE;
 
 // Unload time variables
@@ -39,8 +39,8 @@ var CONFIG = {
     VOTE_AVATAR: "vote_avatar",
     VOTE_DOMAIN: "vote_domain",
 
-    // Distinguishes when the UTC time the app unloads itself from the user's tablet
-    // year, month, day, hour, minutes
+    // Date when the App will remove itself from the users tablet in UTC time
+    // Year, month, day, hour, minutes
     UNLOAD_DATE: new Date(Date.UTC(UNLOAD.YEAR, UNLOAD.MONTH, UNLOAD.DAY, UNLOAD.HOUR, UNLOAD.MINUTE))
 };
 

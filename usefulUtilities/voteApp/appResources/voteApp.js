@@ -26,53 +26,22 @@
         URL = Script.resolvePath("./resources/voteApp_ui.html?v1234"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12345"));
 
-    // Configurable variables
-    var EVENT_DATE = CONFIG.EVENT_DATE,
-        EVENT_NAME = CONFIG.EVENT_NAME;
-    
-    // App variables
-    var BUTTON_NAME = "VOTE",
-        VOTE_APP_NAME = "voteApp.js";
-
-    // App status variables
-    var firstLoad = true,
-        setupNotLoggedIn = false,
-        FIRST_LOAD_TIMEOUT = 500; // ms
-
-    // Domains vs Zone visited
-    var DOMAINS_ENABLED = true; // enable domains UI / domain visited checks
-
     // Google scripts type events
     var GOOGLE_VOTE = "vote",
         GOOGLE_GET_INFO = "getInfo";
+    
+    // Configurable variables
+    var EVENT_DATE = CONFIG.EVENT_DATE,
+        EVENT_NAME = CONFIG.EVENT_NAME;
+
+    // Domains vs Zone visited
+    var DOMAINS_ENABLED = true; // enable domains UI / domain visited checks
     
     // Static strings
     var DOMAIN_STRING = "domain";
     var AVATAR_STRING = "avatar";
     
     var DEBUG = false;
-
-    // UI variables
-    var ui;
-    var dataStore = {
-        unload: false,
-        loading: true,
-        loggedin: true,
-
-        visited: false, // set by zone HOLIDAY APP
-
-        voted: {
-            domain: false,
-            avatar: false
-        },
-        openPolls: {
-            avatar: false,
-            domain: false
-        },
-        visitedAllDomains: false, // for domains
-        domains: [],
-        avatars: []
-    };
     
     var DEFAULT_DOMAIN_IMAGE = "http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg";
 
@@ -83,7 +52,7 @@
         domainsInfo: {},
         
         // Sends vote to google sheet to track
-        sendVote: function (name) {
+        sendVote: function (nameToVoteFor) {
 
             var _this = this;
 
@@ -91,11 +60,11 @@
                 print("Domains sendVote");
             }
 
-            _this.domainsInfo[name.toLowerCase()].voted = true;
+            _this.domainsInfo[nameToVoteFor.toLowerCase()].voted = true;
             dataStore.voted.domain = true;
 
             if (DEBUG) {
-                print("Domains sendVote voted name", JSON.stringify(dataStore.voted.domain));
+                print("Domains sendVote voted nameToVoteFor", JSON.stringify(dataStore.voted.domain));
             }
 
             updateUI();
@@ -107,7 +76,7 @@
                     time: Date.now(),
                     uuid: MyAvatar.sessionUUID,
                     username: AccountServices.username,
-                    name: name,
+                    name: nameToVoteFor,
                     eventName: EVENT_NAME,
                     eventDate: EVENT_DATE,
                     contestName: DOMAIN_STRING
@@ -119,7 +88,7 @@
                     // Error
                     print("Issue in sendDomainVote() either error with the request or you've already voted", error);
 
-                    _this.domainsInfo[name.toLowerCase()].voted = false;
+                    _this.domainsInfo[nameToVoteFor.toLowerCase()].voted = false;
                     dataStore.voted.domain = false;
     
                     updateUI();
@@ -134,7 +103,7 @@
                     }
 
                     var voteAppSettings = utils.getVoteAppSettings();
-                    voteAppSettings.voted[DOMAIN_STRING] = name.toLowerCase();
+                    voteAppSettings.voted[DOMAIN_STRING] = nameToVoteFor.toLowerCase();
                     Settings.setValue(VOTE_APP_SETTINGS_NAME, voteAppSettings);
     
                     if (DEBUG) {
@@ -167,7 +136,30 @@
                 print("Domains NEW google domain list", JSON.stringify(gDomains));
             }
 
-            gDomains.forEach(function (domainName) {
+            gDomains.forEach(parseDomainData);
+
+            if (DEBUG) {
+                print("Domains existingDomains length", JSON.stringify(existingDomains.length));
+            }
+
+            if (existingDomains.length > 0) {
+                if (DEBUG) {
+                    print("Domains delete old domain");
+                }
+                // found domains to delete
+                utils.removeItems(existingDomains, dataStore.domains, this.domainsInfo);
+            }
+
+            if (changed === true) {
+                Script.setTimeout(function () {
+                    _this.setDataStoreDomainsInfo();
+                    updateUI();
+                }, FIRST_LOAD_TIMEOUT);
+            }
+
+            return changed;
+
+            function parseDomainData(domainName) {
                 var lowercase = domainName.toLowerCase();
 
                 var voteAppSettings = utils.getVoteAppSettings();
@@ -204,28 +196,7 @@
 
                     _this.sendDomainInfoRequest(lowercase);
                 }
-            });
-
-            if (DEBUG) {
-                print("Domains existingDomains length", JSON.stringify(existingDomains.length));
             }
-
-            if (existingDomains.length > 0) {
-                if (DEBUG) {
-                    print("Domains delete old domain");
-                }
-                // found domains to delete
-                utils.removeItems(existingDomains, dataStore.domains, this.domainsInfo);
-            }
-
-            if (changed === true) {
-                Script.setTimeout(function () {
-                    _this.setDataStoreDomainsInfo();
-                    updateUI();
-                }, FIRST_LOAD_TIMEOUT);
-            }
-
-            return changed;
         },
 
         // Sends request to High Fidelity to get domain images and names
@@ -325,7 +296,7 @@
     
     };
 
-    // Zone visited
+    // Zone visited variables
     var intervalCheckVisited,
         TIME_CHECK = 1000, // ms
         HAS_VISITED_ZONE_CHECK = false, // if there's a zone to visit
@@ -336,6 +307,7 @@
 
         // Checks Settings via getVoteAppSettings if person has visited the zone
         checkVisited: {
+            // Starts the interval to check if the user visited the zone
             startInterval: function () {
 
                 intervalCheckVisited = Script.setInterval(
@@ -344,7 +316,7 @@
                 );
 
             },
-
+            // Stops the interval to check if the user visited the zone
             stopInterval: function () {
                 if (intervalCheckVisited) {
                     Script.clearInterval(intervalCheckVisited);
@@ -392,7 +364,7 @@
     }
 
     var visitedDomains = {
-        // 
+        // returns true or false to whether the user has visited all domains
         checkVisitedAllDomains: function (clientVisitedList) {
 
             if (DEBUG) {
@@ -419,7 +391,7 @@
     };
 
     var avatars = {
-        
+
         // Manages avatar data
         // keys are lowercase avatar name
         avatarsInfo: {},
@@ -506,7 +478,22 @@
                 dataStore.voted.avatar = true;
             }
     
-            gAvatars.forEach(function (avatar, index) {
+            gAvatars.forEach(parseAvatarData);
+    
+            if (existingAvatars.length > 0) {
+                // found avatars to delete
+
+                utils.removeItems(existingAvatars, dataStore.avatars, this.avatarsInfo);
+            }
+    
+            Script.setTimeout(function () {
+                firstLoad = false;
+                updateUI();
+            }, FIRST_LOAD_TIMEOUT);
+    
+            return changed;
+
+            function parseAvatarData(avatar, index) {
                 if (DEBUG) {
                     print("Avatar ", index, JSON.stringify(avatar));
                 }
@@ -535,20 +522,7 @@
                     // image changed, update to new image
                     _this.avatarsInfo[lowercase].image = avatar.image;
                 }
-            });
-    
-            if (existingAvatars.length > 0) {
-                // found avatars to delete
-
-                utils.removeItems(existingAvatars, dataStore.avatars, this.avatarsInfo);
             }
-    
-            Script.setTimeout(function () {
-                firstLoad = false;
-                updateUI();
-            }, FIRST_LOAD_TIMEOUT);
-    
-            return changed;
         }
     };
 
@@ -556,7 +530,7 @@
     var UNLOAD_DATE = CONFIG.UNLOAD_DATE,
         UNLOAD_TIME = 10000; // ms show app will unload screen for 10 seconds
 
-    // Local Settings.setValue/getValue key
+    // Local Settings.setValue/getValue key variable
     var VOTE_APP_SETTINGS_NAME = EVENT_NAME + "_voteApp"; // "Futvrelands_11_17_2018_voteApp"
 
     var utils = {
@@ -856,15 +830,25 @@
     };
 
 
-    // Web event types from UI
+    // Web event types from UI variables
     var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
         GOTO_LOCATION = CONFIG.GOTO_LOCATION,
         GOTO_DOMAIN = CONFIG.GOTO_DOMAIN,
         VOTE_AVATAR = CONFIG.VOTE_AVATAR,
         VOTE_DOMAIN = CONFIG.VOTE_DOMAIN;
 
+    // App variables
+    var BUTTON_NAME = "VOTE",
+        VOTE_APP_NAME = "voteApp.js";
+
+    // App status variables
+    var firstLoad = true,
+        setupNotLoggedIn = false,
+        FIRST_LOAD_TIMEOUT = 400; // ms
+
     var app = {
 
+        // Uses AppUi to create a tablet button
         startup: function() {
             var _this = this;
 
@@ -881,9 +865,9 @@
     
             utils.unloadByDate.willUnload();
             Script.scriptEnding.connect(_this.unload);
-
-            // google.getData(); // asynchronous and will call compareGoogleData(gData) once complete
         },
+
+        // Close the app callback
         onClosed: function() {
 
             if (HAS_VISITED_ZONE_CHECK) {
@@ -892,6 +876,7 @@
 
         },
 
+        // Open the app callback
         onOpened: function() {
 
             var isUnloading = utils.unloadByDate.willUnload();
@@ -930,6 +915,7 @@
     
         },
 
+        // Unload callback
         unload: function() {
             if (DEBUG) {
                 print("Unloading vote app");
@@ -999,8 +985,30 @@
         }
     };
 
-    // Vue UI update event
+    // Vue UI update event variables
     var UPDATE_UI = CONFIG.UPDATE_UI;
+    
+    // UI variables
+    var ui;
+    var dataStore = {
+        unload: false,
+        loading: true,
+        loggedin: true,
+
+        visited: false, // set by zone HOLIDAY APP
+
+        voted: {
+            domain: false,
+            avatar: false
+        },
+        openPolls: {
+            avatar: false,
+            domain: false
+        },
+        visitedAllDomains: false, // for domains
+        domains: [],
+        avatars: []
+    };
 
     function updateUI() {
 
