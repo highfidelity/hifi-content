@@ -368,7 +368,7 @@
                 if (DEBUG) {
                     console.log("Visited all modals");
                 }
-                if (newVal === true && oldVal === false && this.voted === false) {
+                if (newVal === true && oldVal === false && this.voted === false && this.open) {
                     this.isVisitedModalVisible = true;
                 }
             }
@@ -518,25 +518,10 @@
                 }
 
                 return grouped;
-            },
-            title() {
-                return this.voted ? "Thanks for voting!" : "Vote for your favorite!";
             }
         },
         template: /* html */ `
             <div  class="tab-pane fade" id="nav-avatars" role="tabpanel" aria-labelledby="nav-avatars-tab">
-
-                <grouped-items 
-                    v-if="open"
-                    :list="avatars"
-                    :title="title"
-                >
-
-                    <slot name="item">
-                        <avatarcard  v-for="item in items" :voted="voted" :avatar="item" :key="item.name"></avatarcard>
-                    </slot> 
-                
-                </grouped-items>
 
                 <div v-if="open" class="p-2">
                     <h4 class="color-main">{{ voted ? "Thanks for voting!" : "Vote for your favorite!" }}</h4>
