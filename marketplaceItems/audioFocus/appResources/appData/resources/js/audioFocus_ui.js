@@ -12,6 +12,11 @@
     
 */
 
+// *************************************
+// START VUE
+// *************************************
+// #region Vue
+
 
 Vue.component('solo-list', {
     props: ['list'],
@@ -28,7 +33,7 @@ Vue.component('solo-list', {
 Vue.component('solo-item', {
     props: ['name'],
     methods: {
-        clicked: function(name){
+        clicked: function (name) {
             EventBridge.emitWebEvent(JSON.stringify({
                 type: "REMOVE_USER",
                 value: name
@@ -46,21 +51,32 @@ Vue.component('solo-item', {
 var app = new Vue({
     el: '#app',
     methods: {
-        clear: function(){
+        clear: function () {
             EventBridge.emitWebEvent(JSON.stringify({
                 type: "CLEAR_LIST"
             }));
         }
     },
     data: {
-        soloList: []
+        soloList: [],
+        showingError: false,
+        animation: false
     }
 });
 
 
+// #endregion
+// *************************************
+// END VUE 
+// *************************************
+
+// *************************************
+// START EVENTBRIDGE
+// *************************************
+// #region Eventbridge
+
+
 // Handle incoming tablet messages
-var error = document.getElementById("error");
-var showingError = false;
 function onScriptEventReceived(message) {
     var data;
     try {
@@ -70,17 +86,15 @@ function onScriptEventReceived(message) {
                 app.soloList = data.value;
                 break;
             case "DISPLAY_ERROR":
-                if (showingError) {
+                if (app.showingError) {
                     return;
                 }
                 var MS_TIMEOUT = 2500;
-                showingError = true;
-                error.classList.remove('fade-out');
-                error.classList.add('fade-in');
-                setTimeout(function(){
-                    error.classList.remove('fade-in');
-                    error.classList.add('fade-out');
-                    showingError = false;
+                app.showingError = true;
+                app.animation = true;
+                setTimeout(function () {
+                    app.showingError = false;
+                    app.animation = false;
                 }, MS_TIMEOUT)
             default:
         }
@@ -88,7 +102,7 @@ function onScriptEventReceived(message) {
         console.log(e)
         return;
     }
-    
+
 }
 
 
@@ -104,6 +118,11 @@ function onLoad() {
     }, EVENTBRIDGE_SETUP_DELAY);
 }
 
+
+// #endregion
+// *************************************
+// END EVENTBRIDGE
+// *************************************
 
 // *************************************
 // START MAIN

@@ -1,4 +1,5 @@
 /*
+
     Audio Focus
     Created by Milad Nazeri on 2019-01-07
     Copyright 2019 High Fidelity, Inc.
@@ -335,13 +336,13 @@
         onMessage: onMessage
     });
 
-    // function for appUi to call when opened
+    // Function for appUi to call when opened
     function onOpened() {
         enable();
     }
 
 
-    // function for appUi to call when closed    
+    // Function for appUi to call when closed    
     function onClosed() {
         disable();
         resetSolo();
