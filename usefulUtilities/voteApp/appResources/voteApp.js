@@ -47,8 +47,8 @@
         GOOGLE_GET_INFO = "getInfo";
     
     // Static strings
-    var DOMAIN = "domain";
-    var AVATAR = "avatar";
+    var DOMAIN_STRING = "domain";
+    var AVATAR_STRING = "avatar";
     
     var DEBUG = false;
 
@@ -110,7 +110,7 @@
                     name: name,
                     eventName: EVENT_NAME,
                     eventDate: EVENT_DATE,
-                    contestName: DOMAIN
+                    contestName: DOMAIN_STRING
                 }
             };
 
@@ -134,7 +134,7 @@
                     }
 
                     var voteAppSettings = utils.getVoteAppSettings();
-                    voteAppSettings.voted[DOMAIN] = name.toLowerCase();
+                    voteAppSettings.voted[DOMAIN_STRING] = name.toLowerCase();
                     Settings.setValue(VOTE_APP_SETTINGS_NAME, voteAppSettings);
     
                     if (DEBUG) {
@@ -171,7 +171,7 @@
                 var lowercase = domainName.toLowerCase();
 
                 var voteAppSettings = utils.getVoteAppSettings();
-                var votedName = voteAppSettings.voted[DOMAIN];
+                var votedName = voteAppSettings.voted[DOMAIN_STRING];
 
                 if (votedName !== "") {
                     dataStore.voted.domain = true;
@@ -451,7 +451,7 @@
                     name: name,
                     eventName: EVENT_NAME,
                     eventDate: EVENT_DATE,
-                    contestName: AVATAR
+                    contestName: AVATAR_STRING
                 }
             };
 
@@ -479,7 +479,7 @@
                     }
                     
                     var voteAppSettings = utils.getVoteAppSettings();
-                    voteAppSettings.voted[AVATAR] = name.toLowerCase();
+                    voteAppSettings.voted[AVATAR_STRING] = name.toLowerCase();
                     Settings.setValue(VOTE_APP_SETTINGS_NAME, voteAppSettings);
 
                 }
@@ -500,7 +500,7 @@
     
             var existingAvatars = Object.keys(_this.avatarsInfo);
             var voteAppSettings = utils.getVoteAppSettings();
-            var votedName = voteAppSettings.voted[AVATAR];
+            var votedName = voteAppSettings.voted[AVATAR_STRING];
     
             if (votedName !== "") {
                 dataStore.voted.avatar = true;
@@ -810,10 +810,10 @@
 
             if (DOMAINS_ENABLED) {
                 dataStore.visitedAllDomains = visitedDomains.checkVisitedAllDomains(voteAppSettings.domains);
-                dataStore.voted.domain = utils.hasUserVoted(DOMAIN);
+                dataStore.voted.domain = utils.hasUserVoted(DOMAIN_STRING);
             }
 
-            dataStore.voted.avatar = utils.hasUserVoted(AVATAR);
+            dataStore.voted.avatar = utils.hasUserVoted(AVATAR_STRING);
             // dataStore.visited = voteAppSettings.visited; // decorating contest
 
             if (firstLoad) {
@@ -979,8 +979,8 @@
                     if (DEBUG) {
                         print("Vote Avatar event");
                     }
-                    console.log(utils.hasUserVoted(AVATAR));
-                    if (utils.hasUserVoted(AVATAR) === false) {
+                    console.log(utils.hasUserVoted(AVATAR_STRING));
+                    if (utils.hasUserVoted(AVATAR_STRING) === false) {
                         avatars.sendVote(data.value);
                     }
                     break;
@@ -988,8 +988,8 @@
                     if (DEBUG) {
                         print("Vote Domain event");
                     }
-                    console.log(utils.hasUserVoted(DOMAIN));
-                    if (utils.hasUserVoted(DOMAIN) === false) {
+                    console.log(utils.hasUserVoted(DOMAIN_STRING));
+                    if (utils.hasUserVoted(DOMAIN_STRING) === false) {
                         domains.sendVote(data.value);
                     }
                     break;

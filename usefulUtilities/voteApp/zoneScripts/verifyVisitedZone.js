@@ -1,13 +1,14 @@
 //
 //  VerifyVisitedZone.js
 //
-//  Created by Robin Wilson 12/17/2018
-//  Adapted from BouncerZone.js
-//
 //  Script uses values set in userData to set values in a user's Settings.setValue.
 //
 //  Verify Visited Zone is a optional zone to be used with the Vote App. 
-//  When a user enters the zone, it writes to a user's Settings signalling to the Vote App that the user visited the zone before voting.
+//  When a user enters the zone, it writes to a user's Settings indicating the user visited.
+//  The Vote App reads the Settings data to allow the user to vote.
+//
+//  Created by Robin Wilson 12/17/2018
+//  Adapted from BouncerZone.js
 //
 //  Copyright 2018 High Fidelity, Inc.
 // 

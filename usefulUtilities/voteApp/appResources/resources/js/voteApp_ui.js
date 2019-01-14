@@ -1,6 +1,8 @@
 //
 //  tablet.js 
 //
+//  Contains Vue.js components for the voteApp_ui.html to render.
+//
 //  Created by Robin Wilson 2019-1-09
 //
 //  Using Example Vue App Created by Milad Nazeri on 2018-10-11
@@ -26,7 +28,7 @@
         VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN;
     
     // Debug 
-    
+
     var DEBUG = false;
 
     // Components
