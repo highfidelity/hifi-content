@@ -26,6 +26,7 @@
         VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN;
     
     // Debug 
+    
     var DEBUG = false;
 
     // Components

@@ -1,7 +1,19 @@
+//
+//  config.js 
+//
+//  Created by Robin Wilson 2019-1-09
+// 
+//  Copyright 2019 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//  Manages data for both js/voteApp_ui.js and voteApp.js
+
 /* global module */
 
 var EVENT_DATE = "11_17_2018",
-    EVENT_TITLE = "Futvrelands", // "Futvrelands_11_17_2018_voteApp"
+    EVENT_TITLE = "Futvrelands",
     EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE;
 
 // Unload time variables

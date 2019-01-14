@@ -3,6 +3,9 @@
 //  
 //  Vote App | voteApp.js
 //
+//  Vote App integrates with Google Sheets via Google Scripts API and High Fidelity.
+//  Enables users to "vote" on contests.
+//
 //  Created by Robin Wilson 2019-1-09
 //
 //  Using Example Vue App Created by Milad Nazeri on 2018-10-11

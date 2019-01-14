@@ -4,7 +4,10 @@
 //  Created by Robin Wilson 12/17/2018
 //  Adapted from BouncerZone.js
 //
-//  Script uses values set in userData to set values in a user's Settings.setValue;
+//  Script uses values set in userData to set values in a user's Settings.setValue.
+//
+//  Verify Visited Zone is a optional zone to be used with the Vote App. 
+//  When a user enters the zone, it writes to a user's Settings signalling to the Vote App that the user visited the zone before voting.
 //
 //  Copyright 2018 High Fidelity, Inc.
 // 
@@ -48,6 +51,7 @@
 
     var utils = {
 
+        // Returns userData from entity
         getUserData: function () {
 
             var properties = Entities.getEntityProperties(_entityID, ["userData"]);
@@ -61,6 +65,7 @@
             return userData;
         },
 
+        // Sets variables from zone entity
         setup: function () {
             var userData = this.getUserData();
             
@@ -73,6 +78,8 @@
             }
         },
 
+        // On enter callback
+        // Updates user's Settings to flag that they've visited the zone
         onEnter: function () {
             var currentSettings = Settings.getValue(settingName);
             
@@ -104,11 +111,13 @@
 
         },
 
+        // Get the largest axis
         largestAxisVec: function (dimensions) {
             var max = Math.max(dimensions.x, dimensions.y, dimensions.z);
             return max;
         },
 
+        // Checks if user is inside the Zone
         isInEntity: function () {
             var properties = Entities.getEntityProperties(_entityID, ["position", "dimensions", "rotation"]);
             var position = properties.position;
@@ -165,6 +174,9 @@
             }, LOAD_TIME);
 
         },
+
+        // Used if user spawned inside the entity and the enterEntity() 
+        // callback is not triggered
         insideEntityCheck: function () {
             // ensures every avatar experiences the enterEntity method
             var properties = Entities.getEntityProperties(_entityID, ["position", "dimensions"]);
@@ -183,6 +195,8 @@
                 }
             }
         },
+
+        // Signals user entered the entity 
         enterEntity: function () {
             
             utils.setup();
