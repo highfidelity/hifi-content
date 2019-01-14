@@ -22,7 +22,6 @@
         EVENT_BRIDGE_OPEN_MESSAGE = EVENT_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
         UPDATE_UI = CONFIG.UPDATE_UI,
 
-        GOTO_LOCATION = EVENT_NAME + CONFIG.GOTO_LOCATION,
         GOTO_DOMAIN = EVENT_NAME + CONFIG.GOTO_DOMAIN,
         VOTE_AVATAR = EVENT_NAME + CONFIG.VOTE_AVATAR,
         VOTE_DOMAIN = EVENT_NAME + CONFIG.VOTE_DOMAIN;
@@ -150,7 +149,7 @@
                         <div v-if="item.voted || !voted" v-bind:class="{ 'fill': item.voted}" class="flex-item stroke stroke-pink avatar-icon-fill text-size-icon icon icon-check"></div>
                         <h4 class="flex-item bold txt-modal-body">{{ bartext }}</h4>
                     </div>
-                </div> 
+                </div>
 
             </modal>
         `
@@ -169,7 +168,7 @@
                 </div>
 
                 <div slot="footer" class="text-center"></div>
-                
+
             </modal>
             `
     })

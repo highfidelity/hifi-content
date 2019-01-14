@@ -296,37 +296,6 @@
     
     };
 
-    // Zone visited variables
-    var intervalCheckVisited,
-        TIME_CHECK = 1000, // ms
-        HAS_VISITED_ZONE_CHECK = false, // if there's a zone to visit
-        GOTO_ADDRESS = "thespot/-26.8224,-11.1442,-67.663/0,0.068694,0,0.997638";
-
-    // When enabled, this is used with ./zoneScripts/verifyVisitedZone
-    var visitedZone = {
-
-        // Checks Settings via getVoteAppSettings if person has visited the zone
-        checkVisited: {
-            // Starts the interval to check if the user visited the zone
-            startInterval: function () {
-
-                intervalCheckVisited = Script.setInterval(
-                    utils.getVoteAppSettings,
-                    TIME_CHECK
-                );
-
-            },
-            // Stops the interval to check if the user visited the zone
-            stopInterval: function () {
-                if (intervalCheckVisited) {
-                    Script.clearInterval(intervalCheckVisited);
-                    intervalCheckVisited = null;
-                }
-            }
-        }
-
-    };
-
     // Triggered when a user goes to another domain
     // Handles logic for setting domain to visited and updating Settings
     function onHostChanged(host) {
@@ -685,43 +654,9 @@
                 }
             };
 
-            var currentSettings = Settings.getValue(VOTE_APP_SETTINGS_NAME); // , DEFAULT_VOTE_APPSETTINGS);
-            var toSet = JSON.parse(JSON.stringify(DEFAULT_VOTE_APP_SETTINGS));
-            var voteAppSettings;
+            var currentSettings = Settings.getValue(VOTE_APP_SETTINGS_NAME, DEFAULT_VOTE_APP_SETTINGS);
     
-            if (currentSettings) {
-                // exists
-    
-                if (currentSettings["voted"]) {
-                    toSet.voted = currentSettings["voted"];
-                }
-
-                if (currentSettings["domains"]) {
-                    toSet.domains = currentSettings["domains"];
-                }
-    
-                if (currentSettings["visited"]) {
-                    toSet.visited = currentSettings["visited"];
-    
-                    dataStore.visited = true;
-    
-                    updateUI();
-                } else {
-                    toSet.visited = currentSettings["visited"];
-    
-                    dataStore.visited = false;
-    
-                    updateUI();
-                }
-    
-            } else {
-                voteAppSettings = toSet;
-            }
-    
-            Settings.setValue(VOTE_APP_SETTINGS_NAME, toSet);
-            voteAppSettings = toSet;
-    
-            return voteAppSettings;
+            return currentSettings;
         }
     };
 
@@ -832,7 +767,6 @@
 
     // Web event types from UI variables
     var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
-        GOTO_LOCATION = CONFIG.GOTO_LOCATION,
         GOTO_DOMAIN = CONFIG.GOTO_DOMAIN,
         VOTE_AVATAR = CONFIG.VOTE_AVATAR,
         VOTE_DOMAIN = CONFIG.VOTE_DOMAIN;
@@ -857,23 +791,13 @@
                 home: URL,
                 onMessage: _this.onMessage,
                 graphicsDirectory: Script.resolvePath("./resources/icons/"),
-                onOpened: _this.onOpened,
-                onClosed: _this.onClosed
+                onOpened: _this.onOpened
             });
     
             location.hostChanged.connect(onHostChanged);
     
             utils.unloadByDate.willUnload();
             Script.scriptEnding.connect(_this.unload);
-        },
-
-        // Close the app callback
-        onClosed: function() {
-
-            if (HAS_VISITED_ZONE_CHECK) {
-                visitedZone.checkVisited.stopInterval();
-            }
-
         },
 
         // Open the app callback
@@ -890,10 +814,6 @@
             }
     
             var loggedIn = AccountServices.loggedIn;
-    
-            if (HAS_VISITED_ZONE_CHECK) {
-                visitedZone.checkVisited.startInterval();
-            }
     
             if (DEBUG) {
                 print("onOpened: loggedIn:", loggedIn);
@@ -920,9 +840,6 @@
             if (DEBUG) {
                 print("Unloading vote app");
             }
-            if (HAS_VISITED_ZONE_CHECK) {
-                visitedZone.checkVisited.stopInterval();
-            }
 
             location.hostChanged.disconnect(onHostChanged);
         },
@@ -948,15 +865,6 @@
             switch (data.type) {
                 case EVENT_BRIDGE_OPEN_MESSAGE:
                     updateUI();
-                    break;
-                case GOTO_LOCATION:
-                    Window.location = "hifi://" + GOTO_ADDRESS;
-                    dataStore.visited = true;
-    
-                    ui.close();
-    
-                    updateUI();
-    
                     break;
                 case GOTO_DOMAIN:
                     Window.location = "hifi://" + data.value;
@@ -994,8 +902,6 @@
         unload: false,
         loading: true,
         loggedin: true,
-
-        visited: false, // set by zone HOLIDAY APP
 
         voted: {
             domain: false,

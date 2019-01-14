@@ -34,7 +34,6 @@ var CONFIG = {
     // Tablet events shared by Tablet.js and voteApp.js
     EVENT_BRIDGE_OPEN_MESSAGE: "eventBridgeOpen",
     UPDATE_UI: EVENT_NAME + "_update_ui",
-    GOTO_LOCATION: "goto_location",
     GOTO_DOMAIN: "goto_domain",
     VOTE_AVATAR: "vote_avatar",
     VOTE_DOMAIN: "vote_domain",
