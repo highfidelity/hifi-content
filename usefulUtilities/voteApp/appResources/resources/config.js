@@ -1,7 +1,7 @@
 /* global module */
 
 var EVENT_DATE = "11_17_2018",
-    EVENT_TITLE = "Futvrelands",
+    EVENT_TITLE = "Futvrelands", // "Futvrelands_11_17_2018_voteApp"
     EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE;
 
 // Unload time variables

@@ -498,7 +498,7 @@
                     // or new domain encountered
                     changed = true;
     
-                    console.log("Avatars setAvatars avatar info is ", _this.avatarsInfo[lowercase], existingIndex);
+                    print("Avatars setAvatars avatar info is ", _this.avatarsInfo[lowercase], existingIndex);
     
                     _this.avatarsInfo[lowercase] = {
                         name: avatar.name,
@@ -522,6 +522,8 @@
     
             Script.setTimeout(function () {
                 firstLoad = false;
+                print("Completed Avatars setAvatars avatarInfo", JSON.stringify(_this.avatarsInfo));
+                print("Completed Avatars setAvatars dataStore", JSON.stringify(dataStore.avatars));
                 updateUI();
             }, FIRST_LOAD_TIMEOUT);
     

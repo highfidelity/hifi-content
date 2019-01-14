@@ -44,7 +44,7 @@
         UNLOAD_DATE: new Date(Date.UTC(UNLOAD.YEAR, UNLOAD.MONTH, UNLOAD.DAY, UNLOAD.HOUR, UNLOAD.MINUTE))
     };
 
-    var EVENTBRIDGE_SETUP_DELAY = 200;
+    var EVENTBRIDGE_SETUP_DELAY = 300;
 
 
     // Consts
@@ -789,45 +789,45 @@
             visited: { type: Boolean }
         },
         methods: {
-            // voteavatar(avatarName) {
-            //     EventBridge.emitWebEvent(JSON.stringify({
-            //         type: VOTE_AVATAR,
-            //         value: avatarName
-            //     }));
-            //     console.log(avatarName);
-            //     this.closeVoteModal();
+            voteavatar(avatarName) {
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: VOTE_AVATAR,
+                    value: avatarName
+                }));
+                console.log(avatarName);
+                this.closeVoteModal();
 
-            // },
-            // showAvatarInfoModal() {
-            //     if (!this.avatar.hidden) {
-            //         this.isAvatarInfoModalVisible = true;
-            //     }
-            // },
-            // closeAvatarInfoModal() {
-            //     this.isAvatarInfoModalVisible = false;
-            // },
+            },
+            showAvatarInfoModal() {
+                if (!this.avatar.hidden) {
+                    this.isAvatarInfoModalVisible = true;
+                }
+            },
+            closeAvatarInfoModal() {
+                this.isAvatarInfoModalVisible = false;
+            },
 
-            // showVoteModal() {
-            //     if (!this.avatar.hidden && !this.voted) {
-            //         this.isVoteModalVisible = true;
-            //         this.isAvatarInfoModalVisible = false;
-            //     }
-            // },
-            // closeVoteModal() {
-            //     this.isVoteModalVisible = false;
-            //     this.isAvatarInfoModalVisible = true;
-            // },
-            // closeBothModals() {
-            //     this.isVoteModalVisible = false;
-            //     this.isAvatarInfoModalVisible = false;
-            // },
+            showVoteModal() {
+                if (!this.avatar.hidden && !this.voted) {
+                    this.isVoteModalVisible = true;
+                    this.isAvatarInfoModalVisible = false;
+                }
+            },
+            closeVoteModal() {
+                this.isVoteModalVisible = false;
+                this.isAvatarInfoModalVisible = true;
+            },
+            closeBothModals() {
+                this.isVoteModalVisible = false;
+                this.isAvatarInfoModalVisible = false;
+            },
 
-            // goto() {
+            goto() {
 
-            //     EventBridge.emitWebEvent(JSON.stringify({
-            //         type: GOTO
-            //     }));
-            // },
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: GOTO
+                }));
+            },
 
         },
         data() {
@@ -842,58 +842,56 @@
                 console.log("voted is 2:" + JSON.stringify(this.avatar));
                 return false;
                 // console.log("voted is:", this.voted);
+            },
+            cardStyles() {
+                if (this.avatar && this.avatar.image && this.avatar.image.length && this.avatar.image.length > 5) {
+                    var str = this.avatar.image;
+                    var urlLength = str.length;
+                    var charAt4 = str.charAt(urlLength - 4); // .png/.jpg
+                    var charAt5 = str.charAt(urlLength - 5); // .jpeg
+
+                    var index = -1;
+                    if (charAt4 === "." || charAt5 === ".") {
+                        index = charAt4 === "." ? urlLength - 4 : urlLength - 5;
+                    }
+
+                    var root = str.slice(0, index);
+                    var end = str.slice(index, urlLength);
+
+                    var thumbnail = "-thumbnail";
+
+                    var styles = "background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0)), url('" + root + thumbnail + end +
+                        "'); background-position: center; background-size: cover;"
+
+                    if (!this.avatar.voted) {
+                        styles += "border:none";
+                    }
+
+                    return styles;
+                }
+            },
+            voteBarText() {
+
+                if (!this.voted) {
+                    return "  Vote for " + this.avatar.name;
+                } else {
+                    // voted already
+                    if (this.avatar.voted) {
+                        return "  Voted!";
+                    } else {
+                        return "Thanks for voting!";
+                    }
+                }
+            },
+            votedFor() {
+                return this.voted && this.avatar.voted;
+            },
+            conditionalButtonInfo() {
+                return { hasConditional: false };
             }
-            // cardStyles() {
-
-            //     if (this.avatar && this.avatar.image && this.avatar.image.length && this.avatar.image.length > 5) {
-            //         var str = this.avatar.image;
-            //         var urlLength = str.length;
-            //         var charAt4 = str.charAt(urlLength - 4); // .png/.jpg
-            //         var charAt5 = str.charAt(urlLength - 5); // .jpeg
-
-            //         var index = -1;
-            //         if (charAt4 === "." || charAt5 === ".") {
-            //             index = charAt4 === "." ? urlLength - 4 : urlLength - 5;
-            //         }
-
-            //         var root = str.slice(0, index);
-            //         var end = str.slice(index, urlLength);
-
-            //         var thumbnail = "-thumbnail";
-
-            //         var styles = "background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0)), url('" + root + thumbnail + end +
-            //             "'); background-position: center; background-size: cover;"
-
-            //         if (!this.avatar.voted) {
-            //             styles += "border:none";
-            //         }
-
-            //         return styles;
-            //     }
-            // },
-            // voteBarText() {
-
-            //     if (!this.voted) {
-            //         return "  Vote for " + this.avatar.name;
-            //     } else {
-            //         // voted already
-            //         if (this.avatar.voted) {
-            //             return "  Voted!";
-            //         } else {
-            //             return "Thanks for voting!";
-            //         }
-            //     }
-            // },
-            // votedFor() {
-            //     return this.voted && this.item.voted;
-            // },
-            // conditionalButtonInfo() {
-            //     return { hasConditional: false };
-            // }
         },
         template: /* html */ `
         <div class="col-sm" v-bind:class="{ 'ghost': test }">
-            <!--
             
             <div @click="showAvatarInfoModal">
                 <div class="card card-image avatar-card" v-bind:class="{ 'ghost': avatar.hidden, 'card-visited': avatar.voted, 'voted-domain': avatar.voted }" v-bind:style="cardStyles">
@@ -925,8 +923,6 @@
                 :hasconditional="false"
                 :conditionalbuttoninfo="conditionalButtonInfo"
             ></modal-vote>  
-            
-            -->
 
         </div>
         `
