@@ -60,7 +60,8 @@ var app = new Vue({
     data: {
         soloList: [],
         showingError: false,
-        animation: false
+        fadeIn: false,
+        fadeOut: false
     }
 });
 
@@ -91,10 +92,12 @@ function onScriptEventReceived(message) {
                 }
                 var MS_TIMEOUT = 2500;
                 app.showingError = true;
-                app.animation = true;
+                app.fadeIn = true;
+                app.fadeOut = false;
                 setTimeout(function () {
                     app.showingError = false;
-                    app.animation = false;
+                    app.fadeIn = false;
+                    app.fadeOut = true;
                 }, MS_TIMEOUT)
             default:
         }
@@ -102,7 +105,6 @@ function onScriptEventReceived(message) {
         console.log(e)
         return;
     }
-
 }
 
 

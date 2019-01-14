@@ -36,14 +36,14 @@
             <h3 id="sub-header"  v-if="soloList.length > 0">Current Solo List</h3>
 
             <div id="button-section">
-                    <button id="clear-button" @click="clear" v-if="soloList.length > 0">CLEAR</button>
+                <button id="clear-button" @click="clear" v-if="soloList.length > 0">CLEAR</button>
             </div>
 
             <div id="solo-names">
                 <solo-list :list="soloList"></solo-list>
             </div>
 
-            <div id="error" class="shadow animated" :if="showingError" :class="{ 'fade-in': animation, 'fade-out': !animation }">
+            <div id="error" class="shadow animated" :if="showingError" :class="{ 'fade-in': fadeIn, 'fade-out': fadeOut }">
                 <p>Target avatar cannot be selected:<p> 
                 <p>Too far away!</p>
             </div>

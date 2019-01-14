@@ -12,6 +12,7 @@
 */
 
 (function () {
+
     // *************************************
     // START UTILITY FUNCTIONS
     // *************************************
@@ -162,6 +163,7 @@
         Controller.enableMapping(MAPPING_NAME);
     }
 
+    
     // Disables mouse press and trigger events   
     function disable(){
         Controller.mousePressEvent.disconnect(mousePressEvent);
@@ -284,7 +286,7 @@
             alpha: 1.0,
             color: [255, 255, 255],
             parentID: uuid,
-            drawInFront: true,
+            isFacingAvatar: true,
             url: Script.resolvePath("./resources/images/speaker.png")
         };
 
