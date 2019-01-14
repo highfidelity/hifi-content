@@ -14,11 +14,11 @@
 
 /* globals Tablet, Script, HMD, Controller, AccountServices, Menu */
 
-(function () { // BEGIN LOCAL_SCOPE
+(function () {
 
     // Modules
-    var AppUi = Script.require('appUi'),
-        request = Script.require('request').request,
+    var AppUi = Script.require("appUi"),
+        request = Script.require("request").request,
         GOOGLE_SCRIPTS_URL = Script.require(Script.resolvePath("./resources/secrets/secrets.js")).googleScriptsUrl,
         URL = Script.resolvePath("./resources/voteApp_ui.html?v1234"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12345"));
@@ -47,7 +47,7 @@
     var DOMAIN = "domain";
     var AVATAR = "avatar";
     
-    var DEBUG = true;
+    var DEBUG = false;
 
     // UI variables
     var ui;
@@ -74,7 +74,12 @@
     var DEFAULT_DOMAIN_IMAGE = "http://img.youtube.com/vi/kEJDqO7WrKY/hqdefault.jpg";
 
     var domains = {
+
+        // Manages domain data
+        // keys are lowercase domain name
         domainsInfo: {},
+        
+        // Sends vote to google sheet to track
         sendVote: function (name) {
 
             var _this = this;
@@ -139,6 +144,8 @@
             request(options, callback);
         },
 
+        // Takes google domain data and preps the data in domainInfo to send request to hifi for images
+        // and deletes the removed domains
         setDomains: function (gDomains) {
             // [ "TheSpot", "Studio" ],
             // add domains to the location array
@@ -205,7 +212,6 @@
                     print("Domains delete old domain");
                 }
                 // found domains to delete
-                
                 utils.removeItems(existingDomains, dataStore.domains, this.domainsInfo);
             }
 
@@ -219,6 +225,8 @@
             return changed;
         },
 
+        // Sends request to High Fidelity to get domain images and names
+        // onComplete sets these images and names in domainInfo
         sendDomainInfoRequest: function (domainName) {
             // domainName is lowercase
 
@@ -269,6 +277,7 @@
             request(options, callback);
         }, 
 
+        // Sets domains and data into dataStore from domainInfo
         setDataStoreDomainsInfo: function () {
 
             var _this = this;
@@ -297,6 +306,7 @@
             dataStore.domains = domains;
         },
 
+        // Checks if user visited domain from Settings
         hasUserVisitedDomain: function(domainName) {
 
             if (DEBUG) {
@@ -318,8 +328,10 @@
         HAS_VISITED_ZONE_CHECK = false, // if there's a zone to visit
         GOTO_ADDRESS = "thespot/-26.8224,-11.1442,-67.663/0,0.068694,0,0.997638";
 
+    // When enabled, this is used with ./zoneScripts/verifyVisitedZone
     var visitedZone = {
 
+        // Checks Settings via getVoteAppSettings if person has visited the zone
         checkVisited: {
             startInterval: function () {
 
@@ -340,6 +352,8 @@
 
     };
 
+    // Triggered when a user goes to another domain
+    // Handles logic for setting domain to visited and updating Settings
     function onHostChanged(host) {
 
         if (DEBUG) {
@@ -375,6 +389,7 @@
     }
 
     var visitedDomains = {
+        // 
         checkVisitedAllDomains: function (clientVisitedList) {
 
             if (DEBUG) {
@@ -401,7 +416,12 @@
     };
 
     var avatars = {
+        
+        // Manages avatar data
+        // keys are lowercase avatar name
         avatarsInfo: {},
+
+        // Send avatar vote to Google Sheets
         sendVote: function (name) {
 
             var _this = this;
@@ -465,6 +485,8 @@
             request(options, callback);
         },
 
+        // Takes google avatar data and preps the data in avatarInfo
+        // and deletes the removed avatars
         setAvatars: function (gAvatars) {
             // { name: "Robin", image: "hello" }
             // update avatar images if necessary
@@ -584,6 +606,7 @@
 
         loggedIn: {
 
+            // Sets up to listen for a user to log in
             handleNotLoggedInStatus: function () {
 
                 if (!setupNotLoggedIn) {
@@ -597,7 +620,7 @@
                     dataStore.loading = false;
                     updateUI();
                 }
-
+    
                 function loggedIn() {
                     AccountServices.loggedInChanged.disconnect(loggedIn);
                     setupNotLoggedIn = false;
@@ -607,8 +630,10 @@
 
         },
 
+        // handles all function with unloading the app
         unloadByDate: {
 
+            // Unloads the app if the date is later than the unload date
             willUnload: function () {
 
                 if (DEBUG) {
@@ -647,6 +672,7 @@
 
         },
 
+        // Handles the loading screen in the app
         loading: {
             start: function () {
                 dataStore.loading = true;
@@ -659,6 +685,7 @@
             }
         },
 
+        // Checks if user voted by contest type
         hasUserVoted: function(type) {
 
             var voteAppSettings = this.getVoteAppSettings();
@@ -670,6 +697,7 @@
             return voteAppSettings.voted[type] !== "";
         },
 
+        // Returns Settings value 
         getVoteAppSettings: function() {
 
             var DEFAULT_VOTE_APP_SETTINGS = {
@@ -722,6 +750,7 @@
 
     var google = {
 
+        // Gets data from Google sheets
         getData: function () {
             var _this = this;
 
@@ -757,6 +786,7 @@
             request(options, callback);
         },
 
+        // Takes google data and handles distributing the data to be set
         setData: function (gData) {
             if (DEBUG) {
                 print("Google setData");
@@ -795,6 +825,7 @@
             utils.loading.end();
         },
 
+        // Takes google poll data and sets contests open
         setPollsOpen: function(gPolls) {
             //     {
             //         avatar: true,
@@ -830,6 +861,7 @@
         VOTE_DOMAIN = CONFIG.VOTE_DOMAIN;
 
     var app = {
+
         startup: function() {
             var _this = this;
 
@@ -906,6 +938,7 @@
             location.hostChanged.disconnect(onHostChanged);
         },
 
+        // Handles events recieved from the UI
         onMessage: function(data) {
             // EventBridge message from HTML script.
     
@@ -916,7 +949,7 @@
                 }
                 return;
             }
-            data.type = data.type.replace(EVENT_NAME,'');
+            data.type = data.type.replace(EVENT_NAME,"");
 
             if (DEBUG) {
                 print("Event type replace name:", "'", data.type, "' & '", VOTE_AVATAR, "'");
@@ -978,4 +1011,4 @@
 
     app.startup();
 
-}()); // END LOCAL_SCOPE
+}());

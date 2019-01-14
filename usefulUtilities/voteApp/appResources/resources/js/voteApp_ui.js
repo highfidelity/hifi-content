@@ -30,48 +30,6 @@
 
     // Components
 
-    // ****
-
-    //    Vue.component('grouped-list', {
-    //     props: [list, title, isopen, isclosedtext],
-    //     computed: {
-    //         groupedItems () {
-    //             var grouped = [];
-    //             var index = -1;
-    //             if (this.list) {
-    //                 for (var i = 0; i < this.list.length; i++) {
-    //                     if (i % 2 == 0) {
-    //                         index++;
-    //                         grouped[index] = [];
-    //                         grouped[index].id = index;
-    //                     }
-    //                     grouped[index].push(this.list[i]);
-    //                 }
-    //             }
-
-    //             if (grouped.length && grouped[index].length === 1) {
-    //                 grouped[index].push({ hidden: true });
-    //             }
-    //             return grouped;
-    //         }
-    //     },
-    //     template: /* html */ `
-    //         <div>
-    //             <div v-if="isopen" class="p-2">
-    //                 <h4 class="color-main">{{ title }}</h4>
-    //                 <template v-for="items in groupedItems">
-    //                     <div class="row" :key="items.id">
-    //                         <domaincard  v-for="item in items" :voted="voted" :domain="item" :key="item.name" :visitedalldomains="visitedalldomains"></domaincard>
-    //                     </div>
-    //                 </template>
-    //             </div>
-
-    //             <closed v-if="!isopen" :text="isclosedtext"></closed>
-
-    //         </div>
-    //     `
-    // })
-
     Vue.component('closed', {
         props: ["text"],
         template: /* html */ `
@@ -107,16 +65,6 @@
         `
     })
 
-    // Vue.component('card', {
-    //     props: ["bottitle", "hasborder", "modal"],
-    //     computed: {
-    //     },
-    //     template: /* html */ `
-        
-    //     `
-    // })
-
-
     /*
         conditionalbuttoninfo: {
             isVotingDisabled bool
@@ -124,7 +72,6 @@
             method
         }
     */
-
     Vue.component('modal-vote', {
         props: ["closefunc", "votefunc", "backfunc", "name", "conditionalbuttoninfo"],
         computed: {
@@ -318,7 +265,7 @@
             visitedalldomains: { type: Boolean },
             domains: { type: Array },
             open: { type: Boolean },
-            voted: { type: Boolean } // *** 
+            voted: { type: Boolean }
         },
         computed: {
             groupedItems() {
