@@ -12,6 +12,41 @@
 
 (function () {
 
+    var EVENT_DATE = "11_17_2018",
+        EVENT_TITLE = "Futvrelands",
+        EVENT_NAME = EVENT_TITLE + "_" + EVENT_DATE;
+
+    // Unload time variables
+    var UNLOAD = {
+        YEAR: 2019,
+        MONTH: 11, // UTC month 0 = January ; month 10 = November
+        DAY: 21,
+        HOUR: 0, // 24 hour format ex - 3pm === 15
+        MINUTE: 30
+    };
+
+    var CONFIG = {
+        // Configurable event details
+        EVENT_DATE: EVENT_DATE,
+        EVENT_TITLE: EVENT_TITLE,
+        EVENT_NAME: EVENT_NAME,
+
+        // Tablet events shared by Tablet.js and voteApp.js
+        EVENT_BRIDGE_OPEN_MESSAGE: "eventBridgeOpen",
+        UPDATE_UI: EVENT_NAME + "_update_ui",
+        GOTO_LOCATION: "goto_location",
+        GOTO_DOMAIN: "goto_domain",
+        VOTE_AVATAR: "vote_avatar",
+        VOTE_DOMAIN: "vote_domain",
+
+        // Distinguishes when the UTC time the app unloads itself from the user's tablet
+        // year, month, day, hour, minutes
+        UNLOAD_DATE: new Date(Date.UTC(UNLOAD.YEAR, UNLOAD.MONTH, UNLOAD.DAY, UNLOAD.HOUR, UNLOAD.MINUTE))
+    };
+
+    var EVENTBRIDGE_SETUP_DELAY = 200;
+
+
     // Consts
     var EVENT_NAME = CONFIG.EVENT_NAME,
 
@@ -121,6 +156,7 @@
             method
         }
     */
+
     Vue.component('modal-vote', {
         props: ["closefunc", "votefunc", "backfunc", "name", "conditionalbuttoninfo"],
         computed: {
@@ -173,14 +209,15 @@
         props: ["closefunc", "votefunc", "onclickbar", "bartext", "item", "voted"],
         computed: {
             modalStyles() {
+                console.log(JSON.stringify(this.item));
                 return "background: url('" + this.item.image +
                     "'); background-position: center; background-size: cover; border:none";
             },
             votedFor() {
-                return this.voted && this.item.voted;
+                return this.voted && this.item && this.item.voted;
             },
             notVotedFor() {
-                return this.voted && !this.item.voted; // 
+                return this.voted && this.item && !this.item.voted;
             }
         },
         template: /* html */ `
@@ -193,13 +230,10 @@
                         <div v-if="item.voted || !voted" v-bind:class="{ 'fill': item.voted}" class="flex-item stroke stroke-pink avatar-icon-fill text-size-icon icon icon-check"></div>
                         <h4 class="flex-item bold txt-modal-body">{{ bartext }}</h4>
                     </div>
-                </div>
+                </div> 
             </modal>
         `
     })
-
-    // ****
-
 
     Vue.component('loggedin-modal', {
         props: ['loggedin'],
@@ -504,6 +538,7 @@
         </div>
         `
     })
+
     */
 
     Vue.component('domainlist', {
@@ -712,6 +747,8 @@
                         grouped[index].push({ hidden: true });
                     }
                 }
+
+                console.log(JSON.stringify(grouped));
                 return grouped;
             }
         },
@@ -752,46 +789,45 @@
             visited: { type: Boolean }
         },
         methods: {
-            voteavatar(avatarName) {
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: VOTE_AVATAR,
-                    value: avatarName
-                }));
-                console.log(avatarName);
-                this.closeVoteModal();
+            // voteavatar(avatarName) {
+            //     EventBridge.emitWebEvent(JSON.stringify({
+            //         type: VOTE_AVATAR,
+            //         value: avatarName
+            //     }));
+            //     console.log(avatarName);
+            //     this.closeVoteModal();
 
-            },
-            showAvatarInfoModal() {
-                if (!this.avatar.hidden) {
-                    this.isAvatarInfoModalVisible = true;
-                }
-            },
-            closeAvatarInfoModal() {
-                this.isAvatarInfoModalVisible = false;
-            },
+            // },
+            // showAvatarInfoModal() {
+            //     if (!this.avatar.hidden) {
+            //         this.isAvatarInfoModalVisible = true;
+            //     }
+            // },
+            // closeAvatarInfoModal() {
+            //     this.isAvatarInfoModalVisible = false;
+            // },
 
-            showVoteModal() {
-                if (!this.avatar.hidden && !this.voted) {
-                    this.isVoteModalVisible = true;
-                    this.isAvatarInfoModalVisible = false;
-                }
-            },
-            closeVoteModal() {
-                this.isVoteModalVisible = false;
-                this.isAvatarInfoModalVisible = true;
-            },
-            closeBothModals() {
-                this.isVoteModalVisible = false;
-                this.isAvatarInfoModalVisible = false;
-            },
+            // showVoteModal() {
+            //     if (!this.avatar.hidden && !this.voted) {
+            //         this.isVoteModalVisible = true;
+            //         this.isAvatarInfoModalVisible = false;
+            //     }
+            // },
+            // closeVoteModal() {
+            //     this.isVoteModalVisible = false;
+            //     this.isAvatarInfoModalVisible = true;
+            // },
+            // closeBothModals() {
+            //     this.isVoteModalVisible = false;
+            //     this.isAvatarInfoModalVisible = false;
+            // },
 
-            goto() {
+            // goto() {
 
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: GOTO
-                }));
-            },
-
+            //     EventBridge.emitWebEvent(JSON.stringify({
+            //         type: GOTO
+            //     }));
+            // },
 
         },
         data() {
@@ -801,56 +837,64 @@
             };
         },
         computed: {
-            cardStyles() {
-
-                if (this.avatar && this.avatar.image && this.avatar.image.length && this.avatar.image.length > 5) {
-                    var str = this.avatar.image;
-                    var urlLength = str.length;
-                    var charAt4 = str.charAt(urlLength - 4); // .png/.jpg
-                    var charAt5 = str.charAt(urlLength - 5); // .jpeg
-
-                    var index = -1;
-                    if (charAt4 === "." || charAt5 === ".") {
-                        index = charAt4 === "." ? urlLength - 4 : urlLength - 5;
-                    }
-
-                    var root = str.slice(0, index);
-                    var end = str.slice(index, urlLength);
-
-                    var thumbnail = "-thumbnail";
-
-                    var styles = "background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0)), url('" + root + thumbnail + end +
-                        "'); background-position: center; background-size: cover;"
-
-                    if (!this.avatar.voted) {
-                        styles += "border:none";
-                    }
-
-                    return styles;
-                }
-            },
-            voteBarText() {
-
-                if (!this.voted) {
-                    return "  Vote for " + this.avatar.name;
-                } else {
-                    // voted already
-                    if (this.avatar.voted) {
-                        return "  Voted!";
-                    } else {
-                        return "Thanks for voting!";
-                    }
-                }
-            },
-            votedFor() {
-                return this.voted && this.item.voted;
-            },
-            conditionalButtonInfo() {
-                return { hasConditional: false };
+            test () {
+                console.log("voted is 1:" + JSON.stringify(this.voted));
+                console.log("voted is 2:" + JSON.stringify(this.avatar));
+                return false;
+                // console.log("voted is:", this.voted);
             }
+            // cardStyles() {
+
+            //     if (this.avatar && this.avatar.image && this.avatar.image.length && this.avatar.image.length > 5) {
+            //         var str = this.avatar.image;
+            //         var urlLength = str.length;
+            //         var charAt4 = str.charAt(urlLength - 4); // .png/.jpg
+            //         var charAt5 = str.charAt(urlLength - 5); // .jpeg
+
+            //         var index = -1;
+            //         if (charAt4 === "." || charAt5 === ".") {
+            //             index = charAt4 === "." ? urlLength - 4 : urlLength - 5;
+            //         }
+
+            //         var root = str.slice(0, index);
+            //         var end = str.slice(index, urlLength);
+
+            //         var thumbnail = "-thumbnail";
+
+            //         var styles = "background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0)), url('" + root + thumbnail + end +
+            //             "'); background-position: center; background-size: cover;"
+
+            //         if (!this.avatar.voted) {
+            //             styles += "border:none";
+            //         }
+
+            //         return styles;
+            //     }
+            // },
+            // voteBarText() {
+
+            //     if (!this.voted) {
+            //         return "  Vote for " + this.avatar.name;
+            //     } else {
+            //         // voted already
+            //         if (this.avatar.voted) {
+            //             return "  Voted!";
+            //         } else {
+            //             return "Thanks for voting!";
+            //         }
+            //     }
+            // },
+            // votedFor() {
+            //     return this.voted && this.item.voted;
+            // },
+            // conditionalButtonInfo() {
+            //     return { hasConditional: false };
+            // }
         },
         template: /* html */ `
-        <div class="col-sm">
+        <div class="col-sm" v-bind:class="{ 'ghost': test }">
+            <!--
+            
             <div @click="showAvatarInfoModal">
                 <div class="card card-image avatar-card" v-bind:class="{ 'ghost': avatar.hidden, 'card-visited': avatar.voted, 'voted-domain': avatar.voted }" v-bind:style="cardStyles">
 
@@ -862,12 +906,12 @@
                 <p class="card-title bold text-center">{{ avatar.name }}</p>
             </div>
 
-            <modal-image-votebar 
+            <modal-image-votebar
                 v-show="isAvatarInfoModalVisible"
-                :closefunc="closeAvatarInfoModal", 
-                :onclickbar="showVoteModal", 
-                :bartext="voteBarText", 
-                :item="avatar", 
+                :closefunc="closeAvatarInfoModal"
+                :onclickbar="showVoteModal"
+                :bartext="voteBarText"
+                :item="avatar"
                 :voted="voted"
             ></modal-image-votebar>
 
@@ -880,7 +924,9 @@
                 :name="avatar.name"
                 :hasconditional="false"
                 :conditionalbuttoninfo="conditionalButtonInfo"
-            ></modal-vote>
+            ></modal-vote>  
+            
+            -->
 
         </div>
         `
@@ -927,7 +973,7 @@
 
             dataStore: {
                 unload: false,
-                loading: true,
+                loading: false,
                 loggedin: true,
                 visited: false,
                 voted: {
@@ -938,7 +984,7 @@
                     avatar: true,
                     domain: true
                 },
-                visitedAllDomains: false,
+                visitedAllDomains: true,
                 domains: [
                     { "name": "Warroom", "image": "", "visited": false, "index": -1, "voted": false }
                 ],
@@ -976,18 +1022,20 @@
 
     function onLoad() {
 
-        Script.setTimeout(function () {
-            
+        // Initial button active state is communicated via URL parameter.
+        // isActive = location.search.replace("?active=", "") === "true";
+
+        setTimeout(function () {
             // Open the EventBridge to communicate with the main script.
+            // Allow time for EventBridge to become ready.
             EventBridge.scriptEventReceived.connect(onScriptEventReceived);
             EventBridge.emitWebEvent(JSON.stringify({
                 type: EVENT_BRIDGE_OPEN_MESSAGE
             }));
-
-        }, 200);
+        }, EVENTBRIDGE_SETUP_DELAY);
     }
 
-    // Main 
-    document.addEventListener('DOMContentLoaded', onLoad, false);
+    // Main  
+    onLoad();
 
 }());
