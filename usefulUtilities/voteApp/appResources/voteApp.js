@@ -497,9 +497,7 @@
                     // need to get all domain info because of first load
                     // or new domain encountered
                     changed = true;
-    
-                    print("Avatars setAvatars avatar info is ", _this.avatarsInfo[lowercase], existingIndex);
-    
+
                     _this.avatarsInfo[lowercase] = {
                         name: avatar.name,
                         image: avatar.image,
@@ -522,8 +520,6 @@
     
             Script.setTimeout(function () {
                 firstLoad = false;
-                print("Completed Avatars setAvatars avatarInfo", JSON.stringify(_this.avatarsInfo));
-                print("Completed Avatars setAvatars dataStore", JSON.stringify(dataStore.avatars));
                 updateUI();
             }, FIRST_LOAD_TIMEOUT);
     
@@ -654,13 +650,11 @@
         loading: {
             start: function () {
                 dataStore.loading = true;
-                print("starting loading screen");
                 updateUI();
             },
 
             end: function () {
                 dataStore.loading = false;
-                print("ending loading screen");
                 updateUI();
             }
         },
@@ -973,8 +967,6 @@
     var UPDATE_UI = CONFIG.UPDATE_UI;
 
     function updateUI() {
-
-        print("loading is:", dataStore.loading);
 
         var messageObject = {
             type: UPDATE_UI,
