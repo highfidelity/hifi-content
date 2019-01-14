@@ -163,7 +163,7 @@
         Controller.enableMapping(MAPPING_NAME);
     }
 
-    
+
     // Disables mouse press and trigger events   
     function disable(){
         Controller.mousePressEvent.disconnect(mousePressEvent);
@@ -427,3 +427,4 @@
     // *************************************
 
 })();
+
