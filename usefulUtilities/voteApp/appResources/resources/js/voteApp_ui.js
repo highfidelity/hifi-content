@@ -742,10 +742,8 @@
         }
     }
 
+    // This is how much time to give the Eventbridge to wake up.  This won't be needed in RC78 and will be removed.
     function onLoad() {
-
-        // Initial button active state is communicated via URL parameter.
-        // isActive = location.search.replace("?active=", "") === "true";
 
         setTimeout(function () {
             // Open the EventBridge to communicate with the main script.
