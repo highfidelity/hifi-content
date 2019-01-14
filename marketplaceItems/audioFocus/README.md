@@ -60,3 +60,14 @@ The method we used here is making use of Avatars.findRayIntersection.  If you ar
 
 ## Project links
 [trello](https://trello.com/c/iK9EtELU/12-loud-pointer-script)
+
+## Known Issues
+
+### Unreliable avatar picking
+Depending on the size of the avatar being picked on, sometimes it doesn't always accurately get them, or the result is unreliable.
+This possibly has to do with the way avatars have collision capsules are represented.  Better avatar picking is in the roadmap and will update this app to use it when possible.
+
+### Popping can occur on audio from audio injectors
+Not sure why this happens, but could be related to general distance attenuation issues.  
+[Manuscript](https://highfidelity.manuscript.com/f/cases/20666/When-exclusively-listening-to-an-audio-source-hearing-popping-when-around-items-that-play-repeating-audio)
+
