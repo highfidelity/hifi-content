@@ -6,5 +6,5 @@ A text overlay will appear near the entity that will display the user's current 
 # Release Notes
 
 ## 2019-01-15_15-00-00
-commit a87945070348aae99f2838568d094ce7026602a1
+commit 17512e643235084a48d3a4767726bbe8facc4d26
 - Initial Release
