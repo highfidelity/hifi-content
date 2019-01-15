@@ -4,7 +4,13 @@ Make any entity sittable whether it's a chair, bench, couch, or even a tree stum
 
 ## Setup
 
-Add scripts to the entity:
+Import sit cube via JSON:
+1. Download the opaqueSitCube.json or invisibleSitCube.json located in /json folder
+2. Open Create Mode
+3. Click on "Create Tools" > "Create" > "Import Entities (.JSON)" 
+4. Select the .json file to import
+
+Add scripts to your entity:
 - Client script: sit.js 
 - Server script: sitServer.js
 Ensure both are running.

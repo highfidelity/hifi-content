@@ -1,0 +1,66 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{441c7317-2be2-4eed-9dca-a82aab47acf7}",
+    "type": "Box",
+    "created": "2019-01-15T00:01:20Z",
+    "lastEdited": 1547511973506644,
+    "lastEditedBy": "{0356f90d-9a58-472e-ad96-cdd256e84b90}",
+    "dimensions": {
+        "x": 0.20000000298023224,
+        "y": 0.20000000298023224,
+        "z": 0.20000000298023224
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "damping": 0,
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/prototypes/sit/sitVisibleWhileEditMode/V3/sit.js?v1",
+    "scriptTimestamp": 1547511955338,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/prototypes/sit/sitVisibleWhileEditMode/V3/sitServer.js?v1",
+    "registrationPoint": {
+        "x": 0.5,
+        "y": 1,
+        "z": 0.5
+    },
+    "angularDamping": 0,
+    "alpha": 0,
+    "name": "InvisibleCube",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "queryAACube": {
+        "x": -0.24494898319244385,
+        "y": -0.24494898319244385,
+        "z": -0.24494898319244385,
+        "scale": 0.4898979663848877
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+}
+    ],
+  "Id": "{52629e5d-de4c-4ac0-81f4-360399a7cb9e}",
+  "Version": 98
+}
