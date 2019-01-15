@@ -12,8 +12,14 @@
     var _this;
     var flyingEnabled;
     var statusTextOverlayID;
+	// Since there's no signal in-engine for when a user's flying preferences
+	// change, we need to check the settings on an interval.
+	// See:
+	// https://highfidelity.fogbugz.com/f/cases/20686/Add-flyingPrefDesktopChanged-and-flyingPrefHMDChanged-signals
+	var updateStatusTextInterval;
 
     var UPDATE_TEXT_DELAY_MS = 150;
+	var UPDATE_STATUS_TEXT_INTERVAL_MS = 2500;
 
     var ToggleFlyButton = function() {
         _this = this;
@@ -26,6 +32,7 @@
             _this.entityID = entityID;
             _this.rezStatusTextOverlay();
             HMD.displayModeChanged.connect(_this.updateStatusText);
+			updateStatusTextInterval = Script.setInterval(_this.updateStatusText, UPDATE_STATUS_TEXT_INTERVAL_MS);
         },
         
         // When the script goes down, delete the status text overlay (if it exists),
@@ -35,6 +42,7 @@
                 Overlays.deleteOverlay(statusTextOverlayID);
             }
             HMD.displayModeChanged.disconnect(_this.updateStatusText);
+			Script.clearInterval(updateStatusTextInterval);
         },
 
         // When the user uses the mouse to click on the button...
@@ -54,9 +62,12 @@
         rezStatusTextOverlay: function() {
             statusTextOverlayID = Overlays.addOverlay("text3d", {
                 "parentID": _this.entityID,
-                "localPosition": {x: 0, y: 0.5, z: 0},
-                "lineHeight": 0.1,
-                "dimensions": {x: 1.0, y: 0.8},
+                "localPosition": {x: -0.5593090057373047,
+					y: 0.1416434347629547,
+					z: 0.1189870834350586
+				},
+                "lineHeight": 0.11,
+                "dimensions": {x: 0.5120117664337158, y: 0.1607130914926529},
                 "topMargin": 0,
                 "rightMargin": 0,
                 "bottomMargin": 0,
@@ -76,9 +87,7 @@
 
             flyingEnabled = MyAvatar.getFlyingEnabled();
             
-            var overlayText = "Flying in " + (HMD.active ? "VR" : "Desktop") +
-                " mode\nis currently\n" + (flyingEnabled ? "ENABLED" : "DISABLED") +
-                "\n\nClick button to toggle.";
+            var overlayText = (flyingEnabled ? "ENABLED" : "DISABLED");
             
             Overlays.editOverlay(statusTextOverlayID, {
                 "text": overlayText
