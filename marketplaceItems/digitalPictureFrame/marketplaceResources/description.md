@@ -1,0 +1,4 @@
+# Digital Picture Frame
+This is a digital photo frame built for High Fidelity using an image entity, a cube, and two lights. There is an entity server script on the image entity that reads from the entity's userData property to manage what photos are displayed and how fast they change. The photo frame comes with a set of five sample photos, which can be changed or added to with your own artwork. You must have rez permissions to edit the userdata and customize this frame. You can customize this digital photo frame by changing the entity's userData, or use the source code provided to create your own version. This code is dual-licensed with the PoP License and the Apache 2.0 license.
+
+Source Code: https://github.com/highfidelity/hifi-content/tree/master/Marketplace/photoFrame
