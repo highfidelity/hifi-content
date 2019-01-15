@@ -19,9 +19,9 @@
         "w": 1
     },
     "damping": 0,
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/prototypes/sit/sitVisibleWhileEditMode/V3/sit.js?v1",
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/prototypes/sit/sitVisibleWhileEditMode/V4/sit.js?v12",
     "scriptTimestamp": 1547511955338,
-    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/prototypes/sit/sitVisibleWhileEditMode/V3/sitServer.js?v1",
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/prototypes/sit/sitVisibleWhileEditMode/V4/sitServer.js?v12",
     "registrationPoint": {
         "x": 0.5,
         "y": 1,

@@ -114,7 +114,7 @@
     var checkAlpha = false;
     var createOverlayID = null;
     var MINIMUM_ALPHA = 0.5; // 50% alpha value
-    var ALPHA = 0.1; // 10% alpha value
+    var OVERLAY_ALPHA = 0.1; // 10% alpha value
     var CREATE_OVERLAY_DIMENSIONS_OFFSET = 0.02; // add 0.02 m to the sides of the cube to avoid z fighting
     
     // sit/stand variables
@@ -423,34 +423,49 @@
                 // is in Edit mode && alpha value has not changed
                 if (isInEditMode() && !createOverlayID) {
 
+                    this.setChairProperties();
+
                     var position = chairProperties.position;
                     var registrationPoint = chairProperties.registrationPoint;
                     var dimensions = chairProperties.dimensions;
-
+                    var rotation = chairProperties.rotation;
+        
+                    var localOffset = {
+                        x: NEG_ONE * (registrationPoint.x - HALF) * dimensions.x,
+                        y: NEG_ONE * (registrationPoint.y - HALF) * dimensions.y,
+                        z: NEG_ONE * (registrationPoint.z - HALF) * dimensions.z
+                    };
+                    
+                    var worldOffset = Vec3.multiplyQbyV(rotation, localOffset);
+                    var worldPosition = Vec3.sum(position, worldOffset);
+        
                     // create visible cube
                     createOverlayID = Overlays.addOverlay("cube", {
                         position: {
-                            x: position.x - (registrationPoint.x - HALF) * (dimensions.x),
-                            y: position.y - (registrationPoint.y - HALF) * (dimensions.y),
-                            z: position.z - (registrationPoint.z - HALF) * (dimensions.z)
+                            x: worldPosition.x,
+                            y: worldPosition.y,
+                            z: worldPosition.z
                         },
-                        rotation: chairProperties.orientation,
+                        rotation: rotation,
                         dimensions: {
                             x: dimensions.x + CREATE_OVERLAY_DIMENSIONS_OFFSET,
                             y: dimensions.y + CREATE_OVERLAY_DIMENSIONS_OFFSET,
                             z: dimensions.z + CREATE_OVERLAY_DIMENSIONS_OFFSET
                         },
                         solid: true,
-                        alpha: ALPHA,
+                        alpha: OVERLAY_ALPHA,
                         parentID: entityID
                     });
+        
                 }
 
                 // is in Edit mode && alpha value has changed
                 if (!isInEditMode() && createOverlayID) {
                     // set alpha back to 0
-                    Overlays.deleteOverlay(createOverlayID);
-                    createOverlayID = null;
+                    if (createOverlayID) {
+                        Overlays.deleteOverlay(createOverlayID);
+                        createOverlayID = null;
+                    }
                 }
 
             }
