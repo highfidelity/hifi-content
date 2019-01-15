@@ -91,12 +91,15 @@
             });
         },
         
-        // This'll toggle Flying in BOTH desktop and VR modes.
+        // This'll toggle Flying in VR mode ONLY. It won't do anything in Desktop mode.
         toggleFlyingEnabled: function() {
-            console.log("User clicked toggleFlyButton! Setting flying preference to: " + !flyingEnabled);
-
-            MyAvatar.setFlyingDesktopPref(!flyingEnabled);
-            MyAvatar.setFlyingHMDPref(!flyingEnabled);
+			if (!HMD.active) {
+				return;
+			}
+			
+            console.log("User clicked toggleFlyButton while in VR mode! Setting flying preference to: " + !flyingEnabled);
+			
+			MyAvatar.setFlyingHMDPref(!flyingEnabled);
             
             // This preference doesn't update instantaneously,
             // so we have to wait a few milliseconds before updating the overlay's text.
