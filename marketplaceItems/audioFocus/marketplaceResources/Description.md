@@ -17,3 +17,6 @@ once again that's
 Open the app, then click(desktop) or laser(HMD) on an avatar to hear only them.
 
 Click on more avatars to hear more of the conversation!
+
+Code can be found at:
+[audioFocus](https://github.com/highfidelity/hifi-content/tree/master/marketplaceItems/audioFocus)
