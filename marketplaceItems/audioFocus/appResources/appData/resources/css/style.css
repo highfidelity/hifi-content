@@ -1,0 +1,216 @@
+/* 
+
+*************************************
+START SETUP
+*************************************
+
+*/
+
+
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+
+/* 
+
+*************************************
+END SETUP
+************************************* 
+
+*/
+
+/* 
+
+*************************************
+START ELEMENTS
+*************************************
+
+*/
+
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(to bottom, rgba(247,251,252,1) 0%,rgba(217,237,242,1) 40%,rgba(173,217,228,1) 100%); 
+    font-family: 'Raleway', sans-serif;
+}
+
+button {
+    display: block;
+    background: linear-gradient(to bottom, #4eb5e5 0%,#389ed5 100%); /* W3C */
+    border: none;
+    border-radius: 5px;
+    border-bottom: 4px solid #2b8bc6;
+    color: #fbfbfb;
+    font-weight: 600;
+    font-family: 'Open Sans', sans-serif;
+    text-shadow: 1px 1px 1px rgba(0,0,0,.4);
+    font-size: 15px;
+    text-align: left;
+    padding: 7px 8px 5px 8px;
+    box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2); 
+    margin-top: 25px;
+}
+
+button:hover {
+    color: rgba(255, 0, 255, .5);
+    background: linear-gradient(to bottom, #4eb5e5 100%,#389ed5 0%); /* W3C */
+}
+
+
+/* 
+
+*************************************
+END ELEMENTS
+************************************* 
+
+*/
+
+/* 
+
+*************************************
+START CLASSES
+*************************************
+
+*/
+
+
+.center {
+    display: block;
+    margin: auto;
+    color: red;
+}
+
+.shadow {
+    box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2);
+}
+
+.close {
+    background-color: rgba(255, 255, 255, .5);
+    padding: 1px 4px 1px 3px;
+    margin-left: 10px;
+    float: right;
+}
+
+.close:hover {
+    background-color: rgba(255, 0, 255, .5);
+}
+
+
+.name {
+    background-color: rgba(0, 200, 255, .5);
+    margin-top: 15px; 
+    padding: 6px 6px 4px 6px;
+    min-width: 50px;
+    max-width: 250px;
+}
+
+.animated {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+.fade-out {
+    animation-name: fade-out;
+}
+
+.fade-in {
+    animation-name: fade-in;
+}
+
+
+/* 
+
+*************************************
+END CLASSES
+*************************************
+
+*/
+
+/* 
+
+*************************************
+START IDS
+*************************************
+
+*/
+
+
+#logo {
+    vertical-align: text-bottom;
+    width: 30px;
+    height: 30px;
+}
+
+#header {
+    margin-top: 10px;
+    display: inline-block;
+}
+
+#instructions {
+    mix-blend-mode: multiply;
+    background-color: rgba(0, 200, 255, .5);
+    padding: 5px 5px 15px 12px;
+}
+
+#sub-header {
+    margin-top: 25px;
+    margin-bottom: -10px;
+}
+
+#error {
+    opacity: 0;
+    position: absolute;
+    bottom: 0;
+    left:0;
+    right: 0;
+    padding: 5px 5px 15px 12px;
+    margin: 8px 8px;
+    background-color: rgba(0, 0, 0, 1);
+    color: red;
+    font-size: 25px;
+}
+
+
+/* 
+
+*************************************
+END IDS
+*************************************
+
+*/
+
+/* 
+
+*************************************
+START ANIMATIONS
+*************************************
+
+*/
+
+
+@keyframes fade-out {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+ }
+
+ @keyframes fade-in {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+ }
+
+
+ /* 
+
+*************************************
+END ANIMATIONS
+*************************************
+
+*/
