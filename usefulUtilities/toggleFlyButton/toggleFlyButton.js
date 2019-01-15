@@ -12,14 +12,14 @@
     var _this;
     var flyingEnabled;
     var statusTextOverlayID;
-	// Since there's no signal in-engine for when a user's flying preferences
-	// change, we need to check the settings on an interval.
-	// See:
-	// https://highfidelity.fogbugz.com/f/cases/20686/Add-flyingPrefDesktopChanged-and-flyingPrefHMDChanged-signals
-	var updateStatusTextInterval;
+    // Since there's no signal in-engine for when a user's flying preferences
+    // change, we need to check the settings on an interval.
+    // See:
+    // https://highfidelity.fogbugz.com/f/cases/20686/Add-flyingPrefDesktopChanged-and-flyingPrefHMDChanged-signals
+    var updateStatusTextInterval;
 
     var UPDATE_TEXT_DELAY_MS = 150;
-	var UPDATE_STATUS_TEXT_INTERVAL_MS = 2500;
+    var UPDATE_STATUS_TEXT_INTERVAL_MS = 2500;
 
     var ToggleFlyButton = function() {
         _this = this;
@@ -32,7 +32,7 @@
             _this.entityID = entityID;
             _this.rezStatusTextOverlay();
             HMD.displayModeChanged.connect(_this.updateStatusText);
-			updateStatusTextInterval = Script.setInterval(_this.updateStatusText, UPDATE_STATUS_TEXT_INTERVAL_MS);
+            updateStatusTextInterval = Script.setInterval(_this.updateStatusText, UPDATE_STATUS_TEXT_INTERVAL_MS);
         },
         
         // When the script goes down, delete the status text overlay (if it exists),
@@ -42,7 +42,7 @@
                 Overlays.deleteOverlay(statusTextOverlayID);
             }
             HMD.displayModeChanged.disconnect(_this.updateStatusText);
-			Script.clearInterval(updateStatusTextInterval);
+            Script.clearInterval(updateStatusTextInterval);
         },
 
         // When the user uses the mouse OR their hand controller lasers
@@ -59,10 +59,11 @@
         rezStatusTextOverlay: function() {
             statusTextOverlayID = Overlays.addOverlay("text3d", {
                 "parentID": _this.entityID,
-                "localPosition": {x: -0.5593090057373047,
-					y: 0.1416434347629547,
-					z: 0.1189870834350586
-				},
+                "localPosition": {
+                    x: -0.5593090057373047,
+                    y: 0.1416434347629547,
+                    z: 0.1189870834350586
+                },
                 "lineHeight": 0.11,
                 "dimensions": {x: 0.5120117664337158, y: 0.1607130914926529},
                 "topMargin": 0,
@@ -93,13 +94,13 @@
         
         // This'll toggle Flying in VR mode ONLY. It won't do anything in Desktop mode.
         toggleFlyingEnabled: function() {
-			if (!HMD.active) {
-				return;
-			}
-			
+            if (!HMD.active) {
+                return;
+            }
+            
             console.log("User clicked toggleFlyButton while in VR mode! Setting flying preference to: " + !flyingEnabled);
-			
-			MyAvatar.setFlyingHMDPref(!flyingEnabled);
+            
+            MyAvatar.setFlyingHMDPref(!flyingEnabled);
             
             // This preference doesn't update instantaneously,
             // so we have to wait a few milliseconds before updating the overlay's text.
