@@ -132,6 +132,7 @@
     var overlays = {
         
         sittable: {
+
             create: function () {
                 utils.setChairProperties();
                 
@@ -173,8 +174,8 @@
 
                 HMD.displayModeChanged.disconnect(this.switchHMDToDesktopText);
             },
+            // Is avatar in range with available seat?
             shouldShow: function () {
-                // Is avatar in range with available seat?
                 var seatPosition = chairProperties.position;
                 var distanceFromSeat = Vec3.distance(MyAvatar.position, seatPosition);
                 return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.isAvatarSittingInSeat() && !overlayPreSit);
@@ -196,8 +197,8 @@
                 }, OVERLAY_SITTABLE_FADE);
             },
 
+            // Switch sittable overlay text
             switchHMDToDesktopText: function () {
-                // Switch sittable overlay text
                 if (overlaySittable) {
                     var url = HMD.active
                         ? OVERLAY_URL_SITTABLE_HMD
