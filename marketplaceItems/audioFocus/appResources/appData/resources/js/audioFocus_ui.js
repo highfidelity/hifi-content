@@ -33,7 +33,7 @@ Vue.component('solo-list', {
 Vue.component('solo-item', {
     props: ['name'],
     methods: {
-        clicked: function (name) {
+        clicked: function(name) {
             EventBridge.emitWebEvent(JSON.stringify({
                 type: "REMOVE_USER",
                 value: name
@@ -51,7 +51,7 @@ Vue.component('solo-item', {
 var app = new Vue({
     el: '#app',
     methods: {
-        clear: function () {
+        clear: function() {
             EventBridge.emitWebEvent(JSON.stringify({
                 type: "CLEAR_LIST"
             }));
@@ -94,7 +94,7 @@ function onScriptEventReceived(message) {
                 app.showingError = true;
                 app.fadeIn = true;
                 app.fadeOut = false;
-                setTimeout(function () {
+                setTimeout(function() {
                     app.showingError = false;
                     app.fadeIn = false;
                     app.fadeOut = true;
@@ -112,7 +112,7 @@ function onScriptEventReceived(message) {
 // Run when the JS is loaded and give enough time to for EventBridge to come back
 var EVENTBRIDGE_SETUP_DELAY = 100;
 function onLoad() {
-    setTimeout(function () {
+    setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
             type: "EVENT_BRIDGE_OPEN_MESSAGE"
