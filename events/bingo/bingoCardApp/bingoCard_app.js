@@ -263,11 +263,11 @@
     function onWebEventReceived(event) {
         if (event.type === 'playSoundFromBingoButton') {
             if (event.index > -1) {
-                playSound(currentHeaderSounds[event.index], 0.1, MyAvatar.position, false);
+                playSound(currentHeaderSounds[event.index], 0.5, MyAvatar.position, false);
             } else if (event.index === -2) {
-                playSound(SELECT_SOUND, 0.1, MyAvatar.position, false);
+                playSound(SELECT_SOUND, 0.2, MyAvatar.position, false);
             } else if (event.index === -3) {
-                playSound(DESELECT_SOUND, 0.1, MyAvatar.position, false);
+                playSound(DESELECT_SOUND, 0.2, MyAvatar.position, false);
             }
         }
         if (event.type === 'calledBingo') {

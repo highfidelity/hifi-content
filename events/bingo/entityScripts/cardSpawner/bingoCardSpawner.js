@@ -16,7 +16,8 @@
     var _this;
 
     var canClick = true;
-    var appPage = Script.resolvePath('../../bingoCardApp/bingoCard_app.js');
+    var appPage = Script.resolvePath('../../bingoCardApp/bingoCard_ui.html');
+    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
 
     // *************************************
     // START UTILITY FUNCTIONS
@@ -46,12 +47,10 @@
     /* CHECK IF A USER IS RUNNING THE CARD APP: Get a list of running scripts usingg the script discovery service API. 
     Search that list for the card app script and return whether or not it was found */
     var isRunningStandaloneBingoApp = function() {
-        print("ISRUNNINGSTANDALONEBINGOAPP: RUNNING SCRIPTS: ", JSON.stringify(ScriptDiscoveryService.getRunning()));
         var isRunning = false;
         if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("bingoCard_app.js") !== -1) {
             isRunning = true;
         }
-        print("ISRUNNING = ", isRunning);
         return isRunning;
     };
 
@@ -76,8 +75,11 @@
                 if (!isRunningStandaloneBingoApp()) {
                     ScriptDiscoveryService.loadScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js'));
                 } else {
-                    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-                    tablet.gotoWebScreen(appPage);
+                    var cardAppIsOpen = tablet.isPathLoaded('../../bingoCardApp/bingoCard_ui.html');
+                    if (!cardAppIsOpen) {
+                        print("OPENING CARD PAGE");
+                        tablet.gotoWebScreen(appPage);
+                    }
                 }
                 Script.setTimeout(function() {
                     canClick = true;
