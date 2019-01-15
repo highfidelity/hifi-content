@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <title>Bingo</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+        <link rel="stylesheet" href="bingoBossApp_ui.css?0">
+    </head>
+    <body>
+        <img src="../images/bingo-card-head.png" width="300" alt="BINGO"/><br><br>
+        <input type="button" class="gray" id="lightsOn" value="Lights On"><br><br>
+        <input type="button" class="gray" id="openRegistration" value="Open Registration"><br><br>
+        <input type="button" class="gray" id="closeRegistration" value="Close Registration"><br><br>
+        <input type="button" class="gray" id="newRound" value="New Round"><br><br>
+        <input type="button" class="gray" id="lightsOut" value="Lights Out"><br><br><br>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script>
+            $('#lightsOn').click(function() {
+                var event = {
+                    app: 'bingo',
+                    type: "lightsOn"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#openRegistration').click(function() {
+                var event = {
+                    app: 'bingo',
+                    type: "openRegistration"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#closeRegistration').click(function() {
+                var event = {
+                    app: 'bingo',
+                    type: "closeRegistration"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#newRound').click(function() {
+                var event = {
+                    app: 'bingo',
+                    type: "newRound"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#lightsOut').click(function() {
+                var event = {
+                    app: 'bingo',
+                    type: "lightsOut"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+        </script>
+    </body>
+</html>
