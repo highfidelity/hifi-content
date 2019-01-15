@@ -45,15 +45,12 @@
 			Script.clearInterval(updateStatusTextInterval);
         },
 
-        // When the user uses the mouse to click on the button...
-        clickDownOnEntity: function(entityID, mouseEvent) {
-            if (mouseEvent.isLeftButton) {
-                _this.toggleFlyingEnabled();
+        // When the user uses the mouse OR their hand controller lasers
+        // to click on the button...
+        mousePressOnEntity: function(entityID, mouseEvent) {
+            if (!mouseEvent.button === "Primary") {
+                return;
             }
-        },
-        
-        // When the user uses hand controller lasers to click on the button...
-        startNearTrigger: function() {
             _this.toggleFlyingEnabled();
         },
         
