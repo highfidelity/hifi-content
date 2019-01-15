@@ -462,6 +462,125 @@
         "scope": "static"
     },
     {
+        "description": "Get the names of all the joints in the current avatar.",
+        "kind": "function",
+        "name": "getJointNames",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Array.<string>"
+                    ]
+                },
+                "description": "The joint names."
+            }
+        ],
+        "examples": [
+            "<caption>Report the names of all the joints in your current avatar.</caption>\rprint(JSON.stringify(MyAvatar.getJointNames()));"
+        ],
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.getJointNames",
+        "scope": "static"
+    },
+    {
+        "description": "Get the joint index for a named joint. The joint index value is the position of the joint in the array returned by\r{@link MyAvatar.getJointNames} or {@link Avatar.getJointNames}.",
+        "kind": "function",
+        "name": "getJointIndex",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "description": "The name of the joint.",
+                "name": "name"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "The index of the joint."
+            }
+        ],
+        "examples": [
+            "<caption>Report the index of your avatar's left arm joint.</caption>\rprint(JSON.stringify(MyAvatar.getJointIndex(\"LeftArm\"));"
+        ],
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.getJointIndex",
+        "scope": "static"
+    },
+    {
+        "description": "Potentially Very Expensive.  Do not use.",
+        "kind": "function",
+        "name": "getAvatarEntityData",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Avatar",
+        "longname": "Avatar.getAvatarEntityData",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "setAvatarEntityData",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "name": "avatarEntityData"
+            }
+        ],
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.setAvatarEntityData",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "updateAvatarEntity",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "entityID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "name": "entityData"
+            }
+        ],
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.updateAvatarEntity",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "setJointMappingsFromNetworkReply",
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.setJointMappingsFromNetworkReply",
+        "scope": "static"
+    },
+    {
         "kind": "namespace",
         "name": "EntityViewer",
         "hifiAssignmentClient": true,
@@ -2213,6 +2332,48 @@
     },
     {
         "kind": "function",
+        "name": "findParabolaIntersectionVector",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "PickParabola"
+                    ]
+                },
+                "name": "pick"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Array.<Uuid>"
+                    ]
+                },
+                "name": "avatarsToInclude"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Array.<Uuid>"
+                    ]
+                },
+                "name": "avatarsToDiscard"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "ParabolaToAvatarIntersectionResult"
+                    ]
+                }
+            }
+        ],
+        "memberof": "AvatarManager",
+        "longname": "AvatarManager.findParabolaIntersectionVector",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
         "name": "getAvatarSortCoefficient",
         "params": [
             {
@@ -2273,7 +2434,9 @@
                         "Array.<string>"
                     ]
                 },
-                "description": "A list of specific Avatar Identifiers about\rwhich you want to get PAL data",
+                "optional": true,
+                "defaultvalue": "[]",
+                "description": "The list of IDs of the avatars you want the PAL data for.\rIf an empty list, the PAL data for all nearby avatars is returned.",
                 "name": "specificAvatarIdentifiers"
             }
         ],
@@ -2281,9 +2444,10 @@
             {
                 "type": {
                     "names": [
-                        "object"
+                        "Array.<object>"
                     ]
-                }
+                },
+                "description": "An array of objects, each object being the PAL data for an avatar."
             }
         ],
         "memberof": "AvatarManager",
@@ -2710,6 +2874,22 @@
                     ]
                 },
                 "name": "sprintSpeed"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "isInSittingState"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "userRecenterModel"
             },
             {
                 "type": {
@@ -4197,6 +4377,7 @@
         "scope": "static"
     },
     {
+        "description": "Check whether your avatar is flying or not.",
         "kind": "function",
         "name": "isFlying",
         "returns": [
@@ -4205,7 +4386,8 @@
                     "names": [
                         "boolean"
                     ]
-                }
+                },
+                "description": "<code>true</code> if your avatar is flying and not taking off or falling, otherwise \r    <code>false</code>."
             }
         ],
         "memberof": "MyAvatar",
@@ -4213,6 +4395,7 @@
         "scope": "static"
     },
     {
+        "description": "Check whether your avatar is in the air or not.",
         "kind": "function",
         "name": "isInAir",
         "returns": [
@@ -4221,7 +4404,8 @@
                     "names": [
                         "boolean"
                     ]
-                }
+                },
+                "description": "<code>true</code> if your avatar is taking off, flying, or falling, otherwise <code>false</code> \r    because your avatar is on the ground."
             }
         ],
         "memberof": "MyAvatar",
@@ -4229,6 +4413,7 @@
         "scope": "static"
     },
     {
+        "description": "Set your preference for flying in your current desktop or HMD display mode. Note that your ability to fly also depends \ron whether the domain you're in allows you to fly.",
         "kind": "function",
         "name": "setFlyingEnabled",
         "params": [
@@ -4238,6 +4423,7 @@
                         "boolean"
                     ]
                 },
+                "description": "Set <code>true</code> if you want to enable flying in your current desktop or HMD display \r    mode, otherwise set <code>false</code>.",
                 "name": "enabled"
             }
         ],
@@ -4246,6 +4432,7 @@
         "scope": "static"
     },
     {
+        "description": "Get your preference for flying in your current desktop or HMD display mode. Note that your ability to fly also depends \ron whether the domain you're in allows you to fly.",
         "kind": "function",
         "name": "getFlyingEnabled",
         "returns": [
@@ -4254,7 +4441,8 @@
                     "names": [
                         "boolean"
                     ]
-                }
+                },
+                "description": "<code>true</code> if your preference is to enable flying in your current desktop or HMD display mode, \r    otherwise <code>false</code>."
             }
         ],
         "memberof": "MyAvatar",
@@ -4262,6 +4450,7 @@
         "scope": "static"
     },
     {
+        "description": "Set your preference for flying in desktop display mode. Note that your ability to fly also depends on whether the domain \ryou're in allows you to fly.",
         "kind": "function",
         "name": "setFlyingDesktopPref",
         "params": [
@@ -4271,6 +4460,7 @@
                         "boolean"
                     ]
                 },
+                "description": "Set <code>true</code> if you want to enable flying in desktop display mode, otherwise set \r    <code>false</code>.",
                 "name": "enabled"
             }
         ],
@@ -4279,6 +4469,7 @@
         "scope": "static"
     },
     {
+        "description": "Get your preference for flying in desktop display mode. Note that your ability to fly also depends on whether the domain\ryou're in allows you to fly.",
         "kind": "function",
         "name": "getFlyingDesktopPref",
         "returns": [
@@ -4287,7 +4478,8 @@
                     "names": [
                         "boolean"
                     ]
-                }
+                },
+                "description": "<code>true</code> if your preference is to enable flying in desktop display mode, otherwise \r    <code>false</code>."
             }
         ],
         "memberof": "MyAvatar",
@@ -4295,8 +4487,9 @@
         "scope": "static"
     },
     {
+        "description": "Set your preference for flying in HMD display mode. Note that your ability to fly also depends on whether the domain\ryou're in allows you to fly.",
         "kind": "function",
-        "name": "setFlyingDesktopPref",
+        "name": "setFlyingHMDPref",
         "params": [
             {
                 "type": {
@@ -4304,27 +4497,30 @@
                         "boolean"
                     ]
                 },
+                "description": "Set <code>true</code> if you want to enable flying in HMD display mode, otherwise set\r    <code>false</code>.",
                 "name": "enabled"
             }
         ],
         "memberof": "MyAvatar",
-        "longname": "MyAvatar.setFlyingDesktopPref",
+        "longname": "MyAvatar.setFlyingHMDPref",
         "scope": "static"
     },
     {
+        "description": "Get your preference for flying in HMD display mode. Note that your ability to fly also depends on whether the domain\ryou're in allows you to fly.",
         "kind": "function",
-        "name": "getFlyingDesktopPref",
+        "name": "getFlyingHMDPref",
         "returns": [
             {
                 "type": {
                     "names": [
                         "boolean"
                     ]
-                }
+                },
+                "description": "<code>true</code> if your preference is to enable flying in HMD display mode, otherwise\r    <code>false</code>."
             }
         ],
         "memberof": "MyAvatar",
-        "longname": "MyAvatar.getFlyingDesktopPref",
+        "longname": "MyAvatar.getFlyingHMDPref",
         "scope": "static"
     },
     {
@@ -4391,6 +4587,39 @@
         ],
         "memberof": "MyAvatar",
         "longname": "MyAvatar.getCollisionsEnabled",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "setOtherAvatarsCollisionsEnabled",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "enabled"
+            }
+        ],
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.setOtherAvatarsCollisionsEnabled",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "getOtherAvatarsCollisionsEnabled",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                }
+            }
+        ],
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.getOtherAvatarsCollisionsEnabled",
         "scope": "static"
     },
     {
@@ -4494,6 +4723,81 @@
         ],
         "memberof": "MyAvatar",
         "longname": "MyAvatar.isDown",
+        "scope": "static"
+    },
+    {
+        "description": "Create a new grab.",
+        "kind": "function",
+        "name": "grab",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "description": "id of grabbed thing",
+                "name": "targetID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "avatar joint being used to grab",
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "description": "target's positional offset from joint",
+                "name": "offset"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Quat"
+                    ]
+                },
+                "description": "target's rotational offset from joint",
+                "name": "rotationalOffset"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "description": "id of the new grab"
+            }
+        ],
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.grab",
+        "scope": "static"
+    },
+    {
+        "description": "Release (delete) a grab.",
+        "kind": "function",
+        "name": "releaseGrab",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "description": "id of grabbed thing",
+                "name": "grabID"
+            }
+        ],
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.releaseGrab",
         "scope": "static"
     },
     {
@@ -5297,6 +5601,33 @@
         "scope": "static"
     },
     {
+        "description": "Triggered when collisions with other avatars enabled or disabled",
+        "kind": "function",
+        "name": "otherAvatarsCollisionsEnabledChanged",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "enabled"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Signal"
+                    ]
+                }
+            }
+        ],
+        "memberof": "MyAvatar",
+        "longname": "MyAvatar.otherAvatarsCollisionsEnabledChanged",
+        "scope": "static"
+    },
+    {
         "description": "Triggered when avatar's animation url changes",
         "kind": "function",
         "name": "animGraphUrlChanged",
@@ -5610,7 +5941,7 @@
         "scope": "static"
     },
     {
-        "description": "<table><tr><th>Available in:</th><td>Interface Scripts</td><td>Client Entity Scripts</td></tr></table><br>Synonym for {@link Pointers} as used for laser pointers.",
+        "description": "<table><tr><th>Available in:</th><td>Interface Scripts</td><td>Client Entity Scripts</td></tr></table><br>Synonym for {@link Pointers} as used for laser pointers.  Deprecated.",
         "kind": "namespace",
         "name": "LaserPointers",
         "hifiInterface": true,
@@ -6027,7 +6358,7 @@
                     ]
                 },
                 "optional": true,
-                "defaultvalue": "Picks.PICK_NOTHING",
+                "defaultvalue": 0,
                 "description": "The filter for this Pick to use, constructed using filter flags combined using bitwise OR.",
                 "name": "filter"
             },
@@ -6158,7 +6489,7 @@
                     ]
                 },
                 "optional": true,
-                "defaultvalue": "Picks.PICK_NOTHING",
+                "defaultvalue": 0,
                 "description": "The filter for this Pick to use, constructed using filter flags combined using bitwise OR.",
                 "name": "filter"
             },
@@ -6206,7 +6537,7 @@
                     ]
                 },
                 "optional": true,
-                "defaultvalue": "Picks.PICK_NOTHING",
+                "defaultvalue": 0,
                 "description": "The filter for this Pick to use, constructed using filter flags combined using bitwise OR.",
                 "name": "filter"
             },
@@ -6413,7 +6744,7 @@
                     ]
                 },
                 "optional": true,
-                "defaultvalue": "Picks.PICK_NOTHING",
+                "defaultvalue": 0,
                 "description": "The filter for this Pick to use, constructed using filter flags combined using bitwise OR.",
                 "name": "filter"
             },
@@ -6522,16 +6853,7 @@
                         "number"
                     ]
                 },
-                "description": "A filter flag. Don't intersect with anything. <em>Read-only.</em>",
-                "name": "PICK_NOTHING"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "A filter flag. Include entities when intersecting. <em>Read-only.</em>",
+                "description": "A filter flag. Include domain and avatar entities when intersecting. <em>Read-only.</em>.  Deprecated.",
                 "name": "PICK_ENTITIES"
             },
             {
@@ -6540,7 +6862,7 @@
                         "number"
                     ]
                 },
-                "description": "A filter flag. Include overlays when intersecting. <em>Read-only.</em>",
+                "description": "A filter flag. Include local entities when intersecting. <em>Read-only.</em>. Deprecated.",
                 "name": "PICK_OVERLAYS"
             },
             {
@@ -6549,7 +6871,34 @@
                         "number"
                     ]
                 },
-                "description": "A filter flag. Include avatars when intersecting. <em>Read-only.</em>",
+                "description": "A filter flag. Include domain entities when intersecting. <em>Read-only.</em>.",
+                "name": "PICK_DOMAIN_ENTITIES"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "A filter flag. Include avatar entities when intersecting. <em>Read-only.</em>.",
+                "name": "PICK_AVATAR_ENTITIES"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "A filter flag. Include local entities when intersecting. <em>Read-only.</em>.",
+                "name": "PICK_LOCAL_ENTITIES"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "A filter flag. Include avatars when intersecting. <em>Read-only.</em>.",
                 "name": "PICK_AVATARS"
             },
             {
@@ -6558,7 +6907,7 @@
                         "number"
                     ]
                 },
-                "description": "A filter flag. Include the HUD sphere when intersecting in HMD mode. <em>Read-only.</em>",
+                "description": "A filter flag. Include the HUD sphere when intersecting in HMD mode. <em>Read-only.</em>.",
                 "name": "PICK_HUD"
             },
             {
@@ -6567,8 +6916,8 @@
                         "number"
                     ]
                 },
-                "description": "A filter flag. Pick against coarse meshes, instead of exact meshes. <em>Read-only.</em>",
-                "name": "PICK_COARSE"
+                "description": "A filter flag. Include visible objects when intersecting. <em>Read-only.</em>.",
+                "name": "PICK_INCLUDE_VISIBLE"
             },
             {
                 "type": {
@@ -6576,7 +6925,7 @@
                         "number"
                     ]
                 },
-                "description": "A filter flag. Include invisible objects when intersecting. <em>Read-only.</em>",
+                "description": "A filter flag. Include invisible objects when intersecting. <em>Read-only.</em>.",
                 "name": "PICK_INCLUDE_INVISIBLE"
             },
             {
@@ -6585,7 +6934,16 @@
                         "number"
                     ]
                 },
-                "description": "A filter flag. Include non-collidable objects when intersecting. \r    <em>Read-only.</em>",
+                "description": "A filter flag. Include collidable objects when intersecting. <em>Read-only.</em>.",
+                "name": "PICK_INCLUDE_COLLIDABLE"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "A filter flag. Include non-collidable objects when intersecting. <em>Read-only.</em>.",
                 "name": "PICK_INCLUDE_NONCOLLIDABLE"
             },
             {
@@ -6594,7 +6952,25 @@
                         "number"
                     ]
                 },
-                "description": "<em>Read-only.</em>",
+                "description": "A filter flag. Pick against exact meshes. <em>Read-only.</em>.",
+                "name": "PICK_PRECISE"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "A filter flag. Pick against coarse meshes. <em>Read-only.</em>.",
+                "name": "PICK_COARSE"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "<em>Read-only.</em>.",
                 "name": "PICK_ALL_INTERSECTIONS"
             },
             {
@@ -6603,7 +6979,7 @@
                         "number"
                     ]
                 },
-                "description": "An intersection type. Intersected nothing with the given filter flags. \r    <em>Read-only.</em>",
+                "description": "An intersection type. Intersected nothing with the given filter flags. <em>Read-only.</em>",
                 "name": "INTERSECTED_NONE"
             },
             {
@@ -6648,7 +7024,7 @@
                         "number"
                     ]
                 },
-                "description": "The max number of usec to spend per frame updating Pick results. <em>Read-only.</em>",
+                "description": "The max number of usec to spend per frame updating Pick results.",
                 "name": "perFrameTimeBudget"
             }
         ],
@@ -6656,7 +7032,7 @@
         "scope": "global"
     },
     {
-        "description": "Adds a new Pick.\rDifferent {@link PickType}s use different properties, and within one PickType, the properties you choose can lead to a wide range of behaviors.  For example,\r  with PickType.Ray, depending on which optional parameters you pass, you could create a Static Ray Pick, a Mouse Ray Pick, or a Joint Ray Pick.",
+        "description": "Adds a new Pick.\rDifferent {@link PickType}s use different properties, and within one PickType, the properties you choose can lead to a wide range of behaviors.  For example,\r  with PickType.Ray, depending on which optional parameters you pass, you could create a Static Ray Pick, a Mouse Ray Pick, or a Joint Ray Pick.\rPicks created with this method always intersect at least visible and collidable things",
         "kind": "function",
         "name": "createPick",
         "params": [
@@ -7348,22 +7724,6 @@
     },
     {
         "kind": "function",
-        "name": "PICK_NOTHING",
-        "returns": [
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                }
-            }
-        ],
-        "memberof": "Picks",
-        "longname": "Picks.PICK_NOTHING",
-        "scope": "static"
-    },
-    {
-        "kind": "function",
         "name": "PICK_ENTITIES",
         "returns": [
             {
@@ -7392,6 +7752,54 @@
         ],
         "memberof": "Picks",
         "longname": "Picks.PICK_OVERLAYS",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "PICK_DOMAIN_ENTITIES",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Picks",
+        "longname": "Picks.PICK_DOMAIN_ENTITIES",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "PICK_AVATAR_ENTITIES",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Picks",
+        "longname": "Picks.PICK_AVATAR_ENTITIES",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "PICK_LOCAL_ENTITIES",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Picks",
+        "longname": "Picks.PICK_LOCAL_ENTITIES",
         "scope": "static"
     },
     {
@@ -7428,7 +7836,7 @@
     },
     {
         "kind": "function",
-        "name": "PICK_COARSE",
+        "name": "PICK_INCLUDE_VISIBLE",
         "returns": [
             {
                 "type": {
@@ -7439,7 +7847,7 @@
             }
         ],
         "memberof": "Picks",
-        "longname": "Picks.PICK_COARSE",
+        "longname": "Picks.PICK_INCLUDE_VISIBLE",
         "scope": "static"
     },
     {
@@ -7460,6 +7868,22 @@
     },
     {
         "kind": "function",
+        "name": "PICK_INCLUDE_COLLIDABLE",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Picks",
+        "longname": "Picks.PICK_INCLUDE_COLLIDABLE",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
         "name": "PICK_INCLUDE_NONCOLLIDABLE",
         "returns": [
             {
@@ -7472,6 +7896,38 @@
         ],
         "memberof": "Picks",
         "longname": "Picks.PICK_INCLUDE_NONCOLLIDABLE",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "PICK_PRECISE",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Picks",
+        "longname": "Picks.PICK_PRECISE",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "PICK_COARSE",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Picks",
+        "longname": "Picks.PICK_COARSE",
         "scope": "static"
     },
     {
@@ -7600,10 +8056,85 @@
                 "optional": true,
                 "defaultvalue": false,
                 "name": "enabled"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "optional": true,
+                "description": "The specified offset of the from the joint index.",
+                "name": "tipOffset"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Pointers.StylusPointerProperties.model"
+                    ]
+                },
+                "optional": true,
+                "description": "Data to replace the default model url, positionOffset and rotationOffset.",
+                "name": "model"
             }
         ],
         "memberof": "Pointers",
         "longname": "Pointers.StylusPointerProperties",
+        "scope": "static"
+    },
+    {
+        "description": "properties defining stylus pick model that can be included to {@link Pointers.StylusPointerProperties}",
+        "kind": "typedef",
+        "name": "model",
+        "type": {
+            "names": [
+                "object"
+            ]
+        },
+        "properties": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "optional": true,
+                "description": "url to the model",
+                "name": "url"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "optional": true,
+                "description": "the dimensions of the model",
+                "name": "dimensions"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "optional": true,
+                "description": "the position offset of the model from the stylus tip.",
+                "name": "positionOffset"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "optional": true,
+                "description": "the rotation offset of the model from the parent joint index",
+                "name": "rotationOffset"
+            }
+        ],
+        "memberof": "Pointers.StylusPointerProperties",
+        "longname": "Pointers.StylusPointerProperties.model",
         "scope": "static"
     },
     {
@@ -8173,7 +8704,7 @@
         "scope": "static"
     },
     {
-        "description": "Adds a new Pointer\rDifferent {@link PickType}s use different properties, and within one PickType, the properties you choose can lead to a wide range of behaviors.  For example,\r  with PickType.Ray, depending on which optional parameters you pass, you could create a Static Ray Pointer, a Mouse Ray Pointer, or a Joint Ray Pointer.",
+        "description": "Adds a new Pointer\rDifferent {@link PickType}s use different properties, and within one PickType, the properties you choose can lead to a wide range of behaviors.  For example,\r  with PickType.Ray, depending on which optional parameters you pass, you could create a Static Ray Pointer, a Mouse Ray Pointer, or a Joint Ray Pointer.\rPointers created with this method always intersect at least visible and collidable things",
         "kind": "function",
         "name": "createPointer",
         "params": [
@@ -8209,7 +8740,7 @@
             }
         ],
         "examples": [
-            "<caption>Create a left hand Ray Pointer that triggers events on left controller trigger click and changes color when it's intersecting something.</caption>\r\rvar end = {\r    type: \"sphere\",\r    dimensions: {x:0.5, y:0.5, z:0.5},\r    solid: true,\r    color: {red:0, green:255, blue:0},\r    ignoreRayIntersection: true\r};\rvar end2 = {\r    type: \"sphere\",\r    dimensions: {x:0.5, y:0.5, z:0.5},\r    solid: true,\r    color: {red:255, green:0, blue:0},\r    ignoreRayIntersection: true\r};\r\rvar renderStates = [ {name: \"test\", end: end} ];\rvar defaultRenderStates = [ {name: \"test\", distance: 10.0, end: end2} ];\rvar pointer = Pointers.createPointer(PickType.Ray, {\r    joint: \"_CAMERA_RELATIVE_CONTROLLER_LEFTHAND\",\r    filter: Picks.PICK_OVERLAYS | Picks.PICK_ENTITIES | Picks.PICK_INCLUDE_NONCOLLIDABLE,\r    renderStates: renderStates,\r    defaultRenderStates: defaultRenderStates,\r    distanceScaleEnd: true,\r    triggers: [ {action: Controller.Standard.LTClick, button: \"Focus\"}, {action: Controller.Standard.LTClick, button: \"Primary\"} ],\r    hover: true,\r    enabled: true\r});\rPointers.setRenderState(pointer, \"test\");"
+            "<caption>Create a left hand Ray Pointer that triggers events on left controller trigger click and changes color when it's intersecting something.</caption>\r\rvar end = {\r    type: \"sphere\",\r    dimensions: {x:0.5, y:0.5, z:0.5},\r    solid: true,\r    color: {red:0, green:255, blue:0},\r    ignorePickIntersection: true\r};\rvar end2 = {\r    type: \"sphere\",\r    dimensions: {x:0.5, y:0.5, z:0.5},\r    solid: true,\r    color: {red:255, green:0, blue:0},\r    ignorePickIntersection: true\r};\r\rvar renderStates = [ {name: \"test\", end: end} ];\rvar defaultRenderStates = [ {name: \"test\", distance: 10.0, end: end2} ];\rvar pointer = Pointers.createPointer(PickType.Ray, {\r    joint: \"_CAMERA_RELATIVE_CONTROLLER_LEFTHAND\",\r    filter: Picks.PICK_LOCAL_ENTITIES | Picks.PICK_DOMAIN_ENTITIES | Picks.PICK_INCLUDE_NONCOLLIDABLE,\r    renderStates: renderStates,\r    defaultRenderStates: defaultRenderStates,\r    distanceScaleEnd: true,\r    triggers: [ {action: Controller.Standard.LTClick, button: \"Focus\"}, {action: Controller.Standard.LTClick, button: \"Primary\"} ],\r    hover: true,\r    enabled: true\r});\rPointers.setRenderState(pointer, \"test\");"
         ],
         "memberof": "Pointers",
         "longname": "Pointers.createPointer",
@@ -8645,21 +9176,12 @@
         "scope": "static"
     },
     {
-        "description": "<table><tr><th>Available in:</th><td>Interface Scripts</td><td>Client Entity Scripts</td></tr></table><br>Synonym for {@link Picks} as used for ray picks.",
+        "description": "<table><tr><th>Available in:</th><td>Interface Scripts</td><td>Client Entity Scripts</td></tr></table><br>Synonym for {@link Picks} as used for ray picks.  Deprecated.",
         "kind": "namespace",
         "name": "RayPick",
         "hifiInterface": true,
         "hifiClientEntity": true,
         "properties": [
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "<em>Read-only.</em>",
-                "name": "PICK_NOTHING"
-            },
             {
                 "type": {
                     "names": [
@@ -9026,22 +9548,6 @@
         ],
         "memberof": "RayPick",
         "longname": "RayPick.isMouse",
-        "scope": "static"
-    },
-    {
-        "kind": "function",
-        "name": "PICK_NOTHING",
-        "returns": [
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                }
-            }
-        ],
-        "memberof": "RayPick",
-        "longname": "RayPick.PICK_NOTHING",
         "scope": "static"
     },
     {
@@ -9572,6 +10078,24 @@
                 },
                 "description": "<em>Read-only.</em> <strong>Deprecated:</strong> This property is deprecated and will be\r    removed.",
                 "name": "devices"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "description": "<em>Read-only.</em> <code>true</code> if any nodes are soloed.",
+                "name": "isSoloing"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Array.<Uuid>"
+                    ]
+                },
+                "description": "<em>Read-only.</em> Get the list of currently soloed node UUIDs.",
+                "name": "soloList"
             }
         ],
         "longname": "Audio",
@@ -9954,6 +10478,24 @@
                 },
                 "description": "Path and name of file to import.",
                 "name": "filename"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "description": "the ResourceRequestObserver observe this request?",
+                "name": "does"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "internal id of object causing this import.",
+                "name": "optional"
             }
         ],
         "returns": [
@@ -11132,6 +11674,16 @@
             {
                 "type": {
                     "names": [
+                        "bool"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "<code>true</code> if the mini tablet is enabled to be displayed, otherwise \r    <code>false</code>.",
+                "name": "miniTabletEnabled"
+            },
+            {
+                "type": {
+                    "names": [
                         "Rect"
                     ]
                 },
@@ -11631,11 +12183,96 @@
             }
         ],
         "examples": [
-            "<caption>Report when showing of hand controllers changes.</caption>\rfunction onShouldShowHandControllersChanged() {\r    print(\"Should show hand controllers: \" + HMD.shouldShowHandControllers());\r}\rHMD.shouldShowHandControllersChanged.connect(onShouldShowHandControllersChanged);\r\rHMD.requestShowHandControllers();\rScript.setTimeout(function () {\r    HMD.requestHideHandControllers();\r}, 10000);\r\n     "
+            "<caption>Report when showing of hand controllers changes.</caption>\rfunction onShouldShowHandControllersChanged() {\r    print(\"Should show hand controllers: \" + HMD.shouldShowHandControllers());\r}\rHMD.shouldShowHandControllersChanged.connect(onShouldShowHandControllersChanged);\r\rHMD.requestShowHandControllers();\rScript.setTimeout(function () {\r    HMD.requestHideHandControllers();\r}, 10000);"
         ],
         "memberof": "HMD",
         "longname": "HMD.shouldShowHandControllersChanged",
         "scope": "static"
+    },
+    {
+        "description": "Triggered when the tablet is shown or hidden.",
+        "kind": "function",
+        "name": "showTabletChanged",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "description": "<code>true</code> if the tablet is showing, otherwise <code>false</code>.",
+                "name": "showTablet"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Signal"
+                    ]
+                }
+            }
+        ],
+        "memberof": "HMD",
+        "longname": "HMD.showTabletChanged",
+        "scope": "static"
+    },
+    {
+        "description": "Triggered when the ability to display the mini tablet has changed.",
+        "kind": "function",
+        "name": "miniTabletEnabledChanged",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "description": "<code>true</code> if the mini tablet is enabled to be displayed, otherwise <code>false</code>.",
+                "name": "enabled"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Signal"
+                    ]
+                }
+            }
+        ],
+        "memberof": "HMD",
+        "longname": "HMD.miniTabletEnabledChanged",
+        "scope": "static"
+    },
+    {
+        "description": "<table><tr><th>Available in:</th><td>Interface Scripts</td><td>Client Entity Scripts</td></tr></table><br>The Keyboard API provides facilities to use 3D Physical keyboard.",
+        "kind": "namespace",
+        "name": "Keyboard",
+        "hifiInterface": true,
+        "hifiClientEntity": true,
+        "properties": [
+            {
+                "type": {
+                    "names": [
+                        "bool"
+                    ]
+                },
+                "description": "<code>true</code> If the keyboard is visible <code>false</code> otherwise",
+                "name": "raised"
+            },
+            {
+                "type": {
+                    "names": [
+                        "bool"
+                    ]
+                },
+                "description": "<code>true</code> Will show * instead of characters in the text display <code>false</code> otherwise",
+                "name": "password"
+            }
+        ],
+        "longname": "Keyboard",
+        "scope": "global"
     },
     {
         "description": "<table><tr><th>Available in:</th><td>Interface Scripts</td><td>Client Entity Scripts</td></tr></table><br>The Menu API provides access to the menu that is displayed at the top of the window\ron a user's desktop and in the tablet when the \"MENU\" button is pressed.\r\r<p />\r\r<h3>Groupings</h3>\r\rA \"grouping\" provides a way to group a set of menus or menu items together so \rthat they can all be set visible or invisible as a group. \rThere are two available groups: <code>\"Advanced\"</code> and <code>\"Developer\"</code>.\rThese groupings can be toggled in the \"Settings\" menu.\rIf a menu item doesn't belong to a group it is always displayed.",
@@ -12104,6 +12741,78 @@
         ],
         "memberof": "Menu",
         "longname": "Menu.menuItemEvent",
+        "scope": "static"
+    },
+    {
+        "description": "Returns the Operating Sytem type",
+        "kind": "function",
+        "name": "getOperatingSystemType",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "description": "\"WINDOWS\", \"MACOS\" or \"UNKNOWN\""
+            }
+        ],
+        "memberof": "Test",
+        "longname": "Test.getOperatingSystemType",
+        "scope": "static"
+    },
+    {
+        "description": "Returns the graphics card type",
+        "kind": "function",
+        "name": "getGraphicsCardType",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "description": "graphics card type"
+            }
+        ],
+        "memberof": "Test",
+        "longname": "Test.getGraphicsCardType",
+        "scope": "static"
+    },
+    {
+        "description": "Returns true if Oculus Rift is connected (looks for hand controllers)",
+        "kind": "function",
+        "name": "hasRift",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "description": "<code>true</code> if running on Windows, otherwise <code>false</code>."
+            }
+        ],
+        "memberof": "Window",
+        "longname": "Window.hasRift",
+        "scope": "static"
+    },
+    {
+        "description": "Returns true if HTC Vive is connected (looks for hand controllers)",
+        "kind": "function",
+        "name": "hasRift",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "description": "<code>true</code> if running on Windows, otherwise <code>false</code>."
+            }
+        ],
+        "memberof": "Window",
+        "longname": "Window.hasRift",
         "scope": "static"
     },
     {
@@ -13107,6 +13816,24 @@
         "scope": "static"
     },
     {
+        "description": "Returns the Operating Sytem type",
+        "kind": "function",
+        "name": "getOperatingSystemType",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "description": "\"WINDOWS\", \"MACOS\" or \"UNKNOWN\""
+            }
+        ],
+        "memberof": "Test",
+        "longname": "Test.getOperatingSystemType",
+        "scope": "static"
+    },
+    {
         "kind": "namespace",
         "name": "Wallet",
         "hifiInterface": true,
@@ -13119,6 +13846,14 @@
                     ]
                 },
                 "name": "walletStatus"
+            },
+            {
+                "type": {
+                    "names": [
+                        "bool"
+                    ]
+                },
+                "name": "limitedCommerce"
             }
         ],
         "longname": "Wallet",
@@ -13128,8 +13863,8 @@
     {
         "kind": "function",
         "name": "refreshWalletStatus",
-        "memberof": "Wallet",
-        "longname": "Wallet.refreshWalletStatus",
+        "memberof": "WalletScriptingInterface",
+        "longname": "WalletScriptingInterface.refreshWalletStatus",
         "scope": "static"
     },
     {
@@ -13144,8 +13879,8 @@
                 }
             }
         ],
-        "memberof": "Wallet",
-        "longname": "Wallet.getWalletStatus",
+        "memberof": "WalletScriptingInterface",
+        "longname": "WalletScriptingInterface.getWalletStatus",
         "scope": "static"
     },
     {
@@ -13161,8 +13896,8 @@
                 "name": "entityID"
             }
         ],
-        "memberof": "Wallet",
-        "longname": "Wallet.proveAvatarEntityOwnershipVerification",
+        "memberof": "WalletScriptingInterface",
+        "longname": "WalletScriptingInterface.proveAvatarEntityOwnershipVerification",
         "scope": "static"
     },
     {
@@ -13177,8 +13912,24 @@
                 }
             }
         ],
-        "memberof": "Wallet",
-        "longname": "Wallet.walletStatusChanged",
+        "memberof": "WalletScriptingInterface",
+        "longname": "WalletScriptingInterface.walletStatusChanged",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "limitedCommerceChanged",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Signal"
+                    ]
+                }
+            }
+        ],
+        "memberof": "WalletScriptingInterface",
+        "longname": "WalletScriptingInterface.limitedCommerceChanged",
         "scope": "static"
     },
     {
@@ -13193,8 +13944,8 @@
                 }
             }
         ],
-        "memberof": "Wallet",
-        "longname": "Wallet.walletNotSetup",
+        "memberof": "WalletScriptingInterface",
+        "longname": "WalletScriptingInterface.walletNotSetup",
         "scope": "static"
     },
     {
@@ -13219,8 +13970,8 @@
                 }
             }
         ],
-        "memberof": "Wallet",
-        "longname": "Wallet.ownershipVerificationSuccess",
+        "memberof": "WalletScriptingInterface",
+        "longname": "WalletScriptingInterface.ownershipVerificationSuccess",
         "scope": "static"
     },
     {
@@ -13245,8 +13996,8 @@
                 }
             }
         ],
-        "memberof": "Wallet",
-        "longname": "Wallet.ownershipVerificationFailed",
+        "memberof": "WalletScriptingInterface",
+        "longname": "WalletScriptingInterface.ownershipVerificationFailed",
         "scope": "static"
     },
     {
@@ -13313,6 +14064,16 @@
                 },
                 "description": "The y display coordinate of the top left corner of the drawable area of the Interface window. \r    <em>Read-only.</em>",
                 "name": "y"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "<code>true</code> if the interstitial graphics are displayed when the \r    domain is loading, otherwise <code>false</code>.",
+                "name": "interstitialModeEnabled"
             }
         ],
         "longname": "Window",
@@ -14611,6 +15372,34 @@
         ],
         "memberof": "Window",
         "longname": "Window.redirectErrorStateChanged",
+        "scope": "static"
+    },
+    {
+        "description": "Triggered when the interstitial mode changes.",
+        "kind": "function",
+        "name": "interstitialModeChanged",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "bool"
+                    ]
+                },
+                "description": "The new interstitial mode value. If <code>true</code>, the interstitial graphics are \rdisplayed when the domain is loading.",
+                "name": "interstitialMode"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Signal"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Window",
+        "longname": "Window.interstitialModeChanged",
         "scope": "static"
     },
     {
@@ -19235,7 +20024,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -19345,7 +20134,7 @@
                     ]
                 },
                 "defaultvalue": "255,255,255",
-                "description": "The color of the overlay. Setting this value also sets the values of \r    <code>innerStartColor</code>, <code>innerEndColor</code>, <code>outerStartColor</code>, and <code>outerEndColor</code>.",
+                "description": "The color of the overlay. Setting this value also sets the values of\r    <code>innerStartColor</code>, <code>innerEndColor</code>, <code>outerStartColor</code>, and <code>outerEndColor</code>.",
                 "name": "color"
             },
             {
@@ -19744,7 +20533,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -19974,7 +20763,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -20235,7 +21024,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -20297,6 +21086,16 @@
                 "defaultvalue": "1,1",
                 "description": "The dimensions of the overlay. Synonyms: <code>scale</code>, <code>size</code>.",
                 "name": "dimensions"
+            },
+            {
+                "type": {
+                    "names": [
+                        "bool"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "overlays will maintain the aspect ratio when the subImage is applied.",
+                "name": "keepAspectRatio"
             },
             {
                 "type": {
@@ -20611,7 +21410,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -20917,7 +21716,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -21193,7 +21992,7 @@
         "scope": "static"
     },
     {
-        "description": "The result of a {@link PickRay} search using {@link Overlays.findRayIntersection|findRayIntersection} or \r{@link Overlays.findRayIntersectionVector|findRayIntersectionVector}.",
+        "description": "The result of a {@link PickRay} search using {@link Overlays.findRayIntersection|findRayIntersection}.",
         "kind": "typedef",
         "name": "RayToOverlayIntersectionResult",
         "type": {
@@ -21660,7 +22459,7 @@
         "scope": "static"
     },
     {
-        "description": "Find the closest 3D overlay intersected by a {@link PickRay}.",
+        "description": "Find the closest 3D overlay intersected by a {@link PickRay}. Overlays with their <code>drawInFront</code> property set  \rto <code>true</code> have priority over overlays that don't, except that tablet overlays have priority over any  \r<code>drawInFront</code> overlays behind them. I.e., if a <code>drawInFront</code> overlay is behind one that isn't  \r<code>drawInFront</code>, the <code>drawInFront</code> overlay is returned, but if a tablet overlay is in front of a  \r<code>drawInFront</code> overlay, the tablet overlay is returned.",
         "kind": "function",
         "name": "findRayIntersection",
         "params": [
@@ -22626,7 +23425,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -23000,7 +23799,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -23240,7 +24039,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -23470,7 +24269,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -23923,7 +24722,7 @@
                         "Vec3"
                     ]
                 },
-                "description": "The position of the overlay center. Synonyms: <code>p1</code>, <code>point</code>, and \r    <code>start</code>.",
+                "description": "The position of the overlay center. Synonyms: <code>p1</code>, <code>point</code>, and\r    <code>start</code>.",
                 "name": "position"
             },
             {
@@ -23970,7 +24769,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.",
+                "description": "If <code>true</code>, a dashed line is drawn on the overlay's edges. Synonym:\r    <code>dashed</code>.  Deprecated.",
                 "name": "isDashedLine"
             },
             {
@@ -24068,7 +24867,7 @@
                     ]
                 },
                 "defaultvalue": "1,1",
-                "description": "The size of the overlay to display the Web page on, in meters. Synonyms: \r    <code>scale</code>, <code>size</code>.",
+                "description": "The size of the overlay to display the Web page on, in meters. Synonyms:\r    <code>scale</code>, <code>size</code>.",
                 "name": "dimensions"
             },
             {
@@ -27176,13 +27975,6 @@
     },
     {
         "kind": "function",
-        "name": "setJointMappingsFromNetworkReply",
-        "memberof": "MyAvatar",
-        "longname": "MyAvatar.setJointMappingsFromNetworkReply",
-        "scope": "static"
-    },
-    {
-        "kind": "function",
         "name": "setSessionUUID",
         "params": [
             {
@@ -27598,6 +28390,21 @@
         ],
         "memberof": "AvatarList",
         "longname": "AvatarList.processAvatarIdentityPacket",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "processBulkAvatarTraits",
+        "params": [
+            {
+                "name": "message"
+            },
+            {
+                "name": "sendingNode"
+            }
+        ],
+        "memberof": "AvatarList",
+        "longname": "AvatarList.processBulkAvatarTraits",
         "scope": "static"
     },
     {
@@ -30857,12 +31664,32 @@
             {
                 "type": {
                     "names": [
+                        "EntityHostType"
+                    ]
+                },
+                "defaultvalue": "\"domain\"",
+                "description": "How this entity will behave, including if and how it is sent to other people.\r    The value can only be set at entity creation by using the <code>entityHostType</code> parameter in\r    {@link Entities.addEntity}.",
+                "name": "entityHostType"
+            },
+            {
+                "type": {
+                    "names": [
                         "boolean"
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code> then the entity is an avatar entity; otherwise it is a server\r    entity. An avatar entity follows you to each domain you visit, rendering at the same world coordinates unless it's \r    parented to your avatar. <em>Value cannot be changed after the entity is created.</em><br />\r    The value can also be set at entity creation by using the <code>clientOnly</code> parameter in \r    {@link Entities.addEntity}.",
-                "name": "clientOnly"
+                "description": "If <code>true</code> then the entity is an avatar entity;  An avatar entity follows you to each domain you visit,\r    rendering at the same world coordinates unless it's parented to your avatar. <em>Value cannot be changed after the entity is created.</em><br />\r    The value can only be set at entity creation by using the <code>entityHostType</code> parameter in \r    {@link Entities.addEntity}.  <code>clientOnly</code> is an alias.",
+                "name": "avatarEntity"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": false,
+                "description": "If <code>true</code> then the entity is a local entity;  Local entities only render for you and are not sent over the wire.\r    <em>Value cannot be changed after the entity is created.</em><br />\r    The value can only be set at entity creation by using the <code>entityHostType</code> parameter in\r    {@link Entities.addEntity}.",
+                "name": "localEntity"
             },
             {
                 "type": {
@@ -30871,7 +31698,7 @@
                     ]
                 },
                 "defaultvalue": "Uuid.NULL",
-                "description": "The session ID of the owning avatar if <code>clientOnly</code> is \r    <code>true</code>, otherwise {@link Uuid|Uuid.NULL}. <em>Read-only.</em>",
+                "description": "The session ID of the owning avatar if <code>avatarEntity</code> is \r    <code>true</code>, otherwise {@link Uuid|Uuid.NULL}. <em>Read-only.</em>",
                 "name": "owningAvatarID"
             },
             {
@@ -31115,18 +31942,8 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "Whether or not the entity should collide with items per its \r    <code>collisionMask<code> property. If <code>true</code> then the entity does not collide.",
+                "description": "Whether or not the entity should collide with items per its \r    <code>collisionMask<code> property. If <code>true</code> then the entity does not collide. A synonym is <code>ignoreForCollisions</code>.",
                 "name": "collisionless"
-            },
-            {
-                "type": {
-                    "names": [
-                        "boolean"
-                    ]
-                },
-                "defaultvalue": false,
-                "description": "Synonym for <code>collisionless</code>.",
-                "name": "ignoreForCollisions"
             },
             {
                 "type": {
@@ -31165,18 +31982,8 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "Whether or not the entity should be affected by collisions. If <code>true</code> then \r    the entity's movement is affected by collisions.",
+                "description": "Whether or not the entity should be affected by collisions. If <code>true</code> then \r    the entity's movement is affected by collisions. A synonym is <code>collisionsWillMove</code>.",
                 "name": "dynamic"
-            },
-            {
-                "type": {
-                    "names": [
-                        "boolean"
-                    ]
-                },
-                "defaultvalue": false,
-                "description": "Synonym for <code>dynamic</code>.",
-                "name": "collisionsWillMove"
             },
             {
                 "type": {
@@ -31265,7 +32072,7 @@
                     ]
                 },
                 "defaultvalue": "0,0,0",
-                "description": "The position of the entity relative to its parent if the entity is parented, \r    otherwise the same value as <code>position</code>. If the entity is parented to an avatar and is <code>clientOnly</code> \r    so that it scales with the avatar, this value remains the original local position value while the avatar scale changes.",
+                "description": "The position of the entity relative to its parent if the entity is parented, \r    otherwise the same value as <code>position</code>. If the entity is parented to an avatar and is an <code>avatarEntity</code> \r    so that it scales with the avatar, this value remains the original local position value while the avatar scale changes.",
                 "name": "localPosition"
             },
             {
@@ -31304,7 +32111,7 @@
                         "Vec3"
                     ]
                 },
-                "description": "The dimensions of the entity. If the entity is parented to an avatar and is \r    <code>clientOnly</code> so that it scales with the avatar, this value remains the original dimensions value while the \r    avatar scale changes.",
+                "description": "The dimensions of the entity. If the entity is parented to an avatar and is an\r    <code>avatarEntity</code> so that it scales with the avatar, this value remains the original dimensions value while the \r    avatar scale changes.",
                 "name": "localDimensions"
             },
             {
@@ -31332,7 +32139,7 @@
                     ]
                 },
                 "defaultvalue": "\"\"",
-                "description": "Base-64 encoded compressed dump of the actions associated with the entity. This property\r    is typically not used in scripts directly; rather, functions that manipulate an entity's actions update it.\r    The size of this property increases with the number of actions. Because this property value has to fit within a High \r    Fidelity datagram packet there is a limit to the number of actions that an entity can have, and edits which would result \r    in overflow are rejected.\r    <em>Read-only.</em>",
+                "description": "Base-64 encoded compressed dump of the actions associated with the entity. This property\r    is typically not used in scripts directly; rather, functions that manipulate an entity's actions update it.\r    The size of this property increases with the number of actions. Because this property value has to fit within a High \r    Fidelity datagram packet there is a limit to the number of actions that an entity can have, and edits which would result \r    in overflow are rejected. <em>Read-only.</em>",
                 "name": "actionData"
             },
             {
@@ -31391,7 +32198,7 @@
                     ]
                 },
                 "defaultvalue": false,
-                "description": "If <code>true</code> then clones created from this entity will be created as \r    avatar entities: their <code>clientOnly</code> property will be set to <code>true</code>.",
+                "description": "If <code>true</code> then clones created from this entity will be created as \r    avatar entities: their <code>avatarEntity</code> property will be set to <code>true</code>.",
                 "name": "cloneAvatarEntity"
             },
             {
@@ -31402,6 +32209,15 @@
                 },
                 "description": "The ID of the entity that this entity was cloned from.",
                 "name": "cloneOriginID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Entities.Grab"
+                    ]
+                },
+                "description": "The grab-related properties.",
+                "name": "grab"
             },
             {
                 "type": {
@@ -31517,18 +32333,20 @@
         "see": [
             "The different entity types have additional properties as follows:",
             "{@link Entities.EntityProperties-Box|EntityProperties-Box}",
-            "{@link Entities.EntityProperties-Light|EntityProperties-Light}",
-            "{@link Entities.EntityProperties-Line|EntityProperties-Line}",
-            "{@link Entities.EntityProperties-Material|EntityProperties-Material}",
+            "{@link Entities.EntityProperties-Sphere|EntityProperties-Sphere}",
+            "{@link Entities.EntityProperties-Shape|EntityProperties-Shape}",
             "{@link Entities.EntityProperties-Model|EntityProperties-Model}",
+            "{@link Entities.EntityProperties-Text|EntityProperties-Text}",
+            "{@link Entities.EntityProperties-Image|EntityProperties-Image}",
+            "{@link Entities.EntityProperties-Web|EntityProperties-Web}",
             "{@link Entities.EntityProperties-ParticleEffect|EntityProperties-ParticleEffect}",
+            "{@link Entities.EntityProperties-Line|EntityProperties-Line}",
             "{@link Entities.EntityProperties-PolyLine|EntityProperties-PolyLine}",
             "{@link Entities.EntityProperties-PolyVox|EntityProperties-PolyVox}",
-            "{@link Entities.EntityProperties-Shape|EntityProperties-Shape}",
-            "{@link Entities.EntityProperties-Sphere|EntityProperties-Sphere}",
-            "{@link Entities.EntityProperties-Text|EntityProperties-Text}",
-            "{@link Entities.EntityProperties-Web|EntityProperties-Web}",
-            "{@link Entities.EntityProperties-Zone|EntityProperties-Zone}"
+            "{@link Entities.EntityProperties-Grid|EntityProperties-Grid}",
+            "{@link Entities.EntityProperties-Light|EntityProperties-Light}",
+            "{@link Entities.EntityProperties-Zone|EntityProperties-Zone}",
+            "{@link Entities.EntityProperties-Material|EntityProperties-Material}"
         ],
         "memberof": "Entities",
         "longname": "Entities.EntityProperties",
@@ -31636,7 +32454,7 @@
         "scope": "static"
     },
     {
-        "description": "The <code>\"Line\"</code> {@link Entities.EntityType|EntityType} draws thin, straight lines between a sequence of two or more \rpoints.\rIt has properties in addition to the common {@link Entities.EntityProperties|EntityProperties}.",
+        "description": "The <code>\"Line\"</code> {@link Entities.EntityType|EntityType} draws thin, straight lines between a sequence of two or more\rpoints.  Deprecated: Use PolyLines instead.\rIt has properties in addition to the common {@link Entities.EntityProperties|EntityProperties}.",
         "kind": "typedef",
         "name": "EntityProperties-Line",
         "type": {
@@ -31652,7 +32470,7 @@
                     ]
                 },
                 "defaultvalue": "0.1,0.1,0.1",
-                "description": "The dimensions of the entity. Must be sufficient to contain all the \r    <code>linePoints</code>.",
+                "description": "The dimensions of the entity. Must be sufficient to contain all the\r    <code>linePoints</code>.",
                 "name": "dimensions"
             },
             {
@@ -31662,18 +32480,8 @@
                     ]
                 },
                 "defaultvalue": "[]",
-                "description": "The sequence of points to draw lines between. The values are relative to the entity's\r    position. A maximum of 70 points can be specified. The property's value is set only if all the <code>linePoints</code> \r    lie within the entity's <code>dimensions</code>.",
+                "description": "The sequence of points to draw lines between. The values are relative to the entity's\r    position. A maximum of 70 points can be specified. The property's value is set only if all the <code>linePoints</code>\r    lie within the entity's <code>dimensions</code>.",
                 "name": "linePoints"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "defaultvalue": 2,
-                "description": "<em>Currently not used.</em>",
-                "name": "lineWidth"
             },
             {
                 "type": {
@@ -31694,7 +32502,7 @@
         "scope": "static"
     },
     {
-        "description": "The <code>\"Material\"</code> {@link Entities.EntityType|EntityType} modifies the existing materials on\r{@link Entities.EntityType|Model} entities, {@link Entities.EntityType|Shape} entities (albedo only), \r{@link Overlays.OverlayType|model overlays}, and avatars.\rIt has properties in addition to the common {@link Entities.EntityProperties|EntityProperties}.<br />\rTo apply a material to an entity or overlay, set the material entity's <code>parentID</code> property to the entity or \roverlay's ID.\rTo apply a material to an avatar, set the material entity's <code>parentID</code> property to the avatar's session UUID.\rTo apply a material to your avatar such that it persists across domains and log-ins, create the material as an avatar entity \rby setting the <code>clientOnly</code> parameter in {@link Entities.addEntity} to <code>true</code>.\rMaterial entities render as non-scalable spheres if they don't have their parent set.",
+        "description": "The <code>\"Material\"</code> {@link Entities.EntityType|EntityType} modifies the existing materials on\r{@link Entities.EntityType|Model} entities, {@link Entities.EntityType|Shape} entities (albedo only), \r{@link Overlays.OverlayType|model overlays}, and avatars.\rIt has properties in addition to the common {@link Entities.EntityProperties|EntityProperties}.<br />\rTo apply a material to an entity or overlay, set the material entity's <code>parentID</code> property to the entity or \roverlay's ID.\rTo apply a material to an avatar, set the material entity's <code>parentID</code> property to the avatar's session UUID.\rTo apply a material to your avatar such that it persists across domains and log-ins, create the material as an avatar entity \rby setting the <code>entityHostType</code> parameter in {@link Entities.addEntity} to <code>\"avatar\"</code>.\rMaterial entities render as non-scalable spheres if they don't have their parent set.",
         "kind": "typedef",
         "name": "EntityProperties-Material",
         "type": {
@@ -31741,7 +32549,7 @@
                     ]
                 },
                 "defaultvalue": "\"uv\"",
-                "description": "How the material is mapped to the entity. Either <code>\"uv\"</code> or \r    <code>\"projected\"</code>. <em>Currently, only <code>\"uv\"</code> is supported.",
+                "description": "How the material is mapped to the entity. Either <code>\"uv\"</code> or \r    <code>\"projected\"</code>. In \"uv\" mode, the material will be evaluated within the UV space of the mesh it is applied to.  In\r    \"projected\" mode, the 3D transform of the Material Entity will be used to evaluate the texture coordinates for the material.",
                 "name": "materialMappingMode"
             },
             {
@@ -31783,10 +32591,20 @@
                 "defaultvalue": "\"\"",
                 "description": "Used to store {@link MaterialResource} data as a JSON string. You can use \r    <code>JSON.parse()</code> to parse the string into a JavaScript object which you can manipulate the properties of, and \r    use <code>JSON.stringify()</code> to convert the object into a string to put in the property.",
                 "name": "materialData"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "If true, the material will repeat.  If false, fragments outside of texCoord 0 - 1 will be discarded.\r    Works in both \"uv\" and \"projected\" modes.",
+                "name": "materialRepeat"
             }
         ],
         "examples": [
-            "<caption>Color a sphere using a Material entity.</caption>\rvar entityID = Entities.addEntity({\r    type: \"Sphere\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0, z: -5 })),\r    dimensions: { x: 1, y: 1, z: 1 },\r    color: { red: 128, green: 128, blue: 128 },\r    lifetime: 300  // Delete after 5 minutes.\r});\r\rvar materialID = Entities.addEntity({\r    type: \"Material\",\r    parentID: entityID,\r    materialURL: \"materialData\",\r    priority: 1,\r    materialData: JSON.stringify({\r        materialVersion: 1,\r        materials: {\r            // Can only set albedo on a Shape entity.\r            // Value overrides entity's \"color\" property.\r            albedo: [1.0, 1.0, 0]  // Yellow\r        }\r    }),\r});"
+            "<caption>Color a sphere using a Material entity.</caption>\rvar entityID = Entities.addEntity({\r    type: \"Sphere\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0, z: -5 })),\r    dimensions: { x: 1, y: 1, z: 1 },\r    color: { red: 128, green: 128, blue: 128 },\r    lifetime: 300  // Delete after 5 minutes.\r});\r\rvar materialID = Entities.addEntity({\r    type: \"Material\",\r    parentID: entityID,\r    materialURL: \"materialData\",\r    priority: 1,\r    materialData: JSON.stringify({\r        materialVersion: 1,\r        materials: {\r            // Value overrides entity's \"color\" property.\r            albedo: [1.0, 1.0, 0]  // Yellow\r        }\r    }),\r});"
         ],
         "memberof": "Entities",
         "longname": "Entities.EntityProperties-Material",
@@ -31829,7 +32647,7 @@
                     ]
                 },
                 "defaultvalue": "\"\"",
-                "description": "The URL of the FBX of OBJ model. Baked FBX models' URLs end in \".baked.fbx\".<br />\r    Note: If the name ends with <code>\"default-image-model.fbx\"</code> then the entity is considered to be an \"Image\" \r    entity, in which case the <code>textures</code> property should be set per the example.",
+                "description": "The URL of the FBX of OBJ model. Baked FBX models' URLs end in \".baked.fbx\".<br />",
                 "name": "modelURL"
             },
             {
@@ -31887,7 +32705,7 @@
                         "Array.<Quat>"
                     ]
                 },
-                "defaultvalue": "[]",
+                "defaultvalue": "[",
                 "description": "Joint rotations applied to the model; <code>[]</code> if none are applied or the \r    model hasn't loaded. The array indexes are per {@link Entities.getJointIndex|getJointIndex}. Rotations are relative to \r    each joint's parent.<br />\r    Joint rotations can be set by {@link Entities.setLocalJointRotation|setLocalJointRotation} and similar functions, or by\r    setting the value of this property. If you set a joint rotation using this property you also need to set the \r    corresponding <code>jointRotationsSet</code> value to <code>true</code>.",
                 "name": "jointRotations"
             },
@@ -31897,7 +32715,7 @@
                         "Array.<boolean>"
                     ]
                 },
-                "defaultvalue": "[]",
+                "defaultvalue": "[",
                 "description": "<code>true</code> values for joints that have had rotations applied, \r    <code>false</code> otherwise; <code>[]</code> if none are applied or the model hasn't loaded. The array indexes are per \r    {@link Entities.getJointIndex|getJointIndex}.",
                 "name": "jointRotationsSet"
             },
@@ -31907,7 +32725,7 @@
                         "Array.<Vec3>"
                     ]
                 },
-                "defaultvalue": "[]",
+                "defaultvalue": "[",
                 "description": "Joint translations applied to the model; <code>[]</code> if none are applied or \r    the model hasn't loaded. The array indexes are per {@link Entities.getJointIndex|getJointIndex}. Rotations are relative \r    to each joint's parent.<br />\r    Joint translations can be set by {@link Entities.setLocalJointTranslation|setLocalJointTranslation} and similar \r    functions, or by setting the value of this property. If you set a joint translation using this property you also need to \r    set the corresponding <code>jointTranslationsSet</code> value to <code>true</code>.",
                 "name": "jointTranslations"
             },
@@ -31917,7 +32735,7 @@
                         "Array.<boolean>"
                     ]
                 },
-                "defaultvalue": "[]",
+                "defaultvalue": "[",
                 "description": "<code>true</code> values for joints that have had translations applied, \r    <code>false</code> otherwise; <code>[]</code> if none are applied or the model hasn't loaded. The array indexes are per \r    {@link Entities.getJointIndex|getJointIndex}.",
                 "name": "jointTranslationsSet"
             },
@@ -31933,8 +32751,7 @@
             }
         ],
         "examples": [
-            "<caption>Rez a Vive tracker puck.</caption>\rvar entity = Entities.addEntity({\r    type: \"Model\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.75, z: -2 })),\r    rotation: MyAvatar.orientation,\r    modelURL: \"http://content.highfidelity.com/seefo/production/puck-attach/vive_tracker_puck.obj\",\r    dimensions: { x: 0.0945, y: 0.0921, z: 0.0423 },\r    lifetime: 300  // Delete after 5 minutes.\r});",
-            "<caption>Create an \"Image\" entity like you can in the Create app.</caption>\rvar IMAGE_MODEL = \"https://hifi-content.s3.amazonaws.com/DomainContent/production/default-image-model.fbx\";\rvar DEFAULT_IMAGE = \"https://hifi-content.s3.amazonaws.com/DomainContent/production/no-image.jpg\";\rvar entity = Entities.addEntity({\r    type: \"Model\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -3 })),\r    rotation: MyAvatar.orientation,\r    dimensions: {\r        x: 0.5385,\r        y: 0.2819,\r        z: 0.0092\r    },\r    shapeType: \"box\",\r    collisionless: true,\r    modelURL: IMAGE_MODEL,\r    textures: JSON.stringify({ \"tex.picture\": DEFAULT_IMAGE }),\r    lifetime: 300  // Delete after 5 minutes\r});"
+            "<caption>Rez a Vive tracker puck.</caption>\rvar entity = Entities.addEntity({\r    type: \"Model\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.75, z: -2 })),\r    rotation: MyAvatar.orientation,\r    modelURL: \"http://content.highfidelity.com/seefo/production/puck-attach/vive_tracker_puck.obj\",\r    dimensions: { x: 0.0945, y: 0.0921, z: 0.0423 },\r    lifetime: 300  // Delete after 5 minutes.\r});"
         ],
         "memberof": "Entities",
         "longname": "Entities.EntityProperties-Model",
@@ -32013,7 +32830,7 @@
             {
                 "type": {
                     "names": [
-                        "vec3"
+                        "Vec3"
                     ]
                 },
                 "defaultvalue": "0,-9.8,0",
@@ -32023,7 +32840,7 @@
             {
                 "type": {
                     "names": [
-                        "vec3"
+                        "Vec3"
                     ]
                 },
                 "defaultvalue": "0,0,0",
@@ -32062,7 +32879,7 @@
             {
                 "type": {
                     "names": [
-                        "vec3"
+                        "Vec3"
                     ]
                 },
                 "defaultvalue": "0,0,0",
@@ -32182,21 +32999,21 @@
             {
                 "type": {
                     "names": [
-                        "Color"
+                        "ColorFloat"
                     ]
                 },
                 "defaultvalue": "{}",
-                "description": "The color of each particle at the start of its life. If any of the component values are \r    undefined, the <code>color</code> value is used.",
+                "description": "The color of each particle at the start of its life. If any of the component values are\r    undefined, the <code>color</code> value is used.",
                 "name": "colorStart"
             },
             {
                 "type": {
                     "names": [
-                        "Color"
+                        "ColorFloat"
                     ]
                 },
                 "defaultvalue": "{}",
-                "description": "The color of each particle at the end of its life. If any of the component values are \r    undefined, the <code>color</code> value is used.",
+                "description": "The color of each particle at the end of its life. If any of the component values are\r    undefined, the <code>color</code> value is used.",
                 "name": "colorFinish"
             },
             {
@@ -32343,7 +33160,7 @@
                         "Array.<Vec3>"
                     ]
                 },
-                "defaultvalue": "[]",
+                "defaultvalue": "[",
                 "description": "The sequence of points to draw lines between. The values are relative to the entity's\r    position. A maximum of 70 points can be specified. Must be specified in order for the entity to render.",
                 "name": "linePoints"
             },
@@ -32353,7 +33170,7 @@
                         "Array.<Vec3>"
                     ]
                 },
-                "defaultvalue": "[]",
+                "defaultvalue": "[",
                 "description": "The normal vectors for the line's surface at the <code>linePoints</code>. The values are \r    relative to the entity's orientation. Must be specified in order for the entity to render.",
                 "name": "normals"
             },
@@ -32363,19 +33180,9 @@
                         "Array.<number>"
                     ]
                 },
-                "defaultvalue": "[]",
+                "defaultvalue": "[",
                 "description": "The widths, in m, of the line at the <code>linePoints</code>. Must be specified in \r    order for the entity to render.",
                 "name": "strokeWidths"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "defaultvalue": 2,
-                "description": "<em>Currently not used.</code>",
-                "name": "lineWidth"
             },
             {
                 "type": {
@@ -32383,8 +33190,8 @@
                         "Array.<Vec3>"
                     ]
                 },
-                "defaultvalue": "[]",
-                "description": "<em>Currently not used.</em>",
+                "defaultvalue": "[",
+                "description": "The base colors of each point, which are multiplied with the color of the texture, going from 0-1.\r    If strokeColors.length < the number of points, <code>color</code> is used for the remaining points.",
                 "name": "strokeColors"
             },
             {
@@ -32394,7 +33201,7 @@
                     ]
                 },
                 "defaultvalue": "255,255,255",
-                "description": "The base color of the line, which is multiplied with the color of the texture for\r    rendering.",
+                "description": "Used as the color for each point if <code>strokeColors</code> is too short.",
                 "name": "color"
             },
             {
@@ -32416,6 +33223,26 @@
                 "defaultvalue": true,
                 "description": "If <code>true</code>, the texture is stretched to fill the whole line, otherwise \r    the texture repeats along the line.",
                 "name": "isUVModeStretch"
+            },
+            {
+                "type": {
+                    "names": [
+                        "bool"
+                    ]
+                },
+                "defaultvalue": false,
+                "description": "If <code>true</code>, the alpha of the strokes will drop off farther from the center.",
+                "name": "glow"
+            },
+            {
+                "type": {
+                    "names": [
+                        "bool"
+                    ]
+                },
+                "defaultvalue": false,
+                "description": "If <code>true</code>, each line segment will rotate to face the camera.",
+                "name": "faceCamera"
             }
         ],
         "examples": [
@@ -32687,6 +33514,16 @@
             {
                 "type": {
                     "names": [
+                        "number"
+                    ]
+                },
+                "defaultvalue": "1.0",
+                "description": "The text alpha.",
+                "name": "textAlpha"
+            },
+            {
+                "type": {
+                    "names": [
                         "Color"
                     ]
                 },
@@ -32697,16 +33534,66 @@
             {
                 "type": {
                     "names": [
-                        "boolean"
+                        "number"
                     ]
                 },
-                "defaultvalue": false,
-                "description": "If <code>true</code>, the entity is oriented to face each user's camera (i.e., it\r    differs for each user present).",
-                "name": "faceCamera"
+                "defaultvalue": "1.0",
+                "description": "The background alpha.",
+                "name": "backgroundAlpha"
+            },
+            {
+                "type": {
+                    "names": [
+                        "BillboardMode"
+                    ]
+                },
+                "defaultvalue": "\"none\"",
+                "description": "If <code>\"none\"</code>, the entity is not billboarded.  If <code>\"yaw\"</code>, the entity will be\r    oriented to follow your camera around the y-axis.  If <code>\"full\"</code> the entity will be oriented to face your camera.  The following deprecated\r    behavior is also supported: you can also set <code>\"faceCamera\"</code> to <code>true</code> to set <code>billboardMode</code> to \"yaw\", and you can set\r    <code>\"isFacingAvatar\"</code> to <code>true</code> to set <code>billboardMode</code> to \"full\".  Setting either to <code>false</code> sets the mode to \"none\"",
+                "name": "billboardMode"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "defaultvalue": "0.0",
+                "description": "The left margin, in meters.",
+                "name": "leftMargin"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "defaultvalue": "0.0",
+                "description": "The right margin, in meters.",
+                "name": "rightMargin"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "defaultvalue": "0.0",
+                "description": "The top margin, in meters.",
+                "name": "topMargin"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "defaultvalue": "0.0",
+                "description": "The bottom margin, in meters.",
+                "name": "bottomMargin"
             }
         ],
         "examples": [
-            "<caption>Create a text entity.</caption>\rvar text = Entities.addEntity({\r    type: \"Text\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0, z: -5 })),\r    dimensions: { x: 0.6, y: 0.3, z: 0.01 },\r    lineHeight: 0.12,\r    text: \"Hello\\nthere!\",\r    faceCamera: true,\r    lifetime: 300  // Delete after 5 minutes.\r});"
+            "<caption>Create a text entity.</caption>\rvar text = Entities.addEntity({\r    type: \"Text\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0, z: -5 })),\r    dimensions: { x: 0.6, y: 0.3, z: 0.01 },\r    lineHeight: 0.12,\r    text: \"Hello\\nthere!\",\r    billboardMode: \"yaw\",\r    lifetime: 300  // Delete after 5 minutes.\r});"
         ],
         "memberof": "Entities",
         "longname": "Entities.EntityProperties-Text",
@@ -32934,6 +33821,162 @@
         "scope": "static"
     },
     {
+        "description": "The <code>\"Image\"</code> {@link Entities.EntityType|EntityType} displays an image on a 2D rectangle in the domain.\rIt has properties in addition to the common {@link Entities.EntityProperties|EntityProperties}.",
+        "kind": "typedef",
+        "name": "EntityProperties-Image",
+        "type": {
+            "names": [
+                "object"
+            ]
+        },
+        "properties": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "defaultvalue": "\"\"",
+                "description": "The URL of the image to use.",
+                "name": "imageURL"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": false,
+                "description": "Whether or not the image should be emissive (unlit).",
+                "name": "emissive"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "Whether or not the image should maintain its aspect ratio.",
+                "name": "keepAspectRatio"
+            },
+            {
+                "type": {
+                    "names": [
+                        "BillboardMode"
+                    ]
+                },
+                "defaultvalue": "\"none\"",
+                "description": "If <code>\"none\"</code>, the entity is not billboarded.  If <code>\"yaw\"</code>, the entity will be\r    oriented to follow your camera around the y-axis.  If <code>\"full\"</code> the entity will be oriented to face your camera.  The following deprecated\r    behavior is also supported: you can also set <code>\"faceCamera\"</code> to <code>true</code> to set <code>billboardMode</code> to \"yaw\", and you can set\r    <code>\"isFacingAvatar\"</code> to <code>true</code> to set <code>billboardMode</code> to \"full\".  Setting either to <code>false</code> sets the mode to \"none\"",
+                "name": "billboardMode"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Rect"
+                    ]
+                },
+                "defaultvalue": "{",
+                "description": "x: 0, y: 0, width: -1, height: -1 } - The portion of the image to display. If width or height are -1, defaults to\r    the full image in that dimension.",
+                "name": "subImage"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Color"
+                    ]
+                },
+                "defaultvalue": "255,255,255",
+                "description": "The color of the image.",
+                "name": "color"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "defaultvalue": 1,
+                "description": "The alpha of the image.",
+                "name": "alpha"
+            }
+        ],
+        "examples": [
+            "<caption>Create a image entity.</caption>\rvar image = Entities.addEntity({\r    type: \"Image\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0, z: -5 })),\r    dimensions: { x: 0.6, y: 0.3, z: 0.01 },\r    imageURL: \"https://images.pexels.com/photos/1020315/pexels-photo-1020315.jpeg\",\r    billboardMode: \"yaw\",\r    lifetime: 300  // Delete after 5 minutes.\r});"
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.EntityProperties-Image",
+        "scope": "static"
+    },
+    {
+        "description": "The <code>\"Grid\"</code> {@link Entities.EntityType|EntityType} displays a grid on a 2D plane.\rIt has properties in addition to the common {@link Entities.EntityProperties|EntityProperties}.",
+        "kind": "typedef",
+        "name": "EntityProperties-Grid",
+        "type": {
+            "names": [
+                "object"
+            ]
+        },
+        "properties": [
+            {
+                "type": {
+                    "names": [
+                        "Color"
+                    ]
+                },
+                "defaultvalue": "255,255,255",
+                "description": "The color of the grid.",
+                "name": "color"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "defaultvalue": 1,
+                "description": "The alpha of the grid.",
+                "name": "alpha"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "If <code>true</code>, the grid is always visible even as the camera moves to another\r    position.",
+                "name": "followCamera"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "defaultvalue": 5,
+                "description": "Integer number of <code>minorGridEvery</code> intervals at which to draw a thick grid\r    line. Minimum value = <code>1</code>.",
+                "name": "majorGridEvery"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "defaultvalue": 1,
+                "description": "Real number of meters at which to draw thin grid lines. Minimum value =\r    <code>0.001</code>.",
+                "name": "minorGridEvery"
+            }
+        ],
+        "examples": [
+            "<caption>Create a grid entity.</caption>\rvar grid = Entities.addEntity({\r    type: \"Grid\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0, z: -5 })),\r    dimensions: { x: 100.0, y: 100.0, z: 0.01 },\r    followCamera: false,\r    majorGridEvery: 4,\r    minorGridEvery: 0.5,\r    lifetime: 300  // Delete after 5 minutes.\r});"
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.EntityProperties-Grid",
+        "scope": "static"
+    },
+    {
         "description": "The axis-aligned bounding box of an entity.",
         "kind": "typedef",
         "name": "BoundingBox",
@@ -33045,7 +34088,7 @@
         "scope": "static"
     },
     {
-        "description": "The result of a {@link PickRay} search using {@link Entities.findRayIntersection|findRayIntersection} or \r{@link Entities.findRayIntersectionBlocking|findRayIntersectionBlocking}.",
+        "description": "The result of a {@link PickRay} search using {@link Entities.findRayIntersection|findRayIntersection}.",
         "kind": "typedef",
         "name": "RayToEntityIntersectionResult",
         "type": {
@@ -33327,6 +34370,61 @@
         "scope": "static"
     },
     {
+        "description": "<p>How an entity is sent over the wire.</p>\r<table>\r  <thead>\r    <tr><th>Value</th><th>Description</th></tr>\r  </thead>\r  <tbody>\r    <tr><td><code>domain</code></td><td>Domain entities are sent over the entity server to everyone else</td></tr>\r    <tr><td><code>avatar</code></td><td>Avatar entities are sent over the avatar entity and are associated with one avatar</td></tr>\r    <tr><td><code>local</code></td><td>Local entities are not sent over the wire and will only render for you, locally</td></tr>\r  </tbody>\r</table>",
+        "kind": "typedef",
+        "name": "EntityHostType",
+        "type": {
+            "names": [
+                "string"
+            ]
+        },
+        "longname": "EntityHostType",
+        "scope": "global"
+    },
+    {
+        "description": "Add a new entity with specified properties.",
+        "kind": "function",
+        "name": "addEntity",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Entities.EntityProperties"
+                    ]
+                },
+                "description": "The properties of the entity to create.",
+                "name": "properties"
+            },
+            {
+                "type": {
+                    "names": [
+                        "EntityHostType"
+                    ]
+                },
+                "optional": true,
+                "defaultvalue": "\"domain\"",
+                "description": "If <code>\"avatar\"</code> the entity is created as an avatar entity.  An avatar entity\r    follows you to each domain you visit, rendering at the same world coordinates unless it's parented to your avatar.\r    If <code>\"local\"</code>, the entity is created as a local entity, which will only render for you and isn't sent over the wire.\r    Otherwise it is created as a normal entity and sent over the entity server.",
+                "name": "entityHostType"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "description": "The ID of the entity if successfully created, otherwise {@link Uuid|Uuid.NULL}."
+            }
+        ],
+        "examples": [
+            "<caption>Create a box entity in front of your avatar.</caption>\rvar entityID = Entities.addEntity({\r    type: \"Box\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0, z: -5 })),\r    rotation: MyAvatar.orientation,\r    dimensions: { x: 0.5, y: 0.5, z: 0.5 }\r});\rprint(\"Entity created: \" + entityID);"
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.addEntity",
+        "scope": "static"
+    },
+    {
         "description": "Add a new entity with specified properties.",
         "kind": "function",
         "name": "addEntity",
@@ -33348,8 +34446,8 @@
                 },
                 "optional": true,
                 "defaultvalue": false,
-                "description": "If <code>true</code>, or if <code>clientOnly</code> is set <code>true</code> in \r    the properties, the entity is created as an avatar entity; otherwise it is created on the server. An avatar entity \r    follows you to each domain you visit, rendering at the same world coordinates unless it's parented to your avatar.",
-                "name": "clientOnly"
+                "description": "Whether to create an avatar entity or a domain entity",
+                "name": "avatarEntity"
             }
         ],
         "returns": [
@@ -33361,9 +34459,6 @@
                 },
                 "description": "The ID of the entity if successfully created, otherwise {@link Uuid|Uuid.NULL}."
             }
-        ],
-        "examples": [
-            "<caption>Create a box entity in front of your avatar.</caption>\rvar entityID = Entities.addEntity({\r    type: \"Box\",\r    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0, z: -5 })),\r    rotation: MyAvatar.orientation,\r    dimensions: { x: 0.5, y: 0.5, z: 0.5 }\r});\rprint(\"Entity created: \" + entityID);"
         ],
         "memberof": "Entities",
         "longname": "Entities.addEntity",
@@ -33631,7 +34726,7 @@
         "scope": "static"
     },
     {
-        "description": "Find the entity with a position closest to a specified point and within a specified radius.",
+        "description": "Find the non-local entity with a position closest to a specified point and within a specified radius.",
         "kind": "function",
         "name": "findClosestEntity",
         "params": [
@@ -33672,7 +34767,7 @@
         "scope": "static"
     },
     {
-        "description": "Find all entities that intersect a sphere defined by a center point and radius.",
+        "description": "Find all non-local entities that intersect a sphere defined by a center point and radius.",
         "kind": "function",
         "name": "findEntities",
         "params": [
@@ -33713,7 +34808,7 @@
         "scope": "static"
     },
     {
-        "description": "Find all entities whose axis-aligned boxes intersect a search axis-aligned box defined by its minimum coordinates corner\rand dimensions.",
+        "description": "Find all non-local entities whose axis-aligned boxes intersect a search axis-aligned box defined by its minimum coordinates corner\rand dimensions.",
         "kind": "function",
         "name": "findEntitiesInBox",
         "params": [
@@ -33743,7 +34838,7 @@
                         "Array.<Uuid>"
                     ]
                 },
-                "description": "An array of entity IDs whose AA boxes intersect the search AA box. The array is empty if no entities \r    could be found."
+                "description": "An array of entity IDs whose AA boxes intersect the search AA box. The array is empty if no entities\r    could be found."
             }
         ],
         "memberof": "Entities",
@@ -33751,7 +34846,7 @@
         "scope": "static"
     },
     {
-        "description": "Find all entities whose axis-aligned boxes intersect a search frustum.",
+        "description": "Find all non-local entities whose axis-aligned boxes intersect a search frustum.",
         "kind": "function",
         "name": "findEntitiesInFrustum",
         "params": [
@@ -33772,7 +34867,7 @@
                         "Array.<Uuid>"
                     ]
                 },
-                "description": "An array of entity IDs axis-aligned boxes intersect the frustum. The array is empty if no entities \r    could be found."
+                "description": "An array of entity IDs axis-aligned boxes intersect the frustum. The array is empty if no entities\r    could be found."
             }
         ],
         "examples": [
@@ -33783,7 +34878,7 @@
         "scope": "static"
     },
     {
-        "description": "Find all entities of a particular type that intersect a sphere defined by a center point and radius.",
+        "description": "Find all non-local entities of a particular type that intersect a sphere defined by a center point and radius.",
         "kind": "function",
         "name": "findEntitiesByType",
         "params": [
@@ -33822,7 +34917,7 @@
                         "Array.<Uuid>"
                     ]
                 },
-                "description": "An array of entity IDs of the specified type that intersect the search sphere. The array is empty if \r    no entities could be found."
+                "description": "An array of entity IDs of the specified type that intersect the search sphere. The array is empty if\r    no entities could be found."
             }
         ],
         "examples": [
@@ -33833,7 +34928,7 @@
         "scope": "static"
     },
     {
-        "description": "Find all entities of a particular name that intersect a sphere defined by a center point and radius.",
+        "description": "Find all non-local entities with a particular name that intersect a sphere defined by a center point and radius.",
         "kind": "function",
         "name": "findEntitiesByName",
         "params": [
@@ -33887,14 +34982,14 @@
             }
         ],
         "examples": [
-            "<caption>Report the number of entities with the name, \"Light-Target\".</caption>\rvar entityIDs = Entities.findEntitiesByName(\"Light-Target\", MyAvatar.position, 10, false);\rprint(\"Number of entities with the name \"Light-Target\": \" + entityIDs.length);"
+            "<caption>Report the number of entities with the name, \"Light-Target\".</caption>\rvar entityIDs = Entities.findEntitiesByName(\"Light-Target\", MyAvatar.position, 10, false);\rprint(\"Number of entities with the name Light-Target: \" + entityIDs.length);"
         ],
         "memberof": "Entities",
         "longname": "Entities.findEntitiesByName",
         "scope": "static"
     },
     {
-        "description": "Find the first entity intersected by a {@link PickRay}. <code>Light</code> and <code>Zone</code> entities are not \rintersected unless they've been configured as pickable using {@link Entities.setLightsArePickable|setLightsArePickable}\rand {@link Entities.setZonesArePickable|setZonesArePickable}, respectively.<br />",
+        "description": "Find the first non-local entity intersected by a {@link PickRay}. <code>Light</code> and <code>Zone</code> entities are not\rintersected unless they've been configured as pickable using {@link Entities.setLightsArePickable|setLightsArePickable}\rand {@link Entities.setZonesArePickable|setZonesArePickable}, respectively.<br />",
         "kind": "function",
         "name": "findRayIntersection",
         "params": [
@@ -33978,59 +35073,6 @@
         ],
         "memberof": "Entities",
         "longname": "Entities.findRayIntersection",
-        "scope": "static"
-    },
-    {
-        "description": "Find the first entity intersected by a {@link PickRay}. <code>Light</code> and <code>Zone</code> entities are not \rintersected unless they've been configured as pickable using {@link Entities.setLightsArePickable|setLightsArePickable} \rand {@link Entities.setZonesArePickable|setZonesArePickable}, respectively.<br />\rThis is a synonym for {@link Entities.findRayIntersection|findRayIntersection}.",
-        "kind": "function",
-        "name": "findRayIntersectionBlocking",
-        "params": [
-            {
-                "type": {
-                    "names": [
-                        "PickRay"
-                    ]
-                },
-                "description": "The PickRay to use for finding entities.",
-                "name": "pickRay"
-            },
-            {
-                "type": {
-                    "names": [
-                        "boolean"
-                    ]
-                },
-                "optional": true,
-                "defaultvalue": false,
-                "description": "If <code>true</code> and the intersected entity is a <code>Model</code>\r    entity, the result's <code>extraInfo</code> property includes more information than it otherwise would.",
-                "name": "precisionPicking"
-            },
-            {
-                "type": {
-                    "names": [
-                        "Array.<Uuid>"
-                    ]
-                },
-                "optional": true,
-                "defaultvalue": "[]",
-                "description": "If not empty then the search is restricted to these entities.",
-                "name": "entitiesToInclude"
-            },
-            {
-                "type": {
-                    "names": [
-                        "Array.<Uuid>"
-                    ]
-                },
-                "optional": true,
-                "defaultvalue": "[]",
-                "description": "Entities to ignore during the search.",
-                "name": "entitiesToDiscard"
-            }
-        ],
-        "deprecated": "This function is deprecated and will soon be removed. Use \r   {@link Entities.findRayIntersection|findRayIntersection} instead; it blocks and performs the same function.",
-        "memberof": "Entities",
-        "longname": "Entities.findRayIntersectionBlocking",
         "scope": "static"
     },
     {
@@ -34298,7 +35340,7 @@
         "scope": "inner"
     },
     {
-        "description": "Set whether or not ray picks intersect the bounding box of {@link Entities.EntityType|Light} entities. By default, Light \rentities are not intersected. The setting lasts for the Interface session. Ray picks are done using \r    {@link Entities.findRayIntersection|findRayIntersection} or \r    {@link Entities.findRayIntersectionBlocking|findRayIntersectionBlocking}, or the {@link Picks} and {@link RayPick} \r    APIs.",
+        "description": "Set whether or not ray picks intersect the bounding box of {@link Entities.EntityType|Light} entities. By default, Light \rentities are not intersected. The setting lasts for the Interface session. Ray picks are done using \r    {@link Entities.findRayIntersection|findRayIntersection}, or the {@link Picks} API.",
         "kind": "function",
         "name": "setLightsArePickable",
         "params": [
@@ -34317,7 +35359,7 @@
         "scope": "static"
     },
     {
-        "description": "Get whether or not ray picks intersect the bounding box of {@link Entities.EntityType|Light} entities. Ray picks are \r    done using {@link Entities.findRayIntersection|findRayIntersection} or \r    {@link Entities.findRayIntersectionBlocking|findRayIntersectionBlocking}, or the {@link Picks} and {@link RayPick} \r    APIs.",
+        "description": "Get whether or not ray picks intersect the bounding box of {@link Entities.EntityType|Light} entities. Ray picks are \r    done using {@link Entities.findRayIntersection|findRayIntersection}, or the {@link Picks} API.",
         "kind": "function",
         "name": "getLightsArePickable",
         "returns": [
@@ -34335,7 +35377,7 @@
         "scope": "static"
     },
     {
-        "description": "Set whether or not ray picks intersect the bounding box of {@link Entities.EntityType|Zone} entities. By default, Light \rentities are not intersected. The setting lasts for the Interface session. Ray picks are done using \r    {@link Entities.findRayIntersection|findRayIntersection} or \r    {@link Entities.findRayIntersectionBlocking|findRayIntersectionBlocking}, or the {@link Picks} and {@link RayPick} \r    APIs.",
+        "description": "Set whether or not ray picks intersect the bounding box of {@link Entities.EntityType|Zone} entities. By default, Light \rentities are not intersected. The setting lasts for the Interface session. Ray picks are done using \r    {@link Entities.findRayIntersection|findRayIntersection}, or the {@link Picks} API.",
         "kind": "function",
         "name": "setZonesArePickable",
         "params": [
@@ -34354,7 +35396,7 @@
         "scope": "static"
     },
     {
-        "description": "Get whether or not ray picks intersect the bounding box of {@link Entities.EntityType|Zone} entities. Ray picks are \r    done using {@link Entities.findRayIntersection|findRayIntersection} or \r    {@link Entities.findRayIntersectionBlocking|findRayIntersectionBlocking}, or the {@link Picks} and {@link RayPick} \r    APIs.",
+        "description": "Get whether or not ray picks intersect the bounding box of {@link Entities.EntityType|Zone} entities. Ray picks are \r    done using {@link Entities.findRayIntersection|findRayIntersection}, or the {@link Picks} API.",
         "kind": "function",
         "name": "getZonesArePickable",
         "returns": [
@@ -34876,7 +35918,7 @@
         "scope": "static"
     },
     {
-        "description": "Dumps debug information about all entities in Interface's local in-memory tree of entities it knows about &mdash; domain\rand client-only &mdash; to the program log.",
+        "description": "Dumps debug information about all entities in Interface's local in-memory tree of entities it knows about to the program log.",
         "kind": "function",
         "name": "dumpTree",
         "memberof": "Entities",
@@ -35121,6 +36163,44 @@
         ],
         "memberof": "Entities",
         "longname": "Entities.getAbsoluteJointTranslationInObjectFrame",
+        "scope": "static"
+    },
+    {
+        "description": "Get the index of the parent joint.",
+        "kind": "function",
+        "name": "getJointParent",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "description": "The ID of the entity.",
+                "name": "entityID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "The integer index of the joint.",
+                "name": "index"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "The index of the parent joint."
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.getJointParent",
         "scope": "static"
     },
     {
@@ -36324,6 +37404,506 @@
         "scope": "static"
     },
     {
+        "kind": "function",
+        "name": "worldToLocalPosition",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "name": "worldPosition"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.worldToLocalPosition",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "worldToLocalRotation",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Quat"
+                    ]
+                },
+                "name": "worldRotation"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Quat"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.worldToLocalRotation",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "worldToLocalVelocity",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "name": "worldVelocity"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.worldToLocalVelocity",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "worldToLocalAngularVelocity",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "name": "worldAngularVelocity"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.worldToLocalAngularVelocity",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "worldToLocalDimensions",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "name": "worldDimensions"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.worldToLocalDimensions",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "localToWorldPosition",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "name": "localPosition"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.localToWorldPosition",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "localToWorldRotation",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Quat"
+                    ]
+                },
+                "name": "localRotation"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Quat"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.localToWorldRotation",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "localToWorldVelocity",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "name": "localVelocity"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.localToWorldVelocity",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "localToWorldAngularVelocity",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "name": "localAngularVelocity"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.localToWorldAngularVelocity",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "localToWorldDimensions",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "name": "localDimensions"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "parentID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "name": "parentJointIndex"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "name": "scalesWithparent"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                }
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.localToWorldDimensions",
+        "scope": "static"
+    },
+    {
         "description": "Get the static certificate for an entity. The static certificate contains static properties of the item which cannot \rbe altered.",
         "kind": "function",
         "name": "getStaticCertificateJSON",
@@ -36379,6 +37959,35 @@
         ],
         "memberof": "Entities",
         "longname": "Entities.verifyStaticCertificateProperties",
+        "scope": "static"
+    },
+    {
+        "description": "Get information about entity properties including a minimum to maximum range for numerical properties \ras well as property enum value.",
+        "kind": "function",
+        "name": "getPropertyInfo",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "description": "The name of the property to get the information for.",
+                "name": "propertyName"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Entities.EntityPropertyInfo"
+                    ]
+                },
+                "description": "The information data including propertyEnum, minimum, and maximum\rif the property can be found, otherwise an empty object."
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.getPropertyInfo",
         "scope": "static"
     },
     {
@@ -37121,7 +38730,7 @@
         "scope": "static"
     },
     {
-        "description": "Triggered when an entity is added to Interface's local in-memory tree of entities it knows about. This may occur when \rentities are loaded upon visiting a domain, when the user rotates their view so that more entities become visible, and \rwhen a domain or client-only entity is added (e.g., by {@Entities.addEntity|addEntity}).",
+        "description": "Triggered when an entity is added to Interface's local in-memory tree of entities it knows about. This may occur when \rentities are loaded upon visiting a domain, when the user rotates their view so that more entities become visible, and \rwhen any type of entity is added (e.g., by {@Entities.addEntity|addEntity}).",
         "kind": "function",
         "name": "addingEntity",
         "params": [
@@ -37149,6 +38758,68 @@
         ],
         "memberof": "Entities",
         "longname": "Entities.addingEntity",
+        "scope": "static"
+    },
+    {
+        "description": "Triggered when an 'wearable' entity is deleted.",
+        "kind": "function",
+        "name": "deletingWearable",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "description": "The ID of the 'wearable' entity deleted.",
+                "name": "entityID"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Signal"
+                    ]
+                }
+            }
+        ],
+        "examples": [
+            "<caption>Report when an 'wearable' entity is deleted.</caption>\rEntities.deletingWearable.connect(function (entityID) {\r    print(\"Deleted wearable: \" + entityID);\r});"
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.deletingWearable",
+        "scope": "static"
+    },
+    {
+        "description": "Triggered when an 'wearable' entity is added to Interface's local in-memory tree of entities it knows about. This may occur when\r'wearable' entities are added to avatar",
+        "kind": "function",
+        "name": "addingWearable",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "description": "The ID of the 'wearable' entity added.",
+                "name": "entityID"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Signal"
+                    ]
+                }
+            }
+        ],
+        "examples": [
+            "<caption>Report when an 'wearable' entity is added.</caption>\rEntities.addingWearable.connect(function (entityID) {\r    print(\"Added wearable: \" + entityID);\r});"
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.addingWearable",
         "scope": "static"
     },
     {
@@ -37209,7 +38880,7 @@
         "scope": "static"
     },
     {
-        "description": "<p>An entity may be one of the following types:</p>\r<table>\r  <thead>\r    <tr><th>Value</th><th>Description</th><th>Properties</th></tr>\r  </thead>\r  <tbody>\r    <tr><td><code>\"Box\"</code></td><td>A rectangular prism. This is a synonym of <code>\"Shape\"</code> for the case \r      where the entity's <code>shape</code> property value is <code>\"Cube\"</code>.<br />\r      If an entity is created with its <code>type</code> \r      set to <code>\"Box\"</code> it will always be created with a <code>shape</code> property value of \r      <code>\"Cube\"</code>. If an entity of type <code>Shape</code> or <code>Sphere</code> has its <code>shape</code> set \r      to <code>\"Cube\"</code> then its <code>type</code> will be reported as <code>\"Box\"</code>.\r      <td>{@link Entities.EntityProperties-Box|EntityProperties-Box}</td></tr>\r    <tr><td><code>\"Light\"</code></td><td>A local lighting effect.</td>\r      <td>{@link Entities.EntityProperties-Light|EntityProperties-Light}</td></tr>\r    <tr><td><code>\"Line\"</code></td><td>A sequence of one or more simple straight lines.</td>\r      <td>{@link Entities.EntityProperties-Line|EntityProperties-Line}</td></tr>\r    <tr><td><code>\"Material\"</code></td><td>Modifies the existing materials on Model entities, Shape entities (albedo \r      only), {@link Overlays.OverlayType|model overlays}, and avatars.</td>\r      <td>{@link Entities.EntityProperties-Material|EntityProperties-Material}</td></tr>\r    <tr><td><code>\"Model\"</code></td><td>A mesh model from an FBX or OBJ file.</td>\r      <td>{@link Entities.EntityProperties-Model|EntityProperties-Model}</td></tr>\r    <tr><td><code>\"ParticleEffect\"</code></td><td>A particle system that can be used to simulate things such as fire, \r      smoke, snow, magic spells, etc.</td>\r      <td>{@link Entities.EntityProperties-ParticleEffect|EntityProperties-ParticleEffect}</td></tr>\r    <tr><td><code>\"PolyLine\"</code></td><td>A sequence of one or more textured straight lines.</td>\r      <td>{@link Entities.EntityProperties-PolyLine|EntityProperties-PolyLine}</td></tr>\r    <tr><td><code>\"PolyVox\"</code></td><td>A set of textured voxels.</td>\r      <td>{@link Entities.EntityProperties-PolyVox|EntityProperties-PolyVox}</td></tr>\r    <tr><td><code>\"Shape\"</code></td><td>A basic entity such as a cube.\r      See also, the <code>\"Box\"</code> and <code>\"Sphere\"</code> entity types.</td>\r      <td>{@link Entities.EntityProperties-Shape|EntityProperties-Shape}</td></tr>\r    <tr><td><code>\"Sphere\"</code></td><td>A sphere. This is a synonym of <code>\"Shape\"</code> for the case\r      where the entity's <code>shape</code> property value is <code>\"Sphere\"</code>.<br />\r      If an entity is created with its <code>type</code>\r      set to <code>\"Sphere\"</code> it will always be created with a <code>shape</code> property value of\r      <code>\"Sphere\"</code>. If an entity of type <code>Box</code> or <code>Shape</code> has its <code>shape</code> set\r      to <code>\"Sphere\"</code> then its <code>type</code> will be reported as <code>\"Sphere\"</code>.\r      <td>{@link Entities.EntityProperties-Sphere|EntityProperties-Sphere}</td></tr>\r    <tr><td><code>\"Text\"</code></td><td>A pane of text oriented in space.</td>\r      <td>{@link Entities.EntityProperties-Text|EntityProperties-Text}</td></tr>\r    <tr><td><code>\"Web\"</code></td><td>A browsable Web page.</td>\r      <td>{@link Entities.EntityProperties-Web|EntityProperties-Web}</td></tr>\r    <tr><td><code>\"Zone\"</code></td><td>A volume of lighting effects and avatar permissions.</td>\r      <td>{@link Entities.EntityProperties-Zone|EntityProperties-Zone}</td></tr>\r  </tbody>\r</table>",
+        "description": "<p>An entity may be one of the following types:</p>\r<table>\r  <thead>\r    <tr><th>Value</th><th>Description</th><th>Properties</th></tr>\r  </thead>\r  <tbody>\r    <tr><td><code>\"Box\"</code></td><td>A rectangular prism. This is a synonym of <code>\"Shape\"</code> for the case \r      where the entity's <code>shape</code> property value is <code>\"Cube\"</code>.<br />\r      If an entity is created with its <code>type</code> \r      set to <code>\"Box\"</code> it will always be created with a <code>shape</code> property value of \r      <code>\"Cube\"</code>. If an entity of type <code>Shape</code> or <code>Sphere</code> has its <code>shape</code> set \r      to <code>\"Cube\"</code> then its <code>type</code> will be reported as <code>\"Box\"</code>.\r      <td>{@link Entities.EntityProperties-Box|EntityProperties-Box}</td></tr>\r    <tr><td><code>\"Sphere\"</code></td><td>A sphere. This is a synonym of <code>\"Shape\"</code> for the case\r      where the entity's <code>shape</code> property value is <code>\"Sphere\"</code>.<br />\r      If an entity is created with its <code>type</code>\r      set to <code>\"Sphere\"</code> it will always be created with a <code>shape</code> property value of\r      <code>\"Sphere\"</code>. If an entity of type <code>Box</code> or <code>Shape</code> has its <code>shape</code> set\r      to <code>\"Sphere\"</code> then its <code>type</code> will be reported as <code>\"Sphere\"</code>.\r      <td>{@link Entities.EntityProperties-Sphere|EntityProperties-Sphere}</td></tr>\r    <tr><td><code>\"Shape\"</code></td><td>A basic entity such as a cube.\r      See also, the <code>\"Box\"</code> and <code>\"Sphere\"</code> entity types.</td>\r      <td>{@link Entities.EntityProperties-Shape|EntityProperties-Shape}</td></tr>\r    <tr><td><code>\"Model\"</code></td><td>A mesh model from an FBX or OBJ file.</td>\r      <td>{@link Entities.EntityProperties-Model|EntityProperties-Model}</td></tr>\r    <tr><td><code>\"Text\"</code></td><td>A pane of text oriented in space.</td>\r      <td>{@link Entities.EntityProperties-Text|EntityProperties-Text}</td></tr>\r    <tr><td><code>\"Image\"</code></td><td>An image oriented in space.</td>\r      <td>{@link Entities.EntityProperties-Image|EntityProperties-Image}</td></tr>\r    <tr><td><code>\"Web\"</code></td><td>A browsable Web page.</td>\r      <td>{@link Entities.EntityProperties-Web|EntityProperties-Web}</td></tr>\r    <tr><td><code>\"ParticleEffect\"</code></td><td>A particle system that can be used to simulate things such as fire, \r      smoke, snow, magic spells, etc.</td>\r      <td>{@link Entities.EntityProperties-ParticleEffect|EntityProperties-ParticleEffect}</td></tr>\r    <tr><td><code>\"Line\"</code></td><td>A sequence of one or more simple straight lines.</td>\r      <td>{@link Entities.EntityProperties-Line|EntityProperties-Line}</td></tr>\r    <tr><td><code>\"PolyLine\"</code></td><td>A sequence of one or more textured straight lines.</td>\r      <td>{@link Entities.EntityProperties-PolyLine|EntityProperties-PolyLine}</td></tr>\r    <tr><td><code>\"PolyVox\"</code></td><td>A set of textured voxels.</td>\r      <td>{@link Entities.EntityProperties-PolyVox|EntityProperties-PolyVox}</td></tr>\r    <tr><td><code>\"Grid\"</code></td><td>A grid of lines in a plane.</td>\r      <td>{@link Entities.EntityProperties-Grid|EntityProperties-Grid}</td></tr>\r    <tr><td><code>\"Light\"</code></td><td>A local lighting effect.</td>\r      <td>{@link Entities.EntityProperties-Light|EntityProperties-Light}</td></tr>\r    <tr><td><code>\"Zone\"</code></td><td>A volume of lighting effects and avatar permissions.</td>\r      <td>{@link Entities.EntityProperties-Zone|EntityProperties-Zone}</td></tr>\r    <tr><td><code>\"Material\"</code></td><td>Modifies the existing materials on Model entities, Shape entities,\r      {@link Overlays.OverlayType|model overlays}, and avatars.</td>\r      <td>{@link Entities.EntityProperties-Material|EntityProperties-Material}</td></tr>\r  </tbody>\r</table>",
         "kind": "typedef",
         "name": "EntityType",
         "type": {
@@ -37219,6 +38890,141 @@
         },
         "memberof": "Entities",
         "longname": "Entities.EntityType",
+        "scope": "static"
+    },
+    {
+        "description": "Grab is defined by the following properties.",
+        "kind": "typedef",
+        "name": "Grab",
+        "type": {
+            "names": [
+                "object"
+            ]
+        },
+        "properties": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "If <code>true</code> the entity can be grabbed.",
+                "name": "grabbable"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "If <code>true</code> the entity is updated in a kinematic manner.\r    If <code>false</code> it will be grabbed using a tractor action.  A kinematic grab will make the item appear more\r    tightly held, but will cause it to behave poorly when interacting with dynamic entities.",
+                "name": "grabKinematic"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "If <code>true</code> the entity will follow the motions of the\r    hand-controller even if the avatar's hand can't get to the implied position.  This should be <code>true</code>\r    for tools, pens, etc and false for things meant to decorate the hand.",
+                "name": "grabFollowsController"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": false,
+                "description": "If <code>true</code> the entity will receive calls to trigger\r    {@link Controller|Controller entity methods}.",
+                "name": "triggerable"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "defaultvalue": true,
+                "description": "If <code>true</code> the entity can be equipped.",
+                "name": "equippable"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "defaultvalue": "0,0,0",
+                "description": "Positional offset from the left hand, when equipped.",
+                "name": "equippableLeftPosition"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Quat"
+                    ]
+                },
+                "defaultvalue": "0,0,0,1",
+                "description": "Rotational offset from the left hand, when equipped.",
+                "name": "equippableLeftRotation"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "defaultvalue": "0,0,0",
+                "description": "Positional offset from the right hand, when equipped.",
+                "name": "equippableRightPosition"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Quat"
+                    ]
+                },
+                "defaultvalue": "0,0,0,1",
+                "description": "Rotational offset from the right hand, when equipped.",
+                "name": "equippableRightRotation"
+            },
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "defaultvalue": "\"\"",
+                "description": "If non-empty, this model will be used to indicate that an\r    entity is equippable, rather than the default.",
+                "name": "equippableIndicatorURL"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "defaultvalue": "1,1,1",
+                "description": "If equippableIndicatorURL is non-empty, this controls the\r\n       scale of the displayed overlay.",
+                "name": "equippableIndicatorScale"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "defaultvalue": "0,0,0",
+                "description": "If equippableIndicatorURL is non-empty, this controls the\r\n       relative offset of the displayed overlay from the equippable entity.",
+                "name": "equippableIndicatorOffset"
+            }
+        ],
+        "memberof": "Entities",
+        "longname": "Entities.Grab",
         "scope": "static"
     },
     {
@@ -37454,7 +39260,7 @@
                     ]
                 },
                 "defaultvalue": "0,0,0",
-                "description": "Sets the color of the sky if <code>url</code> is <code>\"\"</code>, otherwise modifies the \r    color of the cube map image.",
+                "description": "Sets the color of the sky if <code>url</code> is <code>\"\"</code>, otherwise modifies the\r    color of the cube map image.",
                 "name": "color"
             },
             {
@@ -37471,35 +39277,6 @@
         "memberof": "Entities",
         "longname": "Entities.Skybox",
         "scope": "static"
-    },
-    {
-        "kind": "typedef",
-        "name": "FBXAnimationFrame",
-        "type": {
-            "names": [
-                "object"
-            ]
-        },
-        "properties": [
-            {
-                "type": {
-                    "names": [
-                        "Array.<Quat>"
-                    ]
-                },
-                "name": "rotations"
-            },
-            {
-                "type": {
-                    "names": [
-                        "Array.<Vec3>"
-                    ]
-                },
-                "name": "translations"
-            }
-        ],
-        "longname": "FBXAnimationFrame",
-        "scope": "global"
     },
     {
         "description": "<table>\r  <thead>\r    <tr><th>Value</th><th>Description</th></tr>\r  </thead>\r  <tbody>\r    <tr><td><code>0</code></td><td>Points.</td></tr>\r    <tr><td><code>1</code></td><td>Lines.</td></tr>\r    <tr><td><code>2</code></td><td>Line strip.</td></tr>\r    <tr><td><code>3</code></td><td>Triangles.</td></tr>\r    <tr><td><code>4</code></td><td>Triangle strip.</td></tr>\r    <tr><td><code>5</code></td><td>Quads.</td></tr>\r    <tr><td><code>6</code></td><td>Quad strip.</td></tr>\r  </tbody>\r</table>",
@@ -38795,11 +40572,11 @@
             {
                 "type": {
                     "names": [
-                        "Vec3Color",
+                        "Color",
                         "RGBS"
                     ]
                 },
-                "description": "The emissive color, i.e., the color that the material emits. A {@link Vec3Color} value \r    is treated as sRGB. A {@link RGBS} value can be either RGB or sRGB.",
+                "description": "The emissive color, i.e., the color that the material emits. A {@link Color} value\r    is treated as sRGB. A {@link RGBS} value can be either RGB or sRGB.",
                 "name": "emissive"
             },
             {
@@ -38825,11 +40602,11 @@
             {
                 "type": {
                     "names": [
-                        "Vec3Color",
+                        "Color",
                         "RGBS"
                     ]
                 },
-                "description": "The albedo color. A {@link Vec3Color} value is treated as sRGB. A {@link RGBS} value can \r    be either RGB or sRGB.",
+                "description": "The albedo color. A {@link Color} value is treated as sRGB. A {@link RGBS} value can\r    be either RGB or sRGB.",
                 "name": "albedo"
             },
             {
@@ -40819,7 +42596,7 @@
         "scope": "static"
     },
     {
-        "description": "The <code>\"tractor\"</code> {@link Entities.ActionType|ActionType} moves and rotates an entity to a target position and \rorientation, optionally relative to another entity.\rIt has arguments in addition to the common {@link Entities.ActionArguments|ActionArguments}.",
+        "description": "The <code>\"tractor\"</code> {@link Entities.ActionType|ActionType} moves and rotates an entity to a target position and\rorientation, optionally relative to another entity.\rIt has arguments in addition to the common {@link Entities.ActionArguments|ActionArguments}.",
         "kind": "typedef",
         "name": "ActionArguments-Tractor",
         "type": {
@@ -40855,8 +42632,18 @@
                     ]
                 },
                 "defaultvalue": null,
-                "description": "If an entity ID, the <code>targetPosition</code> and <code>targetRotation</code> are \r    relative to this entity's position and rotation.",
+                "description": "If an entity ID, the <code>targetPosition</code> and <code>targetRotation</code> are\r    relative to this entity's position and rotation.",
                 "name": "otherID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "defaultvalue": null,
+                "description": "If an entity JointIndex, the <code>targetPosition</code> and\r    <code>targetRotation</code> are relative to this entity's joint's position and rotation.",
+                "name": "otherJointIndex"
             },
             {
                 "type": {
@@ -40865,7 +42652,7 @@
                     ]
                 },
                 "defaultvalue": 3.4e+38,
-                "description": "Controls how long it takes for the entity's position to catch up with the\r    target position. The value is the time for the action to catch up to 1/e = 0.368 of the target value, where the action \r    is applied using an exponential decay.",
+                "description": "Controls how long it takes for the entity's position to catch up with the\r    target position. The value is the time for the action to catch up to 1/e = 0.368 of the target value, where the action\r    is applied using an exponential decay.",
                 "name": "linearTimeScale"
             },
             {
@@ -40875,7 +42662,7 @@
                     ]
                 },
                 "defaultvalue": 3.4e+38,
-                "description": "Controls how long it takes for the entity's orientation to catch up with the\r    target orientation. The value is the time for the action to catch up to 1/e = 0.368 of the target value, where the \r    action is applied using an exponential decay.",
+                "description": "Controls how long it takes for the entity's orientation to catch up with the\r    target orientation. The value is the time for the action to catch up to 1/e = 0.368 of the target value, where the\r    action is applied using an exponential decay.",
                 "name": "angularTimeScale"
             }
         ],
@@ -41441,7 +43228,7 @@
                         "number"
                     ]
                 },
-                "description": "Ray Picks intersect a ray with the nearest object in front of them, along a given direction.",
+                "description": "Ray picks intersect a ray with the nearest object in front of them, along a given direction.",
                 "name": "Ray"
             },
             {
@@ -41450,7 +43237,7 @@
                         "number"
                     ]
                 },
-                "description": "Stylus Picks provide \"tapping\" functionality on/into flat surfaces.",
+                "description": "Stylus picks provide \"tapping\" functionality on/into flat surfaces.",
                 "name": "Stylus"
             },
             {
@@ -41459,15 +43246,24 @@
                         "number"
                     ]
                 },
-                "description": "Parabola Picks intersect a parabola with the nearest object in front of them, with a given initial velocity and acceleration.",
+                "description": "Parabola picks intersect a parabola with the nearest object in front of them, with a given \r    initial velocity and acceleration.",
                 "name": "Parabola"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Collision picks intersect a collision volume with avatars and entities that have collisions.",
+                "name": "Collision"
             }
         ],
         "longname": "PickType(0)",
         "scope": "global"
     },
     {
-        "description": "<table>\r  <thead>\r    <tr><th>Value</th><th>Description</th></tr>\r  </thead>\r  <tbody>\r    <tr><td><code>{@link PickType(0)|PickType.Ray}</code></td><td></td></tr>\r    <tr><td><code>{@link PickType(0)|PickType.Stylus}</code></td><td></td></tr>\r    <tr><td><code>{@link PickType(0)|PickType.Parabola}</code></td><td></td></tr>\r  </tbody>\r</table>",
+        "description": "<table>\r  <thead>\r    <tr><th>Value</th><th>Description</th></tr>\r  </thead>\r  <tbody>\r    <tr><td><code>{@link PickType(0)|PickType.Ray}</code></td><td></td></tr>\r    <tr><td><code>{@link PickType(0)|PickType.Stylus}</code></td><td></td></tr>\r    <tr><td><code>{@link PickType(0)|PickType.Parabola}</code></td><td></td></tr>\r    <tr><td><code>{@link PickType(0)|PickType.Collision}</code></td><td></td></tr>\r  </tbody>\r</table>",
         "kind": "typedef",
         "name": "PickType",
         "type": {
@@ -42375,6 +44171,52 @@
         ],
         "memberof": "Assets",
         "longname": "Assets.saveToCache",
+        "scope": "static"
+    },
+    {
+        "description": "Add nodes to the audio solo list",
+        "kind": "function",
+        "name": "addToSoloList",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Array.<Uuid>"
+                    ]
+                },
+                "description": "List of node UUIDs to add to the solo list.",
+                "name": "uuidList"
+            }
+        ],
+        "memberof": "Audio",
+        "longname": "Audio.addToSoloList",
+        "scope": "static"
+    },
+    {
+        "description": "Remove nodes from the audio solo list",
+        "kind": "function",
+        "name": "removeFromSoloList",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Array.<Uuid>"
+                    ]
+                },
+                "description": "List of node UUIDs to remove from the solo list.",
+                "name": "uuidList"
+            }
+        ],
+        "memberof": "Audio",
+        "longname": "Audio.removeFromSoloList",
+        "scope": "static"
+    },
+    {
+        "description": "Reset the list of soloed nodes.",
+        "kind": "function",
+        "name": "resetSoloList",
+        "memberof": "Audio",
+        "longname": "Audio.resetSoloList",
         "scope": "static"
     },
     {
@@ -49179,88 +51021,6 @@
         "scope": "static"
     },
     {
-        "description": "A 3-dimensional vector. See also the {@link Vec3(0)|Vec3} object.",
-        "kind": "typedef",
-        "name": "Vec3",
-        "type": {
-            "names": [
-                "object"
-            ]
-        },
-        "properties": [
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "X-coordinate of the vector.",
-                "name": "x"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Y-coordinate of the vector.",
-                "name": "y"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Z-coordinate of the vector.",
-                "name": "z"
-            }
-        ],
-        "longname": "Vec3",
-        "scope": "global"
-    },
-    {
-        "description": "A color vector. See also the {@link Vec3(0)|Vec3} object.",
-        "kind": "typedef",
-        "name": "Vec3Color",
-        "type": {
-            "names": [
-                "object"
-            ]
-        },
-        "properties": [
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Red component value. Integer in the range <code>0</code> - <code>255</code>.",
-                "name": "x"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Green component value. Integer in the range <code>0</code> - <code>255</code>.",
-                "name": "y"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Blue component value. Integer in the range <code>0</code> - <code>255</code>.",
-                "name": "z"
-            }
-        ],
-        "longname": "Vec3Color",
-        "scope": "global"
-    },
-    {
         "description": "<table><tr><th>Available in:</th><td>Interface Scripts</td><td>Client Entity Scripts</td><td>Server Entity Scripts</td><td>Assignment Client Scripts</td></tr></table><br>The Vec3 API facilities for generating and manipulating 3-dimensional vectors. High Fidelity uses a right-handed \rCartesian coordinate system where the y-axis is the \"up\" and the negative z-axis is the \"front\" direction.\r<img alt=\"High Fidelity coordinate system\" src=\"https://docs.highfidelity.com/images/opengl-coord-system.jpg\" />",
         "kind": "namespace",
         "name": "Vec3",
@@ -50389,6 +52149,18 @@
         "scope": "global"
     },
     {
+        "description": "<p>How an entity is billboarded.</p>\r<table>\r  <thead>\r    <tr><th>Value</th><th>Description</th></tr>\r  </thead>\r  <tbody>\r    <tr><td><code>none</code></td><td>The entity will not be billboarded.</td></tr>\r    <tr><td><code>yaw</code></td><td>The entity will yaw, but not pitch, to face the camera.  Its actual rotation will be ignored.</td></tr>\r    <tr><td><code>full</code></td><td>The entity will be billboarded to face the camera.  Its actual rotation will be ignored.</td></tr>\r  </tbody>\r</table>",
+        "kind": "typedef",
+        "name": "BillboardMode",
+        "type": {
+            "names": [
+                "string"
+            ]
+        },
+        "longname": "BillboardMode",
+        "scope": "global"
+    },
+    {
         "description": "<p>A <code>BoxFace</code> specifies the face of an axis-aligned (AA) box.\r<table>\r  <thead>\r    <tr><th>Value</th><th>Description</th></tr>\r  </thead>\r  <tbody>\r    <tr><td><code>\"MIN_X_FACE\"</code></td><td>The minimum x-axis face.</td></tr>\r    <tr><td><code>\"MAX_X_FACE\"</code></td><td>The maximum x-axis face.</td></tr>\r    <tr><td><code>\"MIN_Y_FACE\"</code></td><td>The minimum y-axis face.</td></tr>\r    <tr><td><code>\"MAX_Y_FACE\"</code></td><td>The maximum y-axis face.</td></tr>\r    <tr><td><code>\"MIN_Z_FACE\"</code></td><td>The minimum z-axis face.</td></tr>\r    <tr><td><code>\"MAX_Z_FACE\"</code></td><td>The maximum z-axis face.</td></tr>\r    <tr><td><code>\"UNKNOWN_FACE\"</code></td><td>Unknown value.</td></tr>\r  </tbody>\r</table>",
         "kind": "typedef",
         "name": "BoxFace",
@@ -50802,97 +52574,6 @@
         "scope": "global"
     },
     {
-        "description": "Defines a rectangular portion of an image or screen, or similar.",
-        "kind": "typedef",
-        "name": "Rect",
-        "type": {
-            "names": [
-                "object"
-            ]
-        },
-        "properties": [
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Left, x-coordinate value.",
-                "name": "x"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Top, y-coordinate value.",
-                "name": "y"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Width of the rectangle.",
-                "name": "width"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Height of the rectangle.",
-                "name": "height"
-            }
-        ],
-        "longname": "Rect",
-        "scope": "global"
-    },
-    {
-        "description": "An RGB color value.",
-        "kind": "typedef",
-        "name": "Color",
-        "type": {
-            "names": [
-                "object"
-            ]
-        },
-        "properties": [
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Red component value. Integer in the range <code>0</code> - <code>255</code>.",
-                "name": "red"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Green component value. Integer in the range <code>0</code> - <code>255</code>.",
-                "name": "green"
-            },
-            {
-                "type": {
-                    "names": [
-                        "number"
-                    ]
-                },
-                "description": "Blue component value. Integer in the range <code>0</code> - <code>255</code>.",
-                "name": "blue"
-            }
-        ],
-        "longname": "Color",
-        "scope": "global"
-    },
-    {
         "description": "An axis-aligned cube, defined as the bottom right near (minimum axes values) corner of the cube plus the dimension of its \rsides.",
         "kind": "typedef",
         "name": "AACube",
@@ -51152,6 +52833,173 @@
         "scope": "static"
     },
     {
+        "description": "A 2-dimensional vector.",
+        "kind": "typedef",
+        "name": "Vec2",
+        "type": {
+            "names": [
+                "object"
+            ]
+        },
+        "properties": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "X-coordinate of the vector. Synonyms: <code>u</code>.",
+                "name": "x"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Y-coordinate of the vector. Synonyms: <code>v</code>.",
+                "name": "y"
+            }
+        ],
+        "examples": [
+            "<caption>Vec2s can be set in multiple ways and modified with their aliases, but still stringify in the same way</caption>\rEntities.editEntity(<id>, { materialMappingPos: { x: 0.1, y: 0.2 }});          // { x: 0.1, y: 0.2 }\rEntities.editEntity(<id>, { materialMappingPos: { u: 0.3, v: 0.4 }});          // { x: 0.3, y: 0.4 }\rEntities.editEntity(<id>, { materialMappingPos: [0.5, 0.6] });                 // { x: 0.5, y: 0.6 }\rEntities.editEntity(<id>, { materialMappingPos: 0.7 });                        // { x: 0.7, y: 0.7 }\rvar color = Entities.getEntityProperties(<id>).materialMappingPos;             // { x: 0.7, y: 0.7 }\rcolor.v = 0.8;                                                                 // { x: 0.7, y: 0.8 }"
+        ],
+        "longname": "Vec2",
+        "scope": "global"
+    },
+    {
+        "description": "A 3-dimensional vector. See also the {@link Vec3(0)|Vec3} object.",
+        "kind": "typedef",
+        "name": "Vec3",
+        "type": {
+            "names": [
+                "object"
+            ]
+        },
+        "properties": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "X-coordinate of the vector. Synonyms: <code>r</code>, <code>red</code>.",
+                "name": "x"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Y-coordinate of the vector. Synonyms: <code>g</code>, <code>green</code>.",
+                "name": "y"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Z-coordinate of the vector. Synonyms: <code>b</code>, <code>blue</code>.",
+                "name": "z"
+            }
+        ],
+        "examples": [
+            "<caption>Vec3s can be set in multiple ways and modified with their aliases, but still stringify in the same way</caption>\rEntities.editEntity(<id>, { position: { x: 1, y: 2, z: 3 }});                 // { x: 1, y: 2, z: 3 }\rEntities.editEntity(<id>, { position: { r: 4, g: 5, b: 6 }});                 // { x: 4, y: 5, z: 6 }\rEntities.editEntity(<id>, { position: { red: 7, green: 8, blue: 9 }});        // { x: 7, y: 8, z: 9 }\rEntities.editEntity(<id>, { position: [10, 11, 12] });                        // { x: 10, y: 11, z: 12 }\rEntities.editEntity(<id>, { position: 13 });                                  // { x: 13, y: 13, z: 13 }\rvar position = Entities.getEntityProperties(<id>).position;                   // { x: 13, y: 13, z: 13 }\rposition.g = 14;                                                              // { x: 13, y: 14, z: 13 }\rposition.blue = 15;                                                           // { x: 13, y: 14, z: 15 }\rEntities.editEntity(<id>, { position: \"red\"});                                // { x: 255, y: 0, z: 0 }\rEntities.editEntity(<id>, { position: \"#00FF00\"});                            // { x: 0, y: 255, z: 0 }"
+        ],
+        "longname": "Vec3",
+        "scope": "global"
+    },
+    {
+        "description": "A color vector. See also the {@link Vec3(0)|Vec3} object.",
+        "kind": "typedef",
+        "name": "Color",
+        "type": {
+            "names": [
+                "object"
+            ]
+        },
+        "properties": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Red component value. Integer in the range <code>0</code> - <code>255</code>.  Synonyms: <code>r</code>, <code>x</code>.",
+                "name": "red"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Green component value. Integer in the range <code>0</code> - <code>255</code>.  Synonyms: <code>g</code>, <code>y</code>.",
+                "name": "green"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Blue component value. Integer in the range <code>0</code> - <code>255</code>.  Synonyms: <code>b</code>, <code>z</code>.",
+                "name": "blue"
+            }
+        ],
+        "examples": [
+            "<caption>Colors can be set in multiple ways and modified with their aliases, but still stringify in the same way</caption>\rEntities.editEntity(<id>, { color: { x: 1, y: 2, z: 3 }});                 // { red: 1, green: 2, blue: 3 }\rEntities.editEntity(<id>, { color: { r: 4, g: 5, b: 6 }});                 // { red: 4, green: 5, blue: 6 }\rEntities.editEntity(<id>, { color: { red: 7, green: 8, blue: 9 }});        // { red: 7, green: 8, blue: 9 }\rEntities.editEntity(<id>, { color: [10, 11, 12] });                        // { red: 10, green: 11, blue: 12 }\rEntities.editEntity(<id>, { color: 13 });                                  // { red: 13, green: 13, blue: 13 }\rvar color = Entities.getEntityProperties(<id>).color;                      // { red: 13, green: 13, blue: 13 }\rcolor.g = 14;                                                              // { red: 13, green: 14, blue: 13 }\rcolor.blue = 15;                                                           // { red: 13, green: 14, blue: 15 }\rEntities.editEntity(<id>, { color: \"red\"});                                // { red: 255, green: 0, blue: 0 }\rEntities.editEntity(<id>, { color: \"#00FF00\"});                            // { red: 0, green: 255, blue: 0 }"
+        ],
+        "longname": "Color",
+        "scope": "global"
+    },
+    {
+        "description": "A color vector. See also the {@link Vec3(0)|Vec3} object.",
+        "kind": "typedef",
+        "name": "ColorFloat",
+        "type": {
+            "names": [
+                "object"
+            ]
+        },
+        "properties": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Red component value. Real in the range <code>0</code> - <code>255</code>.  Synonyms: <code>r</code>, <code>x</code>.",
+                "name": "red"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Green component value. Real in the range <code>0</code> - <code>255</code>.  Synonyms: <code>g</code>, <code>y</code>.",
+                "name": "green"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Blue component value. Real in the range <code>0</code> - <code>255</code>.  Synonyms: <code>b</code>, <code>z</code>.",
+                "name": "blue"
+            }
+        ],
+        "examples": [
+            "<caption>ColorFloats can be set in multiple ways and modified with their aliases, but still stringify in the same way</caption>\rEntities.editEntity(<id>, { color: { x: 1, y: 2, z: 3 }});                 // { red: 1, green: 2, blue: 3 }\rEntities.editEntity(<id>, { color: { r: 4, g: 5, b: 6 }});                 // { red: 4, green: 5, blue: 6 }\rEntities.editEntity(<id>, { color: { red: 7, green: 8, blue: 9 }});        // { red: 7, green: 8, blue: 9 }\rEntities.editEntity(<id>, { color: [10, 11, 12] });                        // { red: 10, green: 11, blue: 12 }\rEntities.editEntity(<id>, { color: 13 });                                  // { red: 13, green: 13, blue: 13 }\rvar color = Entities.getEntityProperties(<id>).color;                      // { red: 13, green: 13, blue: 13 }\rcolor.g = 14;                                                              // { red: 13, green: 14, blue: 13 }\rcolor.blue = 15;                                                           // { red: 13, green: 14, blue: 15 }\rEntities.editEntity(<id>, { color: \"red\"});                                // { red: 255, green: 0, blue: 0 }\rEntities.editEntity(<id>, { color: \"#00FF00\"});                            // { red: 0, green: 255, blue: 0 }"
+        ],
+        "longname": "ColorFloat",
+        "scope": "global"
+    },
+    {
         "description": "A 4-dimensional vector.",
         "kind": "typedef",
         "name": "Vec4",
@@ -51202,9 +53050,9 @@
         "scope": "global"
     },
     {
-        "description": "A 2-dimensional vector.",
+        "description": "Defines a rectangular portion of an image or screen, or similar.",
         "kind": "typedef",
-        "name": "Vec2",
+        "name": "Rect",
         "type": {
             "names": [
                 "object"
@@ -51217,7 +53065,7 @@
                         "number"
                     ]
                 },
-                "description": "X-coordinate of the vector.",
+                "description": "Left, x-coordinate value.",
                 "name": "x"
             },
             {
@@ -51226,11 +53074,29 @@
                         "number"
                     ]
                 },
-                "description": "Y-coordinate of the vector.",
+                "description": "Top, y-coordinate value.",
                 "name": "y"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Width of the rectangle.",
+                "name": "width"
+            },
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "Height of the rectangle.",
+                "name": "height"
             }
         ],
-        "longname": "Vec2",
+        "longname": "Rect",
         "scope": "global"
     },
     {
@@ -51283,6 +53149,15 @@
                 },
                 "description": "The hand the tip is attached to: <code>0</code> for left, <code>1</code> for right.",
                 "name": "side"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Vec3"
+                    ]
+                },
+                "description": "the position offset of the stylus tip.",
+                "name": "tipOffset"
             },
             {
                 "type": {
@@ -55238,6 +57113,38 @@
         "scope": "static"
     },
     {
+        "description": "Get the joint index for a named joint. The joint index value is the position of the joint in the array returned by\r{@link MyAvatar.getJointNames} or {@link Avatar.getJointNames}.",
+        "kind": "function",
+        "name": "getJointIndex",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "description": "The name of the joint.",
+                "name": "name"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "number"
+                    ]
+                },
+                "description": "The index of the joint."
+            }
+        ],
+        "examples": [
+            "<caption>Report the index of your avatar's left arm joint.</caption>\rprint(JSON.stringify(MyAvatar.getJointIndex(\"LeftArm\"));"
+        ],
+        "memberof": "Avatar",
+        "longname": "Avatar.getJointIndex",
+        "scope": "static"
+    },
+    {
         "description": "Get the joint index for a named joint. The joint index value is the position of the joint in the array returned by \r{@link MyAvatar.getJointNames} or {@link Avatar.getJointNames}.",
         "kind": "function",
         "name": "getJointIndex",
@@ -55267,6 +57174,27 @@
         ],
         "memberof": "Avatar",
         "longname": "Avatar.getJointIndex",
+        "scope": "static"
+    },
+    {
+        "description": "Get the names of all the joints in the current avatar.",
+        "kind": "function",
+        "name": "getJointNames",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Array.<string>"
+                    ]
+                },
+                "description": "The joint names."
+            }
+        ],
+        "examples": [
+            "<caption>Report the names of all the joints in your current avatar.</caption>\rprint(JSON.stringify(MyAvatar.getJointNames()));"
+        ],
+        "memberof": "Avatar",
+        "longname": "Avatar.getJointNames",
         "scope": "static"
     },
     {
@@ -55346,6 +57274,31 @@
         ],
         "memberof": "Avatar",
         "longname": "Avatar.setAttachmentsVariant",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "updateAvatarEntity",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Uuid"
+                    ]
+                },
+                "name": "entityID"
+            },
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "name": "entityData"
+            }
+        ],
+        "memberof": "Avatar",
+        "longname": "Avatar.updateAvatarEntity",
         "scope": "static"
     },
     {
@@ -55621,6 +57574,23 @@
         ],
         "memberof": "Avatar",
         "longname": "Avatar.getAvatarEntityData",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "setAvatarEntityData",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "name": "avatarEntityData"
+            }
+        ],
+        "memberof": "Avatar",
+        "longname": "Avatar.setAvatarEntityData",
         "scope": "static"
     },
     {
@@ -56266,6 +58236,21 @@
         ],
         "memberof": "AvatarManager",
         "longname": "AvatarManager.processAvatarIdentityPacket",
+        "scope": "static"
+    },
+    {
+        "kind": "function",
+        "name": "processBulkAvatarTraits",
+        "params": [
+            {
+                "name": "message"
+            },
+            {
+                "name": "sendingNode"
+            }
+        ],
+        "memberof": "AvatarManager",
+        "longname": "AvatarManager.processBulkAvatarTraits",
         "scope": "static"
     },
     {
