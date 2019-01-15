@@ -47,7 +47,7 @@
     
     var SETTING_KEY = "com.highfidelity.avatar.isSitting";
 
-    var ANIMATION_URL = "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/animations/Sitting_Idle.fbx";
+    var ANIMATION_URL = Script.resolvePath("./resources/animations/sittingIdle.fbx");
     var ANIMATION_FPS = 30;
     var ANIMATION_FIRST_FRAME = 1;
     var ANIMATION_LAST_FRAME = 350;
@@ -61,19 +61,15 @@
     var OVERLAY_SITTABLE_DISTANCE_MAX = 5; // m
     var OVERLAY_SITTABLE_ALPHA_START = 0.7; 
     var OVERLAY_SITTABLE_MIN_ALPHA = 0.075; // fades to this alpha value
-    var OVERLAY_URL_SITTABLE_HMD = 
-        "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/sittable/TriggerToSit.png";
-    var OVERLAY_URL_SITTABLE_DESKTOP = 
-        "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/sittable/ClickToSit.png";
-    var OVERLAY_URL_STANDUP = "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/standup/HoldToStandUp.png";
+    var OVERLAY_URL_SITTABLE_HMD = Script.resolvePath("./resources/images/triggerToSit.png");
+    var OVERLAY_URL_SITTABLE_DESKTOP = Script.resolvePath("./resources/images/clickToSit.png");
+    var OVERLAY_URL_STANDUP = Script.resolvePath("./resources/images/holdToStandUp.png");
     
     var OVERLAY_PRESIT_FRAME_DURATION = 160; // ms time duration for HMD presit overlay
-    var OVERLAY_PRESIT_URL_ROOT = 
-        "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/presit/sit-overlay-confirm-";
+    var OVERLAY_PRESIT_URL_ROOT = "./resources/images/presit/sitConfirm";
     var OVERLAY_PRESIT_URL_POSTFIX = ".png";
     var OVERLAY_PRESIT_URL_NUM = 12;
-    var OVERLAY_PRESIT_URL_TEXT = 
-        "http://hifi-production.s3-us-west-1.amazonaws.com/robin/sit/overlays/presit/please-face-forward.png";
+    var OVERLAY_PRESIT_URL_TEXT = Script.resolvePath("./resources/images/presit/pleaseFaceForward.png");
     
     var SITTING_DEBUG = false; // turn on sitting debug print statements
     
@@ -217,7 +213,7 @@
                 var str;
                 for (var i = 0; i < OVERLAY_PRESIT_URL_NUM; i++) {
                     str = i + 1;
-                    overlayPreSitLoaded[i] = TextureCache.prefetch(OVERLAY_PRESIT_URL_ROOT + str + OVERLAY_PRESIT_URL_POSTFIX);
+                    overlayPreSitLoaded[i] = TextureCache.prefetch(Script.resolvePath(OVERLAY_PRESIT_URL_ROOT + str + OVERLAY_PRESIT_URL_POSTFIX));
                 }
                 overlayPreSitTextLoaded = TextureCache.prefetch(OVERLAY_PRESIT_URL_TEXT);
             },
