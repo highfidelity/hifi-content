@@ -25,17 +25,17 @@
         preload: function(entityID){
             _this.entityID = entityID;
             _this.rezStatusTextOverlay();
-			HMD.displayModeChanged.connect(_this.updateStatusText);
+            HMD.displayModeChanged.connect(_this.updateStatusText);
         },
         
         // When the script goes down, delete the status text overlay (if it exists),
         // and disconnect our signal
-		unload: function() {
+        unload: function() {
             if (statusTextOverlayID) {
                 Overlays.deleteOverlay(statusTextOverlayID);
             }
-			HMD.displayModeChanged.disconnect(_this.updateStatusText);
-		},
+            HMD.displayModeChanged.disconnect(_this.updateStatusText);
+        },
 
         // When the user uses the mouse to click on the button...
         clickDownOnEntity: function(entityID, mouseEvent) {
@@ -62,7 +62,7 @@
                 "bottomMargin": 0,
                 "leftMargin": 0,
             });
-			_this.updateStatusText();
+            _this.updateStatusText();
         },
         
         // Update the status text overlay according to whether or not
@@ -75,14 +75,14 @@
             }
 
             flyingEnabled = MyAvatar.getFlyingEnabled();
-			
-			var overlayText = "Flying in " + (HMD.active ? "VR" : "Desktop") +
-				" mode\nis currently\n" + (flyingEnabled ? "ENABLED" : "DISABLED") +
-				"\n\nClick button to toggle.";
-			
+            
+            var overlayText = "Flying in " + (HMD.active ? "VR" : "Desktop") +
+                " mode\nis currently\n" + (flyingEnabled ? "ENABLED" : "DISABLED") +
+                "\n\nClick button to toggle.";
+            
             Overlays.editOverlay(statusTextOverlayID, {
-				"text": overlayText
-			});
+                "text": overlayText
+            });
         },
         
         // This'll toggle Flying in BOTH desktop and VR modes.
