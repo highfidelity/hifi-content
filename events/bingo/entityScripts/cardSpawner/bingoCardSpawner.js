@@ -75,9 +75,8 @@
                 if (!isRunningStandaloneBingoApp()) {
                     ScriptDiscoveryService.loadScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js'));
                 } else {
-                    var cardAppIsOpen = tablet.isPathLoaded('../../bingoCardApp/bingoCard_ui.html');
+                    var cardAppIsOpen = tablet.isPathLoaded(appPage);
                     if (!cardAppIsOpen) {
-                        print("OPENING CARD PAGE");
                         tablet.gotoWebScreen(appPage);
                     }
                 }

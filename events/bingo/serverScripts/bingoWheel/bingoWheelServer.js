@@ -24,6 +24,7 @@
     var gameOnLights = [];
     var registrationSign;
     var cardRemoverSign;
+    var backboard;
     var calledNumbers = [];
     var interval;
     var newRoundURLParams;
@@ -104,9 +105,8 @@
                     cardRemoverSign = childEntity;
                 } else if (name === "Bingo Wheel Light") {
                     gameOnLights.push(childEntity);
-                    // THIS IS PART OF THE OTHER COMMENTED OUT CODE FOR TEXTURE SWAPPING
-                // } else if (name === "Bingo Wall Backboard") {
-                //     backboard = childEntity;
+                } else if (name === "Bingo Wall Backboard") {
+                    backboard = childEntity;
                 } else if (name === "Bingo Player Counter") {
                     print("FOUND PLAYER COUNTER");
                     playerCounterText = childEntity;
@@ -121,19 +121,18 @@
             gameOnLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: true });
             });
-            // THIS IS NOT WORKING>>>TRY TO FIX IT!!!
-            // Entities.editEntity(_this.entityID, {textures: JSON.stringify({
-            //     "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-D.png",
-            //     "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-M.jpg",
-            //     "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-R.jpg",
-            //     "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-E.jpg"
-            // })});
-            // Entities.editEntity(backboard, {textures: JSON.stringify({
-            //     "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-D.png",
-            //     "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-M.jpg",
-            //     "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-R.jpg",
-            //     "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-E.jpg"
-            // })});
+            Entities.editEntity(_this.entityID, {textures: JSON.stringify({
+                "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-D.png",
+                "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-M.jpg",
+                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-R.jpg",
+                "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-E.jpg"
+            })});
+            Entities.editEntity(backboard, {textures: JSON.stringify({
+                "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-D.png",
+                "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-M.jpg",
+                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-R.jpg",
+                "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-E.jpg"
+            })});
             _this.closeRegistration();
             Entities.editEntity(cardRemoverSign, {
                 visible: true
@@ -210,17 +209,16 @@
             bingoWallLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: false });
             });
-            // THIS IS NOT WORKING>>>TRY TO FIX IT!!!
-            // Entities.editEntity(_this.entityID, {textures: JSON.stringify({
-            //     "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-D.png",
-            //     "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-M.jpg",
-            //     "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-R.jpg"
-            // })});
-            // Entities.editEntity(backboard, {textures: JSON.stringify({
-            //     "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-D.png",
-            //     "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-M.jpg",
-            //     "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-R.jpg"
-            // })});
+            Entities.editEntity(_this.entityID, {textures: JSON.stringify({
+                "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-D.png",
+                "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-M.jpg",
+                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-R.jpg"
+            })});
+            Entities.editEntity(backboard, {textures: JSON.stringify({
+                "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-D.png",
+                "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-M.jpg",
+                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-R.jpg"
+            })});
             Entities.editEntity(cardRemoverSign, {
                 visible: false
             });
