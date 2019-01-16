@@ -5,7 +5,6 @@ body {
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
     color: white;
-    background: linear-gradient(#ffffff, #000000);
     background-image: url("https://hifi-content.s3.amazonaws.com/brosche/dev/voiceHUDApp/App%20Resources/appData/resources/images/background.png");
     background-size: cover;
 }
@@ -13,16 +12,11 @@ body {
 #info {
     font-size: 25px;
     background-color: rgb(64, 64, 64);
-}
-
-.blue {
     color: rgba(0,255,255,1);
-    font-family: 'Raleway';
     font-weight: bold;
 }
 
-input[type=button].gray {
-    font-family: 'Raleway';
+input[type=button] {
     font-weight: bold;
     font-size: 32px;
     text-transform: uppercase;
@@ -36,10 +30,10 @@ input[type=button].gray {
     color: #000000;
     background-color: #949494;
     background: linear-gradient(#9cfcff 20%, #00ccff 100%);
-    box-shadow: 0 0 10px #1a1a1a;
+    box-shadow: 0px 0px 10px #1a1a1a;
 }
 
-input[type=button].gray:enabled:hover {
+input[type=button]:enabled:hover {
     color: #000000;
     background: linear-gradient(#ff7b23, #634904);
     border: none;
