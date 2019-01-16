@@ -21,19 +21,5 @@ module.exports = {
             blue: colorArray[2]
         };
         return finalColorObject;
-    },
-    log: function log(label, value, isActive) {
-        isActive = isActive || true;
-        if (!isActive) {
-            return;
-        }
-        print("\n" + label + "\n" + "***************************************\n", JSON.stringify(value));
-    },
-    vec: function vec(x, y, z) {
-        var obj = {};
-        obj.x = x;
-        obj.y = y;
-        obj.z = z;
-        return obj;
     }
 };
