@@ -9,7 +9,8 @@
 //
 // Helper for live events to capture camera positions
 
-(function() {
+(function () {
+
     // Polyfills
     Script.require(Script.resolvePath('./Polyfills.js'));
 
@@ -20,6 +21,9 @@
         cameraAvatarURL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/camera/fst/camera.fst",
         SETTINGS_STRING = "io.kayla.camera.settings",
         LOAD_JSON = "loadJSON",
+        AUDIO_LISTENER_MODE_HEAD = 0,
+        AUDIO_LISTENER_MODE_CAMERA = 1,
+        AUDIO_LISTENER_MODE_CUSTOM = 2,
         UPDATE_CONFIG_NAME = "updateConfigName",
         ENABLE_CUSTOM_LISTENER = "enableCustomListener",
         DISABLE_CUSTOM_LISTENER = "disableCustomListener",
@@ -31,14 +35,22 @@
         CHANGE_AVATAR_TO_CAMERA = "changeAvatarToCamera",
         CHANGE_AVATAR_TO_INVISIBLE = "changeAvatarToInvisible",
         TOGGLE_AVATAR_COLLISIONS = "toggleAvatarCollisions",
-        UPDATE_UI = "update_ui";
+        EDIT_DEFAULT = "editDefault",
+        EDIT_BRAKE = "editBrake",
+        UPDATE_UI = "update_ui",
+        SET_LISTENER_POSITION_KEY = "t",
+        SET_LISTENER_TOGGLE_KEY = "y",
+        TOGGLE_COLLISION_KEY = "u"
+    ;
 
+    // Graceful Camera Code from Ryan Huffman
     // Collections
     var defaultSettings = {
         configName: "Rename config",
         mapping: {},
         listener: {
             isCustomListening: false,
+            currentMode: getCurrentListener(),
             customPosition: {
                 x: 0,
                 y: 0,
@@ -52,26 +64,294 @@
             }
         }
     };
+
     var settings;
     var oldSettings = Settings.getValue(SETTINGS_STRING);
-    console.log("oldSettings", JSON.stringify(oldSettings));
     if (oldSettings === "") {
         settings = defaultSettings;
         Settings.setValue(SETTINGS_STRING, settings);
     } else {
         settings = oldSettings;
     }
-    
+
+    var DEFAULT = "default";
+    var BRAKE = "brake";
+    var currentSetting = DEFAULT;
+
+    settings.DEFAULT_PARAMETERS = {
+        // Coefficient to use for linear drag.  Higher numbers will cause motion to
+        // slow down more quickly.
+        DRAG_COEFFICIENT: 60.0,
+        MAX_SPEED: 10.0,
+        ACCELERATION: 10.0,
+
+        MOUSE_YAW_SCALE: -0.125,
+        MOUSE_PITCH_SCALE: -0.125,
+        MOUSE_SENSITIVITY: 0.5,
+
+        // Damping frequency, adjust to change mouse look behavior
+        W: 2.2
+    };
+
+    settings.BRAKE_PARAMETERS = {
+        DRAG_COEFFICIENT: 4.9,
+        MAX_SPEED: settings.DEFAULT_PARAMETERS.MAX_SPEED,
+        ACCELERATION: 0,
+
+        W: 1.0,
+        MOUSE_YAW_SCALE: -0.125,
+        MOUSE_PITCH_SCALE: -0.125,
+        MOUSE_SENSITIVITY: 0.5
+    };
+
+    var DRIVE_AVATAR_ENABLED = true;
+    var UPDATE_RATE = 90;
+    var USE_INTERVAL = true;
+
+    settings.movementParameters = settings.DEFAULT_PARAMETERS;
+    currentSetting = DEFAULT;
+
+
+    // Movement keys
+    var KEY_BRAKE = "Q";
+    var KEY_FORWARD = "W";
+    var KEY_BACKWARD = "S";
+    var KEY_LEFT = "A";
+    var KEY_RIGHT = "D";
+    var KEY_UP = "Space";
+    var KEY_DOWN = "C";
+    var KEY_TOGGLE = "M";
+    // var KEY_MOUSE_VISIBLE = "N";
+
+
+    var KEYS;
+    if (DRIVE_AVATAR_ENABLED) {
+        KEYS = [KEY_BRAKE, KEY_FORWARD, KEY_BACKWARD, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN];
+    } else {
+        KEYS = [];
+    }
+
+    // Global Variables
+    var keys = {};
+    var velocity = { x: 0, y: 0, z: 0 };
+    var velocityVertical = 0;
+    var enabled = false;
+
+    var lastX = Reticle.getPosition().x;
+    var lastY = Reticle.getPosition().y;
+    var yawFromMouse = 0;
+    var pitchFromMouse = 0;
+
+    var yawSpeed = 0;
+    var pitchSpeed = 0;
+    var pitchAccel = 0;
+    var yawAccel = 0;
+
+
+    function update(dt) {
+        if (enabled && Window.hasFocus()) {
+            var x = Reticle.getPosition().x;
+            var y = Reticle.getPosition().y;
+
+            var dx = x - lastX;
+            var dy = y - lastY;
+
+            yawFromMouse += (dx * settings.movementParameters.MOUSE_YAW_SCALE * settings.movementParameters.MOUSE_SENSITIVITY);
+            pitchFromMouse += (dy * settings.movementParameters.MOUSE_PITCH_SCALE * settings.movementParameters.MOUSE_SENSITIVITY);
+            pitchFromMouse = Math.max(-180, Math.min(180, pitchFromMouse));
+
+            resetCursorPosition();
+        }
+
+        // Here we use a linear damping model - http://en.wikipedia.org/wiki/Damping#Linear_damping
+        // Because we are using a critically damped model (no oscillation), ζ = 1 and
+        // so we derive the formula: acceleration = -(2 * w0 * v) - (w0^2 * x)
+        var W = settings.movementParameters.W;
+        yawAccel = (W * W * yawFromMouse) - (2 * W * yawSpeed);
+        pitchAccel = (W * W * pitchFromMouse) - (2 * W * pitchSpeed);
+
+        yawSpeed += yawAccel * dt;
+        var yawMove = yawSpeed * dt;
+        var newOrientation = Quat.multiply(MyAvatar.orientation, Quat.fromVec3Degrees({ x: 0, y: yawMove, z: 0 }));
+        MyAvatar.orientation = newOrientation;
+        yawFromMouse -= yawMove;
+
+        pitchSpeed += pitchAccel * dt;
+        var pitchMove = pitchSpeed * dt;
+        var newPitch = MyAvatar.headPitch + pitchMove;
+        MyAvatar.headPitch = newPitch;
+        pitchFromMouse -= pitchMove;
+
+
+        if (DRIVE_AVATAR_ENABLED) {
+            var targetVelocity = { x: 0, y: 0, z: 0 };
+            var targetVelocityVertical = 0;
+            var acceleration = settings.movementParameters.ACCELERATION;
+
+            if (keys[KEY_FORWARD]) {
+                targetVelocity.z -= acceleration * dt;
+            }
+            if (keys[KEY_LEFT]) {
+                targetVelocity.x -= acceleration * dt;
+            }
+            if (keys[KEY_BACKWARD]) {
+                targetVelocity.z += acceleration * dt;
+            }
+            if (keys[KEY_RIGHT]) {
+                targetVelocity.x += acceleration * dt;
+            }
+            if (keys[KEY_UP]) {
+                targetVelocityVertical += acceleration * dt;
+            }
+            if (keys[KEY_DOWN]) {
+                targetVelocityVertical -= acceleration * dt;
+            }
+
+            // If force isn't being applied in a direction, add drag;
+            var drag = Math.max(settings.movementParameters.DRAG_COEFFICIENT * dt, 1.0);
+            if (targetVelocity.x == 0) {
+                targetVelocity.x = -velocity.x * drag;
+            }
+            if (targetVelocity.z == 0) {
+                targetVelocity.z = -velocity.z * drag;
+            }
+            velocity = Vec3.sum(velocity, targetVelocity);
+
+            var maxSpeed = settings.movementParameters.MAX_SPEED;
+            velocity.x = Math.max(-maxSpeed, Math.min(maxSpeed, velocity.x));
+            velocity.z = Math.max(-maxSpeed, Math.min(maxSpeed, velocity.z));
+            var v = Vec3.multiplyQbyV(MyAvatar.headOrientation, velocity);
+
+            if (targetVelocityVertical == 0) {
+                targetVelocityVertical -= (velocityVertical * settings.movementParameters.DRAG_COEFFICIENT * dt);
+            }
+            velocityVertical += targetVelocityVertical;
+            velocityVertical = Math.max(-maxSpeed, Math.min(maxSpeed, velocityVertical));
+            v.y += velocityVertical;
+
+            MyAvatar.motorVelocity = v;
+        }
+    }
+
+    function resetCursorPosition() {
+        var newX = Math.floor(Window.x + Window.innerWidth / 2);
+        var newY = Math.floor(Window.y + Window.innerHeight / 2);
+        Reticle.setPosition({ x: newX, y: newY });
+        lastX = newX;
+        lastY = newY;
+    }
+
+    function toggleEnabled() {
+        if (enabled) {
+            disable();
+        } else {
+            enable();
+        }
+    }
+
+    var timerID = null;
+    function enable() {
+        if (!enabled && Window.hasFocus()) {
+            enabled = true;
+
+            resetCursorPosition();
+
+            // Reset movement variables
+            yawFromMouse = 0;
+            pitchFromMouse = 0;
+            yawSpeed = 0;
+            pitchSpeed = 0;
+            velocityVertical = 0;
+            velocity = { x: 0, y: 0, z: 0 };
+
+            MyAvatar.motorReferenceFrame = 'world';
+            MyAvatar.motorVelocity = { x: 0, y: 0, z: 0 };
+            MyAvatar.motorTimescale = 1;
+
+            Controller.enableMapping(MAPPING_KEYS_NAME);
+
+            Reticle.setVisible(false);
+            if (USE_INTERVAL) {
+                var lastTime = Date.now();
+                timerID = Script.setInterval(function () {
+                    var now = Date.now();
+                    var dt = now - lastTime;
+                    lastTime = now;
+                    update(dt / 1000);
+                }, (1.0 / UPDATE_RATE) * 1000);
+            } else {
+                Script.update.connect(update);
+            }
+        }
+    }
+
+    function disable() {
+        if (enabled) {
+            enabled = false;
+            Reticle.setVisible(true);
+
+            MyAvatar.motorVelocity = { x: 0, y: 0, z: 0 };
+
+            Controller.disableMapping(MAPPING_KEYS_NAME);
+
+            if (USE_INTERVAL) {
+                Script.clearInterval(timerID);
+                timerID = null;
+            } else {
+                Script.update.disconnect(update);
+            }
+        }
+    }
+
+    var MAPPING_ENABLE_NAME = 'io.highfidelity.gracefulControls.toggle';
+    var MAPPING_KEYS_NAME = 'io.highfidelity.gracefulControls.keys';
+    var MAPPING_MOUSE_VISIBLE_NAME = 'io.highfidelity.gracefulControls.visibleMouse';
+    var keyControllerMapping = Controller.newMapping(MAPPING_KEYS_NAME);
+    var enableControllerMapping = Controller.newMapping(MAPPING_ENABLE_NAME);
+
+    function onKeyPress(key, value) {
+        print(key, value);
+        keys[key] = value > 0;
+
+        if (value > 0) {
+            if (key === KEY_TOGGLE) {
+                toggleEnabled();
+            } else if (key === KEY_BRAKE) {
+                settings.movementParameters = settings.BRAKE_PARAMETERS;
+                currentSetting = BRAKE;
+            }
+        } else {
+            if (key === KEY_BRAKE) {
+                settings.movementParameters = settings.DEFAULT_PARAMETERS;
+                currentSetting = DEFAULT;
+            }
+        }
+    }
+
+    for (var i = 0; i < KEYS.length; ++i) {
+        var key = KEYS[i];
+        var hw = Controller.Hardware.Keyboard[key];
+        if (hw) {
+            keyControllerMapping.from(hw).to(function (key) {
+                return function (value) {
+                    onKeyPress(key, value);
+                };
+            }(key));
+        } else {
+            print("Unknown key: ", key);
+        }
+    }
+
+    enableControllerMapping.from(Controller.Hardware.Keyboard[KEY_TOGGLE]).to(function (value) {
+        onKeyPress(KEY_TOGGLE, value);
+    });
+
+    Controller.enableMapping(MAPPING_ENABLE_NAME);
+    Controller.enableMapping(MAPPING_MOUSE_VISIBLE_NAME);
+
+
     // Helper Functions
     function setAppActive(active) {
-        // Start/stop application activity.
-        if (active) {
-            console.log("Start app");
-            // TODO: Start app activity.
-        } else {
-            console.log("Stop app");
-            // TODO: Stop app activity.
-        }
         isAppActive = active;
     }
 
@@ -129,6 +409,24 @@
         settings.mapping[newKey].key = newKey;
     }
 
+    function getCurrentListener() {
+        var currentListenerMode = MyAvatar.audioListenerMode;
+        var returnedModeString = "";
+        switch (currentListenerMode) {
+            case AUDIO_LISTENER_MODE_HEAD:
+                returnedModeString = "Head";
+                break;
+            case AUDIO_LISTENER_MODE_CAMERA:
+                returnedModeString = "Camera";
+                break;
+            case AUDIO_LISTENER_MODE_CUSTOM:
+                returnedModeString = "Custom";
+                break;
+            default:
+        }
+        return returnedModeString;
+    }
+
     function removeCameraPosition(key) {
         if (settings.mapping[key]) {
             delete settings.mapping[key];
@@ -155,21 +453,30 @@
         if (settings.mapping[event.text]) {
             var position = settings.mapping[event.text].position;
             var orientation = settings.mapping[event.text].orientation;
-            var string = "/" +
-                        position.x + "," +
-                        position.y + "," +
-                        position.z + "/" +
-                        orientation.x + "," +
-                        orientation.y + "," +
-                        orientation.z + "," +
-                        orientation.w;
-            MyAvatar.orientation = orientation;
-            Camera.orientation = orientation;
             MyAvatar.headOrientation = orientation;
-            location.handleLookupString(string);
+            MyAvatar.position = position;
+        }
+        if (event.text === SET_LISTENER_POSITION_KEY){
+            updateCustomListener();
+            updateSettings();
+            doUIUpdate();
+        }
+        if (event.text === SET_LISTENER_TOGGLE_KEY){
+            if (settings.listener.isCustomListening) {
+                disableCustomListener();
+                updateSettings();
+                doUIUpdate();
+            } else {
+                enableCustomListener();
+                updateSettings();
+                doUIUpdate();
+            }
+        }
+        if (event.text === TOGGLE_COLLISION_KEY){
+            toggleAvatarCollisions();
         }
     }
-    
+
     function updateSettings() {
         Settings.setValue(SETTINGS_STRING, settings);
     }
@@ -195,14 +502,30 @@
         Controller.keyPressEvent.connect(keyPressHandler);
     }
 
+    function editDefault(newDefault) {
+        settings.DEFAULT_PARAMETERS = newDefault;
+        if (currentSetting === DEFAULT) {
+            settings.movementParameters = settings.DEFAULT_PARAMETERS;
+        }
+        doUIUpdate();
+    }
+
+    function editBrake(newBrake) {
+        settings.BRAKE_PARAMETERS = newBrake;
+        if (currentSetting === BRAKE) {
+            settings.movementParameters = settings.BRAKE_PARAMETERS;
+        }
+        doUIUpdate();
+    }
+
     function doUIUpdate() {
-        console.log("SETTINGs", JSON.stringify(settings));
+        settings.listener.currentMode = getCurrentListener();
         tablet.emitScriptEvent(JSON.stringify({
             type: UPDATE_UI,
             value: settings
         }));
     }
-    
+
     // Tablet
     var tablet = null,
         buttonName = "Kayla-Camera",
@@ -249,6 +572,8 @@
         } catch (e) {
             return;
         }
+        var name;
+        var key;
 
         switch (message.type) {
             case EVENT_BRIDGE_OPEN_MESSAGE:
@@ -270,7 +595,7 @@
                 doUIUpdate();
                 break;
             case UPDATE_CONFIG_NAME:
-                var name = message.value;
+                name = message.value;
                 updateConfigName(name);
                 updateSettings();
                 doUIUpdate();
@@ -291,28 +616,28 @@
                 doUIUpdate();
                 break;
             case ADD_CAMERA_POSITION:
-                var name = message.value.name;
-                var key = message.value.key;
+                name = message.value.name;
+                key = message.value.key;
                 addCameraPosition(name, key);
                 updateSettings();
                 doUIUpdate();
                 break;
             case EDIT_CAMERA_POSITION_KEY:
-                var key = message.value.key;
+                key = message.value.key;
                 var newKey = message.value.newKey;
                 editCameraPositionKey(key, newKey);
                 updateSettings();
                 doUIUpdate();
                 break;
             case REMOVE_CAMERA_POSITION:
-                var key = message.value;
+                key = message.value;
                 removeCameraPosition(key);
                 updateSettings();
                 doUIUpdate();
                 break;
             case EDIT_CAMERA_POSITION_NAME:
-                var name = message.value.name;
-                var key = message.value.key;
+                name = message.value.name;
+                key = message.value.key;
                 editCameraPositionName(key, name);
                 updateSettings();
                 doUIUpdate();
@@ -326,6 +651,12 @@
             case TOGGLE_AVATAR_COLLISIONS:
                 toggleAvatarCollisions();
                 break;
+            case EDIT_DEFAULT:
+                editDefault(message.value);
+                break;
+            case EDIT_BRAKE:
+                editBrake(message.value);
+                break;
             case CLOSE_DIALOG_MESSAGE:
                 tablet.gotoHomeScreen();
                 break;
@@ -336,8 +667,7 @@
     setup();
 
     // Cleanup
-    function scriptEnding() {
-        console.log("### in script ending");
+    function cameraScriptEnding() {
         if (isAppActive) {
             setAppActive(false);
         }
@@ -349,9 +679,14 @@
             tablet.removeButton(tabletButton);
             tabletButton = null;
         }
+        disable();
+        Reticle.setVisible(true);
+        Controller.disableMapping(MAPPING_ENABLE_NAME);
+        Controller.disableMapping(MAPPING_KEYS_NAME);
+        Controller.disableMapping(MAPPING_MOUSE_VISIBLE_NAME);
         tablet = null;
         Controller.keyPressEvent.disconnect(keyPressHandler);
     }
 
-    Script.scriptEnding.connect(scriptEnding);
+    Script.scriptEnding.connect(cameraScriptEnding);
 }());

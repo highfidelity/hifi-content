@@ -16,6 +16,8 @@
         CHANGE_AVATAR_TO_CAMERA = "changeAvatarToCamera",
         CHANGE_AVATAR_TO_INVISIBLE = "changeAvatarToInvisible",
         TOGGLE_AVATAR_COLLISIONS = "toggleAvatarCollisions",
+        EDIT_DEFAULT = "editDefault",
+        EDIT_BRAKE = "editBrake",
         EVENTBRIDGE_SETUP_DELAY = 50;
 
     Vue.component('config', {
@@ -101,7 +103,7 @@
     })
 
     Vue.component('listener', {
-        props: ["is_enabled", "position", "orientation"],
+        props: ["is_enabled", "position", "orientation", "mode"],
         data: function(){
             return {
                 enabled: false,
@@ -133,6 +135,9 @@
                 </div>
                 <div class="card-body">
                     <div>
+                        <div>
+                            <strong>Current Mode:</strong> {{mode}}
+                        </div>
                         <div v-if="is_enabled">
                             <strong>Position: </strong>
                             <br>
@@ -229,6 +234,140 @@
                     <button class="btn-sm btn-primary mt-1 mr-1 float-right" v-on:click="remove(key_press)">remove</button>
                 </div>
             </div>
+        `
+    })
+
+    Vue.component('move_options', {
+        props: ["move"],
+        methods: {
+            onBlur: function(){
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EDIT_DEFAULT,
+                    value: this.move
+                }));
+            }
+        },
+        template: /*html*/`
+        <div class="card">
+            <div class="card-header">
+                move options
+            </div>
+            <div class="card-body">
+            
+                <form class="form-inline">
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">DRAG_COEFFICIENT</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="move.DRAG_COEFFICIENT" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">MAX_SPEED</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="move.MAX_SPEED" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">ACCELERATION</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="move.ACCELERATION" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">MOUSE_YAW_SCALE</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="move.MOUSE_YAW_SCALE" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">MOUSE_PITCH_SCALE</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="move.MOUSE_PITCH_SCALE" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">MOUSE_SENSITIVITY</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="move.MOUSE_SENSITIVITY" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">W</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="move.W" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+        `
+    })
+
+    Vue.component('brake_options', {
+        props: ["brake"],
+        methods: {
+            onBlur: function(){
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EDIT_DEFAULT,
+                    value: this.brake
+                }));
+            }
+        },
+        template: /*html*/`
+        <div class="card">
+            <div class="card-header">
+                brake options
+            </div>
+            <div class="card-body">
+            
+                <form class="form-inline">
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">DRAG_COEFFICIENT</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="brake.DRAG_COEFFICIENT" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">MAX_SPEED</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="brake.MAX_SPEED" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">ACCELERATION</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="brake.ACCELERATION" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">MOUSE_YAW_SCALE</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="brake.MOUSE_YAW_SCALE" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">MOUSE_PITCH_SCALE</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="brake.MOUSE_PITCH_SCALE" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">MOUSE_SENSITIVITY</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="brake.MOUSE_SENSITIVITY" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    <div class="input-group mb-1 ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text main-font-size font-weight-bold">W</span>
+                        </div>
+                        <input type="text" v-on:blur="onBlur" v-model="brake.W" class="form-control main-font-size" placeholder="start frame">
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
         `
     })
 
