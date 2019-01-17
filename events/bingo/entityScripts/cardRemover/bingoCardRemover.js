@@ -17,7 +17,7 @@
     Search that list for the card app script and return whether or not it was found */
     var isRunningStandaloneBingoApp = function() {
         var isRunning = false;
-        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("bingoCard_app.js") !== -1) {
+        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("bingoCard_app.js?0") !== -1) {
             isRunning = true;
         }
         return isRunning;
@@ -32,7 +32,7 @@
         preload: function(entityID){
             _this.entityID = entityID;
             if (isRunningStandaloneBingoApp) {
-                ScriptDiscoveryService.stopScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js'));
+                ScriptDiscoveryService.stopScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js?0'));
             }
         }
     };

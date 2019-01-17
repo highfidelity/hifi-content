@@ -41,16 +41,6 @@
         }
     }
 
-    /* DOES ARRAY CONTAIN A NUMBER: Search through an array for a specific number and return the result */
-    function contains(array, number) {
-        for (var i = 0 ; i < array.length; i++) {
-            if (array[i] === number) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
@@ -87,11 +77,11 @@
     function getRandomSound() {
         var newSoundIndex = Math.floor(Math.random() * headerSounds.length);
         var newSound = headerSounds[newSoundIndex];
-        if (!contains(currentHeaderSounds, newSound)) {
+        if (currentHeaderSounds.indexOf(newSound) === -1) {
             currentHeaderSounds.push(newSound);
-            return newSound;
+        } else {
+            getRandomSound();
         }
-        return getRandomSound();
     }
 
     /* LOAD SOUNDS: Prepare each sound file for playback using Soundcache API */
@@ -129,26 +119,29 @@
     var SPREADSHEET_URL = Script.require(Script.resolvePath('../secrets/bingoSheetURL.json?0')).sheetURL;
     var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
     var request = Script.require('request').request;
-    var userName = AccountServices.username;
     var userCardNumbers = [];
     function createUserInSheet() {
         var addParamString = encodeURLParams({
             type: "add",
-            username: userName
+            username: AccountServices.username
         });
         request({
             uri: SPREADSHEET_URL + "?" + addParamString
         }, function (error, response) {
             if (error || !response || response === "Not a new user") {
+                print("ERROR: Could not create new user");
                 return;
+            } else if (response.status === "Success") {
+                var userNumbersToSplit = response.userCardNumbers.substring(1, response.length - 1);
+                userCardNumbers = userNumbersToSplit.split(",");
+                ui.tablet.emitScriptEvent(JSON.stringify({
+                    type : 'displayNumbers',
+                    numbers: userCardNumbers
+                }));
+                Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
+            } else {
+                print("ERROR: Could not create new user");
             }
-            var userNumbersToSplit = response.substring(1, response.length - 1);
-            userCardNumbers = userNumbersToSplit.split(",");
-            ui.tablet.emitScriptEvent(JSON.stringify({
-                type : 'displayNumbers',
-                numbers: userCardNumbers
-            }));
-            Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
         });
     }
 
@@ -157,7 +150,7 @@
     function findOrCreateCard() {
         var searchParamString = encodeURLParams({
             type: "search",
-            username: userName
+            username: AccountServices.username
         });
         request({
             uri: SPREADSHEET_URL + "?" + searchParamString
@@ -221,7 +214,7 @@
     function onWebEventReceived(event) {
         if (event.type === 'playSoundFromBingoButton') {
             if (event.index > -1) {
-                playSound(currentHeaderSounds[event.index], 0.5, MyAvatar.position, false);
+                playSound(currentHeaderSounds[event.index], 0.1, MyAvatar.position, false);
             } else if (event.index === -2) {
                 playSound(SELECT_SOUND, 0.2, MyAvatar.position, false);
             } else if (event.index === -3) {
@@ -337,7 +330,7 @@
 
     /* WHEN USER SESSION CHANGES: End this script so users will not be left with a card when leaving the domain*/
     function sessionChanged() {
-        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js'));
+        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?0'));
     }
     
     startup();

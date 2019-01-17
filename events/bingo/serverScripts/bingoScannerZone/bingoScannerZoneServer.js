@@ -416,7 +416,10 @@
                 var trapDoorLocalRotationX = Entities.getEntityProperties(SCANNER_TRAP_DOOR, 'localRotation').localRotation.x;
                 var quatValueForOpenRotation = 0.707;
                 if (trapDoorLocalRotationX > quatValueForOpenRotation) {
-                    Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: { x: 0, y: 0, z: 0 }});
+                    Entities.editEntity(SCANNER_TRAP_DOOR, { 
+                        angularVelocity: { x: 0, y: 0, z: 0 },
+                        localRotation: Quat.fromVec3Degrees({ x: 90, y: 0, z: 0 })
+                    });
                     Script.clearInterval(interval);
                 }
             }, CHECK_DOOR_ROTATION_MS);

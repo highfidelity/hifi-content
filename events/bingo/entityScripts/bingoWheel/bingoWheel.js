@@ -17,7 +17,7 @@
     var CHECKING_INTERVAL_DELAY_MS = 100;
     var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan','Becky'];
     var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('sounds/blip.wav'));
-    var SPIN_SOUND = SoundCache.getSound(Script.resolvePath('sounds/wheelSpin.mp3'));
+    var SPIN_SOUND = SoundCache.getSound(Script.resolvePath('sounds/wheelSpin.mp3?0'));
     var WAIT_BETWEEN_SPINS_MS = 4000;
     var BINGO_WHEEL_NUMBER = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
 

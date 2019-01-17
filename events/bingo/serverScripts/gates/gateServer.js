@@ -54,21 +54,21 @@
             _this.entityID = entityID;
             var name = Entities.getEntityProperties(_this.entityID, 'name').name;
             if (name === "Bingo Scanner Entry Gate") {
-                closedLocalPosition = { x: -1, y: 0.85 , z: 0 };
-                openedLocalPosition = { x: -1, y: 0.85 , z: -2.5 };
-                currentLocalPosition = { x: -1, y: 0.85 , z: 0 };
+                closedLocalPosition = { x: -0.9310, y: 1.1957 , z: 0.0811 };
+                openedLocalPosition = { x: -0.9310, y: -0.9731 , z: 0.0811 };
+                currentLocalPosition = { x: -0.9310, y: 1.1957 , z: 0.0811 };
                 Entities.editEntity(_this.entityID, { position: currentLocalPosition});
             } else if (name === "Bingo Stage Entry Gate") {
-                closedLocalPosition = { x: 1, y: 0.85 , z: 0 };
-                openedLocalPosition = { x: 1, y: 0.85 , z: -2.5 };
-                currentLocalPosition = { x: 1, y: 0.85 , z: 0 };
+                closedLocalPosition = { x: 1, y: 1.1957 , z: 0.0811 };
+                openedLocalPosition = { x: 1, y: -0.9731 , z: 0.0811 };
+                currentLocalPosition = { x: 1, y: 1.1957 , z: 0.0811 };
                 Entities.editEntity(_this.entityID, { position: currentLocalPosition});
             }
         },
 
-        gateLeft: function() {
-            if (currentLocalPosition.z > openedLocalPosition.z) {
-                currentLocalPosition.z -= MOVEMENT_INCREMENT_M;
+        gateDown: function() {
+            if (currentLocalPosition.y > openedLocalPosition.y) {
+                currentLocalPosition.y -= MOVEMENT_INCREMENT_M;
                 Entities.editEntity(_this.entityID, {
                     position: currentLocalPosition
                 });
@@ -79,9 +79,9 @@
             }
         },
 
-        gateRight: function() {
-            if (currentLocalPosition.z < closedLocalPosition.z) {
-                currentLocalPosition.z += MOVEMENT_INCREMENT_M;
+        gateUp: function() {
+            if (currentLocalPosition.y < closedLocalPosition.y) {
+                currentLocalPosition.y += MOVEMENT_INCREMENT_M;
                 Entities.editEntity(_this.entityID, {
                     position: currentLocalPosition
                 });
@@ -99,7 +99,7 @@
             playSound(OPEN_SOUND, GAME_AUDIO_POSITION, 1);
             playSound(OPEN_SOUND, Entities.getEntityProperties(_this.entityID, 'position').position, 1);
             moving = Script.setInterval(function() {
-                _this.gateLeft();
+                _this.gateDown();
             }, MOVEMENT_INTERVAL_MS);
         },
 
@@ -108,7 +108,7 @@
                 Script.clearInterval(moving);
             }
             moving = Script.setInterval(function() {
-                _this.gateRight();
+                _this.gateUp();
             }, MOVEMENT_INTERVAL_MS);
         },
 

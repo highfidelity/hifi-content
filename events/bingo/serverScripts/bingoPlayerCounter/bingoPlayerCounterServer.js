@@ -1,5 +1,5 @@
 //
-// bingoPlayerCounterserver.js
+// bingoPlayerCounterServer.js
 // 
 // Created by Rebecca Stankus on 12/10/2018
 // Copyright High Fidelity 2018

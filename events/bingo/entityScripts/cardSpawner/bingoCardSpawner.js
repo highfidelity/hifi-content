@@ -48,7 +48,7 @@
     Search that list for the card app script and return whether or not it was found */
     var isRunningStandaloneBingoApp = function() {
         var isRunning = false;
-        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("bingoCard_app.js") !== -1) {
+        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("bingoCard_app.js?0") !== -1) {
             isRunning = true;
         }
         return isRunning;
@@ -73,7 +73,7 @@
                 canClick = false;
                 playSound(GET_CARD_SOUND);
                 if (!isRunningStandaloneBingoApp()) {
-                    ScriptDiscoveryService.loadScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js'));
+                    ScriptDiscoveryService.loadScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js?0'));
                 } else {
                     var cardAppIsOpen = tablet.isPathLoaded(appPage);
                     if (!cardAppIsOpen) {
@@ -88,7 +88,7 @@
 
         /* ON UNLOADING THE APP:  Close the card app by stopping its script. */
         unload: function() {
-            ScriptDiscoveryService.stopScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js'));
+            ScriptDiscoveryService.stopScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js?0'));
         }
     };
 

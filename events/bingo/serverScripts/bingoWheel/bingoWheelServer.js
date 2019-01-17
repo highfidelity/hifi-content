@@ -28,7 +28,6 @@
     var calledNumbers = [];
     var interval;
     var newRoundURLParams;
-    var roundNumber = 1;
     var request = Script.require(Script.resolvePath('../../modules/request.js')).request;
 
     // *************************************
@@ -80,6 +79,7 @@
                 } else if (name === "Bingo Click To Play Sign") {
                     registrationSign = childEntity;
                 } else if (name === "Bingo Remove Cards Sign") {
+                    print("FOUND CARD REMOVER SIGN");
                     cardRemoverSign = childEntity;
                 } else if (name === "Bingo Wheel Light") {
                     gameOnLights.push(childEntity);
@@ -131,23 +131,20 @@
         newRound: function() {
             newRoundURLParams = encodeURLParams({ 
                 type: "newRound",
-                calledNumbers: JSON.stringify(calledNumbers),
-                roundNumber: roundNumber
+                calledNumbers: JSON.stringify(calledNumbers)
             });
             request({
                 uri: SPREADSHEET_URL + "?" + newRoundURLParams
             }, function (error, response) {
-                if (error || !response) {
-                    print("SPREADSHEET URL: ", SPREADSHEET_URL + "?" + newRoundURLParams);
+                if (error || !response || response !== "Success") {
+                    print("ERROR: Could not reset round.", response);
                     return;
                 }
-                
                 Entities.editEntity(BINGO_WHEEL_TEXT, {
                     text: "BINGO",
                     lineHeight: 1.1
                 });
                 Entities.callEntityMethod(playerCounterText, 'reset');
-
                 calledNumbers = [];
                 bingoWallLights.forEach(function(light) {
                     Entities.editEntity(light, { visible: false });
@@ -160,7 +157,6 @@
                     visible: true,
                     script: REMOVE_CARDS
                 });
-                roundNumber++;
             });
         },
 
@@ -169,6 +165,11 @@
             _this.newRound();
             gameOnLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: false });
+            });
+            // This is an extra check to be sure cards are deleted in case the "New Round" call is not processed.
+            Entities.editEntity(cardRemoverSign, {
+                visible: true,
+                script: REMOVE_CARDS
             });
             Entities.editEntity(_this.entityID, {textures: JSON.stringify({
                 "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-D.png",
