@@ -2,11 +2,11 @@
   "DataVersion": 0,
   "Entities": [
     {
-    "id": "{eedbf4a1-a667-42c4-b287-c5fa14001571}",
+    "id": "{00a6a0f0-0430-47ea-b523-b1a3bf08a63e}",
     "type": "Box",
-    "created": "2019-01-16T23:05:56Z",
-    "lastEdited": 1547680135056164,
-    "lastEditedBy": "{77356988-272b-49e6-b445-4768947ca89f}",
+    "created": "2019-01-17T00:04:55Z",
+    "lastEdited": 1547683715756578,
+    "lastEditedBy": "{858dba3e-5598-4ae2-99cf-ba6e8ba22dec}",
     "dimensions": {
         "x": 0.20000000298023224,
         "y": 0.20000000298023224,
@@ -19,9 +19,9 @@
         "w": 1
     },
     "damping": 0,
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-16_11-07-10/appResources/appData/sitClient.js",
-    "scriptTimestamp": 1547680112787,
-    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-16_11-07-10/appResources/appData/sitServer.js",
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-16_16-05-54/appResources/appData/sitClient.js",
+    "scriptTimestamp": 1547683614795,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-16_16-05-54/appResources/appData/sitServer.js",
     "registrationPoint": {
         "x": 0.5,
         "y": 1,
@@ -30,7 +30,6 @@
     "angularDamping": 0,
     "collisionless": true,
     "ignoreForCollisions": true,
-    "name": "Sit Point Opaque",
     "shape": "Cube",
     "color": {
         "red": 0,
@@ -62,6 +61,6 @@
     "localEntity": false
 }
     ],
-  "Id": "{c9c82156-9676-4d1d-a838-ce52eeef27a1}",
+  "Id": "{2229ea8d-c49b-422e-a76e-da56b33c5ecd}",
   "Version": 98
 }
