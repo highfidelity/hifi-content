@@ -484,6 +484,9 @@
             }
         }
     ];
+    // This function creates a HUD element over a user's head 
+    // The HUD is made of "Shape" Overlays, some of which are static,
+    // and some of which are updated to show audio level
     function createHUD(uuid) {
         var user = userObject[uuid];
         user.hudID = [];
@@ -641,6 +644,7 @@
         this.timeSinceDefault = Number.MAX_VALUE;
     }
 
+    
     // This function gets data to sort through
     function sortData() {
         var avatarList = Object.keys(userObject);
@@ -780,6 +784,7 @@
         }
         return -1;
     }
+
 
     // This function removes a user from the user list
     function removeUserFromUserArray(uuid) {
