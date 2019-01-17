@@ -2,19 +2,14 @@
 
 ## Description
 
-Make any entity sittable whether it's a chair, bench, couch, or even a tree stump or log.
+Make any entity sittable whether it's a chair, bench, couch, log, or even a tree stump.
 
-Either import Sit Point from the marketplace to put on entities for one or more seats per entity.
-
-Or make a sittable entity yourself with one seat! See **Setup** > **Add scripts to your entity**
+Either import Sit Point from the marketplace to put on entities for one or more seats per entity or make a sittable entity yourself with one seat! See **Setup** > **Add scripts to your entity**
 
 ## Releases
 
 2019-01-16_11-29-09 :: [voteApp 0a01cac]
 - During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
-
-## Project links
-[trello]()
 
 ## Known issues
 
@@ -34,10 +29,15 @@ Animation that is applied before sitting is applied while in the chair and conti
 3. Click on "Create Tools" > "Create" > "Import Entities (.JSON)"
 4. Select the .json file to import
 
-### Add scripts to your entity
-- Client script: sit.js 
-- Server script: sitServer.js
-Ensure both are running.
+### Manually add scripts to your entity in High Fidelity
+1. Fork the hifi-content repo
+2. Configure sitClient.js script and save. See **Configurations** > **Configurable variables in Script**
+3. Configure the entity in High Fidelity Create Mode. See **Configurations** > **Configurable adjustments in Create Mode**
+4. Host the marketplaceItems/sitPoint folder on a hosting service like Amazon S3
+5. Paste the hosted sitClient.js script url into the entity client script link
+6. Paste the hosted sitServer.js script url into the entity server script link
+7. Ensure both are running
+8. Sit!
 
 ## Configurations
 

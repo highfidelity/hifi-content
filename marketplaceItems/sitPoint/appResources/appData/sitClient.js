@@ -44,8 +44,8 @@
 
     var SIT_SETTLE_TIME = 350; // ms
 
-    var SITTING_DEBUG = true; // turn on sitting debug print statements
-    var OVERLAY_DEBUG = true;
+    var SITTING_DEBUG = false; // turn on sitting debug print statements
+    var OVERLAY_DEBUG = false; // turn on overlay debug print statements
 
     var ONE_HUNDRED_AND_TWENTY_PERCENT = 1.2;
     var EIGHTY_PERCENT = 0.8;
@@ -55,33 +55,10 @@
     var SIT_DELAY = 50; // ms for timeouts in sit
     var STANDUP_DELAY = 25; // ms for timeout in standup
 
-    var OVERRIDDEN_DRIVE_KEYS = [
-        DriveKeys.TRANSLATE_X,
-        DriveKeys.TRANSLATE_Y,
-        DriveKeys.TRANSLATE_Z,
-        DriveKeys.STEP_TRANSLATE_X,
-        DriveKeys.STEP_TRANSLATE_Y,
-        DriveKeys.STEP_TRANSLATE_Z
-    ];
-
     var chairProperties = null;
     var lockChairOnStandUp = null;
     var seatCenterPosition = null;
     var CHAIR_DISMOUNT_OFFSET = -0.5; // m in front of chair 
-
-    var SITTING_SEARCH_RADIUS = 0.01; // m to check if avatar is sitting in chair
-
-    // for overlays
-
-    var overlayStandUp = null;
-
-
-    // alpha value change during edit mode
-    var checkAlpha = false;
-    var createModeOverlay = null;
-    var MINIMUM_ALPHA = 0.3; // 50% alpha value
-    var OVERLAY_ALPHA = 0.1; // 10% alpha value
-    var CREATE_OVERLAY_DIMENSIONS_OFFSET = 0.02; // add 0.02 m to the sides of the cube to avoid z fighting
 
     // sit/stand variables
     var sittingDown = false;
@@ -261,7 +238,8 @@
         var str;
         for (var i = 0; i < OVERLAY_PRESIT_URL_NUM; i++) {
             str = i + 1;
-            overlayPreSitLoaded[i] = TextureCache.prefetch(Script.resolvePath(OVERLAY_PRESIT_URL_ROOT + str + OVERLAY_PRESIT_URL_POSTFIX));
+            overlayPreSitLoaded[i] = 
+                TextureCache.prefetch(Script.resolvePath(OVERLAY_PRESIT_URL_ROOT + str + OVERLAY_PRESIT_URL_POSTFIX));
         }
         overlayPreSitTextLoaded = TextureCache.prefetch(OVERLAY_PRESIT_URL_TEXT);
     }
@@ -336,6 +314,8 @@
 
     var OVERLAY_URL_STANDUP = Script.resolvePath("./resources/images/holdToStandUp.png");
 
+    var overlayStandUp = null;
+
     function standUpCreate() {
         if (!overlayStandUp) {
             overlayStandUp = Overlays.addOverlay(
@@ -360,7 +340,84 @@
 
     // #endregion STAND UP OVERLAY
 
+    // #region CREATE MODE OVERLAY
+
+    // alpha value change during edit mode
+    var MINIMUM_ALPHA = 0.3; // 50% alpha value
+    var OVERLAY_ALPHA = 0.1; // 10% alpha value for createModeOverlay
+    var CREATE_OVERLAY_DIMENSIONS_OFFSET = 0.02; // add 0.02 m to the sides of the cube to avoid z fighting
+    
+    var checkAlpha = false; // false if chair alpha is > MINIMUM_ALPHA, true if chair alpha is < MINIMUM_ALPHA
+    var createModeOverlay = null; // overlay id for create mode overlay
+
+    // Creates an overlay if the user is in create mode
+    // Enabled only if the chair alpha value is <= MINIMUM_ALPHA
+    function checkOrCreateCreateModeOverlay() {
+        if (!checkAlpha) {
+            return;
+        }
+
+        // check Alpha is enabled
+        if (checkAlpha) {
+
+            // is in Edit mode && alpha value has not changed
+            if (isInEditMode() && !createModeOverlay) {
+
+                setChairProperties();
+
+                var position = chairProperties.position;
+                var registrationPoint = chairProperties.registrationPoint;
+                var dimensions = chairProperties.dimensions;
+                var rotation = chairProperties.rotation;
+
+                // Local position relative to cube
+                // And adjust for registrationPoint to match the cube exactly
+                var localOffset = {
+                    x: NEG_ONE * (registrationPoint.x - HALF) * dimensions.x,
+                    y: NEG_ONE * (registrationPoint.y - HALF) * dimensions.y,
+                    z: NEG_ONE * (registrationPoint.z - HALF) * dimensions.z
+                };
+
+                var worldOffset = Vec3.multiplyQbyV(rotation, localOffset);
+                var worldPosition = Vec3.sum(position, worldOffset);
+
+                // Create visible cube
+                createModeOverlay = Overlays.addOverlay("cube", {
+                    position: {
+                        x: worldPosition.x,
+                        y: worldPosition.y,
+                        z: worldPosition.z
+                    },
+                    rotation: rotation,
+                    dimensions: {
+                        x: dimensions.x + CREATE_OVERLAY_DIMENSIONS_OFFSET,
+                        y: dimensions.y - CREATE_OVERLAY_DIMENSIONS_OFFSET * HALF, // Able to select from top in HMD create mode
+                        z: dimensions.z + CREATE_OVERLAY_DIMENSIONS_OFFSET
+                    },
+                    solid: true,
+                    alpha: OVERLAY_ALPHA,
+                    parentID: entityID
+                });
+
+            }
+
+            // Is in Edit mode && alpha value has changed
+            if (!isInEditMode() && createModeOverlay) {
+                // Set alpha back to 0
+                if (createModeOverlay) {
+                    Overlays.deleteOverlay(createModeOverlay);
+                    createModeOverlay = null;
+                }
+            }
+
+        }
+    }
+
+    // #endregion CREATE MODE OVERLAY
+
     // #region UTILS 
+
+    var SITTING_SEARCH_RADIUS = 0.01; // m to check if avatar is sitting in chair
 
     // Is another avatar sitting in the chair?
     function isAvatarSittingInSeat() {
@@ -442,69 +499,6 @@
         );
     }
 
-    // Creates an overlay if the user is in create mode
-    // Enabled only if the chair alpha value is <= MINIMUM_ALPHA
-    function checkOrCreateCreateModeOverlay() {
-        if (!checkAlpha) {
-            return;
-        }
-
-        // check Alpha is enabled
-        if (checkAlpha) {
-
-            // is in Edit mode && alpha value has not changed
-            if (isInEditMode() && !createModeOverlay) {
-
-                setChairProperties();
-
-                var position = chairProperties.position;
-                var registrationPoint = chairProperties.registrationPoint;
-                var dimensions = chairProperties.dimensions;
-                var rotation = chairProperties.rotation;
-
-                // Local position relative to cube
-                // And adjust for registrationPoint to match the cube exactly
-                var localOffset = {
-                    x: NEG_ONE * (registrationPoint.x - HALF) * dimensions.x,
-                    y: NEG_ONE * (registrationPoint.y - HALF) * dimensions.y,
-                    z: NEG_ONE * (registrationPoint.z - HALF) * dimensions.z
-                };
-
-                var worldOffset = Vec3.multiplyQbyV(rotation, localOffset);
-                var worldPosition = Vec3.sum(position, worldOffset);
-
-                // create visible cube
-                createModeOverlay = Overlays.addOverlay("cube", {
-                    position: {
-                        x: worldPosition.x,
-                        y: worldPosition.y,
-                        z: worldPosition.z
-                    },
-                    rotation: rotation,
-                    dimensions: {
-                        x: dimensions.x + CREATE_OVERLAY_DIMENSIONS_OFFSET,
-                        y: dimensions.y + CREATE_OVERLAY_DIMENSIONS_OFFSET,
-                        z: dimensions.z + CREATE_OVERLAY_DIMENSIONS_OFFSET
-                    },
-                    solid: true,
-                    alpha: OVERLAY_ALPHA,
-                    parentID: entityID
-                });
-
-            }
-
-            // is in Edit mode && alpha value has changed
-            if (!isInEditMode() && createModeOverlay) {
-                // set alpha back to 0
-                if (createModeOverlay) {
-                    Overlays.deleteOverlay(createModeOverlay);
-                    createModeOverlay = null;
-                }
-            }
-
-        }
-    }
-
     // #endregion UTILS 
 
     // #region SIT ACTIONS 
@@ -514,19 +508,28 @@
     var ANIMATION_FIRST_FRAME = 1;
     var ANIMATION_LAST_FRAME = 350;
 
-    // User can click on overlay to sit down
-    // function mouseReleaseOnOverlay (overlayID, pointerEvent) {
-    //     if (overlayID === overlaySittable && pointerEvent.isLeftButton) {
+    var OVERRIDDEN_DRIVE_KEYS = [
+        DriveKeys.TRANSLATE_X,
+        DriveKeys.TRANSLATE_Y,
+        DriveKeys.TRANSLATE_Z,
+        DriveKeys.STEP_TRANSLATE_X,
+        DriveKeys.STEP_TRANSLATE_Y,
+        DriveKeys.STEP_TRANSLATE_Z
+    ];
 
-    //         // Server checks if seat is occupied
-    //         // if not occupied will call startSitDown()
-    //         Entities.callEntityServerMethod(
-    //             entityID,
-    //             "onSitDown",
-    //             [MyAvatar.sessionUUID]
-    //         );
-    //     }
-    // }
+    // User can click on overlay to sit down
+    function mousePressOnOverlay(overlayID, pointerEvent) {
+        if (overlayID === overlaySittable && pointerEvent.isLeftButton) {
+
+            // Server checks if seat is occupied
+            // if not occupied will call startSitDown()
+            Entities.callEntityServerMethod(
+                entityID,
+                "onSitDown",
+                [MyAvatar.sessionUUID]
+            );
+        }
+    }
 
     function sitAndPinAvatar() {
 
@@ -814,9 +817,9 @@
     // Dynamic variables
     var intervalEncounteredChairCheck = null;
 
-    function sitClient () {}
+    function SitClient() {}
 
-    sitClient.prototype = {
+    SitClient.prototype = {
         
         remotelyCallable: [
             "startSitDown",
@@ -833,7 +836,7 @@
             // Set if chair alpha value is small enough to enable the create mode overlay
             checkAlpha = chairProperties.alpha <= MINIMUM_ALPHA; 
             
-            // Overlays.mouseReleaseOnOverlay.connect(mouseReleaseOnOverlay);
+            Overlays.mousePressOnOverlay.connect(mousePressOnOverlay);
 
             // Check if we've encountered a chair
             intervalEncounteredChairCheck = Script.setInterval(function () {
@@ -843,7 +846,7 @@
 
             }, ENCOUNTERED_CHAIR_CHECK_INTERVAL);
 
-            function prefetchAnimation () {
+            function prefetchAnimation() {
                 AnimationCache.prefetch(ANIMATION_URL);
             }
 
@@ -889,13 +892,13 @@
                 Overlays.deleteOverlay(createModeOverlay);
             }
 
-            // Overlays.mouseReleaseOnOverlay.disconnect(mouseReleaseOnOverlay);
+            Overlays.mousePressOnOverlay.disconnect(mousePressOnOverlay);
         }
 
-    }
+    };
 
     // #endregion ENTITY METHODS
 
-    return new sitClient();
+    return new SitClient();
 
 });
