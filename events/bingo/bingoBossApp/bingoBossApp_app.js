@@ -58,18 +58,17 @@
     
     /* CLOSE REGISTRATION: This will play a sound and call a server method on the wheel to close registration */
     var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoGong.wav"));
-    var WAIT_TO_CLOSE_SECONDS = 35;
     function closeRegistration() {
         playSound(CLOSE_SOUND, 1);
-        print("WILL CALL SERVER IN ",CLOSE_SOUND.duration * 1000 * WAIT_TO_CLOSE_SECONDS, " SECONDS");
         Script.setTimeout(function() {
-            print("CALLING SERVER CLOSE REG");
             Entities.callEntityServerMethod(NUMBER_WHEEL, 'closeRegistration');
         }, CLOSE_SOUND.duration * 1000 * 0.5);
     }
 
     /* NEW ROUND: Play sound and call wheel server function */
+    var NEW_ROUND_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoOrgan.wav"));
     function newRound() {
+        playSound(NEW_ROUND_SOUND, 1);
         Entities.callEntityServerMethod(NUMBER_WHEEL, 'newRound');
     }
 
@@ -77,7 +76,6 @@
     var FAREWELL_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoFarewell.wav"));
     function lightsOut() {
         playSound(FAREWELL_SOUND, 1);
-        print("WILL CALL SERVER IN ",FAREWELL_SOUND.duration * 1000 * WAIT_TO_CLOSE_SECONDS, " SECONDS");
         Script.setTimeout(function() {
             Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOut');
         }, FAREWELL_SOUND.duration * 1000 * 0.9);

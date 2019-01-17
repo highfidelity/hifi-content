@@ -12,10 +12,10 @@
     var LIGHT_BLINK_INTERVAL_MS = 500;
     var REMOVE_CARDS = Script.resolvePath("../../entityScripts/cardRemover/bingoCardRemover.js");
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 1000;
-    var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json?0')).sheetURL;
+    var WAIT_WHILE_CARDS_ARE_DELETED_MS = 3000;
+    var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json?109')).sheetURL;
     var BINGO_WALL = "{df198d93-a9b7-4619-9128-97a53fea2451}";
     var BINGO_WHEEL_TEXT = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
-    var NEW_ROUND_SOUND = SoundCache.getSound(Script.resolvePath("sounds/bingoOrgan.wav?0"));
 
     var _this;
     
@@ -42,28 +42,6 @@
             paramPairs.push(key + "=" + params[key]);
         }
         return paramPairs.join("&");
-    }
-
-    /* DEBUG PRINT: Enable or disable extra debugging messages */
-    var DEBUG = 1;
-    function debugPrint(msg) {
-        if (DEBUG) {
-            print(msg);
-        }
-    }
-
-    /* PLAY SOUND: Plays the specified sound at the specified volume at the position of the game podium */
-    var injector;
-    function playSound(sound, volume) {
-        if (sound.downloaded) {
-            if (injector) {
-                injector.stop();
-            }
-            injector = Audio.playSound(sound, {
-                position: Entities.getEntityProperties(_this.entityID, 'position').position,
-                volume: volume
-            });
-        }
     }
 
     // *************************************
@@ -108,7 +86,6 @@
                 } else if (name === "Bingo Wall Backboard") {
                     backboard = childEntity;
                 } else if (name === "Bingo Player Counter") {
-                    print("FOUND PLAYER COUNTER");
                     playerCounterText = childEntity;
                 } else if (name === "Bingo Player Counter Light") {
                     gameOnLights.push(childEntity);
@@ -133,10 +110,6 @@
                 "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-R.jpg",
                 "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-E.jpg"
             })});
-            _this.closeRegistration();
-            Entities.editEntity(cardRemoverSign, {
-                visible: true
-            });
         },
 
         /* OPEN REGISTRATION: Take down card remover sign and put up card spawner sign. */
@@ -150,7 +123,6 @@
 
         /* CLOSE REGISTRATION: Take down card remover sign. */
         closeRegistration: function() {
-            print("SERVER IS CLOSING REG");
             Entities.editEntity(registrationSign, { visible: false});
         },
 
@@ -162,30 +134,21 @@
                 calledNumbers: JSON.stringify(calledNumbers),
                 roundNumber: roundNumber
             });
-            print(SPREADSHEET_URL + "?" + newRoundURLParams);
             request({
                 uri: SPREADSHEET_URL + "?" + newRoundURLParams
             }, function (error, response) {
-                debugPrint("bingoWheelServer.js: Spreadsheet URL is " + SPREADSHEET_URL + "?" + newRoundURLParams);
                 if (error || !response) {
-                    debugPrint("bingoWheelServer.js: ERROR when clearing Bingo entries!" + error || response);
+                    print("SPREADSHEET URL: ", SPREADSHEET_URL + "?" + newRoundURLParams);
                     return;
                 }
-                playSound(NEW_ROUND_SOUND, 1);
-                debugPrint("bingoWheelServer.js: Successfully cleared Bingo entries from spreadsheet! " + response);
-            
-                debugPrint("bingoWheelServer.js: Resetting Bingo Wheel Number text (id: " + BINGO_WHEEL_TEXT + ")...");
+                
                 Entities.editEntity(BINGO_WHEEL_TEXT, {
                     text: "BINGO",
                     lineHeight: 1.1
                 });
-                debugPrint("bingoWheelServer.js: Calling reset on PLAYER_COUNTER_TEXT (id: " + playerCounterText + ")...");
                 Entities.callEntityMethod(playerCounterText, 'reset');
 
                 calledNumbers = [];
-                gameOnLights.forEach(function(light) {
-                    Entities.editEntity(light, { visible: true });
-                });
                 bingoWallLights.forEach(function(light) {
                     Entities.editEntity(light, { visible: false });
                 });
@@ -203,10 +166,8 @@
 
         /* GAME OVER: Turn off all lights, take down card remover sign, and close registration. */
         lightsOut: function() {
+            _this.newRound();
             gameOnLights.forEach(function(light) {
-                Entities.editEntity(light, { visible: false });
-            });
-            bingoWallLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: false });
             });
             Entities.editEntity(_this.entityID, {textures: JSON.stringify({
@@ -219,10 +180,11 @@
                 "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-M.jpg",
                 "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-R.jpg"
             })});
-            Entities.editEntity(cardRemoverSign, {
-                visible: false
-            });
-            _this.closeRegistration();
+            Script.setTimeout(function() {
+                Entities.editEntity(cardRemoverSign, {
+                    visible: false
+                });
+            }, WAIT_WHILE_CARDS_ARE_DELETED_MS);
         },
 
         /* TURN ON A WALL LIGHT : Edit the visibilty to turn on a light. */

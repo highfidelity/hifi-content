@@ -34,7 +34,6 @@
 
         /* RESET THE COUNTER: Set the count and text back to 0 */
         reset: function() {
-            print("PLAYER COUNTER RESET");
             _this.count = 0;
             Entities.editEntity(_this.entityID, { text: "0" });
         }

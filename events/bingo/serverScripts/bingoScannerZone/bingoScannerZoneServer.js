@@ -12,6 +12,9 @@
 (function() {
     var BINGO_WHEEL = "{57e5e385-3968-4ebf-8048-a7650423d83b}";
     var STAGE_ENTRY_GATE = "{d486f614-fd14-42c4-aefe-9b3b734cd60e}";
+    var MAIN_STAGE_BOUNCER_ZONE = "{5ca26b63-c61b-447e-8985-b0269b33eed0}";
+    var SCANNER_TRAP_DOOR = "{ab82d854-98da-44bf-8545-0544227bc56c}";
+    var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
     var ENTER_ZONE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoEnter.wav?0"));
     var COMPUTING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoComputing.wav?0"));
     var SCANNER_WIN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoScannerWin.wav"));
@@ -24,20 +27,21 @@
     var CARD_BLUE = { blue: 247, green: 196, red: 0 };
     var CARD_GREEN = { blue: 0, green: 255, red: 30 };
     var CARD_PINK = { blue: 119, green: 0, red: 255 };
-    var WAIT_TO_DELETE_CARD = 10000;
+    var WAIT_TO_DELETE_CARD_MS = 10000;
     var ROW_INDEX = 13;
     var COLUMN_INDEX = 15;
     var WAIT_TO_PROCESS_VALIDATION_MS = 1000;
-    var OVERLAP_SOUNDS_TIME = 1000;
+    var OVERLAP_SOUNDS_TIME_MS = 1000;
+    var CHECK_DOOR_ROTATION_MS = 10;
     var BINGO_STRING = "BINGO";
     var IMAGE_MODEL = Script.resolvePath("assets/images/default-image-model.fbx");
     var HEADER_IMAGE = Script.resolvePath("../../images/bingo-card-head.png");
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 2000;
-    var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json?0')).sheetURL;
+    var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json')).sheetURL;
 
     var _this;
     
-    var position;
+    var zonePosition;
     var interval = null;
     var userName;
     var userCardNumbers = [];
@@ -62,29 +66,17 @@
         return paramPairs.join("&");
     }
 
-    /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
-    mode requested. */
+    /* PLAY A SOUND: Plays the specified sound at specified position  and volume */
     var injector;
-    var audioVolume = 0.05;
-    function playSound(sound) {
-        print("PLAYING SOUND ", JSON.stringify(sound));
+    function playSound(sound, position, volume) {
         if (sound.downloaded) {
-            print("SOUND IS DOWNLOADED");
             if (injector) {
                 injector.stop();
             }
             injector = Audio.playSound(sound, {
-                position: position,
-                volume: audioVolume
+                position: GAME_AUDIO_POSITION,
+                volume: volume
             });
-        }
-    }
-
-    /* DEBUG PRINT: Enable or disable extra debugging messages */
-    var DEBUG = 1;
-    function debugPrint(msg) {
-        if (DEBUG) {
-            print(msg);
         }
     }
 
@@ -106,7 +98,7 @@
             _this.entityID = entityID;
             Script.setTimeout(function() {
                 var properties = Entities.getEntityProperties(_this.entityID, ['parentID', 'position']);
-                position = properties.position;
+                zonePosition = properties.position;
                 var zoneMarker = properties.parentID;
                 Entities.getChildrenIDs(zoneMarker).forEach(function(childOfZoneMarker) {
                     var name = Entities.getEntityProperties(childOfZoneMarker, 'name').name;
@@ -124,7 +116,6 @@
 
         /* RECEIVE NUMBERS THAT HAVE BEEN CALLED THIS ROUND:  */
         receiveNumbersFromWheel: function(id, numbers) {
-            print("RECEIVED THE NUMBERS");
             calledNumbers = JSON.parse(numbers[0]);
         },
 
@@ -139,13 +130,12 @@
                 uri: SPREADSHEET_URL + "?" + searchParamString
             }, function (error, response) {
                 if (error || !response) {
-                    debugPrint("bingoScannerZoneServer.js: ERROR when searching for Bingo user entry!" + error || response);
                     return;
                 }
                 if (response === "New username") {
                     print("Error...user not found in bingo players list");
                 } else if (response) {
-                    var userNumbersToSplit = response.substring(2, response.length - 2);
+                    var userNumbersToSplit = response.substring(1, response.length - 1);
                     userCardNumbers = userNumbersToSplit.split(",");
                 }
             });
@@ -396,19 +386,40 @@
 
         /* WIN: Play the winning sound and turn on confettin and bingo particles. */
         win: function() {
-            playSound(SCANNER_WIN_SOUND);
+            playSound(SCANNER_WIN_SOUND, GAME_AUDIO_POSITION, 1);
+            playSound(SCANNER_WIN_SOUND, zonePosition, 0.5);
             Entities.callEntityMethod(bingoParticleEffect, 'turnOn');
             Entities.callEntityMethod(confettiParticleEffect, 'turnOn');
-            // add to bouncer zone
+            try {
+                var bouncerZoneUserData = JSON.parse(
+                    Entities.getEntityProperties(MAIN_STAGE_BOUNCER_ZONE, 'userData').userData);
+                var userNames = bouncerZoneUserData.whitelist.usernames;
+                bouncerZoneUserData.whitelist.usernames[userNames.length ++] = userName;
+                Entities.editEntity(MAIN_STAGE_BOUNCER_ZONE, { userData: JSON.stringify(bouncerZoneUserData) });
+            } catch (err) {
+                print("Error adding winner to bouncer zone userData");
+            }
             Entities.callEntityMethod(STAGE_ENTRY_GATE, 'openGate');
         },
 
-        /* LOSE: Play the losing buzzer and set a timeout for after the buzzer sound has finished to play the sad sound */
+        /* LOSE: Play the losing buzzer and lower the trap door. Set a timeout for after the buzzer sound has 
+        finished to play the sad sound */
         lose: function() {
-            playSound(SCANNER_LOSE_SOUND);
+            playSound(SCANNER_LOSE_SOUND, GAME_AUDIO_POSITION, 1);
+            playSound(SCANNER_LOSE_SOUND, zonePosition, 0.5);
+            Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: Quat.fromVec3Degrees({ x: 100, y: 0, z: 0 })});
             Script.setTimeout(function() {
-                playSound(SAD_TROMBONE_SOUND);
+                playSound(SAD_TROMBONE_SOUND, GAME_AUDIO_POSITION, 1);
+                playSound(SAD_TROMBONE_SOUND, zonePosition, 0.5);
             }, SCANNER_LOSE_SOUND.duration * 1000);
+            interval = Script.setInterval(function() {
+                var trapDoorLocalRotationX = Entities.getEntityProperties(SCANNER_TRAP_DOOR, 'localRotation').localRotation.x;
+                var quatValueForOpenRotation = 0.707;
+                if (trapDoorLocalRotationX > quatValueForOpenRotation) {
+                    Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: { x: 0, y: 0, z: 0 }});
+                    Script.clearInterval(interval);
+                }
+            }, CHECK_DOOR_ROTATION_MS);
         },
 
         /* DELETE CARD ABOVE MACHINE: Delete the bingo card created by this script and any others found that 
@@ -430,9 +441,11 @@
         the duration of that sound after which we beging to validate their card winning. If the user's numbers were 
         not found, create a sign above the machine stating that. */
         scanCard: function(thisID, params) {
-            playSound(ENTER_ZONE_SOUND);
+            Entities.editEntity(SCANNER_TRAP_DOOR, { localRotation: Quat.fromVec3Degrees({ x: 0, y: 0, z: 0 })});
+            playSound(ENTER_ZONE_SOUND, GAME_AUDIO_POSITION, 1);
+            playSound(ENTER_ZONE_SOUND, zonePosition, 0.5);
+
             Entities.editEntity(scannerSpotlight, { visible: true });
-            print("SCANCARD");
             userName = params[0];
             userCardNumbers = [];
             Entities.callEntityMethod(BINGO_WHEEL, 'getCalledNumbers', [-1, _this.entityID]);
@@ -441,11 +454,12 @@
             
             Script.setTimeout(function() {
                 if (userCardNumbers.length !== 0) {
-                    playSound(COMPUTING_SOUND);
+                    playSound(COMPUTING_SOUND, GAME_AUDIO_POSITION, 1);
+                    playSound(COMPUTING_SOUND, zonePosition, 0.5);
                     _this.createCardReplica();
                     Script.setTimeout(function() {
                         _this.validateWin();
-                    }, ENTER_ZONE_SOUND.duration * 1000 - OVERLAP_SOUNDS_TIME);
+                    }, ENTER_ZONE_SOUND.duration * 1000 - OVERLAP_SOUNDS_TIME_MS);
                 } else {
                     cardEntity = Entities.addEntity({
                         backgroundColor: WHITE,
@@ -468,7 +482,8 @@
             }, ENTER_ZONE_SOUND.duration * 1000);
         },
 
-        /* WHEN USER LEAVES ZONE: Wait for 10 seconds to turn off the light to ensure card validation has finished. 
+        /* WHEN USER LEAVES ZONE: Clear any open gates or trap door. Wait for 10 seconds to turn off the light 
+        to ensure card validation has finished. 
         This prevents others from entering before this user's script has had time to finish and clean up. Clear the 
         arrqy of squares attached to the user's card and delete the card. Turn off particles. */
         userLeftZone: function(thisID, userID) {
@@ -479,7 +494,19 @@
                 _this.deleteCard();
                 Entities.callEntityMethod(bingoParticleEffect, 'turnOff');
                 Entities.callEntityMethod(confettiParticleEffect, 'turnOff');
-            }, WAIT_TO_DELETE_CARD);
+                Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: Quat.fromVec3Degrees({ x: -100, y: 0, z: 0 })});
+                interval = Script.setInterval(function() {
+                    var trapDoorLocalRotationX = Entities.getEntityProperties(
+                        SCANNER_TRAP_DOOR, 'localRotation').localRotation.x;
+                    if (trapDoorLocalRotationX < 0) {
+                        Entities.editEntity(SCANNER_TRAP_DOOR, {
+                            angularVelocity: { x: 0, y: 0, z: 0 },
+                            localRotation: { x: 0, y: 0, z: 0 }
+                        });
+                        Script.clearInterval(interval);
+                    }
+                }, CHECK_DOOR_ROTATION_MS);
+            }, WAIT_TO_DELETE_CARD_MS);
         },
 
         /* ON UNLOADING SCRIPT: Delete the card, clear the array of squares from the card, turn off particles and 
@@ -487,7 +514,7 @@
         unload: function(entityID) {
             _this.deleteCard();
             bingoNumberSquares = [];
-            Entities.editEntity(machineSpotlight, { visible: false });
+            Entities.editEntity(scannerSpotlight, { visible: false });
             Entities.editEntity(bingoParticleEffect, { emitRate: 0 });
             Entities.editEntity(confettiParticleEffect, { emitRate: 0 });
             if (interval) {

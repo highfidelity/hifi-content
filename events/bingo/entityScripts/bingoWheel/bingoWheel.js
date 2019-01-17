@@ -11,11 +11,8 @@
 /* global AccountServices, Audio, Entities, Math, MyAvatar, Script, String */
 
 (function() {
-    var ANGULAR_VELOCITY = {
-        x: 0,
-        y: 0,
-        z: -10
-    };
+    var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
+    var ANGULAR_VELOCITY = { x: 0, y: 0, z: -10 };
     var ANGULAR_VELOCITY_CHECK_MS = 100;
     var CHECKING_INTERVAL_DELAY_MS = 100;
     var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan','Becky'];
@@ -28,7 +25,6 @@
     var possibleBingoCalls = [];
     var listCounter = 0;
     var angularVelocityDecrement = 0.5;
-    var position;
     var canSpin = true;
     var alreadyCalled = [];
     var interval;
@@ -53,14 +49,13 @@
         return array;
     }
 
-    /* PLAY A SOUND: Plays the specified sound at the specified volume */
+    /* PLAY A SOUND: Plays the specified sound at the specified volume and position */
     var injector;
-    function playSound(sound, volume) {
+    function playSound(sound, position, volume) {
         if (sound.downloaded) {
             if (injector) {
                 injector.stop();
             }
-            // print("PLAYING SOUND AT ", JSON.stringify(position));
             injector = Audio.playSound(sound, {
                 position: position,
                 volume: volume
@@ -82,14 +77,12 @@
         /* ON LOADING THE APP: Save a reference to this entity ID and its position */
         preload: function(entityID) {
             _this.entityID = entityID;
-            position = Entities.getEntityProperties(_this.entityID, 'position').position;
         },
 
         /* RECEIVE NUMBERS CALLED DATA FROM SERVER: Take a list of called numbers and add the appropriate prefix letter 
         then compare each possible bingo call to that list. Save all calls that have not been called into a new list and 
         shuffle that list. */
         receiveNumbersFromWheel: function(id, numbers) {
-            print("I HAZ DA NUMBERZ! ", numbers);
             alreadyCalled = JSON.parse(numbers[0]);
             var i = 1;
             var bingoCall;
@@ -160,7 +153,7 @@
                     Entities.editEntity(_this.entityID, {
                         angularVelocity: ANGULAR_VELOCITY
                     });
-                    playSound(SPIN_SOUND, 0.8);
+                    playSound(SPIN_SOUND, GAME_AUDIO_POSITION, 0.8);
                     Script.setTimeout(function() {
                         if (interval) {
                             Script.clearInterval(interval);
@@ -192,7 +185,7 @@
                                 });
                             } else if (currentAngularVelocity.z >= -0.05) {
                                 if (interval) {
-                                    playSound(BLIP_SOUND, 0.2);
+                                    playSound(BLIP_SOUND, 0.5);
                                     Script.clearInterval(interval);
                                     possibleBingoCalls = [];
                                     Script.setTimeout(function() {

@@ -51,14 +51,6 @@
         return false;
     }
 
-    /* DEBUG PRINT: Enable or disable extra debugging messages */
-    var DEBUG = 1;
-    function debugPrint(msg) {
-        if (DEBUG) {
-            print(msg);
-        }
-    }
-
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
@@ -134,63 +126,34 @@
     }
 
     /* STORE USER: Store the user's name and assigned bingo card numbers for future reference*/
-    // -------------------------MOVE THIS TO EXTERNAL FILE--------------------------------------------------------------
-    var SPREADSHEET_URL = Script.require(Script.resolvePath('../secrets/bingoSheetURL.json')).sheetURL;
+    var SPREADSHEET_URL = Script.require(Script.resolvePath('../secrets/bingoSheetURL.json?0')).sheetURL;
     var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
     var request = Script.require('request').request;
     var userName = AccountServices.username;
     var userCardNumbers = [];
-    function storeUser() {
+    function createUserInSheet() {
         var addParamString = encodeURLParams({
             type: "add",
-            username: userName,
-            cardNumbers: JSON.stringify(userCardNumbers)
+            username: userName
         });
         request({
             uri: SPREADSHEET_URL + "?" + addParamString
         }, function (error, response) {
-            if (error || !response) {
-                debugPrint("bingoCard_app.jss: ERROR when adding new Bingo user entry!" + error || response);
+            if (error || !response || response === "Not a new user") {
                 return;
             }
-            debugPrint("bingoCard_app.jss: Successfully stored Bingo user entry in spreadsheet!");
+            var userNumbersToSplit = response.substring(1, response.length - 1);
+            userCardNumbers = userNumbersToSplit.split(",");
+            ui.tablet.emitScriptEvent(JSON.stringify({
+                type : 'displayNumbers',
+                numbers: userCardNumbers
+            }));
             Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
         });
     }
 
-    /* GET A RANDOM BINGO NUMBER: Selects a random number from the possible combinations for the current column. Each letter 
-    column has 15 possible numbers, so possibilities are  B 1-15, I 16-30, N  31-45, G 46-60, and O 61-75. After a random 
-    number is selected, checks that the number has not already been used and, if not, returns the new number */
-    var COLUMN_RANGE = 15;
-    var rowMinimum;
-    function getRandomNumber() {
-        var randomNumber = Math.floor(Math.random() * Number(COLUMN_RANGE) + Number(rowMinimum));
-        if (!contains(userCardNumbers, randomNumber)) {
-            userCardNumbers.push(randomNumber);
-            return randomNumber;
-        }
-        return getRandomNumber();
-    }
-
-    /* ASSIGN BINGO CARD NUMBERs: Give the user 25 numbers, 5 for each letter column. */
-    function assignCardNumbers() {
-        userCardNumbers = [];
-        rowMinimum = 1;
-        for (var i = 0; i < BINGO_STRING.length; i++) {
-            var rows = 5;
-            for (var currentRow = 0; currentRow < rows; currentRow++) {
-                if (!(i === 2 && currentRow === 2)) {
-                    getRandomNumber();
-                }
-            } 
-            rowMinimum += COLUMN_RANGE;
-        }
-        storeUser();
-    }
-
     /* FIND OR CREATE BINGO CARD:  Search the google sheet for the user's name to see if they have already been assigned 
     numbers for this round. If they have numbers already, retrieve them. If they do not have numbers, get new ones. */
-    var WAIT_TO_SEND_NUMBERS = 1000;
     function findOrCreateCard() {
         var searchParamString = encodeURLParams({
             type: "search",
@@ -199,24 +162,19 @@
         request({
             uri: SPREADSHEET_URL + "?" + searchParamString
         }, function (error, response) {
-            debugPrint("bingoCard_app.jss: Spreadsheet URL is " + SPREADSHEET_URL + "?" + searchParamString);
             if (error || !response) {
-                debugPrint("bingoCard_app.jss: ERROR when searching for Bingo user!" + error || response);
                 return;
             }
-            debugPrint("bingoCard_app.jss: Successfully searched for Bingo user entry in spreadsheet!");
             if (response === "New username") {
-                assignCardNumbers(true);
+                createUserInSheet();
             } else if (response) {
-                var userNumbersToSplit = response.substring(2, response.length - 2);
+                var userNumbersToSplit = response.substring(1, response.length - 1);
                 userCardNumbers = userNumbersToSplit.split(",");
-            }
-            Script.setTimeout(function() {
                 ui.tablet.emitScriptEvent(JSON.stringify({
                     type : 'displayNumbers',
                     numbers: userCardNumbers
                 }));
-            }, WAIT_TO_SEND_NUMBERS);
+            }
         });         
     }
 
@@ -249,8 +207,8 @@
         });
     }
 
-    /* ON WEB EVENT: Respond to a web event from bingo.html by immediate action, calling another function, or printing 
-    an error. If the event is a push on a button, determine which type of sound action is required. If the event was 
+    /* ON WEB EVENT: Respond to a web event from bingo.html by immediate action or calling another function. If 
+    the event is a push on a button, determine which type of sound action is required. If the event was 
     pressing a header button or highlighting or clearing a number button, play the corresponding sound. If the event 
     was the user calling "Bingo", create the confetti and set a timeout to remove it. */
     var WIN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWin.wav"));
