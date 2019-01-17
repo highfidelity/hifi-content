@@ -2,11 +2,11 @@
   "DataVersion": 0,
   "Entities": [
     {
-    "id": "{00a6a0f0-0430-47ea-b523-b1a3bf08a63e}",
+    "id": "{214452b7-ba01-4222-be15-c545a2aeba18}",
     "type": "Box",
-    "created": "2019-01-17T00:04:55Z",
-    "lastEdited": 1547683715756578,
-    "lastEditedBy": "{858dba3e-5598-4ae2-99cf-ba6e8ba22dec}",
+    "created": "2019-01-17T18:12:49Z",
+    "lastEdited": 1547755160085929,
+    "lastEditedBy": "{33948cc0-a429-4685-84f9-aa7a82af1d61}",
     "dimensions": {
         "x": 0.20000000298023224,
         "y": 0.20000000298023224,
@@ -19,9 +19,9 @@
         "w": 1
     },
     "damping": 0,
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-16_16-05-54/appResources/appData/sitClient.js",
-    "scriptTimestamp": 1547683614795,
-    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-16_16-05-54/appResources/appData/sitServer.js",
+    "script": "../appData/sitClient.js",
+    "scriptTimestamp": 1547748682814,
+    "serverScripts": "../appData/sitServer.js",
     "registrationPoint": {
         "x": 0.5,
         "y": 1,
@@ -30,6 +30,7 @@
     "angularDamping": 0,
     "collisionless": true,
     "ignoreForCollisions": true,
+    "name": "Sit Point Opaque",
     "shape": "Cube",
     "color": {
         "red": 0,
@@ -43,6 +44,7 @@
         "scale": 0.4898979663848877
     },
     "grab": {
+        "grabbable": false,
         "equippableLeftRotation": {
             "x": -0.0000152587890625,
             "y": -0.0000152587890625,
@@ -61,6 +63,6 @@
     "localEntity": false
 }
     ],
-  "Id": "{2229ea8d-c49b-422e-a76e-da56b33c5ecd}",
+  "Id": "{e26eaf50-a443-4540-9f2b-6c7b3276985e}",
   "Version": 98
 }

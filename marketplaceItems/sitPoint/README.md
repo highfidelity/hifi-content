@@ -25,9 +25,12 @@ Animation that is applied before sitting is applied while in the chair and conti
 
 ### Import sit cube via JSON
 1. Download the opaqueSitCube.json or invisibleSitCube.json located in /json folder
-2. Open Create Mode
-3. Click on "Create Tools" > "Create" > "Import Entities (.JSON)"
-4. Select the .json file to import
+2. Update the script client and script server links to the hosted sitClient.js and sitServer.js links
+3. Save updated json file
+4. Open Create Mode in High Fidelity
+5. Click on "Create Tools" > "Create" > "Import Entities (.JSON)"
+6. Select the .json file to import
+7. Sit on imported sit cube!
 
 ### Manually add scripts to your entity in High Fidelity
 1. Fork the hifi-content repo
