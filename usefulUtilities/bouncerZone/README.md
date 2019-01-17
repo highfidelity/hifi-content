@@ -28,6 +28,6 @@ Here's the object to add to the zone entity's `userData`:
 ```
 
 # Release Notes
-## Version 2019-01-
-commit 
+## Version 2019-01-16_16-30-00
+commit ddc1aaf93202e51c7026fdb28c596caf9065192a
 - Initial release
