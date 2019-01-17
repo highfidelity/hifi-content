@@ -20,6 +20,7 @@
     // *************************************
     // #region MODULES
     
+
     Script.resetModuleCache(true);
     
     var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js');
@@ -49,9 +50,12 @@
     var randomInt = common.randomInt;
     
     var Lights = new LightGenerator();
-    var Particles = new ParticleGenerator();
     var Music = new SoundGenerator();
     var SFX = new SoundGenerator();
+    var ParticleArray = [1,2,3].map(function() { 
+        return new ParticleGenerator();
+    });
+
 
     var _entityID;
     var explodeTimer = false;
@@ -59,7 +63,7 @@
     var currentUserID = null;
 
     var MILISECONDS = 1000;
-    
+
     
     // #endregion
     // *************************************
@@ -119,7 +123,8 @@
             SFX.playRandom();
             Script.setTimeout(createEntities, START_TIME);
 
-            var randomDurationTime = randomInt(MIN_DURATION_TIME, MAX_DURATION_TIME);
+            // var randomDurationTime = randomInt(MIN_DURATION_TIME, MAX_DURATION_TIME);
+            var randomDurationTime = 30 * MILISECONDS;
 
             log("randomDuration", randomDurationTime);
 
@@ -138,7 +143,8 @@
         smokeProperties.parentId = _entityID;
         var splat = Entities.addEntity(smokeProperties, true);
 
-        Script.setTimeout(function () {
+        log("Deleting smoke", splat);
+        Script.setTimeout(function() {
             Entities.deleteEntity(splat);
         }, SMOKE_TIME);
     }
@@ -149,7 +155,9 @@
         // Music.updatePosition(currentPosition);
         // Music.playRandom();
         Lights.create(currentPosition);
-        Particles.create(currentPosition);
+        ParticleArray.forEach(function(particle){
+            particle.create(currentPosition);
+        })
     }
 
 
@@ -160,11 +168,16 @@
             SFX.playRandom();
             // Music.stop();
             Lights.destroy();
-            Particles.destory();
-    
-            explodeTimer = false;
-            log("Reseting Ball");
-            Entities.deleteEntity(_entityID);
+            ParticleArray.forEach(function(particle) {
+                particle.destroy();
+            });
+            
+            Script.setTimeout(function(){
+                explodeTimer = false;
+                log("Reseting Ball");
+                Entities.deleteEntity(_entityID);
+            }, SMOKE_TIME);
+
         }
     }
     
@@ -186,7 +199,9 @@
         log("in PreLoad");
         _entityID = entityID;
 
-        Particles.registerEntity(_entityID);
+        ParticleArray.forEach(function(particle) {
+            particle.registerEntity(_entityID);
+        });
 
         Entities.editEntity(_entityID, {
             gravity: [0, GRAVITY, 0],
@@ -195,11 +210,11 @@
             visible: true
         });
 
-        musicCollection.forEach(function (sound) {
+        musicCollection.forEach(function(sound) {
             Music.addSound(sound);
         });
 
-        sfxCollection.forEach(function (sound) {
+        sfxCollection.forEach(function(sound) {
             SFX.addSound(sound);
         });
     }

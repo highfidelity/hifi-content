@@ -30,8 +30,8 @@ function randomInt(low, high) {
 function makeColor(red, green, blue, colorScaler) {
     colorScaler = colorScaler ? colorScaler : 0.20;
     var colorArray = [red, green, blue];
-    var arrayToGet0 = Math.floor(Math.random() * colorArray.length);
-    colorArray[arrayToGet0] = colorArray[arrayToGet0] * colorScaler;
+    var randomColorToScale = Math.floor(Math.random() * colorArray.length);
+    colorArray[randomColorToScale] = Math.floor(colorArray[randomColorToScale] * colorScaler);
     var finalColorObject = {
         red: colorArray[0],
         green: colorArray[1],

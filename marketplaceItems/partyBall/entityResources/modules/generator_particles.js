@@ -11,7 +11,38 @@
     Makes random animated particles
 
 */
-print("in generator particles");
+print("in generator particles2");
+// Yes, it does work with `new funcA.bind(thisArg, args)`
+if (!Function.prototype.bind) (function () {
+    var ArrayPrototypeSlice = Array.prototype.slice;
+    Function.prototype.bind = function (otherThis) {
+        if (typeof this !== 'function') {
+            // closest thing possible to the ECMAScript 5
+            // internal IsCallable function
+            throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+        }
+
+        var baseArgs = ArrayPrototypeSlice.call(arguments, 1),
+            baseArgsLength = baseArgs.length,
+            fToBind = this,
+            fNOP = function () { },
+            fBound = function () {
+                baseArgs.length = baseArgsLength; // reset to default base arguments
+                baseArgs.push.apply(baseArgs, arguments);
+                return fToBind.apply(
+                    fNOP.prototype.isPrototypeOf(this) ? this : otherThis, baseArgs
+                );
+            };
+
+        if (this.prototype) {
+            // Function.prototype doesn't have a prototype property
+            fNOP.prototype = this.prototype;
+        }
+        fBound.prototype = new fNOP();
+
+        return fBound;
+    };
+})();
 
 
 Script.resetModuleCache(true);
@@ -19,6 +50,8 @@ Script.resetModuleCache(true);
 
 var common = Script.require("../modules/commonUtilities.js?" + Date.now());
 var particles = Script.require("../modules/particleProperties.js?" + Date.now());
+// Remove the smoke intro outro smoke particles
+delete particles["smoke1"];
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
 var randomFloat = common.randomFloat;
 var randomInt = common.randomInt;
@@ -52,7 +85,9 @@ function makeParticle() {
     var randomParticleIndex = randomInt(0, maxParticlesIndex);
     var particle = particleArray[randomParticleIndex];
     particle.parentID = this._entityID;
+    particle.name = "Party Particle";
     this.particle = Entities.addEntity(particle, true);
+    console.log("adding particle: ", this.particle);
 }
 
 
@@ -62,12 +97,13 @@ function registerEntity(entityID){
 
 
 // Main Animator that is controlling the specific interval animations
-var UDPATE_MIN = 17;
-var UPDATE_MAX = 1000;
+var UDPATE_MIN = 60;
+var UPDATE_MAX = 250;
 function animate() {
     // Get a random amount between 17 to 1000 as how often to animate by
     var intervalAmount = randomInt(UDPATE_MIN, UPDATE_MAX);
-    this.interval = Script.setInterval(intervalAnimator, intervalAmount);
+    console.log("interval Amount", intervalAmount)
+    this.interval = Script.setInterval(intervalAnimator.bind(this), intervalAmount);
 }
 
 
@@ -79,10 +115,10 @@ var PARTICLE_RADIUS_MIN = 0;
 var PARTICLE_RADIUS_MAX = 1; 
 var EMIT_SPEED_MIN = 0;
 var EMIT_SPEED_MAX = 3;
-var EMIT_ACCELERATION_MIN = -0.5;
-var EMIT_ACCELERATION_MAX = -0.5;
-var EMIT_ORIENTATION_MIN = 0.5;
-var EMIT_ORIENTATION_MAX = 0.5;
+var EMIT_ACCELERATION_MIN = -1;
+var EMIT_ACCELERATION_MAX = 1;
+var EMIT_ORIENTATION_MIN = -180;
+var EMIT_ORIENTATION_MAX = 180;
 function intervalAnimator(){
     var particleProps = {
         emitRate: randomFloat(EMIT_RATE_MIN, EMIT_RATE_MAX),
@@ -101,15 +137,16 @@ function intervalAnimator(){
     };
 
     // Get a random texture
-    var maxTextureLength = _this.textureCollection.length - 1;
-    var randomTexture = randomInt(0, maxTextureLength);
-    particleProps.textures = _this.textureCollection[randomTexture];
-    Entities.editEntity(_this.particle, particleProps);
+    // var maxTextureLength = _this.textureCollection.length - 1;
+    // var randomTexture = randomInt(0, maxTextureLength);
+    // particleProps.textures = _this.textureCollection[randomTexture];
+    // console.log("particleProps", JSON.stringify(particleProps, null, 4));
+    Entities.editEntity(this.particle, particleProps);
 }
 
 
 // Clean up the entities and clear any intervals
-function destory() {
+function destroy() {
     Entities.deleteEntity(this.particle);
     Script.clearInterval(this.interval);
 }
@@ -119,7 +156,7 @@ ParticleGenerator.prototype = {
     makeParticle: makeParticle,
     animate: animate,
     registerEntity: registerEntity,
-    destory: destory
+    destroy: destroy
 };
 
 module.exports = ParticleGenerator;
