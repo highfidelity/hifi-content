@@ -6,7 +6,9 @@ Simply enable the app by clicking the ON/OFF button and enjoy the knowledge of w
 
 # Release Notes
 ## version 1.0 
-
+2019-01-17_09_45_00
+5b1f2d8dab2a70b4e7c0454a1d2945a7a5f0a87a 
+- Initial Release
 
 # TO DO
 
