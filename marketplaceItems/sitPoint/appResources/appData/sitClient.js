@@ -112,8 +112,8 @@
 
     // alpha value change during edit mode
     var checkAlpha = false;
-    var createOverlayID = null;
-    var MINIMUM_ALPHA = 0.5; // 50% alpha value
+    var createModeOverlay = null;
+    var MINIMUM_ALPHA = 0.3; // 50% alpha value
     var OVERLAY_ALPHA = 0.1; // 10% alpha value
     var CREATE_OVERLAY_DIMENSIONS_OFFSET = 0.02; // add 0.02 m to the sides of the cube to avoid z fighting
     
@@ -134,7 +134,7 @@
     // Create sittable overlay
     function sittableCreate () {
 
-        utils.setChairProperties();
+        setChairProperties();
                 
         // change the image based on what modality the user is in
         var url = HMD.active
@@ -214,13 +214,13 @@
     // Show overlays when I'm close to the seat
     function sittableShowOrRemove () {
 
-        var canSit = utils.canSit();
+        var ableToSit = canSit();
 
-        if (isInEditMode() || !canSit || overlayPreSit) {
+        if (isInEditMode() || !ableToSit || overlayPreSit) {
 
             sittableRemove();
 
-        } else if (canSit && !overlaySittable && !overlayPreSit && shouldShowSittable()) {
+        } else if (ableToSit && !overlaySittable && !overlayPreSit && shouldShowSittable()) {
 
             // Make an overlay if there isn't one
             sittableCreate();
@@ -257,7 +257,7 @@
 
         overlayPreSit = Overlays.addOverlay(
             "image3d",
-            utils.getInFrontOverlayProperties(
+            getInFrontOverlayProperties(
                 { x: 0, y: 0.1, z: -1 },
                 { x: 0.2, y: 0.2 },
                 overlayPreSitLoaded[preSitLoadIndex].url
@@ -266,7 +266,7 @@
 
         overlayPreSitText = Overlays.addOverlay(
             "image3d",
-            utils.getInFrontOverlayProperties(
+            getInFrontOverlayProperties(
                 { x: 0, y: -0.05, z: -1 },
                 { x: 0.425, y: 0.425 },
                 overlayPreSitTextLoaded.url
@@ -322,7 +322,7 @@
         if (!overlayStandUp) {
             overlayStandUp = Overlays.addOverlay(
                 "image3d",
-                utils.getInFrontOverlayProperties(
+                getInFrontOverlayProperties(
                     { x: 0, y: 0, z: -1 },
                     { x: 0.2, y: 0.2 },
                     OVERLAY_URL_STANDUP
@@ -373,137 +373,111 @@
         return isWithinSitDistance && isOpenSeat;
     }
 
-    var utils = {
+    function rolesToOverride () {
+        // Get all animation roles that sit will override
+        return MyAvatar.getAnimationRoles().filter(function (role) {
+            return !(startsWith(role, "right") || startsWith(role, "left"));
+        });
+    }
+    
+    // Overlay properties in front of Camera 
+    // Arguments: position in front of Camera, overlay dimensions, overlay image url
+    function getInFrontOverlayProperties (positionInFront, dimensions, url) {
 
+        var index = MyAvatar.getJointIndex("Head");
 
-        rolesToOverride: function () {
-            // Get all animation roles that sit will override
-            return MyAvatar.getAnimationRoles().filter(function (role) {
-                return !(startsWith(role, "right") || startsWith(role, "left"));
-            });
-        },
+        return {
+            position: Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, positionInFront)),
+            rotation: Camera.orientation,
+            parentID: MyAvatar.sessionUUID,
+            parentJointIndex: index,
+            dimensions: dimensions,
+            url: url,
+            ignoreRayIntersection: false,
+            drawInFront: true,
+            visible: true,
+            emissive: true
+        };
 
+    }
 
-        getInFrontOverlayProperties: function (positionInFront, dimensions, url) {
-            var index = MyAvatar.getJointIndex("Head");
+    function setChairProperties () {
+        chairProperties = Entities.getEntityProperties(
+            entityID,
+            [
+                "dimensions",
+                "registrationPoint",
+                "position",
+                "rotation",
+                "alpha"
+            ]
+        );
+    }
 
-            return {
-                position: Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, positionInFront)),
-                rotation: Camera.orientation,
-                parentID: MyAvatar.sessionUUID,
-                parentJointIndex: index,
-                dimensions: dimensions,
-                url: url,
-                ignoreRayIntersection: false,
-                drawInFront: true,
-                visible: true,
-                emissive: true
-            };
-        },
-
-        calculatePinHipPosition: function () {
-            if (!chairProperties) {
-                this.setChairProperties();
-            }
-
-            // get chairProperties to calculate middle of chair
-            seatCenterPosition = chairProperties.position;
-
-            var yOffset = chairProperties.dimensions.y * CHAIR_OFFSET_RATIO;
-            seatCenterPosition = {
-                x: chairProperties.position.x,
-                y: chairProperties.position.y + yOffset,
-                z: chairProperties.position.z
-            };
-        },
-
-        setHeadToHipsDistance: function () { // used in update checks for Avatar Spine Error
-            // get hips world pos while sitting
-            if ((MyAvatar.getJointIndex("Head") === NEG_ONE) || (MyAvatar.getJointIndex("Hips") === NEG_ONE)) {
-                // this can probably be adjusted to be more accurate
-                headToHipsDistance = MyAvatar.getHeight() * HALF;
-            } else {
-                var headIndex = MyAvatar.getJointIndex("Head");
-                var hipsIndex = MyAvatar.getJointIndex("Hips");
-                var headTranslation = MyAvatar.getAbsoluteDefaultJointTranslationInObjectFrame(headIndex);
-                var hipsTranslation = MyAvatar.getAbsoluteDefaultJointTranslationInObjectFrame(hipsIndex);
-                headToHipsDistance = Math.abs(headTranslation.y - hipsTranslation.y);
-            }
-        },
-
-        setChairProperties: function () {
-            chairProperties = Entities.getEntityProperties(
-                entityID,
-                [
-                    "dimensions",
-                    "registrationPoint",
-                    "position",
-                    "rotation",
-                    "alpha"
-                ]
-            );
-        },
-
-        updateAlphaValue: function () {
-            if (!checkAlpha) {
-                return;
-            }
-
-            // check Alpha is enabled
-            if (checkAlpha) {
-                
-                // is in Edit mode && alpha value has not changed
-                if (isInEditMode() && !createOverlayID) {
-
-                    this.setChairProperties();
-
-                    var position = chairProperties.position;
-                    var registrationPoint = chairProperties.registrationPoint;
-                    var dimensions = chairProperties.dimensions;
-                    var rotation = chairProperties.rotation;
-        
-                    var localOffset = {
-                        x: NEG_ONE * (registrationPoint.x - HALF) * dimensions.x,
-                        y: NEG_ONE * (registrationPoint.y - HALF) * dimensions.y,
-                        z: NEG_ONE * (registrationPoint.z - HALF) * dimensions.z
-                    };
-                    
-                    var worldOffset = Vec3.multiplyQbyV(rotation, localOffset);
-                    var worldPosition = Vec3.sum(position, worldOffset);
-        
-                    // create visible cube
-                    createOverlayID = Overlays.addOverlay("cube", {
-                        position: {
-                            x: worldPosition.x,
-                            y: worldPosition.y,
-                            z: worldPosition.z
-                        },
-                        rotation: rotation,
-                        dimensions: {
-                            x: dimensions.x + CREATE_OVERLAY_DIMENSIONS_OFFSET,
-                            y: dimensions.y + CREATE_OVERLAY_DIMENSIONS_OFFSET,
-                            z: dimensions.z + CREATE_OVERLAY_DIMENSIONS_OFFSET
-                        },
-                        solid: true,
-                        alpha: OVERLAY_ALPHA,
-                        parentID: entityID
-                    });
-        
-                }
-
-                // is in Edit mode && alpha value has changed
-                if (!isInEditMode() && createOverlayID) {
-                    // set alpha back to 0
-                    if (createOverlayID) {
-                        Overlays.deleteOverlay(createOverlayID);
-                        createOverlayID = null;
-                    }
-                }
-
-            }
+    // Creates an overlay if the user is in create mode
+    // Enabled only if the chair alpha value is <= MINIMUM_ALPHA
+    function checkOrCreateCreateModeOverlay () {
+        if (!checkAlpha) {
+            return;
         }
 
-    };
+        // check Alpha is enabled
+        if (checkAlpha) {
+            
+            // is in Edit mode && alpha value has not changed
+            if (isInEditMode() && !createModeOverlay) {
+
+                setChairProperties();
+
+                var position = chairProperties.position;
+                var registrationPoint = chairProperties.registrationPoint;
+                var dimensions = chairProperties.dimensions;
+                var rotation = chairProperties.rotation;
+    
+                // Local position relative to cube
+                // And adjust for registrationPoint to match the cube exactly
+                var localOffset = {
+                    x: NEG_ONE * (registrationPoint.x - HALF) * dimensions.x,
+                    y: NEG_ONE * (registrationPoint.y - HALF) * dimensions.y,
+                    z: NEG_ONE * (registrationPoint.z - HALF) * dimensions.z
+                };
+                
+                var worldOffset = Vec3.multiplyQbyV(rotation, localOffset);
+                var worldPosition = Vec3.sum(position, worldOffset);
+    
+                // create visible cube
+                createModeOverlay = Overlays.addOverlay("cube", {
+                    position: {
+                        x: worldPosition.x,
+                        y: worldPosition.y,
+                        z: worldPosition.z
+                    },
+                    rotation: rotation,
+                    dimensions: {
+                        x: dimensions.x + CREATE_OVERLAY_DIMENSIONS_OFFSET,
+                        y: dimensions.y + CREATE_OVERLAY_DIMENSIONS_OFFSET,
+                        z: dimensions.z + CREATE_OVERLAY_DIMENSIONS_OFFSET
+                    },
+                    solid: true,
+                    alpha: OVERLAY_ALPHA,
+                    parentID: entityID
+                });
+    
+            }
+
+            // is in Edit mode && alpha value has changed
+            if (!isInEditMode() && createModeOverlay) {
+                // set alpha back to 0
+                if (createModeOverlay) {
+                    Overlays.deleteOverlay(createModeOverlay);
+                    createModeOverlay = null;
+                }
+            }
+
+        }
+    }
+
+    // #endregion UTILS 
 
     // Preload the animation file
     this.animation = AnimationCache.prefetch(ANIMATION_URL);
@@ -512,7 +486,7 @@
         entityID = id;
 
         prefetchPresitOverlayImages();
-        utils.setChairProperties();
+        setChairProperties();
 
         checkAlpha = chairProperties.alpha <= MINIMUM_ALPHA;
 
@@ -558,8 +532,8 @@
         standUpRemove();
 
 
-        if (createOverlayID) {
-            Overlays.deleteOverlay(createOverlayID);
+        if (createModeOverlay) {
+            Overlays.deleteOverlay(createModeOverlay);
         }
 
     };
@@ -583,7 +557,7 @@
         MyAvatar.characterControllerEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
 
-        var roles = utils.rolesToOverride();
+        var roles = rolesToOverride();
 
         for (i in roles) { // restore roles to prevent overlap
             MyAvatar.restoreRoleAnimation(roles[i]);
@@ -622,20 +596,26 @@
 
     function sitDown() {
 
+        // Remove sittable overlay from chair
         sittableRemove();
 
         // Set isSitting value in Settings
         Settings.setValue(SETTING_KEY, entityID);
 
-        utils.setHeadToHipsDistance();
+        // Set the value of head to hips distance
+        // If avatar deviates outside of the minimum and maximum, the avatar will pop out of the chair
+        setHeadToHipsDistance();
 
+        // Chair does not move when the avatar is about to sit
         lockChairOnStandUp = Entities.getEntityProperties(entityID, 'locked').locked;
         Entities.editEntity(entityID, { locked: true });
 
-        utils.calculatePinHipPosition();
+        // Get the place where 
+        calculatePinHipPosition();
 
         Script.setTimeout(function () {
 
+            // In HMD mode show presit overlay
             if (HMD.active && SHOW_PRESIT_OVERLAY_IN_HMD) {
 
                 presitCreate();
@@ -645,10 +625,47 @@
                 }, OVERLAY_PRESIT_FRAME_DURATION * overlayPreSitLoaded.length);
 
             } else {
+                // No presit overlay in desktop mode
                 sitAndPinAvatar();
             }
 
         }, SIT_DELAY);
+
+        // Checks for Avatar Spine Error
+        function setHeadToHipsDistance () {
+
+            // get hips world pos while sitting
+            if ((MyAvatar.getJointIndex("Head") === NEG_ONE) || (MyAvatar.getJointIndex("Hips") === NEG_ONE)) {
+                // this can probably be adjusted to be more accurate
+                headToHipsDistance = MyAvatar.getHeight() * HALF;
+            } else {
+                var headIndex = MyAvatar.getJointIndex("Head");
+                var hipsIndex = MyAvatar.getJointIndex("Hips");
+                var headTranslation = MyAvatar.getAbsoluteDefaultJointTranslationInObjectFrame(headIndex);
+                var hipsTranslation = MyAvatar.getAbsoluteDefaultJointTranslationInObjectFrame(hipsIndex);
+                headToHipsDistance = Math.abs(headTranslation.y - hipsTranslation.y);
+            }
+
+        }
+
+        // Calculates where the avatar's hips will seat 
+        function calculatePinHipPosition () {
+
+            if (!chairProperties) {
+                setChairProperties();
+            }
+    
+            // get chairProperties to calculate middle of chair
+            seatCenterPosition = chairProperties.position;
+    
+            var yOffset = chairProperties.dimensions.y * CHAIR_OFFSET_RATIO;
+            seatCenterPosition = {
+                x: chairProperties.position.x,
+                y: chairProperties.position.y + yOffset,
+                z: chairProperties.position.z
+            };
+    
+        }
 
     }
 
@@ -692,7 +709,7 @@
                 MyAvatar.enableDriveKey(OVERRIDDEN_DRIVE_KEYS[i]);
             }
 
-            var roles = utils.rolesToOverride();
+            var roles = rolesToOverride();
             for (i in roles) {
                 MyAvatar.restoreRoleAnimation(roles[i]);
             }
@@ -811,7 +828,7 @@
     overlayIntervalHoverCheck = Script.setInterval(function () {
 
         sittableShowOrRemove();
-        utils.updateAlphaValue();
+        checkOrCreateCreateModeOverlay();
 
     }, OVERLAY_CHECK_INTERVAL);
 
