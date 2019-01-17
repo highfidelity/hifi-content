@@ -16,9 +16,9 @@ function onScriptEventReceived(data){
     switch (data.type) {
         case "buttonStatus":
         if (data.value) {
-            document.getElementById("toggle").value = "ON";
+            button.value = "ON";
         } else {
-            document.getElementById("toggle").value = "OFF";
+            button.value = "OFF";
         }
         break;
     }
@@ -27,7 +27,7 @@ function onScriptEventReceived(data){
 
 // Set the text of the button to either On or Off 
 // when opening the tablet app, based on the app script status.
-var EVENT_BRIDGE_SETUP_DELAY = 100;
+var EVENT_BRIDGE_SETUP_DELAY = 500;
 function onLoad(){
     setTimeout(() => {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);    
