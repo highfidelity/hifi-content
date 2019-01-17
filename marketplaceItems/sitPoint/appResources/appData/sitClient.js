@@ -129,205 +129,252 @@
     var deviationTimeStart = null; 
     var headToHipsDistance = null;
     
-    var overlays = {
-        
-        sittable: {
+    // #region SITTABLE OVERLAY - Overlay on chair "Click to Sit" or "Trigger to Sit"
 
-            create: function () {
-                utils.setChairProperties();
+    // Create sittable overlay
+    function sittableCreate () {
+
+        utils.setChairProperties();
                 
-                // change the image based on what modality the user is in
-                var url = HMD.active
-                    ? OVERLAY_URL_SITTABLE_HMD
-                    : OVERLAY_URL_SITTABLE_DESKTOP;
+        // change the image based on what modality the user is in
+        var url = HMD.active
+            ? OVERLAY_URL_SITTABLE_HMD
+            : OVERLAY_URL_SITTABLE_DESKTOP;
 
-                var overlayPosition = Vec3.sum(chairProperties.position, { x: 0, y: 0.01, z: 0 });
+        var overlayPosition = Vec3.sum(chairProperties.position, { x: 0, y: 0.01, z: 0 });
 
-                overlaySittable = Overlays.addOverlay("image3d", {
-                    position: overlayPosition,
-                    rotation: Quat.multiply(chairProperties.rotation, Quat.fromVec3Degrees({ x: -90, y: 180, z: 0 })),
-                    dimensions: {
-                        x: 0.3,
-                        y: 0.3
-                    },
-                    url: url,
-                    ignoreRayIntersection: false,
-                    alpha: OVERLAY_SITTABLE_ALPHA_START,
-                    visible: true,
-                    emissive: true
-                });
-
-                HMD.displayModeChanged.connect(this.switchHMDToDesktopText);
-
-                this.lerpTransparency();
+        overlaySittable = Overlays.addOverlay("image3d", {
+            position: overlayPosition,
+            rotation: Quat.multiply(chairProperties.rotation, Quat.fromVec3Degrees({ x: -90, y: 180, z: 0 })),
+            dimensions: {
+                x: 0.3,
+                y: 0.3
             },
-            remove: function () {
-                if (overlaySittable) {
-                    Overlays.deleteOverlay(overlaySittable);
-                    overlaySittable = null;
+            url: url,
+            ignoreRayIntersection: false,
+            alpha: OVERLAY_SITTABLE_ALPHA_START,
+            visible: true,
+            emissive: true
+        });
 
-                    if (overlayIntervalTransparency) {
-                        Script.clearInterval(overlayIntervalTransparency);
-                        overlayIntervalTransparency = null;
-                    }
+        HMD.displayModeChanged.connect(sittableSwitchHMDToDesktopText);
+
+        sittableLerpTransparency();
+
+        // Fade's the sittable overlay over time
+        function sittableLerpTransparency () {
+
+            var startAlpha = OVERLAY_SITTABLE_ALPHA_START;
+            var changeAlpha = 0.01;
+            overlayIntervalTransparency = Script.setInterval(function () {
+    
+                startAlpha = startAlpha - changeAlpha; // My new alpha
+                Overlays.editOverlay(overlaySittable, { alpha: startAlpha });
+    
+                if (startAlpha <= OVERLAY_SITTABLE_MIN_ALPHA) {
+                    // Stop fading and keep overlay at the minimum alpha
+                    Script.clearInterval(overlayIntervalTransparency);
+                    overlayIntervalTransparency = null;
                 }
+                
+            }, OVERLAY_SITTABLE_FADE);
+    
+        }
 
-                HMD.displayModeChanged.disconnect(this.switchHMDToDesktopText);
-            },
-            // Is avatar in range with available seat?
-            shouldShow: function () {
-                var seatPosition = chairProperties.position;
-                var distanceFromSeat = Vec3.distance(MyAvatar.position, seatPosition);
-                return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.isAvatarSittingInSeat() && !overlayPreSit);
-            },
+    }
 
-            // Fade's the sittable overlay over time
-            lerpTransparency: function () {
-                var startAlpha = OVERLAY_SITTABLE_ALPHA_START;
-                var changeAlpha = 0.01;
-                overlayIntervalTransparency = Script.setInterval(function () {
-                    startAlpha = startAlpha - changeAlpha; // My new alpha
-                    Overlays.editOverlay(overlaySittable, { alpha: startAlpha });
+    // Switch sittable overlay text from desktop mode "Click to Sit" to HMD mode "Trigger to Sit"
+    function sittableSwitchHMDToDesktopText () {
+        if (overlaySittable) {
+            var url = HMD.active
+                ? OVERLAY_URL_SITTABLE_HMD
+                : OVERLAY_URL_SITTABLE_DESKTOP;
 
-                    if (startAlpha <= OVERLAY_SITTABLE_MIN_ALPHA) {
-                        // Stop fading and keep overlay at the minimum alpha
-                        Script.clearInterval(overlayIntervalTransparency);
-                        overlayIntervalTransparency = null;
-                    }
-                }, OVERLAY_SITTABLE_FADE);
-            },
+            Overlays.editOverlay(overlaySittable, { url: url });
+        }
+    }
+    
+    // Remove sittable overlay if it exists
+    function sittableRemove () {
 
-            // Switch sittable overlay text
-            switchHMDToDesktopText: function () {
-                if (overlaySittable) {
-                    var url = HMD.active
-                        ? OVERLAY_URL_SITTABLE_HMD
-                        : OVERLAY_URL_SITTABLE_DESKTOP;
+        if (overlaySittable) {
+            Overlays.deleteOverlay(overlaySittable);
+            overlaySittable = null;
 
-                    Overlays.editOverlay(overlaySittable, { url: url });
-                }
-            }
-        },
-
-        preSit: {
-            preload: function () {
-                var str;
-                for (var i = 0; i < OVERLAY_PRESIT_URL_NUM; i++) {
-                    str = i + 1;
-                    overlayPreSitLoaded[i] = TextureCache.prefetch(Script.resolvePath(OVERLAY_PRESIT_URL_ROOT + str + OVERLAY_PRESIT_URL_POSTFIX));
-                }
-                overlayPreSitTextLoaded = TextureCache.prefetch(OVERLAY_PRESIT_URL_TEXT);
-            },
-            create: function () {
-
-                if (overlayPreSit) {
-                    return;
-                }
-
-                overlayPreSit = Overlays.addOverlay(
-                    "image3d",
-                    utils.getInFrontOverlayProperties(
-                        { x: 0, y: 0.1, z: -1 },
-                        { x: 0.2, y: 0.2 },
-                        overlayPreSitLoaded[preSitLoadIndex].url
-                    )
-                );
-
-                overlayPreSitText = Overlays.addOverlay(
-                    "image3d",
-                    utils.getInFrontOverlayProperties(
-                        { x: 0, y: -0.05, z: -1 },
-                        { x: 0.425, y: 0.425 },
-                        overlayPreSitTextLoaded.url
-                    )
-                );
-
-                overlayPreSitStart = Date.now();
-                Script.update.connect(this.update);
-
-            },
-            remove: function () {
-                if (overlayPreSit !== null) {
-                    Overlays.deleteOverlay(overlayPreSit);
-                    overlayPreSit = null;
-                    overlayPreSitStart = 0;
-                    preSitLoadIndex = 0;
-
-                    if (overlayPreSitText !== null) {
-                        Overlays.deleteOverlay(overlayPreSitText);
-                    }
-
-                    Script.update.disconnect(this.update);
-                }
-            },
-            update: function () {
-
-                var now = Date.now();
-
-                if (preSitLoadIndex >= overlayPreSitLoaded.length) {
-                    return;
-                }
-
-                if (overlayPreSit) {
-                    var timePassed = now - overlayPreSitStart;
-                    if (timePassed >= OVERLAY_PRESIT_FRAME_DURATION) {
-                        overlayPreSitStart = now;
-                        preSitLoadIndex = preSitLoadIndex + 1;
-                        Overlays.editOverlay(overlayPreSit, { url: overlayPreSitLoaded[preSitLoadIndex].url });
-                    }
-                }
-            }
-        },
-
-        standUp: {
-            create: function () {
-                if (overlayStandUp === null) {
-                    overlayStandUp = Overlays.addOverlay(
-                        "image3d",
-                        utils.getInFrontOverlayProperties(
-                            { x: 0, y: 0, z: -1 },
-                            { x: 0.2, y: 0.2 },
-                            OVERLAY_URL_STANDUP
-                        )
-                    );
-                }
-            },
-            remove: function () {
-                if (overlayStandUp) {
-                    Overlays.deleteOverlay(overlayStandUp);
-                    overlayStandUp = null;
-                }
-            }
-        },
-
-        showOrRemoveSittable: function () { // Show overlays when I'm close to the seat
-
-            var canSit = utils.canSit();
-
-            if (isInEditMode() || !canSit || overlayPreSit) {
-                if (overlaySittable) {
-                    this.sittable.remove();
-                }
-            } else if (canSit && !overlaySittable && !overlayPreSit && this.sittable.shouldShow()) {
-                // Make an overlay if there isn't one
-                this.sittable.create();
+            if (overlayIntervalTransparency) {
+                Script.clearInterval(overlayIntervalTransparency);
+                overlayIntervalTransparency = null;
             }
         }
-    };
+
+        HMD.displayModeChanged.disconnect(sittableSwitchHMDToDesktopText);
+    }
+
+    // Show or remove sittable overlay
+    // Show overlays when I'm close to the seat
+    function sittableShowOrRemove () {
+
+        var canSit = utils.canSit();
+
+        if (isInEditMode() || !canSit || overlayPreSit) {
+
+            sittableRemove();
+
+        } else if (canSit && !overlaySittable && !overlayPreSit && shouldShowSittable()) {
+
+            // Make an overlay if there isn't one
+            sittableCreate();
+        }
+    }
+
+    // Is avatar in range with available seat?
+    // Return boolean to whether sittable overlay should be shown
+    function shouldShowSittable () {
+        var seatPosition = chairProperties.position;
+        var distanceFromSeat = Vec3.distance(MyAvatar.position, seatPosition);
+        return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !utils.isAvatarSittingInSeat() && !overlayPreSit);
+    }
+
+    // #endregion Sittable Overlay
+
+    // #region PRESIT OVERLAY - Overlay shown in HMD before sitting and after clicking sittable overlay
+    // Has the sitting animation and "Please Face Forward"
+    
+    // Prefetch all presit overlay images onto user's client
+    function prefetchPresitOverlayImages () {
+        var str;
+        for (var i = 0; i < OVERLAY_PRESIT_URL_NUM; i++) {
+            str = i + 1;
+            overlayPreSitLoaded[i] = TextureCache.prefetch(Script.resolvePath(OVERLAY_PRESIT_URL_ROOT + str + OVERLAY_PRESIT_URL_POSTFIX));
+        }
+        overlayPreSitTextLoaded = TextureCache.prefetch(OVERLAY_PRESIT_URL_TEXT);
+    }
+
+    function presitCreate () {
+        if (overlayPreSit) {
+            return;
+        }
+
+        overlayPreSit = Overlays.addOverlay(
+            "image3d",
+            utils.getInFrontOverlayProperties(
+                { x: 0, y: 0.1, z: -1 },
+                { x: 0.2, y: 0.2 },
+                overlayPreSitLoaded[preSitLoadIndex].url
+            )
+        );
+
+        overlayPreSitText = Overlays.addOverlay(
+            "image3d",
+            utils.getInFrontOverlayProperties(
+                { x: 0, y: -0.05, z: -1 },
+                { x: 0.425, y: 0.425 },
+                overlayPreSitTextLoaded.url
+            )
+        );
+
+        overlayPreSitStart = Date.now();
+        Script.update.connect(presitUpdate);
+    }
+
+    function presitRemove () {
+
+        if (overlayPreSit) {
+            Overlays.deleteOverlay(overlayPreSit);
+            overlayPreSit = null;
+            overlayPreSitStart = 0;
+            preSitLoadIndex = 0;
+
+            if (overlayPreSitText !== null) {
+                Overlays.deleteOverlay(overlayPreSitText);
+            }
+
+            Script.update.disconnect(presitUpdate);
+        }
+
+    }
+
+    // Flash through the presit animation images via overlay for a smooth avatar sitting animation
+    function presitUpdate () {
+
+        var now = Date.now();
+
+        if (preSitLoadIndex >= overlayPreSitLoaded.length) {
+            return;
+        }
+
+        if (overlayPreSit) {
+            var timePassed = now - overlayPreSitStart;
+            if (timePassed >= OVERLAY_PRESIT_FRAME_DURATION) {
+                overlayPreSitStart = now;
+                preSitLoadIndex = preSitLoadIndex + 1;
+                Overlays.editOverlay(overlayPreSit, { url: overlayPreSitLoaded[preSitLoadIndex].url });
+            }
+        }
+
+    }
+
+    // #endregion PRESIT OVERLAY
+
+    // #region STAND UP OVERLAY - Overlay shown when holding a drive key after sitting
+
+    function standUpCreate () {
+        if (!overlayStandUp) {
+            overlayStandUp = Overlays.addOverlay(
+                "image3d",
+                utils.getInFrontOverlayProperties(
+                    { x: 0, y: 0, z: -1 },
+                    { x: 0.2, y: 0.2 },
+                    OVERLAY_URL_STANDUP
+                )
+            );
+        }
+    }
+
+    function standUpRemove () {
+
+        if (overlayStandUp) {
+            Overlays.deleteOverlay(overlayStandUp);
+            overlayStandUp = null;
+        }
+
+    }
+
+    // #endregion STAND UP OVERLAY
+
+    // #region UTILS 
+
+    // Is another avatar sitting in the chair?
+    function isAvatarSittingInSeat () {
+        // Used canSit()
+        var nearbyAvatars = AvatarList.getAvatarsInRange(seatCenterPosition, SITTING_SEARCH_RADIUS);
+        if (nearbyAvatars.length === 0) {
+            // chair is empty
+            return null;
+        } else {
+            return nearbyAvatars[0];
+        }
+    }
+
+    function canSit () {
+
+        if (!chairProperties) {
+            this.setChairProperties();
+        }
+        var distanceFromSeat = Vec3.distance(MyAvatar.position, chairProperties.position);
+        var isWithinSitDistance = distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_MAX;
+
+        var isOpenSeat = !isAvatarSittingInSeat();
+
+        if (SITTING_DEBUG) {
+            print("canSit(): ", isWithinSitDistance, isOpenSeat);
+        }
+
+        return isWithinSitDistance && isOpenSeat;
+    }
 
     var utils = {
 
-        isAvatarSittingInSeat: function () {
-            // Is another avatar sitting in the chair?
-            // Used in utils.canSit()
-            var nearbyAvatars = AvatarList.getAvatarsInRange(seatCenterPosition, SITTING_SEARCH_RADIUS);
-            if (nearbyAvatars.length === 0) {
-                // chair is empty
-                return null;
-            } else {
-                return nearbyAvatars[0];
-            }
-        },
 
         rolesToOverride: function () {
             // Get all animation roles that sit will override
@@ -336,21 +383,6 @@
             });
         },
 
-        canSit: function () {
-            if (!chairProperties) {
-                this.setChairProperties();
-            }
-            var distanceFromSeat = Vec3.distance(MyAvatar.position, chairProperties.position);
-            var isWithinSitDistance = distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_MAX;
-
-            var isOpenSeat = !this.isAvatarSittingInSeat();
-
-            if (SITTING_DEBUG) {
-                print("Utils.canSit(): ", isWithinSitDistance, isOpenSeat);
-            }
-
-            return isWithinSitDistance && isOpenSeat;
-        },
 
         getInFrontOverlayProperties: function (positionInFront, dimensions, url) {
             var index = MyAvatar.getJointIndex("Head");
@@ -479,7 +511,7 @@
     this.preload = function (id) {
         entityID = id;
 
-        overlays.preSit.preload();
+        prefetchPresitOverlayImages();
         utils.setChairProperties();
 
         checkAlpha = chairProperties.alpha <= MINIMUM_ALPHA;
@@ -519,15 +551,12 @@
             overlayIntervalHoverCheck = null;
         }
 
-        if (overlaySittable) {
-            overlays.sittable.remove();
-        }
-        if (overlayPreSit) {
-            overlays.preSit.remove();
-        }
-        if (overlayStandUp) {
-            overlays.standUp.remove();
-        }
+        sittableRemove();
+
+        presitRemove();
+        
+        standUpRemove();
+
 
         if (createOverlayID) {
             Overlays.deleteOverlay(createOverlayID);
@@ -571,7 +600,7 @@
         Script.setTimeout(function () {
 
             if (HMD.active && SHOW_PRESIT_OVERLAY_IN_HMD) {
-                overlays.preSit.remove();
+                presitRemove ();
             }
 
             sittingDown = true;
@@ -593,10 +622,9 @@
 
     function sitDown() {
 
-        if (overlaySittable) {
-            overlays.sittable.remove(); 
-        }
+        sittableRemove();
 
+        // Set isSitting value in Settings
         Settings.setValue(SETTING_KEY, entityID);
 
         utils.setHeadToHipsDistance();
@@ -610,7 +638,7 @@
 
             if (HMD.active && SHOW_PRESIT_OVERLAY_IN_HMD) {
 
-                overlays.preSit.create();
+                presitCreate();
 
                 Script.setTimeout(function () {
                     sitAndPinAvatar();
@@ -651,7 +679,7 @@
         canStand = false;
         sitDownSettlePeriod = null;
         sittingDown = false;
-        overlays.standUp.remove();
+        standUpRemove();
 
         Entities.callEntityServerMethod(entityID, "onStandUp");
 
@@ -694,9 +722,7 @@
 
         if (sittingDown === true && canStand) {
 
-            if (overlaySittable !== null) {
-                overlays.sittable.remove();
-            }
+            sittableRemove();
 
             var now = Date.now();
 
@@ -713,7 +739,7 @@
                     }
 
                     if (overlayStandUp === null) {
-                        overlays.standUp.create();
+                        standUpCreate();
                     }
 
                     break;
@@ -731,7 +757,7 @@
             } else {
                 if (overlayStandUp) {
                     driveKeyPressedStart = null;
-                    overlays.standUp.remove();
+                    standUpRemove();
                 }
             }
 
@@ -784,7 +810,7 @@
     // Check if we've encountered a chair
     overlayIntervalHoverCheck = Script.setInterval(function () {
 
-        overlays.showOrRemoveSittable();
+        sittableShowOrRemove();
         utils.updateAlphaValue();
 
     }, OVERLAY_CHECK_INTERVAL);
