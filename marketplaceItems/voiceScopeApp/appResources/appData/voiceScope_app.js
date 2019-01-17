@@ -809,6 +809,7 @@
             }
         });
         overlayList = null;
+        Window.onDomainChanged.disconnect(onDomainChange);
     }
 
 

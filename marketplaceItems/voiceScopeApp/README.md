@@ -4,6 +4,10 @@ Have you ever had trouble figuring out who was talking in a group? Then this is 
 
 Simply enable the app by clicking the ON/OFF button and enjoy the knowledge of who is talking, visualized.
 
+# Release Notes
+## version 1.0 
+
+
 # TO DO
 
 1. Allow app to persist on domain changes.
