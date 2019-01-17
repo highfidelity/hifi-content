@@ -20,8 +20,8 @@
     var entityID = null;
     var currentClientSessionID = null;
 
-    var TEN_SECONDS = 10000;
-    var ONE_SECOND = 1000;
+    var TEN_SECONDS = 10000; // ms
+    var ONE_SECOND = 1000; // ms
     var resolved = false;
 
     var heartbeatInterval = null;
