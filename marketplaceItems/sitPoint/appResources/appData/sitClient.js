@@ -246,8 +246,7 @@
             if (overlayPreSit) {
 
                 if (preSitLoadIndex > overlayPreSitLoaded.length) {
-                    // end of sitting animation
-                    return;
+                    preSitEndUpdateInterval();
                 }
                 
                 preSitLoadIndex = preSitLoadIndex + 1;
