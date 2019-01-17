@@ -1,0 +1,74 @@
+{
+	"divider marks": {
+		"scope": "javascript, typescript",
+		"prefix": "h-d",
+		"body": [
+			"// *************************************",
+			"// START ${1:name}",
+			"// *************************************",
+			"// #region ${1:name}",
+			"",
+			"",
+			"$0",
+			"",
+			"",
+			"// #endregion",
+			"// *************************************",
+			"// END ${1:name}",
+			"// *************************************",
+		],
+		"description": "makes a nice divider"
+	},
+	"easyLog": {
+		"scope": "javascript",
+		"prefix": "h-l",
+		"body": [
+			"var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')",
+			""
+		],
+		"description": "Log output to console"
+	},
+	"simpleEntityDefinition": {
+		"scope": "javascript",
+		"prefix": "h-es",
+		"body": [
+			"function ${1:name}(){",
+			"",
+			"}",
+			"",
+			"${1:name}.prototype = {",
+			"\tpreload: function(entityID){",
+			"\t\t_entityID = entityID;",
+			"\t},",
+			"",
+			"\tunload: function(){",
+			"\t}",	
+			"",
+			"}",
+			"",
+			"return new ${1:name}();"
+		] 
+	},
+	"header": {
+		"scope": "javascript",
+		"prefix": "h-h",
+		"body": [
+			"$BLOCK_COMMENT_START",
+			"",
+			"\t${1:App name}",
+			"\t$TM_FILENAME",
+			"\tCreated by Milad Nazeri on $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE",
+			"\tCopyright 2019 High Fidelity, Inc.",
+			"",
+			"\tDistributed under the Apache License, Version 2.0.",
+			"\tSee the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html",
+			"",
+			"\t${2:Description}",
+			"",
+			"$BLOCK_COMMENT_END",
+			""
+		],
+		"description": "Header"
+	}
+}
+

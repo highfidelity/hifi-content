@@ -11,6 +11,7 @@
     Music that is available to be used
 
 */
+print("in music collection");
 
 module.exports = [
     Script.resolvePath("../resources/sounds/music/03B_Eww Baby_INST.mp3"),

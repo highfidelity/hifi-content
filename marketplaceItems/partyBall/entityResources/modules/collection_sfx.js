@@ -10,7 +10,7 @@
 
     Sfx available for use
 */
-
+print("in music sfx");
 
 module.exports = [
     Script.resolvePath("../resources/sounds/sfx/jg-032316-sfx-huge-stadium-horn-2.mp3"),

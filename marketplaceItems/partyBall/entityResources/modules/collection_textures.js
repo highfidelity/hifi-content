@@ -11,6 +11,8 @@
     Textures for the particles
 
 */
+print("in music texture");
+
 
 module.exports = [
     Script.resolvePath("../resources/sounds/sfx/atmosphere-particle-2.png"),
