@@ -17,8 +17,7 @@
     var injector;
     function playSound(sound) {
         if (sound.downloaded) {
-            if (injector) {
-   
+            if (injector) {   
                 injector.stop();
             }
             injector = Audio.playSound(sound, {
@@ -144,12 +143,6 @@
         userObject[uuid].audioLevel = audioLevel;
         userObject[uuid].avgAudioLevel = avgAudioLevel;
     }
-
-
-    // returns an array of avatar Pal data
-    function allAvatars() {
-        return AvatarManager.getPalData().data;
-    }
     
 
     // searches the user list to get the index of a user
@@ -161,15 +154,6 @@
             return index;
         }
         return -1;
-    }
-
-
-    // This function gets data to sort through
-    function sortData() {
-        var avatarList = Object.keys(userObject);
-        userArray = avatarList.map(function (uuid) { 
-            return userObject[uuid]; 
-        });
     }
     
 
@@ -673,6 +657,16 @@
         overlayList = null;
     }
 
+    
+    // This function gets data to sort through
+    function sortData() {
+        var avatarList = Object.keys(userObject);
+        userArray = avatarList.map(function (uuid) { 
+            return userObject[uuid]; 
+        });
+    }
+
+
     // This function adds HUDs for all users in the PAL list
     function addAll() {
         // look for old overlays to clean up:
@@ -683,12 +677,10 @@
             }
         });
         overlayList = null;
-
         if (!userArray.length) {
             // only add people to the list if there are none
             sortData();
         }
-
         // add new overlays
         for (var i = 0; i < userArray.length; i++) {
             var user = userArray[i];
@@ -755,7 +747,7 @@
     // This function gets the PAL data and updates existing users
     // and removes users that left
     function handleUpdate() {
-        var palList = allAvatars();
+        var palList = AvatarManager.getPalData().data;
         // Add users to userStore
         for (var a = 0; a < palList.length; a++) {
             var user = palList[a];

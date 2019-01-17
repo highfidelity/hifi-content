@@ -27,7 +27,9 @@ function onScriptEventReceived(data){
 
 // Set the text of the button to either On or Off 
 // when opening the tablet app, based on the app script status.
-var EVENT_BRIDGE_SETUP_DELAY = 500;
+// The delay shouldn't be necessary in RC78. this is currently necessary because of this bug:
+// https://highfidelity.manuscript.com/f/cases/20253/screenChanged-signal-is-emitted-before-the-screen-has-actually-changed
+var EVENT_BRIDGE_SETUP_DELAY = 100; 
 function onLoad(){
     setTimeout(() => {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);    
