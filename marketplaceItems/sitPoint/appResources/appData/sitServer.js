@@ -1,15 +1,14 @@
 //
 // sitServer.js
 //
-// Created by Robin Wilson June 2018
+// Created by Robin Wilson 1/17/2019
 //
 // Copyright 2017 High Fidelity, Inc.
 //
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-//
-// See sit.js for setup instructions. 
-// SitServer.js is the gate to allow an avatar to sit. Multiple avatars can not sit in the same chair.
+// 
+// sitServer.js is the gate to allow an avatar to sit. Multiple avatars can not sit in the same chair.
 //
 
 /* globals Entities Script */
@@ -20,10 +19,10 @@
     var entityID = null;
     var currentClientSessionID = null;
 
-    var TEN_SECONDS = 10000; // ms
-    var ONE_SECOND = 1000; // ms
+    var HEARTBEAT_INTERVAL_TIME_MS = 10000; // ms
+    var RESOLVED_TIMEOUT_TIME_MS = 1000; // ms
+    
     var resolved = false;
-
     var heartbeatInterval = null;
 
     function SitServer() {
@@ -48,7 +47,7 @@
                 isOccupied = false;
                 currentClientSessionID = null;
             }
-        }, ONE_SECOND);
+        }, RESOLVED_TIMEOUT_TIME_MS);
     }
 
     SitServer.prototype = {
@@ -69,7 +68,7 @@
                 if (isOccupied) {
                     checkClient();
                 }
-            }, TEN_SECONDS);
+            }, HEARTBEAT_INTERVAL_TIME_MS);
         },
 
         checkResolved: function () {

@@ -1,21 +1,16 @@
 //
-// sit.js
+// sitClient.js
 //
-// Created by Clement Brisset on 3/3/17
-// Modified by Robin Wilson, Rebecca Stankus, and Alexia Mandeville January 2019
+// Updated by Robin Wilson 1/17/2019
+// Modified by Robin Wilson, Rebecca Stankus, and Alexia Mandeville June 2018
+// Originally created by Clement Brisset on 3/3/17
 //
 // Copyright 2019 High Fidelity, Inc.
 //
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-// Sit setup:
-// 
-// Best added to a stationary chair or entity. Center of seat is indicated by the entity's registration point.
-// Ex: a stool for an avatar to sit in the middle on top, registrationPoint = { x: 0.5, y: 1.0, z: 0.5 }.
-// 
-// Add sit.js and sitServer.js to an entity
-// Ensure both are running.
+// Allows avatars to sit in High Fidelity after clicking on an overlay. Works with sitServer.js.
 //
 // Configurable variables are:
 // - SHOW_PRESIT_OVERLAY_IN_HMD
@@ -27,7 +22,7 @@
 
 (function () {
 
-    // Configurable Variables
+    // #region CONFIGURABLE VARIABLES
 
     // true - shows "Face Forward Overlay" before sit; false - sits immediately with no overlay
     var SHOW_PRESIT_OVERLAY_IN_HMD = true;
@@ -36,56 +31,32 @@
     // Avatar sit position y = CHAIR_OFFSET_RATIO * height of chair
     var CHAIR_OFFSET_RATIO = 0.1;
 
-    Script.include("/~/system/libraries/utils.js");
-
-    var entityID = null;
-
-    var SETTING_KEY = "com.highfidelity.avatar.isSitting";
-
-    var SIT_SETTLE_TIME = 350; // ms
-
+    // Debug statements
     var SITTING_DEBUG = false; // turn on sitting debug print statements
     var OVERLAY_DEBUG = false; // turn on overlay debug print statements
 
-    var ONE_HUNDRED_AND_TWENTY_PERCENT = 1.2;
-    var EIGHTY_PERCENT = 0.8;
-    var HALF = 0.5;
-    var NEG_ONE = -1;
+    // #endregion CONFIGURABLE VARIABLES
 
-    var SIT_DELAY = 50; // ms for timeouts in sit
-    var STANDUP_DELAY = 25; // ms for timeout in standup
+    // #region DEPENDENCIES
 
-    var chairProperties = null;
-    var lockChairOnStandUp = null;
-    var seatCenterPosition = null;
-    var CHAIR_DISMOUNT_OFFSET = -0.5; // m in front of chair 
+    Script.include("/~/system/libraries/utils.js");
 
-    // sit/stand variables
-    var sittingDown = false;
-    var canStand = false;
-    var STANDUP_DISTANCE = 0.5; // m 
-
-    // used in standup conditions
-    var DRIVE_KEY_RELEASE_TIME = 800; // ms
-    var sitDownSettlePeriod = null;
-    var driveKeyPressedStart = null;
-    var deviationTimeStart = null;
-    var headToHipsDistance = null;
+    // #endregion DEPENDENCIES
 
     // #region SITTABLE OVERLAY - Overlay on chair "Click to Sit" or "Trigger to Sit"
 
     // Constants
-    var OVERLAY_SITTABLE_FADE = 50; // "Click/Trigger to Sit" overlay fade after 50 ms
-    var OVERLAY_SITTABLE_DISTANCE_SHOW = 3; // m 
-    var OVERLAY_SITTABLE_DISTANCE_MAX = 5; // m
-    var OVERLAY_SITTABLE_ALPHA_START = 0.7;
-    var OVERLAY_SITTABLE_MIN_ALPHA = 0.075; // fades to this alpha value
+    var OVERLAY_SITTABLE_FADE_MS = 50; // "Click/Trigger to Sit" overlay fade after 50 ms
+    var OVERLAY_SITTABLE_DISTANCE_SHOW_M = 3; // m 
+    var OVERLAY_SITTABLE_DISTANCE_MAX_M = 5; // m
+    var OVERLAY_SITTABLE_START_ALPHA = 0.7;
+    var OVERLAY_SITTABLE_MIN_END_ALPHA = 0.075; // fades to this alpha value
     var OVERLAY_URL_SITTABLE_HMD = Script.resolvePath("./resources/images/triggerToSit.png");
     var OVERLAY_URL_SITTABLE_DESKTOP = Script.resolvePath("./resources/images/clickToSit.png");
 
     // Dynamic variables
     var overlaySittable = null;
-    var overlaySittableIntervalTransparency = null;
+    var intervalSittableTransparency = null;
 
     // Create sittable overlay
     function sittableCreate() {
@@ -112,7 +83,7 @@
             },
             url: url,
             ignoreRayIntersection: false,
-            alpha: OVERLAY_SITTABLE_ALPHA_START,
+            alpha: OVERLAY_SITTABLE_START_ALPHA,
             visible: true,
             emissive: true
         });
@@ -130,21 +101,21 @@
             print("sittableLerpTransparency");
         }
 
-        var startAlpha = OVERLAY_SITTABLE_ALPHA_START;
+        var startAlpha = OVERLAY_SITTABLE_START_ALPHA;
         var changeAlpha = 0.01;
 
-        overlaySittableIntervalTransparency = Script.setInterval(function () {
+        intervalSittableTransparency = Script.setInterval(function () {
 
             startAlpha = startAlpha - changeAlpha; // My new alpha
             Overlays.editOverlay(overlaySittable, { alpha: startAlpha });
 
-            if (startAlpha <= OVERLAY_SITTABLE_MIN_ALPHA) {
+            if (startAlpha <= OVERLAY_SITTABLE_MIN_END_ALPHA) {
                 // Stop fading and keep overlay at the minimum alpha
-                Script.clearInterval(overlaySittableIntervalTransparency);
-                overlaySittableIntervalTransparency = null;
+                Script.clearInterval(intervalSittableTransparency);
+                intervalSittableTransparency = null;
             }
 
-        }, OVERLAY_SITTABLE_FADE);
+        }, OVERLAY_SITTABLE_FADE_MS);
 
     }
 
@@ -167,13 +138,15 @@
         }
 
         if (overlaySittable) {
+
             Overlays.deleteOverlay(overlaySittable);
             overlaySittable = null;
 
-            if (overlaySittableIntervalTransparency) {
-                Script.clearInterval(overlaySittableIntervalTransparency);
-                overlaySittableIntervalTransparency = null;
+            if (intervalSittableTransparency) {
+                Script.clearInterval(intervalSittableTransparency);
+                intervalSittableTransparency = null;
             }
+            
             
             HMD.displayModeChanged.disconnect(sittableSwitchHMDToDesktopText);
         }
@@ -210,10 +183,10 @@
     function shouldShowSittable() {
         var seatPosition = chairProperties.position;
         var distanceFromSeat = Vec3.distance(MyAvatar.position, seatPosition);
-        return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW && !isAvatarSittingInSeat() && !overlayPreSit);
+        return (distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_SHOW_M && !isAvatarSittingInSeat() && !overlayPreSit);
     }
 
-    // #endregion Sittable Overlay
+    // #endregion SITTABLE OVERLAY
 
     // #region PRESIT OVERLAY - Overlay shown in HMD before sitting and after clicking sittable overlay
     // Has the sitting animation and "Please Face Forward"
@@ -228,12 +201,12 @@
     // Dynamic variables
     var overlayPreSit = null;
     var overlayPreSitText = null;
-    var overlayPreSitStart = null;
     var overlayPreSitLoaded = [];
     var overlayPreSitTextLoaded = null;
+    var intervalUpdatePreSitImage = null;
     var preSitLoadIndex = 0;
 
-    // Prefetch all presit overlay images onto user's client
+    // Prefetch all presit overlay images into user's client
     function prefetchPresitOverlayImages() {
         var str;
         for (var i = 0; i < OVERLAY_PRESIT_URL_NUM; i++) {
@@ -244,7 +217,7 @@
         overlayPreSitTextLoaded = TextureCache.prefetch(OVERLAY_PRESIT_URL_TEXT);
     }
 
-    function presitCreate() {
+    function preSitCreate() {
         if (overlayPreSit) {
             return;
         }
@@ -267,46 +240,47 @@
             )
         );
 
-        overlayPreSitStart = Date.now();
-        Script.update.connect(presitUpdate);
+        // Flash through the presit animation images via overlay for a smooth avatar sitting animation
+        intervalUpdatePreSitImage = Script.setInterval(function () {
+
+            if (overlayPreSit) {
+
+                if (preSitLoadIndex > overlayPreSitLoaded.length) {
+                    // end of sitting animation
+                    return;
+                }
+                
+                preSitLoadIndex = preSitLoadIndex + 1;
+                Overlays.editOverlay(overlayPreSit, { url: overlayPreSitLoaded[preSitLoadIndex].url });
+            }
+
+        }, OVERLAY_PRESIT_FRAME_DURATION);
     }
 
-    function presitRemove() {
+    function preSitEndUpdateInterval() {
+        if (intervalUpdatePreSitImage) {
+            Script.clearInterval(intervalUpdatePreSitImage);
+            intervalUpdatePreSitImage = null;
+        }
+    }
+
+    function preSitRemove() {
 
         if (overlayPreSit) {
+
+            preSitEndUpdateInterval();
+
             Overlays.deleteOverlay(overlayPreSit);
             overlayPreSit = null;
-            overlayPreSitStart = 0;
             preSitLoadIndex = 0;
 
             if (overlayPreSitText !== null) {
                 Overlays.deleteOverlay(overlayPreSitText);
             }
-
-            Script.update.disconnect(presitUpdate);
         }
 
     }
 
-    // Flash through the presit animation images via overlay for a smooth avatar sitting animation
-    function presitUpdate() {
-
-        var now = Date.now();
-
-        if (preSitLoadIndex >= overlayPreSitLoaded.length) {
-            return;
-        }
-
-        if (overlayPreSit) {
-            var timePassed = now - overlayPreSitStart;
-            if (timePassed >= OVERLAY_PRESIT_FRAME_DURATION) {
-                overlayPreSitStart = now;
-                preSitLoadIndex = preSitLoadIndex + 1;
-                Overlays.editOverlay(overlayPreSit, { url: overlayPreSitLoaded[preSitLoadIndex].url });
-            }
-        }
-
-    }
 
     // #endregion PRESIT OVERLAY
 
@@ -417,7 +391,13 @@
 
     // #region UTILS 
 
+    // Constants
     var SITTING_SEARCH_RADIUS = 0.01; // m to check if avatar is sitting in chair
+    var HALF = 0.5;
+    var NEG_ONE = -1;
+
+    // Dynamic variables
+    var chairProperties = null;
 
     // Is another avatar sitting in the chair?
     function isAvatarSittingInSeat() {
@@ -447,7 +427,7 @@
             setChairProperties();
         }
         var distanceFromSeat = Vec3.distance(MyAvatar.position, chairProperties.position);
-        var isWithinSitDistance = distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_MAX;
+        var isWithinSitDistance = distanceFromSeat < OVERLAY_SITTABLE_DISTANCE_MAX_M;
 
         var isOpenSeat = !isAvatarSittingInSeat();
 
@@ -503,10 +483,17 @@
 
     // #region SIT ACTIONS 
 
+    // Constants
     var ANIMATION_URL = Script.resolvePath("./resources/animations/sittingIdle.fbx");
     var ANIMATION_FPS = 30;
     var ANIMATION_FIRST_FRAME = 1;
     var ANIMATION_LAST_FRAME = 350;
+    var SIT_SETTLE_TIME_MS = 350; // ms
+    var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair 
+    var SETTING_KEY_AVATAR_SITTING = "com.highfidelity.avatar.isSitting";
+    var STANDUP_DELAY_MS = 25; // ms for timeout in standup
+    var SIT_DELAY_MS = 50; // ms for timeouts in sit
+    var STANDUP_DISTANCE_M = 0.5; // m 
 
     var OVERRIDDEN_DRIVE_KEYS = [
         DriveKeys.TRANSLATE_X,
@@ -516,6 +503,12 @@
         DriveKeys.STEP_TRANSLATE_Y,
         DriveKeys.STEP_TRANSLATE_Z
     ];
+
+    // Dynamic variables
+    var sittingDown = false;
+    var canStand = false;
+    var seatCenterPosition = null;
+    var lockChairOnStandUp = null;
 
     // User can click on overlay to sit down
     function mousePressOnOverlay(overlayID, pointerEvent) {
@@ -553,12 +546,12 @@
         Script.setTimeout(function () {
 
             if (HMD.active && SHOW_PRESIT_OVERLAY_IN_HMD) {
-                presitRemove();
+                preSitRemove();
             }
 
             sittingDown = true;
             canStand = true;
-            sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME;
+            sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME_MS;
 
             MyAvatar.pinJoint(index, seatCenterPosition, chairProperties.rotation);
 
@@ -569,7 +562,7 @@
             location.hostChanged.connect(standUp);
             Script.scriptEnding.connect(standUp);
 
-        }, SIT_DELAY);
+        }, SIT_DELAY_MS);
 
     }
 
@@ -579,7 +572,7 @@
         sittableRemove();
 
         // Set isSitting value in Settings
-        Settings.setValue(SETTING_KEY, entityID);
+        Settings.setValue(SETTING_KEY_AVATAR_SITTING, entityID);
 
         // Set the value of head to hips distance
         // If avatar deviates outside of the minimum and maximum, the avatar will pop out of the chair
@@ -597,10 +590,11 @@
             // In HMD mode show presit overlay
             if (HMD.active && SHOW_PRESIT_OVERLAY_IN_HMD) {
 
-                presitCreate();
+                preSitCreate();
 
                 Script.setTimeout(function () {
                     sitAndPinAvatar();
+                    preSitEndUpdateInterval();
                 }, OVERLAY_PRESIT_FRAME_DURATION * overlayPreSitLoaded.length);
 
             } else {
@@ -608,7 +602,7 @@
                 sitAndPinAvatar();
             }
 
-        }, SIT_DELAY);
+        }, SIT_DELAY_MS);
 
         // Checks for Avatar Spine Error
         function setHeadToHipsDistance() {
@@ -654,18 +648,18 @@
 
         Script.setTimeout(function () {
             // Move avatar in front of the chair to avoid getting stuck in collision hulls
-            if (avatarDistance < STANDUP_DISTANCE) {
+            if (avatarDistance < STANDUP_DISTANCE_M) {
                 var index = MyAvatar.getJointIndex("Hips");
                 MyAvatar.clearPinOnJoint(index);
                 var offset = {
                     x: 0,
                     y: 1.0,
-                    z: CHAIR_DISMOUNT_OFFSET - chairProperties.dimensions.z * chairProperties.registrationPoint.z
+                    z: CHAIR_DISMOUNT_OFFSET_M - chairProperties.dimensions.z * chairProperties.registrationPoint.z
                 };
                 var position = Vec3.sum(chairProperties.position, Vec3.multiplyQbyV(chairProperties.rotation, offset));
                 MyAvatar.position = position;
             }
-        }, SIT_DELAY);
+        }, SIT_DELAY_MS);
 
         if (!lockChairOnStandUp) {
             Entities.editEntity(entityID, { locked: false });
@@ -679,10 +673,10 @@
 
         Entities.callEntityServerMethod(entityID, "onStandUp");
 
-        if (Settings.getValue(SETTING_KEY) === entityID) {
+        if (Settings.getValue(SETTING_KEY_AVATAR_SITTING) === entityID) {
             // Check if avatar is getting out of this chair
 
-            Settings.setValue(SETTING_KEY, "");
+            Settings.setValue(SETTING_KEY_AVATAR_SITTING, "");
 
             for (var i in OVERRIDDEN_DRIVE_KEYS) {
                 MyAvatar.enableDriveKey(OVERRIDDEN_DRIVE_KEYS[i]);
@@ -697,7 +691,7 @@
 
             Script.setTimeout(function () {
                 MyAvatar.centerBody();
-            }, STANDUP_DELAY);
+            }, STANDUP_DELAY_MS);
 
         } else {
             // Avatar switched to another chair, do not reapply the animation roles
@@ -714,7 +708,17 @@
 
     // #region UPDATE
 
-    var DISTANCE_FROM_CHAIR_TO_STAND_AT = 0.5;
+    // Constants
+    var DISTANCE_FROM_CHAIR_TO_STAND_AT_M = 0.5;
+    var MAX_HEAD_DEVIATION_RATIO = 1.2;
+    var MIN_HEAD_DEVIATION_RATIO = 0.8;
+    var DRIVE_KEY_RELEASE_TIME_MS = 800; // ms
+
+    // Dynamic variables
+    var sitDownSettlePeriod = null;
+    var driveKeyPressedStart = null;
+    var deviationTimeStart = null;
+    var headToHipsDistance = null;
 
     function update(dt) {
 
@@ -748,12 +752,12 @@
                 }
             }
 
-            // Only standup if user has been pushing a drive key for DRIVE_KEY_RELEASE_TIME
+            // Only standup if user has been pushing a drive key for DRIVE_KEY_RELEASE_TIME_MS
             if (hasActiveDriveKey) {
 
                 if (driveKeyPressedStart !== null) {
                     var elapsed = now - driveKeyPressedStart;
-                    hasHeldDriveKey = elapsed > DRIVE_KEY_RELEASE_TIME;
+                    hasHeldDriveKey = elapsed > DRIVE_KEY_RELEASE_TIME_MS;
                 }
 
             } else {
@@ -765,7 +769,7 @@
 
             // AVATAR DISTANCE 
             var avatarDistance = Vec3.distance(MyAvatar.position, seatCenterPosition);
-            if (avatarDistance > DISTANCE_FROM_CHAIR_TO_STAND_AT && sitDownSettlePeriod && now > sitDownSettlePeriod) {
+            if (avatarDistance > DISTANCE_FROM_CHAIR_TO_STAND_AT_M && sitDownSettlePeriod && now > sitDownSettlePeriod) {
                 hasAvatarMovedTooFar = true;
             }
 
@@ -782,7 +786,7 @@
                 var headDeviation = Vec3.distance(headWorldPosition, seatCenterPosition);
                 var headDeviationRatio = headDeviation / headToHipsDistance;
 
-                if ((headDeviationRatio > ONE_HUNDRED_AND_TWENTY_PERCENT || headDeviationRatio < EIGHTY_PERCENT)
+                if ((headDeviationRatio > MAX_HEAD_DEVIATION_RATIO || headDeviationRatio < MIN_HEAD_DEVIATION_RATIO)
                     && sitDownSettlePeriod && now > sitDownSettlePeriod) {
 
                     if (deviationTimeStart === null) {
@@ -815,6 +819,7 @@
     var ENCOUNTERED_CHAIR_CHECK_INTERVAL = 500; // ms
 
     // Dynamic variables
+    var entityID = null;
     var intervalEncounteredChairCheck = null;
 
     function SitClient() {}
@@ -866,15 +871,15 @@
 
         unload: function () {
 
-            if (Settings.getValue(SETTING_KEY) === entityID) {
+            if (Settings.getValue(SETTING_KEY_AVATAR_SITTING) === entityID) {
                 standUp();
             }
     
             Entities.callEntityServerMethod(entityID, "onStandUp");
     
-            if (overlaySittableIntervalTransparency) {
-                Script.clearInterval(overlaySittableIntervalTransparency);
-                overlaySittableIntervalTransparency = null;
+            if (intervalSittableTransparency) {
+                Script.clearInterval(intervalSittableTransparency);
+                intervalSittableTransparency = null;
             }
     
             if (intervalEncounteredChairCheck) {
@@ -884,7 +889,7 @@
     
             sittableRemove();
     
-            presitRemove();
+            preSitRemove();
     
             standUpRemove();
     
