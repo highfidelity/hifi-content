@@ -16,9 +16,9 @@ function onScriptEventReceived(data){
     switch (data.type) {
         case "buttonStatus":
         if (data.value) {
-            button.value = "ON";
+            button.checked = true;
         } else {
-            button.value = "OFF";
+            button.checked = false;
         }
         break;
     }

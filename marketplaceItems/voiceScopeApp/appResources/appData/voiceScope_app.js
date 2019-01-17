@@ -543,6 +543,10 @@
 
     // Update the local z-dimensions of the audio bars on the HUD 
     // over a user to make it appear in synce with audio level
+    var MIN_THRESHOLD = 0.25,
+        GREEN_THRESHOLD = 0.5,
+        RED_THRESHOLD = 0.75,
+        VISIBILTY_TIMEOUT = 5000;
     function updateHUD(uuid) {
         var user = userObject[uuid];
         var avatar = AvatarManager.getAvatar(uuid);
@@ -555,7 +559,7 @@
                 y: user.userHeight, 
                 z :avatar.position.z
             }});
-        if (user.audioLevel >= 0.25) {
+        if (user.audioLevel > MIN_THRESHOLD) {
             user.timeSinceDefault = Number.MAX_VALUE;
             if (!Overlays.getProperty(user.hudID[0], "visible").visible){
                 user.hudID.forEach(function(id){
@@ -566,24 +570,20 @@
                 });
             }
         } 
-        if (user.audioLevel < 0.25){ 
+        if (user.audioLevel < MIN_THRESHOLD){ 
             setDefaultHUD(uuid);
-            if (new Date().getTime() - user.timeSinceDefault > 5000) {
+            if (new Date().getTime() - user.timeSinceDefault > VISIBILTY_TIMEOUT) {
                 user.hudID.forEach(function(id){
-                    if (user.avgAudioLevel < 0.25){
-                        Overlays.editOverlay(id, { visible: false });
-                    }
+                    Overlays.editOverlay(id, { visible: false });
                 });
                 user.audioBarIDs.forEach(function(id){
-                    if (user.avgAudioLevel < 0.25){
-                        Overlays.editOverlay(id, { visible: false });
-                    }
+                    Overlays.editOverlay(id, { visible: false });
                 });
             }
             if (user.timeSinceDefault === Number.MAX_VALUE){
                 user.timeSinceDefault = new Date().getTime();
             }
-        } else if (user.audioLevel <= 0.5) { 
+        } else if (user.audioLevel <= GREEN_THRESHOLD) { 
             user.audioBarIDs.forEach(function(id){
                 Overlays.editOverlay(id, { color: {
                     "red": 0,
@@ -591,7 +591,7 @@
                     "blue": 0
                 } });
             });
-        } else if (user.audioLevel <= 0.75){ 
+        } else if (user.audioLevel <= RED_THRESHOLD){ 
             user.audioBarIDs.forEach(function(id){
                 Overlays.editOverlay(id, { color: {
                     "red": 255,
@@ -599,7 +599,7 @@
                     "blue": 0
                 } });
             });
-        } else if (user.audioLevel > 0.75){ 
+        } else if (user.audioLevel > RED_THRESHOLD){ 
             user.audioBarIDs.forEach(function(id){
                 Overlays.editOverlay(id, { color: {
                     "red": 255,
@@ -631,13 +631,14 @@
     var userArray = [];
     // houses all users, see User constructor for structure
     var userObject = {};
-    // constructor for each user in userStore
+    // constructor for each user in userObject
     function User(uuid) {
         this.uuid = uuid;
         this.audioLevel = 0;
         this.audioAccumulated = 0;
         this.audioAvg = 0;
         this.audioLoudness = 0;
+        this.timeSinceDefault = Number.MAX_VALUE;
     }
 
     // This function gets data to sort through
@@ -691,7 +692,7 @@
     }
 
 
-    // This adds a user to the userStore object
+    // This adds a user to the userObject object
     function addUser(sessionUUID) {
         if (!userObject[sessionUUID]) {
             userObject[sessionUUID] = new User(sessionUUID);
@@ -702,10 +703,10 @@
     }
 
 
-    // This removes a user from the userStore object and deletes 
+    // This removes a user from the userObject object and deletes 
     // their HUD
     function removeUser(sessionUUID) {
-        removeUserFromSettingsUser(sessionUUID);
+        removeUserFromUserArray(sessionUUID);
         if (userObject[sessionUUID]) {
             delete userObject[sessionUUID];
         }
@@ -735,13 +736,13 @@
     // and removes users that left
     function handleUpdate() {
         var palList = AvatarManager.getPalData().data;
-        // Add users to userStore
+        // Add users to userObject
         for (var a = 0; a < palList.length; a++) {
             var user = palList[a];
             var uuid = palList[a].sessionUUID;
             var hasUUID = uuid;
-            var isInUserStore = userObject[uuid] !== undefined;
-            if (hasUUID && !isInUserStore) {
+            var isInuserObject = userObject[uuid] !== undefined;
+            if (hasUUID && !isInuserObject) {
                 addUser(uuid);
             } else if (hasUUID) {
                 userObject[uuid].audioLoudness = user.audioLoudness;
@@ -753,7 +754,7 @@
                 }
             }
         }
-        // Remove users from userStore
+        // Remove users from userObject
         for (var uuid in userObject) {
             // if user crashes, leaving domain signal will not be called
             // handle this case
@@ -767,16 +768,27 @@
             }
         }
     }
+    
 
+    // searches the user list to get the index of a user
+    function getIndexOfUserArray(uuid) {
+        if (userArray.length) {
+            var index = userArray.map(function (item) {
+                return item.uuid;
+            }).indexOf(uuid);
+            return index;
+        }
+        return -1;
+    }
 
     // This function removes a user from the user list
-    function removeUserFromSettingsUser(uuid) {
-        var settingsUsersListIndex = getIndexOfSettingsUser(uuid);
-        if (settingsUsersListIndex !== -1) {
-            if (userArray[settingsUsersListIndex].hudID) {
+    function removeUserFromUserArray(uuid) {
+        var userArrayIndex = getIndexOfUserArray(uuid);
+        if (userArrayIndex !== -1) {
+            if (userArray[userArrayIndex].hudID) {
                 deleteHUD(uuid);
             }
-            userArray.splice(settingsUsersListIndex, 1);
+            userArray.splice(userArrayIndex, 1);
         }
     }
 
@@ -787,8 +799,8 @@
         for (var i = 0; i < userArray.length; i++) {
             var user = userArray[i];
             var uuid = user.uuid;
-            removeUser(uuid);
             deleteHUD(uuid);
+            removeUser(uuid);
         }
         var overlayList = Overlays.findOverlays(MyAvatar.position, RANGE);
         overlayList.forEach(function(overlay){
