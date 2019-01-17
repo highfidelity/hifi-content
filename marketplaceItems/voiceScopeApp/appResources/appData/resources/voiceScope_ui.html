@@ -10,18 +10,19 @@
 
     <body>
         <div id="info">
-            <h1>Voice Scope</h1>            
+            <h1><br>Voice Scope</h1>            
         </div>
         
         <div id="instructions">
-            <p> Click the button below to see others' voices as a floating loudness meter, click again to turn it off.  
+            <p> <br>Click the button below to see others' voices as a floating loudness meter, click again to turn it off.  
                 <br><br>Users who are quiet for 5 seconds or more will not show anything until they speak up again.</p>
         </div>
 
-        <div id="main-area">
-            <input type="button" id="toggle" value="">
+        <div id="toggles">
+            <input type="checkbox" name="checkbox1" id="checkbox1" value="" class="ios-toggle"/>
+            <label for="checkbox1" class="checkbox-label" data-off="off" data-on="on"></label>
         </div>
-    
+
         <script src="./js/voiceScope_ui.js"></script>
     </body>
 </html>

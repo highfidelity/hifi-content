@@ -1,7 +1,7 @@
 
 // Send an event to the app script to 
 // toggle it on/off when the button is clicked
-var button = document.getElementById("toggle");
+var button = document.getElementById("checkbox1");
 function buttonClicked(){
     EventBridge.emitWebEvent(JSON.stringify({
         type: "TOGGLE_APP"

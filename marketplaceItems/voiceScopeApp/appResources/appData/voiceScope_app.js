@@ -58,7 +58,7 @@
     // This function keeps the app running even if you change domains.
     var DOMAIN_DELAY = 100;
     function onDomainChange(){
-        // turn it off on domain change
+        // Do not change app status on domain change
         if (enabled) {
             Script.setTimeout(function(){
                 startUpdate();
@@ -142,18 +142,6 @@
         }
         userObject[uuid].audioLevel = audioLevel;
         userObject[uuid].avgAudioLevel = avgAudioLevel;
-    }
-    
-
-    // searches the user list to get the index of a user
-    function getIndexOfSettingsUser(uuid) {
-        if (userArray.length) {
-            var index = userArray.map(function (item) {
-                return item.uuid;
-            }).indexOf(uuid);
-            return index;
-        }
-        return -1;
     }
     
 
@@ -603,7 +591,7 @@
                     "blue": 0
                 } });
             });
-        } else if (user.audioLevel > 0.5 && user.audioLevel <= 0.75){ 
+        } else if (user.audioLevel <= 0.75){ 
             user.audioBarIDs.forEach(function(id){
                 Overlays.editOverlay(id, { color: {
                     "red": 255,
@@ -639,25 +627,19 @@
     }
 
 
-    // The function removes all HUDs from all users
-    var RANGE = 1000;
-    function removeAll() {
-        // remove previous overlays
-        for (var i = 0; i < userArray.length; i++) {
-            var user = userArray[i];
-            var uuid = user.uuid;
-            deleteHUD(uuid);
-        }
-        var overlayList = Overlays.findOverlays(MyAvatar.position, RANGE);
-        overlayList.forEach(function(overlay){
-            if (Overlays.getProperty(overlay, "name") === "Voice-HUD"){
-                Overlays.deleteOverlay(overlay);
-            }
-        });
-        overlayList = null;
+    // This holds the PAL data
+    var userArray = [];
+    // houses all users, see User constructor for structure
+    var userObject = {};
+    // constructor for each user in userStore
+    function User(uuid) {
+        this.uuid = uuid;
+        this.audioLevel = 0;
+        this.audioAccumulated = 0;
+        this.audioAvg = 0;
+        this.audioLoudness = 0;
     }
 
-    
     // This function gets data to sort through
     function sortData() {
         var avatarList = Object.keys(userObject);
@@ -690,17 +672,22 @@
     }
 
 
-    // This holds the PAL data
-    var userArray = [];
-    // houses all users, see User constructor for structure
-    var userObject = {};
-    // constructor for each user in userStore
-    function User(uuid) {
-        this.uuid = uuid;
-        this.audioLevel = 0;
-        this.audioAccumulated = 0;
-        this.audioAvg = 0;
-        this.audioLoudness = 0;
+    // The function removes all HUDs from all users
+    var RANGE = 1000;
+    function removeAll() {
+        // remove previous overlays
+        for (var i = 0; i < userArray.length; i++) {
+            var user = userArray[i];
+            var uuid = user.uuid;
+            deleteHUD(uuid);
+        }
+        var overlayList = Overlays.findOverlays(MyAvatar.position, RANGE);
+        overlayList.forEach(function(overlay){
+            if (Overlays.getProperty(overlay, "name") === "Voice-HUD"){
+                Overlays.deleteOverlay(overlay);
+            }
+        });
+        overlayList = null;
     }
 
 
@@ -726,20 +713,20 @@
     
 
     // This starts the update interval to refresh the PAL data
-    var interval = null,
+    var hudUpdateInterval = null,
         UPDATE_INTERVAL_TIME = 60;
     function startUpdate() {
-        if (!interval){
-            interval = Script.setInterval(handleUpdate, UPDATE_INTERVAL_TIME);
+        if (!hudUpdateInterval){
+            hudUpdateInterval = Script.setInterval(handleUpdate, UPDATE_INTERVAL_TIME);
         }
     }
 
 
     // This stops the update interval to refresh the PAL data
     function stopUpdate() {
-        if (interval) {
-            Script.clearInterval(interval);
-            interval = false;
+        if (hudUpdateInterval) {
+            Script.clearInterval(hudUpdateInterval);
+            hudUpdateInterval = false;
         }
     }
 
@@ -795,7 +782,6 @@
 
 
     // This function is called when the script ends
-    var OVERLAY_SEARCH_RADIUS = 1000;
     function scriptEnding() {
         stopUpdate();
         for (var i = 0; i < userArray.length; i++) {
@@ -804,7 +790,7 @@
             removeUser(uuid);
             deleteHUD(uuid);
         }
-        var overlayList = Overlays.findOverlays(MyAvatar.position, OVERLAY_SEARCH_RADIUS);
+        var overlayList = Overlays.findOverlays(MyAvatar.position, RANGE);
         overlayList.forEach(function(overlay){
             if (Overlays.getProperty(overlay, "name") === "Voice-HUD"){
                 Overlays.deleteOverlay(overlay);
