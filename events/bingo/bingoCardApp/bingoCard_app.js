@@ -74,47 +74,44 @@
 
     /* GET RANDOM SOUND: Randomly selects one of the sounds in the 'headerSounds' array */
     var currentHeaderSounds = [];
-    function getRandomSound() {
-        currentHeaderSounds = [];
-        var newSoundIndex = Math.floor(Math.random() * headerSounds.length);
-        var newSound = headerSounds[newSoundIndex];
-        if (currentHeaderSounds.indexOf(newSound) === -1) {
-            currentHeaderSounds.push(newSound);
-        } else {
-            getRandomSound();
+    function fillRandomSoundsArray() {        
+        for (var i = 0; i < BINGO_STRING.length; i++) {
+            var newSoundIndex = Math.floor(Math.random() * headerSounds.length);
+            var newSound = headerSounds[newSoundIndex];
+            if (currentHeaderSounds.indexOf(newSound) === -1) {
+                currentHeaderSounds.push(newSound);
+            } else {
+                i--;
+            }
         }
     }
 
     /* LOAD SOUNDS: Prepare each sound file for playback using Soundcache API */
     var BINGO_STRING = "BINGO";
     var headerSounds = [];
-    function loadSounds() {
-        if (headerSounds.length === 0) {
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoCat.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoDog.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPlinks.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPianoPlinks.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBomb.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSqueak.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoChatter.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoClang.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoGiggles.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSplash.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWaHaHa.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoFall.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoTwinkle.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPopUp.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWhistle.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBubbles.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoHarp.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoKazoo.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoVibration.wav")));
-            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSpiral.wav")));
-        }
-        
-        for (var i = 0; i < BINGO_STRING.length; i++) {
-            getRandomSound();
-        }
+    function cacheSounds() {
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoCat.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoDog.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPlinks.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPianoPlinks.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBomb.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSqueak.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoChatter.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoClang.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoGiggles.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSplash.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWaHaHa.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoFall.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoTwinkle.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPopUp.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWhistle.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBubbles.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoHarp.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoKazoo.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoVibration.wav")));
+        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSpiral.wav")));
+
+        fillRandomSoundsArray();
     }
 
     /* FIND OR CREATE BINGO CARD:  Search the google sheet for the user's name to see if they have already been assigned 
@@ -124,13 +121,15 @@
     var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
     var request = Script.require('request').request;
     var userCardNumbers = [];
+    var selectedNumberIDs = [];
     function findOrCreateCard() {
         // We don't need to make any requests if we already have our numbers.
         if (userCardNumbers.length > 0) {
-            ui.tablet.emitScriptEvent(JSON.stringify({
+            ui.sendMessage({
                 type : 'displayNumbers',
-                numbers: userCardNumbers
-            }));
+                allNumbers: userCardNumbers,
+                selectedNumberIDs: selectedNumberIDs
+            });
             return;
         }
 
@@ -145,12 +144,12 @@
                 return;
             }
             if (response.status && response.status === "success") {
-                var userNumbersToSplit = response.substring(1, response.length - 1);
-                userCardNumbers = userNumbersToSplit.split(",");
-                ui.tablet.emitScriptEvent(JSON.stringify({
+                userCardNumbers = response.userCardNumbers;
+                ui.sendMessage({
                     type : 'displayNumbers',
-                    numbers: userCardNumbers
-                }));
+                    allNumbers: userCardNumbers,
+                    selectedNumberIDs: selectedNumberIDs
+                });
 
                 if (response.newUser) {
                     Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
@@ -164,8 +163,9 @@
     the user, get a new set of numbers */
     function onOpened() {
         createGem();
-        loadSounds();
-        findOrCreateCard();
+        // The delay shouldn't be necessary in RC78. this is currently necessary because of this bug:
+        // https://highfidelity.manuscript.com/f/cases/20253/screenChanged-signal-is-emitted-before-the-screen-has-actually-changed
+        Script.setTimeout(findOrCreateCard, 500);
     }
 
     /* ON CLOSING THE APP: Make sure the confetti and gem get deleted and their respective variables set back to null 
@@ -200,14 +200,17 @@
     var WHEEL_POSITION = Entities.getEntityProperties("{57e5e385-3968-4ebf-8048-a7650423d83b}", 'position').position;
     var SCANNER_ENTRY_ZONE = "{0da9b717-bbc0-423e-9ad0-c2c97b9f741c}";
     function onWebEventReceived(event) {
-        if (event.type === 'playSoundFromBingoButton') {
-            if (event.index > -1) {
-                playSound(currentHeaderSounds[event.index], 0.1, MyAvatar.position, false);
-            } else if (event.index === -2) {
-                playSound(SELECT_SOUND, 0.2, MyAvatar.position, false);
-            } else if (event.index === -3) {
-                playSound(DESELECT_SOUND, 0.2, MyAvatar.position, false);
+        if (event.type === 'bingoNumberSelected') {
+            playSound(SELECT_SOUND, 0.2, MyAvatar.position, false);
+            selectedNumberIDs.push(event.selectedID);
+        } else if (event.type === 'bingoNumberDeselected') {
+            playSound(DESELECT_SOUND, 0.2, MyAvatar.position, false);
+            var currentIndex = selectedNumberIDs.indexOf(event.deselectedID);
+            if (currentIndex > -1) {
+                selectedNumberIDs.splice(currentIndex, 1);
             }
+        } else if (event.type === 'playSoundFromBingoHeaderButton') {
+            playSound(currentHeaderSounds[event.index], 0.1, MyAvatar.position, false);
         } else if (event.type === 'calledBingo') {
             playSound(WIN_SOUND, 1, WHEEL_POSITION, false);
             Entities.callEntityMethod(SCANNER_ENTRY_ZONE, 'callBingo');
@@ -317,11 +320,13 @@
             onClosed: onClosed,
             onMessage: onWebEventReceived
         });
+        
+        cacheSounds();
     }
 
     /* WHEN USER SESSION CHANGES: End this script so users will not be left with a card when leaving the domain*/
     function sessionChanged() {
-        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?0'));
+        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?5'));
     }
     
     startup();

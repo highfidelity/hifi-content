@@ -15,7 +15,7 @@
     var ANGULAR_VELOCITY = { x: 0, y: 0, z: -10 };
     var ANGULAR_VELOCITY_CHECK_MS = 100;
     var CHECKING_INTERVAL_DELAY_MS = 100;
-    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan','Becky'];
+    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan','Becky','zfox'];
     var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('sounds/blip.wav'));
     var SPIN_SOUND = SoundCache.getSound(Script.resolvePath('sounds/wheelSpin.mp3?0'));
     var WAIT_BETWEEN_SPINS_MS = 4000;
@@ -27,7 +27,7 @@
     var angularVelocityDecrement = 0.5;
     var canSpin = true;
     var alreadyCalled = [];
-    var interval;
+    var angularVelocityCheckInterval;
     var minimumVelocityLimit = -10;
     
 
@@ -72,7 +72,7 @@
     };
 
     Wheel.prototype = {
-        remotelyCallable: ['receiveNumbersFromWheel'],
+        remotelyCallable: ['setAlreadyCalledNumbers'],
         
         /* ON LOADING THE APP: Save a reference to this entity ID and its position */
         preload: function(entityID) {
@@ -82,7 +82,7 @@
         /* RECEIVE NUMBERS CALLED DATA FROM SERVER: Take a list of called numbers and add the appropriate prefix letter 
         then compare each possible bingo call to that list. Save all calls that have not been called into a new list and 
         shuffle that list. */
-        receiveNumbersFromWheel: function(id, numbers) {
+        setAlreadyCalledNumbers: function(id, numbers) {
             alreadyCalled = JSON.parse(numbers[0]);
             var i = 1;
             var bingoCall;
@@ -148,19 +148,19 @@
             }
             if (canSpin){
                 canSpin = false;
-                Entities.callEntityServerMethod(_this.entityID, 'getCalledNumbers', [MyAvatar.sessionUUID]);
+                Entities.callEntityServerMethod(_this.entityID, 'requestAlreadyCalledNumbers', [MyAvatar.sessionUUID]);
                 if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0) {
                     Entities.editEntity(_this.entityID, {
                         angularVelocity: ANGULAR_VELOCITY
                     });
                     playSound(SPIN_SOUND, GAME_AUDIO_POSITION, 0.8);
                     Script.setTimeout(function() {
-                        if (interval) {
-                            Script.clearInterval(interval);
+                        if (angularVelocityCheckInterval) {
+                            Script.clearInterval(angularVelocityCheckInterval);
                         }
                         var finalNumber = false;
                         var bingoCall;
-                        interval = Script.setInterval(function() {
+                        angularVelocityCheckInterval = Script.setInterval(function() {
                             var currentAngularVelocity = Entities.getEntityProperties(
                                 _this.entityID, 'angularVelocity').angularVelocity;
                             if (currentAngularVelocity.z >= minimumVelocityLimit && currentAngularVelocity.z 
@@ -184,9 +184,9 @@
                                     text: bingoCall
                                 });
                             } else if (currentAngularVelocity.z >= -0.05) {
-                                if (interval) {
-                                    playSound(BLIP_SOUND, 0.5);
-                                    Script.clearInterval(interval);
+                                if (angularVelocityCheckInterval) {
+                                    playSound(BLIP_SOUND, GAME_AUDIO_POSITION, 0.5);
+                                    Script.clearInterval(angularVelocityCheckInterval);
                                     possibleBingoCalls = [];
                                     Script.setTimeout(function() {
                                         canSpin = true;
@@ -199,10 +199,10 @@
             }
         },
 
-        /* ON UNLOADING THE APP: Clear any interval */
+        /* ON UNLOADING THE APP: Clear any angularVelocityCheckInterval */
         unload: function(entityID) {
-            if (interval) {
-                Script.clearInterval(interval);
+            if (angularVelocityCheckInterval) {
+                Script.clearInterval(angularVelocityCheckInterval);
             }
         }
     };

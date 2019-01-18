@@ -110,7 +110,7 @@
     /* ON APP START: Setup app UI, button, and messaging between it's html page and this script */
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('bingoBossApp_ui.html?1');
+    var appPage = Script.resolvePath('bingoBossApp_ui.html?3');
     function startup() {
         ui = new AppUi({
             buttonName: "BOSS",

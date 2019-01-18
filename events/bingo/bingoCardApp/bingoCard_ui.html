@@ -30,7 +30,7 @@
             <button class="button-number" id="20"></button>
             <button class="button-number" id="2"></button>
             <button class="button-number" id="7"></button>
-            <button class="button-free">Free</button>
+            <button class="button-free" id="-1">Free</button>
             <button class="button-number" id="16"></button>
             <button class="button-number" id="21"></button>
             <button class="button-number" id="3"></button>
@@ -60,8 +60,17 @@
                 if (JSON.parse(scriptEvent).type === "displayNumbers") {
                     scriptEvent = JSON.parse(scriptEvent);
                     $(".button-number").each(function(index){
-                       document.getElementById(index).innerHTML = scriptEvent.numbers[index];
+                        document.getElementById(index).innerHTML = scriptEvent.allNumbers[index];
+                        if (scriptEvent.selectedNumberIDs.indexOf(index) > -1) {
+                            document.getElementById(index).classList.add("selected");
+                        }
                     });
+
+                    // Handle selection of Free space, which has HTML id === -1
+                    if (scriptEvent.selectedNumberIDs.indexOf(-1) > -1) {
+                        document.getElementById("-1").classList.add("selected");
+                    }
+
                     document.getElementById("numbers").innerHTML = " ";
                 }
             };
@@ -71,14 +80,14 @@
                     if ($(this).hasClass("selected")){
                         $(this).removeClass("selected");
                         EventBridge.emitWebEvent(JSON.stringify({
-                            type : 'playSoundFromBingoButton',
-                            index: -3
+                            type: 'bingoNumberDeselected',
+                            deselectedID: parseInt($(this).attr("id"))
                         }));
                     } else {
                         $(this).addClass("selected");
                         EventBridge.emitWebEvent(JSON.stringify({
-                            type : 'playSoundFromBingoButton',
-                            index: -2
+                            type: 'bingoNumberSelected',
+                            selectedID: parseInt($(this).attr("id"))
                         }));
                     }
                 });
@@ -86,21 +95,21 @@
                     if ($(this).hasClass("selected")){
                         $(this).removeClass("selected");
                         EventBridge.emitWebEvent(JSON.stringify({
-                            type : 'playSoundFromBingoButton',
-                            index: -3
+                            type: 'bingoNumberDeselected',
+                            deselectedID: parseInt($(this).attr("id"))
                         }));
                     } else {
                         $(this).addClass("selected");
                         EventBridge.emitWebEvent(JSON.stringify({
-                            type : 'playSoundFromBingoButton',
-                            index: -2
+                            type: 'bingoNumberSelected',
+                            selectedID: parseInt($(this).attr("id"))
                         }));
                     }
                 });
                 $(".button-letter").click(function() {
                     var index = BINGO_STRING.indexOf($(this).attr('id'));
                     EventBridge.emitWebEvent(JSON.stringify({
-                        type : 'playSoundFromBingoButton',
+                        type : 'playSoundFromBingoHeaderButton',
                         index: index
                     }));
                 });

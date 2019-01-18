@@ -33,6 +33,7 @@
     var WAIT_TO_PROCESS_VALIDATION_MS = 1000;
     var OVERLAP_SOUNDS_TIME_MS = 1000;
     var CHECK_DOOR_ROTATION_MS = 10;
+    var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
     var BINGO_STRING = "BINGO";
     var IMAGE_MODEL = Script.resolvePath("assets/images/default-image-model.fbx");
     var HEADER_IMAGE = Script.resolvePath("../../images/bingo-card-head.png");
@@ -43,8 +44,6 @@
     
     var zonePosition;
     var interval = null;
-    var userName;
-    var userCardNumbers = [];
     var scannerSpotlight;
     var cardEntity = null;
     var bingoNumberSquares = [];
@@ -90,7 +89,7 @@
 
     BingoScannerZone.prototype = {
 
-        remotelyCallable: ['receiveNumbersFromWheel', 'scanCard', 'userLeftZone'],
+        remotelyCallable: ['setAlreadyCalledNumbers', 'scanCard', 'userLeftZone'],
 
         /* ON LOADING THE SCRIPT: Save a reference to this entity ID. Set a timeout for 2 seconds to ensure that entities 
         have loaded and then find and save references to other necessary entities. */
@@ -115,28 +114,51 @@
         },
 
         /* RECEIVE NUMBERS THAT HAVE BEEN CALLED THIS ROUND:  */
-        receiveNumbersFromWheel: function(id, numbers) {
+        setAlreadyCalledNumbers: function(id, numbers) {
             calledNumbers = JSON.parse(numbers[0]);
         },
 
         /* GET USER'S CARD NUMBERS: Get the Google sheet URL from a private text file, then search the sheet for the user. 
         If the user is found, save their card numbers. */
-        getCardNumbers: function() {
+        getUsersCardNumbers: function(username) {
             var searchParamString = encodeURLParams({
-                type: "search",
-                username: userName
+                type: "searchOrAdd",
+                username: username
             });
             request({
                 uri: SPREADSHEET_URL + "?" + searchParamString
             }, function (error, response) {
-                if (error || !response) {
+                if (error || !response || response.status !== "success") {
                     return;
                 }
-                if (response === "New username") {
-                    print("Error...user not found in bingo players list");
-                } else if (response) {
-                    var userNumbersToSplit = response.substring(1, response.length - 1);
-                    userCardNumbers = userNumbersToSplit.split(",");
+
+                var userCardNumbers = response.userCardNumbers;
+            
+                if (userCardNumbers.length > 0) {
+                    playSound(COMPUTING_SOUND, GAME_AUDIO_POSITION, 1);
+                    playSound(COMPUTING_SOUND, zonePosition, 0.5);
+                    _this.createCardReplica(userCardNumbers);
+                    Script.setTimeout(function() {
+                        _this.validateWin(username);
+                    }, ENTER_ZONE_SOUND.duration * 1000 - OVERLAP_SOUNDS_TIME_MS);
+                } else {
+                    cardEntity = Entities.addEntity({
+                        backgroundColor: WHITE,
+                        dimensions: {
+                            x: 1.5,
+                            y: 0.3409,
+                            z: 0.7
+                        },
+                        parentID: _this.entityID,
+                        localPosition: { x: 0, y: 1.2, z: 0.25 },
+                        localRotation: Quat.fromVec3Degrees({ x: 0, y: 180, z: 0 }),
+                        lineHeight: 0.24,
+                        name: "Bingo Card",
+                        text: "No Card Found",
+                        textColor: BLACK,
+                        type: "Text",
+                        userData: "{ \"grabbableKey\": { \"grabbable\": false } }"
+                    });
                 }
             });
         },
@@ -169,7 +191,7 @@
         each number tile and filling in the numbers assigned to the user. Numbers are also checked against the 
         called numbers and if found, the background of the square will be black whereas uncalled numbers will 
         have a white background. */
-        createCardReplica: function() {
+        createCardReplica: function(userCardNumbers) {
             var cardEntityColor = _this.getRandomCardColor();
             cardEntity = Entities.addEntity({
                 isSolid: true,
@@ -277,7 +299,7 @@
         to allow the calculations to complete and then go over each possible win variable to see if any are still 
         marked true and record which one. If a winning line was found, all other squares on the card will be changed 
         to a white background to highlight the win and the proper win or lose function will be called. */
-        validateWin: function() {
+        validateWin: function(username) {
             var rows = [1,1,1,1,1];
             var columns = [1,1,1,1,1];
             var diagonalLtoR = 1;
@@ -336,7 +358,7 @@
                                 });
                             }
                         });
-                        _this.win();
+                        _this.win(username);
                     } else if (winningColumn) {
                         bingoNumberSquares.forEach(function(square) {
                             var name = Entities.getEntityProperties(square, 'name').name;
@@ -350,7 +372,7 @@
                                 }
                             }
                         });
-                        _this.win();
+                        _this.win(username);
                     } else if (diagonalLtoR) {
                         bingoNumberSquares.forEach(function(square) {
                             var name = Entities.getEntityProperties(square, 'name').name;
@@ -363,7 +385,7 @@
                                 });
                             }
                         });
-                        _this.win();
+                        _this.win(username);
                     } else if (diagonalRtoL) {
                         bingoNumberSquares.forEach(function(square) {
                             var name = Entities.getEntityProperties(square, 'name').name;
@@ -376,7 +398,7 @@
                                 });
                             }
                         });
-                        _this.win();
+                        _this.win(username);
                     } else {
                         _this.lose();
                     }
@@ -385,7 +407,7 @@
         },
 
         /* WIN: Play the winning sound and turn on confettin and bingo particles. */
-        win: function() {
+        win: function(username) {
             playSound(SCANNER_WIN_SOUND, GAME_AUDIO_POSITION, 1);
             playSound(SCANNER_WIN_SOUND, zonePosition, 0.5);
             Entities.callEntityMethod(bingoParticleEffect, 'turnOn');
@@ -393,9 +415,10 @@
             try {
                 var bouncerZoneUserData = JSON.parse(
                     Entities.getEntityProperties(MAIN_STAGE_BOUNCER_ZONE, 'userData').userData);
-                var userNames = bouncerZoneUserData.whitelist.usernames;
-                bouncerZoneUserData.whitelist.usernames[userNames.length ++] = userName;
-                Entities.editEntity(MAIN_STAGE_BOUNCER_ZONE, { userData: JSON.stringify(bouncerZoneUserData) });
+                if (bouncerZoneUserData.whitelist.usernames.indexOf(username) === -1) {
+                    bouncerZoneUserData.whitelist.usernames.push(username);
+                    Entities.editEntity(MAIN_STAGE_BOUNCER_ZONE, { userData: JSON.stringify(bouncerZoneUserData) });
+                }
             } catch (err) {
                 print("Error adding winner to bouncer zone userData");
             }
@@ -449,40 +472,11 @@
             playSound(ENTER_ZONE_SOUND, zonePosition, 0.5);
 
             Entities.editEntity(scannerSpotlight, { visible: true });
-            userName = params[0];
-            userCardNumbers = [];
-            Entities.callEntityMethod(BINGO_WHEEL, 'getCalledNumbers', [-1, _this.entityID]);
-            _this.getCardNumbers();
+            Entities.callEntityMethod(BINGO_WHEEL, 'requestAlreadyCalledNumbers', [-1, _this.entityID]);
             _this.deleteCard();
-            
-            Script.setTimeout(function() {
-                if (userCardNumbers.length !== 0) {
-                    playSound(COMPUTING_SOUND, GAME_AUDIO_POSITION, 1);
-                    playSound(COMPUTING_SOUND, zonePosition, 0.5);
-                    _this.createCardReplica();
-                    Script.setTimeout(function() {
-                        _this.validateWin();
-                    }, ENTER_ZONE_SOUND.duration * 1000 - OVERLAP_SOUNDS_TIME_MS);
-                } else {
-                    cardEntity = Entities.addEntity({
-                        backgroundColor: WHITE,
-                        dimensions: {
-                            x: 1.5,
-                            y: 0.3409,
-                            z: 0.7
-                        },
-                        parentID: _this.entityID,
-                        localPosition: { x: 0, y: 1.2, z: 0.25 },
-                        localRotation: Quat.fromVec3Degrees({ x: 0, y: 180, z: 0 }),
-                        lineHeight: 0.24,
-                        name: "Bingo Card",
-                        text: "No Card Found",
-                        textColor: BLACK,
-                        type: "Text",
-                        userData: "{ \"grabbableKey\": { \"grabbable\": false } }"
-                    });
-                }
-            }, ENTER_ZONE_SOUND.duration * 1000);
+
+            var username = params[0];
+            _this.getUsersCardNumbers(username);
         },
 
         /* WHEN USER LEAVES ZONE: Clear any open gates or trap door. Wait for 10 seconds to turn off the light 
@@ -490,7 +484,9 @@
         This prevents others from entering before this user's script has had time to finish and clean up. Clear the 
         arrqy of squares attached to the user's card and delete the card. Turn off particles. */
         userLeftZone: function(thisID, userID) {
-            Entities.callEntityMethod(STAGE_ENTRY_GATE, 'closeGate');
+            Script.setTimeout(function() {
+                Entities.callEntityMethod(STAGE_ENTRY_GATE, 'closeGate');
+            }, WAIT_TO_CLOSE_WIN_GATE_MS);
             Script.setTimeout(function() {
                 Entities.editEntity(scannerSpotlight, { visible: false });
                 bingoNumberSquares = [];
