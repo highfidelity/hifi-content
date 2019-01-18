@@ -92,6 +92,7 @@ SoundGenerator.prototype = {
     updatePosition: updatePosition,
     addSound: addSound,
     play: play,
+    stop: stop,
     playRandom: playRandom,
     updateAudioPosition: updateAudioPosition
 };

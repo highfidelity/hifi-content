@@ -123,8 +123,8 @@
             SFX.playRandom();
             Script.setTimeout(createEntities, START_TIME);
 
-            // var randomDurationTime = randomInt(MIN_DURATION_TIME, MAX_DURATION_TIME);
-            var randomDurationTime = 30 * MILISECONDS;
+            var randomDurationTime = randomInt(MIN_DURATION_TIME, MAX_DURATION_TIME);
+            // var randomDurationTime = 60 * MILISECONDS;
 
             log("randomDuration", randomDurationTime);
 
@@ -152,12 +152,12 @@
 
     function createEntities(){
         log("in Create Entities");
-        // Music.updatePosition(currentPosition);
-        // Music.playRandom();
+        Music.updatePosition(currentPosition);
+        Music.playRandom();
         Lights.create(currentPosition);
         ParticleArray.forEach(function(particle){
             particle.create(currentPosition);
-        })
+        });
     }
 
 
@@ -166,7 +166,7 @@
         if (currentUserID === MyAvatar.sessionUUID) {
             createSmoke(currentPosition);
             SFX.playRandom();
-            // Music.stop();
+            Music.stop();
             Lights.destroy();
             ParticleArray.forEach(function(particle) {
                 particle.destroy();
@@ -198,6 +198,8 @@
     function preload(entityID){
         log("in PreLoad");
         _entityID = entityID;
+
+        Lights.registerEntity(_entityID);
 
         ParticleArray.forEach(function(particle) {
             particle.registerEntity(_entityID);

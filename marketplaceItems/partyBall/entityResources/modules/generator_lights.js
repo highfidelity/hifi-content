@@ -13,38 +13,9 @@
 */
 print("in generator lights");
 
-if (!Function.prototype.bind) (function () {
-    var ArrayPrototypeSlice = Array.prototype.slice;
-    Function.prototype.bind = function (otherThis) {
-        if (typeof this !== 'function') {
-            // closest thing possible to the ECMAScript 5
-            // internal IsCallable function
-            throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-        }
-
-        var baseArgs = ArrayPrototypeSlice.call(arguments, 1),
-            baseArgsLength = baseArgs.length,
-            fToBind = this,
-            fNOP = function () { },
-            fBound = function () {
-                baseArgs.length = baseArgsLength; // reset to default base arguments
-                baseArgs.push.apply(baseArgs, arguments);
-                return fToBind.apply(
-                    fNOP.prototype.isPrototypeOf(this) ? this : otherThis, baseArgs
-                );
-            };
-
-        if (this.prototype) {
-            // Function.prototype doesn't have a prototype property
-            fNOP.prototype = this.prototype;
-        }
-        fBound.prototype = new fNOP();
-
-        return fBound;
-    };
-})();
 
 Script.resetModuleCache(true);
+Script.require("../modules/polyfill.js")();
 
 var common = Script.require("../modules/commonUtilities.js?" + Date.now());
 var randomFloat = common.randomFloat;
@@ -86,23 +57,27 @@ function LightGenerator(){
     this.interval = null;
     this.lightProps = lightProps;
     _this = this;
+    _entityID = null;
 }
 
+function registerEntity(entityID){
+    this._entityID = entityID;
+}
 
 // Runs all the functions involved with creating and then animating
 function create(position){
-    this.position = position;
-    this.makeProps();
-    this.makeBox();
+    // this.position = position;
+    // this.makeProps();
+    this.makeBox(position);
     this.makeLights();
     this.animate();
 }
 
 
-// Make sure we have the correct position before we use the light props to make entities
-function makeProps(position){
-    this.lightProps.position = position;
-}
+// // Make sure we have the correct position before we use the light props to make entities
+// function makeProps(position){
+//     this.lightProps.position = position;
+// }
 
 
 // Make the box the lights are attached to so it is easier to spin around
@@ -110,7 +85,8 @@ function makeBox(position) {
     this.box = Entities.addEntity({
         name: "Party-Box",
         type: "Box",
-        position: this.position,
+        parentID: this._entityID,
+        // position: this.position,
         dimensions: {
             x: 0.35,
             y: 0.35,
@@ -192,7 +168,7 @@ function makeRandomLightProps(){
         falloffRadius: randomFloat(FALL_OFF_MIN, FALL_OFF_MAX),
         cutoff: randomFloat(CUTOFF_MIN, CUTOFF_MAX)
     };     
-    console.log("lightProps", JSON.stringify(lightProps, null, 1))
+    // console.log("lightProps", JSON.stringify(lightProps, null, 1), false);
 
     return lightProps;        
 }
@@ -243,7 +219,8 @@ function destroy(){
 
 LightGenerator.prototype = {
     makeLights: makeLights,
-    makeProps: makeProps,
+    registerEntity: registerEntity,
+    // makeProps: makeProps,
     makeRandomLightProps: makeRandomLightProps,
     create: create,
     makeBox: makeBox,
