@@ -8,7 +8,7 @@ Either import Sit Point from the marketplace to put on entities for one or more 
 
 ## Releases
 
-2019-01-16_11-29-09 :: [voteApp 0a01cac]
+2019-01-17_14-57-17 :: [sitScriptUpdate 81bcf14]
 - During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
 
 ## Known issues
