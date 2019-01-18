@@ -15,16 +15,22 @@ print("in generator particles2");
 
 Script.require("../modules/polyfill.js")();
 Script.resetModuleCache(true);
+var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 
 
 var common = Script.require("../modules/commonUtilities.js?" + Date.now());
 var particles = Script.require("../modules/particleProperties.js?" + Date.now());
 // Remove the smoke intro outro smoke particles
 delete particles["smoke1"];
-var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
 var randomFloat = common.randomFloat;
 var randomInt = common.randomInt;
 var _this; 
+
+var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
+textureCollection.forEach(function(texture){
+    log("texture", texture);
+    TextureCache.prefetch(texture);
+});
 
 
 // Main Particle Constructor Function
@@ -106,9 +112,9 @@ function intervalAnimator(){
     };
 
     // Get a random texture
-    // var maxTextureLength = _this.textureCollection.length - 1;
-    // var randomTexture = randomInt(0, maxTextureLength);
-    // particleProps.textures = _this.textureCollection[randomTexture];
+    var maxTextureLength = _this.textureCollection.length - 1;
+    var randomTexture = randomInt(0, maxTextureLength);
+    particleProps.textures = _this.textureCollection[randomTexture];
     // console.log("particleProps", JSON.stringify(particleProps, null, 4));
     Entities.editEntity(this.particle, particleProps);
 }
