@@ -75,6 +75,7 @@
     /* GET RANDOM SOUND: Randomly selects one of the sounds in the 'headerSounds' array */
     var currentHeaderSounds = [];
     function getRandomSound() {
+        currentHeaderSounds = [];
         var newSoundIndex = Math.floor(Math.random() * headerSounds.length);
         var newSound = headerSounds[newSoundIndex];
         if (currentHeaderSounds.indexOf(newSound) === -1) {
@@ -88,68 +89,53 @@
     var BINGO_STRING = "BINGO";
     var headerSounds = [];
     function loadSounds() {
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoCat.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoDog.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPlinks.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPianoPlinks.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBomb.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSqueak.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoChatter.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoClang.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoGiggles.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSplash.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWaHaHa.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoFall.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoTwinkle.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPopUp.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWhistle.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBubbles.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoHarp.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoKazoo.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoVibration.wav")));
-        headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSpiral.wav")));
+        if (headerSounds.length === 0) {
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoCat.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoDog.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPlinks.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPianoPlinks.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBomb.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSqueak.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoChatter.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoClang.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoGiggles.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSplash.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWaHaHa.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoFall.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoTwinkle.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoPopUp.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWhistle.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBubbles.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoHarp.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoKazoo.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoVibration.wav")));
+            headerSounds.push(SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSpiral.wav")));
+        }
         
         for (var i = 0; i < BINGO_STRING.length; i++) {
             getRandomSound();
         }
-    
     }
 
-    /* STORE USER: Store the user's name and assigned bingo card numbers for future reference*/
+    /* FIND OR CREATE BINGO CARD:  Search the google sheet for the user's name to see if they have already been assigned 
+    numbers for this round. If they have numbers already, retrieve them. If they do not have numbers, get new ones
+    and add one to the player counter text. */
     var SPREADSHEET_URL = Script.require(Script.resolvePath('../secrets/bingoSheetURL.json?0')).sheetURL;
     var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
     var request = Script.require('request').request;
     var userCardNumbers = [];
-    function createUserInSheet() {
-        var addParamString = encodeURLParams({
-            type: "add",
-            username: AccountServices.username
-        });
-        request({
-            uri: SPREADSHEET_URL + "?" + addParamString
-        }, function (error, response) {
-            if (error || !response || response === "Not a new user") {
-                print("ERROR: Could not create new user");
-                return;
-            } else if (response.status === "Success") {
-                var userNumbersToSplit = response.userCardNumbers.substring(1, response.length - 1);
-                userCardNumbers = userNumbersToSplit.split(",");
-                ui.tablet.emitScriptEvent(JSON.stringify({
-                    type : 'displayNumbers',
-                    numbers: userCardNumbers
-                }));
-                Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
-            } else {
-                print("ERROR: Could not create new user");
-            }
-        });
-    }
-
-    /* FIND OR CREATE BINGO CARD:  Search the google sheet for the user's name to see if they have already been assigned 
-    numbers for this round. If they have numbers already, retrieve them. If they do not have numbers, get new ones. */
     function findOrCreateCard() {
+        // We don't need to make any requests if we already have our numbers.
+        if (userCardNumbers.length > 0) {
+            ui.tablet.emitScriptEvent(JSON.stringify({
+                type : 'displayNumbers',
+                numbers: userCardNumbers
+            }));
+            return;
+        }
+
         var searchParamString = encodeURLParams({
-            type: "search",
+            type: "searchOrAdd",
             username: AccountServices.username
         });
         request({
@@ -158,15 +144,17 @@
             if (error || !response) {
                 return;
             }
-            if (response === "New username") {
-                createUserInSheet();
-            } else if (response) {
+            if (response.status && response.status === "success") {
                 var userNumbersToSplit = response.substring(1, response.length - 1);
                 userCardNumbers = userNumbersToSplit.split(",");
                 ui.tablet.emitScriptEvent(JSON.stringify({
                     type : 'displayNumbers',
                     numbers: userCardNumbers
                 }));
+
+                if (response.newUser) {
+                    Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
+                }
             }
         });         
     }
@@ -220,8 +208,7 @@
             } else if (event.index === -3) {
                 playSound(DESELECT_SOUND, 0.2, MyAvatar.position, false);
             }
-        }
-        if (event.type === 'calledBingo') {
+        } else if (event.type === 'calledBingo') {
             playSound(WIN_SOUND, 1, WHEEL_POSITION, false);
             Entities.callEntityMethod(SCANNER_ENTRY_ZONE, 'callBingo');
             if (confettiParticle) {
@@ -304,11 +291,15 @@
                 userData: "{\"grabbableKey\":{\"grabbable\":false}}"
             }, true);
             Script.setTimeout(function() {
-                Entities.editEntity(confettiParticle, { emitRate: 0 });
-                Script.setTimeout(function() {
-                    Entities.deleteEntity(confettiParticle);
-                    confettiParticle = null;
-                }, WAIT_TO_DELETE_PARTICLE_MS);
+                if (confettiParticle) {
+                    Entities.editEntity(confettiParticle, { emitRate: 0 });
+                    Script.setTimeout(function() {
+                        if (confettiParticle) {
+                            Entities.deleteEntity(confettiParticle);
+                            confettiParticle = null;
+                        }
+                    }, WAIT_TO_DELETE_PARTICLE_MS);
+                }
             }, WAIT_TO_STOP_PARTICLE_MS);
         }
     }
