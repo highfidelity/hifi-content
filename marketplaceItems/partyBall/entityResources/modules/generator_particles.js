@@ -24,6 +24,7 @@ var particles = Script.require("../modules/particleProperties.js?" + Date.now())
 delete particles["smoke1"];
 var randomFloat = common.randomFloat;
 var randomInt = common.randomInt;
+var makeColor = common.makeColor;
 var _this; 
 
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
@@ -61,6 +62,8 @@ function makeParticle() {
     var particle = particleArray[randomParticleIndex];
     particle.parentID = this._entityID;
     particle.name = "Party Particle";
+    particle.localPosition = [0, 1, 0];
+    particle.dimensions = [10, 10, 10];
     this.particle = Entities.addEntity(particle, true);
     console.log("adding particle: ", this.particle);
 }
@@ -72,7 +75,7 @@ function registerEntity(entityID){
 
 
 // Main Animator that is controlling the specific interval animations
-var UDPATE_MIN = 60;
+var UDPATE_MIN = 17;
 var UPDATE_MAX = 250;
 function animate() {
     // Get a random amount between 17 to 1000 as how often to animate by
@@ -85,15 +88,26 @@ function animate() {
 // var textureCount = 0;
 // var textureSwitchCount = 15;
 var EMIT_RATE_MIN = 0;
-var EMIT_RATE_MAX = 100;
-var PARTICLE_RADIUS_MIN = 0;
-var PARTICLE_RADIUS_MAX = 1; 
+// var EMIT_RATE_MAX = 10000;
+var EMIT_RATE_MAX = 1000;
+var PARTICLE_RADIUS_MIN = 1;
+// var PARTICLE_RADIUS_MAX = 4; 
+var PARTICLE_RADIUS_MAX = 2; 
 var EMIT_SPEED_MIN = 0;
-var EMIT_SPEED_MAX = 3;
-var EMIT_ACCELERATION_MIN = -1;
-var EMIT_ACCELERATION_MAX = 1;
+// var EMIT_SPEED_MAX = 40;
+var EMIT_SPEED_MAX = 100;
+var EMIT_ACCELERATION_MIN = -10;
+// var EMIT_ACCELERATION_MAX = 25;
+var EMIT_ACCELERATION_MAX = 400;
 var EMIT_ORIENTATION_MIN = -180;
 var EMIT_ORIENTATION_MAX = 180;
+var ALPHA_MIN = 0.25;
+var ALPHA_MAX = 1;
+var MINIMUM_PARTICLE_SPIN = -2.0 * Math.PI;
+var MAXIMUM_PARTICLE_SPIN = 2.0 * Math.PI;
+var iterationsBeforeTextureSwitch = 15;
+var currentIterationCount = 0;
+var maxTextureLength = textureCollection.length - 1;
 function intervalAnimator(){
     var particleProps = {
         emitRate: randomFloat(EMIT_RATE_MIN, EMIT_RATE_MAX),
@@ -108,13 +122,42 @@ function intervalAnimator(){
             randomInt(EMIT_ORIENTATION_MIN, EMIT_ORIENTATION_MAX),
             randomInt(EMIT_ORIENTATION_MIN, EMIT_ORIENTATION_MAX),
             randomInt(EMIT_ORIENTATION_MIN, EMIT_ORIENTATION_MAX)
-        )
+        ),
+        alpha: randomFloat(ALPHA_MIN, ALPHA_MAX),
+        alphaStart: randomFloat(ALPHA_MIN, ALPHA_MAX),
+        alphaFinish: randomFloat(ALPHA_MIN, ALPHA_MAX),
+        color: makeColor(
+            randomInt(0, 255),
+            randomInt(0, 255),
+            randomInt(0, 255)
+        ),
+        colorStart: makeColor(
+            randomInt(0, 255),
+            randomInt(0, 255),
+            randomInt(0, 255)
+        ),
+        colorFinish: makeColor(
+            randomInt(0, 255),
+            randomInt(0, 255),
+            randomInt(0, 255)
+        ),
+        maxParticles: randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
+        radiusFinish: randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
+        radiusStart: randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
+        spinFinish: randomFloat(MINIMUM_PARTICLE_SPIN, MAXIMUM_PARTICLE_SPIN),
+        spinStart: randomFloat(MINIMUM_PARTICLE_SPIN, MAXIMUM_PARTICLE_SPIN)
     };
 
     // Get a random texture
-    var maxTextureLength = _this.textureCollection.length - 1;
-    var randomTexture = randomInt(0, maxTextureLength);
-    particleProps.textures = _this.textureCollection[randomTexture];
+    if (currentIterationCount < iterationsBeforeTextureSwitch) {
+        currentIterationCount++;
+    } else {
+        var randomTexture = randomInt(0, maxTextureLength);
+        particleProps.textures = _this.textureCollection[randomTexture];
+        currentIterationCount = 0;
+        iterationsBeforeTextureSwitch = randomInt(5, 35);
+    }
+
     // console.log("particleProps", JSON.stringify(particleProps, null, 4));
     Entities.editEntity(this.particle, particleProps);
 }

@@ -11,7 +11,6 @@
     Textures for the particles
 
 */
-print("in music texture");
 
 
 module.exports = [
@@ -32,7 +31,7 @@ module.exports = [
     Script.resolvePath("../resources/textures/stripe.png"),
     Script.resolvePath("../resources/textures/star.png"),
     Script.resolvePath("../resources/textures/bubble.png"),
-    Script.resolvePath("../resources/textures/meowlad.png"),
+    Script.resolvePath("../resources/textures/Meowlad.png"),
     Script.resolvePath("../resources/textures/800px-Isochronic-toes.svg.png"),
     Script.resolvePath("../resources/textures/grey-car-vector-file.png"),
     Script.resolvePath("../resources/textures/17478-illustration-of-a-cat-pv.png"),
@@ -41,6 +40,10 @@ module.exports = [
     Script.resolvePath("../resources/textures/wave-1837426_960_720.png"),
     Script.resolvePath("../resources/textures/Cat-PNG-6.png"),
     Script.resolvePath("../resources/textures/Cats-PNG-Image-77925.png"),
-    Script.resolvePath("../resources/textures/08577f805b464d0.jpg"),
-    Script.resolvePath("../resources/textures/08577f805b464d0.jpg")
+    Script.resolvePath("../resources/textures/starcloud.png"),
+    Script.resolvePath("../resources/textures/pinkgas.png"),
+    Script.resolvePath("../resources/textures/Spinner.png"),
+    Script.resolvePath("../resources/textures/Particle-Triangle_2.png"),
+    Script.resolvePath("../resources/textures/Fireball.png"),
+    Script.resolvePath("../resources/textures/08577f805b464d0.png")
 ];

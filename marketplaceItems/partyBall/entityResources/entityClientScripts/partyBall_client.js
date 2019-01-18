@@ -53,7 +53,10 @@
     var Music = new SoundGenerator();
     var SFX = new SoundGenerator();
     // var numberArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
-    var numberArray = [1,2,3];
+    var numberArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    // var numberArray = [1, 2, 3, 4, 5, 6, 7];
+    // var numberArray = [1,2,3];
+    // var numberArray = [1];
 
     var ParticleArray = numberArray.map(function() { 
         return new ParticleGenerator();
