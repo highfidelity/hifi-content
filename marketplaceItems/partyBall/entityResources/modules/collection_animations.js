@@ -1,3 +1,18 @@
+/*
+
+    Dance Collection
+    collection_animations.js
+    Created by Milad Nazeri on 2019-01-19
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+    Animations used by the Dance Generator
+
+*/
+
+
 var danceCollection = [ 
     Script.resolvePath("../resources/animations/Ballet 372.fbx"),
     Script.resolvePath("../resources/animations/BBoy Look at me be Booooi 202.fbx"),
@@ -30,6 +45,6 @@ var danceCollection = [
     Script.resolvePath("../resources/animations/Twista 284.fbx"),
     Script.resolvePath("../resources/animations/Wavy baby 213.fbx"),
     Script.resolvePath("../resources/animations/Ymca Dance 136.fbx")
-]
+];
 
 module.exports = danceCollection;

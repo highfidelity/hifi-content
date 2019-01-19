@@ -8,10 +8,10 @@
     Distributed under the Apache License, Version 2.0.
     See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-    Music that is available to be used
+    Music used by the Sound Generator
 
 */
-print("in music collection");
+
 
 module.exports = [
     Script.resolvePath("../resources/sounds/music/03B_Eww Baby_INST.mp3"),

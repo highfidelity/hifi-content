@@ -12,10 +12,6 @@
     Some code from soundArray.js in the Hifi archive repo
 
 */
-print("in generator sound");
-
-
-Script.resetModuleCache(true);
 
 
 // Constructor function to create a sound library to play randomly

@@ -69,12 +69,14 @@
     }
 
 
+    // Send info about who just touched the ball to the Entity Server
     function recordNewTouch(){
         log("mousePressOnEntity");
         var id = MyAvatar.sessionUUID;
         var timeStamp = Date.now();
         var skeletonModelURL = MyAvatar.skeletonModelURL;
-        var data = JSON.stringify({ id: id, timeStamp: timeStamp, skeletonModelURL: skeletonModelURL });        
+        var data = JSON.stringify({ id: id, timeStamp: timeStamp, skeletonModelURL: skeletonModelURL });     
+
         Entities.callEntityServerMethod(_entityID, "newAvatarTouch", [data]);
     }
 

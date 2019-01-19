@@ -20,7 +20,6 @@
     // *************************************
     // #region MODULES
 
-    console.log("\n\n\n\n\n\n NEW VERSION: 2\n\n\n\n\n");
     Script.resetModuleCache(true);
 
     var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js');
@@ -70,10 +69,9 @@
 
     var _entityID;
 
-    var lastTouched = { id: null, timeStamp: 0,  };
+    var lastTouched = { id: null, timeStamp: 0, skeletonModelURL: null };
     var explodeTimer = false;
     var currentPosition = null;
-
 
 
     // #endregion
@@ -119,25 +117,19 @@
 
 
     // This is where the main sequence of events takes place
-    var MIN_DURATION_TIME = 5 * MILISECONDS;
-    var MAX_DURATION_TIME = 12 * MILISECONDS;
+    var MIN_DURATION_TIME = 3 * MILISECONDS;
+    var MAX_DURATION_TIME = 30 * MILISECONDS;
+    var START_TIME = 500;
     function startParty() {
         log("Starting Party");
 
         currentPosition = Entities.getEntityProperties(_entityID, ["position"]).position;
-        log("current position", currentPosition);
-        log("\n\n\nLAST TOUCHED SKELETON MODEL BEING USED:::\n\n\n")
-        log(lastTouched.skeletonModelURL);
-        var START_TIME = 500;
-        Dance.registerURL(lastTouched.skeletonModelURL);
-        Dance.create(currentPosition);
         createIntroSmoke(currentPosition);
         SFX.updatePosition(currentPosition);
         SFX.playRandom();
         Script.setTimeout(createEntities, START_TIME);
 
         var randomDurationTime = randomInt(MIN_DURATION_TIME, MAX_DURATION_TIME);
-        // var randomDurationTime = 60 * MILISECONDS;
 
         log("randomDuration", randomDurationTime);
 
@@ -151,14 +143,13 @@
         log("in Create Smoke");
         var smokeProperties = particleProperties.intro;
 
-        // smokeProperties.position = position;
         smokeProperties.parentID = _entityID;
         smokeProperties.localPosition = [0, 1, 0];
         smokeProperties.rotateWithEntity = false;
         var splat = Entities.addEntity(smokeProperties);
 
         log("Deleting smoke", splat);
-        Script.setTimeout(function () {
+        Script.setTimeout(function() {
             Entities.deleteEntity(splat);
         }, SMOKE_INTRO_TIME);
     }
@@ -171,27 +162,28 @@
         log("in Create outro Smoke");
         var smokeProperties = particleProperties.outro;
 
-        // smokeProperties.position = position;
         smokeProperties.parentID = _entityID;
         smokeProperties.localPosition = [0, 1, 0];
         var splat = Entities.addEntity(smokeProperties);
 
         log("Deleting smoke", splat);
-        Script.setTimeout(function () {
+        Script.setTimeout(function() {
             smokeProperties = { emitRate: 0 };
             Entities.editEntity(splat, smokeProperties);
-            Script.setTimeout(function () {
+            Script.setTimeout(function() {
                 Entities.deleteEntity(splat);
             }, SMOKE_ENDING_TIME);
         }, SMOKE_OUTRO_TIME);
     }
 
 
+    // Create the actual entities and start the music
     function createEntities() {
         log("in Create Entities");
         Music.updatePosition(currentPosition);
         Music.playRandom();
-        Lights.create(currentPosition);
+        Dance.create(_entityID, lastTouched.skeletonModelURL);
+        Lights.create(_entityID);
         ParticleArray.forEach(function (particle) {
             particle.create(currentPosition);
         });
@@ -249,7 +241,6 @@
                 lastTouched.timeStamp = newTimeStamp;
                 lastTouched.skeletonModelURL = newSkeletonModelURL;
             }
-
         } catch (e) {
             console.log(e);
         }
@@ -272,12 +263,6 @@
     function preload(entityID) {
         log("in PreLoad");
         _entityID = entityID;
-
-        Lights.registerEntity(_entityID);
-
-        ParticleArray.forEach(function (particle) {
-            particle.registerEntity(_entityID);
-        });
 
         Entities.editEntity(_entityID, {
             gravity: [0, GRAVITY, 0],

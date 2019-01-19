@@ -8,9 +8,10 @@
     Distributed under the Apache License, Version 2.0.
     See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-    Sfx available for use
+    Sfx used by the Sound Generator
+
 */
-print("in music sfx");
+
 
 module.exports = [
     Script.resolvePath("../resources/sounds/sfx/jg-032316-sfx-huge-stadium-horn-2.mp3"),

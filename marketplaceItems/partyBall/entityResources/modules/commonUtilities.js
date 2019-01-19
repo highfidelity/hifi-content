@@ -11,7 +11,6 @@
     Common utilities between modules
 
 */
-print("in common utilities");
 
 
 // Get a random float between low and high 

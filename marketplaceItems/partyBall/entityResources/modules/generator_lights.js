@@ -11,33 +11,21 @@
     Makes random animated lights
 
 */
-print("in generator lights");
 
 
-Script.resetModuleCache(true);
 Script.require("../modules/polyfill.js")();
 
 var common = Script.require("../modules/commonUtilities.js?" + Date.now());
 var randomFloat = common.randomFloat;
 var randomInt = common.randomInt;
 var makeColor = common.makeColor;
-var _this; 
-
 
 var lightProps = {
     name: "Party lights",
     type: "Light",
-    dimensions: {
-        x: 10,
-        y: 10,
-        z: 10
-    },
+    dimensions: [10, 10, 10],
     angularDamping: 0,
-    color: {
-        red: 255,
-        blue: 255,
-        green: 255
-    },
+    color: [255, 255, 255],
     intensity: 1000,
     falloffRadius: 0,
     isSpotlight: 0,
@@ -47,58 +35,36 @@ var lightProps = {
     userData: "{ \"grabbableKey\": { \"grabbable\": false} }" 
 };
 
-
 // Main contructor function for the Lights
 function LightGenerator(){
+    this._entityID = null;
+
     this.box = null;
-    this.lights = [];
     this.spotLight = null;
-    this.lightProps = {};
-    this.interval = null;
+    this.lights = [];
     this.lightProps = lightProps;
-    _this = this;
-    _entityID = null;
+    this.interval = null;
 }
 
-function registerEntity(entityID){
-    this._entityID = entityID;
-}
 
 // Runs all the functions involved with creating and then animating
-function create(position){
-    // this.position = position;
-    // this.makeProps();
-    this.makeBox(position);
+function create(entityID){
+    this._entityID = entityID;
+    this.makeBox();
     this.makeLights();
     this.animate();
 }
 
 
-// // Make sure we have the correct position before we use the light props to make entities
-// function makeProps(position){
-//     this.lightProps.position = position;
-// }
-
-
 // Make the box the lights are attached to so it is easier to spin around
-function makeBox(position) {
+function makeBox() {
     this.box = Entities.addEntity({
         name: "Party-Box",
         type: "Box",
         parentID: this._entityID,
-        // position: this.position,
-        dimensions: {
-            x: 0.35,
-            y: 0.35,
-            z: 0.35
-        },
+        dimensions: [0.35, 0.35, 0.35],
         angularDamping: 0,
         friction: 0,
-        color:{
-            red: 100,
-            blue: 0,
-            green: 0
-        },
         visible: false
     });
 }
@@ -157,13 +123,16 @@ var FALL_OFF_MIN = 0;
 var FALL_OFF_MAX = 10;
 var CUTOFF_MIN = 0;
 var CUTOFF_MAX = 100;
+var MINIMUM_COLOR_SCALER = 0;
+var MAXIMUM_COLOR_SCALER = 0.55;
 function makeRandomLightProps(){
     var lightProps = {
         intensity: randomFloat(INTENSITY_MIN, INTENSITY_MAX),
         color: makeColor(
             randomInt(COLOR_MIN, COLOR_MAX),
             randomInt(COLOR_MIN, COLOR_MAX),
-            randomInt(COLOR_MIN, COLOR_MAX)
+            randomInt(COLOR_MIN, COLOR_MAX),
+            randomFloat(MINIMUM_COLOR_SCALER, MAXIMUM_COLOR_SCALER)
         ),
         falloffRadius: randomFloat(FALL_OFF_MIN, FALL_OFF_MAX),
         cutoff: randomFloat(CUTOFF_MIN, CUTOFF_MAX)
@@ -178,11 +147,11 @@ function makeRandomLightProps(){
 var ANGULAR_VELOCITY_MIN = 1;
 var ANGULAR_VELOCITY_MAX = 5;
 function intervalAnimator(){
-    var angularVelocity = {
-        x: randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX),
-        y: randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX),
-        z: randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX)
-    };
+    var angularVelocity = [
+        randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX),
+        randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX),
+        randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX)
+    ];
     Entities.editEntity(this.box, {
         angularVelocity: angularVelocity
     });
@@ -219,8 +188,6 @@ function destroy(){
 
 LightGenerator.prototype = {
     makeLights: makeLights,
-    registerEntity: registerEntity,
-    // makeProps: makeProps,
     makeRandomLightProps: makeRandomLightProps,
     create: create,
     makeBox: makeBox,
