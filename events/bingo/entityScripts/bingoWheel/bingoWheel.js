@@ -14,19 +14,17 @@
     var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
     var ANGULAR_VELOCITY = { x: 0, y: 0, z: -10 };
     var ANGULAR_VELOCITY_CHECK_MS = 100;
-    var CHECKING_INTERVAL_DELAY_MS = 100;
     var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan','Becky','zfox'];
     var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('sounds/blip.wav'));
     var SPIN_SOUND = SoundCache.getSound(Script.resolvePath('sounds/wheelSpin.mp3?0'));
-    var WAIT_BETWEEN_SPINS_MS = 4000;
-    var BINGO_WHEEL_NUMBER = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
+    var WAIT_BETWEEN_SPINS_MS = 500;
+    var BINGO_WHEEL_ENTITY_ID = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
 
     var _this;
-    var possibleBingoCalls = [];
-    var listCounter = 0;
     var angularVelocityDecrement = 0.5;
-    var canSpin = true;
-    var alreadyCalled = [];
+    var wheelReadyToSpin = true;
+    var requestedAlreadyCalledNumbers = false;
+    var SPIN_TIMEOUT_MS = 7500;
     var angularVelocityCheckInterval;
     var minimumVelocityLimit = -10;
     
@@ -72,56 +70,11 @@
     };
 
     Wheel.prototype = {
-        remotelyCallable: ['setAlreadyCalledNumbers'],
+        remotelyCallable: ['alreadyCalledNumbersReply'],
         
         /* ON LOADING THE APP: Save a reference to this entity ID and its position */
         preload: function(entityID) {
             _this.entityID = entityID;
-        },
-
-        /* RECEIVE NUMBERS CALLED DATA FROM SERVER: Take a list of called numbers and add the appropriate prefix letter 
-        then compare each possible bingo call to that list. Save all calls that have not been called into a new list and 
-        shuffle that list. */
-        setAlreadyCalledNumbers: function(id, numbers) {
-            alreadyCalled = JSON.parse(numbers[0]);
-            var i = 1;
-            var bingoCall;
-            while (i < 16) {
-                bingoCall = "B " + String(i);
-                if (alreadyCalled.indexOf(bingoCall) === -1) {
-                    possibleBingoCalls.push(bingoCall);
-                }
-                i++;
-            }
-            while (i < 31) {
-                bingoCall = "I " + String(i);
-                if (alreadyCalled.indexOf(bingoCall) === -1) {
-                    possibleBingoCalls.push(bingoCall);
-                }
-                i++;
-            }
-            while (i < 46) {
-                bingoCall = "N " + String(i);
-                if (alreadyCalled.indexOf(bingoCall) === -1) {
-                    possibleBingoCalls.push(bingoCall);
-                }
-                i++;
-            }
-            while (i < 61) {
-                bingoCall = "G " + String(i);
-                if (alreadyCalled.indexOf(bingoCall) === -1) {
-                    possibleBingoCalls.push(bingoCall);
-                }
-                i++;
-            }
-            while (i < 76) {
-                bingoCall = "O " + String(i);
-                if (alreadyCalled.indexOf(bingoCall) === -1) {
-                    possibleBingoCalls.push(bingoCall);
-                }
-                i++;
-            }
-            shuffle(possibleBingoCalls);
         },
 
         /* ON MOUSE CLICKING THE WHEEL (THIS WILL INCLUDE TRIGGERING ON WHEEL): If a right mouse click, ignore. Otherwise, 
@@ -146,56 +99,118 @@
             if (!mouseEvent.button === "Primary") {
                 return;
             }
-            if (canSpin){
-                canSpin = false;
-                Entities.callEntityServerMethod(_this.entityID, 'requestAlreadyCalledNumbers', [MyAvatar.sessionUUID]);
-                if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0) {
-                    Entities.editEntity(_this.entityID, {
-                        angularVelocity: ANGULAR_VELOCITY
-                    });
-                    playSound(SPIN_SOUND, GAME_AUDIO_POSITION, 0.8);
-                    Script.setTimeout(function() {
+            if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0 && wheelReadyToSpin){
+                wheelReadyToSpin = false;
+                requestedAlreadyCalledNumbers = true;
+                Entities.callEntityServerMethod(_this.entityID, 'requestAlreadyCalledNumbers', ["bingoWheel", MyAvatar.sessionUUID, AccountServices.username]);
+
+                Script.setTimeout(function() {
+                    if (requestedAlreadyCalledNumbers) {
+                        console.log("ERROR when requesting called numbers! Please try again.");
+                        requestedAlreadyCalledNumbers = false;
+                        wheelReadyToSpin = true;
+                    }
+                }, SPIN_TIMEOUT_MS);
+            }
+        },
+
+        /* RECEIVE NUMBERS CALLED DATA FROM SERVER: Take a list of called numbers and add the appropriate prefix letter 
+        then compare each possible bingo call to that list. Save all calls that have not been called into a new list and 
+        shuffle that list. Then start the spin logic. */
+        alreadyCalledNumbersReply: function(id, args) {
+            var userWhoSpunWheel = args[1];
+            requestedAlreadyCalledNumbers = false;
+
+            if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0 &&
+                userWhoSpunWheel === AccountServices.username) {
+                var alreadyCalledNumbers = JSON.parse(args[0]);
+                var i = 1;
+                var currentGeneratedBingoCall;
+                var possibleBingoCalls = [];
+
+                while (i < 16) {
+                    currentGeneratedBingoCall = "B " + String(i);
+                    if (alreadyCalledNumbers.indexOf(currentGeneratedBingoCall) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+                while (i < 31) {
+                    currentGeneratedBingoCall = "I " + String(i);
+                    if (alreadyCalledNumbers.indexOf(currentGeneratedBingoCall) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+                while (i < 46) {
+                    currentGeneratedBingoCall = "N " + String(i);
+                    if (alreadyCalledNumbers.indexOf(currentGeneratedBingoCall) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+                while (i < 61) {
+                    currentGeneratedBingoCall = "G " + String(i);
+                    if (alreadyCalledNumbers.indexOf(currentGeneratedBingoCall) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+                while (i < 76) {
+                    currentGeneratedBingoCall = "O " + String(i);
+                    if (alreadyCalledNumbers.indexOf(currentGeneratedBingoCall) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+                shuffle(possibleBingoCalls);
+
+                Entities.editEntity(_this.entityID, {
+                    angularVelocity: ANGULAR_VELOCITY
+                });
+                playSound(SPIN_SOUND, GAME_AUDIO_POSITION, 0.8);
+
+                if (angularVelocityCheckInterval) {
+                    Script.clearInterval(angularVelocityCheckInterval);
+                }
+
+                var finalNumber = false;
+                var listCounter = 0;
+                angularVelocityCheckInterval = Script.setInterval(function() {
+                    var currentAngularVelocity = Entities.getEntityProperties(
+                        _this.entityID, 'angularVelocity').angularVelocity;
+                    if (currentAngularVelocity.z >= minimumVelocityLimit && currentAngularVelocity.z 
+                            < 0 && !finalNumber) {
+                        Entities.editEntity(BINGO_WHEEL_ENTITY_ID, {
+                            text: possibleBingoCalls[listCounter],
+                            lineHeight: 1.58
+                        });
+                        listCounter++;
+                        listCounter = listCounter >= possibleBingoCalls.length ? 0 : listCounter;
+                        angularVelocityDecrement *= 1.001;
+                        minimumVelocityLimit += angularVelocityDecrement;
+                    } else if (currentAngularVelocity.z >= -0.1 && !finalNumber) {
+                        finalNumber = true;
+                        minimumVelocityLimit = -10;
+                        var bingoCall = possibleBingoCalls.pop();
+                        // Called numbers are currently generated on the client who spun the wheel.
+                        Entities.callEntityServerMethod(_this.entityID, 'addCalledLetterAndNumber', [bingoCall]);
+                        Entities.editEntity(BINGO_WHEEL_ENTITY_ID, {
+                            text: bingoCall
+                        });
+                    } else if (currentAngularVelocity.z >= -0.05) {
                         if (angularVelocityCheckInterval) {
                             Script.clearInterval(angularVelocityCheckInterval);
+                            angularVelocityCheckInterval = false;
                         }
-                        var finalNumber = false;
-                        var bingoCall;
-                        angularVelocityCheckInterval = Script.setInterval(function() {
-                            var currentAngularVelocity = Entities.getEntityProperties(
-                                _this.entityID, 'angularVelocity').angularVelocity;
-                            if (currentAngularVelocity.z >= minimumVelocityLimit && currentAngularVelocity.z 
-                                    < 0 && !finalNumber) {
-                                Entities.editEntity(BINGO_WHEEL_NUMBER, {
-                                    text: possibleBingoCalls[listCounter],
-                                    lineHeight: 1.58
-                                });
-                                listCounter++;
-                                listCounter = listCounter >= possibleBingoCalls.length ? 0 : listCounter;
-                                angularVelocityDecrement *= 1.001;
-                                minimumVelocityLimit += angularVelocityDecrement;
-                            } else if (currentAngularVelocity.z >= -0.1 && !finalNumber) {
-                                finalNumber = true;
-                                bingoCall = possibleBingoCalls.pop();
-                                if (!bingoCall) {
-                                    return;
-                                }
-                                Entities.callEntityServerMethod(_this.entityID, 'addCalledNumber', [bingoCall]);
-                                Entities.editEntity(BINGO_WHEEL_NUMBER, {
-                                    text: bingoCall
-                                });
-                            } else if (currentAngularVelocity.z >= -0.05) {
-                                if (angularVelocityCheckInterval) {
-                                    playSound(BLIP_SOUND, GAME_AUDIO_POSITION, 0.5);
-                                    Script.clearInterval(angularVelocityCheckInterval);
-                                    possibleBingoCalls = [];
-                                    Script.setTimeout(function() {
-                                        canSpin = true;
-                                    }, WAIT_BETWEEN_SPINS_MS);
-                                }
-                            }
-                        }, ANGULAR_VELOCITY_CHECK_MS);
-                    }, CHECKING_INTERVAL_DELAY_MS);
-                }
+
+                        playSound(BLIP_SOUND, GAME_AUDIO_POSITION, 0.5);
+
+                        Script.setTimeout(function() {
+                            wheelReadyToSpin = true;
+                        }, WAIT_BETWEEN_SPINS_MS);
+                    }
+                }, ANGULAR_VELOCITY_CHECK_MS);
             }
         },
 

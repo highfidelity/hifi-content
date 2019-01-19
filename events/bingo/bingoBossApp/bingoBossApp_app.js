@@ -38,31 +38,23 @@
     /* GAME ON: This will play a sound and then, halfway through the sound, it will call a server method on the 
     wheel to begin the game */
     var BEGINNING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBeginning.wav"));
-    var MS_PER_S = 1000;
-    var HALF = 0.5;
     function lightsOn() {
         playSound(BEGINNING_SOUND, 1);
-        Script.setTimeout(function() {
-            Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOn');
-        }, BEGINNING_SOUND.duration * MS_PER_S * HALF);
+        Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOn');
     }
 
     /* OPEN REGISTRATION: This will play a sound and call a server method on the wheel to open registration */
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBoomOpener.wav"));
     function openRegistration() {
         playSound(OPEN_SOUND, 1);
-        Script.setTimeout(function() {
-            Entities.callEntityServerMethod(NUMBER_WHEEL, 'openRegistration');
-        }, OPEN_SOUND.duration * 1000 * 0.2);
+        Entities.callEntityServerMethod(NUMBER_WHEEL, 'openRegistration');
     }
     
     /* CLOSE REGISTRATION: This will play a sound and call a server method on the wheel to close registration */
     var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoGong.wav"));
     function closeRegistration() {
         playSound(CLOSE_SOUND, 1);
-        Script.setTimeout(function() {
-            Entities.callEntityServerMethod(NUMBER_WHEEL, 'closeRegistration');
-        }, CLOSE_SOUND.duration * 1000 * 0.5);
+        Entities.callEntityServerMethod(NUMBER_WHEEL, 'closeRegistration');
     }
 
     /* NEW ROUND: Play sound and call wheel server function */
@@ -76,9 +68,7 @@
     var FAREWELL_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoFarewell.wav"));
     function lightsOut() {
         playSound(FAREWELL_SOUND, 1);
-        Script.setTimeout(function() {
-            Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOut');
-        }, FAREWELL_SOUND.duration * 1000 * 0.9);
+        Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOut');
     }
 
     /* ON WEB EVENT: Call the correct function or print an error when an event is received from bingoBossApp_ui.html */

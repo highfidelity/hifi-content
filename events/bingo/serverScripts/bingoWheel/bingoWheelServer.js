@@ -25,7 +25,7 @@
     var registrationSign;
     var cardRemoverSign;
     var backboard;
-    var calledNumbers = [];
+    var calledLettersAndNumbers = [];
     var lightBlinkInterval;
     var newRoundURLParams;
     var request = Script.require(Script.resolvePath('../../modules/request.js')).request;
@@ -52,7 +52,7 @@
     };
 
     Wheel.prototype = {
-        remotelyCallable: ['requestAlreadyCalledNumbers', 'newRound', 'addCalledNumber', 'lightsOn', 'lightsOut', 
+        remotelyCallable: ['requestAlreadyCalledNumbers', 'newRound', 'addCalledLetterAndNumber', 'lightsOn', 'lightsOut', 
             'openRegistration', 'closeRegistration'],
         
         /* ON LOADING THE APP: Save a reference to this entity ID and wait 1 second before getting lights and starting 
@@ -131,7 +131,7 @@
         newRound: function() {
             newRoundURLParams = encodeURLParams({ 
                 type: "newRound",
-                calledNumbers: JSON.stringify(calledNumbers)
+                calledLettersAndNumbers: JSON.stringify(calledLettersAndNumbers)
             });
             request({
                 uri: SPREADSHEET_URL + "?" + newRoundURLParams
@@ -145,7 +145,7 @@
                     lineHeight: 1.1
                 });
                 Entities.callEntityMethod(playerCounterText, 'reset');
-                calledNumbers = [];
+                calledLettersAndNumbers = [];
                 bingoWallLights.forEach(function(light) {
                     Entities.editEntity(light, { visible: false });
                 });
@@ -204,30 +204,34 @@
         },
 
         /* GET CALLED NUMBERS: This is a remotely called function coming from either the client script of this entity 
-        or server script of the scanner zone. If the call came from the wheel, it will only have one parameter. If it 
-        came frm the zone, the first parameter will be -1. The list of called numbers will be returned to whichever 
+        or server script of the scanner zone.. The list of called numbers will be returned to whichever 
         entity requested them. */
         requestAlreadyCalledNumbers: function(thisID, params) {
-            if (!params[1]) {
-                Entities.callEntityClientMethod(params[0], _this.entityID, 'setAlreadyCalledNumbers', 
-                    [JSON.stringify(calledNumbers)]);
-            } else {
+            var referrer = params[0];
+
+            if (referrer === "bingoWheel") {
+                var callerSessionUUID = params[1];
+                var requesterUsername = params[2];
+                Entities.callEntityClientMethod(callerSessionUUID, _this.entityID, 'alreadyCalledNumbersReply', 
+                    [JSON.stringify(calledLettersAndNumbers), requesterUsername]);
+            } else if (referrer === "bingoScanner") {
                 var machineZoneID = params[1];
-                Entities.callEntityMethod(machineZoneID, 'setAlreadyCalledNumbers', 
-                    [JSON.stringify(calledNumbers)]);
+                var requesterUsername = params[2];
+                Entities.callEntityMethod(machineZoneID, 'alreadyCalledNumbersReply', 
+                    [JSON.stringify(calledLettersAndNumbers), requesterUsername]);
             }
         },
 
         /* CLEAR ALL CALLED NUMBERS: Clear the array. */
         clearCalledNumbers: function() {
-            calledNumbers = [];
+            calledLettersAndNumbers = [];
         },
 
-        /* ADD A CALLED NUMBER TO LIST: Add the number to the list and set an lightBlinkInterval to toggle the light onor off 
+        /* ADD A CALLED NUMBER TO LIST: Add the number to the list and set an lightBlinkInterval to toggle the light on and off 
         every 500MS. After 6 toggles, clear teh lightBlinkInterval, leaving the light on. */
-        addCalledNumber: function(thisID, bingoNumber) {
-            calledNumbers.push(bingoNumber[0]);
-            var callNumber = bingoNumber[0].substring(2, bingoNumber[0].length);
+        addCalledLetterAndNumber: function(thisID, args) {
+            calledLettersAndNumbers.push(args[0]);
+            var callNumber = args[0].substring(2, args[0].length);
             var lightOn = false;
             var blinks = 0;
             lightBlinkInterval = Script.setInterval(function() {

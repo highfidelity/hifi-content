@@ -15,7 +15,6 @@
     var MAIN_STAGE_BOUNCER_ZONE = "{5ca26b63-c61b-447e-8985-b0269b33eed0}";
     var SCANNER_TRAP_DOOR = "{ab82d854-98da-44bf-8545-0544227bc56c}";
     var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
-    var ENTER_ZONE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoEnter.wav?0"));
     var COMPUTING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoComputing.wav?0"));
     var SCANNER_WIN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoScannerWin.wav"));
     var SCANNER_LOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoLose.wav?0"));
@@ -30,8 +29,7 @@
     var WAIT_TO_DELETE_CARD_MS = 10000;
     var ROW_INDEX = 13;
     var COLUMN_INDEX = 15;
-    var WAIT_TO_PROCESS_VALIDATION_MS = 1000;
-    var OVERLAP_SOUNDS_TIME_MS = 1000;
+    var WAIT_TO_PROCESS_VALIDATION_MS = 2500;
     var CHECK_DOOR_ROTATION_MS = 10;
     var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
     var BINGO_STRING = "BINGO";
@@ -49,7 +47,6 @@
     var bingoNumberSquares = [];
     var confettiParticleEffect;
     var bingoParticleEffect;
-    var calledNumbers;
     var request = Script.require(Script.resolvePath('../../modules/request.js')).request;
 
     // *************************************
@@ -89,7 +86,7 @@
 
     BingoScannerZone.prototype = {
 
-        remotelyCallable: ['setAlreadyCalledNumbers', 'scanCard', 'userLeftZone'],
+        remotelyCallable: ['alreadyCalledNumbersReply', 'scanCard', 'userLeftZone'],
 
         /* ON LOADING THE SCRIPT: Save a reference to this entity ID. Set a timeout for 2 seconds to ensure that entities 
         have loaded and then find and save references to other necessary entities. */
@@ -113,14 +110,33 @@
             
         },
 
+        /* SCAN USER'S CARD: Get the called numbers for this bingo round from the wheel's server script then get the 
+        user's assigned card numbers and delete any cards already around the scanner. Turn the spotlight on and play 
+        an enter sound then set a timeout for the duration of that sound. When the sound has finished, if the user's 
+        numbers were found, play the computing sound, create a replica of their card, and set a timeout for part of 
+        the duration of that sound after which we beging to validate their card winning. If the user's numbers were 
+        not found, create a sign above the machine stating that. */
+        scanCard: function(thisID, params) {
+            Entities.editEntity(SCANNER_TRAP_DOOR, { localRotation: Quat.fromVec3Degrees({ x: 0, y: 0, z: 0 })});
+            playSound(COMPUTING_SOUND, GAME_AUDIO_POSITION, 1);
+            playSound(COMPUTING_SOUND, zonePosition, 0.5);
+
+            Entities.editEntity(scannerSpotlight, { visible: true });
+            Entities.callEntityMethod(BINGO_WHEEL, 'requestAlreadyCalledNumbers', ["bingoScanner", _this.entityID, params[0]]);
+        },
+
         /* RECEIVE NUMBERS THAT HAVE BEEN CALLED THIS ROUND:  */
-        setAlreadyCalledNumbers: function(id, numbers) {
-            calledNumbers = JSON.parse(numbers[0]);
+        alreadyCalledNumbersReply: function(id, args) {
+            _this.deleteCard();
+
+            var calledLettersAndNumbers = JSON.parse(args[0]);
+            var username = args[1];
+            _this.getUsersCardNumbers(username, calledLettersAndNumbers);
         },
 
         /* GET USER'S CARD NUMBERS: Get the Google sheet URL from a private text file, then search the sheet for the user. 
         If the user is found, save their card numbers. */
-        getUsersCardNumbers: function(username) {
+        getUsersCardNumbers: function(username, calledLettersAndNumbers) {
             var searchParamString = encodeURLParams({
                 type: "searchOrAdd",
                 username: username
@@ -134,13 +150,11 @@
 
                 var userCardNumbers = response.userCardNumbers;
             
+                _this.deleteCard();
+
                 if (userCardNumbers.length > 0) {
-                    playSound(COMPUTING_SOUND, GAME_AUDIO_POSITION, 1);
-                    playSound(COMPUTING_SOUND, zonePosition, 0.5);
-                    _this.createCardReplica(userCardNumbers);
-                    Script.setTimeout(function() {
-                        _this.validateWin(username);
-                    }, ENTER_ZONE_SOUND.duration * 1000 - OVERLAP_SOUNDS_TIME_MS);
+                    _this.createCardReplica(calledLettersAndNumbers, userCardNumbers);
+                    _this.validateWin(username);
                 } else {
                     cardEntity = Entities.addEntity({
                         backgroundColor: WHITE,
@@ -191,7 +205,7 @@
         each number tile and filling in the numbers assigned to the user. Numbers are also checked against the 
         called numbers and if found, the background of the square will be black whereas uncalled numbers will 
         have a white background. */
-        createCardReplica: function(userCardNumbers) {
+        createCardReplica: function(calledLettersAndNumbers, userCardNumbers) {
             var cardEntityColor = _this.getRandomCardColor();
             cardEntity = Entities.addEntity({
                 isSolid: true,
@@ -262,7 +276,7 @@
                         number = userCardNumbers[numberIterator];
                         numberIterator++;
                         var bingoCall = BINGO_STRING[i] + " " + number;
-                        if (calledNumbers.indexOf(bingoCall) !== -1) {
+                        if (calledLettersAndNumbers.indexOf(bingoCall) !== -1) {
                             backgroundColor = BLACK;
                             textColor = WHITE;
                         }
@@ -451,32 +465,16 @@
         /* DELETE CARD ABOVE MACHINE: Delete the bingo card created by this script and any others found that 
         may have lost their referenece due to crash or errors. */
         deleteCard: function() {
-            Entities.deleteEntity(cardEntity);
+            if (cardEntity) {
+                Entities.deleteEntity(cardEntity);
+                cardEntity = false;
+            }
             Entities.getChildrenIDs(_this.entityID).forEach(function(entityNearMachine) {
                 var name = Entities.getEntityProperties(entityNearMachine, 'name').name;
                 if (name === "Bingo Scanner Card" || name === "No Card Found") {
                     Entities.deleteEntity(entityNearMachine);
                 }
             });
-        },
-
-        /* SCAN USER'S CARD: Get the called numbers for this bingo round from the wheel's server script then get the 
-        user's assigned card numbers and delete any cards already around the scanner. Turn the spotlight on and play 
-        an enter sound then set a timeout for the duration of that sound. When the sound has finished, if the user's 
-        numbers were found, play the computing sound, create a replica of their card, and set a timeout for part of 
-        the duration of that sound after which we beging to validate their card winning. If the user's numbers were 
-        not found, create a sign above the machine stating that. */
-        scanCard: function(thisID, params) {
-            Entities.editEntity(SCANNER_TRAP_DOOR, { localRotation: Quat.fromVec3Degrees({ x: 0, y: 0, z: 0 })});
-            playSound(ENTER_ZONE_SOUND, GAME_AUDIO_POSITION, 1);
-            playSound(ENTER_ZONE_SOUND, zonePosition, 0.5);
-
-            Entities.editEntity(scannerSpotlight, { visible: true });
-            Entities.callEntityMethod(BINGO_WHEEL, 'requestAlreadyCalledNumbers', [-1, _this.entityID]);
-            _this.deleteCard();
-
-            var username = params[0];
-            _this.getUsersCardNumbers(username);
         },
 
         /* WHEN USER LEAVES ZONE: Clear any open gates or trap door. Wait for 10 seconds to turn off the light 
