@@ -44,6 +44,10 @@ function create(entityID, dancerURL) {
             running: true
         }
     });
+    var dancerDimensions = Entities.getEntityProperties(this.dancer, "dimensions").dimensions;
+    Entities.editEntity(this.dancer, {
+        dimensions: Vec3.multiply(dancerDimensions, 20)
+    });
 }
 
 

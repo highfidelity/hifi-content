@@ -185,7 +185,7 @@
         Dance.create(_entityID, lastTouched.skeletonModelURL);
         Lights.create(_entityID);
         ParticleArray.forEach(function (particle) {
-            particle.create(currentPosition);
+            particle.create(_entityID);
         });
     }
 

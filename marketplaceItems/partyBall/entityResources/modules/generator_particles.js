@@ -23,6 +23,8 @@ var randomInt = common.randomInt;
 var makeColor = common.makeColor;
 
 var particles = Script.require("../modules/particleProperties.js?" + Date.now());
+delete particles["intro"];
+delete particles["outro"];
 
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
 
@@ -84,11 +86,12 @@ function dontAnimatte(){
     }
 }
 
-function AveragingFilter(length) {
+function AveragingFilter(length, initValue) {
     // initialize the array of past values
+    initValue = initValue || 0;
     this.pastValues = [];
     for (var i = 0; i < length; i++) {
-        this.pastValues.push(0);
+        this.pastValues.push(initValue);
     }
     // single arg is the nextInputValue
     this.process = function () {
@@ -108,28 +111,30 @@ function AveragingFilter(length) {
     };
 }
 
-var AVERAGING_LENGTH = 15;
+// var AVERAGING_LENGTH = 15;
+var AVERAGING_LENGTH = 7;
+
 var filterStore = {
-    emitRate: new AveragingFilter(AVERAGING_LENGTH),
-    particleRadius: new AveragingFilter(AVERAGING_LENGTH),
-    emitSpeed: new AveragingFilter(AVERAGING_LENGTH),
+    emitRate: new AveragingFilter(AVERAGING_LENGTH, 500),
+    particleRadius: new AveragingFilter(AVERAGING_LENGTH, 0.25),
+    emitSpeed: new AveragingFilter(AVERAGING_LENGTH, 5),
     emitAcceleration: {
-        x: new AveragingFilter(AVERAGING_LENGTH),
-        y: new AveragingFilter(AVERAGING_LENGTH),
-        z: new AveragingFilter(AVERAGING_LENGTH)
+        x: new AveragingFilter(AVERAGING_LENGTH, 0.10),
+        y: new AveragingFilter(AVERAGING_LENGTH, 0.10),
+        z: new AveragingFilter(AVERAGING_LENGTH, 0.10)
     },
     emitOrientation: {
-        x: new AveragingFilter(AVERAGING_LENGTH),
-        y: new AveragingFilter(AVERAGING_LENGTH),
-        z: new AveragingFilter(AVERAGING_LENGTH)
+        x: new AveragingFilter(AVERAGING_LENGTH, 10),
+        y: new AveragingFilter(AVERAGING_LENGTH, 10),
+        z: new AveragingFilter(AVERAGING_LENGTH, 10)
     },
-    alpha: new AveragingFilter(AVERAGING_LENGTH),
-    alphaStart: new AveragingFilter(AVERAGING_LENGTH),
-    alphaFinish: new AveragingFilter(AVERAGING_LENGTH),
-    radiusFinish: new AveragingFilter(AVERAGING_LENGTH),
-    radiusStart: new AveragingFilter(AVERAGING_LENGTH),
-    spinFinish: new AveragingFilter(AVERAGING_LENGTH),
-    spinStart: new AveragingFilter(AVERAGING_LENGTH)
+    alpha: new AveragingFilter(AVERAGING_LENGTH, 1),
+    alphaStart: new AveragingFilter(AVERAGING_LENGTH, 1),
+    alphaFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
+    radiusFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
+    radiusStart: new AveragingFilter(AVERAGING_LENGTH, 1),
+    spinFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
+    spinStart: new AveragingFilter(AVERAGING_LENGTH, -1)
 };
 
 // Generate the random light props for each animation step
