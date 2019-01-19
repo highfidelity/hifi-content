@@ -100,7 +100,7 @@ function makeBox(position) {
             green: 0
         },
         visible: false
-    }, true);
+    });
 }
 
 
@@ -108,43 +108,43 @@ function makeBox(position) {
 function makeLights() {
     this.lightProps.parentID = this.box;
     this.lightProps.isSpotlight = 0;
-    this.spotLight = Entities.addEntity(this.lightProps, true);
+    this.spotLight = Entities.addEntity(this.lightProps);
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(90,0,0);
-    this.lights.push(Entities.addEntity(this.lightProps, true));
+    this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(180,0,0);
-    this.lights.push(Entities.addEntity(this.lightProps, true));
+    this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,90,0);
-    this.lights.push(Entities.addEntity(this.lightProps, true));
+    this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,-90,0);
-    this.lights.push(Entities.addEntity(this.lightProps, true));
+    this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,45,0);
-    this.lights.push(Entities.addEntity(this.lightProps, true));
+    this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,-45,0);
-    this.lights.push(Entities.addEntity(this.lightProps, true));
+    this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,0);
-    this.lights.push(Entities.addEntity(this.lightProps, true));
+    this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,180);
-    this.lights.push(Entities.addEntity(this.lightProps, true));
+    this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,-180);
-    this.lights.push(Entities.addEntity(this.lightProps, true));
+    this.lights.push(Entities.addEntity(this.lightProps));
 }
 
 

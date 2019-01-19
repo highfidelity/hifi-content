@@ -8,10 +8,6 @@ var
 
 var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 log("in dance maker");
-danceCollection.forEach(function(animation){
-    log("animation", animation);
-    ModelCache.prefetch(animation);
-});
 
 function DanceMaker() {
     var that = this;

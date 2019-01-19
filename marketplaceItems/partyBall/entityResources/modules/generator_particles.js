@@ -17,21 +17,14 @@ Script.require("../modules/polyfill.js")();
 Script.resetModuleCache(true);
 var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 
-
 var common = Script.require("../modules/commonUtilities.js?" + Date.now());
 var particles = Script.require("../modules/particleProperties.js?" + Date.now());
-// Remove the smoke intro outro smoke particles
-delete particles["smoke1"];
+
 var randomFloat = common.randomFloat;
 var randomInt = common.randomInt;
 var makeColor = common.makeColor;
-var _this; 
 
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
-textureCollection.forEach(function(texture){
-    // log("texture", texture);
-    TextureCache.prefetch(texture);
-});
 
 
 // Main Particle Constructor Function
@@ -40,7 +33,6 @@ function ParticleGenerator() {
     this.interval = null;
     this._entityID = null;
     this.textureCollection = textureCollection;
-    _this = this;
 }
 
 
@@ -64,7 +56,7 @@ function makeParticle() {
     particle.name = "Party Particle";
     particle.localPosition = [0, 1, 0];
     particle.dimensions = [10, 10, 10];
-    this.particle = Entities.addEntity(particle, true);
+    this.particle = Entities.addEntity(particle);
     console.log("adding particle: ", this.particle);
 }
 
@@ -166,7 +158,7 @@ function intervalAnimator(){
         currentIterationCount++;
     } else {
         var randomTexture = randomInt(0, maxTextureLength);
-        particleProps.textures = _this.textureCollection[randomTexture];
+        particleProps.textures = this.textureCollection[randomTexture];
         currentIterationCount = 0;
         iterationsBeforeTextureSwitch = randomInt(5, 35);
     }
