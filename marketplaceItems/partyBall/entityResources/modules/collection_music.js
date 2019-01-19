@@ -30,5 +30,12 @@ module.exports = [
     Script.resolvePath("../resources/sounds/music/ho_heart.mp3"),
     Script.resolvePath("../resources/sounds/music/animal.mp3"),
     Script.resolvePath("../resources/sounds/music/make_you_say.mp3"),
-    Script.resolvePath("../resources/sounds/music/found_you.mp3")
+    Script.resolvePath("../resources/sounds/music/found_you.mp3"),
+    Script.resolvePath("../resources/sounds/music/corridor.mp3"),
+    Script.resolvePath("../resources/sounds/music/d-town.mp3"),
+    Script.resolvePath("../resources/sounds/music/if_i_had_a_dollar.mp3"),
+    Script.resolvePath("../resources/sounds/music/Muevete.mp3"),
+    Script.resolvePath("../resources/sounds/music/regret.mp3"),
+    Script.resolvePath("../resources/sounds/music/riot.mp3"),
+    Script.resolvePath("../resources/sounds/music/the_only.mp3")
 ];

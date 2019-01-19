@@ -43,7 +43,7 @@
                 "y": 0.08461129665374756,
                 "z": -0.547051191329956
             },
-            "script": "file:///D:/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/marketplaceItems/partyBall/entityResources/entityClientScripts/partyBall_client.js?103",
+            "script": "https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/marketplaceItems/partyBall/entityResources/entityClientScripts/partyBall_client.js",
             "type": "Sphere",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
         },

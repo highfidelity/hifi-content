@@ -29,7 +29,7 @@ var _this;
 
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
 textureCollection.forEach(function(texture){
-    log("texture", texture);
+    // log("texture", texture);
     TextureCache.prefetch(texture);
 });
 
@@ -75,8 +75,8 @@ function registerEntity(entityID){
 
 
 // Main Animator that is controlling the specific interval animations
-var UDPATE_MIN = 17;
-var UPDATE_MAX = 250;
+var UDPATE_MIN = 50;
+var UPDATE_MAX = 2000;
 function animate() {
     // Get a random amount between 17 to 1000 as how often to animate by
     var intervalAmount = randomInt(UDPATE_MIN, UPDATE_MAX);
@@ -84,32 +84,46 @@ function animate() {
     this.interval = Script.setInterval(intervalAnimator.bind(this), intervalAmount);
 }
 
+var CHANCE_THRESHOLD = 0.4;
+function shouldAnimate(){
+    var chanceAmount = randomFloat(0, 1);
+    if (chanceAmount> CHANCE_THRESHOLD){
+        return true;
+    }
+}
 
 // var textureCount = 0;
 // var textureSwitchCount = 15;
 var EMIT_RATE_MIN = 0;
 // var EMIT_RATE_MAX = 10000;
-var EMIT_RATE_MAX = 1000;
-var PARTICLE_RADIUS_MIN = 1;
+var EMIT_RATE_MAX = 500;
+var PARTICLE_RADIUS_MIN = 0;
 // var PARTICLE_RADIUS_MAX = 4; 
-var PARTICLE_RADIUS_MAX = 2; 
+var PARTICLE_RADIUS_MAX = 1; 
 var EMIT_SPEED_MIN = 0;
 // var EMIT_SPEED_MAX = 40;
-var EMIT_SPEED_MAX = 100;
-var EMIT_ACCELERATION_MIN = -10;
+var EMIT_SPEED_MAX = 20;
+var EMIT_ACCELERATION_MIN = -2;
 // var EMIT_ACCELERATION_MAX = 25;
-var EMIT_ACCELERATION_MAX = 400;
+var EMIT_ACCELERATION_MAX = 2;
 var EMIT_ORIENTATION_MIN = -180;
 var EMIT_ORIENTATION_MAX = 180;
-var ALPHA_MIN = 0.25;
+var ALPHA_MIN = 0.75;
 var ALPHA_MAX = 1;
 var MINIMUM_PARTICLE_SPIN = -2.0 * Math.PI;
 var MAXIMUM_PARTICLE_SPIN = 2.0 * Math.PI;
 var iterationsBeforeTextureSwitch = 15;
 var currentIterationCount = 0;
 var maxTextureLength = textureCollection.length - 1;
+var MAXIMUM_PARTICLE = 3000;
 function intervalAnimator(){
+    if (shouldAnimate()){
+        return;
+    }
+
     var particleProps = {
+        emitterShouldTrail: true,
+        maxParticles: MAXIMUM_PARTICLE,
         emitRate: randomFloat(EMIT_RATE_MIN, EMIT_RATE_MAX),
         particleRadius: randomFloat(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
         emitSpeed: randomFloat(EMIT_SPEED_MIN, EMIT_SPEED_MAX),
@@ -141,7 +155,6 @@ function intervalAnimator(){
             randomInt(0, 255),
             randomInt(0, 255)
         ),
-        maxParticles: randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
         radiusFinish: randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
         radiusStart: randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
         spinFinish: randomFloat(MINIMUM_PARTICLE_SPIN, MAXIMUM_PARTICLE_SPIN),

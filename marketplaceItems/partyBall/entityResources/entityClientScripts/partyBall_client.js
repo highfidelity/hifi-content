@@ -30,6 +30,7 @@
     var LightGenerator = Script.require("../modules/generator_lights.js?" + Date.now());
     var ParticleGenerator = Script.require("../modules/generator_particles.js?" + Date.now());
     var SoundGenerator = Script.require("../modules/generator_sound.js?" + Date.now());
+    var DanceGenerator = Script.require("../modules/generator_dance.js?" + Date.now());
 
     var musicCollection = Script.require("../modules/collection_music.js?" + Date.now());
     var sfxCollection = Script.require("../modules/collection_sfx.js?" + Date.now());
@@ -52,11 +53,15 @@
     var Lights = new LightGenerator();
     var Music = new SoundGenerator();
     var SFX = new SoundGenerator();
-    // var numberArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
-    var numberArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    // var numberArray = [1, 2, 3, 4, 5, 6, 7];
-    // var numberArray = [1,2,3];
-    // var numberArray = [1];
+    var Dance = new DanceGenerator();
+    var numberArray = [];
+    var MIN_PARTICLE_ARRAY_AMOUNT = 2;
+    var MAX_PARTICLE_ARRAY_AMOUNT = 12;
+    var particleRayAmount = randomInt(MIN_PARTICLE_ARRAY_AMOUNT, MAX_PARTICLE_ARRAY_AMOUNT);
+
+    for (var i = 0; i < particleRayAmount; i++){
+        numberArray.push(i);
+    }
 
     var ParticleArray = numberArray.map(function() { 
         return new ParticleGenerator();
@@ -114,8 +119,8 @@
 
     
     // This is where the main sequence of events takes place
-    var MIN_DURATION_TIME = 7 * MILISECONDS;
-    var MAX_DURATION_TIME = 25 * MILISECONDS;
+    var MIN_DURATION_TIME = 5 * MILISECONDS;
+    var MAX_DURATION_TIME = 12 * MILISECONDS;
     function startParty() {
         log("Starting Party");
 
@@ -124,7 +129,9 @@
 
         var START_TIME = 500;
         if (currentUserID === MyAvatar.sessionUUID) {
-            createSmoke(currentPosition);
+            Dance.registerURL(MyAvatar.skeletonModelURL);
+            Dance.create(currentPosition);
+            createIntroSmoke(currentPosition);
             SFX.updatePosition(currentPosition);
             SFX.playRandom();
             Script.setTimeout(createEntities, START_TIME);
@@ -140,19 +147,43 @@
 
 
     // Create the inital smoke effect before the actual effects start
-    var SMOKE_TIME = 0.85 * MILISECONDS;
-    function createSmoke(position) {
+    var SMOKE_INTRO_TIME = 0.85 * MILISECONDS;
+    function createIntroSmoke(position) {
         log("in Create Smoke");
-        var smokeProperties = particleProperties.smoke1;
+        var smokeProperties = particleProperties.intro;
 
-        smokeProperties.position = position;
-        smokeProperties.parentId = _entityID;
+        // smokeProperties.position = position;
+        smokeProperties.parentID = _entityID;
+        smokeProperties.localPosition = [0, 1, 0];
         var splat = Entities.addEntity(smokeProperties, true);
 
         log("Deleting smoke", splat);
         Script.setTimeout(function() {
             Entities.deleteEntity(splat);
-        }, SMOKE_TIME);
+        }, SMOKE_INTRO_TIME);
+    }
+
+
+    // Create the Final ending explosion smoke
+    var SMOKE_OUTRO_TIME =  1 * MILISECONDS;
+    var SMOKE_ENDING_TIME = 1.5 * MILISECONDS;
+    function createOutroSmoke(position) {
+        log("in Create outro Smoke");
+        var smokeProperties = particleProperties.outro;
+
+        // smokeProperties.position = position;
+        smokeProperties.parentID = _entityID;
+        smokeProperties.localPosition = [0, 1, 0];
+        var splat = Entities.addEntity(smokeProperties, true);
+
+        log("Deleting smoke", splat);
+        Script.setTimeout(function() {
+            smokeProperties = { emitRate: 0 };
+            Entities.editEntity(splat, smokeProperties);            
+            Script.setTimeout(function(){
+                Entities.deleteEntity(splat);
+            }, SMOKE_ENDING_TIME);
+        }, SMOKE_OUTRO_TIME);
     }
 
 
@@ -166,23 +197,29 @@
         });
     }
 
-
+    var ENTITY_DELETE_TIME = 1.5 * MILISECONDS;
+    var BEFORE_THE_REST_DELETE = 0.5 * MILISECONDS;
     function cleanUp(){
         log("Deleting Entities");
         if (currentUserID === MyAvatar.sessionUUID) {
-            createSmoke(currentPosition);
-            SFX.playRandom();
-            Music.stop();
-            Lights.destroy();
-            ParticleArray.forEach(function(particle) {
-                particle.destroy();
-            });
-            
+    
+            createOutroSmoke(currentPosition);
             Script.setTimeout(function(){
-                explodeTimer = false;
-                log("Reseting Ball");
-                Entities.deleteEntity(_entityID);
-            }, SMOKE_TIME);
+                SFX.playRandom();
+                Music.stop();
+                Lights.destroy();
+                Dance.destroy();
+                ParticleArray.forEach(function(particle) {
+                    particle.destroy();
+                });
+                
+                Script.setTimeout(function(){
+                    explodeTimer = false;
+                    log("Reseting Ball");
+                    Entities.deleteEntity(_entityID);
+                }, ENTITY_DELETE_TIME);
+            }, BEFORE_THE_REST_DELETE);
+
 
         }
     }
