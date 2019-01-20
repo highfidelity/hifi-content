@@ -58,7 +58,7 @@ function makeParticle() {
 
     particle.parentID = this._entityID;
     particle.name = "Party Particle";
-    particle.localPosition = [0, 1, 0];
+    particle.localPosition = [0, 0.75, 0];
     particle.dimensions = [10, 10, 10];
 
     this.particle = Entities.addEntity(particle);
@@ -66,8 +66,8 @@ function makeParticle() {
 
 
 // Main Animator that is controlling the specific interval animations
-var UDPATE_MIN = 50;
-var UPDATE_MAX = 2000;
+var UDPATE_MIN = 17;
+var UPDATE_MAX = 500;
 function animate() {
     // Get a random amount between 17 to 1000 as how often to animate by
     var intervalAmount = randomInt(UDPATE_MIN, UPDATE_MAX);
@@ -76,7 +76,7 @@ function animate() {
 
 
 // Add in some chance so it doesn't animate every iteration
-var CHANCE_THRESHOLD = 0.4;
+var CHANCE_THRESHOLD = 0.65;
 function dontAnimatte(){
     var chanceAmount = randomFloat(0, 1);
     if (chanceAmount < CHANCE_THRESHOLD){
@@ -112,12 +112,12 @@ function AveragingFilter(length, initValue) {
 }
 
 // var AVERAGING_LENGTH = 15;
-var AVERAGING_LENGTH = 7;
+var AVERAGING_LENGTH = 5;
 
 var filterStore = {
-    emitRate: new AveragingFilter(AVERAGING_LENGTH, 500),
-    particleRadius: new AveragingFilter(AVERAGING_LENGTH, 0.25),
-    emitSpeed: new AveragingFilter(AVERAGING_LENGTH, 5),
+    emitRate: new AveragingFilter(AVERAGING_LENGTH, 1),
+    particleRadius: new AveragingFilter(AVERAGING_LENGTH, 0.05),
+    emitSpeed: new AveragingFilter(AVERAGING_LENGTH, 1),
     emitAcceleration: {
         x: new AveragingFilter(AVERAGING_LENGTH, 0.10),
         y: new AveragingFilter(AVERAGING_LENGTH, 0.10),
@@ -131,30 +131,31 @@ var filterStore = {
     alpha: new AveragingFilter(AVERAGING_LENGTH, 1),
     alphaStart: new AveragingFilter(AVERAGING_LENGTH, 1),
     alphaFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
-    radiusFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
-    radiusStart: new AveragingFilter(AVERAGING_LENGTH, 1),
+    radiusFinish: new AveragingFilter(AVERAGING_LENGTH, 0.2),
+    radiusStart: new AveragingFilter(AVERAGING_LENGTH, 0.4),
     spinFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
     spinStart: new AveragingFilter(AVERAGING_LENGTH, -1)
 };
 
 // Generate the random light props for each animation step
-var EMIT_RATE_MIN = 0;
-var EMIT_RATE_MAX = 1000;
-var PARTICLE_RADIUS_MIN = 0;
-var PARTICLE_RADIUS_MAX = 2;
-var EMIT_SPEED_MIN = 0;
-var EMIT_SPEED_MAX = 40;
-var EMIT_ACCELERATION_MIN = -2;
-var EMIT_ACCELERATION_MAX = 2;
+var EMIT_RATE_MIN = 1;
+// var EMIT_RATE_MAX = 1000;
+var EMIT_RATE_MAX = 100;
+var PARTICLE_RADIUS_MIN = 0.15;
+var PARTICLE_RADIUS_MAX = 1;
+var EMIT_SPEED_MIN = 0.1;
+var EMIT_SPEED_MAX = 1;
+var EMIT_ACCELERATION_MIN = 0;
+var EMIT_ACCELERATION_MAX = 1;
 var EMIT_ORIENTATION_MIN = -180;
 var EMIT_ORIENTATION_MAX = 180;
-var ALPHA_MIN = 0.75;
+var ALPHA_MIN = 0.05;
 var ALPHA_MAX = 1;
 var PARTICLE_SPIN_MIN = -2.0 * Math.PI;
 var PARTICLE_SPIN_MAX = 2.0 * Math.PI;
-var MAXIMUM_PARTICLE = 3000;
-var MINIMUM_COLOR_SCALER = 0;
-var MAXIMUM_COLOR_SCALER = 0.55;
+var MAXIMUM_PARTICLE = 2500;
+var MINIMUM_COLOR_SCALER = 0.0;
+var MAXIMUM_COLOR_SCALER = 0.4;
 function makeRandomParticleProps(){
     var particleProps = {
         emitterShouldTrail: true,

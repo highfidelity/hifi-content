@@ -144,7 +144,7 @@
         var smokeProperties = particleProperties.intro;
 
         smokeProperties.parentID = _entityID;
-        smokeProperties.localPosition = [0, 1, 0];
+        smokeProperties.localPosition = [0, 0.5, 0];
         smokeProperties.rotateWithEntity = false;
         var splat = Entities.addEntity(smokeProperties);
 
@@ -163,7 +163,7 @@
         var smokeProperties = particleProperties.outro;
 
         smokeProperties.parentID = _entityID;
-        smokeProperties.localPosition = [0, 1, 0];
+        smokeProperties.localPosition = [0, 0.5, 0];
         var splat = Entities.addEntity(smokeProperties);
 
         log("Deleting smoke", splat);
@@ -182,7 +182,7 @@
         log("in Create Entities");
         Music.updatePosition(currentPosition);
         Music.playRandom();
-        Dance.create(_entityID, lastTouched.skeletonModelURL);
+        Dance.create(_entityID, lastTouched.skeletonModelURL, currentPosition);
         Lights.create(_entityID);
         ParticleArray.forEach(function (particle) {
             particle.create(_entityID);

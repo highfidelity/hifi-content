@@ -31,22 +31,23 @@ function DanceGenerator() {
 
 
 // Create the dancer by giving it an entity 
-function create(entityID, dancerURL) {
+function create(entityID, dancerURL, ballPosition) {
+    _entityID = entityID;
     this.randomAnimation = danceCollection[randomInt(0, danceCollection.length - 1)];
+    // var ballPosition = Entities.getEntityProperties(entityID, 'position');
     this.dancer = Entities.addEntity({
         type: "Model",
         name: "Suprise-Dancer",
         modelURL: dancerURL,
-        localPosition: [0, 0.75, 0],
-        parentID: entityID,
+        position: Vec3.sum(ballPosition, [0, 1, 0]),
         animation: {
             url: this.randomAnimation,
             running: true
         }
     });
-    var dancerDimensions = Entities.getEntityProperties(this.dancer, "dimensions").dimensions;
+    var dancerDimensions = Entities.getEntityProperties(this.dancer, "naturalDimensions").naturalDimensions;
     Entities.editEntity(this.dancer, {
-        dimensions: Vec3.multiply(dancerDimensions, 20)
+        dimensions: Vec3.multiply(dancerDimensions, 0.5)
     });
 }
 
