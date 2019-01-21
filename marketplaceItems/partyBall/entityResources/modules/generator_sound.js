@@ -29,6 +29,7 @@ function SoundGenerator(audioOptions, autoUpdateAudioPosition) {
     this.sounds = [];
 }
 
+
 // Updates the position to play from
 function updatePosition(position){
     this.position = position;
@@ -74,6 +75,7 @@ function updateAudioPosition() {
 }
 
 
+// Stops the audio injector from playing sound
 function stop() {
     try {
         this.injector.stop();

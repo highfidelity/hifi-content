@@ -13,8 +13,6 @@
 */
 
 
-var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js');
-
 Script.require("../modules/polyfill.js")();
 
 var common = Script.require("../modules/commonUtilities.js?" + Date.now());
@@ -23,24 +21,21 @@ var randomInt = common.randomInt;
 var makeColor = common.makeColor;
 
 var particles = Script.require("../modules/particleProperties.js?" + Date.now());
-delete particles["intro"];
-delete particles["outro"];
-
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
-
 
 // Main Particle Constructor Function
 function ParticleGenerator() {
+    this.parentID = null;
+
     this.particle = null;
     this.interval = null;
-    this._entityID = null;
     this.textureCollection = textureCollection;
 }
 
 
 // First make the particle and then start the animation sequence
-function create(entityID) {
-    this._entityID = entityID;
+function create(parentID) {
+    this.parentID = parentID;
     this.makeParticle();
     this.animate();
 }
@@ -56,9 +51,9 @@ function makeParticle() {
     var randomParticleIndex = randomInt(0, maxParticlesIndex);
     var particle = particleArray[randomParticleIndex];
 
-    particle.parentID = this._entityID;
+    particle.parentID = this.parentID;
     particle.name = "Party Particle";
-    particle.localPosition = [0, 0.75, 0];
+    particle.localPosition = [0, 0.5, 0];
     particle.dimensions = [10, 10, 10];
 
     this.particle = Entities.addEntity(particle);
@@ -67,25 +62,27 @@ function makeParticle() {
 
 // Main Animator that is controlling the specific interval animations
 var UDPATE_MIN = 17;
-var UPDATE_MAX = 500;
+var UPDATE_MAX = 2500;
 function animate() {
-    // Get a random amount between 17 to 1000 as how often to animate by
+    // Get a random interval amount between update min/max as how often to animate by
     var intervalAmount = randomInt(UDPATE_MIN, UPDATE_MAX);
     this.interval = Script.setInterval(intervalAnimator.bind(this), intervalAmount);
 }
 
 
 // Add in some chance so it doesn't animate every iteration
-var CHANCE_THRESHOLD = 0.65;
-function dontAnimatte(){
+var CHANCE_THRESHOLD = 0.25;
+function shouldAnimate(){
     var chanceAmount = randomFloat(0, 1);
-    if (chanceAmount < CHANCE_THRESHOLD){
-        return false;
-    } else {
+    if (chanceAmount > CHANCE_THRESHOLD){
         return true;
+    } else {
+        return false;
     }
 }
+ 
 
+// Return back an on going average from a given set
 function AveragingFilter(length, initValue) {
     // initialize the array of past values
     initValue = initValue || 0;
@@ -111,9 +108,26 @@ function AveragingFilter(length, initValue) {
     };
 }
 
-// var AVERAGING_LENGTH = 15;
-var AVERAGING_LENGTH = 5;
 
+// Generate the random light props for each animation step
+var EMIT_RATE_MIN = 1;
+var EMIT_RATE_MAX = 1000;
+var PARTICLE_RADIUS_MIN = 0.5;
+var PARTICLE_RADIUS_MAX = 1.5;
+var EMIT_SPEED_MIN = 0.1;
+var EMIT_SPEED_MAX = 10;
+var EMIT_ACCELERATION_MIN = 0;
+var EMIT_ACCELERATION_MAX = 10;
+var EMIT_ORIENTATION_MIN = -180;
+var EMIT_ORIENTATION_MAX = 180;
+var ALPHA_MIN = 0.05;
+var ALPHA_MAX = 1;
+var PARTICLE_SPIN_MIN = -2.0 * Math.PI;
+var PARTICLE_SPIN_MAX = 2.0 * Math.PI;
+var MAXIMUM_PARTICLE = 5000;
+var MINIMUM_COLOR_SCALER = 0.0;
+var MAXIMUM_COLOR_SCALER = 0.4;
+var AVERAGING_LENGTH = 5;
 var filterStore = {
     emitRate: new AveragingFilter(AVERAGING_LENGTH, 1),
     particleRadius: new AveragingFilter(AVERAGING_LENGTH, 0.05),
@@ -124,9 +138,9 @@ var filterStore = {
         z: new AveragingFilter(AVERAGING_LENGTH, 0.10)
     },
     emitOrientation: {
-        x: new AveragingFilter(AVERAGING_LENGTH, 10),
-        y: new AveragingFilter(AVERAGING_LENGTH, 10),
-        z: new AveragingFilter(AVERAGING_LENGTH, 10)
+        x: new AveragingFilter(AVERAGING_LENGTH, -180),
+        y: new AveragingFilter(AVERAGING_LENGTH, 180),
+        z: new AveragingFilter(AVERAGING_LENGTH, 90)
     },
     alpha: new AveragingFilter(AVERAGING_LENGTH, 1),
     alphaStart: new AveragingFilter(AVERAGING_LENGTH, 1),
@@ -136,29 +150,9 @@ var filterStore = {
     spinFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
     spinStart: new AveragingFilter(AVERAGING_LENGTH, -1)
 };
-
-// Generate the random light props for each animation step
-var EMIT_RATE_MIN = 1;
-// var EMIT_RATE_MAX = 1000;
-var EMIT_RATE_MAX = 100;
-var PARTICLE_RADIUS_MIN = 0.15;
-var PARTICLE_RADIUS_MAX = 1;
-var EMIT_SPEED_MIN = 0.1;
-var EMIT_SPEED_MAX = 1;
-var EMIT_ACCELERATION_MIN = 0;
-var EMIT_ACCELERATION_MAX = 1;
-var EMIT_ORIENTATION_MIN = -180;
-var EMIT_ORIENTATION_MAX = 180;
-var ALPHA_MIN = 0.05;
-var ALPHA_MAX = 1;
-var PARTICLE_SPIN_MIN = -2.0 * Math.PI;
-var PARTICLE_SPIN_MAX = 2.0 * Math.PI;
-var MAXIMUM_PARTICLE = 2500;
-var MINIMUM_COLOR_SCALER = 0.0;
-var MAXIMUM_COLOR_SCALER = 0.4;
 function makeRandomParticleProps(){
     var particleProps = {
-        emitterShouldTrail: true,
+        emitterShouldTrail: randomInt(0, 1),
         maxParticles: MAXIMUM_PARTICLE,
         emitRate: 
             filterStore.emitRate.process(randomFloat(EMIT_RATE_MIN, EMIT_RATE_MAX)),
@@ -218,28 +212,29 @@ function makeRandomParticleProps(){
     return particleProps;
 }
 
+
 // Main animation function run on each interval
 var iterationsBeforeTextureSwitch = 15;
 var currentIterationCount = 0;
-var maxTextureLength = textureCollection.length - 1;
+var maxTextureIndex = textureCollection.length - 1;
 function intervalAnimator(){
-    if (dontAnimatte()){
+    if (!shouldAnimate()){
         return;
     }
 
-    var particleProps = makeRandomParticleProps();
+    var newParticleProperties = makeRandomParticleProps();
     
-    // Get a random texture
+    // Get a new random texture after a changing amount of updates have past
     if (currentIterationCount < iterationsBeforeTextureSwitch) {
         currentIterationCount++;
     } else {
-        var randomTexture = randomInt(0, maxTextureLength);
-        particleProps.textures = this.textureCollection[randomTexture];
+        var randomTexture = randomInt(0, maxTextureIndex);
+        newParticleProperties.textures = this.textureCollection[randomTexture];
         currentIterationCount = 0;
         iterationsBeforeTextureSwitch = randomInt(5, 35);
     }
 
-    Entities.editEntity(this.particle, particleProps);
+    Entities.editEntity(this.particle, newParticleProperties);
 }
 
 

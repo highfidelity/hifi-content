@@ -19,8 +19,5 @@ module.exports = {
     materialData: 
         "{\n  \"materialVersion\": 1,\n  \"materials\": {\n    \"albedoMap\": \"https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/question.png\",\n    \"emissiveMap\": \"https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/question.png\"\n  }\n}",
     materialURL: "materialData",
-    materialMappingScale: {
-        x: 7,
-        y: 7
-    },
+    materialMappingScale: [0, 7]
 };

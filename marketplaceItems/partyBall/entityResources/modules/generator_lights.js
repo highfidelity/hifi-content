@@ -37,7 +37,7 @@ var lightProps = {
 
 // Main contructor function for the Lights
 function LightGenerator(){
-    this._entityID = null;
+    this.parentID = null;
 
     this.box = null;
     this.spotLight = null;
@@ -48,8 +48,8 @@ function LightGenerator(){
 
 
 // Runs all the functions involved with creating and then animating
-function create(entityID){
-    this._entityID = entityID;
+function create(parentID){
+    this.parentID = parentID;
     this.makeBox();
     this.makeLights();
     this.animate();
@@ -61,7 +61,7 @@ function makeBox() {
     this.box = Entities.addEntity({
         name: "Party-Box",
         type: "Box",
-        parentID: this._entityID,
+        parentID: this.parentID,
         dimensions: [0.35, 0.35, 0.35],
         angularDamping: 0,
         friction: 0,
@@ -137,7 +137,6 @@ function makeRandomLightProps(){
         falloffRadius: randomFloat(FALL_OFF_MIN, FALL_OFF_MAX),
         cutoff: randomFloat(CUTOFF_MIN, CUTOFF_MAX)
     };     
-    // console.log("lightProps", JSON.stringify(lightProps, null, 1), false);
 
     return lightProps;        
 }

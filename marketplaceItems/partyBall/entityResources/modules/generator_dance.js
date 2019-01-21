@@ -13,8 +13,6 @@
 */
 
 
-var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js');
-
 var common = Script.require("./commonUtilities.js?" + Date.now());
 var randomInt = common.randomInt;
 
@@ -22,36 +20,37 @@ var danceCollection = Script.require("./collection_animations.js?" + Date.now())
 
 // Main constructor function for the Dancer
 function DanceGenerator() {
-    this._entityID = null;
-
     this.dancer = null;
+    
     this.randomAnimation = null;
     this.randomDancer = null;
 }
 
 
 // Create the dancer by giving it an entity 
-function create(entityID, dancerURL, ballPosition) {
-    _entityID = entityID;
+// This uses a hack because I was getting back [1,1,1] when trying to get back the naturalDimensions and apply it to the model which comes in with a default dimensions of .1,.1,.1 
+// Get's a good enough dimension to be used for a short animation vignette
+var GENERIC_AVATAR_DIMENSIONS = { "x": 1.4842414855957031, "y": 1.714798092842102, "z": 0.30008745193481445 };
+var AVATAR_SCALER = 2;
+var avatarDimensions = Vec3.multiply(GENERIC_AVATAR_DIMENSIONS, AVATAR_SCALER);
+var avatarPositionOffsetBasedOnDimensions = (avatarDimensions.y * 0.90) / 2;
+function create(dancerURL, ballPosition) {
     this.randomAnimation = danceCollection[randomInt(0, danceCollection.length - 1)];
-    // var ballPosition = Entities.getEntityProperties(entityID, 'position');
     this.dancer = Entities.addEntity({
         type: "Model",
         name: "Suprise-Dancer",
         modelURL: dancerURL,
-        position: Vec3.sum(ballPosition, [0, 1, 0]),
+        dimensions: avatarDimensions,
+        position: Vec3.sum(ballPosition, [0, avatarPositionOffsetBasedOnDimensions, 0]),
         animation: {
             url: this.randomAnimation,
             running: true
         }
     });
-    var dancerDimensions = Entities.getEntityProperties(this.dancer, "naturalDimensions").naturalDimensions;
-    Entities.editEntity(this.dancer, {
-        dimensions: Vec3.multiply(dancerDimensions, 0.5)
-    });
 }
 
 
+// Handle dancer cleanup
 function destroy() {
     Entities.deleteEntity(this.dancer);
 }
