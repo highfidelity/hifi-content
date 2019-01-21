@@ -26,11 +26,11 @@
     var CARD_BLUE = { blue: 247, green: 196, red: 0 };
     var CARD_GREEN = { blue: 0, green: 255, red: 30 };
     var CARD_PINK = { blue: 119, green: 0, red: 255 };
-    var WAIT_TO_DELETE_CARD_MS = 10000;
+    var WAIT_TO_CLOSE_TRAP_DOOR_MS = 1500;
     var ROW_INDEX = 13;
     var COLUMN_INDEX = 15;
     var WAIT_TO_PROCESS_VALIDATION_MS = 2500;
-    var CHECK_DOOR_ROTATION_MS = 10;
+    var CHECK_DOOR_ROTATION_MS = 50;
     var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
     var BINGO_STRING = "BINGO";
     var IMAGE_MODEL = Script.resolvePath("assets/images/default-image-model.fbx");
@@ -464,13 +464,23 @@
             playSound(SCANNER_LOSE_SOUND, GAME_AUDIO_POSITION, 1);
             // eslint-disable-next-line no-magic-numbers
             playSound(SCANNER_LOSE_SOUND, zonePosition, 0.5);
-            Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: Quat.fromVec3Degrees({ x: 100, y: 0, z: 0 })});
             Script.setTimeout(function() {
                 playSound(SAD_TROMBONE_SOUND, GAME_AUDIO_POSITION, 1);
                 // eslint-disable-next-line no-magic-numbers
                 playSound(SAD_TROMBONE_SOUND, zonePosition, 0.5);
             // eslint-disable-next-line no-magic-numbers
             }, SCANNER_LOSE_SOUND.duration * 1000);
+            
+            Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: Quat.fromVec3Degrees({ x: 100, y: 0, z: 0 })});
+
+            if (trapDoorOpenCheckInterval) {
+                Script.clearInterval(trapDoorOpenCheckInterval);
+                trapDoorOpenCheckInterval = false;
+                Entities.editEntity(SCANNER_TRAP_DOOR, { 
+                    angularVelocity: { x: 0, y: 0, z: 0 },
+                    localRotation: Quat.fromVec3Degrees({ x: 90, y: 0, z: 0 })
+                });
+            }
 
             trapDoorOpenCheckInterval = Script.setInterval(function() {
                 var trapDoorLocalRotationX = Entities.getEntityProperties(SCANNER_TRAP_DOOR, 'localRotation').localRotation.x;
@@ -481,6 +491,7 @@
                         localRotation: Quat.fromVec3Degrees({ x: 90, y: 0, z: 0 })
                     });
                     Script.clearInterval(trapDoorOpenCheckInterval);
+                    trapDoorOpenCheckInterval = false;
                 }
             }, CHECK_DOOR_ROTATION_MS);
 
@@ -502,21 +513,31 @@
             });
         },
 
-        /* WHEN USER LEAVES ZONE: Clear any open gates or trap door. Wait for 10 seconds to turn off the light 
-        to ensure card validation has finished. 
-        This prevents others from entering before this user's script has had time to finish and clean up. Clear the 
-        arrqy of squares attached to the user's card and delete the card. Turn off particles. */
+        /* WHEN USER LEAVES ZONE: Clear any open gates or trap door. Clear the 
+        array of squares attached to the user's card and delete the card. Turn off particles. */
         userLeftZone: function(thisID, userID) {
             Script.setTimeout(function() {
                 Entities.callEntityMethod(STAGE_ENTRY_GATE, 'closeGate');
             }, WAIT_TO_CLOSE_WIN_GATE_MS);
+
+            Entities.editEntity(scannerSpotlight, { visible: false });
+            bingoNumberSquares = [];
+            _this.deleteCard();
+            Entities.callEntityMethod(bingoParticleEffect, 'turnOff');
+            Entities.callEntityMethod(confettiParticleEffect, 'turnOff');
+
             Script.setTimeout(function() {
-                Entities.editEntity(scannerSpotlight, { visible: false });
-                bingoNumberSquares = [];
-                _this.deleteCard();
-                Entities.callEntityMethod(bingoParticleEffect, 'turnOff');
-                Entities.callEntityMethod(confettiParticleEffect, 'turnOff');
                 Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: Quat.fromVec3Degrees({ x: -100, y: 0, z: 0 })});
+
+                if (trapDoorCloseCheckInterval) {
+                    Script.clearInterval(trapDoorCloseCheckInterval);
+                    trapDoorCloseCheckInterval = false;
+                    Entities.editEntity(SCANNER_TRAP_DOOR, {
+                        angularVelocity: { x: 0, y: 0, z: 0 },
+                        localRotation: { x: 0, y: 0, z: 0 }
+                    });
+                }
+
                 trapDoorCloseCheckInterval = Script.setInterval(function() {
                     var trapDoorLocalRotationX = Entities.getEntityProperties(
                         SCANNER_TRAP_DOOR, 'localRotation').localRotation.x;
@@ -526,9 +547,10 @@
                             localRotation: { x: 0, y: 0, z: 0 }
                         });
                         Script.clearInterval(trapDoorCloseCheckInterval);
+                        trapDoorCloseCheckInterval = false;
                     }
                 }, CHECK_DOOR_ROTATION_MS);
-            }, WAIT_TO_DELETE_CARD_MS);
+            }, WAIT_TO_CLOSE_TRAP_DOOR_MS);
         },
 
         /* ON UNLOADING SCRIPT: Delete the card, clear the array of squares from the card, turn off particles and 
@@ -539,6 +561,10 @@
             Entities.editEntity(scannerSpotlight, { visible: false });
             Entities.editEntity(bingoParticleEffect, { emitRate: 0 });
             Entities.editEntity(confettiParticleEffect, { emitRate: 0 });
+            Entities.editEntity(SCANNER_TRAP_DOOR, {
+                angularVelocity: { x: 0, y: 0, z: 0 },
+                localRotation: { x: 0, y: 0, z: 0 }
+            });
             if (trapDoorOpenCheckInterval) {
                 Script.clearInterval(trapDoorOpenCheckInterval);
             }
