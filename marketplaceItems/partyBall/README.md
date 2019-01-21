@@ -30,11 +30,11 @@ We'll be covering how this entity was made while taking some asides to cover hel
 
 # Releases
 
-# Links
+[partyBall 02f4cbe] :: 2019-01-21_08-45-00
+- Working V1 for testing
 
+# Links
+https://trello.com/c/qluC0kn8/13-party-ball
 
 # Known Issues
-
-
-
- xdvc 
+- Dimension size of the dancer being animated is off because natural dimensions aren't coming in correctly for the server script
