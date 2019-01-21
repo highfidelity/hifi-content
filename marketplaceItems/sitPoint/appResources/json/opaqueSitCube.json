@@ -1,0 +1,68 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{214452b7-ba01-4222-be15-c545a2aeba18}",
+    "type": "Box",
+    "created": "2019-01-17T18:12:49Z",
+    "lastEdited": 1547755160085929,
+    "lastEditedBy": "{33948cc0-a429-4685-84f9-aa7a82af1d61}",
+    "dimensions": {
+        "x": 0.20000000298023224,
+        "y": 0.20000000298023224,
+        "z": 0.20000000298023224
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "damping": 0,
+    "script": "../appData/sitClient.js",
+    "scriptTimestamp": 1547748682814,
+    "serverScripts": "../appData/sitServer.js",
+    "registrationPoint": {
+        "x": 0.5,
+        "y": 1,
+        "z": 0.5
+    },
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "name": "Sit Point Opaque",
+    "shape": "Cube",
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "queryAACube": {
+        "x": -0.24494898319244385,
+        "y": -0.24494898319244385,
+        "z": -0.24494898319244385,
+        "scale": 0.4898979663848877
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+}
+    ],
+  "Id": "{e26eaf50-a443-4540-9f2b-6c7b3276985e}",
+  "Version": 98
+}
