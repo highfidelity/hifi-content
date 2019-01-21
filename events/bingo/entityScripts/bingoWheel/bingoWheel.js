@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 //
 // bingoWheel.js
 // 
@@ -102,7 +103,8 @@
             if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0 && wheelReadyToSpin){
                 wheelReadyToSpin = false;
                 requestedAlreadyCalledNumbers = true;
-                Entities.callEntityServerMethod(_this.entityID, 'requestAlreadyCalledNumbers', ["bingoWheel", MyAvatar.sessionUUID, AccountServices.username]);
+                Entities.callEntityServerMethod(_this.entityID, 'requestAlreadyCalledNumbers',
+                    ["bingoWheel", MyAvatar.sessionUUID, AccountServices.username]);
 
                 Script.setTimeout(function() {
                     if (requestedAlreadyCalledNumbers) {

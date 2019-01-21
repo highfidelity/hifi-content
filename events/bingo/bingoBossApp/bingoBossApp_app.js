@@ -71,6 +71,10 @@
         Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOut');
     }
 
+    function givePrizes() {
+        Entities.callEntityServerMethod(NUMBER_WHEEL, 'givePrizes');
+    }
+
     /* ON WEB EVENT: Call the correct function or print an error when an event is received from bingoBossApp_ui.html */
     function onWebEventReceived(event) {
         if (event.app === 'bingo') {
@@ -90,7 +94,9 @@
                 case 'lightsOut':
                     lightsOut();
                     break;
-                 
+                case 'givePrizes':
+                    givePrizes();
+                    break;
                 default:
                     print("error in detecting event.type in Bingo app");
             }

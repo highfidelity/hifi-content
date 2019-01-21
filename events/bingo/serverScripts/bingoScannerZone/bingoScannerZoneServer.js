@@ -41,12 +41,14 @@
     var _this;
     
     var zonePosition;
-    var interval = null;
+    var trapDoorOpenCheckInterval = null;
+    var trapDoorCloseCheckInterval = null;
     var scannerSpotlight;
     var cardEntity = null;
     var bingoNumberSquares = [];
     var confettiParticleEffect;
     var bingoParticleEffect;
+    var currentlyScanningCard = false;
     var request = Script.require(Script.resolvePath('../../modules/request.js')).request;
 
     // *************************************
@@ -117,8 +119,14 @@
         the duration of that sound after which we beging to validate their card winning. If the user's numbers were 
         not found, create a sign above the machine stating that. */
         scanCard: function(thisID, params) {
+            if (currentlyScanningCard) {
+                return;
+            }
+
+            currentlyScanningCard = true;
             Entities.editEntity(SCANNER_TRAP_DOOR, { localRotation: Quat.fromVec3Degrees({ x: 0, y: 0, z: 0 })});
             playSound(COMPUTING_SOUND, GAME_AUDIO_POSITION, 1);
+            // eslint-disable-next-line no-magic-numbers
             playSound(COMPUTING_SOUND, zonePosition, 0.5);
 
             Entities.editEntity(scannerSpotlight, { visible: true });
@@ -138,7 +146,7 @@
         If the user is found, save their card numbers. */
         getUsersCardNumbers: function(username, calledLettersAndNumbers) {
             var searchParamString = encodeURLParams({
-                type: "searchOrAdd",
+                type: "searchOnly",
                 username: username
             });
             request({
@@ -147,15 +155,10 @@
                 if (error || !response || response.status !== "success") {
                     return;
                 }
-
-                var userCardNumbers = response.userCardNumbers;
             
                 _this.deleteCard();
 
-                if (userCardNumbers.length > 0) {
-                    _this.createCardReplica(calledLettersAndNumbers, userCardNumbers);
-                    _this.validateWin(username);
-                } else {
+                if (response.newUser) {
                     cardEntity = Entities.addEntity({
                         backgroundColor: WHITE,
                         dimensions: {
@@ -173,12 +176,18 @@
                         type: "Text",
                         userData: "{ \"grabbableKey\": { \"grabbable\": false } }"
                     });
+                    _this.lose();
+                } else {
+                    var userCardNumbers = response.userCardNumbers;
+                    _this.createCardReplica(calledLettersAndNumbers, userCardNumbers);
+                    _this.validateWin(username);
                 }
             });
         },
 
         /* GET A RANDOM COLOR FOR CARD:  Select one of 4 preset colors to use for the card base */
         getRandomCardColor: function() {
+            // eslint-disable-next-line no-magic-numbers
             var colorChange = Math.floor(Math.random() * 4);
             var newColor;
             switch (colorChange) {
@@ -188,9 +197,11 @@
                 case 1:
                     newColor = CARD_BLUE;
                     break;
+                // eslint-disable-next-line no-magic-numbers
                 case 2:
                     newColor = CARD_GREEN;
                     break;
+                // eslint-disable-next-line no-magic-numbers
                 case 3:
                     newColor = CARD_PINK;
                     break;
@@ -267,8 +278,10 @@
                 for (var currentRow = 0; currentRow < rows; currentRow++) {
                     var number;
                     var lineHeight = 0.09;
+                    // eslint-disable-next-line no-magic-numbers
                     if (currentRow === 2 && i === 2) {
                         number = "FREE";
+                        // eslint-disable-next-line no-magic-numbers
                         lineHeight = 0.0450;
                         backgroundColor = BLACK;
                         textColor = WHITE;
@@ -319,6 +332,7 @@
             var diagonalLtoR = 1;
             var diagonalRtoL = 1;
             var fail;
+            // eslint-disable-next-line no-magic-numbers
             if (bingoNumberSquares.length === 25) {
                 bingoNumberSquares.forEach(function(square) {
                     var properties = Entities.getEntityProperties(square, ['name', 'backgroundColor']);
@@ -351,11 +365,13 @@
                     }
                     var winningRow = null;
                     var winningColumn = null;
+                    // eslint-disable-next-line no-magic-numbers
                     for (var row = 1; row < 6; row++) {
                         if (rows[row -1] === 1) {
                             winningRow = row;
                         }
                     }
+                    // eslint-disable-next-line no-magic-numbers
                     for (var column = 1; column < 6; column++) {
                         if (columns[column - 1] === 1) {
                             winningColumn = column;
@@ -365,7 +381,7 @@
                         bingoNumberSquares.forEach(function(square) {
                             var name = Entities.getEntityProperties(square, 'name').name;
                             var row = name.charAt(ROW_INDEX);
-                            if (row != winningRow) {
+                            if (row !== winningRow) {
                                 Entities.editEntity(square, { 
                                     backgroundColor: WHITE,
                                     textColor: BLACK
@@ -378,7 +394,7 @@
                             var name = Entities.getEntityProperties(square, 'name').name;
                             if (name) {
                                 var column = name.charAt(COLUMN_INDEX);
-                                if (column != winningColumn) {
+                                if (column !== winningColumn) {
                                     Entities.editEntity(square, { 
                                         backgroundColor: WHITE,
                                         textColor: BLACK
@@ -392,7 +408,7 @@
                             var name = Entities.getEntityProperties(square, 'name').name;
                             var row = name.charAt(ROW_INDEX);
                             var column = name.charAt(COLUMN_INDEX);
-                            if (column != row) {
+                            if (column !== row) {
                                 Entities.editEntity(square, { 
                                     backgroundColor: WHITE,
                                     textColor: BLACK
@@ -420,9 +436,10 @@
             }
         },
 
-        /* WIN: Play the winning sound and turn on confettin and bingo particles. */
+        /* WIN: Play the winning sound and turn on confetti and bingo particles. */
         win: function(username) {
             playSound(SCANNER_WIN_SOUND, GAME_AUDIO_POSITION, 1);
+            // eslint-disable-next-line no-magic-numbers
             playSound(SCANNER_WIN_SOUND, zonePosition, 0.5);
             Entities.callEntityMethod(bingoParticleEffect, 'turnOn');
             Entities.callEntityMethod(confettiParticleEffect, 'turnOn');
@@ -437,19 +454,25 @@
                 print("Error adding winner to bouncer zone userData");
             }
             Entities.callEntityMethod(STAGE_ENTRY_GATE, 'openGate');
+            Entities.callEntityMethod(BINGO_WHEEL, 'addCurrentRoundWinner', [username]);
+            currentlyScanningCard = false;
         },
 
         /* LOSE: Play the losing buzzer and lower the trap door. Set a timeout for after the buzzer sound has 
         finished to play the sad sound */
         lose: function() {
             playSound(SCANNER_LOSE_SOUND, GAME_AUDIO_POSITION, 1);
+            // eslint-disable-next-line no-magic-numbers
             playSound(SCANNER_LOSE_SOUND, zonePosition, 0.5);
             Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: Quat.fromVec3Degrees({ x: 100, y: 0, z: 0 })});
             Script.setTimeout(function() {
                 playSound(SAD_TROMBONE_SOUND, GAME_AUDIO_POSITION, 1);
+                // eslint-disable-next-line no-magic-numbers
                 playSound(SAD_TROMBONE_SOUND, zonePosition, 0.5);
+            // eslint-disable-next-line no-magic-numbers
             }, SCANNER_LOSE_SOUND.duration * 1000);
-            interval = Script.setInterval(function() {
+
+            trapDoorOpenCheckInterval = Script.setInterval(function() {
                 var trapDoorLocalRotationX = Entities.getEntityProperties(SCANNER_TRAP_DOOR, 'localRotation').localRotation.x;
                 var quatValueForOpenRotation = 0.707;
                 if (trapDoorLocalRotationX > quatValueForOpenRotation) {
@@ -457,9 +480,11 @@
                         angularVelocity: { x: 0, y: 0, z: 0 },
                         localRotation: Quat.fromVec3Degrees({ x: 90, y: 0, z: 0 })
                     });
-                    Script.clearInterval(interval);
+                    Script.clearInterval(trapDoorOpenCheckInterval);
                 }
             }, CHECK_DOOR_ROTATION_MS);
+
+            currentlyScanningCard = false;
         },
 
         /* DELETE CARD ABOVE MACHINE: Delete the bingo card created by this script and any others found that 
@@ -492,7 +517,7 @@
                 Entities.callEntityMethod(bingoParticleEffect, 'turnOff');
                 Entities.callEntityMethod(confettiParticleEffect, 'turnOff');
                 Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: Quat.fromVec3Degrees({ x: -100, y: 0, z: 0 })});
-                interval = Script.setInterval(function() {
+                trapDoorCloseCheckInterval = Script.setInterval(function() {
                     var trapDoorLocalRotationX = Entities.getEntityProperties(
                         SCANNER_TRAP_DOOR, 'localRotation').localRotation.x;
                     if (trapDoorLocalRotationX < 0) {
@@ -500,7 +525,7 @@
                             angularVelocity: { x: 0, y: 0, z: 0 },
                             localRotation: { x: 0, y: 0, z: 0 }
                         });
-                        Script.clearInterval(interval);
+                        Script.clearInterval(trapDoorCloseCheckInterval);
                     }
                 }, CHECK_DOOR_ROTATION_MS);
             }, WAIT_TO_DELETE_CARD_MS);
@@ -514,8 +539,11 @@
             Entities.editEntity(scannerSpotlight, { visible: false });
             Entities.editEntity(bingoParticleEffect, { emitRate: 0 });
             Entities.editEntity(confettiParticleEffect, { emitRate: 0 });
-            if (interval) {
-                Script.clearInterval(interval);
+            if (trapDoorOpenCheckInterval) {
+                Script.clearInterval(trapDoorOpenCheckInterval);
+            }
+            if (trapDoorCloseCheckInterval) {
+                Script.clearInterval(trapDoorCloseCheckInterval);
             }
         }
     };

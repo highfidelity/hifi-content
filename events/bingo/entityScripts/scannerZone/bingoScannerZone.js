@@ -11,6 +11,8 @@
 (function() {
     var _this;
 
+    var CONFETTI_PARTICLE_SEARCH_M = 2;
+
     var BingoScannerZone = function() {
         _this = this;
     };
@@ -25,7 +27,7 @@
         
         /* ON ENTERING THE ZONE: Remove confetti particles if necessary and call server to scan card. */
         enterEntity: function() {
-            Entities.findEntities(MyAvatar.position, 2).forEach(function(nearbyEntity) {
+            Entities.findEntities(MyAvatar.position, CONFETTI_PARTICLE_SEARCH_M).forEach(function(nearbyEntity) {
                 var properties = Entities.getEntityProperties(nearbyEntity, ['parentID', 'name']);
                 if (properties.name === "Bingo Confetti Particle" && properties.parentID === MyAvatar.sessionUUID) {
                     Entities.deleteEntity(nearbyEntity);
