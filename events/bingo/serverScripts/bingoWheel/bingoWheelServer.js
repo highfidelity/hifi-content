@@ -23,11 +23,16 @@
     var POSSIBLE_PRIZES = ["Oculus Quest", "Vive Pro", "1,000 HFC", "Nothing!", "Three Sheep", "500 HFC"];
     var currentRoundWinners = [];
     var BINGO_PRIZE_DOOR_1_TEXT = "{ff7674bb-5569-4381-b370-1dfa1d2a9723}";
+    var BINGO_PRIZE_DOOR_1 = "{64146281-b34f-402b-a7bd-10283670817d}";
     var avatarsInDoor1Zone = [];
     var BINGO_PRIZE_DOOR_2_TEXT = "{7c80210b-8554-4ed4-8c3f-bade78aa074b}";
+    var BINGO_PRIZE_DOOR_2 = "{96171310-51a5-4ac6-9c4f-a130082d82f3}";
     var avatarsInDoor2Zone = [];
     var BINGO_PRIZE_DOOR_3_TEXT = "{ec35d3dd-b99a-450c-bd90-5665adfaf9f2}";
+    var BINGO_PRIZE_DOOR_3 = "{58c52248-9646-46b1-97bd-ce0ece216604}";
     var avatarsInDoor3Zone = [];
+
+    var MAIN_STAGE_BOUNCER_ZONE = "{5ca26b63-c61b-447e-8985-b0269b33eed0}";
     
     var playerCounterText;
     var bingoWallLights = [];
@@ -164,7 +169,7 @@
         0. Ensures we're ready to give prizes (no action taken if no winners)
         1. Randomizes the prizes, ensuring no duplicates
         2. Updates the text entities behind the doors
-        3. TODO: Moves the doors to reveal the text entities
+        3. Moves the doors to reveal the text entities
         4. Records valid winners and their prizes on the Google Sheet 
         */
         givePrizes: function() {
@@ -196,7 +201,9 @@
             Entities.editEntity(BINGO_PRIZE_DOOR_2_TEXT, {text: roundPrizes[1]});
             Entities.editEntity(BINGO_PRIZE_DOOR_3_TEXT, {text: roundPrizes[2]});
 
-            // INSERT CODE TO OPEN DOORS HERE
+            Entities.callEntityMethod(BINGO_PRIZE_DOOR_1, 'openGate');
+            Entities.callEntityMethod(BINGO_PRIZE_DOOR_2, 'openGate');
+            Entities.callEntityMethod(BINGO_PRIZE_DOOR_3, 'openGate');
 
             var requestBody = {
                 type: "recordPrizes",
@@ -283,6 +290,15 @@
                 avatarsInDoor1Zone = [];
                 avatarsInDoor2Zone = [];
                 avatarsInDoor3Zone = [];
+                Entities.callEntityMethod(BINGO_PRIZE_DOOR_1, 'closeGate');
+                Entities.callEntityMethod(BINGO_PRIZE_DOOR_2, 'closeGate');
+                Entities.callEntityMethod(BINGO_PRIZE_DOOR_3, 'closeGate');
+
+                var bouncerZoneUserData = JSON.parse(
+                    Entities.getEntityProperties(MAIN_STAGE_BOUNCER_ZONE, 'userData').userData);
+                bouncerZoneUserData.whitelist.usernames = [];
+                Entities.editEntity(MAIN_STAGE_BOUNCER_ZONE, { userData: JSON.stringify(bouncerZoneUserData) });
+
                 bingoWallLights.forEach(function(light) {
                     Entities.editEntity(light, { visible: false });
                 });

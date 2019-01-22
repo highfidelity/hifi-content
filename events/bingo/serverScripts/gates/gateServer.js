@@ -54,14 +54,23 @@
             _this.entityID = entityID;
             var name = Entities.getEntityProperties(_this.entityID, 'name').name;
             if (name === "Bingo Scanner Entry Gate") {
-                closedLocalPosition = { x: -0.9310, y: 1.1957 , z: 0.0811 };
-                openedLocalPosition = { x: -0.9310, y: -0.9731 , z: 0.0811 };
-                Entities.editEntity(_this.entityID, { localPosition: closedLocalPosition});
+                closedLocalPosition = { x: -0.9310, y: 1.1957, z: 0.0811 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -0.9731, z: closedLocalPosition.z };
             } else if (name === "Bingo Stage Entry Gate") {
-                closedLocalPosition = { x: 1, y: 1.1957 , z: 0.0811 };
-                openedLocalPosition = { x: 1, y: -0.9731 , z: 0.0811 };
-                Entities.editEntity(_this.entityID, { localPosition: closedLocalPosition});
+                closedLocalPosition = { x: 1, y: 1.1957, z: 0.0811 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -0.9731, z: closedLocalPosition.z };
+            } else if (name === "Prize Door 1 Gate") {
+                closedLocalPosition = { x: -2.8190, y: -0.9817, z: -1.3573 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -3.2988, z: closedLocalPosition.z };
+            } else if (name === "Prize Door 2 Gate") {
+                closedLocalPosition = { x: 0.0244, y: -0.9817, z: -1.4389 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -3.2988, z: closedLocalPosition.z };
+            } else if (name === "Prize Door 3 Gate") {
+                closedLocalPosition = { x: 2.798, y: -0.9817, z: -1.3378 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -3.2988, z: closedLocalPosition.z };
             }
+            
+            Entities.editEntity(_this.entityID, { localPosition: closedLocalPosition});
         },
 
         // Gate moves DOWN to open
