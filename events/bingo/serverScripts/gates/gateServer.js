@@ -60,14 +60,14 @@
                 closedLocalPosition = { x: 1, y: 1.1957, z: 0.0811 };
                 openedLocalPosition = { x: closedLocalPosition.x, y: -0.9731, z: closedLocalPosition.z };
             } else if (name === "Prize Door 1 Gate") {
-                closedLocalPosition = { x: -2.8190, y: -0.9817, z: -1.3573 };
-                openedLocalPosition = { x: closedLocalPosition.x, y: -3.2988, z: closedLocalPosition.z };
+                closedLocalPosition = { x: -2.8130, y: -0.8786, z: -1.2755 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -3.6787, z: closedLocalPosition.z };
             } else if (name === "Prize Door 2 Gate") {
-                closedLocalPosition = { x: 0.0244, y: -0.9817, z: -1.4389 };
-                openedLocalPosition = { x: closedLocalPosition.x, y: -3.2988, z: closedLocalPosition.z };
+                closedLocalPosition = { x: 0.0067, y: -0.8784, z: -1.2755 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -3.6787, z: closedLocalPosition.z };
             } else if (name === "Prize Door 3 Gate") {
-                closedLocalPosition = { x: 2.798, y: -0.9817, z: -1.3378 };
-                openedLocalPosition = { x: closedLocalPosition.x, y: -3.2988, z: closedLocalPosition.z };
+                closedLocalPosition = { x: 2.8165, y: -0.8782, z: -1.2755 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -3.6787, z: closedLocalPosition.z };
             }
             
             Entities.editEntity(_this.entityID, { localPosition: closedLocalPosition});

@@ -36,9 +36,7 @@
             Entities.callEntityServerMethod(_this.entityID, 'scanCard', [AccountServices.username]);
         },
 
-        /* ON LEAVING THE ZONE: Call the zone's server method that handles a user leaving the zone and set a timeout to 
-        delete the card in 10 seconds. This is to be sure there is enough time for the card to actually be created and 
-        seen by others in the case of a user quickly entering the zone and stepping back out.  */
+        /* ON LEAVING THE ZONE: Call the zone's server method that handles a user leaving the zone */
         leaveEntity: function(entityID, mouseEvent) {
             Entities.callEntityServerMethod(_this.entityID, 'userLeftZone', [AccountServices.username]);
         }

@@ -189,11 +189,13 @@ input[type=button][pressed=pressed] {
 .button-number {
     background-color: white;
     font-size: 2em;
+    padding: 0;
 }
 
 .button-free {
     background-color: white;
     font-size: 2em;
+    padding: 0;
 }
 
 .button-letter {
@@ -202,6 +204,7 @@ input[type=button][pressed=pressed] {
     height: 90px;
     width: 90px;
     border: 0;
+    padding: 0;
 }
 
 .selected {

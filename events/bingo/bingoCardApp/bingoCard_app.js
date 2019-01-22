@@ -148,9 +148,7 @@
             }
             if (response.status && response.status === "success") {
                 userCardNumbers = response.userCardNumbers;
-                // For some reason, we need to parse this as if it's text.
-                // Google Scripts can be strange sometimes.
-                cardColor = JSON.parse(response.userCardColor);
+                cardColor = response.userCardColor;
                 ui.sendMessage({
                     type: 'initializeCard',
                     allNumbers: userCardNumbers,
@@ -318,7 +316,7 @@
     /* ON APP START: Setup app UI, button, and messaging between it's html page and this script */
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('bingoCard_ui.html?2');
+    var appPage = Script.resolvePath('bingoCard_ui.html?9');
     function startup() {
         ui = new AppUi({
             buttonName: "BINGO",
@@ -334,7 +332,7 @@
 
     /* WHEN USER SESSION CHANGES: End this script so users will not be left with a card when leaving the domain*/
     function sessionChanged() {
-        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?6'));
+        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?10'));
     }
     
     startup();

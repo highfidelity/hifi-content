@@ -13,7 +13,7 @@
     var _this;
 
     var LIGHT_BLINK_INTERVAL_MS = 500;
-    var REMOVE_CARDS = Script.resolvePath("../../entityScripts/cardRemover/bingoCardRemover.js");
+    var REMOVE_CARDS = Script.resolvePath("../../entityScripts/cardRemover/bingoCardRemover.js?1");
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 1000;
     var WAIT_WHILE_CARDS_ARE_DELETED_MS = 3000;
     var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json?109')).sheetURL;
@@ -23,17 +23,18 @@
     var POSSIBLE_PRIZES = ["Oculus Quest", "Vive Pro", "1,000 HFC", "Nothing!", "Three Sheep", "500 HFC"];
     var currentRoundWinners = [];
     var BINGO_PRIZE_DOOR_1_TEXT = "{ff7674bb-5569-4381-b370-1dfa1d2a9723}";
-    var BINGO_PRIZE_DOOR_1 = "{64146281-b34f-402b-a7bd-10283670817d}";
+    var BINGO_PRIZE_DOOR_1 = "{8724dc08-c0fb-4feb-bda1-8686023f8355}";
     var avatarsInDoor1Zone = [];
     var BINGO_PRIZE_DOOR_2_TEXT = "{7c80210b-8554-4ed4-8c3f-bade78aa074b}";
-    var BINGO_PRIZE_DOOR_2 = "{96171310-51a5-4ac6-9c4f-a130082d82f3}";
+    var BINGO_PRIZE_DOOR_2 = "{26cb7c69-40e0-44d6-8a10-b3a261ef0abc}";
     var avatarsInDoor2Zone = [];
     var BINGO_PRIZE_DOOR_3_TEXT = "{ec35d3dd-b99a-450c-bd90-5665adfaf9f2}";
-    var BINGO_PRIZE_DOOR_3 = "{75510fb7-a893-4256-8c46-2d20dafb00c4}";
+    var BINGO_PRIZE_DOOR_3 = "{a3843b9d-70d7-407b-b7ca-378a31fac21f}";
     var avatarsInDoor3Zone = [];
 
     var MAIN_STAGE_BOUNCER_ZONE = "{5ca26b63-c61b-447e-8985-b0269b33eed0}";
     
+    var gameReady = false;
     var playerCounterText;
     var bingoWallLights = [];
     var gameOnLights = [];
@@ -258,9 +259,10 @@
             Entities.editEntity(registrationSign, { visible: true });
         },
 
-        /* CLOSE REGISTRATION: Take down card remover sign. */
+        /* CLOSE REGISTRATION: Take down card remover sign and mark the game as Ready to Play */
         closeRegistration: function() {
             Entities.editEntity(registrationSign, { visible: false});
+            gameReady = true;
         },
 
         /* NEW ROUND: Clear the list of called numbers and winners,
@@ -284,6 +286,7 @@
                 });
                 Entities.callEntityMethod(playerCounterText, 'reset');
 
+                gameReady = false;
                 calledLettersAndNumbers = [];
                 currentRoundWinners = [];
                 avatarsInDoor1Zone = [];
@@ -308,7 +311,7 @@
                     Script.clearInterval(lightBlinkInterval);
                     lightBlinkInterval = false;
                 }
-                _this.closeRegistration();
+                Entities.editEntity(registrationSign, { visible: false});
                 Entities.editEntity(cardRemoverSign, {
                     visible: true,
                     script: REMOVE_CARDS
@@ -368,8 +371,13 @@
             if (referrer === "bingoWheel") {
                 var callerSessionUUID = params[1];
                 requesterUsername = params[2];
-                Entities.callEntityClientMethod(callerSessionUUID, _this.entityID, 'alreadyCalledNumbersReply', 
-                    [JSON.stringify(calledLettersAndNumbers), requesterUsername]);
+                if (gameReady) {
+                    Entities.callEntityClientMethod(callerSessionUUID, _this.entityID, 'alreadyCalledNumbersReply', 
+                        [JSON.stringify(calledLettersAndNumbers), requesterUsername]);
+                } else {
+                    Entities.callEntityClientMethod(callerSessionUUID, _this.entityID, 'alreadyCalledNumbersReply', 
+                        [JSON.stringify(calledLettersAndNumbers)]);
+                }
             } else if (referrer === "bingoScanner") {
                 var machineZoneID = params[1];
                 requesterUsername = params[2];

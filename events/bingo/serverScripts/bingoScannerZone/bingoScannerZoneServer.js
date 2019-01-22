@@ -129,7 +129,7 @@
             Entities.callEntityMethod(BINGO_WHEEL, 'requestAlreadyCalledNumbers', ["bingoScanner", _this.entityID, params[0]]);
         },
 
-        /* RECEIVE NUMBERS THAT HAVE BEEN CALLED THIS ROUND:  */
+        /* RECEIVE NUMBERS THAT HAVE BEEN CALLED THIS ROUND */
         alreadyCalledNumbersReply: function(id, args) {
             _this.deleteCard();
 
@@ -174,7 +174,7 @@
                     });
                     _this.lose();
                 } else {
-                    _this.createCardReplica(calledLettersAndNumbers, response.userCardNumbers, JSON.parse(response.userCardColor));
+                    _this.createCardReplica(calledLettersAndNumbers, response.userCardNumbers, response.userCardColor);
                     _this.validateWin(username);
                 }
             });

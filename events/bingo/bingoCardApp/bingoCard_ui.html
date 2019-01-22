@@ -83,57 +83,55 @@
 
                     var parsedColor = parseColor(scriptEvent.cardColor);
                     $('body').css("background", parsedColor);
+                    
+                    $(".button-number").click(function() {
+                        if ($(this).hasClass("selected")){
+                            $(this).removeClass("selected");
+                            EventBridge.emitWebEvent(JSON.stringify({
+                                type: 'bingoNumberDeselected',
+                                deselectedID: parseInt($(this).attr("id"))
+                            }));
+                        } else {
+                            $(this).addClass("selected");
+                            EventBridge.emitWebEvent(JSON.stringify({
+                                type: 'bingoNumberSelected',
+                                selectedID: parseInt($(this).attr("id"))
+                            }));
+                        }
+                    });
+
+                    $(".button-free").click(function() {
+                        if ($(this).hasClass("selected")){
+                            $(this).removeClass("selected");
+                            EventBridge.emitWebEvent(JSON.stringify({
+                                type: 'bingoNumberDeselected',
+                                deselectedID: parseInt($(this).attr("id"))
+                            }));
+                        } else {
+                            $(this).addClass("selected");
+                            EventBridge.emitWebEvent(JSON.stringify({
+                                type: 'bingoNumberSelected',
+                                selectedID: parseInt($(this).attr("id"))
+                            }));
+                        }
+                    });
+
+                    var BINGO_STRING = "BINGO";
+                    $(".button-letter").click(function() {
+                        var index = BINGO_STRING.indexOf($(this).attr('id'));
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            type : 'playSoundFromBingoHeaderButton',
+                            index: index
+                        }));
+                    });
+
+                    $("#BingoButton").click(function() {
+                        EventBridge.emitWebEvent(JSON.stringify({
+                            type: 'calledBingo'
+                        }));
+                    });
                 }
             };
-
-            $(document).ready(function(){
-                $(".button-number").click(function() {
-                    if ($(this).hasClass("selected")){
-                        $(this).removeClass("selected");
-                        EventBridge.emitWebEvent(JSON.stringify({
-                            type: 'bingoNumberDeselected',
-                            deselectedID: parseInt($(this).attr("id"))
-                        }));
-                    } else {
-                        $(this).addClass("selected");
-                        EventBridge.emitWebEvent(JSON.stringify({
-                            type: 'bingoNumberSelected',
-                            selectedID: parseInt($(this).attr("id"))
-                        }));
-                    }
-                });
-
-                $(".button-free").click(function() {
-                    if ($(this).hasClass("selected")){
-                        $(this).removeClass("selected");
-                        EventBridge.emitWebEvent(JSON.stringify({
-                            type: 'bingoNumberDeselected',
-                            deselectedID: parseInt($(this).attr("id"))
-                        }));
-                    } else {
-                        $(this).addClass("selected");
-                        EventBridge.emitWebEvent(JSON.stringify({
-                            type: 'bingoNumberSelected',
-                            selectedID: parseInt($(this).attr("id"))
-                        }));
-                    }
-                });
-
-                var BINGO_STRING = "BINGO";
-                $(".button-letter").click(function() {
-                    var index = BINGO_STRING.indexOf($(this).attr('id'));
-                    EventBridge.emitWebEvent(JSON.stringify({
-                        type : 'playSoundFromBingoHeaderButton',
-                        index: index
-                    }));
-                });
-
-                $("#BingoButton").click(function() {
-                    EventBridge.emitWebEvent(JSON.stringify({
-                        type: 'calledBingo'
-                    }));
-                });
-            });
 
             window.onload = function(){ 
                 EventBridge.scriptEventReceived.connect(onScriptEventReceived);         

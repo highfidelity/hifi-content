@@ -23,7 +23,7 @@
 
     var _this;
     var angularVelocityDecrement = 0.5;
-    var wheelReadyToSpin = true;
+    var wheelDebounceExpired = true;
     var requestedAlreadyCalledNumbers = false;
     var SPIN_TIMEOUT_MS = 7500;
     var angularVelocityCheckInterval;
@@ -97,11 +97,11 @@
         the list of possible bingo calls, and set a timeout for 4seconds before the wheel can be spun again to allow time 
         for the server script to complete its tasks for this spin. */
         mousePressOnEntity: function(entityID, mouseEvent) {
-            if (!mouseEvent.button === "Primary") {
+            if (mouseEvent.button !== "Primary") {
                 return;
             }
-            if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0 && wheelReadyToSpin){
-                wheelReadyToSpin = false;
+            if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0 && wheelDebounceExpired){
+                wheelDebounceExpired = false;
                 requestedAlreadyCalledNumbers = true;
                 Entities.callEntityServerMethod(_this.entityID, 'requestAlreadyCalledNumbers',
                     ["bingoWheel", MyAvatar.sessionUUID, AccountServices.username]);
@@ -110,7 +110,7 @@
                     if (requestedAlreadyCalledNumbers) {
                         console.log("ERROR when requesting called numbers! Please try again.");
                         requestedAlreadyCalledNumbers = false;
-                        wheelReadyToSpin = true;
+                        wheelDebounceExpired = true;
                     }
                 }, SPIN_TIMEOUT_MS);
             }
@@ -120,8 +120,17 @@
         then compare each possible bingo call to that list. Save all calls that have not been called into a new list and 
         shuffle that list. Then start the spin logic. */
         alreadyCalledNumbersReply: function(id, args) {
-            var userWhoSpunWheel = args[1];
             requestedAlreadyCalledNumbers = false;
+
+            var userWhoSpunWheel = args[1];
+
+            // "alreadyCalledNumbersReply" will not contain a username in the reply if
+            // the game isn't yet ready (i.e. if registration hasn't opened, then closed).
+            if (!userWhoSpunWheel) {
+                console.log("User attempted to spin wheel, but game is not ready!");
+                wheelDebounceExpired = true;
+                return;
+            }
 
             if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0 &&
                 userWhoSpunWheel === AccountServices.username) {
@@ -210,7 +219,7 @@
                         playSound(BLIP_SOUND, GAME_AUDIO_POSITION, 0.5);
 
                         Script.setTimeout(function() {
-                            wheelReadyToSpin = true;
+                            wheelDebounceExpired = true;
                         }, WAIT_BETWEEN_SPINS_MS);
                     }
                 }, ANGULAR_VELOCITY_CHECK_MS);
