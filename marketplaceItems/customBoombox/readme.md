@@ -1,7 +1,8 @@
 # Happy Boom Box
 This customizeable boom box brings tunes to your domain so that you can jam away to the beat with your friends. You will need rez permissions to add the boom box to your domain, or rez certified permissions if you want to download the version from the High Fidelity Marketplace. 
 
-<hr>
+# Release Notes
+Initial Release - Commit SHA 47829b658a
 
 ### boomBoxEntityServerScript.js
 
@@ -14,7 +15,6 @@ This client script handles the interactions between users and displays the UI fo
 ### boomBoxController.html
 This HTML page displays the controller UI for the music player through the Tablet Scripting Interface and is styled with CSS. It uses the EventBridge to send the user input from the HTML elements to the boombox entity script, which in turns calls entity server methods depending on the EventBridge message contents.
 
-<hr>
 
 ### Resources
 * Download a completed version of the Happy Boombox on the High Fidelity Marketplace:
@@ -26,4 +26,3 @@ https://highfidelity.com/marketplace/items/e9da3d33-b937-4e07-bdf8-29dde581dfd1
 
 * Tablet API Reference: https://docs.highfidelity.com/api-reference/namespaces/tablet 
 
-_Last updated: 1/15/2019_
