@@ -49,7 +49,7 @@ Audio.addToSoloList([targetUUID]);
 Audio.removeFromSoloList([targetUUID]);
 Audio.resetSoloList();
 
-Very handy in noisey enviornments!
+Very handy in noisey environments!
 
 ### Raycasting on avatars
 Small note on raycasting on avatars.  We don't have any signals for when someone clicks/triggers on an avatar, but we do have two methods that are available. 

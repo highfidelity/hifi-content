@@ -1,0 +1,360 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Cairo', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #005916;
+    color: #666666;
+  }
+
+  table {
+      width: 100%;
+      font-size: 16px;
+  }
+
+  p {
+      margin-bottom: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Raleway', sans-serif;
+  }
+
+  .nav-tabs {
+    border: none;
+  }
+
+  .active.nav-item.nav-link {
+    color: #FF0012;
+    font-weight: bold;
+    background-color: white !important;
+  }
+
+  .nav-tab.nav-link {
+      border: none;
+  }
+
+  #nav-domains-tab {
+    flex-grow: 2;
+  }
+
+  #info-tab {
+    flex-grow: 1;
+  }
+
+  .fs-18 {
+    font-size: 18px;
+  }
+
+  .tab-pane {
+      height: 650px;
+      padding: 10px 10px;
+      background-color: white;
+      border: none;
+  }
+
+  .tab-pane .empty {
+      position: absolute;
+      z-index: -900;
+  }
+
+  .nav-tabs .nav-item{
+      margin-bottom: 0;
+      flex-grow: 2;
+      color: white;
+  }
+
+.nav-link:hover {
+    border: none;
+    background-color: #4c8a5b;
+}
+
+.card-visited {
+    border: 5px solid #FF0012 !important;
+}
+
+.col-sm {
+    padding: 0px;
+}
+
+.align-bottom-wrapper {
+    min-height: 64px;
+    position: relative;
+}
+
+.align-bottom-wrapper-avatar {
+    min-height: 129px;
+    position: relative;
+    z-index: 100;
+    padding-left: 5px
+}
+
+.align-bottom-left {
+    position: absolute;
+    bottom: 0;
+}
+
+.align-bottom-right {
+    position: absolute;
+    right: -5px;
+    bottom: -5px;
+}
+
+.card {
+    border-radius: 0px;
+}
+
+.card-body {
+    padding: 0.5rem;
+}
+
+.row {
+    flex-wrap: nowrap;
+    margin-left: 0;
+    margin-right: 0;
+}
+.col-sm {
+    padding: 5px;
+}
+
+.ghost {
+    visibility: hidden;
+}
+
+
+.avatar-card {
+    min-height: 145px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-size-icon {
+    font-size: 3em;
+    margin-left: -10px;
+    margin-bottom: -10px;
+    z-index: 10;
+}
+
+.stroke {
+    color: transparent;
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: white;
+}
+
+.stroke-pink {
+    -webkit-text-stroke-color: #FF0012;
+}
+
+.vote-avatar-bar:hover .stroke-pink {
+    -webkit-text-stroke-color: white;
+    color: white;
+}
+
+.stroke:hover {
+    color: white;
+}
+
+.fill {
+    color: white !important;
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: white;
+}
+
+.modal-image {
+    height: 500px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.go-button {
+    background: url('icons/go-button.png') no-repeat top left;
+    background-size: cover;
+    background-position: center;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+    width: 60px;
+    height: 40px;
+    color: black;
+    padding: 0;
+    z-index: 20;
+}
+
+
+.flex-container-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    align-content: space-around;
+}
+
+.flex-item {
+    align-self: center;
+    margin: 0;
+}
+
+.txt-modal-body {
+    padding: 20;
+    padding-top: 25px;
+}
+
+.avatar-icon-fill {
+    color: rgba(255, 255, 255, .7)
+}
+
+.avatar-bar {
+    height: 127px;
+}
+
+.avatar-bar:hover .vote-avatar-bar {
+    color: white !important;
+}
+
+.vote-avatar-bar:hover {
+    background-color: #FF0012;
+    color: white !important;
+}
+
+.votedfor-avatar-bar {
+    color: white !important;
+    background-color: #FF0012 !important;
+}
+
+.notvotedfor-avatar-bar {
+    color: #FF0012;
+}
+
+.txt-color-white {
+    color: white;
+    text-shadow: 2px 2px #666666;
+}
+
+.domain-voted {
+    background-color: rgba(251, 4, 136, 0.5) !important;
+}
+
+
+
+.avatar-name {
+    font-size: 3.0em;
+    float: left;
+    position: absolute;
+    margin-top: 40px;
+    margin-left: 20px;
+    z-index: 10;
+}
+
+.full-layout {
+    padding: 0;
+    margin-top: 50px;
+}
+
+.btn-close {
+    color: #FF0012;
+}
+
+.voted-domain {
+    background-color: rgba(251, 4, 136, 0.3) !important;
+}
+
+.voted-check {
+    font-size: 4.5em;
+    left: 60px;
+    top: 28px;
+    position: absolute;
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: white;
+}
+
+.bkgd-pink {
+    background-color: #FF0012;
+    border: none;
+    margin-top: 30px;
+    padding: 10px 30px;
+}
+
+.bkgd-pink:hover {
+    background-color: #FF0012;
+    border: none;
+}
+
+.color-pink {
+    color: #FF0012;
+}
+
+.color-main {
+    color: #FF0012;
+}
+
+.loading-container {
+    display: block;
+    position: relative;
+    height: 80px;
+    width: 80px;
+}
+
+.loading-icon {
+    width: 100%;
+    height: 80px;
+    background-size: 75% 75%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-blend-mode: multiply;
+    background-image: url(icons/spinner.gif);
+    -webkit-mask-repeat: no-repeat;
+}
+
+/* modal config */
+
+.modal-backdrop {
+    background-color: rgba(0, 89, 22, 0.7);
+}
+
+.modal-alert {
+    box-shadow: 12px 12px 20px rgba(0, 0, 0, 0.3);
+}
+
+.back-btn {
+    background-color: #fff;
+    color: #FF0012;
+    border: 2px solid #FF0012;
+}
+
+.back-btn:hover {
+    border: 2px solid #FF0012;
+    background-color: #b8b8b8;
+    color: #FF0012;
+}
+
+.btn-primary.disabled {
+    background-color: #ff9da4;
+    border: 2px solid #ff9da4;
+}
+
+.btn-primary {
+    border: 2px solid #FF0012;
+}
+
+.btn-primary:hover {
+    border: 2px solid #760008;
+    background-color: #760008;
+}
+
+.jumbotron {
+    background-image: url("../images/tree-voting-feature-img.jpg");
+    background-size: cover;
+    height: 244px;
+    margin-bottom: 1rem;
+    margin-top: -10px;
+}
