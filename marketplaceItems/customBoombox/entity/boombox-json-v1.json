@@ -1,0 +1,116 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{d2fdae55-741d-4ecc-bf91-822d9100627f}",
+    "type": "Shape",
+    "created": "2019-01-10T21:23:26Z",
+    "lastEdited": 1547155638439717,
+    "lastEditedBy": "{71dc025d-eac1-4dfc-8678-8f02cc7060b8}",
+    "position": {
+        "x": 0.2588176727294922,
+        "y": 0.08226203918457031,
+        "z": 0.08774927258491516
+    },
+    "dimensions": {
+        "x": 0.06411215662956238,
+        "y": 0.04400532692670822,
+        "z": 0.06641630083322525
+    },
+    "rotation": {
+        "x": 0.16050970554351807,
+        "y": -0.688654899597168,
+        "z": -0.688685417175293,
+        "w": 0.16044867038726807
+    },
+    "damping": 0,
+    "script": "http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/boomBoxEntityScript.js",
+    "scriptTimestamp": 1547152183018,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "shape": "Octagon",
+    "color": {
+        "red": 240,
+        "green": 0,
+        "blue": 76
+    },
+    "parentID": "{35b0bc7c-84c7-4914-b417-5f5b729a28e7}",
+    "queryAACube": {
+        "x": 16.863924026489258,
+        "y": -10.68580150604248,
+        "z": -3.6501379013061523,
+        "scale": 0.10226418077945709
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+},
+    {
+    "id": "{35b0bc7c-84c7-4914-b417-5f5b729a28e7}",
+    "type": "Model",
+    "created": "2019-01-10T21:23:26Z",
+    "lastEdited": 1547155647303781,
+    "lastEditedBy": "{71dc025d-eac1-4dfc-8678-8f02cc7060b8}",
+    "dimensions": {
+        "x": 0.862625002861023,
+        "y": 0.6041481494903564,
+        "z": 0.22040824592113495
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "serverScripts": "http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/boomBoxEntityServerScript.js",
+    "description": "Licensed under the Creative Commons License",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false},\"music\":{\"All That\":\"http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/music/bensound-allthat.mp3\",\"Country Boy\":\"http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/music/bensound-countryboy.mp3\",\"Cute\":\"http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/music/bensound-cute.mp3\",\"Happiness\":\"http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/music/bensound-happiness.mp3\",\"Happy Rock\":\"http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/music/bensound-happyrock.mp3\",\"High Octane\":\"http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/music/bensound-highoctane.mp3\",\"Hip Jazz\":\"http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/music/bensound-hipjazz.mp3\",\"Pop Dance\":\"http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/music/bensound-popdance.mp3\",\"Sci-Fi\":\"http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/music/bensound-scifi.mp3\"},\"volume\":0.7}",
+    "name": "BoomBox by Google Poly",
+    "modelURL": "http://mpassets.highfidelity.com/e9da3d33-b937-4e07-bdf8-29dde581dfd1-v1/BoomBox.fbx",
+    "shapeType": "simple-compound",
+    "queryAACube": {
+        "x": -0.5379815697669983,
+        "y": -0.5379815697669983,
+        "z": -0.5379815697669983,
+        "scale": 1.0759631395339966
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false
+}
+    ],
+  "Id": "{e66bd389-1fad-4b51-97d4-a06457606a3d}",
+  "Version": 98
+}
