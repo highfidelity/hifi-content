@@ -11,33 +11,31 @@
     Makes random animated particles
 
 */
-print("in generator particles2");
+
 
 Script.require("../modules/polyfill.js")();
-Script.resetModuleCache(true);
-var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 
 var common = Script.require("../modules/commonUtilities.js?" + Date.now());
-var particles = Script.require("../modules/particleProperties.js?" + Date.now());
-
 var randomFloat = common.randomFloat;
 var randomInt = common.randomInt;
 var makeColor = common.makeColor;
 
+var particles = Script.require("../modules/particleProperties.js?" + Date.now());
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
-
 
 // Main Particle Constructor Function
 function ParticleGenerator() {
+    this.parentID = null;
+
     this.particle = null;
     this.interval = null;
-    this._entityID = null;
     this.textureCollection = textureCollection;
 }
 
 
 // First make the particle and then start the animation sequence
-function create(position) {
+function create(parentID) {
+    this.parentID = parentID;
     this.makeParticle();
     this.animate();
 }
@@ -52,119 +50,191 @@ function makeParticle() {
     var maxParticlesIndex = particleArray.length - 1;
     var randomParticleIndex = randomInt(0, maxParticlesIndex);
     var particle = particleArray[randomParticleIndex];
-    particle.parentID = this._entityID;
+
+    particle.parentID = this.parentID;
     particle.name = "Party Particle";
-    particle.localPosition = [0, 1, 0];
+    particle.localPosition = [0, 0.5, 0];
     particle.dimensions = [10, 10, 10];
+
     this.particle = Entities.addEntity(particle);
-    console.log("adding particle: ", this.particle);
-}
-
-
-function registerEntity(entityID){
-    this._entityID = entityID;
 }
 
 
 // Main Animator that is controlling the specific interval animations
-var UDPATE_MIN = 50;
-var UPDATE_MAX = 2000;
+var UDPATE_MIN = 17;
+var UPDATE_MAX = 2500;
 function animate() {
-    // Get a random amount between 17 to 1000 as how often to animate by
+    // Get a random interval amount between update min/max as how often to animate by
     var intervalAmount = randomInt(UDPATE_MIN, UPDATE_MAX);
-    console.log("interval Amount", intervalAmount)
     this.interval = Script.setInterval(intervalAnimator.bind(this), intervalAmount);
 }
 
-var CHANCE_THRESHOLD = 0.4;
+
+// Add in some chance so it doesn't animate every iteration
+var CHANCE_THRESHOLD = 0.25;
 function shouldAnimate(){
     var chanceAmount = randomFloat(0, 1);
-    if (chanceAmount> CHANCE_THRESHOLD){
+    if (chanceAmount > CHANCE_THRESHOLD){
         return true;
+    } else {
+        return false;
     }
 }
+ 
 
-// var textureCount = 0;
-// var textureSwitchCount = 15;
-var EMIT_RATE_MIN = 0;
-// var EMIT_RATE_MAX = 10000;
-var EMIT_RATE_MAX = 500;
-var PARTICLE_RADIUS_MIN = 0;
-// var PARTICLE_RADIUS_MAX = 4; 
-var PARTICLE_RADIUS_MAX = 1; 
-var EMIT_SPEED_MIN = 0;
-// var EMIT_SPEED_MAX = 40;
-var EMIT_SPEED_MAX = 20;
-var EMIT_ACCELERATION_MIN = -2;
-// var EMIT_ACCELERATION_MAX = 25;
-var EMIT_ACCELERATION_MAX = 2;
+// Return back an on going average from a given set
+function AveragingFilter(length, initValue) {
+    // initialize the array of past values
+    initValue = initValue || 0;
+    this.pastValues = [];
+    for (var i = 0; i < length; i++) {
+        this.pastValues.push(initValue);
+    }
+    // single arg is the nextInputValue
+    this.process = function () {
+        if (this.pastValues.length === 0 && arguments[0]) {
+            return arguments[0];
+        } else if (arguments[0] !== null) {
+            this.pastValues.push(arguments[0]);
+            this.pastValues.shift();
+            var nextOutputValue = 0;
+            for (var value in this.pastValues) {
+                nextOutputValue += this.pastValues[value];
+            }
+            return nextOutputValue / this.pastValues.length;
+        } else {
+            return 0;
+        }
+    };
+}
+
+
+// Generate the random light props for each animation step
+var EMIT_RATE_MIN = 1;
+var EMIT_RATE_MAX = 1000;
+var PARTICLE_RADIUS_MIN = 0.5;
+var PARTICLE_RADIUS_MAX = 1.5;
+var EMIT_SPEED_MIN = 0.1;
+var EMIT_SPEED_MAX = 10;
+var EMIT_ACCELERATION_MIN = 0;
+var EMIT_ACCELERATION_MAX = 10;
 var EMIT_ORIENTATION_MIN = -180;
 var EMIT_ORIENTATION_MAX = 180;
-var ALPHA_MIN = 0.75;
+var ALPHA_MIN = 0.05;
 var ALPHA_MAX = 1;
-var MINIMUM_PARTICLE_SPIN = -2.0 * Math.PI;
-var MAXIMUM_PARTICLE_SPIN = 2.0 * Math.PI;
-var iterationsBeforeTextureSwitch = 15;
-var currentIterationCount = 0;
-var maxTextureLength = textureCollection.length - 1;
-var MAXIMUM_PARTICLE = 3000;
-function intervalAnimator(){
-    if (shouldAnimate()){
-        return;
-    }
-
+var PARTICLE_SPIN_MIN = -2.0 * Math.PI;
+var PARTICLE_SPIN_MAX = 2.0 * Math.PI;
+var MAXIMUM_PARTICLE = 5000;
+var MINIMUM_COLOR_SCALER = 0.0;
+var MAXIMUM_COLOR_SCALER = 0.4;
+var AVERAGING_LENGTH = 5;
+var filterStore = {
+    emitRate: new AveragingFilter(AVERAGING_LENGTH, 1),
+    particleRadius: new AveragingFilter(AVERAGING_LENGTH, 0.05),
+    emitSpeed: new AveragingFilter(AVERAGING_LENGTH, 1),
+    emitAcceleration: {
+        x: new AveragingFilter(AVERAGING_LENGTH, 0.10),
+        y: new AveragingFilter(AVERAGING_LENGTH, 0.10),
+        z: new AveragingFilter(AVERAGING_LENGTH, 0.10)
+    },
+    emitOrientation: {
+        x: new AveragingFilter(AVERAGING_LENGTH, -180),
+        y: new AveragingFilter(AVERAGING_LENGTH, 180),
+        z: new AveragingFilter(AVERAGING_LENGTH, 90)
+    },
+    alpha: new AveragingFilter(AVERAGING_LENGTH, 1),
+    alphaStart: new AveragingFilter(AVERAGING_LENGTH, 1),
+    alphaFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
+    radiusFinish: new AveragingFilter(AVERAGING_LENGTH, 0.2),
+    radiusStart: new AveragingFilter(AVERAGING_LENGTH, 0.4),
+    spinFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
+    spinStart: new AveragingFilter(AVERAGING_LENGTH, -1)
+};
+function makeRandomParticleProps(){
     var particleProps = {
-        emitterShouldTrail: true,
+        emitterShouldTrail: randomInt(0, 1),
         maxParticles: MAXIMUM_PARTICLE,
-        emitRate: randomFloat(EMIT_RATE_MIN, EMIT_RATE_MAX),
-        particleRadius: randomFloat(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
-        emitSpeed: randomFloat(EMIT_SPEED_MIN, EMIT_SPEED_MAX),
-        emitAcceleration: {
-            "x": randomFloat(EMIT_ACCELERATION_MIN, EMIT_ACCELERATION_MAX),
-            "y": randomFloat(EMIT_ACCELERATION_MIN, EMIT_ACCELERATION_MAX),
-            "z": randomFloat(EMIT_ACCELERATION_MIN, EMIT_ACCELERATION_MAX)
-        },
+        emitRate: 
+            filterStore.emitRate.process(randomFloat(EMIT_RATE_MIN, EMIT_RATE_MAX)),
+        particleRadius: 
+            filterStore.particleRadius.process(randomFloat(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX)),
+        emitSpeed: 
+            filterStore.emitSpeed.process(randomFloat(EMIT_SPEED_MIN, EMIT_SPEED_MAX)),
+        emitAcceleration: [
+            filterStore.emitAcceleration.x.process(
+                randomFloat(EMIT_ACCELERATION_MIN, EMIT_ACCELERATION_MAX)),
+            filterStore.emitAcceleration.y.process(
+                randomFloat(EMIT_ACCELERATION_MIN, EMIT_ACCELERATION_MAX)),
+            filterStore.emitAcceleration.z.process(
+                randomFloat(EMIT_ACCELERATION_MIN, EMIT_ACCELERATION_MAX))
+        ],
         emitOrientation: Quat.fromPitchYawRollDegrees(
-            randomInt(EMIT_ORIENTATION_MIN, EMIT_ORIENTATION_MAX),
-            randomInt(EMIT_ORIENTATION_MIN, EMIT_ORIENTATION_MAX),
-            randomInt(EMIT_ORIENTATION_MIN, EMIT_ORIENTATION_MAX)
+            filterStore.emitOrientation.x.process(
+                randomInt(EMIT_ORIENTATION_MIN, EMIT_ORIENTATION_MAX)),
+            filterStore.emitOrientation.y.process(
+                randomInt(EMIT_ORIENTATION_MIN, EMIT_ORIENTATION_MAX)),
+            filterStore.emitOrientation.z.process(
+                randomInt(EMIT_ORIENTATION_MIN, EMIT_ORIENTATION_MAX))
         ),
-        alpha: randomFloat(ALPHA_MIN, ALPHA_MAX),
-        alphaStart: randomFloat(ALPHA_MIN, ALPHA_MAX),
-        alphaFinish: randomFloat(ALPHA_MIN, ALPHA_MAX),
+        alpha: 
+            filterStore.alpha.process(randomFloat(ALPHA_MIN, ALPHA_MAX)),
+        alphaStart: 
+            filterStore.alphaStart.process(randomFloat(ALPHA_MIN, ALPHA_MAX)),
+        alphaFinish: 
+            filterStore.alphaFinish.process(randomFloat(ALPHA_MIN, ALPHA_MAX)),
         color: makeColor(
             randomInt(0, 255),
             randomInt(0, 255),
-            randomInt(0, 255)
+            randomInt(0, 255),
+            randomFloat(MINIMUM_COLOR_SCALER, MAXIMUM_COLOR_SCALER)
         ),
         colorStart: makeColor(
             randomInt(0, 255),
             randomInt(0, 255),
-            randomInt(0, 255)
+            randomInt(0, 255),
+            randomFloat(MINIMUM_COLOR_SCALER, MAXIMUM_COLOR_SCALER)
         ),
         colorFinish: makeColor(
             randomInt(0, 255),
             randomInt(0, 255),
-            randomInt(0, 255)
+            randomInt(0, 255),
+            randomFloat(MINIMUM_COLOR_SCALER, MAXIMUM_COLOR_SCALER)
         ),
-        radiusFinish: randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
-        radiusStart: randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX),
-        spinFinish: randomFloat(MINIMUM_PARTICLE_SPIN, MAXIMUM_PARTICLE_SPIN),
-        spinStart: randomFloat(MINIMUM_PARTICLE_SPIN, MAXIMUM_PARTICLE_SPIN)
+        radiusStart:
+            filterStore.radiusStart.process(randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX)),
+        radiusFinish: 
+            filterStore.radiusFinish.process(randomInt(PARTICLE_RADIUS_MIN, PARTICLE_RADIUS_MAX)),
+        spinStart:
+            filterStore.spinStart.process((PARTICLE_SPIN_MIN, PARTICLE_SPIN_MAX)),
+        spinFinish: 
+            filterStore.spinFinish.process(randomFloat(PARTICLE_SPIN_MIN, PARTICLE_SPIN_MAX))
     };
+    return particleProps;
+}
 
-    // Get a random texture
+
+// Main animation function run on each interval
+var iterationsBeforeTextureSwitch = 15;
+var currentIterationCount = 0;
+var maxTextureIndex = textureCollection.length - 1;
+function intervalAnimator(){
+    if (!shouldAnimate()){
+        return;
+    }
+
+    var newParticleProperties = makeRandomParticleProps();
+    
+    // Get a new random texture after a changing amount of updates have past
     if (currentIterationCount < iterationsBeforeTextureSwitch) {
         currentIterationCount++;
     } else {
-        var randomTexture = randomInt(0, maxTextureLength);
-        particleProps.textures = this.textureCollection[randomTexture];
+        var randomTexture = randomInt(0, maxTextureIndex);
+        newParticleProperties.textures = this.textureCollection[randomTexture];
         currentIterationCount = 0;
         iterationsBeforeTextureSwitch = randomInt(5, 35);
     }
 
-    // console.log("particleProps", JSON.stringify(particleProps, null, 4));
-    Entities.editEntity(this.particle, particleProps);
+    Entities.editEntity(this.particle, newParticleProperties);
 }
 
 
@@ -174,11 +244,11 @@ function destroy() {
     Script.clearInterval(this.interval);
 }
 
+
 ParticleGenerator.prototype = {
     create: create,
     makeParticle: makeParticle,
     animate: animate,
-    registerEntity: registerEntity,
     destroy: destroy
 };
 

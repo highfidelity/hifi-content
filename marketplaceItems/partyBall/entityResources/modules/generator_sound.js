@@ -12,10 +12,6 @@
     Some code from soundArray.js in the Hifi archive repo
 
 */
-print("in generator sound");
-
-
-Script.resetModuleCache(true);
 
 
 // Constructor function to create a sound library to play randomly
@@ -32,6 +28,7 @@ function SoundGenerator(audioOptions, autoUpdateAudioPosition) {
     this.injector = null;
     this.sounds = [];
 }
+
 
 // Updates the position to play from
 function updatePosition(position){
@@ -78,6 +75,7 @@ function updateAudioPosition() {
 }
 
 
+// Stops the audio injector from playing sound
 function stop() {
     try {
         this.injector.stop();

@@ -11,10 +11,7 @@
     Library of particle effects
 
 */
-print("in particle properties");
 
-
-Script.resetModuleCache(true);
 
 var intro = {
     "type": "ParticleEffect",
@@ -80,6 +77,65 @@ var intro = {
     "spinStart": null,
     "spinFinish": null,
     "textures": "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/cloud-sprite.png"
+};
+
+var outro = {
+    "type": "ParticleEffect",
+    "lifespan": 1.0299999713897705,
+    "emitRate": 255,
+    "emitSpeed": 0,
+    "emitOrientation": {
+        "x": 0.7076560258865356,
+        "y": -0.00001525919469713699,
+        "z": -0.00001525919469713699,
+        "w": 0.7065572142601013
+    },
+    "emitDimensions": {
+        "x": 1.4299999475479126,
+        "y": 1.8799999952316284,
+        "z": 1.4500000476837158
+    },
+    "polarFinish": 3.1415927410125732,
+    "emitAcceleration": {
+        "x": 0,
+        "y": -1.590000033378601,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 19.921066284179688,
+        "y": 19.921066284179688,
+        "z": 19.921066284179688
+    },
+    "particleRadius": 1.409999966621399,
+    "radiusStart": 8,
+    "radiusFinish": 0,
+    "color": {
+        "red": 129,
+        "green": 58,
+        "blue": 156
+    },
+    "colorStart": {
+        "red": 125,
+        "green": 145,
+        "blue": 232
+    },
+    "colorFinish": {
+        "red": 255,
+        "green": 255,
+        "blue": 255
+    },
+    "alphaStart": 0,
+    "alphaFinish": 0.5099999904632568,
+    "emitterShouldTrail": true,
+    "spinStart": null,
+    "spinFinish": null,
+    "textures": "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/cloud-sprite.png",
+
+    "alpha": 0.53000000417232513,
+    "maxParticles": 2614,
+    "speedSpread": 0,
+    "spinSpread": 6.2831854820251465
+
 };
 
 var smoke = {
@@ -150,137 +206,6 @@ var smoke = {
     "spinStart": 0,
     "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
     "type": "ParticleEffect"
-};
-
-// var smoke3 = {
-//     "type": "ParticleEffect",
-//     "name": "Party-Smoke",
-//     "collisionless": 1,
-//     "dynamic": 0,
-//     "isEmitting": true,
-//     "lifespan": "1.62",
-//     "maxParticles": "520",
-//     "textures": "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Bokeh-Particle.png",
-//     "emitRate": "622",
-//     "emitSpeed": "0.7",
-//     "speedSpread": "1.43",
-//     "emitDimensions": {
-//         "x": "10",
-//         "y": "10",
-//         "z": ""
-//     },
-//     "emitOrientation": {
-//         "x": "270",
-//         "y": "0",
-//         "z": ""
-//     },
-//     "emitterShouldTrail": true,
-//     "particleRadius": "0.75",
-//     "radiusSpread": "0.5",
-//     "radiusStart": "0.21",
-//     "radiusFinish": "0",
-//     "color": {
-//         "red": "171",
-//         "blue": "171",
-//         "green": "171"
-//     },
-//     "colorSpread": {
-//         "red": "0",
-//         "blue": "0",
-//         "green": "0"
-//     },
-//     "colorStart": {
-//         "red": "255",
-//         "blue": "255",
-//         "green": "255"
-//     },
-//     "colorFinish": {
-//         "red": "255",
-//         "blue": "255",
-//         "green": "255"
-//     },
-//     "emitAcceleration": {
-//         "x": "0",
-//         "y": "4",
-//         "z": "0"
-//     },
-//     "accelerationSpread": {
-//         "x": "0",
-//         "y": "4",
-//         "z": "0"
-//     },
-//     "alpha": "1",
-//     "alphaSpread": "0",
-//     "alphaStart": "1",
-//     "alphaFinish": "0",
-//     "particleSpin": 1.6231562043547265,
-//     "spinSpread": 0,
-//     "spinStart": 1.6231562043547265,
-//     "spinFinish": 1.6231562043547265,
-//     "rotateWithEntity": false,
-//     "polarStart": 0,
-//     "polarFinish": 0.10471975511965978,
-//     "azimuthStart": -3.141592653589793,
-//     "azimuthFinish": 3.141592653589793
-// };
-
-var outro = {
-    "type": "ParticleEffect",
-    "lifespan": 1.0299999713897705,
-    "emitRate": 255,
-    "emitSpeed": 0,
-    "emitOrientation": {
-        "x": 0.7076560258865356,
-        "y": -0.00001525919469713699,
-        "z": -0.00001525919469713699,
-        "w": 0.7065572142601013
-    },
-    "emitDimensions": {
-        "x": 1.4299999475479126,
-        "y": 1.8799999952316284,
-        "z": 1.4500000476837158
-    },
-    "polarFinish": 3.1415927410125732,
-    "emitAcceleration": {
-        "x": 0,
-        "y": -1.590000033378601,
-        "z": 0
-    },
-    "dimensions": {
-        "x": 19.921066284179688,
-        "y": 19.921066284179688,
-        "z": 19.921066284179688
-    },
-    "particleRadius": 1.409999966621399,
-    "radiusStart": 8,
-    "radiusFinish": 0,
-    "color": {
-        "red": 129,
-        "green": 58,
-        "blue": 156
-    },
-    "colorStart": {
-        "red": 125,
-        "green": 145,
-        "blue": 232
-    },
-    "colorFinish": {
-        "red": 255,
-        "green": 255,
-        "blue": 255
-    },
-    "alphaStart": 0,
-    "alphaFinish": 0.5099999904632568,
-    "emitterShouldTrail": true,
-    "spinStart": null,
-    "spinFinish": null,
-    "textures": "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/cloud-sprite.png",
-    
-    "alpha": 0.53000000417232513,
-    "maxParticles": 2614,
-    "speedSpread": 0,
-    "spinSpread": 6.2831854820251465
-
 };
 
 var bubbles = {

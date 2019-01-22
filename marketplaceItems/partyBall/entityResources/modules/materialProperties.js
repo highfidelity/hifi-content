@@ -12,14 +12,12 @@
 
 */
 
+
 module.exports = {
-    "materialData": 
+    name: "Party-Ball-Material",
+    type: "Material",
+    materialData: 
         "{\n  \"materialVersion\": 1,\n  \"materials\": {\n    \"albedoMap\": \"https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/question.png\",\n    \"emissiveMap\": \"https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/question.png\"\n  }\n}",
-    "materialMappingScale": {
-        "x": 7,
-        "y": 7
-    },
-    "materialURL": "materialData",
-    "name": "Party-Ball-Material",
-    "type": "Material"
+    materialURL: "materialData",
+    materialMappingScale: [0, 7]
 };
