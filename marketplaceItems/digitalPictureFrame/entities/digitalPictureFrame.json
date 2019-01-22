@@ -17,7 +17,7 @@
             "ignoreForCollisions": true,
             "lastEdited": 1539278790129462,
             "lastEditedBy": "{6301f4c4-5bcf-45fe-83d2-308320ab2d24}",
-            "modelURL": "https://hifi-content.s3.amazonaws.com/DomainContent/production/default-image-model.fbx",
+            "modelURL": "../resources/default-image-model.fbx",
             "name": "digital-photo-picture",
             "owningAvatarID": "{00000000-0000-0000-0000-000000000000}",
             "parentID": "{42af9f3e-5462-4ebe-9d6b-1fa862be4127}",
@@ -41,11 +41,11 @@
                 "y": -1.52587890625e-05,
                 "z": -1.52587890625e-05
             },
-            "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/liv/dev/PhotoFrame/digitalFrame.js",
+            "serverScripts": "../entityServerScripts/digitalFrame.js",
             "shapeType": "box",
-            "textures": "{\"tex.picture\":\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image1.jpg\"}",
+            "textures": "{\"tex.picture\":\"../resources/image1.jpg\"}",
             "type": "Model",
-            "userData": "{\"grabbableKey\":{\"grabbable\":false},\"digitalFrame\":{\"changeSpeed\":10,\"photos\":[\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image1.jpg\",\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image2.jpg\",\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image3.jpg\",\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image4.jpg\",\"https://hifi-content.s3-us-west-1.amazonaws.com/liv/Production/DemoPhotos/image5.jpg\"]}}"
+            "userData": "{\"grabbableKey\":{\"grabbable\":false},\"digitalFrame\":{\"changeSpeed\":10,\"photos\":[\"../resources/image1.jpg\",\"../resources/image2.jpg\",\"../resources/image3.jpg\",\"../resources/image4.jpg\",\"../resources/image5.jpg\"]}}"
         },
         {
             "clientOnly": false,

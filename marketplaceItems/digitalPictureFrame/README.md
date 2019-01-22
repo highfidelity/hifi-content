@@ -23,6 +23,13 @@ If there is an error with the userdata properties, the default photos and speed 
 
 When the script ends, the `unload` function is called and we disconnect our interval via `Script.clearInterval` so that we are not continuing to change photos. 
 
+# Release Notes
+
+01_15_2019 Commit SHA 690256a 
+* Move code into marketplaceItems folder
+
+MarketplaceID: 77f0eb70-beba-49df-9e26-da1740bf6c9a
+
 **A Note About Image Entities**
 
 In the High Fidelity Engine, entities have specific types depending on how they render and what their properties are. Image entities, while on the surface seem to be a unique type of entity, are actually _model_ entities with a single texture, which is referenced in the `tex.image` property and surfaced in the Create menu as the 'Image URL'. If you are making a script that modifies the image on an Image entity, instead of modifying a non-existant `imageURL` property, you will need to modify that texture directly with: `Entities.editEntity(_entityID, {'textures' : JSON.stringify({'tex.picture' : new_image_url})});`
