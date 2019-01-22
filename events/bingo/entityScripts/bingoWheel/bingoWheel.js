@@ -15,8 +15,8 @@
     var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
     var ANGULAR_VELOCITY = { x: 0, y: 0, z: -10 };
     var ANGULAR_VELOCITY_CHECK_MS = 100;
-    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan','Becky','zfox'];
-    var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('sounds/blip.wav'));
+    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan', 'Becky', 'zfox'];
+    var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('sounds/blip.wav?1'));
     var SPIN_SOUND = SoundCache.getSound(Script.resolvePath('sounds/wheelSpin.mp3?0'));
     var WAIT_BETWEEN_SPINS_MS = 500;
     var BINGO_WHEEL_ENTITY_ID = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
