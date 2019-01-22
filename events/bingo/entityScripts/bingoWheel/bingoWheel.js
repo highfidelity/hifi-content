@@ -174,6 +174,7 @@
 
                 if (angularVelocityCheckInterval) {
                     Script.clearInterval(angularVelocityCheckInterval);
+                    angularVelocityCheckInterval = false;
                 }
 
                 var finalNumber = false;
@@ -220,6 +221,7 @@
         unload: function(entityID) {
             if (angularVelocityCheckInterval) {
                 Script.clearInterval(angularVelocityCheckInterval);
+                angularVelocityCheckInterval = false;
             }
         }
     };

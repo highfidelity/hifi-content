@@ -13,12 +13,12 @@
     var _this;
 
     var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
-    var MOVEMENT_INCREMENT_M = 0.02;
-    var MOVEMENT_INTERVAL_MS = 12.5;
+    var MOVEMENT_VELOCITY_M_PER_SEC = 1.4;
+    var POSITION_CHECK_INTERVAL_MS = 25;
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath("sounds/openGate.wav"));
+    var EPSILON_M = 0.01;
 
-    var moving;
-    var currentLocalPosition;
+    var gatePositionCheckInterval;
     var openedLocalPosition;
     var closedLocalPosition;
 
@@ -26,7 +26,7 @@
     // START UTILITY FUNCTIONS
     // *************************************
 
-    /* PLAY A SOUND: Plays the specified sound at specified position  and volume */
+    /* PLAY A SOUND: Plays the specified sound at specified position and volume */
     var injector;
     function playSound(sound, position, volume) {
         if (sound.downloaded) {
@@ -56,66 +56,104 @@
             if (name === "Bingo Scanner Entry Gate") {
                 closedLocalPosition = { x: -0.9310, y: 1.1957 , z: 0.0811 };
                 openedLocalPosition = { x: -0.9310, y: -0.9731 , z: 0.0811 };
-                currentLocalPosition = { x: -0.9310, y: 1.1957 , z: 0.0811 };
-                Entities.editEntity(_this.entityID, { position: currentLocalPosition});
+                Entities.editEntity(_this.entityID, { localPosition: closedLocalPosition});
             } else if (name === "Bingo Stage Entry Gate") {
                 closedLocalPosition = { x: 1, y: 1.1957 , z: 0.0811 };
                 openedLocalPosition = { x: 1, y: -0.9731 , z: 0.0811 };
-                currentLocalPosition = { x: 1, y: 1.1957 , z: 0.0811 };
-                Entities.editEntity(_this.entityID, { position: currentLocalPosition});
+                Entities.editEntity(_this.entityID, { localPosition: closedLocalPosition});
             }
         },
 
-        gateDown: function() {
-            if (currentLocalPosition.y > openedLocalPosition.y) {
-                currentLocalPosition.y -= MOVEMENT_INCREMENT_M;
-                Entities.editEntity(_this.entityID, {
-                    position: currentLocalPosition
-                });
-            } else {
-                if (moving) {
-                    Script.clearInterval(moving);
-                }
-            }
-        },
-
-        gateUp: function() {
-            if (currentLocalPosition.y < closedLocalPosition.y) {
-                currentLocalPosition.y += MOVEMENT_INCREMENT_M;
-                Entities.editEntity(_this.entityID, {
-                    position: currentLocalPosition
-                });
-            } else {
-                if (moving) {
-                    Script.clearInterval(moving);
-                }
-            }
-        },
-
+        // Gate moves DOWN to open
         openGate: function() {
-            if (moving) {
-                Script.clearInterval(moving);
+            // Clear check interval if one exists.
+            if (gatePositionCheckInterval) {
+                Script.clearInterval(gatePositionCheckInterval);
+                gatePositionCheckInterval = false;
             }
+
+            // Check if already open.
+            var currentPosition = Entities.getEntityProperties(_this.entityID, 'localPosition').localPosition;
+            if (currentPosition.y >= openedLocalPosition.y - EPSILON_M &&
+                currentPosition.y <= openedLocalPosition.y + EPSILON_M) {
+                return;
+            }
+
             playSound(OPEN_SOUND, GAME_AUDIO_POSITION, 1);
-            playSound(OPEN_SOUND, Entities.getEntityProperties(_this.entityID, 'position').position, 1);
-            moving = Script.setInterval(function() {
-                _this.gateDown();
-            }, MOVEMENT_INTERVAL_MS);
+            playSound(OPEN_SOUND, Entities.getEntityProperties(_this.entityID, 'localPosition').localPosition, 1);
+
+            // Start opening the gate.
+            Entities.editEntity(_this.entityID,
+                {
+                    velocity: {x: 0, y: -MOVEMENT_VELOCITY_M_PER_SEC, z: 0}
+                }
+            );
+
+            // Start the check interval that stops the gate when it's open.
+            gatePositionCheckInterval = Script.setInterval(function() {
+                var localPosition = Entities.getEntityProperties(_this.entityID, 'localPosition').localPosition;
+                if (localPosition.y <= openedLocalPosition.y) {
+                    Entities.editEntity(_this.entityID,
+                        {
+                            localPosition: openedLocalPosition,
+                            velocity: {x: 0, y: 0, z: 0}
+                        }
+                    );
+                    Script.clearInterval(gatePositionCheckInterval);
+                    gatePositionCheckInterval = false;
+                }
+            }, POSITION_CHECK_INTERVAL_MS);
         },
 
+        // Gate moves UP to close
         closeGate: function() {
-            if (moving) {
-                Script.clearInterval(moving);
+            // Clear check interval if one exists.
+            if (gatePositionCheckInterval) {
+                Script.clearInterval(gatePositionCheckInterval);
+                gatePositionCheckInterval = false;
             }
-            moving = Script.setInterval(function() {
-                _this.gateUp();
-            }, MOVEMENT_INTERVAL_MS);
+
+            // Check if already closed.
+            var currentPosition = Entities.getEntityProperties(_this.entityID, 'localPosition').localPosition;
+            if (currentPosition.y >= closedLocalPosition.y - EPSILON_M &&
+                currentPosition.y <= closedLocalPosition.y + EPSILON_M) {
+                return;
+            }
+
+            // Start closing the gate.
+            Entities.editEntity(_this.entityID,
+                {
+                    velocity: {x: 0, y: MOVEMENT_VELOCITY_M_PER_SEC, z: 0}
+                }
+            );
+
+            // Start the check interval that stops the gate when it's closed.
+            gatePositionCheckInterval = Script.setInterval(function() {
+                var localPosition = Entities.getEntityProperties(_this.entityID, 'localPosition').localPosition;
+                if (localPosition.y >= closedLocalPosition.y) {
+                    Entities.editEntity(_this.entityID,
+                        {
+                            localPosition: closedLocalPosition,
+                            velocity: {x: 0, y: 0, z: 0}
+                        }
+                    );
+                    Script.clearInterval(gatePositionCheckInterval);
+                    gatePositionCheckInterval = false;
+                }
+            }, POSITION_CHECK_INTERVAL_MS);
         },
 
         unload: function() {
-            if (moving) {
-                Script.clearInterval(moving);
+            if (gatePositionCheckInterval) {
+                Script.clearInterval(gatePositionCheckInterval);
+                gatePositionCheckInterval = false;
             }
+            Entities.editEntity(_this.entityID,
+                {
+                    localPosition: closedLocalPosition,
+                    velocity: {x: 0, y: 0, z: 0}
+                }
+            );
         }
     };
 

@@ -567,9 +567,11 @@
             });
             if (trapDoorOpenCheckInterval) {
                 Script.clearInterval(trapDoorOpenCheckInterval);
+                trapDoorOpenCheckInterval = false;
             }
             if (trapDoorCloseCheckInterval) {
                 Script.clearInterval(trapDoorCloseCheckInterval);
+                trapDoorCloseCheckInterval = false;
             }
         }
     };
