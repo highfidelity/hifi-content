@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 //
 // bingoCard_app.js
 // Created by Liv Erickson on 10/24/2018
@@ -122,13 +123,15 @@
     var request = Script.require('request').request;
     var userCardNumbers = [];
     var selectedNumberIDs = [];
+    var cardColor = {"red": 43, "green": 43, "blue": 43};
     function findOrCreateCard() {
         // We don't need to make any requests if we already have our numbers.
         if (userCardNumbers.length > 0) {
             ui.sendMessage({
-                type : 'displayNumbers',
+                type: 'initializeCard',
                 allNumbers: userCardNumbers,
-                selectedNumberIDs: selectedNumberIDs
+                selectedNumberIDs: selectedNumberIDs,
+                cardColor: cardColor
             });
             return;
         }
@@ -145,10 +148,14 @@
             }
             if (response.status && response.status === "success") {
                 userCardNumbers = response.userCardNumbers;
+                // For some reason, we need to parse this as if it's text.
+                // Google Scripts can be strange sometimes.
+                cardColor = JSON.parse(response.userCardColor);
                 ui.sendMessage({
-                    type : 'displayNumbers',
+                    type: 'initializeCard',
                     allNumbers: userCardNumbers,
-                    selectedNumberIDs: selectedNumberIDs
+                    selectedNumberIDs: selectedNumberIDs,
+                    cardColor: cardColor
                 });
 
                 if (response.newUser) {
@@ -164,6 +171,7 @@
     function onOpened() {
         createGem();
         // The delay shouldn't be necessary in RC78. this is currently necessary because of this bug:
+        // eslint-disable-next-line max-len
         // https://highfidelity.manuscript.com/f/cases/20253/screenChanged-signal-is-emitted-before-the-screen-has-actually-changed
         Script.setTimeout(findOrCreateCard, 500);
     }
@@ -310,7 +318,7 @@
     /* ON APP START: Setup app UI, button, and messaging between it's html page and this script */
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('bingoCard_ui.html');
+    var appPage = Script.resolvePath('bingoCard_ui.html?2');
     function startup() {
         ui = new AppUi({
             buttonName: "BINGO",
@@ -326,7 +334,7 @@
 
     /* WHEN USER SESSION CHANGES: End this script so users will not be left with a card when leaving the domain*/
     function sessionChanged() {
-        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?5'));
+        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?6'));
     }
     
     startup();

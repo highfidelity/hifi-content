@@ -204,22 +204,6 @@ input[type=button][pressed=pressed] {
     border: 0;
 }
 
-.card-pink {
-    background: rgb(255, 0,119);
-}
-
-.card-blue {
-    background: rgb(0, 196, 247);
-}
-
-.card-yellow {
-    background: rgb(227, 255, 66);
-}
-
-.card-green {
-    background: rgb(30, 255, 0);
-}
-
 .selected {
     background-color: black;
     color: white;

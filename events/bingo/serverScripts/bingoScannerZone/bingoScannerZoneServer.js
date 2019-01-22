@@ -22,10 +22,6 @@
     var WHITE = {red:255,green:255,blue:255};
     var WHITE_STRING = JSON.stringify(WHITE);
     var BLACK = { blue: 0, green: 0, red: 0 };
-    var CARD_YELLOW = { blue: 66, green: 255, red: 227 };
-    var CARD_BLUE = { blue: 247, green: 196, red: 0 };
-    var CARD_GREEN = { blue: 0, green: 255, red: 30 };
-    var CARD_PINK = { blue: 119, green: 0, red: 255 };
     var WAIT_TO_CLOSE_TRAP_DOOR_MS = 1500;
     var ROW_INDEX = 13;
     var COLUMN_INDEX = 15;
@@ -178,37 +174,10 @@
                     });
                     _this.lose();
                 } else {
-                    var userCardNumbers = response.userCardNumbers;
-                    _this.createCardReplica(calledLettersAndNumbers, userCardNumbers);
+                    _this.createCardReplica(calledLettersAndNumbers, response.userCardNumbers, JSON.parse(response.userCardColor));
                     _this.validateWin(username);
                 }
             });
-        },
-
-        /* GET A RANDOM COLOR FOR CARD:  Select one of 4 preset colors to use for the card base */
-        getRandomCardColor: function() {
-            // eslint-disable-next-line no-magic-numbers
-            var colorChange = Math.floor(Math.random() * 4);
-            var newColor;
-            switch (colorChange) {
-                case 0:
-                    newColor = CARD_YELLOW;
-                    break;
-                case 1:
-                    newColor = CARD_BLUE;
-                    break;
-                // eslint-disable-next-line no-magic-numbers
-                case 2:
-                    newColor = CARD_GREEN;
-                    break;
-                // eslint-disable-next-line no-magic-numbers
-                case 3:
-                    newColor = CARD_PINK;
-                    break;
-                default:
-                    newColor = CARD_PINK;
-            }
-            return newColor;
         },
 
         /* CREATE A REPLICA OF USER'S CARD: Create a base entity for the card and then iterate over each column 
@@ -216,11 +185,10 @@
         each number tile and filling in the numbers assigned to the user. Numbers are also checked against the 
         called numbers and if found, the background of the square will be black whereas uncalled numbers will 
         have a white background. */
-        createCardReplica: function(calledLettersAndNumbers, userCardNumbers) {
-            var cardEntityColor = _this.getRandomCardColor();
+        createCardReplica: function(calledLettersAndNumbers, userCardNumbers, userCardColor) {
             cardEntity = Entities.addEntity({
                 isSolid: true,
-                color: cardEntityColor,
+                color: userCardColor,
                 parentID: _this.entityID,
                 localPosition: { x: 0, y: 1.2, z: 0.25 },
                 localRotation: Quat.fromVec3Degrees({ x: 0, y: 90, z: 0 }),

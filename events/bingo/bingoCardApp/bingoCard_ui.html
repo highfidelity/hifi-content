@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
-        <link rel="stylesheet" href="bingoCard_ui.css">
+        <link rel="stylesheet" href="bingoCard_ui.css?2">
     </head>
     <body>
         <table>
@@ -46,19 +46,14 @@
         </div><!--
         --><div class="bottomPanel">
             <button id="BingoButton">Call Bingo</button><br>
-            <text id="numbers">Getting numbers...</text>
+            <text id="helpText">Retrieving BINGO data...</text>
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
-            var CARD_YELLOW = { blue: 66, green: 255, red: 227 };
-            var CARD_BLUE = { blue: 247, green: 196, red: 0 };
-            var CARD_GREEN = { blue: 0, green: 255, red: 30 };
-            var CARD_PINK = { blue: 119, green: 0, red: 255 };
-            var BINGO_STRING = "BINGO";
-
             function onScriptEventReceived(scriptEvent) {
-                if (JSON.parse(scriptEvent).type === "displayNumbers") {
+                if (JSON.parse(scriptEvent).type === "initializeCard") {
                     scriptEvent = JSON.parse(scriptEvent);
+
                     $(".button-number").each(function(index){
                         document.getElementById(index).innerHTML = scriptEvent.allNumbers[index];
                         if (scriptEvent.selectedNumberIDs.indexOf(index) > -1) {
@@ -71,7 +66,23 @@
                         document.getElementById("-1").classList.add("selected");
                     }
 
-                    document.getElementById("numbers").innerHTML = " ";
+                    document.getElementById("helpText").innerHTML = " ";
+
+                    function parseColor(scriptColorObject) {
+                        var colorString = "rgb(";
+
+                        colorString += scriptColorObject.red;
+                        colorString += ", ";
+                        colorString += scriptColorObject.green;
+                        colorString += ", ";
+                        colorString += scriptColorObject.blue;
+                        colorString += ")";
+
+                        return colorString;
+                    }
+
+                    var parsedColor = parseColor(scriptEvent.cardColor);
+                    $('body').css("background", parsedColor);
                 }
             };
 
@@ -91,6 +102,7 @@
                         }));
                     }
                 });
+
                 $(".button-free").click(function() {
                     if ($(this).hasClass("selected")){
                         $(this).removeClass("selected");
@@ -106,6 +118,8 @@
                         }));
                     }
                 });
+
+                var BINGO_STRING = "BINGO";
                 $(".button-letter").click(function() {
                     var index = BINGO_STRING.indexOf($(this).attr('id'));
                     EventBridge.emitWebEvent(JSON.stringify({
@@ -113,6 +127,7 @@
                         index: index
                     }));
                 });
+
                 $("#BingoButton").click(function() {
                     EventBridge.emitWebEvent(JSON.stringify({
                         type: 'calledBingo'
@@ -121,24 +136,7 @@
             });
 
             window.onload = function(){ 
-                EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-                var backgroundColor = Math.floor(Math.random() * 4);
-                switch (backgroundColor) {
-                    case 0:
-                        $('body').addClass("card-yellow");
-                        break;
-                    case 1:
-                        $('body').addClass("card-blue");
-                        break;
-                    case 2:
-                        $('body').addClass("card-pink");
-                        break;
-                    case 3:
-                        $('body').addClass("card-green");
-                        break;
-                    default:
-                        break;
-                }               
+                EventBridge.scriptEventReceived.connect(onScriptEventReceived);         
             }
         </script>
     </body>
