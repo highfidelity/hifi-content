@@ -113,7 +113,7 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
                 }
             });              
             // if username is banned do not add them to the list.
-            if (bannedUsers.indexOf(message.username.toLowerCase()) !== -1){
+            if (bannedUsers.indexOf(message.username.toLowerCase()) === -1){
                 isBanned = false;
             } else {
                 isBanned = true;
