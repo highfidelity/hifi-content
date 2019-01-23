@@ -1,7 +1,6 @@
 # Custom
 ########
 .vs/
-**/entity/marketPlace
 
 # From recommend Git ignore: https://gist.github.com/octocat/9257657
 # Compiled source #
