@@ -14,9 +14,9 @@
 
     var AUDIO_VOLUME_LEVEL = 0.8;
     var TIMEOUT_MS = 100;
-    var BOW_SOUND = SoundCache.getSound(Script.resolvePath("Assets/Sounds/bow.wav"));
-    var BELL_SOUND = SoundCache.getSound(Script.resolvePath("Assets/Sounds/bell.wav"));
-    var CRASH_SOUND = SoundCache.getSound(Script.resolvePath("Assets/Sounds/crash.wav"));
+    var BOW_SOUND = SoundCache.getSound(Script.resolvePath("Assets/Sounds/rideBow.wav"));
+    var BELL_SOUND = SoundCache.getSound(Script.resolvePath("Assets/Sounds/rideBell.wav"));
+    var CRASH_SOUND = SoundCache.getSound(Script.resolvePath("Assets/Sounds/rideCrash.wav"));
 
     var playing = false;
     var injector;
