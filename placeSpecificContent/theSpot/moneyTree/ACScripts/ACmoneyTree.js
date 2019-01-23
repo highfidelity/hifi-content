@@ -69,7 +69,7 @@ function getBannedUsers() {
     try {
         request(BANNED_URL, function (error, data) {
             if (!error) {
-                bannedUsers = data;
+                bannedUsers = JSON.stringify(data);
             }
         });
     } catch (err) {
@@ -116,7 +116,6 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
             if (bannedUsers.indexOf(message.username.toLowerCase()) !== -1){
                 isBanned = true;
             }
-            console.log(message.username, "is banned?", isBanned);
             if (!nameOnList && !isBanned) {
                 // Add name and nodeID to list
                 userList.push({
