@@ -21,12 +21,15 @@ REMIX THE BALL!
 Submit your remix to the marketplace, and let us show off your creation!
 Hit us up @highfidelityinc
 
+## UNDER CONSTRUCTION - CHECK BACK SOON
+
 ## What you will learn
 
 We'll be covering how this entity was made while taking some asides to cover helpful relavent concepts such as:
 
-- JS Modules and how you can use them to make your code more managable and modular
-- Client and Server scripts and domain rights related to people interacting with your entity.klf 
+- JS Modules and how you can use them to make your code more managable, and hopefully reusable
+- Client and Server scripts and how domain rights affect others interacting with your entity
+
 
 # Releases
 
@@ -42,4 +45,5 @@ We'll be covering how this entity was made while taking some asides to cover hel
 https://trello.com/c/qluC0kn8/13-party-ball
 
 # Known Issues
-- Dimension size of the dancer being animated is off because natural dimensions aren't coming in correctly for the server script
+- Sometimes the Avatar doesn't show up
+- Sometimes music doens't play
