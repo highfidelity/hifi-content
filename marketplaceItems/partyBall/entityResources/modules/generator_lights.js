@@ -19,6 +19,7 @@ var common = Script.require("../modules/commonUtilities.js?" + Date.now());
 var randomFloat = common.randomFloat;
 var randomInt = common.randomInt;
 var makeColor = common.makeColor;
+var AveragingFilter = common.AveragingFilter;
 
 var lightProps = {
     name: "Party lights",
@@ -100,22 +101,36 @@ var INTENSITY_MAX = 25;
 var COLOR_MIN = 0;
 var COLOR_MAX = 255;
 var FALL_OFF_MIN = 0;
-var FALL_OFF_MAX = 10;
+var FALL_OFF_MAX = 50;
 var CUTOFF_MIN = 0;
-var CUTOFF_MAX = 100;
+var CUTOFF_MAX = 50;
 var MINIMUM_COLOR_SCALER = 0;
 var MAXIMUM_COLOR_SCALER = 0.55;
+var AVERAGING_LENGTH = 20;
+var filterStore = {
+    intensity: new AveragingFilter(AVERAGING_LENGTH, 10),
+    falloffRadius: new AveragingFilter(AVERAGING_LENGTH, 1.0),
+    cutoff: new AveragingFilter(AVERAGING_LENGTH, 10),
+    color: {
+        red: new AveragingFilter(AVERAGING_LENGTH, 1.10),
+        green: new AveragingFilter(AVERAGING_LENGTH, 2.80),
+        blue: new AveragingFilter(AVERAGING_LENGTH, 2.10)
+    }
+};
 function makeRandomLightProps(){
     var lightProps = {
-        intensity: randomFloat(INTENSITY_MIN, INTENSITY_MAX),
+        intensity: 
+            filterStore.intensity.process(randomFloat(INTENSITY_MIN, INTENSITY_MAX)),
         color: makeColor(
-            randomInt(COLOR_MIN, COLOR_MAX),
-            randomInt(COLOR_MIN, COLOR_MAX),
-            randomInt(COLOR_MIN, COLOR_MAX),
+            filterStore.color.red.process(randomInt(COLOR_MIN, COLOR_MAX)),
+            filterStore.color.green.process(randomInt(COLOR_MIN, COLOR_MAX)),
+            filterStore.color.blue.process(randomInt(COLOR_MIN, COLOR_MAX)),
             randomFloat(MINIMUM_COLOR_SCALER, MAXIMUM_COLOR_SCALER)
         ),
-        falloffRadius: randomFloat(FALL_OFF_MIN, FALL_OFF_MAX),
-        cutoff: randomFloat(CUTOFF_MIN, CUTOFF_MAX)
+        falloffRadius: 
+            filterStore.falloffRadius.process(randomFloat(FALL_OFF_MIN, FALL_OFF_MAX)),
+        cutoff: 
+            filterStore.cutoff.process(randomFloat(CUTOFF_MIN, CUTOFF_MAX))
     };     
 
     return lightProps;        
@@ -123,13 +138,13 @@ function makeRandomLightProps(){
 
 
 // Used by animate to control how the entity looks at each interval
-var ANGULAR_VELOCITY_MIN = -3;
-var ANGULAR_VELOCITY_MAX = 3;
+var ANGULAR_VELOCITY_MIN = -1;
+var ANGULAR_VELOCITY_MAX = 1;
 function intervalAnimator(){
     var angularVelocity = [
-        randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX),
-        randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX),
-        randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX)
+        randomFloat(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX),
+        randomFloat(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX),
+        randomFloat(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX)
     ];
     Entities.editEntity(this.box, {
         angularVelocity: angularVelocity

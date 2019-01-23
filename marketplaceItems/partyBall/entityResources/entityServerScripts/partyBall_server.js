@@ -13,7 +13,7 @@
 */
 
 
-(function () {
+(function() {
     
     // *************************************
     // START MODULES
@@ -62,7 +62,7 @@
 
     var _entityID;
 
-    var lastTouched = { id: null, timeStamp: 0, skeletonModelURL: null, rotation: null };
+    var lastTouched = { id: null, timeStamp: 0, skeletonModelURL: null };
     var explodeTimer = false;
     var currentPosition = null;
 
@@ -99,14 +99,13 @@
             dynamic: false,
             visible: false,
             rotation: Quat.IDENTITY,
-            // rotation: Quat.UP,
             "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
         });
         startParty();
     }
 
 
-    // This is where the main sequence of events takes place
+    // Create the opening explosion and sound effect, followed by creating the main party elements.  After that cleanup gets called.
     var MIN_PARTY_DURATION_TIME = 5 * MS_PER_S;
     var MAX_PARTY_DURATION_TIME = 15 * MS_PER_S;
     var CREATE_ENTITIES_START_TIME_MS_AFTER_INITIAL_EXPLOSION = 500;
@@ -123,7 +122,7 @@
     }
 
 
-    // Create the inital smoke effect before the actual effects start
+    // Create the inital smoke effect before the actual party starts
     var SMOKE_INTRO_TIME = 0.85 * MS_PER_S;
     function introSmokeEntity() {
         var smokeProperties = particleProperties.intro;
@@ -165,7 +164,7 @@
         Music.playRandom();
         Dance.create(_entityID, lastTouched.skeletonModelURL, lastTouched.id, currentPosition);
         Lights.create(_entityID);
-        ParticleArray.forEach(function (particle) {
+        ParticleArray.forEach(function(particle) {
             particle.create(currentPosition);
         });
     }
@@ -175,16 +174,16 @@
     var BEFORE_THE_REST_DELETE = 0.5 * MS_PER_S;
     function cleanUp() {
         outroSmokeEntity();
-        Script.setTimeout(function () {
+        Script.setTimeout(function() {
             SFX.playRandom();
             Music.stop();
             Lights.destroy();
             Dance.destroy();
-            ParticleArray.forEach(function (particle) {
+            ParticleArray.forEach(function(particle) {
                 particle.destroy();
             });
 
-            Script.setTimeout(function () {
+            Script.setTimeout(function() {
                 explodeTimer = false;
                 Entities.deleteEntity(_entityID);
             }, ENTITY_DELETE_TIME);
@@ -203,6 +202,7 @@
     // #region eventHandlers
 
 
+    // Checks to see if the last touch message received is the latest.  If so, replace the properties.
     function onNewAvatarTouch(uuid, data) {
         try {
             data = JSON.parse(data[0]);
@@ -246,7 +246,7 @@
     // #region ENTITY DEFINITION
 
 
-    // Register the entity id with module that need it, make the ball dynamic, and prep the sounds
+    // Make the ball dynamic and prep the sounds
     var GRAVITY_M_PER_S = -9.8;
     function preload(entityID) {
         _entityID = entityID;
@@ -257,7 +257,7 @@
             visible: true
         });
 
-        // To cut down on the caching, just get a random song and add two random SFX to the possible list.
+        // To cut down on how many files to cache, we get a random song and add two random SFX to the possible list.
         // Ok if the same sfx is added twice
 
         Music.addSound(

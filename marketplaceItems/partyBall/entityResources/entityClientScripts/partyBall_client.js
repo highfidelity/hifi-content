@@ -13,15 +13,15 @@
 */
 
 
-(function(){
+(function() {
 
     // *************************************
     // START INIT
     // *************************************
     // #region INIT
     
-    var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
-    
+
+    // Bring in the texture and animation modules to cache before they are played on a client
     var danceCollection = Script.require("../modules/collection_animations.js?" + Date.now());
     var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
 
@@ -56,13 +56,13 @@
     // Get the naturalDimensions for the newly created Dancer and send them back to the server script as a string
     function getDancerDimensions(id, properties){
         var entityIDToPeekNaturalDimensions = properties[0];
-        var entityProperties = Entities.getEntityProperties(entityIDToPeekNaturalDimensions, 'naturalDimensions');
+        var entityProperties = Entities.getEntityProperties(entityIDToPeekNaturalDimensions, "naturalDimensions");
         var naturalDimensions = JSON.stringify(entityProperties.naturalDimensions);
         Entities.callEntityServerMethod(_entityID, "updateNaturalDimensions", [naturalDimensions]);
     }
 
     
-    // Send info about who just touched the ball to the Entity Server
+    // Send info about who just touched the ball to the Entity Script Server
     function recordNewTouch(){
         var id = MyAvatar.sessionUUID;
         var timeStamp = Date.now();
@@ -70,8 +70,7 @@
         var data = JSON.stringify({ 
             id: id, 
             timeStamp: timeStamp, 
-            skeletonModelURL: skeletonModelURL, 
-            rotation: MyAvatar.orientation 
+            skeletonModelURL: skeletonModelURL
         });     
 
         Entities.callEntityServerMethod(_entityID, "newAvatarTouch", [data]);

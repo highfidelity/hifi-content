@@ -40,8 +40,36 @@ function makeColor(red, green, blue, colorScaler) {
 }
 
 
+// Return back an on going average from a given set
+function AveragingFilter(length, initValue) {
+    // initialize the array of past values
+    initValue = initValue || 0;
+    this.pastValues = [];
+    for (var i = 0; i < length; i++) {
+        this.pastValues.push(initValue);
+    }
+    // single arg is the nextInputValue
+    this.process = function () {
+        if (this.pastValues.length === 0 && arguments[0]) {
+            return arguments[0];
+        } else if (arguments[0] !== null) {
+            this.pastValues.push(arguments[0]);
+            this.pastValues.shift();
+            var nextOutputValue = 0;
+            for (var value in this.pastValues) {
+                nextOutputValue += this.pastValues[value];
+            }
+            return nextOutputValue / this.pastValues.length;
+        } else {
+            return 0;
+        }
+    };
+}
+
+
 module.exports = {
     randomInt: randomInt,
     randomFloat: randomFloat,
-    makeColor: makeColor
+    makeColor: makeColor,
+    AveragingFilter: AveragingFilter
 };

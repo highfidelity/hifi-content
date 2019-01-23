@@ -19,6 +19,7 @@ var common = Script.require("../modules/commonUtilities.js?" + Date.now());
 var randomFloat = common.randomFloat;
 var randomInt = common.randomInt;
 var makeColor = common.makeColor;
+var AveragingFilter = common.AveragingFilter;
 
 var particles = Script.require("../modules/particleProperties.js?" + Date.now());
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
@@ -83,33 +84,6 @@ function shouldAnimate(){
 }
  
 
-// Return back an on going average from a given set
-function AveragingFilter(length, initValue) {
-    // initialize the array of past values
-    initValue = initValue || 0;
-    this.pastValues = [];
-    for (var i = 0; i < length; i++) {
-        this.pastValues.push(initValue);
-    }
-    // single arg is the nextInputValue
-    this.process = function () {
-        if (this.pastValues.length === 0 && arguments[0]) {
-            return arguments[0];
-        } else if (arguments[0] !== null) {
-            this.pastValues.push(arguments[0]);
-            this.pastValues.shift();
-            var nextOutputValue = 0;
-            for (var value in this.pastValues) {
-                nextOutputValue += this.pastValues[value];
-            }
-            return nextOutputValue / this.pastValues.length;
-        } else {
-            return 0;
-        }
-    };
-}
-
-
 // Generate the random light props for each animation step
 var EMIT_RATE_MIN = 1;
 var EMIT_RATE_MAX = 1000;
@@ -128,24 +102,24 @@ var PARTICLE_SPIN_MAX = 2.0 * Math.PI;
 var MAXIMUM_PARTICLE = 5000;
 var MINIMUM_COLOR_SCALER = 0.0;
 var MAXIMUM_COLOR_SCALER = 0.4;
-var AVERAGING_LENGTH = 5;
+var AVERAGING_LENGTH = 20;
 var filterStore = {
-    emitRate: new AveragingFilter(AVERAGING_LENGTH, 1),
-    particleRadius: new AveragingFilter(AVERAGING_LENGTH, 0.05),
-    emitSpeed: new AveragingFilter(AVERAGING_LENGTH, 1),
+    emitRate: new AveragingFilter(AVERAGING_LENGTH, 500),
+    particleRadius: new AveragingFilter(AVERAGING_LENGTH, 1.0),
+    emitSpeed: new AveragingFilter(AVERAGING_LENGTH, 10),
     emitAcceleration: {
-        x: new AveragingFilter(AVERAGING_LENGTH, 0.10),
-        y: new AveragingFilter(AVERAGING_LENGTH, 0.10),
-        z: new AveragingFilter(AVERAGING_LENGTH, 0.10)
+        x: new AveragingFilter(AVERAGING_LENGTH, 1.10),
+        y: new AveragingFilter(AVERAGING_LENGTH, 2.80),
+        z: new AveragingFilter(AVERAGING_LENGTH, 2.10)
     },
     emitOrientation: {
-        x: new AveragingFilter(AVERAGING_LENGTH, -180),
-        y: new AveragingFilter(AVERAGING_LENGTH, 180),
-        z: new AveragingFilter(AVERAGING_LENGTH, 90)
+        x: new AveragingFilter(AVERAGING_LENGTH, 0),
+        y: new AveragingFilter(AVERAGING_LENGTH, 0),
+        z: new AveragingFilter(AVERAGING_LENGTH, 0)
     },
-    alpha: new AveragingFilter(AVERAGING_LENGTH, 1),
+    alpha: new AveragingFilter(AVERAGING_LENGTH, 0.5),
     alphaStart: new AveragingFilter(AVERAGING_LENGTH, 1),
-    alphaFinish: new AveragingFilter(AVERAGING_LENGTH, 1),
+    alphaFinish: new AveragingFilter(AVERAGING_LENGTH, 0.3),
     radiusFinish: new AveragingFilter(AVERAGING_LENGTH, 0.2),
     radiusStart: new AveragingFilter(AVERAGING_LENGTH, 0.4),
     spinFinish: new AveragingFilter(AVERAGING_LENGTH, 1),

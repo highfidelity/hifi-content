@@ -11,6 +11,8 @@
     Generate a dancing model
 
 */
+
+
 Script.require("../modules/polyfill.js")();
 
 var common = Script.require("./commonUtilities.js?" + Date.now());
@@ -30,7 +32,7 @@ function DanceGenerator() {
 }
 
 
-// Timeout function that calls the entity client method to get the correct dimensions.  The timeout is to make sure there entity is created first.
+// Timeout function that calls the entity client method to get the correct dimensions.  The timeout is to make sure the entity is created first.
 function callEntityClientMethodInTimeout(){
     Entities.callEntityClientMethod(this.selectedAvatarUUID, this.partyBallID, "getDancerDimensions", [this.dancer]);
 }
