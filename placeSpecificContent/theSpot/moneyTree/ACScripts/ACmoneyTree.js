@@ -8,7 +8,7 @@
 //
 
 var SECRETS = Script.require(Script.resolvePath('../moneyTreeURLs.json')),
-    request = Script.require('request'),
+    request = Script.require('../resources/modules/request.js').request,
     GOOGLE_URL = SECRETS.googleURL,
     BANNED_URL = SECRETS.bannedURL,
     MONEY_TREE_CHANNEL = SECRETS.MONEY_TREE_CHANNEL,
@@ -69,14 +69,11 @@ function getBannedUsers() {
     try {
         request(BANNED_URL, function (error, data) {
             if (!error) {
-                console.log("google data", JSON.stringify(data));
                 bannedUsers = data;
-                console.log("processed into ", bannedUsers);
             }
         });
     } catch (err) {
-        console.log("err:", err);
-        print("Could not get domain data using userData domainAPIURL");
+        print("Could not get domain data using userData domainAPIURL", err);
     }
 }
 
@@ -105,7 +102,6 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
                     username: message.username,
                     nodeID: message.nodeID
                 });
-                console.log(JSON.stringify("operators ", operatorsPresent));
                 bankerOverlay(message.nodeID, false);
                 updateMarquis();                                        
             }
@@ -114,7 +110,6 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
                 if (message.username.toLowerCase() === index.username || 
                 Uuid.isEqual(message.nodeID, index.nodeID)) {
                     nameOnList = true;
-                    console.log(nameOnList, "is on the list already");
                 }
             });              
             // if username is banned do not add them to the list.
@@ -123,7 +118,6 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
                     isBanned = true;
                 }
             });  
-            console.log(message.username, "is already here?", nameOnList, " is banned? ", isBanned);
             if (!nameOnList && !isBanned) {
                 // Add name and nodeID to list
                 userList.push({
@@ -140,7 +134,6 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
                     }
                 });
                 // Update Signs
-                console.log("userslist", JSON.stringify(userList));
                 updateMarquis();
             }         
         });
@@ -187,7 +180,6 @@ var messageHandlerRecipient = function(channel, message, senderUUID, localOnly) 
     }
     // Notify the chosen recipient
     if (message.type === 'accept' && senderUUID === recipient.nodeID) {
-        console.log("money accepted", JSON.stringify(recipient));
         if (new Date().getTime() - responseTimeout < SHOW_TIME_LENGTH) {
             sendInput(message.username, amount); 
             recipient = null; 
@@ -196,7 +188,6 @@ var messageHandlerRecipient = function(channel, message, senderUUID, localOnly) 
         }
     // Receiver declines
     } else if (message.type === 'decline' && senderUUID === recipient.nodeID) {
-        console.log("money declined");
         recipient = null;
         targetRecipients = [];
         responseTimeout = Number.MAX_VALUE;
@@ -212,7 +203,6 @@ var messageHandlerGiver = function(channel, message, senderUUID, localOnly) {
     }
     // Notify the chosen recipient
     if (message.type === 'moneyGiven' && senderUUID === targetGiver.nodeID) {
-        console.log("money given");
         recipient = targetRecipients[targetRecipients.map(function(e) { 
             return e.nodeID; 
         }).indexOf(message.recipientID)];
@@ -372,7 +362,7 @@ function bankerOverlay(uuid, remove){
         }
     } else {
         var userData = { bankerID: uuid, power: treePower };
-        powerButtonSpawner = Entities.addEntity({
+        var powerButtonSpawner = Entities.addEntity({
             type: "Box",
             dimensions: { x: 0.5, y: 0.5, z: 0.5 },
             name: "Power Button Spawner",

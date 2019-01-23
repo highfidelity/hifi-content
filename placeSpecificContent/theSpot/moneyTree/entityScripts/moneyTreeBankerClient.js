@@ -26,7 +26,7 @@
         bankerID,
         powerOverlay,
         clicked,
-        modelURL = Script.resolvePath("./resources/models/symbol-power.fbx");
+        modelURL = Script.resolvePath("../resources/models/symbol-power.fbx");
 
     var MoneyTree = function(){
         _this = this;
