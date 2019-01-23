@@ -1,6 +1,6 @@
 /*
 
-    Dance Collection
+    Party Ball
     collection_animations.js
     Created by Milad Nazeri on 2019-01-19
     Copyright 2019 High Fidelity, Inc.

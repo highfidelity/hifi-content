@@ -33,6 +33,11 @@ We'll be covering how this entity was made while taking some asides to cover hel
 [partyBall 02f4cbe] :: 2019-01-21_08-45-00
 - Working V1 for testing
 
+[partyBall a39922d] :: 2019-01-23_09-00-00
+- Client to Server naturalDimension peeking
+- 
+
+
 # Links
 https://trello.com/c/qluC0kn8/13-party-ball
 

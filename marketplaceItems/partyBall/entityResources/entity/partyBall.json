@@ -53,7 +53,7 @@
             "id": "{f408f577-6b66-4acd-a1a2-c2d4190d59bf}",
             "lastEdited": 1540816404771470,
             "lastEditedBy": "{32aed6cd-d501-4289-9f89-2dbc7c1a6009}",
-            "materialData": "{\n  \"materialVersion\": 1,\n  \"materials\": {\n    \"albedoMap\": \"hhttp://mpassets.highfidelity.com/76f14203-0cd6-4850-b163-7fd0775207f9-v1/partyBall/entityResources/resources/images/question.png\",\n    \"emissiveMap\": \"http://mpassets.highfidelity.com/76f14203-0cd6-4850-b163-7fd0775207f9-v1/partyBall/entityResources/resources/images/question.png\"\n  }\n}",
+            "materialData": "{\n  \"materialVersion\": 1,\n  \"materials\": {\n    \"albedoMap\": \"http://mpassets.highfidelity.com/76f14203-0cd6-4850-b163-7fd0775207f9-v1/partyBall/entityResources/resources/images/question.png\",\n    \"emissiveMap\": \"http://mpassets.highfidelity.com/76f14203-0cd6-4850-b163-7fd0775207f9-v1/partyBall/entityResources/resources/images/question.png\"\n  }\n}",
             "materialMappingScale": {
                 "x": 7,
                 "y": 7

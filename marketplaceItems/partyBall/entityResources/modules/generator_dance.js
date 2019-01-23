@@ -1,6 +1,6 @@
 /*
 
-    Dance Generator
+    Party Ball
     generator_dance.js
     Created by Milad Nazeri on 2019-01-19
     Copyright 2019 High Fidelity, Inc.

@@ -1,6 +1,6 @@
 /*
 
-    Sound Generator
+    Party Ball
     generator_sound.js
     Created by Milad Nazeri on 2019-01-16
     Copyright 2019 High Fidelity, Inc.
@@ -22,7 +22,7 @@ function SoundGenerator(audioOptions, autoUpdateAudioPosition) {
         this.audioOptions.position = Vec3.sum(this.position, { x: 0, y: 1, z: 0});
     }
     if (this.audioOptions.volume === undefined) {
-        this.audioOptions.volume = 1.0;
+        this.audioOptions.volume = 0.5;
     }
     this.position = null;
     this.injector = null;

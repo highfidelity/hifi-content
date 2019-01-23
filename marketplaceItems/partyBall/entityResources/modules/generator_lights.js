@@ -1,6 +1,6 @@
 /*
 
-    Light Generator
+    Party Ball
     generator_lights.js
     Created by Milad Nazeri on 2019-01-16
     Copyright 2019 High Fidelity, Inc.

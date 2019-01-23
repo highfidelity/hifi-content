@@ -1,6 +1,6 @@
 /*
 
-    Particle Generator
+    Party Ball
     generator_particles.js
     Created by Milad Nazeri on 2019-01-16
     Copyright 2019 High Fidelity, Inc.
@@ -95,7 +95,7 @@ var EMIT_ACCELERATION_MIN = 0;
 var EMIT_ACCELERATION_MAX = 10;
 var EMIT_ORIENTATION_MIN = -180;
 var EMIT_ORIENTATION_MAX = 180;
-var ALPHA_MIN = 0.25;
+var ALPHA_MIN = 0.55;
 var ALPHA_MAX = 1;
 var PARTICLE_SPIN_MIN = -2.0 * Math.PI;
 var PARTICLE_SPIN_MAX = 2.0 * Math.PI;
