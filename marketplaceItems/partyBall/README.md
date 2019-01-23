@@ -35,8 +35,8 @@ We'll be covering how this entity was made while taking some asides to cover hel
 
 [partyBall a39922d] :: 2019-01-23_09-00-00
 - Client to Server naturalDimension peeking
-- 
-
+- Lower audio volume and mono files
+- Particle effect adjustment
 
 # Links
 https://trello.com/c/qluC0kn8/13-party-ball
