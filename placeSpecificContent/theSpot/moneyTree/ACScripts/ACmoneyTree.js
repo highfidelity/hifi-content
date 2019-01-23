@@ -113,11 +113,12 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
                 }
             });              
             // if username is banned do not add them to the list.
-            bannedUsers.forEach(function(username){
-                if (message.username.toLowerCase() === username){
-                    isBanned = true;
-                }
-            });  
+            if (bannedUsers.indexOf(message.username.toLowerCase()) !== -1){
+                isBanned = false;
+            } else {
+                isBanned = true;
+            }
+            console.log(message.username, "is banned?", isBanned);
             if (!nameOnList && !isBanned) {
                 // Add name and nodeID to list
                 userList.push({
