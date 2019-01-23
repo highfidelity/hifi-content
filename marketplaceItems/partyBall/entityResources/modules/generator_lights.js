@@ -77,27 +77,11 @@ function makeLights() {
     this.spotLight = Entities.addEntity(this.lightProps);
 
     this.lightProps.isSpotlight = 1;
-    this.lightProps.rotation = Quat.fromPitchYawRollDegrees(90,0,0);
-    this.lights.push(Entities.addEntity(this.lightProps));
-
-    this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(180,0,0);
     this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
-    this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,90,0);
-    this.lights.push(Entities.addEntity(this.lightProps));
-
-    this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,-90,0);
-    this.lights.push(Entities.addEntity(this.lightProps));
-
-    this.lightProps.isSpotlight = 1;
-    this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,45,0);
-    this.lights.push(Entities.addEntity(this.lightProps));
-
-    this.lightProps.isSpotlight = 1;
-    this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,-45,0);
     this.lights.push(Entities.addEntity(this.lightProps));
 
     this.lightProps.isSpotlight = 1;
@@ -106,10 +90,6 @@ function makeLights() {
 
     this.lightProps.isSpotlight = 1;
     this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,180);
-    this.lights.push(Entities.addEntity(this.lightProps));
-
-    this.lightProps.isSpotlight = 1;
-    this.lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,-180);
     this.lights.push(Entities.addEntity(this.lightProps));
 }
 
@@ -143,8 +123,8 @@ function makeRandomLightProps(){
 
 
 // Used by animate to control how the entity looks at each interval
-var ANGULAR_VELOCITY_MIN = 1;
-var ANGULAR_VELOCITY_MAX = 5;
+var ANGULAR_VELOCITY_MIN = -3;
+var ANGULAR_VELOCITY_MAX = 3;
 function intervalAnimator(){
     var angularVelocity = [
         randomInt(ANGULAR_VELOCITY_MIN, ANGULAR_VELOCITY_MAX),

@@ -27,6 +27,7 @@ function SoundGenerator(audioOptions, autoUpdateAudioPosition) {
     this.position = null;
     this.injector = null;
     this.sounds = [];
+    this.playedSounds = [];
 }
 
 
@@ -42,6 +43,13 @@ function addSound(soundURL) {
 }
 
 
+// Resetting the usedSounds list.
+function resetPlayedList(){
+    this.sounds = this.playedSounds;
+    this.playedSounds = [];
+}
+
+
 // Play a sound from an index
 function play(index) {
     if (0 <= index && index < this.sounds.length) {
@@ -49,7 +57,14 @@ function play(index) {
             this.updateAudioPosition();
         }
         if (this.sounds[index].downloaded) {
+            this.audioOptions.position = this.position;
             this.injector = Audio.playSound(this.sounds[index], this.audioOptions);
+            // Remove the played sound from the sounds list and add to the playedSounds list.
+            var justPlayed = this.sounds.splice(index)[0];
+            this.playedSounds.push(justPlayed);
+            if (this.sounds.length === 0){
+                this.resetPlayedList();
+            }
         }
     } else {
         print("Index " + index + " out of range.");
@@ -79,7 +94,6 @@ function updateAudioPosition() {
 function stop() {
     try {
         this.injector.stop();
-
     } catch (e) {
         // e
     }
@@ -92,6 +106,7 @@ SoundGenerator.prototype = {
     play: play,
     stop: stop,
     playRandom: playRandom,
+    resetPlayedList: resetPlayedList,
     updateAudioPosition: updateAudioPosition
 };
 

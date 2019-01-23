@@ -1,9 +1,9 @@
 # Party-Ball!
 
 ## Description
-First we gave you the dance, now we give you the beat! (and some nice visuals on the side)k
+First we gave you the dance, now we give you the beat! (and some nice visuals on the side)
 
-Party ball is just what it sounds like.  It's a ball.  It's a party.  It's a party ball yall.
+Party ball is just what it sounds like.  It's a ball.  It's a party.  It's a party ball, yall.
 
 As soon as the first person grabs or clicks on the ball, a random timer starts so you never know when the party is going to happen.  The last person who grabs it before the party begins is the main attraction.  
 

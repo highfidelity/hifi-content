@@ -14,7 +14,7 @@
 
 
 (function () {
-
+    
     // *************************************
     // START MODULES
     // *************************************
@@ -22,6 +22,7 @@
 
     var common = Script.require("../modules/commonUtilities.js?" + Date.now());
     var randomInt = common.randomInt;
+    var randomFloat = common.randomFloat;
 
     var LightGenerator = Script.require("../modules/generator_lights.js?" + Date.now());
     var ParticleGenerator = Script.require("../modules/generator_particles.js?" + Date.now());
@@ -49,22 +50,19 @@
     var SFX = new SoundGenerator();
     var Dance = new DanceGenerator();
 
-    var numberArray = [];
-    var MIN_PARTICLE_ARRAY_AMOUNT = 2;
-    var MAX_PARTICLE_ARRAY_AMOUNT = 7;
-    var particleRayAmount = randomInt(MIN_PARTICLE_ARRAY_AMOUNT, MAX_PARTICLE_ARRAY_AMOUNT);
-    for (var i = 0; i < particleRayAmount; i++) {
-        numberArray.push(i);
+    var MIN_PARTICLE_ARRAY_AMOUNT = 1;
+    var MAX_PARTICLE_ARRAY_AMOUNT = 4;
+    var numberOfParticleEntities = randomInt(MIN_PARTICLE_ARRAY_AMOUNT, MAX_PARTICLE_ARRAY_AMOUNT);
+    var ParticleArray = [];
+    for (var i = 0; i < numberOfParticleEntities; i++) {
+        ParticleArray.push(new ParticleGenerator());
     }
-    var ParticleArray = numberArray.map(function () {
-        return new ParticleGenerator();
-    });
 
-    var MILISECONDS = 1000;
+    var MS_PER_S = 1000;
 
     var _entityID;
 
-    var lastTouched = { id: null, timeStamp: 0, skeletonModelURL: null };
+    var lastTouched = { id: null, timeStamp: 0, skeletonModelURL: null, rotation: null };
     var explodeTimer = false;
     var currentPosition = null;
 
@@ -81,13 +79,13 @@
 
 
     // Start the actual timer anywhere between 2 to 10 seconds
-    var MIN_START_TIME = 2 * MILISECONDS;
-    var MAX_START_TIME = 10 * MILISECONDS;
+    var MIN_START_TIME = 2 * MS_PER_S;
+    var MAX_START_TIME = 10 * MS_PER_S;
     function startTimer() {
         if (explodeTimer) {
             return;
         }
-        var randomTimeToExplode = randomInt(MIN_START_TIME, MAX_START_TIME);
+        var randomTimeToExplode = randomFloat(MIN_START_TIME, MAX_START_TIME);
         explodeTimer = Script.setTimeout(initExplode, randomTimeToExplode);
     }
 
@@ -100,22 +98,24 @@
             velocity: [0, 0, 0],
             dynamic: false,
             visible: false,
-            rotation: Quat.IDENTITY
+            rotation: Quat.IDENTITY,
+            // rotation: Quat.UP,
+            "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
         });
         startParty();
     }
 
 
     // This is where the main sequence of events takes place
-    var MIN_PARTY_DURATION_TIME = 3 * MILISECONDS;
-    var MAX_PARTY_DURATION_TIME = 30 * MILISECONDS;
-    var START_TIME = 500;
+    var MIN_PARTY_DURATION_TIME = 5 * MS_PER_S;
+    var MAX_PARTY_DURATION_TIME = 15 * MS_PER_S;
+    var CREATE_ENTITIES_START_TIME_MS_AFTER_INITIAL_EXPLOSION = 500;
     function startParty() {
         currentPosition = Entities.getEntityProperties(_entityID, ["position"]).position;
-        createIntroSmoke(currentPosition);
+        introSmokeEntity();
         SFX.updatePosition(currentPosition);
         SFX.playRandom();
-        Script.setTimeout(createEntities, START_TIME);
+        Script.setTimeout(createEntities, CREATE_ENTITIES_START_TIME_MS_AFTER_INITIAL_EXPLOSION);
 
         var randomPartyDurationTime = randomInt(MIN_PARTY_DURATION_TIME, MAX_PARTY_DURATION_TIME);
 
@@ -124,8 +124,8 @@
 
 
     // Create the inital smoke effect before the actual effects start
-    var SMOKE_INTRO_TIME = 0.85 * MILISECONDS;
-    function createIntroSmoke(position) {
+    var SMOKE_INTRO_TIME = 0.85 * MS_PER_S;
+    function introSmokeEntity() {
         var smokeProperties = particleProperties.intro;
 
         smokeProperties.parentID = _entityID;
@@ -140,9 +140,9 @@
 
 
     // Create the Final ending explosion smoke
-    var SMOKE_OUTRO_TIME = 1 * MILISECONDS;
-    var SMOKE_ENDING_TIME = 1.5 * MILISECONDS;
-    function createOutroSmoke(position) {
+    var SMOKE_OUTRO_TIME = 1 * MS_PER_S;
+    var SMOKE_ENDING_TIME = 1.5 * MS_PER_S;
+    function outroSmokeEntity() {
         var smokeProperties = particleProperties.outro;
 
         smokeProperties.parentID = _entityID;
@@ -163,18 +163,18 @@
     function createEntities() {
         Music.updatePosition(currentPosition);
         Music.playRandom();
-        Dance.create(lastTouched.skeletonModelURL, currentPosition);
+        Dance.create(_entityID, lastTouched.skeletonModelURL, lastTouched.id, currentPosition);
         Lights.create(_entityID);
         ParticleArray.forEach(function (particle) {
-            particle.create(_entityID);
+            particle.create(currentPosition);
         });
     }
 
 
-    var ENTITY_DELETE_TIME = 1.5 * MILISECONDS;
-    var BEFORE_THE_REST_DELETE = 0.5 * MILISECONDS;
+    var ENTITY_DELETE_TIME = 1.5 * MS_PER_S;
+    var BEFORE_THE_REST_DELETE = 0.5 * MS_PER_S;
     function cleanUp() {
-        createOutroSmoke(currentPosition);
+        outroSmokeEntity();
         Script.setTimeout(function () {
             SFX.playRandom();
             Music.stop();
@@ -210,7 +210,7 @@
             var newTimeStamp = data.timeStamp;
             var newSkeletonModelURL = data.skeletonModelURL;
 
-            if ( lastTouched.id === null && newId != undefined) {
+            if (lastTouched.id === null) {
                 startTimer();
             }
 
@@ -225,7 +225,17 @@
     }
 
 
-    // #endregion
+    // Handles the client sending back a message about what the correct natural dimensions are
+    function onUpdateNaturalDimensions(uuid, data) {
+        try {
+            var newNaturalDimensions = JSON.parse(data[0]);
+            Dance.updateDimensions(newNaturalDimensions);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+
     // *************************************
     // END eventHandlers
     // *************************************
@@ -237,24 +247,31 @@
 
 
     // Register the entity id with module that need it, make the ball dynamic, and prep the sounds
-    var GRAVITY = -9.8;
+    var GRAVITY_M_PER_S = -9.8;
     function preload(entityID) {
         _entityID = entityID;
-
         Entities.editEntity(_entityID, {
-            gravity: [0, GRAVITY, 0],
+            gravity: [0, GRAVITY_M_PER_S, 0],
             dynamic: true,
             rotation: Quat.IDENTITY,
             visible: true
         });
 
-        musicCollection.forEach(function (sound) {
-            Music.addSound(sound);
-        });
+        // To cut down on the caching, just get a random song and add two random SFX to the possible list.
+        // Ok if the same sfx is added twice
 
-        sfxCollection.forEach(function (sound) {
-            SFX.addSound(sound);
-        });
+        Music.addSound(
+            musicCollection[randomInt(0, musicCollection.length - 1)]
+        );
+        
+        SFX.addSound(
+            sfxCollection[randomInt(0, sfxCollection.length - 1)]
+        );
+
+        SFX.addSound(
+            sfxCollection[randomInt(0, sfxCollection.length - 1)]
+        );
+
     }
 
 
@@ -267,8 +284,9 @@
     function PartyBall() { }
 
     PartyBall.prototype = {
-        remotelyCallable: ["newAvatarTouch"],
+        remotelyCallable: ["newAvatarTouch", "updateNaturalDimensions"],
         preload: preload,
+        updateNaturalDimensions: onUpdateNaturalDimensions,
         newAvatarTouch: onNewAvatarTouch,
         unload: unload
     };

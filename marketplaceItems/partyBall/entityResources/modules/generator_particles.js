@@ -24,24 +24,25 @@ var particles = Script.require("../modules/particleProperties.js?" + Date.now())
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
 
 // Main Particle Constructor Function
-function ParticleGenerator() {
-    this.parentID = null;
-
+function ParticleGenerator() {    
     this.particle = null;
+
+    this.currentBallPosition = null;
     this.interval = null;
     this.textureCollection = textureCollection;
 }
 
 
 // First make the particle and then start the animation sequence
-function create(parentID) {
-    this.parentID = parentID;
+function create(currentBallPosition) {
+    this.currentBallPosition = currentBallPosition;
     this.makeParticle();
     this.animate();
 }
 
 
 // Pick a random particle from our particles array and create the entity using those base properties
+var PARTICLE_Y_OFFSET = 0.5;
 function makeParticle() {
     // Turn the particles object into an array of particles
     var particleArray = Object.keys(particles).map(function(particle){
@@ -53,7 +54,7 @@ function makeParticle() {
 
     particle.parentID = this.parentID;
     particle.name = "Party Particle";
-    particle.localPosition = [0, 0.5, 0];
+    particle.position = Vec3.sum(this.currentBallPosition, [0, PARTICLE_Y_OFFSET, 0]);
     particle.dimensions = [10, 10, 10];
 
     this.particle = Entities.addEntity(particle);
@@ -62,7 +63,7 @@ function makeParticle() {
 
 // Main Animator that is controlling the specific interval animations
 var UDPATE_MIN = 17;
-var UPDATE_MAX = 2500;
+var UPDATE_MAX = 1000;
 function animate() {
     // Get a random interval amount between update min/max as how often to animate by
     var intervalAmount = randomInt(UDPATE_MIN, UPDATE_MAX);
@@ -112,7 +113,7 @@ function AveragingFilter(length, initValue) {
 // Generate the random light props for each animation step
 var EMIT_RATE_MIN = 1;
 var EMIT_RATE_MAX = 1000;
-var PARTICLE_RADIUS_MIN = 0.5;
+var PARTICLE_RADIUS_MIN = 0.1;
 var PARTICLE_RADIUS_MAX = 1.5;
 var EMIT_SPEED_MIN = 0.1;
 var EMIT_SPEED_MAX = 10;
@@ -120,7 +121,7 @@ var EMIT_ACCELERATION_MIN = 0;
 var EMIT_ACCELERATION_MAX = 10;
 var EMIT_ORIENTATION_MIN = -180;
 var EMIT_ORIENTATION_MAX = 180;
-var ALPHA_MIN = 0.05;
+var ALPHA_MIN = 0.25;
 var ALPHA_MAX = 1;
 var PARTICLE_SPIN_MIN = -2.0 * Math.PI;
 var PARTICLE_SPIN_MAX = 2.0 * Math.PI;

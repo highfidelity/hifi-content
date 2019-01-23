@@ -76,7 +76,7 @@ var intro = {
     "emitterShouldTrail": true,
     "spinStart": null,
     "spinFinish": null,
-    "textures": "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/cloud-sprite.png"
+    "textures": Script.resolvePath("../resources/textures/cloud-sprite.png")
 };
 
 var outro = {
@@ -129,7 +129,7 @@ var outro = {
     "emitterShouldTrail": true,
     "spinStart": null,
     "spinFinish": null,
-    "textures": "https://hifi-content.s3.amazonaws.com/alan/dev/Particles/cloud-sprite.png",
+    "textures": Script.resolvePath("../resources/textures/cloud-sprite.png"),
 
     "alpha": 0.53000000417232513,
     "maxParticles": 2614,
@@ -204,7 +204,7 @@ var smoke = {
     "spinFinish": 0,
     "spinSpread": 3.5953781604766846,
     "spinStart": 0,
-    "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
+    "textures": Script.resolvePath("../resources/textures/wispy-smoke.png"),
     "type": "ParticleEffect"
 };
 
@@ -287,7 +287,7 @@ var bubbles = {
     "spinFinish": -1.4137166738510132,
     "spinSpread": 2.4260077476501465,
     "spinStart": 1.2042771577835083,
-    "textures": "http://hifi-content.s3.amazonaws.com/alexia/Avatars/Bevi/bubble.png",
+    "textures": Script.resolvePath("../resources/textures/bubble.png"),
     "type": "ParticleEffect"
 };
 
@@ -350,7 +350,7 @@ var star = {
     "speedSpread": 0,
     "spinFinish": null,
     "spinStart": null,
-    "textures": "http://hifi-content.s3.amazonaws.com/alexia/Models/Portal/star.png",
+    "textures": Script.resolvePath("../resources/textures/star.png"),
     "type": "ParticleEffect",
     "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
 };
@@ -418,7 +418,7 @@ var circle = {
     "speedSpread": 0,
     "spinFinish": null,
     "spinStart": null,
-    "textures": "http://hifi-content.s3.amazonaws.com/alexia/LoadingScreens/Portals/circle.png",
+    "textures": Script.resolvePath("../resources/textures/circle.png"),
     "type": "ParticleEffect",
     "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
 };
@@ -495,7 +495,7 @@ var rays = {
     "speedSpread": 0,
     "spinFinish": null,
     "spinStart": null,
-    "textures": "http://hifi-content.s3.amazonaws.com/alexia/Models/Portal/stripe.png",
+    "textures": Script.resolvePath("../resources/textures/stripe.png"),
     "type": "ParticleEffect",
     "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
 };

@@ -20,6 +20,7 @@
     // *************************************
     // #region INIT
     
+    var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
     
     var danceCollection = Script.require("../modules/collection_animations.js?" + Date.now());
     var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
@@ -46,50 +47,57 @@
     // #region ENTITY DEFINITION
     
 
-    // Register the entity id with module that need it, make the ball dynamic, and prep the sounds
+    // Grab the entityID on preload
     function preload(entityID){
         _entityID = entityID;
     }
 
 
+    // Get the naturalDimensions for the newly created Dancer and send them back to the server script as a string
+    function getDancerDimensions(id, properties){
+        var entityIDToPeekNaturalDimensions = properties[0];
+        var entityProperties = Entities.getEntityProperties(entityIDToPeekNaturalDimensions, 'naturalDimensions');
+        var naturalDimensions = JSON.stringify(entityProperties.naturalDimensions);
+        Entities.callEntityServerMethod(_entityID, "updateNaturalDimensions", [naturalDimensions]);
+    }
+
+    
     // Send info about who just touched the ball to the Entity Server
     function recordNewTouch(){
         var id = MyAvatar.sessionUUID;
         var timeStamp = Date.now();
         var skeletonModelURL = MyAvatar.skeletonModelURL;
-        var data = JSON.stringify({ id: id, timeStamp: timeStamp, skeletonModelURL: skeletonModelURL });     
+        var data = JSON.stringify({ 
+            id: id, 
+            timeStamp: timeStamp, 
+            skeletonModelURL: skeletonModelURL, 
+            rotation: MyAvatar.orientation 
+        });     
 
         Entities.callEntityServerMethod(_entityID, "newAvatarTouch", [data]);
     }
 
 
-    // Grab the User ID of whoever last clicked on it
-    function mousePressOnEntity(mouseEvent){
-        if (!mouseEvent.button === "Primary") {
-            return;
-        }
-        recordNewTouch();
-    }
-
-
-    // Grab the User ID of whoever last grabbed it
+    // Grab the User ID of whoever last near grabbed it
     function startNearGrab(){
         recordNewTouch();
     }
 
 
-    // Clear the explodeTimer if there is one
-    function unload(){
+    // Grab the user ID of whoever last far grabbed it
+    function startDistanceGrab(){
+        recordNewTouch();
     }
 
-
+    
     function PartyBall(){}
     
     PartyBall.prototype = {
+        remotelyCallable: ["getDancerDimensions"],
         preload: preload,
-        mousePressOnEntity: mousePressOnEntity,
+        getDancerDimensions: getDancerDimensions,
         startNearGrab: startNearGrab,
-        unload: unload
+        startDistanceGrab: startDistanceGrab
     };
 
     return new PartyBall();

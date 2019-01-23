@@ -16,8 +16,13 @@
 module.exports = {
     name: "Party-Ball-Material",
     type: "Material",
-    materialData: 
-        "{\n  \"materialVersion\": 1,\n  \"materials\": {\n    \"albedoMap\": \"https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/question.png\",\n    \"emissiveMap\": \"https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/Suprise_Ball/question.png\"\n  }\n}",
+    materialData: JSON.stringify({
+        materialVersion: 1,
+        materials: {
+            albedoMap: Script.resolvePath("../resources/images/question.png"),
+            emissiveMap: Script.resolvePath("../resources/images/question.png")
+        }
+    }),
     materialURL: "materialData",
     materialMappingScale: [0, 7]
 };
