@@ -18,8 +18,6 @@
     };
 
     BingoScannerZone.prototype = {
-        remotelyCallable: ['getNumbersFromServer', 'callBingo'],
-
         /* ON LOADING THE SCRIPT: Save a reference to this. */
         preload: function(entityID) {
             _this.entityID = entityID;

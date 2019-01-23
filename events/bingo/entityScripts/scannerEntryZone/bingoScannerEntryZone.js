@@ -21,7 +21,7 @@
     };
 
     BingoScannerZone.prototype = {
-        remotelyCallable: ['getNumbersFromServer', 'callBingo'],
+        remotelyCallable: ['callBingo'],
 
         /* ON LOADING THE SCRIPT: If the user is running the card app, stop the card app script to stop/close the app. */
         preload: function(entityID) {

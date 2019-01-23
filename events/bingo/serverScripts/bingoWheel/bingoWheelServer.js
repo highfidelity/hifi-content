@@ -20,6 +20,9 @@
     var BINGO_WALL = "{df198d93-a9b7-4619-9128-97a53fea2451}";
     var BINGO_WHEEL_TEXT = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
 
+    var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
+    var DRUMROLL_SOUND = SoundCache.getSound(Script.resolvePath("sounds/drumroll.wav"));
+    var LOWER_DOORS_DELAY_MS = 1150;
     var POSSIBLE_PRIZES = ["Oculus Quest", "Vive Pro", "1,000 HFC", "Nothing!", "Three Sheep", "500 HFC"];
     var currentRoundWinners = [];
     var BINGO_PRIZE_DOOR_1_TEXT = "{ff7674bb-5569-4381-b370-1dfa1d2a9723}";
@@ -59,9 +62,28 @@
         return paramPairs.join("&");
     }
 
+    var injector;
+    function playSound(sound, volume) {
+        if (sound.downloaded) {
+            if (injector) {
+                injector.stop();
+            }
+            injector = Audio.playSound(sound, {
+                position: GAME_AUDIO_POSITION,
+                volume: volume
+            });
+        }
+    }
+
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
+
+    function lowerDoors() {
+        Entities.callEntityMethod(BINGO_PRIZE_DOOR_1, 'openGate');
+        Entities.callEntityMethod(BINGO_PRIZE_DOOR_2, 'openGate');
+        Entities.callEntityMethod(BINGO_PRIZE_DOOR_3, 'openGate');
+    }
 
     var Wheel = function() {
         _this = this;
@@ -196,14 +218,15 @@
                 maybePushRandomPrize(POSSIBLE_PRIZES[Math.floor(Math.random() * (POSSIBLE_PRIZES.length - 1))]);
             }
 
+
+            
             Entities.editEntity(BINGO_PRIZE_DOOR_1_TEXT, {text: roundPrizes[0]});
             Entities.editEntity(BINGO_PRIZE_DOOR_2_TEXT, {text: roundPrizes[1]});
             Entities.editEntity(BINGO_PRIZE_DOOR_3_TEXT, {text: roundPrizes[2]});
 
-            Entities.callEntityMethod(BINGO_PRIZE_DOOR_1, 'openGate');
-            Entities.callEntityMethod(BINGO_PRIZE_DOOR_2, 'openGate');
-            Entities.callEntityMethod(BINGO_PRIZE_DOOR_3, 'openGate');
-
+            playSound(DRUMROLL_SOUND, 1);
+            Script.setTimeout(lowerDoors, LOWER_DOORS_DELAY_MS);
+            
             var requestBody = {
                 type: "recordPrizes",
                 winners: []

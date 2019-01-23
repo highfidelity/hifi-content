@@ -20,17 +20,10 @@
     var SCANNER_LOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoLose.wav?0"));
     var SAD_TROMBONE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSadTrombone.wav?0"));
     var WHITE = {red:255,green:255,blue:255};
-    var WHITE_STRING = JSON.stringify(WHITE);
     var BLACK = { blue: 0, green: 0, red: 0 };
     var WAIT_TO_CLOSE_TRAP_DOOR_MS = 1500;
-    var ROW_INDEX = 13;
-    var COLUMN_INDEX = 15;
-    var WAIT_TO_PROCESS_VALIDATION_MS = 2500;
     var CHECK_DOOR_ROTATION_MS = 50;
     var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
-    var BINGO_STRING = "BINGO";
-    var IMAGE_MODEL = Script.resolvePath("assets/images/default-image-model.fbx");
-    var HEADER_IMAGE = Script.resolvePath("../../images/bingo-card-head.png");
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 2000;
     var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json')).sheetURL;
 
@@ -40,8 +33,7 @@
     var trapDoorOpenCheckInterval = null;
     var trapDoorCloseCheckInterval = null;
     var scannerSpotlight;
-    var cardEntity = null;
-    var bingoNumberSquares = [];
+    var winnerLoserBanner = null;
     var confettiParticleEffect;
     var bingoParticleEffect;
     var currentlyScanningCard = false;
@@ -111,7 +103,7 @@
         /* SCAN USER'S CARD: Get the called numbers for this bingo round from the wheel's server script then get the 
         user's assigned card numbers and delete any cards already around the scanner. Turn the spotlight on and play 
         an enter sound then set a timeout for the duration of that sound. When the sound has finished, if the user's 
-        numbers were found, play the computing sound, create a replica of their card, and set a timeout for part of 
+        numbers were found, play the computing sound, and set a timeout for part of 
         the duration of that sound after which we beging to validate their card winning. If the user's numbers were 
         not found, create a sign above the machine stating that. */
         scanCard: function(thisID, params) {
@@ -131,7 +123,7 @@
 
         /* RECEIVE NUMBERS THAT HAVE BEEN CALLED THIS ROUND */
         alreadyCalledNumbersReply: function(id, args) {
-            _this.deleteCard();
+            _this.deleteWinnerLoserBanner();
 
             var calledLettersAndNumbers = JSON.parse(args[0]);
             var username = args[1];
@@ -151,11 +143,9 @@
                 if (error || !response || response.status !== "success") {
                     return;
                 }
-            
-                _this.deleteCard();
 
                 if (response.newUser) {
-                    cardEntity = Entities.addEntity({
+                    winnerLoserBanner = Entities.addEntity({
                         backgroundColor: WHITE,
                         dimensions: {
                             x: 1.5,
@@ -174,234 +164,89 @@
                     });
                     _this.lose();
                 } else {
-                    _this.createCardReplica(calledLettersAndNumbers, response.userCardNumbers, response.userCardColor);
-                    _this.validateWin(username);
+                    _this.validateWin(username, response.userCardNumbers, calledLettersAndNumbers);
                 }
             });
         },
 
-        /* CREATE A REPLICA OF USER'S CARD: Create a base entity for the card and then iterate over each column 
-        (one for each letter in the word 'BINGO') and each row, creating an entity parented to the base card for 
-        each number tile and filling in the numbers assigned to the user. Numbers are also checked against the 
-        called numbers and if found, the background of the square will be black whereas uncalled numbers will 
-        have a white background. */
-        createCardReplica: function(calledLettersAndNumbers, userCardNumbers, userCardColor) {
-            cardEntity = Entities.addEntity({
-                isSolid: true,
-                color: userCardColor,
-                parentID: _this.entityID,
-                localPosition: { x: 0, y: 1.2, z: 0.25 },
-                localRotation: Quat.fromVec3Degrees({ x: 0, y: 90, z: 0 }),
-                name: "Bingo Scanner Card",
-                dimensions: {
-                    x: 0.02,
-                    y: 1,
-                    z: 0.7
-                },
-                shape: "Cube",
-                type: "Box",
-                userData: "{ \"grabbableKey\": { \"grabbable\": false } }",
-                serverScripts: Script.resolvePath("../empty.js")
-            });
+        /* VALIDATE A WIN */
+        validateWin: function(username, userNumbers, calledLettersAndNumbers) {
+            var rowIterator, colIterator;
+            // Strip away the letter and space from every element in calledLettersAndNumbers
+            // -1 is the free space and was always "called"
+            var calledNumbers = [-1];
+            for (var i = 0; i < calledLettersAndNumbers.length; i++) {
+                calledNumbers.push(parseInt(calledLettersAndNumbers[i].substring(2)));
+            }
 
-            Entities.addEntity({
-                parentID: cardEntity,
-                localPosition: {
-                    x: 0.01,
-                    y: 0.375,
-                    z: 0
-                },
-                localRotation: Quat.fromVec3Degrees({ x: 0, y: 90, z: 0 }),
-                name: "Bingo Machine Card Image",
-                dimensions: {
-                    x: 0.65,
-                    y: 0.2,
-                    z: 0.001
-                },
-                type: "Model",
-                shapeType: "box",
-                collisionless: true,
-                modelURL: IMAGE_MODEL,
-                textures: JSON.stringify({ "tex.picture": HEADER_IMAGE }),
-                userData: "{ \"grabbableKey\": { \"grabbable\": false } }"
-            });
+            var userNumbers2D = [];
+            for (rowIterator = 0; rowIterator < 5; rowIterator++) {
+                var currentColumn = [];
 
-            var localPosition = {
-                x: 0.018,
-                y: 0.2,
-                z: 0.263
-            };
-            var positionOffsetZ = 0.13;
-            var positionOffsetY = 0.15;
-            var squareDimensions = {
-                x: 0.11,
-                y: 0.1275,
-                z: 0.001
-            };
-            var numberIterator = 0;
-            var backgroundColor = WHITE;
-            var textColor = BLACK;
-            for (var i = 0; i < BINGO_STRING.length; i++) {
-                var rows = 5;
-                for (var currentRow = 0; currentRow < rows; currentRow++) {
-                    var number;
-                    var lineHeight = 0.09;
-                    // eslint-disable-next-line no-magic-numbers
-                    if (currentRow === 2 && i === 2) {
-                        number = "FREE";
-                        // eslint-disable-next-line no-magic-numbers
-                        lineHeight = 0.0450;
-                        backgroundColor = BLACK;
-                        textColor = WHITE;
+                for (colIterator = 0; colIterator < 5; colIterator++) {
+                    // Handle free space
+                    if (rowIterator === 2 && colIterator === 2) {
+                        currentColumn.push(-1);
                     } else {
-                        number = userCardNumbers[numberIterator];
-                        numberIterator++;
-                        var bingoCall = BINGO_STRING[i] + " " + number;
-                        if (calledLettersAndNumbers.indexOf(bingoCall) !== -1) {
-                            backgroundColor = BLACK;
-                            textColor = WHITE;
-                        }
+                        currentColumn.push(userNumbers.shift());
                     }
-                    bingoNumberSquares.push(Entities.addEntity({
-                        backgroundColor: backgroundColor,
-                        dimensions: squareDimensions,
-                        lineHeight: lineHeight,
-                        parentID: cardEntity,
-                        name: "Bingo Square " + (currentRow + 1) + " " + (i + 1),
-                        localPosition: localPosition,
-                        localRotation: Quat.fromVec3Degrees({ x: 0, y: 90, z: 0 }),
-                        text: number,
-                        textColor: textColor,
-                        type: "Text",
-                        userData: "{ \"grabbableKey\": { \"grabbable\": false } }"
-                    }));
-                    localPosition.y -= positionOffsetY;
-                    backgroundColor = WHITE;
-                    textColor = BLACK;
                 }
-                localPosition.z -= positionOffsetZ;
-                localPosition.y += rows * positionOffsetY;
+                userNumbers2D.push(currentColumn);
             }
-        },
 
-        /* VALIDATE A WIN: At this point, number squares have a background color that represents whether or not the 
-        number was called during the bingo round. All possible winning lines are saved in 2 arrays of boolean digits 
-        representing columns and rows and 2 variables representing the diagonals. All possible wins are set to 1 until 
-        proven false and changed to 0. Each number square onthe user's card is checked and upon finding an uncalled 
-        number, its row and column will both be marked as 0. The diagonal from left top corner to lower right corner 
-        can be marked false if an uncalled number is found with a row equal to its column but the opposite diagonal 
-        will need to have each square specifically checked. After beginning these checks, we set a timeout for 1 second 
-        to allow the calculations to complete and then go over each possible win variable to see if any are still 
-        marked true and record which one. If a winning line was found, all other squares on the card will be changed 
-        to a white background to highlight the win and the proper win or lose function will be called. */
-        validateWin: function(username) {
-            var rows = [1,1,1,1,1];
-            var columns = [1,1,1,1,1];
-            var diagonalLtoR = 1;
-            var diagonalRtoL = 1;
-            var fail;
-            // eslint-disable-next-line no-magic-numbers
-            if (bingoNumberSquares.length === 25) {
-                bingoNumberSquares.forEach(function(square) {
-                    var properties = Entities.getEntityProperties(square, ['name', 'backgroundColor']);
-                    if (!properties.name) {
-                        fail = true;
-                        return;
+            function checkRow(rowIndex) {
+                for (colIterator = 0; colIterator < 5; colIterator++) {
+                    if (calledNumbers.indexOf(userNumbers2D[rowIndex][colIterator]) === -1) {
+                        return false;
                     }
-                    if (properties.name) {
-                        var row = properties.name.charAt(ROW_INDEX);
-                        var column = properties.name.charAt(COLUMN_INDEX);
-                        if (JSON.stringify(properties.backgroundColor) === WHITE_STRING) {
-                            rows[row - 1] = 0;
-                            columns[column - 1] = 0;
-                            if (diagonalLtoR && row === column) {
-                                diagonalLtoR = 0;
-                            }
-                            if (diagonalRtoL) {
-                                var rowAndColumn = row + " " + column;
-                                if (rowAndColumn === "1 5" || rowAndColumn === "2 4" || rowAndColumn === "4 2" || 
-                            rowAndColumn === "5 1") {
-                                    diagonalRtoL = 0;
-                                }
-                            }
-                        }
-                    }
-                });
-                Script.setTimeout(function(){
-                    if (fail) {
-                        return;
-                    }
-                    var winningRow = null;
-                    var winningColumn = null;
-                    // eslint-disable-next-line no-magic-numbers
-                    for (var row = 1; row < 6; row++) {
-                        if (rows[row -1] === 1) {
-                            winningRow = row;
-                        }
-                    }
-                    // eslint-disable-next-line no-magic-numbers
-                    for (var column = 1; column < 6; column++) {
-                        if (columns[column - 1] === 1) {
-                            winningColumn = column;
-                        }
-                    }
-                    if (winningRow) {
-                        bingoNumberSquares.forEach(function(square) {
-                            var name = Entities.getEntityProperties(square, 'name').name;
-                            var row = name.charAt(ROW_INDEX);
-                            if (row !== winningRow) {
-                                Entities.editEntity(square, { 
-                                    backgroundColor: WHITE,
-                                    textColor: BLACK
-                                });
-                            }
-                        });
-                        _this.win(username);
-                    } else if (winningColumn) {
-                        bingoNumberSquares.forEach(function(square) {
-                            var name = Entities.getEntityProperties(square, 'name').name;
-                            if (name) {
-                                var column = name.charAt(COLUMN_INDEX);
-                                if (column !== winningColumn) {
-                                    Entities.editEntity(square, { 
-                                        backgroundColor: WHITE,
-                                        textColor: BLACK
-                                    });
-                                }
-                            }
-                        });
-                        _this.win(username);
-                    } else if (diagonalLtoR) {
-                        bingoNumberSquares.forEach(function(square) {
-                            var name = Entities.getEntityProperties(square, 'name').name;
-                            var row = name.charAt(ROW_INDEX);
-                            var column = name.charAt(COLUMN_INDEX);
-                            if (column !== row) {
-                                Entities.editEntity(square, { 
-                                    backgroundColor: WHITE,
-                                    textColor: BLACK
-                                });
-                            }
-                        });
-                        _this.win(username);
-                    } else if (diagonalRtoL) {
-                        bingoNumberSquares.forEach(function(square) {
-                            var name = Entities.getEntityProperties(square, 'name').name;
-                            var rowAndColumn = name.charAt(ROW_INDEX) + " " + name.charAt(COLUMN_INDEX);
-                            if (!(rowAndColumn === "1 5" || rowAndColumn === "2 4" || rowAndColumn === "3 3" || 
-                        rowAndColumn === "4 2" || rowAndColumn === "5 1")) {
-                                Entities.editEntity(square, { 
-                                    backgroundColor: WHITE,
-                                    textColor: BLACK
-                                });
-                            }
-                        });
-                        _this.win(username);
-                    } else {
-                        _this.lose();
-                    }
-                }, WAIT_TO_PROCESS_VALIDATION_MS);
+                }
+
+                return true;
             }
+
+            function checkColumn(columnIndex) {
+                for (rowIterator = 0; rowIterator < 5; rowIterator++) {
+                    if (calledNumbers.indexOf(userNumbers2D[rowIterator][columnIndex]) === -1) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            function checkDiagonals() {
+                for (rowIterator = 0; rowIterator < 5; rowIterator++) {
+                    if (calledNumbers.indexOf(userNumbers2D[rowIterator][rowIterator]) === -1) {
+                        return false;
+                    }
+                }
+                for (rowIterator = 0; rowIterator < 5; rowIterator++) {
+                    if (calledNumbers.indexOf(userNumbers2D[4 - rowIterator][rowIterator]) === -1) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            for (i = 0; i < 5; i++) {
+                if (checkRow(i)) {
+                    _this.win(username);
+                    return;
+                }
+
+                if (checkColumn(i)) {
+                    _this.win(username);
+                    return;
+                }
+            }
+
+            if (checkDiagonals()) {
+                _this.win(username);
+                return;
+            }
+            
+            _this.lose();
         },
 
         /* WIN: Play the winning sound and turn on confetti and bingo particles. */
@@ -468,10 +313,10 @@
 
         /* DELETE CARD ABOVE MACHINE: Delete the bingo card created by this script and any others found that 
         may have lost their referenece due to crash or errors. */
-        deleteCard: function() {
-            if (cardEntity) {
-                Entities.deleteEntity(cardEntity);
-                cardEntity = false;
+        deleteWinnerLoserBanner: function() {
+            if (winnerLoserBanner) {
+                Entities.deleteEntity(winnerLoserBanner);
+                winnerLoserBanner = false;
             }
             Entities.getChildrenIDs(_this.entityID).forEach(function(entityNearMachine) {
                 var name = Entities.getEntityProperties(entityNearMachine, 'name').name;
@@ -489,8 +334,7 @@
             }, WAIT_TO_CLOSE_WIN_GATE_MS);
 
             Entities.editEntity(scannerSpotlight, { visible: false });
-            bingoNumberSquares = [];
-            _this.deleteCard();
+            _this.deleteWinnerLoserBanner();
             Entities.callEntityMethod(bingoParticleEffect, 'turnOff');
             Entities.callEntityMethod(confettiParticleEffect, 'turnOff');
 
@@ -524,8 +368,7 @@
         /* ON UNLOADING SCRIPT: Delete the card, clear the array of squares from the card, turn off particles and 
         spotlight and clear any interval if necessary. */
         unload: function(entityID) {
-            _this.deleteCard();
-            bingoNumberSquares = [];
+            _this.deleteWinnerLoserBanner();
             Entities.editEntity(scannerSpotlight, { visible: false });
             Entities.editEntity(bingoParticleEffect, { emitRate: 0 });
             Entities.editEntity(confettiParticleEffect, { emitRate: 0 });
