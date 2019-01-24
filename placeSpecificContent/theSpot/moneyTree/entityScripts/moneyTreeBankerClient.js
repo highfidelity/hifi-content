@@ -13,7 +13,7 @@
     // spawn Overlays for clients with ID == giverID
     // delete after overlay after click event or after timer expires.
     // send data to google sheet
-    var SECRETS = Script.require(Script.resolvePath('../moneyTreeChannels.json'));
+    var SECRETS = Script.require(Script.resolvePath('JSON GOES HERE'));
     var MONEY_TREE_CHANNEL = SECRETS.OPERATOR_CHANNEL;
     var HALF_SECOND = 500;
 

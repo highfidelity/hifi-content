@@ -7,7 +7,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-var SECRETS = Script.require(Script.resolvePath('../moneyTreeURLs.json')),
+var SECRETS = Script.require(Script.resolvePath('JSON GOES HERE')),
     request = Script.require('../resources/modules/request.js').request;
 
 // Get the latest list of banned users from Google.
