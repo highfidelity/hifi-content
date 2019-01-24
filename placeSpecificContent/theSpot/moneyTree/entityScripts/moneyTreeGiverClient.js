@@ -13,7 +13,7 @@
 // spawn Overlays for clients with ID == giverID
 // delete after overlay after click event or after timer expires.
 // send data to google sheet
-    var SECRETS = Script.require(Script.resolvePath('../moneyTreeURLs.json'));
+    var SECRETS = Script.require(Script.resolvePath('../moneyTreeChannels.json'));
     var COINS_AVAILABLE = SoundCache.getSound(Script.resolvePath('../resources/sounds/chimes-loop.wav')),
         COIN_CLICKED = SoundCache.getSound(Script.resolvePath('../resources/sounds/coin-click.wav')),
         PAYOUT = SoundCache.getSound(Script.resolvePath('../resources/sounds/payout.wav'));

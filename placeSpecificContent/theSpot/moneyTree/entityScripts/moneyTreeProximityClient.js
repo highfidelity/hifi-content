@@ -9,7 +9,7 @@
 /* global EventBridge Users AccountServices Agent Avatar */
 
 (function(){
-    var SECRETS = Script.require(Script.resolvePath('../moneyTreeURLs.json'));
+    var SECRETS = Script.require(Script.resolvePath('../moneyTreeChannels.json'));
     var MONEY_TREE_CHANNEL = SECRETS.MONEY_TREE_CHANNEL,
         HALF_MULTIPLIER = 0.5;
 

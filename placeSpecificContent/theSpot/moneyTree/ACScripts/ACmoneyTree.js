@@ -1,4 +1,4 @@
-// ACmoneyTree.js
+//  ACmoneyTree.js
 
 //  Created by Mark Brosche on 10-18-2018
 //  Copyright 2018 High Fidelity, Inc.
@@ -8,62 +8,10 @@
 //
 
 var SECRETS = Script.require(Script.resolvePath('../moneyTreeURLs.json')),
-    request = Script.require('../resources/modules/request.js').request,
-    GOOGLE_URL = SECRETS.googleURL,
-    BANNED_URL = SECRETS.bannedURL,
-    MONEY_TREE_CHANNEL = SECRETS.MONEY_TREE_CHANNEL,
-    GIVER_CHANNEL = SECRETS.GIVER_CHANNEL,
-    OPERATOR_CHANNEL = SECRETS.OPERATOR_CHANNEL,
-    RECIPIENT_CHANNEL = SECRETS.RECIPIENT_CHANNEL,
-    hiFiStaff = SECRETS.hiFiStaff,
-    treeOperators = SECRETS.treeOperators;
-
-// The AC Script needs to have an avatar to access avatar information
-Agent.isAvatar = true;   
-Avatar.skeletonModelURL = Script.resolvePath('../resources/models/invisible_avatar/invisible_avatar.fst');
-Avatar.displayName = "Money Tree Agent";
-Avatar.position = {"x":-19.109256744384766,"y":-20.8349714279174805,"z":-11.181184768676758}; // Tree Position
-
-
-var AVERAGE_INTERVAL_MIN = 2,
-    AVERAGE_HFC_AMOUNT = 10,
-    HFC_MAX = 50,
-    HFC_MIN = 5,
-    HFC_STANDARD_DEVIATION = 5,
-    RECIPIENT_MAX = 3, 
-    MS_TO_SEC = 1000;
-var PPS = 6000,
-    SHOW_TIME_SECONDS = 60 * MS_TO_SEC, 
-    TEN_SECONDS = 10 * MS_TO_SEC,
-    FIVE_SECONDS = 5 * MS_TO_SEC,
-    SEARCH_CENTER = {x: -18.1834, y: -7.7738, z: -11.8755},
-    SEARCH_AREA_M = 1000;
-
-var populationID,
-    marquisID,
-    marquisMessage = "",
-    targetGiver = [],
-    targetRecipients = [],
-    amount = null,
-    payOnce = false,
-    recipient,
-    userList= [],
-    coinSpawner = [],
-    coinSpawnTimeout = null,
-    userListGiverIndex = null,
-    operatorsPresent = [],
-    treePower = true,
-    tempList = [],
-    powerButtonSpawner = [],
-    powerButtonMaterial = [],
-    octreeInterval = null,
-    responseTimeout = Number.MAX_VALUE,
-    bannedUsers = [],
-    randomIntervals = [SHOW_TIME_SECONDS],
-    noOneGave = false;
-
+    request = Script.require('../resources/modules/request.js').request;
 
 // Get the latest list of banned users from Google.
+var BANNED_URL = SECRETS.bannedURL;
 function requestBannedUsers(callback) {
     request(BANNED_URL, function (error, response) {
         if (error || response.status !== "success") {
@@ -80,6 +28,11 @@ function requestBannedUsers(callback) {
 // These 4 functions handle the different message channels used to communicate 
 // with entities and clients.  Multiple functions are used to decrease the likelihood
 // that bad actors successfully send or receive messages.
+var hiFiStaff = SECRETS.hiFiStaff,
+    treeOperators = SECRETS.treeOperators,
+    userList= [],
+    bannedUsers = [],
+    operatorsPresent = [];
 var messageHandler = function(channel, message, senderUUID, localOnly) {
     // Setup
     if (channel !== MONEY_TREE_CHANNEL) {
@@ -141,6 +94,7 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
         leftZone(message.nodeID);
     }            
 }; 
+var treePower = true;
 var messageHandlerOperator = function(channel, message, senderUUID, localOnly) {
     // Setup
     if (channel !== OPERATOR_CHANNEL) {
@@ -158,18 +112,19 @@ var messageHandlerOperator = function(channel, message, senderUUID, localOnly) {
                     coinSpawnTimeout = false;
                 }
                 startTree();
-                updateMarquis("STARTING...");
+                updateMarquis(SIGN_TEXT[6]);
             } else {
                 if (coinSpawnTimeout){
                     Script.clearTimeout(coinSpawnTimeout);
                     coinSpawnTimeout = false;
                 }            
-                updateMarquis("OUT OF ORDER");
+                updateMarquis(SIGN_TEXT[1]);
             }
         }
     // Someone entered the zone, add them to a list
     }        
 }; 
+var responseTimeout = Number.MAX_VALUE;
 var messageHandlerRecipient = function(channel, message, senderUUID, localOnly) {
     // Setup
     if (channel !== RECIPIENT_CHANNEL) {
@@ -187,6 +142,8 @@ var messageHandlerRecipient = function(channel, message, senderUUID, localOnly) 
         responseTimeout = Number.MAX_VALUE;
     }
 }; 
+var amount = null;
+var recipient = null;
 var messageHandlerGiver = function(channel, message, senderUUID, localOnly) {
     // Setup
     if (channel !== GIVER_CHANNEL) {
@@ -202,7 +159,7 @@ var messageHandlerGiver = function(channel, message, senderUUID, localOnly) {
         amount = randomizeHFC();
         if (recipient && amount !== 0){
             spawnReceiverMessage(amount);  
-            updateMarquis("PLZ WAIT 4 $");  
+            updateMarquis(SIGN_TEXT[7]);  
             responseTimeout = new Date().getTime();  
             Script.clearTimeout(noOneGave);
             noOneGave = false;
@@ -215,16 +172,27 @@ var messageHandlerGiver = function(channel, message, senderUUID, localOnly) {
 
 // This function updates the money tree sign status and count.  Providing a string as 
 // an argument overrides sign logic and displays the string.
-function updateMarquis(displayText){
+var SIGN_TEXT = [
+    "OOH SHINY!", 
+    "OUT OF ORDER", 
+    "BANKRUPT!", 
+    "MOAR PPL PLZ", 
+    "PREPARE 4 $",
+    "BOOTING UP",
+    "STARTING...",
+    "PLZ WAIT 4 $"
+];
+var marquisMessage = "";
+function updateMarquis(displayText) {
     Entities.editEntity(populationID, {text: userList.length});
     marquisMessage = Entities.getEntityProperties(marquisID, ['text']);
     if (!displayText){
-        if ((marquisMessage.text === "OUT OF ORDER" || marquisMessage.text === "BANKRUPT!") && !treePower){
+        if ((marquisMessage.text === SIGN_TEXT[1] || marquisMessage.text === SIGN_TEXT[2]) && !treePower){
             return;
-        } else if (marquisMessage.text !== "OOH SHINY!" && userList.length < RECIPIENT_MAX) {
-            Entities.editEntity(marquisID, {text: "MOAR PPL PLZ"});
-        } else if (marquisMessage.text !== "OOH SHINY!" && userList.length >= RECIPIENT_MAX){
-            Entities.editEntity(marquisID, {text: "PREPARE 4 $"});
+        } else if (marquisMessage.text !== SIGN_TEXT[0] && userList.length < RECIPIENT_MAX) {
+            Entities.editEntity(marquisID, {text: SIGN_TEXT[3]});
+        } else if (marquisMessage.text !== SIGN_TEXT[0] && userList.length >= RECIPIENT_MAX){
+            Entities.editEntity(marquisID, {text: SIGN_TEXT[4]});
         }
     } else {
         Entities.editEntity(marquisID, {text: displayText});
@@ -234,6 +202,18 @@ function updateMarquis(displayText){
 
 // This function is used to allow the AC script to see and change entities
 // in the domain.
+var MS_TO_SEC = 1000;
+var MONEY_TREE_CHANNEL = SECRETS.MONEY_TREE_CHANNEL,
+    GIVER_CHANNEL = SECRETS.GIVER_CHANNEL,
+    OPERATOR_CHANNEL = SECRETS.OPERATOR_CHANNEL,
+    RECIPIENT_CHANNEL = SECRETS.RECIPIENT_CHANNEL,
+    TEN_SECONDS = 10 * MS_TO_SEC,
+    PPS = 6 * MS_TO_SEC,    
+    SEARCH_CENTER = {x: -18.1834, y: -7.7738, z: -11.8755},
+    SEARCH_AREA_M = 1000,
+    populationID,
+    marquisID,
+    octreeInterval = null;
 function allowEntityAccess() {
     Entities.setPacketsPerSecond(PPS);
     EntityViewer.setPosition(SEARCH_CENTER);
@@ -254,7 +234,7 @@ function allowEntityAccess() {
                 Entities.editEntity(populationID, {text: "--"});
                 marquisID = Entities.getEntityProperties(
                     Entities.findEntitiesByName("Money Tree Status", SEARCH_CENTER, SEARCH_AREA_M)[0], ["id"]).id;
-                updateMarquis("BOOTING UP");
+                updateMarquis(SIGN_TEXT[5]);
                 powerButtonSpawner = Entities.findEntitiesByName("Power Button Spawner", SEARCH_CENTER, SEARCH_AREA_M);
                 powerButtonSpawner.forEach(function(entityID){
                     Entities.deleteEntity(entityID);
@@ -293,18 +273,18 @@ function allowEntityAccess() {
                     userData: "{ \"grabbableKey\": { \"grabbable\": false, \"kinematic\": false } }"
                 });
             }   
+            Messages.subscribe(MONEY_TREE_CHANNEL);
+            Messages.subscribe(OPERATOR_CHANNEL);
+            Messages.subscribe(GIVER_CHANNEL);
+            Messages.subscribe(RECIPIENT_CHANNEL);
+            Messages.messageReceived.connect(messageHandler);
+            Messages.messageReceived.connect(messageHandlerOperator);
+            Messages.messageReceived.connect(messageHandlerRecipient);
+            Messages.messageReceived.connect(messageHandlerGiver);
+            startTree();
         } catch (e) {
             print("[MONEY TREE] could not find or create anything", e);
         }           
-        Messages.subscribe(MONEY_TREE_CHANNEL);
-        Messages.subscribe(OPERATOR_CHANNEL);
-        Messages.subscribe(GIVER_CHANNEL);
-        Messages.subscribe(RECIPIENT_CHANNEL);
-        Messages.messageReceived.connect(messageHandler);
-        Messages.messageReceived.connect(messageHandlerOperator);
-        Messages.messageReceived.connect(messageHandlerRecipient);
-        Messages.messageReceived.connect(messageHandlerGiver);
-        startTree();
     }, TEN_SECONDS);
 }
 
@@ -312,6 +292,7 @@ function allowEntityAccess() {
 // This function checks to make sure that the entity server exists
 // and that the AC script has Rez permissions.
 // If one or both of those things is false, we'll check again in 5 seconds.
+var FIVE_SECONDS = 5 * MS_TO_SEC;
 function maybeAllowEntityAccess() {
     if (Entities.serversExist() && Entities.canRez()) {
         allowEntityAccess();
@@ -323,13 +304,20 @@ function maybeAllowEntityAccess() {
 
 // This function will be called on startup.
 function startup() {
+    // The AC Script needs to have an avatar to access avatar information
+    Agent.isAvatar = true;   
+    Avatar.skeletonModelURL = Script.resolvePath('../resources/models/invisible_avatar/invisible_avatar.fst');
+    Avatar.displayName = "Money Tree Agent";
+    Avatar.position = {"x":-19.109256744384766,"y":-20.8349714279174805,"z":-11.181184768676758}; // Tree Position
     maybeAllowEntityAccess();
 }
 
 
 // This function loads an invisible entity that creates a tree power button overlay
 // and makes announcements to tree operators regarding the tree activity.
-function bankerOverlay(uuid, remove){
+var powerButtonSpawner = [],
+    powerButtonMaterial = [];
+function bankerOverlay(uuid, remove) {
     if (remove) {
         try {
             var powerButtonSpawner = Entities.findEntitiesByName("Power Button Spawner", SEARCH_CENTER, SEARCH_AREA_M);
@@ -370,7 +358,7 @@ function bankerOverlay(uuid, remove){
 
 
 // If someone leaves the zone or the domain, remove them from any lists they were on.
-function leftZone(uuid){
+function leftZone(uuid) {
     var isOperator = operatorsPresent[operatorsPresent.map(function(e) { 
         return e.nodeID; 
     }).indexOf(uuid)];
@@ -389,7 +377,7 @@ function leftZone(uuid){
 
 
 // This function loads an invisible entity that creates pop-up alerts for recipients
-function spawnReceiverMessage(amount){
+function spawnReceiverMessage(amount) {
     if (recipient) {
         Messages.sendMessage(OPERATOR_CHANNEL, JSON.stringify({
             type: "given",
@@ -499,13 +487,17 @@ function spawnReceiverMessage(amount){
 
 // This function generates a random amount of HFC between 5 and 50 HFC
 // TODO: When Commerce API intergration comes, if the tree lacks funds, it will shutdown.
-function randomizeHFC(){
+var AVERAGE_HFC_AMOUNT = 10,
+    HFC_MAX = 50,
+    HFC_MIN = 5,
+    HFC_STANDARD_DEVIATION = 5;
+function randomizeHFC() {
     var funds = true;
     var rand = gaussian(AVERAGE_HFC_AMOUNT, HFC_STANDARD_DEVIATION);
     var listLength =Math.sqrt(userList.length);
     var amount = Math.ceil(rand*listLength) - Math.ceil(rand*listLength) % HFC_STANDARD_DEVIATION;
     if (!funds){
-        updateMarquis("BANKRUPT!");
+        updateMarquis(SIGN_TEXT[2]);
         Script.clearTimeout(coinSpawnTimeout);
         coinSpawnTimeout = false;
         treePower = false;
@@ -525,7 +517,10 @@ function randomizeHFC(){
 
 
 // This function generates an array of 10 random intervals based on an average
-function generateRandomIntervals(){
+var AVERAGE_INTERVAL_MIN = 2,
+    SHOW_TIME_SECONDS = 60 * MS_TO_SEC, 
+    randomIntervals = [SHOW_TIME_SECONDS];
+function generateRandomIntervals() {
     for (var i = 0; i < AVERAGE_HFC_AMOUNT; i++){
         var interval = gaussian(AVERAGE_INTERVAL_MIN, 1) * SHOW_TIME_SECONDS;
         randomIntervals.push(            
@@ -537,6 +532,7 @@ function generateRandomIntervals(){
 
 // This function loads an invisible entity that creates overlays for the giver to click on
 // over the heads of 2 or 3 users.
+var coinSpawner = [];
 function createCoinSpawner() {
     if (targetRecipients[0] === null){
         return;
@@ -547,7 +543,7 @@ function createCoinSpawner() {
             type: "coins",
             giver: targetGiver.username
         }));
-        updateMarquis("OOH SHINY!");
+        updateMarquis(SIGN_TEXT[0]);
         for (var i = 0; i < targetRecipients.length; i++){
             var avatar = AvatarList.getAvatar(targetRecipients[i].nodeID);
             var sum = Vec3.sum(avatar.position, Vec3.UP);
@@ -572,7 +568,9 @@ function createCoinSpawner() {
 
 
 // This function picks someone at random to be the giver 
-function pickAGiver(){   
+var userListGiverIndex = null;
+var targetGiver = [];
+function pickAGiver() {   
     userListGiverIndex = randInt(0, userList.length-1);
     if (userListGiverIndex < 0){
         return;
@@ -598,7 +596,10 @@ function pickAGiver(){
 
 
 // This function picks the potential recipients of the present and qualified users.
-function pickRecipients(){
+var RECIPIENT_MAX = 3,
+    targetRecipients = [],
+    tempList = [];
+function pickRecipients() {
     targetRecipients = [];
     tempList = [];
     tempList = userList.slice();// Make a copy of the user list to whittle down.
@@ -610,7 +611,7 @@ function pickRecipients(){
         }
     }
     if (tempList.length < RECIPIENT_MAX-1) { // If the list is less than 2 qualified receivers, then you don't have enough!
-        Entities.editEntity(marquisID, {text: "MOAR PPL PLZ"});
+        updateMarquis(SIGN_TEXT[3]);
         return;
     }
     var recipientCount = (tempList.length > RECIPIENT_MAX) ? RECIPIENT_MAX : tempList.length;
@@ -663,6 +664,7 @@ function gaussian(mean, stdev) {
 
 
 // Send info to google sheets.
+var GOOGLE_URL = SECRETS.googleURL;
 function sendInput(recipientUsername, amount) {      
     var paramString = encodeURLParams({
         date: new Date().toLocaleString(),
@@ -691,7 +693,7 @@ function encodeURLParams(params) {
 
 
 // Remove any remaining entities created in a cycle and ensure lists are up to date.
-function cleanUpEntities(){
+function cleanUpEntities() {
     try {
         var avatarsInDomain = AvatarList.getAvatarIdentifiers();        
         operatorsPresent.forEach(function(index){
@@ -747,7 +749,9 @@ function cleanUpEntities(){
 
 
 // Start the tree cycle!
-function startTree(){
+var coinSpawnTimeout = null;
+var noOneGave = false;
+function startTree() {
     var message = JSON.stringify("The next selection begins in " + 
         (randomIntervals[randomIntervals.length-1]/MS_TO_SEC).toFixed(0) + " seconds");
     Messages.sendMessage(OPERATOR_CHANNEL, JSON.stringify({
@@ -769,7 +773,7 @@ function startTree(){
                 }, 1.5*SHOW_TIME_SECONDS);
             } 
         } else {
-            updateMarquis("MOAR PPL PLZ");
+            updateMarquis(SIGN_TEXT[3]);
             startTree();
         }
     }, randomIntervals.pop());
