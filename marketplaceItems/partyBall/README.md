@@ -31,7 +31,6 @@ We'll be covering how we made this entity while taking some asides to cover rele
 - JS Modules and how you can use them to make your code more manageable, and hopefully reusable
 - Client and Server scripts and how domain rights affect others interacting with your entity
 
-
 # Releases
 
 [partyBall 02f4cbe] :: 2019-01-21_08-45-00
@@ -42,9 +41,16 @@ We'll be covering how we made this entity while taking some asides to cover rele
 - Lower audio volume and mono files
 - Particle effect adjustment
 
+[partyBall c6a0fad] :: 2019-01-24_09-07-00
+- MP Release V1
+- Volume lowered to .5
+- Retry check in case a client didn't get the update dimensions message
+- Lowered max particles to 2500
+- Material is created within the entity and is dynamic
+
 # Links
 https://trello.com/c/qluC0kn8/13-party-ball
 
 # Known Issues
-- Sometimes the Avatar doesn't show up
-- Sometimes music doesn't play
+- Sometimes the Avatar doesn't show up (fixed)
+- Sometimes music doesn't play (fixed)
