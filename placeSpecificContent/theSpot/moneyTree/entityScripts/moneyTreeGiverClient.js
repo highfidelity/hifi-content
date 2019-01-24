@@ -13,11 +13,11 @@
 // spawn Overlays for clients with ID == giverID
 // delete after overlay after click event or after timer expires.
 // send data to google sheet
+    var SECRETS = Script.require(Script.resolvePath('../moneyTreeURLs.json'));
     var COINS_AVAILABLE = SoundCache.getSound(Script.resolvePath('../resources/sounds/chimes-loop.wav')),
         COIN_CLICKED = SoundCache.getSound(Script.resolvePath('../resources/sounds/coin-click.wav')),
-        PAYOUT = SoundCache.getSound(Script.resolvePath('../resources/sounds/payout.wav')),
-        SECRETS = Script.require(Script.resolvePath('../moneyTreeURLs.json')),
-        AUDIO_VOLUME = 0.05,
+        PAYOUT = SoundCache.getSound(Script.resolvePath('../resources/sounds/payout.wav'));
+    var AUDIO_VOLUME = 0.05,
         MONEY_TREE_CHANNEL = SECRETS.GIVER_CHANNEL,
         COIN_PARTICLE_TIMEOUT_MS = 4000,
         PAYOUT_AUDIO_DELAY_MS = 700,
@@ -31,7 +31,7 @@
         userData,
         giverID,
         coinOverlay,
-        modelURL = Script.resolvePath("./resources/models/coinFlat8.fbx"),
+        modelURL = Script.resolvePath("../resources/models/coinFlat8.fbx"),
         coinParticleEffects,
         messageOverlay,
         clickCount = 0;
@@ -122,7 +122,7 @@
                     color: {red: 255, green: 255, blue: 255},
                     backgroundAlpha: 0,
                     dimensions: { x: 0.5, y: 0.05, z: 0.5 },
-                    position: Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, { x: -2.5, y: 0, z: -2 })),
+                    position: Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: -2.5, y: 0, z: -2 })),
                     rotation: Camera.orientation,
                     isSolid: true,
                     drawInFront: true,
@@ -131,7 +131,7 @@
                 });                       
                 var position = Vec3.sum(
                     spawnerProperties.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 0.5, z: 0}));
-                _this.playSound(COINS_AVAILABLE, spawnerProperties.position, false);
+                _this.playSound(COINS_AVAILABLE, MyAvatar.position, false);
                 coinOverlay = Overlays.addOverlay("model", {
                     name: "COIN OVERLAY",
                     url: modelURL,

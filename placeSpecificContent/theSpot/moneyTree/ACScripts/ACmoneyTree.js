@@ -25,20 +25,19 @@ Avatar.displayName = "Money Tree Agent";
 Avatar.position = {"x":-19.109256744384766,"y":-20.8349714279174805,"z":-11.181184768676758}; // Tree Position
 
 
-var AVERAGE_INTERVAL = 2, // Two minutes
+var AVERAGE_INTERVAL_MIN = 2,
     AVERAGE_HFC_AMOUNT = 10,
     HFC_MAX = 50,
     HFC_MIN = 5,
-    STANDARD_DEVIATION = 5,
-    SHOW_TIME_LENGTH = 60000, // One minute
+    HFC_STANDARD_DEVIATION = 5,
     RECIPIENT_MAX = 3, 
-    ONE_SECOND = 1000,
-    AC_SCRIPT_RUN = true,
-    PPS = 6000,
-    TEN_SECONDS = 10000,
-    FIVE_SECONDS = 5000,
+    MS_TO_SEC = 1000;
+var PPS = 6000,
+    SHOW_TIME_SECONDS = 60 * MS_TO_SEC, 
+    TEN_SECONDS = 10 * MS_TO_SEC,
+    FIVE_SECONDS = 5 * MS_TO_SEC,
     SEARCH_CENTER = {x: -18.1834, y: -7.7738, z: -11.8755},
-    SEARCH_AREA= 1000;
+    SEARCH_AREA_M = 1000;
 
 var populationID,
     marquisID,
@@ -60,23 +59,24 @@ var populationID,
     octreeInterval = null,
     responseTimeout = Number.MAX_VALUE,
     bannedUsers = [],
-    randomIntervals = [SHOW_TIME_LENGTH],
+    randomIntervals = [SHOW_TIME_SECONDS],
     noOneGave = false;
 
 
 // Get the latest list of banned users from Google.
-function getBannedUsers() {
-    try {
-        request(BANNED_URL, function (error, data) {
-            if (!error) {
-                bannedUsers = JSON.stringify(data);
-            }
-        });
-    } catch (err) {
-        print("Could not get domain data using userData domainAPIURL", err);
-    }
+function requestBannedUsers(callback) {
+    request(BANNED_URL, function (error, response) {
+        if (error || response.status !== "success") {
+            console.log(error || JSON.stringify(response));
+        }
+        if (response.usernames){
+            bannedUsers = response.usernames;
+            callback();
+        }
+    });
 }
 
+    
 // These 4 functions handle the different message channels used to communicate 
 // with entities and clients.  Multiple functions are used to decrease the likelihood
 // that bad actors successfully send or receive messages.
@@ -88,52 +88,53 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
         message = JSON.parse(message);
     }
     // Notify the chosen recipient
-    if (message.type === 'entering' && message.nodeID === senderUUID ) { 
-        getBannedUsers();
-        var avatarsInDomain = AvatarList.getAvatarIdentifiers();   
-        var nameOnList = false;
-        var isBanned = false;
-        avatarsInDomain.forEach(function(nodeID){
-            if (treeOperators.indexOf(message.username) !== -1 && 
-            !operatorsPresent[operatorsPresent.map(function(e) { 
-                return e.username; 
-            }).indexOf(message.username)]) {
-                operatorsPresent.push({
-                    username: message.username,
-                    nodeID: message.nodeID
-                });
-                bankerOverlay(message.nodeID, false);
-                updateMarquis();                                        
-            }
-            // If the username or UUID is already on the list, do not add it to the list!
-            userList.forEach(function(index){
-                if (message.username.toLowerCase() === index.username || 
-                Uuid.isEqual(message.nodeID, index.nodeID)) {
-                    nameOnList = true;
+    if (message.type === 'entering' && message.nodeID === senderUUID) { 
+        requestBannedUsers(function(){
+            var avatarsInDomain = AvatarList.getAvatarIdentifiers();   
+            var nameOnList = false;
+            var isBanned = false;
+            avatarsInDomain.forEach(function(nodeID){
+                if (treeOperators.indexOf(message.username) !== -1 && 
+                !operatorsPresent[operatorsPresent.map(function(e) { 
+                    return e.username; 
+                }).indexOf(message.username)]) {
+                    operatorsPresent.push({
+                        username: message.username,
+                        nodeID: message.nodeID
+                    });
+                    bankerOverlay(message.nodeID, false);
+                    updateMarquis();                                        
                 }
-            });              
-            // if username is banned do not add them to the list.
-            if (bannedUsers.indexOf(message.username.toLowerCase()) !== -1){
-                isBanned = true;
-            }
-            if (!nameOnList && !isBanned) {
-                // Add name and nodeID to list
-                userList.push({
-                    username: message.username.toLowerCase(),
-                    nodeID: message.nodeID,
-                    staff: false
-                });
-                // If user is staff, mark [].staff 'true'
-                hiFiStaff.forEach(function(username){
-                    if (message.username === username){
-                        userList[userList.map(function(e) { 
-                            return e.username; 
-                        }).indexOf(message.username)].staff = true;
+                // If the username or UUID is already on the list, do not add it to the list!
+                userList.forEach(function(index){
+                    if (message.username.toLowerCase() === index.username || 
+                    Uuid.isEqual(message.nodeID, index.nodeID)) {
+                        nameOnList = true;
                     }
-                });
-                // Update Signs
-                updateMarquis();
-            }         
+                });              
+                // if username is banned do not add them to the list.
+                if (bannedUsers.indexOf(message.username.toLowerCase()) !== -1){
+                    isBanned = true;
+                } 
+                if (!nameOnList && !isBanned) {
+                    // Add name and nodeID to list
+                    userList.push({
+                        username: message.username.toLowerCase(),
+                        nodeID: message.nodeID,
+                        staff: false
+                    });
+                    // If user is staff, mark [].staff 'true'
+                    hiFiStaff.forEach(function(username){
+                        if (message.username === username){
+                            userList[userList.map(function(e) { 
+                                return e.username; 
+                            }).indexOf(message.username)].staff = true;
+                        }
+                    });
+                    // Update Signs
+                    updateMarquis();
+                }         
+            });
         });
     // Someone left the zone, remove them from the lists
     } else if (message.type === 'leaving' && message.nodeID === senderUUID) {
@@ -148,7 +149,7 @@ var messageHandlerOperator = function(channel, message, senderUUID, localOnly) {
         message = JSON.parse(message);
     }
     // Notify the chosen recipient
-    if (message.type === 'tree power' && senderUUID !== Avatar.sessionUUID ) {
+    if (message.type === 'tree power' && senderUUID !== Avatar.sessionUUID) {
         if (operatorsPresent.length > 0){
             treePower = message.state;
             if (treePower === true) {
@@ -176,20 +177,14 @@ var messageHandlerRecipient = function(channel, message, senderUUID, localOnly) 
     } else {
         message = JSON.parse(message);
     }
-    // Notify the chosen recipient
     if (message.type === 'accept' && senderUUID === recipient.nodeID) {
-        if (new Date().getTime() - responseTimeout < SHOW_TIME_LENGTH) {
-            sendInput(message.username, amount); 
-            recipient = null; 
-            targetRecipients = [];
-            responseTimeout = Number.MAX_VALUE;
+        if (new Date().getTime() - responseTimeout < SHOW_TIME_SECONDS) {
+            sendInput(recipient.username, amount); 
         }
-    // Receiver declines
     } else if (message.type === 'decline' && senderUUID === recipient.nodeID) {
         recipient = null;
         targetRecipients = [];
         responseTimeout = Number.MAX_VALUE;
-    // Someone entered the zone, add them to a list
     }
 }; 
 var messageHandlerGiver = function(channel, message, senderUUID, localOnly) {
@@ -242,29 +237,29 @@ function updateMarquis(displayText){
 function allowEntityAccess() {
     Entities.setPacketsPerSecond(PPS);
     EntityViewer.setPosition(SEARCH_CENTER);
-    EntityViewer.setCenterRadius(SEARCH_AREA);
+    EntityViewer.setCenterRadius(SEARCH_AREA_M);
     // This should allow us to see nano-scale entities from great distances
     EntityViewer.setVoxelSizeScale(Number.MAX_VALUE);
     if (!octreeInterval) {
         octreeInterval = Script.setInterval(function() {
             EntityViewer.queryOctree();
-        }, ONE_SECOND);
+        }, MS_TO_SEC);
     }
     Script.setTimeout(function(){
         try {
             if (Entities.getEntityProperties(
-                Entities.findEntitiesByName("Money Tree Counter", SEARCH_CENTER, SEARCH_AREA)[0], ["id"]).id !== undefined) {
+                Entities.findEntitiesByName("Money Tree Counter", SEARCH_CENTER, SEARCH_AREA_M)[0], ["id"]).id !== undefined) {
                 populationID = Entities.getEntityProperties(
-                    Entities.findEntitiesByName("Money Tree Counter", SEARCH_CENTER, SEARCH_AREA)[0], ["id"]).id;
+                    Entities.findEntitiesByName("Money Tree Counter", SEARCH_CENTER, SEARCH_AREA_M)[0], ["id"]).id;
                 Entities.editEntity(populationID, {text: "--"});
                 marquisID = Entities.getEntityProperties(
-                    Entities.findEntitiesByName("Money Tree Status", SEARCH_CENTER, SEARCH_AREA)[0], ["id"]).id;
+                    Entities.findEntitiesByName("Money Tree Status", SEARCH_CENTER, SEARCH_AREA_M)[0], ["id"]).id;
                 updateMarquis("BOOTING UP");
-                powerButtonSpawner = Entities.findEntitiesByName("Power Button Spawner", SEARCH_CENTER, SEARCH_AREA);
+                powerButtonSpawner = Entities.findEntitiesByName("Power Button Spawner", SEARCH_CENTER, SEARCH_AREA_M);
                 powerButtonSpawner.forEach(function(entityID){
                     Entities.deleteEntity(entityID);
                 });
-                powerButtonMaterial = Entities.findEntitiesByName("Power Button Material", SEARCH_CENTER, SEARCH_AREA);
+                powerButtonMaterial = Entities.findEntitiesByName("Power Button Material", SEARCH_CENTER, SEARCH_AREA_M);
                 powerButtonMaterial.forEach(function(entityID){
                     Entities.deleteEntity(entityID);
                 });
@@ -337,7 +332,7 @@ function startup() {
 function bankerOverlay(uuid, remove){
     if (remove) {
         try {
-            var powerButtonSpawner = Entities.findEntitiesByName("Power Button Spawner", SEARCH_CENTER, SEARCH_AREA);
+            var powerButtonSpawner = Entities.findEntitiesByName("Power Button Spawner", SEARCH_CENTER, SEARCH_AREA_M);
             powerButtonSpawner.forEach(function(entityID){
                 var entityData = Entities.getEntityProperties(entityID, ['userData']);
                 userData = JSON.parse(entityData.userData);
@@ -346,7 +341,7 @@ function bankerOverlay(uuid, remove){
                     Entities.deleteEntity(entityID);
                 }
             });
-            var powerButtonMaterial = Entities.findEntitiesByName("Power Button Material", SEARCH_CENTER, SEARCH_AREA);
+            var powerButtonMaterial = Entities.findEntitiesByName("Power Button Material", SEARCH_CENTER, SEARCH_AREA_M);
             powerButtonMaterial.forEach(function(entityID){
                 var entityData2 = Entities.getEntityProperties(entityID, ['userData']);
                 userData = JSON.parse(entityData2.userData);
@@ -409,7 +404,7 @@ function spawnReceiverMessage(amount){
             type: "Box",
             dimensions: { x: 0.5, y: 0.5, z: 0.5 },
             name: "Tree Gift Receipt",
-            script: Script.resolvePath("../entityScripts/moneyTreeReceiverClient.js"),
+            script: Script.resolvePath("../entityScripts/moneyTreeReceiverClient.js?v3"),
             userData: JSON.stringify(userData),
             lifetime: 30,
             position: Vec3.sum(avatar.position, Vec3.multiplyQbyV(avatar.orientation, { x: -2.5, y: 0, z: -5 })),
@@ -506,9 +501,9 @@ function spawnReceiverMessage(amount){
 // TODO: When Commerce API intergration comes, if the tree lacks funds, it will shutdown.
 function randomizeHFC(){
     var funds = true;
-    var rand = gaussian(AVERAGE_HFC_AMOUNT, STANDARD_DEVIATION);
+    var rand = gaussian(AVERAGE_HFC_AMOUNT, HFC_STANDARD_DEVIATION);
     var listLength =Math.sqrt(userList.length);
-    var amount = Math.ceil(rand*listLength) - Math.ceil(rand*listLength) % STANDARD_DEVIATION;
+    var amount = Math.ceil(rand*listLength) - Math.ceil(rand*listLength) % HFC_STANDARD_DEVIATION;
     if (!funds){
         updateMarquis("BANKRUPT!");
         Script.clearTimeout(coinSpawnTimeout);
@@ -531,10 +526,10 @@ function randomizeHFC(){
 
 // This function generates an array of 10 random intervals based on an average
 function generateRandomIntervals(){
-    for (var i = 0; i < HFC_MAX; i++){
-        var interval = gaussian(AVERAGE_INTERVAL, 1) * SHOW_TIME_LENGTH;
+    for (var i = 0; i < AVERAGE_HFC_AMOUNT; i++){
+        var interval = gaussian(AVERAGE_INTERVAL_MIN, 1) * SHOW_TIME_SECONDS;
         randomIntervals.push(            
-            interval > SHOW_TIME_LENGTH ? interval : SHOW_TIME_LENGTH
+            interval > SHOW_TIME_SECONDS ? interval : SHOW_TIME_SECONDS
         );
     }
 }
@@ -679,6 +674,9 @@ function sendInput(recipientUsername, amount) {
     request.open('GET', GOOGLE_URL + "?" + paramString);
     request.timeout = 10000;
     request.send();
+    recipient = null; 
+    targetRecipients = [];
+    responseTimeout = Number.MAX_VALUE;
 }
 
 
@@ -719,21 +717,21 @@ function cleanUpEntities(){
                 userList.splice(userList.indexOf(index),1)[0];
             }
         });
-        var extraCoins = Entities.findEntitiesByName("Money Tree Gift", SEARCH_CENTER, SEARCH_AREA);
+        var extraCoins = Entities.findEntitiesByName("Money Tree Gift", SEARCH_CENTER, SEARCH_AREA_M);
         if (extraCoins.length > 0){
             extraCoins.forEach(function(entityID){
                 Entities.deleteEntity(entityID);
             });
             extraCoins = [];
         }
-        var extraButtons = Entities.findEntitiesByName("Power Button Spawner", SEARCH_CENTER, SEARCH_AREA);
+        var extraButtons = Entities.findEntitiesByName("Power Button Spawner", SEARCH_CENTER, SEARCH_AREA_M);
         if (extraButtons.length > 0 && operatorsPresent.length === 0){
             extraButtons.forEach(function(entityID){
                 Entities.deleteEntity(entityID);
             });
             extraButtons = [];
         }
-        extraButtons = Entities.findEntitiesByName("Power Button Material", SEARCH_CENTER, SEARCH_AREA);
+        extraButtons = Entities.findEntitiesByName("Power Button Material", SEARCH_CENTER, SEARCH_AREA_M);
         if (extraButtons.length > 0 && operatorsPresent.length === 0){
             extraButtons.forEach(function(entityID){
                 Entities.deleteEntity(entityID);
@@ -751,7 +749,7 @@ function cleanUpEntities(){
 // Start the tree cycle!
 function startTree(){
     var message = JSON.stringify("The next selection begins in " + 
-        (randomIntervals[randomIntervals.length-1]/ONE_SECOND).toFixed(0) + " seconds");
+        (randomIntervals[randomIntervals.length-1]/MS_TO_SEC).toFixed(0) + " seconds");
     Messages.sendMessage(OPERATOR_CHANNEL, JSON.stringify({
         type: "time",
         message: message
@@ -768,7 +766,7 @@ function startTree(){
                 createCoinSpawner();
                 noOneGave = Script.setTimeout(function(){
                     startTree();
-                }, SHOW_TIME_LENGTH);
+                }, 1.5*SHOW_TIME_SECONDS);
             } 
         } else {
             updateMarquis("MOAR PPL PLZ");

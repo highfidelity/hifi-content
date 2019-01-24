@@ -13,9 +13,8 @@
 // spawn Overlays for clients with ID == giverID
 // delete after overlay after click event or after timer expires.
 // send data to google sheet
-    var SECRETS = Script.require(Script.resolvePath('../moneyTreeURLs.json')),
-        COIN_CLICKED = SoundCache.getSound(Script.resolvePath('../resources/sounds/payout.wav')),
-        COIN_WAITING = SoundCache.getSound(Script.resolvePath('../resources/sounds/ticking-timer.wav')),
+    var SECRETS = Script.require(Script.resolvePath('../moneyTreeURLs.json'));
+    var COIN_CLICKED = SoundCache.getSound(Script.resolvePath('../resources/sounds/payout.wav')),
         MONEY_TREE_CHANNEL = SECRETS.RECPIENT_CHANNEL,
         AUDIO_VOLUME = 0.1;
     var MAX_TIME_WAIT = 60000;
@@ -63,6 +62,9 @@
             try {
                 userData = JSON.parse(spawnerProperties.userData);
                 receiverID = userData.receiverID;
+                if (MyAvatar.sessionUUID !== receiverID){
+                    _this.unload();
+                }
                 amount = userData.amount;
                 // verify that settings are legit
             } catch (e) {
@@ -73,25 +75,25 @@
 
         
         spawnMessageAlert: function() {
-            _this.playSound(COIN_WAITING, Camera.position, true);
-            var text = "Somebody here picked you to receive " + amount + 
-                " HFC! \nClick 'YES' within 60 seconds to accept this gift. \n\nThank you for being part of the community!";
             if (MyAvatar.sessionUUID === receiverID){ // 
+                var text = "Somebody here picked you to receive " + amount + 
+                " HFC! \nClick 'YES' within 60 seconds to accept this gift. \n\nThank you for being part of the community!";
+                // _this.playSound(COIN_WAITING, Camera.position, true);
                 var time = new Date().getTime();
                 answer = Window.confirm(text);  
                 var timeDiff = (new Date() - time);
                 if (timeDiff > MAX_TIME_WAIT){
                     Window.announcement("You took to long to accept your gift.\n\n Please acknowledge sooner next time.");
                 } else if (answer) {
-                    injector.stop();
-                    _this.playSound(COIN_CLICKED, Camera.position, true);
-                    Messages.sendMessage(MONEY_TREE_CHANNEL, JSON.stringify({
-                        type: "accept"
+                    Messages.sendMessage("RecipientChannel", JSON.stringify({
+                        type: "accept",
+                        nodeID: receiverID,
+                        amount: amount
                     }));
+                    _this.playSound(COIN_CLICKED, Camera.position, true);
                 } else {
-                    injector.stop();
                     Window.announcement("You chose not to receive any HFC.");
-                    Messages.sendMessage(MONEY_TREE_CHANNEL, JSON.stringify({
+                    Messages.sendMessage("RecipientChannel", JSON.stringify({
                         type: "decline"
                     }));
                 }
