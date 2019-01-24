@@ -13,7 +13,7 @@
 */
 
 
-var danceCollection = [ 
+module.exports = [ 
     Script.resolvePath("../resources/animations/Ballet 372.fbx"),
     Script.resolvePath("../resources/animations/BBoy Look at me be Booooi 202.fbx"),
     Script.resolvePath("../resources/animations/Beyonce Boogie 235.fbx"),
@@ -46,5 +46,3 @@ var danceCollection = [
     Script.resolvePath("../resources/animations/Wavy baby 213.fbx"),
     Script.resolvePath("../resources/animations/Ymca Dance 136.fbx")
 ];
-
-module.exports = danceCollection;

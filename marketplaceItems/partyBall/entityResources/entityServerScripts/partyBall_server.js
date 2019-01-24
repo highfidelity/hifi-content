@@ -89,7 +89,7 @@
             Entities.editEntity(_entityID, {
                 visible: true
             });
-        }, MATERIAL_LOAD_TIMEOUT)
+        }, MATERIAL_LOAD_TIMEOUT);
     }
 
 
@@ -263,6 +263,7 @@
 
     // Make the ball dynamic and prep the sounds
     var GRAVITY_M_PER_S = -9.8;
+    var LIFETIME_SECONDS = 300;
     function preload(entityID) {
         _entityID = entityID;
         makeMaterial();
@@ -270,7 +271,8 @@
             gravity: [0, GRAVITY_M_PER_S, 0],
             dynamic: true,
             rotation: Quat.IDENTITY,
-            visible: false
+            visible: false,
+            lifetime: LIFETIME_SECONDS
         });
 
         // To cut down on how many files to cache, we get a random song and add two random SFX to the possible list.

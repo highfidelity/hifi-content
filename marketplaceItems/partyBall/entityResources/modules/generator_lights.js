@@ -96,6 +96,7 @@ function makeLights() {
 
 
 // Make random light properties for use in the interval animator
+// We use an Averaging filter so the random results aren't all over the place
 var INTENSITY_MIN = 2;
 var INTENSITY_MAX = 25;
 var COLOR_MIN = 0;
