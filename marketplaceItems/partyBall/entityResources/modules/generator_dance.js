@@ -19,22 +19,40 @@ var common = Script.require("./commonUtilities.js?" + Date.now());
 var randomInt = common.randomInt;
 
 var danceCollection = Script.require("./collection_animations.js?" + Date.now());
+var MAX_RETRIES = 3;
+var TIMEOUT_AMOUNT = 500;
 
 // Main constructor function for the Dancer
 function DanceGenerator() {
     this.partyBallID = null; 
     this.dancer = null;
     this.selectedAvatarUUID = null;
-    
+    this.currentTry = 0;
+    this.receivedUpdate = false;
+
     this.ballPosition;
     this.randomAnimation = null;
     this.randomDancer = null;
 }
 
 
-// Timeout function that calls the entity client method to get the correct dimensions.  The timeout is to make sure the entity is created first.
+// Try the timeout again if you haven't got the message
+function retryTimeOut(){
+    this.currentTry++;
+    callEntityClientMethodInTimeout.bind(this)();
+}
+
+
+// Timeout function that calls the entity client method to get the correct dimensions.  
+// The timeout is to make sure the entity is created first.
 function callEntityClientMethodInTimeout(){
     Entities.callEntityClientMethod(this.selectedAvatarUUID, this.partyBallID, "getDancerDimensions", [this.dancer]);
+    
+    if (this.receivedUpdate || this.currentTry > MAX_RETRIES) {
+        return;
+    }
+
+    Script.setTimeout(retryTimeOut.bind(this), TIMEOUT_AMOUNT);
 }
 
 
@@ -68,6 +86,7 @@ function create(partyBallID, dancerURL, selectedAvatarUUID, ballPosition) {
 // Update the dancer dimensions since the server can't see the correct naturalDimensions.
 var AVATAR_SCALER = 2.5;
 function updateDimensions(newDancerDimensions) {
+    this.receivedUpdate = true;
     var avatarDimensions = Vec3.multiply(newDancerDimensions, AVATAR_SCALER);
     // The following takes the height of the new avatar and raises it up so that the feet of the dancing avatar
     // is at the origin of the explosion.

@@ -22,7 +22,7 @@ function SoundGenerator(audioOptions, autoUpdateAudioPosition) {
         this.audioOptions.position = Vec3.sum(this.position, { x: 0, y: 1, z: 0});
     }
     if (this.audioOptions.volume === undefined) {
-        this.audioOptions.volume = 0.5;
+        this.audioOptions.volume = 0.25;
     }
     this.position = null;
     this.injector = null;
