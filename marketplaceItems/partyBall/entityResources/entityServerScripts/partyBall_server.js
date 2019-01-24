@@ -31,8 +31,8 @@
 
     var musicCollection = Script.require("../modules/collection_music.js?" + Date.now());
     var sfxCollection = Script.require("../modules/collection_sfx.js?" + Date.now());
-    var particleProperties = Script.require("../modules/particleProperties.js?" + Date.now());
-
+    var particleProperties = Script.require("../modules/properties_particles.js?" + Date.now());
+    var materialProperties = Script.require("../modules/properties_material.js?" + Date.now());
 
     // #endregion
     // *************************************
@@ -61,6 +61,7 @@
     var MS_PER_S = 1000;
 
     var _entityID;
+    var materialID;
 
     var lastTouched = { id: null, timeStamp: 0, skeletonModelURL: null };
     var explodeTimer = false;
@@ -76,6 +77,20 @@
     // START PARTY FUNCTIONS
     // *************************************
     // #region PARTY FUNCTIONS
+
+
+    // Make the ball's material
+    var MATERIAL_LOAD_TIMEOUT = 250;
+    function makeMaterial() {
+        materialProperties.parentID = _entityID;
+        materialID = Entities.addEntity(materialProperties);
+        // Give a little time for the material to load before showing it
+        Script.setTimeout(function(){
+            Entities.editEntity(_entityID, {
+                visible: true
+            });
+        }, MATERIAL_LOAD_TIMEOUT)
+    }
 
 
     // Start the actual timer anywhere between 2 to 10 seconds
@@ -250,11 +265,12 @@
     var GRAVITY_M_PER_S = -9.8;
     function preload(entityID) {
         _entityID = entityID;
+        makeMaterial();
         Entities.editEntity(_entityID, {
             gravity: [0, GRAVITY_M_PER_S, 0],
             dynamic: true,
             rotation: Quat.IDENTITY,
-            visible: true
+            visible: false
         });
 
         // To cut down on how many files to cache, we get a random song and add two random SFX to the possible list.

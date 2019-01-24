@@ -21,7 +21,7 @@ var randomInt = common.randomInt;
 var makeColor = common.makeColor;
 var AveragingFilter = common.AveragingFilter;
 
-var particles = Script.require("../modules/particleProperties.js?" + Date.now());
+var particles = Script.require("../modules/properties_particles.js?" + Date.now());
 var textureCollection = Script.require("../modules/collection_textures.js?" + Date.now());
 
 // Main Particle Constructor Function
