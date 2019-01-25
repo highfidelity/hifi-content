@@ -189,11 +189,13 @@ input[type=button][pressed=pressed] {
 .button-number {
     background-color: white;
     font-size: 2em;
+    padding: 0;
 }
 
 .button-free {
     background-color: white;
     font-size: 2em;
+    padding: 0;
 }
 
 .button-letter {
@@ -202,22 +204,7 @@ input[type=button][pressed=pressed] {
     height: 90px;
     width: 90px;
     border: 0;
-}
-
-.card-pink {
-    background: rgb(255, 0,119);
-}
-
-.card-blue {
-    background: rgb(0, 196, 247);
-}
-
-.card-yellow {
-    background: rgb(227, 255, 66);
-}
-
-.card-green {
-    background: rgb(30, 255, 0);
+    padding: 0;
 }
 
 .selected {

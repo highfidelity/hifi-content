@@ -69,7 +69,8 @@
         var currentAvatarWearableIDs = Entities.findEntitiesByType('Model', MyAvatar.position, WEARABLE_SEARCH_RADIUS);
 
         for (var i = 0; i < currentAvatarWearableIDs.length; i++) {
-            var properties = Entities.getEntityProperties(currentAvatarWearableIDs[i], ['marketplaceID', 'certificateID', 'parentID']);
+            var properties = Entities.getEntityProperties(currentAvatarWearableIDs[i], 
+                ['marketplaceID', 'certificateID', 'parentID']);
             if (properties.marketplaceID === ticketMarketplaceID && properties.parentID === MyAvatar.sessionUUID) {
                 WalletScriptingInterface.ownershipVerificationSuccess.connect(ticketVerificationSuccess);
                 WalletScriptingInterface.ownershipVerificationFailed.connect(ticketVerificationFailed);
