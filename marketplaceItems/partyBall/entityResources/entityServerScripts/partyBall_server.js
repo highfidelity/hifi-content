@@ -80,7 +80,7 @@
 
 
     // Make the ball's material
-    var MATERIAL_LOAD_TIMEOUT = 250;
+    var MATERIAL_LOAD_MS_TIMEOUT = 250;
     function makeMaterial() {
         materialProperties.parentID = _entityID;
         materialID = Entities.addEntity(materialProperties);
