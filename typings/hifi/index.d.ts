@@ -52,6 +52,14 @@ declare namespace Avatar {
      * @returns {Avatar.AnimationDetails} 
      */
     function getAnimationDetails(): Avatar.AnimationDetails;
+<<<<<<< HEAD
+=======
+    /**
+     * Potentially Very Expensive.  Do not use.
+     * @returns {object} 
+     */
+    function getAvatarEntityData(): object;
+>>>>>>> master
     interface AnimationDetails {
         role: string;
         url: string;
@@ -223,6 +231,16 @@ declare namespace Avatar {
      */
     function clearJointsData(): void;
     /**
+<<<<<<< HEAD
+=======
+     * Get the joint index for a named joint. The joint index value is the position of the joint in the array returned by
+     *  MyAvatar.getJointNames or  Avatar.getJointNames.
+     * @param name {string}  The name of the joint.
+     * @returns {number} 
+     */
+    function getJointIndex(name: string): number;
+    /**
+>>>>>>> master
      * Get the joint index for a named joint. The joint index value is the position of the joint in the array returned by 
      *  MyAvatar.getJointNames or  Avatar.getJointNames.
      * @param name {string}  The name of the joint.
@@ -235,6 +253,14 @@ declare namespace Avatar {
      */
     function getJointNames(): Array.<string>;
     /**
+<<<<<<< HEAD
+=======
+     * Get the names of all the joints in the current avatar.
+     * @returns {Array.<string>} 
+     */
+    function getJointNames(): Array.<string>;
+    /**
+>>>>>>> master
      * @param name {string}  
      * @param value {number}  
      */
@@ -254,6 +280,14 @@ declare namespace Avatar {
     function updateAvatarEntity(entityID: Uuid, entityData: string): void;
     /**
      * @param entityID {Uuid}  
+<<<<<<< HEAD
+=======
+     * @param entityData {string}  
+     */
+    function updateAvatarEntity(entityID: Uuid, entityData: string): void;
+    /**
+     * @param entityID {Uuid}  
+>>>>>>> master
      */
     function clearAvatarEntity(entityID: Uuid): void;
     /**
@@ -310,6 +344,13 @@ declare namespace Avatar {
      */
     function setAvatarEntityData(avatarEntityData: object): void;
     /**
+<<<<<<< HEAD
+=======
+     * @param avatarEntityData {object}  
+     */
+    function setAvatarEntityData(avatarEntityData: object): void;
+    /**
+>>>>>>> master
      * @returns {Mat4} 
      */
     function getSensorToWorldMatrix(): Mat4;
@@ -867,6 +908,16 @@ declare namespace AvatarManager {
      */
     function findRayIntersectionVector(ray: PickRay, avatarsToInclude: Array.<Uuid>, avatarsToDiscard: Array.<Uuid>): RayToAvatarIntersectionResult;
     /**
+<<<<<<< HEAD
+=======
+     * @param pick {PickParabola}  
+     * @param avatarsToInclude {Array.<Uuid>}  
+     * @param avatarsToDiscard {Array.<Uuid>}  
+     * @returns {ParabolaToAvatarIntersectionResult} 
+     */
+    function findParabolaIntersectionVector(pick: PickParabola, avatarsToInclude: Array.<Uuid>, avatarsToDiscard: Array.<Uuid>): ParabolaToAvatarIntersectionResult;
+    /**
+>>>>>>> master
      * @param name {string}  
      * @returns {number} 
      */
@@ -879,11 +930,19 @@ declare namespace AvatarManager {
     /**
      * Used in the PAL for getting PAL-related data about avatars nearby. Using this method is faster
      * than iterating over each avatar and obtaining data about them in JavaScript, as that methodlocks and unlocks each avatar's data structure potentially hundreds of times per update tick.
+<<<<<<< HEAD
      * @param specificAvatarIdentifiers {Array.<string>}  A list of specific Avatar Identifiers about
      * which you want to get PAL data
      * @returns {object} 
      */
     function getPalData(specificAvatarIdentifiers: Array.<string>): object;
+=======
+     * @param specificAvatarIdentifiers {Array.<string>} [specificAvatarIdentifiers=[]] The list of IDs of the avatars you want the PAL data for.
+     * If an empty list, the PAL data for all nearby avatars is returned.
+     * @returns {Array.<object>} 
+     */
+    function getPalData(specificAvatarIdentifiers: Array.<string>): Array.<object>;
+>>>>>>> master
     /**
      * @param shouldRenderAvatars {boolean}  
      */
@@ -939,6 +998,14 @@ declare namespace AvatarManager {
      * @param message {}  
      * @param sendingNode {}  
      */
+<<<<<<< HEAD
+=======
+    function processBulkAvatarTraits(message, sendingNode): void;
+    /**
+     * @param message {}  
+     * @param sendingNode {}  
+     */
+>>>>>>> master
     function processKillAvatar(message, sendingNode): void;
 }
 
@@ -947,6 +1014,31 @@ declare namespace AvatarManager {
  * For example, you can customize the avatar's appearance, run custom avatar animations,change the avatar's position within the domain, or manage the avatar's collisions with other objects.
  */
 declare namespace MyAvatar {
+<<<<<<< HEAD
+=======
+    /**
+     * Get the names of all the joints in the current avatar.
+     * @returns {Array.<string>} 
+     */
+    function getJointNames(): Array.<string>;
+    /**
+     * Get the joint index for a named joint. The joint index value is the position of the joint in the array returned by
+     *  MyAvatar.getJointNames or  Avatar.getJointNames.
+     * @param name {string}  The name of the joint.
+     * @returns {number} 
+     */
+    function getJointIndex(name: string): number;
+    /**
+     * @param avatarEntityData {object}  
+     */
+    function setAvatarEntityData(avatarEntityData: object): void;
+    /**
+     * @param entityID {Uuid}  
+     * @param entityData {string}  
+     */
+    function updateAvatarEntity(entityID: Uuid, entityData: string): void;
+    function setJointMappingsFromNetworkReply(): void;
+>>>>>>> master
     function resetSensorsAndBody(): void;
     /**
      * Moves and orients the avatar, such that it is directly underneath the HMD, with toes pointed forward.
@@ -1243,22 +1335,63 @@ declare namespace MyAvatar {
      */
     function getAvatarEntitiesVariant()(): Array.<object>;
     /**
+<<<<<<< HEAD
+=======
+     * Check whether your avatar is flying or not.
+>>>>>>> master
      * @returns {boolean} 
      */
     function isFlying(): boolean;
     /**
+<<<<<<< HEAD
+=======
+     * Check whether your avatar is in the air or not.
+>>>>>>> master
      * @returns {boolean} 
      */
     function isInAir(): boolean;
     /**
+<<<<<<< HEAD
      * @param enabled {boolean}  
      */
     function setFlyingEnabled(enabled: boolean): void;
     /**
+=======
+     * Set your preference for flying in your current desktop or HMD display mode. Note that your ability to fly also depends 
+     * on whether the domain you're in allows you to fly.
+     * @param enabled {boolean}  Set <code>true</code> if you want to enable flying in your current desktop or HMD display 
+     *     mode, otherwise set <code>false</code>.
+     */
+    function setFlyingEnabled(enabled: boolean): void;
+    /**
+     * Get your preference for flying in your current desktop or HMD display mode. Note that your ability to fly also depends 
+     * on whether the domain you're in allows you to fly.
+>>>>>>> master
      * @returns {boolean} 
      */
     function getFlyingEnabled(): boolean;
     /**
+<<<<<<< HEAD
+     * @param enabled {boolean}  
+     */
+    function setFlyingDesktopPref(enabled: boolean): void;
+    /**
+=======
+     * Set your preference for flying in desktop display mode. Note that your ability to fly also depends on whether the domain 
+     * you're in allows you to fly.
+     * @param enabled {boolean}  Set <code>true</code> if you want to enable flying in desktop display mode, otherwise set 
+     *     <code>false</code>.
+     */
+    function setFlyingDesktopPref(enabled: boolean): void;
+    /**
+     * Get your preference for flying in desktop display mode. Note that your ability to fly also depends on whether the domain
+     * you're in allows you to fly.
+>>>>>>> master
+     * @returns {boolean} 
+     */
+    function getFlyingDesktopPref(): boolean;
+    /**
+<<<<<<< HEAD
      * @param enabled {boolean}  
      */
     function setFlyingDesktopPref(enabled: boolean): void;
@@ -1266,14 +1399,20 @@ declare namespace MyAvatar {
      * @returns {boolean} 
      */
     function getFlyingDesktopPref(): boolean;
-    /**
-     * @param enabled {boolean}  
+=======
+     * Set your preference for flying in HMD display mode. Note that your ability to fly also depends on whether the domain
+     * you're in allows you to fly.
+     * @param enabled {boolean}  Set <code>true</code> if you want to enable flying in HMD display mode, otherwise set
+     *     <code>false</code>.
      */
-    function setFlyingDesktopPref(enabled: boolean): void;
+    function setFlyingHMDPref(enabled: boolean): void;
     /**
+     * Get your preference for flying in HMD display mode. Note that your ability to fly also depends on whether the domain
+     * you're in allows you to fly.
      * @returns {boolean} 
      */
-    function getFlyingDesktopPref(): boolean;
+    function getFlyingHMDPref(): boolean;
+>>>>>>> master
     /**
      * @returns {number} 
      */
@@ -1291,6 +1430,17 @@ declare namespace MyAvatar {
      */
     function getCollisionsEnabled(): boolean;
     /**
+<<<<<<< HEAD
+=======
+     * @param enabled {boolean}  
+     */
+    function setOtherAvatarsCollisionsEnabled(enabled: boolean): void;
+    /**
+     * @returns {boolean} 
+     */
+    function getOtherAvatarsCollisionsEnabled(): boolean;
+    /**
+>>>>>>> master
      * @returns {object} 
      */
     function getCollisionCapsule(): object;
@@ -1313,6 +1463,23 @@ declare namespace MyAvatar {
      */
     function isDown(direction: Vec3): boolean;
     /**
+<<<<<<< HEAD
+=======
+     * Create a new grab.
+     * @param targetID {Uuid}  id of grabbed thing
+     * @param parentJointIndex {number}  avatar joint being used to grab
+     * @param offset {Vec3}  target's positional offset from joint
+     * @param rotationalOffset {Quat}  target's rotational offset from joint
+     * @returns {Uuid} 
+     */
+    function grab(targetID: Uuid, parentJointIndex: number, offset: Vec3, rotationalOffset: Quat): Uuid;
+    /**
+     * Release (delete) a grab.
+     * @param grabID {Uuid}  id of grabbed thing
+     */
+    function releaseGrab(grabID: Uuid): void;
+    /**
+>>>>>>> master
      * Increase the avatar's scale by five percent, up to a minimum scale of 1000.
      */
     function increaseSize(): void;
@@ -1495,6 +1662,15 @@ declare namespace MyAvatar {
      */
     function collisionsEnabledChanged(enabled: boolean): Signal;
     /**
+<<<<<<< HEAD
+=======
+     * Triggered when collisions with other avatars enabled or disabled
+     * @param enabled {boolean}  
+     * @returns {Signal} 
+     */
+    function otherAvatarsCollisionsEnabledChanged(enabled: boolean): Signal;
+    /**
+>>>>>>> master
      * Triggered when avatar's animation url changes
      * @param url {url}  
      * @returns {Signal} 
@@ -1850,7 +2026,10 @@ declare namespace MyAvatar {
      */
     function sendAvatarDataPacket(sendAll: boolean): void;
     function sendIdentityPacket(): void;
+<<<<<<< HEAD
     function setJointMappingsFromNetworkReply(): void;
+=======
+>>>>>>> master
     /**
      * @param sessionUUID {Uuid}  
      */
@@ -2191,6 +2370,11 @@ declare namespace MyAvatar {
     let walkSpeed: number;
     let walkBackwardSpeed: number;
     let sprintSpeed: number;
+<<<<<<< HEAD
+=======
+    let isInSittingState: number;
+    let userRecenterModel: number;
+>>>>>>> master
     /**
      * Can be used to apply a translation offset between the avatar's position and the
      *     registration point of the 3D model.
@@ -2301,7 +2485,11 @@ declare namespace FaceTracker {
 }
 
 /**
+<<<<<<< HEAD
  * Available in:Interface ScriptsClient Entity ScriptsSynonym for  Pointers as used for laser pointers.
+=======
+ * Available in:Interface ScriptsClient Entity ScriptsSynonym for  Pointers as used for laser pointers.  Deprecated.
+>>>>>>> master
  */
 declare namespace LaserPointers {
     /**
@@ -2561,7 +2749,11 @@ declare namespace Picks {
 
     /**
      * Adds a new Pick.
+<<<<<<< HEAD
      * Different  PickTypes use different properties, and within one PickType, the properties you choose can lead to a wide range of behaviors.  For example,  with PickType.Ray, depending on which optional parameters you pass, you could create a Static Ray Pick, a Mouse Ray Pick, or a Joint Ray Pick.
+=======
+     * Different  PickTypes use different properties, and within one PickType, the properties you choose can lead to a wide range of behaviors.  For example,  with PickType.Ray, depending on which optional parameters you pass, you could create a Static Ray Pick, a Mouse Ray Pick, or a Joint Ray Pick.Picks created with this method always intersect at least visible and collidable things
+>>>>>>> master
      * @param type {PickType}  A PickType that specifies the method of picking to use
      * @param properties {Picks.RayPickProperties}  A PickProperties object, containing all the properties for initializing this Pick
      * @returns {number} 
@@ -2628,6 +2820,7 @@ declare namespace Picks {
     /**
      * @returns {number} 
      */
+<<<<<<< HEAD
     function PICK_NOTHING(): number;
     /**
      * @returns {number} 
@@ -2637,6 +2830,25 @@ declare namespace Picks {
      * @returns {number} 
      */
     function PICK_OVERLAYS(): number;
+=======
+    function PICK_ENTITIES(): number;
+    /**
+     * @returns {number} 
+     */
+    function PICK_OVERLAYS(): number;
+    /**
+     * @returns {number} 
+     */
+    function PICK_DOMAIN_ENTITIES(): number;
+    /**
+     * @returns {number} 
+     */
+    function PICK_AVATAR_ENTITIES(): number;
+    /**
+     * @returns {number} 
+     */
+    function PICK_LOCAL_ENTITIES(): number;
+>>>>>>> master
     /**
      * @returns {number} 
      */
@@ -2648,7 +2860,11 @@ declare namespace Picks {
     /**
      * @returns {number} 
      */
+<<<<<<< HEAD
     function PICK_COARSE(): number;
+=======
+    function PICK_INCLUDE_VISIBLE(): number;
+>>>>>>> master
     /**
      * @returns {number} 
      */
@@ -2656,10 +2872,28 @@ declare namespace Picks {
     /**
      * @returns {number} 
      */
+<<<<<<< HEAD
+=======
+    function PICK_INCLUDE_COLLIDABLE(): number;
+    /**
+     * @returns {number} 
+     */
+>>>>>>> master
     function PICK_INCLUDE_NONCOLLIDABLE(): number;
     /**
      * @returns {number} 
      */
+<<<<<<< HEAD
+=======
+    function PICK_PRECISE(): number;
+    /**
+     * @returns {number} 
+     */
+    function PICK_COARSE(): number;
+    /**
+     * @returns {number} 
+     */
+>>>>>>> master
     function PICK_ALL_INTERSECTIONS(): number;
     /**
      * @returns {number} 
@@ -2682,6 +2916,7 @@ declare namespace Picks {
      */
     function INTERSECTED_HUD(): number;
     /**
+<<<<<<< HEAD
      * A filter flag. Don't intersect with anything. Read-only.
      */
     const PICK_NOTHING: number;
@@ -2721,6 +2956,65 @@ declare namespace Picks {
     /**
      * An intersection type. Intersected nothing with the given filter flags. 
      *     Read-only.
+=======
+     * A filter flag. Include domain and avatar entities when intersecting. Read-only..  Deprecated.
+     */
+    const PICK_ENTITIES: number;
+    /**
+     * A filter flag. Include local entities when intersecting. Read-only.. Deprecated.
+     */
+    const PICK_OVERLAYS: number;
+    /**
+     * A filter flag. Include domain entities when intersecting. Read-only..
+     */
+    const PICK_DOMAIN_ENTITIES: number;
+    /**
+     * A filter flag. Include avatar entities when intersecting. Read-only..
+     */
+    const PICK_AVATAR_ENTITIES: number;
+    /**
+     * A filter flag. Include local entities when intersecting. Read-only..
+     */
+    const PICK_LOCAL_ENTITIES: number;
+    /**
+     * A filter flag. Include avatars when intersecting. Read-only..
+     */
+    const PICK_AVATARS: number;
+    /**
+     * A filter flag. Include the HUD sphere when intersecting in HMD mode. Read-only..
+     */
+    const PICK_HUD: number;
+    /**
+     * A filter flag. Include visible objects when intersecting. Read-only..
+     */
+    const PICK_INCLUDE_VISIBLE: number;
+    /**
+     * A filter flag. Include invisible objects when intersecting. Read-only..
+     */
+    const PICK_INCLUDE_INVISIBLE: number;
+    /**
+     * A filter flag. Include collidable objects when intersecting. Read-only..
+     */
+    const PICK_INCLUDE_COLLIDABLE: number;
+    /**
+     * A filter flag. Include non-collidable objects when intersecting. Read-only..
+     */
+    const PICK_INCLUDE_NONCOLLIDABLE: number;
+    /**
+     * A filter flag. Pick against exact meshes. Read-only..
+     */
+    const PICK_PRECISE: number;
+    /**
+     * A filter flag. Pick against coarse meshes. Read-only..
+     */
+    const PICK_COARSE: number;
+    /**
+     * Read-only..
+     */
+    const PICK_ALL_INTERSECTIONS: number;
+    /**
+     * An intersection type. Intersected nothing with the given filter flags. Read-only.
+>>>>>>> master
      */
     const INTERSECTED_NONE: number;
     /**
@@ -2740,7 +3034,11 @@ declare namespace Picks {
      */
     const INTERSECTED_HUD: number;
     /**
+<<<<<<< HEAD
      * The max number of usec to spend per frame updating Pick results. Read-only.
+=======
+     * The max number of usec to spend per frame updating Pick results.
+>>>>>>> master
      */
     let perFrameTimeBudget: number;
 }
@@ -2756,6 +3054,17 @@ declare namespace Pointers {
          */
         hover: boolean;
         enabled: boolean;
+<<<<<<< HEAD
+=======
+        /**
+         * The specified offset of the from the joint index.
+         */
+        tipOffset: Vec3;
+        /**
+         * Data to replace the default model url, positionOffset and rotationOffset.
+         */
+        model: Pointers.StylusPointerProperties.model;
+>>>>>>> master
     }
 
     interface DefaultRayPointerRenderState {
@@ -2955,7 +3264,11 @@ declare namespace Pointers {
 
     /**
      * Adds a new Pointer
+<<<<<<< HEAD
      * Different  PickTypes use different properties, and within one PickType, the properties you choose can lead to a wide range of behaviors.  For example,  with PickType.Ray, depending on which optional parameters you pass, you could create a Static Ray Pointer, a Mouse Ray Pointer, or a Joint Ray Pointer.
+=======
+     * Different  PickTypes use different properties, and within one PickType, the properties you choose can lead to a wide range of behaviors.  For example,  with PickType.Ray, depending on which optional parameters you pass, you could create a Static Ray Pointer, a Mouse Ray Pointer, or a Joint Ray Pointer.Pointers created with this method always intersect at least visible and collidable things
+>>>>>>> master
      * @param type {PickType}  A PickType that specifies the method of picking to use
      * @param properties {Pointers.LaserPointerProperties}  A PointerProperties object, containing all the properties for initializing this Pointer <b>and</b> the {@link Picks.PickProperties} for the Pick that
      *   this Pointer will use to do its picking.
@@ -3058,7 +3371,11 @@ declare namespace Pointers {
 }
 
 /**
+<<<<<<< HEAD
  * Available in:Interface ScriptsClient Entity ScriptsSynonym for  Picks as used for ray picks.
+=======
+ * Available in:Interface ScriptsClient Entity ScriptsSynonym for  Picks as used for ray picks.  Deprecated.
+>>>>>>> master
  */
 declare namespace RayPick {
     /**
@@ -3116,10 +3433,13 @@ declare namespace RayPick {
     /**
      * @returns {number} 
      */
+<<<<<<< HEAD
     function PICK_NOTHING(): number;
     /**
      * @returns {number} 
      */
+=======
+>>>>>>> master
     function PICK_ENTITIES(): number;
     /**
      * @returns {number} 
@@ -3172,10 +3492,13 @@ declare namespace RayPick {
     /**
      * Read-only.
      */
+<<<<<<< HEAD
     const PICK_NOTHING: number;
     /**
      * Read-only.
      */
+=======
+>>>>>>> master
     const PICK_ENTITIES: number;
     /**
      * Read-only.
@@ -3368,6 +3691,23 @@ declare namespace Audio {
     function contextChanged(context: string): Signal;
     function onContextChanged(): void;
     /**
+<<<<<<< HEAD
+=======
+     * Add nodes to the audio solo list
+     * @param uuidList {Array.<Uuid>}  List of node UUIDs to add to the solo list.
+     */
+    function addToSoloList(uuidList: Array.<Uuid>): void;
+    /**
+     * Remove nodes from the audio solo list
+     * @param uuidList {Array.<Uuid>}  List of node UUIDs to remove from the solo list.
+     */
+    function removeFromSoloList(uuidList: Array.<Uuid>): void;
+    /**
+     * Reset the list of soloed nodes.
+     */
+    function resetSoloList(): void;
+    /**
+>>>>>>> master
      * Starts playing &mdash; "injecting" &mdash; the content of an audio file. The sound is played globally (sent to the audio 
      * mixer) so that everyone hears it, unless the injectorOptions has localOnly set to true in which case only the client hears the sound played. No sound is played if sent to the audio mixer but the client is not connected to an audio mixer. The  AudioInjector object returned by the function can be used to control the playback and get information about its current state.
      * @param sound {SoundObject}  The content of an audio file, loaded using {@link SoundCache.getSound}. See 
@@ -3476,6 +3816,17 @@ declare namespace Audio {
      *     removed.
      */
     let devices: object;
+<<<<<<< HEAD
+=======
+    /**
+     * Read-only. true if any nodes are soloed.
+     */
+    let isSoloing: boolean;
+    /**
+     * Read-only. Get the list of currently soloed node UUIDs.
+     */
+    let soloList: Array.<Uuid>;
+>>>>>>> master
 }
 
 /**
@@ -3496,9 +3847,17 @@ declare namespace Clipboard {
      * Import entities from a JSON file containing entity data into the clipboard.
      * You can generate a JSON file using  Clipboard.exportEntities.
      * @param filename {string}  Path and name of file to import.
+<<<<<<< HEAD
      * @returns {boolean} 
      */
     function importEntities(filename: string): boolean;
+=======
+     * @param does {boolean}  the ResourceRequestObserver observe this request?
+     * @param optional {number}  internal id of object causing this import.
+     * @returns {boolean} 
+     */
+    function importEntities(filename: string, does: boolean, optional: number): boolean;
+>>>>>>> master
     /**
      * Export the entities specified to a JSON file.
      * @param filename {string}  Path and name of the file to export the entities to. Should have the extension ".json".
@@ -4213,6 +4572,21 @@ declare namespace HMD {
      */
     function shouldShowHandControllersChanged(): Signal;
     /**
+<<<<<<< HEAD
+=======
+     * Triggered when the tablet is shown or hidden.
+     * @param showTablet {boolean}  <code>true</code> if the tablet is showing, otherwise <code>false</code>.
+     * @returns {Signal} 
+     */
+    function showTabletChanged(showTablet: boolean): Signal;
+    /**
+     * Triggered when the ability to display the mini tablet has changed.
+     * @param enabled {boolean}  <code>true</code> if the mini tablet is enabled to be displayed, otherwise <code>false</code>.
+     * @returns {Signal} 
+     */
+    function miniTabletEnabledChanged(enabled: boolean): Signal;
+    /**
+>>>>>>> master
      * Triggered when the HMD.ipdScale property value changes.
      * @returns {Signal} 
      */
@@ -4307,6 +4681,14 @@ declare namespace HMD {
      */
     let miniTabletHand: number;
     /**
+<<<<<<< HEAD
+=======
+     * true if the mini tablet is enabled to be displayed, otherwise 
+     *     false.
+     */
+    let miniTabletEnabled: bool;
+    /**
+>>>>>>> master
      * The size and position of the HMD play area in sensor coordinates. Read-only.
      */
     let playArea: Rect;
@@ -4317,6 +4699,23 @@ declare namespace HMD {
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * Available in:Interface ScriptsClient Entity ScriptsThe Keyboard API provides facilities to use 3D Physical keyboard.
+ */
+declare namespace Keyboard {
+    /**
+     * true If the keyboard is visible false otherwise
+     */
+    let raised: bool;
+    /**
+     * true Will show * instead of characters in the text display false otherwise
+     */
+    let password: bool;
+}
+
+/**
+>>>>>>> master
  * Available in:Interface ScriptsClient Entity ScriptsThe Menu API provides access to the menu that is displayed at the top of the window
  * on a user's desktop and in the tablet when the "MENU" button is pressed.GroupingsA "grouping" provides a way to group a set of menus or menu items together so that they can all be set visible or invisible as a group. There are two available groups: "Advanced" and "Developer".These groupings can be toggled in the "Settings" menu.If a menu item doesn't belong to a group it is always displayed.
  */
@@ -4644,6 +5043,7 @@ declare namespace Settings {
  * Available in:Interface ScriptsClient Entity Scripts
  */
 declare namespace Wallet {
+<<<<<<< HEAD
     function refreshWalletStatus(): void;
     /**
      * @returns {number} 
@@ -4672,6 +5072,10 @@ declare namespace Wallet {
      */
     function ownershipVerificationFailed(entityID: Uuid): Signal;
     let walletStatus: number;
+=======
+    let walletStatus: number;
+    let limitedCommerce: bool;
+>>>>>>> master
 }
 
 /**
@@ -4680,6 +5084,19 @@ declare namespace Wallet {
  */
 declare namespace Window {
     /**
+<<<<<<< HEAD
+=======
+     * Returns true if Oculus Rift is connected (looks for hand controllers)
+     * @returns {boolean} 
+     */
+    function hasRift(): boolean;
+    /**
+     * Returns true if HTC Vive is connected (looks for hand controllers)
+     * @returns {boolean} 
+     */
+    function hasRift(): boolean;
+    /**
+>>>>>>> master
      * Check if the Interface window has focus.
      * @returns {boolean} 
      */
@@ -4964,6 +5381,16 @@ declare namespace Window {
      */
     function redirectErrorStateChanged(isInErrorState: boolean): Signal;
     /**
+<<<<<<< HEAD
+=======
+     * Triggered when the interstitial mode changes.
+     * @param interstitialMode {bool}  The new interstitial mode value. If <code>true</code>, the interstitial graphics are 
+     * displayed when the domain is loading.
+     * @returns {Signal} 
+     */
+    function interstitialModeChanged(interstitialMode: bool): Signal;
+    /**
+>>>>>>> master
      * Triggered when a still snapshot has been taken by calling  Window.takeSnapshot with 
      *     includeAnimated = false or  Window.takeSecondaryCameraSnapshot.
      * @param pathStillSnapshot {string}  The path and name of the snapshot image file.
@@ -5089,6 +5516,14 @@ declare namespace Window {
      *     Read-only.
      */
     let y: number;
+<<<<<<< HEAD
+=======
+    /**
+     * true if the interstitial graphics are displayed when the 
+     *     domain is loading, otherwise false.
+     */
+    let interstitialModeEnabled: boolean;
+>>>>>>> master
 }
 
 /**
@@ -6411,7 +6846,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -6458,7 +6897,11 @@ declare namespace Overlays {
          */
         innerRadius: number;
         /**
+<<<<<<< HEAD
          * The color of the overlay. Setting this value also sets the values of 
+=======
+         * The color of the overlay. Setting this value also sets the values of
+>>>>>>> master
          *     innerStartColor, innerEndColor, outerStartColor, and outerEndColor.
          */
         color: Color;
@@ -6641,7 +7084,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -6742,7 +7189,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -6858,7 +7309,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -6888,6 +7343,13 @@ declare namespace Overlays {
          */
         dimensions: Vec2;
         /**
+<<<<<<< HEAD
+=======
+         * overlays will maintain the aspect ratio when the subImage is applied.
+         */
+        keepAspectRatio: bool;
+        /**
+>>>>>>> master
          * If true, the overlay is rotated to face the user's camera about an axis
          *     parallel to the user's avatar's "up" direction.
          */
@@ -7026,7 +7488,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -7164,7 +7630,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -7383,7 +7853,12 @@ declare namespace Overlays {
      */
     function getOverlaysProperties(propertiesById: object.<Uuid, Array.<string>>): object.<Uuid, Overlays.OverlayProperties>;
     /**
+<<<<<<< HEAD
      * Find the closest 3D overlay intersected by a  PickRay.
+=======
+     * Find the closest 3D overlay intersected by a  PickRay. Overlays with their drawInFront property set  
+     * to true have priority over overlays that don't, except that tablet overlays have priority over any  drawInFront overlays behind them. I.e., if a drawInFront overlay is behind one that isn't  drawInFront, the drawInFront overlay is returned, but if a tablet overlay is in front of a  drawInFront overlay, the tablet overlay is returned.
+>>>>>>> master
      * @param pickRay {PickRay}  The PickRay to use for finding overlays.
      * @param precisionPicking {boolean} [precisionPicking=false] <em>Unused</em>; exists to match Entity API.
      * @param overlayIDsToInclude {Array.<Uuid>} [overlayIDsToInclude=[]] If not empty then the search is restricted to these overlays.
@@ -7618,7 +8093,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -7773,7 +8252,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -7878,7 +8361,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -7979,7 +8466,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -8168,7 +8659,11 @@ declare namespace Overlays {
          */
         name: string;
         /**
+<<<<<<< HEAD
          * The position of the overlay center. Synonyms: p1, point, and 
+=======
+         * The position of the overlay center. Synonyms: p1, point, and
+>>>>>>> master
          *     start.
          */
         position: Vec3;
@@ -8193,7 +8688,11 @@ declare namespace Overlays {
         isSolid: boolean;
         /**
          * If true, a dashed line is drawn on the overlay's edges. Synonym:
+<<<<<<< HEAD
          *     dashed.
+=======
+         *     dashed.  Deprecated.
+>>>>>>> master
          */
         isDashedLine: boolean;
         /**
@@ -8236,7 +8735,11 @@ declare namespace Overlays {
          */
         dpi: number;
         /**
+<<<<<<< HEAD
          * The size of the overlay to display the Web page on, in meters. Synonyms: 
+=======
+         * The size of the overlay to display the Web page on, in meters. Synonyms:
+>>>>>>> master
          *     scale, size.
          */
         dimensions: Vec2;
@@ -8645,6 +9148,14 @@ declare namespace AvatarList {
      * @param message {}  
      * @param sendingNode {}  
      */
+<<<<<<< HEAD
+=======
+    function processBulkAvatarTraits(message, sendingNode): void;
+    /**
+     * @param message {}  
+     * @param sendingNode {}  
+     */
+>>>>>>> master
     function processKillAvatar(message, sendingNode): void;
 }
 
@@ -9068,12 +9579,31 @@ declare namespace Entities {
          */
         type: Entities.EntityType;
         /**
+<<<<<<< HEAD
          * If true then the entity is an avatar entity; otherwise it is a server
          *     entity. An avatar entity follows you to each domain you visit, rendering at the same world coordinates unless it's     parented to your avatar. Value cannot be changed after the entity is created.    The value can also be set at entity creation by using the clientOnly parameter in      Entities.addEntity.
          */
         clientOnly: boolean;
         /**
          * The session ID of the owning avatar if clientOnly is 
+=======
+         * How this entity will behave, including if and how it is sent to other people.
+         *     The value can only be set at entity creation by using the entityHostType parameter in     Entities.addEntity.
+         */
+        entityHostType: EntityHostType;
+        /**
+         * If true then the entity is an avatar entity;  An avatar entity follows you to each domain you visit,
+         *     rendering at the same world coordinates unless it's parented to your avatar. Value cannot be changed after the entity is created.    The value can only be set at entity creation by using the entityHostType parameter in      Entities.addEntity.  clientOnly is an alias.
+         */
+        avatarEntity: boolean;
+        /**
+         * If true then the entity is a local entity;  Local entities only render for you and are not sent over the wire.
+         *     Value cannot be changed after the entity is created.    The value can only be set at entity creation by using the entityHostType parameter in     Entities.addEntity.
+         */
+        localEntity: boolean;
+        /**
+         * The session ID of the owning avatar if avatarEntity is 
+>>>>>>> master
          *     true, otherwise  Uuid. Read-only.
          */
         owningAvatarID: Uuid;
@@ -9193,6 +9723,7 @@ declare namespace Entities {
         density: number;
         /**
          * Whether or not the entity should collide with items per its 
+<<<<<<< HEAD
          *     collisionMask property. If true then the entity does not collide.
          */
         collisionless: boolean;
@@ -9201,6 +9732,12 @@ declare namespace Entities {
          */
         ignoreForCollisions: boolean;
         /**
+=======
+         *     collisionMask property. If true then the entity does not collide. A synonym is ignoreForCollisions.
+         */
+        collisionless: boolean;
+        /**
+>>>>>>> master
          * What types of items the entity should collide with.
          */
         collisionMask: Entities.CollisionMask;
@@ -9216,6 +9753,7 @@ declare namespace Entities {
         collisionSoundURL: string;
         /**
          * Whether or not the entity should be affected by collisions. If true then 
+<<<<<<< HEAD
          *     the entity's movement is affected by collisions.
          */
         dynamic: boolean;
@@ -9224,6 +9762,12 @@ declare namespace Entities {
          */
         collisionsWillMove: boolean;
         /**
+=======
+         *     the entity's movement is affected by collisions. A synonym is collisionsWillMove.
+         */
+        dynamic: boolean;
+        /**
+>>>>>>> master
          * A "hifi://" metaverse address that a user is taken to when they click on the entity.
          */
         href: string;
@@ -9261,7 +9805,11 @@ declare namespace Entities {
         parentJointIndex: number;
         /**
          * The position of the entity relative to its parent if the entity is parented, 
+<<<<<<< HEAD
          *     otherwise the same value as position. If the entity is parented to an avatar and is clientOnly     so that it scales with the avatar, this value remains the original local position value while the avatar scale changes.
+=======
+         *     otherwise the same value as position. If the entity is parented to an avatar and is an avatarEntity     so that it scales with the avatar, this value remains the original local position value while the avatar scale changes.
+>>>>>>> master
          */
         localPosition: Vec3;
         /**
@@ -9280,8 +9828,13 @@ declare namespace Entities {
          */
         localAngularVelocity: Vec3;
         /**
+<<<<<<< HEAD
          * The dimensions of the entity. If the entity is parented to an avatar and is 
          *     clientOnly so that it scales with the avatar, this value remains the original dimensions value while the     avatar scale changes.
+=======
+         * The dimensions of the entity. If the entity is parented to an avatar and is an
+         *     avatarEntity so that it scales with the avatar, this value remains the original dimensions value while the     avatar scale changes.
+>>>>>>> master
          */
         localDimensions: Vec3;
         /**
@@ -9296,7 +9849,11 @@ declare namespace Entities {
         queryAACube: AACube;
         /**
          * Base-64 encoded compressed dump of the actions associated with the entity. This property
+<<<<<<< HEAD
          *     is typically not used in scripts directly; rather, functions that manipulate an entity's actions update it.    The size of this property increases with the number of actions. Because this property value has to fit within a High     Fidelity datagram packet there is a limit to the number of actions that an entity can have, and edits which would result     in overflow are rejected.    Read-only.
+=======
+         *     is typically not used in scripts directly; rather, functions that manipulate an entity's actions update it.    The size of this property increases with the number of actions. Because this property value has to fit within a High     Fidelity datagram packet there is a limit to the number of actions that an entity can have, and edits which would result     in overflow are rejected. Read-only.
+>>>>>>> master
          */
         actionData: string;
         /**
@@ -9323,7 +9880,11 @@ declare namespace Entities {
         cloneDynamic: boolean;
         /**
          * If true then clones created from this entity will be created as 
+<<<<<<< HEAD
          *     avatar entities: their clientOnly property will be set to true.
+=======
+         *     avatar entities: their avatarEntity property will be set to true.
+>>>>>>> master
          */
         cloneAvatarEntity: boolean;
         /**
@@ -9331,6 +9892,13 @@ declare namespace Entities {
          */
         cloneOriginID: Uuid;
         /**
+<<<<<<< HEAD
+=======
+         * The grab-related properties.
+         */
+        grab: Entities.Grab;
+        /**
+>>>>>>> master
          * Certifiable name of the Marketplace item.
          */
         itemName: string;
@@ -9418,12 +9986,17 @@ declare namespace Entities {
 
     interface EntityProperties-Line {
         /**
+<<<<<<< HEAD
          * The dimensions of the entity. Must be sufficient to contain all the 
+=======
+         * The dimensions of the entity. Must be sufficient to contain all the
+>>>>>>> master
          *     linePoints.
          */
         dimensions: Vec3;
         /**
          * The sequence of points to draw lines between. The values are relative to the entity's
+<<<<<<< HEAD
          *     position. A maximum of 70 points can be specified. The property's value is set only if all the linePoints     lie within the entity's dimensions.
          */
         linePoints: Array.<Vec3>;
@@ -9432,6 +10005,12 @@ declare namespace Entities {
          */
         lineWidth: number;
         /**
+=======
+         *     position. A maximum of 70 points can be specified. The property's value is set only if all the linePoints    lie within the entity's dimensions.
+         */
+        linePoints: Array.<Vec3>;
+        /**
+>>>>>>> master
          * The color of the line.
          */
         color: Color;
@@ -9455,7 +10034,11 @@ declare namespace Entities {
         parentMaterialName: string;
         /**
          * How the material is mapped to the entity. Either "uv" or 
+<<<<<<< HEAD
          *     "projected". Currently, only "uv" is supported.
+=======
+         *     "projected". In "uv" mode, the material will be evaluated within the UV space of the mesh it is applied to.  In    "projected" mode, the 3D transform of the Material Entity will be used to evaluate the texture coordinates for the material.
+>>>>>>> master
          */
         materialMappingMode: string;
         /**
@@ -9476,6 +10059,14 @@ declare namespace Entities {
          *     JSON.parse() to parse the string into a JavaScript object which you can manipulate the properties of, and     use JSON.stringify() to convert the object into a string to put in the property.
          */
         materialData: string;
+<<<<<<< HEAD
+=======
+        /**
+         * If true, the material will repeat.  If false, fragments outside of texCoord 0 - 1 will be discarded.
+         *     Works in both "uv" and "projected" modes.
+         */
+        materialRepeat: boolean;
+>>>>>>> master
     }
 
     interface EntityProperties-Model {
@@ -9490,7 +10081,10 @@ declare namespace Entities {
         color: Color;
         /**
          * The URL of the FBX of OBJ model. Baked FBX models' URLs end in ".baked.fbx".
+<<<<<<< HEAD
          *     Note: If the name ends with "default-image-model.fbx" then the entity is considered to be an "Image"     entity, in which case the textures property should be set per the example.
+=======
+>>>>>>> master
          */
         modelURL: string;
         /**
@@ -9574,12 +10168,20 @@ declare namespace Entities {
          * The acceleration that is applied to each particle during its lifetime. The 
          *     default is Earth's gravity value.
          */
+<<<<<<< HEAD
         emitAcceleration: vec3;
+=======
+        emitAcceleration: Vec3;
+>>>>>>> master
         /**
          * The spread in accelerations that each particle is given. If
          *     emitAccelerations == {x: 0, y: -9.8, z: 0} and accelerationSpread ==    {x: 0, y: 1, z: 0}, each particle will have an acceleration in the range {x: 0, y: -10.8, z: 0}    &ndash; {x: 0, y: -8.8, z: 0}.
          */
+<<<<<<< HEAD
         accelerationSpread: vec3;
+=======
+        accelerationSpread: Vec3;
+>>>>>>> master
         /**
          * The dimensions of the particle effect, i.e., a bounding box containing all the particles
          *     during their lifetimes, assuming that emitterShouldTrail is false. Read-only.
@@ -9598,7 +10200,11 @@ declare namespace Entities {
         /**
          * The dimensions of the ellipsoid from which particles are emitted.
          */
+<<<<<<< HEAD
         emitDimensions: vec3;
+=======
+        emitDimensions: Vec3;
+>>>>>>> master
         /**
          * The starting radius within the ellipsoid at which particles start being emitted;
          *     range 0.0 &ndash; 1.0 for the ellipsoid center to the ellipsoid surface, respectively.    Particles are emitted from the portion of the ellipsoid that lies between emitRadiusStart and the     ellipsoid's surface.
@@ -9653,6 +10259,7 @@ declare namespace Entities {
          */
         color: Color;
         /**
+<<<<<<< HEAD
          * The color of each particle at the start of its life. If any of the component values are 
          *     undefined, the color value is used.
          */
@@ -9662,6 +10269,17 @@ declare namespace Entities {
          *     undefined, the color value is used.
          */
         colorFinish: Color;
+=======
+         * The color of each particle at the start of its life. If any of the component values are
+         *     undefined, the color value is used.
+         */
+        colorStart: ColorFloat;
+        /**
+         * The color of each particle at the end of its life. If any of the component values are
+         *     undefined, the color value is used.
+         */
+        colorFinish: ColorFloat;
+>>>>>>> master
         /**
          * The spread in color that each particle is given. If
          *     color == {red: 100, green: 100, blue: 100} and colorSpread ==    {red: 10, green: 25, blue: 50}, each particle will have a color in the range     {red: 90, green: 75, blue: 50} &ndash; {red: 110, green: 125, blue: 150}.
@@ -9738,6 +10356,7 @@ declare namespace Entities {
          */
         strokeWidths: Array.<number>;
         /**
+<<<<<<< HEAD
          * Currently not used.
          */
         lineWidth: number;
@@ -9748,6 +10367,14 @@ declare namespace Entities {
         /**
          * The base color of the line, which is multiplied with the color of the texture for
          *     rendering.
+=======
+         * The base colors of each point, which are multiplied with the color of the texture, going from 0-1.
+         *     If strokeColors.length color is used for the remaining points.
+         */
+        strokeColors: Array.<Vec3>;
+        /**
+         * Used as the color for each point if strokeColors is too short.
+>>>>>>> master
          */
         color: Color;
         /**
@@ -9760,6 +10387,17 @@ declare namespace Entities {
          *     the texture repeats along the line.
          */
         isUVModeStretch: boolean;
+<<<<<<< HEAD
+=======
+        /**
+         * If true, the alpha of the strokes will drop off farther from the center.
+         */
+        glow: bool;
+        /**
+         * If true, each line segment will rotate to face the camera.
+         */
+        faceCamera: bool;
+>>>>>>> master
     }
 
     interface EntityProperties-PolyVox {
@@ -9866,14 +10504,48 @@ declare namespace Entities {
          */
         textColor: Color;
         /**
+<<<<<<< HEAD
+=======
+         * The text alpha.
+         */
+        textAlpha: number;
+        /**
+>>>>>>> master
          * The color of the background rectangle.
          */
         backgroundColor: Color;
         /**
+<<<<<<< HEAD
          * If true, the entity is oriented to face each user's camera (i.e., it
          *     differs for each user present).
          */
         faceCamera: boolean;
+=======
+         * The background alpha.
+         */
+        backgroundAlpha: number;
+        /**
+         * If "none", the entity is not billboarded.  If "yaw", the entity will be
+         *     oriented to follow your camera around the y-axis.  If "full" the entity will be oriented to face your camera.  The following deprecated    behavior is also supported: you can also set "faceCamera" to true to set billboardMode to "yaw", and you can set    "isFacingAvatar" to true to set billboardMode to "full".  Setting either to false sets the mode to "none"
+         */
+        billboardMode: BillboardMode;
+        /**
+         * The left margin, in meters.
+         */
+        leftMargin: number;
+        /**
+         * The right margin, in meters.
+         */
+        rightMargin: number;
+        /**
+         * The top margin, in meters.
+         */
+        topMargin: number;
+        /**
+         * The bottom margin, in meters.
+         */
+        bottomMargin: number;
+>>>>>>> master
     }
 
     interface EntityProperties-Web {
@@ -9970,6 +10642,68 @@ declare namespace Entities {
         filterURL: string;
     }
 
+<<<<<<< HEAD
+=======
+    interface EntityProperties-Image {
+        /**
+         * The URL of the image to use.
+         */
+        imageURL: string;
+        /**
+         * Whether or not the image should be emissive (unlit).
+         */
+        emissive: boolean;
+        /**
+         * Whether or not the image should maintain its aspect ratio.
+         */
+        keepAspectRatio: boolean;
+        /**
+         * If "none", the entity is not billboarded.  If "yaw", the entity will be
+         *     oriented to follow your camera around the y-axis.  If "full" the entity will be oriented to face your camera.  The following deprecated    behavior is also supported: you can also set "faceCamera" to true to set billboardMode to "yaw", and you can set    "isFacingAvatar" to true to set billboardMode to "full".  Setting either to false sets the mode to "none"
+         */
+        billboardMode: BillboardMode;
+        /**
+         * x: 0, y: 0, width: -1, height: -1 } - The portion of the image to display. If width or height are -1, defaults to
+         *     the full image in that dimension.
+         */
+        subImage: Rect;
+        /**
+         * The color of the image.
+         */
+        color: Color;
+        /**
+         * The alpha of the image.
+         */
+        alpha: number;
+    }
+
+    interface EntityProperties-Grid {
+        /**
+         * The color of the grid.
+         */
+        color: Color;
+        /**
+         * The alpha of the grid.
+         */
+        alpha: number;
+        /**
+         * If true, the grid is always visible even as the camera moves to another
+         *     position.
+         */
+        followCamera: boolean;
+        /**
+         * Integer number of minorGridEvery intervals at which to draw a thick grid
+         *     line. Minimum value = 1.
+         */
+        majorGridEvery: number;
+        /**
+         * Real number of meters at which to draw thin grid lines. Minimum value =
+         *     0.001.
+         */
+        minorGridEvery: number;
+    }
+
+>>>>>>> master
     interface BoundingBox {
         /**
          * The bottom right near (minimum axes values) corner of the AA box.
@@ -10099,11 +10833,26 @@ declare namespace Entities {
     /**
      * Add a new entity with specified properties.
      * @param properties {Entities.EntityProperties}  The properties of the entity to create.
+<<<<<<< HEAD
      * @param clientOnly {boolean} [clientOnly=false] If <code>true</code>, or if <code>clientOnly</code> is set <code>true</code> in 
      *     the properties, the entity is created as an avatar entity; otherwise it is created on the server. An avatar entity     follows you to each domain you visit, rendering at the same world coordinates unless it's parented to your avatar.
      * @returns {Uuid} 
      */
     function addEntity(properties: Entities.EntityProperties, clientOnly: boolean): Uuid;
+=======
+     * @param entityHostType {EntityHostType} [entityHostType="domain"] If <code>"avatar"</code> the entity is created as an avatar entity.  An avatar entity
+     *     follows you to each domain you visit, rendering at the same world coordinates unless it's parented to your avatar.    If <code>"local"</code>, the entity is created as a local entity, which will only render for you and isn't sent over the wire.    Otherwise it is created as a normal entity and sent over the entity server.
+     * @returns {Uuid} 
+     */
+    function addEntity(properties: Entities.EntityProperties, entityHostType: EntityHostType): Uuid;
+    /**
+     * Add a new entity with specified properties.
+     * @param properties {Entities.EntityProperties}  The properties of the entity to create.
+     * @param avatarEntity {boolean} [avatarEntity=false] Whether to create an avatar entity or a domain entity
+     * @returns {Uuid} 
+     */
+    function addEntity(properties: Entities.EntityProperties, avatarEntity: boolean): Uuid;
+>>>>>>> master
     /**
      * Create a clone of an entity. A clone can be created by a client that doesn't have rez permissions in the current domain.
      * The entity must have its cloneable property set to true. The clone has a modified name, other properties set per its clone related-properties, and its clone-related properties are set to defaults.
@@ -10157,21 +10906,33 @@ declare namespace Entities {
      */
     function callEntityClientMethod(clientSessionID: Uuid, entityID: Uuid, method: string, parameters: Array.<string>): void;
     /**
+<<<<<<< HEAD
      * Find the entity with a position closest to a specified point and within a specified radius.
+=======
+     * Find the non-local entity with a position closest to a specified point and within a specified radius.
+>>>>>>> master
      * @param center {Vec3}  The point about which to search.
      * @param radius {number}  The radius within which to search.
      * @returns {Uuid} 
      */
     function findClosestEntity(center: Vec3, radius: number): Uuid;
     /**
+<<<<<<< HEAD
      * Find all entities that intersect a sphere defined by a center point and radius.
+=======
+     * Find all non-local entities that intersect a sphere defined by a center point and radius.
+>>>>>>> master
      * @param center {Vec3}  The point about which to search.
      * @param radius {number}  The radius within which to search.
      * @returns {Array.<Uuid>} 
      */
     function findEntities(center: Vec3, radius: number): Array.<Uuid>;
     /**
+<<<<<<< HEAD
      * Find all entities whose axis-aligned boxes intersect a search axis-aligned box defined by its minimum coordinates corner
+=======
+     * Find all non-local entities whose axis-aligned boxes intersect a search axis-aligned box defined by its minimum coordinates corner
+>>>>>>> master
      * and dimensions.
      * @param corner {Vec3}  The corner of the search AA box with minimum co-ordinate values.
      * @param dimensions {Vec3}  The dimensions of the search AA box.
@@ -10179,14 +10940,22 @@ declare namespace Entities {
      */
     function findEntitiesInBox(corner: Vec3, dimensions: Vec3): Array.<Uuid>;
     /**
+<<<<<<< HEAD
      * Find all entities whose axis-aligned boxes intersect a search frustum.
+=======
+     * Find all non-local entities whose axis-aligned boxes intersect a search frustum.
+>>>>>>> master
      * @param frustum {ViewFrustum}  The frustum to search in. The <code>position</code>, <code>orientation</code>, 
      *     <code>projection</code>, and <code>centerRadius</code> properties must be specified.
      * @returns {Array.<Uuid>} 
      */
     function findEntitiesInFrustum(frustum: ViewFrustum): Array.<Uuid>;
     /**
+<<<<<<< HEAD
      * Find all entities of a particular type that intersect a sphere defined by a center point and radius.
+=======
+     * Find all non-local entities of a particular type that intersect a sphere defined by a center point and radius.
+>>>>>>> master
      * @param entityType {Entities.EntityType}  The type of entity to search for.
      * @param center {Vec3}  The point about which to search.
      * @param radius {number}  The radius within which to search.
@@ -10194,7 +10963,11 @@ declare namespace Entities {
      */
     function findEntitiesByType(entityType: Entities.EntityType, center: Vec3, radius: number): Array.<Uuid>;
     /**
+<<<<<<< HEAD
      * Find all entities of a particular name that intersect a sphere defined by a center point and radius.
+=======
+     * Find all non-local entities with a particular name that intersect a sphere defined by a center point and radius.
+>>>>>>> master
      * @param entityName {string}  The name of the entity to search for.
      * @param center {Vec3}  The point about which to search.
      * @param radius {number}  The radius within which to search.
@@ -10203,7 +10976,11 @@ declare namespace Entities {
      */
     function findEntitiesByName(entityName: string, center: Vec3, radius: number, caseSensitive: boolean): Array.<Uuid>;
     /**
+<<<<<<< HEAD
      * Find the first entity intersected by a  PickRay. Light and Zone entities are not 
+=======
+     * Find the first non-local entity intersected by a  PickRay. Light and Zone entities are not
+>>>>>>> master
      * intersected unless they've been configured as pickable using  Entities.setLightsArePickableand  Entities.setZonesArePickable, respectively.
      * @param pickRay {PickRay}  The PickRay to use for finding entities.
      * @param precisionPicking {boolean} [precisionPicking=false] If <code>true</code> and the intersected entity is a <code>Model</code> 
@@ -10218,6 +10995,7 @@ declare namespace Entities {
      */
     function findRayIntersection(pickRay: PickRay, precisionPicking: boolean, entitiesToInclude: Array.<Uuid>, entitiesToDiscard: Array.<Uuid>, visibleOnly: boolean, collideableOnly: boolean): Entities.RayToEntityIntersectionResult;
     /**
+<<<<<<< HEAD
      * Find the first entity intersected by a  PickRay. Light and Zone entities are not 
      * intersected unless they've been configured as pickable using  Entities.setLightsArePickable and  Entities.setZonesArePickable, respectively.This is a synonym for  Entities.findRayIntersection.
      * @param pickRay {PickRay}  The PickRay to use for finding entities.
@@ -10228,6 +11006,8 @@ declare namespace Entities {
      */
     function findRayIntersectionBlocking(pickRay: PickRay, precisionPicking: boolean, entitiesToInclude: Array.<Uuid>, entitiesToDiscard: Array.<Uuid>): void;
     /**
+=======
+>>>>>>> master
      * Reloads an entity's server entity script such that the latest version re-downloaded.
      * @param entityID {Uuid}  The ID of the entity to reload the server entity script of.
      * @returns {boolean} 
@@ -10259,27 +11039,43 @@ declare namespace Entities {
     function queryPropertyMetadata(entityID: Uuid, property: string, scope: object, callback: Entities~queryPropertyMetadataCallback): boolean;
     /**
      * Set whether or not ray picks intersect the bounding box of  Entities.EntityType entities. By default, Light 
+<<<<<<< HEAD
      * entities are not intersected. The setting lasts for the Interface session. Ray picks are done using      Entities.findRayIntersection or      Entities.findRayIntersectionBlocking, or the  Picks and  RayPick     APIs.
+=======
+     * entities are not intersected. The setting lasts for the Interface session. Ray picks are done using      Entities.findRayIntersection, or the  Picks API.
+>>>>>>> master
      * @param value {boolean}  Set <code>true</code> to make ray picks intersect the bounding box of 
      *     {@link Entities.EntityType|Light} entities, otherwise <code>false</code>.
      */
     function setLightsArePickable(value: boolean): void;
     /**
      * Get whether or not ray picks intersect the bounding box of  Entities.EntityType entities. Ray picks are 
+<<<<<<< HEAD
      *     done using  Entities.findRayIntersection or      Entities.findRayIntersectionBlocking, or the  Picks and  RayPick     APIs.
+=======
+     *     done using  Entities.findRayIntersection, or the  Picks API.
+>>>>>>> master
      * @returns {boolean} 
      */
     function getLightsArePickable(): boolean;
     /**
      * Set whether or not ray picks intersect the bounding box of  Entities.EntityType entities. By default, Light 
+<<<<<<< HEAD
      * entities are not intersected. The setting lasts for the Interface session. Ray picks are done using      Entities.findRayIntersection or      Entities.findRayIntersectionBlocking, or the  Picks and  RayPick     APIs.
+=======
+     * entities are not intersected. The setting lasts for the Interface session. Ray picks are done using      Entities.findRayIntersection, or the  Picks API.
+>>>>>>> master
      * @param value {boolean}  Set <code>true</code> to make ray picks intersect the bounding box of 
      *     {@link Entities.EntityType|Zone} entities, otherwise <code>false</code>.
      */
     function setZonesArePickable(value: boolean): void;
     /**
      * Get whether or not ray picks intersect the bounding box of  Entities.EntityType entities. Ray picks are 
+<<<<<<< HEAD
      *     done using  Entities.findRayIntersection or      Entities.findRayIntersectionBlocking, or the  Picks and  RayPick     APIs.
+=======
+     *     done using  Entities.findRayIntersection, or the  Picks API.
+>>>>>>> master
      * @returns {boolean} 
      */
     function getZonesArePickable(): boolean;
@@ -10381,8 +11177,12 @@ declare namespace Entities {
      */
     function appendPoint(entityID: Uuid, point: Vec3): boolean;
     /**
+<<<<<<< HEAD
      * Dumps debug information about all entities in Interface's local in-memory tree of entities it knows about &mdash; domain
      * and client-only &mdash; to the program log.
+=======
+     * Dumps debug information about all entities in Interface's local in-memory tree of entities it knows about to the program log.
+>>>>>>> master
      */
     function dumpTree(): void;
     /**
@@ -10431,6 +11231,16 @@ declare namespace Entities {
      */
     function getAbsoluteJointTranslationInObjectFrame(entityID: Uuid, jointIndex: number): Vec3;
     /**
+<<<<<<< HEAD
+=======
+     * Get the index of the parent joint.
+     * @param entityID {Uuid}  The ID of the entity.
+     * @param index {number}  The integer index of the joint.
+     * @returns {number} 
+     */
+    function getJointParent(entityID: Uuid, index: number): number;
+    /**
+>>>>>>> master
      * Get the translation of a joint in a  Entities.EntityType entity relative to the entity's position and 
      * orientation.
      * @param entityID {Uuid}  The ID of the entity.
@@ -10655,6 +11465,89 @@ declare namespace Entities {
      */
     function getEntityLocalTransform(entityID: Uuid): Mat4;
     /**
+<<<<<<< HEAD
+=======
+     * @param worldPosition {Vec3}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Vec3} 
+     */
+    function worldToLocalPosition(worldPosition: Vec3, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Vec3;
+    /**
+     * @param worldRotation {Quat}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Quat} 
+     */
+    function worldToLocalRotation(worldRotation: Quat, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Quat;
+    /**
+     * @param worldVelocity {Vec3}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Vec3} 
+     */
+    function worldToLocalVelocity(worldVelocity: Vec3, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Vec3;
+    /**
+     * @param worldAngularVelocity {Vec3}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Vec3} 
+     */
+    function worldToLocalAngularVelocity(worldAngularVelocity: Vec3, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Vec3;
+    /**
+     * @param worldDimensions {Vec3}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Vec3} 
+     */
+    function worldToLocalDimensions(worldDimensions: Vec3, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Vec3;
+    /**
+     * @param localPosition {Vec3}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Vec3} 
+     */
+    function localToWorldPosition(localPosition: Vec3, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Vec3;
+    /**
+     * @param localRotation {Quat}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Quat} 
+     */
+    function localToWorldRotation(localRotation: Quat, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Quat;
+    /**
+     * @param localVelocity {Vec3}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Vec3} 
+     */
+    function localToWorldVelocity(localVelocity: Vec3, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Vec3;
+    /**
+     * @param localAngularVelocity {Vec3}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Vec3} 
+     */
+    function localToWorldAngularVelocity(localAngularVelocity: Vec3, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Vec3;
+    /**
+     * @param localDimensions {Vec3}  
+     * @param parentID {Uuid}  
+     * @param parentJointIndex {number}  
+     * @param scalesWithparent {boolean}  
+     * @returns {Vec3} 
+     */
+    function localToWorldDimensions(localDimensions: Vec3, parentID: Uuid, parentJointIndex: number, scalesWithparent: boolean): Vec3;
+    /**
+>>>>>>> master
      * Get the static certificate for an entity. The static certificate contains static properties of the item which cannot 
      * be altered.
      * @param entityID {Uuid}  The ID of the entity to get the static certificate for.
@@ -10669,6 +11562,16 @@ declare namespace Entities {
      */
     function verifyStaticCertificateProperties(entityID: Uuid): boolean;
     /**
+<<<<<<< HEAD
+=======
+     * Get information about entity properties including a minimum to maximum range for numerical properties 
+     * as well as property enum value.
+     * @param propertyName {string}  The name of the property to get the information for.
+     * @returns {Entities.EntityPropertyInfo} 
+     */
+    function getPropertyInfo(propertyName: string): Entities.EntityPropertyInfo;
+    /**
+>>>>>>> master
      * Triggered on the client that is the physics simulation owner during the collision of two entities. Note: Isn't triggered 
      * for a collision with an avatar.
      * @param idA {Uuid}  The ID of one entity in the collision. For an entity script, this is the ID of the entity containing 
@@ -10828,12 +11731,32 @@ declare namespace Entities {
     function deletingEntity(entityID: Uuid): Signal;
     /**
      * Triggered when an entity is added to Interface's local in-memory tree of entities it knows about. This may occur when 
+<<<<<<< HEAD
      * entities are loaded upon visiting a domain, when the user rotates their view so that more entities become visible, and when a domain or client-only entity is added (e.g., by Entities.addEntity).
+=======
+     * entities are loaded upon visiting a domain, when the user rotates their view so that more entities become visible, and when any type of entity is added (e.g., by Entities.addEntity).
+>>>>>>> master
      * @param entityID {Uuid}  The ID of the entity added.
      * @returns {Signal} 
      */
     function addingEntity(entityID: Uuid): Signal;
     /**
+<<<<<<< HEAD
+=======
+     * Triggered when an 'wearable' entity is deleted.
+     * @param entityID {Uuid}  The ID of the 'wearable' entity deleted.
+     * @returns {Signal} 
+     */
+    function deletingWearable(entityID: Uuid): Signal;
+    /**
+     * Triggered when an 'wearable' entity is added to Interface's local in-memory tree of entities it knows about. This may occur when
+     * 'wearable' entities are added to avatar
+     * @param entityID {Uuid}  The ID of the 'wearable' entity added.
+     * @returns {Signal} 
+     */
+    function addingWearable(entityID: Uuid): Signal;
+    /**
+>>>>>>> master
      * Triggered when you disconnect from a domain, at which time Interface's local in-memory tree of entities it knows about
      * is cleared.
      * @returns {Signal} 
@@ -10847,6 +11770,68 @@ declare namespace Entities {
      * @returns {Signal} 
      */
     function webEventReceived(entityID: Uuid, message: string): Signal;
+<<<<<<< HEAD
+=======
+    interface Grab {
+        /**
+         * If true the entity can be grabbed.
+         */
+        grabbable: boolean;
+        /**
+         * If true the entity is updated in a kinematic manner.
+         *     If false it will be grabbed using a tractor action.  A kinematic grab will make the item appear more    tightly held, but will cause it to behave poorly when interacting with dynamic entities.
+         */
+        grabKinematic: boolean;
+        /**
+         * If true the entity will follow the motions of the
+         *     hand-controller even if the avatar's hand can't get to the implied position.  This should be true    for tools, pens, etc and false for things meant to decorate the hand.
+         */
+        grabFollowsController: boolean;
+        /**
+         * If true the entity will receive calls to trigger
+         *      Controller.
+         */
+        triggerable: boolean;
+        /**
+         * If true the entity can be equipped.
+         */
+        equippable: boolean;
+        /**
+         * Positional offset from the left hand, when equipped.
+         */
+        equippableLeftPosition: Vec3;
+        /**
+         * Rotational offset from the left hand, when equipped.
+         */
+        equippableLeftRotation: Quat;
+        /**
+         * Positional offset from the right hand, when equipped.
+         */
+        equippableRightPosition: Vec3;
+        /**
+         * Rotational offset from the right hand, when equipped.
+         */
+        equippableRightRotation: Quat;
+        /**
+         * If non-empty, this model will be used to indicate that an
+         *     entity is equippable, rather than the default.
+         */
+        equippableIndicatorURL: string;
+        /**
+         * If equippableIndicatorURL is non-empty, this controls the
+         * 
+       scale of the displayed overlay.
+         */
+        equippableIndicatorScale: Vec3;
+        /**
+         * If equippableIndicatorURL is non-empty, this controls the
+         * 
+       relative offset of the displayed overlay from the equippable entity.
+         */
+        equippableIndicatorOffset: Vec3;
+    }
+
+>>>>>>> master
     interface Haze {
         /**
          * The horizontal distance at which visibility is reduced to 95%; i.e., 95% of each pixel's 
@@ -10927,7 +11912,11 @@ declare namespace Entities {
 
     interface Skybox {
         /**
+<<<<<<< HEAD
          * Sets the color of the sky if url is "", otherwise modifies the 
+=======
+         * Sets the color of the sky if url is "", otherwise modifies the
+>>>>>>> master
          *     color of the cube map image.
          */
         color: Color;
@@ -11039,18 +12028,36 @@ declare namespace Entities {
          */
         targetRotation: Quat;
         /**
+<<<<<<< HEAD
          * If an entity ID, the targetPosition and targetRotation are 
+=======
+         * If an entity ID, the targetPosition and targetRotation are
+>>>>>>> master
          *     relative to this entity's position and rotation.
          */
         otherID: Uuid;
         /**
+<<<<<<< HEAD
          * Controls how long it takes for the entity's position to catch up with the
          *     target position. The value is the time for the action to catch up to 1/e = 0.368 of the target value, where the action     is applied using an exponential decay.
+=======
+         * If an entity JointIndex, the targetPosition and
+         *     targetRotation are relative to this entity's joint's position and rotation.
+         */
+        otherJointIndex: Uuid;
+        /**
+         * Controls how long it takes for the entity's position to catch up with the
+         *     target position. The value is the time for the action to catch up to 1/e = 0.368 of the target value, where the action    is applied using an exponential decay.
+>>>>>>> master
          */
         linearTimeScale: number;
         /**
          * Controls how long it takes for the entity's orientation to catch up with the
+<<<<<<< HEAD
          *     target orientation. The value is the time for the action to catch up to 1/e = 0.368 of the target value, where the     action is applied using an exponential decay.
+=======
+         *     target orientation. The value is the time for the action to catch up to 1/e = 0.368 of the target value, where the    action is applied using an exponential decay.
+>>>>>>> master
          */
         angularTimeScale: number;
     }
@@ -11963,6 +12970,7 @@ declare namespace Steam {
  */
 declare namespace PickType {
     /**
+<<<<<<< HEAD
      * Ray Picks intersect a ray with the nearest object in front of them, along a given direction.
      */
     let Ray: number;
@@ -11974,6 +12982,24 @@ declare namespace PickType {
      * Parabola Picks intersect a parabola with the nearest object in front of them, with a given initial velocity and acceleration.
      */
     let Parabola: number;
+=======
+     * Ray picks intersect a ray with the nearest object in front of them, along a given direction.
+     */
+    let Ray: number;
+    /**
+     * Stylus picks provide "tapping" functionality on/into flat surfaces.
+     */
+    let Stylus: number;
+    /**
+     * Parabola picks intersect a parabola with the nearest object in front of them, with a given 
+     *     initial velocity and acceleration.
+     */
+    let Parabola: number;
+    /**
+     * Collision picks intersect a collision volume with avatars and entities that have collisions.
+     */
+    let Collision: number;
+>>>>>>> master
 }
 
 /**
