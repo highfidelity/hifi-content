@@ -295,7 +295,6 @@
 
     // Clear the explodeTimer if there is one
     function unload() {
-        console.log("overload called");
         if (explodeTimer) {
             Script.clearInterval(explodeTimer);
             Music.stop();
