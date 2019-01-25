@@ -12,11 +12,11 @@
     // Set up the default transition speed and photo array
     var DEFAULT_TRANSITION_SPEED = 10; // seconds
     var DEFAULT_PHOTO_ARRAY = [
-        Script.resolvePath('images/image1.jpg'),
-        Script.resolvePath('images/image2.jpg'),
-        Script.resolvePath('images/image3.jpg'),
-        Script.resolvePath('images/image4.jpg'),
-        Script.resolvePath('images/image5.jpg')
+        Script.resolvePath('../resources/image1.jpg'),
+        Script.resolvePath('../resources/image2.jpg'),
+        Script.resolvePath('../resources/image3.jpg'),
+        Script.resolvePath('../resources/image4.jpg'),
+        Script.resolvePath('../resources/image5.jpg')
     ];
 
     // We will convert the seconds to milliseconds for our Script.interval call
