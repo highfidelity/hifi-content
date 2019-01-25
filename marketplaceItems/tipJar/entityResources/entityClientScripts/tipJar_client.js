@@ -70,6 +70,9 @@
             }
             userData = JSON.parse(newUserData);
             log("new user data", userData);
+            if (typeof hfcAmount !== "number") {
+                hfcAmount = 0;
+            }
             destinationName = userData.destinationName;
             hfcAmount = userData.hfcAmount;
             message = userData.message;
@@ -87,27 +90,17 @@
 
     // This function will open a user's tablet and prompt them to pay for VIP status.
     function sendTip(hfcAmount, destinationName, message) {
-        log("about to send tip")
+        log("about to send tip");
         log("hfcAmount", hfcAmount);
         log("destinationName", destinationName);
         log("message", message);
-        var finalHFCAmount = Number(Window.prompt("Please enter a custom tip amount.  Suggested amount is: " + hfcAmount, hfcAmount));
-        log("type of finalAmount", finalHFCAmount);
-        if (typeof finalHFCAmount !== "number") {
-            log("typeof finalHFCAmount !== number");
-            finalHFCAmount = hfcAmount;
-        }
-        if (finalHFCAmount <= 0){
-            log("finalHFCAmount <= 0");
-            finalHFCAmount = hfcAmount;
-        }
 
         var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
         tablet.loadQMLSource("hifi/commerce/common/sendAsset/SendAsset.qml");
         tablet.sendToQml({
             method: 'updateSendAssetQML',
             assetCertID: "",
-            amount: finalHFCAmount,
+            amount: hfcAmount,
             username: destinationName,
             message: message
         });
@@ -115,10 +108,12 @@
 
 
     // Handle if mouse pressed down on entity
-    function clickDownOnEntity() {
+    function clickDownOnEntity(id, event) {
         log("entity clicked down");
-        getLatestUserData();
-        sendTip(hfcAmount, destinationName, message);
+        if (event.button === "Primary") {
+            getLatestUserData();
+            sendTip(hfcAmount, destinationName, message);
+        }
     }
 
 
@@ -155,16 +150,3 @@
     // *************************************
 
 });
-
-
-//
-//  tipJar.js
-//
-//  Users can click on the entity attached to this script to pay
-//  a user 10 HFC.
-//
-//  Copyright 2018 High Fidelity, Inc.
-//
-//  Distributed under the Apache License, Version 2.0.
-//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-//
