@@ -1,90 +1,57 @@
 {
     "DataVersion": 0,
     "Entities": [
-
         {
-            "collisionsWillMove": true,
-            "color": {
-                "blue": 0,
-                "green": 0,
-                "red": 255
-            },
-            "created": "2018-10-29T12:17:34Z",
+            "id": "{54b6f7d0-0164-469c-8742-c10dbe4d70e3}",
+            "type": "Model",
+            "created": "2019-01-24T23:07:10Z",
+            "lastEdited": 1548371317412615,
+            "lastEditedBy": "{87f478e8-fcfa-4609-b339-5d13e074e377}",
             "dimensions": {
-                "blue": 0.3499999940395355,
-                "green": 0.3499999940395355,
-                "red": 0.3499999940395355,
-                "x": 0.3499999940395355,
-                "y": 0.3499999940395355,
-                "z": 0.3499999940395355
-            },
-            "dynamic": true,
-            "gravity": {
-                "blue": 0,
-                "green": -9.800000190734863,
-                "red": 0,
-                "x": 0,
-                "y": -9.800000190734863,
-                "z": 0
-            },
-            "id": "{be4b084c-859c-4571-ad35-3d3a6dbc1dca}",
-            "lastEdited": 1540816406033489,
-            "lastEditedBy": "{32aed6cd-d501-4289-9f89-2dbc7c1a6009}",
-            "name": "Party-Ball!",
-            "queryAACube": {
-                "scale": 0.6062177419662476,
-                "x": -0.3031088709831238,
-                "y": -0.3031088709831238,
-                "z": -0.3031088709831238
+                "x": 0.47060835361480713,
+                "y": 0.5698657631874084,
+                "z": 0.47296142578125
             },
             "rotation": {
-                "w": 0.037644028663635254,
-                "x": 0.8319370746612549,
-                "y": 0.08461129665374756,
-                "z": -0.547051191329956
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
             },
-            "script": "../entityClientScripts/partyBall_client.js",
-            "serverScripts": "../entityServerScripts/partyBall_server.js",
-            "type": "Sphere",
-            "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
-        },
-        {
-            "created": "2018-10-29T12:19:45Z",
-            "id": "{f408f577-6b66-4acd-a1a2-c2d4190d59bf}",
-            "lastEdited": 1540816404771470,
-            "lastEditedBy": "{32aed6cd-d501-4289-9f89-2dbc7c1a6009}",
-            "materialData": "{\n  \"materialVersion\": 1,\n  \"materials\": {\n    \"albedoMap\": \"../resources/images/question.png\",\n    \"emissiveMap\": \"../entityResources/resources/images/question.png\"\n  }\n}",
-            "materialMappingScale": {
-                "x": 7,
-                "y": 7
+            "damping": 0,
+            "angularDamping": 0,
+            "modelURL": "https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/marketplaceItems/tipJar/entityResources/resources/models/TipJar.fbx",
+            "animation": {
+                "allowTranslation": false
             },
-            "materialURL": "materialData",
-            "name": "Party-Ball-Material",
-            "parentID": "{be4b084c-859c-4571-ad35-3d3a6dbc1dca}",
-            "position": {
-                "blue": -3.4815166145563126e-06,
-                "green": 0,
-                "red": 0,
-                "x": 0,
-                "y": 0,
-                "z": -3.4815166145563126e-06
-            },
-            "priority": 1,
+            "shapeType": "simple-hull",
             "queryAACube": {
-                "scale": 0.17320507764816284,
-                "x": 95.96235656738281,
-                "y": 10.319595336914062,
-                "z": 85.14569091796875
+                "x": -0.438723087310791,
+                "y": -0.438723087310791,
+                "z": -0.438723087310791,
+                "scale": 0.877446174621582
             },
-            "rotation": {
-                "w": 1,
-                "x": -1.52587890625e-05,
-                "y": -1.52587890625e-05,
-                "z": -1.52587890625e-05
+            "grab": {
+                "grabbable": false,
+                "triggerable": true,
+                "equippableLeftRotation": {
+                    "x": -0.0000152587890625,
+                    "y": -0.0000152587890625,
+                    "z": -0.0000152587890625,
+                    "w": 1
+                },
+                "equippableRightRotation": {
+                    "x": -0.0000152587890625,
+                    "y": -0.0000152587890625,
+                    "z": -0.0000152587890625,
+                    "w": 1
+                }
             },
-            "type": "Material"
+            "clientOnly": false,
+            "avatarEntity": false,
+            "localEntity": false
         }
     ],
-    "Id": "{df2e3bb2-310b-4913-8bc6-ec472f36d413}",
-    "Version": 93
+    "Id": "{3e2b3315-c1ba-4c69-b222-4030046d92e6}",
+    "Version": 98
 }
