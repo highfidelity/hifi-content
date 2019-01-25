@@ -43,8 +43,8 @@
                 "y": 0.08461129665374756,
                 "z": -0.547051191329956
             },
-            "script": "http://mpassets.highfidelity.com/76f14203-0cd6-4850-b163-7fd0775207f9-v1/partyBall/entityResources/entityClientScripts/partyBall_client.js",
-            "serverScripts": "http://mpassets.highfidelity.com/76f14203-0cd6-4850-b163-7fd0775207f9-v1/partyBall/entityResources/entityServerScripts/partyBall_server.js",
+            "script": "http://mpassets.highfidelity.com/39ce1de8-f740-4fd4-aefd-021184707834-v1/partyBall/entityResources/entityClientScripts/partyBall_client.js",
+            "serverScripts": "http://mpassets.highfidelity.com/39ce1de8-f740-4fd4-aefd-021184707834-v1/partyBall/entityResources/entityServerScripts/partyBall_server.js",
             "type": "Sphere",
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}"
         }
