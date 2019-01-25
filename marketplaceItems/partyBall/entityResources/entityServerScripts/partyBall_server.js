@@ -89,7 +89,7 @@
             Entities.editEntity(_entityID, {
                 visible: true
             });
-        }, MATERIAL_LOAD_TIMEOUT);
+        }, MATERIAL_LOAD_MS_TIMEOUT);
     }
 
 
