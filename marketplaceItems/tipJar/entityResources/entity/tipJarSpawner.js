@@ -18,10 +18,12 @@ var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROL
 var SPAWN_DISTANCE = 2;
 var entity = null;
 var clientScript = Script.resolvePath("../entityClientScripts/tipJar_client.js?" + Date.now());
+var serverScript = Script.resolvePath("../entityServerScripts/tipJar_server.js?" + Date.now());
 var tipJarJSON = Script.require("./tipJar.json?" + Date.now()).Entities[0];
 var tipJarModel = Script.resolvePath("../resources/models/TipJar.fbx");
 
 tipJarJSON.script = clientScript;
+tipJarJSON.serverScripts = serverScript;
 tipJarJSON.position = Vec3.sum(
     MyAvatar.position,
     Vec3.multiply(

@@ -16,6 +16,7 @@
 (function() {
 
     var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
+    // var request = Script.require('https://raw.githubusercontent.com/highfidelity/hifi/master/scripts/modules/request.js').request;
 
     // *************************************
     // START INIT
@@ -107,11 +108,17 @@
     }
 
 
+    function userClicked(){
+        Entities.callEntityServerMethod(_entityID, "userClicked", [hfcAmount]);
+    }
+
+
     // Handle if mouse pressed down on entity
     function clickDownOnEntity(id, event) {
         log("entity clicked down");
         if (event.button === "Primary") {
             getLatestUserData();
+            userClicked();
             sendTip(hfcAmount, destinationName, message);
         }
     }
@@ -121,6 +128,7 @@
     function startFarTrigger() {
         log("start far trigger called");
         getLatestUserData();
+        userClicked();
         sendTip(hfcAmount, destinationName, message);
     }
 
