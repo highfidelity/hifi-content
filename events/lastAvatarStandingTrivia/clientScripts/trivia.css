@@ -1,52 +1,50 @@
 
- body {
+#title {
     margin: 10;
-    width: 100% - 10px;
-    font-family: 'Raleway', sans-serif;
-    color: #cccbcb;
-    background: linear-gradient(#2b2b2b, #303030);
-}
-
-.top-bar {
-    height: 90px;
-    background: linear-gradient(#2b2b2b, #303030);
-    font-weight: bold;
-    padding-left: 30px;
-    padding-right: 30px;
-    display: flex;
+    width: 100% - 50px;
+    font-family: 'Squada One';
+    font-size: 24px;    
+    color: #ffffff;
     align-items: center;
-    position: fixed;
-    width: 480px;
-    top: 0;
-    z-index: 1;
+    justify-content: center;
 }
 
-.content {
-    margin-top: 90px;
-    padding: 30px;
+.heading span {
+    color: #00fff2;
+    align-items: center;
+    justify-content: center;
+}
+
+body {
+    margin: 20;
+    width: 100% - 50px;
+    font-family: 'Raleway', sans-serif;
+    color: #ffffff;
+    background: linear-gradient(#570072, #6b43fa);
+    background-size: cover;
 }
 
 input[type=button] {
     font-family: 'Raleway';
     font-weight: bold;
-    font-size: 13px;
+    font-size: 15px;
     text-transform: uppercase;
     vertical-align: top;
     height: 28px;
     min-width: 50px;
     padding: 0px 18px;
-    margin-right: 6px;
-    border-radius: 5px;
+    margin-right: 20px;
+    border-radius: 3px;
     border: none;
     color: #fff;
     background-color: #000;
     background: linear-gradient(#343434 20%, #000 100%);
     cursor: pointer;
 }
+
 input[type=button].gray {
     color: #121212;
-    background-color: #949494;
-    background: linear-gradient(#949494 20%, #cacaca 100%);
+    background: linear-gradient(#9dff00 20%, #ffee00 100%);
 }
 
 input[type=button]:enabled:hover {
@@ -67,16 +65,17 @@ input[type=button].gray:active {
 }
 
 input[type=button]:disabled {
-    color: #252525;
-    background: linear-gradient(#575757 20%, #252525 100%);
+    color: #525252;
+    background: linear-gradient(#1d1d1d 20%, #000000 100%);
 }
 
 input[type=button][pressed=pressed] {
-    color: #00b4ef;
+    color: #fbff00;
 }
 
 .correct {
-    color: #00b4ef;
+    color: #ef9b00;
+    font-weight: bold;
 }
 
 .dropdown {

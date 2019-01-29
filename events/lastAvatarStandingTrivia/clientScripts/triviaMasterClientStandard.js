@@ -32,7 +32,7 @@
         HOST_PERCENTAGE = 0.1;
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system'),
-        appPage = Script.resolvePath('trivia.html?006'),
+        appPage = Script.resolvePath('trivia.html?v100'),
         button = tablet.addButton({
             text: 'TRIVIA',
             icon: TABLET_BUTTON_IMAGE,
@@ -236,8 +236,6 @@
         }
     }
 
-
-
     function getQuestion() {
         Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
         try {
@@ -253,10 +251,12 @@
             }
             request(triviaURL, function (error, data) {
                 if (!error) {
+                    console.log(JSON.stringify(data.results[0]));
+                    console.log(JSON.stringify(data.response_code));
                     tablet.emitScriptEvent(JSON.stringify(data.results[0]));
                     triviaData = data.results;
                 } else {
-                    tablet.emitScriptEvent("error");
+                    tablet.emitScriptEvent(JSON.stringify(data.response_code));
                 }
             });
         } catch (err) {
@@ -671,6 +671,7 @@
                     case 'showAnswers':
                         showAnswers();
                         startTimer();
+                        tablet.emitScriptEvent("disable buttons");
                         Script.setTimeout(function() {
                             showCorrect();
                         }, TEN_SECONDS_MS);

@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Trivia</title>
+        <title>Last Avatar Standing</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Squada+One" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
         <link rel="stylesheet" href="trivia.css?065">
     </head>
     <body>
-        <h1>Trivia</h1>
+        <div id="title">
+            <h1 class="heading">LAST<span> AVATAR </span> STANDING</h1>
+        </div>
         <input type="button" class="gray" id="begin" value="Let's get started!">
-        <input type="button" class="gray" id="end" value="Game Over">
+        <input type="button" class="gray" id="end" disabled=true value="Game Over">
         <h3>Questions</h3>
         <div class="dropdown">
-            <input type="button" id="selectedType" onclick="toggleMenu('typeDropdown')" class="gray" value="Any Type   &#9660;">
+            <input type="button" id="selectedType" onclick="toggleMenu('typeDropdown')" class="gray" disabled = true value="Any Type   &#9660;">
             <ul class="dropdown-type">
                 <div id="typeDropdown" class="dropdown-items">
                     <li>Any Type</li>
@@ -22,7 +25,7 @@
                 </div>
             </ul>
             <br>
-            <input type="button" id="selectedDifficulty" onclick="toggleMenu('difficultyDropdown')" class="gray" value="Any Difficulty   &#9660;">
+            <input type="button" id="selectedDifficulty" onclick="toggleMenu('difficultyDropdown')" class="gray" disabled = true value="Any Difficulty   &#9660;">
             <ul class="dropdown-difficulty">
                 <div id="difficultyDropdown" class="dropdown-items">
                     <li>Any Difficulty</li>
@@ -32,9 +35,10 @@
                 </div>
             </ul>
             <br>
-            <input type="button" id="selectedCategory" onclick="toggleMenu('categoryDropdown')" class="gray" value="Any Category   &#9660;">
+            <input type="button" id="selectedCategory" onclick="toggleMenu('categoryDropdown')" class="gray" disabled = true value="Any Category   &#9660;">
             <ul class="dropdown-category">
                 <div id="categoryDropdown" class="dropdown-items">
+                    <li value="">Any Category</li>
                     <li value="9">General Knowledge</li>
                     <li value="10">Books</li>
                     <li value="11">Film</li>
@@ -63,14 +67,14 @@
             <br>
         </div>
         <p>
-        <input type="button" class="gray" id="newQuestion" value="New Question">
-        <p>
-        <input type="button" class="gray" id="showQuestion" value="Show This Question">
-        <input type="button" class="gray" id="showAnswers" value="Show The Answers">
+        <input type="button" class="gray" id="newQuestion" disabled = true value="New Question">
         <div id="question">
             Your question will show here for preview. Make sure the question and answers do not have special 
             characters and answers should not be longer than about 2/3 of this line.
         </div>
+        <p>
+        <input type="button" class="gray" id="showQuestion" disabled = true value="Show This Question">
+        <input type="button" class="gray" id="showAnswers" disabled = true value="Start The Clock!">
         <p>
         <div id="answer">
             Answer options will appear here.
@@ -96,7 +100,7 @@
             }
             function onScriptEventReceived(event) {
                 if (typeof event === "string") {
-                    if (event.indexOf("question") !== -1) {
+                    if (event["question"] !== "") {
                         triviaData = JSON.parse(event);
                         document.getElementById("question").innerHTML = triviaData.question;
                         if (triviaData.type === "multiple") {
@@ -108,27 +112,53 @@
                         } else {
                             document.getElementById("answer").innerHTML = triviaData.correct_answer;
                         }
+                    } else if (event["response_code"] !== 0) {
+                        document.getElementById("question").innerHTML = "Response: " + event["Response"] + " Check your trivia database or HiFi Admin, something is clearly wrong";
+                    } else if (event === "disable buttons") {
+                        //disable
                     } else {
-                        document.getElementById("question").innerHTML = "Check your trivia database, you may have used up all available questions";
+                        document.getElementById("question").innerHTML = "Check your trivia database or HiFi Admin, something is clearly wrong";
                     }
                 }
             }
 
             $(document).ready(function () {
-                EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+    //            EventBridge.scriptEventReceived.connect(onScriptEventReceived);
             });
             $('#begin').click(function() {
+                var buttons = document.getElementsByTagName("button");
+                console.log(JSON.stringify(buttons));
+                buttons.forEach(function(item){
+                    if (item.isEqualNode(document.getElementByID("selectedType"))){// ||
+                        //item === document.getElementByID("selectedDifficulty") ||
+                        //item === document.getElementByID("selectedCategory") ||
+                        //item === document.getElementByID("newQuestion")){
+                        item.disabled = false;
+                    }
+                });
                 var event = {
                     app: 'trivia',
                     type: "begin"
                 };
-                EventBridge.emitWebEvent(JSON.stringify(event));
+                document.getElementById('question').innerHTML = "Your question will show here for preview. Make sure the question and answers do not have special \
+                    characters and answers should not be longer than about 2/3 of this line.";
+                document.getElementById('answer').innerHTML = "Answer options will appear here."
+                //EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#end').click(function() {
                 var event = {
                     app: 'trivia',
                     type: "end"
                 };
+                var buttons = document.getElementsByTagName("button");
+                buttons.foreach(function(item){
+                    if (item !== document.getElementByID("begin")){
+                        item.disabled = true;
+                    }
+                });
+                document.getElementById('question').innerHTML = "Your question will show here for preview. Make sure the question and answers do not have special \
+                    characters and answers should not be longer than about 2/3 of this line.";
+                document.getElementById('answer').innerHTML = "Answer options will appear here."
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#typeDropdown li').click(function() {
@@ -163,6 +193,12 @@
                     app: 'trivia',
                     type: "newQuestion"
                 };
+                var buttons = document.getElementsByTagName("button");
+                buttons.foreach(function(item){
+                    if (item === document.getElementsByID("showQuestion")){
+                        item.disabled = false;
+                    }
+                });
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#showQuestion').click(function() {
@@ -170,6 +206,12 @@
                     app: 'trivia',
                     type: "showQuestion"                
                 };
+                var buttons = document.getElementsByTagName("button");
+                buttons.foreach(function(item){
+                    if (item === document.getElementsByID("begin")){
+                        item.disabled = true;
+                    }
+                });
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#showAnswers').click(function() {
@@ -177,6 +219,12 @@
                     app: 'trivia',
                     type: "showAnswers"                
                 };
+                var buttons = document.getElementsByTagName("button");
+                buttons.foreach(function(item){
+                    if (item !== document.getElementsByID("begin")){
+                        item.disabled = true;
+                    }
+                });
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
         </script>
