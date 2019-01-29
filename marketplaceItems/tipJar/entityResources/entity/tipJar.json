@@ -3,7 +3,8 @@
     "Entities": [
         {
             "id": "{54b6f7d0-0164-469c-8742-c10dbe4d70e3}",
-            "type": "Model",
+            "type": "Box",
+            "name": "tip jar box",
             "created": "2019-01-24T23:07:10Z",
             "lastEdited": 1548371317412615,
             "lastEditedBy": "{87f478e8-fcfa-4609-b339-5d13e074e377}",
@@ -18,12 +19,9 @@
                 "z": -0.0000152587890625,
                 "w": 1
             },
+            "visible": false,
             "damping": 0,
             "angularDamping": 0,
-            "modelURL": "https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/marketplaceItems/tipJar/entityResources/resources/models/TipJar.fbx",
-            "animation": {
-                "allowTranslation": false
-            },
             "shapeType": "simple-hull",
             "queryAACube": {
                 "x": -0.438723087310791,
@@ -46,10 +44,7 @@
                     "z": -0.0000152587890625,
                     "w": 1
                 }
-            },
-            "clientOnly": false,
-            "avatarEntity": false,
-            "localEntity": false
+            }
         }
     ],
     "Id": "{3e2b3315-c1ba-4c69-b222-4030046d92e6}",
