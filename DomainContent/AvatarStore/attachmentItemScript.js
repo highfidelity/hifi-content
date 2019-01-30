@@ -214,6 +214,8 @@
                 visible: true,
                 localPosition: defaultPosition,
                 localRotation: defaultRotation,
+                localVelocity: {x: 0, y: 0, z: 0},
+                localAngularVelocity: {x: 0, y: 0, z: 0},
                 dimensions: defaultDimensions,
                 parentID: MyAvatar.sessionUUID,
                 parentJointIndex: jointIndex,
@@ -301,6 +303,8 @@
                         Entities.editEntity(_entityID, {
                             parentID: MyAvatar.sessionUUID,
                             parentJointIndex: MyAvatar.getJointIndex(joint),
+                            localVelocity: {x: 0, y: 0, z: 0},
+                            localAngularVelocity: {x: 0, y: 0, z: 0},
                             userData: newEntityProperties.userData,
                             lifetime: -1
                         });
