@@ -135,17 +135,7 @@
     function didThePaymentGoThrough(){
         var targetBalance = firstBalance - hfcAmount;
 
-        if (firstBalance === secondBalance) {
-            return false;
-        }
-
-        if (secondBalance === targetBalance) {
-            return true;
-        }
-
-        // Just in case something strange happened in the last 10ish seconds and their balance is now less than
-        // the target balance
-        return false; 
+        return firstBalance === secondBalance;
     }
 
 
@@ -307,7 +297,7 @@
             }
 
             // hfc shows on inventory that it gets rounded, so go ahead and round the amount to clear up any confusion
-            hfcAmount = Math.round(userData.hfcAmount);
+            hfcAmount = Math.max(Math.round(userData.hfcAmount), ;
             destinationName = userData.destinationName;
             message = userData.message;
         }
