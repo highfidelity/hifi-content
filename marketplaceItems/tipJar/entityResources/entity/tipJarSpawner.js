@@ -23,7 +23,7 @@ tipJarJSON.position = Vec3.sum(
     MyAvatar.position,
     Vec3.multiply(
         Quat.getForward(MyAvatar.orientation), 
-        SPAWN_DISTANCE
+        SPAWN_DISTANCE_METERS
     ) 
 );
 

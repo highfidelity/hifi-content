@@ -34,7 +34,6 @@
     // *************************************
     // #region MONEY
     
-    
     var METAVERSE_BASE = Account.metaverseServerURL;
     var BALANCE_URL = METAVERSE_BASE + '/api/v1/commerce/balance';
 
@@ -45,12 +44,9 @@
 
 
     // Before the user pays, check to see what their current balance is
+    var running = false;
     function getFirstBalance() {
-        // This is so we don't start the process again if the user has clicked and we haven't finished going through
-        // getting the updated balance process.  This flag gets set back to false when the entire balance check sequence ends.
-        if (receivedFirstBalance) {
-            return;
-        }
+        running = true;
         request(options, getFirstBalanceCallBack);
     }
 
@@ -66,12 +62,19 @@
     var MAXIMUM_FIRST_BALANCE_RETRIES = 5;
     var FIRST_BALANCE_CHECK_INTERVAL = 250;
     var firstBalanceRetryCount = 0;
-    var receivedFirstBalance = false;
     var firstBalance = null;
     function getFirstBalanceCallBack(error, result) {
-        // If we have already received the first balance or we have reached past the retry count then
-        // return from this callback.  
-        if (receivedFirstBalance || firstBalanceRetryCount >= MAXIMUM_FIRST_BALANCE_RETRIES) {
+        // The user clicked during some part of the balance process
+        if (abortCurrentRunningProcess){
+            resetBalanceChecks();
+            return;
+        }
+
+        // We didn't get the first balance so gracefully move on to the QML window and just ignore the feedback
+        // As the user will get feedback already from the default sendTip process
+        if (firstBalanceRetryCount >= MAXIMUM_FIRST_BALANCE_RETRIES) {
+            running = false;
+            sendTip(hfcAmount, destinationName, message);
             return;
         }
 
@@ -84,12 +87,15 @@
             return;
         }
 
-        // We got the balance so call the commerce api and start calling for the second balance 
+        // We got the balance so call the commerce api and start calling for the second balance
         firstBalance = result.data.balance;
         firstBalanceRetryCount = 0;
-        receivedFirstBalance = true;
-
+        sendTip(hfcAmount, destinationName, message);
         Script.setTimeout(function(){
+            if (abortCurrentRunningProcess){
+                resetBalanceChecks();
+                return;
+            }
             getSecondBalance();
         }, TIME_TILL_SECOND_BALANCE_CHECK_TIMEOUT_MS);
     }
@@ -101,12 +107,20 @@
     var secondBalanceRetryCount = 0;
     var secondBalance = null;
     function getSecondBalanceCallBack(error, result) {
-        // The payment went through or we have hit the maximum amount of tries so return and reset balance related data
-        if (didThePaymentGoThrough() || secondBalanceRetryCount >= MAXIMUM_SECOND_BALANCE_RETRIES) {
+        // The user clicked during some part of the balance process
+        if (abortCurrentRunningProcess){
             resetBalanceChecks();
             return;
         }
 
+        // We have hit the maximum amount of tries so return and reset balance related data
+        if (secondBalanceRetryCount >= MAXIMUM_SECOND_BALANCE_RETRIES) {
+            running = false;
+            resetBalanceChecks();
+            return;
+        }
+
+        // There was an error fetching, retry
         if (error || result.status !== "success"){
             secondBalanceRetryCount++;
             Script.setTimeout(function(){
@@ -115,9 +129,10 @@
             return;
         }
 
+        // The balance has gone through correctly.  Reset ur balance data and start feedback animation.
         secondBalance = result.data.balance;
         if (didThePaymentGoThrough()) {
-            // The balance has gone through correctly.  Reset ur balance data and start feedback animation.
+            running = false;
             resetBalanceChecks();
             startFeedback();
             return;
@@ -134,8 +149,7 @@
     // Check to see if the payment went through by examining the two balances
     function didThePaymentGoThrough(){
         var targetBalance = firstBalance - hfcAmount;
-
-        return firstBalance === secondBalance;
+        return secondBalance === targetBalance;
     }
 
 
@@ -143,9 +157,9 @@
     function resetBalanceChecks(){
         firstBalanceRetryCount = 0;
         secondBalanceRetryCount = 0;
-        receivedFirstBalance = false;
         firstBalance = null;
         secondBalance = null;
+        abortCurrentRunningProcess = false;
     }
 
 
@@ -280,6 +294,7 @@
 
 
     // Get the latest userData before initiating payment
+    var MAX_HFC_TIP_ALLOWED = 1000000;
     var userData = {};
     var previousUserData = {};
     var destinationName = null;
@@ -297,7 +312,7 @@
             }
 
             // hfc shows on inventory that it gets rounded, so go ahead and round the amount to clear up any confusion
-            hfcAmount = Math.max(Math.round(userData.hfcAmount), ;
+            hfcAmount = Math.min(Math.round(userData.hfcAmount), MAX_HFC_TIP_ALLOWED);
             destinationName = userData.destinationName;
             message = userData.message;
         }
@@ -332,15 +347,20 @@
 
     // Main user interaction handler
     var clickInjector = null;
-    var WAIT_TO_SEND_TIP_TIMEOUT_MS = 500;
+    var abortCurrentRunningProcess = false;
+    var ABORT_TIMEOUT_MS = 1000;
     function userClicked() {
         clickInjector = playAudio(clickSound);
         getLatestUserData();
+        if (running){
+            abortCurrentRunningProcess = true;
+            // Give a little time for the other calls to clear before proceding.
+            Script.setTimeout(function(){
+                getFirstBalance();
+            }, ABORT_TIMEOUT_MS);
+            return;
+        }
         getFirstBalance();
-        Script.setTimeout(function(){
-            sendTip(hfcAmount, destinationName, message);
-        }, WAIT_TO_SEND_TIP_TIMEOUT_MS)
-
     }
 
 

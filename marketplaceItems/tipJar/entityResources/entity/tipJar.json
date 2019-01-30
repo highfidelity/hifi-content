@@ -30,6 +30,9 @@
                 "z": -0.438723087310791,
                 "scale": 0.877446174621582
             },
+            "script": "../entityClientScripts/tipJar_client",
+            "userData": "{\"destinationName\":\"this is who the money will go to\",\"hfcAmount\":1,\"message\":\"This is the message your guests will see and send to you\"}",
+            "description": "Welcome to the TipJar!\n\n Just drop this in your domain if you have edit rights\nIn the userData, put in the destination username the money is going to\nThe amount you would like to tip(it will get rounded to the nearest integer\nAnd finally put in a message you would like them to see",
             "grab": {
                 "grabbable": false,
                 "triggerable": true,

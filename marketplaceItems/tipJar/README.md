@@ -15,3 +15,6 @@ https://trello.com/c/UzXawXgg/38-tip-jar
 
 ## Known issues
 - In HMD, opening the QML window in the tablet doesn't display the background correctly.
+
+## Misc
+- there is a file in entityResources/entity/tipJarSpawner.js.  This is a convenience file for testing so that you don't have to keep reimporting a JSON and will always have the updated code if there are any changes. 
