@@ -15,7 +15,7 @@
     // START UTILITY FUNCTIONS
     // *************************************
 
-    /* PLAY SOUND: Plays the specified sound at the specified volume at the position of the game podium */
+    /* PLAY SOUND: Plays the specified sound at the specified volume at the position of the front of stage */
     var NUMBER_WHEEL = "{57e5e385-3968-4ebf-8048-a7650423d83b}";
     var soundPosition = Entities.getEntityProperties(NUMBER_WHEEL, 'position').position;
     var injector;
@@ -38,23 +38,33 @@
     /* GAME ON: This will play a sound and then, halfway through the sound, it will call a server method on the 
     wheel to begin the game */
     var BEGINNING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBeginning.wav"));
+    var MS_PER_S = 1000;
+    var HALF = 0.5;
     function lightsOn() {
         playSound(BEGINNING_SOUND, 1);
-        Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOn');
+        Script.setTimeout(function() {
+            Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOn');
+        }, BEGINNING_SOUND.duration * MS_PER_S * HALF);
     }
 
     /* OPEN REGISTRATION: This will play a sound and call a server method on the wheel to open registration */
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBoomOpener.wav"));
+    var TEN_PERCENT = 0.1;
     function openRegistration() {
         playSound(OPEN_SOUND, 1);
-        Entities.callEntityServerMethod(NUMBER_WHEEL, 'openRegistration');
+        Script.setTimeout(function() {
+            Entities.callEntityServerMethod(NUMBER_WHEEL, 'openRegistration');
+        }, OPEN_SOUND.duration * MS_PER_S * TEN_PERCENT);
     }
     
     /* CLOSE REGISTRATION: This will play a sound and call a server method on the wheel to close registration */
     var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoGong.wav"));
+    var THIRTY_FIVE_PERCENT = 0.35;
     function closeRegistration() {
         playSound(CLOSE_SOUND, 1);
-        Entities.callEntityServerMethod(NUMBER_WHEEL, 'closeRegistration');
+        Script.setTimeout(function() {
+            Entities.callEntityServerMethod(NUMBER_WHEEL, 'closeRegistration');
+        }, CLOSE_SOUND.duration * MS_PER_S * THIRTY_FIVE_PERCENT);
     }
 
     /* NEW ROUND: Play sound and call wheel server function */
@@ -66,9 +76,12 @@
 
     /* GAME OVER: This will play a sound and call a server method on the wheel to end the game */
     var FAREWELL_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoFarewell.wav"));
+    var NINETY_PERCENT = 0.9;
     function lightsOut() {
         playSound(FAREWELL_SOUND, 1);
-        Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOut');
+        Script.setTimeout(function() {
+            Entities.callEntityServerMethod(NUMBER_WHEEL, 'lightsOut');
+        }, FAREWELL_SOUND.duration * MS_PER_S * NINETY_PERCENT);
     }
 
     function givePrizes() {

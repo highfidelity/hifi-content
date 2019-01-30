@@ -8,15 +8,17 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
+/* global console */
 
 (function() {
     var _this;
 
     var LIGHT_BLINK_INTERVAL_MS = 500;
-    var REMOVE_CARDS = Script.resolvePath("../../entityScripts/cardRemover/bingoCardRemover.js?1");
+    var REMOVE_CARDS_SCRIPT = Script.resolvePath("../../entityScripts/cardRemover/bingoCardRemover.js");
+    var CARD_SPAWNER_SCRIPT = Script.resolvePath("../../entityScripts/cardSpawner/bingoCardSpawner.js");
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 1000;
     var WAIT_WHILE_CARDS_ARE_DELETED_MS = 3000;
-    var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json?109')).sheetURL;
+    var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json')).sheetURL;
     var BINGO_WALL = "{df198d93-a9b7-4619-9128-97a53fea2451}";
     var BINGO_WHEEL_TEXT = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
 
@@ -142,10 +144,10 @@
                 "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-E.jpg"
             })});
             Entities.editEntity(backboard, {textures: JSON.stringify({
-                "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-D.png",
-                "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-M.jpg",
-                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-R.jpg",
-                "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-E.jpg"
+                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-R.jpg",
+                "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-E.jpg",
+                "file6": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-M.jpg",
+                "file7": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-D.png"
             })});
         },
 
@@ -155,7 +157,6 @@
             var winnerUsername = params[0];
 
             if (currentRoundWinners.indexOf(winnerUsername) === -1) {
-                console.log("Adding " + winnerUsername + " to currentRoundWinners!");
                 currentRoundWinners.push(winnerUsername);
             }
         },
@@ -218,8 +219,6 @@
                 maybePushRandomPrize(POSSIBLE_PRIZES[Math.floor(Math.random() * (POSSIBLE_PRIZES.length - 1))]);
             }
 
-
-            
             Entities.editEntity(BINGO_PRIZE_DOOR_1_TEXT, {text: roundPrizes[0]});
             Entities.editEntity(BINGO_PRIZE_DOOR_2_TEXT, {text: roundPrizes[1]});
             Entities.editEntity(BINGO_PRIZE_DOOR_3_TEXT, {text: roundPrizes[2]});
@@ -279,12 +278,22 @@
                 script: "",
                 visible: false
             });
-            Entities.editEntity(registrationSign, { visible: true });
+            Entities.editEntity(registrationSign, {
+                visible: true,
+                script: CARD_SPAWNER_SCRIPT
+            });
         },
 
         /* CLOSE REGISTRATION: Take down card remover sign and mark the game as Ready to Play */
         closeRegistration: function() {
-            Entities.editEntity(registrationSign, { visible: false});
+            Entities.editEntity(registrationSign, {
+                visible: false,
+                script: ""
+            });
+            Entities.editEntity(cardRemoverSign, {
+                script: "",
+                visible: true
+            });
             gameReady = true;
         },
 
@@ -296,6 +305,15 @@
                 type: "newRound",
                 calledLettersAndNumbers: JSON.stringify(calledLettersAndNumbers)
             });
+            Entities.editEntity(registrationSign, {
+                visible: false,
+                script: ""
+            });
+            Entities.editEntity(cardRemoverSign, {
+                visible: true,
+                script: REMOVE_CARDS_SCRIPT
+            });
+            Entities.callEntityMethod(playerCounterText, 'reset');
             request({
                 uri: SPREADSHEET_URL + "?" + newRoundURLParams
             }, function (error, response) {
@@ -307,7 +325,6 @@
                     text: "BINGO",
                     lineHeight: 1.1
                 });
-                Entities.callEntityMethod(playerCounterText, 'reset');
 
                 gameReady = false;
                 calledLettersAndNumbers = [];
@@ -334,11 +351,6 @@
                     Script.clearInterval(lightBlinkInterval);
                     lightBlinkInterval = false;
                 }
-                Entities.editEntity(registrationSign, { visible: false});
-                Entities.editEntity(cardRemoverSign, {
-                    visible: true,
-                    script: REMOVE_CARDS
-                });
             });
         },
 
@@ -351,7 +363,11 @@
             // This is an extra check to be sure cards are deleted in case the "New Round" call is not processed.
             Entities.editEntity(cardRemoverSign, {
                 visible: true,
-                script: REMOVE_CARDS
+                script: REMOVE_CARDS_SCRIPT
+            });
+            Entities.editEntity(registrationSign, {
+                visible: false,
+                script: ""
             });
             Entities.editEntity(_this.entityID, {textures: JSON.stringify({
                 "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-D.png",
@@ -359,13 +375,14 @@
                 "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-R.jpg"
             })});
             Entities.editEntity(backboard, {textures: JSON.stringify({
-                "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-D.png",
-                "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-M.jpg",
-                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/Polychrome-R.jpg"
+                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-R.jpg",
+                "file6": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-M.jpg",
+                "file7": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-D.png"
             })});
             Script.setTimeout(function() {
                 Entities.editEntity(cardRemoverSign, {
-                    visible: false
+                    visible: false,
+                    script: ""
                 });
             }, WAIT_WHILE_CARDS_ARE_DELETED_MS);
         },

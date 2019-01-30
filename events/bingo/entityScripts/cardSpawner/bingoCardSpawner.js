@@ -84,11 +84,6 @@
                     canClick = true;
                 }, WAIT_TO_CLICK_MS);
             }
-        },
-
-        /* ON UNLOADING THE APP:  Close the card app by stopping its script. */
-        unload: function() {
-            ScriptDiscoveryService.stopScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js?10'));
         }
     };
 

@@ -54,11 +54,11 @@
             _this.entityID = entityID;
             var name = Entities.getEntityProperties(_this.entityID, 'name').name;
             if (name === "Bingo Scanner Entry Gate") {
-                closedLocalPosition = { x: -0.9310, y: 1.1957, z: 0.0811 };
-                openedLocalPosition = { x: closedLocalPosition.x, y: -0.9731, z: closedLocalPosition.z };
+                closedLocalPosition = { x: -1.0363, y: 1.4044, z: 0.0796 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -0.9608, z: closedLocalPosition.z };
             } else if (name === "Bingo Stage Entry Gate") {
-                closedLocalPosition = { x: 1, y: 1.1957, z: 0.0811 };
-                openedLocalPosition = { x: closedLocalPosition.x, y: -0.9731, z: closedLocalPosition.z };
+                closedLocalPosition = { x: 1.0367, y: 1.3896, z: 0.0816 };
+                openedLocalPosition = { x: closedLocalPosition.x, y: -0.8328, z: closedLocalPosition.z };
             } else if (name === "Prize Door 1 Gate") {
                 closedLocalPosition = { x: -2.8130, y: -0.8786, z: -1.2755 };
                 openedLocalPosition = { x: closedLocalPosition.x, y: -3.6787, z: closedLocalPosition.z };

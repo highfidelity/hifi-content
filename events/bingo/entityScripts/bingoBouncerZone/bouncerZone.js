@@ -14,7 +14,7 @@
 
 (function () {
     // Hardcoded approved usernames
-    var APPROVED_USERNAMES = ["philip", "ryan", "zfox", "Becky"];
+    var APPROVED_USERNAMES = ["philip", "ryan", "zfox", "Becky", "andy_batman", "kayla_hf"];
     // Dynamically approved usernames
     var userDataUsernameWhitelist;
 
@@ -245,5 +245,5 @@
     // Fires when entering the Bouncer Zone entity
     _this.enterEntity = function() {
         _this.updateParametersThenPerformChecks();
-    }
+    };
 });

@@ -207,23 +207,23 @@
     var SCANNER_ENTRY_ZONE = "{0da9b717-bbc0-423e-9ad0-c2c97b9f741c}";
     function onWebEventReceived(event) {
         if (event.type === 'bingoNumberSelected') {
-            playSound(SELECT_SOUND, 0.2, MyAvatar.position, false);
+            playSound(SELECT_SOUND, 0.1, MyAvatar.position, false);
             selectedNumberIDs.push(event.selectedID);
         } else if (event.type === 'bingoNumberDeselected') {
-            playSound(DESELECT_SOUND, 0.2, MyAvatar.position, false);
+            playSound(DESELECT_SOUND, 0.1, MyAvatar.position, false);
             var currentIndex = selectedNumberIDs.indexOf(event.deselectedID);
             if (currentIndex > -1) {
                 selectedNumberIDs.splice(currentIndex, 1);
             }
         } else if (event.type === 'playSoundFromBingoHeaderButton') {
-            playSound(currentHeaderSounds[event.index], 0.1, MyAvatar.position, false);
+            playSound(currentHeaderSounds[event.index], 0.05, MyAvatar.position, false);
         } else if (event.type === 'calledBingo') {
             playSound(WIN_SOUND, 1, WHEEL_POSITION, false);
             Entities.callEntityMethod(SCANNER_ENTRY_ZONE, 'callBingo');
             if (confettiParticle) {
                 Entities.deleteEntity(confettiParticle);
             }
-            playSound(WIN_SOUND, 1, MyAvatar.position, false);
+            playSound(WIN_SOUND, 0.3, MyAvatar.position, false);
             confettiParticle = Entities.addEntity({
                 accelerationSpread: {
                     x: 0.10000000149011612,
@@ -326,11 +326,10 @@
             onClosed: onClosed,
             onMessage: onWebEventReceived
         });
-        
         cacheSounds();
     }
 
-    /* WHEN USER SESSION CHANGES: End this script so users will not be left with a card when leaving the domain*/
+    /* WHEN USER SESSION CHANGES: End this script so users will not be left with a card when leaving the domain */
     function sessionChanged() {
         ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?10'));
     }

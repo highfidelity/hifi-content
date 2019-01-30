@@ -11,7 +11,7 @@
 (function() {
     var _this;
 
-    var SCANNER_ENTRY_GATE = "{2d426ca6-d335-4b1f-a430-8f2b02896a5e}";
+    var SCANNER_ENTRY_GATE = "{e47e5730-4aff-465e-bccc-9ed04c163f3b}";
 
     var scannerSpotlight;
     var hasCalledBingo = false;
