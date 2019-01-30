@@ -36,9 +36,9 @@ tipJarJSON.description =
         "The amount you would like to tip(it will get rounded to the nearest integer\n" +
         "And finally put in a message you would like them to see";
 tipJarJSON.userData = JSON.stringify({
-    destinationName: "markb",
+    destinationName: "this is who the money will go to",
     hfcAmount: 1,
-    message: "ANDY AND MILAD BOTH AGREE THAT MARK IS A POOP PANT!"
+    message: "This is the message your guests will see and send to you"
 });
 
 entity = Entities.addEntity(tipJarJSON);
