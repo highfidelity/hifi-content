@@ -10,112 +10,150 @@
 
     Throw and get down!
 
+    Current commit with logs: 
 */
 
 
 (function() {
 
     var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
-    var request = Script.require('https://raw.githubusercontent.com/highfidelity/hifi/master/scripts/modules/request.js').request;
-
+    
     // *************************************
     // START INIT
     // *************************************
     // #region INIT
-    
-    var _entityID = null;
 
-    var userData = {};
-    var previousUserData = {};
-    var destinationName = null;
-    var hfcAmount = 0;
-    var message = "";
 
-    var firstBalance = null;
-    var secondBalance = null;
-    var running = false;
-    var receivedFirstBalance = false;
-    var retryCount = 0;
-    var SECOND_BALANCE_TIMEOUT_AMOUNT = 3000; // Wait 3 seconds before checking second balance
-    var INTERVAL_CHECK_AMOUNT = 500; // Check every half second
-    var MAXIMUM_RETRIES = 20; // Checks for 10 sconds
-    var METAVERSE_BASE = Account.metaverseServerURL;
-    var BALANCE_URL = METAVERSE_BASE + '/api/v1/commerce/balance';
-    
-    var clickedID = null;
-    var options = {};
-    options.uri = BALANCE_URL;
-    options.method = "POST";
-
-    var ANIMATION_URL = Script.resolvePath('../resources/models/tipJar_Anim.fbx');
-
-    var COIN_SOUND_URL = Script.resolvePath('../resources/sounds/CoinsDrop_BW.6645_1497719.4.R.wav');
-    var CLICK_SOUND_URL = Script.resolvePath('../resources/sounds/beep.mp3');
-
-    var coinSound = null;
-    var coinInjector = null;
-
-    var clickSound = null;
-    var clickInjector = null;
-
-    var audioOptions = {
-        volume: 0.5,
-        localOnly: true
-    };
-    var tipJar = null;
+    var request = Script.require('../modules/request.js').request;
+        
 
     // #endregion
     // *************************************
     // END INIT
     // *************************************
 
+
     // *************************************
-    // START ENTITY DEFINITION
+    // START MONEY
     // *************************************
-    // #region ENTITY DEFINITION
+    // #region MONEY
     
-
-    var TIMEOUT_FOR_AUDIO = 2000;
-    function startFeedback(){
-        playAnimation();
-        Script.setTimeout(function(){
-            coinInjector = playAudio(coinSound);
-        }, TIMEOUT_FOR_AUDIO);
-    }
-
-
-    function playAudio(sound){
-        log("playing audio");
-        var position = Entities.getEntityProperties(_entityID, 'position').position;
-        audioOptions.position = position;
-        return Audio.playSound(sound, audioOptions);
-    }
     
+    var INTERVAL_CHECK_AMOUNT = 1500; // Check every 1.5 seconds after
+    var MAXIMUM_FIRST_BALANCE_RETRIES = 10; // Checks for 10 seconds
+    var METAVERSE_BASE = Account.metaverseServerURL;
+    var BALANCE_URL = METAVERSE_BASE + '/api/v1/commerce/balance';
 
-    function stopAnimation(){
-        Overlays.deleteOverlay(tipJar);
-        createOverlay();
+    var firstBalance = null;
+    var secondBalance = null;
+    var receivedFirstBalance = false;
+    var retryCount = 0;
+
+    var options = {};
+    options.uri = BALANCE_URL;
+    options.method = "POST";
+
+
+    // Before the user pays, check to see what their current balance is
+    function getFirstBalance() {
+        // This is so we don't start the process again if the user has clicked and we haven't finished going through
+        // Getting the updated balance process.  This flag gets set back to false at the end.
+        if (receivedFirstBalance) {
+            log("Already received first balance, returning")
+            return;
+        }
+        log("options", options); 
+        request(options, getFirstBalanceCallBack);
     }
 
 
-    var TIMEOUT = 2300;
-    function playAnimation(){
-        var newOverlayProperties = {
-            animationSettings: {
-                firstFrame: 0,
-                lastFrame: 70,
-                currentFrame: 0,
-                allowTranslation: true,
-                loop: true,
-                fps: 30,
-                hold: true
+    // Callback that is run after we request the first balance
+    var TIME_TILL_SECOND_BALANCE_CHECK_TIMEOUT_AMOUNT_MS = 2000; // Wait 2 seconds before checking second balance
+    var MAXIMUM_FIRST_BALANCE_RETRIES = 6; // Checks for 10 seconds
+    var firstBalanceRetryCount = 0;
+    function getFirstBalanceCallBack(error, result) {
+        // If we have already received the first balance or we have reached past the retry count then
+        // return from this callback.  
+        if (receivedFirstBalance || firstBalanceRetryCount >= MAXIMUM_FIRST_BALANCE_RETRIES) {
+            log("Already received first balance or retry count is max");
+            log("retry count:", firstBalanceRetryCount);
+            return;
+        }
+
+        // There was an error of some kind so retry. 
+        if (error || result.status !== "success"){
+            log("error", error);
+            log("result", result);
+            firstBalanceRetryCount++;
+            log("current retry count:", firstBalanceRetryCount);
+            Script.setTimeout(function(){
+                request(options, getFirstBalanceCallBack);
+            }, INTERVAL_CHECK_AMOUNT);
+        } else {
+            // We got the balance so start calling for the second balance
+            firstBalance = result.data.balance;
+            firstBalanceRetryCount = 0;
+            receivedFirstBalance = true;
+            Script.setTimeout(function(){
+                getSecondBalance();
+            }, TIME_TILL_SECOND_BALANCE_CHECK_TIMEOUT_AMOUNT_MS);
+            
+        }
+        log("result balance", firstBalance);
+        log("amount looking for", firstBalance - hfcAmount);
+    }
+
+
+    function getSecondBalance() {
+        log("Get second balance is called")
+        request(options, getSecondBalanceCallBack);
+    }
+
+
+    function getSecondBalanceCallBack(error, result) {
+        log("running get second balance call back");
+        if (error || result.status !== "success"){
+            log("THERE WAS A PROBLEM");
+            log("error", error);
+            log("result.status", result.status);
+            console.log(error);
+            if (isSecondBalanceTheRightAmount() || retryCount >= MAXIMUM_FIRST_BALANCE_RETRIES) {
+                resetBalanceChecks();
+                return;
             }
-        };
-        newOverlayProperties.animationSettings.url = ANIMATION_URL;
-        newOverlayProperties.animationSettings.running = true;
-        Overlays.editOverlay(tipJar, newOverlayProperties);
-        Script.setTimeout(stopAnimation, TIMEOUT);
+            retryCount++;
+            log("current retry count:", retryCount);
+            Script.setTimeout(function(){
+                log("There was an error, trying second balance again");
+                request(options, getSecondBalanceCallBack);
+            }, INTERVAL_CHECK_AMOUNT);
+        } else {
+            log("THERE WAS NOT A PROBLEM IN CALLBACK");
+            secondBalance = result.data.balance;
+            if (isSecondBalanceTheRightAmount()) {
+                log("second balance is the right amount");
+                resetBalanceChecks();
+                startFeedback();
+                return;
+            }
+            log("second balance isn't the right amount, trying again");
+            retryCount++;
+            log("current retry count:", retryCount);
+            if (retryCount >= MAXIMUM_FIRST_BALANCE_RETRIES) {
+                resetBalanceChecks();
+                return;
+            }
+            log("RUNNING SECOND CALLBACK AGAIN");
+            Script.setTimeout(function(){
+                log("Still haven't got the right amount yet!");
+                request(options, getSecondBalanceCallBack);
+            }, INTERVAL_CHECK_AMOUNT);
+        }
+        console.log(JSON.stringify(result));
+        log("result balance", firstBalance);
+        log("amount looking for", firstBalance - hfcAmount);
     }
+
 
     function isSecondBalanceTheRightAmount(){
         log("isSecondBalanceTheRightAmount");
@@ -132,36 +170,6 @@
     }
 
 
-    function getFirstBalanceCallBack(error, result) {
-        log("running getfirst balance callback");
-        if (error || result.status !== "success"){
-            log("error", error);
-            log("result.status", result.status);
-            if (receivedFirstBalance || retryCount >= MAXIMUM_RETRIES) {
-                log("Already received first balance or retry count is max");
-                log("retry count:", retryCount);
-                return;
-            }
-            retryCount++;
-            log("current retry count:", retryCount);
-            Script.setTimeout(function(){
-                request(options, getFirstBalanceCallBack);
-            }, INTERVAL_CHECK_AMOUNT);
-        } else {
-            firstBalance = result.data.balance;
-            retryCount = 0;
-            receivedFirstBalance = true;
-            Script.setTimeout(function(){
-                getSecondBalance();
-            }, SECOND_BALANCE_TIMEOUT_AMOUNT);
-            
-        }
-        console.log(JSON.stringify(result));
-        log("result balance", firstBalance);
-        log("amount looking for", firstBalance - hfcAmount);
-    }
-
-    
     function resetBalanceChecks(){
         retryCount = 0;
         receivedFirstBalance = false;
@@ -170,65 +178,134 @@
     }
 
 
-    function getSecondBalanceCallBack(error, result) {
-        log("running get second balance call back");
-        if (error || result.status !== "success"){
-            log("THERE WAS A PROBLEM");
-            log("error", error);
-            log("result.status", result.status);
-            console.log(error);
-            if (isSecondBalanceTheRightAmount() || retryCount >= MAXIMUM_RETRIES) {
-                resetBalanceChecks();
-                return;
-            }
-            retryCount++;
-            log("current retry count:", retryCount);
-            Script.setTimeout(function(){
-                log("There was an error, trying second balance again");
-                request(options, getSecondBalanceCallBack);
-            }, INTERVAL_CHECK_AMOUNT);
-        } else {
-            log("THERE WAS NOT A PROBLEM IN CALLBACK");
-            secondBalance = result.data.balance;
-            if (isSecondBalanceTheRightAmount()) {
-                log("second balance is the right amount");
-                resetBalanceChecks();
-                if (MyAvatar.sessionUUID === clickedID){
-                    startFeedback();
-                }
-                return;
-            }
-            log("second balance isn't the right amount, trying again");
-            retryCount++;
-            log("current retry count:", retryCount);
-            if (retryCount >= MAXIMUM_RETRIES) {
-                resetBalanceChecks();
-                return;
-            }
-            log("RUNNING SECOND CALLBACK AGAIN");
-            Script.setTimeout(function(){
-                log("Still haven't got the right amount yet!");
-                request(options, getSecondBalanceCallBack);
-            }, INTERVAL_CHECK_AMOUNT);
-        }
-        console.log(JSON.stringify(result));
-        log("result balance", firstBalance);
-        log("amount looking for", firstBalance - hfcAmount);
+    // This function will open a user's tablet and prompt them to pay for VIP status.
+    function sendTip(hfcAmount, destinationName, message) {
+        var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
+        tablet.loadQMLSource("hifi/commerce/common/sendAsset/SendAsset.qml");
+        tablet.sendToQml({
+            method: 'updateSendAssetQML',
+            assetCertID: "",
+            amount: hfcAmount,
+            username: destinationName,
+            message: message
+        });
+    }
+    
+    // #endregion
+    // *************************************
+    // END MONEY
+    // *************************************
+
+
+    // *************************************
+    // START ANIMATION
+    // *************************************
+    // #region ANIMATION
+    
+    
+    var COIN_SOUND_URL = Script.resolvePath('../resources/sounds/CoinsDrop_BW.6645_1497719.4.R.wav');
+    var CLICK_SOUND_URL = Script.resolvePath('../resources/sounds/beep.mp3');
+
+    var coinSound = null;
+    var coinInjector = null;
+
+    var clickSound = null;
+    var clickInjector = null;
+
+    var audioOptions = {
+        volume: 0.5,
+        localOnly: true
+    };
+    function playAudio(sound){
+        log("playing audio");
+        var position = Entities.getEntityProperties(_entityID, 'position').position;
+        audioOptions.position = position;
+        return Audio.playSound(sound, audioOptions);
+    }
+    
+
+    function stopAnimation(){
+        Overlays.deleteOverlay(tipJar);
+        createOverlay();
     }
 
-    function getFirstBalance() {
-        log("getting first balance")
-        if (receivedFirstBalance) {
-            log("Already received first balance, returning")
-            return;
+
+    var ANIMATION_URL = Script.resolvePath('../resources/models/tipJar_Anim.fbx');
+    var ANIMATION_STOP_TIMEOUT_MS = 2300;
+    var newOverlayProperties = {
+        animationSettings: {
+            url: ANIMATION_URL,
+            running: true,
+            firstFrame: 0,
+            lastFrame: 70,
+            currentFrame: 0,
+            allowTranslation: true,
+            loop: true,
+            fps: 30,
+            hold: true
         }
-        request(options, getFirstBalanceCallBack);
+    };
+
+    
+    function playAnimation(){
+        Overlays.editOverlay(tipJar, newOverlayProperties);
+        Script.setTimeout(stopAnimation, ANIMATION_STOP_TIMEOUT_MS);
     }
 
-    function getSecondBalance() {
-        log("Get second balance is called")
-        request(options, getSecondBalanceCallBack);
+    var TIMEOUT_FOR_AUDIO = 2000;
+    function startFeedback(){
+        playAnimation();
+        Script.setTimeout(function(){
+            coinInjector = playAudio(coinSound);
+        }, TIMEOUT_FOR_AUDIO);
     }
+    
+    
+    // #endregion
+    // *************************************
+    // END ANIMATION
+    // *************************************
+
+    // *************************************
+    // START OVERLAY
+    // *************************************
+    // #region OVERLAY
+    
+    
+    var tipJar = null;
+
+    var tipJarModel = Script.resolvePath("../resources/models/tipJar_Anim.fbx");
+
+    var tipJarProps = {
+        name: "tipjar",
+        dimensions: {
+            "x": 0.37060835361480713,
+            "y": 0.4698657631874084,
+            "z": 0.37296142578125
+        },
+        url: tipJarModel
+    };
+
+
+    function createOverlay() {
+        var currentPosition = Entities.getEntityProperties(_entityID, "position").position;
+        tipJarProps.parentID = _entityID;
+        tipJarProps.position = currentPosition;
+        tipJar = Overlays.addOverlay("model", tipJarProps);
+
+    }
+    
+    
+    // #endregion
+    // *************************************
+    // END OVERLAY
+    // *************************************
+
+    // *************************************
+    // START EVENT_HANDLER
+    // *************************************
+    // #region EVENT_HANDLER
+    
     
     // Checks to see if the userData is unique
     function isNewUserDataDifferent(oldUserData, newUserData){
@@ -247,6 +324,9 @@
 
 
     // Checks to see if the userData is updated
+    var destinationName = null;
+    var hfcAmount = 0;
+    var message = "";
     function getLatestUserData(){
         log("in get latest user data");
         var newUserData = Entities.getEntityProperties(_entityID, 'userData').userData;
@@ -258,37 +338,41 @@
             }
             userData = JSON.parse(newUserData);
             log("new user data", userData);
-            if (typeof hfcAmount !== "number") {
-                hfcAmount = 0;
+            if (typeof userData.hfcAmount !== "number") {
+                userData.hfcAmount = 1;
             }
             destinationName = userData.destinationName;
-            hfcAmount = userData.hfcAmount;
+            hfcAmount = Math.round(userData.hfcAmount);
             message = userData.message;
         }
     }
 
-    var tipJarModel = Script.resolvePath("../resources/models/tipJar_Anim.fbx");
 
-    var tipJarProps = {
-        name: "tipjar",
-        dimensions: {
-            "x": 0.47060835361480713,
-            "y": 0.5698657631874084,
-            "z": 0.47296142578125
-        },
-        url: tipJarModel
-    };
-
-    function createOverlay() {
-        var currentPosition = Entities.getEntityProperties(_entityID, "position").position;
-        tipJarProps.parentID = _entityID;
-        tipJarProps.position = currentPosition;
-        tipJar = Overlays.addOverlay("model", tipJarProps);
-
+    var TIMEOUT_BEFORE_STARTING_SEND_TIP = 250;
+    function userClicked(){
+        getFirstBalance();
+        // Wait just a little bit before we hit the menu. 
+        Script.setTimeout(function(){
+            sendTip(hfcAmount, destinationName, message);   
+        }, TIMEOUT_BEFORE_STARTING_SEND_TIP);
     }
+    
+    
+    // #endregion
+    // *************************************
+    // END EVENT_HANDLER
+    // *************************************
 
+    // *************************************
+    // START ENTITY DEFINITION
+    // *************************************
+    // #region ENTITY DEFINITION
+    
 
     // Grab the entityID on preload
+    var userData = {};
+    var previousUserData = {};
+    var _entityID = null;
     function preload(entityID) {
         _entityID = entityID;
         createOverlay();
@@ -298,37 +382,21 @@
     }
 
 
-    // This function will open a user's tablet and prompt them to pay for VIP status.
-    function sendTip(hfcAmount, destinationName, message) {
-        var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-        tablet.loadQMLSource("hifi/commerce/common/sendAsset/SendAsset.qml");
-        tablet.sendToQml({
-            method: 'updateSendAssetQML',
-            assetCertID: "",
-            amount: hfcAmount,
-            username: destinationName,
-            message: message
-        });
-    }
-
-
-    function userClicked(){
-        clickInjector = playAudio(clickSound);
-        clickedID = MyAvatar.sessionUUID;
-        if (MyAvatar.sessionUUID === clickedID){
-            getFirstBalance();
-        }
-    }
-
-
     // Handle if mouse pressed down on entity
     function clickDownOnEntity(id, event) {
         log("entity clicked down");
         if (event.button === "Primary") {
             getLatestUserData();
             userClicked();
-            sendTip(hfcAmount, destinationName, message);
         }
+    }
+
+    
+    function startNearTrigger() {
+        log("start near trigger called");
+        getLatestUserData();
+        userClicked();
+        sendTip(hfcAmount, destinationName, message);
     }
 
 
@@ -352,6 +420,7 @@
     TipJar.prototype = {
         preload: preload,
         clickDownOnEntity: clickDownOnEntity,
+        startNearTrigger: startNearTrigger,
         startFarTrigger: startFarTrigger,
         unload: unload
     };
