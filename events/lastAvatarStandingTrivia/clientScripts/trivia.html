@@ -10,11 +10,11 @@
     </head>
     <body>
         <div id="title">
-            <h1 class="heading">LAST<span> AVATAR </span> STANDING</h1>
+            <h1 class="size48">LAST<span> AVATAR </span>STANDING</h1>
         </div>
-        <input type="button" class="gray" id="begin" value="Let's get started!">
-        <input type="button" class="gray" id="end" disabled=true value="Game Over">
-        <h3>Questions</h3>
+        <input type="button" class="gray" id="begin" value="NEW GAME">
+        <input type="button" class="red" id="end" disabled=true value="END GAME">
+        <h2>Pick a Question!</h2>
         <div class="dropdown">
             <input type="button" id="selectedType" onclick="toggleMenu('typeDropdown')" class="gray" disabled = true value="Any Type   &#9660;">
             <ul class="dropdown-type">
@@ -66,8 +66,9 @@
             </ul>
             <br>
         </div>
-        <p>
+
         <input type="button" class="gray" id="newQuestion" disabled = true value="New Question">
+        <p>
         <div id="question">
             Your question will show here for preview. Make sure the question and answers do not have special 
             characters and answers should not be longer than about 2/3 of this line.
@@ -99,63 +100,94 @@
                 }
             }
             function onScriptEventReceived(event) {
-                if (typeof event === "string") {
-                    if (event["question"] !== "") {
+                if (event === "re-enable") {
+                    typeButton.disabled = false;
+                    diffButton.disabled = false;
+                    catButton.disabled = false;
+                    beginButton.disabled = true;
+                    endButton.disabled = false;
+                    newQButton.disabled = false;
+                    showQButton.disabled = true;
+                    answerButton.disabled = true;
+                } else if (event === "gameInProgress"){
+                    typeButton.disabled = false;
+                    diffButton.disabled = false;
+                    catButton.disabled = false;
+                    beginButton.disabled = true;
+                    endButton.disabled = false;
+                    newQButton.disabled = false;
+                    showQButton.disabled = true;
+                    answerButton.disabled = true;
+                } else {
+                    try{
                         triviaData = JSON.parse(event);
-                        document.getElementById("question").innerHTML = triviaData.question;
-                        if (triviaData.type === "multiple") {
-                            document.getElementById("answer").innerHTML =  "<p class=\"correct\">" + 
-                                triviaData.correct_answer + "<p>" + 
-                                triviaData.incorrect_answers[0] + "<p>" + 
-                                triviaData.incorrect_answers[1] + "<p>" +
-                                triviaData.incorrect_answers[2];
-                        } else {
-                            document.getElementById("answer").innerHTML = triviaData.correct_answer;
+                        console.log(event);
+                        if(triviaData.application !== "trivia") {
+                            return;
                         }
-                    } else if (event["response_code"] !== 0) {
-                        document.getElementById("question").innerHTML = "Response: " + event["Response"] + " Check your trivia database or HiFi Admin, something is clearly wrong";
-                    } else if (event === "disable buttons") {
-                        //disable
-                    } else {
-                        document.getElementById("question").innerHTML = "Check your trivia database or HiFi Admin, something is clearly wrong";
+                        if ("question" in triviaData) {
+                            document.getElementById("question").innerHTML = triviaData.question;
+                            if (triviaData.type === "multiple") {
+                                document.getElementById("answer").innerHTML =  "<p class=\"correct\">" + 
+                                    triviaData.correct_answer + "<p>" + 
+                                    triviaData.incorrect_answers[0] + "<p>" + 
+                                    triviaData.incorrect_answers[1] + "<p>" +
+                                    triviaData.incorrect_answers[2];
+                            } else {
+                                document.getElementById("answer").innerHTML = triviaData.correct_answer;
+                            }
+                        } else if ("response_code" in triviaData) {
+                            document.getElementById("question").innerHTML = "Response: " + triviaData["response_code"] + " Check your trivia database or HiFi Admin, something is clearly wrong";
+                        } else {
+                            document.getElementById("question").innerHTML = "Check your trivia database or HiFi Admin, something is clearly wrong";
+                        }       
+                    } catch (e){
+                        console.log(e, "error");
                     }
                 }
             }
 
             $(document).ready(function () {
-    //            EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+                EventBridge.scriptEventReceived.connect(onScriptEventReceived);
             });
+
+            var typeButton = document.getElementById("selectedType");
+            var diffButton = document.getElementById("selectedDifficulty");
+            var catButton = document.getElementById("selectedCategory");
+            var endButton = document.getElementById("end");
+            var beginButton = document.getElementById("begin");
+            var newQButton = document.getElementById("newQuestion");
+            var showQButton = document.getElementById("showQuestion");
+            var answerButton = document.getElementById("showAnswers");
             $('#begin').click(function() {
-                var buttons = document.getElementsByTagName("button");
-                console.log(JSON.stringify(buttons));
-                buttons.forEach(function(item){
-                    if (item.isEqualNode(document.getElementByID("selectedType"))){// ||
-                        //item === document.getElementByID("selectedDifficulty") ||
-                        //item === document.getElementByID("selectedCategory") ||
-                        //item === document.getElementByID("newQuestion")){
-                        item.disabled = false;
-                    }
-                });
                 var event = {
                     app: 'trivia',
                     type: "begin"
                 };
+                typeButton.disabled = false;
+                diffButton.disabled = false;
+                catButton.disabled = false;
+                beginButton.disabled = true;
+                endButton.disabled = false;
+                newQButton.disabled = false;
                 document.getElementById('question').innerHTML = "Your question will show here for preview. Make sure the question and answers do not have special \
                     characters and answers should not be longer than about 2/3 of this line.";
                 document.getElementById('answer').innerHTML = "Answer options will appear here."
-                //EventBridge.emitWebEvent(JSON.stringify(event));
+                EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#end').click(function() {
                 var event = {
                     app: 'trivia',
                     type: "end"
                 };
-                var buttons = document.getElementsByTagName("button");
-                buttons.foreach(function(item){
-                    if (item !== document.getElementByID("begin")){
-                        item.disabled = true;
-                    }
-                });
+                typeButton.disabled = true;
+                diffButton.disabled = true;
+                catButton.disabled = true;
+                endButton.disabled = true;
+                beginButton.disabled = false;
+                newQButton.disabled = true;
+                showQButton.disabled = true;
+                answerButton.disabled = true;
                 document.getElementById('question').innerHTML = "Your question will show here for preview. Make sure the question and answers do not have special \
                     characters and answers should not be longer than about 2/3 of this line.";
                 document.getElementById('answer').innerHTML = "Answer options will appear here."
@@ -189,16 +221,18 @@
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#newQuestion').click(function() {
+                typeButton.disabled = false;
+                diffButton.disabled = false;
+                catButton.disabled = false;
+                beginButton.disabled = true;
+                endButton.disabled = false;
+                newQButton.disabled = false;
+                showQButton.disabled = false;
+                answerButton.disabled = true;
                 var event = {
                     app: 'trivia',
                     type: "newQuestion"
                 };
-                var buttons = document.getElementsByTagName("button");
-                buttons.foreach(function(item){
-                    if (item === document.getElementsByID("showQuestion")){
-                        item.disabled = false;
-                    }
-                });
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#showQuestion').click(function() {
@@ -206,12 +240,14 @@
                     app: 'trivia',
                     type: "showQuestion"                
                 };
-                var buttons = document.getElementsByTagName("button");
-                buttons.foreach(function(item){
-                    if (item === document.getElementsByID("begin")){
-                        item.disabled = true;
-                    }
-                });
+                typeButton.disabled = true;
+                diffButton.disabled = true;
+                catButton.disabled = true;
+                beginButton.disabled = true;
+                endButton.disabled = false;
+                newQButton.disabled = true;
+                showQButton.disabled = true;
+                answerButton.disabled = false;
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#showAnswers').click(function() {
@@ -219,12 +255,14 @@
                     app: 'trivia',
                     type: "showAnswers"                
                 };
-                var buttons = document.getElementsByTagName("button");
-                buttons.foreach(function(item){
-                    if (item !== document.getElementsByID("begin")){
-                        item.disabled = true;
-                    }
-                });
+                typeButton.disabled = true;
+                diffButton.disabled = true;
+                catButton.disabled = true;
+                beginButton.disabled = true;
+                endButton.disabled = false;
+                newQButton.disabled = true;
+                showQButton.disabled = true;
+                answerButton.disabled = true;
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
         </script>

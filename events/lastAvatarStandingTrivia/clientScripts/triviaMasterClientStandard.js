@@ -50,12 +50,14 @@
         category = null,
         difficulty = null,
         currentChoices = [],
+        letter = [],
         lights = [],
         correctHighlights = [],
         timer,
         gameZone,
         gameZoneProperties,
         avatarCounter,
+        intervalTimer,
         bubble,
         introPlayed = false,
         correctCount = null,
@@ -158,6 +160,7 @@
             }, ONE_SECOND_MS);
         } else {
             Script.clearInterval(intervalBoard);
+            intervalBoard = false;
             intervalBoard = Script.setInterval(function(){
                 updateAvatarCounter(false);
                 Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [prizeMoney, true]);
@@ -221,6 +224,12 @@
                             break;                            
                         case "Trivia Bubble":
                             bubble = element;
+                            break;                        
+                        case "Trivia Choice Letter Blue Board":
+                            letter[0] = element;
+                            break;
+                        case "Trivia Choice Letter Green Board":
+                            letter[1] = element;
                             break;
                     }
                 }
@@ -230,10 +239,15 @@
 
     function onClicked() { 
         if (open) {
-            tablet.gotoHomeScreen();
+            tablet.gotoHomeScreen(); 
         } else {
-            tablet.gotoWebScreen(appPage);
+            tablet.gotoWebScreen(appPage);  
         }
+        Script.setTimeout(function(){
+            console.log(JSON.stringify(triviaData));
+            tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+            tablet.emitScriptEvent("gameInProgress");   
+        }, 200);
     }
 
     function getQuestion() {
@@ -253,9 +267,11 @@
                 if (!error) {
                     console.log(JSON.stringify(data.results[0]));
                     console.log(JSON.stringify(data.response_code));
+                    data.results[0].application = "trivia";
                     tablet.emitScriptEvent(JSON.stringify(data.results[0]));
                     triviaData = data.results;
                 } else {
+                    data.response_code.application = "trivia";
                     tablet.emitScriptEvent(JSON.stringify(data.response_code));
                 }
             });
@@ -283,6 +299,8 @@
             choiceTexts.forEach(function(choice) {
                 Entities.callEntityServerMethod(choice, "textUpdate", ["", true]);
             });
+            Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", true]);
+            Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", true]);
             var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
             // var formattedQuestion = triviaData.question;
             Entities.callEntityServerMethod(questionText, "textUpdate", [formattedQuestion, true]);
@@ -296,7 +314,8 @@
             Entities.callEntityServerMethod(choiceTexts[1], "textUpdate", ["True", true]);
             Entities.callEntityServerMethod(choiceTexts[2], "textUpdate", ["False", true]);
             Entities.callEntityServerMethod(choiceTexts[3], "textUpdate", ["", false]);
-
+            Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", false]);
+            Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", false]);
             currentChoices = [];
             currentChoices.push("True");
             currentChoices.push("False");
@@ -323,7 +342,11 @@
         correctCount = null;
         prizeMoney = 0;
         winnerID = null;
-
+        if (intervalTimer){
+            Script.clearTimeout(intervalTimer);
+            intervalTimer = false;
+            Entities.callEntityServerMethod(gameZoneProperties.id, "stopSound");
+        }
         bubbleOff();
         lights.forEach(function(light) {
             Entities.callEntityServerMethod(light, "lightsOff");
@@ -335,6 +358,8 @@
         choiceTexts.forEach(function(choice) {
             Entities.callEntityServerMethod(choice, "textUpdate", ["Answers appear here", true]);
         });
+        Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", true]);
+        Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", true]);
         Entities.callEntityServerMethod(answerText, "textUpdate", ["", true]);
         Entities.callEntityServerMethod(avatarCounter, "textUpdate", [0, true]);
         Entities.callEntityServerMethod(prizeDisplay, "textUpdate", [0, true]);
@@ -407,9 +432,15 @@
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['WINNER_MUSIC']);    
                 Entities.callEntityServerMethod(gameZoneProperties.id, "startConfetti");              
                 if (prizeMoney >= 300 && winnerID !== MyAvatar.sessionUUID) {
-                    var winnerBanner = AvatarManager.getAvatar(winnerID).sessionDisplayName + " wins the game!";
+                    var pot = prizeMoney;
+                    var winnerBanner = AvatarManager.getAvatar(winnerID).sessionDisplayName + " wins " + pot + "HFC!";
                     Entities.callEntityServerMethod(questionText, "textUpdate", [winnerBanner, true]);
                     Users.requestUsernameFromID(winnerID);
+                    Script.setTimeout(function(){
+                        clearGame();
+                        var winnerBanner = AvatarManager.getAvatar(winnerID).sessionDisplayName + " wins " + pot + "HFC!";
+                        Entities.callEntityServerMethod(questionText, "textUpdate", [winnerBanner, true]);
+                    }, 2 * ONE_SECOND_MS);
                 }                
                 break;
         }   
@@ -452,6 +483,8 @@
         correctHighlights.forEach(function(highlight) {
             Entities.callEntityServerMethod(highlight, "lightsOff");
         });
+        Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", true]);
+        Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", true]);
         Entities.callEntityServerMethod(questionText, "textUpdate", ["", true]);
         choiceTexts.forEach(function(choice) {
             Entities.callEntityServerMethod(choice, "textUpdate", ["", true]);
@@ -463,11 +496,12 @@
         Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['TIMER_SOUND']);
         var seconds = 10;
         Entities.callEntityServerMethod(timer, "textUpdate", [seconds, true]);
-        var interval = Script.setInterval(function() {
+        intervalTimer = Script.setInterval(function() {
             seconds--;
             Entities.callEntityServerMethod(timer, "textUpdate", [seconds, true]);
             if (seconds === 0) {
-                Script.clearInterval(interval);
+                Script.clearInterval(intervalTimer);
+                intervalTimer = false;
             }
         }, ONE_SECOND_MS);
     }
@@ -671,17 +705,11 @@
                     case 'showAnswers':
                         showAnswers();
                         startTimer();
-                        tablet.emitScriptEvent("disable buttons");
                         Script.setTimeout(function() {
                             showCorrect();
+                            tablet.emitScriptEvent("re-enable");
                         }, TEN_SECONDS_MS);
                         break;
-                    case 'showCorrect':
-                        showCorrect();
-                        break;
-                    case 'clearBoard':
-                        clearBoard();
-                        break;  
                     default:
                         print(JSON.stringify(event));
                         print("error in detecting event.type");
@@ -698,18 +726,23 @@
     function appEnding() {
         if (intervalBoard) {
             Script.clearInterval(intervalBoard);
+            intervalBoard = false;
         }
         Messages.unsubscribe(TRIVIA_CHANNEL);
         clearGame(); 
         button.clicked.disconnect(onClicked);
         tablet.removeButton(button);
-        AvatarManager.avatarRemovedEvent.disconnect(function(){
-            updateAvatarCounter(false);
-        });
+        AvatarManager.avatarRemovedEvent.disconnect(updateCountOnAvatarRemoved);
         tablet.screenChanged.disconnect(onScreenChanged);
         tablet.webEventReceived.disconnect(onWebEventReceived);
         Users.usernameFromIDReply.disconnect(setUserName);
     }
+
+
+    function updateCountOnAvatarRemoved(){
+        updateAvatarCounter(false);
+    }
+
 
     this.unload = function() {
         clearGame();
@@ -718,9 +751,7 @@
 
     findTargets();
     Messages.subscribe(TRIVIA_CHANNEL);
-    AvatarManager.avatarRemovedEvent.connect(function(){
-        updateAvatarCounter(false);
-    });
+    AvatarManager.avatarRemovedEvent.connect(updateCountOnAvatarRemoved);
     Users.usernameFromIDReply.connect(setUserName);
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);

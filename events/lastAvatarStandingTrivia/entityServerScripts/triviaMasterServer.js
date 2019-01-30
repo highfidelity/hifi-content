@@ -40,6 +40,7 @@
         "deleteValidator",
         "checkAnswer",
         "loseCoins",
+        "stopSound",
         "winCoins",
         "halfHFC",
         "plusHFC",
@@ -718,6 +719,12 @@
 
     this.deleteValidator = function(id, params){
         Entities.deleteEntity(params[0]);
+    };
+
+    this.stopSound = function(id) {
+        if (injector) {
+            injector.stop();
+        }
     };
 
     this.playSound = function(id, sound) {
