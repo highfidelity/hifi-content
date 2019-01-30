@@ -38,6 +38,7 @@
     var METAVERSE_BASE = Account.metaverseServerURL;
     var BALANCE_URL = METAVERSE_BASE + '/api/v1/commerce/balance';
 
+    // Options request uses
     var options = {};
     options.uri = BALANCE_URL;
     options.method = "POST";
@@ -46,7 +47,7 @@
     // Before the user pays, check to see what their current balance is
     function getFirstBalance() {
         // This is so we don't start the process again if the user has clicked and we haven't finished going through
-        // getting the updated balance process.  This flag gets set back to false when the entire balance check sequence ends
+        // getting the updated balance process.  This flag gets set back to false when the entire balance check sequence ends.
         if (receivedFirstBalance) {
             return;
         }
@@ -54,15 +55,15 @@
     }
 
 
-    // Now that we have the first balance, we initiate getting the second balance
+    // When we have the first balance, we initiate getting the second balance
     function getSecondBalance() {
         request(options, getSecondBalanceCallBack);
     }
 
 
     // Callback that is run after we request the first balance
-    var TIME_TILL_SECOND_BALANCE_CHECK_TIMEOUT_AMOUNT_MS = 2500;
-    var MAXIMUM_FIRST_BALANCE_RETRIES = 5; 
+    var TIME_TILL_SECOND_BALANCE_CHECK_TIMEOUT_MS = 2500;
+    var MAXIMUM_FIRST_BALANCE_RETRIES = 5;
     var FIRST_BALANCE_CHECK_INTERVAL = 250;
     var firstBalanceRetryCount = 0;
     var receivedFirstBalance = false;
@@ -90,7 +91,7 @@
 
         Script.setTimeout(function(){
             getSecondBalance();
-        }, TIME_TILL_SECOND_BALANCE_CHECK_TIMEOUT_AMOUNT_MS);
+        }, TIME_TILL_SECOND_BALANCE_CHECK_TIMEOUT_MS);
     }
 
 
@@ -100,7 +101,7 @@
     var secondBalanceRetryCount = 0;
     var secondBalance = null;
     function getSecondBalanceCallBack(error, result) {
-        // The payment went through or we have hit the maximum amount of tries so return
+        // The payment went through or we have hit the maximum amount of tries so return and reset balance related data
         if (didThePaymentGoThrough() || secondBalanceRetryCount >= MAXIMUM_SECOND_BALANCE_RETRIES) {
             resetBalanceChecks();
             return;
@@ -116,6 +117,7 @@
 
         secondBalance = result.data.balance;
         if (didThePaymentGoThrough()) {
+            // The balance has gone through correctly.  Reset ur balance data and start feedback animation.
             resetBalanceChecks();
             startFeedback();
             return;
@@ -141,13 +143,13 @@
             return true;
         }
 
-        // Just in case something strange happened in the last 10 seconds and their balance is now less than
+        // Just in case something strange happened in the last 10ish seconds and their balance is now less than
         // the target balance
         return false; 
     }
 
 
-    // Easy reset for the balance checks in case they click again
+    // Easy reset for the balance checks
     function resetBalanceChecks(){
         firstBalanceRetryCount = 0;
         secondBalanceRetryCount = 0;
@@ -182,7 +184,7 @@
     // #region ANIMATION
     
     
-    // Play a sound and return the audioinjector
+    // Play a local sound and return the audioinjector
     var audioOptions = {
         volume: 1.0,
         localOnly: true
@@ -197,7 +199,7 @@
     // As of V78, there are some issues with FBX animation playback.  Deleting the overlay and recreating again works very well though for a seamless experience
     function stopAnimation(){
         Overlays.deleteOverlay(tipJar);
-        createOverlay();
+        createTipJarOverlay();
     }
 
     
@@ -212,9 +214,7 @@
             lastFrame: 70,
             currentFrame: 0,
             allowTranslation: true,
-            loop: true,
-            fps: 30,
-            hold: true
+            fps: 30
         }
     };
     function playAnimation(){
@@ -258,7 +258,7 @@
         url: tipJarModel,
         visible: true
     };
-    function createOverlay() {
+    function createTipJarOverlay() {
         var currentPosition = Entities.getEntityProperties(_entityID, "position").position;
         tipJarProps.parentID = _entityID;
         tipJarProps.position = currentPosition;
@@ -289,7 +289,7 @@
     }
 
 
-    // Checks to see if the userData is updated
+    // Get the latest userData before initiating payment
     var userData = {};
     var previousUserData = {};
     var destinationName = null;
@@ -301,12 +301,12 @@
             previousUserData = "name" in userData ? userData : newUserData;
             userData = JSON.parse(newUserData);
 
-            // In case someone points something strange in for the number
+            // In case someone puts something strange in for the number
             if (typeof userData.hfcAmount !== "number") {
                 userData.hfcAmount = 1;
             }
 
-            // hfc shows on inventory that it gets rounded so go ahead and round the amount
+            // hfc shows on inventory that it gets rounded, so go ahead and round the amount to clear up any confusion
             hfcAmount = Math.round(userData.hfcAmount);
             destinationName = userData.destinationName;
             message = userData.message;
@@ -335,7 +335,7 @@
         _entityID = entityID;
         coinSound = SoundCache.getSound(COIN_SOUND_URL);
         clickSound = SoundCache.getSound(CLICK_SOUND_URL);
-        createOverlay();
+        createTipJarOverlay();
         getLatestUserData();
     }
 
