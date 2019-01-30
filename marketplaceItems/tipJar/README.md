@@ -12,3 +12,6 @@ Rez the tipjar and edit the userData to customize how the tip jar operates
 
 ## Links
 https://trello.com/c/UzXawXgg/38-tip-jar
+
+## Known issues
+- In HMD, opening the QML window in the tablet doesn't display the background correctly.
