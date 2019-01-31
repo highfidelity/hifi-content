@@ -16,153 +16,11 @@
 (function() {
 
     // *************************************
-    // START INIT
-    // *************************************
-    // #region INIT
-
-
-    var request = Script.require('../modules/request.js').request;
-        
-
-    // #endregion
-    // *************************************
-    // END INIT
-    // *************************************
-
-    // *************************************
     // START MONEY
     // *************************************
     // #region MONEY
     
-    var METAVERSE_BASE = Account.metaverseServerURL;
-    var BALANCE_URL = METAVERSE_BASE + '/api/v1/commerce/balance';
-
-    // Options request uses
-    var options = {};
-    options.uri = BALANCE_URL;
-    options.method = "POST";
-
-
-    // Before the user pays, check to see what their current balance is
-    var running = false;
-    function getFirstBalance() {
-        running = true;
-        request(options, getFirstBalanceCallBack);
-    }
-
-
-    // When we have the first balance, we initiate getting the second balance
-    function getSecondBalance() {
-        request(options, getSecondBalanceCallBack);
-    }
-
-
-    // Callback that is run after we request the first balance
-    var TIME_TILL_SECOND_BALANCE_CHECK_TIMEOUT_MS = 2500;
-    var MAXIMUM_FIRST_BALANCE_RETRIES = 5;
-    var FIRST_BALANCE_CHECK_INTERVAL = 250;
-    var firstBalanceRetryCount = 0;
-    var firstBalance = null;
-    function getFirstBalanceCallBack(error, result) {
-        // The user clicked during some part of the balance process
-        if (abortCurrentRunningProcess){
-            resetBalanceChecks();
-            return;
-        }
-
-        // We didn't get the first balance so gracefully move on to the QML window and just ignore the feedback
-        // As the user will get feedback already from the default sendTip process
-        if (firstBalanceRetryCount >= MAXIMUM_FIRST_BALANCE_RETRIES) {
-            running = false;
-            sendTip(hfcAmount, destinationName, message);
-            return;
-        }
-
-        // There was an error of some kind so retry. 
-        if (error || result.status !== "success"){
-            firstBalanceRetryCount++;
-            Script.setTimeout(function(){
-                request(options, getFirstBalanceCallBack);
-            }, FIRST_BALANCE_CHECK_INTERVAL);
-            return;
-        }
-
-        // We got the balance so call the commerce api and start calling for the second balance
-        firstBalance = result.data.balance;
-        firstBalanceRetryCount = 0;
-        sendTip(hfcAmount, destinationName, message);
-        Script.setTimeout(function(){
-            if (abortCurrentRunningProcess){
-                resetBalanceChecks();
-                return;
-            }
-            getSecondBalance();
-        }, TIME_TILL_SECOND_BALANCE_CHECK_TIMEOUT_MS);
-    }
-
-
-    // Called after we got the first balance to see if the tip went through
-    var MAXIMUM_SECOND_BALANCE_RETRIES = 7;
-    var SECOND_BALANCE_CHECK_INTERVAL = 1000;
-    var secondBalanceRetryCount = 0;
-    var secondBalance = null;
-    function getSecondBalanceCallBack(error, result) {
-        // The user clicked during some part of the balance process
-        if (abortCurrentRunningProcess){
-            resetBalanceChecks();
-            return;
-        }
-
-        // We have hit the maximum amount of tries so return and reset balance related data
-        if (secondBalanceRetryCount >= MAXIMUM_SECOND_BALANCE_RETRIES) {
-            running = false;
-            resetBalanceChecks();
-            return;
-        }
-
-        // There was an error fetching, retry
-        if (error || result.status !== "success"){
-            secondBalanceRetryCount++;
-            Script.setTimeout(function(){
-                request(options, getSecondBalanceCallBack);
-            }, SECOND_BALANCE_CHECK_INTERVAL);
-            return;
-        }
-
-        // The balance has gone through correctly.  Reset ur balance data and start feedback animation.
-        secondBalance = result.data.balance;
-        if (didThePaymentGoThrough()) {
-            running = false;
-            resetBalanceChecks();
-            startFeedback();
-            return;
-        }
-
-        // Second balance isn't the right amount, trying again
-        secondBalanceRetryCount++;
-        Script.setTimeout(function(){
-            request(options, getSecondBalanceCallBack);
-        }, SECOND_BALANCE_CHECK_INTERVAL);
-    }
-
-
-    // Check to see if the payment went through by examining the two balances
-    function didThePaymentGoThrough(){
-        var targetBalance = firstBalance - hfcAmount;
-        return secondBalance === targetBalance;
-    }
-
-
-    // Easy reset for the balance checks
-    function resetBalanceChecks(){
-        firstBalanceRetryCount = 0;
-        secondBalanceRetryCount = 0;
-        firstBalance = null;
-        secondBalance = null;
-        abortCurrentRunningProcess = false;
-    }
-
-
+  
     // This function will open a user's tablet and prompt them to pay for VIP status.
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
     function sendTip(hfcAmount, destinationName, message) {
@@ -200,7 +58,8 @@
     }
     
 
-    // As of V78, there are some issues with FBX animation playback.  Deleting the overlay and recreating again works very well though for a seamless experience
+    // As of V78, there are some issues with FBX animation playback.  
+    // Deleting the overlay and recreating again works very well though for a seamless experience
     function stopAnimation(){
         Overlays.deleteOverlay(tipJar);
         createTipJarOverlay();
@@ -347,21 +206,11 @@
 
     // Main user interaction handler
     var clickInjector = null;
-    var abortCurrentRunningProcess = false;
-    var ABORT_TIMEOUT_MS = 1000;
     function userClicked() {
         clickInjector = playAudio(clickSound);
         getLatestUserData();
-        if (running){
-            abortCurrentRunningProcess = true;
-            // Give a little time to make sure there aren't any callbacks still running.
-            // The QML window will come after.
-            Script.setTimeout(function(){
-                getFirstBalance();
-            }, ABORT_TIMEOUT_MS);
-            return;
-        }
-        getFirstBalance();
+        sendTip(hfcAmount, destinationName, message);
+        startFeedback();
     }
 
 
