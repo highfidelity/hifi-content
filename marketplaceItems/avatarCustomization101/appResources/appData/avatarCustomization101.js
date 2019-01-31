@@ -2,17 +2,94 @@
 
     // Modules
     var AppUi = Script.require("appUi"),
-        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v1"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1"));
+        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v1234"),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123"));
 
 
-    var DEBUG = false;
+    var DEBUG = true;
+
+    // #region MIRROR FUNCTIONS
+
+    var MIRROR_DISTANCE_M = 0.5;
+    var MIRROR_DISTANCE_BLENDSHAPES_M = 0.3; // mirror is closer when looking at your face
+
+    var mirrorID;
+
+    function spawnMirror() {
+        // create mirrror parent to avatar
+        // set to default distance
+
+        // if tab is blendshapes setMirrorDistanceToBlendshapes()
+    }
+
+    function setMirrorDistanceToDefault() {
+        // edit mirror properties to set mirror distance to MIRROR_DISTANCE_M
+
+    }
+
+    function setMirrorDistanceToBlendshapes() {
+        // edit mirror properties to set mirror distance to MIRROR_DISTANCE_BLENDSHAPES_M
+    }
+
+    function deleteMirror() {
+        // Delete mirror entity 
+        // set mirrorID to null
+    }
+
+    // #endregion MIRROR FUNCTIONS
+
+    // #region AVATAR FUNCTIONS
+
+    function bookmarkAvatar() {
+        // AvatarApp.favoriteAvatar with equippables
+        // saveAvatar()
+    }
+
+    function saveAvatarAndChangeToAvi() {
+        // getAvatarInfo
+        // Save Avatar information via Settings
+        //      !idea if there's already avatar information in the Settings (and different than curr)
+        //      should we have a prompt that asks if they want to overwrite this avatar info
+        // Change Avatar to Avi ()
+    }
+
+    function restoreAvatar() {
+        // if avatarInfo exists in Settings
+        //      changeAvatarToSaved();
+        //      !idea (save the customizations you've made to Avi? OR go back to default)
+        // else
+        //      emit alert "cannot find old avatar info"
+    }
+
+    function changeAvatarToSaved() {
+        // set user's avatar to the Settings avatar info / or through the Avatar Favorite ?
+    }
+
+    function changeAvatarToAvi() {
+        // set avatar to Avi.fst
+        // dataStore.isAvi = true;
+    }
+
+    function isAviYourCurrentAvatar() {
+        // returns a boolean
+        // return if MyAvatar url === avi.fst hosted url
+    }
+
+    // #endregion AVATAR FUNCTIONS
+
 
     // #region APP
 
     // App variables
     var UPDATE_UI = CONFIG.UPDATE_UI;
     var BUTTON_NAME = CONFIG.BUTTON_NAME;
+    var APP_NAME = CONFIG.APP_NAME;
+
+    // Static strings
+    var STRING_MATERIAL = CONFIG.STRING_MATERIAL,
+        STRING_BLENDSHAPES = CONFIG.STRING_BLENDSHAPES,
+        STRING_ANIMATION = CONFIG.STRING_ANIMATION,
+        STRING_FLOW = CONFIG.STRING_FLOW;
 
     // UI variables
     var ui;
@@ -112,18 +189,13 @@
         // EventBridge message from HTML script.
 
         // Check against EVENT_NAME to ensure we're getting the correct messages from the correct app
-        if (!data.type || data.type.indexOf(EVENT_NAME) === -1) {
+        if (!data.type || data.type.indexOf(APP_NAME) === -1) {
             if (DEBUG) {
                 print("Event type event name index check: ", !data.type, data.type.indexOf(EVENT_NAME) === -1);
             }
             return;
         }
-        data.type = data.type.replace(EVENT_NAME, "");
-
-        if (DEBUG) {
-            print("Event type replace name:", "'", data.type, "' & '", VOTE_AVATAR, "'");
-            print("Event type replace name: ", data.type === VOTE_AVATAR);
-        }
+        data.type = data.type.replace(APP_NAME, "");
 
         switch (data.type) {
             case EVENT_BRIDGE_OPEN_MESSAGE:
@@ -131,7 +203,7 @@
                     print("onMessage: ", EVENT_BRIDGE_OPEN_MESSAGE);
                 }
 
-                // updateUi();
+                updateUI();
 
                 break;
             case EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR:

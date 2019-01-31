@@ -29,10 +29,16 @@ var CONFIG = {
     EVENT_UPDATE_BLENDSHAPE: "updateBlendshape",
     EVENT_UPDATE_FLOW: "updateFlow",
     EVENT_UPDATE_ANIMATION: "updateAnimation",
-    EVENT_CHANGE_TAB: "changeTab"
+    EVENT_CHANGE_TAB: "changeTab",
+
+    // Static strings
+    STRING_MATERIAL: "material",
+    STRING_BLENDSHAPES: "blendshapes",
+    STRING_ANIMATION: "animation",
+    STRING_FLOW: "flow"
 
 };
 
-if (module) {
+if (module !== undefined) {
     module.exports = CONFIG;
 }
