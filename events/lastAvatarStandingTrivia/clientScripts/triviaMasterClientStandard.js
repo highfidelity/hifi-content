@@ -19,9 +19,10 @@
         TABLET_BUTTON_IMAGE = Script.resolvePath('../entities/icons/questionMark-i.png'),
         TABLET_BUTTON_PRESSED = Script.resolvePath('../entities/icons/questionMark-a.png'),
         GSHEET_TAB_NAME = "Halloween",
-        SEARCH_RADIUS = 100,
-        ONE_SECOND_MS = 1000,
-        TEN_SECONDS_MS = 10000,
+        SEARCH_RADIUS = 1000,
+        ONE_SECOND_MS = 1000;
+    var FIVE_SECONDS = 5 * ONE_SECOND_MS,
+        TEN_SECONDS_MS = 10 * ONE_SECOND_MS,
         ZONE_COLOR_INDEX = 19,
         HALF_MULTIPLIER = 0.5,
         FIRST_WAIT_TO_COUNT_AVATARS = 1500,
@@ -139,19 +140,58 @@
     })();
 
     function begin() {
-        findTargets();
-        bubbleOn();
-        prizeCalculator("new game");
-        if (!introPlayed) {
-            Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['GAME_INTRO']);
-            introPlayed = true;
+        if (Entities.serversExist()) {
+            try {
+                if (findTargets()){
+                    bubbleOn();
+                    prizeCalculator("new game");
+                    if (!introPlayed) {
+                        Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['GAME_INTRO']);
+                        introPlayed = true;
+                    } else {
+                        Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEW_GAME_SFX']);
+                    }
+                    Entities.callEntityServerMethod(gameZoneProperties.id, "stopConfetti");
+                    lights.forEach(function(light) {
+                        Entities.callEntityServerMethod(light, "lightsOn");
+                    }); 
+                } else {
+                    var data = {"error message": "found no targets"};
+                    data.application = "trivia";
+                    tablet.emitScriptEvent(JSON.stringify(data));
+                }
+                
+            } catch (e) {
+                console.log(e, "error finding targets");
+                var data = {"error message": e};
+                data.application = "trivia";
+                tablet.emitScriptEvent(JSON.stringify(data));
+            }
         } else {
-            Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEW_GAME_SFX']);
+            Script.setTimeout(function(){
+                try {
+                    findTargets();
+                    bubbleOn();
+                    prizeCalculator("new game");
+                    if (!introPlayed) {
+                        Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['GAME_INTRO']);
+                        introPlayed = true;
+                    } else {
+                        Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEW_GAME_SFX']);
+                    }
+                    Entities.callEntityServerMethod(gameZoneProperties.id, "stopConfetti");
+                    lights.forEach(function(light) {
+                        Entities.callEntityServerMethod(light, "lightsOn");
+                    }); 
+                    
+                } catch (e) {
+                    console.log(e, "error finding targets");
+                    var data = {"error message": e};
+                    data.application = "trivia";
+                    tablet.emitScriptEvent(JSON.stringify(data));
+                }
+            }, FIVE_SECONDS);
         }
-        Entities.callEntityServerMethod(gameZoneProperties.id, "stopConfetti");
-        lights.forEach(function(light) {
-            Entities.callEntityServerMethod(light, "lightsOn");
-        }); 
     }
 
     function bubbleOn() {
@@ -187,9 +227,20 @@
         category = null;
         difficulty = null;
     }
-  
+    
     function findTargets() {
         Entities.findEntities(MyAvatar.position, SEARCH_RADIUS).forEach(function(element) {
+            var hasServerScript = Entities.getEntityProperties(element, ['serverScripts']).serverScript;
+            if (hasServerScript !== "") {
+                Entities.getServerScriptStatus(element, (function() {
+                    return function(success, isRunning, status, errorInfo) {
+                        if (!success || !isRunning) {
+                            console.log("Script not running:", element, success, isRunning, status, errorInfo, JSON.stringify(hasServerScript));
+                            Entities.reloadServerScripts(element);
+                        }
+                    };
+                })());
+            }
             var name = Entities.getEntityProperties(element, ['name']).name;
             if (name.indexOf("Trivia") !== -1) {
                 if (name.indexOf("Light") !== -1) {
@@ -232,9 +283,11 @@
                             break;                            
                         case "Trivia Bubble":
                             bubble = element;
+
                             break;                        
                         case "Trivia Choice Letter Blue Board":
                             letter[0] = element;
+
                             break;
                         case "Trivia Choice Letter Green Board":
                             letter[1] = element;
@@ -242,7 +295,8 @@
                     }
                 }
             }
-        });
+        }); 
+        return true;
     }
 
     function onClicked() { 
@@ -251,18 +305,20 @@
         } else {
             tablet.gotoWebScreen(appPage);  
             Script.setTimeout(function(){
-                if (triviaData.length !== 0 && !useGoogle) {
-                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
-                    tablet.emitScriptEvent("gameInProgress");   
-                } else if (bubbleState === true && !useGoogle) {
-                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
-                    tablet.emitScriptEvent("noQuestionPosted");  
-                } else if (triviaData.length !== 0 && useGoogle) {
-                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
-                    tablet.emitScriptEvent("gameInProgressCustom");  
-                } else if (bubbleState === true && useGoogle) {
-                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
-                    tablet.emitScriptEvent("noQuestionPostedCustom");  
+                if (triviaData) {
+                    if (triviaData.length !== 0 && !useGoogle) {
+                        tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                        tablet.emitScriptEvent("gameInProgress");   
+                    } else if (bubbleState === true && !useGoogle) {
+                        tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                        tablet.emitScriptEvent("noQuestionPosted");  
+                    } else if (triviaData.length !== 0 && useGoogle) {
+                        tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                        tablet.emitScriptEvent("gameInProgressCustom");  
+                    } else if (bubbleState === true && useGoogle) {
+                        tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                        tablet.emitScriptEvent("noQuestionPostedCustom");  
+                    }
                 }
             }, 500);
         }
@@ -335,6 +391,7 @@
 
     function showQuestion() {
         clearBoard();
+        var formattedQuestion;
         Script.setTimeout(function() {
             choiceTexts.forEach(function(choice) {
                 Entities.callEntityServerMethod(choice, "textUpdate", ["", true]);
@@ -342,9 +399,9 @@
             Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", true]);
             Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", true]);
             if (useGoogle) {
-                var formattedQuestion = triviaData.question;
+                formattedQuestion = triviaData.question;
             } else {
-                var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
+                formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
             }
             Entities.callEntityServerMethod(questionText, "textUpdate", [formattedQuestion, true]);
             Entities.callEntityServerMethod(answerText, "textUpdate", ["", false]);
@@ -654,7 +711,7 @@
 
             Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
         } else {
-            formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
+            var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
             correctColor = null;
             choiceTexts.forEach(function(textEntity) {
                 var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
@@ -713,8 +770,7 @@
                                     GSHEET_TAB_NAME = answer;
                                 }
                                 break;
-                            case "Misc. Catalog":
-                                useGoogle = true;
+                            case "Misc. Catalog":                                
                                 var answer = Window.prompt("URL of your GSheets script?", "");
                                 if (answer === "") {
                                     print("User canceled");
@@ -724,6 +780,7 @@
                                     if (answer === "") {
                                         print("User canceled");
                                     } else {
+                                        useGoogle = true;
                                         GSHEET_TAB_NAME = answer;
                                     }
                                 }
