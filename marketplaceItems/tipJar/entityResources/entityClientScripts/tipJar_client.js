@@ -228,7 +228,7 @@
 
 
     // Start both the animation and play the sound when the coin drops into the money
-    var TIMEOUT_FOR_COIN_DROP_AUDIO = 2000;
+    var TIMEOUT_FOR_COIN_DROP_AUDIO = 1750;
     var coinInjector = null;
     function startFeedback(){
         playAnimation();
@@ -354,7 +354,8 @@
         getLatestUserData();
         if (running){
             abortCurrentRunningProcess = true;
-            // Give a little time for the other calls to clear before proceding.
+            // Give a little time to make sure there aren't any callbacks still running.
+            // The QML window will come after.
             Script.setTimeout(function(){
                 getFirstBalance();
             }, ABORT_TIMEOUT_MS);
