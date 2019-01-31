@@ -12,13 +12,16 @@
     var _this,
         bubble,
         gameOn,
+        injector,
         gameZone;
     
     var DISQUALIFIED_POSITION = Script.require(Script.resolvePath('../clientScripts/triviaInfo.json')).DISQUALIFIED_POSITION,
         HALF_MULTIPLIER = 0.5,
         ZONE_SQUARE_RADIUS = 1.5,
         RADIUS = 50,
-        RANGE = 5;
+        RANGE = 5,
+        AUDIO_VOLUME = 0.5,
+        SOUND = SoundCache.getSound(Script.resolvePath('../entities/sounds/wrong-local.wav'));
 
     var ColorCheck = function(){
         _this = this;
@@ -40,6 +43,21 @@
             }, 15000);
         },
         
+        playSound: function(sound, localOnly){
+            if (sound.downloaded) {
+                if (injector) {
+                    injector.stop();
+                }
+                injector = Audio.playSound(sound, {
+                    position: MyAvatar.position,
+                    volume: AUDIO_VOLUME,
+                    localOnly: localOnly
+                });
+            } else {
+                console.log("no sound downloaded");
+            }
+        },
+
         isAvatarInsideZone: function(position, zoneProperties) {
             var localPosition = Vec3.multiplyQbyV(Quat.inverse(zoneProperties.rotation),
                 Vec3.subtract(position, zoneProperties.position));
@@ -89,8 +107,9 @@
         ejectUser: function() {
             gameOn = bubble.visible;
             if (gameOn === true && _this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
-                MyAvatar.orientation = { x: 0, y: 0, z: 0 };
+                MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
                 MyAvatar.position = DISQUALIFIED_POSITION;
+                _this.playSound(SOUND, true);
                 try {
                     var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, RANGE);
                     for (var i = 0; i < playerValidator.length; i++){

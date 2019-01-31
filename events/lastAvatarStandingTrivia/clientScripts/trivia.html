@@ -12,32 +12,41 @@
         <div id="title">
             <h1 class="size48">LAST<span> AVATAR </span>STANDING</h1>
         </div>
-        <input type="button" class="gray" id="begin" value="NEW GAME">
+        <input type="button" class="green" id="begin" value="NEW GAME">
         <input type="button" class="red" id="end" disabled=true value="END GAME">
-        <h2>Pick a Question!</h2>
+        <h4>Choose Question Details (Optional) <br>& Click 'New Question'</h4>
+        
         <div class="dropdown">
-            <input type="button" id="selectedType" onclick="toggleMenu('typeDropdown')" class="gray" disabled = true value="Any Type   &#9660;">
+            <input type="button" class="blue" id="catalog" onclick="toggleMenu('databasedropdown')" disabled = true value="Default Catalog    &#9660;">
+            <ul class="dropdown-database">
+                <div id="databasedropdown" class="dropdown-items">
+                    <li>Default Catalog</li>
+                    <li>Custom Catalog</li>
+                    <li>Misc. Catalog</li>
+                </div>
+            </ul>
+            <input type="button" id="selectedType" onclick="toggleMenu('typedropdown')" class="blue" disabled = true value="Any Type   &#9660;">
             <ul class="dropdown-type">
-                <div id="typeDropdown" class="dropdown-items">
+                <div id="typedropdown" class="dropdown-items">
                     <li>Any Type</li>
                     <li>Multiple Choice</li>
                     <li>True or False</li>
                 </div>
             </ul>
             <br>
-            <input type="button" id="selectedDifficulty" onclick="toggleMenu('difficultyDropdown')" class="gray" disabled = true value="Any Difficulty   &#9660;">
+            <br>
+            <input type="button" id="selectedDifficulty" onclick="toggleMenu('difficultydropdown')" class="blue" disabled = true value="Level   &#9660;">
             <ul class="dropdown-difficulty">
-                <div id="difficultyDropdown" class="dropdown-items">
-                    <li>Any Difficulty</li>
+                <div id="difficultydropdown" class="dropdown-items">
+                    <li>Any</li>
                     <li>Easy</li>
                     <li>Medium</li>
                     <li>Hard</li>
                 </div>
             </ul>
-            <br>
-            <input type="button" id="selectedCategory" onclick="toggleMenu('categoryDropdown')" class="gray" disabled = true value="Any Category   &#9660;">
+            <input type="button" id="selectedCategory" onclick="toggleMenu('categorydropdown')" class="blue" disabled = true value="Any Category   &#9660;">
             <ul class="dropdown-category">
-                <div id="categoryDropdown" class="dropdown-items">
+                <div id="categorydropdown" class="dropdown-items">
                     <li value="">Any Category</li>
                     <li value="9">General Knowledge</li>
                     <li value="10">Books</li>
@@ -65,20 +74,22 @@
                 </div>
             </ul>
             <br>
+            <br>
         </div>
 
-        <input type="button" class="gray" id="newQuestion" disabled = true value="New Question">
+        <input type="button" class="green" id="newQuestion" disabled = true value="New Question">
         <p>
         <div id="question">
-            Your question will show here for preview. Make sure the question and answers do not have special 
-            characters and answers should not be longer than about 2/3 of this line.
+            The question will show here for preview.  <br><br>
+             * Try to avoid showing questions if either the question or answers use special characters.  <br><br>
+             ** Each answer should fit on a single line, as shown below.
         </div>
         <p>
-        <input type="button" class="gray" id="showQuestion" disabled = true value="Show This Question">
-        <input type="button" class="gray" id="showAnswers" disabled = true value="Start The Clock!">
+        <input type="button" class="green" id="showQuestion" disabled = true value="Show This Question">
+        <input type="button" class="green" id="showAnswers" disabled = true value="Start The Clock!">
         <p>
         <div id="answer">
-            Answer options will appear here.
+            Answer text should be no longer than this sentence.
         </div>
         <br>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -88,7 +99,7 @@
             }        
             window.onclick = function(event) {
                 if (!event.target.matches('#selectedType') && !event.target.matches('#selectedDifficulty')
-                    && !event.target.matches('#selectedCategory')) {
+                    && !event.target.matches('#selectedCategory') && !event.target.matches('#catalog')) {
                     var dropdowns = document.getElementsByClassName("dropdown-items");                    
                     var i;
                     for (i = 0; i < dropdowns.length; i++) {
@@ -100,7 +111,19 @@
                 }
             }
             function onScriptEventReceived(event) {
-                if (event === "re-enable") {
+                if (event === "newGame") {
+                    databaseButton.disabled = true;
+                    typeButton.disabled = true;
+                    diffButton.disabled = true;
+                    catButton.disabled = true;
+                    beginButton.disabled = false;
+                    endButton.disabled = true;
+                    newQButton.disabled = true;
+                    showQButton.disabled = true;
+                    answerButton.disabled = true;
+                } 
+                else if (event === "re-enable") {
+                    databaseButton.disabled = false;
                     typeButton.disabled = false;
                     diffButton.disabled = false;
                     catButton.disabled = false;
@@ -109,7 +132,20 @@
                     newQButton.disabled = false;
                     showQButton.disabled = true;
                     answerButton.disabled = true;
-                } else if (event === "gameInProgress"){
+                } 
+                else if (event === "gameInProgress") {
+                    typeButton.disabled = false;
+                    diffButton.disabled = false;
+                    catButton.disabled = false;
+                    databaseButton.disabled = false;
+                    beginButton.disabled = true;
+                    endButton.disabled = false;
+                    newQButton.disabled = false;
+                    showQButton.disabled = false;
+                    answerButton.disabled = true;
+                } 
+                else if (event === "noQuestionPosted") {
+                    databaseButton.disabled = false;
                     typeButton.disabled = false;
                     diffButton.disabled = false;
                     catButton.disabled = false;
@@ -118,7 +154,44 @@
                     newQButton.disabled = false;
                     showQButton.disabled = true;
                     answerButton.disabled = true;
-                } else {
+                } 
+                else if (event === "re-enableCustom") {
+                    databaseButton.value = "Custom Catalog" + "   \u25BC";
+                    databaseButton.disabled = false;
+                    typeButton.disabled = true;
+                    diffButton.disabled = true;
+                    catButton.disabled = true;
+                    beginButton.disabled = true;
+                    endButton.disabled = false;
+                    newQButton.disabled = false;
+                    showQButton.disabled = true;
+                    answerButton.disabled = true;
+                } 
+                else if (event === "gameInProgressCustom") {
+                    databaseButton.value = "Custom Catalog" + "   \u25BC";
+                    typeButton.disabled = true;
+                    diffButton.disabled = true;
+                    catButton.disabled = true;
+                    databaseButton.disabled = false;
+                    beginButton.disabled = true;
+                    endButton.disabled = false;
+                    newQButton.disabled = false;
+                    showQButton.disabled = false;
+                    answerButton.disabled = true;
+                } 
+                else if (event === "noQuestionPostedCustom") {
+                    databaseButton.value = "Custom Catalog" + "   \u25BC";
+                    databaseButton.disabled = false;
+                    typeButton.disabled = true;
+                    diffButton.disabled = true;
+                    catButton.disabled = true;
+                    beginButton.disabled = true;
+                    endButton.disabled = false;
+                    newQButton.disabled = false;
+                    showQButton.disabled = true;
+                    answerButton.disabled = true;
+                } 
+                else {
                     try{
                         triviaData = JSON.parse(event);
                         console.log(event);
@@ -137,9 +210,27 @@
                                 document.getElementById("answer").innerHTML = triviaData.correct_answer;
                             }
                         } else if ("response_code" in triviaData) {
-                            document.getElementById("question").innerHTML = "Response: " + triviaData["response_code"] + " Check your trivia database or HiFi Admin, something is clearly wrong";
+                            document.getElementById("question").innerHTML = "Response: " + triviaData["response_code"] + " Check with your trivia database or HiFi Admin, something is clearly wrong";
+                            databaseButton.disabled = true;
+                            typeButton.disabled = true;
+                            diffButton.disabled = true;
+                            catButton.disabled = true;
+                            beginButton.disabled = false;
+                            endButton.disabled = true;
+                            newQButton.disabled = true;
+                            showQButton.disabled = true;
+                            answerButton.disabled = true;
                         } else {
-                            document.getElementById("question").innerHTML = "Check your trivia database or HiFi Admin, something is clearly wrong";
+                            document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
+                            databaseButton.disabled = true;
+                            typeButton.disabled = true;
+                            diffButton.disabled = true;
+                            catButton.disabled = true;
+                            beginButton.disabled = false;
+                            endButton.disabled = true;
+                            newQButton.disabled = true;
+                            showQButton.disabled = true;
+                            answerButton.disabled = true;
                         }       
                     } catch (e){
                         console.log(e, "error");
@@ -151,6 +242,7 @@
                 EventBridge.scriptEventReceived.connect(onScriptEventReceived);
             });
 
+            var databaseButton = document.getElementById("catalog");
             var typeButton = document.getElementById("selectedType");
             var diffButton = document.getElementById("selectedDifficulty");
             var catButton = document.getElementById("selectedCategory");
@@ -164,15 +256,17 @@
                     app: 'trivia',
                     type: "begin"
                 };
+                databaseButton.disabled = false;
                 typeButton.disabled = false;
                 diffButton.disabled = false;
                 catButton.disabled = false;
                 beginButton.disabled = true;
                 endButton.disabled = false;
                 newQButton.disabled = false;
-                document.getElementById('question').innerHTML = "Your question will show here for preview. Make sure the question and answers do not have special \
-                    characters and answers should not be longer than about 2/3 of this line.";
-                document.getElementById('answer').innerHTML = "Answer options will appear here."
+                document.getElementById('question').innerHTML = "The question will show here for preview.  <br><br> \
+                 * Try to avoid showing questions if either the question or answers use special characters.  <br><br> \
+                 ** Each answer should fit on a single line, as shown below.";
+                document.getElementById('answer').innerHTML = "Answer text should be no longer than this sentence."
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#end').click(function() {
@@ -180,6 +274,7 @@
                     app: 'trivia',
                     type: "end"
                 };
+                databaseButton.disabled = true;
                 typeButton.disabled = true;
                 diffButton.disabled = true;
                 catButton.disabled = true;
@@ -188,12 +283,35 @@
                 newQButton.disabled = true;
                 showQButton.disabled = true;
                 answerButton.disabled = true;
-                document.getElementById('question').innerHTML = "Your question will show here for preview. Make sure the question and answers do not have special \
-                    characters and answers should not be longer than about 2/3 of this line.";
-                document.getElementById('answer').innerHTML = "Answer options will appear here."
+                document.getElementById('question').innerHTML = "The question will show here for preview.  <br><br> \
+                 * Try to avoid showing questions if either the question or answers use special characters. <br><br> \
+                 ** Each answer should fit on a single line, as shown below.";
+                document.getElementById('answer').innerHTML = "Answer text should be no longer than this sentence."
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
-            $('#typeDropdown li').click(function() {
+            $('#databasedropdown li').click(function() {
+                document.getElementById('catalog').value=$(this).text() + "   \u25BC";
+                var event = {
+                        app: 'trivia',
+                        type: "catalog",
+                        value: $(this).text()
+                    };
+                if (document.getElementById('catalog').value === "Custom Catalog" + "   \u25BC") {
+                    typeButton.disabled = true;
+                    diffButton.disabled = true;
+                    catButton.disabled = true;
+                } else if (document.getElementById('catalog').value === "Misc. Catalog" + "   \u25BC") {
+                    typeButton.disabled = true;
+                    diffButton.disabled = true;
+                    catButton.disabled = true;
+                } else {
+                    typeButton.disabled = false;
+                    diffButton.disabled = false;
+                    catButton.disabled = false;
+                }
+                EventBridge.emitWebEvent(JSON.stringify(event));
+            });
+            $('#typedropdown li').click(function() {
                 document.getElementById('selectedType').value=$(this).text() + "   \u25BC";
                 var event = {
                         app: 'trivia',
@@ -202,7 +320,7 @@
                     };
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
-            $('#difficultyDropdown li').click(function() {
+            $('#difficultydropdown li').click(function() {
                 document.getElementById('selectedDifficulty').value=$(this).text() + "   \u25BC";
                 var event = {
                     app: 'trivia',
@@ -211,7 +329,7 @@
                 };
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
-            $('#categoryDropdown li').click(function() {
+            $('#categorydropdown li').click(function() {
                 document.getElementById('selectedCategory').value=$(this).text() + "   \u25BC";
                 var event = {
                     app: 'trivia',
@@ -221,9 +339,16 @@
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
             $('#newQuestion').click(function() {
-                typeButton.disabled = false;
-                diffButton.disabled = false;
-                catButton.disabled = false;
+                databaseButton.disabled = false;
+                if (document.getElementById('catalog').value !== "Default Catalog" + "   \u25BC") {
+                    typeButton.disabled = true;
+                    diffButton.disabled = true;
+                    catButton.disabled = true;
+                } else {
+                    typeButton.disabled = false;
+                    diffButton.disabled = false;
+                    catButton.disabled = false;
+                }
                 beginButton.disabled = true;
                 endButton.disabled = false;
                 newQButton.disabled = false;
@@ -240,6 +365,7 @@
                     app: 'trivia',
                     type: "showQuestion"                
                 };
+                databaseButton.disabled = true;
                 typeButton.disabled = true;
                 diffButton.disabled = true;
                 catButton.disabled = true;
@@ -254,7 +380,8 @@
                 var event = {
                     app: 'trivia',
                     type: "showAnswers"                
-                };
+                };                
+                databaseButton.disabled = true;
                 typeButton.disabled = true;
                 diffButton.disabled = true;
                 catButton.disabled = true;

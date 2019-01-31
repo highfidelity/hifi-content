@@ -2,8 +2,15 @@
 
 ### Release Notes:
 
+**January 31, 2019**
+Version 1.1:
+- Bug fixes 
+- Tablet App style and functionality updates.
+- Support for switching between custom databases.
+- Display board style updates
 **January, 7, 2019**
 Initial public release!
+
 
 ### Description
 
@@ -13,28 +20,14 @@ https://trello.com/c/MmYfxGsq/14-package-and-release-last-avatar-standing-trivia
 
 ### Custom Database Use
 
-If you wish to use a custom database for trivia events, you can insert the following code into triviaMasterClientStandard.js:
-Be sure to replace the <code>trivia_URL</code> and <code>GSHEET_TAB_NAME</code> with the URL of your google sheet and the tab name where your database is.
-    
-        function getQuestion() {
-            Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
-            try {
-                var triviaURL = SECRETS.trivia_URL,
-                triviaURL = triviaURL + "category=" + "GSHEET_TAB_NAME";
-                request(triviaURL, function (error, data) {
-                    if (!error) {
-                        console.log(JSON.stringify(data));
-                        tablet.emitScriptEvent(JSON.stringify(data));
-                        triviaData = data;
-                    }
-                });
-            } catch (err) {
-                console.log("err:", err);
-                print("Could not get domain data using userData domainAPIURL");
-            }
-        }
+If you wish to use a custom database for trivia events, you can follow the instructions below on setting up a Google Spreadsheet and script to be accessed by the application.  Once your database is ready, select the "Misc. Catalog" option in the Trivia Host app and copy your Google Apps Script URL into the first pop up, and the name of the sheet tab that contains your database on the second pop-up.
+
+Alternatively, if High Fidelity has a custom database set up for you, select "Custom Catalog" and enter the Google sheet tab name they gave you in the pop-up.
+
+You can switch databases at any time, but to re-enter custom or miscellaneous databases, you will need to copy in the correct information again.
 
 ### TO DO LIST
 
-1. Fix a possible bug where findTargets() fails to find all needed entities.
+1. Write up instructions on how to format a Google Sheets custom trivia database and Google script.
+2. Create an app loader that automatically loads the Host app in world.
 

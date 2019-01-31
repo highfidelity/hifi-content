@@ -14,6 +14,8 @@
     var MIN_RANGE = 5;
     var HALF_MULTIPLIER = 0.5;
     var TRIVIA_CHANNEL = Script.require(Script.resolvePath("../clientScripts/triviaInfo.json")).TRIVIA_CHANNEL;
+    var AUDIO_VOLUME = 0.5,
+        SOUND = SoundCache.getSound(Script.resolvePath('../entities/sounds/wrong-local.wav'));
 
     var currentZoneOverlayPosition;
     var currentZoneOverlay;
@@ -21,7 +23,8 @@
     var _this;
     var gameOn = false;
     var gameZone;
-    var bubble;
+    var injector,
+        bubble;
 
     var TriviaZone = function() {
         _this = this;
@@ -48,6 +51,21 @@
                     "Trivia Player Game Zone", MyAvatar.position, RANGE)[0], ['position', 'rotation', 'dimensions']);
             bubble = Entities.getEntityProperties(
                 Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
+        },
+
+        playSound: function(sound, localOnly){
+            if (sound.downloaded) {
+                if (injector) {
+                    injector.stop();
+                }
+                injector = Audio.playSound(sound, {
+                    position: MyAvatar.position,
+                    volume: AUDIO_VOLUME,
+                    localOnly: localOnly
+                });
+            } else {
+                console.log("no sound downloaded");
+            }
         },
 
         isAvatarInsideZone: function(position, zoneProperties) {
@@ -119,8 +137,9 @@
                 Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
             gameOn = bubble.visible;
             if (gameOn === true && _this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
-                MyAvatar.orientation = { x: 0, y: 0, z: 0 };
+                MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
                 MyAvatar.position = DISQUALIFIED_POSITION;
+                _this.playSound(SOUND, true);
                 try {
                     var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, MIN_RANGE);
                     for (var i = 0; i < playerValidator.length; i++){

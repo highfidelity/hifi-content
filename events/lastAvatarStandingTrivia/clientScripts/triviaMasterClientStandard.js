@@ -18,6 +18,7 @@
         GOOGLE_URL = SECRETS.GOOGLE_URL,
         TABLET_BUTTON_IMAGE = Script.resolvePath('../entities/icons/questionMark-i.png'),
         TABLET_BUTTON_PRESSED = Script.resolvePath('../entities/icons/questionMark-a.png'),
+        GSHEET_TAB_NAME = "Halloween",
         SEARCH_RADIUS = 100,
         ONE_SECOND_MS = 1000,
         TEN_SECONDS_MS = 10000,
@@ -42,6 +43,7 @@
     var open = false,
         intervalBoard,
         questionText,
+        triviaURL = "",
         choiceTexts = [],
         answerText,
         triviaData,
@@ -59,9 +61,11 @@
         avatarCounter,
         intervalTimer,
         bubble,
+        bubbleState = false,
         introPlayed = false,
         correctCount = null,
         prizeDisplay,
+        useGoogle = false,
         prizeMoney,
         winnerID = null,
         correctColor = null;
@@ -82,10 +86,12 @@
                 '&gt;': '>',
                 '&lt;': '<',
                 '&quot;': '"',
-                '&#39;': "'",
+                '&#039;': "'",
                 '&lsquo;': '"',
                 '&rsquo;': '"',
                 '&ldquo;': '"',
+                '&Uuml;': 'U',
+                '&uuml;': 'u',
                 '&rdquo;': '"',
                 '&eacute;': 'e',
                 '&prime;': '\'',
@@ -149,6 +155,7 @@
     }
 
     function bubbleOn() {
+        bubbleState = true;
         Entities.callEntityServerMethod(bubble, "bubbleOn");
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ 
             type: "game on" 
@@ -169,6 +176,7 @@
     }
 
     function bubbleOff() {
+        bubbleState = false;
         Entities.callEntityServerMethod(bubble, "bubbleOff");
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "game off" }));
         if (intervalBoard) {
@@ -242,41 +250,73 @@
             tablet.gotoHomeScreen(); 
         } else {
             tablet.gotoWebScreen(appPage);  
+            Script.setTimeout(function(){
+                if (triviaData.length !== 0 && !useGoogle) {
+                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                    tablet.emitScriptEvent("gameInProgress");   
+                } else if (bubbleState === true && !useGoogle) {
+                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                    tablet.emitScriptEvent("noQuestionPosted");  
+                } else if (triviaData.length !== 0 && useGoogle) {
+                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                    tablet.emitScriptEvent("gameInProgressCustom");  
+                } else if (bubbleState === true && useGoogle) {
+                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                    tablet.emitScriptEvent("noQuestionPostedCustom");  
+                }
+            }, 500);
         }
-        Script.setTimeout(function(){
-            console.log(JSON.stringify(triviaData));
-            tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
-            tablet.emitScriptEvent("gameInProgress");   
-        }, 200);
     }
 
     function getQuestion() {
         Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
-        try {
-            var triviaURL = "https://opentdb.com/api.php?amount=1";
-            if (type) {
-                triviaURL = triviaURL + "&type=" + type;
-            }
-            if (difficulty) {
-                triviaURL = triviaURL + "&difficulty=" + difficulty;
-            }
-            if (category) {
-                triviaURL = triviaURL + "&category=" + category;
-            }
-            request(triviaURL, function (error, data) {
-                if (!error) {
-                    console.log(JSON.stringify(data.results[0]));
-                    console.log(JSON.stringify(data.response_code));
-                    data.results[0].application = "trivia";
-                    tablet.emitScriptEvent(JSON.stringify(data.results[0]));
-                    triviaData = data.results;
-                } else {
-                    data.response_code.application = "trivia";
-                    tablet.emitScriptEvent(JSON.stringify(data.response_code));
+        if (useGoogle){
+            try {
+                if (triviaURL === "") {
+                    triviaURL = SECRETS.trivia_URL;
                 }
-            });
-        } catch (err) {
-            print("Could not get domain data using userData domainAPIURL");
+                triviaURL = triviaURL + "category=" + GSHEET_TAB_NAME;
+                request(triviaURL, function (error, data) {
+                    if (!error) {
+                        console.log(JSON.stringify(data));
+                        data.application = "trivia";
+                        tablet.emitScriptEvent(JSON.stringify(data));
+                        triviaData = data;
+                    } else {
+                        data.application = "trivia";
+                        tablet.emitScriptEvent(JSON.stringify(data));
+                    }
+                });
+            } catch (err) {
+                print("Could not get domain data using userData domainAPIURL");
+            }
+        } else {
+            try {
+                triviaURL = "https://opentdb.com/api.php?amount=1";
+                if (type) {
+                    triviaURL = triviaURL + "&type=" + type;
+                }
+                if (difficulty) {
+                    triviaURL = triviaURL + "&difficulty=" + difficulty;
+                }
+                if (category) {
+                    triviaURL = triviaURL + "&category=" + category;
+                }
+                request(triviaURL, function (error, data) {
+                    if (!error) {
+                        console.log(JSON.stringify(data.results[0]));
+                        console.log(JSON.stringify(data.response_code));
+                        data.results[0].application = "trivia";
+                        tablet.emitScriptEvent(JSON.stringify(data.results[0]));
+                        triviaData = data.results;
+                    } else {
+                        data.response_code.application = "trivia";
+                        tablet.emitScriptEvent(JSON.stringify(data.response_code));
+                    }
+                });
+            } catch (err) {
+                print("Could not get domain data using userData domainAPIURL");
+            }
         }
     }
 
@@ -301,47 +341,81 @@
             });
             Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", true]);
             Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", true]);
-            var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
-            // var formattedQuestion = triviaData.question;
+            if (useGoogle) {
+                var formattedQuestion = triviaData.question;
+            } else {
+                var formattedQuestion = htmlEnDeCode.htmlDecode(triviaData[0].question);
+            }
             Entities.callEntityServerMethod(questionText, "textUpdate", [formattedQuestion, true]);
             Entities.callEntityServerMethod(answerText, "textUpdate", ["", false]);
         }, WAIT_TO_SHOW_QUESTION);
     }
 
     function showAnswers() {
-        if (triviaData[0].type === "boolean") {
-            Entities.callEntityServerMethod(choiceTexts[0], "textUpdate", ["",false]);
-            Entities.callEntityServerMethod(choiceTexts[1], "textUpdate", ["True", true]);
-            Entities.callEntityServerMethod(choiceTexts[2], "textUpdate", ["False", true]);
-            Entities.callEntityServerMethod(choiceTexts[3], "textUpdate", ["", false]);
-            Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", false]);
-            Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", false]);
-            currentChoices = [];
-            currentChoices.push("True");
-            currentChoices.push("False");
-            lights.forEach(function(light) {
-                var lightName = Entities.getEntityProperties(light, 'name').name;
-                if ((lightName.indexOf("Green") !== -1) || (lightName.indexOf("Blue") !== -1)) {
-                    Entities.callEntityServerMethod(light, "lightsOff");
-                }
-            });
+        if (useGoogle) {
+            if (triviaData.type === "boolean") {
+                Entities.callEntityServerMethod(choiceTexts[0], "textUpdate", ["",false]);
+                Entities.callEntityServerMethod(choiceTexts[1], "textUpdate", ["True", true]);
+                Entities.callEntityServerMethod(choiceTexts[2], "textUpdate", ["False", true]);
+                Entities.callEntityServerMethod(choiceTexts[3], "textUpdate", ["", false]);
+                Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", false]);
+                Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", false]);
+                currentChoices = [];
+                currentChoices.push("True");
+                currentChoices.push("False");
+                lights.forEach(function(light) {
+                    var lightName = Entities.getEntityProperties(light, 'name').name;
+                    if ((lightName.indexOf("Green") !== -1) || (lightName.indexOf("Blue") !== -1)) {
+                        Entities.callEntityServerMethod(light, "lightsOff");
+                    }
+                });
+            } else {
+                currentChoices = [];
+                currentChoices.push(triviaData.correct_answer);
+                triviaData.incorrect_answers.forEach(function(choice) {
+                    currentChoices.push(choice);
+                });
+                shuffle(currentChoices);
+                currentChoices.forEach(function(choice, index) {
+                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice, true]);
+                });
+            }        
         } else {
-            currentChoices = [];
-            currentChoices.push(triviaData[0].correct_answer);
-            triviaData[0].incorrect_answers.forEach(function(choice) {
-                currentChoices.push(choice);
-            });
-            shuffle(currentChoices);
-            currentChoices.forEach(function(choice, index) {
-                Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice, true]);
-            });
-        }        
+            if (triviaData[0].type === "boolean") {
+                Entities.callEntityServerMethod(choiceTexts[0], "textUpdate", ["",false]);
+                Entities.callEntityServerMethod(choiceTexts[1], "textUpdate", ["True", true]);
+                Entities.callEntityServerMethod(choiceTexts[2], "textUpdate", ["False", true]);
+                Entities.callEntityServerMethod(choiceTexts[3], "textUpdate", ["", false]);
+                Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", false]);
+                Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", false]);
+                currentChoices = [];
+                currentChoices.push("True");
+                currentChoices.push("False");
+                lights.forEach(function(light) {
+                    var lightName = Entities.getEntityProperties(light, 'name').name;
+                    if ((lightName.indexOf("Green") !== -1) || (lightName.indexOf("Blue") !== -1)) {
+                        Entities.callEntityServerMethod(light, "lightsOff");
+                    }
+                });
+            } else {
+                currentChoices = [];
+                currentChoices.push(triviaData[0].correct_answer);
+                triviaData[0].incorrect_answers.forEach(function(choice) {
+                    currentChoices.push(choice);
+                });
+                shuffle(currentChoices);
+                currentChoices.forEach(function(choice, index) {
+                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice, true]);
+                });
+            }        
+        }
     }
 
     function clearGame() {
         correctCount = null;
         prizeMoney = 0;
         winnerID = null;
+        triviaData = [];
         if (intervalTimer){
             Script.clearTimeout(intervalTimer);
             intervalTimer = false;
@@ -354,10 +428,11 @@
         correctHighlights.forEach(function(highlight) {
             Entities.callEntityServerMethod(highlight, "lightsOff");
         });
-        Entities.callEntityServerMethod(questionText, "textUpdate", ["Questions will appear here", true]);
+        Entities.callEntityServerMethod(questionText, "textUpdate", ["Questions will appear here.", true]);
         choiceTexts.forEach(function(choice) {
-            Entities.callEntityServerMethod(choice, "textUpdate", ["Answers appear here", true]);
+            Entities.callEntityServerMethod(choice, "textUpdate", ["Answers will appear here.", true]);
         });
+        Entities.callEntityServerMethod(timer, "textUpdate", ["0", true]);
         Entities.callEntityServerMethod(letter[0], "textUpdate", ["C", true]);
         Entities.callEntityServerMethod(letter[1], "textUpdate", ["B", true]);
         Entities.callEntityServerMethod(answerText, "textUpdate", ["", true]);
@@ -438,9 +513,9 @@
                     Users.requestUsernameFromID(winnerID);
                     Script.setTimeout(function(){
                         clearGame();
-                        var winnerBanner = AvatarManager.getAvatar(winnerID).sessionDisplayName + " wins " + pot + "HFC!";
                         Entities.callEntityServerMethod(questionText, "textUpdate", [winnerBanner, true]);
                     }, 2 * ONE_SECOND_MS);
+                    tablet.emitScriptEvent("newGame");
                 }                
                 break;
         }   
@@ -526,12 +601,11 @@
         var correctColorZoneProperties = Entities.getEntityProperties(
             correctZoneColorID, 
             ["position", "dimensions", "rotation"]);
-        result = usersInZone(correctColorZoneProperties);  
-
+        result = usersInZone(correctColorZoneProperties);
         if (result === 1) {
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
-                if (avatar.sessionUUID) {
+                if (avatar.sessionUUID !== MyAvatar.sessionUUID) {
                     if (isPositionInsideBox(avatar.position, correctColorZoneProperties)) {
                         winnerID = avatar.sessionUUID;
                     }    
@@ -542,42 +616,81 @@
     }
 
     function showCorrect() {
-        var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
-        correctColor = null;
-        choiceTexts.forEach(function(textEntity) {
-            var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
-            if (properties.text === htmlEnDeCode.htmlDecode(triviaData[0].correct_answer)) {
-                var color = properties.name.substr(ZONE_COLOR_INDEX);
-                correctColor = color;
-            }
-        });
-        lights.forEach(function(light) {
-            var lightName = Entities.getEntityProperties(light, 'name').name;
-            if (lightName.indexOf(correctColor) === -1) {
-                Entities.callEntityServerMethod(light, "lightsOff");
-            }
-        });
-        correctHighlights.forEach(function(highlight) {
-            var highlightName = Entities.getEntityProperties(highlight, 'name').name;
-            if (highlightName.indexOf(correctColor) !== -1) {
+        if (useGoogle){
+            var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData.correct_answer);
+            correctColor = null;
+            choiceTexts.forEach(function(textEntity) {
+                var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
+                if (properties.text === htmlEnDeCode.htmlDecode(triviaData.correct_answer)) {
+                    var color = properties.name.substr(ZONE_COLOR_INDEX);
+                    correctColor = color;
+                }
+            });
+            lights.forEach(function(light) {
+                var lightName = Entities.getEntityProperties(light, 'name').name;
+                if (lightName.indexOf(correctColor) === -1) {
+                    Entities.callEntityServerMethod(light, "lightsOff");
+                }
+            });
+            correctHighlights.forEach(function(highlight) {
+                var highlightName = Entities.getEntityProperties(highlight, 'name').name;
+                if (highlightName.indexOf(correctColor) !== -1) {
 
-                Entities.callEntityServerMethod(highlight, "lightsOn");
+                    Entities.callEntityServerMethod(highlight, "lightsOn");
+                }
+            });
+            var anyCorrect = isAnyAvatarCorrect(correctColor);
+            if (anyCorrect === 0) {
+                Script.setTimeout(function() {
+                    prizeCalculator("everyone wrong");
+                }, FIRST_WAIT_TO_COUNT_AVATARS);
+            } else {
+                Script.setTimeout(function() {
+                    Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
+                    correctCount = isAnyAvatarCorrect(correctColor);
+                    updateAvatarCounter(true);
+                }, FIRST_WAIT_TO_COUNT_AVATARS);
             }
-        });
-        var anyCorrect = isAnyAvatarCorrect(correctColor);
-        if (anyCorrect === 0) {
-            Script.setTimeout(function() {
-                prizeCalculator("everyone wrong");
-            }, FIRST_WAIT_TO_COUNT_AVATARS);
+
+            Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
         } else {
-            Script.setTimeout(function() {
-                Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
-                correctCount = isAnyAvatarCorrect(correctColor);
-                updateAvatarCounter(true);
-            }, FIRST_WAIT_TO_COUNT_AVATARS);
+            formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
+            correctColor = null;
+            choiceTexts.forEach(function(textEntity) {
+                var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
+                if (properties.text === htmlEnDeCode.htmlDecode(triviaData[0].correct_answer)) {
+                    var color = properties.name.substr(ZONE_COLOR_INDEX);
+                    correctColor = color;
+                }
+            });
+            lights.forEach(function(light) {
+                var lightName = Entities.getEntityProperties(light, 'name').name;
+                if (lightName.indexOf(correctColor) === -1) {
+                    Entities.callEntityServerMethod(light, "lightsOff");
+                }
+            });
+            correctHighlights.forEach(function(highlight) {
+                var highlightName = Entities.getEntityProperties(highlight, 'name').name;
+                if (highlightName.indexOf(correctColor) !== -1) {
+    
+                    Entities.callEntityServerMethod(highlight, "lightsOn");
+                }
+            });
+            anyCorrect = isAnyAvatarCorrect(correctColor);
+            if (anyCorrect === 0) {
+                Script.setTimeout(function() {
+                    prizeCalculator("everyone wrong");
+                }, FIRST_WAIT_TO_COUNT_AVATARS);
+            } else {
+                Script.setTimeout(function() {
+                    Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
+                    correctCount = isAnyAvatarCorrect(correctColor);
+                    updateAvatarCounter(true);
+                }, FIRST_WAIT_TO_COUNT_AVATARS);
+            }
+    
+            Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
         }
-
-        Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
     }
 
     function onWebEventReceived(event) {
@@ -585,6 +698,38 @@
             event = JSON.parse(event);
             if (event.app === 'trivia') {
                 switch (event.type) {
+                    case 'catalog':
+                        switch (event.value) {
+                            case "Default Catalog":
+                                useGoogle = false;
+                                break;
+                            case "Custom Catalog":
+                                useGoogle = true;
+                                triviaURL = SECRETS.trivia_URL;
+                                answer = Window.prompt("What is the tab name of the sheet to use?", "");
+                                if (answer === "") {
+                                    print("User canceled");
+                                } else {
+                                    GSHEET_TAB_NAME = answer;
+                                }
+                                break;
+                            case "Misc. Catalog":
+                                useGoogle = true;
+                                var answer = Window.prompt("URL of your GSheets script?", "");
+                                if (answer === "") {
+                                    print("User canceled");
+                                } else {
+                                    triviaURL = answer;
+                                    answer = Window.prompt("What is the tab name of the sheet to use?", "");
+                                    if (answer === "") {
+                                        print("User canceled");
+                                    } else {
+                                        GSHEET_TAB_NAME = answer;
+                                    }
+                                }
+                                break;
+                        }
+                        break;
                     case 'begin':
                         begin();
                         break;
@@ -707,7 +852,11 @@
                         startTimer();
                         Script.setTimeout(function() {
                             showCorrect();
-                            tablet.emitScriptEvent("re-enable");
+                            if (useGoogle) {
+                                tablet.emitScriptEvent("re-enableCustom");
+                            } else {
+                                tablet.emitScriptEvent("re-enable");
+                            }
                         }, TEN_SECONDS_MS);
                         break;
                     default:

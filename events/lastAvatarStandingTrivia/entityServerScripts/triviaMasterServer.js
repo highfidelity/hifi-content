@@ -413,7 +413,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:   Vec3.sum(coin.position, {x: -1, y: 3, z: 2}),
+            position:   Vec3.sum(coin.position, {x: -1, y: 3, z: -2}),
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -493,7 +493,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position: Vec3.sum(coin.position, {x: -1, y: 3, z: 2}),
+            position: Vec3.sum(coin.position, {x: -1, y: 3, z: -2}),
             dimensions: {
                 x: 0.15,
                 y: 0.15,

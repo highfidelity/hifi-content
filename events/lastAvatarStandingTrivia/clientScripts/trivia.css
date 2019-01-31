@@ -17,6 +17,14 @@ h1{
 	margin-top: 12px;
 }
 
+h4{
+	font-size: 20x;
+	font-weight: bold;
+    font-style: normal;
+    margin-bottom: 10px;
+	margin-top: 5px;
+}
+
 .size48{ font-size: 48px; }
 .size48 span {
     color: #00fff2;
@@ -45,7 +53,6 @@ body {
     font-size: 18px;
     color: #ffffff;
     background-image: linear-gradient(to bottom right, rgb(128, 0, 128), rgb(77, 24, 161), rgb(97, 165, 197));
-    /*background: linear-gradient(#570072 20%, #5134bd);*/
     background-repeat: no-repeat;
     background-size: 500px 740px;
     position: fixed;
@@ -54,9 +61,11 @@ body {
     bottom: 0;
     right: 0;
 }
+
 #question {
     width: 100%;
 }
+
 input[type=button] {
     font-family: 'Raleway';
     font-weight: bold;
@@ -64,7 +73,7 @@ input[type=button] {
     text-transform: uppercase;
     vertical-align: top;
     text-align: center;
-    height: 32px;
+    height: 40px;
     min-width: 44.25%;
     padding: 0px 12px;
     margin-right: 20px;
@@ -76,7 +85,7 @@ input[type=button] {
     cursor: pointer;
 }
 
-input[type=button].gray {
+input[type=button].green {
     color: #121212;
     background: linear-gradient(#9dff00 20%, #ffee00 100%);
 }
@@ -86,12 +95,25 @@ input[type=button].red {
     background: linear-gradient(#ff6600 20%, #ca0000 100%);
 }
 
-input[type=button]:enabled:hover {
-    background: linear-gradient(#000, #000);
+input[type=button].blue { 
+    margin-right: 10px;
+    height: 32px;
+    min-width: 20%;
+    color: #121212;
+    background: linear-gradient(#00aeff 20%, #b9f2fa 100%);
+}
+
+input[type=button].red:enabled:hover {
+    background: linear-gradient(#fff, #fff);
     border: none;
 }
 
-input[type=button].gray:enabled:hover {
+input[type=button].blue:enabled:hover {
+    background: linear-gradient(#fff, #fff);
+    border: none;
+}
+
+input[type=button].green:enabled:hover {
     background: linear-gradient(#fff, #fff);
     border: none;
 }
@@ -99,13 +121,14 @@ input[type=button].gray:enabled:hover {
 input[type=button]:active {
     background: linear-gradient(#343434, #343434);
 }
-input[type=button].gray:active {
+
+input[type=button].green:active {
     background: linear-gradient(#afafaf, #afafaf);
 }
 
 input[type=button]:disabled {
-    color: #525252;
-    background: linear-gradient(to bottom right, rgba(128, 0, 128, 0.486), rgba(0, 55, 156, 0.445));
+    color: #1f1f1f;
+    background: linear-gradient(rgba(212, 212, 212, 0.466),rgba(51, 51, 51, 0.425));
 }
 
 input[type=button][pressed=pressed] {
@@ -122,12 +145,9 @@ input[type=button][pressed=pressed] {
     font-weight: bold;
     font-size: 13px;
     position: relative;
-    width: 132px;
+    width: 100%;
 }
 
-.dropdown select {
-    clear: both;
-}
 
 .dropdown:focus {
     border: none;
@@ -159,9 +179,24 @@ input[type=button][pressed=pressed] {
     display: none;
     position: absolute;
     background-color: #dddcdc;
-    min-width: 125px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
+}
+#typedropdown {
+    left: 0%;
+    width: 100%;
+}
+#difficultydropdown {
+    left: 0%;
+    width: 100%;
+}
+#categorydropdown {
+    left: 0%;
+    width: 100%;
+}
+#databasedropdown {
+    left: 0%;
+    width: 100%;
 }
 
 .dropdown-items a {
@@ -179,24 +214,37 @@ input[type=button][pressed=pressed] {
     margin:0;
     padding: 0
 }
+.dropdown-database {
+    margin:0;
+    padding: 0
+}
 
 .dropdown-difficulty {
     margin:0;
     padding: 0
 }
 
+.dropdown ul {
+    display: inline;
+}
+
 .dropdown-category {
     margin:0;
-    padding: 0
+    padding: 0;
 }
 
-#categoryDropdown {
-    width: 210px
+#categorydropdown li{
+    width: 100%
 }
-#categoryDropdown li{
-    width: 210px
+#databasedropdown li{
+    width: 100%
 }
-
+#typedropdown li{
+    width: 100%
+}
+#difficultydropdown li{
+    width: 100%
+}
  .show {
     display:block;
 }
