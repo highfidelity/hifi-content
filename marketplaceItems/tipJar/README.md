@@ -10,6 +10,10 @@ Rez the tipjar and edit the userData to customize how the tip jar operates. Be m
 [tipJar 4fe677f] :: 2019-01-30_09-49-14
 - V1 QA Test
 
+[tipJar 2759567] :: 2019-01-30_17-07-41
+- Removed the balance checking code to simplify
+- Added a cap at 1 million hfc
+
 ## Links
 https://trello.com/c/UzXawXgg/38-tip-jar
 
