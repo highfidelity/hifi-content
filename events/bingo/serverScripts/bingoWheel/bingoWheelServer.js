@@ -137,18 +137,6 @@
             gameOnLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: true });
             });
-            Entities.editEntity(_this.entityID, {textures: JSON.stringify({
-                "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-D.png",
-                "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-M.jpg",
-                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-R.jpg",
-                "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-E.jpg"
-            })});
-            Entities.editEntity(backboard, {textures: JSON.stringify({
-                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-R.jpg",
-                "file5": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-E.jpg",
-                "file6": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-M.jpg",
-                "file7": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-D.png"
-            })});
         },
 
         /* Adds the specified username to the Winners array. That array is cleared
@@ -369,16 +357,6 @@
                 visible: false,
                 script: ""
             });
-            Entities.editEntity(_this.entityID, {textures: JSON.stringify({
-                "file2": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-D.png",
-                "file3": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-M.jpg",
-                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoardWheel2.fbx/Polychrome-R.jpg"
-            })});
-            Entities.editEntity(backboard, {textures: JSON.stringify({
-                "file4": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-R.jpg",
-                "file6": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-M.jpg",
-                "file7": "https://hifi-content.s3.amazonaws.com/jimi/environment/bingo/BingoBoard2.fbx/BingoBoard2.fbm/Polychrome-D.png"
-            })});
             Script.setTimeout(function() {
                 Entities.editEntity(cardRemoverSign, {
                     visible: false,

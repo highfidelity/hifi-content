@@ -22,7 +22,6 @@
     var SCANNER_LOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoLose.wav"));
     var SAD_TROMBONE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSadTrombone.wav"));
     var WAIT_TO_CLOSE_TRAP_DOOR_MS = 1500;
-    var CHECK_DOOR_ROTATION_MS = 50;
     var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 2000;
     var CLEAN_UP_CHECK_MS = 2000;
@@ -31,8 +30,6 @@
     var _this;
     
     var zonePosition;
-    var trapDoorOpenCheckInterval = null;
-    var trapDoorCloseCheckInterval = null;
     var cleanUpInterval = null;
     var occupied = false;
     var scannerSpotlight;
@@ -286,31 +283,7 @@
                 playSound(SAD_TROMBONE_SOUND, zonePosition, 0.5);
             // eslint-disable-next-line no-magic-numbers
             }, SCANNER_LOSE_SOUND.duration * 1000);
-            
-            Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: Quat.fromVec3Degrees({ x: 100, y: 0, z: 0 })});
-
-            if (trapDoorOpenCheckInterval) {
-                Script.clearInterval(trapDoorOpenCheckInterval);
-                trapDoorOpenCheckInterval = false;
-                Entities.editEntity(SCANNER_TRAP_DOOR, { 
-                    angularVelocity: { x: 0, y: 0, z: 0 },
-                    localRotation: Quat.fromVec3Degrees({ x: 90, y: 0, z: 0 })
-                });
-            }
-
-            trapDoorOpenCheckInterval = Script.setInterval(function() {
-                var trapDoorLocalRotationX = Entities.getEntityProperties(SCANNER_TRAP_DOOR, 'localRotation').localRotation.x;
-                var quatValueForOpenRotation = 0.707;
-                if (trapDoorLocalRotationX > quatValueForOpenRotation) {
-                    Entities.editEntity(SCANNER_TRAP_DOOR, { 
-                        angularVelocity: { x: 0, y: 0, z: 0 },
-                        localRotation: Quat.fromVec3Degrees({ x: 90, y: 0, z: 0 })
-                    });
-                    Script.clearInterval(trapDoorOpenCheckInterval);
-                    trapDoorOpenCheckInterval = false;
-                }
-            }, CHECK_DOOR_ROTATION_MS);
-
+            Entities.editEntity(SCANNER_TRAP_DOOR, { localRotation: Quat.fromVec3Degrees({ x: 90, y: 0, z: 0 })});
             currentlyScanningCard = false;
         },
 
@@ -339,29 +312,7 @@
             Entities.callEntityMethod(confettiParticleEffect, 'turnOff');
 
             Script.setTimeout(function() {
-                Entities.editEntity(SCANNER_TRAP_DOOR, { angularVelocity: Quat.fromVec3Degrees({ x: -100, y: 0, z: 0 })});
-
-                if (trapDoorCloseCheckInterval) {
-                    Script.clearInterval(trapDoorCloseCheckInterval);
-                    trapDoorCloseCheckInterval = false;
-                    Entities.editEntity(SCANNER_TRAP_DOOR, {
-                        angularVelocity: { x: 0, y: 0, z: 0 },
-                        localRotation: { x: 0, y: 0, z: 0 }
-                    });
-                }
-
-                trapDoorCloseCheckInterval = Script.setInterval(function() {
-                    var trapDoorLocalRotationX = Entities.getEntityProperties(
-                        SCANNER_TRAP_DOOR, 'localRotation').localRotation.x;
-                    if (trapDoorLocalRotationX < 0) {
-                        Entities.editEntity(SCANNER_TRAP_DOOR, {
-                            angularVelocity: { x: 0, y: 0, z: 0 },
-                            localRotation: { x: 0, y: 0, z: 0 }
-                        });
-                        Script.clearInterval(trapDoorCloseCheckInterval);
-                        trapDoorCloseCheckInterval = false;
-                    }
-                }, CHECK_DOOR_ROTATION_MS);
+                Entities.editEntity(SCANNER_TRAP_DOOR, { localRotation: Quat.fromVec3Degrees({ x: 0, y: 0, z: 0 })});
             }, WAIT_TO_CLOSE_TRAP_DOOR_MS);
         },
 
@@ -376,14 +327,6 @@
                 angularVelocity: { x: 0, y: 0, z: 0 },
                 localRotation: { x: 0, y: 0, z: 0 }
             });
-            if (trapDoorOpenCheckInterval) {
-                Script.clearInterval(trapDoorOpenCheckInterval);
-                trapDoorOpenCheckInterval = false;
-            }
-            if (trapDoorCloseCheckInterval) {
-                Script.clearInterval(trapDoorCloseCheckInterval);
-                trapDoorCloseCheckInterval = false;
-            }
             if (cleanUpInterval) {
                 Script.clearInterval(cleanUpInterval);
                 cleanUpInterval = false;
