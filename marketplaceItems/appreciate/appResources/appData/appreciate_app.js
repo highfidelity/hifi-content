@@ -34,13 +34,13 @@
 
     var soundFadeInterval = false;
     var FADE_INTERVAL_MS = 50;
-    var FADE_STEP_SIZE = 0.1; // unitless
+    var FADE_OUT_STEP_SIZE = 0.1; // unitless
     function fadeOutAndStopSound() {
 
         maybeClearSoundFadeInterval();
 
         soundFadeInterval = Script.setInterval(function() {
-            fadeSoundVolume(0, FADE_STEP_SIZE);
+            fadeSoundVolume(0, FADE_OUT_STEP_SIZE);
 
             if (currentVolume === 0) {
                 if (soundInjector) {
@@ -61,7 +61,7 @@
     }
 
     var currentVolume = 0;
-    var VOLUME_MAX_STEP_SIZE = 0.035; // unitless, determined empirically
+    var VOLUME_MAX_STEP_SIZE = 0.015; // unitless, determined empirically
     function fadeSoundVolume(targetVolume, maxStepSize) {
         if (!soundInjector) {
             return;
@@ -99,7 +99,7 @@
 
     var soundInjector = false;
     var MIN_VELOCITY_THRESHOLD_CM_PER_SEC = 10;
-    var MAX_VELOCITY_CM_PER_SEC = 150;
+    var MAX_VELOCITY_CM_PER_SEC = 300; // determined empirically
     function calculateHandEffect(leftHandVelocityCMPerSec, rightHandVelocityCMPerSec){
         var averageVelocity = (leftHandVelocityCMPerSec + rightHandVelocityCMPerSec) / 2;
         if (averageVelocity >= MIN_VELOCITY_THRESHOLD_CM_PER_SEC && !soundInjector) {
