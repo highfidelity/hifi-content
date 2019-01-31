@@ -12,7 +12,12 @@
     // START UTILITY FUNCTIONS
     // *************************************
     // #region Utilities
-    
+    var MS_PER_S = 1000;
+    var CM_PER_M = 100;
+
+    function updateFPSUI() {
+        ui.sendMessage({method: "updateFPSUI", FPS: currentAnimationFPS});
+    }
     // #endregion
     // *************************************
     // END UTILITY FUNCTIONS
@@ -32,9 +37,17 @@
         applauseSound = SoundCache.getSound(Script.resolvePath("resources/sounds/applause.wav"));
     }
 
+    var cheeringAnimation = false;
+    function getAnimations() {
+        var animationURL = Script.resolvePath("resources/animations/Cheering.fbx");
+        var resource = AnimationCache.prefetch(animationURL);
+        var animation = AnimationCache.getAnimation(animationURL);
+        cheeringAnimation = { url: animationURL, animation: animation, resource: resource};
+    }
+
     var soundFadeInterval = false;
     var FADE_INTERVAL_MS = 50;
-    var FADE_OUT_STEP_SIZE = 0.1; // unitless
+    var FADE_OUT_STEP_SIZE = 0.02; // unitless
     function fadeOutAndStopSound() {
 
         maybeClearSoundFadeInterval();
@@ -99,7 +112,7 @@
 
     var soundInjector = false;
     var MIN_VELOCITY_THRESHOLD_CM_PER_SEC = 10;
-    var MAX_VELOCITY_CM_PER_SEC = 300; // determined empirically
+    var MAX_VELOCITY_CM_PER_SEC = 350; // determined empirically
     function calculateHandEffect(leftHandVelocityCMPerSec, rightHandVelocityCMPerSec){
         var averageVelocity = (leftHandVelocityCMPerSec + rightHandVelocityCMPerSec) / 2;
         if (averageVelocity >= MIN_VELOCITY_THRESHOLD_CM_PER_SEC && !soundInjector) {
@@ -119,8 +132,6 @@
 
     var lastLeftHandPosition = false;
     var lastRightHandPosition = false;
-    var MS_PER_S = 1000;
-    var CM_PER_M = 100;
     function handVelocityCheck() {
         if (!handsAreAboveHead) {
             return;
@@ -219,100 +230,154 @@
         handPositionCheckInterval = Script.setInterval(handPositionCheck, HAND_POSITION_CHECK_INTERVAL_MS);
     }
 
-    var raiseHandsAnimationData = {};
-    function updateAnimationData() {
-        function getRandomArbitrary(min, max) {
-            return Math.random() * (max - min) + min;
+    function maybeClearSlowCheeringInterval() {
+        if (slowCheeringInterval) {
+            Script.clearInterval(slowCheeringInterval);
+            slowCheeringInterval = false;
         }
-
-        // Right hand animation data
-        var randomX = getRandomArbitrary(-1.2, -0.4);
-        var randomZ = getRandomArbitrary(-0.1, 0.35);
-        raiseHandsAnimationData.rightHandPosition = {x: randomX, y: 1.8, z: randomZ};
-        raiseHandsAnimationData.rightHandRotation = Quat.fromPitchYawRollDegrees(0, 0, 0);
-        raiseHandsAnimationData.rightHandType = 0; // RotationAndPosition, see IKTargets.h
-        raiseHandsAnimationData.isRightHandGrasp = false;
-        raiseHandsAnimationData.isRightIndexPoint = false;
-        raiseHandsAnimationData.isRightThumbRaise = false;
-        raiseHandsAnimationData.isRightIndexPointAndThumbRaise = false;
-
-        // Left hand animation data
-        randomX = getRandomArbitrary(0.4, 1.2);
-        randomZ = getRandomArbitrary(-0.1, 0.35);
-        raiseHandsAnimationData.leftHandPosition = {x: randomX, y: 1.8, z: randomZ};
-        raiseHandsAnimationData.leftHandRotation = Quat.fromPitchYawRollDegrees(0, 0, 0);
-        raiseHandsAnimationData.leftHandType = 0; // RotationAndPosition, see IKTargets.h
-        raiseHandsAnimationData.isLeftHandGrasp = false;
-        raiseHandsAnimationData.isLeftIndexPoint = false;
-        raiseHandsAnimationData.isLeftThumbRaise = false;
-        raiseHandsAnimationData.isLeftIndexPointAndThumbRaise = false;
     }
 
-    function getRaiseHandsAnimation() {
-        return raiseHandsAnimationData;
+    function stopCheering() {
+        maybeClearStopCheeringTimeout();
+        maybeClearSlowCheeringInterval();
+        MyAvatar.restoreAnimation();
+        updateFPSUI();
+        isCheering = false;
+        currentAnimationFPS = INITIAL_ANIMATION_FPS;
+        currentlyPlayingFrame = 0;
+        currentAnimationTimestamp = 0;
+    }
+
+    function maybeClearStopCheeringTimeout() {
+        if (stopCheeringTimeout) {
+            Script.clearTimeout(stopCheeringTimeout);
+            stopCheeringTimeout = false;
+        }
     }
     
-    // Clears the raise hands animation handler (which lowers the hands)
-    function maybeLowerHands() {
-        if (raiseHandsAnimationHandler) {
-            raiseHandsAnimationHandler = MyAvatar.removeAnimationStateHandler(raiseHandsAnimationHandler);
+    // Clear the "cheering" animation if it's running
+    var stopCheeringTimeout = false;
+    var STOP_CHEERING_TIMEOUT_MS = 3500;
+    function stopCheeringSoon() {
+        maybeClearStopCheeringTimeout();
+
+        if (isCheering) {
+            stopCheeringTimeout = Script.setTimeout(stopCheering, STOP_CHEERING_TIMEOUT_MS);
         }
     }
 
-    var raiseHandsAnimationHandler = false;
-    var cooldownTimer = false;
-    var COOLDOWN_TIMER_MS = HAND_VELOCITY_CHECK_INTERVAL_MS;
-    var lowerHandsTimeout = false;
-    var LOWER_HANDS_TIMEOUT_MS = 1000;
-    function raiseHands() {
-        if (cooldownTimer) {
+    var CHEERING_FPS_STEP_DOWN_SIZE = 2;
+    function slowCheering() {
+        var frameCount = cheeringAnimation.animation.frames.length;
+
+        var animationTimestampDeltaMS = Date.now() - currentAnimationTimestamp;
+        var frameDelta = animationTimestampDeltaMS / MS_PER_S * currentAnimationFPS;
+
+        currentlyPlayingFrame = (currentlyPlayingFrame + frameDelta) % frameCount;
+
+        currentAnimationFPS -= CHEERING_FPS_STEP_DOWN_SIZE;
+
+        MyAvatar.overrideAnimation(cheeringAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
+
+        updateFPSUI();
+
+        if (currentAnimationFPS < 0) {
+            stopCheering();
             return;
         }
 
-        updateAnimationData();
+        currentAnimationTimestamp = Date.now();
+    }
 
-        maybeLowerHands();
-
-        raiseHandsAnimationHandler = MyAvatar.addAnimationStateHandler(getRaiseHandsAnimation, []);
-
-        if (lowerHandsTimeout) {
-            Script.clearTimeout(lowerHandsTimeout);
-            lowerHandsTimeout = false;
+    var isCheering = false;
+    var INITIAL_ANIMATION_FPS = 7;
+    var currentAnimationFPS = INITIAL_ANIMATION_FPS;
+    var slowCheeringInterval = false;
+    var SLOW_CHEERING_INTERVAL_MS = 100;
+    var currentlyPlayingFrame = 0;
+    var currentAnimationTimestamp;
+    var CHEERING_FPS_STEP_UP_SIZE = 5;
+    var CHEERING_FPS_MAX = 80;
+    function startCheering() {
+        if (!cheeringAnimation) {
+            return;
         }
-        lowerHandsTimeout = Script.setTimeout(maybeLowerHands, LOWER_HANDS_TIMEOUT_MS);
 
-        cooldownTimer = Script.setTimeout(function() {
-            cooldownTimer = false;
-        }, COOLDOWN_TIMER_MS);
+        maybeClearStopCheeringTimeout();
+
+        if (!slowCheeringInterval) {
+            slowCheeringInterval = Script.setInterval(slowCheering, SLOW_CHEERING_INTERVAL_MS);
+        }
+
+        var frameCount = cheeringAnimation.animation.frames.length;
+
+        if (currentAnimationTimestamp > 0) {
+            var animationTimestampDeltaMS = Date.now() - currentAnimationTimestamp;
+            var frameDelta = animationTimestampDeltaMS / MS_PER_S * currentAnimationFPS;
+    
+            currentlyPlayingFrame = (currentlyPlayingFrame + frameDelta) % frameCount;
+    
+            currentAnimationFPS += CHEERING_FPS_STEP_UP_SIZE;
+
+            currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
+        } else {
+            currentlyPlayingFrame = 0;
+        }
+
+        MyAvatar.overrideAnimation(cheeringAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
+        updateFPSUI();
+        isCheering = true;
+        currentAnimationTimestamp = Date.now();
     }
     
+    var debounceTimer = false;
+    var DEBOUNCE_TIMEOUT_MS = 30;
     function keyPressEvent(event) {
         if ((event.text.toUpperCase() === "Z") &&
             !event.isShifted &&
+            !debounceTimer &&
             !event.isMeta &&
             !event.isControl &&
             !event.isAlt) {
-            raiseHands();
+
+            if (event.isAutoRepeat) {
+                debounceTimer = Script.setTimeout(function() {
+                    debounceTimer = false;
+                }, DEBOUNCE_TIMEOUT_MS);
+            }
+
+            startCheering();
+        }
+    }
+    
+    function keyReleaseEvent(event) {
+        if ((event.text.toUpperCase() === "Z") &&
+            !event.isAutoRepeat) {
+            stopCheeringSoon();
         }
     }
 
     // Enables or disables the app's main functionality
     var appreciateEnabled = Settings.getValue("appreciate/enabled", false);
     var keyEventsWired = false;
-    function enableAppreciate() {
+    function enableOrDisableAppreciate() {
         if (appreciateEnabled) {
             maybeSetupHandPositionCheckInterval();
             
             if (!keyEventsWired) {
                 Controller.keyPressEvent.connect(keyPressEvent);
+                Controller.keyReleaseEvent.connect(keyReleaseEvent);
                 keyEventsWired = true;
             }
         } else {
             maybeClearHandPositionCheckInterval();
             maybeClearHandVelocityCheckIntervalAndStopSound();
+            maybeClearStopCheeringTimeout();
+            stopCheering();
 
             if (keyEventsWired) {         
                 Controller.keyPressEvent.disconnect(keyPressEvent);
+                Controller.keyReleaseEvent.disconnect(keyReleaseEvent);
                 keyEventsWired = false;
             }
         }
@@ -329,7 +394,7 @@
             case "appreciateSwitchClicked":
                 appreciateEnabled = message.appreciateEnabled;
                 Settings.setValue("appreciate/enabled", appreciateEnabled);
-                enableAppreciate();
+                enableOrDisableAppreciate();
                 break;
 
             default:
@@ -344,14 +409,17 @@
         maybeClearHandVelocityCheckIntervalAndStopSound();
         maybeClearSoundFadeInterval();
 
-        maybeLowerHands();        
-        if (lowerHandsTimeout) {
-            Script.clearTimeout(lowerHandsTimeout);
-            lowerHandsTimeout = false;
+        maybeClearStopCheeringTimeout();
+        stopCheering();
+
+        if (debounceTimer) {
+            Script.clearTimeout(debounceTimer);
+            debounceTimer = false;
         }
 
         if (keyEventsWired) {            
             Controller.keyPressEvent.disconnect(keyPressEvent);
+            Controller.keyReleaseEvent.disconnect(keyReleaseEvent);
             keyEventsWired = false;
         }
     }
@@ -371,8 +439,9 @@
             onMessage: onMessage
         });
         
-        enableAppreciate();
+        enableOrDisableAppreciate();
         getSounds();
+        getAnimations();
     }
 
     Script.scriptEnding.connect(onScriptEnding);
