@@ -17,5 +17,8 @@ https://trello.com/c/UzXawXgg/38-tip-jar
 - In HMD, opening the QML window in the tablet doesn't display the background correctly.
 
 ## Misc
-- there is a file in entityResources/entity/tipJarSpawner.js.  This is a convenience file for testing so that you don't have to keep reimporting a JSON and will always have the updated code if there are any changes. 
-- commit bff728f has the check balance request version.  Removing the balance check to simplify the code. 
+- There is a file in entityResources/entity/tipJarSpawner.js.  This is a convenience file for testing so that you don't have to keep reimporting a JSON and will always have the updated code if there are any changes. 
+- Commit bff728f has the check balance request version.  Removing the balance check to simplify the code.
+    - We were trying to make sure the money went through first before making the animation feedback.
+    - There aren't many hook we can latch on to so we tried a polling approach.  The version we had worked very well in testing, however it did complicate the code trying to account for all the edge cases and we wanted to make sure this would be easy to follow for other developers. 
+    - Refactoring to a state machine and/or timestamping the request would be alternate approaches.
