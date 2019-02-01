@@ -44,19 +44,6 @@
 
     Vue.component('navigation', {
         props: ['activetabname', 'tabdatalist'],
-        // computed: {
-        //     tabs() {
-        //         var activeTabName = this.activetabname;
-
-        //         var modifiedTabs = this.tabdatalist.map((tabInfo) => {
-        //             console.log("computed:" + activeTabName + tabInfo.tabName + activeTabName === tabInfo.tabName)
-        //             tabInfo.active = activeTabName === tabInfo.tabName;
-        //             return tabInfo;
-        //         })
-
-        //         return modifiedTabs;
-        //     }
-        // },
         template: /* html */ `
             <nav>
                 <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
@@ -92,6 +79,7 @@
 
                 return {
                     tabName: tabName,
+                    title: this.tab.title,
                     active: (tabName === this.activetabname),
                     href: "#" + tabName,
                     tabID: tabName + "-tab"
@@ -100,7 +88,7 @@
         },
         template: /* html */ `
             <a 
-                class="nav-item nav-link ml-2" 
+                class="nav-item nav-link ml-2 title-case" 
                 v-bind:class="{ 'active': tabInfo.active }" 
                 v-bind:id="tabInfo.tabID" 
                 :key="tabInfo.tabID" 
@@ -111,7 +99,7 @@
                 aria-selected="tabInfo.active"
                 v-on:click="switchTab(tabInfo.tabName)"
             >
-                {{ tabInfo.tabName }}
+                {{ tabInfo.title }}
             </a>
         `
     })
@@ -125,7 +113,6 @@
     //         data: ""
     //     }
     // }]
-
     Vue.component('tab-content-container', {
         props: ['activetabname', 'tabdatalist'],
         template: /* html */ `
@@ -162,7 +149,7 @@
         template: /* html */ `
             <div class="tab-pane fade" v-bind:class="{ 'show active': isActiveTab }" v-bind:id="tabid" role="tabpanel" v-bind:aria-labelledby="tabid">
 
-                <h1>{{ title }}</h1>
+                <h1 class="title-case">{{ title }}</h1>
                 <h3>{{ subtitle }}</h3>
 
                  <component :is="componentname" :data="data"></component>
@@ -240,35 +227,35 @@
                     { 
                         // INFORMATION
                         tabName: STRING_INFO, 
-                        title: STRING_INFO.toUpperCase(), 
+                        title: STRING_INFO, 
                         subtitle: "I am a test for " + STRING_INFO,
                         componentName: "test1"
                     },
                     { 
                         // MATERIAL
                         tabName: STRING_MATERIAL, 
-                        title: STRING_MATERIAL.toUpperCase(), 
+                        title: STRING_MATERIAL, 
                         subtitle: "I am a test for " + STRING_MATERIAL,
                         componentName: "test2"
                     },
                     { 
                         // BLENDSHAPES
                         tabName: STRING_BLENDSHAPES, 
-                        title: STRING_BLENDSHAPES.toUpperCase(), 
+                        title: STRING_BLENDSHAPES, 
                         subtitle: "I am a test for " + STRING_BLENDSHAPES,
                         componentName: "test1"
                     },
                     {
                         // ANIMATION
                         tabName: STRING_ANIMATION, 
-                        title: STRING_ANIMATION.toUpperCase(), 
+                        title: STRING_ANIMATION, 
                         subtitle: "I am a test for " + STRING_ANIMATION,
                         componentName: "test2"
                     },
                     {
                         // FLOW
                         tabName: STRING_FLOW, 
-                        title: STRING_FLOW.toUpperCase(), 
+                        title: STRING_FLOW, 
                         subtitle: "I am a test for " + STRING_FLOW,
                         componentName: "test1"
                     }

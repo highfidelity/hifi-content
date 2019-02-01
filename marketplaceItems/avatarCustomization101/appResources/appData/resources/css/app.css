@@ -180,3 +180,10 @@
     border: 2px solid #760008;
     background-color: #760008;
 }
+
+
+/* UTILS */
+
+.title-case {
+    text-transform: capitalize
+}
