@@ -467,7 +467,7 @@
         }
     }
 
-    function clearGame() {
+    function clearGame(userTriggered) {
         correctCount = null;
         prizeMoney = 0;
         winnerID = null;
@@ -476,7 +476,9 @@
             Script.clearTimeout(intervalTimer);
             intervalTimer = false;
         }
-        Entities.callEntityServerMethod(gameZoneProperties.id, "stopSound");
+        if (userTriggered) {
+            Entities.callEntityServerMethod(gameZoneProperties.id, "stopSound");
+        }
         bubbleOff();
         lights.forEach(function(light) {
             Entities.callEntityServerMethod(light, "lightsOff");
@@ -568,7 +570,7 @@
                     Entities.callEntityServerMethod(questionText, "textUpdate", [winnerBanner, true]);
                     Users.requestUsernameFromID(winnerID);
                     Script.setTimeout(function(){
-                        clearGame();
+                        clearGame(false);
                         Entities.callEntityServerMethod(questionText, "textUpdate", [winnerBanner, true]);
                     }, 2 * ONE_SECOND_MS);
                     tablet.emitScriptEvent("newGame");
@@ -741,6 +743,7 @@
                 Script.setTimeout(function() {
                     Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
                     correctCount = isAnyAvatarCorrect(correctColor);
+                    console.log("loading the check answer script for ", correctColor, "and how many are right: ", correctCount);
                     updateAvatarCounter(true);
                 }, FIRST_WAIT_TO_COUNT_AVATARS);
             }
@@ -790,7 +793,7 @@
                         begin();
                         break;
                     case 'end':
-                        clearGame();
+                        clearGame(true);
                         break;
                     case 'type':
                         switch (event.value) {
@@ -934,7 +937,7 @@
             intervalBoard = false;
         }
         Messages.unsubscribe(TRIVIA_CHANNEL);
-        clearGame(); 
+        clearGame(true); 
         button.clicked.disconnect(onClicked);
         tablet.removeButton(button);
         AvatarManager.avatarRemovedEvent.disconnect(updateCountOnAvatarRemoved);
@@ -950,7 +953,7 @@
 
 
     this.unload = function() {
-        clearGame();
+        clearGame(true);
         introPlayed = false;
     };
 

@@ -139,7 +139,7 @@
             if (gameOn === true && _this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
                 MyAvatar.position = DISQUALIFIED_POSITION;
                 Script.setTimeout(function(){
-                    MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
+                    MyAvatar.orientation = Quat.lookAt(MyAvatar.position, gameZone.position, Vec3.UNIT_Y);
                 }, 100);
                 _this.playSound(SOUND, true);
                 try {
@@ -177,6 +177,7 @@
                     console.log("no validator present", e);
                 }
                 Settings.setValue("activeTriviaColor", _this.color);
+                console.log("My Color is now ",Settings.getValue("activeTriviaColor"));
                 _this.createChoiceOverlay();
             } 
         },

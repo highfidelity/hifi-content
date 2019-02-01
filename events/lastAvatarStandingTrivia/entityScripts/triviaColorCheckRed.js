@@ -17,7 +17,7 @@
         HALF_MULTIPLIER = 0.5,
         RADIUS = 50,
         RANGE = 1000,
-        AUDIO_VOLUME = 1,
+        AUDIO_VOLUME = 0.5,
         SOUND = SoundCache.getSound(Script.resolvePath('../entities/sounds/wrong-local.wav'));
 
     var ColorCheck = function(){
@@ -27,10 +27,13 @@
     ColorCheck.prototype = {
         preload: function(entityID){
             _this.entityID = entityID;
+            console.log("color check red loaded");
             gameZone = Entities.getEntityProperties(
                 Entities.findEntitiesByName(
                     "Trivia Player Game Zone", MyAvatar.position, RADIUS)[0], ['position', 'rotation', 'dimensions']);
             if (Settings.getValue("activeTriviaColor") !== "Red") {
+                console.log("my color was ", Settings.getValue("activeTriviaColor"), "which is not red");
+
                 _this.ejectUser();
             }
             Script.setTimeout(function(){
@@ -69,7 +72,7 @@
             if (_this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
                 MyAvatar.position = DISQUALIFIED_POSITION;
                 Script.setTimeout(function(){
-                    MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
+                    MyAvatar.orientation = Quat.lookAt(MyAvatar.position, gameZone.position, Vec3.UNIT_Y);
                 }, 100);
                 console.log("ejected by color check red");
                 _this.playSound(SOUND, true);
