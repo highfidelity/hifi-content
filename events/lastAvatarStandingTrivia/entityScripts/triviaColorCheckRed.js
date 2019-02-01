@@ -68,7 +68,9 @@
         ejectUser: function() {
             if (_this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
                 MyAvatar.position = DISQUALIFIED_POSITION;
-                MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
+                Script.setTimeout(function(){
+                    MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
+                }, 100);
                 console.log("ejected by color check red");
                 _this.playSound(SOUND, true);
                 try {

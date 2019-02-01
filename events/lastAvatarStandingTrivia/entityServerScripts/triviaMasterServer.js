@@ -722,6 +722,7 @@
     };
 
     this.stopSound = function(id) {
+        console.log("stopping sound");
         if (injector) {
             injector.stop();
         }

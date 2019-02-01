@@ -15,7 +15,6 @@
     
     var DISQUALIFIED_POSITION = Script.require(Script.resolvePath('../clientScripts/triviaInfo.json')).DISQUALIFIED_POSITION,
         HALF_MULTIPLIER = 0.5,
-        ZONE_SQUARE_RADIUS = 1.5,
         RADIUS = 50,
         RANGE = 1000,
         AUDIO_VOLUME = 1,
@@ -36,7 +35,7 @@
             }
             Script.setTimeout(function(){
                 _this.unload();
-            }, 15000);
+            }, 10000);
         },
 
         playSound: function(sound, localOnly){
@@ -69,7 +68,9 @@
         ejectUser: function() {
             if (_this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
                 MyAvatar.position = DISQUALIFIED_POSITION;
-                MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
+                Script.setTimeout(function(){
+                    MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
+                }, 100);
                 console.log("ejected by color check blue");
                 _this.playSound(SOUND, true);
                 try {

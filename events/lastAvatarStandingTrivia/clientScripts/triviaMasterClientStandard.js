@@ -88,6 +88,7 @@
                 '&lt;': '<',
                 '&quot;': '"',
                 '&#039;': "'",
+                '&#39;': "'",
                 '&lsquo;': '"',
                 '&rsquo;': '"',
                 '&ldquo;': '"',
@@ -283,11 +284,9 @@
                             break;                            
                         case "Trivia Bubble":
                             bubble = element;
-
                             break;                        
                         case "Trivia Choice Letter Blue Board":
                             letter[0] = element;
-
                             break;
                         case "Trivia Choice Letter Green Board":
                             letter[1] = element;
@@ -476,8 +475,8 @@
         if (intervalTimer){
             Script.clearTimeout(intervalTimer);
             intervalTimer = false;
-            Entities.callEntityServerMethod(gameZoneProperties.id, "stopSound");
         }
+        Entities.callEntityServerMethod(gameZoneProperties.id, "stopSound");
         bubbleOff();
         lights.forEach(function(light) {
             Entities.callEntityServerMethod(light, "lightsOff");

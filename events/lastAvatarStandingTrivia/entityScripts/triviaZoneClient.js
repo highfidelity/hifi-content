@@ -137,8 +137,10 @@
                 Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
             gameOn = bubble.visible;
             if (gameOn === true && _this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
-                MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
                 MyAvatar.position = DISQUALIFIED_POSITION;
+                Script.setTimeout(function(){
+                    MyAvatar.orientation = Quat.lookAtSimple(MyAvatar.position, gameZone.position);
+                }, 100);
                 _this.playSound(SOUND, true);
                 try {
                     var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, MIN_RANGE);
