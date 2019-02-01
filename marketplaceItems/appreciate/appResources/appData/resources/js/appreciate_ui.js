@@ -23,8 +23,8 @@ function onScriptEventReceived(message) {
             document.getElementById("loadingContainer").style.display = "none";
             break;
 
-        case "updateFPSUI":
-            document.getElementById("fpsDisplay").innerHTML = message.FPS;
+        case "updateCurrentVolume":
+            document.getElementById("currentVolumeDisplay").setAttribute('value', message.currentVolume);
             break;
         default:
             console.log("Unknown message received from appreciate_app.js!");
