@@ -14,7 +14,6 @@
         STRING_FLOW = CONFIG.STRING_FLOW,
         STRING_INFO = CONFIG.STRING_INFO;
 
-    
     // Events 
     // !important Add APP_NAME to each event
     var EVENT_CHANGE_TAB = APP_NAME + CONFIG.EVENT_CHANGE_TAB;
@@ -34,22 +33,11 @@
                     :tabdatalist="datastore.tabDataList"
                 ></navigation>
                 
-                <div class="tab-content" id="nav-tabContent">
+                <tab-content-container
+                    :activetabname="datastore.activeTabName" 
+                    :tabdatalist="datastore.tabDataList"
+                ></tab-content-container>
 
-                    <template v-for="tabData in datastore.tabDataList">
-
-                        <tab-content 
-                            :activetabname="datastore.activeTabName"
-                            :tabid="tabData.tabName"
-                            :title="tabData.title"
-                            :t="tabData.t"
-                            :data="tabData"
-                            :componentname="tabData.componentName"
-                        ></tab-content>
-
-                    </template>
-
-                </div>
             </div>
         `
     })
@@ -137,6 +125,29 @@
     //         data: ""
     //     }
     // }]
+
+    Vue.component('tab-content-container', {
+        props: ['activetabname', 'tabdatalist'],
+        template: /* html */ `
+            <div class="tab-content" id="nav-tabContent">
+
+                <template v-for="tabData in tabdatalist">
+
+                    <tab-content 
+                        :activetabname="activetabname"
+                        :tabid="tabData.tabName"
+                        :title="tabData.title"
+                        :subtitle="tabData.subtitle"
+                        :data="tabData"
+                        :componentname="tabData.componentName"
+                    ></tab-content>
+
+                </template>
+
+            </div>
+        `
+    })
+
     Vue.component('tab-content', {
         props: ['activetabname', 'tabid', 'title', 'subtitle', 'data', 'componentname'],
         computed: {
