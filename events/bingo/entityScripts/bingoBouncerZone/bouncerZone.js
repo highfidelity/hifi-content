@@ -1,5 +1,5 @@
 //
-//  ZoneScript.js
+//  bouncerZone.js
 //
 //  This script serves as a virtual bouncer depending on username or whether or not a client can validate
 //  ownership of a particular specified avatar entity. Can one or all three methods: hardcoded list in APPROVED_USERNAMES,
@@ -14,7 +14,7 @@
 
 (function () {
     // Hardcoded approved usernames
-    var APPROVED_USERNAMES = ["philip", "ryan"];
+    var APPROVED_USERNAMES = ["philip", "ryan", "zfox", "Becky", "andy_batman", "kayla_hf"];
     // Dynamically approved usernames
     var userDataUsernameWhitelist;
 
@@ -69,7 +69,7 @@
         var currentAvatarWearableIDs = Entities.findEntitiesByType('Model', MyAvatar.position, WEARABLE_SEARCH_RADIUS);
 
         for (var i = 0; i < currentAvatarWearableIDs.length; i++) {
-            var properties = Entities.getEntityProperties(currentAvatarWearableIDs[i],
+            var properties = Entities.getEntityProperties(currentAvatarWearableIDs[i], 
                 ['marketplaceID', 'certificateID', 'parentID']);
             if (properties.marketplaceID === ticketMarketplaceID && properties.parentID === MyAvatar.sessionUUID) {
                 WalletScriptingInterface.ownershipVerificationSuccess.connect(ticketVerificationSuccess);
