@@ -52,14 +52,7 @@ function filter(properties, filterType, originalProperties) {
     if (filterType === Entities.EDIT_FILTER_TYPE) {
         if (properties.name && properties.name !== originalProperties.name ||
             properties.modelURL && properties.modelURL!== originalProperties.modelURL ||
-            properties.script && properties.script !== originalProperties.script || (SCRIPT_WHITE_LIST.reduce(function(accumulator, current){
-                if (accumulator === false) { 
-                    return accumulator;
-                }
-                if (current !== properties.script) {
-                    return true;
-                }
-            }, false)) ||
+            properties.script && properties.script !== originalProperties.script ||
             properties.serverScripts && properties.serverScripts !== originalProperties.serverScripts ||
             properties.textures && properties.textures !== originalProperties.textures || 
             properties.dimensions && (properties.dimensions.x >= 3.0 || 
