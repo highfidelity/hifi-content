@@ -35,7 +35,8 @@ var CONFIG = {
     STRING_MATERIAL: "material",
     STRING_BLENDSHAPES: "blendshapes",
     STRING_ANIMATION: "animation",
-    STRING_FLOW: "flow"
+    STRING_FLOW: "flow",
+    STRING_INFO: "info"
 
 };
 

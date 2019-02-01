@@ -7,8 +7,14 @@
         UPDATE_UI = CONFIG.UPDATE_UI,
         APP_NAME = CONFIG.APP_NAME;
 
-    var EVENT_CHANGE_TAB = CONFIG.EVENT_CHANGE_TAB;
+    // Static strings
+    var STRING_MATERIAL = CONFIG.STRING_MATERIAL,
+        STRING_BLENDSHAPES = CONFIG.STRING_BLENDSHAPES,
+        STRING_ANIMATION = CONFIG.STRING_ANIMATION,
+        STRING_FLOW = CONFIG.STRING_FLOW,
+        STRING_INFO = CONFIG.STRING_INFO;
 
+    
     // Events 
     // !important Add APP_NAME to each event
     var EVENT_CHANGE_TAB = APP_NAME + CONFIG.EVENT_CHANGE_TAB;
@@ -22,42 +28,53 @@
     Vue.component('page-content', {
         props: ['datastore'],
         template: /* html */ `
-            <navigation :activetabname="datastore.activeTabName"></navigation>
-            <tab-content></tab-content>
+            <div>
+                <navigation 
+                    :activetabname="datastore.activeTabName" 
+                    :tabdatalist="datastore.tabDataList"
+                ></navigation>
+                
+                <div class="tab-content" id="nav-tabContent">
+
+                    <template v-for="tabData in datastore.tabDataList">
+
+                        <tab-content 
+                            :activetabname="datastore.activeTabName"
+                            :tabid="tabData.tabName"
+                            :title="tabData.title"
+                            :t="tabData.t"
+                            :data="tabData"
+                            :componentname="tabData.componentName"
+                        ></tab-content>
+
+                    </template>
+
+                </div>
+            </div>
         `
     })
 
     Vue.component('navigation', {
-        props: ['activetabname'],
-        computed: {
-            tabs() {
-                var activeTabName = this.activetabname;
+        props: ['activetabname', 'tabdatalist'],
+        // computed: {
+        //     tabs() {
+        //         var activeTabName = this.activetabname;
 
-                var modifiedTabs = this.tabList.map((tabInfo) => {
-                    console.log("computed:" + activeTabName + tabInfo.tabName + activeTabName === tabInfo.tabName)
-                    tabInfo.active = activeTabName === tabInfo.tabName;
-                    return tabInfo;
-                })
+        //         var modifiedTabs = this.tabdatalist.map((tabInfo) => {
+        //             console.log("computed:" + activeTabName + tabInfo.tabName + activeTabName === tabInfo.tabName)
+        //             tabInfo.active = activeTabName === tabInfo.tabName;
+        //             return tabInfo;
+        //         })
 
-                return modifiedTabs;
-            }
-        },
-        data() {
-            return {
-                tabList: [
-                    // USE STRING_BLENDSHAPES ETC FOR THE TABNAME
-                    { tabName: "tab1", tabTitle: "Tab 1", active: false},
-                    { tabName: "tab2", tabTitle: "Tab 2", active: false},
-                    { tabName: "tab3", tabTitle: "Tab 3", active: false}
-                ]
-            }
-        },
+        //         return modifiedTabs;
+        //     }
+        // },
         template: /* html */ `
             <nav>
                 <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
 
-                    <template v-for="tab in tabs">
-                        <tab :tab="tab"></tab>
+                    <template v-for="tab in tabdatalist">
+                        <tab :tab="tab" :activetabname="activetabname"></tab>
                     </template>
 
                 </div>
@@ -66,7 +83,7 @@
     })
 
     Vue.component('tab', {
-        props: ['tab'],
+        props: ['tab', 'activetabname'],
         methods: {
             switchTab(tabName) {
 
@@ -82,11 +99,14 @@
         },
         computed: {
             tabInfo() {
+
+                var tabName = this.tab.tabName;
+
                 return {
-                    tabName: this.tab.tabName,
-                    active: this.tab.active,
-                    href: "#" + this.tab.tabName,
-                    tabID: this.tabName
+                    tabName: tabName,
+                    active: (tabName === this.activetabname),
+                    href: "#" + tabName,
+                    tabID: tabName + "-tab"
                 }
             }
         },
@@ -108,24 +128,33 @@
         `
     })
 
-    [{
-        tabContentData: {
-            tabID: "",
-            title: "",
-            subtitle: "",
-            componentname: "",
-            data: ""
-        }
-    }]
+    // [{
+    //     tabContentData: {
+    //         tabID: "",
+    //         title: "",
+    //         t: "",
+    //         componentname: "",
+    //         data: ""
+    //     }
+    // }]
     Vue.component('tab-content', {
-        props: ['tabid', 'title', 'subtitle', 'data', 'componentname'],
+        props: ['activetabname', 'tabid', 'title', 'subtitle', 'data', 'componentname'],
+        computed: {
+            data2() {
+                console.log("tab-content info: " + this.tabid + this.title + this.subtitle + this.data + this.componentname);
+                return "";
+            },
+            isActiveTab(){
+                return this.activetabname === this.tabid;
+            }
+        },
         template: /* html */ `
-            <div  class="tab-pane fade" v-bind:id="tabid" role="tabpanel" v-bind:aria-labelledby="tabid">
+            <div class="tab-pane fade" v-bind:class="{ 'show active': isActiveTab }" v-bind:id="tabid" role="tabpanel" v-bind:aria-labelledby="tabid">
 
                 <h1>{{ title }}</h1>
                 <h3>{{ subtitle }}</h3>
 
-                <component :is="componentname" :data="data"></component>
+                 <component :is="componentname" :data="data"></component>
 
             </div>
         `
@@ -194,15 +223,45 @@
         el: '#app',
         data: {
             dataStore: {
-                activeTabName: "tab2",
-                tabList: [
+                activeTabName: STRING_MATERIAL,
+                tabDataList: [
                     // USE STRING_BLENDSHAPES ETC FOR THE TABNAME
-                    { tabName: "tab1", tabTitle: "Tab 1", active: false},
-                    { tabName: "tab2", tabTitle: "Tab 2", active: false},
-                    { tabName: "tab3", tabTitle: "Tab 3", active: false}
-                ]
-
-
+                    { 
+                        // INFORMATION
+                        tabName: STRING_INFO, 
+                        title: STRING_INFO.toUpperCase(), 
+                        subtitle: "I am a test for " + STRING_INFO,
+                        componentName: "test1"
+                    },
+                    { 
+                        // MATERIAL
+                        tabName: STRING_MATERIAL, 
+                        title: STRING_MATERIAL.toUpperCase(), 
+                        subtitle: "I am a test for " + STRING_MATERIAL,
+                        componentName: "test2"
+                    },
+                    { 
+                        // BLENDSHAPES
+                        tabName: STRING_BLENDSHAPES, 
+                        title: STRING_BLENDSHAPES.toUpperCase(), 
+                        subtitle: "I am a test for " + STRING_BLENDSHAPES,
+                        componentName: "test1"
+                    },
+                    {
+                        // ANIMATION
+                        tabName: STRING_ANIMATION, 
+                        title: STRING_ANIMATION.toUpperCase(), 
+                        subtitle: "I am a test for " + STRING_ANIMATION,
+                        componentName: "test2"
+                    },
+                    {
+                        // FLOW
+                        tabName: STRING_FLOW, 
+                        title: STRING_FLOW.toUpperCase(), 
+                        subtitle: "I am a test for " + STRING_FLOW,
+                        componentName: "test1"
+                    }
+                ],
             }
         }
     });

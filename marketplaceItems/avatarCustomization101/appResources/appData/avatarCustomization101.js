@@ -2,8 +2,8 @@
 
     // Modules
     var AppUi = Script.require("appUi"),
-        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v1234"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123"));
+        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344"),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234"));
 
 
     var DEBUG = true;
