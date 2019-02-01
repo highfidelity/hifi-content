@@ -2,8 +2,6 @@
 
     var EVENTBRIDGE_SETUP_DELAY = 200;
 
-
-
     // Consts
     var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
         UPDATE_UI = CONFIG.UPDATE_UI,
@@ -20,6 +18,14 @@
     var DEBUG = true;
 
     // Components
+
+    Vue.component('page-content', {
+        props: ['datastore'],
+        template: /* html */ `
+            <navigation :activetabname="datastore.activeTabName"></navigation>
+            <tab-content></tab-content>
+        `
+    })
 
     Vue.component('navigation', {
         props: ['activetabname'],
@@ -54,15 +60,6 @@
                         <tab :tab="tab"></tab>
                     </template>
 
-                    <!-- 
-                    <a class="nav-item nav-link active" v-bind:class="{ 'active': }"  id="info-tab" data-toggle="tab" href="#info" role="tab"
-                    aria-controls="info" aria-selected="true">Info</a>
-                    <a class="nav-item nav-link" id="nav-domains-tab" data-toggle="tab" href="#nav-domains" role="tab"
-                    aria-controls="nav-domains" aria-selected="false">Favorite Domain</a> 
-                    <a class="nav-item nav-link" id="nav-avatars-tab" data-toggle="tab" href="#nav-avatars" role="tab"
-                    aria-controls="nav-avatars" aria-selected="false">Favorite Avatar</a>
-                    -->
-
                 </div>
             </nav>
         `
@@ -89,7 +86,7 @@
                     tabName: this.tab.tabName,
                     active: this.tab.active,
                     href: "#" + this.tab.tabName,
-                    id: this.tabName
+                    tabID: this.tabName
                 }
             }
         },
@@ -97,7 +94,8 @@
             <a 
                 class="nav-item nav-link ml-2" 
                 v-bind:class="{ 'active': tabInfo.active }" 
-                v-bind:id="tabInfo.id" 
+                v-bind:id="tabInfo.tabID" 
+                :key="tabInfo.tabID" 
                 data-toggle="tab" 
                 v-bind:href="tabInfo.href" 
                 role="tab" 
@@ -110,35 +108,101 @@
         `
     })
 
-    Vue.component('example', {
-        props: {
-            example: { type: Object }
-        },
-        methods: {
-            example() {
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: EXAMPLE_MESSAGE,
-                    value: this.example
-                }));
-            }
-        },
-        template: `
-                <div class="card">
-                    <div class="card-header">
-                        {{ example.name }}
-                    </div>
-                    <div class="card-body">
-                        <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="example()">Example</button>
-                    </div>
-                </div>
-            `
+    [{
+        tabContentData: {
+            tabID: "",
+            title: "",
+            subtitle: "",
+            componentname: "",
+            data: ""
+        }
+    }]
+    Vue.component('tab-content', {
+        props: ['tabid', 'title', 'subtitle', 'data', 'componentname'],
+        template: /* html */ `
+            <div  class="tab-pane fade" v-bind:id="tabid" role="tabpanel" v-bind:aria-labelledby="tabid">
+
+                <h1>{{ title }}</h1>
+                <h3>{{ subtitle }}</h3>
+
+                <component :is="componentname" :data="data"></component>
+
+            </div>
+        `
+    })
+
+    Vue.component('test1', {
+        template: /* html */ `
+            <div>
+                test1
+            </div>
+        `
+    })
+
+    Vue.component('test2', {
+        template: /* html */ `
+            <div>
+                test2
+            </div>
+        `
+    })
+
+    
+    // Edit components
+
+    Vue.component('slider-container', {
+        props: ['title', 'showval', 'istitleabove', 'maxval', 'minval'],
+        // if title exists
+        // istitleabove boolean to the left of slider and value or on the top
+        template: /* html */ `
+            <div>
+                
+            </div>
+        `
+    })
+
+    Vue.component('slider', {
+        props: ['max', 'min'],
+        template: /* html */ `
+            <div>
+            
+            </div>
+        `
+    })
+
+    // "Others to modify, You will learn about customizing your avatar in hifi"
+    Vue.component('title-list', {
+        props: ['max', 'min'],
+        template: /* html */ `
+            <div>
+                <li></li>
+            </div>
+        `
+    })
+
+    // "Others to modify, You will learn about customizing your avatar in hifi"
+    Vue.component('dropdown', {
+        props: ['max', 'min'],
+        template: /* html */ `
+            <div>
+                <li></li>
+            </div>
+        `
     })
 
     var app = new Vue({
         el: '#app',
         data: {
             dataStore: {
-                activeTabName: "tab2"
+                activeTabName: "tab2",
+                tabList: [
+                    // USE STRING_BLENDSHAPES ETC FOR THE TABNAME
+                    { tabName: "tab1", tabTitle: "Tab 1", active: false},
+                    { tabName: "tab2", tabTitle: "Tab 2", active: false},
+                    { tabName: "tab3", tabTitle: "Tab 3", active: false}
+                ]
+
+
             }
         }
     });

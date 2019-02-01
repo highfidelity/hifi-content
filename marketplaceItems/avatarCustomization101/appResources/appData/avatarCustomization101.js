@@ -150,18 +150,19 @@
     }
 
     function switchTabs(tabName) {
-
+        
         // if tabName === STRING_BLENDSHAPES
         //      setMirrorDistanceToBlendshapes();
         // if currentTab === STRING_BLENDSHAPES && tabName !== STRING_BLENDSHAPES
         //      setMirrorDistanceToDefault();
-
+        
         // if tabName === STRING_FLOW
         //      createFlowDebugSpheres();
         // if currentTab === STRING_FLOW && tabName !== STRING_FLOW
         //      deleteFlowDebugSpheres();
 
-        // currentTab = tabName;
+        currentTab = tabName;
+        
     }
 
     function unload() {
@@ -219,7 +220,7 @@
                     print("onMessage: ", EVENT_CHANGE_TAB);
                 }
 
-                // switchTabs(data.tabName);
+                switchTabs(data.value);
 
                 break;
             case EVENT_RESTORE_SAVED_AVATAR:
