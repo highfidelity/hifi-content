@@ -22,6 +22,7 @@ https://trello.com/c/UzXawXgg/38-tip-jar
 
 ## Known issues
 - In HMD, opening the QML window in the tablet doesn't display the background correctly.
+- 2019-02-01_11-19-12: Currently you have to enter the user name with case sensitivity.  This is being looked into and should be resolved soon.
 
 ## Misc
 - There is a file in entityResources/entity/tipJarSpawner.js.  This is a convenience file for testing so that you don't have to keep reimporting a JSON and will always have the updated code if there are any changes. 
