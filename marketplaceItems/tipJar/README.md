@@ -14,6 +14,9 @@ Rez the tipjar and edit the userData to customize how the tip jar operates. Be m
 - Removed the balance checking code to simplify
 - Added a cap at 1 million hfc
 
+[tipJar 704f869] :: 2019-01-31_03-55-00
+- Changed the click sound
+
 ## Links
 https://trello.com/c/UzXawXgg/38-tip-jar
 
