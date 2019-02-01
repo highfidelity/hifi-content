@@ -10,7 +10,7 @@
 /* global Audio, Script, ScriptDiscoveryService, SoundCache */
 
 (function() {
-    var GET_CARD_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWish.wav"));
+    var GET_CARD_SOUND = SoundCache.getSound(Script.resolvePath("sounds/bingoWish.wav"));
     var WAIT_TO_CLICK_MS = 5000;
 
     var _this;

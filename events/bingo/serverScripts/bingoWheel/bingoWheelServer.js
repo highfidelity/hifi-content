@@ -45,7 +45,6 @@
     var gameOnLights = [];
     var registrationSign;
     var cardRemoverSign;
-    var backboard;
     var calledLettersAndNumbers = [];
     var lightBlinkInterval;
     var newRoundURLParams;
