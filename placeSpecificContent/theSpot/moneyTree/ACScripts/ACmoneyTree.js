@@ -28,9 +28,10 @@ function requestBannedUsers(callback) {
 // These 4 functions handle the different message channels used to communicate 
 // with entities and clients.  Multiple functions are used to decrease the likelihood
 // that bad actors successfully send or receive messages.
-var hiFiStaff = SECRETS.hiFiStaff,
-    treeOperators = SECRETS.treeOperators,
-    userList= [],
+
+var hiFiStaff = SECRETS.hiFiStaff;
+var treeOperators = SECRETS.treeOperators;
+var userList= [],
     bannedUsers = [],
     operatorsPresent = [];
 var messageHandler = function(channel, message, senderUUID, localOnly) {
@@ -47,16 +48,17 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
             var nameOnList = false;
             var isBanned = false;
             avatarsInDomain.forEach(function(nodeID){
-                if (treeOperators.indexOf(message.username) !== -1 && 
+                if (treeOperators.indexOf(message.username.toLowerCase()) !== -1 && 
                 !operatorsPresent[operatorsPresent.map(function(e) { 
                     return e.username; 
-                }).indexOf(message.username)]) {
+                }).indexOf(message.username.toLowerCase())]) {
                     operatorsPresent.push({
-                        username: message.username,
+                        username: message.username.toLowerCase(),
                         nodeID: message.nodeID
                     });
                     bankerOverlay(message.nodeID, false);
-                    updateMarquis();                                        
+                    updateMarquis();  
+                    console.log("operator entered zone :", message.username);                                      
                 }
                 // If the username or UUID is already on the list, do not add it to the list!
                 userList.forEach(function(index){
@@ -76,12 +78,14 @@ var messageHandler = function(channel, message, senderUUID, localOnly) {
                         nodeID: message.nodeID,
                         staff: false
                     });
+                    console.log("user entered zone :", message.username);                                      
+
                     // If user is staff, mark [].staff 'true'
-                    hiFiStaff.forEach(function(username){
-                        if (message.username === username){
+                    hiFiStaff.forEach(function(username) {
+                        if (message.username.toLowerCase() === username) {
                             userList[userList.map(function(e) { 
                                 return e.username; 
-                            }).indexOf(message.username)].staff = true;
+                            }).indexOf(message.username.toLowerCase())].staff = true;
                         }
                     });
                     // Update Signs
@@ -111,6 +115,7 @@ var messageHandlerOperator = function(channel, message, senderUUID, localOnly) {
                     Script.clearTimeout(coinSpawnTimeout);
                     coinSpawnTimeout = false;
                 }
+                console.log("turned on the tree via power button, new interval starting", userList.length, " people present");
                 startTree();
                 updateMarquis(SIGN_TEXT[6]);
             } else {
@@ -163,6 +168,7 @@ var messageHandlerGiver = function(channel, message, senderUUID, localOnly) {
             responseTimeout = new Date().getTime();  
             Script.clearTimeout(noOneGave);
             noOneGave = false;
+            console.log(targetGiver.username, "gave to ", recipient.username, " starting new interval.");
             startTree();
         }
     // Receiver accepts
@@ -212,6 +218,7 @@ var MONEY_TREE_CHANNEL = SECRETS.MONEY_TREE_CHANNEL,
     SEARCH_CENTER = {x: -18.1834, y: -7.7738, z: -11.8755},
     SEARCH_AREA_M = 1000,
     populationID,
+    moneyTreeZone,
     marquisID,
     octreeInterval = null;
 function allowEntityAccess() {
@@ -227,8 +234,7 @@ function allowEntityAccess() {
     }
     Script.setTimeout(function(){
         try {
-            if (Entities.getEntityProperties(
-                Entities.findEntitiesByName("Money Tree Counter", SEARCH_CENTER, SEARCH_AREA_M)[0], ["id"]).id !== undefined) {
+            if (Entities.getEntityProperties(Entities.findEntitiesByName("Money Tree Counter", SEARCH_CENTER, SEARCH_AREA_M)[0], ["id"]).id !== undefined) {
                 populationID = Entities.getEntityProperties(
                     Entities.findEntitiesByName("Money Tree Counter", SEARCH_CENTER, SEARCH_AREA_M)[0], ["id"]).id;
                 Entities.editEntity(populationID, {text: "--"});
@@ -243,6 +249,8 @@ function allowEntityAccess() {
                 powerButtonMaterial.forEach(function(entityID){
                     Entities.deleteEntity(entityID);
                 });
+                moneyTreeZone = Entities.getEntityProperties(
+                    Entities.findEntitiesByName("Money Tree Zone", SEARCH_CENTER, SEARCH_AREA_M)[0], ['position', 'rotation', 'dimensions']);
             } else {    
                 populationID = Entities.addEntity({
                     type: "Text",
@@ -281,6 +289,8 @@ function allowEntityAccess() {
             Messages.messageReceived.connect(messageHandlerOperator);
             Messages.messageReceived.connect(messageHandlerRecipient);
             Messages.messageReceived.connect(messageHandlerGiver);
+            generateRandomIntervals();
+            console.log("First tree interval since startup", userList.length, " people present");
             startTree();
         } catch (e) {
             print("[MONEY TREE] could not find or create anything", e);
@@ -328,18 +338,9 @@ function bankerOverlay(uuid, remove) {
                 if (validID === uuid) {
                     Entities.deleteEntity(entityID);
                 }
-            });
-            var powerButtonMaterial = Entities.findEntitiesByName("Power Button Material", SEARCH_CENTER, SEARCH_AREA_M);
-            powerButtonMaterial.forEach(function(entityID){
-                var entityData2 = Entities.getEntityProperties(entityID, ['userData']);
-                userData = JSON.parse(entityData2.userData);
-                var validID2 = userData.bankerID;
-                if (validID2 === uuid) {
-                    Entities.deleteEntity(entityID);
-                }
-            });
+            });           
         } catch (e){
-            print("error removing overlay", e);
+            console.log("error removing overlay", e);
         }
     } else {
         var userData = { bankerID: uuid, power: treePower };
@@ -347,7 +348,7 @@ function bankerOverlay(uuid, remove) {
             type: "Box",
             dimensions: { x: 0.5, y: 0.5, z: 0.5 },
             name: "Power Button Spawner",
-            script: Script.resolvePath("../entityScripts/moneyTreeBankerClient.js"),
+            script: Script.resolvePath("../entityScripts/moneyTreeBankerClient.js?v6"),
             userData: JSON.stringify(userData),
             position: { x: -16.9779, y: -9.132, z: -10.7944 },
             visible: false,
@@ -357,14 +358,32 @@ function bankerOverlay(uuid, remove) {
 }
 
 
+// This function determines whether an avatar uuid is inside the money tree zone.
+var HALF_MULTIPLIER = 0.5;
+function isAvatarInsideZone(uuid) {
+    var avatar = AvatarList.getAvatar(uuid);
+    var localPosition = Vec3.multiplyQbyV(Quat.inverse(moneyTreeZone.rotation),
+        Vec3.subtract(avatar.position, moneyTreeZone.position));
+    var halfDimensions = Vec3.multiply(moneyTreeZone.dimensions, HALF_MULTIPLIER);
+    return -halfDimensions.x <= localPosition.x &&
+            halfDimensions.x >= localPosition.x &&
+           -halfDimensions.y <= localPosition.y &&
+            halfDimensions.y >= localPosition.y &&
+           -halfDimensions.z <= localPosition.z &&
+            halfDimensions.z >= localPosition.z;
+}
+
+
 // If someone leaves the zone or the domain, remove them from any lists they were on.
 function leftZone(uuid) {
     var isOperator = operatorsPresent[operatorsPresent.map(function(e) { 
         return e.nodeID; 
     }).indexOf(uuid)];
+    console.log("operator left: ", JSON.stringify(isOperator));
     var isUser = userList[userList.map(function(e) { 
         return e.nodeID; 
     }).indexOf(uuid)];
+    console.log("user left: ", JSON.stringify(isUser));
     if (isOperator && operatorsPresent.indexOf(isOperator) !== -1) {
         bankerOverlay(uuid, true);
         operatorsPresent.splice(operatorsPresent.indexOf(isOperator),1)[0];
@@ -392,7 +411,7 @@ function spawnReceiverMessage(amount) {
             type: "Box",
             dimensions: { x: 0.5, y: 0.5, z: 0.5 },
             name: "Tree Gift Receipt",
-            script: Script.resolvePath("../entityScripts/moneyTreeReceiverClient.js?v3"),
+            script: Script.resolvePath("../entityScripts/moneyTreeReceiverClient.js?v6"),
             userData: JSON.stringify(userData),
             lifetime: 30,
             position: Vec3.sum(avatar.position, Vec3.multiplyQbyV(avatar.orientation, { x: -2.5, y: 0, z: -5 })),
@@ -521,12 +540,13 @@ var AVERAGE_INTERVAL_MIN = 2,
     SHOW_TIME_SECONDS = 60 * MS_TO_SEC, 
     randomIntervals = [SHOW_TIME_SECONDS];
 function generateRandomIntervals() {
-    for (var i = 0; i < AVERAGE_HFC_AMOUNT; i++){
+    for (var i = 0; i < 1000; i++){
         var interval = gaussian(AVERAGE_INTERVAL_MIN, 1) * SHOW_TIME_SECONDS;
         randomIntervals.push(            
             interval > SHOW_TIME_SECONDS ? interval : SHOW_TIME_SECONDS
         );
     }
+    console.log(randomIntervals.length, "intervals left");
 }
 
 
@@ -534,6 +554,7 @@ function generateRandomIntervals() {
 // over the heads of 2 or 3 users.
 var coinSpawner = [];
 function createCoinSpawner() {
+    console.log("spawning coins");
     if (targetRecipients[0] === null){
         return;
     } else if (targetRecipients.length < RECIPIENT_MAX-1){
@@ -550,11 +571,12 @@ function createCoinSpawner() {
             var userData = {
                 giverID: targetGiver.nodeID
             };
+            console.log("spawning coins above ", targetRecipients[i].username);
             coinSpawner[i] = Entities.addEntity({
                 type: "Box",
                 dimensions: { x: 0.5, y: 0.5, z: 0.5 },
                 name: "Money Tree Gift",
-                script: Script.resolvePath("../entityScripts/moneyTreeGiverClient.js"),
+                script: Script.resolvePath("../entityScripts/moneyTreeGiverClient.js?v6"),
                 userData: JSON.stringify(userData),
                 lifetime: 60,
                 position: sum,
@@ -606,6 +628,7 @@ function pickRecipients() {
     tempList.splice(userListGiverIndex, 1)[0]; // Do not include the giver on this list.
     for (var i = 0; i < tempList.length; i++) {
         if (tempList[i].staff === true) { // Remove all staff as they are not qualified to receive.
+            console.log("Removing staff", JSON.stringify(tempList[i]));
             tempList.splice(i,1)[0];
             i--;
         }
@@ -617,7 +640,7 @@ function pickRecipients() {
     var recipientCount = (tempList.length > RECIPIENT_MAX) ? RECIPIENT_MAX : tempList.length;
     for (var j = 0; j < recipientCount; j++){ 
         var index = randInt(0, tempList.length-1);
-        targetRecipients.push(tempList.splice(index-j, 1)[0]);// Add two or three recipients to the final list.     
+        targetRecipients.push(tempList.splice(index, 1)[0]);// Add two or three recipients to the final list.     //why remove index-j?
     }
 }
 
@@ -694,29 +717,19 @@ function encodeURLParams(params) {
 
 // Remove any remaining entities created in a cycle and ensure lists are up to date.
 function cleanUpEntities() {
-    try {
-        var avatarsInDomain = AvatarList.getAvatarIdentifiers();        
+    console.log("cleaning");
+    try {     
         operatorsPresent.forEach(function(index){
-            var count = 0;
-            avatarsInDomain.forEach(function(nodeID){
-                if (index.nodeID === nodeID){
-                    count += 1;
-                }
-            });
-            if (count < 1) {
-                bankerOverlay(index, true);
-                operatorsPresent.splice(operatorsPresent.indexOf(index),1)[0];
+            if (!isAvatarInsideZone(index.nodeID)){
+                console.log(index.username, "is not here anymore, so remove them");
+                bankerOverlay(index.nodeID, true);
+                operatorsPresent.splice(index,1)[0];
             }
         });
         userList.forEach(function(index){
-            var count = 0;
-            avatarsInDomain.forEach(function(nodeID){
-                if (index.nodeID === nodeID){
-                    count += 1;
-                }
-            });
-            if (count < 1) {
-                userList.splice(userList.indexOf(index),1)[0];
+            if (!isAvatarInsideZone(index.nodeID)) {
+                console.log(index.username, "is not here anymore, so remove them");
+                userList.splice(index,1)[0];
             }
         });
         var extraCoins = Entities.findEntitiesByName("Money Tree Gift", SEARCH_CENTER, SEARCH_AREA_M);
@@ -758,22 +771,30 @@ function startTree() {
         type: "time",
         message: message
     }));
+    console.log(randomIntervals.length, "intervals left");
+    if (randomIntervals.length <= 5){
+        console.log("generating more intervals...")
+        generateRandomIntervals();
+    }
     coinSpawnTimeout = Script.setTimeout(function(){
         cleanUpEntities();
-        if (randomIntervals.length < 1){
-            generateRandomIntervals();
-        }
+        console.log("done cleaning");
         if (userList.length >= RECIPIENT_MAX){
             pickAGiver();
+            console.log("giver", JSON.stringify(targetGiver));
             pickRecipients();    
+            console.log("recipients: ", JSON.stringify(targetRecipients));
             if (targetRecipients.length > 1) {
                 createCoinSpawner();
+                console.log("giver", JSON.stringify(targetGiver), "recipients: ", JSON.stringify(targetRecipients));
                 noOneGave = Script.setTimeout(function(){
                     startTree();
+                    console.log("user didn't give to anyone", userList.length, " people present");
                 }, 1.5*SHOW_TIME_SECONDS);
             } 
         } else {
             updateMarquis(SIGN_TEXT[3]);
+            console.log("couldn't find enough people", userList.length, " people present");
             startTree();
         }
     }, randomIntervals.pop());

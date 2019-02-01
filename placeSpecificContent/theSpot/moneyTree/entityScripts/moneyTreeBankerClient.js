@@ -24,6 +24,7 @@
         userData,
         materialID,
         bankerID,
+        modelColor = [ 255, 255, 0],
         powerOverlay,
         clicked,
         modelURL = Script.resolvePath("../resources/models/symbol-power.fbx");
@@ -70,6 +71,7 @@
 
         powerMaterial: function() {
             if (power){
+                modelColor = {red: 0, green: 255, blue:0};
                 var materials = {
                     albedo: [0, 0.5, 0.5],
                     emissive: [0, 1, 0.5],
@@ -85,6 +87,7 @@
                     })
                 };
             } else {
+                modelColor = {red: 255, green: 0, blue:0};
                 materials = {
                     albedo: [0.5, 0, 0],
                     emissive: [1, 0.2, 0],
@@ -113,32 +116,44 @@
                 bankerID = userData.bankerID;
                 power = userData.power;
                 // verify that settings are legit
+                var powerButtonMaterial = Entities.findEntitiesByName("Power Button Material", MyAvatar.position, 1000);
+                console.log("found power materials", powerButtonMaterial.length);
+                powerButtonMaterial.forEach(function(entityID){
+                    var entityData = Entities.getEntityProperties(entityID, ['userData']);
+                    userData = JSON.parse(entityData.userData);
+                    var validID = userData.bankerID;
+                    if (validID === MyAvatar.sessionUUID) {
+                        Entities.deleteEntity(entityID);
+                    }
+                });
             } catch (e) {
                 print("Error in retrieving entity Data");
                 return;
             }
+
         },
 
         deleteOverlay: function() {
+            Entities.deleteEntity(powerMaterial);
             if (powerOverlay) {
                 Overlays.deleteOverlay(powerOverlay);
                 powerOverlay = null;
             }
-            Entities.deleteEntity(powerMaterial);
         },
 
         spawnPowerOverlay: function() {
             if (MyAvatar.sessionUUID === bankerID){ 
+                powerMaterial = _this.powerMaterial();
                 powerOverlay = Overlays.addOverlay("model", {
                     name: "POWER OVERLAY",
                     url: modelURL,
+                    color: modelColor,
                     dimensions: { x: 0.75, y: 0.05, z: 0.75 },
                     position: { x: -19.8590, y: -8.2439, z: -10.9606 },
                     rotation: Quat.fromPitchYawRollDegrees(-90, 90, 0 ),
                     isSolid: true,
                     grabbable: true
                 });  
-                powerMaterial = _this.powerMaterial();
                 materialID = Entities.addEntity({
                     name: "Power Button Material",
                     type: "Material",
