@@ -14,7 +14,7 @@
 
 (function () {
     // Hardcoded approved usernames
-    var APPROVED_USERNAMES = ["philip", "ryan", "zfox", "Becky", "andy_batman", "kayla_hf"];
+    var APPROVED_USERNAMES = ["philip", "ryan", "zfox", "Becky", "market", "kayla_hf"];
     // Dynamically approved usernames
     var userDataUsernameWhitelist;
 
