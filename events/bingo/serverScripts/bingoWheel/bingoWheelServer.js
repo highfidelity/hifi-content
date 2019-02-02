@@ -137,8 +137,6 @@
             gameOnLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: true });
             });
-            // Entities.editEntity(_this.entityID, { textures: Entities.getEntityProperties(_this.entityID).originalTextures });
-            // Entities.editEntity(backboard, { textures: Entities.getEntityProperties(backboard).originalTextures });
         },
 
         /* Adds the specified username to the Winners array. That array is cleared
@@ -347,12 +345,6 @@
         /* GAME OVER: Turn off all lights, take down card remover sign, and close registration. */
         lightsOut: function() {
             _this.newRound();
-            // Entities.editEntity(_this.entityID, { textures: JSON.stringify({
-            //     file5: ""
-            // })});
-            // Entities.editEntity(_this.entityID, { textures: JSON.stringify({
-            //     file5: ""
-            // })});
             gameOnLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: false });
             });
