@@ -333,7 +333,7 @@
     
     // Clear the "cheering" animation if it's running
     var stopCheeringTimeout = false;
-    var STOP_CHEERING_TIMEOUT_MS = 2000;
+    var STOP_CHEERING_TIMEOUT_MS = 500;
     function stopCheeringSoon() {
         maybeClearStopCheeringTimeout();
 
