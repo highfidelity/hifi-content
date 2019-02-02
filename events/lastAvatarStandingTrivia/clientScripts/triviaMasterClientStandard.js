@@ -156,12 +156,12 @@
                     lights.forEach(function(light) {
                         Entities.callEntityServerMethod(light, "lightsOn");
                     }); 
+
                 } else {
                     var data = {"error message": "found no targets"};
                     data.application = "trivia";
                     tablet.emitScriptEvent(JSON.stringify(data));
-                }
-                
+                }                
             } catch (e) {
                 console.log(e, "error finding targets");
                 var data = {"error message": e};
@@ -201,6 +201,7 @@
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ 
             type: "game on" 
         }));
+        usersInZone(gameZoneProperties, "begin");
         if (!intervalBoard) {
             intervalBoard = Script.setInterval(function(){
                 updateAvatarCounter(false);
@@ -219,7 +220,9 @@
     function bubbleOff() {
         bubbleState = false;
         Entities.callEntityServerMethod(bubble, "bubbleOff");
+        usersInZone(gameZoneProperties, "end");
         Messages.sendMessage(TRIVIA_CHANNEL, JSON.stringify({ type: "game off" }));
+        
         if (intervalBoard) {
             Script.clearInterval(intervalBoard);
             intervalBoard = false;
@@ -231,19 +234,19 @@
     
     function findTargets() {
         Entities.findEntities(MyAvatar.position, SEARCH_RADIUS).forEach(function(element) {
-            var hasServerScript = Entities.getEntityProperties(element, ['serverScripts']).serverScript;
-            if (hasServerScript !== "") {
-                Entities.getServerScriptStatus(element, (function() {
-                    return function(success, isRunning, status, errorInfo) {
-                        if (!success || !isRunning) {
-                            console.log("Script not running:", element, success, isRunning, status, errorInfo, JSON.stringify(hasServerScript));
-                            Entities.reloadServerScripts(element);
-                        }
-                    };
-                })());
-            }
             var name = Entities.getEntityProperties(element, ['name']).name;
             if (name.indexOf("Trivia") !== -1) {
+                var hasServerScript = Entities.getEntityProperties(element, ['serverScripts']).serverScripts;
+                if (hasServerScript !== "") {
+                    Entities.getServerScriptStatus(element, (function() {
+                        return function(success, isRunning, status, errorInfo) {
+                            if (!success || !isRunning) {
+                                console.log("Script not running:", element, success, isRunning, status, errorInfo, JSON.stringify(hasServerScript));
+                                Entities.reloadServerScripts(element);
+                            }
+                        };
+                    })());
+                }
                 if (name.indexOf("Light") !== -1) {
                     lights.push(element);
                 } else if (name.indexOf("Correct") !== -1) {
@@ -331,17 +334,24 @@
                     triviaURL = SECRETS.trivia_URL;
                 }
                 triviaURL = triviaURL + "category=" + GSHEET_TAB_NAME;
-                request(triviaURL, function (error, data) {
-                    if (!error) {
-                        console.log(JSON.stringify(data));
-                        data.application = "trivia";
-                        tablet.emitScriptEvent(JSON.stringify(data));
-                        triviaData = data;
-                    } else {
-                        data.application = "trivia";
-                        tablet.emitScriptEvent(JSON.stringify(data));
-                    }
-                });
+                var expression = /[-a-zA-Z0-9@:%_\+.~#?&\/=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/=]*)?/gi;
+                var regex = new RegExp(expression);
+                
+                if (triviaURL.match(regex)) {
+                    request(triviaURL, function (error, data) {
+                        if (error || data.status !== "success") {
+                            data.application = "trivia";
+                            tablet.emitScriptEvent("nothingEntered");
+                            useGoogle = false;
+                        } else {
+                            data.application = "trivia";
+                            tablet.emitScriptEvent(JSON.stringify(data));
+                            triviaData = data;
+                        }
+                    });
+                } else {
+                    tablet.emitScriptEvent("nothingEntered");
+                }
             } catch (err) {
                 print("Could not get domain data using userData domainAPIURL");
             }
@@ -510,15 +520,31 @@
                 halfDimensions.z >= localPosition.z;
     }
 
-    function usersInZone(gameZoneProperties) {
+    function usersInZone(gameZoneProperties, state) {
         var count = 0;
-        AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
-            var avatar = AvatarManager.getAvatar(avatarID);
-            if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties) ) {
-                count++;                
-            }
-        });
-        return count;
+        if (state === undefined) {
+            AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
+                var avatar = AvatarManager.getAvatar(avatarID);
+                if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties) ) {
+                    count++;                
+                }
+            });
+            return count;
+        } else if (state === "begin") {
+            AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
+                var avatar = AvatarManager.getAvatar(avatarID);
+                if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties) ) {
+                    Entities.callEntityServerMethod(bubble, "rezValidator", [avatar.sessionUUID]);             
+                }
+            });
+        } else {
+            AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
+                var avatar = AvatarManager.getAvatar(avatarID);
+                if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties) ) {
+                    Entities.callEntityServerMethod(bubble, "deleteValidator", [avatar.sessionUUID]);             
+                }
+            });
+        }
     }
 
     function updateAvatarCounter(roundOver) {
@@ -766,21 +792,24 @@
                                 useGoogle = true;
                                 triviaURL = SECRETS.trivia_URL;
                                 answer = Window.prompt("What is the tab name of the sheet to use?", "");
-                                if (answer === "") {
-                                    print("User canceled");
+                                if (answer === null) {
+                                    tablet.emitScriptEvent("nothingEntered");
+                                    useGoogle = false;
                                 } else {
                                     GSHEET_TAB_NAME = answer;
                                 }
                                 break;
                             case "Misc. Catalog":                                
                                 var answer = Window.prompt("URL of your GSheets script?", "");
-                                if (answer === "") {
-                                    print("User canceled");
+                                if (answer === null) {
+                                    tablet.emitScriptEvent("nothingEntered");
+                                    useGoogle = false;
                                 } else {
                                     triviaURL = answer;
                                     answer = Window.prompt("What is the tab name of the sheet to use?", "");
-                                    if (answer === "") {
-                                        print("User canceled");
+                                    if (answer === null) {
+                                        tablet.emitScriptEvent("nothingEntered");
+                                        useGoogle = false;
                                     } else {
                                         useGoogle = true;
                                         GSHEET_TAB_NAME = answer;

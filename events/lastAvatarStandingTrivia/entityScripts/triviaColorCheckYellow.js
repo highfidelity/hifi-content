@@ -71,7 +71,7 @@
             if (_this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
                 MyAvatar.position = DISQUALIFIED_POSITION;
                 Script.setTimeout(function(){
-                    MyAvatar.orientation = Quat.lookAt(MyAvatar.position, gameZone.position, Vec3.UNIT_Y);
+                    MyAvatar.orientation = Quat.cancelOutRollAndPitch(Quat.lookAt(MyAvatar.position, gameZone.position, Vec3.UNIT_Y));
                 }, 100);
                 console.log("ejected by color check yellow");
                 _this.playSound(SOUND, true);

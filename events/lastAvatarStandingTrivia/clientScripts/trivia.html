@@ -191,14 +191,26 @@
                     showQButton.disabled = true;
                     answerButton.disabled = true;
                 } 
-                else {
+                else if (event === "nothingEntered") {
+                        document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
+                        document.getElementById('catalog').value = "Default Catalog" + "   \u25BC";
+                        databaseButton.disabled = true;
+                        typeButton.disabled = true;
+                        diffButton.disabled = true;
+                        catButton.disabled = true;
+                        beginButton.disabled = false;
+                        endButton.disabled = true;
+                        newQButton.disabled = true;
+                        showQButton.disabled = true;
+                        answerButton.disabled = true;   
+                } else {
                     try{
                         triviaData = JSON.parse(event);
                         console.log(event);
                         if(triviaData.application !== "trivia") {
                             return;
-                        }
-                        if ("question" in triviaData) {
+                        } 
+                        else if ("question" in triviaData) {
                             document.getElementById("question").innerHTML = triviaData.question;
                             if (triviaData.type === "multiple") {
                                 document.getElementById("answer").innerHTML =  "<p class=\"correct\">" + 
@@ -209,7 +221,8 @@
                             } else {
                                 document.getElementById("answer").innerHTML = triviaData.correct_answer;
                             }
-                        } else if ("response_code" in triviaData) {
+                        } 
+                        else if ("response_code" in triviaData) {
                             document.getElementById("question").innerHTML = "Response: " + triviaData["response_code"] + " Check with your trivia database or HiFi Admin, something is clearly wrong";
                             databaseButton.disabled = true;
                             typeButton.disabled = true;
@@ -220,8 +233,10 @@
                             newQButton.disabled = true;
                             showQButton.disabled = true;
                             answerButton.disabled = true;
-                        } else {
+                        } 
+                        else {
                             document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
+                            document.getElementById('catalog').value = "Default Catalog" + "   \u25BC";
                             databaseButton.disabled = true;
                             typeButton.disabled = true;
                             diffButton.disabled = true;
