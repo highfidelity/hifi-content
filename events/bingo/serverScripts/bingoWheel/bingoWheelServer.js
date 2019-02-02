@@ -45,7 +45,6 @@
     var gameOnLights = [];
     var registrationSign;
     var cardRemoverSign;
-    // var backboard;
     var calledLettersAndNumbers = [];
     var lightBlinkInterval;
     var newRoundURLParams;
@@ -122,8 +121,6 @@
                     cardRemoverSign = childEntity;
                 } else if (name === "Bingo Wheel Light") {
                     gameOnLights.push(childEntity);
-                } else if (name === "Bingo Wall Backboard") {
-                    backboard = childEntity;
                 } else if (name === "Bingo Player Counter") {
                     playerCounterText = childEntity;
                 } else if (name === "Bingo Player Counter Light") {
