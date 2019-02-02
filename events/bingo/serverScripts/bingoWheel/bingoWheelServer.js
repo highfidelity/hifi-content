@@ -25,7 +25,7 @@
     var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
     var DRUMROLL_SOUND = SoundCache.getSound(Script.resolvePath("sounds/drumroll.wav"));
     var LOWER_DOORS_DELAY_MS = 1150;
-    var POSSIBLE_PRIZES = ["Oculus Quest", "Vive Pro", "1,000 HFC", "Nothing!", "Three Sheep", "500 HFC"];
+    var POSSIBLE_PRIZES = ["Oculus Quest", "Vive Pro", "HFC!", "Group Wins!"];
     var currentRoundWinners = [];
     var BINGO_PRIZE_DOOR_1_TEXT = "{ff7674bb-5569-4381-b370-1dfa1d2a9723}";
     var BINGO_PRIZE_DOOR_1 = "{8724dc08-c0fb-4feb-bda1-8686023f8355}";
@@ -45,6 +45,7 @@
     var gameOnLights = [];
     var registrationSign;
     var cardRemoverSign;
+    // var backboard;
     var calledLettersAndNumbers = [];
     var lightBlinkInterval;
     var newRoundURLParams;
@@ -136,6 +137,8 @@
             gameOnLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: true });
             });
+            // Entities.editEntity(_this.entityID, { textures: Entities.getEntityProperties(_this.entityID).originalTextures });
+            // Entities.editEntity(backboard, { textures: Entities.getEntityProperties(backboard).originalTextures });
         },
 
         /* Adds the specified username to the Winners array. That array is cleared
@@ -344,6 +347,12 @@
         /* GAME OVER: Turn off all lights, take down card remover sign, and close registration. */
         lightsOut: function() {
             _this.newRound();
+            // Entities.editEntity(_this.entityID, { textures: JSON.stringify({
+            //     file5: ""
+            // })});
+            // Entities.editEntity(_this.entityID, { textures: JSON.stringify({
+            //     file5: ""
+            // })});
             gameOnLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: false });
             });
