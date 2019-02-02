@@ -85,7 +85,7 @@
     }
 
     var currentVolume = 0;
-    var VOLUME_MAX_STEP_SIZE = 0.008; // unitless, determined empirically
+    var VOLUME_MAX_STEP_SIZE = 0.003; // unitless, determined empirically
     var VOLUME_MAX_STEP_SIZE_DESKTOP = 1; // unitless, determined empirically
     function fadeSoundVolume(targetVolume, maxStepSize) {
         if (!soundInjector) {
@@ -123,31 +123,49 @@
     }
 
     var soundInjector = false;
-    var MIN_VELOCITY_THRESHOLD_CM_PER_SEC = 10;
-    var MAX_VELOCITY_CM_PER_SEC = 120; // determined empirically
-    function calculateHandEffect(leftHandVelocityCMPerSec, rightHandVelocityCMPerSec, isFaked){
-        var averageVelocity = (leftHandVelocityCMPerSec + rightHandVelocityCMPerSec) / 2;
-        if (averageVelocity >= MIN_VELOCITY_THRESHOLD_CM_PER_SEC && !soundInjector) {
+    var MIN_CHEER_INTENSITY = 0.05; // Unitless, determined empirically
+    var MAX_VELOCITY_CM_PER_SEC = 110; // determined empirically
+    var MAX_ANGULAR_VELOCITY_LENGTH = 1.5; // determined empirically
+    var LINEAR_VELOCITY_WEIGHT = 0.7; // This and the line below must add up to 1.0
+    var ANGULAR_VELOCITY_LENGTH_WEIGHT = 0.3; // This and the line below must add up to 1.0
+    function calculateHandEffect(linearVelocity, angularVelocity, isFaked){
+        var leftHandLinearVelocityCMPerSec = linearVelocity.left;
+        var rightHandLinearVelocityCMPerSec = linearVelocity.right;
+        var averageLinearVelocity = (leftHandLinearVelocityCMPerSec + rightHandLinearVelocityCMPerSec) / 2;
+        averageLinearVelocity = Math.min(averageLinearVelocity, MAX_VELOCITY_CM_PER_SEC);
+
+        var leftHandAngularVelocityLength = Vec3.length(angularVelocity.left);
+        var rightHandAngularVelocityLength = Vec3.length(angularVelocity.right);
+        var averageAngularVelocityIntensity = (leftHandAngularVelocityLength + rightHandAngularVelocityLength) / 2;
+        averageAngularVelocityIntensity = Math.min(averageAngularVelocityIntensity, MAX_ANGULAR_VELOCITY_LENGTH);
+
+        var linearVelocityWeight = isFaked ? 1.0 : LINEAR_VELOCITY_WEIGHT;
+        var angularVelocityWeight = isFaked ? 0.0 : ANGULAR_VELOCITY_LENGTH_WEIGHT;
+
+        var cheerIntensity =
+            averageLinearVelocity / MAX_VELOCITY_CM_PER_SEC * linearVelocityWeight +
+            averageAngularVelocityIntensity / MAX_ANGULAR_VELOCITY_LENGTH * angularVelocityWeight;
+
+        if (cheerIntensity >= MIN_CHEER_INTENSITY && !soundInjector) {
             soundInjector = playSound(applauseSound);
             soundInjector.finished.connect(function() {
                 soundInjector = false;
             });
         }
 
-        // Clamp to max reasonable velocity
-        averageVelocity = Math.min(averageVelocity, MAX_VELOCITY_CM_PER_SEC);
 
-        var newVolumeTarget = averageVelocity / MAX_VELOCITY_CM_PER_SEC;
+        var newVolumeTarget = cheerIntensity;
 
         fadeSoundVolume(newVolumeTarget, isFaked && VOLUME_MAX_STEP_SIZE_DESKTOP);
     }
 
     var lastLeftHandPosition = false;
     var lastRightHandPosition = false;
-    function handVelocityCheck() {
-        if (!handsAreAboveHead) {
-            return;
-        }
+    function getHandsLinearVelocity() {
+        var returnObject = {
+            left: 0,
+            right: 0
+        };
 
         var leftHandPosition = MyAvatar.getJointPosition("LeftHand");
         var rightHandPosition = MyAvatar.getJointPosition("RightHand");
@@ -155,19 +173,62 @@
         if (!lastLeftHandPosition || !lastRightHandPosition) {
             lastLeftHandPosition = leftHandPosition;
             lastRightHandPosition = rightHandPosition;
-            return;
+            return returnObject;
         }
 
         var leftHandDistanceCM = Vec3.distance(leftHandPosition, lastLeftHandPosition) * CM_PER_M;
         var rightHandDistanceCM = Vec3.distance(rightHandPosition, lastRightHandPosition) * CM_PER_M;
 
-        var leftHandVelocityCMPerSec = leftHandDistanceCM / HAND_VELOCITY_CHECK_INTERVAL_MS * MS_PER_S;
-        var rightHandVelocityCMPerSec = rightHandDistanceCM / HAND_VELOCITY_CHECK_INTERVAL_MS * MS_PER_S;
-
-        calculateHandEffect(leftHandVelocityCMPerSec, rightHandVelocityCMPerSec);
+        returnObject.left = leftHandDistanceCM / HAND_VELOCITY_CHECK_INTERVAL_MS * MS_PER_S;
+        returnObject.right = rightHandDistanceCM / HAND_VELOCITY_CHECK_INTERVAL_MS * MS_PER_S;
         
         lastLeftHandPosition = leftHandPosition;
         lastRightHandPosition = rightHandPosition;
+
+        return returnObject;
+    }
+
+    var lastLeftHandRotation = false;
+    var lastRightHandRotation = false;
+    function getHandsAngularVelocity() {
+        var returnObject = {
+            left: {x: 0, y: 0, z: 0},
+            right: {x: 0, y: 0, z: 0}
+        };
+
+        var leftHandRotation = MyAvatar.getJointRotation(MyAvatar.getJointIndex("LeftHand"));
+        var rightHandRotation = MyAvatar.getJointRotation(MyAvatar.getJointIndex("RightHand"));
+
+        if (!lastLeftHandRotation || !lastRightHandRotation) {
+            lastLeftHandRotation = leftHandRotation;
+            lastRightHandRotation = rightHandRotation;
+            return returnObject;
+        }
+
+        var leftHandAngleDelta = Quat.multiply(leftHandRotation, Quat.inverse(lastLeftHandRotation)); 
+        var rightHandAngleDelta = Quat.multiply(rightHandRotation, Quat.inverse(lastRightHandRotation));
+
+        leftHandAngleDelta = Quat.safeEulerAngles(leftHandAngleDelta);
+        rightHandAngleDelta = Quat.safeEulerAngles(rightHandAngleDelta);
+
+        returnObject.left = Vec3.multiply(leftHandAngleDelta, 1 / HAND_VELOCITY_CHECK_INTERVAL_MS);
+        returnObject.right = Vec3.multiply(rightHandAngleDelta, 1 / HAND_VELOCITY_CHECK_INTERVAL_MS);
+
+        lastLeftHandRotation = leftHandRotation;
+        lastRightHandRotation = rightHandRotation;
+
+        return returnObject;
+    }
+
+    function handVelocityCheck() {
+        if (!handsAreAboveHead) {
+            return;
+        }
+
+        var handsLinearVelocity = getHandsLinearVelocity();
+        var handsAngularVelocity = getHandsAngularVelocity();
+
+        calculateHandEffect(handsLinearVelocity, handsAngularVelocity);
     }
 
     // If handVelocityCheckInterval is set up, clear it.
@@ -304,14 +365,17 @@
 
         fakeLeftHandVelocity -= FAKE_HAND_VELOCITY_STEP_DOWN_CM_PER_SEC;
         fakeRightHandVelocity -= FAKE_HAND_VELOCITY_STEP_DOWN_CM_PER_SEC;
-        calculateHandEffect(fakeLeftHandVelocity, fakeRightHandVelocity, true);
+        var linearVelocity = {left: fakeLeftHandVelocity, right: fakeRightHandVelocity};
+        var angularVelocity = {left: FAKE_ANGULAR_VELOCITY, right: FAKE_ANGULAR_VELOCITY};
+
+        calculateHandEffect(linearVelocity, angularVelocity, true);
     }
 
     var isCheering = false;
     var INITIAL_ANIMATION_FPS = 7;
     var currentAnimationFPS = INITIAL_ANIMATION_FPS;
     var slowCheeringInterval = false;
-    var SLOW_CHEERING_INTERVAL_MS = 150;
+    var SLOW_CHEERING_INTERVAL_MS = 100;
     var currentlyPlayingFrame = 0;
     var currentAnimationTimestamp;
     var CHEERING_FPS_MAX = 80;
@@ -349,11 +413,12 @@
     
     var debounceTimer = false;
     var DEBOUNCE_TIMEOUT_MS = 30;
-    var FAKE_HAND_VELOCITY_STEP_UP_CM_PER_SEC = 5;
-    var FAKE_HAND_VELOCITY_STEP_DOWN_CM_PER_SEC = 3;
-    var FAKE_HAND_VELOCITY_CM_PER_SEC_INITIAL = MIN_VELOCITY_THRESHOLD_CM_PER_SEC - FAKE_HAND_VELOCITY_STEP_UP_CM_PER_SEC;
+    var FAKE_HAND_VELOCITY_STEP_UP_CM_PER_SEC = 3;
+    var FAKE_HAND_VELOCITY_STEP_DOWN_CM_PER_SEC = 1;
+    var FAKE_HAND_VELOCITY_CM_PER_SEC_INITIAL = FAKE_HAND_VELOCITY_STEP_UP_CM_PER_SEC;
     var fakeLeftHandVelocity = FAKE_HAND_VELOCITY_CM_PER_SEC_INITIAL;
     var fakeRightHandVelocity = FAKE_HAND_VELOCITY_CM_PER_SEC_INITIAL;
+    var FAKE_ANGULAR_VELOCITY = {x: 100, y: 100, z: 100};
     function keyPressEvent(event) {
         if ((event.text.toUpperCase() === "Z") &&
             !event.isShifted &&
@@ -375,7 +440,10 @@
             fakeRightHandVelocity = Math.min(MAX_VELOCITY_CM_PER_SEC, fakeRightHandVelocity);
 
             startCheering();
-            calculateHandEffect(fakeLeftHandVelocity, fakeRightHandVelocity, true);
+            var linearVelocity = {left: fakeLeftHandVelocity, right: fakeRightHandVelocity};
+            var angularVelocity = {left: FAKE_ANGULAR_VELOCITY, right: FAKE_ANGULAR_VELOCITY};
+    
+            calculateHandEffect(linearVelocity, angularVelocity, true);
         }
     }
     
