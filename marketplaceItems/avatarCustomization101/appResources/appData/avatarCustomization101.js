@@ -2,9 +2,11 @@
 
     // Modules
     var AppUi = Script.require("appUi"),
-        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234"));
+        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v123445"),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234")),
+        AVATAR_FILE = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/marketplaceItems/avatarCustomization101/mannequinHairTest8.fst"; //Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
 
+    var AVATAR_URL = "http://mpassets.highfidelity.com/3df00699-86ca-4f6a-944e-170c090b2d6a-v1/Max_Final.fst";
 
     var DEBUG = true;
 
@@ -67,7 +69,8 @@
 
     function changeAvatarToAvi() {
         // set avatar to Avi.fst
-        // dataStore.isAvi = true;
+        MyAvatar.useFullAvatarURL(AVATAR_URL);
+        dataStore.isAvi = true;
     }
 
     function isAviYourCurrentAvatar() {
@@ -211,6 +214,8 @@
                 if (DEBUG) {
                     print("onMessage: ", EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR);
                 }
+
+                changeAvatarToAvi();
 
                 // saveAvatarAndChangeToAvi();
 

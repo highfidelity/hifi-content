@@ -35,14 +35,14 @@
             <div>
                 <navigation 
                     :activetabname="datastore.activeTabName" 
-                    :tabdatalist="datastore.tabDataList"
                     :isavienabled="datastore.isAviEnabled"
+                    :tabdatalist="datastore.tabDataList"
                 ></navigation>
                 
                 <tab-content-container
+                    :isavienabled="datastore.isAviEnabled"
                     :activetabname="datastore.activeTabName" 
                     :tabdatalist="datastore.tabDataList"
-                    :isavienabled="datastore.isAviEnabled"
                 ></tab-content-container>
 
             </div>
@@ -140,21 +140,23 @@
     Vue.component('tab-content', {
         props: ['activetabname', 'tabid', 'title', 'subtitle', 'data', 'componentname', 'isavienabled'],
         computed: {
-            data2() {
-                console.log("tab-content info: " + this.tabid + this.title + this.subtitle + this.data + this.componentname);
-                return "";
-            },
             isActiveTab(){
                 return this.activetabname === this.tabid;
             }
         },
         template: /* html */ `
-            <div class="tab-pane fade" v-bind:class="{ 'show active': isActiveTab }" v-bind:id="tabid" role="tabpanel" v-bind:aria-labelledby="tabid">
+            <div 
+                class="tab-pane fade" 
+                v-bind:class="{ 'show active': isActiveTab }" 
+                v-bind:id="tabid" 
+                role="tabpanel" 
+                v-bind:aria-labelledby="tabid"
+            >
 
                 <h1 class="title-case">{{ title }}</h1>
                 <p>{{ subtitle }}</p>
 
-                 <component :is="componentname" :isavienabled="isavienabled" :data="data"></component>
+                <component :is="componentname" :isavienabled="isavienabled" :data="data"></component>
 
             </div>
         `
@@ -168,19 +170,15 @@
         props: ['isavienabled'],
         methods: {
             showModalSaveAvatar() {
-
                 if (DEBUG) {
                     console.log("showModalSaveAvatar clicked");
                 }
-
                 this.isModalSaveAvatarVisible = true;
             },
             closeModalSaveAvatar() {
-
                 if (DEBUG) {
                     console.log("closeModalSaveAvatar clicked");
                 }
-
                 this.isModalSaveAvatarVisible = false;
             },
             restoreAvatar() {
@@ -196,11 +194,6 @@
 
             }
         },
-        // computed(){
-        //     isSwitchAvatarDisabled() {
-        //         return !this.isavienabled
-        //     }
-        // },
         data() {
             return {
                 isModalSaveAvatarVisible: false,
