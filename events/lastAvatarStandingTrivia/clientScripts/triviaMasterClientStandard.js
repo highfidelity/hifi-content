@@ -13,7 +13,7 @@
 
 (function() {
 
-    var SECRETS = Script.require(Script.resolvePath('triviaInfo.json')),
+    var SECRETS = Script.require(Script.resolvePath('JSON GOES HERE')),
         TRIVIA_CHANNEL = SECRETS.TRIVIA_CHANNEL,
         GOOGLE_URL = SECRETS.GOOGLE_URL,
         TABLET_BUTTON_IMAGE = Script.resolvePath('../entities/icons/questionMark-i.png'),
