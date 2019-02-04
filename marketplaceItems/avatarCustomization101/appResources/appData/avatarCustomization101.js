@@ -73,7 +73,7 @@
         }
 
     }
-    
+
     function changeAvatarToAvi() {
         // Set avatar to Avi.fst
         MyAvatar.useFullAvatarURL(AVATAR_URL);
@@ -102,7 +102,6 @@
     }
 
     // #endregion AVATAR FUNCTIONS
-
 
     // #region APP
 
@@ -203,6 +202,10 @@
 
     }
 
+    // #endregion APP
+
+    // #region EVENTS
+
     var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.EVENT_BRIDGE_OPEN_MESSAGE;
     var EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR = CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR;
     var EVENT_RESTORE_SAVED_AVATAR = CONFIG.EVENT_RESTORE_SAVED_AVATAR;
@@ -232,8 +235,6 @@
                 if (DEBUG) {
                     print("onMessage: ", EVENT_BRIDGE_OPEN_MESSAGE);
                 }
-
-                print("ROBIN CHECK4");
 
                 updateUI();
 
@@ -317,9 +318,6 @@
 
     function updateUI() {
 
-        print("Robin updating UI");
-        console.log("ROBIN CHECKS3 in updateui: " + EVENT_BRIDGE_OPEN_MESSAGE);
-        
         var messageObject = {
             type: UPDATE_UI,
             value: dataStore
@@ -328,7 +326,7 @@
         ui.sendToHtml(messageObject);
     }
 
-    // #endregion APP
+    // #endregion EVENTS
 
     startup();
 
