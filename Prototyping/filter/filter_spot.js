@@ -18,15 +18,21 @@
 // *************************************
 // #region INIT
 
+var debug = true;
 
 // Simple logger
-function l(message, item) {
-    print("\n$$$LOG$$$\n")
-    print(message);
-    print(JSON.stringify(item));
+function log(message, item) {
+    if (!debug) {
+        return;
+    }
+    arguments = Array.prototype.slice.call(arguments).map(function(item){
+        return JSON.stringify(item, null, 4) + "\n";
+    });
+    print("\n$$$LOG$$$\n");
+    print.apply(null, arguments);
 }
 
-l("V1");
+log("V2");
 
 // ENUMS for edit filter type
 var ADD = 0;
@@ -59,7 +65,7 @@ filter.wantsZoneProperties = false; // default: false
 filter.wantsZoneBoundingBox = true; // default: true
 filter.wantsToFilterAdd = true; // default: true
 filter.wantsToFilterEdit = true; // default: true
-filter.wantsToFilterPhysics = true; // default: true
+filter.wantsToFilterPhysics = false; // default: true
 filter.wantsToFilterDelete = true; // default: true
 filter.rejectAll = false; // default: false
 
@@ -75,22 +81,16 @@ filter.rejectAll = false; // default: false
 // *************************************
 // #region HANDLERS
 
-function argLog(){
-    arguments = Array.prototype.slice.call(arguments);
-    arguments.forEach(function(arg, index){
-        l(index, arg);
-    });
-}
 
-function filterAdd(properties, filterType, originalProperties){
-    argLog(properties, filterType, originalProperties);
+function filterAdd(properties, originalProperties){
+    log("FILTER_ADD", "properties:", properties, "originalProperties", originalProperties);
     return false;
 }
 
 
 var MAX_DIMENSION = 3.0;
-function filterEdit(properties, filterType, originalProperties){
-    argLog(properties, filterType, originalProperties);
+function filterEdit(properties, originalProperties){
+    log("FILTER_EDIT", "properties:", properties, "originalProperties", originalProperties);
     if (
         properties.name !== originalProperties.name ||
         properties.modelURL !== originalProperties.modelURL ||
@@ -102,6 +102,7 @@ function filterEdit(properties, filterType, originalProperties){
         properties.dimensions.z >= MAX_DIMENSION
     ){
         // We had a violation.  Returning false
+        log("filter edit issue");
         return false;
     }
     // No violation
@@ -109,17 +110,22 @@ function filterEdit(properties, filterType, originalProperties){
 }
 
 
-function filterPhysics(properties, filterType, originalProperties){
-    argLog(properties, filterType, originalProperties);
+function filterPhysics(properties, originalProperties){
+    log("FILTER_PHYSICS", "properties:", properties, "originalProperties", originalProperties);
     return false;
-
 }
 
 
-function filterDelete(properties, filterType, originalProperties){
-    argLog(properties, filterType, originalProperties);
+function filterDelete(properties, originalProperties){
+    log("FILTER_DELETE", "properties:", properties, "originalProperties", originalProperties);
+    var name = originalProperties.name;
+    DELETE_QUALIFIERS.forEach(function(qualifier) {
+        if (name.indexOf(qualifier) !== -1) {
+            log("this is an allowed delete", name);
+            return true;
+        }
+    })
     return false;
-
 }
 
 
@@ -140,16 +146,15 @@ function filterDelete(properties, filterType, originalProperties){
 // return properties; means you are allowing the incoming changes
 function filter(properties, filterType, originalProperties) {
     // make arguments an actual array
-    arguments = Array.prototype.slice.call(arguments);
     switch (filterType) {
         case ADD:
-            return filterAdd.apply(this, arguments);
+            return filterAdd(properties, originalProperties);
         case EDIT:
-            return filterEdit.apply(this, arguments);
+            return filterEdit(properties, originalProperties);
         case PHYSICS:
-            return filterPhysics.apply(this, arguments);
+            return filterPhysics(properties, originalProperties);
         case DELETE:
-            return filterDelete.apply(this, arguments);
+            return filterDelete(properties, originalProperties);
     }
 }
 

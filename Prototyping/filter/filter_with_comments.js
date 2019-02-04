@@ -1,7 +1,7 @@
 
 /*
 
-    General Filter
+    filter
     filter.js
     Created by Milad Nazeri on 2019-01-31
     Copyright 2019 High Fidelity, Inc.
@@ -56,20 +56,15 @@ var DELETE = 3;
 // return false; means you aren't allowing these edits
 // return properties; means you are allowing the incoming changes
 function filter(properties, filterType, originalProperties) {
-    if (filterType === DELETE) {
-        return true;
-    }
-
-    if (filterType === ADD) {
-        return true;
-    }
-
-    if (filterType === EDIT) {
-        return properties;
-    }
-
-    if (filterType === PHYSICS) {
-        return properties;
+    switch(filterType){
+        case ADD:
+            return filterAdd(properties, filterType, originalProperties);
+        case EDIT:
+            return filterEdit(properties, filterType, originalProperties);
+        case PHYSICS:
+            return filterPhysics(properties, filterType, originalProperties);
+        case DELETE:
+            return filterDelete(properties, filterType, originalProperties);
     }
 }
 
@@ -82,7 +77,7 @@ function filter(properties, filterType, originalProperties) {
 // empty string includes no properties at all
 // a valid property in a string includes just that property
 // an array of property strings will include those properties
-// Note, if this is an Add or Edit, there will be no originalProperties
+// Note, if this is an Add or Delete, there will be no originalProperties
 filter.wantsOriginalProperties = false; // default: false
 
 // Same as the above but specific to zones
