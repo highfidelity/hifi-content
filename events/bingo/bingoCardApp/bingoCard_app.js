@@ -147,17 +147,23 @@
                 return;
             }
             if (response.status && response.status === "success") {
-                userCardNumbers = response.userCardNumbers;
-                cardColor = response.userCardColor;
-                ui.sendMessage({
-                    type: 'initializeCard',
-                    allNumbers: userCardNumbers,
-                    selectedNumberIDs: selectedNumberIDs,
-                    cardColor: cardColor
-                });
-
-                if (response.newUser) {
-                    Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
+                if (response.userCardNumbers) {
+                    userCardNumbers = response.userCardNumbers;
+                    cardColor = response.userCardColor;
+                    ui.sendMessage({
+                        type: 'initializeCard',
+                        allNumbers: userCardNumbers,
+                        selectedNumberIDs: selectedNumberIDs,
+                        cardColor: cardColor
+                    });
+    
+                    if (response.newUser) {
+                        Entities.callEntityServerMethod(PLAYER_COUNTER_TEXT, 'addOne');
+                    }
+                } else {
+                    ui.sendMessage({
+                        type: 'notLoggedIn'
+                    });
                 }
             }
         });         
@@ -316,7 +322,7 @@
     /* ON APP START: Setup app UI, button, and messaging between it's html page and this script */
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('bingoCard_ui.html?9');
+    var appPage = Script.resolvePath('bingoCard_ui.html?12');
     function startup() {
         ui = new AppUi({
             buttonName: "BINGO",
