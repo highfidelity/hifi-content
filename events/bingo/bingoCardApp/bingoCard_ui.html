@@ -130,6 +130,10 @@
                             type: 'calledBingo'
                         }));
                     });
+                } else if (JSON.parse(scriptEvent).type === "notLoggedIn") {
+                    document.getElementById("helpText").innerHTML = "Please log in, then re-open the BINGO app!";
+                    document.getElementsByClassName("button-container")[0].style.visibility = "hidden";
+                    document.getElementById("BingoButton").style.visibility = "hidden";
                 }
             };
 
