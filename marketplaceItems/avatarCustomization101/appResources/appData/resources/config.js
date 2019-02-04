@@ -11,15 +11,20 @@
 /* global module */
 
 // Variables other variables depend on
-var APP_NAME = "AvatarCustomization101";
+var APP_NAME = "AvatarCustomization101",
+    STRING_MATERIAL = "material",
+    STRING_BLENDSHAPES = "blendshapes",
+    STRING_ANIMATION = "animation",
+    STRING_FLOW = "flow",
+    STRING_INFO = "info";
 
 var CONFIG = {
     APP_NAME: APP_NAME, 
 
     // Variables shared by ui and javascript files
-    EVENT_BRIDGE_OPEN_MESSAGE: APP_NAME + "_eventBridgeOpen",
     UPDATE_UI: APP_NAME + "_update_ui",
     BUTTON_NAME: "Avatar 101",
+    EVENT_BRIDGE_OPEN_MESSAGE: "_eventBridgeOpen",
 
     // UI to app events
     EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR: "changeAvatarToAviAndSaveAvatar",
@@ -31,12 +36,55 @@ var CONFIG = {
     EVENT_UPDATE_ANIMATION: "updateAnimation",
     EVENT_CHANGE_TAB: "changeTab",
 
-    // Static strings
-    STRING_MATERIAL: "material",
-    STRING_BLENDSHAPES: "blendshapes",
-    STRING_ANIMATION: "animation",
-    STRING_FLOW: "flow",
-    STRING_INFO: "info"
+    STRING_BOOKMARK_NAME: "Avatar101 Saved By App",
+
+    STRING_MATERIAL: STRING_MATERIAL,
+    STRING_BLENDSHAPES: STRING_BLENDSHAPES,
+    STRING_ANIMATION: STRING_ANIMATION,
+    STRING_FLOW: STRING_FLOW,
+    STRING_INFO: STRING_INFO,
+
+    INITIAL_DATASTORE_SETTINGS: {
+        isAviEnabled: false, // *** robin
+        activeTabName: STRING_INFO,
+        tabDataList: [
+            {
+                // INFORMATION
+                tabName: STRING_INFO, 
+                title: STRING_INFO, 
+                subtitle: "Thank you for downloading the Avatar Customization 101 app.",
+                componentName: "info-tab"
+            },
+            {
+                // MATERIAL
+                tabName: STRING_MATERIAL, 
+                title: STRING_MATERIAL, 
+                subtitle: "Change avatars materials for each submesh.",
+                componentName: "test2"
+            },
+            {
+                // BLENDSHAPES
+                tabName: STRING_BLENDSHAPES, 
+                title: STRING_BLENDSHAPES, 
+                subtitle: "Change avatar expressions.",
+                componentName: "test1"
+            },
+            {
+                // ANIMATION
+                tabName: STRING_ANIMATION, 
+                title: STRING_ANIMATION, 
+                subtitle: "Change avatars default animations.",
+                componentName: "test2"
+            },
+            {
+                // FLOW
+                tabName: STRING_FLOW, 
+                title: STRING_FLOW, 
+                subtitle: "Modify flow joints for chain.",
+                componentName: "test1"
+            }
+        ],
+    }
 
 };
 

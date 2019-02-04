@@ -2,9 +2,10 @@
 
     // Modules
     var AppUi = Script.require("appUi"),
-        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v123445"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234")),
-        AVATAR_FILE = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/marketplaceItems/avatarCustomization101/mannequinHairTest8.fst"; //Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
+        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v1234455"),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456")),
+        AVATAR_FILE = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/marketplaceItems/avatarCustomization101/mannequinHairTest8.fst"; 
+        // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
 
     var AVATAR_URL = "http://mpassets.highfidelity.com/3df00699-86ca-4f6a-944e-170c090b2d6a-v1/Max_Final.fst";
 
@@ -42,12 +43,17 @@
 
     // #region AVATAR FUNCTIONS
 
+
+    var STRING_BOOKMARK_NAME = CONFIG.STRING_BOOKMARK_NAME;
+
     function bookmarkAvatar() {
-        // AvatarApp.favoriteAvatar with equippables
-        // saveAvatar()
+        AvatarBookmarks.addBookmark(STRING_BOOKMARK_NAME);
     }
 
     function saveAvatarAndChangeToAvi() {
+        bookmarkAvatar();
+        changeAvatarToAvi();
+
         // getAvatarInfo
         // Save Avatar information via Settings
         //      !idea if there's already avatar information in the Settings (and different than curr)
@@ -56,26 +62,41 @@
     }
 
     function restoreAvatar() {
-        // if avatarInfo exists in Settings
-        //      changeAvatarToSaved();
-        //      !idea (save the customizations you've made to Avi? OR go back to default)
-        // else
-        //      emit alert "cannot find old avatar info"
-    }
+        var bookmarksObject = AvatarBookmarks.getBookmarks();
 
-    function changeAvatarToSaved() {
-        // set user's avatar to the Settings avatar info / or through the Avatar Favorite ?
-    }
+        if (bookmarksObject[STRING_BOOKMARK_NAME]) {
+            AvatarBookmarks.loadBookmark(STRING_BOOKMARK_NAME);
+            AvatarBookmarks.removeBookmark(STRING_BOOKMARK_NAME);
+            setIsAviEnabledFalse();
+        } else {
+            Window.alert("No bookmark was saved in the avatar app.");
+        }
 
+    }
     function changeAvatarToAvi() {
-        // set avatar to Avi.fst
+        // Set avatar to Avi.fst
         MyAvatar.useFullAvatarURL(AVATAR_URL);
-        dataStore.isAvi = true;
+        setIsAviEnabledTrue();
     }
 
     function isAviYourCurrentAvatar() {
-        // returns a boolean
-        // return if MyAvatar url === avi.fst hosted url
+        return MyAvatar.skeletonModelURL === AVATAR_URL;
+    }
+
+    // Contains all steps to set the app state to isAviEnabled = true
+    function setIsAviEnabledTrue() {
+        dataStore.isAviEnabled = true;
+        spawnMirror();
+
+        updateUI();
+    } 
+
+    // Contains all steps to set the app state to isAviEnabled = false
+    function setIsAviEnabledFalse() {
+        dataStore.isAviEnabled = false;
+        dataStore.activeTabName = STRING_INFO;
+
+        updateUI();
     }
 
     // #endregion AVATAR FUNCTIONS
@@ -92,16 +113,14 @@
     var STRING_MATERIAL = CONFIG.STRING_MATERIAL,
         STRING_BLENDSHAPES = CONFIG.STRING_BLENDSHAPES,
         STRING_ANIMATION = CONFIG.STRING_ANIMATION,
-        STRING_FLOW = CONFIG.STRING_FLOW;
+        STRING_FLOW = CONFIG.STRING_FLOW,
+        STRING_INFO = CONFIG.STRING_INFO;
 
     // UI variables
     var ui;
-    var dataStore = {
-
-    };
+    var dataStore = CONFIG.INITIAL_DATASTORE_SETTINGS;
 
     // Tab dynamic variables
-    var lastTab;
     var currentTab;
 
     function startup() {
@@ -122,33 +141,38 @@
         Script.scriptEnding.connect(unload);
     }
 
-    function enableAvi() {
-        saveAvatarAndChangeToAvi();
-        spawnMirror();
-    }
-
     function onClosed() {
 
+        
         // deleteMirror
         // save lastTab that the user was on
-        // lastTab = currentTab;
+        dataStore.activeTabName = currentTab;
 
     }
 
     function onOpened() {
 
+        if (DEBUG) {
+            print("ACA101 onOpened: isAviEnabled ", isAviYourCurrentAvatar());
+            print("ACA101 onOpened: activeTabName is ", dataStore.activeTabName);
+        }
+
         if (isAviYourCurrentAvatar()) {
-            // Avi enabled = true
-            // go to lastTabOpen
-            // currentTab = lastTab
-            // lastTab = null;
+
+            setIsAviEnabledTrue();
             spawnMirror();
+
+            // if your last closed tab has extra setup functionality
+            // ensure you have the correct view for the current tab
+            switchTabs(dataStore.activeTabName);
+
         } else {
-            // Avi enabled = false;
-            // currentTab = info;
+            setIsAviEnabledFalse();
 
             // updateLayout
         }
+
+        updateUI();
 
     }
 
@@ -195,7 +219,7 @@
         // Check against EVENT_NAME to ensure we're getting the correct messages from the correct app
         if (!data.type || data.type.indexOf(APP_NAME) === -1) {
             if (DEBUG) {
-                print("Event type event name index check: ", !data.type, data.type.indexOf(EVENT_NAME) === -1);
+                print("Event type event name index check: ", !data.type, data.type.indexOf(APP_NAME) === -1);
             }
             return;
         }
@@ -207,6 +231,8 @@
                     print("onMessage: ", EVENT_BRIDGE_OPEN_MESSAGE);
                 }
 
+                print("ROBIN CHECK4");
+
                 updateUI();
 
                 break;
@@ -215,9 +241,7 @@
                     print("onMessage: ", EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR);
                 }
 
-                changeAvatarToAvi();
-
-                // saveAvatarAndChangeToAvi();
+                saveAvatarAndChangeToAvi();
 
                 break;
             case EVENT_CHANGE_TAB:
@@ -233,7 +257,7 @@
                     print("onMessage: ", EVENT_RESTORE_SAVED_AVATAR);
                 }
 
-                // changeAvatarToSaved();
+                restoreAvatar();
 
                 break;
             case EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR:
@@ -241,7 +265,7 @@
                     print("onMessage: ", EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR);
                 }
 
-                // changeAvatarToAvi();
+                changeAvatarToAvi();
 
                 break;
             case EVENT_UPDATE_MATERIAL:
@@ -291,6 +315,9 @@
 
     function updateUI() {
 
+        print("Robin updating UI");
+        console.log("ROBIN CHECKS3 in updateui: " + EVENT_BRIDGE_OPEN_MESSAGE);
+        
         var messageObject = {
             type: UPDATE_UI,
             value: dataStore

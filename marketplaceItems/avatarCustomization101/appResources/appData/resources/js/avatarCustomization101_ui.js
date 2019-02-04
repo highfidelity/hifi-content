@@ -3,8 +3,7 @@
     var EVENTBRIDGE_SETUP_DELAY = 200;
 
     // Consts
-    var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
-        UPDATE_UI = CONFIG.UPDATE_UI,
+    var UPDATE_UI = CONFIG.UPDATE_UI,
         APP_NAME = CONFIG.APP_NAME;
 
     // Static strings
@@ -16,7 +15,8 @@
 
     // Events 
     // !important Add APP_NAME to each event
-    var EVENT_CHANGE_TAB = APP_NAME + CONFIG.EVENT_CHANGE_TAB,
+    var EVENT_BRIDGE_OPEN_MESSAGE = APP_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
+        EVENT_CHANGE_TAB = APP_NAME + CONFIG.EVENT_CHANGE_TAB,
         EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR = APP_NAME + CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR,
         EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR = APP_NAME + CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR,
         EVENT_RESTORE_SAVED_AVATAR = APP_NAME + CONFIG.EVENT_RESTORE_SAVED_AVATAR;
@@ -33,6 +33,7 @@
         props: ['datastore'],
         template: /* html */ `
             <div>
+                <p>{{ datastore.isAviEnabled }}</p>
                 <navigation 
                     :activetabname="datastore.activeTabName" 
                     :isavienabled="datastore.isAviEnabled"
@@ -98,7 +99,7 @@
         template: /* html */ `
             <a 
                 class="nav-item nav-link ml-2 title-case" 
-                v-bind:class="{ 'active': tabInfo.active, 'disabled':tabInfo.isDisabled }" 
+                v-bind:class="{ 'active': tabInfo.active, 'disabled': tabInfo.isDisabled }" 
                 v-bind:aria-disabled="tabInfo.isDisabled"
                 v-bind:id="tabInfo.tabID" 
                 :key="tabInfo.tabID" 
@@ -140,7 +141,7 @@
     Vue.component('tab-content', {
         props: ['activetabname', 'tabid', 'title', 'subtitle', 'data', 'componentname', 'isavienabled'],
         computed: {
-            isActiveTab(){
+            isActiveTab() {
                 return this.activetabname === this.tabid;
             }
         },
@@ -203,6 +204,9 @@
         },
         template: /* html */ `
             <div>
+                <p>HELLO ROBIN</p>
+                <p> {{ isavienabled }} </p>
+
                 <title-list 
                     :title="title" 
                     :items="items"
@@ -210,7 +214,7 @@
 
                 <div class="flex-container-row">
                     <button-big 
-                        :isdisabled="!isavienabled"
+                        :isdisabled="isavienabled"
                         :text="'Switch Avatar'" 
                         :onclick="showModalSaveAvatar" 
                         :classes="'flex-item'"
@@ -219,7 +223,7 @@
 
                 <div class="flex-container-row">
                     <button-big 
-                        :isdisabled="isavienabled"
+                        :isdisabled="!isavienabled"
                         :text="'Restore Avatar'" 
                         :onclick="restoreAvatar" 
                         :classes="'flex-item'"
@@ -436,58 +440,64 @@
     var app = new Vue({
         el: '#app',
         data: {
-            dataStore: {
-                isAviEnabled: true, // *** robin
-                activeTabName: STRING_INFO,
-                tabDataList: [
-                    // USE STRING_BLENDSHAPES ETC FOR THE TABNAME
-                    {
-                        // INFORMATION
-                        tabName: STRING_INFO, 
-                        title: STRING_INFO, 
-                        subtitle: "Thank you for downloading the Avatar Customization 101 app.",
-                        componentName: "info-tab"
-                    },
-                    {
-                        // MATERIAL
-                        tabName: STRING_MATERIAL, 
-                        title: STRING_MATERIAL, 
-                        subtitle: "Change avatars materials for each submesh.",
-                        componentName: "test2"
-                    },
-                    {
-                        // BLENDSHAPES
-                        tabName: STRING_BLENDSHAPES, 
-                        title: STRING_BLENDSHAPES, 
-                        subtitle: "Change avatar expressions.",
-                        componentName: "test1"
-                    },
-                    {
-                        // ANIMATION
-                        tabName: STRING_ANIMATION, 
-                        title: STRING_ANIMATION, 
-                        subtitle: "Change avatars default animations.",
-                        componentName: "test2"
-                    },
-                    {
-                        // FLOW
-                        tabName: STRING_FLOW, 
-                        title: STRING_FLOW, 
-                        subtitle: "Modify flow joints for chain.",
-                        componentName: "test1"
-                    }
-                ],
-            }
+            dataStore: 
+            
+            CONFIG.INITIAL_DATASTORE_SETTINGS 
+            
+            // {
+            //     isAviEnabled: false, // *** robin
+            //     activeTabName: STRING_INFO,
+            //     tabDataList: [
+            //         // USE STRING_BLENDSHAPES ETC FOR THE TABNAME
+            //         {
+            //             // INFORMATION
+            //             tabName: STRING_INFO, 
+            //             title: STRING_INFO, 
+            //             subtitle: "Thank you for downloading the Avatar Customization 101 app.",
+            //             componentName: "info-tab"
+            //         },
+            //         {
+            //             // MATERIAL
+            //             tabName: STRING_MATERIAL, 
+            //             title: STRING_MATERIAL, 
+            //             subtitle: "Change avatars materials for each submesh.",
+            //             componentName: "test2"
+            //         },
+            //         {
+            //             // BLENDSHAPES
+            //             tabName: STRING_BLENDSHAPES, 
+            //             title: STRING_BLENDSHAPES, 
+            //             subtitle: "Change avatar expressions.",
+            //             componentName: "test1"
+            //         },
+            //         {
+            //             // ANIMATION
+            //             tabName: STRING_ANIMATION, 
+            //             title: STRING_ANIMATION, 
+            //             subtitle: "Change avatars default animations.",
+            //             componentName: "test2"
+            //         },
+            //         {
+            //             // FLOW
+            //             tabName: STRING_FLOW, 
+            //             title: STRING_FLOW, 
+            //             subtitle: "Modify flow joints for chain.",
+            //             componentName: "test1"
+            //         }
+            //     ],
+            // }
         }
     });
 
 
     function onScriptEventReceived(message) {
         var data;
+        console.log("ROBIN CHECKS " + message);
         try {
             data = JSON.parse(message);
             switch (data.type) {
                 case UPDATE_UI:
+                    console.log("FROM THE HIFI ROBIN" + data.value.isAviEnabled);
                     app.dataStore = data.value;
                     break;
                 default:
@@ -503,7 +513,7 @@
         // Initial button active state is communicated via URL parameter.
         // isActive = location.search.replace("?active=", "") === "true";
 
-        setTimeout(function () {
+        // setTimeout(function () {
             // Open the EventBridge to communicate with the main script.
             // Allow time for EventBridge to become ready.
             EventBridge.scriptEventReceived.connect(onScriptEventReceived);
@@ -511,9 +521,12 @@
                 type: EVENT_BRIDGE_OPEN_MESSAGE
             }));
 
-        }, EVENTBRIDGE_SETUP_DELAY);
+            console.log("ROBIN CHECKS2: " + UPDATE_UI);
+            console.log("ROBIN CHECKS2: " + EVENT_BRIDGE_OPEN_MESSAGE);
+
+        // }, EVENTBRIDGE_SETUP_DELAY);
     }
 
-    onLoad();
+    document.addEventListener('DOMContentLoaded', onLoad, false);
 
 }());
