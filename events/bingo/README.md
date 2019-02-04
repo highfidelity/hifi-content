@@ -3,6 +3,12 @@ Ummm...well...it's bingo!
 
 ## Release Notes
 
+### v1.12
+
+2019-02-04_12-04-00 commit cc224b357248076d2d50af50f03f6c4ce9fd9523
+
+- Fixed oculus prize name
+
 ### v1.11
 
 2019-02-04_11-28-00 commit 1719ac704da653e32747ef5e6deaa96236005dc9
