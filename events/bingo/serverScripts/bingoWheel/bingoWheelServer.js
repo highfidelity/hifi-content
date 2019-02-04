@@ -25,7 +25,7 @@
     var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
     var DRUMROLL_SOUND = SoundCache.getSound(Script.resolvePath("sounds/drumroll.wav"));
     var LOWER_DOORS_DELAY_MS = 1150;
-    var POSSIBLE_PRIZES = ["Oculus Quest", "Vive Pro", "HFC!", "Group Wins!"];
+    var POSSIBLE_PRIZES = ["Oculus Rift", "Vive Pro", "HFC!", "Group Wins!"];
     var currentRoundWinners = [];
     var BINGO_PRIZE_DOOR_1_TEXT = "{ff7674bb-5569-4381-b370-1dfa1d2a9723}";
     var BINGO_PRIZE_DOOR_1 = "{8724dc08-c0fb-4feb-bda1-8686023f8355}";
