@@ -33,7 +33,7 @@
         props: ['datastore'],
         template: /* html */ `
             <div>
-                <p>{{ datastore.isAviEnabled }}</p>
+
                 <navigation 
                     :activetabname="datastore.activeTabName" 
                     :isavienabled="datastore.isAviEnabled"
@@ -204,8 +204,6 @@
         },
         template: /* html */ `
             <div>
-                <p>HELLO ROBIN</p>
-                <p> {{ isavienabled }} </p>
 
                 <title-list 
                     :title="title" 
@@ -510,21 +508,12 @@
 
     function onLoad() {
 
-        // Initial button active state is communicated via URL parameter.
-        // isActive = location.search.replace("?active=", "") === "true";
+        // Open the EventBridge to communicate with the main script.
+        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+        EventBridge.emitWebEvent(JSON.stringify({
+            type: EVENT_BRIDGE_OPEN_MESSAGE
+        }));
 
-        // setTimeout(function () {
-            // Open the EventBridge to communicate with the main script.
-            // Allow time for EventBridge to become ready.
-            EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-            EventBridge.emitWebEvent(JSON.stringify({
-                type: EVENT_BRIDGE_OPEN_MESSAGE
-            }));
-
-            console.log("ROBIN CHECKS2: " + UPDATE_UI);
-            console.log("ROBIN CHECKS2: " + EVENT_BRIDGE_OPEN_MESSAGE);
-
-        // }, EVENTBRIDGE_SETUP_DELAY);
     }
 
     document.addEventListener('DOMContentLoaded', onLoad, false);

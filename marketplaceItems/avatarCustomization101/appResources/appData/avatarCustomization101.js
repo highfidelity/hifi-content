@@ -73,9 +73,11 @@
         }
 
     }
+    
     function changeAvatarToAvi() {
         // Set avatar to Avi.fst
         MyAvatar.useFullAvatarURL(AVATAR_URL);
+        MyAvatar.setAttachmentsVariant([]);    
         setIsAviEnabledTrue();
     }
 
