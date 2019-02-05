@@ -5,6 +5,11 @@ Have you ever had trouble figuring out who was talking in a group? Then this is 
 Simply enable the app by clicking the ON/OFF button and enjoy the knowledge of who is talking, visualized.
 
 # Release Notes
+## version 1.1
+Februrary 5, 2019
+6012b3ac24e3c9cee7e1079dd542842f12d055b4
+- Bug fix for Window.domainChanged() on appEnding(), and added draw order toggler and height slider to the app.
+
 ## version 1.0 
 2019-01-17_09_45_00
 d369c44e9b7515d3d3a4267aeadd7eb259742b98
@@ -12,9 +17,8 @@ d369c44e9b7515d3d3a4267aeadd7eb259742b98
 
 # TO DO
 
-1. Allow app to persist on domain changes.
-2. Clean up userArray and userObject if sorting the loudest users is not desired.
-3. Remove the "findOverlays()" usage for cleaning up straggler overlays once certain deleting parents takes care of children.
-4. Remove sorting function if not sorting anything.
-5. Figure out creation of overlays with children and why there is a non-zero amount of time that needs to pass before spawning children overlays.
+1. Clean up userArray and userObject if sorting the loudest users is not desired.
+2. Remove the "findOverlays()" usage for cleaning up straggler overlays once certain deleting parents takes care of children.
+3. Remove sorting function if not sorting anything.
+4. Figure out creation of overlays with children and why there is a non-zero amount of time that needs to pass before spawning children overlays.
 
