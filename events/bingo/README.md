@@ -3,6 +3,11 @@ Ummm...well...it's bingo!
 
 ## Release Notes
 
+### v1.15
+2019-02-05_15-06-00 commit 0f6302e8d86c57bed259772409c5c597080bd2b0
+
+- Small update to prize language
+
 ### v1.14
 
 2019-02-05_09-41-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
