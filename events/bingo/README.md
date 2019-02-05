@@ -3,17 +3,10 @@ Ummm...well...it's bingo!
 
 ## Release Notes
 
-### v1.14
-
-2019-02-05_09-41-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
-
-- Moved backend DB to new URL
-
 ### v1.13
 
-2019-02-04_16-10-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
-
-- Fixed off-by-one error during Bingo prize selection
+2019-02-05_02-38-00 commit 7b7102ac500343b1d635d7c22116512736907b03
+- changed prize info again
 
 ### v1.12
 
