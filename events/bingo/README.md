@@ -3,6 +3,12 @@ Ummm...well...it's bingo!
 
 ## Release Notes
 
+### v1.13
+
+2019-02-04_16-10-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
+
+- Fixed off-by-one error during Bingo prize selection
+
 ### v1.12
 
 2019-02-04_12-04-00 commit cc224b357248076d2d50af50f03f6c4ce9fd9523
