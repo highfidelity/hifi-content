@@ -3,7 +3,14 @@ Ummm...well...it's bingo!
 
 ## Release Notes
 
+### v1.16
+
+2019-02-05_15-44-00 commit 4a5b7fb3ffdf58a0a212f5293cb042392f177871
+
+- Update UI version on Spawner entity script
+
 ### v1.15
+
 2019-02-05_15-06-00 commit 534d4defa76dd6b1b1a65ec31a5ecff7406ece90
 
 - Small update to prize language
