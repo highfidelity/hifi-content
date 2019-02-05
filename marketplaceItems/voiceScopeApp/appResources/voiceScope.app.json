@@ -1,4 +1,4 @@
 {
-    "scriptURL": "./appData/voiceScope_app.js",
-    "homeURL": "./appData/resources/voiceScope_ui.html"
+    "scriptURL": "http://mpassets.highfidelity.com/723aa413-e6a2-4753-b6aa-c9d34390b054-v1/appResources/appData/voiceScope_app.js",
+    "homeURL": "http://mpassets.highfidelity.com/723aa413-e6a2-4753-b6aa-c9d34390b054-v1/appResources/appData/resources/voiceScope_ui.html"
 }
