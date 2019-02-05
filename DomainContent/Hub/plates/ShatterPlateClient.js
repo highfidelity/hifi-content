@@ -10,17 +10,21 @@
 /* globals Entities, SoundCache, Script */
 
 (function() {
-    var VELOCITY_TO_BREAK = 2;
+    console.log("in shatter plate clinent");
+    var VELOCITY_TO_BREAK = 1.1;
     var breakURL = Script.resolvePath('sound/glass-break1.wav');
     var breakSound = SoundCache.getSound(breakURL);
     var volumeLevel = 0.65;
     var _entityID;
-  
+    
     var Plate = function(){};
     var shouldBreak = function(velocity){
-        return Math.abs(velocity.x) >= VELOCITY_TO_BREAK ||
-      Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
-      Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
+        if (velocity) {
+            return Math.abs(velocity.x) >= VELOCITY_TO_BREAK ||
+            Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
+            Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
+        }
+
     };
 
     function makeFragile() {
@@ -34,14 +38,20 @@
             _entityID = entityID;
         },
         startNearGrab: function() {
+            console.log("start near grab");
             makeFragile();
         },
         mousePressOnEntity: function() {
+            console.log("start mouse press");
             makeFragile();
         },
         collisionWithEntity : function(myID, theirID, collision) {
+            console.log("myid", myID);
+            console.log("in collision");
             var velocity = Entities.getEntityProperties(myID, 'velocity').velocity;
+            console.log("velocity", JSON.stringify(velocity));
             if (shouldBreak(velocity)) {
+                console.log("in should velocity");
                 if (breakSound.downloaded) {
                     Audio.playSound(breakSound, {
                         volume: volumeLevel,

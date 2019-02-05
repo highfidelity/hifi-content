@@ -45,6 +45,7 @@
         },
 
         breakPlate : function() {
+            console.log("Made it to breakPlate");
             var velocity = Entities.getEntityProperties(_entityID, 'velocity').velocity;
             
             pieces.forEach(function(element){

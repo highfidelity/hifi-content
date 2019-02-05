@@ -10,8 +10,8 @@
 
 (function() {
 
-    var CLIENT_SCRIPT_URL = Script.resolvePath("ShatterPlateClient.js");
-    var SERVER_SCRIPT_URL = Script.resolvePath("ShatterPlateServer.js");
+    var CLIENT_SCRIPT_URL = Script.resolvePath("ShatterPlateClient.js?" + Date.now());
+    var SERVER_SCRIPT_URL = Script.resolvePath("ShatterPlateServer.js?" + Date.now());
 
     var PLATE_MODEL_URL = Script.resolvePath("plate-whole.fbx");
     var PLATE_COLLISION_HULL_URL = Script.resolvePath("plate-whole-hub.obj");
