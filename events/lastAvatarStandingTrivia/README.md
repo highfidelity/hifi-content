@@ -3,7 +3,8 @@
 ### Release Notes:
 
 **February 5, 2019**
-` [fb4ad80](https://github.com/highfidelity/hifi-content/pull/279/commits/fb4ad809daa3e908ab7ab5fa712f2d9a19c543eb)`
+` [f3f05c0](https://github.com/highfidelity/hifi-content/pull/279/commits/f3f05c0cd3eabd8d65a1c20175069b1d33b5a688)`
+
 Version 1.1:
 - Bug fixes 
 - Tablet App style and functionality updates.
