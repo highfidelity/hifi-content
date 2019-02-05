@@ -90,7 +90,7 @@ function filterAdd(properties, originalProperties){
 
 var MAX_DIMENSION = 3.0;
 function filterEdit(properties, originalProperties){
-    log("FILTER_EDIT", "properties:", properties, "originalProperties", originalProperties);
+    // log("FILTER_EDIT", "properties:", properties, "originalProperties", originalProperties);
     if (
         properties.name && properties.name !== originalProperties.name ||
         properties.modelURL && properties.modelURL !== originalProperties.modelURL ||
@@ -119,7 +119,7 @@ function filterPhysics(properties, originalProperties){
 
 
 function filterDelete(properties, originalProperties){
-    log("FILTER_DELETE", "properties:", properties, "originalProperties", originalProperties);
+    // log("FILTER_DELETE", "properties:", properties, "originalProperties", originalProperties);
     var name = originalProperties.name;
     DELETE_QUALIFIERS.forEach(function(qualifier) {
         if (name.indexOf(qualifier) !== -1) {
