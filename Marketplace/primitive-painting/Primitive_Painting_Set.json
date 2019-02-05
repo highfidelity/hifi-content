@@ -3240,7 +3240,7 @@
                 "y": -1.52587890625e-05,
                 "z": -1.52587890625e-05
             },
-            "script": "http://mpassets.highfidelity.com/80d0f5ed-0dec-4de1-bf84-a6523d3dc28b-v1/brushScript.js",
+            "script": "http://mpassets.highfidelity.com/87d3d0f7-58f6-4e66-b432-66bc91251560-v1/brushScript.js",
             "scriptTimestamp": 1539974223035,
             "type": "Sphere",
             "userData": "{\"grabbableKey\":{\"grabbable\":false}}"

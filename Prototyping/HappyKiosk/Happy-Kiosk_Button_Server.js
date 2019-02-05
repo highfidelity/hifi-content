@@ -40,15 +40,16 @@
         self,
         onTexture,
         offTexture,
+        originalTextures,
+        baseButtonTextureName,
         rating = 1;
 
     // Const
     var BUTTON_PRESS_OFFSET = 0.04,
         DOWN_TIME_MS = 2000;
 
-        // Collections
+    // Collections
     var currentProperties = {},
-        position = {},
         userData = {},
         userdataProperties = {};
 
@@ -63,17 +64,20 @@
         ],
         preload: function (id) {
             entityID = id;
-            currentProperties = Entities.getEntityProperties(entityID, ["name", "position", "parentID", "userData"]);
+            currentProperties = Entities.getEntityProperties(entityID, ["name", "position", "parentID", "userData", "originalTextures"]);
+            
             name = currentProperties.name;
             position = currentProperties.position;
             kioskZoneID = currentProperties.parentID;
-
+            originalTextures = JSON.parse(currentProperties.originalTextures);
             userData = currentProperties.userData;
+            
             try {
                 userdataProperties = JSON.parse(userData);
                 rating = userdataProperties.kiosk.rating;
-                onTexture = userdataProperties.kiosk.onTexture;
-                offTexture = userdataProperties.kiosk.offTexture;
+                baseButtonTextureName = "button" + rating + "-";
+                onTexture = originalTextures[baseButtonTextureName + "on"];
+                offTexture = originalTextures[baseButtonTextureName + "off"];
 
                 var textureData = {};
                 textureData["button" + rating + "-off"] = offTexture;

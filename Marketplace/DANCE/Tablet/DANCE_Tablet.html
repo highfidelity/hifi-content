@@ -1,0 +1,42 @@
+<html>
+
+    <head>
+        <title>DANCE</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+        <link href="https://fonts.googleapis.com/css?family=Audiowide|Black+Han+Sans|Mitr:300|Nanum+Gothic+Coding:700|Neucha|Roboto" rel="stylesheet">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="css/app.css">
+        <link rel="stylesheet" href="Assets/glyphs/styles.css">
+
+    </head>
+
+    <body class="background maindiv">
+        <div id="app">
+            <div class="sticky-top">
+                <current-dance 
+                    class="shadow-lg header-background" 
+                    :add_this_dance="dataStore.ui.addThisDance"
+                    :current_dance="dataStore.ui.currentDance"
+                    :should_be_running="dataStore.shouldBeRunning"
+                    :dance_array="dataStore.ui.danceArray"
+                    :add_dance_name="dataStore.addThisDanceName"
+                    :current_dance_name="dataStore.ui.currentDance ? dataStore.currentDance.name : '' "
+                    :toggle_hmd="dataStore.toggleHMD"
+                ></current-dance>
+            </div> 
+            <dance-list v-if="dataStore.ui.danceArray" :dances="dataStore.danceArray" class="shadow" :should_be_running="dataStore.shouldBeRunning"></dance-list>
+            <div class="mt-1 ml-3 justify-content-center align-items-center">
+                <dance class="mb-4 mr-2 shadow-lg" v-for="(dance, index) in dataStore.danceObjects" v-bind:class="{ 'border border-white border-3': dance.selected }" :index="index" :key="index" :dance="dance"></dance>
+            </div>
+        </div>
+        <script defer src="https://use.fontawesome.com/releases/v5.5.0/js/all.js" integrity="sha384-GqVMZRt5Gn7tB9D9q7ONtcp4gtHIUEW/yG7h98J7IpE3kpi+srfFyyB/04OV6pG0" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+        <script src="js/DANCE_Tablet.js"></script>
+    </body>
+
+</html>
