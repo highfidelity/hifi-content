@@ -32,7 +32,7 @@ function log(message, item) {
     print.apply(null, arguments);
 }
 
-log("V2");
+log("V4");
 
 // ENUMS for edit filter type
 var ADD = 0;
@@ -92,14 +92,16 @@ var MAX_DIMENSION = 3.0;
 function filterEdit(properties, originalProperties){
     log("FILTER_EDIT", "properties:", properties, "originalProperties", originalProperties);
     if (
-        properties.name !== originalProperties.name ||
-        properties.modelURL !== originalProperties.modelURL ||
-        properties.script !== originalProperties.script ||
-        properties.serverScripts !== originalProperties.serverScripts ||
-        properties.textures !== originalProperties.textures ||
-        properties.dimensions.x >= MAX_DIMENSION || 
-        properties.dimensions.y >= MAX_DIMENSION || 
-        properties.dimensions.z >= MAX_DIMENSION
+        properties.name && properties.name !== originalProperties.name ||
+        properties.modelURL && properties.modelURL !== originalProperties.modelURL ||
+        properties.script && properties.script !== originalProperties.script ||
+        properties.serverScripts && properties.serverScripts !== originalProperties.serverScripts ||
+        properties.textures && properties.textures !== originalProperties.textures ||
+        properties.dimensions && (
+            properties.dimensions.x >= MAX_DIMENSION || 
+            properties.dimensions.y >= MAX_DIMENSION || 
+            properties.dimensions.z >= MAX_DIMENSION
+        )
     ){
         // We had a violation.  Returning false
         log("filter edit issue");
@@ -124,7 +126,7 @@ function filterDelete(properties, originalProperties){
             log("this is an allowed delete", name);
             return true;
         }
-    })
+    });
     return false;
 }
 
