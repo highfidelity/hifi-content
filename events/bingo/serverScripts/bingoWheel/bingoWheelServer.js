@@ -201,7 +201,7 @@
             }
 
             while (roundPrizes.length < 3) {
-                maybePushRandomPrize(POSSIBLE_PRIZES[Math.floor(Math.random() * (POSSIBLE_PRIZES.length - 1))]);
+                maybePushRandomPrize(POSSIBLE_PRIZES[Math.floor(Math.random() * POSSIBLE_PRIZES.length)]);
             }
 
             Entities.editEntity(BINGO_PRIZE_DOOR_1_TEXT, {text: roundPrizes[0]});
