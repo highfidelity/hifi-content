@@ -2,7 +2,8 @@
 
 ### Release Notes:
 
-**January 31, 2019**
+**February 5, 2019**
+` [ee918f5](/highfidelity/hifi-content/pull/279/commits/ee918f5b67434e4da78b14b80aa00fab59dd288c)`
 Version 1.1:
 - Bug fixes 
 - Tablet App style and functionality updates.
@@ -30,4 +31,8 @@ You can switch databases at any time, but to re-enter custom or miscellaneous da
 
 1. Write up instructions on how to format a Google Sheets custom trivia database and Google script.
 2. Create an app loader that automatically loads the Host app in world.
+3. Condense color check scripts into one.
+4. Simplify html with button state-machine.
+5. Replace timeout on unloading the color check scripts with a callback when player removals are complete.
+
 
