@@ -202,7 +202,7 @@
                     } catch (e){
                         console.log(e, "parsing error");
                     }
-                    if (triviaData.application !== "trivia") {
+                    if (!triviaData.application || triviaData.application !== "trivia") {
                         return;
                     } else if ("question" in triviaData) {
                         document.getElementById("question").innerHTML = triviaData.question;
