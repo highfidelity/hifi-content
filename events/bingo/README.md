@@ -3,6 +3,12 @@ Ummm...well...it's bingo!
 
 ## Release Notes
 
+### v1.14
+
+2019-02-05_09-41-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
+
+- Moved backend DB to new URL
+
 ### v1.13
 
 2019-02-04_16-10-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
