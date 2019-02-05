@@ -15,66 +15,46 @@
     var MS_PER_S = 1000;
     var CM_PER_M = 100;
 
-    function updateCurrentVolume() {
-        ui.sendMessage({method: "updateCurrentVolume", currentVolume: currentVolume});
+    function updateCurrentVolumeUI() {
+        ui.sendMessage({method: "updateCurrentVolumeUI", currentVolume: currentVolume});
     }
     // #endregion
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
 
-    function maybeClearUpdateUIInterval() {
-        if (updateUIInterval) {
-            Script.clearInterval(updateUIInterval);
-            updateUIInterval = false;
+    // Function that AppUI calls when the App's UI opens
+    function onOpened() {
+        updateCurrentVolumeUI();
+    }
+
+    var NUM_CLAP_SOUNDS = 21;
+    var NUM_WHISTLE_SOUNDS = 17;
+    var clapSounds = [];
+    var whistleSounds = [];
+    function getSounds() {
+        for (var i = 1; i < NUM_CLAP_SOUNDS + 1; i++) {
+            clapSounds.push(SoundCache.getSound(Script.resolvePath(
+                "resources/sounds/claps/" + ("0" + i).slice(-2) + ".wav")));
+        }
+        for (i = 1; i < NUM_WHISTLE_SOUNDS + 1; i++) {
+            whistleSounds.push(SoundCache.getSound(Script.resolvePath(
+                "resources/sounds/whistles/" + ("0" + i).slice(-2) + ".wav")));
         }
     }
 
-    // Function that AppUI calls when the App's UI opens
-    var updateUIInterval = false;
-    var UPDATE_UI_INTERVAL_MS = 50;
-    function onOpened() {
-        maybeClearUpdateUIInterval();
-        updateUIInterval = Script.setInterval(updateCurrentVolume, UPDATE_UI_INTERVAL_MS);
-    }
-
-
-    // Function that AppUI calls when the App's UI closes    
-    function onClosed() {
-        maybeClearUpdateUIInterval();
-    }
-
-    var applauseSound;
-    function getSounds() {
-        applauseSound = SoundCache.getSound(Script.resolvePath("resources/sounds/applause.wav"));
-    }
-
-    var cheeringAnimation = false;
+    var whistlingAnimation = false;
+    var clappingAnimation = false;
     function getAnimations() {
         var animationURL = Script.resolvePath("resources/animations/Cheering.fbx");
         var resource = AnimationCache.prefetch(animationURL);
         var animation = AnimationCache.getAnimation(animationURL);
-        cheeringAnimation = { url: animationURL, animation: animation, resource: resource};
-    }
+        whistlingAnimation = { url: animationURL, animation: animation, resource: resource};
 
-    var soundFadeInterval = false;
-    var FADE_INTERVAL_MS = 20;
-    var FADE_OUT_STEP_SIZE = 0.05; // unitless
-    function fadeOutAndStopSound() {
-        maybeClearSoundFadeInterval();
-
-        soundFadeInterval = Script.setInterval(function() {
-            fadeSoundVolume(0, FADE_OUT_STEP_SIZE);
-
-            if (currentVolume === 0) {
-                if (soundInjector) {
-                    soundInjector.stop();
-                    soundInjector = false;
-                }
-
-                maybeClearSoundFadeInterval();
-            }
-        }, FADE_INTERVAL_MS);
+        animationURL = Script.resolvePath("resources/animations/Clapping.fbx");
+        resource = AnimationCache.prefetch(animationURL);
+        animation = AnimationCache.getAnimation(animationURL);
+        clappingAnimation = { url: animationURL, animation: animation, resource: resource};
     }
 
     function maybeClearSoundFadeInterval() {
@@ -84,14 +64,35 @@
         }
     }
 
+    var soundFadeInterval = false;
+    var FADE_INTERVAL_MS = 20;
+    var FADE_OUT_STEP_SIZE = 0.05; // unitless
+    function fadeOutAndStopSound() {
+        maybeClearSoundFadeInterval();
+
+        soundFadeInterval = Script.setInterval(function() {
+            currentVolume -= FADE_OUT_STEP_SIZE;
+
+            if (currentVolume <= 0) {
+                if (soundInjector) {
+                    soundInjector.stop();
+                }
+
+                updateCurrentVolumeUI();
+
+                maybeClearSoundFadeInterval();
+            } else {
+                fadeSoundVolume(currentVolume, VOLUME_MAX_STEP_SIZE_DESKTOP);
+            }
+        }, FADE_INTERVAL_MS);
+    }
+
     var currentVolume = 0;
     var VOLUME_MAX_STEP_SIZE = 0.003; // unitless, determined empirically
     var VOLUME_MAX_STEP_SIZE_DESKTOP = 1; // unitless, determined empirically
+    var MAX_CLAP_INTENSITY = 0.55; // Unitless, determined empirically
+    var MAX_WHISTLE_INTENSITY = 1.0; // Unitless, determined empirically
     function fadeSoundVolume(targetVolume, maxStepSize) {
-        if (!soundInjector) {
-            return;
-        }
-
         if (!maxStepSize) {
             maxStepSize = VOLUME_MAX_STEP_SIZE;
         }
@@ -107,6 +108,12 @@
 
         currentVolume = Math.max(0.0, Math.min(1.0, currentVolume));
 
+        updateCurrentVolumeUI();
+
+        if (!soundInjector) {
+            return;
+        }
+
         var injectorOptions = {
             position: MyAvatar.position,
             volume: currentVolume
@@ -115,20 +122,59 @@
         soundInjector.setOptions(injectorOptions);
     }
 
+    var soundInjector = false;
+    var MIN_INJECTOR_VOLUME = 0.2;
+    var MAX_INJECTOR_VOLUME = 0.3; // Determined empirically
     function playSound(sound) {
-        return Audio.playSound(sound, {
+        if (soundInjector.isPlaying) {
+            return;
+        }
+
+        var injectorVolume = Math.max(MIN_INJECTOR_VOLUME, Math.min(currentVolume, MAX_INJECTOR_VOLUME));
+
+        soundInjector = Audio.playSound(sound, {
             position: MyAvatar.position,
-            volume: currentVolume
+            volume: injectorVolume
+        });
+
+        soundInjector.finished.connect(function() {
+            soundInjector = false;
         });
     }
 
-    var soundInjector = false;
-    var MIN_CHEER_INTENSITY = 0.05; // Unitless, determined empirically
+    function shouldClap() {
+        return currentVolume > 0.0 &&
+            currentVolume <= MAX_CLAP_INTENSITY;
+    }
+
+    function shouldWhistle() {
+        return currentVolume > MAX_CLAP_INTENSITY &&
+            currentVolume <= MAX_WHISTLE_INTENSITY;
+    }
+
+    function selectAndPlaySound() {
+        if (shouldClap()) {
+            playSound(clapSounds[Math.floor(Math.random() * clapSounds.length)]);
+        } else if (shouldWhistle()) {
+            playSound(whistleSounds[Math.floor(Math.random() * whistleSounds.length)]);
+        }
+    }
+
+    function maybeClearVRDebounceTimer() {
+        if (vrDebounceTimer) {
+            Script.clearTimeout(vrDebounceTimer);
+            vrDebounceTimer = false;
+        }
+    }
+
     var MAX_VELOCITY_CM_PER_SEC = 110; // determined empirically
     var MAX_ANGULAR_VELOCITY_LENGTH = 1.5; // determined empirically
     var LINEAR_VELOCITY_WEIGHT = 0.7; // This and the line below must add up to 1.0
     var ANGULAR_VELOCITY_LENGTH_WEIGHT = 0.3; // This and the line below must add up to 1.0
-    function calculateHandEffect(linearVelocity, angularVelocity, isFaked){
+    var vrDebounceTimer = false;
+    var VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS = 70; // determined empirically
+    var VR_DEBOUNCE_TIMER_MULTIPLICATION_FACTOR = 500; // unitless, determined empirically
+    function calculateHandEffect(linearVelocity, angularVelocity){
         var leftHandLinearVelocityCMPerSec = linearVelocity.left;
         var rightHandLinearVelocityCMPerSec = linearVelocity.right;
         var averageLinearVelocity = (leftHandLinearVelocityCMPerSec + rightHandLinearVelocityCMPerSec) / 2;
@@ -139,24 +185,20 @@
         var averageAngularVelocityIntensity = (leftHandAngularVelocityLength + rightHandAngularVelocityLength) / 2;
         averageAngularVelocityIntensity = Math.min(averageAngularVelocityIntensity, MAX_ANGULAR_VELOCITY_LENGTH);
 
-        var linearVelocityWeight = isFaked ? 1.0 : LINEAR_VELOCITY_WEIGHT;
-        var angularVelocityWeight = isFaked ? 0.0 : ANGULAR_VELOCITY_LENGTH_WEIGHT;
-
         var cheerIntensity =
-            averageLinearVelocity / MAX_VELOCITY_CM_PER_SEC * linearVelocityWeight +
-            averageAngularVelocityIntensity / MAX_ANGULAR_VELOCITY_LENGTH * angularVelocityWeight;
+            averageLinearVelocity / MAX_VELOCITY_CM_PER_SEC * LINEAR_VELOCITY_WEIGHT +
+            averageAngularVelocityIntensity / MAX_ANGULAR_VELOCITY_LENGTH * ANGULAR_VELOCITY_LENGTH_WEIGHT;
 
-        if (cheerIntensity >= MIN_CHEER_INTENSITY && !soundInjector) {
-            soundInjector = playSound(applauseSound);
-            soundInjector.finished.connect(function() {
-                soundInjector = false;
-            });
+        fadeSoundVolume(cheerIntensity);
+
+        var debounceTimeout = VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS + ((1.0 - cheerIntensity) * VR_DEBOUNCE_TIMER_MULTIPLICATION_FACTOR);
+        // This timer forces a minimum tail duration for all sound clips
+        if (!vrDebounceTimer) {
+            selectAndPlaySound();
+            vrDebounceTimer = Script.setTimeout(function() {
+                vrDebounceTimer = false;
+            }, debounceTimeout);
         }
-
-
-        var newVolumeTarget = cheerIntensity;
-
-        fadeSoundVolume(newVolumeTarget, isFaked && VOLUME_MAX_STEP_SIZE_DESKTOP);
     }
 
     var lastLeftHandPosition = false;
@@ -246,7 +288,6 @@
 
         if (soundInjector) {
             soundInjector.stop();
-            soundInjector = false;
         }
         
         currentVolume = 0.0;
@@ -304,24 +345,20 @@
         handPositionCheckInterval = Script.setInterval(handPositionCheck, HAND_POSITION_CHECK_INTERVAL_MS);
     }
 
-    function maybeClearSlowCheeringInterval() {
-        if (slowCheeringInterval) {
-            Script.clearInterval(slowCheeringInterval);
-            slowCheeringInterval = false;
+    function maybeClearLowerCheeringVolumeInterval() {
+        if (lowerCheeringVolumeInterval) {
+            Script.clearInterval(lowerCheeringVolumeInterval);
+            lowerCheeringVolumeInterval = false;
         }
     }
 
     function stopCheering() {
         maybeClearStopCheeringTimeout();
-        maybeClearSlowCheeringInterval();
+        maybeClearLowerCheeringVolumeInterval();
         MyAvatar.restoreAnimation();
-        isCheering = false;
         currentAnimationFPS = INITIAL_ANIMATION_FPS;
         currentlyPlayingFrame = 0;
         currentAnimationTimestamp = 0;
-        fadeOutAndStopSound();
-        fakeLeftHandVelocity = FAKE_HAND_VELOCITY_CM_PER_SEC_INITIAL;
-        fakeRightHandVelocity = FAKE_HAND_VELOCITY_CM_PER_SEC_INITIAL;
     }
 
     function maybeClearStopCheeringTimeout() {
@@ -330,20 +367,20 @@
             stopCheeringTimeout = false;
         }
     }
-    
-    // Clear the "cheering" animation if it's running
-    var stopCheeringTimeout = false;
-    var STOP_CHEERING_TIMEOUT_MS = 500;
-    function stopCheeringSoon() {
-        maybeClearStopCheeringTimeout();
 
-        if (isCheering) {
-            stopCheeringTimeout = Script.setTimeout(stopCheering, STOP_CHEERING_TIMEOUT_MS);
+    var VOLUME_STEP_DOWN_DESKTOP = 0.015; // unitless, determined empirically
+    function slowCheeringAndLowerCheeringVolume() {
+        currentVolume -= VOLUME_STEP_DOWN_DESKTOP;
+        fadeSoundVolume(currentVolume, VOLUME_MAX_STEP_SIZE_DESKTOP);
+
+        currentAnimation = selectAnimation();
+
+        if (!currentAnimation) {
+            stopCheering();
+            return;
         }
-    }
 
-    function slowCheering() {
-        var frameCount = cheeringAnimation.animation.frames.length;
+        var frameCount = currentAnimation.animation.frames.length;
 
         var animationTimestampDeltaMS = Date.now() - currentAnimationTimestamp;
         var frameDelta = animationTimestampDeltaMS / MS_PER_S * currentAnimationFPS;
@@ -354,44 +391,55 @@
 
         currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
 
-        MyAvatar.overrideAnimation(cheeringAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
-
-        if (currentAnimationFPS <= INITIAL_ANIMATION_FPS) {
-            stopCheering();
-            return;
-        }
+        MyAvatar.overrideAnimation(currentAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
 
         currentAnimationTimestamp = Date.now();
-
-        fakeLeftHandVelocity -= FAKE_HAND_VELOCITY_STEP_DOWN_CM_PER_SEC;
-        fakeRightHandVelocity -= FAKE_HAND_VELOCITY_STEP_DOWN_CM_PER_SEC;
-        var linearVelocity = {left: fakeLeftHandVelocity, right: fakeRightHandVelocity};
-        var angularVelocity = {left: FAKE_ANGULAR_VELOCITY, right: FAKE_ANGULAR_VELOCITY};
-
-        calculateHandEffect(linearVelocity, angularVelocity, true);
     }
 
-    var isCheering = false;
+    function selectAnimation() {
+        if (shouldClap()) {
+            if (currentAnimation === whistlingAnimation) {
+                currentAnimationTimestamp = 0;
+            }
+            return clappingAnimation;
+        } else if (shouldWhistle()) {
+            if (currentAnimation === clappingAnimation) {
+                currentAnimationTimestamp = 0;
+            }
+            return whistlingAnimation;
+        } else {
+            return false;
+        }
+    }
+
+    var currentAnimation = false;
     var INITIAL_ANIMATION_FPS = 7;
     var currentAnimationFPS = INITIAL_ANIMATION_FPS;
-    var slowCheeringInterval = false;
+    var lowerCheeringVolumeInterval = false;
     var SLOW_CHEERING_INTERVAL_MS = 100;
     var currentlyPlayingFrame = 0;
     var currentAnimationTimestamp;
     var CHEERING_FPS_MAX = 80;
-    function startCheering() {
-        if (!cheeringAnimation) {
+    var VOLUME_STEP_UP_DESKTOP = 0.035; // unitless, determined empirically
+    function keyPressed() {
+        if (!whistlingAnimation || !clappingAnimation) {
             return;
         }
 
         maybeClearSoundFadeInterval();
         maybeClearStopCheeringTimeout();
 
-        if (!slowCheeringInterval) {
-            slowCheeringInterval = Script.setInterval(slowCheering, SLOW_CHEERING_INTERVAL_MS);
+        currentVolume += VOLUME_STEP_UP_DESKTOP;
+        fadeSoundVolume(currentVolume, VOLUME_MAX_STEP_SIZE_DESKTOP);
+        selectAndPlaySound();
+
+        if (!lowerCheeringVolumeInterval) {
+            lowerCheeringVolumeInterval = Script.setInterval(slowCheeringAndLowerCheeringVolume, SLOW_CHEERING_INTERVAL_MS);
         }
 
-        var frameCount = cheeringAnimation.animation.frames.length;
+        currentAnimation = selectAnimation();
+
+        var frameCount = currentAnimation.animation.frames.length;
 
         if (currentAnimationTimestamp > 0) {
             var animationTimestampDeltaMS = Date.now() - currentAnimationTimestamp;
@@ -406,26 +454,20 @@
             currentlyPlayingFrame = 0;
         }
 
-        MyAvatar.overrideAnimation(cheeringAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
-        isCheering = true;
+        MyAvatar.overrideAnimation(currentAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
         currentAnimationTimestamp = Date.now();
     }
     
     var debounceTimer = false;
     var DEBOUNCE_TIMEOUT_MS = 30;
-    var FAKE_HAND_VELOCITY_STEP_UP_CM_PER_SEC = 3;
-    var FAKE_HAND_VELOCITY_STEP_DOWN_CM_PER_SEC = 1;
-    var FAKE_HAND_VELOCITY_CM_PER_SEC_INITIAL = FAKE_HAND_VELOCITY_STEP_UP_CM_PER_SEC;
-    var fakeLeftHandVelocity = FAKE_HAND_VELOCITY_CM_PER_SEC_INITIAL;
-    var fakeRightHandVelocity = FAKE_HAND_VELOCITY_CM_PER_SEC_INITIAL;
-    var FAKE_ANGULAR_VELOCITY = {x: 100, y: 100, z: 100};
     function keyPressEvent(event) {
         if ((event.text.toUpperCase() === "Z") &&
             !event.isShifted &&
             !debounceTimer &&
             !event.isMeta &&
             !event.isControl &&
-            !event.isAlt) {
+            !event.isAlt &&
+            !HMD.active) {
 
             if (event.isAutoRepeat) {
                 debounceTimer = Script.setTimeout(function() {
@@ -433,24 +475,25 @@
                 }, DEBOUNCE_TIMEOUT_MS);
             }
 
-            fakeLeftHandVelocity += FAKE_HAND_VELOCITY_STEP_UP_CM_PER_SEC;
-            fakeLeftHandVelocity = Math.min(MAX_VELOCITY_CM_PER_SEC, fakeLeftHandVelocity);
-
-            fakeRightHandVelocity += FAKE_HAND_VELOCITY_STEP_UP_CM_PER_SEC;
-            fakeRightHandVelocity = Math.min(MAX_VELOCITY_CM_PER_SEC, fakeRightHandVelocity);
-
-            startCheering();
-            var linearVelocity = {left: fakeLeftHandVelocity, right: fakeRightHandVelocity};
-            var angularVelocity = {left: FAKE_ANGULAR_VELOCITY, right: FAKE_ANGULAR_VELOCITY};
+            keyPressed();
+        }
+    }
     
-            calculateHandEffect(linearVelocity, angularVelocity, true);
+    // Clear the "cheering" animation if it's running
+    var stopCheeringTimeout = false;
+    var STOP_CHEERING_TIMEOUT_MS = 500;
+    function stopSoundSoon() {
+        maybeClearStopCheeringTimeout();
+
+        if (currentVolume > 0) {
+            stopCheeringTimeout = Script.setTimeout(fadeOutAndStopSound, STOP_CHEERING_TIMEOUT_MS);
         }
     }
     
     function keyReleaseEvent(event) {
         if ((event.text.toUpperCase() === "Z") &&
             !event.isAutoRepeat) {
-            stopCheeringSoon();
+            stopSoundSoon();
         }
     }
 
@@ -505,13 +548,10 @@
         maybeClearHandPositionCheckInterval();
         maybeClearHandVelocityCheckIntervalAndStopSound();
         maybeClearSoundFadeInterval();
+        maybeClearVRDebounceTimer();
 
         maybeClearStopCheeringTimeout();
         stopCheering();
-
-        if (ui.isOpen) {
-            ui.onClosed();
-        }
 
         if (debounceTimer) {
             Script.clearTimeout(debounceTimer);
@@ -538,7 +578,6 @@
             home: APP_UI_URL,
             graphicsDirectory: Script.resolvePath("./resources/images/icons/"),
             onOpened: onOpened,
-            onClosed: onClosed,
             onMessage: onMessage
         });
         

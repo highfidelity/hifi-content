@@ -23,7 +23,7 @@ function onScriptEventReceived(message) {
             document.getElementById("loadingContainer").style.display = "none";
             break;
 
-        case "updateCurrentVolume":
+        case "updateCurrentVolumeUI":
             document.getElementById("currentVolumeDisplay").setAttribute('value', message.currentVolume);
             break;
         default:
