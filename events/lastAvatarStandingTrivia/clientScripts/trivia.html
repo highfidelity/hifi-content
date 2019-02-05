@@ -17,17 +17,17 @@
         <h4>Choose Question Details (Optional) <br>& Click 'New Question'</h4>
         
         <div class="dropdown">
-            <input type="button" class="blue" id="catalog" onclick="toggleMenu('databasedropdown')" disabled = true value="Default Catalog    &#9660;">
+            <input type="button" class="blue" id="catalog" onclick="toggleMenu('databaseDropdown')" disabled = true value="Default Catalog &#9660;">
             <ul class="dropdown-database">
-                <div id="databasedropdown" class="dropdown-items">
+                <div id="databaseDropdown" class="dropdown-items">
                     <li>Default Catalog</li>
                     <li>Custom Catalog</li>
                     <li>Misc. Catalog</li>
                 </div>
             </ul>
-            <input type="button" id="selectedType" onclick="toggleMenu('typedropdown')" class="blue" disabled = true value="Any Type   &#9660;">
+            <input type="button" id="selectedType" onclick="toggleMenu('typeDropdown')" class="blue" disabled = true value="Any Type &#9660;">
             <ul class="dropdown-type">
-                <div id="typedropdown" class="dropdown-items">
+                <div id="typeDropdown" class="dropdown-items">
                     <li>Any Type</li>
                     <li>Multiple Choice</li>
                     <li>True or False</li>
@@ -35,18 +35,18 @@
             </ul>
             <br>
             <br>
-            <input type="button" id="selectedDifficulty" onclick="toggleMenu('difficultydropdown')" class="blue" disabled = true value="Level   &#9660;">
+            <input type="button" id="selectedDifficulty" onclick="toggleMenu('difficultyDropdown')" class="blue" disabled = true value="Level &#9660;">
             <ul class="dropdown-difficulty">
-                <div id="difficultydropdown" class="dropdown-items">
+                <div id="difficultyDropdown" class="dropdown-items">
                     <li>Any</li>
                     <li>Easy</li>
                     <li>Medium</li>
                     <li>Hard</li>
                 </div>
             </ul>
-            <input type="button" id="selectedCategory" onclick="toggleMenu('categorydropdown')" class="blue" disabled = true value="Any Category   &#9660;">
+            <input type="button" id="selectedCategory" onclick="toggleMenu('categoryDropdown')" class="blue" disabled = true value="Any Category &#9660;">
             <ul class="dropdown-category">
-                <div id="categorydropdown" class="dropdown-items">
+                <div id="categoryDropdown" class="dropdown-items">
                     <li value="">Any Category</li>
                     <li value="9">General Knowledge</li>
                     <li value="10">Books</li>
@@ -121,8 +121,7 @@
                     newQButton.disabled = true;
                     showQButton.disabled = true;
                     answerButton.disabled = true;
-                } 
-                else if (event === "re-enable") {
+                } else if (event === "re-enable") {
                     databaseButton.disabled = false;
                     typeButton.disabled = false;
                     diffButton.disabled = false;
@@ -132,8 +131,7 @@
                     newQButton.disabled = false;
                     showQButton.disabled = true;
                     answerButton.disabled = true;
-                } 
-                else if (event === "gameInProgress") {
+                } else if (event === "gameInProgress") {
                     typeButton.disabled = false;
                     diffButton.disabled = false;
                     catButton.disabled = false;
@@ -143,8 +141,7 @@
                     newQButton.disabled = false;
                     showQButton.disabled = false;
                     answerButton.disabled = true;
-                } 
-                else if (event === "noQuestionPosted") {
+                } else if (event === "noQuestionPosted") {
                     databaseButton.disabled = false;
                     typeButton.disabled = false;
                     diffButton.disabled = false;
@@ -154,8 +151,7 @@
                     newQButton.disabled = false;
                     showQButton.disabled = true;
                     answerButton.disabled = true;
-                } 
-                else if (event === "re-enableCustom") {
+                } else if (event === "re-enableCustom") {
                     databaseButton.value = "Custom Catalog" + "   \u25BC";
                     databaseButton.disabled = false;
                     typeButton.disabled = true;
@@ -166,8 +162,7 @@
                     newQButton.disabled = false;
                     showQButton.disabled = true;
                     answerButton.disabled = true;
-                } 
-                else if (event === "gameInProgressCustom") {
+                } else if (event === "gameInProgressCustom") {
                     databaseButton.value = "Custom Catalog" + "   \u25BC";
                     typeButton.disabled = true;
                     diffButton.disabled = true;
@@ -178,8 +173,7 @@
                     newQButton.disabled = false;
                     showQButton.disabled = false;
                     answerButton.disabled = true;
-                } 
-                else if (event === "noQuestionPostedCustom") {
+                } else if (event === "noQuestionPostedCustom") {
                     databaseButton.value = "Custom Catalog" + "   \u25BC";
                     databaseButton.disabled = false;
                     typeButton.disabled = true;
@@ -190,8 +184,7 @@
                     newQButton.disabled = false;
                     showQButton.disabled = true;
                     answerButton.disabled = true;
-                } 
-                else if (event === "nothingEntered") {
+                } else if (event === "nothingEntered") {
                         document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
                         document.getElementById('catalog').value = "Default Catalog" + "   \u25BC";
                         databaseButton.disabled = true;
@@ -204,52 +197,48 @@
                         showQButton.disabled = true;
                         answerButton.disabled = true;   
                 } else {
-                    try{
-                        triviaData = JSON.parse(event);
-                        console.log(event);
-                        if(triviaData.application !== "trivia") {
-                            return;
-                        } 
-                        else if ("question" in triviaData) {
-                            document.getElementById("question").innerHTML = triviaData.question;
-                            if (triviaData.type === "multiple") {
-                                document.getElementById("answer").innerHTML =  "<p class=\"correct\">" + 
-                                    triviaData.correct_answer + "<p>" + 
-                                    triviaData.incorrect_answers[0] + "<p>" + 
-                                    triviaData.incorrect_answers[1] + "<p>" +
-                                    triviaData.incorrect_answers[2];
-                            } else {
-                                document.getElementById("answer").innerHTML = triviaData.correct_answer;
-                            }
-                        } 
-                        else if ("response_code" in triviaData) {
-                            document.getElementById("question").innerHTML = "Response: " + triviaData["response_code"] + " Check with your trivia database or HiFi Admin, something is clearly wrong";
-                            databaseButton.disabled = true;
-                            typeButton.disabled = true;
-                            diffButton.disabled = true;
-                            catButton.disabled = true;
-                            beginButton.disabled = false;
-                            endButton.disabled = true;
-                            newQButton.disabled = true;
-                            showQButton.disabled = true;
-                            answerButton.disabled = true;
-                        } 
-                        else {
-                            document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
-                            document.getElementById('catalog').value = "Default Catalog" + "   \u25BC";
-                            databaseButton.disabled = true;
-                            typeButton.disabled = true;
-                            diffButton.disabled = true;
-                            catButton.disabled = true;
-                            beginButton.disabled = false;
-                            endButton.disabled = true;
-                            newQButton.disabled = true;
-                            showQButton.disabled = true;
-                            answerButton.disabled = true;
-                        }       
-                    } catch (e){
-                        console.log(e, "error");
-                    }
+                    triviaData = JSON.parse(event);
+                    console.log(event);
+                    if (triviaData.application !== "trivia") {
+                        return;
+                    } 
+                    else if ("question" in triviaData) {
+                        document.getElementById("question").innerHTML = triviaData.question;
+                        if (triviaData.type === "multiple") {
+                            document.getElementById("answer").innerHTML =  "<p class=\"correct\">" + 
+                                triviaData.correct_answer + "<p>" + 
+                                triviaData.incorrect_answers[0] + "<p>" + 
+                                triviaData.incorrect_answers[1] + "<p>" +
+                                triviaData.incorrect_answers[2];
+                        } else {
+                            document.getElementById("answer").innerHTML = triviaData.correct_answer;
+                        }
+                    } 
+                    else if ("response_code" in triviaData) {
+                        document.getElementById("question").innerHTML = "Response: " + triviaData["response_code"] + " Check with your trivia database or HiFi Admin, something is clearly wrong";
+                        databaseButton.disabled = true;
+                        typeButton.disabled = true;
+                        diffButton.disabled = true;
+                        catButton.disabled = true;
+                        beginButton.disabled = false;
+                        endButton.disabled = true;
+                        newQButton.disabled = true;
+                        showQButton.disabled = true;
+                        answerButton.disabled = true;
+                    } 
+                    else {
+                        document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
+                        document.getElementById('catalog').value = "Default Catalog" + "   \u25BC";
+                        databaseButton.disabled = true;
+                        typeButton.disabled = true;
+                        diffButton.disabled = true;
+                        catButton.disabled = true;
+                        beginButton.disabled = false;
+                        endButton.disabled = true;
+                        newQButton.disabled = true;
+                        showQButton.disabled = true;
+                        answerButton.disabled = true;
+                    }       
                 }
             }
 
@@ -304,18 +293,18 @@
                 document.getElementById('answer').innerHTML = "Answer text should be no longer than this sentence."
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
-            $('#databasedropdown li').click(function() {
-                document.getElementById('catalog').value=$(this).text() + "   \u25BC";
+            $('#databaseDropdown li').click(function() {
+                document.getElementById('catalog').value=$(this).text() + "\u25BC";
                 var event = {
                         app: 'trivia',
                         type: "catalog",
                         value: $(this).text()
                     };
-                if (document.getElementById('catalog').value === "Custom Catalog" + "   \u25BC") {
+                if (document.getElementById('catalog').value === "Custom Catalog" + "\u25BC") {
                     typeButton.disabled = true;
                     diffButton.disabled = true;
                     catButton.disabled = true;
-                } else if (document.getElementById('catalog').value === "Misc. Catalog" + "   \u25BC") {
+                } else if (document.getElementById('catalog').value === "Misc. Catalog" + "\u25BC") {
                     typeButton.disabled = true;
                     diffButton.disabled = true;
                     catButton.disabled = true;
@@ -326,8 +315,8 @@
                 }
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
-            $('#typedropdown li').click(function() {
-                document.getElementById('selectedType').value=$(this).text() + "   \u25BC";
+            $('#typeDropdown li').click(function() {
+                document.getElementById('selectedType').value=$(this).text() + "\u25BC";
                 var event = {
                         app: 'trivia',
                         type: "type",
@@ -335,8 +324,8 @@
                     };
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
-            $('#difficultydropdown li').click(function() {
-                document.getElementById('selectedDifficulty').value=$(this).text() + "   \u25BC";
+            $('#difficultyDropdown li').click(function() {
+                document.getElementById('selectedDifficulty').value=$(this).text() + "\u25BC";
                 var event = {
                     app: 'trivia',
                     type: "difficulty",
@@ -344,8 +333,8 @@
                 };
                 EventBridge.emitWebEvent(JSON.stringify(event));
             });
-            $('#categorydropdown li').click(function() {
-                document.getElementById('selectedCategory').value=$(this).text() + "   \u25BC";
+            $('#categoryDropdown li').click(function() {
+                document.getElementById('selectedCategory').value=$(this).text() + "\u25BC";
                 var event = {
                     app: 'trivia',
                     type: "category",
@@ -355,7 +344,7 @@
             });
             $('#newQuestion').click(function() {
                 databaseButton.disabled = false;
-                if (document.getElementById('catalog').value !== "Default Catalog" + "   \u25BC") {
+                if (document.getElementById('catalog').value !== "Default Catalog" + "\u25BC") {
                     typeButton.disabled = true;
                     diffButton.disabled = true;
                     catButton.disabled = true;

@@ -13,7 +13,7 @@
 
 (function() {
 
-    var SECRETS = Script.require(Script.resolvePath('JSON GOES HERE')),
+    var SECRETS = Script.require(Script.resolvePath('triviaInfo.json')),
         TRIVIA_CHANNEL = SECRETS.TRIVIA_CHANNEL,
         GOOGLE_URL = SECRETS.GOOGLE_URL,
         TABLET_BUTTON_IMAGE = Script.resolvePath('../entities/icons/questionMark-i.png'),
@@ -236,12 +236,12 @@
         Entities.findEntities(MyAvatar.position, SEARCH_RADIUS).forEach(function(element) {
             var name = Entities.getEntityProperties(element, ['name']).name;
             if (name.indexOf("Trivia") !== -1) {
-                var hasServerScript = Entities.getEntityProperties(element, ['serverScripts']).serverScripts;
-                if (hasServerScript !== "") {
+                var serverScriptURL = Entities.getEntityProperties(element, ['serverScripts']).serverScripts;
+                if (serverScriptURL !== "") {
                     Entities.getServerScriptStatus(element, (function() {
                         return function(success, isRunning, status, errorInfo) {
                             if (!success || !isRunning) {
-                                console.log("Script not running:", element, success, isRunning, status, errorInfo, JSON.stringify(hasServerScript));
+                                console.log("Script not running:", element, success, isRunning, status, errorInfo, JSON.stringify(serverScriptURL));
                                 Entities.reloadServerScripts(element);
                             }
                         };
@@ -525,7 +525,7 @@
         if (state === undefined) {
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
-                if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties) ) {
+                if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties)) {
                     count++;                
                 }
             });
@@ -533,14 +533,14 @@
         } else if (state === "begin") {
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
-                if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties) ) {
+                if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties)) {
                     Entities.callEntityServerMethod(bubble, "rezValidator", [avatar.sessionUUID]);             
                 }
             });
         } else {
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
-                if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties) ) {
+                if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties)) {
                     Entities.callEntityServerMethod(bubble, "deleteValidator", [avatar.sessionUUID]);             
                 }
             });

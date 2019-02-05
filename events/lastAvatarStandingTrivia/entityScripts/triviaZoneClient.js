@@ -117,7 +117,6 @@
                     bubble = Entities.getEntityProperties(
                         Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
                     gameOn = bubble.visible;
-                    // Entities.callEntityServerMethod(_this.entityID, "rezValidator", [MyAvatar.sessionUUID]);
                 } else if (message.type === 'game off') {
                     Script.setTimeout(function(){
                         bubble = Entities.getEntityProperties(
