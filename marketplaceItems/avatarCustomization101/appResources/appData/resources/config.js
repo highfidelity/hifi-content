@@ -18,8 +18,16 @@ var APP_NAME = "AvatarCustomization101",
     STRING_FLOW = "flow",
     STRING_INFO = "info";
 
+// Material preset strings
+var STRING_DEFAULT = "default",
+    STRING_LEATHER = "leather",
+    STRING_GLASS = "glass",
+    STRING_CHAINMAIL = "chainmail",
+    STRING_RED = "red",
+    STRING_TEXTURE = "texture";
+
 var CONFIG = {
-    APP_NAME: APP_NAME, 
+    APP_NAME: APP_NAME,
 
     // Variables shared by ui and javascript files
     UPDATE_UI: APP_NAME + "_update_ui",
@@ -45,47 +53,75 @@ var CONFIG = {
     STRING_INFO: STRING_INFO,
 
     INITIAL_DATASTORE_SETTINGS: {
-        isAviEnabled: false, // *** robin
+        isAviEnabled: true, // *** robin
         activeTabName: STRING_INFO,
         tabDataList: [
             {
                 // INFORMATION
-                tabName: STRING_INFO, 
-                title: STRING_INFO, 
+                tabName: STRING_INFO,
+                title: STRING_INFO,
                 subtitle: "Thank you for downloading the Avatar Customization 101 app.",
                 componentName: "info-tab"
             },
             {
                 // MATERIAL
-                tabName: STRING_MATERIAL, 
-                title: STRING_MATERIAL, 
+                tabName: STRING_MATERIAL,
+                title: STRING_MATERIAL,
                 subtitle: "Change avatars materials for each submesh.",
-                componentName: "test2"
+
+                componentName: "material-tab",
+                componentData: {
+                    selectedMaterial: "",
+                    updatedProperties: {},
+                    pbrList: [STRING_DEFAULT, STRING_LEATHER, STRING_GLASS, STRING_CHAINMAIL],
+                    shadelessList: [STRING_RED, STRING_TEXTURE]
+                }
             },
             {
                 // BLENDSHAPES
-                tabName: STRING_BLENDSHAPES, 
-                title: STRING_BLENDSHAPES, 
+                tabName: STRING_BLENDSHAPES,
+                title: STRING_BLENDSHAPES,
                 subtitle: "Change avatar expressions.",
                 componentName: "test1"
             },
             {
                 // ANIMATION
-                tabName: STRING_ANIMATION, 
-                title: STRING_ANIMATION, 
+                tabName: STRING_ANIMATION,
+                title: STRING_ANIMATION,
                 subtitle: "Change avatars default animations.",
                 componentName: "test2"
             },
             {
                 // FLOW
-                tabName: STRING_FLOW, 
-                title: STRING_FLOW, 
+                tabName: STRING_FLOW,
+                title: STRING_FLOW,
                 subtitle: "Modify flow joints for chain.",
                 componentName: "test1"
             }
-        ],
-    }
+        ]
+    },
 
+    // Contains properties for the preset buttons
+    MATERIAL_PRESETS: {
+        STRING_DEFAULT: {
+
+        },
+        STRING_LEATHER: {
+
+        },
+        STRING_GLASS: {
+
+        },
+        STRING_CHAINMAIL: {
+
+        },
+        STRING_RED: {
+
+        },
+        STRING_TEXTURE: {
+
+        }
+    }
 };
 
 if (module !== undefined) {

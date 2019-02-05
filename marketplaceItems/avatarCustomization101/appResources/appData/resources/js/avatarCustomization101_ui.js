@@ -17,9 +17,14 @@
     // !important Add APP_NAME to each event
     var EVENT_BRIDGE_OPEN_MESSAGE = APP_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
         EVENT_CHANGE_TAB = APP_NAME + CONFIG.EVENT_CHANGE_TAB,
+
+        // Info tab events
         EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR = APP_NAME + CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR,
         EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR = APP_NAME + CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR,
-        EVENT_RESTORE_SAVED_AVATAR = APP_NAME + CONFIG.EVENT_RESTORE_SAVED_AVATAR;
+        EVENT_RESTORE_SAVED_AVATAR = APP_NAME + CONFIG.EVENT_RESTORE_SAVED_AVATAR,
+
+        // Material tab events
+        EVENT_UPDATE_MATERIAL = APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL;
 
     // Debug 
 
@@ -127,7 +132,7 @@
                         :tabid="tabData.tabName"
                         :title="tabData.title"
                         :subtitle="tabData.subtitle"
-                        :data="tabData"
+                        :data="tabData.componentData"
                         :componentname="tabData.componentName"
                         :isavienabled="isavienabled"
                     ></tab-content>
@@ -232,6 +237,68 @@
                     v-show="isModalSaveAvatarVisible"
                     :close="closeModalSaveAvatar"
                 ></modal-save-avatar>
+            </div>
+        `
+    })
+
+    Vue.component('material-tab', {
+        props: ['data'],
+        methods: {
+            applyNamedMaterial(materialName) {
+                if (DEBUG) {
+                    console.log("applyNamedMaterial clicked " + materialName);
+                }
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_MATERIAL,
+                    name: materialName
+                }));
+
+            },
+            updateMaterialProperties(materialPropertiesObject) {
+                if (DEBUG) {
+                    console.log("updateMaterialProperties clicked");
+                }
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_MATERIAL,
+                    updates: materialPropertiesObject
+                }));
+            }
+        },
+        computed: {
+            dropDownList() {
+                return ["Select one", "shadeless", "hifi-pbr"];
+            }
+        },
+        template: /* html */ `
+            <div>
+
+                <h3>Jacket</h3>
+
+                <options-row-buttons
+                    :selectedbutton="data.selectedMaterial"
+                    :title="'PBR Presets'"
+                    :onclick="applyNamedMaterial"
+                    :buttonlist="data.pbrList"
+                >
+                </options-row-buttons>
+
+                <options-row-buttons
+                    :selectedbutton="data.selectedMaterial"
+                    :title="'Shadeless Presets'"
+                    :onclick="applyNamedMaterial"
+                    :buttonlist="data.shadelessList"
+                >
+                </options-row-buttons>
+
+                <h3>Shading Model</h3>
+                <drop-down-simple
+                    :items="dropDownList"
+                    :defaulttext="'Model type'"
+                >
+                </drop-down-simple>
+
             </div>
         `
     })
@@ -370,25 +437,79 @@
     })
 
     Vue.component('button-big', {
-        props: ['text', 'onclick', 'classes', 'isdisabled'],
+        props: ['text', 'onclick', 'classes', 'isdisabled', "selectedbutton", "onclickvalue"],
         computed: {
+            disabledButton() {
+                return this.isdisabled ? this.isdisabled : false;
+            },
             style() {
-                return "btn btn-primary " + this.classes;
+                var selected = this.selectedbutton === this.text ? " active " : "";
+                return "btn btn-primary " + this.classes + selected;
             }
         },
-        template: /* html */ `
-            <button type="button" v-bind:class="style" @click="onclick" :disabled="isdisabled">
+        methods: {
+            onButtonClick() {
+                if (this.onclickvalue){
+                    this.onclick(this.onclickvalue);
+                } else {
+                    this.onclick();
+                }
+            }
+        },
+        template: /* html */ ` 
+            <button type="button" v-bind:class="style" @click="onButtonClick" :disabled="disabledButton">
                 {{ text }}
             </button> 
         `
     })
 
-    // "Others to modify, You will learn about customizing your avatar in hifi"
-    Vue.component('dropdown', {
-        props: ['max', 'min'],
+    Vue.component('options-row-buttons', {
+        props: ['title', 'onclick', 'buttonlist', "selectedbutton"],
         template: /* html */ `
             <div>
-                <li></li>
+                <p>{{ title }}</p>
+                <div class="flex-container-row">
+                    <template v-for="buttonName in buttonlist">
+                        <button-big
+                            :text="buttonName"
+                            :onclick="onclick"
+                            :classes="'flex-item'"
+                            :selectedbutton="selectedbutton"
+                            :onclickvalue="buttonName"
+                        >
+                        </button-big>
+                    </template>
+                </div>
+            </div>
+        `
+    })
+
+    Vue.component('drop-down', {
+        props: ["items", "defaulttext"],
+        template: /* html */ `
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ defaulttext }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <template v-for="item in items">
+                        <a class="dropdown-item" href="#">{{ item }}</a> 
+                    </template>
+                </div>
+            </div>
+        `
+    })
+
+    Vue.component('drop-down-simple', {
+        props: ["items", "defaulttext"],
+        template: /* html */ `
+            <div class="form-group">
+                <label for="sel1">{{ defaulttext }}</label>
+                <select class="form-control" id="sel1">
+                    <template v-for="item in items">
+                        <option>{{ item }}</option> 
+                    </template>
+                </select>
             </div>
         `
     })
@@ -490,12 +611,10 @@
 
     function onScriptEventReceived(message) {
         var data;
-        console.log("ROBIN CHECKS " + message);
         try {
             data = JSON.parse(message);
             switch (data.type) {
                 case UPDATE_UI:
-                    console.log("FROM THE HIFI ROBIN" + data.value.isAviEnabled);
                     app.dataStore = data.value;
                     break;
                 default:
@@ -506,16 +625,16 @@
         }
     }
 
-    function onLoad() {
+    // function onLoad() {
 
-        // Open the EventBridge to communicate with the main script.
-        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-        EventBridge.emitWebEvent(JSON.stringify({
-            type: EVENT_BRIDGE_OPEN_MESSAGE
-        }));
+    //     // Open the EventBridge to communicate with the main script.
+    //     EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+    //     EventBridge.emitWebEvent(JSON.stringify({
+    //         type: EVENT_BRIDGE_OPEN_MESSAGE
+    //     }));
 
-    }
+    // }
 
-    document.addEventListener('DOMContentLoaded', onLoad, false);
+    // document.addEventListener('DOMContentLoaded', onLoad, false);
 
 }());
