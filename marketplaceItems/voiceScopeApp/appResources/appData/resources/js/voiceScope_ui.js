@@ -14,7 +14,8 @@ slider.oninput = function() {
 
 function buttonClicked(){ 
     EventBridge.emitWebEvent(JSON.stringify({
-        type: "TOGGLE_APP"
+        type: "TOGGLE_APP",
+        value: button.checked
     }));
 }
 button.addEventListener("click", buttonClicked);

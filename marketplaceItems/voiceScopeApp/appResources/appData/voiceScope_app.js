@@ -53,6 +53,8 @@
                 });
                 break;
             case "TOGGLE_APP":
+                Settings.setValue("voiceScope/enabled", data.value);
+                enabled = data.value;
                 toggleApp();
                 ui.sendToHtml({
                     type: "buttonStatus",
@@ -117,9 +119,7 @@
     // This function starts and stops the app, triggered by the tablet UI
     var enabled = false;
     function toggleApp() {
-        enabled = !enabled;
-        Settings.setValue("voiceScope/enabled", enabled);
-        if (!enabled){
+        if (enabled){
             startUpdate();
             addAll();
             playSound(POWER_UP);
