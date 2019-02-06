@@ -28,7 +28,7 @@
         updateCurrentIntensityUI();
     }
 
-    var NUM_CLAP_SOUNDS = 21;
+    var NUM_CLAP_SOUNDS = 20;
     var NUM_WHISTLE_SOUNDS = 17;
     var clapSounds = [];
     var whistleSounds = [];
@@ -128,11 +128,12 @@
 
         currentIntensity += volumeDelta;
 
-        currentIntensity = Math.max(0.0, Math.min(1.0, currentIntensity));
+        currentIntensity = Math.max(0.0, Math.min(
+            clapOnlyEnabled ? MAX_CLAP_INTENSITY : MAX_WHISTLE_INTENSITY, currentIntensity));
 
         updateCurrentIntensityUI();
 
-        if (!soundInjector) {
+        if (!soundInjector || soundInjector.isPlaying) {
             return;
         }
 
@@ -161,8 +162,8 @@
     }
 
     function shouldClap() {
-        return currentIntensity > 0.0 &&
-            currentIntensity <= MAX_CLAP_INTENSITY;
+        return clapOnlyEnabled || (currentIntensity > 0.0 &&
+            currentIntensity <= MAX_CLAP_INTENSITY);
     }
 
     function shouldWhistle() {
@@ -413,6 +414,10 @@
 
         currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
 
+        if (currentAnimation === clappingAnimation) {
+            currentAnimationFPS += 5;
+        }
+
         MyAvatar.overrideAnimation(currentAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
 
         currentAnimationTimestamp = Date.now();
@@ -477,6 +482,10 @@
             currentAnimationFPS = currentIntensity * CHEERING_FPS_MAX + INITIAL_ANIMATION_FPS;
 
             currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
+
+            if (currentAnimation === clappingAnimation) {
+                currentAnimationFPS += 5;
+            }
         } else {
             currentlyPlayingFrame = 0;
         }
@@ -526,6 +535,7 @@
 
     // Enables or disables the app's main functionality
     var appreciateEnabled = Settings.getValue("appreciate/enabled", false);
+    var clapOnlyEnabled = Settings.getValue("appreciate/clapOnly", false);
     var keyEventsWired = false;
     function enableOrDisableAppreciate() {
         if (appreciateEnabled) {
@@ -562,6 +572,11 @@
                 appreciateEnabled = message.appreciateEnabled;
                 Settings.setValue("appreciate/enabled", appreciateEnabled);
                 enableOrDisableAppreciate();
+                break;
+
+            case "clapOnlyCheckboxClicked":
+                clapOnlyEnabled = message.clapOnly;
+                Settings.setValue("appreciate/clapOnly", clapOnlyEnabled);
                 break;
 
             default:

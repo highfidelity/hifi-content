@@ -14,12 +14,20 @@ function appreciateSwitchClicked(checkbox) {
     }));
 }
 
+function clapOnlyCheckboxClicked(checkbox) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        method: "clapOnlyCheckboxClicked",
+        clapOnly: checkbox.checked
+    }));
+}
+
 // Handle EventBridge messages from *_app.js.
 function onScriptEventReceived(message) {
     message = JSON.parse(message);
     switch (message.method) {
         case "updateUI":
             document.getElementById("appreciateSwitch").checked = message.appreciateEnabled;
+            document.getElementById("clapOnlyCheckbox").checked = message.clapOnlyEnabled;
             document.getElementById("loadingContainer").style.display = "none";
             break;
 
