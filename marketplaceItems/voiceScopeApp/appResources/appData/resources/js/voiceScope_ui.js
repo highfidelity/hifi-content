@@ -37,23 +37,13 @@ function onScriptEventReceived(data){
     var data = JSON.parse(data);
     switch (data.type) {
         case "buttonStatus":
-        if (data.value) {
-            button.checked = data.value;
-        } else {
-            button.checked = data.value;
-        }
+        button.checked = data.value;
         break;
     case "drawButtonStatus":
-        if (data.value) {
-            drawFrontCheck.checked = true;
-        } else {
-            drawFrontCheck.checked = false;
-        }
+        drawFrontCheck.checked = data.value;
         break;
     case "heightStatus":
-        if (data.value) {
-            slider.value = data.value;
-        }
+        slider.value = data.value;
         break;
     }
 }

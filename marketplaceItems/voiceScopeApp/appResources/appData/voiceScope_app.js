@@ -60,7 +60,7 @@
                 });
                 break;
             case "TOGGLE_DRAW":
-                Settings.setValue("voiceScopeDrawOrder", data.value);
+                Settings.setValue("voiceScope/drawOrder", data.value);
                 drawHudInFront = data.value;
                 ui.sendToHtml({
                     type: "drawButtonStatus",
@@ -68,7 +68,7 @@
                 });
                 break;
             case "HEIGHT_SLIDER":
-                Settings.setValue("voiceScopeHeight", data.value);
+                Settings.setValue("voiceScope/height", data.value);
                 avatarHeightOffset = data.value;
                 ui.sendToHtml({
                     type: "heightStatus",
@@ -104,12 +104,12 @@
         });       
         Script.scriptEnding.connect(scriptEnding);
         Window.domainChanged.connect(onDomainChange);
-        if (Settings.getValue("voiceScopeEnabled", false)){
+        if (Settings.getValue("voiceScope/enabled", false)){
             startUpdate();
             addAll();
-            enabled = Settings.getValue("voiceScopeEnabled", false);
-            drawHudInFront = Settings.getValue("voiceScopeDrawOrder", false);
-            avatarHeightOffset = Settings.getValue("voiceScopeHeight", 1);
+            enabled = Settings.getValue("voiceScope/enabled", false);
+            drawHudInFront = Settings.getValue("voiceScope/drawOrder", false);
+            avatarHeightOffset = Settings.getValue("voiceScope/height", 1);
         }
     }
 
@@ -117,17 +117,15 @@
     // This function starts and stops the app, triggered by the tablet UI
     var enabled = false;
     function toggleApp() {
+        enabled = !enabled;
+        Settings.setValue("voiceScope/enabled", enabled);
         if (!enabled){
             startUpdate();
             addAll();
             playSound(POWER_UP);
-            Settings.setValue("voiceScopeEnabled", true);
-            enabled = Settings.getValue("voiceScopeEnabled", true);
         } else {
             stopUpdate();
             removeAll();
-            Settings.setValue("voiceScopeEnabled", false);
-            enabled = Settings.getValue("voiceScopeEnabled", false);
         }
     }
 
@@ -193,8 +191,8 @@
         HUD_ALPHA = 0.5,
         BAR_ALPHA = 1,
         HUD_PARENTING_DELAY = 200;
-    var avatarHeightOffset = Settings.getValue("voiceScopeHeight", 1),
-        drawHudInFront = Settings.getValue("voiceScopeDrawOrder", false);
+    var avatarHeightOffset = Settings.getValue("voiceScope/height", 1),
+        drawHudInFront = Settings.getValue("voiceScope/drawOrder", false);
     // Overlay properties for the static parts of the HUD
     var STATIC_HUD_PROPERTIES = [
         {
@@ -741,7 +739,7 @@
         if (!userObject[sessionUUID]) {
             userObject[sessionUUID] = new User(sessionUUID);
         }
-        if (Settings.getValue("voiceScopeEnabled", false)){
+        if (Settings.getValue("voiceScope/enabled", false)){
             createHUD(sessionUUID);
         }
     }
