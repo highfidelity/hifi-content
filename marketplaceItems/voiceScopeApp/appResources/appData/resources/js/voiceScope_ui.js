@@ -4,11 +4,11 @@
 var button = document.getElementById("checkbox1");
 var drawFrontCheck = document.getElementById("checkbox2"); 
 var slider = document.getElementById("myRange");
-var output = document.getElementById("demo");
-output.innerHTML = slider.value;
+var heightOutput = document.getElementById("height");
+heightOutput.innerHTML = slider.value;
 
 slider.oninput = function() {
-  output.innerHTML = this.value;
+  heightOutput.innerHTML = this.value;
   sliderEvent();
 };
 
@@ -28,19 +28,19 @@ drawFrontCheck.addEventListener("click", drawButtonClicked);
 function sliderEvent(){
     EventBridge.emitWebEvent(JSON.stringify({
         type: "HEIGHT_SLIDER",
-        value: output.innerHTML
+        value: heightOutput.innerHTML
     }));
 }
-// slider.addEventListener("slider", sliderEvent);
+
 // EventBridge message from App script.
 function onScriptEventReceived(data){
     var data = JSON.parse(data);
     switch (data.type) {
         case "buttonStatus":
         if (data.value) {
-            button.checked = true;
+            button.checked = data.value;
         } else {
-            button.checked = false;
+            button.checked = data.value;
         }
         break;
     case "drawButtonStatus":

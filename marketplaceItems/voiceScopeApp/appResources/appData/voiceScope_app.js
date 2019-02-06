@@ -41,7 +41,7 @@
             case "EVENT_BRIDGE_OPEN_MESSAGE":
                 ui.sendToHtml({
                     type: "buttonStatus",
-                    value: Settings.getValue("voiceScopeEnabled")
+                    value: enabled
                 });
                 ui.sendToHtml({
                     type: "drawButtonStatus",
