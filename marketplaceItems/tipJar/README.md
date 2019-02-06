@@ -17,12 +17,16 @@ Rez the tipjar and edit the userData to customize how the tip jar operates. Be m
 [tipJar 704f869] :: 2019-01-31_03-55-00
 - Changed the click sound
 
+[tipJar_edit 5d2a91a] :: 2019-02-06_12-17-44
+- Removed the long description file
+
 ## Links
 https://trello.com/c/UzXawXgg/38-tip-jar
 
 ## Known issues
 - In HMD, opening the QML window in the tablet doesn't display the background correctly.
 - 2019-02-01_11-19-12: Currently you have to enter the user name with case sensitivity.  This is being looked into and should be resolved soon.
+- 2019-02-06_12-17-44: Long description field may have contributed to edit packet issues.  Removed the description and resubmitted for the MP
 
 ## Misc
 - There is a file in entityResources/entity/tipJarSpawner.js.  This is a convenience file for testing so that you don't have to keep reimporting a JSON and will always have the updated code if there are any changes. 
