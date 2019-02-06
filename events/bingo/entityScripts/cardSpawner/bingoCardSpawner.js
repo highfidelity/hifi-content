@@ -16,7 +16,7 @@
     var _this;
 
     var canClick = true;
-    var appPage = Script.resolvePath('../../bingoCardApp/bingoCard_ui.html?9');
+    var appPage = Script.resolvePath('../../bingoCardApp/bingoCard_ui.html?12');
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
 
     // *************************************

@@ -10,15 +10,15 @@
 
 (function(){
     var _this,
-        bubble,
-        gameOn,
+        injector,
         gameZone;
     
     var DISQUALIFIED_POSITION = Script.require(Script.resolvePath('../clientScripts/triviaInfo.json')).DISQUALIFIED_POSITION,
         HALF_MULTIPLIER = 0.5,
-        ZONE_SQUARE_RADIUS = 1.5,
         RADIUS = 50,
-        RANGE = 5;
+        RANGE = 1000,
+        AUDIO_VOLUME = 0.5,
+        SOUND = SoundCache.getSound(Script.resolvePath('../entities/sounds/wrong-local.wav'));
 
     var ColorCheck = function(){
         _this = this;
@@ -27,19 +27,34 @@
     ColorCheck.prototype = {
         preload: function(entityID){
             _this.entityID = entityID;
+            console.log("color check green loaded");
             gameZone = Entities.getEntityProperties(
                 Entities.findEntitiesByName(
                     "Trivia Player Game Zone", MyAvatar.position, RADIUS)[0], ['position', 'rotation', 'dimensions']);
-            bubble = Entities.getEntityProperties(
-                Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RADIUS)[0], ['visible']);
             if (Settings.getValue("activeTriviaColor") !== "Green") {
+                console.log("my color was ", Settings.getValue("activeTriviaColor"), "which is not green");
                 _this.ejectUser();
             }
             Script.setTimeout(function(){
                 _this.unload();
-            }, 15000);
+            }, 10000);
         },
         
+        playSound: function(sound, localOnly){
+            if (sound.downloaded) {
+                if (injector) {
+                    injector.stop();
+                }
+                injector = Audio.playSound(sound, {
+                    position: MyAvatar.position,
+                    volume: AUDIO_VOLUME,
+                    localOnly: localOnly
+                });
+            } else {
+                console.log("no sound downloaded");
+            }
+        },
+
         isAvatarInsideZone: function(position, zoneProperties) {
             var localPosition = Vec3.multiplyQbyV(Quat.inverse(zoneProperties.rotation),
                 Vec3.subtract(position, zoneProperties.position));
@@ -52,50 +67,19 @@
                     halfDimensions.z >= localPosition.z;
         },
 
-        isAnyAvatarCorrect: function(correctColor) {
-            var result = false;
-            var correctZoneColorID = null;
-            switch (correctColor){
-                case "Red":
-                    correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, RADIUS);
-                    break;
-                case "Green":
-                    correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, RADIUS);
-                    break;
-                case "Yellow":
-                    correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, RADIUS);
-                    break;
-                case "Blue":
-                    correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, RADIUS);
-                    break;
-            }
-            var correctColorZoneProperties = Entities.getEntityProperties(
-                correctZoneColorID[0], 
-                ["position", "dimensions", "rotation"]);
-            var correctAvatarsList = AvatarList.getAvatarsInRange(correctColorZoneProperties.position, ZONE_SQUARE_RADIUS);
-            var i = 0;
-            while ( i < correctAvatarsList.length){
-                var correctAvatarPosition = AvatarList.getAvatar(correctAvatarsList[i]).position;
-                result = _this.isAvatarInsideZone(correctAvatarPosition, correctColorZoneProperties) ? true : false;
-                if ( result === true ) { 
-                    return result;
-                } else { 
-                    i++; 
-                }
-            }
-            return result;
-        },
-
         ejectUser: function() {
-            gameOn = bubble.visible;
-            if (gameOn === true && _this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
-                MyAvatar.orientation = { x: 0, y: 0, z: 0 };
+            if (_this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
                 MyAvatar.position = DISQUALIFIED_POSITION;
+                Script.setTimeout(function(){
+                    MyAvatar.orientation = Quat.cancelOutRollAndPitch(Quat.lookAt(MyAvatar.position, gameZone.position, Vec3.UNIT_Y));
+                }, 100);
+                console.log("ejected by color check green");
+                _this.playSound(SOUND, true);
                 try {
                     var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, RANGE);
-                    for (var i = 0; i < playerValidator.length; i++){
-                        Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
-                    }
+                    playerValidator.forEach(function(id){
+                        Entities.callEntityServerMethod(id, "deleteValidator");          
+                    });          
                     playerValidator = null;
                 } catch (e) {
                     console.log("Error finding validator, nothing to delete", e);
