@@ -43,6 +43,14 @@
                     type: "buttonStatus",
                     value: Settings.getValue("voiceScopeEnabled")
                 });
+                ui.sendToHtml({
+                    type: "drawButtonStatus",
+                    value: drawHudInFront
+                });
+                ui.sendToHtml({
+                    type: "heightStatus",
+                    value: avatarHeightOffset
+                });
                 break;
             case "TOGGLE_APP":
                 toggleApp();
@@ -99,6 +107,9 @@
         if (Settings.getValue("voiceScopeEnabled", false)){
             startUpdate();
             addAll();
+            enabled = Settings.getValue("voiceScopeEnabled", false);
+            drawHudInFront = Settings.getValue("voiceScopeDrawOrder", false);
+            avatarHeightOffset = Settings.getValue("voiceScopeHeight", 1);
         }
     }
 
