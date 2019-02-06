@@ -82,14 +82,14 @@ filter.rejectAll = false; // default: false
 // #region HANDLERS
 
 
-function filterAdd(properties, originalProperties){
+function filterAdd(properties, originalProperties, zoneProperties){
     log("FILTER_ADD", "properties:", properties, "originalProperties", originalProperties);
     return false;
 }
 
 
 var MAX_DIMENSION = 3.0;
-function filterEdit(properties, originalProperties){
+function filterEdit(properties, originalProperties, zoneProperties){
     // log("FILTER_EDIT", "properties:", properties, "originalProperties", originalProperties);
     if (
         properties.name && properties.name !== originalProperties.name ||
@@ -112,13 +112,13 @@ function filterEdit(properties, originalProperties){
 }
 
 
-function filterPhysics(properties, originalProperties){
+function filterPhysics(properties, originalProperties, zoneProperties){
     log("FILTER_PHYSICS", "properties:", properties, "originalProperties", originalProperties);
     return false;
 }
 
 
-function filterDelete(properties, originalProperties){
+function filterDelete(properties, originalProperties, zoneProperties){
     // log("FILTER_DELETE", "properties:", properties, "originalProperties", originalProperties);
     var name = originalProperties.name;
     DELETE_QUALIFIERS.forEach(function(qualifier) {
@@ -146,17 +146,17 @@ function filterDelete(properties, originalProperties){
 // A filter returns either false, true, or the properties to let into the edit
 // return false; means you aren't allowing these edits
 // return properties; means you are allowing the incoming changes
-function filter(properties, filterType, originalProperties) {
+function filter(properties, filterType, originalProperties, zoneProperties) {
     // make arguments an actual array
     switch (filterType) {
         case ADD:
-            return filterAdd(properties, originalProperties);
+            return filterAdd(properties, originalProperties, zoneProperties);
         case EDIT:
-            return filterEdit(properties, originalProperties);
+            return filterEdit(properties, originalProperties, zoneProperties);
         case PHYSICS:
-            return filterPhysics(properties, originalProperties);
+            return filterPhysics(properties, originalProperties, zoneProperties);
         case DELETE:
-            return filterDelete(properties, originalProperties);
+            return filterDelete(properties, originalProperties, zoneProperties);
     }
 }
 

@@ -97,6 +97,7 @@
         },
 
         startNearGrab: function(entityID, mouseEvent) {
+            print("start near grab");
             Entities.editEntity(_this.entityID, {
                 dynamic: true
             });

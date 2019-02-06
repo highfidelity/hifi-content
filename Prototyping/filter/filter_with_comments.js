@@ -1,3 +1,5 @@
+// Having (un)lock rights bypasses the filter, unless it's a physics result.
+
 
 /*
 
@@ -56,15 +58,20 @@ var DELETE = 3;
 // return false; means you aren't allowing these edits
 // return properties; means you are allowing the incoming changes
 function filter(properties, filterType, originalProperties) {
-    switch(filterType){
-        case ADD:
-            return filterAdd(properties, filterType, originalProperties);
-        case EDIT:
-            return filterEdit(properties, filterType, originalProperties);
-        case PHYSICS:
-            return filterPhysics(properties, filterType, originalProperties);
-        case DELETE:
-            return filterDelete(properties, filterType, originalProperties);
+    if (filterType === DELETE) {
+        return true;
+    }
+
+    if (filterType === ADD) {
+        return true;
+    }
+
+    if (filterType === EDIT) {
+        return properties;
+    }
+
+    if (filterType === PHYSICS) {
+        return properties;
     }
 }
 
@@ -92,10 +99,10 @@ filter.wantsZoneBoundingBox = true; // defaul: true
 // Edit - you are editing an entity that exists
 // Physics - you are transforming the entity in world
 // Delete - you are removing the entity
-filter.wantsToFilterAdd = true; // defaul: true
-filter.wantsToFilterEdit = true; // defaul: true
-filter.wantsToFilterPhysics = true; // defaul: true
-filter.wantsToFilterDelete = true; // defaul: true
+filter.wantsToFilterAdd = true; // default: true
+filter.wantsToFilterEdit = true; // default: true
+filter.wantsToFilterPhysics = true; // default: true
+filter.wantsToFilterDelete = false; // default: false
 
 // If reject all is true.  Any of the filterType changes won't go through
 filter.rejectAll = false; // defaul: false
