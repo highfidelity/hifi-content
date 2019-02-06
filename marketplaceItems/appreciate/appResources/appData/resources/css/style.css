@@ -113,23 +113,23 @@ input:checked + .slider:before {
   margin: 75px auto 0 auto;
 }
 
-#currentVolumeDisplay {
+#currentIntensityDisplay {
   width: 100%;
   height: 175px;
 }
 
-#currentVolumeDisplay[value] {
+#currentIntensityDisplay[value] {
   -webkit-appearance: none;
   appearance: none;
 }
 
-#currentVolumeDisplay[value]::-webkit-progress-bar {
+#currentIntensityDisplay[value]::-webkit-progress-bar {
   background-color: #eee;
   border-radius: 2px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
 }
 
-#currentVolumeDisplay[value]::-webkit-progress-value {
+#currentIntensityDisplay[value]::-webkit-progress-value {
   background-image: -webkit-linear-gradient(left, #1ac567, #C62147);
   background-size: calc(100vw - 24px) 175px, 100% 100%, 100% 100%;
   border-radius: 2px;

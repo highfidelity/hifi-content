@@ -15,8 +15,8 @@
     var MS_PER_S = 1000;
     var CM_PER_M = 100;
 
-    function updateCurrentVolumeUI() {
-        ui.sendMessage({method: "updateCurrentVolumeUI", currentVolume: currentVolume});
+    function updateCurrentIntensityUI() {
+        ui.sendMessage({method: "updateCurrentIntensityUI", currentIntensity: currentIntensity});
     }
     // #endregion
     // *************************************
@@ -25,7 +25,7 @@
 
     // Function that AppUI calls when the App's UI opens
     function onOpened() {
-        updateCurrentVolumeUI();
+        updateCurrentIntensityUI();
     }
 
     var NUM_CLAP_SOUNDS = 21;
@@ -71,44 +71,66 @@
         maybeClearSoundFadeInterval();
 
         soundFadeInterval = Script.setInterval(function() {
-            currentVolume -= FADE_OUT_STEP_SIZE;
+            currentIntensity -= FADE_OUT_STEP_SIZE;
 
-            if (currentVolume <= 0) {
+            if (currentIntensity <= 0) {
                 if (soundInjector) {
                     soundInjector.stop();
                 }
 
-                updateCurrentVolumeUI();
+                updateCurrentIntensityUI();
 
                 maybeClearSoundFadeInterval();
             } else {
-                fadeSoundVolume(currentVolume, VOLUME_MAX_STEP_SIZE_DESKTOP);
+                fadeIntensity(currentIntensity, VOLUME_MAX_STEP_SIZE_DESKTOP);
             }
         }, FADE_INTERVAL_MS);
     }
 
-    var currentVolume = 0;
+    var MIN_VOLUME_CLAP = 0.05;
+    var MAX_VOLUME_CLAP = 1.0;
+    var MIN_VOLUME_WHISTLE = 0.1;
+    var MAX_VOLUME_WHISTLE = 0.2;
+    function calculateInjectorVolume() {
+        var minInputVolume = 0;
+        var maxInputVolume = MAX_CLAP_INTENSITY;
+        var minOutputVolume = MIN_VOLUME_CLAP;
+        var maxOutputVolume = MAX_VOLUME_CLAP;
+
+        if (currentSound === "whistle") {
+            minInputVolume = MAX_CLAP_INTENSITY;
+            maxInputVolume = MAX_WHISTLE_INTENSITY;
+            minOutputVolume = MIN_VOLUME_WHISTLE;
+            maxOutputVolume = MAX_VOLUME_WHISTLE;
+        }
+
+        var vol = minOutputVolume + (maxOutputVolume - minOutputVolume) *
+            (currentIntensity - minInputVolume) / (maxInputVolume - minInputVolume);
+        return vol;
+    }
+
+    var currentIntensity = 0;
     var VOLUME_MAX_STEP_SIZE = 0.003; // unitless, determined empirically
     var VOLUME_MAX_STEP_SIZE_DESKTOP = 1; // unitless, determined empirically
     var MAX_CLAP_INTENSITY = 0.55; // Unitless, determined empirically
     var MAX_WHISTLE_INTENSITY = 1.0; // Unitless, determined empirically
-    function fadeSoundVolume(targetVolume, maxStepSize) {
+    function fadeIntensity(targetVolume, maxStepSize) {
         if (!maxStepSize) {
             maxStepSize = VOLUME_MAX_STEP_SIZE;
         }
 
-        var volumeDelta = targetVolume - currentVolume;
+        var volumeDelta = targetVolume - currentIntensity;
         volumeDelta = Math.min(Math.abs(volumeDelta), maxStepSize);
 
-        if (targetVolume < currentVolume) {
+        if (targetVolume < currentIntensity) {
             volumeDelta *= -1;
         }
 
-        currentVolume += volumeDelta;
+        currentIntensity += volumeDelta;
 
-        currentVolume = Math.max(0.0, Math.min(1.0, currentVolume));
+        currentIntensity = Math.max(0.0, Math.min(1.0, currentIntensity));
 
-        updateCurrentVolumeUI();
+        updateCurrentIntensityUI();
 
         if (!soundInjector) {
             return;
@@ -116,25 +138,21 @@
 
         var injectorOptions = {
             position: MyAvatar.position,
-            volume: currentVolume
+            volume: calculateInjectorVolume()
         };
 
         soundInjector.setOptions(injectorOptions);
     }
 
     var soundInjector = false;
-    var MIN_INJECTOR_VOLUME = 0.2;
-    var MAX_INJECTOR_VOLUME = 0.3; // Determined empirically
     function playSound(sound) {
         if (soundInjector.isPlaying) {
             return;
         }
 
-        var injectorVolume = Math.max(MIN_INJECTOR_VOLUME, Math.min(currentVolume, MAX_INJECTOR_VOLUME));
-
         soundInjector = Audio.playSound(sound, {
             position: MyAvatar.position,
-            volume: injectorVolume
+            volume: calculateInjectorVolume()
         });
 
         soundInjector.finished.connect(function() {
@@ -143,19 +161,22 @@
     }
 
     function shouldClap() {
-        return currentVolume > 0.0 &&
-            currentVolume <= MAX_CLAP_INTENSITY;
+        return currentIntensity > 0.0 &&
+            currentIntensity <= MAX_CLAP_INTENSITY;
     }
 
     function shouldWhistle() {
-        return currentVolume > MAX_CLAP_INTENSITY &&
-            currentVolume <= MAX_WHISTLE_INTENSITY;
+        return currentIntensity > MAX_CLAP_INTENSITY &&
+            currentIntensity <= MAX_WHISTLE_INTENSITY;
     }
 
+    var currentSound;
     function selectAndPlaySound() {
         if (shouldClap()) {
+            currentSound = "clap";
             playSound(clapSounds[Math.floor(Math.random() * clapSounds.length)]);
         } else if (shouldWhistle()) {
+            currentSound = "whistle";
             playSound(whistleSounds[Math.floor(Math.random() * whistleSounds.length)]);
         }
     }
@@ -172,8 +193,8 @@
     var LINEAR_VELOCITY_WEIGHT = 0.7; // This and the line below must add up to 1.0
     var ANGULAR_VELOCITY_LENGTH_WEIGHT = 0.3; // This and the line below must add up to 1.0
     var vrDebounceTimer = false;
-    var VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS = 70; // determined empirically
-    var VR_DEBOUNCE_TIMER_MULTIPLICATION_FACTOR = 500; // unitless, determined empirically
+    var VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS = 20; // determined empirically
+    var VR_DEBOUNCE_TIMER_TIMEOUT_MAX_MS = 400; // determined empirically
     function calculateHandEffect(linearVelocity, angularVelocity){
         var leftHandLinearVelocityCMPerSec = linearVelocity.left;
         var rightHandLinearVelocityCMPerSec = linearVelocity.right;
@@ -189,15 +210,16 @@
             averageLinearVelocity / MAX_VELOCITY_CM_PER_SEC * LINEAR_VELOCITY_WEIGHT +
             averageAngularVelocityIntensity / MAX_ANGULAR_VELOCITY_LENGTH * ANGULAR_VELOCITY_LENGTH_WEIGHT;
 
-        fadeSoundVolume(cheerIntensity);
-
-        var debounceTimeout = VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS + ((1.0 - cheerIntensity) * VR_DEBOUNCE_TIMER_MULTIPLICATION_FACTOR);
+        fadeIntensity(cheerIntensity);
+        
+        var vrDebounceTimeout = VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS +
+            (VR_DEBOUNCE_TIMER_TIMEOUT_MAX_MS - VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS) * (1.0 - cheerIntensity);
         // This timer forces a minimum tail duration for all sound clips
         if (!vrDebounceTimer) {
             selectAndPlaySound();
             vrDebounceTimer = Script.setTimeout(function() {
                 vrDebounceTimer = false;
-            }, debounceTimeout);
+            }, vrDebounceTimeout);
         }
     }
 
@@ -282,7 +304,7 @@
     }
 
     // If handVelocityCheckInterval is set up, clear it.
-    // Also stop the sound injector and set currentVolume to 0.
+    // Also stop the sound injector and set currentIntensity to 0.
     function maybeClearHandVelocityCheckIntervalAndStopSound() {
         maybeClearHandVelocityCheck();
 
@@ -290,7 +312,7 @@
             soundInjector.stop();
         }
         
-        currentVolume = 0.0;
+        currentIntensity = 0.0;
     }
 
     // Sets up an interval that'll check the avatar's hand's velocities.
@@ -368,10 +390,10 @@
         }
     }
 
-    var VOLUME_STEP_DOWN_DESKTOP = 0.015; // unitless, determined empirically
+    var VOLUME_STEP_DOWN_DESKTOP = 0.01; // unitless, determined empirically
     function slowCheeringAndLowerCheeringVolume() {
-        currentVolume -= VOLUME_STEP_DOWN_DESKTOP;
-        fadeSoundVolume(currentVolume, VOLUME_MAX_STEP_SIZE_DESKTOP);
+        currentIntensity -= VOLUME_STEP_DOWN_DESKTOP;
+        fadeIntensity(currentIntensity, VOLUME_MAX_STEP_SIZE_DESKTOP);
 
         currentAnimation = selectAnimation();
 
@@ -387,7 +409,7 @@
 
         currentlyPlayingFrame = (currentlyPlayingFrame + frameDelta) % frameCount;
 
-        currentAnimationFPS = currentVolume * CHEERING_FPS_MAX + INITIAL_ANIMATION_FPS;
+        currentAnimationFPS = currentIntensity * CHEERING_FPS_MAX + INITIAL_ANIMATION_FPS;
 
         currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
 
@@ -429,8 +451,8 @@
         maybeClearSoundFadeInterval();
         maybeClearStopCheeringTimeout();
 
-        currentVolume += VOLUME_STEP_UP_DESKTOP;
-        fadeSoundVolume(currentVolume, VOLUME_MAX_STEP_SIZE_DESKTOP);
+        currentIntensity += VOLUME_STEP_UP_DESKTOP;
+        fadeIntensity(currentIntensity, VOLUME_MAX_STEP_SIZE_DESKTOP);
         selectAndPlaySound();
 
         if (!lowerCheeringVolumeInterval) {
@@ -438,6 +460,11 @@
         }
 
         currentAnimation = selectAnimation();
+
+        if (!currentAnimation) {
+            stopCheering();
+            return;
+        }
 
         var frameCount = currentAnimation.animation.frames.length;
 
@@ -447,7 +474,7 @@
     
             currentlyPlayingFrame = (currentlyPlayingFrame + frameDelta) % frameCount;
     
-            currentAnimationFPS = currentVolume * CHEERING_FPS_MAX + INITIAL_ANIMATION_FPS;
+            currentAnimationFPS = currentIntensity * CHEERING_FPS_MAX + INITIAL_ANIMATION_FPS;
 
             currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
         } else {
@@ -458,21 +485,21 @@
         currentAnimationTimestamp = Date.now();
     }
     
-    var debounceTimer = false;
-    var DEBOUNCE_TIMEOUT_MS = 30;
+    var desktopDebounceTimer = false;
+    var DESKTOP_DEBOUNCE_TIMEOUT_MS = 30;
     function keyPressEvent(event) {
         if ((event.text.toUpperCase() === "Z") &&
             !event.isShifted &&
-            !debounceTimer &&
+            !desktopDebounceTimer &&
             !event.isMeta &&
             !event.isControl &&
             !event.isAlt &&
             !HMD.active) {
 
             if (event.isAutoRepeat) {
-                debounceTimer = Script.setTimeout(function() {
-                    debounceTimer = false;
-                }, DEBOUNCE_TIMEOUT_MS);
+                desktopDebounceTimer = Script.setTimeout(function() {
+                    desktopDebounceTimer = false;
+                }, DESKTOP_DEBOUNCE_TIMEOUT_MS);
             }
 
             keyPressed();
@@ -485,7 +512,7 @@
     function stopSoundSoon() {
         maybeClearStopCheeringTimeout();
 
-        if (currentVolume > 0) {
+        if (currentIntensity > 0) {
             stopCheeringTimeout = Script.setTimeout(fadeOutAndStopSound, STOP_CHEERING_TIMEOUT_MS);
         }
     }
@@ -553,9 +580,9 @@
         maybeClearStopCheeringTimeout();
         stopCheering();
 
-        if (debounceTimer) {
-            Script.clearTimeout(debounceTimer);
-            debounceTimer = false;
+        if (desktopDebounceTimer) {
+            Script.clearTimeout(desktopDebounceTimer);
+            desktopDebounceTimer = false;
         }
 
         if (keyEventsWired) {            

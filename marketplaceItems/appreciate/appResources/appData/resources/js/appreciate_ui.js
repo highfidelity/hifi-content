@@ -23,8 +23,8 @@ function onScriptEventReceived(message) {
             document.getElementById("loadingContainer").style.display = "none";
             break;
 
-        case "updateCurrentVolumeUI":
-            document.getElementById("currentVolumeDisplay").setAttribute('value', message.currentVolume);
+        case "updateCurrentIntensityUI":
+            document.getElementById("currentIntensityDisplay").setAttribute('value', message.currentIntensity);
             break;
         default:
             console.log("Unknown message received from appreciate_app.js!");
