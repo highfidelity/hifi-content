@@ -6,8 +6,8 @@ Simply enable the app by clicking the ON/OFF button and enjoy the knowledge of w
 
 # Release Notes
 ## version 1.1
-Februrary 5, 2019
-6012b3ac24e3c9cee7e1079dd542842f12d055b4
+Februrary 6, 2019
+152a00aaf628b86541736e176ee82dcbf2188513
 - Bug fix for Window.domainChanged() on appEnding(), and added draw order toggler and height slider to the app.
 
 ## version 1.0 
