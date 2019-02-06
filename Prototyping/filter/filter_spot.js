@@ -32,7 +32,7 @@ function log(message, item) {
     print.apply(null, arguments);
 }
 
-log("V4");
+log("V5");
 
 // ENUMS for edit filter type
 var ADD = 0;
@@ -83,13 +83,15 @@ filter.rejectAll = false; // default: false
 
 
 function filterAdd(properties, originalProperties, zoneProperties){
-    log("FILTER_ADD", "properties:", properties, "originalProperties", originalProperties);
+    log("FILTER_ADD");    
+    // log("FILTER_ADD", "properties:", properties, "originalProperties", originalProperties);
     return false;
 }
 
 
 var MAX_DIMENSION = 3.0;
 function filterEdit(properties, originalProperties, zoneProperties){
+    log("FILTER_EDIT");
     // log("FILTER_EDIT", "properties:", properties, "originalProperties", originalProperties);
     if (
         properties.name && properties.name !== originalProperties.name ||
@@ -113,20 +115,25 @@ function filterEdit(properties, originalProperties, zoneProperties){
 
 
 function filterPhysics(properties, originalProperties, zoneProperties){
-    log("FILTER_PHYSICS", "properties:", properties, "originalProperties", originalProperties);
+    // log("FILTER_PHYSICS", "properties:", properties, "originalProperties", originalProperties);
+    log("FILTER_PHYSICS");
     return false;
 }
 
 
 function filterDelete(properties, originalProperties, zoneProperties){
     // log("FILTER_DELETE", "properties:", properties, "originalProperties", originalProperties);
+    log("FILTER_Delete");
+    log(arguments);
     var name = originalProperties.name;
+    log("name", name);
     DELETE_QUALIFIERS.forEach(function(qualifier) {
         if (name.indexOf(qualifier) !== -1) {
             log("this is an allowed delete", name);
             return true;
         }
     });
+    log("this isn't an allowed delete", name);
     return false;
 }
 
@@ -147,6 +154,7 @@ function filterDelete(properties, originalProperties, zoneProperties){
 // return false; means you aren't allowing these edits
 // return properties; means you are allowing the incoming changes
 function filter(properties, filterType, originalProperties, zoneProperties) {
+    log("initial args", arguments);
     // make arguments an actual array
     switch (filterType) {
         case ADD:
