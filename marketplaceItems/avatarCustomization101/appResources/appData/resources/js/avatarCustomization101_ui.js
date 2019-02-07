@@ -30,6 +30,21 @@
 
     var DEBUG = true;
 
+    // Utils
+
+    function deepCopy(objectToCopy) {
+
+        var newObject;
+
+        try {
+            newObject = JSON.parse(JSON.stringify(objectToCopy));
+        } catch (e) {
+            console.error("Error with deepCopy utility method" + e);
+        }
+
+        return newObject;
+    }
+
     // Components
 
     // #region Tabs and Tab Layout
@@ -293,11 +308,18 @@
                 </options-row-buttons>
 
                 <h3>Shading Model</h3>
-                <drop-down-simple
+                <drop-down
                     :items="dropDownList"
                     :defaulttext="'Model type'"
                 >
-                </drop-down-simple>
+                </drop-down>
+
+                <slider 
+                    :name="'test1'"
+                    :max="10"
+                    :min="0"
+                    :defaultvalue="7"
+                ></slider>
 
             </div>
         `
@@ -412,10 +434,46 @@
     })
 
     Vue.component('slider', {
-        props: ['max', 'min'],
+        props: ['name', 'max', 'min', 'defaultvalue'],
+        computed: {
+            sliderId() {
+                console.log("COMPUTED" + this.name);
+                return this.name;
+            },
+            sliderValueId() {
+                return this.name + "Value";
+            }
+        },
+        mounted() {
+
+            console.log("MOUNTED" + this.sliderId + this.sliderValueId);
+
+            var sliderId = "#" + this.sliderId;
+            var sliderValueId = "#" + this.sliderValueId;
+
+            $(sliderId).slider();
+            $(sliderId).on("slide", function(slideEvent) {
+                $(sliderValueId).text(slideEvent.value);
+            });
+
+        },
         template: /* html */ `
             <div>
-            
+                <input 
+                    v-bind:data-slider-min="min"
+                    v-bind:data-slider-max="max"
+                    v-bind:data-slider-value="defaultvalue"
+                    v-bind:id="sliderId" 
+
+                    data-slider-step="1"
+                    data-slider-handle="square" 
+                    type="text"
+                />
+                <span
+                    v-bind:id="sliderValueId"
+                >
+                    {{ defaultvalue }}
+                </span>
             </div>
         `
     })
@@ -559,9 +617,52 @@
     var app = new Vue({
         el: '#app',
         data: {
-            dataStore: 
+            dataStore: deepCopy(CONFIG.INITIAL_DATASTORE_SETTINGS)
+
+            // dataStore: {
+            //     STATIC_DATA: {
+            //         STATE: {
+            //             TAB_LIST: [STRING_INFO, STRING_BLENDSHAPES, STRING_MATERIAL, STRING_FLOW],
+            //         },
+            //         INFO: {
+            //             TAB_NAME: STRING_INFO,
+            //             TITLE: STRING_INFO,
+            //             SUBTITLE: "Thank you for downloading the Avatar Customization 101 app.",
+            //             COMPONENT_NAME: "info-tab",
+            //         },
+            //         MATERIAL: {
+            //             TAB_NAME: STRING_MATERIAL,
+            //             TITLE: STRING_MATERIAL,
+            //             SUBTITLE: "Change avatars materials for each submesh.",
+            //             COMPONENT_NAME: "material-tab",
+            //             COMPONENT_DATA: {
+            //                 PBR_LIST: [STRING_DEFAULT, STRING_LEATHER, STRING_GLASS, STRING_CHAINMAIL],
+            //                 SHADELESS: [STRING_RED, STRING_TEXTURE]
+            //             }
+            //         }
+            //         // ETC...
+            //     },
+    
+            //     dynamicData: {
+            //         state: {
+            //             isAviEnabled: ,
+            //             lastTab: ,
+            //         },
+            //         material: {
+            //             selectedMaterial: "",
+            //             updatedProperties: {}
+            //         },
+            //         // etc...
+    
+            //     }
+
+            // }
+
             
-            CONFIG.INITIAL_DATASTORE_SETTINGS 
+
+
+
+
             
             // {
             //     isAviEnabled: false, // *** robin
@@ -611,10 +712,16 @@
 
     function onScriptEventReceived(message) {
         var data;
+        if (DEBUG) {
+            print("onScriptEventRecieved");
+        }
         try {
             data = JSON.parse(message);
             switch (data.type) {
                 case UPDATE_UI:
+                    if (DEBUG) {
+                        print("onScriptEventRecieved: Update UI");
+                    }
                     app.dataStore = data.value;
                     break;
                 default:
@@ -625,16 +732,16 @@
         }
     }
 
-    // function onLoad() {
+    function onLoad() {
 
-    //     // Open the EventBridge to communicate with the main script.
-    //     EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-    //     EventBridge.emitWebEvent(JSON.stringify({
-    //         type: EVENT_BRIDGE_OPEN_MESSAGE
-    //     }));
+        // Open the EventBridge to communicate with the main script.
+        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+        EventBridge.emitWebEvent(JSON.stringify({
+            type: EVENT_BRIDGE_OPEN_MESSAGE
+        }));
 
-    // }
+    }
 
-    // document.addEventListener('DOMContentLoaded', onLoad, false);
+    document.addEventListener('DOMContentLoaded', onLoad, false);
 
 }());

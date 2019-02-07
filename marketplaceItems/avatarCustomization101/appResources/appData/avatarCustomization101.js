@@ -2,7 +2,7 @@
 
     // Modules
     var AppUi = Script.require("appUi"),
-        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v1234455"),
+        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456")),
         AVATAR_FILE = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/marketplaceItems/avatarCustomization101/mannequinHairTest8.fst";
     // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
@@ -10,6 +10,23 @@
     var AVATAR_URL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
 
     var DEBUG = true;
+
+    // #region UTILITY FUNCTIONS
+
+    function deepCopy(objectToCopy) {
+
+        var newObject;
+
+        try {
+            newObject = JSON.parse(JSON.stringify(objectToCopy));
+        } catch (e) {
+            console.error("Error with deepCopy utility method" + e);
+        }
+
+        return newObject;
+    }
+
+    // #endregion UTILITY FUNCTIONS
 
     // #region MIRROR FUNCTIONS
 
@@ -154,7 +171,7 @@
 
     // UI variables
     var ui;
-    var dataStore = CONFIG.INITIAL_DATASTORE_SETTINGS;
+    var dataStore = deepCopy(CONFIG.INITIAL_DATASTORE_SETTINGS);
 
     // Tab dynamic variables
     var currentTab;
@@ -196,7 +213,6 @@
         if (isAviYourCurrentAvatar()) {
 
             setIsAviEnabledTrue();
-            spawnMirror();
 
             // if your last closed tab has extra setup functionality
             // ensure you have the correct view for the current tab
@@ -356,12 +372,36 @@
 
     }
 
-    function updateUI() {
+    function updateUI(type) {
 
         var messageObject = {
             type: UPDATE_UI,
-            value: dataStore
+            dataType: type
         };
+
+        switch (type) {
+            case STRING_INFO: 
+                messageObject.value = {
+
+                }
+
+                break;
+
+            default:
+            
+                messageObject.value = dataStore;
+
+                break;
+        }
+
+        var message 
+
+
+        if (DEBUG) {
+            print("Update UI");
+        }
+
+
 
         ui.sendToHtml(messageObject);
     }

@@ -124,6 +124,6 @@ var CONFIG = {
     }
 };
 
-if (module !== undefined) {
+if (module) {
     module.exports = CONFIG;
 }
