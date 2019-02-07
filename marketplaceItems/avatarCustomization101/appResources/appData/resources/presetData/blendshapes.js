@@ -1,3 +1,5 @@
+/* global module */
+
 var BLENDSHAPES = {
     smile: {
         "EyeOpen_L": 0.00,
@@ -25,7 +27,7 @@ var BLENDSHAPES = {
         "Sneer": 0.00,
         "Puff": 0.00
     },
-    default: {
+    defaults: {
         "EyeOpen_L": 0.00,
         "EyeOpen_R": 0.00,
         "EyeBlink_L": 0.00,
@@ -106,5 +108,6 @@ var BLENDSHAPES = {
     }
 };
 
-
-module.exports = BLENDSHAPES;
+if (module) {
+    module.exports = BLENDSHAPES;
+}

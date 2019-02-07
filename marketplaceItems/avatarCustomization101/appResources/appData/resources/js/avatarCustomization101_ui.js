@@ -25,7 +25,8 @@
         EVENT_RESTORE_SAVED_AVATAR = CONFIG.EVENT_RESTORE_SAVED_AVATAR,
 
         // Material tab events
-        EVENT_UPDATE_MATERIAL = APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL;
+        EVENT_UPDATE_MATERIAL = APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL,
+        EVENT_UPDATE_BLENDSHAPE = APP_NAME + CONFIG.EVENT_UPDATE_BLENDSHAPE;
 
     // Debug 
 
@@ -363,21 +364,38 @@
                 }));
 
             },
-            updateBlendshapeProperties(blendshapePropertiesObject) {
-                if (DEBUG) {
-                    console.log("updateBlendshapeProperties clicked");
-                }
+            onSliderChange(value, name) {
 
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_UPDATE_BLENDSHAPE,
-                    updates: blendshapePropertiesObject
-                }));
-            }
+                if (this.dynamic.updatedProperties[name] !== value) {
+                    var updates = {};
+                    updates[name] = value;
+
+                    EventBridge.emitWebEvent(JSON.stringify({
+                        type: EVENT_UPDATE_BLENDSHAPE,
+                        updates: updates
+                    }));
+                }
+            },
         },
         computed: {
-            facialBlenshapeList() {
-                // var blendshapeList = this.static.COMPONENT_DATA.FACIAL_BLENDSHAPES;
-                // var currentProperties = this.dyanmic.blendshapes.updatedProperties;
+            facialBlendshapeList() {
+                var blendshapeList = this.static.COMPONENT_DATA.FACIAL_BLENDSHAPES;
+                var currentProperties = this.dynamic.updatedProperties;
+
+                var blendshapeDataList = blendshapeList.map((blendshapeName) => {
+
+                    var blendshape = {
+                        name: blendshapeName.replace(/_|-|\./g, ''), // used to create unique slider ids, removes '_'
+                        title: blendshapeName,
+                        min: 0,
+                        max: 1,
+                        increment: 0.1,
+                        defaultValue: currentProperties[blendshapeName] ? currentProperties[blendshapeName] : 0
+                    }
+                    return blendshape;
+                })
+
+                return blendshapeDataList;
             }
         },
         template: /* html */ `
@@ -393,13 +411,21 @@
 
                 <h3>Facial Blendshapes</h3>
 
-                <slider 
-                    :name="'test1'"
-                    :max="10"
-                    :increment="0.1"
-                    :min="0"
-                    :defaultvalue="7"
-                ></slider>
+                <template v-for="blendshapeData in facialBlendshapeList">
+
+                    <p>{{ blendshapeData.title }}</p>
+
+                    <slider 
+                        :title="blendshapeData.title"
+                        :name="blendshapeData.name"
+                        :max="blendshapeData.max"
+                        :increment="blendshapeData.increment"
+                        :min="blendshapeData.min"
+                        :defaultvalue="blendshapeData.defaultValue"
+                        :onchange="onSliderChange"
+                    ></slider>
+
+                </template>
 
             </div>
         `
@@ -516,7 +542,7 @@
     })
 
     Vue.component('slider', {
-        props: ['name', 'max', 'min', 'defaultvalue', 'increment'],
+        props: ['title', 'name', 'max', 'min', 'defaultvalue', 'increment', 'onchange'],
         computed: {
             sliderId() {
                 console.log("COMPUTED" + this.name);
@@ -528,14 +554,18 @@
         },
         mounted() {
 
-            console.log("MOUNTED" + this.sliderId + this.sliderValueId);
-
             var sliderId = "#" + this.sliderId;
             var sliderValueId = "#" + this.sliderValueId;
 
+            var onChange = this.onchange;
+            var title = this.title;
+
             $(sliderId).slider();
             $(sliderId).on("slide", function(slideEvent) {
+
                 $(sliderValueId).text(slideEvent.value);
+                onChange(slideEvent.value, title);
+
             });
 
         },
@@ -544,9 +574,12 @@
                 <input 
                     v-bind:data-slider-min="min"
                     v-bind:data-slider-max="max"
-                    v-bind:data-slider-value="defaultvalue"
+                    v-bind:data-slider-value="val"
                     v-bind:data-slider-step="increment"
                     v-bind:id="sliderId" 
+
+                    @change="onChangeEvent"
+                    v-model="val"
 
                     data-slider-handle="square" 
                     type="text"

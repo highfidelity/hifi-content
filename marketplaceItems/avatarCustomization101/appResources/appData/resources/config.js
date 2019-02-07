@@ -79,7 +79,7 @@ var CONFIG = {
                 TAB_NAME: STRING_BLENDSHAPES,
                 TITLE: STRING_BLENDSHAPES,
                 SUBTITLE: "Change avatar expressions.",
-                COMPONENT_NAME: "test1",
+                COMPONENT_NAME: "blendshapes-tab",
 
                 COMPONENT_DATA: {
                     LIST: ["smile", "default", "angry", "laugh"],
@@ -117,7 +117,7 @@ var CONFIG = {
 
     INITIAL_DYNAMIC_DATA: {
         state: {
-            isAviEnabled: false,
+            isAviEnabled: true,
             activeTabName: STRING_INFO
         },
         info: {},

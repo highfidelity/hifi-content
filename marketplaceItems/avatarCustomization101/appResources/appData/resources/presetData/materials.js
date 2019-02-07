@@ -1,5 +1,7 @@
-var MATERIALS = {
-    default: {
+/* global module */
+
+var MATERIAL_DATA = {
+    defaults: {
 
     },
     leather: {
@@ -20,5 +22,4 @@ var MATERIALS = {
     }
 };
 
-
-module.exports = MATERIALS;
+module.exports = MATERIAL_DATA;
