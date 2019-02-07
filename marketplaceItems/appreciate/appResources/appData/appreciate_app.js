@@ -14,6 +14,42 @@
     // #region Utilities
     var MS_PER_S = 1000;
     var CM_PER_M = 100;
+    var HALF = 0.5;
+
+    function halfwayBetweenHands() {
+        var leftHandPosition = MyAvatar.getJointPosition("LeftHandMiddle2");
+        if (!leftHandPosition) {
+            leftHandPosition = MyAvatar.getJointPosition("LeftHand");
+        }
+        var rightHandPosition = MyAvatar.getJointPosition("RightHandMiddle2");
+        if (!rightHandPosition) {
+            rightHandPosition = MyAvatar.getJointPosition("RightHand");
+        }
+
+        var centerPosition = Vec3.sum(leftHandPosition, rightHandPosition);
+        centerPosition = Vec3.multiply(centerPosition, HALF);
+
+        return centerPosition;
+    }
+
+    function linearScale(factor, minInput, maxInput, minOutput, maxOutput) {
+        return minOutput + (maxOutput - minOutput) *
+        (factor - minInput) / (maxInput - minInput);
+    }
+
+    function linearScaleColor(intensity, min, max) {
+        var output = {
+            "red": 0,
+            "green": 0,
+            "blue": 0
+        };
+
+        output.red = linearScale(intensity, 0, 1, min.red, max.red);
+        output.green = linearScale(intensity, 0, 1, min.green, max.green);
+        output.blue = linearScale(intensity, 0, 1, min.blue, max.blue);
+
+        return output;
+    }
 
     function updateCurrentIntensityUI() {
         ui.sendMessage({method: "updateCurrentIntensityUI", currentIntensity: currentIntensity});
@@ -22,6 +58,128 @@
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
+
+    var updateIntensityEntityInterval = false;
+    var UPDATE_INTENSITY_ENTITY_INTERVAL_MS = 65;
+    function maybeClearUpdateIntensityEntityInterval() {
+        if (updateIntensityEntityInterval) {
+            Script.clearInterval(updateIntensityEntityInterval);
+            updateIntensityEntityInterval = false;
+        }
+    }
+
+    var intensityEntity = false;
+    var INTENSITY_ENTITY_MAX_DIMENSIONS = {
+        "x": 0.16,
+        "y": 0.16,
+        "z": 0.16
+    };
+    var INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY = {
+        "x": -0.18,
+        "y": -0.18,
+        "z": -0.18
+    };
+    var INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY = {
+        "x": 0.18,
+        "y": 0.18,
+        "z": 0.18
+    };
+    var INTENSITY_ENTITY_COLOR_MIN = {
+        "red": 82,
+        "green": 196,
+        "blue": 145
+    };
+    var INTENSITY_ENTITY_COLOR_MAX = {
+        "red": 5,
+        "green": 255,
+        "blue": 5
+    };
+    var ANGVEL_ENTITY_MULTIPLY_FACTOR = 62;
+    var INTENSITY_ENTITY_PROPERTIES = {
+        "type": "Box",
+        "dimensions": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "angularVelocity": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "angularDamping": 0,
+        "grab": {
+            "grabbable": false,
+            "equippableLeftRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            },
+            "equippableRightRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            }
+        },
+        "collisionless": true,
+        "ignoreForCollisions": true,
+        "queryAACube": {
+            "x": -0.17320507764816284,
+            "y": -0.17320507764816284,
+            "z": -0.17320507764816284,
+            "scale": 0.3464101552963257
+        },
+        "damping": 0,
+        "color": INTENSITY_ENTITY_COLOR_MIN,
+        "clientOnly": false,
+        "avatarEntity": true,
+        "localEntity": false,
+        "faceCamera": false,
+        "isFacingAvatar": false
+    };
+    var currentInitialAngularVelocity = {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    };
+    function updateIntensityEntity() {
+        if (currentIntensity > 0) {
+            if (intensityEntity) {
+                Entities.editEntity(intensityEntity, {
+                    position: halfwayBetweenHands(),
+                    dimensions: Vec3.multiply(INTENSITY_ENTITY_MAX_DIMENSIONS, currentIntensity),
+                    angularVelocity: Vec3.multiply(currentInitialAngularVelocity,
+                        currentIntensity * ANGVEL_ENTITY_MULTIPLY_FACTOR),
+                    color: linearScaleColor(currentIntensity, INTENSITY_ENTITY_COLOR_MIN, INTENSITY_ENTITY_COLOR_MAX)
+                });
+            } else {
+                var props = INTENSITY_ENTITY_PROPERTIES;
+                props.position = halfwayBetweenHands();
+
+                currentInitialAngularVelocity.x = Math.random() *
+                    (INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.x -
+                    INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.x) + INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.x;
+                currentInitialAngularVelocity.y = Math.random() *
+                    (INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.y -
+                    INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.y) + INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.y;
+                currentInitialAngularVelocity.z = Math.random() *
+                    (INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.z -
+                    INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.z) + INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.z;
+                props.angularVelocity = currentInitialAngularVelocity;
+
+                intensityEntity = Entities.addEntity(props);
+            }
+        } else {
+            if (intensityEntity) {
+                Entities.deleteEntity(intensityEntity);
+                intensityEntity = false;
+            }
+            
+            maybeClearUpdateIntensityEntityInterval();
+        }
+    }
 
     // Function that AppUI calls when the App's UI opens
     function onOpened() {
@@ -105,8 +263,8 @@
             maxOutputVolume = MAX_VOLUME_WHISTLE;
         }
 
-        var vol = minOutputVolume + (maxOutputVolume - minOutputVolume) *
-            (currentIntensity - minInputVolume) / (maxInputVolume - minInputVolume);
+        var vol = linearScale(currentIntensity, minInputVolume,
+            maxInputVolume, minOutputVolume, maxOutputVolume);
         return vol;
     }
 
@@ -296,6 +454,10 @@
         var handsAngularVelocity = getHandsAngularVelocity();
 
         calculateHandEffect(handsLinearVelocity, handsAngularVelocity);
+
+        if (!updateIntensityEntityInterval) {
+            Script.setInterval(updateIntensityEntity, UPDATE_INTENSITY_ENTITY_INTERVAL_MS);
+        }
     }
 
     // If handVelocityCheckInterval is set up, clear it.
@@ -496,6 +658,10 @@
 
         MyAvatar.overrideAnimation(currentAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
         currentAnimationTimestamp = Date.now();
+        
+        if (!updateIntensityEntityInterval) {
+            Script.setInterval(updateIntensityEntity, UPDATE_INTENSITY_ENTITY_INTERVAL_MS);
+        }
     }
     
     var desktopDebounceTimer = false;
@@ -604,6 +770,7 @@
         maybeClearHandVelocityCheckIntervalAndStopSound();
         maybeClearSoundFadeInterval();
         maybeClearVRDebounceTimer();
+        maybeClearUpdateIntensityEntityInterval();
 
         maybeClearStopCheeringTimeout();
         stopCheering();
@@ -617,6 +784,11 @@
             Controller.keyPressEvent.disconnect(keyPressEvent);
             Controller.keyReleaseEvent.disconnect(keyReleaseEvent);
             keyEventsWired = false;
+        }
+
+        if (intensityEntity) {
+            Entities.deleteEntity(intensityEntity);
+            intensityEntity = false;
         }
 
         HMD.displayModeChanged.disconnect(enableOrDisableAppreciate);
