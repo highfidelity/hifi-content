@@ -456,7 +456,7 @@
         calculateHandEffect(handsLinearVelocity, handsAngularVelocity);
 
         if (!updateIntensityEntityInterval) {
-            Script.setInterval(updateIntensityEntity, UPDATE_INTENSITY_ENTITY_INTERVAL_MS);
+            updateIntensityEntityInterval = Script.setInterval(updateIntensityEntity, UPDATE_INTENSITY_ENTITY_INTERVAL_MS);
         }
     }
 
@@ -660,7 +660,7 @@
         currentAnimationTimestamp = Date.now();
         
         if (!updateIntensityEntityInterval) {
-            Script.setInterval(updateIntensityEntity, UPDATE_INTENSITY_ENTITY_INTERVAL_MS);
+            updateIntensityEntityInterval = Script.setInterval(updateIntensityEntity, UPDATE_INTENSITY_ENTITY_INTERVAL_MS);
         }
     }
     
