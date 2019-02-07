@@ -20,3 +20,6 @@ Click on more avatars to hear more of the conversation!
 
 Code can be found at:
 [audioFocus](https://github.com/highfidelity/hifi-content/tree/master/marketplaceItems/audioFocus)
+
+Change Log:
+2019-02-05_16-42-10: Updated breaking Vue framework version

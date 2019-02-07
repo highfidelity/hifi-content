@@ -27,11 +27,6 @@ tipJarJSON.position = Vec3.sum(
     ) 
 );
 
-tipJarJSON.description = 
-        "Welcome to the TipJar!\n\n Just drop this in your domain if you have edit rights\n" +
-        "In the userData, put in the destination username the money is going to\n" +
-        "The amount you would like to tip(it will get rounded to the nearest integer\n" +
-        "And finally put in a message you would like them to see";
 tipJarJSON.userData = JSON.stringify({
     destinationName: "this is who the money will go to",
     hfcAmount: 1,

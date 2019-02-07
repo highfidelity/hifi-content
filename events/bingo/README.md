@@ -3,6 +3,30 @@ Ummm...well...it's bingo!
 
 ## Release Notes
 
+### v1.16
+
+2019-02-05_15-44-00 commit 4a5b7fb3ffdf58a0a212f5293cb042392f177871
+
+- Update UI version on Spawner entity script
+
+### v1.15
+
+2019-02-05_15-06-00 commit 534d4defa76dd6b1b1a65ec31a5ecff7406ece90
+
+- Small update to prize language
+
+### v1.14
+
+2019-02-05_09-41-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
+
+- Moved backend DB to new URL
+
+### v1.13
+
+2019-02-04_16-10-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
+
+- Fixed off-by-one error during Bingo prize selection
+
 ### v1.12
 
 2019-02-04_12-04-00 commit cc224b357248076d2d50af50f03f6c4ce9fd9523
