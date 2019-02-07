@@ -76,6 +76,7 @@
             if (currentIntensity <= 0) {
                 if (soundInjector) {
                     soundInjector.stop();
+                    soundInjector = false;
                 }
 
                 updateCurrentIntensityUI();
@@ -133,7 +134,7 @@
 
         updateCurrentIntensityUI();
 
-        if (!soundInjector || soundInjector.isPlaying) {
+        if (!soundInjector || soundInjector.isPlaying()) {
             return;
         }
 
@@ -147,17 +148,18 @@
 
     var soundInjector = false;
     function playSound(sound) {
-        if (soundInjector.isPlaying) {
+        if (soundInjector && soundInjector.isPlaying() && currentSound === "whistle") {
             return;
+        }
+
+        if (soundInjector) {
+            soundInjector.stop();
+            soundInjector = false;
         }
 
         soundInjector = Audio.playSound(sound, {
             position: MyAvatar.position,
             volume: calculateInjectorVolume()
-        });
-
-        soundInjector.finished.connect(function() {
-            soundInjector = false;
         });
     }
 
@@ -311,6 +313,7 @@
 
         if (soundInjector) {
             soundInjector.stop();
+            soundInjector = false;
         }
         
         currentIntensity = 0.0;
@@ -496,23 +499,26 @@
     }
     
     var desktopDebounceTimer = false;
-    var DESKTOP_DEBOUNCE_TIMEOUT_MS = 30;
+    var DESKTOP_DEBOUNCE_TIMEOUT_MS = 90;
     function keyPressEvent(event) {
         if ((event.text.toUpperCase() === "Z") &&
             !event.isShifted &&
-            !desktopDebounceTimer &&
             !event.isMeta &&
             !event.isControl &&
             !event.isAlt &&
             !HMD.active) {
 
             if (event.isAutoRepeat) {
-                desktopDebounceTimer = Script.setTimeout(function() {
-                    desktopDebounceTimer = false;
-                }, DESKTOP_DEBOUNCE_TIMEOUT_MS);
-            }
+                if (!desktopDebounceTimer) {
+                    keyPressed();
 
-            keyPressed();
+                    desktopDebounceTimer = Script.setTimeout(function() {
+                        desktopDebounceTimer = false;
+                    }, DESKTOP_DEBOUNCE_TIMEOUT_MS);
+                }
+            } else {
+                keyPressed();
+            }
         }
     }
     
