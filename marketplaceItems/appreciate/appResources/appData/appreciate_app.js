@@ -297,7 +297,7 @@
         }
 
         var injectorOptions = {
-            position: MyAvatar.position,
+            position: halfwayBetweenHands(),
             volume: calculateInjectorVolume()
         };
 
@@ -316,7 +316,7 @@
         }
 
         soundInjector = Audio.playSound(sound, {
-            position: MyAvatar.position,
+            position: halfwayBetweenHands(),
             volume: calculateInjectorVolume()
         });
     }
@@ -803,6 +803,7 @@
         ui = new AppUI({
             buttonName: BUTTON_NAME,
             home: APP_UI_URL,
+            // clap by Rena from the Noun Project
             graphicsDirectory: Script.resolvePath("./resources/images/icons/"),
             onOpened: onOpened,
             onMessage: onMessage
