@@ -665,7 +665,7 @@
     }
     
     var desktopDebounceTimer = false;
-    var DESKTOP_DEBOUNCE_TIMEOUT_MS = 90;
+    var DESKTOP_DEBOUNCE_TIMEOUT_MS = 160;
     function keyPressEvent(event) {
         if ((event.text.toUpperCase() === "Z") &&
             !event.isShifted &&
