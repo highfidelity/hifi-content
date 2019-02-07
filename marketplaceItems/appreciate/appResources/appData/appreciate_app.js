@@ -129,7 +129,7 @@
         currentIntensity += volumeDelta;
 
         currentIntensity = Math.max(0.0, Math.min(
-            clapOnlyEnabled ? MAX_CLAP_INTENSITY : MAX_WHISTLE_INTENSITY, currentIntensity));
+            neverWhistleEnabled ? MAX_CLAP_INTENSITY : MAX_WHISTLE_INTENSITY, currentIntensity));
 
         updateCurrentIntensityUI();
 
@@ -162,8 +162,8 @@
     }
 
     function shouldClap() {
-        return clapOnlyEnabled || (currentIntensity > 0.0 &&
-            currentIntensity <= MAX_CLAP_INTENSITY);
+        return (currentIntensity > 0.0 && neverWhistleEnabled) ||
+            (currentIntensity > 0.0 && currentIntensity <= MAX_CLAP_INTENSITY);
     }
 
     function shouldWhistle() {
@@ -535,7 +535,7 @@
 
     // Enables or disables the app's main functionality
     var appreciateEnabled = Settings.getValue("appreciate/enabled", false);
-    var clapOnlyEnabled = Settings.getValue("appreciate/clapOnly", false);
+    var neverWhistleEnabled = Settings.getValue("appreciate/neverWhistle", false);
     var keyEventsWired = false;
     function enableOrDisableAppreciate() {
         if (appreciateEnabled) {
@@ -565,18 +565,24 @@
     function onMessage(message) {
         switch (message.method) {
             case "eventBridgeReady":
-                ui.sendMessage({method: "updateUI", appreciateEnabled: appreciateEnabled});
+                ui.sendMessage({
+                    method: "updateUI",
+                    appreciateEnabled: appreciateEnabled,
+                    neverWhistleEnabled: neverWhistleEnabled,
+                    isFirstRun: Settings.getValue("appreciate/firstRun", true)
+                });
                 break;
 
             case "appreciateSwitchClicked":
+                Settings.setValue("appreciate/firstRun", false);
                 appreciateEnabled = message.appreciateEnabled;
                 Settings.setValue("appreciate/enabled", appreciateEnabled);
                 enableOrDisableAppreciate();
                 break;
 
-            case "clapOnlyCheckboxClicked":
-                clapOnlyEnabled = message.clapOnly;
-                Settings.setValue("appreciate/clapOnly", clapOnlyEnabled);
+            case "neverWhistleCheckboxClicked":
+                neverWhistleEnabled = message.neverWhistle;
+                Settings.setValue("appreciate/neverWhistle", neverWhistleEnabled);
                 break;
 
             default:

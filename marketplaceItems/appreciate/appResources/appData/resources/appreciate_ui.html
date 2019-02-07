@@ -21,21 +21,39 @@
         </div>
 
         <div id="mainContainer">
-            <div id="switchContainer">
+            <div id="titleBarContainer">
+                <div id="titleText" style="font-weight:bold;">
+                    Appreciate v1.0
+                </div>
                 <label class="switch">
                     <input id="appreciateSwitch" type="checkbox" onclick="appreciateSwitchClicked(this)">
                     <span class="slider round"></span>
                 </label>
             </div>
 
+            <div id="firstRun" style="display:none;">
+                <i id="tutorialArrow"></i>
+                <div>&nbsp;Use this switch to enable and disable the Appreciate app.</div>
+            </div>
+
             <div id="progressBarContainer">
+                <span style="font-weight:bold;">Intensity Meter</span>
                 <progress id="currentIntensityDisplay" value="0" max="1">
                 </progress>
             </div>
 
-            <div id="clapOnlyContainer">
-                <input id="clapOnlyCheckbox" type="checkbox" onclick="clapOnlyCheckboxClicked(this)">
-                <label for="clapOnlyCheckbox">Clap Only</label>
+            <label id="neverWhistleContainer">Never Whistle
+                <input id="neverWhistleCheckbox" type="checkbox" onclick="neverWhistleCheckboxClicked(this)">
+                <span class="checkmark"></span>
+            </label>
+
+            <div id="instructions">
+                <div id="desktopModeInstructions">
+                    Desktop Mode:<br/>Tap or hold the Z key on your keyboard!
+                </div>
+                <div id="vrModeInstructions">
+                    VR Mode:<br/>Raise your hands above your head and shake them!
+                </div>
             </div>
         </div>
         

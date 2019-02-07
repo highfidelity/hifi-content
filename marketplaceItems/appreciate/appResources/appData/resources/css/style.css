@@ -13,6 +13,7 @@ html {
 body {
     font-family: 'Raleway', sans-serif;
     background-color: #393939;
+    color: #afafaf;
     overflow: hidden;
     margin: 0;
     padding: 0;
@@ -34,20 +35,47 @@ body {
     z-index: 999;
 }
 
+#firstRun {
+  background-color: rgba(0, 0, 0, 0.9);
+  width: 100vw;
+  height: calc(100vh - 60px);
+  position: fixed;
+  z-index: 998;
+  padding: 8px 12px 0 50%;
+  font-size: 24px;
+  text-align: right;
+}
+
+#tutorialArrow {
+  border: solid #00b4ef;
+  border-width: 0 5px 5px 0;
+  margin-right: 28px;
+  display: inline-block;
+  padding: 5px;
+  transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+}
+
 /* START SWITCH CSS
 Mostly from: https://www.w3schools.com/howto/howto_css_switch.asp
 */
-#switchContainer {
-  height: 20%;
+#titleBarContainer {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 0 16px;
+  font-size: 24px;
+  background-color: #121212;
+  color: #ffffff;
+  justify-content: space-between;
 }
 
 /* The switch - the box around the slider */
 .switch {
   position: relative;
   display: block;
-  width: 60px;
+  width: 70px;
   height: 34px;
-  margin: 20px auto 0 auto;
 }
 
 /* Hide default HTML checkbox */
@@ -91,9 +119,9 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
+  -webkit-transform: translateX(35px);
+  -ms-transform: translateX(35px);
+  transform: translateX(35px);
 }
 
 /* Rounded sliders */
@@ -109,13 +137,17 @@ input:checked + .slider:before {
 /* START PROGRESS BAR CSS */
 #progressBarContainer {
   width: calc(100vw - 24px);
-  height: 250px;
-  margin: 75px auto 0 auto;
+  margin: 24px auto 0 auto;
+}
+
+#progressBarContainer > span {
+  font-size: 18px;
 }
 
 #currentIntensityDisplay {
   width: 100%;
   height: 175px;
+  margin-top: 8px;
 }
 
 #currentIntensityDisplay[value] {
@@ -135,3 +167,79 @@ input:checked + .slider:before {
   border-radius: 2px;
 }
 /* END PROGRESS BAR CSS */
+
+/* The container */
+#neverWhistleContainer {
+  margin: 0 0 0 12px;
+  position: relative;
+  top: 16px;
+  padding-left: 35px;
+  cursor: pointer;
+  font-size: 18px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+#neverWhistleContainer input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+#neverWhistleContainer:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+#neverWhistleContainer input:checked ~ .checkmark {
+  background-color: #0093C5;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+#neverWhistleContainer input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+#neverWhistleContainer .checkmark:after {
+  left: 9px;
+  top: 3px;
+  width: 8px;
+  height: 15px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
+
+#instructions {
+  margin: 120px 12px 0 12px;
+  font-size: 18px;
+}
+
+#instructions > div {
+  margin-top: 16px;
+}

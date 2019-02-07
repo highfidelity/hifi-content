@@ -12,12 +12,13 @@ function appreciateSwitchClicked(checkbox) {
         method: "appreciateSwitchClicked",
         appreciateEnabled: checkbox.checked
     }));
+    document.getElementById("firstRun").style.display = "none";
 }
 
-function clapOnlyCheckboxClicked(checkbox) {
+function neverWhistleCheckboxClicked(checkbox) {
     EventBridge.emitWebEvent(JSON.stringify({
-        method: "clapOnlyCheckboxClicked",
-        clapOnly: checkbox.checked
+        method: "neverWhistleCheckboxClicked",
+        neverWhistle: checkbox.checked
     }));
 }
 
@@ -26,8 +27,11 @@ function onScriptEventReceived(message) {
     message = JSON.parse(message);
     switch (message.method) {
         case "updateUI":
+            if (message.isFirstRun) {
+                document.getElementById("firstRun").style.display = "block";
+            }
             document.getElementById("appreciateSwitch").checked = message.appreciateEnabled;
-            document.getElementById("clapOnlyCheckbox").checked = message.clapOnlyEnabled;
+            document.getElementById("neverWhistleCheckbox").checked = message.neverWhistleEnabled;
             document.getElementById("loadingContainer").style.display = "none";
             break;
 
