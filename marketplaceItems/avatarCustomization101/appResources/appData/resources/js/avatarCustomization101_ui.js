@@ -574,12 +574,9 @@
                 <input 
                     v-bind:data-slider-min="min"
                     v-bind:data-slider-max="max"
-                    v-bind:data-slider-value="val"
+                    v-bind:data-slider-value="defaultvalue"
                     v-bind:data-slider-step="increment"
                     v-bind:id="sliderId" 
-
-                    @change="onChangeEvent"
-                    v-model="val"
 
                     data-slider-handle="square" 
                     type="text"
