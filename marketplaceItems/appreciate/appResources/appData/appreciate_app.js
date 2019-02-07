@@ -415,7 +415,7 @@
         currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
 
         if (currentAnimation === clappingAnimation) {
-            currentAnimationFPS += 5;
+            currentAnimationFPS += CLAP_ANIMATION_FPS_BOOST;
         }
 
         MyAvatar.overrideAnimation(currentAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
@@ -448,6 +448,7 @@
     var currentAnimationTimestamp;
     var CHEERING_FPS_MAX = 80;
     var VOLUME_STEP_UP_DESKTOP = 0.035; // unitless, determined empirically
+    var CLAP_ANIMATION_FPS_BOOST = 15;
     function keyPressed() {
         if (!whistlingAnimation || !clappingAnimation) {
             return;
@@ -484,7 +485,7 @@
             currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
 
             if (currentAnimation === clappingAnimation) {
-                currentAnimationFPS += 5;
+                currentAnimationFPS += CLAP_ANIMATION_FPS_BOOST;
             }
         } else {
             currentlyPlayingFrame = 0;
@@ -517,7 +518,7 @@
     
     // Clear the "cheering" animation if it's running
     var stopCheeringTimeout = false;
-    var STOP_CHEERING_TIMEOUT_MS = 500;
+    var STOP_CHEERING_TIMEOUT_MS = 1000;
     function stopSoundSoon() {
         maybeClearStopCheeringTimeout();
 
