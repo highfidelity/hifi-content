@@ -4,6 +4,8 @@
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456")),
+        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/presetData/blendshapes.js")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/presetData/materials.js")),
         AVATAR_FILE = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/marketplaceItems/avatarCustomization101/mannequinHairTest8.fst";
     // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
 
@@ -156,6 +158,29 @@
 
     // #endregion MATERIAL
 
+    // #region BLENDSHAPES
+
+    var STRING_SMILE = "smile";
+    var STRING_ANGRY = "angry";
+    var BLENDSHAPES_SMILE = {
+        close_EyeL: 0.2,
+        close_eyeR: 0.2
+        // etc.
+    }
+
+    function updateBlendshapes(newBlendshapeDataToApply) {
+        // Set blendshapes to avatar
+        // Reference facialExpressions.js
+    }
+
+    // presets
+    function applyNamedBlendshapes(materialName) {
+        // switch statement that matches the blendshape name
+        //      "smile" -> updateBlendshapes(BLEND_SMILE);
+    }
+
+    // #endregion BLENDSHAPES
+
     // #region APP
 
     // App variables
@@ -294,13 +319,13 @@
                 updateUI();
                 break;
 
-            case EVENT_UPDATE_AVATAR: 
-                
+            case EVENT_UPDATE_AVATAR:
+
                 switch (data.subtype) {
                     case EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR:
                         saveAvatarAndChangeToAvi();
                         break;
-                    case EVENT_RESTORE_SAVED_AVATAR: 
+                    case EVENT_RESTORE_SAVED_AVATAR:
                         restoreAvatar();
                         break;
                     case EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR:
@@ -356,7 +381,7 @@
     }
 
     function updateUI(type) {
-        
+
         var messageObject = {
             type: UPDATE_UI,
             subtype: type ? type : "",

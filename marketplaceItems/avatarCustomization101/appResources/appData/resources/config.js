@@ -82,7 +82,13 @@ var CONFIG = {
                 COMPONENT_NAME: "test1",
 
                 COMPONENT_DATA: {
-
+                    LIST: ["smile", "default", "angry", "laugh"],
+                    FACIAL_BLENDSHAPES: [
+                        "EyeOpen_L",
+                        "EyeOpen_R",
+                        "BrowsD_L",
+                        "BrowsD_R"
+                    ]
                 }
 
             },
@@ -111,43 +117,22 @@ var CONFIG = {
 
     INITIAL_DYNAMIC_DATA: {
         state: {
-            isAviEnabled: false, // *** robin
-            activeTabName: STRING_INFO,
+            isAviEnabled: false,
+            activeTabName: STRING_INFO
         },
         info: {},
         material: {
             selectedMaterial: "",
-            updatedProperties: {},
+            updatedProperties: {}
         },
         blendshapes: {
-
+            selected: "",
+            updatedProperties: {}
         },
         animation: {
 
         }, 
         flow: {
-
-        }
-    },
-    
-    // Contains properties for the preset buttons
-    MATERIAL_PRESETS: {
-        STRING_DEFAULT: {
-
-        },
-        STRING_LEATHER: {
-
-        },
-        STRING_GLASS: {
-
-        },
-        STRING_CHAINMAIL: {
-
-        },
-        STRING_RED: {
-
-        },
-        STRING_TEXTURE: {
 
         }
     }

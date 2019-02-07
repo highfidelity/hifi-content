@@ -340,6 +340,63 @@
                 <slider 
                     :name="'test1'"
                     :max="10"
+                    :increment="0.1"
+                    :min="0"
+                    :defaultvalue="7"
+                ></slider>
+
+            </div>
+        `
+    })
+
+    Vue.component('blendshapes-tab', {
+        props: ['dynamic', 'static'],
+        methods: {
+            applyNamedBlendshape(blendshapeName) {
+                if (DEBUG) {
+                    console.log("applyNamedBlendshape clicked " + blendshapeName);
+                }
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_BLENDSHAPE,
+                    name: blendshapeName
+                }));
+
+            },
+            updateBlendshapeProperties(blendshapePropertiesObject) {
+                if (DEBUG) {
+                    console.log("updateBlendshapeProperties clicked");
+                }
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_BLENDSHAPE,
+                    updates: blendshapePropertiesObject
+                }));
+            }
+        },
+        computed: {
+            facialBlenshapeList() {
+                // var blendshapeList = this.static.COMPONENT_DATA.FACIAL_BLENDSHAPES;
+                // var currentProperties = this.dyanmic.blendshapes.updatedProperties;
+            }
+        },
+        template: /* html */ `
+            <div>
+
+                <options-row-buttons
+                    :selectedbutton="dynamic.selected"
+                    :title="'Preset Expressions'"
+                    :onclick="applyNamedBlendshape"
+                    :buttonlist="static.COMPONENT_DATA.LIST"
+                >
+                </options-row-buttons>
+
+                <h3>Facial Blendshapes</h3>
+
+                <slider 
+                    :name="'test1'"
+                    :max="10"
+                    :increment="0.1"
                     :min="0"
                     :defaultvalue="7"
                 ></slider>
@@ -459,7 +516,7 @@
     })
 
     Vue.component('slider', {
-        props: ['name', 'max', 'min', 'defaultvalue'],
+        props: ['name', 'max', 'min', 'defaultvalue', 'increment'],
         computed: {
             sliderId() {
                 console.log("COMPUTED" + this.name);
@@ -488,9 +545,9 @@
                     v-bind:data-slider-min="min"
                     v-bind:data-slider-max="max"
                     v-bind:data-slider-value="defaultvalue"
+                    v-bind:data-slider-step="increment"
                     v-bind:id="sliderId" 
 
-                    data-slider-step="1"
                     data-slider-handle="square" 
                     type="text"
                 />
@@ -645,102 +702,7 @@
             staticData: CONFIG.STATIC_DATA,
             dynamicData: CONFIG.INITIAL_DYNAMIC_DATA
         }
-
-                
-            
-                // deepCopy(CONFIG.INITIAL_DATASTORE_SETTINGS)
-
-
-            // dataStore: {
-            //     STATIC_DATA: {
-            //         STATE: {
-            //             TAB_LIST: [STRING_INFO, STRING_BLENDSHAPES, STRING_MATERIAL, STRING_FLOW],
-            //         },
-            //         INFO: {
-            //             TAB_NAME: STRING_INFO,
-            //             TITLE: STRING_INFO,
-            //             SUBTITLE: "Thank you for downloading the Avatar Customization 101 app.",
-            //             COMPONENT_NAME: "info-tab",
-            //         },
-            //         MATERIAL: {
-            //             TAB_NAME: STRING_MATERIAL,
-            //             TITLE: STRING_MATERIAL,
-            //             SUBTITLE: "Change avatars materials for each submesh.",
-            //             COMPONENT_NAME: "material-tab",
-            //             COMPONENT_DATA: {
-            //                 PBR_LIST: [STRING_DEFAULT, STRING_LEATHER, STRING_GLASS, STRING_CHAINMAIL],
-            //                 SHADELESS: [STRING_RED, STRING_TEXTURE]
-            //             }
-            //         }
-            //         // ETC...
-            //     },
-    
-            //     dynamicData: {
-            //         state: {
-            //             isAviEnabled: ,
-            //             lastTab: ,
-            //         },
-            //         material: {
-            //             selectedMaterial: "",
-            //             updatedProperties: {}
-            //         },
-            //         // etc...
-    
-            //     }
-
-            // }
-
-            
-
-
-
-
-            
-            // {
-            //     isAviEnabled: false, // *** robin
-            //     activeTabName: STRING_INFO,
-            //     tabDataList: [
-            //         // USE STRING_BLENDSHAPES ETC FOR THE TABNAME
-            //         {
-            //             // INFORMATION
-            //             tabName: STRING_INFO, 
-            //             title: STRING_INFO, 
-            //             subtitle: "Thank you for downloading the Avatar Customization 101 app.",
-            //             componentName: "info-tab"
-            //         },
-            //         {
-            //             // MATERIAL
-            //             tabName: STRING_MATERIAL, 
-            //             title: STRING_MATERIAL, 
-            //             subtitle: "Change avatars materials for each submesh.",
-            //             componentName: "test2"
-            //         },
-            //         {
-            //             // BLENDSHAPES
-            //             tabName: STRING_BLENDSHAPES, 
-            //             title: STRING_BLENDSHAPES, 
-            //             subtitle: "Change avatar expressions.",
-            //             componentName: "test1"
-            //         },
-            //         {
-            //             // ANIMATION
-            //             tabName: STRING_ANIMATION, 
-            //             title: STRING_ANIMATION, 
-            //             subtitle: "Change avatars default animations.",
-            //             componentName: "test2"
-            //         },
-            //         {
-            //             // FLOW
-            //             tabName: STRING_FLOW, 
-            //             title: STRING_FLOW, 
-            //             subtitle: "Modify flow joints for chain.",
-            //             componentName: "test1"
-            //         }
-            //     ],
-            // }
-        // }
     });
-
 
     function onScriptEventReceived(message) {
         var data;
