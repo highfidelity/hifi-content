@@ -356,10 +356,11 @@
 
             case EVENT_UPDATE_BLENDSHAPE:
 
-                // if data.name 
-                //     applyNamedBlendshape(data.name)
-                // else 
-                //     updateMaterial(data.updates)
+                if (data.name) {
+                    applyNamedBlendshapes(data.name);
+                } else {
+                    updateBlendshapes(data.updates);
+                }
 
                 break;
             case EVENT_UPDATE_FLOW:
