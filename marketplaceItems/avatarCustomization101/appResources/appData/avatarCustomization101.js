@@ -104,23 +104,24 @@
 
     // Contains all steps to set the app state to isAviEnabled = true
     function setIsAviEnabledTrue() {
-        dataStore.isAviEnabled = true;
+        dynamicData.state.isAviEnabled = true;
         spawnMirror();
 
-        updateUI();
+        updateUI(STRING_STATE);
     }
 
     // Contains all steps to set the app state to isAviEnabled = false
     function setIsAviEnabledFalse() {
-        dataStore.isAviEnabled = false;
-        dataStore.activeTabName = STRING_INFO;
+        dynamicData.state.isAviEnabled = false;
+        dynamicData.state.activeTabName = STRING_INFO;
 
-        updateUI();
+        updateUI(STRING_STATE);
     }
 
     // #endregion AVATAR FUNCTIONS
 
     // #region MATERIAL
+
     var materialID;
     var materialProperties;
 
@@ -167,11 +168,12 @@
         STRING_BLENDSHAPES = CONFIG.STRING_BLENDSHAPES,
         STRING_ANIMATION = CONFIG.STRING_ANIMATION,
         STRING_FLOW = CONFIG.STRING_FLOW,
-        STRING_INFO = CONFIG.STRING_INFO;
+        STRING_INFO = CONFIG.STRING_INFO,
+        STRING_STATE = CONFIG.STRING_STATE;
 
     // UI variables
     var ui;
-    var dataStore = deepCopy(CONFIG.INITIAL_DATASTORE_SETTINGS);
+    var dynamicData = deepCopy(CONFIG.INITIAL_DYNAMIC_DATA);
 
     // Tab dynamic variables
     var currentTab;
@@ -188,7 +190,7 @@
         });
 
         // check avatar, if avatar is Avi.fst (or fbx) then set APP_AVI_ENABLED state
-        // if not Avi avatar, dataStore.aviEnabled is false
+        // if not Avi avatar, dynamicData.aviEnabled is false
         // loadAnimationsIntoCache();
 
         Script.scriptEnding.connect(unload);
@@ -199,7 +201,7 @@
 
         // deleteMirror
         // save lastTab that the user was on
-        dataStore.activeTabName = currentTab;
+        dynamicData.state.activeTabName = currentTab;
 
     }
 
@@ -207,7 +209,7 @@
 
         if (DEBUG) {
             print("ACA101 onOpened: isAviEnabled ", isAviYourCurrentAvatar());
-            print("ACA101 onOpened: activeTabName is ", dataStore.activeTabName);
+            print("ACA101 onOpened: activeTabName is ", dynamicData.state.activeTabName);
         }
 
         if (isAviYourCurrentAvatar()) {
@@ -216,16 +218,13 @@
 
             // if your last closed tab has extra setup functionality
             // ensure you have the correct view for the current tab
-            switchTabs(dataStore.activeTabName);
+            switchTabs(dynamicData.state.activeTabName);
 
         } else {
             setIsAviEnabledFalse();
 
             // updateLayout
         }
-
-        updateUI();
-
     }
 
     function switchTabs(tabName) {
@@ -266,6 +265,9 @@
     var EVENT_UPDATE_FLOW = CONFIG.EVENT_UPDATE_FLOW;
     var EVENT_UPDATE_ANIMATION = CONFIG.EVENT_UPDATE_ANIMATION;
     var EVENT_CHANGE_TAB = CONFIG.EVENT_CHANGE_TAB;
+    var EVENT_UPDATE_AVATAR = CONFIG.EVENT_UPDATE_AVATAR;
+
+    var DEBUG_EVENTS = true;
 
     // Handles events recieved from the UI
     function onMessage(data) {
@@ -274,59 +276,49 @@
 
         // Check against EVENT_NAME to ensure we're getting the correct messages from the correct app
         if (!data.type || data.type.indexOf(APP_NAME) === -1) {
-            if (DEBUG) {
+            if (DEBUG_EVENTS) {
                 print("Event type event name index check: ", !data.type, data.type.indexOf(APP_NAME) === -1);
             }
             return;
         }
         data.type = data.type.replace(APP_NAME, "");
 
+        if (DEBUG_EVENTS) {
+            print("onMessage: ", data.type);
+            print("subtype: ", data.subtype);
+        }
+
         switch (data.type) {
             case EVENT_BRIDGE_OPEN_MESSAGE:
-                if (DEBUG) {
-                    print("onMessage: ", EVENT_BRIDGE_OPEN_MESSAGE);
-                }
 
                 updateUI();
-
                 break;
-            case EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR:
-                if (DEBUG) {
-                    print("onMessage: ", EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR);
+
+            case EVENT_UPDATE_AVATAR: 
+                
+                switch (data.subtype) {
+                    case EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR:
+                        saveAvatarAndChangeToAvi();
+                        break;
+                    case EVENT_RESTORE_SAVED_AVATAR: 
+                        restoreAvatar();
+                        break;
+                    case EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR:
+                        changeAvatarToAvi();
+                        break;
+                    default:
+                        break;
                 }
 
-                saveAvatarAndChangeToAvi();
-
                 break;
+
             case EVENT_CHANGE_TAB:
-                if (DEBUG) {
-                    print("onMessage: ", EVENT_CHANGE_TAB);
-                }
 
                 switchTabs(data.value);
 
                 break;
-            case EVENT_RESTORE_SAVED_AVATAR:
-                if (DEBUG) {
-                    print("onMessage: ", EVENT_RESTORE_SAVED_AVATAR);
-                }
 
-                restoreAvatar();
-
-                break;
-            case EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR:
-                if (DEBUG) {
-                    print("onMessage: ", EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR);
-                }
-
-                changeAvatarToAvi();
-
-                break;
             case EVENT_UPDATE_MATERIAL:
-                if (DEBUG) {
-                    print("onMessage: ", EVENT_UPDATE_MATERIAL);
-                    print("name: ", data.name, " updates: ", data.updates);
-                }
 
                 // delegates the method depending on if 
                 // event has name property or updates property
@@ -339,9 +331,6 @@
                 break;
 
             case EVENT_UPDATE_BLENDSHAPE:
-                if (DEBUG) {
-                    print("onMessage: ", EVENT_UPDATE_BLENDSHAPE);
-                }
 
                 // if data.name 
                 //     applyNamedBlendshape(data.name)
@@ -350,17 +339,11 @@
 
                 break;
             case EVENT_UPDATE_FLOW:
-                if (DEBUG) {
-                    print("onMessage: ", EVENT_UPDATE_FLOW);
-                }
 
                 // updateFlow(data.updates);
 
                 break;
             case EVENT_UPDATE_ANIMATION:
-                if (DEBUG) {
-                    print("onMessage: ", EVENT_UPDATE_ANIMATION);
-                }
 
                 // updateAnimation(data.name);
 
@@ -373,35 +356,16 @@
     }
 
     function updateUI(type) {
-
+        
         var messageObject = {
             type: UPDATE_UI,
-            dataType: type
+            subtype: type ? type : "",
+            value: type ? dynamicData[type] : dynamicData
         };
 
-        switch (type) {
-            case STRING_INFO: 
-                messageObject.value = {
-
-                }
-
-                break;
-
-            default:
-            
-                messageObject.value = dataStore;
-
-                break;
+        if (DEBUG_EVENTS) {
+            print("Update UI", type);
         }
-
-        var message 
-
-
-        if (DEBUG) {
-            print("Update UI");
-        }
-
-
 
         ui.sendToHtml(messageObject);
     }

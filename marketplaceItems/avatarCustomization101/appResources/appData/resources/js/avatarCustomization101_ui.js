@@ -19,9 +19,10 @@
         EVENT_CHANGE_TAB = APP_NAME + CONFIG.EVENT_CHANGE_TAB,
 
         // Info tab events
-        EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR = APP_NAME + CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR,
-        EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR = APP_NAME + CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR,
-        EVENT_RESTORE_SAVED_AVATAR = APP_NAME + CONFIG.EVENT_RESTORE_SAVED_AVATAR,
+        EVENT_UPDATE_AVATAR = APP_NAME + CONFIG.EVENT_UPDATE_AVATAR,
+        EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR = CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR,
+        EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR = CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR,
+        EVENT_RESTORE_SAVED_AVATAR = CONFIG.EVENT_RESTORE_SAVED_AVATAR,
 
         // Material tab events
         EVENT_UPDATE_MATERIAL = APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL;
@@ -50,20 +51,18 @@
     // #region Tabs and Tab Layout
 
     Vue.component('page-content', {
-        props: ['datastore'],
+        props: ['dynamicdata', 'staticdata'],
         template: /* html */ `
             <div>
 
                 <navigation 
-                    :activetabname="datastore.activeTabName" 
-                    :isavienabled="datastore.isAviEnabled"
-                    :tabdatalist="datastore.tabDataList"
+                    :dynamicdata="dynamicdata"
+                    :tablist="staticdata.TAB_LIST"
                 ></navigation>
                 
                 <tab-content-container
-                    :isavienabled="datastore.isAviEnabled"
-                    :activetabname="datastore.activeTabName" 
-                    :tabdatalist="datastore.tabDataList"
+                    :staticdata="staticdata"
+                    :dynamicdata="dynamicdata"
                 ></tab-content-container>
 
             </div>
@@ -71,13 +70,19 @@
     })
 
     Vue.component('navigation', {
-        props: ['activetabname', 'tabdatalist', 'isavienabled'],
+        props: ['tablist', 'dynamicdata'],
         template: /* html */ `
             <nav>
                 <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
 
-                    <template v-for="tab in tabdatalist">
-                        <tab :tab="tab" :activetabname="activetabname" :isavienabled="isavienabled"></tab>
+                    <template v-for="tabName in tablist">
+                        
+                        <tab 
+                            :tabname="tabName"
+                            :activetabname="dynamicdata.state.activeTabName" 
+                            :isavienabled="dynamicdata.state.isAviEnabled"
+                        ></tab>
+
                     </template>
 
                 </div>
@@ -86,7 +91,7 @@
     })
 
     Vue.component('tab', {
-        props: ['tab', 'activetabname', 'isavienabled'],
+        props: ['tabname', 'activetabname', 'isavienabled'],
         methods: {
             switchTab(tabName) {
 
@@ -103,12 +108,11 @@
         computed: {
             tabInfo() {
 
-                var tabName = this.tab.tabName;
+                var tabName = this.tabname;
                 var isAviEnabled = this.isavienabled;
 
                 return {
                     tabName: tabName,
-                    title: this.tab.title,
                     active: (tabName === this.activetabname),
                     href: "#" + tabName,
                     tabID: tabName + "-tab",
@@ -130,26 +134,38 @@
                 aria-selected="tabInfo.active"
                 v-on:click="switchTab(tabInfo.tabName)"
             >
-                {{ tabInfo.title }}
+                {{ tabInfo.tabName }}
             </a>
         `
     })
 
     Vue.component('tab-content-container', {
-        props: ['activetabname', 'tabdatalist', 'isavienabled'],
+        props: ['staticdata', 'dynamicdata'],
+        computed: {
+            tabDataList() {
+                var TAB_LIST = this.staticdata.TAB_LIST;
+                var TAB_DATA = this.staticdata.TAB_DATA;
+                return TAB_LIST.map((tabName) => {
+
+                    var tabData = {
+                        static: TAB_DATA[tabName.toUpperCase()],
+                        dynamic: this.dynamicdata[tabName.toLowerCase()]
+                    }
+
+                    return tabData;
+                });
+            }
+        },
         template: /* html */ `
             <div class="tab-content" id="nav-tabContent">
 
-                <template v-for="tabData in tabdatalist">
+                <template v-for="tabData in tabDataList">
 
                     <tab-content 
-                        :activetabname="activetabname"
-                        :tabid="tabData.tabName"
-                        :title="tabData.title"
-                        :subtitle="tabData.subtitle"
-                        :data="tabData.componentData"
-                        :componentname="tabData.componentName"
-                        :isavienabled="isavienabled"
+                        :activetabname="dynamicdata.state.activeTabName"
+                        :isavienabled="dynamicdata.state.isAviEnabled"
+                        :tabid="tabData.static.TAB_NAME"
+                        :tabdata="tabData"
                     ></tab-content>
 
                 </template>
@@ -159,7 +175,7 @@
     })
 
     Vue.component('tab-content', {
-        props: ['activetabname', 'tabid', 'title', 'subtitle', 'data', 'componentname', 'isavienabled'],
+        props: ['tabdata', 'tabid', 'isavienabled', 'activetabname'],
         computed: {
             isActiveTab() {
                 return this.activetabname === this.tabid;
@@ -174,10 +190,16 @@
                 v-bind:aria-labelledby="tabid"
             >
 
-                <h1 class="title-case">{{ title }}</h1>
-                <p>{{ subtitle }}</p>
+                <h1 class="title-case">{{ tabdata.static.TITLE }}</h1>
+                <p>{{ tabdata.static.SUBTITLE }}</p>
 
-                <component :is="componentname" :isavienabled="isavienabled" :data="data"></component>
+                <component 
+                    :is="tabdata.static.COMPONENT_NAME"
+
+                    :isavienabled="isavienabled"
+                    :dynamic="tabdata.dynamic"
+                    :static="tabdata.static"
+                ></component>
 
             </div>
         `
@@ -210,7 +232,8 @@
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_RESTORE_SAVED_AVATAR
+                    type: EVENT_UPDATE_AVATAR,
+                    subtype: EVENT_RESTORE_SAVED_AVATAR
                 }));
 
             }
@@ -257,7 +280,7 @@
     })
 
     Vue.component('material-tab', {
-        props: ['data'],
+        props: ['dynamic', 'static'],
         methods: {
             applyNamedMaterial(materialName) {
                 if (DEBUG) {
@@ -292,18 +315,18 @@
                 <h3>Jacket</h3>
 
                 <options-row-buttons
-                    :selectedbutton="data.selectedMaterial"
+                    :selectedbutton="dynamic.selectedMaterial"
                     :title="'PBR Presets'"
                     :onclick="applyNamedMaterial"
-                    :buttonlist="data.pbrList"
+                    :buttonlist="static.COMPONENT_DATA.PBR_LIST"
                 >
                 </options-row-buttons>
 
                 <options-row-buttons
-                    :selectedbutton="data.selectedMaterial"
+                    :selectedbutton="dynamic.selectedMaterial"
                     :title="'Shadeless Presets'"
                     :onclick="applyNamedMaterial"
-                    :buttonlist="data.shadelessList"
+                    :buttonlist="static.COMPONENT_DATA.SHADELESS_LIST"
                 >
                 </options-row-buttons>
 
@@ -340,7 +363,8 @@
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR
+                    type: EVENT_UPDATE_AVATAR,
+                    subtype: EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR
                 }));
 
                 this.close();
@@ -353,7 +377,8 @@
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR
+                    type: EVENT_UPDATE_AVATAR,
+                    subtype: EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR
                 }));
 
                 this.close();
@@ -617,7 +642,14 @@
     var app = new Vue({
         el: '#app',
         data: {
-            dataStore: deepCopy(CONFIG.INITIAL_DATASTORE_SETTINGS)
+            staticData: CONFIG.STATIC_DATA,
+            dynamicData: CONFIG.INITIAL_DYNAMIC_DATA
+        }
+
+                
+            
+                // deepCopy(CONFIG.INITIAL_DATASTORE_SETTINGS)
+
 
             // dataStore: {
             //     STATIC_DATA: {
@@ -706,7 +738,7 @@
             //         }
             //     ],
             // }
-        }
+        // }
     });
 
 
@@ -722,7 +754,13 @@
                     if (DEBUG) {
                         print("onScriptEventRecieved: Update UI");
                     }
-                    app.dataStore = data.value;
+
+                    if (data.subtype) {
+                        app.dynamicData[data.subtype] = data.value;
+                    } else {
+                        app.dynamicData = data.value;
+                    }
+
                     break;
                 default:
             }
