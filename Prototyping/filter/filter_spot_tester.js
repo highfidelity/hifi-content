@@ -84,7 +84,7 @@ filter.rejectAll = false; // default: false
 
 function filterAdd(properties, originalProperties, zoneProperties){
     // log("FILTER_ADD");    
-    // log("FILTER_ADD", "properties:", properties, "originalProperties", originalProperties);
+    log("FILTER_ADD", "properties:", properties, "originalProperties", originalProperties);
     return false;
 }
 

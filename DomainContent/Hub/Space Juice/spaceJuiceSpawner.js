@@ -91,7 +91,8 @@
                 shape: "Cone",
                 type: "Shape",
                 userData: "{\"grabbableKey\":{\"grabbable\":false}}",
-                script: Script.resolvePath("glassPrimitiveCatch.js?" + Date.now())
+                script: Script.resolvePath("glassPrimitiveCatch.js?" + Date.now()),
+                serverScripts: Script.resolvePath("glassPrimitiveCatchServer.js?" + Date.now())
             });
         }
     };

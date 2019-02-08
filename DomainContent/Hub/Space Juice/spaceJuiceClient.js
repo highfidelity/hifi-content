@@ -28,12 +28,11 @@
     var DRINK_IT_DISTANCE = 0.2;
     var DONE_DRINKING_SHOT = 1000;
     var MOVE_GLASS_BEFORE_SPAWNING = 250;
-    var VELOCITY_TO_BREAK = 2;
+    var VELOCITY_TO_BREAK = 1.75;
     var DRUNK_HAZE_1000_M = 1000;
     var DRUNK_HAZE_100_M = 100;
     var DRUNK_HAZE_50_M = 50;
     var DRUNK_HAZE_10_M = 10;
-    var LIFETIME = 30;
 
     var interval;
     var drunkZone = null;
@@ -99,7 +98,8 @@
         startNearGrab: function(entityID, mouseEvent) {
             print("start near grab");
             Entities.editEntity(_this.entityID, {
-                dynamic: true
+                dynamic: true,
+                lifetime: LIFETIME
             });
             if (stillFull) {
                 interval = Script.setInterval(function() {
@@ -126,7 +126,8 @@
         // this is called on release of far grab
         mouseReleaseOnEntity: function(entityID, mouseEvent) {
             Entities.editEntity(_this.entityID, {
-                dynamic: true
+                dynamic: true,
+                lifetime: LIFETIME
             });
             if (canCreateNew) {
                 Entities.callEntityServerMethod(spawner, 'spawnNewGlass');
@@ -140,7 +141,8 @@
                 Script.clearInterval(interval);
             }
             if (JSON.stringify(mouseEvent) === "[]") {
-                Entities.deleteEntity(_this.entityID);
+                print("deleting entity in release grab");
+                Entities.callEntityServerMethod(_this.entityID, 'deleteGlass');
             }
             if (canCreateNew) {
                 Entities.callEntityServerMethod(spawner, 'spawnNewGlass');
@@ -158,7 +160,9 @@
                 Entities.editEntity(_this.entityID, {
                     lifetime: age + LIFETIME
                 });
-                Entities.deleteEntity(drink);
+                print("trying to delete entity");
+                Entities.callEntityServerMethod(drink, 'deleteGlass');
+                // Entities.deleteEntity(drink);
                 stillFull = false;
                 drinking = true;
             }

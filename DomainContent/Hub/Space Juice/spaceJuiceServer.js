@@ -19,7 +19,7 @@
     };
   
     Glass.prototype = {
-        remotelyCallable: ['breakGlass'],
+        remotelyCallable: ['breakGlass', 'deleteGlass'],
 
         preload: function(entityID) {
             _entityID = entityID;
@@ -58,6 +58,10 @@
                 });
             });
 
+            Entities.deleteEntity(_entityID);
+        },
+
+        deleteGlass: function() {
             Entities.deleteEntity(_entityID);
         }
     };
