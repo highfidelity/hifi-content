@@ -79,7 +79,7 @@ var CONFIG = {
                 TAB_NAME: STRING_BLENDSHAPES,
                 TITLE: STRING_BLENDSHAPES,
                 SUBTITLE: "Change avatar expressions.",
-                COMPONENT_NAME: "test1",
+                COMPONENT_NAME: "blendshapes-tab",
 
                 COMPONENT_DATA: {
                     LIST: ["smile", "default", "angry", "laugh"],
@@ -106,10 +106,49 @@ var CONFIG = {
                 TAB_NAME: STRING_FLOW,
                 TITLE: STRING_FLOW,
                 SUBTITLE: "Modify flow joints for chain.",
-                COMPONENT_NAME: "test1",
+                COMPONENT_NAME: "flow-tab",
 
                 COMPONENT_DATA: {
-
+                    HAIR_FLOW_OPTIONS: [ // "stiffness", "radius", "gravity", "damping"
+                        {   
+                            name: "stiffness",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        },
+                        {   
+                            name: "radius",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        },
+                        {   
+                            name: "gravity",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        },
+                        {   
+                            name: "damping",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        }
+                    ],
+                    JOINT_FLOW_OPTIONS: [
+                        {   
+                            name: "radius",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        },
+                        {   
+                            name: "offset",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        }
+                    ]
                 }
             }
         }
@@ -117,7 +156,7 @@ var CONFIG = {
 
     INITIAL_DYNAMIC_DATA: {
         state: {
-            isAviEnabled: false,
+            isAviEnabled: true,
             activeTabName: STRING_INFO
         },
         info: {},
@@ -131,9 +170,12 @@ var CONFIG = {
         },
         animation: {
 
-        }, 
+        },
         flow: {
-
+            enableCollisions: true,
+            showDebug: true,
+            hairFlowOptions: {},
+            jointFlowOptions: {}
         }
     }
 };

@@ -1,7 +1,5 @@
 (function () {
 
-    var EVENTBRIDGE_SETUP_DELAY = 200;
-
     // Consts
     var UPDATE_UI = CONFIG.UPDATE_UI,
         APP_NAME = CONFIG.APP_NAME;
@@ -25,9 +23,13 @@
         EVENT_RESTORE_SAVED_AVATAR = CONFIG.EVENT_RESTORE_SAVED_AVATAR,
 
         // Material tab events
-        EVENT_UPDATE_MATERIAL = APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL;
+        EVENT_UPDATE_MATERIAL = APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL,
+        EVENT_UPDATE_BLENDSHAPE = APP_NAME + CONFIG.EVENT_UPDATE_BLENDSHAPE,
+        EVENT_UPDATE_FLOW = APP_NAME + CONFIG.EVENT_UPDATE_FLOW;
 
-    // Debug 
+    var IMAGE_URL = "../images/red-kitten.jpg";
+
+    // Debug
 
     var DEBUG = true;
 
@@ -345,6 +347,11 @@
                     :defaultvalue="7"
                 ></slider>
 
+                <drop-down-images
+                    :items="dropDownList"
+                    :defaulttext="'Model type'"
+                ></drop-down-images>
+
             </div>
         `
     })
@@ -363,21 +370,21 @@
                 }));
 
             },
-            updateBlendshapeProperties(blendshapePropertiesObject) {
-                if (DEBUG) {
-                    console.log("updateBlendshapeProperties clicked");
-                }
-
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_UPDATE_BLENDSHAPE,
-                    updates: blendshapePropertiesObject
-                }));
-            }
+            onSliderChange(value, name) {
+                var sliderChange = createSliderChangeCallback(EVENT_UPDATE_BLENDSHAPE, this.dynamic.updatedProperties);
+                sliderChange(value, name);
+            },
         },
         computed: {
-            facialBlenshapeList() {
-                // var blendshapeList = this.static.COMPONENT_DATA.FACIAL_BLENDSHAPES;
-                // var currentProperties = this.dyanmic.blendshapes.updatedProperties;
+            facialBlendshapeList() {
+                var blendshapeList = this.static.COMPONENT_DATA.FACIAL_BLENDSHAPES;
+                var currentProperties = this.dynamic.updatedProperties;
+
+                return createSliderInfoFromLists(blendshapeList, currentProperties, getName);
+
+                function getName(name) {
+                    return name.replace(/_|-|\./g, '');
+                }
             }
         },
         template: /* html */ `
@@ -393,13 +400,151 @@
 
                 <h3>Facial Blendshapes</h3>
 
-                <slider 
-                    :name="'test1'"
-                    :max="10"
-                    :increment="0.1"
-                    :min="0"
-                    :defaultvalue="7"
-                ></slider>
+                <template v-for="blendshapeData in facialBlendshapeList">
+
+                    <p>{{ blendshapeData.title }}</p>
+
+                    <slider 
+                        :title="blendshapeData.title"
+                        :name="blendshapeData.name"
+                        :max="blendshapeData.max"
+                        :increment="blendshapeData.increment"
+                        :min="blendshapeData.min"
+                        :defaultvalue="blendshapeData.defaultValue"
+                        :onchange="onSliderChange"
+                    ></slider>
+
+                </template>
+
+            </div>
+        `
+    })
+
+
+    // Helper for formatting slider data using both the staticList and dynamicData
+    function createSliderInfoFromLists(staticList, dynamicData, nameFunction) {
+
+        return staticList.map(compileSliderInfo);
+
+        function compileSliderInfo(optionInfo) {
+
+            // Lists of strings or objects with the property name as a key
+            var name = optionInfo.name ? optionInfo.name : optionInfo;
+
+            var sliderInfo = {
+                name: nameFunction ? nameFunction(name) : name,
+                title: name,
+                min: optionInfo.min ? optionInfo.min : 0,
+                max: optionInfo.max ? optionInfo.max : 1,
+                increment: optionInfo.increment ? optionInfo.increment : 0.1,
+                defaultValue: dynamicData[name] ? dynamicData[name] : 0
+            }
+            return sliderInfo;
+        }
+    }
+
+    function createSliderChangeCallback(dynamicData, eventBridgeTypeString, eventBridgeSubtypeString) {
+
+        function sliderChangedCallback(value, name) {
+            if (dynamicData[name] !== value) {
+                var updates = {};
+                updates[name] = value;
+    
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: eventBridgeTypeString,
+                    subtype: eventBridgeSubtypeString ? eventBridgeSubtypeString : "",
+                    updates: updates
+                }));
+            }
+        }
+        return sliderChangedCallback;
+    }
+
+    Vue.component('flow-tab', {
+        props: ['dynamic', 'static'],
+        methods: {
+            debugToggle() {
+                console.log("toggle toggle");
+            },
+            onChangeHairFlowSlider(value, name) {
+                var sliderChange = createSliderChangeCallback(this.dynamic.hairFlowOptions, EVENT_UPDATE_FLOW, "hair");
+                sliderChange(value, name);
+            },
+            onChangeJointFlowSlider(value, name) {
+                var sliderChange = createSliderChangeCallback(this.dynamic.jointFlowOptions, EVENT_UPDATE_FLOW, "joints");
+                sliderChange(value, name);
+            }
+        },
+        computed: {
+
+            hairFlowOptionsList() {
+                var staticHairFlowList = this.static.COMPONENT_DATA.HAIR_FLOW_OPTIONS;
+                var currentProperties = this.dynamic.hairFlowOptions;
+
+                return createSliderInfoFromLists(staticHairFlowList, currentProperties);
+            },
+            jointFlowOptionsList() {
+                var staticJointFlowList = this.static.COMPONENT_DATA.JOINT_FLOW_OPTIONS;
+                var currentProperties = this.dynamic.jointFlowOptions;
+
+                function getName(name) {
+                    return name + "joints";
+                }
+
+                return createSliderInfoFromLists(staticJointFlowList, currentProperties, getName);
+            }
+
+        },
+        template: /* html */ `
+            <div>
+
+                <checkbox
+                    :onchange="debugToggle"
+                    :label="'Show Debug'"
+                    v-bind:defaultvalue="true"
+                ></checkbox>
+
+                <checkbox
+                    :onchange="debugToggle"
+                    :label="'Enable Collisions'"
+                    v-bind:defaultvalue="true"
+                ></checkbox>
+
+                <h3>Hair Flow Options</h3>
+
+                <template v-for="hairFlowOption in hairFlowOptionsList">
+
+                    <p>{{ hairFlowOption.title }}</p>
+
+                    <slider 
+                        :title="hairFlowOption.title"
+                        :name="hairFlowOption.name"
+                        :max="hairFlowOption.max"
+                        :increment="hairFlowOption.increment"
+                        :min="hairFlowOption.min"
+                        :defaultvalue="hairFlowOption.defaultValue"
+                        :onchange="onChangeHairFlowSlider"
+                    ></slider>
+
+                </template>
+
+                <h3>Avatar Head Joint Flow Options</h3>
+
+                <template v-for="jointFlowOption in jointFlowOptionsList">
+
+                    <p>{{ jointFlowOption.title }}</p>
+
+                    <slider 
+                        :title="jointFlowOption.title"
+                        :name="jointFlowOption.name"
+                        :max="jointFlowOption.max"
+                        :increment="jointFlowOption.increment"
+                        :min="jointFlowOption.min"
+                        :defaultvalue="jointFlowOption.defaultValue"
+                        :onchange="onChangeJointFlowSlider"
+                    ></slider>
+
+                </template>
 
             </div>
         `
@@ -516,7 +661,7 @@
     })
 
     Vue.component('slider', {
-        props: ['name', 'max', 'min', 'defaultvalue', 'increment'],
+        props: ['title', 'name', 'max', 'min', 'defaultvalue', 'increment', 'onchange'],
         computed: {
             sliderId() {
                 console.log("COMPUTED" + this.name);
@@ -528,14 +673,18 @@
         },
         mounted() {
 
-            console.log("MOUNTED" + this.sliderId + this.sliderValueId);
-
             var sliderId = "#" + this.sliderId;
             var sliderValueId = "#" + this.sliderValueId;
 
+            var onChange = this.onchange;
+            var title = this.title;
+
             $(sliderId).slider();
             $(sliderId).on("slide", function(slideEvent) {
+
                 $(sliderValueId).text(slideEvent.value);
+                onChange(slideEvent.value, title);
+
             });
 
         },
@@ -625,31 +774,84 @@
     })
 
     Vue.component('drop-down', {
-        props: ["items", "defaulttext"],
+        props: ["items", "defaulttext", "onselect"],
+        methods: {
+            onSelect(value) {
+                console.log("DropDown value:" + value);
+                this.selected = value;
+                // this.onselect(value);
+            }
+        },
+        data() {
+            return {
+                selected: this.items[0]
+            }
+        },
         template: /* html */ `
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{ defaulttext }}
+                    {{ selected }}
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in items">
-                        <a class="dropdown-item" href="#">{{ item }}</a> 
+                        <a class="dropdown-item" href="#" v-on:click="onSelect(item)">{{ item }}</a> 
                     </template>
                 </div>
             </div>
         `
     })
 
-    Vue.component('drop-down-simple', {
-        props: ["items", "defaulttext"],
+    Vue.component('drop-down-images', {
+        props: ["items", "defaulttext", "onselect"],
+        methods: {
+            onSelect(value) {
+                console.log("DropDown Image value:" + value);
+                this.selected = value;
+                // this.onselect(value);
+            }
+        },
+        data() {
+            return {
+                selected: this.items[0]
+            }
+        },
         template: /* html */ `
-            <div class="form-group">
-                <label for="sel1">{{ defaulttext }}</label>
-                <select class="form-control" id="sel1">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img src="http://lorempixel.com/75/50/abstract/">
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in items">
-                        <option>{{ item }}</option> 
+                        <a class="dropdown-item" href="#"><img src="http://lorempixel.com/75/50/abstract"/></a> 
                     </template>
-                </select>
+                </div>
+            </div>
+        `
+    })
+
+    Vue.component('checkbox', {
+        props: ['onchange', 'label', 'defaultvalue'],
+        computed: {
+            id() {
+                return this.label.replace(/ /g,'');
+            }
+        },
+        data () {
+            return {
+                val: this.defaultvalue
+            }
+        },
+        template: /* html */ `
+            <div class="form-check">
+                <input 
+                    v-model="val" 
+                    v-on:change="onchange()"
+                    v-bind:id="id" 
+
+                    type="checkbox" 
+                    class="form-check-input" 
+                >
+                <label class="form-check-label" v-bind:for="id">{{ label }}</label>
             </div>
         `
     })

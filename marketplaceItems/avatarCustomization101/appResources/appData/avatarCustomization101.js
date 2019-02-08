@@ -4,8 +4,8 @@
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456")),
-        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/presetData/blendshapes.js")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/presetData/materials.js")),
+        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/presetData/blendshapes.js?v12345")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/presetData/materials.js?v123")),
         AVATAR_FILE = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/marketplaceItems/avatarCustomization101/mannequinHairTest8.fst";
     // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
 
@@ -85,7 +85,6 @@
     // #endregion MIRROR FUNCTIONS
 
     // #region AVATAR FUNCTIONS
-
 
     var STRING_BOOKMARK_NAME = CONFIG.STRING_BOOKMARK_NAME;
 
@@ -381,15 +380,22 @@
 
             case EVENT_UPDATE_BLENDSHAPE:
 
-                // if data.name 
-                //     applyNamedBlendshape(data.name)
-                // else 
-                //     updateMaterial(data.updates)
+                if (data.name) {
+                    applyNamedBlendshapes(data.name);
+                } else {
+                    updateBlendshapes(data.updates);
+                }
 
                 break;
             case EVENT_UPDATE_FLOW:
 
-                // updateFlow(data.updates);
+                if (data.subtype === "hair") {
+                    print("FLOW: updating hair flow");
+                    // updateHairFlow();
+                } else if (data.subtype === "joints") {
+                    print("FLOW: updating joints flow");
+                    // updateJointsFlow();
+                }
 
                 break;
             case EVENT_UPDATE_ANIMATION:
