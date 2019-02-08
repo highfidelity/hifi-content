@@ -17,7 +17,7 @@
     var PLATE_COLLISION_HULL_URL = Script.resolvePath("plate-whole-hub.obj");
 
     var INTERVAL = 5000;
-    var DISTANCE = 0.5;
+    var DISTANCE = 0.3;
 
     var PLATE_DIMENSIONS = {x: 0.4040, y: 0.0303, z: 0.4040};
     var POSITION_Y_OFFSET = 0.1;
@@ -31,10 +31,12 @@
         var found = Entities.findEntities(position, DISTANCE);
         found.forEach(function(foundEntity) {
             var name = Entities.getEntityProperties(foundEntity, 'name').name;
+            console.log("name:", name);
             if (name === "Plate") {
                 count++;
             }
         });
+        console.log("count", count);
         if (count === 0) {
             Entities.addEntity(dishProperties);
         }

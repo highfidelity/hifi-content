@@ -11,20 +11,21 @@
 (function() {
   
     var PIECE_MODEL = Script.resolvePath('plate-piece.fbx');
-    var SHATTER_PLATE_PIECE_URL = Script.resolvePath("ShatterPlatePiece.js");
+    var SHATTER_PLATE_PIECE_URL = Script.resolvePath("ShatterPlatePiece.js?" + Date.now());
 
     var NUMBER_PIECES = 4;
     var pieces = Array();
     var _entityID;
 
     var LIFETIME_DEFAULT = 60;
+    var LIFETIME = 10;
 
     var Plate = function(){
     };
   
   
     Plate.prototype = {
-        remotelyCallable : ['breakPlate'],
+        remotelyCallable : ['breakPlate', 'makeFragile'],
 
         preload: function(entityID) {
             _entityID = entityID;
@@ -36,6 +37,7 @@
                     modelURL: PIECE_MODEL,
                     visible: false,
                     parentID: entityID,
+                    localPosition: [0, 0.2, 0],
                     collidesWith: "",
                     collisionMask: 0,
                     shapeType: "None",
@@ -53,13 +55,13 @@
                 Entities.editEntity(element, {
                     visible: true,
                     dynamic: true,
-                    position: position,
+                    position: Vec3.sum(position, [0, 0.2, 0]),
                     gravity: {x: 0, y: -5, z: 0},
                     dimensions: {x: 0.1865, y: 0.0303, z: 0.2149},
                     acceleration: {x: 1, y: -5, z: 2},
                     parentID: Uuid.NULL,
                     lifetime: 60,
-                    collidesWith: "static,dynamic,",
+                    collidesWith: "static,dynamic",
                     collisionMask: 3,
                     shapeType: "Box",
                     velocity: velocity,
@@ -69,6 +71,13 @@
             });
     
             Entities.deleteEntity(_entityID);
+        },
+
+        makeFragile: function() {
+            Entities.editEntity(_entityID, {
+                collidesWith: "static,dynamic",
+                lifetime: LIFETIME
+            });
         }
     };
   

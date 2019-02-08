@@ -11,11 +11,12 @@
 
 (function() {
     console.log("in shatter plate clinent");
-    var VELOCITY_TO_BREAK = 1.1;
+    var VELOCITY_TO_BREAK = 1.2;
     var breakURL = Script.resolvePath('sound/glass-break1.wav');
     var breakSound = SoundCache.getSound(breakURL);
     var volumeLevel = 0.65;
     var _entityID;
+    
     
     var Plate = function(){};
     var shouldBreak = function(velocity){
@@ -28,9 +29,8 @@
     };
 
     function makeFragile() {
-        Entities.editEntity(_entityID, {
-            collidesWith: "static,dynamic,kinematic,"
-        });
+        console.log("making fragile");
+        Entities.callEntityServerMethod(_entityID, 'makeFragile', '');
     }
   
     Plate.prototype = {
