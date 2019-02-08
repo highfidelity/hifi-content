@@ -84,16 +84,18 @@
         "y": 0.18,
         "z": 0.18
     };
-    var INTENSITY_ENTITY_COLOR_MIN = {
+    var intensityEntityColorMin = {
         "red": 82,
         "green": 196,
         "blue": 145
     };
-    var INTENSITY_ENTITY_COLOR_MAX = {
+    var INTENSITY_ENTITY_COLOR_MAX_DEFAULT = {
         "red": 5,
         "green": 255,
         "blue": 5
     };
+    var intensityEntityColorMax = JSON.parse(Settings.getValue("appreciate/entityColor",
+        JSON.stringify(INTENSITY_ENTITY_COLOR_MAX_DEFAULT)));
     var ANGVEL_ENTITY_MULTIPLY_FACTOR = 62;
     var INTENSITY_ENTITY_PROPERTIES = {
         "type": "Box",
@@ -132,7 +134,7 @@
             "scale": 0.3464101552963257
         },
         "damping": 0,
-        "color": INTENSITY_ENTITY_COLOR_MIN,
+        "color": intensityEntityColorMin,
         "clientOnly": false,
         "avatarEntity": true,
         "localEntity": false,
@@ -147,12 +149,16 @@
     function updateIntensityEntity() {
         if (currentIntensity > 0) {
             if (intensityEntity) {
+                intensityEntityColorMin.red = intensityEntityColorMax.red * 0.4;
+                intensityEntityColorMin.green = intensityEntityColorMax.green * 0.4;
+                intensityEntityColorMin.blue = intensityEntityColorMax.blue * 0.4;
+
                 Entities.editEntity(intensityEntity, {
                     position: halfwayBetweenHands(),
                     dimensions: Vec3.multiply(INTENSITY_ENTITY_MAX_DIMENSIONS, currentIntensity),
                     angularVelocity: Vec3.multiply(currentInitialAngularVelocity,
                         currentIntensity * ANGVEL_ENTITY_MULTIPLY_FACTOR),
-                    color: linearScaleColor(currentIntensity, INTENSITY_ENTITY_COLOR_MIN, INTENSITY_ENTITY_COLOR_MAX)
+                    color: linearScaleColor(currentIntensity, intensityEntityColorMin, intensityEntityColorMax)
                 });
             } else {
                 var props = INTENSITY_ENTITY_PROPERTIES;
@@ -742,7 +748,8 @@
                     method: "updateUI",
                     appreciateEnabled: appreciateEnabled,
                     neverWhistleEnabled: neverWhistleEnabled,
-                    isFirstRun: Settings.getValue("appreciate/firstRun", true)
+                    isFirstRun: Settings.getValue("appreciate/firstRun", true),
+                    entityColor: intensityEntityColorMax
                 });
                 break;
 
@@ -756,6 +763,11 @@
             case "neverWhistleCheckboxClicked":
                 neverWhistleEnabled = message.neverWhistle;
                 Settings.setValue("appreciate/neverWhistle", neverWhistleEnabled);
+                break;
+
+            case "setEntityColor":
+                intensityEntityColorMax = message.entityColor;
+                Settings.setValue("appreciate/entityColor", JSON.stringify(intensityEntityColorMax));
                 break;
 
             default:

@@ -22,6 +22,19 @@ function neverWhistleCheckboxClicked(checkbox) {
     }));
 }
 
+function setEntityColor(rgb) {
+    var newEntityColor = {
+        "red": rgb[0],
+        "green": rgb[1],
+        "blue": rgb[2]
+    };
+
+    EventBridge.emitWebEvent(JSON.stringify({
+        method: "setEntityColor",
+        entityColor: newEntityColor
+    }));
+}
+
 // Handle EventBridge messages from *_app.js.
 function onScriptEventReceived(message) {
     message = JSON.parse(message);
@@ -33,6 +46,8 @@ function onScriptEventReceived(message) {
             document.getElementById("appreciateSwitch").checked = message.appreciateEnabled;
             document.getElementById("neverWhistleCheckbox").checked = message.neverWhistleEnabled;
             document.getElementById("loadingContainer").style.display = "none";
+            document.getElementById("colorPicker").jscolor.fromRGB(
+                message.entityColor.red, message.entityColor.green, message.entityColor.blue);
             break;
 
         case "updateCurrentIntensityUI":

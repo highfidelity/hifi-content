@@ -14,6 +14,8 @@
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="css/style.css">
         <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+        <!--I modified jscolor to prevent it from printing the color code to the value of the input onchange. -->
+        <script type="text/javascript" src="js/jscolor.js"></script>
     </head>
 
     <body>
@@ -46,6 +48,12 @@
                 <input id="neverWhistleCheckbox" type="checkbox" onclick="neverWhistleCheckboxClicked(this)">
                 <span class="checkmark"></span>
             </label>
+
+            <div id="colorPickerContainer">
+                <input type="button" id="colorPicker" class="jscolor"
+                    onchange="setEntityColor(this.jscolor.rgb)" value="Choose Cube Color">
+                </input>
+            </div>
 
             <div id="instructions">
                 <div id="desktopModeInstructions">

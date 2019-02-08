@@ -191,6 +191,17 @@ input:checked + .slider:before {
   width: 0;
 }
 
+#colorPickerContainer {
+  margin: 36px 0 0 12px;
+}
+
+#colorPickerContainer > input {
+  font-family: 'Raleway', sans-serif;
+  height: 34px;
+  font-size: 18px;
+  min-width: 185px;
+}
+
 /* Create a custom checkbox */
 .checkmark {
   position: absolute;
@@ -236,7 +247,7 @@ input:checked + .slider:before {
 }
 
 #instructions {
-  margin: 120px 12px 0 12px;
+  margin: 100px 12px 0 12px;
   font-size: 18px;
 }
 
