@@ -1,7 +1,5 @@
 (function () {
 
-    var EVENTBRIDGE_SETUP_DELAY = 200;
-
     // Consts
     var UPDATE_UI = CONFIG.UPDATE_UI,
         APP_NAME = CONFIG.APP_NAME;
@@ -776,15 +774,27 @@
     })
 
     Vue.component('drop-down', {
-        props: ["items", "defaulttext"],
+        props: ["items", "defaulttext", "onselect"],
+        methods: {
+            onSelect(value) {
+                console.log("DropDown value:" + value);
+                this.selected = value;
+                // this.onselect(value);
+            }
+        },
+        data() {
+            return {
+                selected: this.items[0]
+            }
+        },
         template: /* html */ `
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{ defaulttext }}
+                    {{ selected }}
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in items">
-                        <a class="dropdown-item" href="#">{{ item }}</a> 
+                        <a class="dropdown-item" href="#" v-on:click="onSelect(item)">{{ item }}</a> 
                     </template>
                 </div>
             </div>
@@ -792,7 +802,19 @@
     })
 
     Vue.component('drop-down-images', {
-        props: ["items", "defaulttext"],
+        props: ["items", "defaulttext", "onselect"],
+        methods: {
+            onSelect(value) {
+                console.log("DropDown Image value:" + value);
+                this.selected = value;
+                // this.onselect(value);
+            }
+        },
+        data() {
+            return {
+                selected: this.items[0]
+            }
+        },
         template: /* html */ `
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
