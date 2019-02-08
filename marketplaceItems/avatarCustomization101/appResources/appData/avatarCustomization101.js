@@ -35,27 +35,51 @@
     var MIRROR_DISTANCE_M = 0.5;
     var MIRROR_DISTANCE_BLENDSHAPES_M = 0.3; // mirror is closer when looking at your face
 
-    var mirrorID;
+    var mirrorCubeID;
+    var mirrorZoneID;
 
     function spawnMirror() {
         // create mirrror parent to avatar
-        // set to default distance
-
-        // if tab is blendshapes setMirrorDistanceToBlendshapes()
+        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 0.5, z: -MIRROR_DISTANCE_M}));
+        mirrorCubeID = Entities.addEntity({
+            type: "Box",
+            name: "mirror",  
+            dimensions: {
+                "x": 0.6,
+                "y": 0.7,
+                "z": 0.001
+            },
+            position: position,
+            rotation: MyAvatar.orientation, // Quat.cancelOutRollAndPitch(Quat.lookAt(position, MyAvatar.position, Vec3.UNIT_Y)),
+            userData: "{\"grabbableKey\":{\"grabbable\":false}}",
+            collisionless: true,
+            script: Script.resolvePath("./resources/modules/mirrorClient.js")
+        },"domain");
     }
 
     function setMirrorDistanceToDefault() {
         // edit mirror properties to set mirror distance to MIRROR_DISTANCE_M
-
+        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 0.5, z: -MIRROR_DISTANCE_M}));
+        Entities.editEntity(mirrorCubeID, {
+            position: position
+        });
     }
 
     function setMirrorDistanceToBlendshapes() {
         // edit mirror properties to set mirror distance to MIRROR_DISTANCE_BLENDSHAPES_M
+        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 0.5, z: -MIRROR_DISTANCE_BLENDSHAPES_M}));
+        Entities.editEntity(mirrorCubeID, {
+            position: position
+        });
     }
 
     function deleteMirror() {
         // Delete mirror entity 
         // set mirrorID to null
+        Entities.deleteEntity(mirrorCubeID);
+        Entities.deleteEntity(mirrorZoneID);
+        mirrorCubeID = null;
+        mirrorZoneID = null;
     }
 
     // #endregion MIRROR FUNCTIONS
@@ -165,7 +189,7 @@
         close_EyeL: 0.2,
         close_eyeR: 0.2
         // etc.
-    }
+    };
 
     function updateBlendshapes(newBlendshapeDataToApply) {
         // Set blendshapes to avatar
@@ -223,7 +247,7 @@
     function onClosed() {
 
 
-        // deleteMirror
+        deleteMirror();
         // save lastTab that the user was on
         dynamicData.state.activeTabName = currentTab;
 
