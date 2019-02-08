@@ -365,7 +365,13 @@
                 break;
             case EVENT_UPDATE_FLOW:
 
-                // updateFlow(data.updates);
+                if (data.subtype === "hair") {
+                    print("FLOW: updating hair flow");
+                    // updateHairFlow();
+                } else if (data.subtype === "joints") {
+                    print("FLOW: updating joints flow");
+                    // updateJointsFlow();
+                }
 
                 break;
             case EVENT_UPDATE_ANIMATION:
