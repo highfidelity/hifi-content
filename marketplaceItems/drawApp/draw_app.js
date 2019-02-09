@@ -52,7 +52,6 @@
         if (marker) {
             return;
         }
-        // print("You have a marker!");
         var parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint);
         var localPosition = (dominantHandJoint === "RightHand") ? { x: -0.0011, y: 0.0458, z: 0.0195 } : 
             { x: -0.0011, y: 0.0458, z: 0.0195 };
@@ -63,7 +62,6 @@
         marker = Entities.addEntity({
             name: "Draw App Marker",
             type: "Model",
-            entityHostType: "avatar",
             description: "CC_BY Poly by Google",
             modelURL: Script.resolvePath("Assets/Models/sharpie.obj"),
             parentID: MyAvatar.sessionUUID,
@@ -71,10 +69,8 @@
             parentJointIndex: parentJointIndex,
             localPosition: localPosition,
             localRotation: localRotation,
-            localDimensions: { x: 0.0447, y: 0.0281, z: 0.1788 },
-            grab: "{\"grabbable\":false}"
-        });
-        // FIX THAT THIS IS STILL GRABBABLE!
+            localDimensions: { x: 0.0447, y: 0.0281, z: 0.1788 }
+        }, 'avatar');
     }
 
     /* REGISTER CONTROLLER MAPPING: Listen for controller trigger movements and act when the trigger is pressed or 
@@ -89,11 +85,11 @@
             if (dominantHand === "right" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
                 // console.log("Right trigger press mapped");
                 activeTriggerPress = true;
-                triggerPressedDraw();
+                triggerPressed();
             } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
                 // console.log("Right trigger release mapped");
                 activeTriggerPress = false;
-                triggerReleasedDraw();
+                triggerReleased();
             }
             return;
         });
@@ -101,11 +97,11 @@
             if (dominantHand === "right" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
                 // console.log("Right trigger press mapped");
                 activeTriggerPress = true;
-                triggerPressedErase();
+                gripPressed();
             } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
                 // console.log("Right trigger release mapped");
                 activeTriggerPress = false;
-                triggerReleasedErase();
+                gripReleased();
             }
             return;
         });
@@ -117,7 +113,7 @@
             } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
                 console.log("Left trigger release mapped");
                 activeTriggerPress = false;
-                triggerReleased;
+                triggerReleased();
             }
             return;
         });
@@ -147,32 +143,33 @@
     var MAX_LINE_POINTS = 100;
     var distanceCheckInterval = null;
     var polyLine = null;
+    var lineStartPosition;
+    var previousLinePoint;
+    var linePoints = [ {x: 0, y: 0, z: 0 } ];
+    var lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
+    var lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
     function triggerPressed() {
-        // print("TRIGGER PRESSED");
-        // if tablet open, return to prevent creating lines while user is in create mode or other apps
+        if (tablet.tabletShown) {
+            return;
+        }
         var markerProperties = Entities.getEntityProperties(marker, ['dimensions', 'position', 'rotation']);
         var halfMarkerLength = markerProperties.dimensions.z * HALF;
         var markerTipLocalOffset = { x: 0, y: 0, z: halfMarkerLength};
         var markerTipLocalPosition = Vec3.multiplyQbyV(markerProperties.rotation, markerTipLocalOffset);
         var markerTipWorldPosition = Vec3.sum(markerProperties.position, markerTipLocalPosition);
-        // print("halfMarkerLength: ", halfMarkerLength);
-        var lineStartPosition = markerTipWorldPosition;
-        var previousMarkerTipPosition = markerTipWorldPosition;
-        var linePoints = [ {x: 0, y: 0, z: 0 } ];
-        var lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
-        var lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
+        lineStartPosition = markerTipWorldPosition;
+        previousLinePoint = markerTipWorldPosition;
         distanceCheckInterval = Script.setInterval(function() {
             markerProperties = Entities.getEntityProperties(marker, ['dimensions', 'position']);
             markerTipWorldPosition = Vec3.sum(markerProperties.position, markerTipLocalPosition);
-            if (Vec3.distance(previousMarkerTipPosition, markerTipWorldPosition) > MINIMUM_MOVEMENT_TO_DRAW_M) {
+            if (Vec3.distance(previousLinePoint, markerTipWorldPosition) > MINIMUM_MOVEMENT_TO_DRAW_M) {
                 var displacementFromStart = Vec3.subtract(markerTipWorldPosition, lineStartPosition);
                 linePoints.push(displacementFromStart);
                 if (!polyLine) {
                     polyLine = Entities.addEntity({
                         type: "PolyLine",
-                        entityHostType: "avatar",
                         name: "Draw App Polyline",
-                        position: previousMarkerTipPosition,
+                        position: previousLinePoint,
                         linePoints: linePoints,
                         normals: lineNormals,
                         strokeWidths: lineStrokeWidths,
@@ -180,23 +177,20 @@
                         isUVModeStretch: true,
                         lifetime: DECAY_TIME_S,
                         collisionless: true
-                    });
+                    }, 'avatar');
                 } else {
                     var lineProperties = Entities.getEntityProperties(polyLine, ['linePoints', 'normals', 
                         'strokeWidths', 'age']);
                     var linePointsCount = lineProperties.linePoints.length;
-                    // print("ADDING ", JSON.stringify(displacementFromStart), " TO LINE");
                     if (linePointsCount > MAX_LINE_POINTS) {
-                        // print("TOO MANY LINE POINTS, STARTING NEW LINE!");
                         var lastPointDisplacement = lineProperties.linePoints[linePointsCount - 1];
                         linePoints = [ lastPointDisplacement, displacementFromStart ];
                         lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
                         lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
                         polyLine = Entities.addEntity({
                             type: "PolyLine",
-                            entityHostType: "avatar",
                             name: "Draw App Polyline",
-                            position: previousMarkerTipPosition,
+                            position: previousLinePoint,
                             linePoints: linePoints,
                             normals: lineNormals,
                             strokeWidths: lineStrokeWidths,
@@ -204,7 +198,7 @@
                             isUVModeStretch: true,
                             lifetime: DECAY_TIME_S,
                             collisionless: true
-                        });
+                        }, 'avatar');
                     } else {
                         lineProperties.linePoints.push(displacementFromStart);
                         lineProperties.normals.push(DEFAULT_NORMAL);
@@ -225,36 +219,158 @@
     /* ON TRIGGER RELEASE DRAW: Stop checking distance hand has moved and update current polyline lifetime to decay in 1 
     minute. */
     function triggerReleased() {
-        // print("TRIGGER RELEASED");
         if (distanceCheckInterval) {
             Script.clearInterval(distanceCheckInterval);
         }
         polyLine = null;
+        linePoints = [ {x: 0, y: 0, z: 0 } ];
+        lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
+        lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
     }
 
-    /* ON GRIP PRESS ERASE: */
+    /* ON GRIP PRESS ERASE: Set an interval that finds the nearest line within a maximum distance to marker tip and erases it */
+    var DELETE_AGAIN_MS = 100;
+    var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
+    var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
+    var deletingInterval;
     function gripPressed() {
-
+        if (tablet.tabletShown) {
+            return;
+        }
+        deletingInterval = Script.setInterval(function() {
+            var markerProperties = Entities.getEntityProperties(marker, ['dimensions', 'position', 'rotation']);
+            var halfMarkerLength = markerProperties.dimensions.z * HALF;
+            var markerTipLocalOffset = { x: 0, y: 0, z: halfMarkerLength};
+            var markerTipLocalPosition = Vec3.multiplyQbyV(markerProperties.rotation, markerTipLocalOffset);
+            var markerTipWorldPosition = Vec3.sum(markerProperties.position, markerTipLocalPosition);
+            var foundANearbyLine = false;
+            var lineToDelete;
+            Entities.findEntitiesByName("Draw App Polyline", markerTipWorldPosition, MAXIMUM_DISTANCE_TO_SEARCH_M)
+                .forEach(function(nearbyDrawAppLine) {
+                    var lineProperties = Entities.getEntityProperties(nearbyDrawAppLine, ['position', 'linePoints']);
+                    var lineBoundingBoxCenter = lineProperties.position;
+                    var numberLinePoints = lineProperties.linePoints.length;
+                    var shortestDistance = MAXIMUM_DISTANCE_TO_DELETE_M;
+                    for (var i = 0; i < numberLinePoints; i++) {
+                        var distanceFromMarkerTip = Vec3.distance(markerTipWorldPosition,
+                            Vec3.sum(lineBoundingBoxCenter, lineProperties.linePoints[i]));
+                        if (distanceFromMarkerTip <= shortestDistance ) {
+                            foundANearbyLine = true;
+                            lineToDelete = nearbyDrawAppLine;
+                            shortestDistance = distance;
+                        }
+                    }
+                });
+            if (foundANearbyLine) {
+                Entities.deleteEntity(lineToDelete);
+            }
+        }, DELETE_AGAIN_MS);
     }
    
 
-    /* ON GRIP RELEASE ERASE: */
+    /* ON GRIP RELEASE ERASE: Stop the interval that is searching for lines to delete */
     function gripReleased() {
+        if (deletingInterval) {
+            Script.clearInterval(deletingInterval);
+        }
     }
 
-    /* ON MOUSE PRESS: Store the initial point and begin checking distance cursor has moved on an interval. If cursor 
-    has moved more than minimum distance, draw a polyline entity with a lifetime of 1 minute and at default distance in 
-    front of avatar. Continue checking cursor distance. Every time cursor moves more than the minumum, update the 
-    polyline with another node. */
-    function mousePressed() {
-        print("MOUSE PRESSED");
-        // get cursor position
+    /* ON MOUSE PRESS: Store the initial point to start line. */
+    var previousLinePointDesktop;
+    var pickRay;
+    var desktopActionProgress = false;
+    var distance = 1.5;
+    function mousePressed(event) {
+        if (tablet.tabletShown) {
+            return;
+        }
+        if (event.button === "LEFT") {
+            pickRay = Camera.computePickRay(event.x, event.y);
+            desktopActionProgress= true;
+            lineStartPosition = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, distance));
+            previousLinePoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, distance));
+        } else if (event.button === "RIGHT") {
+            // erase
+        }
+        // get cursor position, translate to world position at camera depth and then move to 1m in front of 
+        // avatar (or maybe 1m in front of camera?)
+    }
+
+    /* ON MOUSE MOVE: Calculate the next line poi8nt and add it to the entity. If there are too many line points, 
+    begin a new line. */
+    function mouseContinueLine(event) {
+        if (tablet.tabletShown) {
+            return;
+        }
+        if (!desktopActionProgress) {
+            return;
+        }
+        if (event.isLeftButton) {
+            pickRay = Camera.computePickRay(event.x, event.y);
+            var currentLinePoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, distance));
+            if (Vec3.distance(previousLinePointDesktop, currentLinePoint) > MINIMUM_MOVEMENT_TO_DRAW_M) {
+                var displacementFromStart = Vec3.subtract(currentLinePoint, lineStartPosition);
+                linePoints.push(displacementFromStart);
+                if (!polyLine) {
+                    polyLine = Entities.addEntity({
+                        type: "PolyLine",
+                        name: "Draw App Polyline",
+                        position: lineStartPosition,
+                        linePoints: linePoints,
+                        normals: lineNormals,
+                        strokeWidths: lineStrokeWidths,
+                        color: { red: 255, green: 255, blue: 255 },
+                        isUVModeStretch: true,
+                        lifetime: DECAY_TIME_S,
+                        collisionless: true
+                    }, 'avatar');
+                } else {
+                    var lineProperties = Entities.getEntityProperties(polyLine, ['linePoints', 'normals', 
+                        'strokeWidths', 'age']);
+                    var linePointsCount = lineProperties.linePoints.length;
+                    if (linePointsCount > MAX_LINE_POINTS) {
+                        var lastPointDisplacement = lineProperties.linePoints[linePointsCount - 1];
+                        linePoints = [ lastPointDisplacement, displacementFromStart ];
+                        lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
+                        lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
+                        polyLine = Entities.addEntity({
+                            type: "PolyLine",
+                            name: "Draw App Polyline",
+                            position: previousLinePoint,
+                            linePoints: linePoints,
+                            normals: lineNormals,
+                            strokeWidths: lineStrokeWidths,
+                            color: { red: 255, green: 255, blue: 255 },
+                            isUVModeStretch: true,
+                            lifetime: DECAY_TIME_S,
+                            collisionless: true
+                        }, 'avatar');
+                    } else {
+                        lineProperties.linePoints.push(displacementFromStart);
+                        lineProperties.normals.push(DEFAULT_NORMAL);
+                        lineProperties.strokeWidths.push(DEFAULT_STROKE_WIDTH_M);
+                        Entities.editEntity(polyLine, {
+                            linePoints: lineProperties.linePoints,
+                            normals: lineProperties.normals,
+                            strokeWidths: lineProperties.strokeWidths,
+                            lifetime: lineProperties.age + DECAY_TIME_S
+                        });
+                    }
+                }
+            }
+        }
     }
 
     /* ON MOUSE RELEASE: Stop checking distance cursor has moved and update current polyline lifetime to decay in 1 
     minute. */
-    function mouseReleased() {
-        print("MOUSE RELEASED");
+    function mouseReleased(event) {
+        if (event.button === "LEFT") {
+            polyLine = null;
+            linePoints = [ {x: 0, y: 0, z: 0 } ];
+            lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
+            lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
+            desktopActionProgress= false;
+        }
     }
 
     // On clicking the app button on the toolbar or tablet, if we are oopening the app, play a sound and get the marker. 
@@ -264,7 +380,6 @@
     var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('Assets/Sounds/open.wav'));
     var CLOSE_SOUND_VOLUME = 0.5;
     function onClicked() {
-        // print("CLICKED");
         if (marker) {
             button.editProperties({ isActive: false });
             if (HMD.active) {
@@ -272,7 +387,6 @@
             } else {
                 closeDesktopMode();
             }
-            // print("You do not have a marker!");
             Entities.deleteEntity(marker);
             marker = null;
             playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true);
@@ -302,19 +416,16 @@
 
     /* CLEANUP: Remove marker, search for any unreferenced markers to clean up */
     function cleanUp() {
-        print("cleanup");
         if (controllerMapping) {
             controllerMapping.disable();
         }
         if (marker) {
-            print("deleting");
             Entities.deleteEntity(marker);
             marker = null;
         }
         button.editProperties({ isActive: false });
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
             var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
-            print("AVATAR HAS WEARABLE: ", name);
             if (name === "Draw App Marker") {
                 Entities.deleteEntity(avatarEntity);
             }
@@ -342,6 +453,7 @@
     /* SET UP DESKTOP MODE: Listen for mouse presses */
     function setUpDesktopMode() {
         Controller.mousePressEvent.connect(mousePressed);
+        Controller.mouseMoveEvent.connect(mouseContinueLine);
         Controller.mouseReleaseEvent.connect(mouseReleased);
     }
 
@@ -356,6 +468,7 @@
     function closeDesktopMode() {
         try {
             Controller.mousePressEvent.disconnect(mousePressed);
+            Controller.mouseMoveEvent.disconnect(mouseContinueLine);
             Controller.mouseReleaseEvent.disconnect(mouseReleased);
         } catch (err) {
             print("Could not disconnect mouse events");
@@ -364,14 +477,12 @@
 
     /* WHEN USER DOMAIN CHANGES: Close app to remove marker in hand when leaving the domain */
     function domainChanged() {
-        print("domain changed");
         cleanUp();
     }
 
     /* WHEN USER CHANGES DOMINANT HAND: Switch default hand to place marker in */
     var WAIT_TO_REOPEN_APP_MS = 500;
     function handChanged() {
-        // print("hand changed");
         dominantHand = MyAvatar.getDominantHand();
         dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
         if (marker) {
