@@ -345,7 +345,7 @@
     var MINIMUM_PITCH = 0.85;
     var MAXIMUM_PITCH = 1.15;
     function playSound(sound) {
-        if (soundInjector && soundInjector.isPlaying() && currentSound === "whistle") {
+        if (soundInjector && soundInjector.isPlaying() && (currentSound === "whistle" || HMD.active)) {
             return;
         }
 
@@ -395,7 +395,7 @@
     var ANGULAR_VELOCITY_LENGTH_WEIGHT = 0.3; // This and the line below must add up to 1.0
     var vrDebounceTimer = false;
     var VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS = 20; // determined empirically
-    var VR_DEBOUNCE_TIMER_TIMEOUT_MAX_MS = 400; // determined empirically
+    var VR_DEBOUNCE_TIMER_TIMEOUT_MAX_MS = 200; // determined empirically
     function calculateHandEffect(linearVelocity, angularVelocity){
         var leftHandLinearVelocityCMPerSec = linearVelocity.left;
         var rightHandLinearVelocityCMPerSec = linearVelocity.right;
