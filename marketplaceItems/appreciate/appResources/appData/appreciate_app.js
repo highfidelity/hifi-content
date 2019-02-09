@@ -69,20 +69,21 @@
     }
 
     var intensityEntity = false;
+    var intensityMaterialEntity = false;
     var INTENSITY_ENTITY_MAX_DIMENSIONS = {
-        "x": 0.16,
-        "y": 0.16,
-        "z": 0.16
+        "x": 0.24,
+        "y": 0.24,
+        "z": 0.24
     };
     var INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY = {
-        "x": -0.18,
-        "y": -0.18,
-        "z": -0.18
+        "x": -0.21,
+        "y": -0.21,
+        "z": -0.21
     };
     var INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY = {
-        "x": 0.18,
-        "y": 0.18,
-        "z": 0.18
+        "x": 0.21,
+        "y": 0.21,
+        "z": 0.21
     };
     var intensityEntityColorMin = {
         "red": 82,
@@ -98,7 +99,8 @@
         JSON.stringify(INTENSITY_ENTITY_COLOR_MAX_DEFAULT)));
     var ANGVEL_ENTITY_MULTIPLY_FACTOR = 62;
     var INTENSITY_ENTITY_PROPERTIES = {
-        "type": "Box",
+        "type": "Shape",
+        "shape": "Dodecahedron",
         "dimensions": {
             "x": 0,
             "y": 0,
@@ -141,6 +143,11 @@
         "faceCamera": false,
         "isFacingAvatar": false
     };
+    var INTENSITY_MATERIAL_ENTITY_PROPS = {
+        "name": "Intensity Entity Material",
+        "type": "Material",
+        "materialURL": "materialData"
+    };
     var currentInitialAngularVelocity = {
         "x": 0,
         "y": 0,
@@ -153,12 +160,28 @@
                 intensityEntityColorMin.green = intensityEntityColorMax.green * 0.4;
                 intensityEntityColorMin.blue = intensityEntityColorMax.blue * 0.4;
 
+                var color = linearScaleColor(currentIntensity, intensityEntityColorMin, intensityEntityColorMax);
+
+                if (intensityMaterialEntity) {
+                    Entities.editEntity(intensityMaterialEntity, {
+                        materialData: JSON.stringify({"materialVersion": 1,
+                            "materials": [
+                                {
+                                    "roughness": 0.0,
+                                    "metallic": 0.4,
+                                    "albedo": [color.red/255, color.green/255, color.blue/255],
+                                }
+                            ]
+                        })
+                    });
+                }
+
                 Entities.editEntity(intensityEntity, {
                     position: halfwayBetweenHands(),
                     dimensions: Vec3.multiply(INTENSITY_ENTITY_MAX_DIMENSIONS, currentIntensity),
                     angularVelocity: Vec3.multiply(currentInitialAngularVelocity,
                         currentIntensity * ANGVEL_ENTITY_MULTIPLY_FACTOR),
-                    color: linearScaleColor(currentIntensity, intensityEntityColorMin, intensityEntityColorMax)
+                    color: color
                 });
             } else {
                 var props = INTENSITY_ENTITY_PROPERTIES;
@@ -175,12 +198,20 @@
                     INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.z) + INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.z;
                 props.angularVelocity = currentInitialAngularVelocity;
 
-                intensityEntity = Entities.addEntity(props);
+                intensityEntity = Entities.addEntity(props, "avatar");
+                
+                var materialProps = INTENSITY_MATERIAL_ENTITY_PROPS;
+                materialProps.parentID = intensityEntity;
+                intensityMaterialEntity = Entities.addEntity(materialProps, "avatar");
             }
         } else {
             if (intensityEntity) {
                 Entities.deleteEntity(intensityEntity);
                 intensityEntity = false;
+            }
+            if (intensityMaterialEntity) {
+                Entities.deleteEntity(intensityMaterialEntity);
+                intensityMaterialEntity = false;
             }
             
             maybeClearUpdateIntensityEntityInterval();
@@ -311,6 +342,8 @@
     }
 
     var soundInjector = false;
+    var MINIMUM_PITCH = 0.85;
+    var MAXIMUM_PITCH = 1.15;
     function playSound(sound) {
         if (soundInjector && soundInjector.isPlaying() && currentSound === "whistle") {
             return;
@@ -323,7 +356,8 @@
 
         soundInjector = Audio.playSound(sound, {
             position: halfwayBetweenHands(),
-            volume: calculateInjectorVolume()
+            volume: calculateInjectorVolume(),
+            pitch: Math.random() * (MAXIMUM_PITCH - MINIMUM_PITCH) + MINIMUM_PITCH
         });
     }
 
@@ -798,6 +832,10 @@
             keyEventsWired = false;
         }
 
+        if (intensityMaterialEntity) {
+            Entities.deleteEntity(intensityMaterialEntity);
+            intensityMaterialEntity = false;
+        }
         if (intensityEntity) {
             Entities.deleteEntity(intensityEntity);
             intensityEntity = false;
