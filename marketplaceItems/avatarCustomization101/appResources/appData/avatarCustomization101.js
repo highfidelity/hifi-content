@@ -318,7 +318,26 @@
                 mixValue(lastEmotionUsed[blendshape], emotion[blendshape], changingEmotionPercentage));
         }
     });
+    // ending
+    if (emotion !== DEFAULT || isChangingEmotion) {
+        isChangingEmotion = false;
+        for (var blendshape in DEFAULT) {
+            MyAvatar.setBlendshape(blendshape, DEFAULT[blendshape]);
+        }
+        MyAvatar.hasScriptedBlendshapes = false;
+    }
 
+    function setEmotion(currentEmotion) {
+        if (emotion !== lastEmotionUsed) {
+            lastEmotionUsed = emotion;
+        }
+        if (currentEmotion !== lastEmotionUsed) {
+            changingEmotionPercentage = 0.0;
+            emotion = currentEmotion;
+            isChangingEmotion = true;
+            MyAvatar.hasScriptedBlendshapes = true;
+        }
+    }
     function updateBlendshapes(newBlendshapeDataToApply) {
         // Set blendshapes to avatar
         // Reference facialExpressions.js
