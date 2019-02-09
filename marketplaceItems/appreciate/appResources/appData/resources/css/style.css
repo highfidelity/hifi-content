@@ -148,23 +148,27 @@ input:checked + .slider:before {
   width: 100%;
   height: 175px;
   margin-top: 8px;
+  background: #FFFFFF;
+  background-image: linear-gradient(to right, #EEE 0, #EEE 55%, #FFF 55%, #FFF 100%);
 }
 
-#currentIntensityDisplay[value] {
-  -webkit-appearance: none;
-  appearance: none;
+#crosshatch {
+  display: none;
+  float: right;
+  position: relative;
+  top: -175px;
+  height: 175px;
+  width: 45%;
+  background: repeating-linear-gradient(45deg, transparent 0px, transparent 4px, rgba(0, 0, 0, 0.1) 4px, rgba(0, 0, 0, 0.1) 8px);
 }
 
-#currentIntensityDisplay[value]::-webkit-progress-bar {
-  background-color: #eee;
-  border-radius: 2px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
-}
-
-#currentIntensityDisplay[value]::-webkit-progress-value {
-  background-image: -webkit-linear-gradient(left, #1ac567, #C62147);
-  background-size: calc(100vw - 24px) 175px, 100% 100%, 100% 100%;
-  border-radius: 2px;
+#currentIntensity {
+  display: block;
+  height: 100%;
+  background-color: #1ac567;
+  background-image: linear-gradient(to right,#1ac567 0, #C62147 100%);
+  position: relative;
+  overflow: hidden;
 }
 /* END PROGRESS BAR CSS */
 

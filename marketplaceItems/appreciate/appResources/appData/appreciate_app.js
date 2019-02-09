@@ -168,7 +168,6 @@
                             "materials": [
                                 {
                                     "roughness": 0.0,
-                                    "metallic": 0.4,
                                     "albedo": [color.red/255, color.green/255, color.blue/255],
                                 }
                             ]
