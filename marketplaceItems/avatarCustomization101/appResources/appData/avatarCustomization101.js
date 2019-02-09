@@ -182,14 +182,142 @@
     // #endregion MATERIAL
 
     // #region BLENDSHAPES
-
+    var TRANSITION_TIME_SECONDS = 0.25;
     var STRING_SMILE = "smile";
     var STRING_ANGRY = "angry";
-    var BLENDSHAPES_SMILE = {
-        close_EyeL: 0.2,
-        close_eyeR: 0.2
-        // etc.
+    var STRING_DEFAULT = "default";
+    var STRING_LAUGH = "laugh";
+    var BLENDSHAPES_DEFAULT = {
+        "EyeOpen_L": 0.00,
+        "EyeOpen_R": 0.00,
+        "EyeBlink_L": 0.00,
+        "EyeBlink_R": 0.00,
+        "EyeSquint_L": 0.00,
+        "EyeSquint_R": 0.00,
+        "BrowsD_L": 0.00,
+        "BrowsD_R": 0.00,
+        "BrowsU_L": 0.00,
+        "BrowsU_C": 0.00,
+        "JawOpen": 0.00,
+        "JawFwd": 0.00,
+        "MouthFrown_L": 0.00,
+        "MouthFrown_R": 0.00,
+        "MouthSmile_L": 0.00,
+        "MouthSmile_R": 0.00,
+        "MouthDimple_L": 0.00,
+        "MouthDimple_R": 0.00,
+        "LipsUpperClose": 0.00,
+        "LipsLowerClose": 0.00,
+        "LipsLowerOpen": 0.00,
+        "ChinUpperRaise": 0.00,
+        "Sneer": 0.00,
+        "Puff": 0.00
     };
+    var BLENDSHAPES_SMILE = {
+        "EyeOpen_L": 0.20,
+        "EyeOpen_R": 0.20,
+        "EyeBlink_L": 0.30,
+        "EyeBlink_R": 0.30,
+        "EyeSquint_L": 0.90,
+        "EyeSquint_R": 0.90,
+        "BrowsD_L": 1.00,
+        "BrowsD_R": 1.00,
+        "BrowsU_L": 0.00,
+        "BrowsU_C": 0.00,
+        "JawOpen": 0.00,
+        "JawFwd": 0.00,
+        "MouthFrown_L": 0.00,
+        "MouthFrown_R": 0.00,
+        "MouthSmile_L": 1.00,
+        "MouthSmile_R": 1.00,
+        "MouthDimple_L": 1.00,
+        "MouthDimple_R": 1.00,
+        "LipsUpperClose": 0.40,
+        "LipsLowerClose": 0.30,
+        "LipsLowerOpen": 0.25,
+        "ChinUpperRaise": 0.35,
+        "Sneer": 0.00,
+        "Puff": 0.00
+    };
+    var BLENDSHAPES_LAUGH = {
+        "EyeOpen_L": 0.00,
+        "EyeOpen_R": 0.00,
+        "EyeBlink_L": 0.45,
+        "EyeBlink_R": 0.45,
+        "EyeSquint_L": 0.75,
+        "EyeSquint_R": 0.75,
+        "BrowsD_L": 0.00,
+        "BrowsD_R": 0.00,
+        "BrowsU_L": 0.00,
+        "BrowsU_C": 0.50,
+        "JawOpen": 0.50,
+        "JawFwd": 0.00,
+        "MouthFrown_L": 0.00,
+        "MouthFrown_R": 0.00,
+        "MouthSmile_L": 1.00,
+        "MouthSmile_R": 1.00,
+        "MouthDimple_L": 1.00,
+        "MouthDimple_R": 1.00,
+        "LipsUpperClose": 0.00,
+        "LipsLowerClose": 0.00,
+        "LipsLowerOpen": 0.00,
+        "ChinUpperRaise": 0.30,
+        "Sneer": 1.00,
+        "Puff": 0.30
+    };
+    var BLENDSHAPES_ANGRY = {
+        "EyeOpen_L": 1.00,
+        "EyeOpen_R": 1.00,
+        "EyeBlink_L": 0.00,
+        "EyeBlink_R": 0.00,
+        "EyeSquint_L": 1.00,
+        "EyeSquint_R": 1.00,
+        "BrowsD_L": 1.00,
+        "BrowsD_R": 1.00,
+        "BrowsU_L": 0.00,
+        "BrowsU_C": 0.00,
+        "JawOpen": 0.00,
+        "JawFwd": 0.00,
+        "MouthFrown_L": 0.50,
+        "MouthFrown_R": 0.50,
+        "MouthSmile_L": 0.00,
+        "MouthSmile_R": 0.00,
+        "MouthDimple_L": 0.00,
+        "MouthDimple_R": 0.00,
+        "LipsUpperClose": 0.50,
+        "LipsLowerClose": 0.50,
+        "LipsLowerOpen": 0.00,
+        "ChinUpperRaise": 0.00,
+        "Sneer": 0.50,
+        "Puff": 0.00
+    };
+
+    function mixValue(valueA, valueB, percentage) {
+        return valueA + ((valueB - valueA) * percentage);
+    }
+
+    var lastEmotionUsed = BLENDSHAPES_DEFAULT;
+    var emotion = BLENDSHAPES_DEFAULT;
+    var isChangingEmotion = false;
+    var changingEmotionPercentage = 0.0;
+
+    Script.update.connect(function(deltaTime) {
+        if (!isChangingEmotion) {
+            return;
+        }
+        changingEmotionPercentage += deltaTime / TRANSITION_TIME_SECONDS;
+        if (changingEmotionPercentage >= 1.0) {
+            changingEmotionPercentage = 1.0;
+            isChangingEmotion = false;
+            if (emotion === BLENDSHAPES_DEFAULT) {
+                MyAvatar.hasScriptedBlendshapes = false;
+            }
+        }
+        for (var blendshape in emotion) {
+            MyAvatar.setBlendshape(blendshape,
+                mixValue(lastEmotionUsed[blendshape], emotion[blendshape], changingEmotionPercentage));
+        }
+    });
 
     function updateBlendshapes(newBlendshapeDataToApply) {
         // Set blendshapes to avatar
@@ -200,6 +328,20 @@
     function applyNamedBlendshapes(materialName) {
         // switch statement that matches the blendshape name
         //      "smile" -> updateBlendshapes(BLEND_SMILE);
+        switch (materialName){
+            case STRING_DEFAULT:
+                updateBlendshapes(BLENDSHAPES_DEFAULT);
+                break;
+            case STRING_SMILE:
+                updateBlendshapes(BLENDSHAPES_SMILE);
+                break;
+            case STRING_LAUGH:
+                updateBlendshapes(BLENDSHAPES_LAUGH);
+                break;
+            case STRING_ANGRY:
+                updateBlendshapes(BLENDSHAPES_ANGRY);
+                break;
+        }
     }
 
     // #endregion BLENDSHAPES
@@ -357,7 +499,6 @@
                     default:
                         break;
                 }
-
                 break;
 
             case EVENT_CHANGE_TAB:
