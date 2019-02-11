@@ -11,8 +11,8 @@
 (function() {
   
     var PIECE_MODEL = Script.resolvePath('plate-piece.fbx');
-    var SHATTER_PLATE_PIECE_URL = Script.resolvePath("ShatterPlatePiece.js?" + Date.now());
-    var SHATTER_PLATE_PIECE_SERVER_URL = Script.resolvePath("ShatterPlatePieceServer.js?" + Date.now());
+    var SHATTER_PLATE_PIECE_URL = Script.resolvePath("ShatterPlatePiece.js");
+    var SHATTER_PLATE_PIECE_SERVER_URL = Script.resolvePath("ShatterPlatePieceServer.js");
 
     var NUMBER_PIECES = 4;
     var pieces = Array();

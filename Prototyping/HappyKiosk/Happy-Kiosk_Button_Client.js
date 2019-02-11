@@ -13,7 +13,6 @@
 /* global Pointers */
 
 (function () {
-    console.log("test")
     // Helper Functions
     var Util = Script.require("../../Utilities/Helper.js?");
 
@@ -54,7 +53,6 @@
         clickDownOnEntity: function(entityID, mouseEvent) {
             log(LOG_ENTER, "MOUSE PRESS ON ENTITY");
             if (mouseEvent.isRightButton) {
-                log("returning from right click")
                 return;
             }
             log(LOG_ENTER, "kioskZoneID", kioskZoneID);
@@ -70,7 +68,6 @@
                 log("returning from right click")
                 return;
             }
-            log(LOG_ENTER, "kioskZoneID", kioskZoneID);
             Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID, name]);
         },
         unload: function () {

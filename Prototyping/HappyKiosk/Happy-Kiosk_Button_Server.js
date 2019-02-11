@@ -109,9 +109,8 @@
         ],
         preload: function (id) {
             entityID = id;
-            currentProperties = Entities.getEntityProperties(entityID, ["name", "position", "parentID", "userData", "originalTextures"]);
+            currentProperties = Entities.getEntityProperties(entityID, ["name", "parentID", "userData", "originalTextures"]);
             name = currentProperties.name;
-            localPosition = currentProperties.position;
             kioskZoneID = currentProperties.parentID;
             userData = currentProperties.userData;
             try {
@@ -133,6 +132,7 @@
             Entities.editEntity(entityID, {
                 localPosition: Vec3.sum(localPosition, [0, -BUTTON_PRESS_OFFSET, 0])
             });
+            
             Entities.editEntity(materialEntity, {
                 materialData: materialDataMaker("on")
             });
