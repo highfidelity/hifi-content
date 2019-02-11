@@ -7,7 +7,7 @@
             "name": "tip jar box",
             "created": "2019-01-24T23:07:10Z",
             "lastEdited": 1548371317412615,
-            "lastEditedBy": "{87f478e8-fcfa-4609-b339-5d13e074e377}",
+            "userData": "{\"destinationName\":\"this is who the money will go to\",\"hfcAmount\":1,\"message\":\"This is the message your guests will see and send to you\"}",
             "dimensions": {
                 "x": 0.67060835361480713,
                 "y": 0.7698657631874084,
@@ -19,20 +19,13 @@
                 "z": -0.0000152587890625,
                 "w": 1
             },
-            "alpha": 0,
-            "visible": true,
-            "damping": 0,
-            "angularDamping": 0,
-            "shapeType": "simple-hull",
+            "lastEditedBy": "{87f478e8-fcfa-4609-b339-5d13e074e377}",
             "queryAACube": {
                 "x": -0.438723087310791,
                 "y": -0.438723087310791,
                 "z": -0.438723087310791,
                 "scale": 0.877446174621582
             },
-            "script": "../entityClientScripts/tipJar_client.js",
-            "userData": "{\"destinationName\":\"this is who the money will go to\",\"hfcAmount\":1,\"message\":\"This is the message your guests will see and send to you\"}",
-            "description": "Welcome to the TipJar!\n\n Just drop this in your domain if you have edit rights\nIn the userData, put in the destination username the money is going to\nThe amount you would like to tip(it will get rounded to the nearest integer\nAnd finally put in a message you would like them to see",
             "grab": {
                 "grabbable": false,
                 "triggerable": true,
@@ -48,7 +41,16 @@
                     "z": -0.0000152587890625,
                     "w": 1
                 }
-            }
+            },
+            "damping": 0,
+            "angularDamping": 0,
+            "script": "../entityClientScripts/tipJar_client.js",
+            "alpha": 0,
+            "clientOnly": false,
+            "avatarEntity": false,
+            "localEntity": false,
+            "faceCamera": false,
+            "isFacingAvatar": false
         }
     ],
     "Id": "{3e2b3315-c1ba-4c69-b222-4030046d92e6}",

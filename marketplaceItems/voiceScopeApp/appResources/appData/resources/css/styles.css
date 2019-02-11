@@ -7,6 +7,14 @@ body {
     color: white;
     background-image: url("../images/background.png");
     background-size: cover;
+    text-shadow: 2px 2px 2px #000000;
+}
+
+#blue {
+    font-size: 20px;
+    color: rgba(0,255,255,1);
+    font-weight: bold;
+    text-shadow: 2px 2px 2px #000000;
 }
 
 #info {
@@ -21,18 +29,17 @@ body {
     margin:0;
     padding:0;
     /*transition*/
-    -webkit-transition:.25s ease-in-out;
-    -moz-transition:.25s ease-in-out;
     -o-transition:.25s ease-in-out;
     transition:.25s ease-in-out;
+    text-shadow: 2px 2px 2px #000000;
     outline:none;
     font-family:Helvetica Neue,helvetica,arial,verdana,sans-serif;
     }
     
     #toggles{
     width:60px;
-    margin:50px auto;
-    text-align:center;
+    margin:20px auto;
+    text-align:left;
     }
     .ios-toggle,.ios-toggle:active{
     position:absolute;
@@ -53,8 +60,6 @@ body {
     width:100%;
     height:36px;
     /*border-radius*/
-    -webkit-border-radius:18px;
-    -moz-border-radius:18px;
     border-radius:18px;
     background:#f8f8f8;
     cursor:pointer;
@@ -69,16 +74,12 @@ body {
     height:36px;
     width:36px;
     /*border-radius*/
-    -webkit-border-radius:100%;
-    -moz-border-radius:100%;
     border-radius:100%;
     top:0px;
     left:0px;
     right:auto;
     background:white;
     /*box-shadow*/
-    -webkit-box-shadow:0 3px 3px rgba(0,0,0,.2),0 0 0 2px #dddddd;
-    -moz-box-shadow:0 3px 3px rgba(0,0,0,.2),0 0 0 2px #dddddd;
     box-shadow:0 3px 3px rgba(0,0,0,.2),0 0 0 2px #dddddd;
     }
     .checkbox-label:after{
@@ -98,15 +99,11 @@ body {
     .ios-toggle:checked + .checkbox-label{
     font-size: 32px;
     /*box-shadow*/
-    -webkit-box-shadow:inset 0 0 0 20px rgb(200, 255, 255),0 0 0 2px rgba(0,255,255,1);
-    -moz-box-shadow:inset 0 0 0 20px  rgb(200, 255, 255),0 0 0 2px rgba(0,255,255,1);
     box-shadow:inset 0 0 0 20px  rgb(200, 255, 255),0 0 0 2px rgba(0,255,255,1);
     }
     .ios-toggle:checked + .checkbox-label:before{
     left:calc(100% - 36px);
     /*box-shadow*/
-    -webkit-box-shadow:0 0 0 2px transparent,0 3px 3px rgba(0,0,0,.3);
-    -moz-box-shadow:0 0 0 2px transparent,0 3px 3px rgba(0,0,0,.3);
     box-shadow:0 0 0 2px transparent,0 3px 3px rgba(0,0,0,.3);
     }
     .ios-toggle:checked + .checkbox-label:after{
@@ -118,14 +115,10 @@ body {
     
     #checkbox1 + .checkbox-label{
     /*box-shadow*/
-    -webkit-box-shadow:inset 0 0 0 0px rgba(0,255,255,1),0 0 0 2px #dddddd;
-    -moz-box-shadow:inset 0 0 0 0px rgba(0,255,255,1),0 0 0 2px #dddddd;
     box-shadow:inset 0 0 0 0px rgba(0,255,255,1),0 0 0 2px #dddddd;
     }
     #checkbox1:checked + .checkbox-label{
     /*box-shadow*/
-    -webkit-box-shadow:inset 0 0 0 18px  rgb(0, 255, 255),0 0 0 2px rgba(0,255,255,1);
-    -moz-box-shadow:inset 0 0 0 18px  rgb(0, 255, 255),0 0 0 2px rgba(0,255,255,1);
     box-shadow:inset 0 0 0 18px  rgb(0, 255, 255),0 0 0 2px rgba(0,255,255,1);
     }
     #checkbox1:checked + .checkbox-label:after{
@@ -133,4 +126,44 @@ body {
     font-size: 32px
     }
 
-    
+    #checkbox2 + .checkbox-label{
+    /*box-shadow*/
+    box-shadow:inset 0 0 0 0px rgba(0,255,255,1),0 0 0 2px #dddddd;
+    }
+    #checkbox2:checked + .checkbox-label{
+    /*box-shadow*/
+    box-shadow:inset 0 0 0 18px  rgb(0, 255, 255),0 0 0 2px rgba(0,255,255,1);
+    }
+    #checkbox2:checked + .checkbox-label:after{
+    color:rgba(0,255,255,1);
+    font-size: 32px
+    }
+
+    .slidecontainer {
+        width: 75%; /* Width of the outside container */
+      }
+      
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgb(0, 255, 255);
+        cursor: pointer;
+        box-shadow:2px 2px 2px #000000;
+      }
+
+      .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 25px;
+        background: #313131;
+        border-radius: 25px;
+        margin: 12.5%;
+        outline: none;
+        opacity: 1;
+      }
+
+      

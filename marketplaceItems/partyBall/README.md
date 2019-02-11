@@ -48,9 +48,14 @@ We'll be covering how we made this entity while taking some asides to cover rele
 - Lowered max particles to 2500
 - Material is created within the entity and is dynamic
 
+[fix/partyBallCertified 10a0733] :: 2019-01-25_14-35-00
+- MP Release V2
+- Fixed entities not being deleted if a new ball is rezzed
+
 # Links
 https://trello.com/c/qluC0kn8/13-party-ball
 
 # Known Issues
 - Sometimes the Avatar doesn't show up (fixed)
 - Sometimes music doesn't play (fixed)
+- Multiple balls being spawned can get a little crazy (explording fixing using messaging channels to see if any are around)

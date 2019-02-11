@@ -32,10 +32,14 @@ You can either select in Desktop by clicking, or in HMD by triggering with eithe
 - Switched to using Vue
 - Fixed Right mouse button issue
 
-2019-01-14_15-00-54 [soloPoint b93649b]
+2019-01-14_15-00-54 :: [soloPoint b93649b]
 - Marketplace V1
 - Fixed speaker facing avatar
 - Fixed Error from popping up when opened
+
+2019-02-05_16-50-55 :: [fix_audioFocus 4f3160e]
+- Marketplace V2
+- This just fixed the breaking Vue version change 
 
 ## How this app was made
 
