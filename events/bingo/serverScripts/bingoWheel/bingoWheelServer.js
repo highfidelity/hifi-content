@@ -25,7 +25,7 @@
     var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
     var DRUMROLL_SOUND = SoundCache.getSound(Script.resolvePath("sounds/drumroll.wav"));
     var LOWER_DOORS_DELAY_MS = 1150;
-    var POSSIBLE_PRIZES = ["Oculus Quest", "Vive Pro", "1,000 HFC", "Nothing!", "Three Sheep", "500 HFC"];
+    var POSSIBLE_PRIZES = ["Oculus Rift", "Vive", "HFC!", "All Players Win!!!"];
     var currentRoundWinners = [];
     var BINGO_PRIZE_DOOR_1_TEXT = "{ff7674bb-5569-4381-b370-1dfa1d2a9723}";
     var BINGO_PRIZE_DOOR_1 = "{8724dc08-c0fb-4feb-bda1-8686023f8355}";
@@ -45,7 +45,6 @@
     var gameOnLights = [];
     var registrationSign;
     var cardRemoverSign;
-    var backboard;
     var calledLettersAndNumbers = [];
     var lightBlinkInterval;
     var newRoundURLParams;
@@ -122,8 +121,6 @@
                     cardRemoverSign = childEntity;
                 } else if (name === "Bingo Wheel Light") {
                     gameOnLights.push(childEntity);
-                } else if (name === "Bingo Wall Backboard") {
-                    backboard = childEntity;
                 } else if (name === "Bingo Player Counter") {
                     playerCounterText = childEntity;
                 } else if (name === "Bingo Player Counter Light") {
@@ -204,7 +201,7 @@
             }
 
             while (roundPrizes.length < 3) {
-                maybePushRandomPrize(POSSIBLE_PRIZES[Math.floor(Math.random() * (POSSIBLE_PRIZES.length - 1))]);
+                maybePushRandomPrize(POSSIBLE_PRIZES[Math.floor(Math.random() * POSSIBLE_PRIZES.length)]);
             }
 
             Entities.editEntity(BINGO_PRIZE_DOOR_1_TEXT, {text: roundPrizes[0]});

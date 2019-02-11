@@ -216,7 +216,9 @@ function intervalAnimator(){
 // Clean up the entities and clear any intervals
 function destroy() {
     Entities.deleteEntity(this.particle);
-    Script.clearInterval(this.interval);
+    if (this.interval) {
+        Script.clearInterval(this.interval);
+    }
 }
 
 

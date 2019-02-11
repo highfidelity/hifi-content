@@ -43,12 +43,38 @@
                     type: "buttonStatus",
                     value: enabled
                 });
+                ui.sendToHtml({
+                    type: "drawButtonStatus",
+                    value: drawHudInFront
+                });
+                ui.sendToHtml({
+                    type: "heightStatus",
+                    value: avatarHeightOffset
+                });
                 break;
             case "TOGGLE_APP":
+                Settings.setValue("voiceScope/enabled", data.value);
+                enabled = data.value;
                 toggleApp();
                 ui.sendToHtml({
                     type: "buttonStatus",
                     value: enabled
+                });
+                break;
+            case "TOGGLE_DRAW":
+                Settings.setValue("voiceScope/drawOrder", data.value);
+                drawHudInFront = data.value;
+                ui.sendToHtml({
+                    type: "drawButtonStatus",
+                    value: drawHudInFront
+                });
+                break;
+            case "HEIGHT_SLIDER":
+                Settings.setValue("voiceScope/height", data.value);
+                avatarHeightOffset = data.value;
+                ui.sendToHtml({
+                    type: "heightStatus",
+                    value: avatarHeightOffset
                 });
                 break;
         }
@@ -80,21 +106,26 @@
         });       
         Script.scriptEnding.connect(scriptEnding);
         Window.domainChanged.connect(onDomainChange);
+        if (Settings.getValue("voiceScope/enabled", false)){
+            startUpdate();
+            addAll();
+            enabled = Settings.getValue("voiceScope/enabled", false);
+            drawHudInFront = Settings.getValue("voiceScope/drawOrder", false);
+            avatarHeightOffset = Settings.getValue("voiceScope/height", 1);
+        }
     }
 
 
     // This function starts and stops the app, triggered by the tablet UI
     var enabled = false;
     function toggleApp() {
-        if (!enabled){
+        if (enabled){
             startUpdate();
             addAll();
             playSound(POWER_UP);
-            enabled = true; 
         } else {
             stopUpdate();
             removeAll();
-            enabled = false;
         }
     }
 
@@ -148,8 +179,7 @@
     // This function creates a HUD element over a user's head 
     // The HUD is made of "Shape" Overlays, some of which are static,
     // and some of which are updated to show audio level
-    var AVATAR_HEIGHT_OFFSET = 1.5,
-        HUD_DEFAULT_DIMENSIONS = { x: 0.05, y: 0.001, z: 0.01 },
+    var HUD_DEFAULT_DIMENSIONS = { x: 0.05, y: 0.001, z: 0.01 },
         HUD_MIN_Z_DIMENSIONS = 0.01,
         HUD_MAX_Z_DIMENSIONS = [
             0.1445,
@@ -161,11 +191,13 @@
         HUD_ALPHA = 0.5,
         BAR_ALPHA = 1,
         HUD_PARENTING_DELAY = 200;
+    var avatarHeightOffset = Settings.getValue("voiceScope/height", 1),
+        drawHudInFront = Settings.getValue("voiceScope/drawOrder", false);
     // Overlay properties for the static parts of the HUD
     var STATIC_HUD_PROPERTIES = [
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: -0.1771,
@@ -193,7 +225,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Triangle",
             localPosition: {
                 x: -0.1364,
@@ -221,7 +253,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: -0.0585,
@@ -249,7 +281,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: 0.0030,
@@ -277,7 +309,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: 0.0631,
@@ -305,7 +337,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: 0.1217,
@@ -333,7 +365,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: 0.1833,
@@ -364,7 +396,7 @@
     var DYNAMIC_HUD_PROPERTIES = [
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: -0.0585,
@@ -388,7 +420,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: 0.003,
@@ -412,7 +444,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: 0.0631,
@@ -437,7 +469,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: 0.1217,
@@ -461,7 +493,7 @@
         },
         {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: drawHudInFront,
             shape: "Quad",
             localPosition: {
                 x: 0.1833,
@@ -492,11 +524,11 @@
         user.hudID = [];
         user.audioBarIDs = [];
         var avatar = AvatarManager.getAvatar(uuid);
-        user.userHeight = avatar.getNeckPosition().y + avatar.scale * AVATAR_HEIGHT_OFFSET;
+        user.userHeight = avatar.getNeckPosition().y + avatar.scale * avatarHeightOffset;
         var hudPosition = {x: avatar.position.x, y: user.userHeight, z:avatar.position.z};
         user.hudID.push(Overlays.addOverlay("shape", {
             name: "Voice-HUD",
-            drawInFront: true,
+            drawInFront: false,
             shape: "Circle",
             position: hudPosition,
             parentID: uuid,
@@ -553,9 +585,17 @@
     function updateHUD(uuid) {
         var user = userObject[uuid];
         var avatar = AvatarManager.getAvatar(uuid);
+        user.hudID.forEach(function(overlay){
+            if (user.hudID.indexOf(overlay) !== 0){
+                Overlays.editOverlay(overlay, {drawInFront: drawHudInFront});
+            }
+        });
+        user.audioBarIDs.forEach(function(overlay){
+            Overlays.editOverlay(overlay, {drawInFront: drawHudInFront});
+        });
         Overlays.editOverlay(user.hudID[0], 
             {rotation: Quat.multiply(Quat.cancelOutRoll(Camera.orientation), Quat.fromPitchYawRollDegrees(90,0,0))});
-        user.userHeight = avatar.getNeckPosition().y + avatar.scale * AVATAR_HEIGHT_OFFSET;
+        user.userHeight = avatar.getNeckPosition().y + avatar.scale * avatarHeightOffset;
         Overlays.editOverlay(user.hudID[0], {
             position: {
                 x: avatar.position.x, 
@@ -669,11 +709,9 @@
             sortData();
         }
         // add new overlays
-        for (var i = 0; i < userArray.length; i++) {
-            var user = userArray[i];
-            var uuid = user.uuid;
-            createHUD(uuid);
-        }
+        userArray.forEach(function(user){
+            createHUD(user.uuid);
+        });
     }
 
 
@@ -701,7 +739,7 @@
         if (!userObject[sessionUUID]) {
             userObject[sessionUUID] = new User(sessionUUID);
         }
-        if (enabled){
+        if (Settings.getValue("voiceScope/enabled", false)){
             createHUD(sessionUUID);
         }
     }
@@ -739,12 +777,13 @@
     // This function gets the PAL data and updates existing users
     // and removes users that left
     function handleUpdate() {
+        var uuid;
+        var hasUUID;
         var palList = AvatarManager.getPalData().data;
         // Add users to userObject
-        for (var a = 0; a < palList.length; a++) {
-            var user = palList[a];
-            var uuid = palList[a].sessionUUID;
-            var hasUUID = uuid;
+        palList.forEach(function(user){
+            uuid = user.sessionUUID;
+            hasUUID = uuid;
             var isInuserObject = userObject[uuid] !== undefined;
             if (hasUUID && !isInuserObject) {
                 addUser(uuid);
@@ -757,12 +796,12 @@
                     updateHUD(uuid);
                 }
             }
-        }
+        });
         // Remove users from userObject
-        for (var uuid in userObject) {
+        for (uuid in userObject) {
             // if user crashes, leaving domain signal will not be called
             // handle this case
-            var hasUUID = uuid;
+            hasUUID = uuid;
             var isInNewList = palList.map(function (item) {
                 return item.sessionUUID;
             }).indexOf(uuid) !== -1;
@@ -814,7 +853,7 @@
             }
         });
         overlayList = null;
-        Window.onDomainChanged.disconnect(onDomainChange);
+        Window.domainChanged.disconnect(onDomainChange);
     }
 
 

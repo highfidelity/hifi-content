@@ -24,14 +24,11 @@
     var WAIT_TO_CLOSE_TRAP_DOOR_MS = 1500;
     var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 2000;
-    var CLEAN_UP_CHECK_MS = 2000;
     var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json')).sheetURL;
 
     var _this;
     
     var zonePosition;
-    var cleanUpInterval = null;
-    var occupied = false;
     var scannerSpotlight;
     var confettiParticleEffect;
     var bingoParticleEffect;
@@ -75,7 +72,7 @@
 
     BingoScannerZone.prototype = {
 
-        remotelyCallable: ['alreadyCalledNumbersReply', 'scanCard', 'userLeftZone', 'stillOccupied'],
+        remotelyCallable: ['alreadyCalledNumbersReply', 'scanCard', 'userLeftZone'],
 
         /* ON LOADING THE SCRIPT: Save a reference to this entity ID. Set a timeout for 2 seconds to ensure that entities 
         have loaded and then find and save references to other necessary entities. */
@@ -117,16 +114,6 @@
 
             Entities.editEntity(scannerSpotlight, { visible: true });
             Entities.callEntityMethod(BINGO_WHEEL, 'requestAlreadyCalledNumbers', ["bingoScanner", _this.entityID, params[0]]);
-            cleanUpInterval = Script.setInterval(function() {
-                if (!occupied) {
-                    _this.userLeftZone();
-                }
-                occupied = false;
-            }, CLEAN_UP_CHECK_MS);
-        },
-
-        stillOccupied: function() {
-            occupied = true;
         },
 
         /* RECEIVE NUMBERS THAT HAVE BEEN CALLED THIS ROUND */
@@ -297,11 +284,6 @@
         /* WHEN USER LEAVES ZONE: Clear any open gates or trap door. Clear the 
         array of squares attached to the user's card and delete the card. Turn off particles. */
         userLeftZone: function(thisID, userID) {
-            occupied = false;
-            if (cleanUpInterval) {
-                Script.clearInterval(cleanUpInterval);
-                cleanUpInterval = false;
-            }
             Script.setTimeout(function() {
                 _this.hideBanners();
                 Entities.callEntityMethod(STAGE_ENTRY_GATE, 'closeGate');
@@ -327,10 +309,6 @@
                 angularVelocity: { x: 0, y: 0, z: 0 },
                 localRotation: { x: 0, y: 0, z: 0 }
             });
-            if (cleanUpInterval) {
-                Script.clearInterval(cleanUpInterval);
-                cleanUpInterval = false;
-            }
         }
     };
     

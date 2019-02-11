@@ -15,7 +15,7 @@
     var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
     var ANGULAR_VELOCITY = { x: 0, y: 0, z: -10 };
     var ANGULAR_VELOCITY_CHECK_MS = 100;
-    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan', 'Becky', 'zfox', 'andy_batman', 'skelina', 'antoninas'];
+    var USERS_ALLOWED_TO_SPIN_WHEEL = ['ryan', 'Becky', 'zfox', 'andy_batman', 'skelina', 'antoninas', 'market'];
     var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('sounds/blip.wav'));
     var SPIN_SOUND = SoundCache.getSound(Script.resolvePath('sounds/wheelSpin.mp3'));
     var WAIT_BETWEEN_SPINS_MS = 500;

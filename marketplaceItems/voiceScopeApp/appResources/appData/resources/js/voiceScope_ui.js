@@ -2,24 +2,49 @@
 // Send an event to the app script to 
 // toggle it on/off when the button is clicked
 var button = document.getElementById("checkbox1");
-function buttonClicked(){
+var drawFrontCheck = document.getElementById("checkbox2"); 
+var slider = document.getElementById("myRange");
+var heightOutput = document.getElementById("height");
+heightOutput.innerHTML = slider.value;
+
+slider.oninput = function() {
+  heightOutput.innerHTML = this.value;
+  sliderEvent();
+};
+
+function buttonClicked(){ 
     EventBridge.emitWebEvent(JSON.stringify({
-        type: "TOGGLE_APP"
+        type: "TOGGLE_APP",
+        value: button.checked
     }));
 }
 button.addEventListener("click", buttonClicked);
-
+function drawButtonClicked(){ 
+    EventBridge.emitWebEvent(JSON.stringify({
+        type: "TOGGLE_DRAW",
+        value: drawFrontCheck.checked
+    }));
+}
+drawFrontCheck.addEventListener("click", drawButtonClicked);
+function sliderEvent(){
+    EventBridge.emitWebEvent(JSON.stringify({
+        type: "HEIGHT_SLIDER",
+        value: heightOutput.innerHTML
+    }));
+}
 
 // EventBridge message from App script.
 function onScriptEventReceived(data){
     var data = JSON.parse(data);
     switch (data.type) {
         case "buttonStatus":
-        if (data.value) {
-            button.checked = true;
-        } else {
-            button.checked = false;
-        }
+        button.checked = data.value;
+        break;
+    case "drawButtonStatus":
+        drawFrontCheck.checked = data.value;
+        break;
+    case "heightStatus":
+        slider.value = data.value;
         break;
     }
 }
