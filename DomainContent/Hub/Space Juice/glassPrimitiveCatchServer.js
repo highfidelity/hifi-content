@@ -1,8 +1,8 @@
 //
-// glass primitive catchServer.js
+// glassPrimativeCatchServer.js
 // 
-// Author: Liv Erickson
-// Copyright High Fidelity 2018
+// Author: Milad Nazer
+// Copyright High Fidelity 2019
 //
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/

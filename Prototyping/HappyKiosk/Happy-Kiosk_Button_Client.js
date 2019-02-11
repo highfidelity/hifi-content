@@ -51,7 +51,7 @@
             kioskZoneID = currentProperties.parentID;
         },
         clickDownOnEntity: function(entityID, mouseEvent) {
-            log(LOG_ENTER, "MOUSE PRESS ON ENTITY");
+            log(LOG_ENTER, "clickDownOnEntity");
             if (mouseEvent.isRightButton) {
                 return;
             }
@@ -60,14 +60,6 @@
         },
         stopNearTrigger: function(entityID, mouseEvent) {
             log(LOG_ENTER, "stopNearTrigger");
-            Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID, name]);
-        },
-        mousePressOnEntity: function(entityID, mouseEvent){
-            log(LOG_ENTER, "MOUSE PRESS ON ENTITY");
-            if (mouseEvent.isRightButton) {
-                log("returning from right click")
-                return;
-            }
             Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID, name]);
         },
         unload: function () {
