@@ -206,6 +206,7 @@
     function triggerReleased() {
         if (distanceCheckInterval) {
             Script.clearInterval(distanceCheckInterval);
+            distanceCheckInterval = null;
         }
         if (injector) {
             injector.stop();
@@ -260,6 +261,7 @@
     function gripReleased() {
         if (deletingInterval) {
             Script.clearInterval(deletingInterval);
+            deletingInterval = null;
         }
     }
 
