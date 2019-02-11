@@ -295,7 +295,16 @@
 
     // Clear the explodeTimer if there is one
     function unload() {
-        explodeTimer && Script.clearInterval(explodeTimer);
+        if (explodeTimer) {
+            Script.clearInterval(explodeTimer);
+            Music.stop();
+            Lights.destroy();
+            Dance.destroy();
+            ParticleArray.forEach(function(particle) {
+                particle.destroy();
+            });
+        }
+
     }
 
 

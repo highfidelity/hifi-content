@@ -171,12 +171,10 @@ function animate(){
 
 // Cleanup and stop the animation interval
 function destroy(){
-    Script.clearInterval(this.interval);
-    Entities.deleteEntity(this.box);
-    Entities.deleteEntity(this.spotLight);
-    this.lights.forEach(function(light){
-        Entities.deleteEntity(light);
-    });
+    if (this.interval){
+        Script.clearInterval(this.interval);
+    }
+
     Entities.deleteEntity(this.box);
 }
 

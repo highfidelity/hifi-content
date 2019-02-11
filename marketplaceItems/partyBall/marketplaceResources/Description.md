@@ -9,7 +9,7 @@ Stop making me say things and just party with this ball.
 
 You don't know how long it will last.  
 You don't know when it will happen.  
-The only thing you know is that it will be a unique party each time.
+The only thing you know is that it will be a unique party each time with all original music by MEOWlad(the stickman)
 
 # EACH TIME!
 
