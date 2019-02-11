@@ -235,7 +235,7 @@
 
     // Locally pre-caches all of the sounds in the sounds/claps and sounds/whistles
     // directories.
-    var NUM_CLAP_SOUNDS = 20;
+    var NUM_CLAP_SOUNDS = 16;
     var NUM_WHISTLE_SOUNDS = 17;
     var clapSounds = [];
     var whistleSounds = [];
@@ -288,7 +288,6 @@
             if (currentIntensity <= 0) {
                 if (soundInjector) {
                     soundInjector.stop();
-                    currentSound = "none";
                     soundInjector = false;
                 }
 
@@ -305,8 +304,8 @@
     // the current global appreciation intensity and some min/max values.
     var MIN_VOLUME_CLAP = 0.05;
     var MAX_VOLUME_CLAP = 1.0;
-    var MIN_VOLUME_WHISTLE = 0.1;
-    var MAX_VOLUME_WHISTLE = 0.2;
+    var MIN_VOLUME_WHISTLE = 0.07;
+    var MAX_VOLUME_WHISTLE = 0.16;
     function calculateInjectorVolume() {
         var minInputVolume = 0;
         var maxInputVolume = MAX_CLAP_INTENSITY;
@@ -380,7 +379,6 @@
 
         if (soundInjector) {
             soundInjector.stop();
-            currentSound = "none";
             soundInjector = false;
         }
 
@@ -406,7 +404,7 @@
     }
 
     // Selects the correct sound, then plays it.
-    var currentSound = "none";
+    var currentSound;
     function selectAndPlaySound() {
         if (shouldClap()) {
             currentSound = "clap";
@@ -562,7 +560,6 @@
 
         if (soundInjector) {
             soundInjector.stop();
-            currentSound = "none";
             soundInjector = false;
         }
         
