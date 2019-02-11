@@ -18,7 +18,7 @@
     /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
     mode requested. */
     var injector;
-    function playSound(sound, volume, position, localOnly){
+    function playSound(sound, volume, position, localOnly, loop){
         if (sound.downloaded) {
             if (injector) {
                 injector.stop();
@@ -26,7 +26,8 @@
             injector = Audio.playSound(sound, {
                 position: position,
                 volume: volume,
-                localOnly: localOnly
+                localOnly: localOnly,
+                loop: loop
             });
         }
     }
@@ -150,7 +151,7 @@
                 var displacementFromStart = Vec3.subtract(markerTipWorldPosition, lineStartPosition);
                 linePoints.push(displacementFromStart);
                 if (!polyLine) {
-                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, MyAvatar.position, false);
+                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, MyAvatar.position, false, true);
                     polyLine = Entities.addEntity({
                         type: "PolyLine",
                         name: "Draw App Polyline",
@@ -298,7 +299,7 @@
                 var displacementFromStart = Vec3.subtract(currentLinePoint, lineStartPosition);
                 linePoints.push(displacementFromStart);
                 if (!polyLine) {
-                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, MyAvatar.position, false);
+                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, MyAvatar.position, false, true);
                     polyLine = Entities.addEntity({
                         type: "PolyLine",
                         name: "Draw App Polyline",
@@ -379,7 +380,7 @@
             }
             Entities.deleteEntity(marker);
             marker = null;
-            playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true);
+            playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true, false);
         } else {
             if (HMD.active) {
                 HMD.closeTablet();
@@ -388,7 +389,7 @@
                 setUpDesktopMode();
             }
             button.editProperties({ isActive: true });
-            playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true);
+            playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true, false);
             createMarker();
             // close tablet so user will be left in state where they can draw
         }
