@@ -12,8 +12,7 @@ function exponentialSmoothing(target, current) {
     return target * (1 - smoothingConstant) + current * smoothingConstant;
 }
 
-(function() { 
-    print("test"); 
+(function() {       
     var FIRING_SOUND = SoundCache.getSound(Script.resolvePath("../sounds/39048__ls__sparkles.wav"));
     var RAINBOW_IMAGE = Script.resolvePath("../textures/rainbow.png");
     var DESKTOP_HOW_TO_IMAGE_URL = Script.resolvePath("../textures/desktopFireUnequip.png");
@@ -85,7 +84,6 @@ function exponentialSmoothing(target, current) {
         startEquip: function(id, params) {
             currentHand = params[0] === "left" ? HAND.LEFT : HAND.RIGHT;
 
-            // ## SERVER
             Entities.editEntity(_this.entityID, {
                 visible: true,
                 lifetime: -1 
@@ -130,7 +128,7 @@ function exponentialSmoothing(target, current) {
                     speedSpread: 0,
                     textures: RAINBOW_IMAGE,
                     type: "ParticleEffect"
-                }, 'avatar');
+                }, clientOnly);
             }
         },
 
@@ -347,7 +345,7 @@ function exponentialSmoothing(target, current) {
                     speedSpread: 0,
                     textures: RAINBOW_IMAGE,
                     type: "ParticleEffect"
-                }, 'avatar');
+                }, true);
             }
             
             if (nozzleLight !== null) {
@@ -387,7 +385,7 @@ function exponentialSmoothing(target, current) {
                         "z": -1.52587890625e-05
                     },
                     type: "Light"
-                }, 'avatar');
+                }, clientOnly);
             }
             
             if (firingSound !== null) {
@@ -632,7 +630,7 @@ function exponentialSmoothing(target, current) {
             var newRotation = Quat.fromPitchYawRollDegrees(rotationAngles.x, 0, rotationAngles.z);
             previousRightXRotation = xRotation;
             previousRightZRotation = zRotation;
-            result.rightHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(80, 0, 90));
+            result.rightHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(80, 00, 90));
             
             return result;
         },

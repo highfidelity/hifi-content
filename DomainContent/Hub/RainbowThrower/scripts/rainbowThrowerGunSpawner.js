@@ -63,8 +63,8 @@
                 description: "CC-BY by Mario Tofani",
                 position: _this.position,
                 rotation: _this.rotation,
-                script: Script.resolvePath("./flamethrowerClient.js?" + Date.now()),
-                serverScripts: Script.resolvePath("./flamethrowerServer.js?" + Date.now()),
+                script: Script.resolvePath("./flamethrowerClient.js"),
+                serverScripts: Script.resolvePath("./flamethrowerServer.js"),
                 shapeType: "compound",
                 type: "Model",
                 userData: JSON.stringify({
