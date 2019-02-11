@@ -97,10 +97,6 @@
         startNearGrab: function(entityID, mouseEvent) {
             print("start near grab");
             Entities.callEntityServerMethod(_this.entityID, 'makeDynamic');
-            // Entities.editEntity(_this.entityID, {
-            //     dynamic: true,
-            //     lifetime: LIFETIME
-            // });
             if (stillFull) {
                 interval = Script.setInterval(function() {
                     _this.distanceCheck();
@@ -115,10 +111,6 @@
         },
 
         startFarGrab: function(entityID, mouseEvent) {
-            // Entities.editEntity(_this.entityID, {
-            //     dynamic: true
-            // });
-
             _this.startNearGrab();
         },
 
@@ -138,10 +130,6 @@
             if (interval) {
                 Script.clearInterval(interval);
             }
-            // if (JSON.stringify(mouseEvent) === "[]") {
-            //     print("deleting entity in release grab");
-            //     Entities.callEntityServerMethod(_this.entityID, 'deleteGlass');
-            // }
             if (canCreateNew) {
                 Entities.callEntityServerMethod(spawner, 'spawnNewGlass');
                 canCreateNew = false;
@@ -158,9 +146,7 @@
                 Entities.editEntity(_this.entityID, {
                     lifetime: age + LIFETIME
                 });
-                print("trying to delete entity");
                 Entities.callEntityServerMethod(drink, 'deleteGlass');
-                // Entities.deleteEntity(drink);
                 stillFull = false;
                 drinking = true;
             }
