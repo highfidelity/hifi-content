@@ -95,7 +95,6 @@
         },
 
         startNearGrab: function(entityID, mouseEvent) {
-            print("start near grab");
             Entities.callEntityServerMethod(_this.entityID, 'makeDynamic');
             if (stillFull) {
                 interval = Script.setInterval(function() {
