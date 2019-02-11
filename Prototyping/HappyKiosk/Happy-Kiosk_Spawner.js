@@ -14,9 +14,7 @@
 
     var cacheBuster = Util.Scripts.cacheBuster,
         findSurfaceBelowPosition = Util.Maths.findSurfaceBelowPosition,
-        getNameProps = Util.Entity.getNameProps,
         getUserData = Util.Entity.getUserData,
-        inFrontOf = Util.Avatar.inFrontOf,
         makeColor = Util.Color.makeColor,
         updateUserData = Util.Entity.updateUserData,
         vec = Util.Maths.vec;
@@ -28,10 +26,10 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE, 
         LOG_CONFIG = {
-            "Log_Enter": true,
-            "Log_Update": true,
-            "Log_Error": true,
-            "Log_Value": true,
+            "Log_Enter": false,
+            "Log_Update": false,
+            "Log_Error": false,
+            "Log_Value": false,
             "LOG_ARCHIVE": false
         },
         log = Util.Debug.log(LOG_CONFIG);  
@@ -40,7 +38,7 @@
     var BASE_NAME = "HappyKiosk_",
         baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/Prototyping/HappyKiosk/",
         baseURLButtons = "https://hifi-content.s3.amazonaws.com/alan/dev/",
-        debug = true,
+        debug = false,
         kioskZoneScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Zone_Server.js"),
         kioskZoneScriptClient = cacheBuster(debug, baseURL, "Happy-Kiosk_Zone_Client.js"),
         kioskTextScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Text_Server.js"),
