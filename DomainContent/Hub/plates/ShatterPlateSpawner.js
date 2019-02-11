@@ -31,12 +31,10 @@
         var found = Entities.findEntities(position, DISTANCE);
         found.forEach(function(foundEntity) {
             var name = Entities.getEntityProperties(foundEntity, 'name').name;
-            console.log("name:", name);
             if (name === "Plate") {
                 count++;
             }
         });
-        console.log("count", count);
         if (count === 0) {
             Entities.addEntity(dishProperties);
         }

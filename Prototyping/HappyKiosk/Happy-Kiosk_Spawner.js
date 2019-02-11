@@ -38,9 +38,10 @@
     
     // Init
     var BASE_NAME = "HappyKiosk_",
-        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/HappyKiosk/",
+        // baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/HappyKiosk/",
+        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/Prototyping/HappyKiosk/",
         baseURLButtons = "https://hifi-content.s3.amazonaws.com/alan/dev/",
-        debug = false,
+        debug = true,
         kioskZoneScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Zone_Server.js"),
         kioskZoneScriptClient = cacheBuster(debug, baseURL, "Happy-Kiosk_Zone_Client.js"),
         kioskTextScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Text_Server.js"),
@@ -145,7 +146,7 @@
         userData = userData || {};
         var properties = {
             name: name,
-            type: "Box",
+            type: "Zone",
             position: position,
             rotation: rotation,
             locked: false,
@@ -153,7 +154,8 @@
             serverScripts: kioskZoneScriptServer,
             dimensions: dimensions,
             collisionless: true,
-            visible: false,
+            visible: true,
+            alpha: 0.0,
             userData: userData
         };
         var id = Entities.addEntity(properties);

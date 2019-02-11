@@ -12,6 +12,7 @@
   
     var PIECE_MODEL = Script.resolvePath('plate-piece.fbx');
     var SHATTER_PLATE_PIECE_URL = Script.resolvePath("ShatterPlatePiece.js?" + Date.now());
+    var SHATTER_PLATE_PIECE_SERVER_URL = Script.resolvePath("ShatterPlatePieceServer.js?" + Date.now());
 
     var NUMBER_PIECES = 4;
     var pieces = Array();
@@ -66,7 +67,8 @@
                     shapeType: "Box",
                     velocity: velocity,
                     grabbable: true,
-                    script: SHATTER_PLATE_PIECE_URL
+                    script: SHATTER_PLATE_PIECE_URL,
+                    serverScripts: SHATTER_PLATE_PIECE_SERVER_URL
                 });
             });
     

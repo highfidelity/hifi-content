@@ -11,7 +11,7 @@
 
 // get distance to mouth...if near, drink
 (function() {
-
+    console.log("TEST CHECK JUICE CLIENT-01")
     var _this;
 
     var AUDIO_VOLUME_LEVEL = 0.25;
@@ -24,7 +24,7 @@
     var START_FRAME = 1;
     var FRAMES_PER_SECOND= 45;
     var END_FRAME = 150;
-    var LIFETIME = 30;
+    var LIFETIME = 15;
     var DRINK_IT_DISTANCE = 0.2;
     var DONE_DRINKING_SHOT = 1000;
     var MOVE_GLASS_BEFORE_SPAWNING = 250;
@@ -97,10 +97,11 @@
 
         startNearGrab: function(entityID, mouseEvent) {
             print("start near grab");
-            Entities.editEntity(_this.entityID, {
-                dynamic: true,
-                lifetime: LIFETIME
-            });
+            Entities.callEntityServerMethod(_this.entityID, 'makeDynamic');
+            // Entities.editEntity(_this.entityID, {
+            //     dynamic: true,
+            //     lifetime: LIFETIME
+            // });
             if (stillFull) {
                 interval = Script.setInterval(function() {
                     _this.distanceCheck();
@@ -115,9 +116,9 @@
         },
 
         startFarGrab: function(entityID, mouseEvent) {
-            Entities.editEntity(_this.entityID, {
-                dynamic: true
-            });
+            // Entities.editEntity(_this.entityID, {
+            //     dynamic: true
+            // });
 
             _this.startNearGrab();
         },
@@ -125,10 +126,8 @@
 
         // this is called on release of far grab
         mouseReleaseOnEntity: function(entityID, mouseEvent) {
-            Entities.editEntity(_this.entityID, {
-                dynamic: true,
-                lifetime: LIFETIME
-            });
+            Entities.callEntityServerMethod(_this.entityID, 'makeDynamic');
+
             if (canCreateNew) {
                 Entities.callEntityServerMethod(spawner, 'spawnNewGlass');
                 canCreateNew = false;
@@ -140,10 +139,10 @@
             if (interval) {
                 Script.clearInterval(interval);
             }
-            if (JSON.stringify(mouseEvent) === "[]") {
-                print("deleting entity in release grab");
-                Entities.callEntityServerMethod(_this.entityID, 'deleteGlass');
-            }
+            // if (JSON.stringify(mouseEvent) === "[]") {
+            //     print("deleting entity in release grab");
+            //     Entities.callEntityServerMethod(_this.entityID, 'deleteGlass');
+            // }
             if (canCreateNew) {
                 Entities.callEntityServerMethod(spawner, 'spawnNewGlass');
                 canCreateNew = false;

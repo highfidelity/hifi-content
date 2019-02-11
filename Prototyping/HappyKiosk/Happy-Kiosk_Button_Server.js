@@ -24,18 +24,18 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE, 
         LOG_CONFIG = {
-            "Log_Enter": false,
-            "Log_Update": false,
-            "Log_Error": false,
-            "Log_Value": false,
-            "LOG_ARCHIVE": false
+            "Log_Enter": true,
+            "Log_Update": true,
+            "Log_Error": true,
+            "Log_Value": true,
+            "LOG_ARCHIVE": true
         },
         log = Util.Debug.log(LOG_CONFIG);
 
     // Init 
     var entityID,
         name,
-        position,
+        localPosition,
         kioskZoneID,
         self,
         onTexture,
@@ -52,7 +52,7 @@
     var currentProperties = {},
         userData = {},
         userdataProperties = {};
-
+    
     // Entity Definition
     function HappyKiosk_Button() {
         self = this;
@@ -67,7 +67,7 @@
             currentProperties = Entities.getEntityProperties(entityID, ["name", "position", "parentID", "userData", "originalTextures"]);
             
             name = currentProperties.name;
-            position = currentProperties.position;
+            localPosition = currentProperties.position;
             kioskZoneID = currentProperties.parentID;
             originalTextures = JSON.parse(currentProperties.originalTextures);
             userData = currentProperties.userData;
@@ -95,17 +95,15 @@
             var textureData = {};
             textureData["button" + rating + "-off"] = onTexture;
 
-            position.y -= BUTTON_PRESS_OFFSET;
+            console.log("\n\n" + JSON.stringify(localPosition));
             Entities.editEntity(entityID, {
-                position: position,
+                localPosition: Vec3.sum(localPosition, [0, -BUTTON_PRESS_OFFSET, 0]),
                 textures: JSON.stringify(textureData)
             });
-            position.y += BUTTON_PRESS_OFFSET;
         },
         pressButton: function(id, param) {
             log(LOG_ENTER, name + " pressButton");
-            position = Entities.getEntityProperties(entityID, ["position"]).position;
-
+            localPosition = Entities.getEntityProperties(entityID, ["localPosition"]).localPosition;
             Entities.callEntityMethod(kioskZoneID, "sendInput", [new Date(), rating]);
 
             self.lowerButton();
@@ -118,9 +116,9 @@
             log(LOG_ENTER, name + " raiseButton");
             var textureData = {};
             textureData["button" + rating + "-off"] = offTexture;
-
+            localPosition = Entities.getEntityProperties(entityID, ["localPosition"]).localPosition;
             Entities.editEntity(entityID, {
-                position: position,
+                localPosition: Vec3.sum(localPosition, [0, BUTTON_PRESS_OFFSET, 0]),
                 textures: JSON.stringify(textureData)
             });
         },

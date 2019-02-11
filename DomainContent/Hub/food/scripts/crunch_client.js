@@ -71,7 +71,6 @@
         var index = Math.round(Math.random() * size);
         var crunchSound = CRUNCH_SOUNDS[index];
         Audio.playSound(crunchSound, {volume: VOLUME, position: MyAvatar.getJointPosition("Head")});
-        console.log("id", _this.entityID);
         Entities.callEntityServerMethod(_this.entityID, 'deleteFood');
     };
 

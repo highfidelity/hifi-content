@@ -11,7 +11,7 @@
 
 (function(){
     var LIFETIME = 30; // seconds
-    var CRUNCH_SCRIPT = Script.resolvePath("./crunch.js?" + Date.now());
+    var CRUNCH_SCRIPT = Script.resolvePath("./crunch_client.js?" + Date.now());
     var CRUNCH_SCRIPT_SERVER = Script.resolvePath("./crunch_server.js?" + Date.now());
     var INTERVAL = 5000;
     var DISTANCE = 0.5;

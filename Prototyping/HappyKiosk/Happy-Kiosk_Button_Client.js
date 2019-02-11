@@ -13,7 +13,7 @@
 /* global Pointers */
 
 (function () {
-
+    console.log("test")
     // Helper Functions
     var Util = Script.require("../../Utilities/Helper.js?");
 
@@ -24,11 +24,11 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE, 
         LOG_CONFIG = {
-            "Log_Enter": false,
-            "Log_Update": false,
-            "Log_Error": false,
-            "Log_Value": false,
-            "LOG_ARCHIVE": false
+            "Log_Enter": true,
+            "Log_Update": true,
+            "Log_Error": true,
+            "Log_Value": true,
+            "LOG_ARCHIVE": true
         },
         log = Util.Debug.log(LOG_CONFIG);
 
@@ -51,16 +51,29 @@
             name = currentProperties.name;
             kioskZoneID = currentProperties.parentID;
         },
-        mousePressOnEntity: function(entityID, mouseEvent) {
+        clickDownOnEntity: function(entityID, mouseEvent) {
+            console.log("click on entity");
             log(LOG_ENTER, "MOUSE PRESS ON ENTITY");
-            if (!mouseEvent.isLeftButton) {
+            if (mouseEvent.isRightButton) {
+                log("returning from right click")
                 return;
             }
             log(LOG_ENTER, "kioskZoneID", kioskZoneID);
             Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID, name]);
         },
         stopNearTrigger: function(entityID, mouseEvent) {
+            console.log("og near trigger");
             log(LOG_ENTER, "stopNearTrigger");
+            Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID, name]);
+        },
+        mousePressOnEntity: function(entityID, mouseEvent){
+            console.log("click on entity");
+            log(LOG_ENTER, "MOUSE PRESS ON ENTITY");
+            if (mouseEvent.isRightButton) {
+                log("returning from right click")
+                return;
+            }
+            log(LOG_ENTER, "kioskZoneID", kioskZoneID);
             Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID, name]);
         },
         unload: function () {
