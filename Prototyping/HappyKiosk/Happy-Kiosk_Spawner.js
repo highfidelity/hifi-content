@@ -38,7 +38,6 @@
     
     // Init
     var BASE_NAME = "HappyKiosk_",
-        // baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/HappyKiosk/",
         baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/Prototyping/HappyKiosk/",
         baseURLButtons = "https://hifi-content.s3.amazonaws.com/alan/dev/",
         debug = true,
@@ -433,8 +432,7 @@
             shapeType: "simple-compound",
             position: position,
             rotation: rotation,
-            script: kioskButtonScriptClient,
-            serverScripts: kioskButtonScriptServer,
+            serverScripts: kioskEmptyScriptServer,
             locked: false,
             dimensions: dimensions,
             collisionless: true,

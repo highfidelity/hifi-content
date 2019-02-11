@@ -24,11 +24,11 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE, 
         LOG_CONFIG = {
-            "Log_Enter": true,
-            "Log_Update": true,
-            "Log_Error": true,
-            "Log_Value": true,
-            "LOG_ARCHIVE": true
+            "Log_Enter": false,
+            "Log_Update": false,
+            "Log_Error": false,
+            "Log_Value": false,
+            "LOG_ARCHIVE": false
         },
         log = Util.Debug.log(LOG_CONFIG);
 
@@ -52,7 +52,6 @@
             kioskZoneID = currentProperties.parentID;
         },
         clickDownOnEntity: function(entityID, mouseEvent) {
-            console.log("click on entity");
             log(LOG_ENTER, "MOUSE PRESS ON ENTITY");
             if (mouseEvent.isRightButton) {
                 log("returning from right click")
@@ -62,12 +61,10 @@
             Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID, name]);
         },
         stopNearTrigger: function(entityID, mouseEvent) {
-            console.log("og near trigger");
             log(LOG_ENTER, "stopNearTrigger");
             Entities.callEntityServerMethod(kioskZoneID, "requestPress", [MyAvatar.sessionUUID, name]);
         },
         mousePressOnEntity: function(entityID, mouseEvent){
-            console.log("click on entity");
             log(LOG_ENTER, "MOUSE PRESS ON ENTITY");
             if (mouseEvent.isRightButton) {
                 log("returning from right click")

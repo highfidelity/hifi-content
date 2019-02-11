@@ -24,11 +24,11 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE, 
         LOG_CONFIG = {
-            "Log_Enter": true,
-            "Log_Update": true,
-            "Log_Error": true,
-            "Log_Value": true,
-            "LOG_ARCHIVE": true
+            "Log_Enter": false,
+            "Log_Update": false,
+            "Log_Error": false,
+            "Log_Value": false,
+            "LOG_ARCHIVE": false
         },
         log = Util.Debug.log(LOG_CONFIG);
 
@@ -40,9 +40,8 @@
         self,
         onTexture,
         offTexture,
-        originalTextures,
-        baseButtonTextureName,
-        rating = 1;
+        rating = 1,
+        materialEntity;
 
     // Const
     var BUTTON_PRESS_OFFSET = 0.04,
@@ -51,8 +50,54 @@
     // Collections
     var currentProperties = {},
         userData = {},
-        userdataProperties = {};
-    
+        userdataProperties = {},
+        materialEntityProps = {
+            type: "Material",
+            materialURL: "materialData",
+            parentMaterialName: "1",
+            materialMappingMode: "uv",
+            priority: 1,
+            materialData: {}
+        };
+
+    // Create the proper texture name for the materialDataMaker
+    function urlTextureMaker(buttonNumber){
+        // url: "https://hifi-content.s3.amazonaws.com/alan/dev/button-2.fbx/button-2.fbm/button2-on.jpg"
+        var BASE_URL = "https://hifi-content.s3.amazonaws.com/alan/dev/";
+        var mainButtonName =
+            BASE_URL +
+            "button-" +
+            buttonNumber +
+            ".fbx/button-" +
+            buttonNumber +
+            ".fbm/button" +
+            buttonNumber +
+            "-"
+        ;
+        onTexture = mainButtonName + "on.jpg";
+        offTexture = mainButtonName + "off.jpg";
+    }
+
+    // Create the proper materialData JSON string
+    function materialDataMaker(type){
+        var materialData = {
+            materialVersion: 1,
+            materials: {
+                "model": "hifi_pbr"
+            }
+        };
+        if (type === "on") {
+            materialData.materials.albedoMap = onTexture;
+            materialData.materials.emissiveMap = onTexture;
+        } else {
+            materialData.materials.albedoMap = offTexture;
+            materialData.materials.emissiveMap = offTexture;
+        }
+
+        var materials =  JSON.stringify(materialData);
+        return materials;
+    }
+
     // Entity Definition
     function HappyKiosk_Button() {
         self = this;
@@ -65,26 +110,19 @@
         preload: function (id) {
             entityID = id;
             currentProperties = Entities.getEntityProperties(entityID, ["name", "position", "parentID", "userData", "originalTextures"]);
-            
             name = currentProperties.name;
             localPosition = currentProperties.position;
             kioskZoneID = currentProperties.parentID;
-            originalTextures = JSON.parse(currentProperties.originalTextures);
             userData = currentProperties.userData;
-            
             try {
                 userdataProperties = JSON.parse(userData);
                 rating = userdataProperties.kiosk.rating;
-                baseButtonTextureName = "button" + rating + "-";
-                onTexture = originalTextures[baseButtonTextureName + "on"];
-                offTexture = originalTextures[baseButtonTextureName + "off"];
-
-                var textureData = {};
-                textureData["button" + rating + "-off"] = offTexture;
+                materialEntityProps.name = name + " Material Entity";
+                materialEntityProps.parentID = entityID;
+                urlTextureMaker(rating);                
+                materialEntityProps.materialData = materialDataMaker("off");
                 
-                Entities.editEntity(entityID, {
-                    textures: JSON.stringify(textureData)
-                });
+                materialEntity = Entities.addEntity(materialEntityProps);
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }
@@ -92,13 +130,11 @@
         lowerButton: function() {
             log(LOG_ENTER, name + " lowerButton");
 
-            var textureData = {};
-            textureData["button" + rating + "-off"] = onTexture;
-
-            console.log("\n\n" + JSON.stringify(localPosition));
             Entities.editEntity(entityID, {
-                localPosition: Vec3.sum(localPosition, [0, -BUTTON_PRESS_OFFSET, 0]),
-                textures: JSON.stringify(textureData)
+                localPosition: Vec3.sum(localPosition, [0, -BUTTON_PRESS_OFFSET, 0])
+            });
+            Entities.editEntity(materialEntity, {
+                materialData: materialDataMaker("on")
             });
         },
         pressButton: function(id, param) {
@@ -117,12 +153,18 @@
             var textureData = {};
             textureData["button" + rating + "-off"] = offTexture;
             localPosition = Entities.getEntityProperties(entityID, ["localPosition"]).localPosition;
+
             Entities.editEntity(entityID, {
-                localPosition: Vec3.sum(localPosition, [0, BUTTON_PRESS_OFFSET, 0]),
-                textures: JSON.stringify(textureData)
+                localPosition: Vec3.sum(localPosition, [0, BUTTON_PRESS_OFFSET, 0])
             });
+
+            Entities.editEntity(materialEntity, {
+                materialData: materialDataMaker("off")
+            });
+
         },
         unload: function () {
+            Entities.deleteEntity(materialEntity);
         }
     };
 

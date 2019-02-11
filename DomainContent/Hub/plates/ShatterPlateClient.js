@@ -29,7 +29,6 @@
     };
 
     function makeFragile() {
-        console.log("making fragile");
         Entities.callEntityServerMethod(_entityID, 'makeFragile', '');
     }
   
@@ -38,20 +37,14 @@
             _entityID = entityID;
         },
         startNearGrab: function() {
-            console.log("start near grab");
             makeFragile();
         },
         mousePressOnEntity: function() {
-            console.log("start mouse press");
             makeFragile();
         },
         collisionWithEntity : function(myID, theirID, collision) {
-            console.log("myid", myID);
-            console.log("in collision");
             var velocity = Entities.getEntityProperties(myID, 'velocity').velocity;
-            console.log("velocity", JSON.stringify(velocity));
             if (shouldBreak(velocity)) {
-                console.log("in should velocity");
                 if (breakSound.downloaded) {
                     Audio.playSound(breakSound, {
                         volume: volumeLevel,

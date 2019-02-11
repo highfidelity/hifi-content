@@ -85,6 +85,7 @@ function exponentialSmoothing(target, current) {
         startEquip: function(id, params) {
             currentHand = params[0] === "left" ? HAND.LEFT : HAND.RIGHT;
 
+            // ## SERVER
             Entities.editEntity(_this.entityID, {
                 visible: true,
                 lifetime: -1 
@@ -631,7 +632,7 @@ function exponentialSmoothing(target, current) {
             var newRotation = Quat.fromPitchYawRollDegrees(rotationAngles.x, 0, rotationAngles.z);
             previousRightXRotation = xRotation;
             previousRightZRotation = zRotation;
-            result.rightHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(80, 00, 90));
+            result.rightHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(80, 0, 90));
             
             return result;
         },

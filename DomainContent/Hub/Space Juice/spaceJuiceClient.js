@@ -11,7 +11,6 @@
 
 // get distance to mouth...if near, drink
 (function() {
-    console.log("TEST CHECK JUICE CLIENT-01")
     var _this;
 
     var AUDIO_VOLUME_LEVEL = 0.25;
