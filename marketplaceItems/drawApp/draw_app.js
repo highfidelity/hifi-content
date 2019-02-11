@@ -1,26 +1,16 @@
 //
-//  draw_ app.js
+//  draw_app.js
 //
 //  Created by Rebecca Stankus on 01/31/19
-//  Copyright 2018 High Fidelity, Inc.
+//  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global  */
+/* global  Audio, Camera, Controller, Entities, HMD, MyAvatar, Quat, Script, SoundCache, Tablet, Vec3, Window */
 
 (function() {
-    var DESKTOP_LINE_DISTANCE_FROM_AVATAR_M = 1;
-    
-    
-    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
-    var button = tablet.addButton({
-        text: 'DRAW',
-        icon: Script.resolvePath('Assets/Icons/draw-i.svg'),
-        activeIcon: Script.resolvePath('Assets/Icons/draw-a.svg')
-    });
-  
     // *************************************
     // START UTILITY FUNCTIONS
     // *************************************
@@ -63,7 +53,7 @@
             name: "Draw App Marker",
             type: "Model",
             description: "CC_BY Poly by Google",
-            modelURL: Script.resolvePath("Assets/Models/sharpie.obj"),
+            modelURL: Script.resolvePath("assets/models/sharpie.obj"),
             parentID: MyAvatar.sessionUUID,
             parentJointName: dominantHandJoint,
             parentJointIndex: parentJointIndex,
@@ -77,17 +67,15 @@
     released */
     var MINIMUM_TRIGGER_PRESS_VALUE = 0.97;
     var controllerMapping;
-    var controllerMappingName = 'Hifi-MyControllerMappingName';
+    var controllerMappingName = 'Hifi-DrawApp';
     var activeTriggerPress = false;
     function registerControllerMapping() {
         controllerMapping = Controller.newMapping(controllerMappingName);
         controllerMapping.from(Controller.Standard.RT).to(function (value) {
             if (dominantHand === "right" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
-                // console.log("Right trigger press mapped");
                 activeTriggerPress = true;
                 triggerPressed();
             } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
-                // console.log("Right trigger release mapped");
                 activeTriggerPress = false;
                 triggerReleased();
             }
@@ -95,11 +83,9 @@
         });
         controllerMapping.from(Controller.Standard.RightGrip).to(function (value) {
             if (dominantHand === "right" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
-                // console.log("Right trigger press mapped");
                 activeTriggerPress = true;
                 gripPressed();
             } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
-                // console.log("Right trigger release mapped");
                 activeTriggerPress = false;
                 gripReleased();
             }
@@ -107,11 +93,9 @@
         });
         controllerMapping.from(Controller.Standard.LT).to(function (value) {
             if (dominantHand === "left" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress ) {
-                console.log("Left trigger press mapped");
                 activeTriggerPress = true;
                 triggerPressed();
             } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
-                console.log("Left trigger release mapped");
                 activeTriggerPress = false;
                 triggerReleased();
             }
@@ -119,11 +103,9 @@
         });
         controllerMapping.from(Controller.Standard.LeftGrip).to(function (value) {
             if (dominantHand === "right" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
-                // console.log("Right trigger press mapped");
                 activeTriggerPress = true;
                 gripPressed();
             } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
-                // console.log("Right trigger release mapped");
                 activeTriggerPress = false;
                 gripReleased();
             }
@@ -141,13 +123,15 @@
     var HALF = 0.5;
     var DECAY_TIME_S = 60;
     var MAX_LINE_POINTS = 100;
+    var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerDraw.mp3'));
+    var DRAW_SOUND_VOLUME = 0.02;
     var distanceCheckInterval = null;
     var polyLine = null;
     var lineStartPosition;
     var previousLinePoint;
-    var linePoints = [ {x: 0, y: 0, z: 0 } ];
-    var lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
-    var lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
+    var linePoints = [{x: 0, y: 0, z: 0 }];
+    var lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
+    var lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
     function triggerPressed() {
         if (tablet.tabletShown) {
             return;
@@ -166,6 +150,7 @@
                 var displacementFromStart = Vec3.subtract(markerTipWorldPosition, lineStartPosition);
                 linePoints.push(displacementFromStart);
                 if (!polyLine) {
+                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, MyAvatar.position, false);
                     polyLine = Entities.addEntity({
                         type: "PolyLine",
                         name: "Draw App Polyline",
@@ -184,9 +169,9 @@
                     var linePointsCount = lineProperties.linePoints.length;
                     if (linePointsCount > MAX_LINE_POINTS) {
                         var lastPointDisplacement = lineProperties.linePoints[linePointsCount - 1];
-                        linePoints = [ lastPointDisplacement, displacementFromStart ];
-                        lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
-                        lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
+                        linePoints = [lastPointDisplacement, displacementFromStart];
+                        lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
+                        lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
                         polyLine = Entities.addEntity({
                             type: "PolyLine",
                             name: "Draw App Polyline",
@@ -222,10 +207,13 @@
         if (distanceCheckInterval) {
             Script.clearInterval(distanceCheckInterval);
         }
+        if (injector) {
+            injector.stop();
+        }
         polyLine = null;
-        linePoints = [ {x: 0, y: 0, z: 0 } ];
-        lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
-        lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
+        linePoints = [{x: 0, y: 0, z: 0 }];
+        lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
+        lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
     }
 
     /* ON GRIP PRESS ERASE: Set an interval that finds the nearest line within a maximum distance to marker tip and erases it */
@@ -286,14 +274,10 @@
         }
         if (event.button === "LEFT") {
             pickRay = Camera.computePickRay(event.x, event.y);
-            desktopActionProgress= true;
+            desktopActionProgress = true;
             lineStartPosition = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, distance));
             previousLinePoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, distance));
-        } else if (event.button === "RIGHT") {
-            // erase
         }
-        // get cursor position, translate to world position at camera depth and then move to 1m in front of 
-        // avatar (or maybe 1m in front of camera?)
     }
 
     /* ON MOUSE MOVE: Calculate the next line poi8nt and add it to the entity. If there are too many line points, 
@@ -312,6 +296,7 @@
                 var displacementFromStart = Vec3.subtract(currentLinePoint, lineStartPosition);
                 linePoints.push(displacementFromStart);
                 if (!polyLine) {
+                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, MyAvatar.position, false);
                     polyLine = Entities.addEntity({
                         type: "PolyLine",
                         name: "Draw App Polyline",
@@ -330,9 +315,9 @@
                     var linePointsCount = lineProperties.linePoints.length;
                     if (linePointsCount > MAX_LINE_POINTS) {
                         var lastPointDisplacement = lineProperties.linePoints[linePointsCount - 1];
-                        linePoints = [ lastPointDisplacement, displacementFromStart ];
-                        lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
-                        lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
+                        linePoints = [lastPointDisplacement, displacementFromStart];
+                        lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
+                        lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
                         polyLine = Entities.addEntity({
                             type: "PolyLine",
                             name: "Draw App Polyline",
@@ -365,20 +350,23 @@
     minute. */
     function mouseReleased(event) {
         if (event.button === "LEFT") {
+            if (injector) {
+                injector.stop();
+            }
             polyLine = null;
-            linePoints = [ {x: 0, y: 0, z: 0 } ];
-            lineNormals = [ DEFAULT_NORMAL, DEFAULT_NORMAL ];
-            lineStrokeWidths = [ DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M ];
+            linePoints = [{x: 0, y: 0, z: 0 }];
+            lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
+            lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
             desktopActionProgress= false;
         }
     }
 
-    // On clicking the app button on the toolbar or tablet, if we are oopening the app, play a sound and get the marker. 
+    // On clicking the app button on the toolbar or tablet, if we are opening the app, play a sound and get the marker. 
     // If we are closing the app, remove the marker
-    var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('Assets/Sounds/open.wav'));
-    var OPEN_SOUND_VOLUME = 0.5;
-    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('Assets/Sounds/open.wav'));
-    var CLOSE_SOUND_VOLUME = 0.5;
+    var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerOpen.mp3?000'));
+    var OPEN_SOUND_VOLUME = 0.2;
+    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerClose.mp3'));
+    var CLOSE_SOUND_VOLUME = 0.3;
     function onClicked() {
         if (marker) {
             button.editProperties({ isActive: false });
@@ -392,6 +380,7 @@
             playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true);
         } else {
             if (HMD.active) {
+                HMD.closeTablet();
                 setUpHMDMode();
             } else {
                 setUpDesktopMode();
@@ -416,6 +405,9 @@
 
     /* CLEANUP: Remove marker, search for any unreferenced markers to clean up */
     function cleanUp() {
+        if (injector) {
+            injector.stop();
+        }
         if (controllerMapping) {
             controllerMapping.disable();
         }
@@ -451,10 +443,14 @@
     }
 
     /* SET UP DESKTOP MODE: Listen for mouse presses */
+    var mouseEventsConnected = false;
     function setUpDesktopMode() {
-        Controller.mousePressEvent.connect(mousePressed);
-        Controller.mouseMoveEvent.connect(mouseContinueLine);
-        Controller.mouseReleaseEvent.connect(mouseReleased);
+        if (!mouseEventsConnected) {
+            mouseEventsConnected = true;
+            Controller.mousePressEvent.connect(mousePressed);
+            Controller.mouseMoveEvent.connect(mouseContinueLine);
+            Controller.mouseReleaseEvent.connect(mouseReleased);
+        }
     }
 
     /* CLOSE HMD MODE: Remove controller mapping */
@@ -466,12 +462,11 @@
 
     /* CLOSE DESKTOP MODE: Stop listening for mouse presses */
     function closeDesktopMode() {
-        try {
+        if (mouseEventsConnected) {
+            mouseEventsConnected = false;
             Controller.mousePressEvent.disconnect(mousePressed);
             Controller.mouseMoveEvent.disconnect(mouseContinueLine);
             Controller.mouseReleaseEvent.disconnect(mouseReleased);
-        } catch (err) {
-            print("Could not disconnect mouse events");
         }
     }
 
@@ -493,6 +488,12 @@
         }, WAIT_TO_REOPEN_APP_MS);
     }
 
+    var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
+    var button = tablet.addButton({
+        text: 'DRAW',
+        icon: Script.resolvePath('assets/icons/draw-i.svg'),
+        activeIcon: Script.resolvePath('assets/icons/draw-a.svg')
+    });
     var dominantHand = MyAvatar.getDominantHand();
     var dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
     MyAvatar.dominantHandChanged.connect(handChanged);
