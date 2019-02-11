@@ -16,6 +16,7 @@
     var CM_PER_M = 100;
     var HALF = 0.5;
 
+    // Returns the world position halfway between the user's hands
     function halfwayBetweenHands() {
         var leftHandPosition = MyAvatar.getJointPosition("LeftHandMiddle2");
         if (!leftHandPosition) {
@@ -32,11 +33,15 @@
         return centerPosition;
     }
 
+    // Returns a linearly scaled value based on `factor` and the other inputs
     function linearScale(factor, minInput, maxInput, minOutput, maxOutput) {
         return minOutput + (maxOutput - minOutput) *
         (factor - minInput) / (maxInput - minInput);
     }
 
+    // Linearly scales an RGB color between 0 and 1 based on RGB color values
+    // between 0 and 255. Used when updating the albedo of the material entity
+    // applied to the Appreciate Entity
     function linearScaleColor(intensity, min, max) {
         var output = {
             "red": 0,
@@ -51,6 +56,7 @@
         return output;
     }
 
+    // Updates the Current Intensity Meter UI element. Called when intensity changes.
     function updateCurrentIntensityUI() {
         ui.sendMessage({method: "updateCurrentIntensityUI", currentIntensity: currentIntensity});
     }
@@ -59,6 +65,8 @@
     // END UTILITY FUNCTIONS
     // *************************************
 
+    // If the interval that updates the intensity interval exists,
+    // clear it.
     var updateIntensityEntityInterval = false;
     var UPDATE_INTENSITY_ENTITY_INTERVAL_MS = 65;
     function maybeClearUpdateIntensityEntityInterval() {
@@ -68,6 +76,9 @@
         }
     }
 
+    // Updates the intensity entity based on the user's avatar's hand position and the
+    // current intensity of their appreciation.
+    // Many of these property values are empirically determined.
     var intensityEntity = false;
     var intensityMaterialEntity = false;
     var INTENSITY_ENTITY_MAX_DIMENSIONS = {
@@ -222,6 +233,8 @@
         updateCurrentIntensityUI();
     }
 
+    // Locally pre-caches all of the sounds in the sounds/claps and sounds/whistles
+    // directories.
     var NUM_CLAP_SOUNDS = 20;
     var NUM_WHISTLE_SOUNDS = 17;
     var clapSounds = [];
@@ -237,6 +250,7 @@
         }
     }
 
+    // Locally pre-caches the Cheering and Clapping animations
     var whistlingAnimation = false;
     var clappingAnimation = false;
     function getAnimations() {
@@ -251,6 +265,8 @@
         clappingAnimation = { url: animationURL, animation: animation, resource: resource};
     }
 
+    // If we're currently fading out the appreciation sounds on an interval,
+    // clear that interval.
     function maybeClearSoundFadeInterval() {
         if (soundFadeInterval) {
             Script.clearInterval(soundFadeInterval);
@@ -258,6 +274,8 @@
         }
     }
 
+    // Fade out the appreciation sounds by quickly
+    // lowering the global current intensity.
     var soundFadeInterval = false;
     var FADE_INTERVAL_MS = 20;
     var FADE_OUT_STEP_SIZE = 0.05; // unitless
@@ -270,18 +288,21 @@
             if (currentIntensity <= 0) {
                 if (soundInjector) {
                     soundInjector.stop();
+                    currentSound = "none";
                     soundInjector = false;
                 }
 
                 updateCurrentIntensityUI();
 
                 maybeClearSoundFadeInterval();
-            } else {
-                fadeIntensity(currentIntensity, VOLUME_MAX_STEP_SIZE_DESKTOP);
             }
+
+            fadeIntensity(currentIntensity, INTENSITY_MAX_STEP_SIZE_DESKTOP);
         }, FADE_INTERVAL_MS);
     }
 
+    // Calculates the audio injector volume based on 
+    // the current global appreciation intensity and some min/max values.
     var MIN_VOLUME_CLAP = 0.05;
     var MAX_VOLUME_CLAP = 1.0;
     var MIN_VOLUME_WHISTLE = 0.1;
@@ -304,20 +325,23 @@
         return vol;
     }
 
+    // Modifies the global currentIntensity. Moves towards the targetIntensity,
+    // but never moves faster than a given max step size per function call.
+    // Also clamps the intensity to a min of 0 and a max of 1.0. 
     var currentIntensity = 0;
-    var VOLUME_MAX_STEP_SIZE = 0.003; // unitless, determined empirically
-    var VOLUME_MAX_STEP_SIZE_DESKTOP = 1; // unitless, determined empirically
+    var INTENSITY_MAX_STEP_SIZE = 0.003; // unitless, determined empirically
+    var INTENSITY_MAX_STEP_SIZE_DESKTOP = 1; // unitless, determined empirically
     var MAX_CLAP_INTENSITY = 0.55; // Unitless, determined empirically
     var MAX_WHISTLE_INTENSITY = 1.0; // Unitless, determined empirically
-    function fadeIntensity(targetVolume, maxStepSize) {
+    function fadeIntensity(targetIntensity, maxStepSize) {
         if (!maxStepSize) {
-            maxStepSize = VOLUME_MAX_STEP_SIZE;
+            maxStepSize = INTENSITY_MAX_STEP_SIZE;
         }
 
-        var volumeDelta = targetVolume - currentIntensity;
+        var volumeDelta = targetIntensity - currentIntensity;
         volumeDelta = Math.min(Math.abs(volumeDelta), maxStepSize);
 
-        if (targetVolume < currentIntensity) {
+        if (targetIntensity < currentIntensity) {
             volumeDelta *= -1;
         }
 
@@ -328,6 +352,7 @@
 
         updateCurrentIntensityUI();
 
+        // Don't adjust volume or position while a sound is playing.
         if (!soundInjector || soundInjector.isPlaying()) {
             return;
         }
@@ -340,6 +365,11 @@
         soundInjector.setOptions(injectorOptions);
     }
 
+    // Call this function to actually play a sound.
+    // Doesn't play a new sound if a sound is playing AND (you're whistling OR you're in HMD)
+    // Injectors are placed between the user's hands (at the same location as the apprecation
+    // entity) and are randomly pitched between a MIN and MAX value.
+    // Only uses one injector, ever.
     var soundInjector = false;
     var MINIMUM_PITCH = 0.85;
     var MAXIMUM_PITCH = 1.15;
@@ -350,6 +380,7 @@
 
         if (soundInjector) {
             soundInjector.stop();
+            currentSound = "none";
             soundInjector = false;
         }
 
@@ -360,17 +391,22 @@
         });
     }
 
+    // Returns true if the global intensity and user settings dictate that clapping is the
+    // right thing to do.
     function shouldClap() {
         return (currentIntensity > 0.0 && neverWhistleEnabled) ||
             (currentIntensity > 0.0 && currentIntensity <= MAX_CLAP_INTENSITY);
     }
 
+    // Returns true if the global intensity and user settings dictate that whistling is the
+    // right thing to do.
     function shouldWhistle() {
         return currentIntensity > MAX_CLAP_INTENSITY &&
             currentIntensity <= MAX_WHISTLE_INTENSITY;
     }
 
-    var currentSound;
+    // Selects the correct sound, then plays it.
+    var currentSound = "none";
     function selectAndPlaySound() {
         if (shouldClap()) {
             currentSound = "clap";
@@ -381,6 +417,8 @@
         }
     }
 
+    // If there exists a VR debounce timer (used for not playing sounds too often),
+    // clear it.
     function maybeClearVRDebounceTimer() {
         if (vrDebounceTimer) {
             Script.clearTimeout(vrDebounceTimer);
@@ -388,6 +426,11 @@
         }
     }
 
+    // Calculates the current intensity of appreciation based on the user's
+    // hand velocity (rotational and linear).
+    // Each type of velocity is weighted differently when determining the final intensity.
+    // The VR debounce timer length changes based on current intensity. This forces
+    // sounds to play further apart when the user isn't appreciating hard.
     var MAX_VELOCITY_CM_PER_SEC = 110; // determined empirically
     var MAX_ANGULAR_VELOCITY_LENGTH = 1.5; // determined empirically
     var LINEAR_VELOCITY_WEIGHT = 0.7; // This and the line below must add up to 1.0
@@ -406,14 +449,14 @@
         var averageAngularVelocityIntensity = (leftHandAngularVelocityLength + rightHandAngularVelocityLength) / 2;
         averageAngularVelocityIntensity = Math.min(averageAngularVelocityIntensity, MAX_ANGULAR_VELOCITY_LENGTH);
 
-        var cheerIntensity =
+        var appreciationIntensity =
             averageLinearVelocity / MAX_VELOCITY_CM_PER_SEC * LINEAR_VELOCITY_WEIGHT +
             averageAngularVelocityIntensity / MAX_ANGULAR_VELOCITY_LENGTH * ANGULAR_VELOCITY_LENGTH_WEIGHT;
 
-        fadeIntensity(cheerIntensity);
+        fadeIntensity(appreciationIntensity);
         
         var vrDebounceTimeout = VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS +
-            (VR_DEBOUNCE_TIMER_TIMEOUT_MAX_MS - VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS) * (1.0 - cheerIntensity);
+            (VR_DEBOUNCE_TIMER_TIMEOUT_MAX_MS - VR_DEBOUNCE_TIMER_TIMEOUT_MIN_MS) * (1.0 - appreciationIntensity);
         // This timer forces a minimum tail duration for all sound clips
         if (!vrDebounceTimer) {
             selectAndPlaySound();
@@ -423,6 +466,7 @@
         }
     }
 
+    // Gets both hands' linear velocity.
     var lastLeftHandPosition = false;
     var lastRightHandPosition = false;
     function getHandsLinearVelocity() {
@@ -452,6 +496,7 @@
         return returnObject;
     }
 
+    // Gets both hands' angular velocity.
     var lastLeftHandRotation = false;
     var lastRightHandRotation = false;
     function getHandsAngularVelocity() {
@@ -484,6 +529,9 @@
         return returnObject;
     }
 
+    // Calculates the hand effect (see above). Gets called on an interval,
+    // but only if the user's hands are above their head. This saves processing power.
+    // Also sets up the `updateIntensityEntity` interval.
     function handVelocityCheck() {
         if (!handsAreAboveHead) {
             return;
@@ -514,6 +562,7 @@
 
         if (soundInjector) {
             soundInjector.stop();
+            currentSound = "none";
             soundInjector = false;
         }
         
@@ -522,6 +571,7 @@
 
     // Sets up an interval that'll check the avatar's hand's velocities.
     // This is used for calculating the effect.
+    // If the user isn't in HMD, we'll never set up this interval.
     var handVelocityCheckInterval = false;
     var HAND_VELOCITY_CHECK_INTERVAL_MS = 10;
     function maybeSetupHandVelocityCheckInterval() {
@@ -533,6 +583,9 @@
         handVelocityCheckInterval = Script.setInterval(handVelocityCheck, HAND_VELOCITY_CHECK_INTERVAL_MS);
     }
 
+    // Checks the position of the user's hands to determine if they're above their head.
+    // If they are, sets up the hand velocity check interval (see above).
+    // If they aren't, clears that interval and stops the apprecation sound.
     var handsAreAboveHead = false;
     function handPositionCheck() {
         var leftHandPosition = MyAvatar.getJointPosition("LeftHand");
@@ -559,7 +612,7 @@
         }
     }
 
-    // If the app is enabled, sets up an interval that'll check if the avatar's hands are above their head
+    // If the app is enabled, sets up an interval that'll check if the avatar's hands are above their head.
     var handPositionCheckInterval = false;
     var HAND_POSITION_CHECK_INTERVAL_MS = 200;
     function maybeSetupHandPositionCheckInterval() {
@@ -572,38 +625,43 @@
         handPositionCheckInterval = Script.setInterval(handPositionCheck, HAND_POSITION_CHECK_INTERVAL_MS);
     }
 
-    function maybeClearLowerCheeringVolumeInterval() {
-        if (lowerCheeringVolumeInterval) {
-            Script.clearInterval(lowerCheeringVolumeInterval);
-            lowerCheeringVolumeInterval = false;
+    // If the interval that periodically lowers the apprecation volume is set up, clear it.
+    function maybeClearSlowAppreciationInterval() {
+        if (slowAppreciationInterval) {
+            Script.clearInterval(slowAppreciationInterval);
+            slowAppreciationInterval = false;
         }
     }
 
-    function stopCheering() {
-        maybeClearStopCheeringTimeout();
-        maybeClearLowerCheeringVolumeInterval();
+    // Stop appreciating. Called when Appreciating from Desktop mode.
+    function stopAppreciating() {
+        maybeClearStopAppreciatingTimeout();
+        maybeClearSlowAppreciationInterval();
+        maybeClearUpdateIntensityEntityInterval();
         MyAvatar.restoreAnimation();
         currentAnimationFPS = INITIAL_ANIMATION_FPS;
         currentlyPlayingFrame = 0;
         currentAnimationTimestamp = 0;
     }
 
-    function maybeClearStopCheeringTimeout() {
-        if (stopCheeringTimeout) {
-            Script.clearTimeout(stopCheeringTimeout);
-            stopCheeringTimeout = false;
+    // If the timeout that stops the user's apprecation is set up, clear it.
+    function maybeClearStopAppreciatingTimeout() {
+        if (stopAppreciatingTimeout) {
+            Script.clearTimeout(stopAppreciatingTimeout);
+            stopAppreciatingTimeout = false;
         }
     }
 
+    // Called on an interval. Slows down the user's appreciation!
     var VOLUME_STEP_DOWN_DESKTOP = 0.01; // unitless, determined empirically
-    function slowCheeringAndLowerCheeringVolume() {
+    function slowAppreciation() {
         currentIntensity -= VOLUME_STEP_DOWN_DESKTOP;
-        fadeIntensity(currentIntensity, VOLUME_MAX_STEP_SIZE_DESKTOP);
+        fadeIntensity(currentIntensity, INTENSITY_MAX_STEP_SIZE_DESKTOP);
 
         currentAnimation = selectAnimation();
 
         if (!currentAnimation) {
-            stopCheering();
+            stopAppreciating();
             return;
         }
 
@@ -627,6 +685,7 @@
         currentAnimationTimestamp = Date.now();
     }
 
+    // Selects the proper animation to use when Appreciating in Desktop mode.
     function selectAnimation() {
         if (shouldClap()) {
             if (currentAnimation === whistlingAnimation) {
@@ -643,37 +702,48 @@
         }
     }
 
+    // Called when the Z key is pressed (and some other conditions are met).
+    // 1. (Maybe) clears old intervals
+    // 2. Steps up the global currentIntensity, then forces the effect/sound to fade/play immediately
+    // 3. Selects an animation to play based on various factors, then plays it
+    //     - Stops appreciating if the selected animation is falsey
+    // 4. Sets up the "Slow Appreciation" interval which slows appreciation over time
+    // 5. Modifies the avatar's animation based on the current appreciation intensity
+    //     - Since there's no way to modify animation FPS on-the-fly, we have to calculate
+    //         where the animation should start based on where it was before changing FPS
+    // 6. Sets up the `updateIntensityEntity` interval if one isn't already setup
     var currentAnimation = false;
     var INITIAL_ANIMATION_FPS = 7;
     var currentAnimationFPS = INITIAL_ANIMATION_FPS;
-    var lowerCheeringVolumeInterval = false;
-    var SLOW_CHEERING_INTERVAL_MS = 100;
+    var slowAppreciationInterval = false;
+    var SLOW_APPRECIATION_INTERVAL_MS = 100;
     var currentlyPlayingFrame = 0;
     var currentAnimationTimestamp;
     var CHEERING_FPS_MAX = 80;
     var VOLUME_STEP_UP_DESKTOP = 0.035; // unitless, determined empirically
     var CLAP_ANIMATION_FPS_BOOST = 15;
     function keyPressed() {
+        // Don't do anything if the animations aren't cached.
         if (!whistlingAnimation || !clappingAnimation) {
             return;
         }
 
         maybeClearSoundFadeInterval();
-        maybeClearStopCheeringTimeout();
+        maybeClearStopAppreciatingTimeout();
 
         currentIntensity += VOLUME_STEP_UP_DESKTOP;
-        fadeIntensity(currentIntensity, VOLUME_MAX_STEP_SIZE_DESKTOP);
+        fadeIntensity(currentIntensity, INTENSITY_MAX_STEP_SIZE_DESKTOP);
         selectAndPlaySound();
-
-        if (!lowerCheeringVolumeInterval) {
-            lowerCheeringVolumeInterval = Script.setInterval(slowCheeringAndLowerCheeringVolume, SLOW_CHEERING_INTERVAL_MS);
-        }
 
         currentAnimation = selectAnimation();
 
         if (!currentAnimation) {
-            stopCheering();
+            stopAppreciating();
             return;
+        }
+
+        if (!slowAppreciationInterval) {
+            slowAppreciationInterval = Script.setInterval(slowAppreciation, SLOW_APPRECIATION_INTERVAL_MS);
         }
 
         var frameCount = currentAnimation.animation.frames.length;
@@ -703,6 +773,9 @@
         }
     }
     
+    // The listener for all in-app keypresses. Listens for an unshifted, un-alted, un-ctrl'd
+    // "Z" keypress. Only listens when in Desktop mode. If the user is holding the key down,
+    // we make sure not to call the `keyPressed()` handler too often using the `desktopDebounceTimer`.
     var desktopDebounceTimer = false;
     var DESKTOP_DEBOUNCE_TIMEOUT_MS = 160;
     function keyPressEvent(event) {
@@ -727,21 +800,22 @@
         }
     }
     
-    // Clear the "cheering" animation if it's running
-    var stopCheeringTimeout = false;
-    var STOP_CHEERING_TIMEOUT_MS = 1000;
-    function stopSoundSoon() {
-        maybeClearStopCheeringTimeout();
+    // Sets up a timeout that will fade out the appreciation sound, then stop it.
+    var stopAppreciatingTimeout = false;
+    var STOP_APPRECIATING_TIMEOUT_MS = 1000;
+    function stopAppreciatingSoon() {
+        maybeClearStopAppreciatingTimeout();
 
         if (currentIntensity > 0) {
-            stopCheeringTimeout = Script.setTimeout(fadeOutAndStopSound, STOP_CHEERING_TIMEOUT_MS);
+            stopAppreciatingTimeout = Script.setTimeout(fadeOutAndStopSound, STOP_APPRECIATING_TIMEOUT_MS);
         }
     }
     
+    // When the "Z" key is released, we want to stop appreciating a short time later.
     function keyReleaseEvent(event) {
         if ((event.text.toUpperCase() === "Z") &&
             !event.isAutoRepeat) {
-            stopSoundSoon();
+            stopAppreciatingSoon();
         }
     }
 
@@ -761,8 +835,8 @@
         } else {
             maybeClearHandPositionCheckInterval();
             maybeClearHandVelocityCheckIntervalAndStopSound();
-            maybeClearStopCheeringTimeout();
-            stopCheering();
+            maybeClearStopAppreciatingTimeout();
+            stopAppreciating();
 
             if (keyEventsWired) {         
                 Controller.keyPressEvent.disconnect(keyPressEvent);
@@ -772,8 +846,14 @@
         }
     }
 
-
     // Handles incoming messages from the UI
+    // - "eventBridgeReady" - The App's UI will send this when it's ready to
+    //     receive events over the Event Bridge
+    // - "appreciateSwitchClicked" - The App's UI will send this when the user
+    //     clicks the main toggle switch in the top right of the app
+    // - "neverWhistleCheckboxClicked" - Sent when the user clicks the
+    //     "Never Whistle" checkbox
+    // - "setEntityColor" - Sent when the user chooses a new Entity Color.
     function onMessage(message) {
         switch (message.method) {
             case "eventBridgeReady":
@@ -809,7 +889,7 @@
         }
     }
     
-    // Called when the script is stopped
+    // Called when the script is stopped. STOP ALL THE THINGS!
     function onScriptEnding() {
         maybeClearHandPositionCheckInterval();
         maybeClearHandVelocityCheckIntervalAndStopSound();
@@ -817,8 +897,8 @@
         maybeClearVRDebounceTimer();
         maybeClearUpdateIntensityEntityInterval();
 
-        maybeClearStopCheeringTimeout();
-        stopCheering();
+        maybeClearStopAppreciatingTimeout();
+        stopAppreciating();
 
         if (desktopDebounceTimer) {
             Script.clearTimeout(desktopDebounceTimer);
