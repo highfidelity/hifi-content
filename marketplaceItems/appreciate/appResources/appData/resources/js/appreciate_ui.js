@@ -38,7 +38,6 @@ function setEntityColor(jscolor) {
         "green": jscolor.rgb[1],
         "blue": jscolor.rgb[2]
     };
-    console.log(JSON.stringify(newEntityColor));
 
     var startColor = {
         "red": Math.floor(newEntityColor.red * START_COLOR_MULTIPLIER),
