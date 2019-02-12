@@ -106,6 +106,7 @@
         "green": 255,
         "blue": 5
     };
+    var MIN_COLOR_MULTIPLIER = 0.4;
     var intensityEntityColorMax = JSON.parse(Settings.getValue("appreciate/entityColor",
         JSON.stringify(INTENSITY_ENTITY_COLOR_MAX_DEFAULT)));
     var ANGVEL_ENTITY_MULTIPLY_FACTOR = 62;
@@ -167,15 +168,16 @@
     function updateIntensityEntity() {
         if (currentIntensity > 0) {
             if (intensityEntity) {
-                intensityEntityColorMin.red = intensityEntityColorMax.red * 0.4;
-                intensityEntityColorMin.green = intensityEntityColorMax.green * 0.4;
-                intensityEntityColorMin.blue = intensityEntityColorMax.blue * 0.4;
+                intensityEntityColorMin.red = intensityEntityColorMax.red * MIN_COLOR_MULTIPLIER;
+                intensityEntityColorMin.green = intensityEntityColorMax.green * MIN_COLOR_MULTIPLIER;
+                intensityEntityColorMin.blue = intensityEntityColorMax.blue * MIN_COLOR_MULTIPLIER;
 
                 var color = linearScaleColor(currentIntensity, intensityEntityColorMin, intensityEntityColorMax);
 
                 if (intensityMaterialEntity) {
                     Entities.editEntity(intensityMaterialEntity, {
-                        materialData: JSON.stringify({"materialVersion": 1,
+                        materialData: JSON.stringify({
+                            "materialVersion": 1,
                             "materials": [
                                 {
                                     "roughness": 0.0,
