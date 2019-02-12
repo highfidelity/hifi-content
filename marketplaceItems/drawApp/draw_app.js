@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* global  Audio, Camera, Controller, Entities, HMD, MyAvatar, Quat, Script, SoundCache, Tablet, Vec3, Window */
+/* global  Audio, Camera, Controller, Entities, HMD, MyAvatar, Quat, Script, Settings, SoundCache, Tablet, Vec3, Window */
 
 (function() {
     // *************************************
@@ -38,29 +38,41 @@
 
     /* CREATE A MARKER: Checks that marker does not already exist, then calculate position of avatar's hand and 
     create a marker there */
+    var DEFAULT_RT_LOCAL_POSITION = { x: -0.0011, y: 0.0458, z: 0.0195 };
+    var DEFAULT_LT_LOCAL_POSITION = { x: -0.0011, y: 0.0458, z: 0.0195 };
+    var DEFAULT_RT_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: -90, y: 0, z: 0 });
+    var DEFAULT_LT_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: -90, y: 0, z: 0 });
+    print("DEFAULT LOCALROTATION IS ", JSON.stringify(Quat.fromVec3Degrees({ x: -90, y: 0, z: 0 })));
     var marker;
     function createMarker() {
         if (marker) {
             return;
         }
         var parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint);
-        var localPosition = (dominantHandJoint === "RightHand") ? { x: -0.0011, y: 0.0458, z: 0.0195 } : 
-            { x: -0.0011, y: 0.0458, z: 0.0195 };
-        var localRotation = (dominantHandJoint === "RightHand") ? Quat.fromVec3Degrees({ x: -90, y: 0, z: 0 }) : 
-            Quat.fromVec3Degrees({ x: -90, y: 0, z: 0 });
-        // We'll need a better back up joint for avatars without the required joint in the future
-        // get dimensions based on avatar height
+        var localPosition = (dominantHandJoint === "RightHand") ? DEFAULT_RT_LOCAL_POSITION : DEFAULT_LT_LOCAL_POSITION;
+        var localRotation = (dominantHandJoint === "RightHand") ? DEFAULT_RT_LOCAL_ROTATION : DEFAULT_LT_LOCAL_ROTATION;
+        var currentSavedData = Settings.getValue("DrawAppMarkerProperties");
+        if (currentSavedData) {
+            if (parentJointIndex === currentSavedData.parentJointIndex) {
+                if (dominantHandJoint === "RightHand") {
+                    localPosition = currentSavedData.localPositionRT;
+                    localRotation = currentSavedData.localRotationRT;
+                } else {
+                    localPosition = currentSavedData.localPositionLT;
+                    localRotation = currentSavedData.localRotationLT;
+                }
+            }
+        }
         marker = Entities.addEntity({
             name: "Draw App Marker",
             type: "Model",
             description: "CC_BY Poly by Google",
-            modelURL: Script.resolvePath("assets/models/sharpie.obj"),
+            modelURL: Script.resolvePath("assets/models/marker-white.fbx"),
             parentID: MyAvatar.sessionUUID,
-            parentJointName: dominantHandJoint,
             parentJointIndex: parentJointIndex,
             localPosition: localPosition,
             localRotation: localRotation,
-            localDimensions: { x: 0.0447, y: 0.0281, z: 0.1788 }
+            localDimensions: { x: 0.03, y: 0.03, z: 0.18 }
         }, 'avatar');
     }
 
@@ -70,47 +82,48 @@
     var controllerMapping;
     var controllerMappingName = 'Hifi-DrawApp';
     var activeTriggerPress = false;
+    var activeGripPress = false;
     function registerControllerMapping() {
         controllerMapping = Controller.newMapping(controllerMappingName);
         controllerMapping.from(Controller.Standard.RT).to(function (value) {
-            if (dominantHand === "right" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
-                activeTriggerPress = true;
-                triggerPressed();
-            } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
-                activeTriggerPress = false;
-                triggerReleased();
+            if (dominantHand === "right") {
+                if (value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
+                    activeTriggerPress = true;
+                    triggerPressed();
+                } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
+                    triggerReleased();
+                }
             }
-            return;
         });
         controllerMapping.from(Controller.Standard.RightGrip).to(function (value) {
-            if (dominantHand === "right" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
-                activeTriggerPress = true;
-                gripPressed();
-            } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
-                activeTriggerPress = false;
-                gripReleased();
+            if (dominantHand === "right") {
+                if (value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeGripPress) {
+                    activeGripPress = true;
+                    gripPressed();
+                } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeGripPress) {
+                    gripReleased();
+                }
             }
-            return;
         });
         controllerMapping.from(Controller.Standard.LT).to(function (value) {
-            if (dominantHand === "left" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress ) {
-                activeTriggerPress = true;
-                triggerPressed();
-            } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
-                activeTriggerPress = false;
-                triggerReleased();
+            if (dominantHand === "left") {
+                if (value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress ) {
+                    activeTriggerPress = true;
+                    triggerPressed();
+                } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
+                    triggerReleased();
+                }
             }
-            return;
         });
         controllerMapping.from(Controller.Standard.LeftGrip).to(function (value) {
-            if (dominantHand === "right" && value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
-                activeTriggerPress = true;
-                gripPressed();
-            } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
-                activeTriggerPress = false;
-                gripReleased();
+            if (dominantHand === "left") {
+                if (value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeGripPress) {
+                    activeGripPress = true;
+                    gripPressed();
+                } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeGripPress) {
+                    gripReleased();
+                }
             }
-            return;
         });
     }
 
@@ -134,7 +147,7 @@
     var lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
     var lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
     function triggerPressed() {
-        if (tablet.tabletShown) {
+        if (tablet.tabletShown || activeGripPress) {
             return;
         }
         var markerProperties = Entities.getEntityProperties(marker, ['dimensions', 'position', 'rotation']);
@@ -145,7 +158,8 @@
         lineStartPosition = markerTipWorldPosition;
         previousLinePoint = markerTipWorldPosition;
         distanceCheckInterval = Script.setInterval(function() {
-            markerProperties = Entities.getEntityProperties(marker, ['dimensions', 'position']);
+            markerTipLocalPosition = Vec3.multiplyQbyV(markerProperties.rotation, markerTipLocalOffset);
+            markerProperties = Entities.getEntityProperties(marker, ['dimensions', 'position', 'rotation']);
             markerTipWorldPosition = Vec3.sum(markerProperties.position, markerTipLocalPosition);
             if (Vec3.distance(previousLinePoint, markerTipWorldPosition) > MINIMUM_MOVEMENT_TO_DRAW_M) {
                 var displacementFromStart = Vec3.subtract(markerTipWorldPosition, lineStartPosition);
@@ -162,7 +176,8 @@
                         color: { red: 255, green: 255, blue: 255 },
                         isUVModeStretch: true,
                         lifetime: DECAY_TIME_S,
-                        collisionless: true
+                        collisionless: true,
+                        faceCamera: true
                     }, 'avatar');
                 } else {
                     var lineProperties = Entities.getEntityProperties(polyLine, ['linePoints', 'normals', 
@@ -183,7 +198,8 @@
                             color: { red: 255, green: 255, blue: 255 },
                             isUVModeStretch: true,
                             lifetime: DECAY_TIME_S,
-                            collisionless: true
+                            collisionless: true,
+                            faceCamera: true
                         }, 'avatar');
                     } else {
                         lineProperties.linePoints.push(displacementFromStart);
@@ -205,17 +221,20 @@
     /* ON TRIGGER RELEASE DRAW: Stop checking distance hand has moved and update current polyline lifetime to decay in 1 
     minute. */
     function triggerReleased() {
-        if (distanceCheckInterval) {
-            Script.clearInterval(distanceCheckInterval);
-            distanceCheckInterval = null;
+        if (activeTriggerPress) {
+            activeTriggerPress = false;
+            if (distanceCheckInterval) {
+                Script.clearInterval(distanceCheckInterval);
+                distanceCheckInterval = null;
+            }
+            if (injector) {
+                injector.stop();
+            }
+            polyLine = null;
+            linePoints = [{x: 0, y: 0, z: 0 }];
+            lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
+            lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
         }
-        if (injector) {
-            injector.stop();
-        }
-        polyLine = null;
-        linePoints = [{x: 0, y: 0, z: 0 }];
-        lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-        lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
     }
 
     /* ON GRIP PRESS ERASE: Set an interval that finds the nearest line within a maximum distance to marker tip and erases it */
@@ -224,7 +243,7 @@
     var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
     var deletingInterval;
     function gripPressed() {
-        if (tablet.tabletShown) {
+        if (tablet.tabletShown || activeTriggerPress) {
             return;
         }
         deletingInterval = Script.setInterval(function() {
@@ -256,13 +275,15 @@
             }
         }, DELETE_AGAIN_MS);
     }
-   
 
     /* ON GRIP RELEASE ERASE: Stop the interval that is searching for lines to delete */
     function gripReleased() {
-        if (deletingInterval) {
-            Script.clearInterval(deletingInterval);
-            deletingInterval = null;
+        if (activeGripPress) {
+            activeGripPress = false;
+            if (deletingInterval) {
+                Script.clearInterval(deletingInterval);
+                deletingInterval = null;
+            }
         }
     }
 
@@ -310,7 +331,8 @@
                         color: { red: 255, green: 255, blue: 255 },
                         isUVModeStretch: true,
                         lifetime: DECAY_TIME_S,
-                        collisionless: true
+                        collisionless: true,
+                        faceCamera: true
                     }, 'avatar');
                 } else {
                     var lineProperties = Entities.getEntityProperties(polyLine, ['linePoints', 'normals', 
@@ -331,7 +353,8 @@
                             color: { red: 255, green: 255, blue: 255 },
                             isUVModeStretch: true,
                             lifetime: DECAY_TIME_S,
-                            collisionless: true
+                            collisionless: true,
+                            faceCamera: true
                         }, 'avatar');
                     } else {
                         lineProperties.linePoints.push(displacementFromStart);
@@ -364,14 +387,53 @@
         }
     }
 
-    // On clicking the app button on the toolbar or tablet, if we are opening the app, play a sound and get the marker. 
-    // If we are closing the app, remove the marker
+    /* SAVE MARKER ROTATION AND POSITION IN HAND: Save the current data to setting */
+    function saveDataToSettings() {
+        var markerProperties = Entities.getEntityProperties(marker, ['parentJointIndex', 'localPosition', 'localRotation']);
+        print("LOCAL ROTATION: ", JSON.stringify(markerProperties.localRotation));
+        var currentJointName;
+        if (MyAvatar.getJointIndex("RightHand") === markerProperties.parentJointIndex) {
+            currentJointName = "RightHand";
+        } else if (MyAvatar.getJointIndex("LeftHand") === markerProperties.parentJointIndex) {
+            currentJointName = "LeftHand";
+        } else {
+            return;
+        }
+        var currentSavedData = Settings.getValue("DrawAppMarkerProperties");
+        if (!currentSavedData) {
+            Settings.setValue("DrawAppMarkerProperties", {
+                parentJointIndex: markerProperties.parentJointIndex,
+                localPositionRT: (currentJointName === "RightHand") ? markerProperties.localPosition 
+                    : DEFAULT_RT_LOCAL_POSITION,
+                localPositionLT: (currentJointName === "LeftHand") ? markerProperties.localPosition 
+                    : DEFAULT_LT_LOCAL_POSITION,
+                localRotationRT: (currentJointName === "RightHand") ? markerProperties.localRotation
+                    : DEFAULT_RT_LOCAL_ROTATION,
+                localRotationLT: (currentJointName === "LeftHand") ? markerProperties.localRotation
+                    : DEFAULT_LT_LOCAL_ROTATION
+            });
+        } else {
+            currentSavedData.parentJointIndex = markerProperties.parentJointIndex;
+            if (currentJointName === "RightHand") {
+                currentSavedData.localPositionRT = markerProperties.localPosition;
+                currentSavedData.localRotationRT = markerProperties.localRotation;
+            } else if (currentJointName === "LeftHand") {
+                currentSavedData.localPositionLT = markerProperties.localPosition;
+                currentSavedData.localRotationLT = markerProperties.localRotation;
+            }
+            Settings.setValue("DrawAppMarkerProperties", currentSavedData);
+        }
+    }
+
+    /* ON CLICKING APP BUTTON: (on the toolbar or tablet) if we are opening the app, play a sound and get the marker.
+    If we are closing the app, remove the marker */
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerOpen.mp3?000'));
     var OPEN_SOUND_VOLUME = 0.2;
     var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerClose.mp3'));
     var CLOSE_SOUND_VOLUME = 0.3;
     function onClicked() {
         if (marker) {
+            saveDataToSettings();
             button.editProperties({ isActive: false });
             if (HMD.active) {
                 closeHMDMode();
@@ -391,15 +453,19 @@
             button.editProperties({ isActive: true });
             playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true, false);
             createMarker();
-            // close tablet so user will be left in state where they can draw
         }
     }
 
     /* ON STOPPING THE SCRIPT: Make sure the marker gets deleted and its variable set back to null 
     if applicable. Search for any unreferenced markers and delete if found. */
     function appEnding() {
+        if (marker) {
+            saveDataToSettings();
+        }
         cleanUp();
+        HMD.displayModeChanged.disconnect(displayModeChange);
         button.clicked.disconnect(onClicked);
+        Window.domainChanged.disconnect(domainChanged);
         tablet.removeButton(button);
         if (controllerMapping) {
             controllerMapping.disable();
@@ -418,23 +484,33 @@
             Entities.deleteEntity(marker);
             marker = null;
         }
+        if (distanceCheckInterval) {
+            Script.clearInterval(distanceCheckInterval);
+            distanceCheckInterval = null;
+        }
+        if (deletingInterval) {
+            Script.clearInterval(deletingInterval);
+            deletingInterval = null;
+        }
         button.editProperties({ isActive: false });
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
             var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
             if (name === "Draw App Marker") {
-                Entities.deleteEntity(avatarEntity);
+                Entities.deleteEntity(avatarEntity.id);
             }
         });
     }
 
     /* WHEN TOGGLING DISPLAY MODE: Set variable to track which method to use to draw lines */
     function displayModeChange() {
-        if (HMD.active) {
-            closeDesktopMode();
-            setUpHMDMode();
-        } else {
-            closeHMDMode();
-            setUpDesktopMode();
+        if (marker) {
+            if (HMD.active) {
+                closeDesktopMode();
+                setUpHMDMode();
+            } else {
+                closeHMDMode();
+                setUpDesktopMode();
+            }
         }
     }
 
@@ -474,8 +550,14 @@
     }
 
     /* WHEN USER DOMAIN CHANGES: Close app to remove marker in hand when leaving the domain */
+    var WAIT_TO_CLEAN_UP = 2000;
     function domainChanged() {
-        cleanUp();
+        if (marker) {
+            saveDataToSettings();
+        }
+        Script.setTimeout(function() {
+            cleanUp();
+        }, WAIT_TO_CLEAN_UP);
     }
 
     /* WHEN USER CHANGES DOMINANT HAND: Switch default hand to place marker in */
@@ -485,6 +567,14 @@
         dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
         if (marker) {
             onClicked();
+        }
+        if (distanceCheckInterval) {
+            Script.clearInterval(distanceCheckInterval);
+            distanceCheckInterval = null;
+        }
+        if (deletingInterval) {
+            Script.clearInterval(deletingInterval);
+            deletingInterval = null;
         }
         Script.setTimeout(function() {
             onClicked();
