@@ -351,6 +351,7 @@
     function unload() {
 
         deleteMirror();
+
         // deleteFlowDebugSpheres();
         // removeAvi as avatar and restore old avatar
         //      if no old avatar in Settings setAvatar to Woody?
@@ -445,25 +446,12 @@
                 break;
             case EVENT_UPDATE_FLOW:
 
-                var updates = data.updates;
-
-                switch (data.subtype) {
-                    case "hair":
-                        print("FLOW: updating hair flow");
-                        // updateHairFlow();
-                        break;
-                    case "joints":
-                        print("FLOW: updating joints flow");
-                        // updateJointsFlow();
-                        break;
-                    case "debugToggle":
-                        print("FLOW: show/hide debug spheres", updates);
-                        break;
-                    case "collisionsToggle":
-                        print("FLOW: enable/disable collisions", updates);
-                        break;
-                    default:
-                        break;
+                if (data.subtype === "hair") {
+                    print("FLOW: updating hair flow");
+                    // updateHairFlow();
+                } else if (data.subtype === "joints") {
+                    print("FLOW: updating joints flow");
+                    // updateJointsFlow();
                 }
 
                 break;
