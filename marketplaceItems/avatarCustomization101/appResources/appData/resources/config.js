@@ -86,44 +86,44 @@ var CONFIG = {
                     PROPERTIES_LISTS: {
                         shadeless: [
                             {
-                                key: "albedo", hasMap: true,
+                                key: "albedo",
                                 componentType: STRING_COLOR
                             }
                         ],
                         pbr: [
                             // color
                             {
-                                key: "albedo", hasMap: true,
+                                key: "albedo",
                                 componentType: STRING_COLOR
                             },
                             {
-                                key: "emissive", hasMap: true,
+                                key: "emissive",
                                 componentType: STRING_COLOR
                             },
                             // slider
                             {
-                                key: "roughness", hasMap: true,
+                                key: "roughness",
                                 componentType: STRING_SLIDER
                             },
                             {
-                                key: "metallic", hasMap: true,
+                                key: "metallic",
                                 componentType: STRING_SLIDER
                             },
                             {
-                                key: "scattering", hasMap: true,
+                                key: "scattering",
                                 componentType: STRING_SLIDER
                             },
                             {
-                                key: "opacity", hasMap: true,
+                                key: "opacity",
                                 componentType: STRING_SLIDER
                             },
                             // map only
                             {
-                                key: "normalMap", hasMap: false,
+                                key: "normalMap",
                                 componentType: STRING_MAP_ONLY
                             },
                             {
-                                key: "occlusionMap", hasMap: false,
+                                key: "occlusionMap",
                                 componentType: STRING_MAP_ONLY
                             }
                         ],

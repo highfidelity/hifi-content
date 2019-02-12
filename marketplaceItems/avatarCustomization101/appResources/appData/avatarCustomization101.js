@@ -40,10 +40,10 @@
 
     function spawnMirror() {
         // create mirrror parent to avatar
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 0.5, z: -MIRROR_DISTANCE_M}));
+        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_M }));
         mirrorCubeID = Entities.addEntity({
             type: "Box",
-            name: "mirror",  
+            name: "mirror",
             dimensions: {
                 "x": 0.6,
                 "y": 0.7,
@@ -54,12 +54,12 @@
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",
             collisionless: true,
             script: Script.resolvePath("./resources/modules/mirrorClient.js")
-        },"domain");
+        }, "domain");
     }
 
     function setMirrorDistanceToDefault() {
         // edit mirror properties to set mirror distance to MIRROR_DISTANCE_M
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 0.5, z: -MIRROR_DISTANCE_M}));
+        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_M }));
         Entities.editEntity(mirrorCubeID, {
             position: position
         });
@@ -67,7 +67,7 @@
 
     function setMirrorDistanceToBlendshapes() {
         // edit mirror properties to set mirror distance to MIRROR_DISTANCE_BLENDSHAPES_M
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 0.5, z: -MIRROR_DISTANCE_BLENDSHAPES_M}));
+        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_BLENDSHAPES_M }));
         Entities.editEntity(mirrorCubeID, {
             position: position
         });
@@ -203,6 +203,46 @@
     }
 
     // #endregion BLENDSHAPES
+
+    // #region FLOW
+
+    // Called when user navigates to flow tab
+    function createFlowDebugSpheres() {
+        // draw debug circles on the joints
+        // get function from flow app
+        // get function from flow app
+    }
+
+    function deleteFlowDebugSpheres() {
+        // if debug spheres exist
+        // delete
+        // get function from flow app
+    }
+
+    function updateFlow(newFlowDataToApply) {
+        // check update interval from flow app
+    }
+
+    // #endregion FLOW
+
+    // #region ANIMATION
+
+    var ANIMATION_1_DATA = {
+        startframe: null,
+        endframe: null,
+        duration: null
+    };
+    var STRING_DEFAULT_WALK = "defaultWalk"; // todo check on string
+
+    function loadAnimationsIntoCache() {
+        // loop through all animations and add them to the AnimationCache
+    }
+
+    function updateAnimation(animationName) {
+        // update default walk to animation
+    }
+
+    // #endregion
 
     // #region APP
 
