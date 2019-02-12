@@ -22,6 +22,7 @@
         if (sound.downloaded) {
             if (injector) {
                 injector.stop();
+                injector = null;
             }
             injector = Audio.playSound(sound, {
                 position: position,
@@ -42,7 +43,6 @@
     var DEFAULT_LT_LOCAL_POSITION = { x: -0.0011, y: 0.0458, z: 0.0195 };
     var DEFAULT_RT_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: -90, y: 0, z: 0 });
     var DEFAULT_LT_LOCAL_ROTATION = Quat.fromVec3Degrees({ x: -90, y: 0, z: 0 });
-    print("DEFAULT LOCALROTATION IS ", JSON.stringify(Quat.fromVec3Degrees({ x: -90, y: 0, z: 0 })));
     var marker;
     function createMarker() {
         if (marker) {
@@ -137,8 +137,8 @@
     var HALF = 0.5;
     var DECAY_TIME_S = 60;
     var MAX_LINE_POINTS = 100;
-    var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerDraw.mp3'));
-    var DRAW_SOUND_VOLUME = 0.02;
+    var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerDraw.mp3?001'));
+    var DRAW_SOUND_VOLUME = 0.01;
     var distanceCheckInterval = null;
     var polyLine = null;
     var lineStartPosition;
@@ -165,7 +165,7 @@
                 var displacementFromStart = Vec3.subtract(markerTipWorldPosition, lineStartPosition);
                 linePoints.push(displacementFromStart);
                 if (!polyLine) {
-                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, MyAvatar.position, false, true);
+                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, markerTipWorldPosition, false, true);
                     polyLine = Entities.addEntity({
                         type: "PolyLine",
                         name: "Draw App Polyline",
@@ -180,6 +180,9 @@
                         faceCamera: true
                     }, 'avatar');
                 } else {
+                    if (injector) {
+                        injector.options = { position: markerTipWorldPosition };
+                    }
                     var lineProperties = Entities.getEntityProperties(polyLine, ['linePoints', 'normals', 
                         'strokeWidths', 'age']);
                     var linePointsCount = lineProperties.linePoints.length;
@@ -229,6 +232,7 @@
             }
             if (injector) {
                 injector.stop();
+                injector = null;
             }
             polyLine = null;
             linePoints = [{x: 0, y: 0, z: 0 }];
@@ -378,6 +382,7 @@
         if (event.button === "LEFT") {
             if (injector) {
                 injector.stop();
+                injector = null;
             }
             polyLine = null;
             linePoints = [{x: 0, y: 0, z: 0 }];
@@ -390,7 +395,6 @@
     /* SAVE MARKER ROTATION AND POSITION IN HAND: Save the current data to setting */
     function saveDataToSettings() {
         var markerProperties = Entities.getEntityProperties(marker, ['parentJointIndex', 'localPosition', 'localRotation']);
-        print("LOCAL ROTATION: ", JSON.stringify(markerProperties.localRotation));
         var currentJointName;
         if (MyAvatar.getJointIndex("RightHand") === markerProperties.parentJointIndex) {
             currentJointName = "RightHand";
@@ -476,6 +480,7 @@
     function cleanUp() {
         if (injector) {
             injector.stop();
+            injector = null;
         }
         if (controllerMapping) {
             controllerMapping.disable();
