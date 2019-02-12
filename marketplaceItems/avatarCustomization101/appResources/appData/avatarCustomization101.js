@@ -1,6 +1,11 @@
+/* global GlobalDebugger */
+
 (function () {
 
+
     // Modules
+    Script.include(Script.resolvePath("https://hifi-content.s3.amazonaws.com/luis/flowFiles/flow.js"));
+
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456")),
@@ -207,20 +212,40 @@
     // #region FLOW
 
     // Called when user navigates to flow tab
-    function createFlowDebugSpheres() {
+    function addRemoveFlowDebugSpheres(isEnable) {
         // draw debug circles on the joints
         // get function from flow app
         // get function from flow app
+        var flowSettings = GlobalDebugger.getDisplayData();
+
+        // the state of flow is the opposite of what we want
+        if (flowSettings.collisions !== isEnable) {
+            GlobalDebugger.toggleDebugShapes();
+        }
     }
 
     function deleteFlowDebugSpheres() {
         // if debug spheres exist
         // delete
         // get function from flow app
+        var flowSettings = GlobalDebugger.getDisplayData();
+
+        if (flowSettings.collisions) {
+            GlobalDebugger.toggleDebugShapes();
+        }
     }
 
     function updateFlow(newFlowDataToApply) {
         // check update interval from flow app
+
+        // case MSG_JOINT_INPUT_DATA: {
+        //     GlobalDebugger.setJointDataValue(message.group, message.name, message.value);
+        //     break;
+        // }
+        // case MSG_COLLISION_INPUT_DATA: {
+        //     GlobalDebugger.setCollisionDataValue(message.group, message.name, message.value);
+        //     break;
+        // }
     }
 
     // #endregion FLOW
