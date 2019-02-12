@@ -371,7 +371,7 @@
 
             },
             onSliderChange(value, name) {
-                var sliderChange = createSliderChangeCallback(EVENT_UPDATE_BLENDSHAPE, this.dynamic.updatedProperties);
+                var sliderChange = createSliderChangeCallback(this.dynamic.updatedProperties, EVENT_UPDATE_BLENDSHAPE);
                 sliderChange(value, name);
             },
         },
