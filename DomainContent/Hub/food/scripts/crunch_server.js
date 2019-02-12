@@ -1,8 +1,8 @@
 //
-// crunch_server.js
+// crunch_server
 // 
-// Author: Milad Nazer
-// Copyright High Fidelity 2019
+// Author: Liv Erickson
+// Copyright High Fidelity 2018
 //
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
@@ -11,12 +11,13 @@
 
 (function() {
     var _entityID;
+    var LIFETIME = 30;
 
     var Food = function() {
     };
   
     Food.prototype = {
-        remotelyCallable: ['deleteFood'],
+        remotelyCallable: ['deleteFood', 'setUpFood'],
 
         preload: function(entityID) {
             _entityID = entityID;
@@ -24,6 +25,16 @@
 
         deleteFood: function() {
             Entities.deleteEntity(_entityID);
+        },
+
+        setupFood: function() {
+            var age = Entities.getEntityProperties(_entityID, "age").age;
+            Entities.editEntity( _entityID, {
+                lifetime: age + LIFETIME,
+                visible: true,
+                dynamic: true,
+                collisionless: false
+            });
         }
     };
   

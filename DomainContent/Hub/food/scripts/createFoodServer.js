@@ -58,7 +58,6 @@
             originalFoodName = properties.name;
             foodProperties = {
                 name: properties.name + "-temp",
-                descript: properties.description,
                 type: "Model",
                 shapeType: "compound",
                 modelURL: properties.modelURL,

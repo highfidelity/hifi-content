@@ -39,14 +39,7 @@
     };
 
     var setUpFood = function() {
-        var age = Entities.getEntityProperties(_this.entityID, "age").age;
-        var editJSON = {
-            lifetime: age + LIFETIME,
-            visible: true,
-            dynamic: true,
-            collisionless: false
-        };
-        Entities.editEntity(_this.entityID, editJSON);
+        Entities.callEntityServerMethod(_this.entityID, 'setupFood');
     };
 
     _this.startNearGrab = function() {
