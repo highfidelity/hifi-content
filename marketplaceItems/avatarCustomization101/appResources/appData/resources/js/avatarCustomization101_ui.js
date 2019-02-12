@@ -653,8 +653,23 @@
     Vue.component('flow-tab', {
         props: ['dynamic', 'static'],
         methods: {
-            debugToggle() {
-                console.log("toggle toggle");
+            debugToggle(value) {
+                console.log("debugToggle" + value);
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_FLOW,
+                    subtype: "debugToggle",
+                    updates: value
+                }));
+            },
+            collisionsToggle(value) {
+                console.log("collisionsToggle" + value);
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_FLOW,
+                    subtype: "collisionsToggle",
+                    updates: value
+                }));
             },
             onChangeHairFlowSlider(value, name) {
                 var sliderChange = createSliderChangeCallback(this.dynamic.hairFlowOptions, EVENT_UPDATE_FLOW, "hair");
@@ -695,7 +710,7 @@
                 ></checkbox>
 
                 <checkbox
-                    :onchange="debugToggle"
+                    :onchange="collisionsToggle"
                     :label="'Enable Collisions'"
                     v-bind:defaultvalue="true"
                 ></checkbox>
@@ -1035,7 +1050,7 @@
             <div class="form-check">
                 <input 
                     v-model="val" 
-                    v-on:change="onchange()"
+                    v-on:change="onchange(val)"
                     v-bind:id="id" 
 
                     type="checkbox" 
