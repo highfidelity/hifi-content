@@ -67,7 +67,6 @@
 
         makeDynamic: function() {
             Entities.editEntity(_entityID, {
-                dynamic: true,
                 lifetime: LIFETIME
             });
         }

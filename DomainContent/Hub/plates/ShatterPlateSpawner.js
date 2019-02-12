@@ -57,9 +57,9 @@
             dishProperties.gravity = {x:0, y: -4, z: 0};
             dishProperties.userData = "{\"grabbableKey\":{\"grabbable\":true}}";
             dishProperties.shapeType = "Compound";
-            dishProperties.compoundShapeURL = PLATE_COLLISION_HULL_URL,
-            dishProperties.dynamic = true,
-            dishProperties.collidesWith = "";
+            dishProperties.compoundShapeURL = PLATE_COLLISION_HULL_URL;
+            dishProperties.dynamic = true;
+            dishProperties.collidesWith = "static,dynamic";
             dishProperties.friction = 0.9;
             dishProperties.restitution = 0.1;
             position = dishProperties.position;

@@ -38,7 +38,7 @@
                     modelURL: PIECE_MODEL,
                     visible: false,
                     parentID: entityID,
-                    localPosition: [0, 0.2, 0],
+                    localPosition: [0, 0.05, 0],
                     collidesWith: "",
                     collisionMask: 0,
                     shapeType: "None",

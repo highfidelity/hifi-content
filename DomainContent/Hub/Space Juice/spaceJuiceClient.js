@@ -109,11 +109,6 @@
             }
         },
 
-        startFarGrab: function(entityID, mouseEvent) {
-            _this.startNearGrab();
-        },
-
-
         // this is called on release of far grab
         mouseReleaseOnEntity: function(entityID, mouseEvent) {
             Entities.callEntityServerMethod(_this.entityID, 'makeDynamic');
