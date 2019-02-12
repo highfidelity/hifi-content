@@ -27,6 +27,12 @@ var STRING_DEFAULT = "default",
     STRING_RED = "red",
     STRING_TEXTURE = "texture";
 
+
+// material component names
+var STRING_COLOR = "color",
+    STRING_SLIDER = "slider",
+    STRING_MAP_ONLY = "mapOnly";
+
 var CONFIG = {
     APP_NAME: APP_NAME,
 
@@ -72,7 +78,34 @@ var CONFIG = {
 
                 COMPONENT_DATA: {
                     PBR_LIST: [STRING_DEFAULT, STRING_LEATHER, STRING_GLASS, STRING_CHAINMAIL],
-                    SHADELESS_LIST: [STRING_RED, STRING_TEXTURE]
+                    SHADELESS_LIST: [STRING_RED, STRING_TEXTURE],
+                    PROPERTIES_LISTS: {
+                        shadeless: [
+                            {
+                                key: "albedo",
+                                hasMap: true,
+                                componentType: STRING_COLOR
+                            }
+                        ],
+                        pbr: [
+                            {
+                                key: "albedo",
+                                hasMap: true,
+                                componentType: STRING_COLOR
+                            },
+                            {
+                                key: "roughness",
+                                hasMap: true,
+                                componentType: STRING_SLIDER
+                            },
+                            {
+                                key: "normalMap",
+                                hasMap: false,
+                                componentType: STRING_MAP_ONLY
+                            }
+                        ],
+                        selectOne: []
+                    }
                 }
             },
             BLENDSHAPES: {
@@ -162,7 +195,19 @@ var CONFIG = {
         info: {},
         material: {
             selectedMaterial: "",
-            updatedProperties: {}
+            shadeless: {
+                albedo: { value: 0.5, map: null }
+            },
+            pbr: {
+                albedo: { value: 0.5, map: null },
+                emissive: { value: 0.5, map: null },
+                roughness: { value: 0.5, map: null },
+                metallic: { value: 0.5, map: null },
+                scattering: { value: 0.5, map: null },
+                opacity: { value: 0.5, map: null },
+                normalMap: { value: 0.5, map: null },
+                occlusionMap: { value: 0.5, map: null }
+            }
         },
         blendshapes: {
             selected: "",

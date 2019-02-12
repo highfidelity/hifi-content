@@ -2,6 +2,10 @@
 
     var EVENTBRIDGE_SETUP_DELAY = 200;
 
+    var Chrome = VueColor.Chrome;
+    console.log(Chrome);
+    console.log(VueColor);
+
     // Consts
     var UPDATE_UI = CONFIG.UPDATE_UI,
         APP_NAME = CONFIG.APP_NAME;
@@ -306,11 +310,33 @@
                     type: EVENT_UPDATE_MATERIAL,
                     updates: materialPropertiesObject
                 }));
+            }, 
+            changeModel(modelName) {
+
+                var selected = modelName;
+
+                if (selected === "hifi-pbr") {
+                    selected = "pbr";
+                } else if (selected === "Select one") {
+                    selected = "selectOne";
+                }
+
+                this.selected = selected;
             }
         },
         computed: {
             dropDownList() {
                 return ["Select one", "shadeless", "hifi-pbr"];
+            },
+            selectedPropertyList() {
+                console.log(JSON.stringify(this.static));
+                return this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.selected];
+            }
+        },
+        data() {
+            return {
+                models: ["Select one", "shadeless", "hifi-pbr"],
+                selected: "selectOne"
             }
         },
         template: /* html */ `
@@ -335,24 +361,186 @@
                 </options-row-buttons>
 
                 <h3>Shading Model</h3>
+
                 <drop-down
-                    :items="dropDownList"
+                    :items="models"
                     :defaulttext="'Model type'"
+                    :onselect="changeModel"
                 >
                 </drop-down>
+                
+                <template v-for="propertyData in selectedPropertyList">
 
-                <slider 
-                    :name="'test1'"
-                    :max="10"
-                    :increment="0.1"
-                    :min="0"
-                    :defaultvalue="7"
-                ></slider>
+                    <material-property-container 
+                        :property="propertyData"
+                        :dynamic="dynamic[selected]"
+                    ></material-property-container>
 
-                <drop-down-images
-                    :items="dropDownList"
-                    :defaulttext="'Model type'"
-                ></drop-down-images>
+                </template>
+
+            </div>
+        `
+    })
+
+    Vue.component('material-property-container', {
+        props: ['property', 'dynamic'],
+        computed: {
+            propertyInfo(){
+                var propertyData = this.property;
+                console.log("ROBIN FIRST" + JSON.stringify(propertyData.key))
+
+                var dynamicPropertyData = this.dynamic[propertyData.key];
+                console.log("ROBIN WHAT IS" + JSON.stringify(this.dynamic))
+
+                return {
+                    name: propertyData.key,
+                    hasMap: propertyData.hasMap,
+                    componentType: propertyData.componentType, // 
+                    value: dynamicPropertyData.value,
+                    map: propertyData.hasMap ? dynamicPropertyData.map : null
+                }
+            }
+        },
+        template: /* html */ `
+            <div>
+
+                <material-slider 
+                    v-if="propertyInfo.componentType === 'slider'" 
+                    :propertyInfo="propertyInfo"
+                ></material-slider>
+
+                <material-map-only 
+                    v-if="propertyInfo.componentType === 'mapOnly'" 
+                    :propertyInfo="propertyInfo"
+                ></material-map-only>
+
+                <material-color 
+                    v-if="propertyInfo.componentType === 'color'" 
+                    :propertyInfo="propertyInfo"
+                ></material-color> 
+
+            </div>
+        `
+    })
+
+    Vue.component('material-slider', {
+        props: ['propertyInfo'],
+        computed: {
+            mapName() {
+                return this.propertyInfo.name + "Map";
+            },
+            dropDownList() { // ***
+                return ["Select one", "shadeless", "hifi-pbr"];
+            }
+        },
+                    // :title="blendshapeData.title"
+                    // :name="blendshapeData.name"
+                    // :max="blendshapeData.max"
+                    // :increment="blendshapeData.increment"
+                    // :min="blendshapeData.min"
+                    // :defaultvalue="blendshapeData.defaultValue"
+                    // :onchange="onSliderChange"
+        template: /* html */ `
+            <div>
+
+                <div class="flex-container-row">
+
+                    <h3 class="flex-item">{{ propertyInfo.name }}</h3>
+                    <div class="flex-item">
+                        <slider
+                            :name="'test1'"
+                            :max="10"
+                            :increment="0.1"
+                            :min="0"
+                            :defaultvalue="7"
+                        ></slider>
+                    </div>
+                </div>
+
+                <div class="flex-container-row">
+
+                    <h3 class="flex-item">{{ mapName }}</h3>
+                    <div class="flex-item">
+                    
+                        <drop-down-images
+                            :items="dropDownList"
+                            :defaulttext="'Model type'"
+                        ></drop-down-images>
+                    
+                    </div>
+                </div>
+
+            </div>
+        `
+    })
+
+    Vue.component('material-map-only', {
+        props: ['propertyInfo'],
+        computed: {
+            dropDownList() { // ***
+                return ["Select one", "shadeless", "hifi-pbr"];
+            }
+        },
+        template: /* html */ `
+            <div class="flex-container-row">
+
+                <h3 class="flex-item">
+                    {{ propertyInfo.name }}
+                </h3>
+                <div class="flex-item">
+                
+                    <drop-down-images
+                        :items="dropDownList"
+                        :defaulttext="'Model type'"
+                    ></drop-down-images>
+                
+                </div>
+
+            </div>
+        `
+    })
+
+    Vue.component('material-color', {
+        props: ['propertyInfo'],
+        methods: {
+            updateValue(){
+                console.log("calling color picker updating value" + this.colors);
+            }
+        },
+        computed: {
+            dropDownList() { // ***
+                return ["Select one", "shadeless", "hifi-pbr"];
+            },
+            mapName() {
+                return this.propertyInfo.name + "Map";
+            }
+        },
+        data() {
+            return {
+                colors: '#194d33'
+            }
+        },
+        template: /* html */ `
+            <div class="flex-container-row"> 
+                <div class="flex-item">
+
+                    <h3>{{ propertyInfo.name }}</h3>
+                    <chrome-picker 
+                        :value="colors" 
+                        @input="updateValue"
+                    ></chrome-picker>
+
+                </div>
+
+                <div class="flex-item">
+
+                    <h3>{{ mapName }}</h3>
+                    <drop-down-images
+                        :items="dropDownList"
+                        :defaulttext="'Model type'"
+                    ></drop-down-images>
+
+                </div>
 
             </div>
         `
@@ -776,7 +964,12 @@
     })
 
     Vue.component('drop-down', {
-        props: ["items", "defaulttext"],
+        props: ["items", "defaulttext", "onselect"],
+        methods: {
+            selectItem(value) {
+                this.onselect(value);
+            }
+        },
         template: /* html */ `
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -784,7 +977,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in items">
-                        <a class="dropdown-item" href="#">{{ item }}</a> 
+                        <a class="dropdown-item" href="#" @click="selectItem(item)">{{ item }}</a> 
                     </template>
                 </div>
             </div>
@@ -792,7 +985,7 @@
     })
 
     Vue.component('drop-down-images', {
-        props: ["items", "defaulttext"],
+        props: ["items"],
         template: /* html */ `
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -800,7 +993,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in items">
-                        <a class="dropdown-item" href="#"><img src="http://lorempixel.com/75/50/abstract"/></a> 
+                        <a class="dropdown-item" href="#"><img src="http://lorempixel.com/75/50/abstract"/></a>
                     </template>
                 </div>
             </div>
@@ -878,6 +1071,9 @@
 
     var app = new Vue({
         el: '#app',
+        components: {
+            'chrome-picker': Chrome,
+        },
         data: {
             staticData: CONFIG.STATIC_DATA,
             dynamicData: CONFIG.INITIAL_DYNAMIC_DATA
