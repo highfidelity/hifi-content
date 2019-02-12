@@ -1,10 +1,13 @@
+// color picker by xiaokaike | http://xiaokaike.github.io/vue-color/ | https://github.com/xiaokaike/vue-color
+
 (function () {
 
     var EVENTBRIDGE_SETUP_DELAY = 200;
 
     var Chrome = VueColor.Chrome;
-    console.log(Chrome);
-    console.log(VueColor);
+    Vue.component("chrome-picker", Chrome);
+    // console.log(Chrome);
+    // console.log(VueColor);
 
     // Consts
     var UPDATE_UI = CONFIG.UPDATE_UI,
@@ -38,21 +41,6 @@
     // Debug
 
     var DEBUG = true;
-
-    // Utils
-
-    function deepCopy(objectToCopy) {
-
-        var newObject;
-
-        try {
-            newObject = JSON.parse(JSON.stringify(objectToCopy));
-        } catch (e) {
-            console.error("Error with deepCopy utility method" + e);
-        }
-
-        return newObject;
-    }
 
     // Components
 
@@ -287,6 +275,8 @@
         `
     })
 
+    // #region material tab components
+
     Vue.component('material-tab', {
         props: ['dynamic', 'static'],
         methods: {
@@ -382,40 +372,51 @@
         `
     })
 
+    // material component names
+    var STRING_COLOR = CONFIG.STRING_COLOR,
+        STRING_SLIDER = CONFIG.STRING_SLIDER,
+        STRING_MAP_ONLY = CONFIG.STRING_MAP_ONLY;
+
     Vue.component('material-property-container', {
         props: ['property', 'dynamic'],
         computed: {
             propertyInfo(){
+                // sets material properties to be interpreted by components
+
                 var propertyData = this.property;
-                console.log("ROBIN FIRST" + JSON.stringify(propertyData.key))
-
                 var dynamicPropertyData = this.dynamic[propertyData.key];
-                console.log("ROBIN WHAT IS" + JSON.stringify(this.dynamic))
-
+                var type = propertyData.componentType;
                 return {
                     name: propertyData.key,
-                    hasMap: propertyData.hasMap,
-                    componentType: propertyData.componentType, // 
+                    hasMap: type === STRING_COLOR || type === STRING_SLIDER,
+                    componentType: type, // 
                     value: dynamicPropertyData.value,
-                    map: propertyData.hasMap ? dynamicPropertyData.map : null
+                    map: type === STRING_COLOR || type === STRING_SLIDER ? dynamicPropertyData.map : null
                 }
+            }
+        },
+        data() {
+            return {
+                STRING_COLOR: STRING_COLOR,
+                STRING_SLIDER: STRING_SLIDER,
+                STRING_MAP_ONLY: STRING_MAP_ONLY
             }
         },
         template: /* html */ `
             <div>
 
                 <material-slider 
-                    v-if="propertyInfo.componentType === 'slider'" 
+                    v-if="propertyInfo.componentType === STRING_SLIDER" 
                     :propertyInfo="propertyInfo"
                 ></material-slider>
 
                 <material-map-only 
-                    v-if="propertyInfo.componentType === 'mapOnly'" 
+                    v-if="propertyInfo.componentType === STRING_MAP_ONLY" 
                     :propertyInfo="propertyInfo"
                 ></material-map-only>
 
                 <material-color 
-                    v-if="propertyInfo.componentType === 'color'" 
+                    v-if="propertyInfo.componentType === STRING_COLOR" 
                     :propertyInfo="propertyInfo"
                 ></material-color> 
 
@@ -433,22 +434,15 @@
                 return ["Select one", "shadeless", "hifi-pbr"];
             }
         },
-                    // :title="blendshapeData.title"
-                    // :name="blendshapeData.name"
-                    // :max="blendshapeData.max"
-                    // :increment="blendshapeData.increment"
-                    // :min="blendshapeData.min"
-                    // :defaultvalue="blendshapeData.defaultValue"
-                    // :onchange="onSliderChange"
         template: /* html */ `
             <div>
 
                 <div class="flex-container-row">
 
-                    <h3 class="flex-item">{{ propertyInfo.name }}</h3>
+                    <p class="flex-item">{{ propertyInfo.name }}</p>
                     <div class="flex-item">
                         <slider
-                            :name="'test1'"
+                            :name="propertyInfo.name"
                             :max="10"
                             :increment="0.1"
                             :min="0"
@@ -459,7 +453,7 @@
 
                 <div class="flex-container-row">
 
-                    <h3 class="flex-item">{{ mapName }}</h3>
+                    <p class="flex-item">{{ mapName }}</p>
                     <div class="flex-item">
                     
                         <drop-down-images
@@ -484,9 +478,9 @@
         template: /* html */ `
             <div class="flex-container-row">
 
-                <h3 class="flex-item">
+                <p class="flex-item">
                     {{ propertyInfo.name }}
-                </h3>
+                </p>
                 <div class="flex-item">
                 
                     <drop-down-images
@@ -517,14 +511,14 @@
         },
         data() {
             return {
-                colors: '#194d33'
+                colors: this.propertyInfo.value
             }
         },
         template: /* html */ `
             <div class="flex-container-row"> 
                 <div class="flex-item">
 
-                    <h3>{{ propertyInfo.name }}</h3>
+                    <p>{{ propertyInfo.name }}</p>
                     <chrome-picker 
                         :value="colors" 
                         @input="updateValue"
@@ -534,7 +528,7 @@
 
                 <div class="flex-item">
 
-                    <h3>{{ mapName }}</h3>
+                    <p>{{ mapName }}</p>
                     <drop-down-images
                         :items="dropDownList"
                         :defaulttext="'Model type'"
@@ -545,6 +539,8 @@
             </div>
         `
     })
+
+    // #endregion material tab components
 
     Vue.component('blendshapes-tab', {
         props: ['dynamic', 'static'],
@@ -635,7 +631,10 @@
 
     function createSliderChangeCallback(dynamicData, eventBridgeTypeString, eventBridgeSubtypeString) {
 
+        return sliderChangedCallback;
+
         function sliderChangedCallback(value, name) {
+            // Do not send data over EventBridge unless slider changed value
             if (dynamicData[name] !== value) {
                 var updates = {};
                 updates[name] = value;
@@ -647,7 +646,6 @@
                 }));
             }
         }
-        return sliderChangedCallback;
     }
 
     Vue.component('flow-tab', {
@@ -1105,9 +1103,6 @@
 
     var app = new Vue({
         el: '#app',
-        components: {
-            'chrome-picker': Chrome,
-        },
         data: {
             staticData: CONFIG.STATIC_DATA,
             dynamicData: CONFIG.INITIAL_DYNAMIC_DATA

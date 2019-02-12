@@ -61,6 +61,10 @@ var CONFIG = {
     STRING_INFO: STRING_INFO,
     STRING_STATE: STRING_STATE,
 
+    STRING_COLOR: STRING_COLOR,
+    STRING_SLIDER: STRING_SLIDER,
+    STRING_MAP_ONLY: STRING_MAP_ONLY,
+
     STATIC_DATA: {
         TAB_LIST: [ STRING_INFO, STRING_MATERIAL, STRING_BLENDSHAPES, STRING_ANIMATION, STRING_FLOW],
         TAB_DATA: {
@@ -82,25 +86,44 @@ var CONFIG = {
                     PROPERTIES_LISTS: {
                         shadeless: [
                             {
-                                key: "albedo",
-                                hasMap: true,
+                                key: "albedo", hasMap: true,
                                 componentType: STRING_COLOR
                             }
                         ],
                         pbr: [
+                            // color
                             {
-                                key: "albedo",
-                                hasMap: true,
+                                key: "albedo", hasMap: true,
                                 componentType: STRING_COLOR
                             },
                             {
-                                key: "roughness",
-                                hasMap: true,
+                                key: "emissive", hasMap: true,
+                                componentType: STRING_COLOR
+                            },
+                            // slider
+                            {
+                                key: "roughness", hasMap: true,
                                 componentType: STRING_SLIDER
                             },
                             {
-                                key: "normalMap",
-                                hasMap: false,
+                                key: "metallic", hasMap: true,
+                                componentType: STRING_SLIDER
+                            },
+                            {
+                                key: "scattering", hasMap: true,
+                                componentType: STRING_SLIDER
+                            },
+                            {
+                                key: "opacity", hasMap: true,
+                                componentType: STRING_SLIDER
+                            },
+                            // map only
+                            {
+                                key: "normalMap", hasMap: false,
+                                componentType: STRING_MAP_ONLY
+                            },
+                            {
+                                key: "occlusionMap", hasMap: false,
                                 componentType: STRING_MAP_ONLY
                             }
                         ],
@@ -196,17 +219,17 @@ var CONFIG = {
         material: {
             selectedMaterial: "",
             shadeless: {
-                albedo: { value: 0.5, map: null }
+                albedo: { value: "#FFFFFF", map: null }
             },
             pbr: {
-                albedo: { value: 0.5, map: null },
-                emissive: { value: 0.5, map: null },
+                albedo: { value: "#FFFFFF", map: null },
+                emissive: { value: "#FFFFFF", map: null },
                 roughness: { value: 0.5, map: null },
                 metallic: { value: 0.5, map: null },
                 scattering: { value: 0.5, map: null },
                 opacity: { value: 0.5, map: null },
-                normalMap: { value: 0.5, map: null },
-                occlusionMap: { value: 0.5, map: null }
+                normalMap: { value: "", map: null },
+                occlusionMap: { value: "", map: null }
             }
         },
         blendshapes: {
