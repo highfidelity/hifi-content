@@ -138,12 +138,13 @@ var CONFIG = {
                 COMPONENT_NAME: "blendshapes-tab",
 
                 COMPONENT_DATA: {
-                    LIST: ["smile", "default", "angry", "laugh"],
+                    LIST: ["awe", "default", "angry", "laugh"],
                     FACIAL_BLENDSHAPES: [
-                        "EyeOpen_L",
-                        "EyeOpen_R",
-                        "BrowsD_L",
-                        "BrowsD_R"
+                        "EyeBlink_L",
+                        "EyeBlink_R",
+                        "BrowsU_L",
+                        "BrowsU_R",
+                        "JawOpen"
                     ]
                 }
 

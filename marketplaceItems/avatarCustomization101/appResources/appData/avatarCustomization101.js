@@ -8,10 +8,10 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456")),
-        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/presetData/blendshapes.js?v12345")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/presetData/materials.js?v123")),
-        AVATAR_FILE = "http://hifi-content.s3-us-west-1.amazonaws.com/robin/dev/marketplaceItems/avatarCustomization101/mannequinHairTest8.fst";
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234567")),
+        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/presetData/materials.js")),
+        AVATAR_FILE = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
     // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
 
     var AVATAR_URL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
@@ -136,7 +136,6 @@
     function setIsAviEnabledTrue() {
         dynamicData.state.isAviEnabled = true;
         spawnMirror();
-
         updateUI(STRING_STATE);
     }
 
@@ -187,24 +186,82 @@
     // #endregion MATERIAL
 
     // #region BLENDSHAPES
-
-    var STRING_SMILE = "smile";
+    var TRANSITION_TIME_SECONDS = 0.25;
+    var STRING_AWE = "awe";
     var STRING_ANGRY = "angry";
-    var BLENDSHAPES_SMILE = {
-        close_EyeL: 0.2,
-        close_eyeR: 0.2
-        // etc.
-    };
+    var STRING_DEFAULT = "default";
+    var STRING_LAUGH = "laugh";
+    var BLENDSHAPES_DEFAULT = BLENDSHAPE_DATA.defaults;
+    var BLENDSHAPES_AWE = BLENDSHAPE_DATA.awe;
+    var BLENDSHAPES_LAUGH = BLENDSHAPE_DATA.laugh;
+    var BLENDSHAPES_ANGRY = BLENDSHAPE_DATA.angry;
+
+    function mixValue(valueA, valueB, percentage) {
+        return valueA + ((valueB - valueA) * percentage);
+    }
+
+    var lastEmotionUsed = BLENDSHAPES_DEFAULT;
+    var emotion = BLENDSHAPES_DEFAULT;
+    var isChangingEmotion = false;
+    var changingEmotionPercentage = 0.0;
+
+    Script.update.connect(function(deltaTime) {
+        if (!isChangingEmotion) {
+            return;
+        }
+        changingEmotionPercentage += deltaTime / TRANSITION_TIME_SECONDS;
+        if (changingEmotionPercentage >= 1.0) {
+            changingEmotionPercentage = 1.0;
+            isChangingEmotion = false;
+            if (emotion === BLENDSHAPES_DEFAULT) {
+                MyAvatar.hasScriptedBlendshapes = false;
+            }
+        }
+        for (var blendshape in emotion) {
+            MyAvatar.setBlendshape(blendshape,
+                mixValue(lastEmotionUsed[blendshape], emotion[blendshape], changingEmotionPercentage));
+        }
+    });
 
     function updateBlendshapes(newBlendshapeDataToApply) {
-        // Set blendshapes to avatar
-        // Reference facialExpressions.js
+        // try {
+        //     console.log(newBlendshapeDataToApply);
+        //     var data = JSON.parse(newBlendshapeDataToApply);
+
+        // } catch (e) {
+        //     console.log(e, "error");
+        //     return;
+        // }
+        if (emotion !== lastEmotionUsed) {
+            lastEmotionUsed = emotion;
+        }
+        if (newBlendshapeDataToApply !== lastEmotionUsed) {
+            changingEmotionPercentage = 0.0;
+            emotion = newBlendshapeDataToApply;
+            isChangingEmotion = true;
+            MyAvatar.hasScriptedBlendshapes = true;
+        }
     }
+
 
     // presets
     function applyNamedBlendshapes(materialName) {
         // switch statement that matches the blendshape name
         //      "smile" -> updateBlendshapes(BLEND_SMILE);
+        switch (materialName){
+            case STRING_DEFAULT:
+                updateBlendshapes(BLENDSHAPES_DEFAULT);
+                break;
+            case STRING_AWE:
+                updateBlendshapes(BLENDSHAPES_AWE);
+                break;
+            case STRING_LAUGH:
+                updateBlendshapes(BLENDSHAPES_LAUGH);
+                break;
+            case STRING_ANGRY:
+                updateBlendshapes(BLENDSHAPES_ANGRY);
+                break;
+        }
     }
 
     // #endregion BLENDSHAPES
@@ -358,7 +415,8 @@
 
     function unload() {
 
-        // deleteMirror()
+        deleteMirror();
+
         // deleteFlowDebugSpheres();
         // removeAvi as avatar and restore old avatar
         //      if no old avatar in Settings setAvatar to Woody?
@@ -422,7 +480,6 @@
                     default:
                         break;
                 }
-
                 break;
 
             case EVENT_CHANGE_TAB:
@@ -454,25 +511,12 @@
                 break;
             case EVENT_UPDATE_FLOW:
 
-                var updates = data.updates;
-
-                switch (data.subtype) {
-                    case "hair":
-                        print("FLOW: updating hair flow");
-                        // updateHairFlow();
-                        break;
-                    case "joints":
-                        print("FLOW: updating joints flow");
-                        // updateJointsFlow();
-                        break;
-                    case "debugToggle":
-                        print("FLOW: show/hide debug spheres", updates);
-                        break;
-                    case "collisionsToggle":
-                        print("FLOW: enable/disable collisions", updates);
-                        break;
-                    default:
-                        break;
+                if (data.subtype === "hair") {
+                    print("FLOW: updating hair flow");
+                    // updateHairFlow();
+                } else if (data.subtype === "joints") {
+                    print("FLOW: updating joints flow");
+                    // updateJointsFlow();
                 }
 
                 break;

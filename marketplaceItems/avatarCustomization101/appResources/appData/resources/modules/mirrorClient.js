@@ -39,7 +39,7 @@
         if (mirrorOverlayRunning) {
             var newDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
 
-            if (forceUpdate === true || (newDimensions.x != lastDimensions.x || newDimensions.y != lastDimensions.y)) {
+            if (forceUpdate === true || (newDimensions.x !== lastDimensions.x || newDimensions.y !== lastDimensions.y)) {
                 var mirrorResolution = _this.calculateMirrorResolution(newDimensions);
                 spectatorCameraConfig.resetSizeSpectatorCamera(mirrorResolution.x, mirrorResolution.y);
                 Overlays.editOverlay(mirrorOverlayID, {
