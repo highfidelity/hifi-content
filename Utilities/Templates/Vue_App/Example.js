@@ -23,12 +23,12 @@
     // /////////////////////////////////////////////////////////////////////////
         var 
             URL = Script.resolvePath("./html/Tablet.html"),
-            BUTTON_NAME = "BUTTON_NAME",
+            BUTTON_NAME = "BUTTON_NAME", // !important update in Tablet.js as well, MUST match Example.js
 
             EXAMPLE_MESSAGE = "EXAMPLE_MESSAGE",
-            EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-
-            UPDATE_UI = "update_ui"
+            
+            EVENT_BRIDGE_OPEN_MESSAGE = BUTTON_NAME + "eventBridgeOpen",
+            UPDATE_UI = BUTTON_NAME + "_update_ui"
         ;
 
     // Init

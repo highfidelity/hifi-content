@@ -5,8 +5,9 @@
     // Consts
     // /////////////////////////////////////////////////////////////////////////
         var 
-            EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
-            UPDATE_UI = "update_ui"
+            BUTTON_NAME = "BUTTON_NAME", // !important update in Example.js as well, MUST match Example.js
+            EVENT_BRIDGE_OPEN_MESSAGE = BUTTON_NAME + "eventBridgeOpen",
+            UPDATE_UI = BUTTON_NAME + "_update_ui"
             
             EVENTBRIDGE_SETUP_DELAY = 200
         ;
@@ -19,7 +20,7 @@
                 example: { type: Object}
             },
             methods: {
-                example(){
+                example() {
                     EventBridge.emitWebEvent(JSON.stringify({
                         type: EXAMPLE_MESSAGE,
                         value: this.example

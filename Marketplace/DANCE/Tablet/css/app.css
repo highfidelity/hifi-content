@@ -1,0 +1,196 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  
+  body {
+    /* font-family: 'Roboto', sans-serif; */
+    /* font-family: 'Black Han Sans', sans-serif; */
+    /* font-family: 'Neucha', cursive; */
+    /* font-family: 'Audiowide', cursive; */
+    /* font-family: 'Nanum Gothic Coding', monospace; */
+    font-family: 'Mitr', sans-serif;
+    /* font-family: 'Roboto', sans-serif; */
+    margin: 0;
+    padding: 0;
+  }
+
+  .maindiv {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .background {
+    background: linear-gradient(to bottom, #FFAAFF 0%,#2D5D7B 100%);
+
+  }
+
+  .header-background {
+    background-color: rgb(91,64,250);
+  }
+
+  .jumbotron-logo {
+    background-color: rgba(190, 200, 255, 0.0);
+  }
+
+  .logo {
+    /* background-color: #C2AFF0; */
+    border-color: #FFFFFF !important;
+    border-width: 1rem !important;
+    min-height: 1.9rem;
+    max-height: 1.9rem;
+  }
+
+  .input-size {
+    min-width: 5.75rem;
+    max-width: 5.75rem;
+  }
+
+  .field-size {
+    min-width: 5.75rem;
+    max-width: 5.75rem;
+  }
+
+  .blue {
+    background-color: #457EAC;
+
+  }
+
+  .label-text {
+    position: absolute;
+    top: 4rem;
+    left: 2rem;
+    color: rgb(250,200,220);
+  }
+
+  .options-left {
+    position: absolute;
+    left: 2rem;
+    top: 5.7rem;
+  }
+
+  .options-right {
+    position: absolute;
+    left: 17rem;
+    top: 5.1rem;
+  }
+
+  .dance-name {
+    position: absolute;
+    left: 6.55rem;
+    top: 3.5rem;
+    font-size: 1.4rem;
+    vertical-align: baseline;
+
+  }
+  .divider {
+    background-color: #FFFFFF;
+    min-height: 0.05rem;
+    height: 0.05rem;
+  }
+
+  .dance-names {
+    background-color: #9191E9;
+
+  }
+
+  .sticky-top {
+    background-color: #2D5D7B;
+  }
+
+  .instructions {
+    min-height: 6rem;
+    max-height: 6rem;
+  }
+
+  .menu {
+    position: relative;
+    color: #FFFFFF;
+    font-size: 1rem;
+    vertical-align: baseline;
+    top: 3px;
+  }
+
+  .delete {
+    color: #000000;
+    font-size: 1.5rem;
+  }
+
+  .grid {
+    min-width: 85px;
+    min-height: 170px;
+    max-width: 85px;
+    max-height: 170px;
+    /* height: 20%; */
+  }
+ 
+  .dance-toggle-start {
+    background-color: rgb(102,151,252);
+    color: #FFFFFF;
+  }
+
+  .list-background {
+    background-color: rgb(102,151,252);
+  }
+
+  .dance-toggle-stop {
+    background-color: rgb(237,149,208);
+    color: #FFFFFF;
+  }
+
+  .dance {
+    width: 18%
+  }
+
+  .border-3 {
+    border-width:3px !important;
+  }
+
+  .select-border {
+    border-width: 2rem;
+    border-color: white;
+  }
+
+  .current-dance-background-header {
+    background-color: rgba(20, 50, 80, 0.6);
+    background-image: url("./hifi-dance-a.svg");
+  }
+
+  .current-dance-background {
+    background-color: rgba(40, 70, 100, 0.6);
+    background-image: url("./hifi-dance-a.svg");
+  }
+
+  .current-dance-text {
+    color: rgba(255, 255, 255, 1.0);
+  }
+
+  .white-text {
+    color: rgba(255, 255, 255, 1.0);
+  }
+
+  .red {
+    color: red;
+  }
+
+  .transparent {
+    background-color: rgba(255, 255, 255, 0.0);
+  }
+
+  .main-font-size {
+    font-size: 0.75rem;
+  }
+  
+  .list-complete-item {
+    padding: 4px;
+    margin-top: 4px;
+    border: solid 1px;
+    transition: all 0.2s;
+  }
+  
+  .list-complete-enter, .list-complete-leave-active {
+    opacity: 0;
+  }

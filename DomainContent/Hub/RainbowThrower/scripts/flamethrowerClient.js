@@ -74,6 +74,7 @@ function exponentialSmoothing(target, current) {
     var previousRightYPosition = 0;
     var previousRightXRotation = 0;
     var previousRightZRotation = 0;
+    var offsetMultiplier = 0.8;
 
     var Flamethrower = function() {
         _this = this;
@@ -563,7 +564,7 @@ function exponentialSmoothing(target, current) {
         
         leftHandMouseEquipAnimation: function() {
             var result = {};      
-            result.leftHandType = 1;                        
+            result.leftHandType = 0;                        
             
             var leftHandPosition = MyAvatar.getJointPosition("LeftHand");
             var leftShoulderPosition = MyAvatar.getJointPosition("LeftShoulder");
@@ -577,13 +578,12 @@ function exponentialSmoothing(target, current) {
             var headIndex = MyAvatar.getJointIndex("Head");
             var offset = 0.5;
             if (headIndex) {
-                offset = 0.8 * MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
+                offset = offsetMultiplier* MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
             }
-            result.leftHandPosition = Vec3.multiply(offset, {x: 0.25, y: 0.8, z: 1.3});
+            result.leftHandPosition = Vec3.multiply(offset, {x: 0.25, y: 0.6, z: 1.3});
             var yPosition = exponentialSmoothing(newLeftHandPositionAvatarFrame.y, previousLeftYPosition);
             result.leftHandPosition.y = yPosition;
             previousLeftYPosition = yPosition;
-            
             var leftHandPositionNew = Vec3.sum(MyAvatar.position, result.leftHandPosition);
             
             var rotation = Quat.lookAtSimple(leftHandPositionNew, leftShoulderPosition);
@@ -593,14 +593,14 @@ function exponentialSmoothing(target, current) {
             var newRotation = Quat.fromPitchYawRollDegrees(rotationAngles.x, 0, rotationAngles.z);
             previousLeftXRotation = xRotation;
             previousLeftZRotation = zRotation;
-            result.leftHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(110, 0, -90));
+            result.leftHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(80, -20, -90));
             
             return result;
         },
         
         rightHandMouseEquipAnimation: function() {
             var result = {};      
-            result.rightHandType = 1;                       
+            result.rightHandType = 0;                       
             
             var rightHandPosition = MyAvatar.getJointPosition("RightHand");
             var rightShoulderPosition = MyAvatar.getJointPosition("RightShoulder");
@@ -614,9 +614,9 @@ function exponentialSmoothing(target, current) {
             var headIndex = MyAvatar.getJointIndex("Head");
             var offset = 0.5;
             if (headIndex) {
-                offset = 0.8 * MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
+                offset = offsetMultiplier * MyAvatar.getAbsoluteJointTranslationInObjectFrame(headIndex).y;
             }
-            result.rightHandPosition = Vec3.multiply(offset, {x: -0.25, y: 0.8, z: 1.3});
+            result.rightHandPosition = Vec3.multiply(offset, {x: -0.25, y: 0.6, z: 1.3});
             var yPosition = exponentialSmoothing(newRightHandPositionAvatarFrame.y, previousRightYPosition);
             result.rightHandPosition.y = yPosition;
             previousRightYPosition = yPosition;
@@ -630,7 +630,7 @@ function exponentialSmoothing(target, current) {
             var newRotation = Quat.fromPitchYawRollDegrees(rotationAngles.x, 0, rotationAngles.z);
             previousRightXRotation = xRotation;
             previousRightZRotation = zRotation;
-            result.rightHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(110, 0, 90));
+            result.rightHandRotation = Quat.multiply(newRotation, Quat.fromPitchYawRollDegrees(80, 00, 90));
             
             return result;
         },

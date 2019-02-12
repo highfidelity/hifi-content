@@ -11,6 +11,8 @@
 (function() {
   
     var PIECE_MODEL = Script.resolvePath('plate-piece.fbx');
+    var SHATTER_PLATE_PIECE_URL = Script.resolvePath("ShatterPlatePiece.js");
+
     var NUMBER_PIECES = 4;
     var pieces = Array();
     var _entityID;
@@ -44,10 +46,13 @@
 
         breakPlate : function() {
             var velocity = Entities.getEntityProperties(_entityID, 'velocity').velocity;
+            
             pieces.forEach(function(element){
+                var position = Entities.getEntityProperties(_entityID, 'position').position; 
                 Entities.editEntity(element, {
                     visible: true,
                     dynamic: true,
+                    position: position,
                     gravity: {x: 0, y: -5, z: 0},
                     dimensions: {x: 0.1865, y: 0.0303, z: 0.2149},
                     acceleration: {x: 1, y: -5, z: 2},
@@ -58,7 +63,7 @@
                     shapeType: "Box",
                     velocity: velocity,
                     grabbable: true,
-                    script: Script.resolvePath("ShatterPlatePiece.js")
+                    script: SHATTER_PLATE_PIECE_URL
                 });
             });
     
