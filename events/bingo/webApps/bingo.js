@@ -17,10 +17,10 @@ var currentTableName;
 function createNewTable() {
     currentTableName = Date.now();
 
-    var query = `CREATE TABLE '${currentTableName} (
+    var query = `CREATE TABLE \`${currentTableName}\` (
         username VARCHAR(40) PRIMARY KEY,
         cardNumbers VARCHAR(300),
-        cardColors VARCHAR(50),
+        cardColor VARCHAR(50),
         prizeWon VARCHAR(40)
     )`;
     connection.query(query, function(error, results, fields) {
@@ -43,7 +43,8 @@ function startNewRound(calledLettersAndNumbers, response) {
         return response.end(JSON.stringify(responseObject));
     }
 
-    var query = `INSERT INTO '${currentTableName}'(username, cardNumbers) VALUES ("BINGO HOST", ${calledLettersAndNumbers})`;
+    var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers)
+        VALUES ('BINGO BOSS', '${calledLettersAndNumbers}')`;
     connection.query(query, function(error, results, fields) {
         if (error) {
             var responseObject = {
@@ -70,9 +71,97 @@ function startNewRound(calledLettersAndNumbers, response) {
     });
 }
 
-function addNewPlayer(username) {
+const POSSIBLE_NUMBERS_PER_COLUMN = 15;
+function getRandomBingoNumber(currentColumn) {
+    var min = 1 + POSSIBLE_NUMBERS_PER_COLUMN * currentColumn;
+    var max = min + POSSIBLE_NUMBERS_PER_COLUMN;
 
+    return Math.floor(Math.random() * (max - min)) + min;
 }
+
+function getBingoNumbers() {
+    var userCardNumbers = [];
+
+    for (var currentColumn = 0; currentColumn < NUM_COLS; currentColumn++) {
+        for (var currentRow = 0; currentRow < NUM_ROWS; currentRow++) {
+            if (!(currentColumn === 2 && currentRow === 2)) {
+                var currentNumber = getRandomBingoNumber(currentColumn);
+
+                if (userCardNumbers.indexOf(currentNumber) > -1) {
+                    currentRow--;
+                } else {
+                    userCardNumbers.push(currentNumber);
+                }
+            }
+        }
+    }
+
+    return userCardNumbers;
+}
+
+
+const CARD_YELLOW = { "blue": 66, "green": 255, "red": 227 };
+const CARD_BLUE = { "blue": 247, "green": 196, "red": 0 };
+const CARD_GREEN = { "blue": 0, "green": 255, "red": 30 };
+const CARD_PINK = { "blue": 119, "green": 0, "red": 255 };
+function getCardColor() {
+    var colorChange = Math.floor(Math.random() * 4);
+    var newColor;
+    switch (colorChange) {
+      case 0:
+        newColor = CARD_YELLOW;
+        break;
+      case 1:
+        newColor = CARD_BLUE;
+        break;
+      case 2:
+        newColor = CARD_GREEN;
+        break;
+      case 3:
+        newColor = CARD_PINK;
+        break;
+      default:
+        newColor = CARD_PINK;
+    }
+    return newColor;
+}
+
+
+const BINGO_STRING = "BINGO";
+const NUM_ROWS = BINGO_STRING.length;
+const NUM_COLS = NUM_ROWS;
+function addNewPlayer(username) {
+    var userCardNumbers = getBingoNumbers();
+    var userCardColor = getCardColor();
+
+    var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers, cardColor)
+        VALUES ('${username}', '${userCardNumbers}', '${userCardColor}')`;
+    connection.query(query, function(error, results, fields) {
+        if (error) {
+            var responseObject = {
+                status: "error",
+                text: "Error adding new player!"
+            };
+
+            response.statusCode = 200;
+            response.setHeader('Content-Type', 'application/json');
+            response.end(JSON.stringify(responseObject));
+            throw error;
+        }
+
+        var responseObject = {
+            status: "success",
+            newUser: true,
+            userCardNumbers: userCardNumbers,
+            userCardColor: userCardColor
+        };
+
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'application/json');
+        response.end(JSON.stringify(responseObject));
+    });
+}
+
 
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
@@ -117,7 +206,7 @@ function handleGetRequest(request, response) {
                         status: "success",
                         newUser: false,
                         userCardNumbers: JSON.parse(results[0].cardNumbers),
-                        userCardColor: JSON.parse(results[0].cardColors)
+                        userCardColor: JSON.parse(results[0].cardColor)
                     };
     
                     response.statusCode = 200;
@@ -143,16 +232,127 @@ function handleGetRequest(request, response) {
     return response.end(JSON.stringify(queryParamObject) + '\n');
 }
 
-function handlePutRequest(request, response) {
+function createCaseString(winnersArray) {
+    var caseString = '';
 
+    for (var i = 0; i < winnersArray.length; i++) {
+        caseString += "when username = `" + winnersArray[i].username +
+            "` then `" + winnersArray[i].prizeWon + "`";
+
+        if (i < (winnersArray.length - 1)) {
+            caseString += ' ';
+        }
+    }
+
+    return caseString;
+}
+
+function createQueryInString(winnersArray) {
+    var inString = '';
+
+    for (var i = 0; i < winnersArray.length; i++) {
+        inString += "`" + winnersArray[i].username + "`";
+
+        if (i < (winnersArray.length - 1)) {
+            inString += ', ';
+        }
+    }
+
+    return inString;
+}
+
+function recordWinners(winnersArray, response) {
+    if (!currentTableName) {
+        var responseObject = {
+            status: "error",
+            text: "Tried to record prizes, but there's no `currentTableName`!"
+        };
+
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
+    var query = `
+        UPDATE \`${currentTableName}\`
+            SET \`prizeWon\` = (case ${createCaseString(winnersArray)} end)
+            WHERE \`username\` in (${createQueryInString(winnersArray)})
+    `;
+
+    connection.query(query, function(error, results, fields) {
+        if (error) {
+            var responseObject = {
+                status: "error",
+                text: "Couldn't record prize winners! Error: " + error,
+                winnersArray: winnersArray
+            };
+    
+            response.statusCode = 200;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        var responseObject = {
+            status: "success"
+        };
+
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    });
+}
+
+function handlePostRequest(request, response) {
+    let body = '';
+    request.on('data', chunk => {
+        body += chunk.toString();
+    });
+    request.on('end', () => {
+        try {
+            body = JSON.parse(body);
+        } catch (error) {
+            var responseObject = {
+                status: "error",
+                text: "Error handling POST request!"
+            };
+
+            response.statusCode = 200;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+        
+        if (body.type === "recordPrizes") {
+            if (!body.winners) {
+                var responseObject = {
+                    status: "error",
+                    text: "No valid winners array provided!"
+                };
+
+                response.statusCode = 200;
+                response.setHeader('Content-Type', 'application/json');
+                return response.end(JSON.stringify(responseObject));
+            } else {
+                recordWinners(body.winners, response);
+            }            
+        } else {
+            var responseObject = {
+                status: "error",
+                text: "Invalid request type provided!"
+            };
+
+            response.statusCode = 200;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+    })
 }
 
 function startServer() {
     const server = http.createServer((request, response) => {
         if (request.method === "GET") {
             handleGetRequest(request, response);
-        } else if (request.method === "PUT") {
-            handlePutRequest(request, response);
+        } else if (request.method === "POST") {
+            handlePostRequest(request, response);
         } else {
             response.writeHead(405, 'Method Not Supported', {'Content-Type': 'text/html'});
             response.end('<!doctype html><html><head><title>405</title></head><body>405: Method Not Supported</body></html>');
@@ -178,14 +378,32 @@ function connectToBingoDB() {
 
     connection.connect(function (error) {
         if (error) {
-            console.log("ERROR: Could not connect to Bingo Database!\n" + error);
-        } else {
-            startServer();
+            throw error;
         }
+        
+        startServer();
     });
 }
 
+function createBingoDB() {
+    connection = mysql.createConnection({
+        host: dbInfo.mySQLHost,
+        user: dbInfo.mySQLUsername,
+        password: dbInfo.mySQLPassword
+    });
+
+    var query = `CREATE DATABASE ${dbInfo.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
+    connection.query(query, function(error, results, fields) {
+        if (error) {
+            throw error;
+        }
+    });
+
+    connection.end();
+}
+
 function startup() {
+    //createBingoDB();
     connectToBingoDB();
 }
 
