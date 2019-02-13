@@ -80,58 +80,29 @@ Script.include(Script.resolvePath("vectorMath.js"));
 
     // CUSTOM DATA STARTS HERE
 
-
     CUSTOM_FLOW_DATA = {
-        "hair": {
+        "leaf": {
             "active": true,
-            "stiffness": 0.0,
-            "radius": 0.04,
-            "gravity": -0.035,
-            "damping": 0.8,
+            "stiffness": 0.7,
+            "radius": 0.01,
+            "gravity": 0,
+            "damping": 0.85,
             "inertia": 0.8,
-            "delta": 0.35
+            "delta": 0.55
         }
     };
 
     CUSTOM_COLLISION_DATA = {
-        "Spine2": {
-            "type": "sphere",
-            "radius": 0.14,
-            "offset": {
-                "x": 0,
-                "y": 0.2,
-                "z": 0
-            }
-        },
-        "RightArm": {
-            "type": "sphere",
-            "radius": 0.03,
-            "offset": {
-                "x": 0,
-                "y": 0.02,
-                "z": 0
-            }
-        },
-        "LeftArm": {
-            "type": "sphere",
-            "radius": 0.03,
-            "offset": {
-                "x": 0,
-                "y": 0.02,
-                "z": 0
-            }
-        },
         "HeadTop_End": {
             "type": "sphere",
-            "radius": 0.09,
+            "radius": 0.12,
             "offset": {
                 "x": 0,
-                "y": -0.15,
+                "y": 0,
                 "z": 0
             }
         }
     };
-
 
     // CUSTOM DATA ENDS HERE
 

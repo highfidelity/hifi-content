@@ -3,7 +3,7 @@
 (function () {
 
     // Modules
-    Script.include(Script.resolvePath("./resources/modules/flow.js"));
+    Script.include(Script.resolvePath("./resources/modules/flow.js?v1"));
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
@@ -11,7 +11,6 @@
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
         // MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
-    // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
 
     // var AVATAR_URL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
 
@@ -59,22 +58,6 @@
             collisionless: true,
             script: Script.resolvePath("./resources/modules/mirrorClient.js")
         }, "domain");
-    }
-
-    function setMirrorDistanceToDefault() {
-        // edit mirror properties to set mirror distance to MIRROR_DISTANCE_M
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_M }));
-        Entities.editEntity(mirrorCubeID, {
-            position: position
-        });
-    }
-
-    function setMirrorDistanceToBlendshapes() {
-        // edit mirror properties to set mirror distance to MIRROR_DISTANCE_BLENDSHAPES_M
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_BLENDSHAPES_M }));
-        Entities.editEntity(mirrorCubeID, {
-            position: position
-        });
     }
 
     function deleteMirror() {
