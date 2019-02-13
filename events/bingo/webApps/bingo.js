@@ -7,10 +7,16 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
+//
+// NOTE 2019-02-13:
+// In its current form, this script has been closely adapted from
+// the Google Script that the Experiences team used for previous Bingo
+// events. I made a couple of bugfixes and optimizations, but not many.
+// I wanted to maintain as much backwards compatibility as possible.
+//
 
 var http = require('http');
 var url = require('url');
-var util = require('util');
 var dbInfo = require('./dbInfo.json');
 
 var currentTableName;
@@ -130,12 +136,12 @@ function getCardColor() {
 const BINGO_STRING = "BINGO";
 const NUM_ROWS = BINGO_STRING.length;
 const NUM_COLS = NUM_ROWS;
-function addNewPlayer(username) {
+function addNewPlayer(username, response) {
     var userCardNumbers = getBingoNumbers();
     var userCardColor = getCardColor();
 
     var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers, cardColor)
-        VALUES ('${username}', '${userCardNumbers}', '${userCardColor}')`;
+        VALUES ('${username}', '${JSON.stringify(userCardNumbers)}', '${JSON.stringify(userCardColor)}')`;
     connection.query(query, function(error, results, fields) {
         if (error) {
             var responseObject = {
@@ -184,15 +190,15 @@ function handleGetRequest(request, response) {
                 return response.end(JSON.stringify(responseObject));
             }
 
-            var query = `SELECT * FROM '${currentTableName}' WHERE username = '${username}'`;
+            var query = `SELECT * FROM \`${currentTableName}\` WHERE username='${username}'`;
             connection.query(query, function(error, results, fields) {
                 if (error) {
                     throw error;
                 }
         
                 if (results.length === 0) {
-                    addNewPlayer(username);
-                } else if (type === "searchOnly") {
+                    addNewPlayer(username, response);
+                } else if (results.length === 0 && type === "searchOnly") {
                     var responseObject = {
                         status: "success",
                         newUser: true
@@ -225,19 +231,19 @@ function handleGetRequest(request, response) {
         }
     } else if (type === "newRound") {
         return startNewRound(queryParamObject.calledLettersAndNumbers, response);
+    } else {
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'text/plain');
+        return response.end(JSON.stringify(queryParamObject) + '\n');
     }
-
-    response.statusCode = 200;
-    response.setHeader('Content-Type', 'text/plain');
-    return response.end(JSON.stringify(queryParamObject) + '\n');
 }
 
 function createCaseString(winnersArray) {
     var caseString = '';
 
     for (var i = 0; i < winnersArray.length; i++) {
-        caseString += "when username = `" + winnersArray[i].username +
-            "` then `" + winnersArray[i].prizeWon + "`";
+        caseString += "when username='" + winnersArray[i].username +
+            "' then '" + winnersArray[i].prizeWon + "'";
 
         if (i < (winnersArray.length - 1)) {
             caseString += ' ';
@@ -251,7 +257,7 @@ function createQueryInString(winnersArray) {
     var inString = '';
 
     for (var i = 0; i < winnersArray.length; i++) {
-        inString += "`" + winnersArray[i].username + "`";
+        inString += "'" + winnersArray[i].username + "'";
 
         if (i < (winnersArray.length - 1)) {
             inString += ', ';
@@ -275,10 +281,9 @@ function recordWinners(winnersArray, response) {
 
     var query = `
         UPDATE \`${currentTableName}\`
-            SET \`prizeWon\` = (case ${createCaseString(winnersArray)} end)
-            WHERE \`username\` in (${createQueryInString(winnersArray)})
+            SET prizeWon = (case ${createCaseString(winnersArray)} end)
+            WHERE username in (${createQueryInString(winnersArray)})
     `;
-
     connection.query(query, function(error, results, fields) {
         if (error) {
             var responseObject = {

@@ -24,7 +24,23 @@
     var WAIT_TO_CLOSE_TRAP_DOOR_MS = 1500;
     var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 2000;
-    var REQUEST_URL = Script.require(Script.resolvePath('../secrets/secrets.json?0')).requestURL;
+    var REQUEST_URL = Script.require(Script.resolvePath('../../secrets/secrets.json?0')).requestURL;
+
+    var DEBUG_ALL_NUMBERS_CALLED = false;
+    var DEBUG_ALL_NUMBERS = [];
+    for (var i = 1; i < 76; i++) {
+        if (i < 16) {
+            DEBUG_ALL_NUMBERS.push("B " + i); 
+        } else if (i < 31) {
+            DEBUG_ALL_NUMBERS.push("I " + i); 
+        } else if (i < 46) {
+            DEBUG_ALL_NUMBERS.push("I " + i); 
+        } else if (i < 61) {
+            DEBUG_ALL_NUMBERS.push("I " + i); 
+        } else if (i < 76) {
+            DEBUG_ALL_NUMBERS.push("I " + i); 
+        }
+    }
 
     var _this;
     
@@ -119,6 +135,11 @@
         /* RECEIVE NUMBERS THAT HAVE BEEN CALLED THIS ROUND */
         alreadyCalledNumbersReply: function(id, args) {
             var calledLettersAndNumbers = JSON.parse(args[0]);
+
+            if (DEBUG_ALL_NUMBERS_CALLED) {
+                calledLettersAndNumbers = DEBUG_ALL_NUMBERS;
+            }
+
             var username = args[1];
             _this.getUsersCardNumbers(username, calledLettersAndNumbers);
         },
