@@ -24,7 +24,7 @@
     var WAIT_TO_CLOSE_TRAP_DOOR_MS = 1500;
     var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 2000;
-    var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json')).sheetURL;
+    var REQUEST_URL = Script.require(Script.resolvePath('../secrets/secrets.json?0')).requestURL;
 
     var _this;
     
@@ -131,7 +131,7 @@
                 username: username
             });
             request({
-                uri: SPREADSHEET_URL + "?" + searchParamString
+                uri: REQUEST_URL + "?" + searchParamString
             }, function (error, response) {
                 if (error || !response || response.status !== "success") {
                     return;

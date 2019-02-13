@@ -1,3 +1,5 @@
 /.vs/
 
-bingoSheetURL.json
+secrets/secrets.json
+webApps/dbInfo.json
+webApps/node_modules/

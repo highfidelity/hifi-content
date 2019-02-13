@@ -118,7 +118,7 @@
     /* FIND OR CREATE BINGO CARD:  Search the google sheet for the user's name to see if they have already been assigned 
     numbers for this round. If they have numbers already, retrieve them. If they do not have numbers, get new ones
     and add one to the player counter text. */
-    var SPREADSHEET_URL = Script.require(Script.resolvePath('../secrets/bingoSheetURL.json?0')).sheetURL;
+    var REQUEST_URL = Script.require(Script.resolvePath('../secrets/secrets.json?0')).requestURL;
     var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
     var request = Script.require('request').request;
     var userCardNumbers = [];
@@ -141,7 +141,7 @@
             username: AccountServices.username
         });
         request({
-            uri: SPREADSHEET_URL + "?" + searchParamString
+            uri: REQUEST_URL + "?" + searchParamString
         }, function (error, response) {
             if (error || !response) {
                 return;

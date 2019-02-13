@@ -18,7 +18,7 @@
     var CARD_SPAWNER_SCRIPT = Script.resolvePath("../../entityScripts/cardSpawner/bingoCardSpawner.js");
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 1000;
     var WAIT_WHILE_CARDS_ARE_DELETED_MS = 3000;
-    var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json')).sheetURL;
+    var REQUEST_URL = Script.require(Script.resolvePath('../secrets/secrets.json?0')).requestURL;
     var BINGO_WALL = "{df198d93-a9b7-4619-9128-97a53fea2451}";
     var BINGO_WHEEL_TEXT = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
 
@@ -245,7 +245,7 @@
             }
             
             request({
-                uri: SPREADSHEET_URL,
+                uri: REQUEST_URL,
                 json: true,
                 body: requestBody,
                 method: "POST"
@@ -300,7 +300,7 @@
             });
             Entities.callEntityMethod(playerCounterText, 'reset');
             request({
-                uri: SPREADSHEET_URL + "?" + newRoundURLParams
+                uri: REQUEST_URL + "?" + newRoundURLParams
             }, function (error, response) {
                 if (error || !response || response.status !== "success") {
                     print("ERROR: Could not reset round.", response);
