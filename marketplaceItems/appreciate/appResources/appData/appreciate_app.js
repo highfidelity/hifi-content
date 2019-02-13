@@ -33,11 +33,13 @@
         return centerPosition;
     }
 
+
     // Returns a linearly scaled value based on `factor` and the other inputs
     function linearScale(factor, minInput, maxInput, minOutput, maxOutput) {
         return minOutput + (maxOutput - minOutput) *
         (factor - minInput) / (maxInput - minInput);
     }
+    
 
     // Linearly scales an RGB color between 0 and 1 based on RGB color values
     // between 0 and 255. Used when updating the albedo of the material entity
@@ -55,6 +57,12 @@
 
         return output;
     }
+
+
+    function randomFloat(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
 
     // Updates the Current Intensity Meter UI element. Called when intensity changes.
     function updateCurrentIntensityUI() {
@@ -74,7 +82,17 @@
             Script.clearInterval(updateIntensityEntityInterval);
             updateIntensityEntityInterval = false;
         }
+        
+        if (intensityEntity) {
+            Entities.deleteEntity(intensityEntity);
+            intensityEntity = false;
+        }
+        if (intensityMaterialEntity) {
+            Entities.deleteEntity(intensityMaterialEntity);
+            intensityMaterialEntity = false;
+        }
     }
+
 
     // Updates the intensity entity based on the user's avatar's hand position and the
     // current intensity of their appreciation.
@@ -199,15 +217,12 @@
                 var props = INTENSITY_ENTITY_PROPERTIES;
                 props.position = halfwayBetweenHands();
 
-                currentInitialAngularVelocity.x = Math.random() *
-                    (INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.x -
-                    INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.x) + INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.x;
-                currentInitialAngularVelocity.y = Math.random() *
-                    (INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.y -
-                    INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.y) + INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.y;
-                currentInitialAngularVelocity.z = Math.random() *
-                    (INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.z -
-                    INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.z) + INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.z;
+                currentInitialAngularVelocity.x =
+                    randomFloat(INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.x, INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.x);
+                currentInitialAngularVelocity.y =
+                    randomFloat(INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.y, INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.y);
+                currentInitialAngularVelocity.z =
+                    randomFloat(INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.z, INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.z);
                 props.angularVelocity = currentInitialAngularVelocity;
 
                 intensityEntity = Entities.addEntity(props, "avatar");
@@ -230,10 +245,12 @@
         }
     }
 
+
     // Function that AppUI calls when the App's UI opens
     function onOpened() {
         updateCurrentIntensityUI();
     }
+
 
     // Locally pre-caches all of the sounds in the sounds/claps and sounds/whistles
     // directories.
@@ -252,6 +269,7 @@
         }
     }
 
+
     // Locally pre-caches the Cheering and Clapping animations
     var whistlingAnimation = false;
     var clappingAnimation = false;
@@ -259,13 +277,14 @@
         var animationURL = Script.resolvePath("resources/animations/Cheering.fbx");
         var resource = AnimationCache.prefetch(animationURL);
         var animation = AnimationCache.getAnimation(animationURL);
-        whistlingAnimation = { url: animationURL, animation: animation, resource: resource};
+        whistlingAnimation = {url: animationURL, animation: animation, resource: resource};
 
         animationURL = Script.resolvePath("resources/animations/Clapping.fbx");
         resource = AnimationCache.prefetch(animationURL);
         animation = AnimationCache.getAnimation(animationURL);
-        clappingAnimation = { url: animationURL, animation: animation, resource: resource};
+        clappingAnimation = {url: animationURL, animation: animation, resource: resource};
     }
+
 
     // If we're currently fading out the appreciation sounds on an interval,
     // clear that interval.
@@ -276,11 +295,12 @@
         }
     }
 
+
     // Fade out the appreciation sounds by quickly
     // lowering the global current intensity.
     var soundFadeInterval = false;
     var FADE_INTERVAL_MS = 20;
-    var FADE_OUT_STEP_SIZE = 0.05; // unitless
+    var FADE_OUT_STEP_SIZE = 0.05; // Unitless
     function fadeOutAndStopSound() {
         maybeClearSoundFadeInterval();
 
@@ -301,6 +321,7 @@
             fadeIntensity(currentIntensity, INTENSITY_MAX_STEP_SIZE_DESKTOP);
         }, FADE_INTERVAL_MS);
     }
+
 
     // Calculates the audio injector volume based on 
     // the current global appreciation intensity and some min/max values.
@@ -326,12 +347,13 @@
         return vol;
     }
 
+
     // Modifies the global currentIntensity. Moves towards the targetIntensity,
     // but never moves faster than a given max step size per function call.
     // Also clamps the intensity to a min of 0 and a max of 1.0. 
     var currentIntensity = 0;
-    var INTENSITY_MAX_STEP_SIZE = 0.003; // unitless, determined empirically
-    var INTENSITY_MAX_STEP_SIZE_DESKTOP = 1; // unitless, determined empirically
+    var INTENSITY_MAX_STEP_SIZE = 0.003; // Unitless, determined empirically
+    var INTENSITY_MAX_STEP_SIZE_DESKTOP = 1; // Unitless, determined empirically
     var MAX_CLAP_INTENSITY = 0.55; // Unitless, determined empirically
     var MAX_WHISTLE_INTENSITY = 1.0; // Unitless, determined empirically
     function fadeIntensity(targetIntensity, maxStepSize) {
@@ -366,6 +388,7 @@
         soundInjector.setOptions(injectorOptions);
     }
 
+
     // Call this function to actually play a sound.
     // Doesn't play a new sound if a sound is playing AND (you're whistling OR you're in HMD)
     // Injectors are placed between the user's hands (at the same location as the apprecation
@@ -387,9 +410,10 @@
         soundInjector = Audio.playSound(sound, {
             position: halfwayBetweenHands(),
             volume: calculateInjectorVolume(),
-            pitch: Math.random() * (MAXIMUM_PITCH - MINIMUM_PITCH) + MINIMUM_PITCH
+            pitch: randomFloat(MINIMUM_PITCH, MAXIMUM_PITCH)
         });
     }
+
 
     // Returns true if the global intensity and user settings dictate that clapping is the
     // right thing to do.
@@ -398,12 +422,14 @@
             (currentIntensity > 0.0 && currentIntensity <= MAX_CLAP_INTENSITY);
     }
 
+
     // Returns true if the global intensity and user settings dictate that whistling is the
     // right thing to do.
     function shouldWhistle() {
         return currentIntensity > MAX_CLAP_INTENSITY &&
             currentIntensity <= MAX_WHISTLE_INTENSITY;
     }
+
 
     // Selects the correct sound, then plays it.
     var currentSound;
@@ -416,6 +442,7 @@
             playSound(whistleSounds[Math.floor(Math.random() * whistleSounds.length)]);
         }
     }
+    
 
     // If there exists a VR debounce timer (used for not playing sounds too often),
     // clear it.
@@ -425,6 +452,7 @@
             vrDebounceTimer = false;
         }
     }
+
 
     // Calculates the current intensity of appreciation based on the user's
     // hand velocity (rotational and linear).
@@ -466,11 +494,12 @@
         }
     }
 
+
     // Gets both hands' linear velocity.
     var lastLeftHandPosition = false;
     var lastRightHandPosition = false;
     function getHandsLinearVelocity() {
-        var returnObject = {
+        var linearVelocity = {
             left: 0,
             right: 0
         };
@@ -481,26 +510,27 @@
         if (!lastLeftHandPosition || !lastRightHandPosition) {
             lastLeftHandPosition = leftHandPosition;
             lastRightHandPosition = rightHandPosition;
-            return returnObject;
+            return linearVelocity;
         }
 
         var leftHandDistanceCM = Vec3.distance(leftHandPosition, lastLeftHandPosition) * CM_PER_M;
         var rightHandDistanceCM = Vec3.distance(rightHandPosition, lastRightHandPosition) * CM_PER_M;
 
-        returnObject.left = leftHandDistanceCM / HAND_VELOCITY_CHECK_INTERVAL_MS * MS_PER_S;
-        returnObject.right = rightHandDistanceCM / HAND_VELOCITY_CHECK_INTERVAL_MS * MS_PER_S;
+        linearVelocity.left = leftHandDistanceCM / HAND_VELOCITY_CHECK_INTERVAL_MS * MS_PER_S;
+        linearVelocity.right = rightHandDistanceCM / HAND_VELOCITY_CHECK_INTERVAL_MS * MS_PER_S;
         
         lastLeftHandPosition = leftHandPosition;
         lastRightHandPosition = rightHandPosition;
 
-        return returnObject;
+        return linearVelocity;
     }
+
 
     // Gets both hands' angular velocity.
     var lastLeftHandRotation = false;
     var lastRightHandRotation = false;
     function getHandsAngularVelocity() {
-        var returnObject = {
+        var angularVelocity = {
             left: {x: 0, y: 0, z: 0},
             right: {x: 0, y: 0, z: 0}
         };
@@ -511,7 +541,7 @@
         if (!lastLeftHandRotation || !lastRightHandRotation) {
             lastLeftHandRotation = leftHandRotation;
             lastRightHandRotation = rightHandRotation;
-            return returnObject;
+            return angularVelocity;
         }
 
         var leftHandAngleDelta = Quat.multiply(leftHandRotation, Quat.inverse(lastLeftHandRotation)); 
@@ -520,14 +550,15 @@
         leftHandAngleDelta = Quat.safeEulerAngles(leftHandAngleDelta);
         rightHandAngleDelta = Quat.safeEulerAngles(rightHandAngleDelta);
 
-        returnObject.left = Vec3.multiply(leftHandAngleDelta, 1 / HAND_VELOCITY_CHECK_INTERVAL_MS);
-        returnObject.right = Vec3.multiply(rightHandAngleDelta, 1 / HAND_VELOCITY_CHECK_INTERVAL_MS);
+        angularVelocity.left = Vec3.multiply(leftHandAngleDelta, 1 / HAND_VELOCITY_CHECK_INTERVAL_MS);
+        angularVelocity.right = Vec3.multiply(rightHandAngleDelta, 1 / HAND_VELOCITY_CHECK_INTERVAL_MS);
 
         lastLeftHandRotation = leftHandRotation;
         lastRightHandRotation = rightHandRotation;
 
-        return returnObject;
+        return angularVelocity;
     }
+
 
     // Calculates the hand effect (see above). Gets called on an interval,
     // but only if the user's hands are above their head. This saves processing power.
@@ -547,6 +578,7 @@
         }
     }
 
+
     // If handVelocityCheckInterval is set up, clear it.
     function maybeClearHandVelocityCheck() {
         if (handVelocityCheckInterval) {
@@ -554,6 +586,7 @@
             handVelocityCheckInterval = false;
         }
     }
+
 
     // If handVelocityCheckInterval is set up, clear it.
     // Also stop the sound injector and set currentIntensity to 0.
@@ -568,6 +601,7 @@
         currentIntensity = 0.0;
     }
 
+
     // Sets up an interval that'll check the avatar's hand's velocities.
     // This is used for calculating the effect.
     // If the user isn't in HMD, we'll never set up this interval.
@@ -581,6 +615,7 @@
 
         handVelocityCheckInterval = Script.setInterval(handVelocityCheck, HAND_VELOCITY_CHECK_INTERVAL_MS);
     }
+
 
     // Checks the position of the user's hands to determine if they're above their head.
     // If they are, sets up the hand velocity check interval (see above).
@@ -603,6 +638,7 @@
         }
     }
 
+
     // If handPositionCheckInterval is set up, clear it.
     function maybeClearHandPositionCheckInterval() {
         if (handPositionCheckInterval) {
@@ -610,6 +646,7 @@
             handPositionCheckInterval = false;
         }
     }
+
 
     // If the app is enabled, sets up an interval that'll check if the avatar's hands are above their head.
     var handPositionCheckInterval = false;
@@ -624,6 +661,7 @@
         handPositionCheckInterval = Script.setInterval(handPositionCheck, HAND_POSITION_CHECK_INTERVAL_MS);
     }
 
+
     // If the interval that periodically lowers the apprecation volume is set up, clear it.
     function maybeClearSlowAppreciationInterval() {
         if (slowAppreciationInterval) {
@@ -631,6 +669,7 @@
             slowAppreciationInterval = false;
         }
     }
+
 
     // Stop appreciating. Called when Appreciating from Desktop mode.
     function stopAppreciating() {
@@ -643,6 +682,7 @@
         currentAnimationTimestamp = 0;
     }
 
+
     // If the timeout that stops the user's apprecation is set up, clear it.
     function maybeClearStopAppreciatingTimeout() {
         if (stopAppreciatingTimeout) {
@@ -651,8 +691,25 @@
         }
     }
 
+
+    function calculateCurrentAnimationFPS(frameCount) {
+        var animationTimestampDeltaMS = Date.now() - currentAnimationTimestamp;
+        var frameDelta = animationTimestampDeltaMS / MS_PER_S * currentAnimationFPS;
+
+        currentlyPlayingFrame = (currentlyPlayingFrame + frameDelta) % frameCount;
+
+        currentAnimationFPS = currentIntensity * CHEERING_FPS_MAX + INITIAL_ANIMATION_FPS;
+
+        currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
+
+        if (currentAnimation === clappingAnimation) {
+            currentAnimationFPS += CLAP_ANIMATION_FPS_BOOST;
+        }
+    }
+
+
     // Called on an interval. Slows down the user's appreciation!
-    var VOLUME_STEP_DOWN_DESKTOP = 0.01; // unitless, determined empirically
+    var VOLUME_STEP_DOWN_DESKTOP = 0.01; // Unitless, determined empirically
     function slowAppreciation() {
         currentIntensity -= VOLUME_STEP_DOWN_DESKTOP;
         fadeIntensity(currentIntensity, INTENSITY_MAX_STEP_SIZE_DESKTOP);
@@ -666,23 +723,13 @@
 
         var frameCount = currentAnimation.animation.frames.length;
 
-        var animationTimestampDeltaMS = Date.now() - currentAnimationTimestamp;
-        var frameDelta = animationTimestampDeltaMS / MS_PER_S * currentAnimationFPS;
-
-        currentlyPlayingFrame = (currentlyPlayingFrame + frameDelta) % frameCount;
-
-        currentAnimationFPS = currentIntensity * CHEERING_FPS_MAX + INITIAL_ANIMATION_FPS;
-
-        currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
-
-        if (currentAnimation === clappingAnimation) {
-            currentAnimationFPS += CLAP_ANIMATION_FPS_BOOST;
-        }
+        calculateCurrentAnimationFPS(frameCount);
 
         MyAvatar.overrideAnimation(currentAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
 
         currentAnimationTimestamp = Date.now();
     }
+
 
     // Selects the proper animation to use when Appreciating in Desktop mode.
     function selectAnimation() {
@@ -701,6 +748,7 @@
         }
     }
 
+
     // Called when the Z key is pressed (and some other conditions are met).
     // 1. (Maybe) clears old intervals
     // 2. Steps up the global currentIntensity, then forces the effect/sound to fade/play immediately
@@ -711,16 +759,16 @@
     //     - Since there's no way to modify animation FPS on-the-fly, we have to calculate
     //         where the animation should start based on where it was before changing FPS
     // 6. Sets up the `updateIntensityEntity` interval if one isn't already setup
-    var currentAnimation = false;
     var INITIAL_ANIMATION_FPS = 7;
+    var SLOW_APPRECIATION_INTERVAL_MS = 100;
+    var CHEERING_FPS_MAX = 80;
+    var VOLUME_STEP_UP_DESKTOP = 0.035; // Unitless, determined empirically
+    var CLAP_ANIMATION_FPS_BOOST = 15;
+    var currentAnimation = false;
     var currentAnimationFPS = INITIAL_ANIMATION_FPS;
     var slowAppreciationInterval = false;
-    var SLOW_APPRECIATION_INTERVAL_MS = 100;
     var currentlyPlayingFrame = 0;
     var currentAnimationTimestamp;
-    var CHEERING_FPS_MAX = 80;
-    var VOLUME_STEP_UP_DESKTOP = 0.035; // unitless, determined empirically
-    var CLAP_ANIMATION_FPS_BOOST = 15;
     function keyPressed() {
         // Don't do anything if the animations aren't cached.
         if (!whistlingAnimation || !clappingAnimation) {
@@ -748,18 +796,7 @@
         var frameCount = currentAnimation.animation.frames.length;
 
         if (currentAnimationTimestamp > 0) {
-            var animationTimestampDeltaMS = Date.now() - currentAnimationTimestamp;
-            var frameDelta = animationTimestampDeltaMS / MS_PER_S * currentAnimationFPS;
-    
-            currentlyPlayingFrame = (currentlyPlayingFrame + frameDelta) % frameCount;
-    
-            currentAnimationFPS = currentIntensity * CHEERING_FPS_MAX + INITIAL_ANIMATION_FPS;
-
-            currentAnimationFPS = Math.min(currentAnimationFPS, CHEERING_FPS_MAX);
-
-            if (currentAnimation === clappingAnimation) {
-                currentAnimationFPS += CLAP_ANIMATION_FPS_BOOST;
-            }
+            calculateCurrentAnimationFPS(frameCount);
         } else {
             currentlyPlayingFrame = 0;
         }
@@ -771,6 +808,7 @@
             updateIntensityEntityInterval = Script.setInterval(updateIntensityEntity, UPDATE_INTENSITY_ENTITY_INTERVAL_MS);
         }
     }
+
     
     // The listener for all in-app keypresses. Listens for an unshifted, un-alted, un-ctrl'd
     // "Z" keypress. Only listens when in Desktop mode. If the user is holding the key down,
@@ -798,6 +836,7 @@
             }
         }
     }
+
     
     // Sets up a timeout that will fade out the appreciation sound, then stop it.
     var stopAppreciatingTimeout = false;
@@ -809,6 +848,7 @@
             stopAppreciatingTimeout = Script.setTimeout(fadeOutAndStopSound, STOP_APPRECIATING_TIMEOUT_MS);
         }
     }
+
     
     // When the "Z" key is released, we want to stop appreciating a short time later.
     function keyReleaseEvent(event) {
@@ -817,6 +857,7 @@
             stopAppreciatingSoon();
         }
     }
+
 
     // Enables or disables the app's main functionality
     var appreciateEnabled = Settings.getValue("appreciate/enabled", false);
@@ -837,13 +878,14 @@
             maybeClearStopAppreciatingTimeout();
             stopAppreciating();
 
-            if (keyEventsWired) {         
+            if (keyEventsWired) {
                 Controller.keyPressEvent.disconnect(keyPressEvent);
                 Controller.keyReleaseEvent.disconnect(keyReleaseEvent);
                 keyEventsWired = false;
             }
         }
     }
+
 
     // Handles incoming messages from the UI
     // - "eventBridgeReady" - The App's UI will send this when it's ready to
@@ -887,6 +929,7 @@
                 break;
         }
     }
+
     
     // Called when the script is stopped. STOP ALL THE THINGS!
     function onScriptEnding() {
@@ -904,7 +947,7 @@
             desktopDebounceTimer = false;
         }
 
-        if (keyEventsWired) {            
+        if (keyEventsWired) {
             Controller.keyPressEvent.disconnect(keyPressEvent);
             Controller.keyReleaseEvent.disconnect(keyReleaseEvent);
             keyEventsWired = false;
@@ -921,6 +964,7 @@
 
         HMD.displayModeChanged.disconnect(enableOrDisableAppreciate);
     }
+
 
     // Called when the script starts up
     var BUTTON_NAME = "APPRECIATE";
@@ -942,6 +986,7 @@
         getAnimations();
         HMD.displayModeChanged.connect(enableOrDisableAppreciate);
     }
+
 
     Script.scriptEnding.connect(onScriptEnding);
     startup();

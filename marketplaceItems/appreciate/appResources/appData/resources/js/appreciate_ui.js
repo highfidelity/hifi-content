@@ -9,6 +9,8 @@
 
 /* globals document EventBridge setTimeout */
 
+// Called when the user clicks the switch in the top right of the app.
+// Sends an event to the App JS and clears the `firstRun` `div`.
 function appreciateSwitchClicked(checkbox) {
     EventBridge.emitWebEvent(JSON.stringify({
         method: "appreciateSwitchClicked",
@@ -17,6 +19,8 @@ function appreciateSwitchClicked(checkbox) {
     document.getElementById("firstRun").style.display = "none";
 }
 
+// Called when the user checks/unchecks the Never Whistle checkbox.
+// Adds the crosshatch div to the UI and sends an event to the App JS.
 function neverWhistleCheckboxClicked(checkbox) {
     var crosshatch = document.getElementById("crosshatch");
     if (checkbox.checked) {
@@ -31,6 +35,8 @@ function neverWhistleCheckboxClicked(checkbox) {
     }));
 }
 
+// Called when the user changes the entity's color using the jscolor picker.
+// Modifies the color of the Intensity Meter gradient and sends a message to the App JS.
 var START_COLOR_MULTIPLIER = 0.2;
 function setEntityColor(jscolor) {
     var newEntityColor = {
@@ -59,7 +65,18 @@ function setEntityColor(jscolor) {
 
 // Handle EventBridge messages from *_app.js.
 function onScriptEventReceived(message) {
-    message = JSON.parse(message);
+    try {
+        message = JSON.parse(message);
+    } catch (error) {
+        console.log("Couldn't parse script event message: " + error);
+        return;
+    }
+
+    // This message gets sent by `entityList.js` when it shouldn't!
+    if (message.type === "removeEntities") {
+        return;
+    }
+
     switch (message.method) {
         case "updateUI":
             if (message.isFirstRun) {
@@ -92,14 +109,15 @@ function onScriptEventReceived(message) {
         case "updateCurrentIntensityUI":
             document.getElementById("currentIntensity").style.width = message.currentIntensity * 100 + "%";
             break;
+
         default:
-            console.log("Unknown message received from appreciate_app.js!");
+            console.log("Unknown message received from appreciate_app.js! " + JSON.stringify(message));
             break;
     }
 }
 
 // This delay is necessary to allow for the JS EventBridge to become active.
-// The delay won't be necessary in RC78.
+// The delay is still necessary for HTML apps in RC78+.
 var EVENTBRIDGE_SETUP_DELAY = 500;
 function onLoad() {
     setTimeout(function() {
