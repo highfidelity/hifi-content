@@ -21,6 +21,8 @@
     var CHECK_RADIUS = 0.25;
     var LIFETIME = 30;
 
+    var eating = false;
+
     var _this = this;
 
     _this.preload = function(entityID) {
@@ -37,14 +39,7 @@
     };
 
     var setUpFood = function() {
-        var age = Entities.getEntityProperties(_this.entityID, "age").age;
-        var editJSON = {
-            lifetime: age + LIFETIME,
-            visible: true,
-            dynamic: true,
-            collisionless: false
-        };
-        Entities.editEntity(_this.entityID, editJSON);
+        Entities.callEntityServerMethod(_this.entityID, 'setupFood');
     };
 
     _this.startNearGrab = function() {
@@ -52,10 +47,14 @@
     };
 
     var checkIfNearHead = function() {
+        if (eating) {
+            return;
+        }
         var position = Entities.getEntityProperties(_this.entityID, "position").position;
         var foodDistance = CHECK_RADIUS * MyAvatar.scale;
         if (Vec3.distance(position, MyAvatar.getJointPosition("Head")) < foodDistance || 
             Vec3.distance(position, MyAvatar.getJointPosition("Neck")) < foodDistance) {
+            eating = true;
             playEatingEffect();
         }
     };
@@ -65,7 +64,7 @@
         var index = Math.round(Math.random() * size);
         var crunchSound = CRUNCH_SOUNDS[index];
         Audio.playSound(crunchSound, {volume: VOLUME, position: MyAvatar.getJointPosition("Head")});
-        Entities.deleteEntity(_this.entityID);
+        Entities.callEntityServerMethod(_this.entityID, 'deleteFood');
     };
 
     Script.update.connect(checkIfNearHead);

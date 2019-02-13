@@ -40,14 +40,13 @@
         WIREFRAME,
         2, // Albedo
         3, // Normal
-        5, // Metallic
+        4, // Roughness
         6, // Emissive
-        17, // Linear Depth
         23 // Low Normal
     ];
 
     var SWALLOW_VOLUME = 0.5;
-    var EFFECT_VOLUME = 0.9;
+    var EFFECT_VOLUME = 0.65;
     var CHECK_RADIUS = 0.25; // meters
     var LIFETIME = 10; // seconds
     var GRAVITY = {x: 0, y: -9.8, z: 0};
