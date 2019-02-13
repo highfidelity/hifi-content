@@ -63,14 +63,10 @@
     // Create the proper texture name for the materialDataMaker
     function urlTextureMaker(buttonNumber){
         // url: "https://hifi-content.s3.amazonaws.com/alan/dev/button-2.fbx/button-2.fbm/button2-on.jpg"
-        var BASE_URL = "https://hifi-content.s3.amazonaws.com/alan/dev/";
+        var BASE_URL = Script.resolvePath("./Images/");
         var mainButtonName =
             BASE_URL +
-            "button-" +
-            buttonNumber +
-            ".fbx/button-" +
-            buttonNumber +
-            ".fbm/button" +
+            "button" +
             buttonNumber +
             "-"
         ;
@@ -121,7 +117,10 @@
                 urlTextureMaker(rating);                
                 materialEntityProps.materialData = materialDataMaker("off");
                 
-                materialEntity = Entities.addEntity(materialEntityProps);
+                var childrenIDS = Entities.getChildrenIDs(entityID);
+                if (childrenIDS.length === 0) {
+                    materialEntity = Entities.addEntity(materialEntityProps);
+                }
             } catch (e) {
                 log(LOG_ERROR, "ERROR READING USERDATA", e);
             }
