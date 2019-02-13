@@ -15,6 +15,12 @@ freeJoint = RightForeArm
 freeJoint = RightArm
 freeJoint = LeftForeArm
 freeJoint = LeftArm
+bs = JawOpen = mouth_Open = 1
+bs = BrowsU_L = L_brow_Up = 1
+bs = EyeBlink_L = L_blink = 1
+bs = BrowsU_R = R_brow_Up = 1
+bs = EyeBlink_R = R_blink = 1
+bs = Sneer = angry = 1
 jointIndex = Spine1 = 12
 jointIndex = flow_leaf_56 = 109
 jointIndex = flow_leaf_24 = 147

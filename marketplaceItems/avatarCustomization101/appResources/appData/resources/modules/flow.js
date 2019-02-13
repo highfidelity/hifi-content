@@ -14,6 +14,8 @@
 
 Script.include("/~/system/libraries/Xform.js");
 Script.include(Script.resolvePath("vectorMath.js"));
+var CONFIG = Script.require(Script.resolvePath("config.js"));
+var CUSTOM_DATA = CONFIG.DATA_FOR_FLOW_APP;
 
 (function () {
     var SHOW_AVATAR = true;
@@ -50,10 +52,8 @@ Script.include(Script.resolvePath("vectorMath.js"));
 
     // Joint groups by keyword
 
-
     var FLOW_JOINT_KEYWORDS = [];
     var FLOW_JOINT_DATA = {};
-
 
     var DEFAULT_JOINT_SETTINGS = {
         "get": function () {
@@ -80,29 +80,8 @@ Script.include(Script.resolvePath("vectorMath.js"));
 
     // CUSTOM DATA STARTS HERE
 
-    CUSTOM_FLOW_DATA = {
-        "leaf": {
-            "active": true,
-            "stiffness": 0.7,
-            "radius": 0.01,
-            "gravity": 0,
-            "damping": 0.85,
-            "inertia": 0.8,
-            "delta": 0.55
-        }
-    };
-
-    CUSTOM_COLLISION_DATA = {
-        "HeadTop_End": {
-            "type": "sphere",
-            "radius": 0.12,
-            "offset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-            }
-        }
-    };
+    CUSTOM_FLOW_DATA = CUSTOM_DATA.CUSTOM_FLOW_DATA;
+    CUSTOM_COLLISION_DATA = CUSTOM_DATA.CUSTOM_COLLISION_DATA;
 
     // CUSTOM DATA ENDS HERE
 

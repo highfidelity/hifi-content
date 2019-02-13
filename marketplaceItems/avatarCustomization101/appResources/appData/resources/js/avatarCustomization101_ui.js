@@ -2,8 +2,6 @@
 
 (function () {
 
-    var EVENTBRIDGE_SETUP_DELAY = 200;
-
     var Chrome = VueColor.Chrome;
     Vue.component("chrome-picker", Chrome);
     // console.log(Chrome);
@@ -606,7 +604,6 @@
         `
     })
 
-
     // Helper for formatting slider data using both the staticList and dynamicData
     function createSliderInfoFromLists(staticList, dynamicData, nameFunction) {
 
@@ -642,7 +639,7 @@
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: eventBridgeTypeString,
                     subtype: eventBridgeSubtypeString ? eventBridgeSubtypeString : "",
-                    updates: updates
+                    updates: updates // expected { [name]: value}
                 }));
             }
         }
@@ -874,6 +871,11 @@
                 return this.name + "Value";
             }
         },
+        // data() {
+        //     return {
+        //         value1: this.defaultvalue
+        //     }
+        // },
         mounted() {
 
             var sliderId = "#" + this.sliderId;

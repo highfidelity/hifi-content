@@ -7,7 +7,7 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234567")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456789")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
         // MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
@@ -250,6 +250,13 @@
 
     // #region FLOW
 
+    // Subtype event strings
+    
+    var STRING_DEBUG_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_DEBUG_TOGGLE,
+        STRING_COLLISIONS_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_COLLISIONS_TOGGLE,
+        STRING_HAIR = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_HAIR,
+        STRING_JOINTS = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS;
+
     // Called when user navigates to flow tab
     function addRemoveFlowDebugSpheres(isEnabled) {
         // draw debug circles on the joints
@@ -271,12 +278,28 @@
         }
     }
 
-    function updateFlow(newFlowDataToApply) {
+    function updateFlow(newFlowDataToApply, subtype) {
+
+        if (DEBUG) {
+            print("updating flow: ", subtype, JSON.stringify(newFlowDataToApply))
+        }
+
+        // propertyName is the key and value is the new propety value
+        // for example newFlowDataToApply = { stiffness: 0.5 }
+        for (var propertyName in newFlowDataToApply) {
+
+            var newValue = newFlowDataToApply[propertyName];
+
+            if (subtype === STRING_HAIR) {
+                GlobalDebugger.setJointDataValue("leaf", propertyName, newValue);
+            } else if (subtype === STRING_JOINTS) {
+                GlobalDebugger.setCollisionDataValue("HeadTop_End", propertyName, newValue);
+            }
+
+        }
+
         // check update interval from flow app
 
-        // GlobalDebugger.setJointDataValue("leaf", "stiffness", 1);
-
-        // GlobalDebugger.setCollisionDataValue("Spine2", "radius", 0.33);
 
         // case MSG_JOINT_INPUT_DATA: {
         //     GlobalDebugger.setJointDataValue(message.group, message.name, message.value);
@@ -495,17 +518,23 @@
             case EVENT_UPDATE_FLOW:
 
                 switch (data.subtype) {
-                    case "debugToggle":
+                    case STRING_DEBUG_TOGGLE:
+                        print("TOGGLE DEBUG SPHERES ", data.updates)
                         addRemoveFlowDebugSpheres(data.updates);
                         break;
-                    case "collisionsToggle":
+                    case STRING_COLLISIONS_TOGGLE:
                         addRemoveCollisions(data.updates);
                         break;
-                    case "hair": 
-
+                    case STRING_HAIR: 
+                        updateFlow(data.updates, STRING_HAIR);
                         break;
-                    case "joints": 
+                    case STRING_JOINTS: 
+                        updateFlow(data.updates, STRING_JOINTS);
+                        break;
+                    default: 
 
+                        print(STRING_DEBUG_TOGGLE, STRING_COLLISIONS_TOGGLE, STRING_HAIR )
+                        console.error("Recieved no ", EVENT_UPDATE_FLOW, data.subtype)
                         break;
                 }
 
