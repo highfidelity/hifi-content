@@ -2,19 +2,18 @@
 
 (function () {
 
-
     // Modules
-    Script.include(Script.resolvePath("https://hifi-content.s3.amazonaws.com/luis/flowFiles/flow.js"));
+    Script.include(Script.resolvePath("./resources/modules/flow.js"));
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234567")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/presetData/materials.js")),
-        AVATAR_FILE = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
+        // MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
+        AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
     // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
 
-    var AVATAR_URL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
+    // var AVATAR_URL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
 
     var DEBUG = true;
 
@@ -269,31 +268,32 @@
     // #region FLOW
 
     // Called when user navigates to flow tab
-    function addRemoveFlowDebugSpheres(isEnable) {
+    function addRemoveFlowDebugSpheres(isEnabled) {
         // draw debug circles on the joints
-        // get function from flow app
-        // get function from flow app
         var flowSettings = GlobalDebugger.getDisplayData();
 
         // the state of flow is the opposite of what we want
-        if (flowSettings.collisions !== isEnable) {
+        if (flowSettings.collisions !== isEnabled) {
             GlobalDebugger.toggleDebugShapes();
         }
     }
 
-    function deleteFlowDebugSpheres() {
-        // if debug spheres exist
-        // delete
-        // get function from flow app
+    function addRemoveCollisions(isEnabled) {
+        // draw debug circles on the joints
         var flowSettings = GlobalDebugger.getDisplayData();
 
-        if (flowSettings.collisions) {
-            GlobalDebugger.toggleDebugShapes();
+        // the state of flow is the opposite of what we want
+        if (flowSettings.collisions !== isEnabled) {
+            GlobalDebugger.toggleCollisions();
         }
     }
 
     function updateFlow(newFlowDataToApply) {
         // check update interval from flow app
+
+        // GlobalDebugger.setJointDataValue("leaf", "stiffness", 1);
+
+        // GlobalDebugger.setCollisionDataValue("Spine2", "radius", 0.33);
 
         // case MSG_JOINT_INPUT_DATA: {
         //     GlobalDebugger.setJointDataValue(message.group, message.name, message.value);
@@ -511,12 +511,19 @@
                 break;
             case EVENT_UPDATE_FLOW:
 
-                if (data.subtype === "hair") {
-                    print("FLOW: updating hair flow");
-                    // updateHairFlow();
-                } else if (data.subtype === "joints") {
-                    print("FLOW: updating joints flow");
-                    // updateJointsFlow();
+                switch (data.subtype) {
+                    case "debugToggle":
+                        addRemoveFlowDebugSpheres(data.updates);
+                        break;
+                    case "collisionsToggle":
+                        addRemoveCollisions(data.updates);
+                        break;
+                    case "hair": 
+
+                        break;
+                    case "joints": 
+
+                        break;
                 }
 
                 break;
