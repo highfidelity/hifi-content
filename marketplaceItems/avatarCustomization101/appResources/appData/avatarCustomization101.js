@@ -3,7 +3,7 @@
 (function () {
 
     // Modules
-    Script.include(Script.resolvePath("./resources/modules/flow.js?v1"));
+    Script.include(Script.resolvePath("./resources/modules/flow.js?v12S"));
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
@@ -182,6 +182,7 @@
 
     // presets
     function applyNamedMaterial(materialName) {
+        console.log("trying to change mah materrrals");
         switch (materialName){
             case STRING_DEFAULT_MAT:
                 updateMaterial(MATERIAL_DEFAULT);
@@ -546,6 +547,9 @@
             case EVENT_UPDATE_MATERIAL:
                 // delegates the method depending on if 
                 // event has name property or updates property
+
+                print("ROBIN WAS HERE");
+
                 if (data.name) {
                     applyNamedMaterial(data.name);
                 } else {

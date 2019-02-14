@@ -281,6 +281,7 @@
             applyNamedMaterial(materialName) {
                 if (DEBUG) {
                     console.log("applyNamedMaterial clicked " + materialName);
+                    console.log("ui name " + EVENT_UPDATE_MATERIAL);
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
@@ -701,13 +702,13 @@
                 <checkbox
                     :onchange="debugToggle"
                     :label="'Show Debug'"
-                    v-bind:defaultvalue="dynamic.flow.showDebug"
+                    v-bind:defaultvalue="dynamic.showDebug"
                 ></checkbox>
 
                 <checkbox
                     :onchange="collisionsToggle"
                     :label="'Enable Collisions'"
-                    v-bind:defaultvalue="dynamic.flow.enableCollisions"
+                    v-bind:defaultvalue="dynamic.enableCollisions"
                 ></checkbox>
 
                 <h3>Hair Flow Options</h3>
