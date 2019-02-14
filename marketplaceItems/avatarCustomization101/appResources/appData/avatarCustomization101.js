@@ -12,8 +12,6 @@
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
-    // var AVATAR_URL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
-
     var DEBUG = true;
 
     // #region UTILITY FUNCTIONS
@@ -254,15 +252,21 @@
         //     console.log(e, "error");
         //     return;
         // }
+        if (DEBUG) {
+            print("New blendshape data", JSON.stringify(newBlendshapeDataToApply));
+        }
 
         if (!isName) {
+            print("1");
             // is not named blendshape, ensure last blendshape is not selected
             dynamicData[STRING_BLENDSHAPES].selected = "";
         }
         if (emotion !== lastEmotionUsed) {
+            print("2");
             lastEmotionUsed = emotion;
         }
         if (newBlendshapeDataToApply !== lastEmotionUsed) {
+            print("3");
             changingEmotionPercentage = 0.0;
             emotion = newBlendshapeDataToApply;
             isChangingEmotion = true;

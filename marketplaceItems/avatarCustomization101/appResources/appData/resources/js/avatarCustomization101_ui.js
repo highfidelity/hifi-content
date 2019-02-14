@@ -280,6 +280,7 @@
                     v-show="isModalSaveAvatarVisible"
                     :close="closeModalSaveAvatar"
                 ></modal-save-avatar>
+
             </div>
         `
     })
@@ -566,8 +567,11 @@
 
             },
             onSliderChange(value, name) {
+                if (DEBUG) {
+                    console.log("blendshape slider changed " + value + name);
+                }
                 var sliderChange = createSliderChangeCallback(this.dynamic.updatedProperties, EVENT_UPDATE_BLENDSHAPE);
-                sliderChange(value, name);
+                sliderChange(+value, name);
             },
         },
         computed: {
@@ -818,16 +822,16 @@
                         <p>To change avatar back:</p>
                         <p>Avatar App > Favorites > Click Avatar</p>
                     
-                        <div class="flex-container-row">
+                        <div id="save-avatar" class="flex-container-row">
                             <button-big 
                                 :text="'Yes, favorite my avatar'" 
                                 :onclick="changeAvatarToAviAndSaveAvatar" 
-                                :classes="'flex-item'"
+                                :classes="'flex-item two-lines'"
                             ></button-big>
                             <button-big 
                                 :text="withoutSavingText" 
                                 :onclick="changeAvatarToAviWithoutSavingAvatar" 
-                                :classes="'flex-item'"
+                                :classes="'flex-item two-lines'"
                             ></button-big>
 
                         </div>
@@ -871,44 +875,37 @@
                 return this.name + "Value";
             }
         },
-        // data() {
-        //     return {
-        //         value1: this.defaultvalue
-        //     }
-        // },
-        mounted() {
-
-            var sliderId = "#" + this.sliderId;
-            var sliderValueId = "#" + this.sliderValueId;
-
-            var onChange = this.onchange;
-            var title = this.title;
-
-            $(sliderId).slider();
-            $(sliderId).on("slide", function(slideEvent) {
-
-                $(sliderValueId).text(slideEvent.value);
-                onChange(slideEvent.value, title);
-
-            });
-
+        methods: {
+            onChange() {
+                this.onchange(this.val, this.title);
+            }
+        },
+        data() {
+            return {
+                val: this.defaultvalue
+            }
         },
         template: /* html */ `
-            <div class="">
-                <input 
-                    v-bind:data-slider-min="min"
-                    v-bind:data-slider-max="max"
-                    v-bind:data-slider-value="defaultvalue"
-                    v-bind:data-slider-step="increment"
-                    v-bind:id="sliderId" 
+            <div class="flex-container-row">
 
-                    data-slider-handle="square" 
-                    type="text"
-                />
-                <span
+                <div class="slidecontainer flex-item">
+                    <input 
+                        v-bind:min="min" 
+                        v-bind:max="max" 
+                        v-bind:step="increment" 
+                        class="slider" 
+                        v-bind:id="sliderId"
+                        type="range"
+
+                        v-model="val"
+                        v-on:change="onChange()"
+                    >
+                </div>
+                <span 
+                    class="flex-item"
                     v-bind:id="sliderValueId"
                 >
-                    {{ defaultvalue }}
+                    {{ val }}
                 </span>
             </div>
         `
