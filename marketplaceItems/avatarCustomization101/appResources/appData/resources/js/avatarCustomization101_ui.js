@@ -878,11 +878,19 @@
         methods: {
             onChange() {
                 this.onchange(this.val, this.title);
+            },
+            onChangeText() {
+                this.onchange(this.val, this.title);
             }
         },
         data() {
             return {
                 val: this.defaultvalue
+            }
+        },
+        watch: {
+            defaultvalue(newDefaultVal) {
+                this.val = newDefaultVal;
             }
         },
         template: /* html */ `
@@ -893,6 +901,7 @@
                         v-bind:min="min" 
                         v-bind:max="max" 
                         v-bind:step="increment" 
+                        v-bind:value="defaultvalue"
                         class="slider" 
                         v-bind:id="sliderId"
                         type="range"
@@ -904,6 +913,8 @@
                 <span 
                     class="flex-item"
                     v-bind:id="sliderValueId"
+                    v-model="val"
+                    v-on:change="onChangeText()"
                 >
                     {{ val }}
                 </span>

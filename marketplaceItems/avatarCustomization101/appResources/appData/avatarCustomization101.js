@@ -272,7 +272,14 @@
             isChangingEmotion = true;
             MyAvatar.hasScriptedBlendshapes = true;
 
-            dynamicData[STRING_BLENDSHAPES].updatedProperties = emotion;
+            if (!isName) {
+                for(var property in emotion) {
+                    dynamicData[STRING_BLENDSHAPES].updatedProperties[property] = emotion[property];
+                }
+            } else {
+                dynamicData[STRING_BLENDSHAPES].updatedProperties = emotion;
+            }
+
         }
     }
 
