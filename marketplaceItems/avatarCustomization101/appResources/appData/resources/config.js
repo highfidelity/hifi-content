@@ -32,6 +32,32 @@ var STRING_COLOR = "color",
     STRING_SLIDER = "slider",
     STRING_MAP_ONLY = "mapOnly";
 
+// custom flow data
+// utilized in flow.js and dynamic data
+var CUSTOM_FLOW_DATA = {
+    "leaf": {
+        "active": true,
+        "stiffness": 0.7,
+        "radius": 0.01,
+        "gravity": 0,
+        "damping": 0.85,
+        "inertia": 0.8,
+        "delta": 0.55
+    }
+};
+
+var CUSTOM_COLLISION_DATA = {
+    "HeadTop_End": {
+        "type": "sphere",
+        "radius": 0.12,
+        "offset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    }
+};
+
 var CONFIG = {
     APP_NAME: APP_NAME,
 
@@ -63,6 +89,18 @@ var CONFIG = {
     STRING_COLOR: STRING_COLOR,
     STRING_SLIDER: STRING_SLIDER,
     STRING_MAP_ONLY: STRING_MAP_ONLY,
+
+    FLOW_EVENTS_SUBTYPE: {
+        STRING_DEBUG_TOGGLE: "debugToggle",
+        STRING_COLLISIONS_TOGGLE: "collisionsToggle",
+        STRING_HAIR: "hair",
+        STRING_JOINTS: "joints"
+    },
+
+    DATA_FOR_FLOW_APP: {
+        CUSTOM_FLOW_DATA: CUSTOM_FLOW_DATA,
+        CUSTOM_COLLISION_DATA: CUSTOM_COLLISION_DATA,
+    },
 
     STATIC_DATA: {
         TAB_LIST: [ STRING_INFO, STRING_MATERIAL, STRING_BLENDSHAPES, STRING_ANIMATION, STRING_FLOW],
@@ -196,44 +234,56 @@ var CONFIG = {
 
                 COMPONENT_DATA: {
                     HAIR_FLOW_OPTIONS: [ // "stiffness", "radius", "gravity", "damping"
-                        {   
-                            name: "stiffness",
-                            min: 0,
-                            max: 1,
-                            increment: 0.1 
+                        {
+                            name: "radius", 
+                            increment: 0.01, 
+                            min: 0.01, 
+                            max: 0.1
                         },
-                        {   
-                            name: "radius",
-                            min: 0,
-                            max: 1,
-                            increment: 0.1 
+                        {
+                            name: "stiffness", 
+                            increment: 0.05, 
+                            min: 0.0, 
+                            max: 1.0
                         },
-                        {   
-                            name: "gravity",
-                            min: 0,
-                            max: 1,
-                            increment: 0.1 
+                        {
+                            name: "gravity", 
+                            increment: 0.0001, 
+                            min: -0.05, 
+                            max: 0.05
                         },
-                        {   
-                            name: "damping",
-                            min: 0,
-                            max: 1,
-                            increment: 0.1 
-                        }
+                        {
+                            name: "damping", 
+                            increment: 0.05, 
+                            min: 0.0, 
+                            max: 1.0
+                        },
+                        // {
+                        //     name: "inertia", 
+                        //     increment: 0.05, 
+                        //     min: 0.0, 
+                        //     max: 1.0
+                        // },
+                        // {
+                        //     name: "delta", 
+                        //     increment: 0.05, 
+                        //     min: 0.0, 
+                        //     max: 1.0
+                        // }
                     ],
                     JOINT_FLOW_OPTIONS: [
                         {   
                             name: "radius",
-                            min: 0,
-                            max: 1,
-                            increment: 0.1 
+                            min: 0.01,
+                            max: 0.5,
+                            increment: 0.01 
                         },
-                        {   
-                            name: "offset",
-                            min: 0,
-                            max: 1,
-                            increment: 0.1 
-                        }
+                        // {   
+                        //     name: "offset",
+                        //     min: -0.3,
+                        //     max: 0.3,
+                        //     increment: 0.05 
+                        // }
                     ]
                 }
             }
@@ -263,17 +313,25 @@ var CONFIG = {
             }
         },
         blendshapes: {
-            selected: "",
+            selected: "default",
             updatedProperties: {}
         },
         animation: {
 
         },
         flow: {
-            enableCollisions: true,
             showDebug: true,
-            hairFlowOptions: {},
-            jointFlowOptions: {}
+            enableCollisions: true,
+            hairFlowOptions: {
+                stiffness: CUSTOM_FLOW_DATA.leaf.stiffness, 
+                radius: CUSTOM_FLOW_DATA.leaf.radius, 
+                gravity: CUSTOM_FLOW_DATA.leaf.gravity, 
+                damping: CUSTOM_FLOW_DATA.leaf.damping
+            },
+            jointFlowOptions: {
+                radius: CUSTOM_COLLISION_DATA.HeadTop_End.radius,
+                offset: CUSTOM_COLLISION_DATA.HeadTop_End.offset
+            }
         }
     }
 };

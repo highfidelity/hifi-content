@@ -2,19 +2,23 @@
 
 (function () {
 
-
     // Modules
-    Script.include(Script.resolvePath("https://hifi-content.s3.amazonaws.com/luis/flowFiles/flow.js"));
+    Script.include(Script.resolvePath("./resources/modules/flow.js?v1"));
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234567")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456789")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
+<<<<<<< HEAD
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_FILE = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
     // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
+=======
+        // MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
+        AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
+>>>>>>> 2f8e84e82169d316f2d1718e3335f82eeefd4500
 
-    var AVATAR_URL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
+    // var AVATAR_URL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
 
     var DEBUG = true;
 
@@ -60,22 +64,6 @@
             collisionless: true,
             script: Script.resolvePath("./resources/modules/mirrorClient.js")
         }, "domain");
-    }
-
-    function setMirrorDistanceToDefault() {
-        // edit mirror properties to set mirror distance to MIRROR_DISTANCE_M
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_M }));
-        Entities.editEntity(mirrorCubeID, {
-            position: position
-        });
-    }
-
-    function setMirrorDistanceToBlendshapes() {
-        // edit mirror properties to set mirror distance to MIRROR_DISTANCE_BLENDSHAPES_M
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_BLENDSHAPES_M }));
-        Entities.editEntity(mirrorCubeID, {
-            position: position
-        });
     }
 
     function deleteMirror() {
@@ -225,6 +213,7 @@
     // #endregion MATERIAL
 
     // #region BLENDSHAPES
+
     var TRANSITION_TIME_SECONDS = 0.25;
     var STRING_AWE = "awe";
     var STRING_ANGRY = "angry";
@@ -262,7 +251,24 @@
         }
     });
 
+<<<<<<< HEAD
     function updateBlendshapes(newBlendshapeDataToApply) {
+=======
+    function updateBlendshapes(newBlendshapeDataToApply, isName) {
+        // try {
+        //     console.log(newBlendshapeDataToApply);
+        //     var data = JSON.parse(newBlendshapeDataToApply);
+
+        // } catch (e) {
+        //     console.log(e, "error");
+        //     return;
+        // }
+
+        if (!isName) {
+            // is not named blendshape, ensure last blendshape is not selected
+            dynamicData[STRING_BLENDSHAPES].selected = "";
+        }
+>>>>>>> 2f8e84e82169d316f2d1718e3335f82eeefd4500
         if (emotion !== lastEmotionUsed) {
             lastEmotionUsed = emotion;
         }
@@ -271,67 +277,96 @@
             emotion = newBlendshapeDataToApply;
             isChangingEmotion = true;
             MyAvatar.hasScriptedBlendshapes = true;
+
+            dynamicData[STRING_BLENDSHAPES].updatedProperties = emotion;
         }
     }
 
-
     // presets
+<<<<<<< HEAD
     function applyNamedBlendshapes(materialName) {
         switch (materialName){
+=======
+    function applyNamedBlendshapes(blendshapeName) {
+        // switch statement that matches the blendshape name
+        //      "smile" -> updateBlendshapes(BLEND_SMILE);
+        switch (blendshapeName){
+>>>>>>> 2f8e84e82169d316f2d1718e3335f82eeefd4500
             case STRING_DEFAULT:
-                updateBlendshapes(BLENDSHAPES_DEFAULT);
+                updateBlendshapes(BLENDSHAPES_DEFAULT, true);
                 break;
             case STRING_AWE:
-                updateBlendshapes(BLENDSHAPES_AWE);
+                updateBlendshapes(BLENDSHAPES_AWE, true);
                 break;
             case STRING_LAUGH:
-                updateBlendshapes(BLENDSHAPES_LAUGH);
+                updateBlendshapes(BLENDSHAPES_LAUGH, true);
                 break;
             case STRING_ANGRY:
-                updateBlendshapes(BLENDSHAPES_ANGRY);
+                updateBlendshapes(BLENDSHAPES_ANGRY, true);
                 break;
         }
+        dynamicData[STRING_BLENDSHAPES].selected = blendshapeName;
     }
 
     // #endregion BLENDSHAPES
 
     // #region FLOW
 
+    // Subtype event strings
+    
+    var STRING_DEBUG_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_DEBUG_TOGGLE,
+        STRING_COLLISIONS_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_COLLISIONS_TOGGLE,
+        STRING_HAIR = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_HAIR,
+        STRING_JOINTS = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS;
+
     // Called when user navigates to flow tab
-    function addRemoveFlowDebugSpheres(isEnable) {
+    function addRemoveFlowDebugSpheres(isEnabled) {
         // draw debug circles on the joints
-        // get function from flow app
-        // get function from flow app
         var flowSettings = GlobalDebugger.getDisplayData();
 
         // the state of flow is the opposite of what we want
-        if (flowSettings.collisions !== isEnable) {
+        if (flowSettings.debug !== isEnabled) {
             GlobalDebugger.toggleDebugShapes();
+            dynamicData[STRING_FLOW].showDebug = isEnabled;
         }
+
     }
 
-    function deleteFlowDebugSpheres() {
-        // if debug spheres exist
-        // delete
-        // get function from flow app
+    function addRemoveCollisions(isEnabled) {
+        // draw debug circles on the joints
         var flowSettings = GlobalDebugger.getDisplayData();
 
-        if (flowSettings.collisions) {
-            GlobalDebugger.toggleDebugShapes();
+        // the state of flow is the opposite of what we want
+        if (flowSettings.collisions !== isEnabled) {
+            GlobalDebugger.toggleCollisions();
+            dynamicData[STRING_FLOW].enableCollisions = isEnabled;
         }
+
     }
 
-    function updateFlow(newFlowDataToApply) {
-        // check update interval from flow app
+    function updateFlow(newFlowDataToApply, subtype) {
 
-        // case MSG_JOINT_INPUT_DATA: {
-        //     GlobalDebugger.setJointDataValue(message.group, message.name, message.value);
-        //     break;
-        // }
-        // case MSG_COLLISION_INPUT_DATA: {
-        //     GlobalDebugger.setCollisionDataValue(message.group, message.name, message.value);
-        //     break;
-        // }
+        if (DEBUG) {
+            print("updating flow: ", subtype, JSON.stringify(newFlowDataToApply))
+        }
+
+        // propertyName is the key and value is the new propety value
+        // for example newFlowDataToApply = { stiffness: 0.5 }
+        for (var propertyName in newFlowDataToApply) {
+
+            var newValue = newFlowDataToApply[propertyName];
+
+            if (subtype === STRING_HAIR) {
+                GlobalDebugger.setJointDataValue("leaf", propertyName, newValue);
+                dynamicData[STRING_FLOW].hairFlowOptions[propertyName] = newValue;
+
+            } else if (subtype === STRING_JOINTS) {
+                GlobalDebugger.setCollisionDataValue("HeadTop_End", propertyName, newValue);
+                dynamicData[STRING_FLOW].jointFlowOptions[propertyName] = newValue;
+            }
+
+        }
+
     }
 
     // #endregion FLOW
@@ -421,9 +456,10 @@
 
         } else {
             setIsAviEnabledFalse();
-
-            // updateLayout
         }
+
+        updateUI();
+
     }
 
     function switchTabs(tabName) {
@@ -433,10 +469,14 @@
         // if currentTab === STRING_BLENDSHAPES && tabName !== STRING_BLENDSHAPES
         //      setMirrorDistanceToDefault();
 
-        // if tabName === STRING_FLOW
-        //      createFlowDebugSpheres();
-        // if currentTab === STRING_FLOW && tabName !== STRING_FLOW
-        //      deleteFlowDebugSpheres();
+        print("Switch tabs");
+
+        if (tabName === STRING_FLOW && dynamicData[STRING_FLOW].showDebug){
+            addRemoveFlowDebugSpheres(true);
+        }
+        if (currentTab === STRING_FLOW && tabName !== STRING_FLOW){
+            addRemoveFlowDebugSpheres(false);
+        }
 
         currentTab = tabName;
 
@@ -509,6 +549,7 @@
                     default:
                         break;
                 }
+
                 break;
 
             case EVENT_CHANGE_TAB:
@@ -536,16 +577,31 @@
                     updateBlendshapes(data.updates);
                 }
 
+                updateUI(STRING_BLENDSHAPES);
+
                 break;
             case EVENT_UPDATE_FLOW:
 
-                if (data.subtype === "hair") {
-                    print("FLOW: updating hair flow");
-                    // updateHairFlow();
-                } else if (data.subtype === "joints") {
-                    print("FLOW: updating joints flow");
-                    // updateJointsFlow();
+                switch (data.subtype) {
+                    case STRING_DEBUG_TOGGLE:
+                        print("TOGGLE DEBUG SPHERES ", data.updates)
+                        addRemoveFlowDebugSpheres(data.updates);
+                        break;
+                    case STRING_COLLISIONS_TOGGLE:
+                        addRemoveCollisions(data.updates);
+                        break;
+                    case STRING_HAIR: 
+                        updateFlow(data.updates, STRING_HAIR);
+                        break;
+                    case STRING_JOINTS: 
+                        updateFlow(data.updates, STRING_JOINTS);
+                        break;
+                    default: 
+                        console.error("Flow recieved no matching subtype");
+                        break;
                 }
+
+                updateUI(STRING_FLOW);
 
                 break;
             case EVENT_UPDATE_ANIMATION:
