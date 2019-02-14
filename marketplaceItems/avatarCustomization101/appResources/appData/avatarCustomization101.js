@@ -259,7 +259,6 @@
     // #region FLOW
 
     // Subtype event strings
-    
     var STRING_DEBUG_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_DEBUG_TOGGLE,
         STRING_COLLISIONS_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_COLLISIONS_TOGGLE,
         STRING_HAIR = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_HAIR,
@@ -505,6 +504,8 @@
                 break;
 
             case EVENT_UPDATE_MATERIAL:
+
+                print("HELLO ROBIN IS COOL");
 
                 // delegates the method depending on if 
                 // event has name property or updates property

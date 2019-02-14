@@ -428,8 +428,8 @@
             mapName() {
                 return this.propertyInfo.name + "Map";
             },
-            dropDownList() { // ***
-                return ["Select one", "shadeless", "hifi-pbr"];
+            dropDownImageList() { // ***
+                return ["1", "2", "3", "4"];
             }
         },
         template: /* html */ `
@@ -455,7 +455,7 @@
                     <div class="flex-item">
                     
                         <drop-down-images
-                            :items="dropDownList"
+                            :items="dropDownImageList"
                             :defaulttext="'Model type'"
                         ></drop-down-images>
                     
@@ -469,8 +469,8 @@
     Vue.component('material-map-only', {
         props: ['propertyInfo'],
         computed: {
-            dropDownList() { // ***
-                return ["Select one", "shadeless", "hifi-pbr"];
+            dropDownImageList() { // ***
+                return ["1", "2", "3"];
             }
         },
         template: /* html */ `
@@ -482,7 +482,7 @@
                 <div class="flex-item">
                 
                     <drop-down-images
-                        :items="dropDownList"
+                        :items="dropDownImageList"
                         :defaulttext="'Model type'"
                     ></drop-down-images>
                 
@@ -701,13 +701,13 @@
                 <checkbox
                     :onchange="debugToggle"
                     :label="'Show Debug'"
-                    v-bind:defaultvalue="dynamic.flow.showDebug"
+                    v-bind:defaultvalue="dynamic.showDebug"
                 ></checkbox>
 
                 <checkbox
                     :onchange="collisionsToggle"
                     :label="'Enable Collisions'"
-                    v-bind:defaultvalue="dynamic.flow.enableCollisions"
+                    v-bind:defaultvalue="dynamic.enableCollisions"
                 ></checkbox>
 
                 <h3>Hair Flow Options</h3>
@@ -848,17 +848,6 @@
     // #endregion Simple Test Components
 
     // #region EDIT COMPONENTS
-
-    Vue.component('slider-container', {
-        props: ['title', 'showval', 'istitleabove', 'maxval', 'minval'],
-        // if title exists
-        // istitleabove boolean to the left of slider and value or on the top
-        template: /* html */ `
-            <div>
-                
-            </div>
-        `
-    })
 
     Vue.component('slider', {
         props: ['title', 'name', 'max', 'min', 'defaultvalue', 'increment', 'onchange'],
@@ -1107,7 +1096,7 @@
         el: '#app',
         data: {
             staticData: CONFIG.STATIC_DATA,
-            dynamicData: {}
+            dynamicData: CONFIG.INITIAL_DYNAMIC_DATA
         }
     });
 
@@ -1134,7 +1123,7 @@
                 default:
             }
         } catch (e) {
-            console.log(e)
+            console.log(e);
             return;
         }
     }
