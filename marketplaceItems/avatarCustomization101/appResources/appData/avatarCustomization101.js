@@ -9,14 +9,8 @@
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456789")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
-<<<<<<< HEAD
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
-        AVATAR_FILE = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
-    // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
-=======
-        // MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
->>>>>>> 2f8e84e82169d316f2d1718e3335f82eeefd4500
 
     // var AVATAR_URL = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
 
@@ -251,9 +245,6 @@
         }
     });
 
-<<<<<<< HEAD
-    function updateBlendshapes(newBlendshapeDataToApply) {
-=======
     function updateBlendshapes(newBlendshapeDataToApply, isName) {
         // try {
         //     console.log(newBlendshapeDataToApply);
@@ -268,7 +259,6 @@
             // is not named blendshape, ensure last blendshape is not selected
             dynamicData[STRING_BLENDSHAPES].selected = "";
         }
->>>>>>> 2f8e84e82169d316f2d1718e3335f82eeefd4500
         if (emotion !== lastEmotionUsed) {
             lastEmotionUsed = emotion;
         }
@@ -283,15 +273,10 @@
     }
 
     // presets
-<<<<<<< HEAD
-    function applyNamedBlendshapes(materialName) {
-        switch (materialName){
-=======
     function applyNamedBlendshapes(blendshapeName) {
         // switch statement that matches the blendshape name
         //      "smile" -> updateBlendshapes(BLEND_SMILE);
         switch (blendshapeName){
->>>>>>> 2f8e84e82169d316f2d1718e3335f82eeefd4500
             case STRING_DEFAULT:
                 updateBlendshapes(BLENDSHAPES_DEFAULT, true);
                 break;
