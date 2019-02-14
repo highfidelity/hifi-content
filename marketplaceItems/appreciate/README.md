@@ -6,7 +6,7 @@ Show someone else that you like what they're doing. Open the app to see usage in
 
 ## Releases
 
-2019-02-11_12-28-00 :: [appreciation a843101](https://github.com/highfidelity/hifi-content/commit/a843101804049bcc8bf6d1f56c8bb1e0fb5954ab)
+2019-02-14_10-00-00 :: [appreciation 658ed4e6b7a834d64baed451601ab52e8ef3150d](https://github.com/highfidelity/hifi-content/commit/658ed4e6b7a834d64baed451601ab52e8ef3150d)
 
 - Initial Release
 
