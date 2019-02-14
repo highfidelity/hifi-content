@@ -32,9 +32,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v2.0
-
-2019-02-xx_xx-xx-xx commit xyz
+## v2.0 | 2019-02-14_11-38-00 | [commit 4ae9e0b](https://github.com/highfidelity/hifi-content/commits/4ae9e0b46c5561c19eb8cb3a7b8994d9c985421f)
 
 - Transitioned Bingo backend from Google Scripts to custom High Fidelity Experiences backend.
 
