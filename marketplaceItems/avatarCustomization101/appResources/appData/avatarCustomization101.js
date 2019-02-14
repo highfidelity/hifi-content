@@ -158,6 +158,7 @@
             type: "Material",
             name: "Avatar101-Material",
             parentID: MyAvatar.sessionUUID,
+            description: newMaterialDataToApply.description,
             materialURL: "materialData",
             priority: 1,
             materialMappingScale: newMaterialDataToApply.materialMappingScale,

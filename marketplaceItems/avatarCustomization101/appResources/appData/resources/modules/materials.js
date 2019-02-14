@@ -74,15 +74,13 @@ var MATERIAL_DATA = {
         }
     },
     texture: {
-        "materialMappingScale": {"x":1,"y":1},
+        "materialMappingScale": {"x":3,"y":3},
+        "description": "Free Vectors via <a href='https://www.vecteezy.com'>www.vecteezy.com</a>",
         "parentMaterialName": 1,
         "materials": {
             "model": "hifi_pbr",
-            "roughness": 0.5,
-            "metallic": 1,
-            "scattering": 0,
-            "albedo": [0.5, 0.5, 0.5],
-            "albedoMap": ""
+            "emissiveMap": Script.resolvePath("../images/Free-Doughnut-patern-Vector-.jpg"),
+            "albedoMap": Script.resolvePath("../images/Free-Doughnut-patern-Vector-.jpg")
         }
     }
 };
