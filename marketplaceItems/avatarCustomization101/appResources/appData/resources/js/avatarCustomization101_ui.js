@@ -868,7 +868,6 @@
         props: ['title', 'name', 'max', 'min', 'defaultvalue', 'increment', 'onchange'],
         computed: {
             sliderId() {
-                console.log("COMPUTED" + this.name);
                 return this.name;
             },
             sliderValueId() {
@@ -878,10 +877,10 @@
         methods: {
             onChange() {
                 this.onchange(this.val, this.title);
-            },
-            onChangeText() {
-                this.onchange(this.val, this.title);
             }
+            // onChangeText() {
+            //     this.onchange(this.val, this.title);
+            // }
         },
         data() {
             return {
@@ -891,6 +890,9 @@
         watch: {
             defaultvalue(newDefaultVal) {
                 this.val = newDefaultVal;
+            },
+            val(newVal){
+                this.onchange(newVal, this.title);
             }
         },
         template: /* html */ `
@@ -901,20 +903,17 @@
                         v-bind:min="min" 
                         v-bind:max="max" 
                         v-bind:step="increment" 
-                        v-bind:value="defaultvalue"
                         class="slider" 
                         v-bind:id="sliderId"
                         type="range"
 
                         v-model="val"
-                        v-on:change="onChange()"
+                        @change="onChange()"
                     >
                 </div>
                 <span 
                     class="flex-item"
                     v-bind:id="sliderValueId"
-                    v-model="val"
-                    v-on:change="onChangeText()"
                 >
                     {{ val }}
                 </span>

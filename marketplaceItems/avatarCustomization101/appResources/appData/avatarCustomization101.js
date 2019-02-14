@@ -7,8 +7,8 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v123456789")),
-        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234567891")),
+        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
@@ -244,40 +244,27 @@
     });
 
     function updateBlendshapes(newBlendshapeDataToApply, isName) {
-        // try {
-        //     console.log(newBlendshapeDataToApply);
-        //     var data = JSON.parse(newBlendshapeDataToApply);
 
-        // } catch (e) {
-        //     console.log(e, "error");
-        //     return;
-        // }
         if (DEBUG) {
             print("New blendshape data", JSON.stringify(newBlendshapeDataToApply));
         }
 
         if (!isName) {
-            print("1");
             // is not named blendshape, ensure last blendshape is not selected
             dynamicData[STRING_BLENDSHAPES].selected = "";
         }
         if (emotion !== lastEmotionUsed) {
-            print("2");
             lastEmotionUsed = emotion;
         }
         if (newBlendshapeDataToApply !== lastEmotionUsed) {
-            print("3");
             changingEmotionPercentage = 0.0;
             emotion = newBlendshapeDataToApply;
             isChangingEmotion = true;
             MyAvatar.hasScriptedBlendshapes = true;
 
-            if (!isName) {
-                for(var property in emotion) {
-                    dynamicData[STRING_BLENDSHAPES].updatedProperties[property] = emotion[property];
-                }
-            } else {
-                dynamicData[STRING_BLENDSHAPES].updatedProperties = emotion;
+            // All properties in emotion set to the blendshapes in dynamic data
+            for(var property in emotion) {
+                dynamicData[STRING_BLENDSHAPES].updatedProperties[property] = emotion[property];
             }
 
         }
