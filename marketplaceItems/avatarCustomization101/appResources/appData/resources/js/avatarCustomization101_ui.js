@@ -105,19 +105,30 @@
                 var tabName = this.tabname;
                 var isAviEnabled = this.isavienabled;
 
+                // set tab size depending on the size of the word
+                var flexGrowSize = tabName.length < 5 ? 1 : 2;
+                flexGrowSize = tabName.length < 10 ? flexGrowSize : 3;
+
                 return {
                     tabName: tabName,
                     active: (tabName === this.activetabname),
                     href: "#" + tabName,
                     tabID: tabName + "-tab",
-                    isDisabled: !isAviEnabled || (!isAviEnabled && tabName !== STRING_INFO)
+                    isDisabled: !isAviEnabled || (!isAviEnabled && tabName !== STRING_INFO),
+                    flexGrowSize: flexGrowSize
                 }
             }
         },
         template: /* html */ `
             <a 
-                class="nav-item nav-link ml-2 title-case" 
-                v-bind:class="{ 'active': tabInfo.active, 'disabled': tabInfo.isDisabled }" 
+                class="nav-item nav-link title-case" 
+                v-bind:class="{ 
+                    'active': tabInfo.active, 
+                    'disabled': tabInfo.isDisabled,
+                    'flex-grow-1': tabInfo.flexGrowSize === 1,
+                    'flex-grow-2': tabInfo.flexGrowSize === 2,
+                    'flex-grow-3': tabInfo.flexGrowSize === 3,
+                }" 
                 v-bind:aria-disabled="tabInfo.isDisabled"
                 v-bind:id="tabInfo.tabID" 
                 :key="tabInfo.tabID" 
@@ -728,7 +739,7 @@
 
                 </template>
 
-                <h3>Avatar Head Joint Flow Options</h3>
+                <h3>Head Joint Options</h3>
 
                 <template v-for="jointFlowOption in jointFlowOptionsList">
 
@@ -883,7 +894,7 @@
 
         },
         template: /* html */ `
-            <div>
+            <div class="ml-3 my-1">
                 <input 
                     v-bind:data-slider-min="min"
                     v-bind:data-slider-max="max"
