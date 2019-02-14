@@ -13,7 +13,7 @@ var BLENDSHAPES = {
         "EyeBlink_L": 0.00,
         "EyeBlink_R": 0.00,
         "BrowsU_L": 0.00,
-        "BrowsU_C": 0.00,
+        "BrowsU_R": 0.00,
         "JawOpen": 0.00,
         "Sneer": 0
     },

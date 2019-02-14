@@ -247,8 +247,8 @@
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 25px;
-    height: 25px;
+    width: 40px;
+    height: 40px;
     border: 1px solid black;
     border-radius: 50%;
     background: rgb(255, 255, 255);
