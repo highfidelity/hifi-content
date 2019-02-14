@@ -7,7 +7,7 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234567891")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v22")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
@@ -220,10 +220,10 @@
         return valueA + ((valueB - valueA) * percentage);
     }
 
-    var lastEmotionUsed = BLENDSHAPES_DEFAULT;
-    var emotion = BLENDSHAPES_DEFAULT;
-    var isChangingEmotion = false;
-    var changingEmotionPercentage = 0.0;
+    var lastEmotionUsed = BLENDSHAPES_DEFAULT; // values associated with the last emotion lerping
+    var emotion = BLENDSHAPES_DEFAULT; // newest value 
+    var isChangingEmotion = false; // transitioning
+    var changingEmotionPercentage = 0.0; // wiht transitioning
 
     Script.update.connect(function(deltaTime) {
         if (!isChangingEmotion) {
@@ -233,9 +233,9 @@
         if (changingEmotionPercentage >= 1.0) {
             changingEmotionPercentage = 1.0;
             isChangingEmotion = false;
-            if (emotion === BLENDSHAPES_DEFAULT) {
-                MyAvatar.hasScriptedBlendshapes = false;
-            }
+            // if (emotion === BLENDSHAPES_DEFAULT) {
+            //     MyAvatar.hasScriptedBlendshapes = false; // keeps face static
+            // }
         }
         for (var blendshape in emotion) {
             MyAvatar.setBlendshape(blendshape,
@@ -253,6 +253,9 @@
             // is not named blendshape, ensure last blendshape is not selected
             dynamicData[STRING_BLENDSHAPES].selected = "";
         }
+        
+        
+
         if (emotion !== lastEmotionUsed) {
             lastEmotionUsed = emotion;
         }
@@ -419,6 +422,9 @@
         // save lastTab that the user was on
         dynamicData.state.activeTabName = currentTab;
 
+
+        MyAvatar.hasScriptedBlendshapes = false;
+
     }
 
     function onOpened() {
@@ -467,6 +473,7 @@
     function unload() {
 
         deleteMirror();
+        MyAvatar.hasScriptedBlendshapes = false;
 
         // deleteFlowDebugSpheres();
         // removeAvi as avatar and restore old avatar
