@@ -18,6 +18,17 @@ Here's what your `dbInfo.json` file should look like:
 }
 ```
 
+## Testing
+You can perform a local 1-person test of this new code by doing the following:
+1. Restore a Bingo content archive onto your local sandbox so that you have all of the necessary content.
+2. Set up your Secrets as per the  "Secrets" section above.
+3. Run the `bingo.js` Web app from a local NodeJS v10.15.1 installation
+    - Run `node bingo.js` from the `webApps` directory
+4. Run MySQL locally.
+    - You can create the necessary Bingo database by modifying the `startup()` function within the `bingo.js` web app script.
+5. Run a local HTTP server to serve the client/server scripts, then change all of the script URLs on the content.
+    - With Python 3.x installed, stand up a simple HTTP server with `python -m http.server 8888` from the `bingo` directory.
+
 
 # Release Notes
 
