@@ -21,7 +21,6 @@ var APP_NAME = "AvatarCustomization101",
 
 // Material preset strings
 var STRING_DEFAULT = "default",
-    STRING_LEATHER = "leather",
     STRING_GLASS = "glass",
     STRING_CHAINMAIL = "chainmail",
     STRING_RED = "red",
@@ -81,7 +80,7 @@ var CONFIG = {
                 COMPONENT_NAME: "material-tab",
 
                 COMPONENT_DATA: {
-                    PBR_LIST: [STRING_DEFAULT, STRING_LEATHER, STRING_GLASS, STRING_CHAINMAIL],
+                    PBR_LIST: [STRING_DEFAULT, STRING_GLASS, STRING_CHAINMAIL],
                     SHADELESS_LIST: [STRING_RED, STRING_TEXTURE],
                     PROPERTIES_LISTS: {
                         shadeless: [
@@ -139,15 +138,45 @@ var CONFIG = {
 
                 COMPONENT_DATA: {
                     LIST: ["awe", "default", "angry", "laugh"],
-                    FACIAL_BLENDSHAPES: [
-                        "EyeBlink_L",
-                        "EyeBlink_R",
-                        "BrowsU_L",
-                        "BrowsU_R",
-                        "JawOpen"
+                    FACIAL_BLENDSHAPES_OPTIONS: [ 
+                        {   
+                            name: "EyeBlink_L",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        },
+                        {   
+                            name: "EyeBlink_R",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        },
+                        {   
+                            name: "BrowsU_L",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        },
+                        {   
+                            name: "BrowsU_R",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        },
+                        {   
+                            name: "JawOpen",
+                            min: 0,
+                            max: 5,
+                            increment: 0.1 
+                        },
+                        {   
+                            name: "Sneer",
+                            min: 0,
+                            max: 1,
+                            increment: 0.1 
+                        }
                     ]
                 }
-
             },
             ANIMATION: {
                 TAB_NAME: STRING_ANIMATION,

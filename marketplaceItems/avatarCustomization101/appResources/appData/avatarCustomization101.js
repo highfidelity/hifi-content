@@ -10,7 +10,7 @@
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234567")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/presetData/materials.js")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_FILE = "https://hifi-content.s3.amazonaws.com/jimi/avatar/CustomAvatar101/avatar.fst";
     // Script.resolvePath("./resources/avatar/mannequinHairTest8.fst");
 
@@ -153,34 +153,73 @@
 
     var materialID;
     var materialProperties;
+    var STRING_GLASS_MAT = "glass";
+    var STRING_CHAIN_MAT = "chainmail";
+    var STRING_DEFAULT_MAT = "default";
+    var STRING_RED_MAT = "red";
+    var STRING_TEXTURE_MAT = "texture";
+    var MATERIAL_DEFAULT = MATERIAL_DATA.defaults;
+    var MATERIAL_GLASS = MATERIAL_DATA.glass;
+    var MATERIAL_CHAINMAIL = MATERIAL_DATA.chainmail;
+    var MATERIAL_RED = MATERIAL_DATA.red;
+    var MATERIAL_TEXTURE = MATERIAL_DATA.texture;
 
-    var MATERIAL_PRESETS = CONFIG.MATERIAL_PRESETS;
 
     // @args updatesObject name [string]
     function updateMaterial(newMaterialDataToApply) {
         // edit entity with newMaterialDataToApply
-
+        // if (newMaterialDataToApply === MATERIAL_TEXTURE && albedoChannel) {
+        //     newMaterialDataToApply.materials.albedoMap = "URL from APP";
+        // }
+        print("MATERIAL ACTIONS: ", JSON.stringify(newMaterialDataToApply));
         // Applies to all materials
-        var materialProperties = {
-            avatarID: MyAvatar.sessionUUID,
-            type: "material"
-            // etc. double check
+        materialProperties = {
+            type: "Material",
+            parentID: MyAvatar.sessionUUID,
+            materialURL: "materialData",
+            priority: 1,
+            materialMappingScale: newMaterialDataToApply.materialMappingScale,
+            parentMaterialName: newMaterialDataToApply.parentMaterialName,
+            materialData: JSON.stringify({
+                materialVersion: 1,
+                materials: newMaterialDataToApply.materials
+            })
         };
 
+
         // exists
-        if (materialID) {
+        if (materialID && materialID !== undefined) {
             print("Material exists, Entities.editEntity time to update!");
+            Entities.editEntity(materialID, materialProperties);
         } else {
             // needs to be created
             print("Material must be created! Entities.addEntity");
+            materialID = Entities.addEntity(materialProperties);
         }
     }
 
     // presets
     function applyNamedMaterial(materialName) {
-        var properties = MATERIAL_PRESETS[materialName];
-
-        updateMaterial(properties);
+        switch (materialName){
+            case STRING_DEFAULT_MAT:
+                updateMaterial(MATERIAL_DEFAULT);
+                print("defealut material selected");
+                break;
+            case STRING_GLASS_MAT:
+                updateMaterial(MATERIAL_GLASS);
+                print("galls material selected");
+                break;
+            case STRING_CHAIN_MAT:
+                updateMaterial(MATERIAL_CHAINMAIL);
+                print("changemail selsected");
+                break;
+            case STRING_RED_MAT:
+                updateMaterial(MATERIAL_RED);
+                break;
+            case STRING_TEXTURE_MAT:
+                updateMaterial(MATERIAL_TEXTURE);
+                break;
+        }
     }
 
     // #endregion MATERIAL
@@ -224,14 +263,6 @@
     });
 
     function updateBlendshapes(newBlendshapeDataToApply) {
-        // try {
-        //     console.log(newBlendshapeDataToApply);
-        //     var data = JSON.parse(newBlendshapeDataToApply);
-
-        // } catch (e) {
-        //     console.log(e, "error");
-        //     return;
-        // }
         if (emotion !== lastEmotionUsed) {
             lastEmotionUsed = emotion;
         }
@@ -246,8 +277,6 @@
 
     // presets
     function applyNamedBlendshapes(materialName) {
-        // switch statement that matches the blendshape name
-        //      "smile" -> updateBlendshapes(BLEND_SMILE);
         switch (materialName){
             case STRING_DEFAULT:
                 updateBlendshapes(BLENDSHAPES_DEFAULT);
@@ -489,7 +518,6 @@
                 break;
 
             case EVENT_UPDATE_MATERIAL:
-
                 // delegates the method depending on if 
                 // event has name property or updates property
                 if (data.name) {
