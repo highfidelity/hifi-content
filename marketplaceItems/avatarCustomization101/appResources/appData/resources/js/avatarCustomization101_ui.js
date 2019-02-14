@@ -561,7 +561,7 @@
         },
         computed: {
             facialBlendshapeList() {
-                var blendshapeList = this.static.COMPONENT_DATA.FACIAL_BLENDSHAPES;
+                var blendshapeList = this.static.COMPONENT_DATA.FACIAL_BLENDSHAPES_OPTIONS;
                 var currentProperties = this.dynamic.updatedProperties;
 
                 return createSliderInfoFromLists(blendshapeList, currentProperties, getName);
