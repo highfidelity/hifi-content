@@ -14,7 +14,7 @@
 
 Script.include("/~/system/libraries/Xform.js");
 Script.include(Script.resolvePath("vectorMath.js"));
-var CONFIG = Script.require(Script.resolvePath("config.js"));
+var CONFIG = Script.require(Script.resolvePath("../config.js"));
 var CUSTOM_DATA = CONFIG.DATA_FOR_FLOW_APP;
 
 (function () {

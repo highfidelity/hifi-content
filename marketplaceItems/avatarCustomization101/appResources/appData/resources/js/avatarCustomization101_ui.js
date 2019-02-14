@@ -105,19 +105,30 @@
                 var tabName = this.tabname;
                 var isAviEnabled = this.isavienabled;
 
+                // set tab size depending on the size of the word
+                var flexGrowSize = tabName.length < 5 ? 1 : 2;
+                flexGrowSize = tabName.length < 10 ? flexGrowSize : 3;
+
                 return {
                     tabName: tabName,
                     active: (tabName === this.activetabname),
                     href: "#" + tabName,
                     tabID: tabName + "-tab",
-                    isDisabled: !isAviEnabled || (!isAviEnabled && tabName !== STRING_INFO)
+                    isDisabled: !isAviEnabled || (!isAviEnabled && tabName !== STRING_INFO),
+                    flexGrowSize: flexGrowSize
                 }
             }
         },
         template: /* html */ `
             <a 
-                class="nav-item nav-link ml-2 title-case" 
-                v-bind:class="{ 'active': tabInfo.active, 'disabled': tabInfo.isDisabled }" 
+                class="nav-item nav-link title-case" 
+                v-bind:class="{ 
+                    'active': tabInfo.active, 
+                    'disabled': tabInfo.isDisabled,
+                    'flex-grow-1': tabInfo.flexGrowSize === 1,
+                    'flex-grow-2': tabInfo.flexGrowSize === 2,
+                    'flex-grow-3': tabInfo.flexGrowSize === 3,
+                }" 
                 v-bind:aria-disabled="tabInfo.isDisabled"
                 v-bind:id="tabInfo.tabID" 
                 :key="tabInfo.tabID" 
@@ -429,8 +440,8 @@
             mapName() {
                 return this.propertyInfo.name + "Map";
             },
-            dropDownList() { // ***
-                return ["Select one", "shadeless", "hifi-pbr"];
+            dropDownImageList() { // ***
+                return ["1", "2", "3", "4"];
             }
         },
         template: /* html */ `
@@ -456,7 +467,7 @@
                     <div class="flex-item">
                     
                         <drop-down-images
-                            :items="dropDownList"
+                            :items="dropDownImageList"
                             :defaulttext="'Model type'"
                         ></drop-down-images>
                     
@@ -470,8 +481,8 @@
     Vue.component('material-map-only', {
         props: ['propertyInfo'],
         computed: {
-            dropDownList() { // ***
-                return ["Select one", "shadeless", "hifi-pbr"];
+            dropDownImageList() { // ***
+                return ["1", "2", "3"];
             }
         },
         template: /* html */ `
@@ -483,7 +494,7 @@
                 <div class="flex-item">
                 
                     <drop-down-images
-                        :items="dropDownList"
+                        :items="dropDownImageList"
                         :defaulttext="'Model type'"
                     ></drop-down-images>
                 
@@ -729,7 +740,7 @@
 
                 </template>
 
-                <h3>Avatar Head Joint Flow Options</h3>
+                <h3>Head Joint Options</h3>
 
                 <template v-for="jointFlowOption in jointFlowOptionsList">
 
@@ -850,17 +861,6 @@
 
     // #region EDIT COMPONENTS
 
-    Vue.component('slider-container', {
-        props: ['title', 'showval', 'istitleabove', 'maxval', 'minval'],
-        // if title exists
-        // istitleabove boolean to the left of slider and value or on the top
-        template: /* html */ `
-            <div>
-                
-            </div>
-        `
-    })
-
     Vue.component('slider', {
         props: ['title', 'name', 'max', 'min', 'defaultvalue', 'increment', 'onchange'],
         computed: {
@@ -895,7 +895,7 @@
 
         },
         template: /* html */ `
-            <div>
+            <div class="">
                 <input 
                     v-bind:data-slider-min="min"
                     v-bind:data-slider-max="max"
@@ -1108,7 +1108,7 @@
         el: '#app',
         data: {
             staticData: CONFIG.STATIC_DATA,
-            dynamicData: {}
+            dynamicData: CONFIG.INITIAL_DYNAMIC_DATA
         }
     });
 
@@ -1135,7 +1135,7 @@
                 default:
             }
         } catch (e) {
-            console.log(e)
+            console.log(e);
             return;
         }
     }

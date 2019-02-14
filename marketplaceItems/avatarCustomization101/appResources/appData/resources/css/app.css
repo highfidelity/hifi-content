@@ -25,6 +25,22 @@
     font-family: 'Raleway', sans-serif;
   }
 
+  h3 {
+    margin: 10px 0;
+  }
+  
+  .flex-grow-1 {
+      flex-grow: 1;
+  }
+
+  .flex-grow-2 {
+      flex-grow: 2;
+  }
+
+  .flex-grow-3 {
+      flex-grow: 3;
+  }
+
   .nav-tabs {
     border: none;
   }
@@ -33,6 +49,10 @@
     color: #FF0012;
     font-weight: bold;
     background-color: white !important;
+  }
+
+  .nav-link {
+      padding: 0.5rem 0;
   }
 
   .nav-tab.nav-link {
@@ -53,7 +73,7 @@
 
   .nav-tabs .nav-item{
       margin-bottom: 0;
-      flex-grow: 2;
+      /* flex-grow: 2; */
       color: white;
   }
 
@@ -110,16 +130,27 @@
 }
 
 .flex-container-row {
+    margin: 10px 0 10px 0;
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    align-content: space-around;
+    justify-content: space-evenly;
+    /* align-items: center; */
+    /* align-content: space-around; */
 }
 
 .flex-item {
     align-self: center;
+    /* flex-grow: 1; */
+    /* flex-basis: 5rem; */
     margin: 0;
+}
+
+.btn-primary.flex-item {
+    flex-basis: 5rem;
+}
+
+.nav-justified .nav-item {
+    flex-basis: auto;
 }
 
 .txt-modal-body {
@@ -186,4 +217,10 @@
 
 .title-case {
     text-transform: capitalize
+}
+
+/* SLIDER */
+
+.slider-horizontal {
+    margin: 0.5rem 1rem;
 }

@@ -3,7 +3,11 @@
 (function () {
 
     // Modules
+<<<<<<< HEAD
     Script.include(Script.resolvePath("./resources/modules/flow.js?v12S"));
+=======
+    Script.include(Script.resolvePath("./resources/modules/flow.js?v12"));
+>>>>>>> 22a7153588d9e08a05e938f3e71c347a580096b6
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
@@ -299,7 +303,6 @@
     // #region FLOW
 
     // Subtype event strings
-    
     var STRING_DEBUG_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_DEBUG_TOGGLE,
         STRING_COLLISIONS_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_COLLISIONS_TOGGLE,
         STRING_HAIR = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_HAIR,
@@ -545,6 +548,7 @@
                 break;
 
             case EVENT_UPDATE_MATERIAL:
+
                 // delegates the method depending on if 
                 // event has name property or updates property
 
