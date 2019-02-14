@@ -3,7 +3,7 @@
 (function () {
 
     // Modules
-    Script.include(Script.resolvePath("./resources/modules/flow.js?v1"));
+    Script.include(Script.resolvePath("./resources/modules/flow.js?v12"));
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
