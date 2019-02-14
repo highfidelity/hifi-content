@@ -1,51 +1,75 @@
 # BINGO
-Ummm...well...it's bingo!
+A Bingo game for High Fidelity. Requires setting up a domain in a very specific way. There's no easy way to deploy this Bingo game on your own domain right now.
 
-## Release Notes
+## Secrets
 
-### v1.16
+The code for this game is open source. There are two sets of secrets that you must have set up for this game to work:
+1. A `secrets.json` file in `<bingo root>/secrets/secrets.json` that contains a `"requestURL"` key/value pair used by the game when requesting information from the Bingo Web app, which must be deployed and ready when starting the game.
+2. A `dbInfo.json` file in `<bingo root>/webApps/dbInfo.json` that contains the data below.
+
+### `dbInfo.json`
+Here's what your `dbInfo.json` file should look like:
+```
+{
+    "mySQLHost": "<the host associated with your database>",
+    "mySQLUsername": "<MySQL DB username>",
+    "mySQLPassword": "<MySQL DB password>",
+    "databaseName": "<the name of the database associated with Bingo>"
+}
+```
+
+
+# Release Notes
+
+## v2.0
+
+2019-02-xx_xx-xx-xx commit xyz
+
+- Transitioned Bingo backend from Google Scripts to custom High Fidelity Experiences backend.
+
+## v1.16
 
 2019-02-05_15-44-00 commit 4a5b7fb3ffdf58a0a212f5293cb042392f177871
 
 - Update UI version on Spawner entity script
 
-### v1.15
+## v1.15
 
 2019-02-05_15-06-00 commit 534d4defa76dd6b1b1a65ec31a5ecff7406ece90
 
 - Small update to prize language
 
-### v1.14
+## v1.14
 
 2019-02-05_09-41-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
 
 - Moved backend DB to new URL
 
-### v1.13
+## v1.13
 
 2019-02-04_16-10-00 commit cd209119d66842c3f30ace0876c2ebe97af48c22
 
 - Fixed off-by-one error during Bingo prize selection
 
-### v1.12
+## v1.12
 
 2019-02-04_12-04-00 commit cc224b357248076d2d50af50f03f6c4ce9fd9523
 
 - Fixed oculus prize name
 
-### v1.11
+## v1.11
 
 2019-02-04_11-28-00 commit 1719ac704da653e32747ef5e6deaa96236005dc9
 
 - Removed stillOccupied and Cleanup logic for scanner zone stability
 
-### v1.1
+## v1.1
 
 2019-02-04_10-25-00 commit 373745235ae2dda3cb123978752bf6f00ed9a06e
 
 - Added error message to Bingo card app when not logged in
 
-### V1
+## V1
 
 02/01/2019 commit bd16f6dacfdade1ee07a89987b2d834390cdefb2
 
