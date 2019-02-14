@@ -1,13 +1,8 @@
 /* global GlobalDebugger */
 
 (function () {
-
     // Modules
-<<<<<<< HEAD
-    Script.include(Script.resolvePath("./resources/modules/flow.js?v12S"));
-=======
     Script.include(Script.resolvePath("./resources/modules/flow.js?v12"));
->>>>>>> 22a7153588d9e08a05e938f3e71c347a580096b6
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
@@ -141,12 +136,14 @@
     var materialProperties;
     var STRING_GLASS_MAT = "glass";
     var STRING_CHAIN_MAT = "chainmail";
+    var STRING_DISCO_MAT = "disco";
     var STRING_DEFAULT_MAT = "default";
     var STRING_RED_MAT = "red";
     var STRING_TEXTURE_MAT = "texture";
     var MATERIAL_DEFAULT = MATERIAL_DATA.defaults;
     var MATERIAL_GLASS = MATERIAL_DATA.glass;
     var MATERIAL_CHAINMAIL = MATERIAL_DATA.chainmail;
+    var MATERIAL_DISCO = MATERIAL_DATA.disco;
     var MATERIAL_RED = MATERIAL_DATA.red;
     var MATERIAL_TEXTURE = MATERIAL_DATA.texture;
 
@@ -161,6 +158,7 @@
         // Applies to all materials
         materialProperties = {
             type: "Material",
+            name: "Avatar101-Material",
             parentID: MyAvatar.sessionUUID,
             materialURL: "materialData",
             priority: 1,
@@ -180,25 +178,24 @@
         } else {
             // needs to be created
             print("Material must be created! Entities.addEntity");
-            materialID = Entities.addEntity(materialProperties);
+            materialID = Entities.addEntity(materialProperties, "avatar");
         }
     }
 
     // presets
     function applyNamedMaterial(materialName) {
-        console.log("trying to change mah materrrals");
         switch (materialName){
             case STRING_DEFAULT_MAT:
                 updateMaterial(MATERIAL_DEFAULT);
-                print("defealut material selected");
                 break;
             case STRING_GLASS_MAT:
                 updateMaterial(MATERIAL_GLASS);
-                print("galls material selected");
                 break;
             case STRING_CHAIN_MAT:
                 updateMaterial(MATERIAL_CHAINMAIL);
-                print("changemail selsected");
+                break;
+            case STRING_DISCO_MAT:
+                updateMaterial(MATERIAL_DISCO);
                 break;
             case STRING_RED_MAT:
                 updateMaterial(MATERIAL_RED);
@@ -551,8 +548,6 @@
 
                 // delegates the method depending on if 
                 // event has name property or updates property
-
-                print("ROBIN WAS HERE");
 
                 if (data.name) {
                     applyNamedMaterial(data.name);

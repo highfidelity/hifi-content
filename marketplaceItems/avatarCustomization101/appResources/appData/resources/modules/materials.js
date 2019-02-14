@@ -2,17 +2,16 @@
 
 var MATERIAL_DATA = {
     defaults: {
-        // "materialVersion": 1,
-        // "material": {
-        //     name: "default",
+        // "parentMaterialName": 1,
+        // "materials": {
         //     model: "hifi_pbr",
         //     opacity: 1
         // }
     },
     glass: {
-        "materialVersion": 1,
-        "material": {
-            "name": "glass",
+        "materialMappingScale": {"x":1,"y":1},
+        "parentMaterialName": 1,
+        "materials": {
             "model": "hifi_pbr",
             "opacity": 0.5775400996208191,
             "roughness": 0.08235287666320801,
@@ -32,41 +31,42 @@ var MATERIAL_DATA = {
         }
     },
     chainmail: {
-        materialVersion: 1,
-        material: {
-            name: "chainmail",
-            model: "hifi_pbr",
-            roughness: 0.5,
-            metallic: 1,
-            scattering: 0,
-            unlit: false,
-            emissive: [
-                0,
-                0,
-                0
-            ],
-            albedo: [
-                0,
-                0,
-                0
-            ],
-            albedoMap: Script.resolvePath("./resources/images/Metal_ChainMail2_512_DA.png"),
-            metallicMap: Script.resolvePath("./resources/images/Metal_ChainMail2_512_M.png"),
-            normalMap: Script.resolvePath("./resources/images/Metal_ChainMail2_512_N.png"),
-            occlusionMap: Script.resolvePath("./resources/images/Metal_ChainMail2_512_ao.png")
+        "materialMappingScale": {"x":5,"y":5},
+        "parentMaterialName": 1,
+        "materials": {
+            "model": "hifi_pbr",
+            "roughness": 0.2,
+            "unlit": false,
+            "albedoMap": Script.resolvePath("../images/Metal_ChainMail2_512_DA.png"),
+            "metallicMap": Script.resolvePath("../images/Metal_ChainMail2_512_M.png"),
+            "normalMap": Script.resolvePath("../images/Metal_ChainMail2_512_N.png"),
+            "occlusionMap": Script.resolvePath("../images/Metal_ChainMail2_512_ao.png")
+        }
+    },
+    disco: {
+        "materialMappingScale": {"x":5,"y":5},
+        "parentMaterialName": 1,
+        "materials": {
+            "model": "hifi_pbr",
+            "unlit": false,
+            "emissiveMap": Script.resolvePath("../images/Facade02_emi.jpg"),
+            "albedoMap": Script.resolvePath("../images/Facade02_col.jpg"),
+            "metallicMap": Script.resolvePath("../images/Facade02_met.jpg"),
+            "roughnessMap": Script.resolvePath("../images/Facade02_rgh.jpg"),
+            "normalMap": Script.resolvePath("../images/Facade02_nrm.jpg")
         }
     },
     red: {
-        materialVersion: 1,
-        material: {
-            name: "red",
-            unlit: true,
-            emissive: [
+        "materialMappingScale": {"x":1,"y":1},
+        "parentMaterialName": 1,
+        "materials": {
+            "model": "hifi_pbr",
+            "emissive": [
                 1,
                 0,
                 0
             ],
-            albedo: [
+            "albedo": [
                 1,
                 0,
                 0
@@ -74,15 +74,15 @@ var MATERIAL_DATA = {
         }
     },
     texture: {
-        materialVersion: 1,
-        material: {
-            name: "texture",
-            roughness: 0.5,
-            metallic: 1,
-            scattering: 0,
-            albedo: [0.5, 0.5, 0.5],
-            albedoMap: "",
-            unlit: true
+        "materialMappingScale": {"x":1,"y":1},
+        "parentMaterialName": 1,
+        "materials": {
+            "model": "hifi_pbr",
+            "roughness": 0.5,
+            "metallic": 1,
+            "scattering": 0,
+            "albedo": [0.5, 0.5, 0.5],
+            "albedoMap": ""
         }
     }
 };
