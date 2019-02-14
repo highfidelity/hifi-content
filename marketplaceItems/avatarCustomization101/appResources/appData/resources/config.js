@@ -284,15 +284,15 @@ var CONFIG = {
             }
         },
         blendshapes: {
-            selected: "",
+            selected: "default",
             updatedProperties: {}
         },
         animation: {
 
         },
         flow: {
-            enableCollisions: true,
             showDebug: true,
+            enableCollisions: true,
             hairFlowOptions: {
                 stiffness: CUSTOM_FLOW_DATA.leaf.stiffness, 
                 radius: CUSTOM_FLOW_DATA.leaf.radius, 

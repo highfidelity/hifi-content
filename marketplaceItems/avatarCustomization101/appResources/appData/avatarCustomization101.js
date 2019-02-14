@@ -168,6 +168,7 @@
     // #endregion MATERIAL
 
     // #region BLENDSHAPES
+
     var TRANSITION_TIME_SECONDS = 0.25;
     var STRING_AWE = "awe";
     var STRING_ANGRY = "angry";
@@ -205,7 +206,7 @@
         }
     });
 
-    function updateBlendshapes(newBlendshapeDataToApply) {
+    function updateBlendshapes(newBlendshapeDataToApply, isName) {
         // try {
         //     console.log(newBlendshapeDataToApply);
         //     var data = JSON.parse(newBlendshapeDataToApply);
@@ -214,6 +215,11 @@
         //     console.log(e, "error");
         //     return;
         // }
+
+        if (!isName) {
+            // is not named blendshape, ensure last blendshape is not selected
+            dynamicData[STRING_BLENDSHAPES].selected = "";
+        }
         if (emotion !== lastEmotionUsed) {
             lastEmotionUsed = emotion;
         }
@@ -222,28 +228,30 @@
             emotion = newBlendshapeDataToApply;
             isChangingEmotion = true;
             MyAvatar.hasScriptedBlendshapes = true;
+
+            dynamicData[STRING_BLENDSHAPES].updatedProperties = emotion;
         }
     }
 
-
     // presets
-    function applyNamedBlendshapes(materialName) {
+    function applyNamedBlendshapes(blendshapeName) {
         // switch statement that matches the blendshape name
         //      "smile" -> updateBlendshapes(BLEND_SMILE);
-        switch (materialName){
+        switch (blendshapeName){
             case STRING_DEFAULT:
-                updateBlendshapes(BLENDSHAPES_DEFAULT);
+                updateBlendshapes(BLENDSHAPES_DEFAULT, true);
                 break;
             case STRING_AWE:
-                updateBlendshapes(BLENDSHAPES_AWE);
+                updateBlendshapes(BLENDSHAPES_AWE, true);
                 break;
             case STRING_LAUGH:
-                updateBlendshapes(BLENDSHAPES_LAUGH);
+                updateBlendshapes(BLENDSHAPES_LAUGH, true);
                 break;
             case STRING_ANGRY:
-                updateBlendshapes(BLENDSHAPES_ANGRY);
+                updateBlendshapes(BLENDSHAPES_ANGRY, true);
                 break;
         }
+        dynamicData[STRING_BLENDSHAPES].selected = blendshapeName;
     }
 
     // #endregion BLENDSHAPES
@@ -263,9 +271,11 @@
         var flowSettings = GlobalDebugger.getDisplayData();
 
         // the state of flow is the opposite of what we want
-        if (flowSettings.collisions !== isEnabled) {
+        if (flowSettings.debug !== isEnabled) {
             GlobalDebugger.toggleDebugShapes();
+            dynamicData[STRING_FLOW].showDebug = isEnabled;
         }
+
     }
 
     function addRemoveCollisions(isEnabled) {
@@ -275,7 +285,9 @@
         // the state of flow is the opposite of what we want
         if (flowSettings.collisions !== isEnabled) {
             GlobalDebugger.toggleCollisions();
+            dynamicData[STRING_FLOW].enableCollisions = isEnabled;
         }
+
     }
 
     function updateFlow(newFlowDataToApply, subtype) {
@@ -292,23 +304,15 @@
 
             if (subtype === STRING_HAIR) {
                 GlobalDebugger.setJointDataValue("leaf", propertyName, newValue);
+                dynamicData[STRING_FLOW].hairFlowOptions[propertyName] = newValue;
+
             } else if (subtype === STRING_JOINTS) {
                 GlobalDebugger.setCollisionDataValue("HeadTop_End", propertyName, newValue);
+                dynamicData[STRING_FLOW].jointFlowOptions[propertyName] = newValue;
             }
 
         }
 
-        // check update interval from flow app
-
-
-        // case MSG_JOINT_INPUT_DATA: {
-        //     GlobalDebugger.setJointDataValue(message.group, message.name, message.value);
-        //     break;
-        // }
-        // case MSG_COLLISION_INPUT_DATA: {
-        //     GlobalDebugger.setCollisionDataValue(message.group, message.name, message.value);
-        //     break;
-        // }
     }
 
     // #endregion FLOW
@@ -398,9 +402,10 @@
 
         } else {
             setIsAviEnabledFalse();
-
-            // updateLayout
         }
+
+        updateUI();
+
     }
 
     function switchTabs(tabName) {
@@ -410,10 +415,14 @@
         // if currentTab === STRING_BLENDSHAPES && tabName !== STRING_BLENDSHAPES
         //      setMirrorDistanceToDefault();
 
-        // if tabName === STRING_FLOW
-        //      createFlowDebugSpheres();
-        // if currentTab === STRING_FLOW && tabName !== STRING_FLOW
-        //      deleteFlowDebugSpheres();
+        print("Switch tabs");
+
+        if (tabName === STRING_FLOW && dynamicData[STRING_FLOW].showDebug){
+            addRemoveFlowDebugSpheres(true);
+        }
+        if (currentTab === STRING_FLOW && tabName !== STRING_FLOW){
+            addRemoveFlowDebugSpheres(false);
+        }
 
         currentTab = tabName;
 
@@ -486,6 +495,7 @@
                     default:
                         break;
                 }
+
                 break;
 
             case EVENT_CHANGE_TAB:
@@ -514,6 +524,8 @@
                     updateBlendshapes(data.updates);
                 }
 
+                updateUI(STRING_BLENDSHAPES);
+
                 break;
             case EVENT_UPDATE_FLOW:
 
@@ -532,11 +544,11 @@
                         updateFlow(data.updates, STRING_JOINTS);
                         break;
                     default: 
-
-                        print(STRING_DEBUG_TOGGLE, STRING_COLLISIONS_TOGGLE, STRING_HAIR )
-                        console.error("Recieved no ", EVENT_UPDATE_FLOW, data.subtype)
+                        console.error("Flow recieved no matching subtype");
                         break;
                 }
+
+                updateUI(STRING_FLOW);
 
                 break;
             case EVENT_UPDATE_ANIMATION:

@@ -701,13 +701,13 @@
                 <checkbox
                     :onchange="debugToggle"
                     :label="'Show Debug'"
-                    v-bind:defaultvalue="true"
+                    v-bind:defaultvalue="dynamic.flow.showDebug"
                 ></checkbox>
 
                 <checkbox
                     :onchange="collisionsToggle"
                     :label="'Enable Collisions'"
-                    v-bind:defaultvalue="true"
+                    v-bind:defaultvalue="dynamic.flow.enableCollisions"
                 ></checkbox>
 
                 <h3>Hair Flow Options</h3>
@@ -1107,7 +1107,7 @@
         el: '#app',
         data: {
             staticData: CONFIG.STATIC_DATA,
-            dynamicData: CONFIG.INITIAL_DYNAMIC_DATA
+            dynamicData: {}
         }
     });
 
