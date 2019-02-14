@@ -894,7 +894,7 @@
 
         },
         template: /* html */ `
-            <div class="ml-3 my-1">
+            <div class="">
                 <input 
                     v-bind:data-slider-min="min"
                     v-bind:data-slider-max="max"

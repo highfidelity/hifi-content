@@ -218,3 +218,9 @@
 .title-case {
     text-transform: capitalize
 }
+
+/* SLIDER */
+
+.slider-horizontal {
+    margin: 0.5rem 1rem;
+}
