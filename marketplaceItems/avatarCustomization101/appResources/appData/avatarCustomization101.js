@@ -6,7 +6,7 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v1234567891")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v12345678919")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
@@ -147,12 +147,8 @@
 
 
     // @args updatesObject name [string]
-    function updateMaterial(newMaterialDataToApply) {
-        // edit entity with newMaterialDataToApply
-        // if (newMaterialDataToApply === MATERIAL_TEXTURE && albedoChannel) {
-        //     newMaterialDataToApply.materials.albedoMap = "URL from APP";
-        // }
-        print("MATERIAL ACTIONS: ", JSON.stringify(newMaterialDataToApply));
+    function updateMaterial(newMaterialDataToApply, isNamed, isPBR) {
+
         // Applies to all materials
         materialProperties = {
             type: "Material",
@@ -161,17 +157,30 @@
             description: newMaterialDataToApply.description,
             materialURL: "materialData",
             priority: 1,
-            materialMappingScale: newMaterialDataToApply.materialMappingScale,
+            materialMappingScale: {
+                x: newMaterialDataToApply.materialMappingScale.x,
+                y: newMaterialDataToApply.materialMappingScale.y
+            },
             parentMaterialName: newMaterialDataToApply.parentMaterialName,
             materialData: JSON.stringify({
                 materialVersion: 1,
                 materials: newMaterialDataToApply.materials
             })
         };
+        
+        if (!isNamed) {
+            dynamicData[STRING_MATERIAL].selectedMaterial = "";
+        }
 
+        var type = isPBR ? "pbr" : "shadeless";
 
-        // exists
-        if (materialID && materialID !== undefined) {
+        for (var property in newMaterialDataToApply.materials) {
+            // take all properties in materials and put inside dynamic data
+            dynamicData[STRING_MATERIAL][type][property] = newMaterialDataToApply.materials[property];
+        }
+
+        if (materialID) {
+            // exists
             print("Material exists, Entities.editEntity time to update!");
             Entities.editEntity(materialID, materialProperties);
         } else {
@@ -185,22 +194,23 @@
     function applyNamedMaterial(materialName) {
         switch (materialName){
             case STRING_DEFAULT_MAT:
-                updateMaterial(MATERIAL_DEFAULT);
+                // updateMaterial materialName, isNamed, isPBR
+                updateMaterial(MATERIAL_DEFAULT, true, true);
                 break;
             case STRING_GLASS_MAT:
-                updateMaterial(MATERIAL_GLASS);
+                updateMaterial(MATERIAL_GLASS, true, true);
                 break;
             case STRING_CHAIN_MAT:
-                updateMaterial(MATERIAL_CHAINMAIL);
+                updateMaterial(MATERIAL_CHAINMAIL, true, true);
                 break;
             case STRING_DISCO_MAT:
-                updateMaterial(MATERIAL_DISCO);
+                updateMaterial(MATERIAL_DISCO, true, true);
                 break;
             case STRING_RED_MAT:
-                updateMaterial(MATERIAL_RED);
+                updateMaterial(MATERIAL_RED, true, false);
                 break;
             case STRING_TEXTURE_MAT:
-                updateMaterial(MATERIAL_TEXTURE);
+                updateMaterial(MATERIAL_TEXTURE, true, false);
                 break;
         }
     }
@@ -471,6 +481,11 @@
 
         deleteMirror();
 
+        if (materialID) {
+            Entities.deleteEntity(materialID);
+            materialID = null;
+        }
+
         // deleteFlowDebugSpheres();
         // removeAvi as avatar and restore old avatar
         //      if no old avatar in Settings setAvatar to Woody?
@@ -551,8 +566,10 @@
                 if (data.name) {
                     applyNamedMaterial(data.name);
                 } else {
-                    updateMaterial(data.updates);
+                    updateMaterial(data.updates, false, true); // *** todo add if pbr or shadeless
                 }
+
+                updateUI(STRING_MATERIAL);
 
                 break;
 

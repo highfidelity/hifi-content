@@ -298,9 +298,12 @@ var CONFIG = {
         },
         info: {},
         material: {
+            typeSelected: "",
             selectedMaterial: "",
+            updatedProperties: {},
             shadeless: {
-                albedo: { value: "#FFFFFF", map: null }
+                albedo: { value: "#FFFFFF", map: null },
+                emissive: { value: "#FFFFFF", map: null }
             },
             pbr: {
                 albedo: { value: "#FFFFFF", map: null },
