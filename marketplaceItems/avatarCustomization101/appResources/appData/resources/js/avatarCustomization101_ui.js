@@ -293,6 +293,7 @@
             applyNamedMaterial(materialName) {
                 if (DEBUG) {
                     console.log("applyNamedMaterial clicked " + materialName);
+                    console.log("ui name " + EVENT_UPDATE_MATERIAL);
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
@@ -390,12 +391,13 @@
     Vue.component('material-property-container', {
         props: ['property', 'dynamic'],
         computed: {
-            propertyInfo(){
+            propertyInfo() {
                 // sets material properties to be interpreted by components
 
                 var propertyData = this.property;
                 var dynamicPropertyData = this.dynamic[propertyData.key];
                 var type = propertyData.componentType;
+
                 return {
                     name: propertyData.key,
                     hasMap: type === STRING_COLOR || type === STRING_SLIDER,
@@ -453,10 +455,10 @@
                     <div class="flex-item">
                         <slider
                             :name="propertyInfo.name"
-                            :max="10"
+                            :max="1"
                             :increment="0.1"
                             :min="0"
-                            :defaultvalue="7"
+                            :defaultvalue="propertyInfo.value"
                         ></slider>
                     </div>
                 </div>
@@ -521,8 +523,8 @@
         },
         data() {
             return {
-                colors: this.propertyInfo.value
-            }
+                colors: this.propertyInfo.value ? this.propertyInfo.value : "#FFFFFF"
+            };
         },
         template: /* html */ `
             <div class="flex-container-row"> 
@@ -884,7 +886,7 @@
         },
         data() {
             return {
-                val: this.defaultvalue
+                val: this.defaultvalue ? this.defaultvalue : this.min
             }
         },
         watch: {

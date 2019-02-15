@@ -23,6 +23,7 @@ var APP_NAME = "AvatarCustomization101",
 var STRING_DEFAULT = "default",
     STRING_GLASS = "glass",
     STRING_CHAINMAIL = "chainmail",
+    STRING_DISCO = "disco",
     STRING_RED = "red",
     STRING_TEXTURE = "texture";
 
@@ -118,7 +119,7 @@ var CONFIG = {
                 COMPONENT_NAME: "material-tab",
 
                 COMPONENT_DATA: {
-                    PBR_LIST: [STRING_DEFAULT, STRING_GLASS, STRING_CHAINMAIL],
+                    PBR_LIST: [STRING_DEFAULT, STRING_GLASS, STRING_CHAINMAIL, STRING_DISCO],
                     SHADELESS_LIST: [STRING_RED, STRING_TEXTURE],
                     PROPERTIES_LISTS: {
                         shadeless: [
@@ -297,9 +298,12 @@ var CONFIG = {
         },
         info: {},
         material: {
+            typeSelected: "",
             selectedMaterial: "",
+            updatedProperties: {},
             shadeless: {
-                albedo: { value: "#FFFFFF", map: null }
+                albedo: { value: "#FFFFFF", map: null },
+                emissive: { value: "#FFFFFF", map: null }
             },
             pbr: {
                 albedo: { value: "#FFFFFF", map: null },
