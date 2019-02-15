@@ -25,7 +25,7 @@
         TEN_SECONDS_MS = 10 * ONE_SECOND_MS,
         ZONE_COLOR_INDEX = 19,
         HALF_MULTIPLIER = 0.5,
-        FIRST_WAIT_TO_COUNT_AVATARS = 1500,
+        FIRST_WAIT_TO_COUNT_AVATARS = 1000,
         WAIT_TO_SHOW_QUESTION = 500,
         MIN_PLAYERS = 3,
         HFC_INCREMENT = 100,
@@ -332,8 +332,9 @@
             try {
                 if (triviaURL === "") {
                     triviaURL = SECRETS.trivia_URL;
-                }
-                triviaURL = triviaURL + "category=" + GSHEET_TAB_NAME;
+                } else if (triviaURL.indexOf("category=") === -1) {
+                    triviaURL = triviaURL + "category=" + GSHEET_TAB_NAME;
+                } 
                 var expression = /[-a-zA-Z0-9@:%_\+.~#?&\/=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/=]*)?/gi;
                 var regex = new RegExp(expression);
                 
@@ -369,8 +370,6 @@
                 }
                 request(triviaURL, function (error, data) {
                     if (!error) {
-                        console.log(JSON.stringify(data.results[0]));
-                        console.log(JSON.stringify(data.response_code));
                         data.results[0].application = "trivia";
                         tablet.emitScriptEvent(JSON.stringify(data.results[0]));
                         triviaData = data.results;

@@ -112,6 +112,7 @@
             }
             function onScriptEventReceived(event) {
                 if (event === "newGame") {
+                    console.log("NEW GAME TIMES!!!");
                     databaseButton.disabled = true;
                     typeButton.disabled = true;
                     diffButton.disabled = true;
@@ -122,6 +123,7 @@
                     showQButton.disabled = true;
                     answerButton.disabled = true;
                 } else if (event === "re-enable") {
+                    console.log("RE_ENABLE");
                     databaseButton.disabled = false;
                     typeButton.disabled = false;
                     diffButton.disabled = false;
@@ -132,6 +134,7 @@
                     showQButton.disabled = true;
                     answerButton.disabled = true;
                 } else if (event === "gameInProgress") {
+                    console.log("GAME ALREADY GOING");
                     typeButton.disabled = false;
                     diffButton.disabled = false;
                     catButton.disabled = false;
@@ -142,6 +145,7 @@
                     showQButton.disabled = false;
                     answerButton.disabled = true;
                 } else if (event === "noQuestionPosted") {
+                    console.log("QUESTION NOT SENT TO BOARD YET");
                     databaseButton.disabled = false;
                     typeButton.disabled = false;
                     diffButton.disabled = false;
@@ -152,6 +156,7 @@
                     showQButton.disabled = true;
                     answerButton.disabled = true;
                 } else if (event === "re-enableCustom") {
+                    console.log("RE_ENABLE_CUSTOM");
                     databaseButton.value = "Custom Catalog" + "   \u25BC";
                     databaseButton.disabled = false;
                     typeButton.disabled = true;
@@ -163,6 +168,7 @@
                     showQButton.disabled = true;
                     answerButton.disabled = true;
                 } else if (event === "gameInProgressCustom") {
+                    console.log("GAME IN PROGRESS");
                     databaseButton.value = "Custom Catalog" + "   \u25BC";
                     typeButton.disabled = true;
                     diffButton.disabled = true;
@@ -174,6 +180,7 @@
                     showQButton.disabled = false;
                     answerButton.disabled = true;
                 } else if (event === "noQuestionPostedCustom") {
+                    console.log("QUESTION NOT SENT TO BOARD YET CUSTOM");
                     databaseButton.value = "Custom Catalog" + "   \u25BC";
                     databaseButton.disabled = false;
                     typeButton.disabled = true;
@@ -185,17 +192,18 @@
                     showQButton.disabled = true;
                     answerButton.disabled = true;
                 } else if (event === "nothingEntered") {
-                        document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
-                        document.getElementById('catalog').value = "Default Catalog" + "   \u25BC";
-                        databaseButton.disabled = true;
-                        typeButton.disabled = true;
-                        diffButton.disabled = true;
-                        catButton.disabled = true;
-                        beginButton.disabled = false;
-                        endButton.disabled = true;
-                        newQButton.disabled = true;
-                        showQButton.disabled = true;
-                        answerButton.disabled = true;   
+                    console.log("NOTHING ENTERED");
+                    document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
+                    document.getElementById('catalog').value = "Default Catalog" + "   \u25BC";
+                    databaseButton.disabled = true;
+                    typeButton.disabled = true;
+                    diffButton.disabled = true;
+                    catButton.disabled = true;
+                    beginButton.disabled = false;
+                    endButton.disabled = true;
+                    newQButton.disabled = true;
+                    showQButton.disabled = true;
+                    answerButton.disabled = true;   
                 } else {
                     try{
                         triviaData = JSON.parse(event);
@@ -205,6 +213,7 @@
                     if (!triviaData.application || triviaData.application !== "trivia") {
                         return;
                     } else if ("question" in triviaData) {
+                        console.log("GOT A QUESTION!!!");
                         document.getElementById("question").innerHTML = triviaData.question;
                         if (triviaData.type === "multiple") {
                             document.getElementById("answer").innerHTML =  "<p class=\"correct\">" + 
@@ -216,6 +225,7 @@
                             document.getElementById("answer").innerHTML = triviaData.correct_answer;
                         }
                     } else if ("response_code" in triviaData) {
+                        console.log("GOT A ERROR CODE");
                         document.getElementById("question").innerHTML = "Response: " + triviaData["response_code"] + " Check with your trivia database or HiFi Admin, something is clearly wrong";
                         databaseButton.disabled = true;
                         typeButton.disabled = true;
@@ -227,6 +237,7 @@
                         showQButton.disabled = true;
                         answerButton.disabled = true;
                     } else {
+                        console.log("EVERYTHING ELSE FAILED LAST RESORT");
                         document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
                         document.getElementById('catalog').value = "Default Catalog" + "\u25BC";
                         databaseButton.disabled = true;
