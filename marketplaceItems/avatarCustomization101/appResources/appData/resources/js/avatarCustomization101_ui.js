@@ -519,6 +519,15 @@
             },
             mapName() {
                 return this.propertyInfo.name + "Map";
+            },
+            defaultColor() {
+                if (Array.isArray(this.propertyInfo.value) && this.propertyInfo.value.length === 3) {
+                    this.colors = {
+                        h: this.propertyInfo.value[0],
+                        s: this.propertyInfo.value[1],
+                        v: this.propertyInfo.value[0]
+                    };
+                }
             }
         },
         data() {
@@ -551,6 +560,8 @@
             </div>
         `
     })
+
+    
 
     // #endregion material tab components
 

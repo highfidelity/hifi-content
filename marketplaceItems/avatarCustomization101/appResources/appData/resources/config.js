@@ -126,6 +126,10 @@ var CONFIG = {
                             {
                                 key: "albedo",
                                 componentType: STRING_COLOR
+                            },
+                            {
+                                key: "emissive",
+                                componentType: STRING_COLOR
                             }
                         ],
                         pbr: [

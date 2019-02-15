@@ -6,7 +6,7 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v22")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v222")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
