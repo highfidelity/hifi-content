@@ -1,3 +1,12 @@
+//
+//  bingoCard_ui.js
+//
+//  Created by Zach Fox on 2019-02-15
+//  Copyright 2019 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 // Handle EventBridge messages from *_app.js.
 function onScriptEventReceived(message) {
     try {
@@ -42,4 +51,6 @@ function onLoad() {
     }, EVENTBRIDGE_SETUP_DELAY);
 }
 
-onLoad();
+document.addEventListener("DOMContentLoaded", function(event) {
+    onLoad();
+});

@@ -17,7 +17,6 @@
 
     /* PLAY SOUND: Plays the specified sound at the specified volume at the position of the front of stage */
     var NUMBER_WHEEL = "{57e5e385-3968-4ebf-8048-a7650423d83b}";
-    var soundPosition = Entities.getEntityProperties(NUMBER_WHEEL, 'position').position;
     var injector;
     function playSound(sound, volume) {
         if (sound.downloaded) {
@@ -25,7 +24,7 @@
                 injector.stop();
             }
             injector = Audio.playSound(sound, {
-                position: soundPosition,
+                position: Entities.getEntityProperties(NUMBER_WHEEL, 'position').position,
                 volume: volume
             });
         }

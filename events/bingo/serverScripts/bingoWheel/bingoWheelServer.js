@@ -12,6 +12,10 @@
 
 (function() {
     var _this;
+    
+    // START EXTERNAL INCLUDES
+    var request = Script.require(Script.resolvePath('../../modules/request.js')).request;
+    // END EXTERNAL INCLUDES
 
     var LIGHT_BLINK_INTERVAL_MS = 500;
     var REMOVE_CARDS_SCRIPT = Script.resolvePath("../../entityScripts/cardRemover/bingoCardRemover.js");
@@ -25,6 +29,7 @@
     var USERS_ALLOWED_TO_SPIN_WHEEL =
         Script.require(Script.resolvePath('../../secrets/secrets.json?2')).usersAllowedToSpinWheel;
 
+    // START PRIZE VARS
     var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../secrets/secrets.json?2')).gameAudioPosition;
     var DRUMROLL_SOUND = SoundCache.getSound(Script.resolvePath("sounds/drumroll.wav"));
     var LOWER_DOORS_DELAY_MS = 1150;
@@ -39,10 +44,12 @@
     var BINGO_PRIZE_DOOR_3_TEXT = "{ec35d3dd-b99a-450c-bd90-5665adfaf9f2}";
     var BINGO_PRIZE_DOOR_3 = "{a3843b9d-70d7-407b-b7ca-378a31fac21f}";
     var avatarsInDoor3Zone = [];
+    // END PRIZE VARS
 
     var MAIN_STAGE_BOUNCER_ZONE = "{5ca26b63-c61b-447e-8985-b0269b33eed0}";
     
     var possibleBingoCalls = [];
+    var wheelSpinning = false;
     var BINGO_WHEEL_EDIT_TIMEOUT_DEFAULT_MS = 80;
     var TIME_BETWEEN_EDITS_STEP_MULTIPLIER = 1.2;
     var bingoWheelEditTimeout;
@@ -54,7 +61,6 @@
     var SLOWEST_ANGVEL_Z = -0.1;
     
     var gameReady = false;
-    var wheelSpinning = false;
     var playerCounterText;
     var bingoWallLights = [];
     var gameOnLights = [];
@@ -63,7 +69,6 @@
     var calledNumbers = [];
     var lightBlinkInterval;
     var newRoundURLParams;
-    var request = Script.require(Script.resolvePath('../../modules/request.js')).request;
 
     // *************************************
     // START UTILITY FUNCTIONS

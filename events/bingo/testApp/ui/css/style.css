@@ -44,4 +44,8 @@ body {
     background-color: #121212;
     color: #ffffff;
     justify-content: space-between;
-  }
+}
+
+#buttonsContainer {
+    display: flex;
+}

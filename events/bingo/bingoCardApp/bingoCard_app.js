@@ -174,10 +174,6 @@
     the user, get a new set of numbers */
     function onOpened() {
         createGem();
-        // The delay shouldn't be necessary in RC78. this is currently necessary because of this bug:
-        // eslint-disable-next-line max-len
-        // https://highfidelity.manuscript.com/f/cases/20253/screenChanged-signal-is-emitted-before-the-screen-has-actually-changed
-        Script.setTimeout(findOrCreateCard, 800);
     }
 
     /* ON CLOSING THE APP: Make sure the confetti and gem get deleted and their respective variables set back to null 
@@ -212,7 +208,9 @@
     var WHEEL_POSITION = Entities.getEntityProperties("{57e5e385-3968-4ebf-8048-a7650423d83b}", 'position').position;
     var SCANNER_ENTRY_ZONE = "{0da9b717-bbc0-423e-9ad0-c2c97b9f741c}";
     function onWebEventReceived(event) {
-        if (event.type === 'bingoNumberSelected') {
+        if (event.type === 'eventBridgeReady') {
+            findOrCreateCard();
+        } else if (event.type === 'bingoNumberSelected') {
             playSound(SELECT_SOUND, 0.1, MyAvatar.position, false);
             selectedNumberIDs.push(event.selectedID);
         } else if (event.type === 'bingoNumberDeselected') {
@@ -322,7 +320,7 @@
     /* ON APP START: Setup app UI, button, and messaging between it's html page and this script */
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('bingoCard_ui.html?12');
+    var appPage = Script.resolvePath('ui/bingoCard_ui.html?12');
     function startup() {
         ui = new AppUi({
             buttonName: "BINGO",
@@ -330,14 +328,15 @@
             graphicsDirectory: Script.resolvePath("assets/icons/"),
             onOpened: onOpened,
             onClosed: onClosed,
-            onMessage: onWebEventReceived
+            onMessage: onWebEventReceived,
+            sortOrder: 1
         });
         cacheSounds();
     }
 
     /* WHEN USER SESSION CHANGES: End this script so users will not be left with a card when leaving the domain */
     function sessionChanged() {
-        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?10'));
+        ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?11'));
     }
     
     startup();
