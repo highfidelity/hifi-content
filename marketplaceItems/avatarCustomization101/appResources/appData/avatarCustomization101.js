@@ -34,7 +34,6 @@
     // #region MIRROR FUNCTIONS
 
     var MIRROR_DISTANCE_M = 0.5;
-    var MIRROR_DISTANCE_BLENDSHAPES_M = 0.3; // mirror is closer when looking at your face
 
     var mirrorCubeID;
     var mirrorZoneID;
@@ -216,32 +215,49 @@
     var BLENDSHAPES_LAUGH = BLENDSHAPE_DATA.laugh;
     var BLENDSHAPES_ANGRY = BLENDSHAPE_DATA.angry;
 
+    var lastEmotionUsed = BLENDSHAPES_DEFAULT; // values associated with the last emotion lerping
+    var isChangingEmotion = false; // transitioning
+    var changingEmotionPercentage = 0.0; // with transitioning
+    var isBlendshapeIntervalEnabled = false;
+
     function mixValue(valueA, valueB, percentage) {
         return valueA + ((valueB - valueA) * percentage);
     }
 
-    var lastEmotionUsed = BLENDSHAPES_DEFAULT; // values associated with the last emotion lerping
-    var emotion = BLENDSHAPES_DEFAULT; // newest value 
-    var isChangingEmotion = false; // transitioning
-    var changingEmotionPercentage = 0.0; // wiht transitioning
-
-    Script.update.connect(function(deltaTime) {
+    // used to mix between blendshape expressions
+    function mixBlendshapesInterval (deltaTime) {
         if (!isChangingEmotion) {
             return;
         }
+
+        var blendshapeDynamicData = dynamicData[STRING_BLENDSHAPES];
+
         changingEmotionPercentage += deltaTime / TRANSITION_TIME_SECONDS;
         if (changingEmotionPercentage >= 1.0) {
             changingEmotionPercentage = 1.0;
             isChangingEmotion = false;
-            // if (emotion === BLENDSHAPES_DEFAULT) {
-            //     MyAvatar.hasScriptedBlendshapes = false; // keeps face static
-            // }
         }
-        for (var blendshape in emotion) {
+        for (var blendshape in blendshapeDynamicData.updatedProperties) {
             MyAvatar.setBlendshape(blendshape,
-                mixValue(lastEmotionUsed[blendshape], emotion[blendshape], changingEmotionPercentage));
+                mixValue(lastEmotionUsed[blendshape], blendshapeDynamicData.updatedProperties[blendshape], changingEmotionPercentage));
         }
-    });
+    }
+
+    function startBlendshapeInterval () {
+        if (!isBlendshapeIntervalEnabled) {
+            isBlendshapeIntervalEnabled = true;
+            Script.update.connect(mixBlendshapesInterval);
+        }
+    }
+
+    function stopBlendshapeInterval () {
+
+        if (isBlendshapeIntervalEnabled) {
+            isBlendshapeIntervalEnabled = false;
+            Script.update.disconnect(mixBlendshapesInterval);
+        }
+
+    }
 
     function updateBlendshapes(newBlendshapeDataToApply, isName) {
 
@@ -249,28 +265,22 @@
             print("New blendshape data", JSON.stringify(newBlendshapeDataToApply));
         }
 
+        var blendshapeDynamicData = dynamicData[STRING_BLENDSHAPES];
+
         if (!isName) {
             // is not named blendshape, ensure last blendshape is not selected
-            dynamicData[STRING_BLENDSHAPES].selected = "";
+            blendshapeDynamicData.selected = "";
         }
-        
-        
 
-        if (emotion !== lastEmotionUsed) {
-            lastEmotionUsed = emotion;
+        lastEmotionUsed = deepCopy(blendshapeDynamicData.updatedProperties);
+
+        // update all blendshapes in dynamic data
+        for(var property in newBlendshapeDataToApply) {
+            blendshapeDynamicData.updatedProperties[property] = newBlendshapeDataToApply[property];
         }
-        if (newBlendshapeDataToApply !== lastEmotionUsed) {
-            changingEmotionPercentage = 0.0;
-            emotion = newBlendshapeDataToApply;
-            isChangingEmotion = true;
-            MyAvatar.hasScriptedBlendshapes = true;
 
-            // All properties in emotion set to the blendshapes in dynamic data
-            for(var property in emotion) {
-                dynamicData[STRING_BLENDSHAPES].updatedProperties[property] = emotion[property];
-            }
-
-        }
+        changingEmotionPercentage = 0.0;
+        isChangingEmotion = true;
     }
 
     // presets
@@ -422,7 +432,6 @@
         // save lastTab that the user was on
         dynamicData.state.activeTabName = currentTab;
 
-
         MyAvatar.hasScriptedBlendshapes = false;
 
     }
@@ -451,29 +460,49 @@
     }
 
     function switchTabs(tabName) {
+        
+        var previousTab = currentTab;
+        currentTab = tabName;
 
-        // if tabName === STRING_BLENDSHAPES
-        //      setMirrorDistanceToBlendshapes();
-        // if currentTab === STRING_BLENDSHAPES && tabName !== STRING_BLENDSHAPES
-        //      setMirrorDistanceToDefault();
-
-        print("Switch tabs");
-
-        if (tabName === STRING_FLOW && dynamicData[STRING_FLOW].showDebug){
+        // Flow tab conditionals
+        if (currentTab === STRING_FLOW && dynamicData[STRING_FLOW].showDebug){
+            // enable debug spheres
             addRemoveFlowDebugSpheres(true);
         }
-        if (currentTab === STRING_FLOW && tabName !== STRING_FLOW){
+        if (previousTab === STRING_FLOW && currentTab !== STRING_FLOW){
+            // disable debug spheres
             addRemoveFlowDebugSpheres(false);
         }
 
-        currentTab = tabName;
+        // Blendshape tab conditionals
+        if(currentTab === STRING_BLENDSHAPES) {
+            // enable scripted blendshapes
+            MyAvatar.hasScriptedBlendshapes = true;
+            startBlendshapeInterval();
+        }
+        if (previousTab === STRING_BLENDSHAPES && currentTab !== STRING_BLENDSHAPES){
+            // disable scripted blendshapes
+            MyAvatar.hasScriptedBlendshapes = false;
+            stopBlendshapeInterval();
+        }
 
     }
 
     function unload() {
 
+
         deleteMirror();
-        MyAvatar.hasScriptedBlendshapes = false;
+
+        // Set blendshapes back to normal
+        // *** Todo make this work
+        MyAvatar.hasScriptedBlendshapes = true;
+        startBlendshapeInterval();
+        applyNamedBlendshapes(BLENDSHAPES_DEFAULT);
+
+        Script.setTimeout(function () {
+            MyAvatar.hasScriptedBlendshapes = false;
+            stopBlendshapeInterval();
+        }, 200);
 
         // deleteFlowDebugSpheres();
         // removeAvi as avatar and restore old avatar
