@@ -30,6 +30,19 @@
         }
     }
 
+
+    var lastStatusText = "Nothing to report!";
+    function sendStatusUpdateToUI(statusText) {
+        if (statusText) {
+            lastStatusText = statusText;
+        }
+        ui.sendMessage({
+            app: 'bingoBossApp',
+            method: "updateStatus",
+            statusText: lastStatusText
+        });
+    }
+
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
@@ -89,25 +102,34 @@
 
     /* ON WEB EVENT: Call the correct function or print an error when an event is received from bingoBossApp_ui.html */
     function onWebEventReceived(event) {
-        if (event.app === 'bingo') {
+        if (event.app === 'bingoBossApp') {
             switch (event.type) {
+                case "eventBridgeReady":
+                    sendStatusUpdateToUI();
+                    break;
                 case 'lightsOn':
                     lightsOn();
+                    sendStatusUpdateToUI("Last button clicked: Lights On");
                     break;
                 case 'openRegistration':
                     openRegistration();
+                    sendStatusUpdateToUI("Last button clicked: Open Registration");
                     break;
                 case 'closeRegistration':
                     closeRegistration();
+                    sendStatusUpdateToUI("Last button clicked: Close Registration");
                     break; 
                 case 'newRound':
                     newRound();
+                    sendStatusUpdateToUI("Last button clicked: New Round");
                     break;
                 case 'lightsOut':
                     lightsOut();
+                    sendStatusUpdateToUI("Last button clicked: Lights Out");
                     break;
                 case 'givePrizes':
                     givePrizes();
+                    sendStatusUpdateToUI("Last button clicked: Give Prizes");
                     break;
                 default:
                     print("error in detecting event.type in Bingo app");
@@ -115,10 +137,10 @@
         }
     }
 
-    /* ON APP START: Setup app UI, button, and messaging between it's html page and this script */
+    /* ON APP START: Setup app UI, button, and messaging between its html page and this script */
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('bingoBossApp_ui.html?5');
+    var appPage = Script.resolvePath('ui/bingoBossApp_ui.html?1');
     function startup() {
         ui = new AppUi({
             buttonName: "BOSS",

@@ -106,30 +106,16 @@ function getBingoNumbers() {
 }
 
 
-const CARD_YELLOW = { "blue": 66, "green": 255, "red": 227 };
-const CARD_BLUE = { "blue": 247, "green": 196, "red": 0 };
-const CARD_GREEN = { "blue": 0, "green": 255, "red": 30 };
-const CARD_PINK = { "blue": 119, "green": 0, "red": 255 };
+const CARD_COLORS = [
+    {"red": 178, "green": 0, "blue": 18},
+    {"red": 178, "green": 46, "blue": 116},
+    {"red": 16, "green": 28, "blue": 91},
+    {"red": 0, "green": 110, "blue": 156},
+    {"red": 0, "green": 144, "blue": 54},
+    {"red": 204, "green": 189, "blue": 0},
+]
 function getCardColor() {
-    var colorChange = Math.floor(Math.random() * 4);
-    var newColor;
-    switch (colorChange) {
-      case 0:
-        newColor = CARD_YELLOW;
-        break;
-      case 1:
-        newColor = CARD_BLUE;
-        break;
-      case 2:
-        newColor = CARD_GREEN;
-        break;
-      case 3:
-        newColor = CARD_PINK;
-        break;
-      default:
-        newColor = CARD_PINK;
-    }
-    return newColor;
+    return CARD_COLORS[Math.floor(Math.random() * CARD_COLORS.length)];
 }
 
 
