@@ -157,6 +157,15 @@
         }, ADD_MANY_USERS_CHECK_INTERVAL_MS);
     }
 
+    function callAllNumbers() {
+        Entities.callEntityServerMethod(NUMBER_WHEEL_ENTITY_ID, 'callAllNumbers', [AccountServices.username]);
+        ui.sendMessage({
+            app: 'bingoTestApp',
+            method: 'callAllNumbers',
+            status: "allNumbersRequested"
+        });
+    }
+
     // When a message is received from the app's UI,
     // handle that message.
     function onWebEventReceived(event) {
@@ -175,6 +184,10 @@
 
                 case 'addManyUsers':
                     addManyUsers();
+                    break;
+
+                case 'callAllNumbers':
+                    callAllNumbers();
                     break;
 
                 default:

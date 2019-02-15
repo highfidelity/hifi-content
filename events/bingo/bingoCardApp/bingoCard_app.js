@@ -177,7 +177,7 @@
         // The delay shouldn't be necessary in RC78. this is currently necessary because of this bug:
         // eslint-disable-next-line max-len
         // https://highfidelity.manuscript.com/f/cases/20253/screenChanged-signal-is-emitted-before-the-screen-has-actually-changed
-        Script.setTimeout(findOrCreateCard, 500);
+        Script.setTimeout(findOrCreateCard, 800);
     }
 
     /* ON CLOSING THE APP: Make sure the confetti and gem get deleted and their respective variables set back to null 

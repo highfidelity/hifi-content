@@ -20,61 +20,61 @@ var url = require('url');
 var dbInfo = require('./dbInfo.json');
 
 var currentTableName;
-function createNewTable() {
-    currentTableName = Date.now();
+function createNewTable(newTablePrefix, response) {
+    currentTableName = newTablePrefix + "_" + Date.now();
 
     var query = `CREATE TABLE \`${currentTableName}\` (
-        username VARCHAR(40) PRIMARY KEY,
-        cardNumbers VARCHAR(300),
-        cardColor VARCHAR(50),
-        prizeWon VARCHAR(40)
+        username VARCHAR(50) PRIMARY KEY,
+        cardNumbers VARCHAR(1000),
+        cardColor VARCHAR(60),
+        prizeWon VARCHAR(100)
     )`;
-    connection.query(query, function(error, results, fields) {
-        if (error) {
-            throw error;
-        }
-    });
-}
-
-function startNewRound(calledLettersAndNumbers, response) {
-    if (!currentTableName) {
-        createNewTable();
-        var responseObject = {
-            status: "success",
-            text: "Started new round but DID NOT record any called numbers!"
-        };
-
-        response.statusCode = 200;
-        response.setHeader('Content-Type', 'application/json');
-        return response.end(JSON.stringify(responseObject));
-    }
-
-    var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers)
-        VALUES ('BINGO BOSS', '${calledLettersAndNumbers}')`;
     connection.query(query, function(error, results, fields) {
         if (error) {
             var responseObject = {
                 status: "error",
-                text: "Error starting new round!"
+                tableName: currentTableName,
+                text: "Could not create new table! " + error
             };
-
+    
             response.statusCode = 200;
             response.setHeader('Content-Type', 'application/json');
-            response.end(JSON.stringify(responseObject));
-            throw error;
+            return response.end(JSON.stringify(responseObject));
         }
-
-        createNewTable();
 
         var responseObject = {
             status: "success",
-            text: "Creating new table and starting new round!"
+            tableName: currentTableName,
+            text: "Created new table for a new round!"
         };
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
         response.end(JSON.stringify(responseObject));
     });
+}
+
+function startNewRound(calledNumbers, newTablePrefix, response) {
+    if (currentTableName) {
+        var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers)
+            VALUES ('BINGO BOSS', '${calledNumbers}')`;
+        connection.query(query, function(error, results, fields) {
+            if (error) {
+                var responseObject = {
+                    status: "error",
+                    text: "Error starting new round! " + JSON.stringify(error)
+                };
+    
+                response.statusCode = 200;
+                response.setHeader('Content-Type', 'application/json');
+                return response.end(JSON.stringify(responseObject));
+            }
+    
+            createNewTable(newTablePrefix, response);
+        });
+    } else {
+        createNewTable(newTablePrefix, response);
+    }
 }
 
 const POSSIBLE_NUMBERS_PER_COLUMN = 15;
@@ -230,7 +230,7 @@ function handleGetRequest(request, response) {
             return response.end(JSON.stringify(responseObject));
         }
     } else if (type === "newRound") {
-        return startNewRound(queryParamObject.calledLettersAndNumbers, response);
+        return startNewRound(queryParamObject.calledNumbers, queryParamObject.newTablePrefix, response);
     } else {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/plain');

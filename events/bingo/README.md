@@ -4,8 +4,19 @@ A Bingo game for High Fidelity. Requires setting up a domain in a very specific 
 ## Secrets
 
 The code for this game is open source. There are two sets of secrets that you must have set up for this game to work:
-1. A `secrets.json` file in `<bingo root>/secrets/secrets.json` that contains a `"requestURL"` key/value pair used by the game when requesting information from the Bingo Web app, which must be deployed and ready when starting the game.
+1. A `secrets.json` file in `<bingo root>/secrets/secrets.json` that contains the data below.
 2. A `dbInfo.json` file in `<bingo root>/webApps/dbInfo.json` that contains the data below.
+
+### `secrets.json`
+Here's what your `secrets.json` file should look like:
+```
+{
+    "requestURL": "<a deployed version of the bingo.js Web App",
+    "usersAllowedToSpinWheel": [<an array of strings dictating who can spin the Bingo wheel>],
+    "gameAudioPosition": { "x": <int>, "y": <int>, "z": <int> },
+    "dbTablePrefix": "<a prefix for all of the Bingo tables in your DB associated with this deployment>"
+}
+```
 
 ### `dbInfo.json`
 Here's what your `dbInfo.json` file should look like:

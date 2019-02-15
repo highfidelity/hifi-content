@@ -16,7 +16,7 @@
     var SCANNER_TRAP_DOOR = "{ab82d854-98da-44bf-8545-0544227bc56c}";
     var WINNER_SIGN = "{2bba449a-c8a2-484a-825c-3f6823882023}";
     var LOSER_SIGN = "{9500318e-bc57-40f5-b8c4-3b3919372521}";
-    var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
+    var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../secrets/secrets.json?1')).gameAudioPosition;
     var COMPUTING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoComputing.wav"));
     var SCANNER_WIN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoScannerWin.wav"));
     var SCANNER_LOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoLose.wav"));
@@ -25,22 +25,6 @@
     var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 2000;
     var REQUEST_URL = Script.require(Script.resolvePath('../../secrets/secrets.json?0')).requestURL;
-
-    var DEBUG_ALL_NUMBERS_CALLED = false;
-    var DEBUG_ALL_NUMBERS = [];
-    for (var i = 1; i < 76; i++) {
-        if (i < 16) {
-            DEBUG_ALL_NUMBERS.push("B " + i); 
-        } else if (i < 31) {
-            DEBUG_ALL_NUMBERS.push("I " + i); 
-        } else if (i < 46) {
-            DEBUG_ALL_NUMBERS.push("I " + i); 
-        } else if (i < 61) {
-            DEBUG_ALL_NUMBERS.push("I " + i); 
-        } else if (i < 76) {
-            DEBUG_ALL_NUMBERS.push("I " + i); 
-        }
-    }
 
     var _this;
     
@@ -129,24 +113,21 @@
             playSound(COMPUTING_SOUND, zonePosition, 0.5);
 
             Entities.editEntity(scannerSpotlight, { visible: true });
-            Entities.callEntityMethod(BINGO_WHEEL, 'requestAlreadyCalledNumbers', ["bingoScanner", _this.entityID, params[0]]);
+            var usernameToScan = params[0];
+            Entities.callEntityMethod(BINGO_WHEEL, 'requestAlreadyCalledNumbers', [_this.entityID, usernameToScan]);
         },
 
         /* RECEIVE NUMBERS THAT HAVE BEEN CALLED THIS ROUND */
         alreadyCalledNumbersReply: function(id, args) {
-            var calledLettersAndNumbers = JSON.parse(args[0]);
-
-            if (DEBUG_ALL_NUMBERS_CALLED) {
-                calledLettersAndNumbers = DEBUG_ALL_NUMBERS;
-            }
+            var calledNumbers = JSON.parse(args[0]);
 
             var username = args[1];
-            _this.getUsersCardNumbers(username, calledLettersAndNumbers);
+            _this.getUsersCardNumbers(username, calledNumbers);
         },
 
         /* GET USER'S CARD NUMBERS: Get the Google sheet URL from a private text file, then search the sheet for the user. 
         If the user is found, save their card numbers. */
-        getUsersCardNumbers: function(username, calledLettersAndNumbers) {
+        getUsersCardNumbers: function(username, calledNumbers) {
             var searchParamString = encodeURLParams({
                 type: "searchOnly",
                 username: username
@@ -161,31 +142,27 @@
                 if (response.newUser) {
                     _this.lose();
                 } else {
-                    _this.validateWin(username, response.userCardNumbers, calledLettersAndNumbers);
+                    _this.validateWin(username, response.userCardNumbers, calledNumbers);
                 }
             });
         },
 
         /* VALIDATE A WIN */
-        validateWin: function(username, userNumbers, calledLettersAndNumbers) {
+        validateWin: function(username, userNumbers, calledNumbers) {
             var rowIterator, colIterator;
-            // Strip away the letter and space from every element in calledLettersAndNumbers
             // -1 is the free space and was always "called"
-            var calledNumbers = [-1];
-            for (var i = 0; i < calledLettersAndNumbers.length; i++) {
-                // eslint-disable-next-line no-magic-numbers
-                calledNumbers.push(parseInt(calledLettersAndNumbers[i].substring(2)));
-            }
+            calledNumbers.push(-1);
+
 
             var userNumbers2D = [];
-            var numberOfRowsAndColumns = 5;
-            var centerRowAndColumnIndex = 2;
-            for (rowIterator = 0; rowIterator < numberOfRowsAndColumns; rowIterator++) {
+            var NUM_ROWS_COLS = 5;
+            var CENTER_ROW_COL_IDX = 2;
+            for (rowIterator = 0; rowIterator < NUM_ROWS_COLS; rowIterator++) {
                 var currentColumn = [];
 
-                for (colIterator = 0; colIterator < numberOfRowsAndColumns; colIterator++) {
+                for (colIterator = 0; colIterator < NUM_ROWS_COLS; colIterator++) {
                     // Handle free space
-                    if (rowIterator === centerRowAndColumnIndex && colIterator === centerRowAndColumnIndex) {
+                    if (rowIterator === CENTER_ROW_COL_IDX && colIterator === CENTER_ROW_COL_IDX) {
                         currentColumn.push(-1);
                     } else {
                         currentColumn.push(userNumbers.shift());
@@ -194,9 +171,10 @@
                 userNumbers2D.push(currentColumn);
             }
 
+
             function checkRow(rowIndex) {
-                for (colIterator = 0; colIterator < numberOfRowsAndColumns; colIterator++) {
-                    if (calledNumbers.indexOf(userNumbers2D[rowIndex][colIterator]) === -1) {
+                for (colIterator = 0; colIterator < NUM_ROWS_COLS; colIterator++) {
+                    if (calledNumbers.indexOf(userNumbers2D[colIterator][rowIndex]) === -1) {
                         return false;
                     }
                 }
@@ -205,8 +183,8 @@
             }
 
             function checkColumn(columnIndex) {
-                for (rowIterator = 0; rowIterator < numberOfRowsAndColumns; rowIterator++) {
-                    if (calledNumbers.indexOf(userNumbers2D[rowIterator][columnIndex]) === -1) {
+                for (rowIterator = 0; rowIterator < NUM_ROWS_COLS; rowIterator++) {
+                    if (calledNumbers.indexOf(userNumbers2D[columnIndex][rowIterator]) === -1) {
                         return false;
                     }
                 }
@@ -215,7 +193,7 @@
             }
 
             function checkDiagonalTopLeftToBottomRight() {
-                for (rowIterator = 0; rowIterator < numberOfRowsAndColumns; rowIterator++) {
+                for (rowIterator = 0; rowIterator < NUM_ROWS_COLS; rowIterator++) {
                     if (calledNumbers.indexOf(userNumbers2D[rowIterator][rowIterator]) === -1) {
                         return false;
                     }
@@ -225,7 +203,7 @@
             }
 
             function checkDiagonalTopRightToBottomLeft() {
-                for (rowIterator = 0; rowIterator < numberOfRowsAndColumns; rowIterator++) {
+                for (rowIterator = 0; rowIterator < NUM_ROWS_COLS; rowIterator++) {
                     // eslint-disable-next-line no-magic-numbers
                     if (calledNumbers.indexOf(userNumbers2D[4 - rowIterator][rowIterator]) === -1) {
                         return false;
@@ -235,7 +213,7 @@
                 return true;
             }
 
-            for (i = 0; i < numberOfRowsAndColumns; i++) {
+            for (var i = 0; i < NUM_ROWS_COLS; i++) {
                 if (checkRow(i)) {
                     _this.win(username);
                     return;
