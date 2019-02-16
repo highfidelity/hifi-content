@@ -128,7 +128,9 @@
     var intensityEntityColorMax = JSON.parse(Settings.getValue("appreciate/entityColor",
         JSON.stringify(INTENSITY_ENTITY_COLOR_MAX_DEFAULT)));
     var ANGVEL_ENTITY_MULTIPLY_FACTOR = 62;
+    var INTENSITY_ENTITY_NAME = "Appreciation Dodecahedron";
     var INTENSITY_ENTITY_PROPERTIES = {
+        "name": INTENSITY_ENTITY_NAME,
         "type": "Shape",
         "shape": "Dodecahedron",
         "dimensions": {
@@ -930,6 +932,18 @@
         }
     }
 
+
+    // Searches through all of your avatar entities and deletes any with the name
+    // that equals the one set when rezzing the Intensity Entity
+    function cleanupOldIntensityEntities() {
+        MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
+            var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
+            if (name === INTENSITY_ENTITY_NAME && avatarEntity.id !== intensityEntity) {
+                Entities.deleteEntity(avatarEntity.id);
+            }
+        });
+    }
+
     
     // Called when the script is stopped. STOP ALL THE THINGS!
     function onScriptEnding() {
@@ -938,6 +952,7 @@
         maybeClearSoundFadeInterval();
         maybeClearVRDebounceTimer();
         maybeClearUpdateIntensityEntityInterval();
+        cleanupOldIntensityEntities();
 
         maybeClearStopAppreciatingTimeout();
         stopAppreciating();
@@ -969,6 +984,7 @@
     // Called when the script starts up
     var BUTTON_NAME = "APPRECIATE";
     var APP_UI_URL = Script.resolvePath('resources/appreciate_ui.html');
+    var CLEANUP_INTENSITY_ENTITIES_STARTUP_DELAY_MS = 5000;
     var AppUI = Script.require('appUi');
     var ui;
     function startup() {
@@ -981,6 +997,9 @@
             onMessage: onMessage
         });
         
+        cleanupOldIntensityEntities();
+        // We need this because sometimes avatar entities load after this script does.
+        Script.setTimeout(cleanupOldIntensityEntities, CLEANUP_INTENSITY_ENTITIES_STARTUP_DELAY_MS);
         enableOrDisableAppreciate();
         getSounds();
         getAnimations();

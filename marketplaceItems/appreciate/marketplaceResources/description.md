@@ -4,6 +4,10 @@ Open the app to view usage instructions and some app options, including an optio
 
 **Changelog:**
 
+v1.1 (2019-02)
+
+- Ensure that old Appreciation Dodecahedrons will be deleted in the event of a client crashing while Appreciating
+
 v1.0 (2019-02)
 
 - Initial Release!
