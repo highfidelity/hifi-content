@@ -191,7 +191,7 @@
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
             var name = Entities.getEntityProperties(avatarEntity, 'name').name;
             if (name === "Playing Bingo") {
-                Entities.deleteEntity(avatarEntity);
+                Entities.deleteEntity(avatarEntity.id);
             }
         });
     }
