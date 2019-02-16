@@ -8,7 +8,6 @@ Version 1.1.1
 
 **February 5, 2019**
 [f3f05c0](https://github.com/highfidelity/hifi-content/pull/279/commits/f3f05c0cd3eabd8d65a1c20175069b1d33b5a688)
-
 Version 1.1:
 - Bug fixes 
 - Tablet App style and functionality updates.

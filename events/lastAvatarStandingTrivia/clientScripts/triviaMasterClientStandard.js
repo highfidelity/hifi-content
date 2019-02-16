@@ -18,7 +18,6 @@
         GOOGLE_URL = SECRETS.GOOGLE_URL,
         TABLET_BUTTON_IMAGE = Script.resolvePath('../entities/icons/questionMark-i.png'),
         TABLET_BUTTON_PRESSED = Script.resolvePath('../entities/icons/questionMark-a.png'),
-        GSHEET_TAB_NAME = "Halloween",
         SEARCH_RADIUS = 1000,
         ONE_SECOND_MS = 1000;
     var FIVE_SECONDS = 5 * ONE_SECOND_MS,
@@ -32,7 +31,7 @@
         HFC_HALVER = 0.5,
         MIN_PRIZE = 300,
         HOST_PERCENTAGE = 0.1;
-
+        
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system'),
         appPage = Script.resolvePath('trivia.html?v100'),
         button = tablet.addButton({
@@ -40,8 +39,9 @@
             icon: TABLET_BUTTON_IMAGE,
             activeIcon: TABLET_BUTTON_PRESSED
         });
-
+        
     var open = false,
+        gSheetTabName = "Halloween",
         intervalBoard,
         questionText,
         triviaURL = "",
@@ -333,7 +333,7 @@
                 if (triviaURL === "") {
                     triviaURL = SECRETS.trivia_URL;
                 } else if (triviaURL.indexOf("category=") === -1) {
-                    triviaURL = triviaURL + "category=" + GSHEET_TAB_NAME;
+                    triviaURL = triviaURL + "category=" + gSheetTabName;
                 } 
                 var expression = /[-a-zA-Z0-9@:%_\+.~#?&\/=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/=]*)?/gi;
                 var regex = new RegExp(expression);
@@ -795,7 +795,7 @@
                                     tablet.emitScriptEvent("nothingEntered");
                                     useGoogle = false;
                                 } else {
-                                    GSHEET_TAB_NAME = answer;
+                                    gSheetTabName = answer;
                                 }
                                 break;
                             case "Misc. Catalog":                                
@@ -811,7 +811,7 @@
                                         useGoogle = false;
                                     } else {
                                         useGoogle = true;
-                                        GSHEET_TAB_NAME = answer;
+                                        gSheetTabName = answer;
                                     }
                                 }
                                 break;
