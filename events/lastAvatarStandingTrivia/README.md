@@ -2,7 +2,7 @@
 
 ### Release Notes:
 **February 15, 2019**
-[226b233](https://github.com/highfidelity/hifi-content/pull/296/commits/226b23350415dbeec5549ade39ba53bc14996667)
+[4eb6328](https://github.com/highfidelity/hifi-content/pull/296/commits/4eb63286b45020a20371acfd6145dd7043604d2b)
 Version 1.1.1
 - Fixed bug with triviaURL string for Google databases having "category=" tacked onto the end of it and invalidating the URL when "Get Question" is pressed.
 
