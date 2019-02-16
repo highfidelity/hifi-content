@@ -281,6 +281,10 @@
                     :close="closeModalSaveAvatar"
                 ></modal-save-avatar>
 
+                <color-selector></color-selector>
+
+                <toggle-color-wheel></toggle-color-wheel>
+
             </div>
         `
     })
@@ -1119,6 +1123,70 @@
             </div>
         </transition>
       `
+    })
+
+    Vue.component('toggle-color-wheel', {
+        // props: ["items", "defaulttext", "onselect"],
+        props: ['color', 'image', 'onclick', 'onchange', 'pickerid'],
+        computed: {
+            insideId () {
+                return this.pickerid + '-inside';
+            },
+            outsideId () {
+                return this.pickerid + '-outside';
+            }
+        },
+        data() {
+            return {
+                styling: this.color ? this.color : 'background-color: coral;'
+            }
+        },
+        methods: {
+            onSelect(value) {
+                console.log("DropDown Image value:" + value);
+                this.selected = value;
+                this.onselect(value);
+            }
+        },
+        template: /* html */ `
+            <div class="dropdown">
+                <button class="dropdown-toggle" type="button" id="dropdownColorButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div v-bind:id="insideId" class="color-selector-inside" v-bind:style="styling">
+                        <div class="arrow-down"></div>
+                    </div>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownColorButton">
+                    <chrome-picker 
+                        :value="'#ffffff'" 
+                        @input="onSelect"
+                    ></chrome-picker>
+                </div>
+            </div>
+        `
+    })
+    
+    Vue.component('color-selector', {
+        props: ['color', 'image', 'onclick', 'onchange', 'pickerid'],
+        computed: {
+            insideId () {
+                return this.pickerid + '-inside';
+            },
+            outsideId () {
+                return this.pickerid + '-outside';
+            }
+        },
+        data() {
+            return {
+                styling: this.color ? this.color : 'background-color: coral;'
+            }
+        },
+        template: /* html */ `
+            <div v-bind:id="outsideId" class="color-selector-outside">
+                <div v-bind:id="insideId" class="color-selector-inside" v-bind:style="styling">
+                    <div class="arrow-down"></div>
+                </div>
+            </div>
+        `
     })
 
     // #endregion EDIT COMPONENTS
