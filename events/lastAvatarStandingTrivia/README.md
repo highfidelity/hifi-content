@@ -2,7 +2,10 @@
 
 ### Release Notes:
 **February 15, 2019**
+<<<<<<< HEAD
 [226b233](https://github.com/highfidelity/hifi-content/pull/296/commits/226b23350415dbeec5549ade39ba53bc14996667)
+=======
+>>>>>>> 226b23350415dbeec5549ade39ba53bc14996667
 Version 1.1.1
 - Fixed bug with triviaURL string for Google databases having "category=" tacked onto the end of it and invalidating the URL when "Get Question" is pressed.
 
@@ -40,6 +43,10 @@ You can switch databases at any time, but to re-enter custom or miscellaneous da
 3. Condense color check scripts into one.
 4. Simplify html with button state-machine.
 5. Replace timeout on unloading the color check scripts with a callback when player removals are complete.
+<<<<<<< HEAD
 6. There is a known issue with the time gap between events when the timer finishes counting down, the determination of the game state, and the potential removal of players from the board that may affect players who are transitting answer zone boundaries at the end of the countdown and immediately thereafter.  Players are advised to select and move to their answer as quickly as possible and remain there until a new question is posted.
+=======
+6. There is a known issue with the time gape between events when the timer finishes counting down, the determination of the game state, and the potential removal of players from the board that may affect players who are transitting answer zone boundaries at the end of the countdown and immediately thereafter.  Players are advised to select and move to their answer as quickly as possible and remain there until a new question is posted.
+>>>>>>> 226b23350415dbeec5549ade39ba53bc14996667
 
 
