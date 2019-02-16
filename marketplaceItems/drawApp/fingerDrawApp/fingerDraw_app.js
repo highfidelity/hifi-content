@@ -40,6 +40,8 @@ Tablet, Vec3, Window */
     mode requested. */
     var injector;
     function playSound(sound, volume, position, localOnly, loop){
+        print("SOUND: ", sound, "     VOLUME: ", volume, "     POSITION: ", JSON.stringify(position), "     LOCAL ONLY: ", 
+            localOnly, "     LOOP: ", loop);
         if (sound.downloaded) {
             if (injector) {
                 injector.stop();
@@ -303,8 +305,7 @@ Tablet, Vec3, Window */
                 var displacementFromStart = Vec3.subtract(currentLinePoint, lineStartPosition);
                 linePoints.push(displacementFromStart);
                 if (!polyLine) {
-                    // WHT WON"T THIS SOUND WORK!?!?!?!
-                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, MyAvatar.position, false, true);
+                    playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, MyAvatar.position, true, false);
                     playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true, false);
                     polyLine = Entities.addEntity({
                         type: "PolyLine",
