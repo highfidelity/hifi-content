@@ -185,17 +185,17 @@
                     showQButton.disabled = true;
                     answerButton.disabled = true;
                 } else if (event === "nothingEntered") {
-                        document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
-                        document.getElementById('catalog').value = "Default Catalog" + "   \u25BC";
-                        databaseButton.disabled = true;
-                        typeButton.disabled = true;
-                        diffButton.disabled = true;
-                        catButton.disabled = true;
-                        beginButton.disabled = false;
-                        endButton.disabled = true;
-                        newQButton.disabled = true;
-                        showQButton.disabled = true;
-                        answerButton.disabled = true;   
+                    document.getElementById("question").innerHTML = "You entered an invalid URL, tab name, or have not properly setup your trivia database for access by this application. Try using the 'Default Catalog' instead.";
+                    document.getElementById('catalog').value = "Default Catalog" + "   \u25BC";
+                    databaseButton.disabled = true;
+                    typeButton.disabled = true;
+                    diffButton.disabled = true;
+                    catButton.disabled = true;
+                    beginButton.disabled = false;
+                    endButton.disabled = true;
+                    newQButton.disabled = true;
+                    showQButton.disabled = true;
+                    answerButton.disabled = true;   
                 } else {
                     try{
                         triviaData = JSON.parse(event);
