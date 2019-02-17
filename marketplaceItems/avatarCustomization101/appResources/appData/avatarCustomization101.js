@@ -599,10 +599,16 @@
                 // delegates the method depending on if 
                 // event has name property or updates property
 
-                if (data.name) {
-                    applyNamedMaterial(data.name);
+                if (data.subtype && data.subtype === "modelTypeSelected") {
+
+                    dynamicData[STRING_MATERIAL].selectedMaterial = data.updates;
+                
                 } else {
-                    updateMaterial(data.updates, false, true); // *** todo add if pbr or shadeless
+                    if (data.name) {
+                        applyNamedMaterial(data.name);
+                    } else {
+                        updateMaterial(data.updates, false, true); // *** todo add if pbr or shadeless
+                    }
                 }
 
                 updateUI(STRING_MATERIAL);

@@ -314,29 +314,26 @@
                     updates: materialPropertiesObject
                 }));
             }, 
-            changeModel(modelName) {
+            changeModel(value) {
 
-                var selected = modelName;
-
-                if (selected === "hifi-pbr") {
-                    selected = "pbr";
-                } else if (selected === "Select one") {
-                    selected = "selectOne";
-                }
-
-                this.selected = selected;
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_MATERIAL,
+                    subtype: "modelTypeSelected",
+                    updates: value
+                }));
+                
             }
         },
         computed: {
             selectedPropertyList() {
                 console.log(JSON.stringify(this.static));
-                return this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.selected];
+                return this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.dynamic.typeSelected];
             }
         },
         data() {
             return {
-                type: this.static.TYPE_LIST,
-                selected: "selectOne"
+                typeListData: this.static.COMPONENT_DATA.TYPE_LIST,
+                selected: this.dynamic.typeSelected
             }
         },
         template: /* html */ `
@@ -363,8 +360,8 @@
                 <h3>Shading Model</h3>
 
                 <drop-down
-                    :items="models"
-                    :defaulttext="'Model type'"
+                    :items="typeListData"
+                    :selectedItem="selected"
                     :onselect="changeModel"
                 >
                 </drop-down>
@@ -1071,8 +1068,10 @@
         `
     })
 
+    // items are in the following format 
+    // { name: "Title of Dropdown", "value": what you want to pass into onSelect}
     Vue.component('drop-down', {
-        props: ["items", "defaulttext", "onselect"],
+        props: ["items", "selectedItem", "onselect"],
         methods: {
             onSelect(value) {
                 console.log("DropDown value:" + value);
@@ -1080,9 +1079,23 @@
                 this.onselect(value);
             }
         },
+        mounted() {
+            console.log("ROBIN HI" + this.selectedItem)
+
+            var idx = this.items.map((item) => item.value).indexOf(this.selectedItem);
+
+            $(this.$el)[idx].click();
+
+        },
+        computed: {
+            selected() {
+                var name = this.items.filter((item) => this.selectedItem === item.value)[0].name;
+                return name;
+            }
+        },
         data() {
             return {
-                selected: this.items[0]
+                selected
             }
         },
         template: /* html */ `
@@ -1092,7 +1105,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in items">
-                        <a class="dropdown-item" href="#" @click="onSelect(item)">{{ item }}</a> 
+                        <a class="dropdown-item" href="#" @click="onSelect(item)">{{ item.name }}</a> 
                     </template>
                 </div>
             </div>
