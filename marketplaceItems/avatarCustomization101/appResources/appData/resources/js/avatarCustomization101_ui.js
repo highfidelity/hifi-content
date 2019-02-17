@@ -328,9 +328,6 @@
             }
         },
         computed: {
-            dropDownList() {
-                return ["Select one", "shadeless", "hifi-pbr"];
-            },
             selectedPropertyList() {
                 console.log(JSON.stringify(this.static));
                 return this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.selected];
@@ -338,7 +335,7 @@
         },
         data() {
             return {
-                models: ["Select one", "shadeless", "hifi-pbr"],
+                type: this.static.TYPE_LIST,
                 selected: "selectOne"
             }
         },
@@ -511,13 +508,12 @@
     Vue.component('material-color', {
         props: ['propertyInfo'],
         methods: {
-            updateValue(value){
+            updateValue(value) {
                 console.log("calling color picker updating value" + this.colors + value);
                 this.colors = value;
             },
             cancelColor() {
                 this.colors = "NA";
-                
                 var id = "#" + this.colorElementIds + "-jscolor";
                 
                 console.log("Cancel color here " + id);
@@ -528,9 +524,6 @@
             }
         },
         computed: {
-            dropDownList() { // ***
-                return ["Select one", "shadeless", "hifi-pbr"];
-            },
             colorElementIds() {
                 return this.propertyInfo.name + "-color-id";
             },
@@ -571,7 +564,7 @@
 
                     <p>{{ mapName }}</p>
                     <drop-down-images
-                        :items="dropDownList"
+                        :items="[]" <!-- *** -->
                         :defaulttext="'Model type'"
                     ></drop-down-images>
 
@@ -584,7 +577,7 @@
     Vue.component('cancel-x', {
         props: ['onclick', 'isdisabled'],
         methods: {
-            onClick(value) {
+            onClick() {
                 this.onclick();
             }
         },

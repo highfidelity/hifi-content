@@ -121,6 +121,9 @@ var CONFIG = {
                 COMPONENT_DATA: {
                     PBR_LIST: [STRING_DEFAULT, STRING_GLASS, STRING_CHAINMAIL, STRING_DISCO],
                     SHADELESS_LIST: [STRING_RED, STRING_TEXTURE],
+                    
+                    TYPE_LIST: ["Select one", "shadeless", "hifi-pbr"],
+
                     PROPERTIES_LISTS: {
                         shadeless: [
                             {
