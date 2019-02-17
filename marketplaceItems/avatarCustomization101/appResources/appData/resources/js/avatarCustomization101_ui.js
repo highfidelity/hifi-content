@@ -316,6 +316,9 @@
             }, 
             updateTypeSelected(newTypeSelectedIndex) {
 
+                this.selectedTypeIndex = newTypeSelectedIndex;
+                this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[newTypeSelectedIndex];
+
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_MATERIAL,
                     subtype: "modelTypeSelected",
@@ -330,7 +333,7 @@
                 // take the static list of types
                 // get the key from the selected index
 
-                var selectedTypeIndex = this.dynamic.selectedTypeIndex;
+                var selectedTypeIndex = this.selectedTypeIndex;
                 var typeList = this.static.COMPONENT_DATA.TYPE_LIST;
                 var selectedTypeData = typeList[selectedTypeIndex];
                 var key = selectedTypeData.value;
