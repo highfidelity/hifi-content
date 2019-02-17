@@ -600,8 +600,9 @@
                 // event has name property or updates property
 
                 if (data.subtype && data.subtype === "modelTypeSelected") {
+                    // choosing "Select one", "hifi-pbr", "shadeless"
 
-                    dynamicData[STRING_MATERIAL].selectedMaterial = data.updates;
+                    dynamicData[STRING_MATERIAL].typeSelectedIndex = data.updates;
                 
                 } else {
                     if (data.name) {

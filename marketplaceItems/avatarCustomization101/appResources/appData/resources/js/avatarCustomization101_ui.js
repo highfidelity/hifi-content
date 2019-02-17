@@ -314,26 +314,34 @@
                     updates: materialPropertiesObject
                 }));
             }, 
-            changeModel(value) {
+            updateTypeSelected(newTypeSelectedIndex) {
 
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_MATERIAL,
                     subtype: "modelTypeSelected",
-                    updates: value
+                    updates: newTypeSelectedIndex
                 }));
                 
             }
         },
         computed: {
-            selectedPropertyList() {
-                console.log(JSON.stringify(this.static));
-                return this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.dynamic.typeSelected];
+            staticPropertyList() {
+                // get the list of properties to populate below
+                // take the static list of types
+                // get the key from the selected index
+
+                var selectedTypeIndex = this.dynamic.selectedTypeIndex;
+                var typeList = this.static.COMPONENT_DATA.TYPE_LIST;
+                var selectedTypeData = typeList[selectedTypeIndex];
+                var key = selectedTypeData.value;
+
+                return this.static.COMPONENT_DATA.PROPERTIES_LISTS[key];
             }
         },
         data() {
             return {
-                typeListData: this.static.COMPONENT_DATA.TYPE_LIST,
-                selected: this.dynamic.typeSelected
+                selectedTypeIndex: this.dynamic.selectedTypeIndex,
+                selectedTypeData: this.static.COMPONENT_DATA.TYPE_LIST[this.dynamic.selectedTypeIndex]
             }
         },
         template: /* html */ `
@@ -360,17 +368,17 @@
                 <h3>Shading Model</h3>
 
                 <drop-down
-                    :items="typeListData"
-                    :selectedItem="selected"
-                    :onselect="changeModel"
+                    :items="static.COMPONENT_DATA.TYPE_LIST"
+                    :selectedItemIndex="selectedTypeIndex"
+                    :onselect="updateTypeSelected"
                 >
                 </drop-down>
                 
-                <template v-for="propertyData in selectedPropertyList">
+                <template v-for="propertyData in staticPropertyList">
 
                     <material-property-container 
                         :property="propertyData"
-                        :dynamic="dynamic[selected]"
+                        :dynamic="dynamic[selectedTypeData.value]"
                     ></material-property-container>
 
                 </template>
@@ -1069,43 +1077,34 @@
     })
 
     // items are in the following format 
-    // { name: "Title of Dropdown", "value": what you want to pass into onSelect}
+    // { name: "Title of Dropdown", 
+    //   value: what you want to pass into onSelect
+    //   index: index in list
+    // }
     Vue.component('drop-down', {
-        props: ["items", "selectedItem", "onselect"],
+        props: ["items", "selectedItemIndex", "onselect"],
         methods: {
-            onSelect(value) {
-                console.log("DropDown value:" + value);
-                this.selected = value;
-                this.onselect(value);
-            }
-        },
-        mounted() {
-            console.log("ROBIN HI" + this.selectedItem)
-
-            var idx = this.items.map((item) => item.value).indexOf(this.selectedItem);
-
-            $(this.$el)[idx].click();
-
-        },
-        computed: {
-            selected() {
-                var name = this.items.filter((item) => this.selectedItem === item.value)[0].name;
-                return name;
+            onSelect(itemIndex) {
+                if (DEBUG) {
+                    console.log("drop-down component index:" + itemIndex);
+                }
+                this.selected = this.items[itemIndex];
+                this.onselect(itemIndex);
             }
         },
         data() {
             return {
-                selected
+                selected: this.items[this.selectedItemIndex]
             }
         },
         template: /* html */ `
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{ selected }}
+                    {{ selected.name }}
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in items">
-                        <a class="dropdown-item" href="#" @click="onSelect(item)">{{ item.name }}</a> 
+                        <a class="dropdown-item" href="#" @click="onSelect(item.index)">{{ item.name }}</a> 
                     </template>
                 </div>
             </div>

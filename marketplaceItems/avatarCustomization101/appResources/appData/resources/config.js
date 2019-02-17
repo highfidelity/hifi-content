@@ -123,9 +123,9 @@ var CONFIG = {
                     SHADELESS_LIST: [STRING_RED, STRING_TEXTURE],
                     
                     TYPE_LIST: [
-                        { name: "Select one", value: "selectOne"},
-                        { name: "shadeless", value: "shadeless"},
-                        { name: "hifi-pbr", value: "pbr" }
+                        { name: "Select one", value: "selectOne", index: 0 },
+                        { name: "shadeless", value: "shadeless", index: 1 },
+                        { name: "hifi-pbr", value: "pbr", index: 2 }
                     ],
 
                     PROPERTIES_LISTS: {
@@ -309,16 +309,16 @@ var CONFIG = {
         },
         info: {},
         material: {
-            typeSelected: "selectOne",
+            selectedTypeIndex: 1,
             selectedMaterial: "",
             updatedProperties: {},
             shadeless: {
-                albedo: { value: "#FFFFFF", map: null },
-                emissive: { value: "#FFFFFF", map: null }
+                albedo: { value: "N/A", map: null },
+                emissive: { value: "N/A", map: null }
             },
             pbr: {
-                albedo: { value: "#FFFFFF", map: null },
-                emissive: { value: "#FFFFFF", map: null },
+                albedo: { value: "N/A", map: null },
+                emissive: { value: "N/A", map: null },
                 roughness: { value: 0.5, map: null },
                 metallic: { value: 0.5, map: null },
                 scattering: { value: 0.5, map: null },
