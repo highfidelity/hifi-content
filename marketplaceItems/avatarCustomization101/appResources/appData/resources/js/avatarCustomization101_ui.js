@@ -2,8 +2,8 @@
 
 (function () {
 
-    var Chrome = VueColor.Chrome;
-    Vue.component("chrome-picker", Chrome);
+    // var Chrome = VueColor.Chrome;
+    // Vue.component("chrome-picker", Chrome);
     // console.log(Chrome);
     // console.log(VueColor);
 
@@ -281,9 +281,7 @@
                     :close="closeModalSaveAvatar"
                 ></modal-save-avatar>
 
-                <color-selector></color-selector>
-
-                <toggle-color-wheel></toggle-color-wheel>
+                <jscolor value="#009999"></jscolor>
 
             </div>
         `
@@ -513,25 +511,36 @@
     Vue.component('material-color', {
         props: ['propertyInfo'],
         methods: {
-            updateValue(){
-                console.log("calling color picker updating value" + this.colors);
+            updateValue(value){
+                console.log("calling color picker updating value" + this.colors + value);
+                this.colors = value;
+            },
+            cancelColor() {
+                this.colors = "NA";
+                
+                var id = "#" + this.colorElementIds + "-jscolor";
+                
+                console.log("Cancel color here " + id);
+
+                $(id).css("background-color", "");
+                $(id).css("color", "#ff0000");
+                $(id).val("N/A");
             }
         },
         computed: {
             dropDownList() { // ***
                 return ["Select one", "shadeless", "hifi-pbr"];
             },
+            colorElementIds() {
+                return this.propertyInfo.name + "-color-id";
+            },
             mapName() {
                 return this.propertyInfo.name + "Map";
             },
             defaultColor() {
-                if (Array.isArray(this.propertyInfo.value) && this.propertyInfo.value.length === 3) {
-                    this.colors = {
-                        h: this.propertyInfo.value[0],
-                        s: this.propertyInfo.value[1],
-                        v: this.propertyInfo.value[0]
-                    };
-                }
+                console.log("Color is this: " + JSON.stringify(this.propertyInfo.value));
+                
+                // **** COLORS ROBINS
             }
         },
         data() {
@@ -540,14 +549,21 @@
             };
         },
         template: /* html */ `
-            <div class="flex-container-row"> 
+            <div class="flex-container-row">
                 <div class="flex-item">
 
                     <p>{{ propertyInfo.name }}</p>
-                    <chrome-picker 
-                        :value="colors" 
-                        @input="updateValue"
-                    ></chrome-picker>
+                    <jscolor
+                        :colorpickerid="colorElementIds"
+                        :value="colors"
+                        :onchange="updateValue"
+                        :cancelcolor="cancelColor"
+                    ></jscolor>
+
+                    <cancel-x
+                        :onclick="cancelColor"
+                        :isdisabled="false"
+                    ></cancel-x>
 
                 </div>
 
@@ -565,8 +581,68 @@
         `
     })
 
-    
+    Vue.component('cancel-x', {
+        props: ['onclick', 'isdisabled'],
+        methods: {
+            onClick(value) {
+                this.onclick();
+            }
+        },
+        template: /* html */ `
+            <div class="">
+                <button 
+                    type="button" 
+                    class="btn" 
+                    @click="onClick"
+                    :disabled="isdisabled"
+                >
+                    x
+                </button> 
+            </div>
+        `
+    })
 
+    // JSColor picker made for Vue.js by mudream4869
+    // https://gist.github.com/mudream4869/d956736a96bac2a89155a0c416a0ac35
+    Vue.component('jscolor', {
+        props : ['value', 'id', 'colorpickerid', 'onchange', 'cancelcolor'],
+        mounted : function(){
+            window.jscolor.installByClassName('jscolor');
+            this.$el.jscolor.fromString(this.value);
+            $(this.$el).on('change', function(_this){
+                return function(){
+                    console.log("I'm changing!", this.value);
+                    _this.$emit('input', this.value);
+                    _this.onchange(this.value);
+                }
+            }(this));
+
+            if (this.value === "NA") {
+                this.cancelcolor();
+            }
+        },
+        computed: {
+            styling() {
+                return 'width:100px; height:50px; padding-left:10px;';
+            },
+            elementId() {
+                return this.colorpickerid + "-jscolor";
+            }
+        },
+        data() {
+            return {
+                color: this.value
+            }
+        },
+        template: `
+            <input 
+                v-bind:id="elementId"
+                v-model="color"
+                class="jscolor"
+                v-bind:style="styling"
+            />
+        `
+    });
     // #endregion material tab components
 
     Vue.component('blendshapes-tab', {
@@ -1123,70 +1199,6 @@
             </div>
         </transition>
       `
-    })
-
-    Vue.component('toggle-color-wheel', {
-        // props: ["items", "defaulttext", "onselect"],
-        props: ['color', 'image', 'onclick', 'onchange', 'pickerid'],
-        computed: {
-            insideId () {
-                return this.pickerid + '-inside';
-            },
-            outsideId () {
-                return this.pickerid + '-outside';
-            }
-        },
-        data() {
-            return {
-                styling: this.color ? this.color : 'background-color: coral;'
-            }
-        },
-        methods: {
-            onSelect(value) {
-                console.log("DropDown Image value:" + value);
-                this.selected = value;
-                this.onselect(value);
-            }
-        },
-        template: /* html */ `
-            <div class="dropdown">
-                <button class="dropdown-toggle" type="button" id="dropdownColorButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <div v-bind:id="insideId" class="color-selector-inside" v-bind:style="styling">
-                        <div class="arrow-down"></div>
-                    </div>
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownColorButton">
-                    <chrome-picker 
-                        :value="'#ffffff'" 
-                        @input="onSelect"
-                    ></chrome-picker>
-                </div>
-            </div>
-        `
-    })
-    
-    Vue.component('color-selector', {
-        props: ['color', 'image', 'onclick', 'onchange', 'pickerid'],
-        computed: {
-            insideId () {
-                return this.pickerid + '-inside';
-            },
-            outsideId () {
-                return this.pickerid + '-outside';
-            }
-        },
-        data() {
-            return {
-                styling: this.color ? this.color : 'background-color: coral;'
-            }
-        },
-        template: /* html */ `
-            <div v-bind:id="outsideId" class="color-selector-outside">
-                <div v-bind:id="insideId" class="color-selector-inside" v-bind:style="styling">
-                    <div class="arrow-down"></div>
-                </div>
-            </div>
-        `
     })
 
     // #endregion EDIT COMPONENTS
