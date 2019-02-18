@@ -123,6 +123,7 @@ var CONFIG = {
                     SHADELESS_LIST: [STRING_RED, STRING_TEXTURE],
 
                     PROPERTY_MAP_IMAGES: {
+                        none: "no.jpg",
                         albedoMap: [
                             "chainmail_albedoMap.png",
                             "disco_albedoMap.jpg",

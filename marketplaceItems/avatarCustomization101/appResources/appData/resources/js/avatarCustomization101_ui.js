@@ -413,7 +413,7 @@
                     componentType: type, // 
                     value: dynamicPropertyData.value,
                     map: type === STRING_COLOR || type === STRING_SLIDER ? dynamicPropertyData.map : null,
-                    mapList: this.static.PROPERTY_MAP_IMAGES[propertyData.key + "Map"]
+                    mapList: this.static.PROPERTY_MAP_IMAGES[propertyData.key + "Map"] // ***
                 }
             }
         },
@@ -427,17 +427,17 @@
         template: /* html */ `
             <div>
 
-                <material-slider 
+                <material-slider
                     v-if="propertyInfo.componentType === STRING_SLIDER" 
                     :propertyInfo="propertyInfo"
                 ></material-slider>
 
-                <material-map-only 
+                <material-map-only
                     v-if="propertyInfo.componentType === STRING_MAP_ONLY" 
                     :propertyInfo="propertyInfo"
                 ></material-map-only>
 
-                <material-color 
+                <material-color
                     v-if="propertyInfo.componentType === STRING_COLOR" 
                     :propertyInfo="propertyInfo"
                 ></material-color> 
@@ -451,9 +451,6 @@
         computed: {
             mapName() {
                 return this.propertyInfo.name + "Map";
-            },
-            dropDownImageList() { // ***
-                return ["1", "2", "3", "4"];
             }
         },
         template: /* html */ `
