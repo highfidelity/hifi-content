@@ -14,15 +14,15 @@ var MAPS = {
         "occlusionMap": chainmail + "occlusionMap.png",
     },
     disco: {
-        "emissiveMap": disco + "emissiveMap.jpg",
         "albedoMap": disco + "albedoMap.jpg",
+        "emissiveMap": disco + "emissiveMap.jpg",
         "metallicMap": disco + "metallicMap.jpg",
         "roughnessMap": disco + "roughnessMap.jpg",
         "normalMap": disco + "normalMap.jpg"
     },
     texture: {
-        "emissiveMap": texture + "emissiveMap_albedoMap.jpg",
-        "albedoMap": texture + "emissiveMap_albedoMap.jpg"
+        "albedoMap": texture + "emissiveMap_albedoMap.jpg",
+        "emissiveMap": texture + "emissiveMap_albedoMap.jpg"
     }
 }
 
@@ -100,7 +100,7 @@ var MATERIAL_DATA = {
         }
     },
     texture: {
-        "materialMappingScale": {"x":3,"y":3},
+        "materialMappingScale": { "x": 3, "y": 3 },
         "description": "Free Vectors via <a href='https://www.vecteezy.com'>www.vecteezy.com</a>",
         "parentMaterialName": 1,
         "materials": {

@@ -315,6 +315,7 @@
                 }));
             }, 
             updateTypeSelected(newTypeSelectedIndex) {
+                // updates the index of the selected type: "shadeless" or "hifi-pbr" or "Select one" (none selected) 
 
                 this.selectedTypeIndex = newTypeSelectedIndex;
                 this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[newTypeSelectedIndex];
@@ -336,7 +337,7 @@
                 var selectedTypeIndex = this.selectedTypeIndex;
                 var typeList = this.static.COMPONENT_DATA.TYPE_LIST;
                 var selectedTypeData = typeList[selectedTypeIndex];
-                var key = selectedTypeData.value;
+                var key = selectedTypeData.key;
 
                 return this.static.COMPONENT_DATA.PROPERTIES_LISTS[key];
             }
@@ -381,7 +382,8 @@
 
                     <material-property-container 
                         :property="propertyData"
-                        :dynamic="dynamic[selectedTypeData.value]"
+                        :dynamic="dynamic[selectedTypeData.key]"
+                        :static="static.COMPONENT_DATA"
                     ></material-property-container>
 
                 </template>
@@ -396,7 +398,7 @@
         STRING_MAP_ONLY = CONFIG.STRING_MAP_ONLY;
 
     Vue.component('material-property-container', {
-        props: ['property', 'dynamic'],
+        props: ['property', 'dynamic', "static"],
         computed: {
             propertyInfo() {
                 // sets material properties to be interpreted by components
@@ -410,7 +412,8 @@
                     hasMap: type === STRING_COLOR || type === STRING_SLIDER,
                     componentType: type, // 
                     value: dynamicPropertyData.value,
-                    map: type === STRING_COLOR || type === STRING_SLIDER ? dynamicPropertyData.map : null
+                    map: type === STRING_COLOR || type === STRING_SLIDER ? dynamicPropertyData.map : null,
+                    mapList: this.static.PROPERTY_MAP_IMAGES[propertyData.key + "Map"]
                 }
             }
         },
@@ -546,8 +549,13 @@
         },
         data() {
             return {
-                colors: this.propertyInfo.value ? this.propertyInfo.value : "#FFFFFF"
+                colors: this.propertyInfo.value === "N/A" ? "N/A" : this.propertyInfo.value
             };
+        },
+        mounted () {
+            if (this.propertyInfo.value === "N/A") {
+                this.cancelColor();
+            }
         },
         template: /* html */ `
             <div class="flex-container-row">
@@ -1114,6 +1122,41 @@
         `
     })
 
+    // items are in the following format 
+    // { name: "Title of Dropdown", 
+    //   value: what you want to pass into onSelect
+    //   index: index in list
+    // }
+    Vue.component('drop-down', {
+        props: ["items", "selectedItemIndex", "onselect"],
+        methods: {
+            onSelect(itemIndex) {
+                if (DEBUG) {
+                    console.log("drop-down component index:" + itemIndex);
+                }
+                this.selected = this.items[itemIndex];
+                this.onselect(itemIndex);
+            }
+        },
+        data() {
+            return {
+                selected: this.items[this.selectedItemIndex]
+            }
+        },
+        template: /* html */ `
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ selected.name }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <template v-for="item in items">
+                        <a class="dropdown-item" href="#" @click="onSelect(item.index)">{{ item.name }}</a> 
+                    </template>
+                </div>
+            </div>
+        `
+    })
+
     Vue.component('drop-down-images', {
         props: ["items", "defaulttext", "onselect"],
         methods: {
@@ -1121,6 +1164,11 @@
                 console.log("DropDown Image value:" + value);
                 this.selected = value;
                 this.onselect(value);
+            }
+        },
+        mounted () {
+            if (this.propertyInfo.value === "N/A") {
+                this.cancelColor();
             }
         },
         data() {

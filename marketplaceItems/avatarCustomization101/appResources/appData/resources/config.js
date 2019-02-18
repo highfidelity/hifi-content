@@ -121,59 +121,75 @@ var CONFIG = {
                 COMPONENT_DATA: {
                     PBR_LIST: [STRING_DEFAULT, STRING_GLASS, STRING_CHAINMAIL, STRING_DISCO],
                     SHADELESS_LIST: [STRING_RED, STRING_TEXTURE],
+
+                    PROPERTY_MAP_IMAGES: {
+                        albedoMap: [
+                            "chainmail_albedoMap.png",
+                            "disco_albedoMap.jpg",
+                            "texture_emissiveMap_albedoMap.jpg"
+                        ],
+                        metallicMap: [
+                            "chainmail_metallicMap.png",
+                            "disco_metallicMap.jpg"
+                        ],
+                        normalMap: [
+                            "chainmail_normalMap.png",
+                            "disco_normalMap.jpg"
+                        ],
+                        occlusionMap: [
+                            "disco_occlusionMap.jpg"
+                        ],
+                        roughnessMap: [
+                            "disco_roughnessMap.jpg"
+                        ],
+                        emissiveMap: [
+                            "texture_emissiveMap_albedoMap.jpg",
+                            "disco_emissiveMap.jpg"
+                        ],
+                    },
                     
                     TYPE_LIST: [
-                        { name: "Select one", value: "selectOne", index: 0 },
-                        { name: "shadeless", value: "shadeless", index: 1 },
-                        { name: "hifi-pbr", value: "pbr", index: 2 }
+                        { name: "Select one", key: "selectOne", index: 0 },
+                        { name: "shadeless", key: "shadeless", index: 1 },
+                        { name: "hifi-pbr", key: "pbr", index: 2 }
                     ],
 
                     PROPERTIES_LISTS: {
                         shadeless: [
-                            {
-                                key: "albedo",
-                                componentType: STRING_COLOR
+                            { 
+                                key: "albedo", componentType: STRING_COLOR
                             },
-                            {
-                                key: "emissive",
-                                componentType: STRING_COLOR
+                            { 
+                                key: "emissive", componentType: STRING_COLOR
                             }
                         ],
                         pbr: [
                             // color
-                            {
-                                key: "albedo",
-                                componentType: STRING_COLOR
+                            { 
+                                key: "albedo", componentType: STRING_COLOR
                             },
-                            {
-                                key: "emissive",
-                                componentType: STRING_COLOR
+                            { 
+                                key: "emissive", componentType: STRING_COLOR
                             },
                             // slider
-                            {
-                                key: "roughness",
-                                componentType: STRING_SLIDER
+                            { 
+                                key: "roughness", componentType: STRING_SLIDER
                             },
-                            {
-                                key: "metallic",
-                                componentType: STRING_SLIDER
+                            { 
+                                key: "metallic", componentType: STRING_SLIDER
                             },
-                            {
-                                key: "scattering",
-                                componentType: STRING_SLIDER
+                            { 
+                                key: "scattering", componentType: STRING_SLIDER
                             },
-                            {
-                                key: "opacity",
-                                componentType: STRING_SLIDER
+                            { 
+                                key: "opacity", componentType: STRING_SLIDER
                             },
                             // map only
-                            {
-                                key: "normalMap",
-                                componentType: STRING_MAP_ONLY
+                            { 
+                                key: "normalMap", componentType: STRING_MAP_ONLY
                             },
-                            {
-                                key: "occlusionMap",
-                                componentType: STRING_MAP_ONLY
+                            { 
+                                key: "occlusionMap", componentType: STRING_MAP_ONLY
                             }
                         ],
                         selectOne: []
@@ -323,8 +339,8 @@ var CONFIG = {
                 metallic: { value: 0.5, map: null },
                 scattering: { value: 0.5, map: null },
                 opacity: { value: 0.5, map: null },
-                normalMap: { value: "", map: null },
-                occlusionMap: { value: "", map: null }
+                normalMap: { value: "N/A", map: null },
+                occlusionMap: { value: "N/A", map: null }
             }
         },
         blendshapes: {
