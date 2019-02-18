@@ -34,8 +34,6 @@
         EVENT_UPDATE_BLENDSHAPE = APP_NAME + CONFIG.EVENT_UPDATE_BLENDSHAPE,
         EVENT_UPDATE_FLOW = APP_NAME + CONFIG.EVENT_UPDATE_FLOW;
 
-    var IMAGE_URL = "../images/red-kitten.jpg";
-
     // Debug
 
     var DEBUG = true;
@@ -403,18 +401,25 @@
             propertyInfo() {
                 // sets material properties to be interpreted by components
 
-                var propertyData = this.property;
-                var dynamicPropertyData = this.dynamic[propertyData.key];
-                var type = propertyData.componentType;
+                var propertyData = this.property; // get all data
 
-                return {
-                    name: propertyData.key,
-                    hasMap: type === STRING_COLOR || type === STRING_SLIDER,
-                    componentType: type, // 
-                    value: dynamicPropertyData.value,
-                    map: type === STRING_COLOR || type === STRING_SLIDER ? dynamicPropertyData.map : null,
-                    mapList: this.static.PROPERTY_MAP_IMAGES[propertyData.key + "Map"] // ***
-                }
+                var name = propertyData.key;
+                var dynamicPropertyData = this.dynamic[name];
+                var componentType = propertyData.componentType;
+                var value = dynamicPropertyData.value;
+                var mapName = !STRING_MAP_ONLY ? name + "Map" : name;
+                var mapList = this.static.PROPERTY_MAP_IMAGES[mapName] ? this.static.PROPERTY_MAP_IMAGES[mapName] : [];
+                var mapValue = componentType === STRING_COLOR || componentType === STRING_SLIDER ? dynamicPropertyData.map : dynamicPropertyData.value;
+
+                var propertyInfo = {
+                    name: name,
+                    componentType: componentType, 
+                    value: value,
+                    mapValue: mapValue,
+                    mapList: mapList
+                };
+
+                return propertyInfo;
             }
         },
         data() {
@@ -425,9 +430,23 @@
             }
         },
         template: /* html */ `
-            <div>
+            <div v-bind:class=" 'flex-container-row': propertyInfo.componentType === STRING_COLOR">
 
-                <material-slider
+                <material-color-picker
+                    v-if="propertyInfo.componentType === STRING_COLOR"
+                    :propertyInfo="propertyInfo"
+                />
+
+                <material-slider 
+                    v-if="propertyInfo.componentType === STRING_SLIDER"
+                    :propertyInfo="propertyInfo"
+                />
+
+                <material-map 
+                    :propertyInfo="propertyInfo"
+                />
+
+                <!-- <material-slider
                     v-if="propertyInfo.componentType === STRING_SLIDER" 
                     :propertyInfo="propertyInfo"
                 ></material-slider>
@@ -440,7 +459,7 @@
                 <material-color
                     v-if="propertyInfo.componentType === STRING_COLOR" 
                     :propertyInfo="propertyInfo"
-                ></material-color> 
+                ></material-color>  -->
 
             </div>
         `
@@ -449,49 +468,39 @@
     Vue.component('material-slider', {
         props: ['propertyInfo'],
         computed: {
-            mapName() {
-                return this.propertyInfo.name + "Map";
+            sliderDefault() {
+                if (propertyInfo.value) {
+                    return propertyInfo.value;
+                }
+
+                if (propertyInfo.mapValue) {
+                    // if a map is defined, but no value is set for the slider, 
+                    // set the value to 1
+                    return 1;
+                }
             }
         },
         template: /* html */ `
-            <div>
-
-                <div class="flex-container-row">
-
-                    <p class="flex-item">{{ propertyInfo.name }}</p>
-                    <div class="flex-item">
-                        <slider
-                            :name="propertyInfo.name"
-                            :max="1"
-                            :increment="0.1"
-                            :min="0"
-                            :defaultvalue="propertyInfo.value"
-                        ></slider>
-                    </div>
+            <div class="flex-container-row">
+                <p class="flex-item">{{ propertyInfo.name }}</p>
+                <div class="flex-item">
+                    <slider
+                        :name="propertyInfo.name"
+                        :max="1"
+                        :increment="0.1"
+                        :min="0"
+                        :defaultvalue="sliderDefault"
+                    ></slider>
                 </div>
-
-                <div class="flex-container-row">
-
-                    <p class="flex-item">{{ mapName }}</p>
-                    <div class="flex-item">
-                    
-                        <drop-down-images
-                            :items="dropDownImageList"
-                            :defaulttext="'Model type'"
-                        ></drop-down-images>
-                    
-                    </div>
-                </div>
-
             </div>
         `
     })
 
-    Vue.component('material-map-only', {
+    Vue.component('material-map', {
         props: ['propertyInfo'],
         computed: {
-            dropDownImageList() { // ***
-                return ["1", "2", "3"];
+            dropDownDefault() {
+
             }
         },
         template: /* html */ `
@@ -503,8 +512,8 @@
                 <div class="flex-item">
                 
                     <drop-down-images
-                        :items="dropDownImageList"
-                        :defaulttext="'Model type'"
+                        :items="propertyInfo.mapList"
+                        :defaultimage="propertyInfo.mapValue"
                     ></drop-down-images>
                 
                 </div>
@@ -513,7 +522,7 @@
         `
     })
 
-    Vue.component('material-color', {
+    Vue.component('material-color-picker', {
         props: ['propertyInfo'],
         methods: {
             updateValue(value) {
@@ -534,14 +543,6 @@
         computed: {
             colorElementIds() {
                 return this.propertyInfo.name + "-color-id";
-            },
-            mapName() {
-                return this.propertyInfo.name + "Map";
-            },
-            defaultColor() {
-                console.log("Color is this: " + JSON.stringify(this.propertyInfo.value));
-                
-                // **** COLORS ROBINS
             }
         },
         data() {
@@ -555,34 +556,30 @@
             }
         },
         template: /* html */ `
-            <div class="flex-container-row">
-                <div class="flex-item">
+            <div class="flex-item">
 
-                    <p>{{ propertyInfo.name }}</p>
-                    <jscolor
-                        :colorpickerid="colorElementIds"
-                        :value="colors"
-                        :onchange="updateValue"
-                        :cancelcolor="cancelColor"
-                    ></jscolor>
+                <p>{{ propertyInfo.name }}</p>
 
-                    <cancel-x
-                        :onclick="cancelColor"
-                        :isdisabled="false"
-                    ></cancel-x>
+                <div class="flex-container-row">
+                    <div class="flex-item">
 
+                        <jscolor
+                            :colorpickerid="colorElementIds"
+                            :value="colors"
+                            :onchange="updateValue"
+                            :cancelcolor="cancelColor"
+                        ></jscolor>
+
+                    </div>
+                    <div class="flex-item">
+
+                        <cancel-x
+                            :onclick="cancelColor"
+                            :isdisabled="false"
+                        ></cancel-x>
+
+                    </div>
                 </div>
-
-                <div class="flex-item">
-
-                    <p>{{ mapName }}</p>
-                    <drop-down-images
-                        :items="[]" <!-- *** -->
-                        :defaulttext="'Model type'"
-                    ></drop-down-images>
-
-                </div>
-
             </div>
         `
     })
