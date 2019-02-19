@@ -33,7 +33,6 @@
     var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../secrets/secrets.json?2')).gameAudioPosition;
     var DRUMROLL_SOUND = SoundCache.getSound(Script.resolvePath("sounds/drumroll.wav"));
     var LOWER_DOORS_DELAY_MS = 1150;
-    var POSSIBLE_PRIZES = ["Oculus Rift", "Vive", "HFC!", "All Players Win!!!"];
     var currentRoundWinners = [];
     var BINGO_PRIZE_DOOR_1_TEXT = "{ff7674bb-5569-4381-b370-1dfa1d2a9723}";
     var BINGO_PRIZE_DOOR_1 = "{8724dc08-c0fb-4feb-bda1-8686023f8355}";
@@ -230,8 +229,9 @@
                 }
             }
 
+            var possiblePrizes = Script.require(Script.resolvePath('../../secrets/secrets.json?' + Date.now())).possiblePrizes;
             while (roundPrizes.length < 3) {
-                maybePushRandomPrize(POSSIBLE_PRIZES[Math.floor(Math.random() * POSSIBLE_PRIZES.length)]);
+                maybePushRandomPrize(possiblePrizes[Math.floor(Math.random() * possiblePrizes.length)]);
             }
 
             Entities.editEntity(BINGO_PRIZE_DOOR_1_TEXT, {text: roundPrizes[0]});

@@ -14,7 +14,8 @@ Here's what your `secrets.json` file should look like:
     "requestURL": "<a deployed version of the bingo.js Web App",
     "usersAllowedToSpinWheel": [<an array of strings dictating who can spin the Bingo wheel>],
     "gameAudioPosition": { "x": <int>, "y": <int>, "z": <int> },
-    "dbTablePrefix": "<a prefix for all of the Bingo tables in your DB associated with this deployment>"
+    "dbTablePrefix": "<a prefix for all of the Bingo tables in your DB associated with this deployment>",
+    "possiblePrizes": [<an array of short strings dictating the prizes that players can win>]
 }
 ```
 
