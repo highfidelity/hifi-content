@@ -138,7 +138,7 @@ var CONFIG = {
                             "disco_normalMap.jpg"
                         ],
                         occlusionMap: [
-                            "disco_occlusionMap.jpg"
+                            "chainmail_occlusionMap.png"
                         ],
                         roughnessMap: [
                             "disco_roughnessMap.jpg"

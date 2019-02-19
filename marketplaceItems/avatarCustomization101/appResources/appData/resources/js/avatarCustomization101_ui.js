@@ -279,8 +279,6 @@
                     :close="closeModalSaveAvatar"
                 ></modal-save-avatar>
 
-                <jscolor value="#009999"></jscolor>
-
             </div>
         `
     })
@@ -401,7 +399,10 @@
             propertyInfo() {
                 // sets material properties to be interpreted by components
 
+                
                 var propertyData = this.property; // get all data
+                
+                console.log("Robin wins" + JSON.stringify(this.property));
 
                 var name = propertyData.key;
                 var dynamicPropertyData = this.dynamic[name];
@@ -416,7 +417,8 @@
                     componentType: componentType, 
                     value: value,
                     mapValue: mapValue,
-                    mapList: mapList
+                    mapList: mapList,
+                    isColor: componentType === STRING_COLOR, // for binding the right css class
                 };
 
                 return propertyInfo;
@@ -430,7 +432,7 @@
             }
         },
         template: /* html */ `
-            <div v-bind:class=" 'flex-container-row': propertyInfo.componentType === STRING_COLOR">
+            <div v-bind:class="{ 'flex-container-row': propertyInfo.isColor }">
 
                 <material-color-picker
                     v-if="propertyInfo.componentType === STRING_COLOR"
@@ -469,8 +471,8 @@
         props: ['propertyInfo'],
         computed: {
             sliderDefault() {
-                if (propertyInfo.value) {
-                    return propertyInfo.value;
+                if (this.propertyInfo.value) {
+                    return this.propertyInfo.value;
                 }
 
                 if (propertyInfo.mapValue) {
@@ -496,7 +498,7 @@
         `
     })
 
-    Vue.component('material-map', {
+    Vue.component('material-map', { // *** 
         props: ['propertyInfo'],
         computed: {
             dropDownDefault() {
@@ -940,14 +942,6 @@
         `
     })
 
-    Vue.component('test1', {
-        template: /* html */ `
-            <div>
-                test1
-            </div>
-        `
-    })
-
     Vue.component('test2', {
         template: /* html */ `
             <div>
@@ -1116,43 +1110,11 @@
         `
     })
 
-    // items are in the following format 
-    // { name: "Title of Dropdown", 
-    //   value: what you want to pass into onSelect
-    //   index: index in list
-    // }
-    Vue.component('drop-down', {
-        props: ["items", "selectedItemIndex", "onselect"],
-        methods: {
-            onSelect(itemIndex) {
-                if (DEBUG) {
-                    console.log("drop-down component index:" + itemIndex);
-                }
-                this.selected = this.items[itemIndex];
-                this.onselect(itemIndex);
-            }
-        },
-        data() {
-            return {
-                selected: this.items[this.selectedItemIndex]
-            }
-        },
-        template: /* html */ `
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{ selected.name }}
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <template v-for="item in items">
-                        <a class="dropdown-item" href="#" @click="onSelect(item.index)">{{ item.name }}</a> 
-                    </template>
-                </div>
-            </div>
-        `
-    })
+    var NO_IMAGE = "no.jpg";
+    var PREFIX = "images/"; // ***
 
     Vue.component('drop-down-images', {
-        props: ["items", "defaulttext", "onselect"],
+        props: ["items", "defaultimage", "onselect"],
         methods: {
             onSelect(value) {
                 console.log("DropDown Image value:" + value);
@@ -1160,24 +1122,26 @@
                 this.onselect(value);
             }
         },
-        mounted () {
-            if (this.propertyInfo.value === "N/A") {
-                this.cancelColor();
+        computed: {
+            itemsList() {
+                var itemsList = this.items.map((imageURL) => PREFIX + imageURL);
+                itemsList.unshift(PREFIX + NO_IMAGE);
+                return itemsList;
             }
         },
         data() {
             return {
-                selected: this.items[0]
+                selected: this.defaultImage
             }
         },
         template: /* html */ `
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img src="http://lorempixel.com/75/50/abstract/">
+                    <img v-bind:src="selected">
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <template v-for="item in items">
-                        <a class="dropdown-item" href="#"><img src="http://lorempixel.com/75/50/abstract"/></a>
+                    <template v-for="item in itemsList">
+                        <a class="dropdown-item" href="#"><img v-bind:src="item"/></a>
                     </template>
                 </div>
             </div>
@@ -1226,28 +1190,28 @@
             }
         },
         template: /* html */ `
-        <transition name="modal-fade">
-            <div class="modal-backdrop">
-                <div class="modal" v-bind:class="{ 'modal-alert': alert }">
+            <transition name="modal-fade">
+                <div class="modal-backdrop">
+                    <div class="modal" v-bind:class="{ 'modal-alert': alert }">
 
-                    <header class="modal-header">
-                        <slot name="header"></slot>
-                        <button v-if="!hidex" type="button" class="btn-close" @click="close">
-                            X<!-- <div data-icon="w" class="icon"></div> -->
-                        </button> 
-                    </header>
+                        <header class="modal-header">
+                            <slot name="header"></slot>
+                            <button v-if="!hidex" type="button" class="btn-close" @click="close">
+                                X<!-- <div data-icon="w" class="icon"></div> -->
+                            </button> 
+                        </header>
 
-                    <section class="modal-body" v-bind:class="{ 'full-layout': isfullscreen }">
-                        <slot name="body"></slot>
-                    </section>
+                        <section class="modal-body" v-bind:class="{ 'full-layout': isfullscreen }">
+                            <slot name="body"></slot>
+                        </section>
 
-                    <footer class="modal-footer">
-                        <slot name="footer"></slot>
-                    </footer>
+                        <footer class="modal-footer">
+                            <slot name="footer"></slot>
+                        </footer>
 
+                    </div>
                 </div>
-            </div>
-        </transition>
+            </transition>
       `
     })
 
