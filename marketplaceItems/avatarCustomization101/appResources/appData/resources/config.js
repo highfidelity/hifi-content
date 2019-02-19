@@ -330,18 +330,22 @@ var CONFIG = {
             selectedMaterial: "",
             updatedProperties: {},
             shadeless: {
+                // component type color
                 albedo: { value: "N/A", map: null },
                 emissive: { value: "N/A", map: null }
             },
             pbr: {
-                albedo: { value: "N/A", map: null },
-                emissive: { value: "N/A", map: null },
+                // component type color
+                albedo: { value: "N/A", map: null }, 
+                emissive: { value: "N/A", map: null }, 
+                // component type sliders
                 roughness: { value: 0.5, map: null },
                 metallic: { value: 0.5, map: null },
                 scattering: { value: 0.5, map: null },
                 opacity: { value: 0.5, map: null },
-                normalMap: { value: "N/A", map: null },
-                occlusionMap: { value: "N/A", map: null }
+                // component type map only
+                normalMap: { value: null, map: null },
+                occlusionMap: { value: null, map: null }
             }
         },
         blendshapes: {

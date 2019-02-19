@@ -282,3 +282,8 @@
   }
 
   /* Boxes for images and  */ 
+
+  .dropdown-item-image {
+    width: 100px;
+    height: 50px;
+  }

@@ -401,21 +401,22 @@
 
                 
                 var propertyData = this.property; // get all data
-                
-                console.log("Robin wins" + JSON.stringify(this.property));
 
                 var name = propertyData.key;
                 var dynamicPropertyData = this.dynamic[name];
                 var componentType = propertyData.componentType;
                 var value = dynamicPropertyData.value;
-                var mapName = !STRING_MAP_ONLY ? name + "Map" : name;
+                var mapName = componentType !== STRING_MAP_ONLY ? name + "Map" : name;
                 var mapList = this.static.PROPERTY_MAP_IMAGES[mapName] ? this.static.PROPERTY_MAP_IMAGES[mapName] : [];
                 var mapValue = componentType === STRING_COLOR || componentType === STRING_SLIDER ? dynamicPropertyData.map : dynamicPropertyData.value;
+
+                console.log("Robin wins" + mapName + JSON.stringify(mapList) + JSON.stringify(this.static.PROPERTY_MAP_IMAGES));
 
                 var propertyInfo = {
                     name: name,
                     componentType: componentType, 
                     value: value,
+                    mapName: mapName,
                     mapValue: mapValue,
                     mapList: mapList,
                     isColor: componentType === STRING_COLOR, // for binding the right css class
@@ -447,21 +448,6 @@
                 <material-map 
                     :propertyInfo="propertyInfo"
                 />
-
-                <!-- <material-slider
-                    v-if="propertyInfo.componentType === STRING_SLIDER" 
-                    :propertyInfo="propertyInfo"
-                ></material-slider>
-
-                <material-map-only
-                    v-if="propertyInfo.componentType === STRING_MAP_ONLY" 
-                    :propertyInfo="propertyInfo"
-                ></material-map-only>
-
-                <material-color
-                    v-if="propertyInfo.componentType === STRING_COLOR" 
-                    :propertyInfo="propertyInfo"
-                ></material-color>  -->
 
             </div>
         `
@@ -500,16 +486,11 @@
 
     Vue.component('material-map', { // *** 
         props: ['propertyInfo'],
-        computed: {
-            dropDownDefault() {
-
-            }
-        },
         template: /* html */ `
             <div class="flex-container-row">
 
                 <p class="flex-item">
-                    {{ propertyInfo.name }}
+                    {{ propertyInfo.mapName }}
                 </p>
                 <div class="flex-item">
                 
@@ -1126,22 +1107,25 @@
             itemsList() {
                 var itemsList = this.items.map((imageURL) => PREFIX + imageURL);
                 itemsList.unshift(PREFIX + NO_IMAGE);
+
+                console.log(JSON.stringify(this.items));
+
                 return itemsList;
             }
         },
         data() {
             return {
-                selected: this.defaultImage
+                selected: this.defaultimage ? PREFIX + this.defaultimage : PREFIX + NO_IMAGE
             }
         },
         template: /* html */ `
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img v-bind:src="selected">
+                    <img class="dropdown-item-image" v-bind:src="selected">
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in itemsList">
-                        <a class="dropdown-item" href="#"><img v-bind:src="item"/></a>
+                        <a class="dropdown-item" href="#"><img class="dropdown-item-image" v-bind:src="item"/></a>
                     </template>
                 </div>
             </div>
