@@ -51,11 +51,6 @@
                     y: 0.1796,
                     z: 0.1226
                 },
-                gravity: {
-                    x: 0,
-                    y: -12,
-                    z: 0
-                },
                 position: _this.position,
                 modelURL: Script.resolvePath("models/shot-glass.fbx"),
                 name: "Space Juice CC-BY Jarlan Perez",
@@ -69,11 +64,27 @@
                 serverScripts: Script.resolvePath("spaceJuiceServer.js"),
                 shapeType: "simple-hull",
                 type: "Model",
-                dynamic: false
+                dynamic: false,
+                collidesWith: "static, dynamic",
+                restitution: 0
             });
 
+            var GRAVITY_TIMEOUT_MS = 300;
+            Script.setTimeout(function(){
+                Entities.editEntity(glass, {
+                    gravity: {
+                        x: 0,
+                        y: -12,
+                        z: 0
+                    },
+                    dynamic: true
+                });
+            }, GRAVITY_TIMEOUT_MS);
+
+
             Entities.addEntity({
-                collisionless: 1,
+                collisionless: true,
+                dynamic: false,
                 color: {
                     blue: 197,
                     green: 17,
@@ -91,7 +102,8 @@
                 shape: "Cone",
                 type: "Shape",
                 userData: "{\"grabbableKey\":{\"grabbable\":false}}",
-                script: Script.resolvePath("glassPrimitiveCatch.js")
+                script: Script.resolvePath("glassPrimitiveCatch.js"),
+                serverScripts: Script.resolvePath("glassPrimitiveCatchServer.js")
             });
         }
     };

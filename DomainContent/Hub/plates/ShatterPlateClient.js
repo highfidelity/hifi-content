@@ -10,23 +10,24 @@
 /* globals Entities, SoundCache, Script */
 
 (function() {
-    var VELOCITY_TO_BREAK = 2;
+    var VELOCITY_TO_BREAK = 1.2;
     var breakURL = Script.resolvePath('sound/glass-break1.wav');
     var breakSound = SoundCache.getSound(breakURL);
     var volumeLevel = 0.65;
     var _entityID;
-  
+    
     var Plate = function(){};
     var shouldBreak = function(velocity){
-        return Math.abs(velocity.x) >= VELOCITY_TO_BREAK ||
-      Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
-      Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
+        if (velocity) {
+            return Math.abs(velocity.x) >= VELOCITY_TO_BREAK ||
+            Math.abs(velocity.y) >= VELOCITY_TO_BREAK ||
+            Math.abs(velocity.z) >= VELOCITY_TO_BREAK;
+        }
+
     };
 
     function makeFragile() {
-        Entities.editEntity(_entityID, {
-            collidesWith: "static,dynamic,kinematic,"
-        });
+        Entities.callEntityServerMethod(_entityID, 'makeFragile', '');
     }
   
     Plate.prototype = {

@@ -11,7 +11,7 @@
 (function() {
     var PIECE_MODEL = Script.resolvePath("models/shot-glass-fragment.fbx");
     var NUMBER_PIECES = 3;
-    var LIFETIME = 10;
+    var LIFETIME = 15;
     var pieces = Array();
     var _entityID;
 
@@ -19,7 +19,7 @@
     };
   
     Glass.prototype = {
-        remotelyCallable: ['breakGlass'],
+        remotelyCallable: ['breakGlass', 'deleteGlass', 'makeDynamic'],
 
         preload: function(entityID) {
             _entityID = entityID;
@@ -59,6 +59,16 @@
             });
 
             Entities.deleteEntity(_entityID);
+        },
+
+        deleteGlass: function() {
+            Entities.deleteEntity(_entityID);
+        },
+
+        makeDynamic: function() {
+            Entities.editEntity(_entityID, {
+                lifetime: LIFETIME
+            });
         }
     };
   

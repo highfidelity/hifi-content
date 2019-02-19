@@ -13,7 +13,6 @@
 /* global Pointers */
 
 (function () {
-
     // Helper Functions
     var Util = Script.require("../../Utilities/Helper.js?");
 
@@ -51,9 +50,9 @@
             name = currentProperties.name;
             kioskZoneID = currentProperties.parentID;
         },
-        mousePressOnEntity: function(entityID, mouseEvent) {
-            log(LOG_ENTER, "MOUSE PRESS ON ENTITY");
-            if (!mouseEvent.isLeftButton) {
+        clickDownOnEntity: function(entityID, mouseEvent) {
+            log(LOG_ENTER, "clickDownOnEntity");
+            if (mouseEvent.isRightButton) {
                 return;
             }
             log(LOG_ENTER, "kioskZoneID", kioskZoneID);
