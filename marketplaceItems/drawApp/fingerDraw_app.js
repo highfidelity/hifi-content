@@ -14,7 +14,6 @@ Tablet, Vec3, Window */
 (function() {
     var REPEAT_DISTANCE_CHECK_MS = 60;
     var MINIMUM_MOVEMENT_TO_DRAW_M = 0.0005;
-    var DEFAULT_STROKE_WIDTH_M = 0.01;
     var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
     var DECAY_TIME_S = 60;
     var MAX_LINE_POINTS = 100;
@@ -26,11 +25,12 @@ Tablet, Vec3, Window */
     var previousLinePoint;
     var linePoints = [{x: 0, y: 0, z: 0 }];
     var lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-    var lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
+    var lineStrokeWidths = [];
     var paintSphere;
     var parentJointIndex;
     var activeTriggerPress = false;
     var activeGripPress = false;
+    var paintSphereDimensions;
 
     // *************************************
     // START UTILITY FUNCTIONS
@@ -77,7 +77,7 @@ Tablet, Vec3, Window */
             parentID: MyAvatar.sessionUUID,
             parentJointIndex: parentJointIndex,
             localPosition: { x: 0, y: 0, z: 0 },
-            dimensions: { x: 0.015, y: 0.015, z: 0.015 },
+            localDimensions: { x: 0.015, y: 0.015, z: 0.015 },
             grab: { grabbable: false },
             collisionless: true
         }, 'avatar');
@@ -148,6 +148,10 @@ Tablet, Vec3, Window */
                 linePoints.push(displacementFromStart);
                 if (!polyLine) {
                     playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, currentLinePoint, false, true);
+                    if (paintSphere) {
+                        paintSphereDimensions = Entities.getEntityProperties(paintSphere, 'dimensions').dimensions;
+                    }
+                    lineStrokeWidths = [paintSphereDimensions.x, paintSphereDimensions.x];
                     polyLine = Entities.addEntity({
                         type: "PolyLine",
                         name: "Draw App Polyline",
@@ -172,7 +176,10 @@ Tablet, Vec3, Window */
                         var lastPointDisplacement = lineProperties.linePoints[linePointsCount - 1];
                         linePoints = [lastPointDisplacement, displacementFromStart];
                         lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-                        lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
+                        if (paintSphere) {
+                            paintSphereDimensions = Entities.getEntityProperties(paintSphere, 'dimensions').dimensions;
+                        }
+                        lineStrokeWidths = [paintSphereDimensions.x, paintSphereDimensions.x];
                         polyLine = Entities.addEntity({
                             type: "PolyLine",
                             name: "Draw App Polyline",
@@ -187,9 +194,12 @@ Tablet, Vec3, Window */
                             faceCamera: true
                         }, 'avatar');
                     } else {
+                        if (paintSphere) {
+                            paintSphereDimensions = Entities.getEntityProperties(paintSphere, 'dimensions').dimensions;
+                        }
                         lineProperties.linePoints.push(displacementFromStart);
                         lineProperties.normals.push(DEFAULT_NORMAL);
-                        lineProperties.strokeWidths.push(DEFAULT_STROKE_WIDTH_M);
+                        lineProperties.strokeWidths.push(paintSphereDimensions.x);
                         Entities.editEntity(polyLine, {
                             linePoints: lineProperties.linePoints,
                             normals: lineProperties.normals,
@@ -219,7 +229,7 @@ Tablet, Vec3, Window */
             polyLine = null;
             linePoints = [{x: 0, y: 0, z: 0 }];
             lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-            lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
+            lineStrokeWidths = [];
         }
     }
 
@@ -304,6 +314,10 @@ Tablet, Vec3, Window */
                 linePoints.push(displacementFromStart);
                 if (!polyLine) {
                     playSound(DRAW_SOUND, 1, currentLinePoint, false, true);
+                    if (paintSphere) {
+                        paintSphereDimensions = Entities.getEntityProperties(paintSphere, 'dimensions').dimensions;
+                    }
+                    lineStrokeWidths = [paintSphereDimensions.x, paintSphereDimensions.x];
                     polyLine = Entities.addEntity({
                         type: "PolyLine",
                         name: "Draw App Polyline",
@@ -318,6 +332,9 @@ Tablet, Vec3, Window */
                         faceCamera: true
                     }, 'avatar');
                 } else {
+                    if (injector) {
+                        injector.options = { position: currentLinePoint };
+                    }
                     var lineProperties = Entities.getEntityProperties(polyLine, ['linePoints', 'normals', 
                         'strokeWidths', 'age']);
                     var linePointsCount = lineProperties.linePoints.length;
@@ -325,7 +342,10 @@ Tablet, Vec3, Window */
                         var lastPointDisplacement = lineProperties.linePoints[linePointsCount - 1];
                         linePoints = [lastPointDisplacement, displacementFromStart];
                         lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-                        lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
+                        if (paintSphere) {
+                            paintSphereDimensions = Entities.getEntityProperties(paintSphere, 'dimensions').dimensions;
+                        }
+                        lineStrokeWidths = [paintSphereDimensions.x, paintSphereDimensions.x];
                         polyLine = Entities.addEntity({
                             type: "PolyLine",
                             name: "Draw App Polyline",
@@ -342,7 +362,10 @@ Tablet, Vec3, Window */
                     } else {
                         lineProperties.linePoints.push(displacementFromStart);
                         lineProperties.normals.push(DEFAULT_NORMAL);
-                        lineProperties.strokeWidths.push(DEFAULT_STROKE_WIDTH_M);
+                        if (paintSphere) {
+                            paintSphereDimensions = Entities.getEntityProperties(paintSphere, 'dimensions').dimensions;
+                        }
+                        lineProperties.strokeWidths.push(paintSphereDimensions.x);
                         Entities.editEntity(polyLine, {
                             linePoints: lineProperties.linePoints,
                             normals: lineProperties.normals,
@@ -366,7 +389,7 @@ Tablet, Vec3, Window */
             polyLine = null;
             linePoints = [{x: 0, y: 0, z: 0 }];
             lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-            lineStrokeWidths = [DEFAULT_STROKE_WIDTH_M, DEFAULT_STROKE_WIDTH_M];
+            lineStrokeWidths = [];
             desktopActionProgress= false;
         }
     }
@@ -445,6 +468,7 @@ Tablet, Vec3, Window */
             var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
             if (name === "Draw App Sphere") {
                 Entities.deleteEntity(avatarEntity.id);
+                paintSphere = null;
             }
         });
     }
@@ -534,6 +558,9 @@ Tablet, Vec3, Window */
     /* WHEN USER CHANGES DOMINANT HAND: Switch default hand to place paint sphere in */
     var WAIT_TO_REOPEN_APP_MS = 500;
     function handChanged() {
+        if (MyAvatar.getDominantHand() === dominantHand) {
+            return;
+        }
         dominantHand = MyAvatar.getDominantHand();
         dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
         if (paintSphere) {
