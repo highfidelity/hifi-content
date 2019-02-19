@@ -210,7 +210,7 @@
 
     // #endregion Tabs and Tab Layout
  
-    // #region Specific Tab-Content Layouts
+    // #region Info tab
 
     Vue.component('info-tab', {
         props: ['isavienabled'],
@@ -283,42 +283,49 @@
         `
     })
 
-    // #region material tab components
+    // #endregion Info tab
+
+    // #region Material tab components
 
     Vue.component('material-tab', {
         props: ['dynamic', 'static'],
         methods: {
             applyNamedMaterial(materialName) {
                 if (DEBUG) {
-                    console.log("applyNamedMaterial clicked " + materialName);
-                    console.log("ui name " + EVENT_UPDATE_MATERIAL);
+                    console.log("Materials applyNamedMaterial clicked " + materialName);
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_MATERIAL,
+                    subtype: CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_NAMED_MATERIAL_SELECTED,
                     name: materialName
                 }));
 
             },
             updateMaterialProperties(materialPropertiesObject) {
                 if (DEBUG) {
-                    console.log("updateMaterialProperties clicked");
+                    console.log("Materials updateMaterialProperties clicked");
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_MATERIAL,
+                    subtype: STRING_UPDATE_ENTITY_PROPERTIES,
                     updates: materialPropertiesObject
                 }));
             }, 
             updateTypeSelected(newTypeSelectedIndex) {
                 // updates the index of the selected type: "shadeless" or "hifi-pbr" or "Select one" (none selected) 
 
+                if (DEBUG) {
+                    console.log("Materials updateTypeSelected clicked");
+                }
+
                 this.selectedTypeIndex = newTypeSelectedIndex;
                 this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[newTypeSelectedIndex];
 
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_MATERIAL,
-                    subtype: "modelTypeSelected",
+                    subtype: CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_MODEL_TYPE_SELECTED,
                     updates: newTypeSelectedIndex
                 }));
                 
@@ -395,10 +402,16 @@
 
     Vue.component('material-property-container', {
         props: ['property', 'dynamic', "static"],
+        methods: {
+            updateProperty(info) {
+                if (DEBUG) {
+                    console.log("updating property!" + this.propertyInfo.name);
+                }
+            }
+        },
         computed: {
             propertyInfo() {
                 // sets material properties to be interpreted by components
-
                 
                 var propertyData = this.property; // get all data
 
@@ -410,7 +423,7 @@
                 var mapList = this.static.PROPERTY_MAP_IMAGES[mapName] ? this.static.PROPERTY_MAP_IMAGES[mapName] : [];
                 var mapValue = componentType === STRING_COLOR || componentType === STRING_SLIDER ? dynamicPropertyData.map : dynamicPropertyData.value;
 
-                console.log("Robin wins" + mapName + JSON.stringify(mapList) + JSON.stringify(this.static.PROPERTY_MAP_IMAGES));
+                // console.log("Robin wins" + mapName + JSON.stringify(mapList) + JSON.stringify(this.static.PROPERTY_MAP_IMAGES));
 
                 var propertyInfo = {
                     name: name,
@@ -438,15 +451,18 @@
                 <material-color-picker
                     v-if="propertyInfo.componentType === STRING_COLOR"
                     :propertyInfo="propertyInfo"
+                    :onchange="updateProperty"
                 />
 
                 <material-slider 
                     v-if="propertyInfo.componentType === STRING_SLIDER"
                     :propertyInfo="propertyInfo"
+                    :onchange="updateProperty"
                 />
 
                 <material-map 
                     :propertyInfo="propertyInfo"
+                    :onchange="updateProperty"
                 />
 
             </div>
@@ -454,7 +470,7 @@
     })
 
     Vue.component('material-slider', {
-        props: ['propertyInfo'],
+        props: ['propertyInfo', 'onchange'],
         computed: {
             sliderDefault() {
                 if (this.propertyInfo.value) {
@@ -478,6 +494,7 @@
                         :increment="0.1"
                         :min="0"
                         :defaultvalue="sliderDefault"
+                        :onchange="onchange"
                     ></slider>
                 </div>
             </div>
@@ -485,7 +502,21 @@
     })
 
     Vue.component('material-map', { // *** 
-        props: ['propertyInfo'],
+        props: ['propertyInfo', 'onchange' ],
+        methods:{
+            updateMap(fileName) {                
+
+                // EventBridge.emitWebEvent(JSON.stringify({
+                //     type: EVENT_UPDATE_MATERIAL,
+                //     subtype: "modelTypeSelected",
+                //     updates: {
+                //         propertyName: this.propertyInfo.name,
+                //         property 
+                //     }
+                // }));
+                
+            }
+        },
         template: /* html */ `
             <div class="flex-container-row">
 
@@ -497,6 +528,7 @@
                     <drop-down-images
                         :items="propertyInfo.mapList"
                         :defaultimage="propertyInfo.mapValue"
+                        :onselect="onchange"
                     ></drop-down-images>
                 
                 </div>
@@ -506,11 +538,12 @@
     })
 
     Vue.component('material-color-picker', {
-        props: ['propertyInfo'],
+        props: ['propertyInfo', 'onchange'],
         methods: {
             updateValue(value) {
                 console.log("calling color picker updating value" + this.colors + value);
                 this.colors = value;
+                this.onchange();
             },
             cancelColor() {
                 this.colors = "NA";
@@ -521,6 +554,8 @@
                 $(id).css("background-color", "");
                 $(id).css("color", "#ff0000");
                 $(id).val("N/A");
+
+                this.onchange();
             }
         },
         computed: {
@@ -629,7 +664,10 @@
             />
         `
     });
+
     // #endregion material tab components
+
+    // #region Blendshapes tab
 
     Vue.component('blendshapes-tab', {
         props: ['dynamic', 'static'],
@@ -698,6 +736,8 @@
         `
     })
 
+    // #endregion Blendshapes tab
+
     // Helper for formatting slider data using both the staticList and dynamicData
     function createSliderInfoFromLists(staticList, dynamicData, nameFunction) {
 
@@ -738,6 +778,8 @@
             }
         }
     }
+
+    // #region Flow tab
 
     Vue.component('flow-tab', {
         props: ['dynamic', 'static'],
@@ -844,7 +886,7 @@
         `
     })
 
-    // #endregion Specific Tab-Content Layouts
+    // #endregion Flow tab
 
     // #region Simple Test Components
 
@@ -1097,10 +1139,17 @@
     Vue.component('drop-down-images', {
         props: ["items", "defaultimage", "onselect"],
         methods: {
-            onSelect(value) {
-                console.log("DropDown Image value:" + value);
-                this.selected = value;
-                this.onselect(value);
+            onSelect(url) {
+
+                this.selected = url;
+                var fileName = url.replace(PREFIX, "");
+
+                if (DEBUG) {
+                    console.log("DropDown Image value:" + url);
+                    console.log("DropDown Image file name:" + fileName);
+                }
+
+                this.onselect(fileName);
             }
         },
         computed: {
@@ -1125,7 +1174,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in itemsList">
-                        <a class="dropdown-item" href="#"><img class="dropdown-item-image" v-bind:src="item"/></a>
+                        <a class="dropdown-item" href="#" @click="onSelect(item)"><img class="dropdown-item-image" v-bind:src="item"/></a>
                     </template>
                 </div>
             </div>

@@ -91,6 +91,13 @@ var CONFIG = {
     STRING_SLIDER: STRING_SLIDER,
     STRING_MAP_ONLY: STRING_MAP_ONLY,
 
+    MATERIAL_EVENTS_SUBTYPE: {
+        STRING_NAMED_MATERIAL_SELECTED: "namedMaterialSelected",
+        STRING_MODEL_TYPE_SELECTED: "modelTypeSelected",
+        STRING_UPDATE_PROPERTY: "updateProperty",
+        STRING_UPDATE_ENTITY_PROPERTIES: "updateEntityProperties"
+    },
+
     FLOW_EVENTS_SUBTYPE: {
         STRING_DEBUG_TOGGLE: "debugToggle",
         STRING_COLLISIONS_TOGGLE: "collisionsToggle",
@@ -328,7 +335,11 @@ var CONFIG = {
         material: {
             selectedTypeIndex: 1,
             selectedMaterial: "",
-            updatedProperties: {},
+            materialEntityProperties: {
+                name: "",
+                scale: {},
+                position: {}
+            },
             shadeless: {
                 // component type color
                 albedo: { value: "N/A", map: null },

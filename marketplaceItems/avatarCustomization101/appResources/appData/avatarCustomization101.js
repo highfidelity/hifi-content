@@ -6,7 +6,7 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v222")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v2222")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
@@ -144,6 +144,11 @@
     var MATERIAL_RED = MATERIAL_DATA.red;
     var MATERIAL_TEXTURE = MATERIAL_DATA.texture;
 
+    // Subtype event strings
+    var STRING_NAMED_MATERIAL_SELECTED = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_NAMED_MATERIAL_SELECTED,
+        STRING_MODEL_TYPE_SELECTED = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_MODEL_TYPE_SELECTED,
+        STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY,
+        STRING_UPDATE_ENTITY_PROPERTIES = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_ENTITY_PROPERTIES;
 
     // @args updatesObject name [string]
     function updateMaterial(newMaterialDataToApply, isNamed, isPBR) {
@@ -598,19 +603,38 @@
 
                 // delegates the method depending on if 
                 // event has name property or updates property
-
-                if (data.subtype && data.subtype === "modelTypeSelected") {
-                    // choosing "Select one", "hifi-pbr", "shadeless"
-
-                    dynamicData[STRING_MATERIAL].typeSelectedIndex = data.updates;
-                
-                } else {
-                    if (data.name) {
-                        applyNamedMaterial(data.name);
-                    } else {
-                        updateMaterial(data.updates, false, true); // *** todo add if pbr or shadeless
-                    }
+                if (DEBUG) {
+                    print("MATERIAL EVENT" , data.subtype, " ", data.name);
                 }
+
+                switch (data.subtype) {
+                    case STRING_MODEL_TYPE_SELECTED:
+                        dynamicData[STRING_MATERIAL].typeSelectedIndex = data.updates;
+                        break;
+                    case STRING_NAMED_MATERIAL_SELECTED: 
+                        applyNamedMaterial(data.name);
+                        break;
+                    case STRING_UPDATE_PROPERTY:
+
+                        break;
+                    case STRING_UPDATE_ENTITY_PROPERTIES:
+                        updateMaterial(data.updates, false, true);
+                        break;
+
+                }
+
+                // if (data.subtype && data.subtype === "modelTypeSelected") {
+                //     // choosing "Select one", "hifi-pbr", "shadeless"
+
+                //     dynamicData[STRING_MATERIAL].typeSelectedIndex = data.updates;
+                
+                // } else {
+                //     if (data.name) {
+                //         applyNamedMaterial(data.name);
+                //     } else {
+                //         updateMaterial(data.updates, false, true); // *** todo add if pbr or shadeless
+                //     }
+                // }
 
                 updateUI(STRING_MATERIAL);
 
