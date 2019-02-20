@@ -37,14 +37,14 @@
         // let the player in and set `someoneHasCalledBingo` to `false`
         serverEnterEntity: function() {
             if (someoneHasCalledBingo) {
-                Entities.callEntityServerMethod(SCANNER_ENTRY_GATE, 'openGate');
+                Entities.callEntityMethod(SCANNER_ENTRY_GATE, 'openGate');
                 someoneHasCalledBingo = false;
             }
         },
 
         // When a user leaves the entry zone, close the gate that allows entry into the scanner.
         serverLeaveEntity: function(entityID, mouseEvent) {
-            Entities.callEntityServerMethod(SCANNER_ENTRY_GATE, 'closeGate');
+            Entities.callEntityMethod(SCANNER_ENTRY_GATE, 'closeGate');
         }
     };
     
