@@ -11,7 +11,8 @@
 
 (function(){
     var LIFETIME = 30; // seconds
-    var CRUNCH_SCRIPT = Script.resolvePath("./crunch.js");
+    var CRUNCH_SCRIPT = Script.resolvePath("./crunch_client.js");
+    var CRUNCH_SCRIPT_SERVER = Script.resolvePath("./crunch_server.js");
     var INTERVAL = 5000;
     var DISTANCE = 0.5;
     var DEBUG = false;
@@ -57,11 +58,11 @@
             originalFoodName = properties.name;
             foodProperties = {
                 name: properties.name + "-temp",
-                descript: properties.description,
                 type: "Model",
                 shapeType: "compound",
                 modelURL: properties.modelURL,
                 script: CRUNCH_SCRIPT,
+                serverScripts: CRUNCH_SCRIPT_SERVER,
                 lifetime: LIFETIME,
                 position: properties.position,
                 rotation: properties.rotation,

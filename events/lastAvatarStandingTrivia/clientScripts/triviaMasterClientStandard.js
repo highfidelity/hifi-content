@@ -18,21 +18,20 @@
         GOOGLE_URL = SECRETS.GOOGLE_URL,
         TABLET_BUTTON_IMAGE = Script.resolvePath('../entities/icons/questionMark-i.png'),
         TABLET_BUTTON_PRESSED = Script.resolvePath('../entities/icons/questionMark-a.png'),
-        GSHEET_TAB_NAME = "Halloween",
         SEARCH_RADIUS = 1000,
         ONE_SECOND_MS = 1000;
     var FIVE_SECONDS = 5 * ONE_SECOND_MS,
         TEN_SECONDS_MS = 10 * ONE_SECOND_MS,
         ZONE_COLOR_INDEX = 19,
         HALF_MULTIPLIER = 0.5,
-        FIRST_WAIT_TO_COUNT_AVATARS = 1500,
+        FIRST_WAIT_TO_COUNT_AVATARS = 1000,
         WAIT_TO_SHOW_QUESTION = 500,
         MIN_PLAYERS = 3,
         HFC_INCREMENT = 100,
         HFC_HALVER = 0.5,
         MIN_PRIZE = 300,
         HOST_PERCENTAGE = 0.1;
-
+        
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system'),
         appPage = Script.resolvePath('trivia.html?v100'),
         button = tablet.addButton({
@@ -40,8 +39,9 @@
             icon: TABLET_BUTTON_IMAGE,
             activeIcon: TABLET_BUTTON_PRESSED
         });
-
+        
     var open = false,
+        gSheetTabName = "Halloween",
         intervalBoard,
         questionText,
         triviaURL = "",
@@ -332,8 +332,9 @@
             try {
                 if (triviaURL === "") {
                     triviaURL = SECRETS.trivia_URL;
-                }
-                triviaURL = triviaURL + "category=" + GSHEET_TAB_NAME;
+                } else if (triviaURL.indexOf("category=") === -1) {
+                    triviaURL = triviaURL + "category=" + gSheetTabName;
+                } 
                 var expression = /[-a-zA-Z0-9@:%_\+.~#?&\/=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/=]*)?/gi;
                 var regex = new RegExp(expression);
                 
@@ -369,8 +370,6 @@
                 }
                 request(triviaURL, function (error, data) {
                     if (!error) {
-                        console.log(JSON.stringify(data.results[0]));
-                        console.log(JSON.stringify(data.response_code));
                         data.results[0].application = "trivia";
                         tablet.emitScriptEvent(JSON.stringify(data.results[0]));
                         triviaData = data.results;
@@ -796,7 +795,7 @@
                                     tablet.emitScriptEvent("nothingEntered");
                                     useGoogle = false;
                                 } else {
-                                    GSHEET_TAB_NAME = answer;
+                                    gSheetTabName = answer;
                                 }
                                 break;
                             case "Misc. Catalog":                                
@@ -812,7 +811,7 @@
                                         useGoogle = false;
                                     } else {
                                         useGoogle = true;
-                                        GSHEET_TAB_NAME = answer;
+                                        gSheetTabName = answer;
                                     }
                                 }
                                 break;
