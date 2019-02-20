@@ -1,22 +1,24 @@
+//
+//  avatarCustomization_ui.js
+//
+//  Defines the Tablet UI for the Avatar Customization 101 App.
+// 
+//  Created by Robin Wilson 2/20/2019
+//  Copyright 2019 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 // color picker by xiaokaike | http://xiaokaike.github.io/vue-color/ | https://github.com/xiaokaike/vue-color
 
 (function () {
-
-    // var Chrome = VueColor.Chrome;
-    // Vue.component("chrome-picker", Chrome);
-    // console.log(Chrome);
-    // console.log(VueColor);
 
     // Consts
     var UPDATE_UI = CONFIG.UPDATE_UI,
         APP_NAME = CONFIG.APP_NAME;
 
     // Static strings
-    var STRING_MATERIAL = CONFIG.STRING_MATERIAL,
-        STRING_BLENDSHAPES = CONFIG.STRING_BLENDSHAPES,
-        STRING_ANIMATION = CONFIG.STRING_ANIMATION,
-        STRING_FLOW = CONFIG.STRING_FLOW,
-        STRING_INFO = CONFIG.STRING_INFO;
+    var STRING_INFO = CONFIG.STRING_INFO;
 
     // Events 
     // !important Add APP_NAME to each event
@@ -245,7 +247,7 @@
             return {
                 isModalSaveAvatarVisible: false,
                 title: "You will learn about customizing your avatar in High Fidelity:",
-                items: ["Materials", "Blendshapes", "Animations", "Flow"]
+                items: ["Materials", "Blendshapes", "Flow"]
             };
         },
         template: /* html */ `
@@ -410,7 +412,9 @@
             }
         },
         mounted() {
-            console.log("HELLO ROBIN" + JSON.stringify(this.propertyInfo));
+            if (DEBUG) {
+                console.log("MaterialPropertyContainer mounted propertyInfo: " + JSON.stringify(this.propertyInfo));
+            }
         },
         computed: {
             propertyInfo() {
@@ -426,7 +430,9 @@
                 var mapList = this.static.PROPERTY_MAP_IMAGES[mapName] ? this.static.PROPERTY_MAP_IMAGES[mapName] : [];
                 var mapValue = componentType === STRING_COLOR || componentType === STRING_SLIDER ? dynamicPropertyData.map : dynamicPropertyData.value;
 
-                // console.log("Robin wins" + mapName + JSON.stringify(mapList) + JSON.stringify(this.static.PROPERTY_MAP_IMAGES));
+                if (DEBUG) {
+                    console.log("MaterialPropertyContainer PropertyInfo compiling: " + JSON.stringify(mapList) + JSON.stringify(this.static.PROPERTY_MAP_IMAGES));
+                }
 
                 var propertyInfo = {
                     name: name,
@@ -509,6 +515,8 @@
         methods:{
             updateMap(fileName) {                
 
+                // ** Under construction **
+
                 // EventBridge.emitWebEvent(JSON.stringify({
                 //     type: EVENT_UPDATE_MATERIAL,
                 //     subtype: "modelTypeSelected",
@@ -544,7 +552,10 @@
         props: ['propertyInfo', 'onchange'],
         methods: {
             updateValue(value) {
-                console.log("calling color picker updating value" + this.colors + value);
+
+                if (DEBUG) {
+                    console.log("calling color picker updating value" + this.colors + value);
+                }
                 this.colors = value;
 
                 this.onchange();
@@ -553,7 +564,9 @@
                 this.colors = "NA";
                 var id = "#" + this.colorElementIds + "-jscolor";
                 
-                console.log("Cancel color here " + id);
+                if (DEBUG) {
+                    console.log("Cancel color here " + id);
+                }
 
                 $(id).css("background-color", "");
                 $(id).css("color", "#ff0000");
@@ -636,7 +649,9 @@
             this.$el.jscolor.fromString(this.value);
             $(this.$el).on('change', function(_this){
                 return function(){
-                    console.log("I'm changing!", this.value);
+                    if (DEBUG) {
+                        console.log("I'm changing!", this.value);
+                    }
                     _this.$emit('input', this.value);
                     _this.onchange(this.value);
                 }
@@ -789,7 +804,9 @@
         props: ['dynamic', 'static'],
         methods: {
             debugToggle(value) {
-                console.log("debugToggle" + value);
+                if (DEBUG) {
+                    console.log("debugToggle" + value);
+                }
 
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_FLOW,
@@ -798,7 +815,9 @@
                 }));
             },
             collisionsToggle(value) {
-                console.log("collisionsToggle" + value);
+                if (DEBUG) {
+                    console.log("collisionsToggle" + value);
+                }
 
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_FLOW,
@@ -969,14 +988,6 @@
         `
     })
 
-    Vue.component('test2', {
-        template: /* html */ `
-            <div>
-                test2
-            </div>
-        `
-    })
-
     // #endregion Simple Test Components
 
     // #region EDIT COMPONENTS
@@ -995,9 +1006,6 @@
             onChange() {
                 this.onchange(this.val, this.title);
             }
-            // onChangeText() {
-            //     this.onchange(this.val, this.title);
-            // }
         },
         data() {
             return {
@@ -1103,7 +1111,8 @@
     })
 
     // items are in the following format 
-    // { name: "Title of Dropdown", 
+    // { 
+    //   name: "Title of Dropdown", 
     //   value: what you want to pass into onSelect
     //   index: index in list
     // }
@@ -1161,7 +1170,9 @@
                 var itemsList = this.items.map((imageURL) => PREFIX + imageURL);
                 itemsList.unshift(PREFIX + NO_IMAGE);
 
-                console.log(JSON.stringify(this.items));
+                if (DEBUG) {
+                    console.log(JSON.stringify(this.items));
+                }
 
                 return itemsList;
             }

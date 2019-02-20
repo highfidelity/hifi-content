@@ -1,3 +1,15 @@
+//
+//  avatarCustomization101.js
+//
+//  Blueprint App to teach users how to use materials, blendshapes, and flow for their avatars.
+// 
+//  Created by Robin Wilson and Mark Brosche 2/20/2019
+//  Avatar created by Jimi Youm 2/20/2019
+//  Copyright 2019 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 /* global GlobalDebugger */
 
 (function () {
@@ -29,7 +41,6 @@
     }
 
     // Color functions found https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
@@ -106,12 +117,6 @@
     function saveAvatarAndChangeToAvi() {
         bookmarkAvatar();
         changeAvatarToAvi();
-
-        // getAvatarInfo
-        // Save Avatar information via Settings
-        //      !idea if there's already avatar information in the Settings (and different than curr)
-        //      should we have a prompt that asks if they want to overwrite this avatar info
-        // Change Avatar to Avi ()
     }
 
     function restoreAvatar() {
@@ -211,54 +216,59 @@
 
         // update the ui with values
         for (var property in newMaterialDataToApply.materials) {
-            // take all properties in materials and put inside dynamic data
 
-            var isMap = property.indexOf("Map");
-            var newValue = newMaterialDataToApply.materials[property];
+            // ** UNDER CONSTRUCTION ** 
+            // ** BELOW IS A DRAFT FOR THE LOGIC AND NOT THE ACTUAL CODE  **
 
-            if (property === "model") { 
-                continue;
-            }
+            // take all properties in materials and put inside dynamic data 
+            // to refresh UI
 
-            if (property === "unlit") {
-                if (newValue) {
-                    // true
-                    // shadeless
-                    dynamicData[STRING_MATERIAL].typeSelectedIndex = 1;
-                } else {
-                    // hifi-pbr
-                    dynamicData[STRING_MATERIAL].typeSelectedIndex = 2;
-                }
-                continue;
-            }
+            // var isMap = property.indexOf("Map");
+            // var newValue = newMaterialDataToApply.materials[property];
+
+            // if (property === "model") { 
+            //     continue;
+            // }
+
+            // if (property === "unlit") {
+            //     if (newValue) {
+            //         // true
+            //         // shadeless
+            //         dynamicData[STRING_MATERIAL].typeSelectedIndex = 1;
+            //     } else {
+            //         // hifi-pbr
+            //         dynamicData[STRING_MATERIAL].typeSelectedIndex = 2;
+            //     }
+            //     continue;
+            // }
             
-            if (isMap) {
+            // if (isMap) {
 
-                // need only the image name?? 
-                //****  */ 
+            //     // need only the image name?? 
+            //     //****  */ 
 
-                print("Property", property, newMaterialDataToApply.materials[property]);
+            //     print("Property", property, newMaterialDataToApply.materials[property]);
 
-                if (property === "normalMap" || property === "occlusionMap") {
-                    // Map only property
-                    dynamicPropertyData[property].value = newValue;
-                    dynamicPropertyData[property].map = newValue;
-                } else {
-                    var propertyName = property.replace("Map", "");
-                    dynamicPropertyData[propertyName].map = newValue
-                }
-            } else {
+            //     if (property === "normalMap" || property === "occlusionMap") {
+            //         // Map only property
+            //         dynamicPropertyData[property].value = newValue;
+            //         dynamicPropertyData[property].map = newValue;
+            //     } else {
+            //         var propertyName = property.replace("Map", "");
+            //         dynamicPropertyData[propertyName].map = newValue
+            //     }
+            // } else {
 
-                if (Array.isArray(newValue)) {
-                    // is a color 
-                    var rgb = arrayToRGB(newValue);
-                    var hex = rgbToHex(rgb);
+            //     if (Array.isArray(newValue)) {
+            //         // is a color 
+            //         var rgb = arrayToRGB(newValue);
+            //         var hex = rgbToHex(rgb);
 
-                    var colorValue = hex;
+            //         var colorValue = hex;
 
-                }
-                dynamicPropertyData[propertyName].value = colorValue ? colorValue : newValue;
-            }
+            //     }
+            //     dynamicPropertyData[propertyName].value = colorValue ? colorValue : newValue;
+            // }
         }
 
         if (materialID) {
@@ -297,12 +307,6 @@
         }
     }
 
-    function updateMaterialUI() {
-
-
-
-    }
-
     // #endregion MATERIAL
 
     // #region BLENDSHAPES
@@ -322,10 +326,6 @@
     var changingEmotionPercentage = 0.0; // with transitioning
     var isBlendshapeIntervalEnabled = false;
 
-    function mixValue(valueA, valueB, percentage) {
-        return valueA + ((valueB - valueA) * percentage);
-    }
-
     // used to mix between blendshape expressions
     function mixBlendshapesInterval (deltaTime) {
         if (!isChangingEmotion) {
@@ -343,13 +343,21 @@
             MyAvatar.setBlendshape(blendshape,
                 mixValue(lastEmotionUsed[blendshape], blendshapeDynamicData.updatedProperties[blendshape], changingEmotionPercentage));
         }
+
+        // Helper function
+        function mixValue(valueA, valueB, percentage) {
+            return valueA + ((valueB - valueA) * percentage);
+        }
+    
     }
 
     function startBlendshapeInterval () {
+
         if (!isBlendshapeIntervalEnabled) {
             isBlendshapeIntervalEnabled = true;
             Script.update.connect(mixBlendshapesInterval);
         }
+
     }
 
     function stopBlendshapeInterval () {
@@ -468,25 +476,6 @@
 
     // #endregion FLOW
 
-    // #region ANIMATION
-
-    var ANIMATION_1_DATA = {
-        startframe: null,
-        endframe: null,
-        duration: null
-    };
-    var STRING_DEFAULT_WALK = "defaultWalk"; // todo check on string
-
-    function loadAnimationsIntoCache() {
-        // loop through all animations and add them to the AnimationCache
-    }
-
-    function updateAnimation(animationName) {
-        // update default walk to animation
-    }
-
-    // #endregion
-
     // #region APP
 
     // App variables
@@ -497,7 +486,6 @@
     // Static strings
     var STRING_MATERIAL = CONFIG.STRING_MATERIAL,
         STRING_BLENDSHAPES = CONFIG.STRING_BLENDSHAPES,
-        STRING_ANIMATION = CONFIG.STRING_ANIMATION,
         STRING_FLOW = CONFIG.STRING_FLOW,
         STRING_INFO = CONFIG.STRING_INFO,
         STRING_STATE = CONFIG.STRING_STATE;
@@ -528,7 +516,6 @@
     }
 
     function onClosed() {
-
 
         deleteMirror();
         // save lastTab that the user was on
@@ -596,7 +583,6 @@
         deleteMirror();
 
         // Set blendshapes back to normal
-        // *** Todo make this work
         MyAvatar.hasScriptedBlendshapes = true;
         startBlendshapeInterval();
         applyNamedBlendshapes(BLENDSHAPES_DEFAULT);
@@ -610,10 +596,6 @@
             Entities.deleteEntity(materialID);
             materialID = null;
         }
-
-        // deleteFlowDebugSpheres();
-        // removeAvi as avatar and restore old avatar
-        //      if no old avatar in Settings setAvatar to Woody?
 
     }
 
@@ -746,12 +728,6 @@
                 updateUI(STRING_FLOW);
 
                 break;
-            case EVENT_UPDATE_ANIMATION:
-
-                // updateAnimation(data.name);
-
-                break;
-
             default:
                 break;
         }

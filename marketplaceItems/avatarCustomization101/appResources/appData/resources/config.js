@@ -1,7 +1,7 @@
 //
 //  config.js 
 // 
-//  Variables shared by ui and javascript files.
+//  Variables shared by Avatar Customization 101 UI and Hifi Javascript files.
 //
 //  Copyright 2019 High Fidelity, Inc.
 //
@@ -111,7 +111,7 @@ var CONFIG = {
     },
 
     STATIC_DATA: {
-        TAB_LIST: [ STRING_INFO, STRING_MATERIAL, STRING_BLENDSHAPES, STRING_ANIMATION, STRING_FLOW],
+        TAB_LIST: [ STRING_INFO, STRING_MATERIAL, STRING_BLENDSHAPES, STRING_FLOW],
         TAB_DATA: {
             INFO: {
                 TAB_NAME: STRING_INFO,
@@ -252,16 +252,6 @@ var CONFIG = {
                     ]
                 }
             },
-            ANIMATION: {
-                TAB_NAME: STRING_ANIMATION,
-                TITLE: STRING_ANIMATION,
-                SUBTITLE: "Change avatars default animations.",
-                COMPONENT_NAME: "test2",
-
-                COMPONENT_DATA: {
-
-                }
-            }, 
             FLOW: {
                 TAB_NAME: STRING_FLOW,
                 TITLE: STRING_FLOW,
@@ -293,19 +283,7 @@ var CONFIG = {
                             increment: 0.05, 
                             min: 0.0, 
                             max: 1.0
-                        },
-                        // {
-                        //     name: "inertia", 
-                        //     increment: 0.05, 
-                        //     min: 0.0, 
-                        //     max: 1.0
-                        // },
-                        // {
-                        //     name: "delta", 
-                        //     increment: 0.05, 
-                        //     min: 0.0, 
-                        //     max: 1.0
-                        // }
+                        }
                     ],
                     JOINT_FLOW_OPTIONS: [
                         {   
@@ -313,13 +291,7 @@ var CONFIG = {
                             min: 0.01,
                             max: 0.5,
                             increment: 0.01 
-                        },
-                        // {   
-                        //     name: "offset",
-                        //     min: -0.3,
-                        //     max: 0.3,
-                        //     increment: 0.05 
-                        // }
+                        }
                     ]
                 }
             }
@@ -333,7 +305,7 @@ var CONFIG = {
         },
         info: {},
         material: {
-            selectedTypeIndex: 1,
+            selectedTypeIndex: 0,
             selectedMaterial: "",
             materialEntityProperties: {
                 name: "",
@@ -369,9 +341,6 @@ var CONFIG = {
                 "JawOpen": 0.00,
                 "Sneer": 0
             }
-        },
-        animation: {
-
         },
         flow: {
             showDebug: true,

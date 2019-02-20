@@ -60,7 +60,7 @@
   }
 
   .tab-pane {
-      height: 650px;
+      min-height: 650px;
       padding: 10px 10px;
       background-color: white;
       border: none;
@@ -82,47 +82,10 @@
     background-color: #4c8a5b;
 }
 
-
-.align-bottom-left {
-    position: absolute;
-    bottom: 0;
-}
-
-.align-bottom-right {
-    position: absolute;
-    right: -5px;
-    bottom: -5px;
-}
-
 .row {
     flex-wrap: nowrap;
     margin-left: 0;
     margin-right: 0;
-}
-
-.stroke {
-    color: transparent;
-    -webkit-text-stroke-width: 2px;
-    -webkit-text-stroke-color: white;
-}
-
-.stroke-pink {
-    -webkit-text-stroke-color: #FF0012;
-}
-
-.vote-avatar-bar:hover .stroke-pink {
-    -webkit-text-stroke-color: white;
-    color: white;
-}
-
-.stroke:hover {
-    color: white;
-}
-
-.fill {
-    color: white !important;
-    -webkit-text-stroke-width: 2px;
-    -webkit-text-stroke-color: white;
 }
 
 .bold {
@@ -134,14 +97,10 @@
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
-    /* align-items: center; */
-    /* align-content: space-around; */
 }
 
 .flex-item {
     align-self: center;
-    /* flex-grow: 1; */
-    /* flex-basis: 5rem; */
     margin: 0;
 }
 
@@ -158,25 +117,7 @@
     padding-top: 25px;
 }
 
-.loading-container {
-    display: block;
-    position: relative;
-    height: 80px;
-    width: 80px;
-}
-
-.loading-icon {
-    width: 100%;
-    height: 80px;
-    background-size: 75% 75%;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-blend-mode: multiply;
-    background-image: url(icons/spinner.gif);
-    -webkit-mask-repeat: no-repeat;
-}
-
-/* modal config */
+/* Modal */
 
 .modal-backdrop {
     background-color: rgba(0, 89, 22, 0.7);
@@ -213,7 +154,7 @@
 }
 
 
-/* UTILS */
+/* Utils */
 
 .title-case {
     text-transform: capitalize
@@ -222,7 +163,6 @@
 #save-avatar .two-lines {
     line-height: 1.5em;
     height: 4em;     /*  height is 2x line-height, so two lines will display */
-    /* overflow: hidden;  prevents extra lines from being visible */
     word-wrap: break-word;
     white-space: normal;
     flex-basis: 12rem;
@@ -232,12 +172,7 @@
     flex-basis: 0;
 }
 
-/* SLIDER */
-
-/* .slider-horizontal {
-    margin: 0.5rem 1rem;
-}
-*/
+/* Slider */
 
 .slidecontainer {
     width: 75%; /* Width of the outside container */
@@ -267,21 +202,7 @@
     opacity: 1;
   }
 
-  /* ARROW DOWN */
-
-  .arrow-down {
-    width: 0; 
-    height: 0; 
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 20px solid #fff;
-  }
-
-  .arrow-down-black {
-    border-top: 20px solid #000;
-  }
-
-  /* Boxes for images and  */ 
+  /* Image drop down */ 
 
   .dropdown-item-image {
     width: 100px;
