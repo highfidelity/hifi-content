@@ -45,7 +45,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v2.01 | 2019-02-20_15-28-00 | [commit ](https://github.com/highfidelity/hifi-content/commits/)
+## v2.01 | 2019-02-20_15-28-00 | [commit 9070468](https://github.com/highfidelity/hifi-content/commits/9070468)
 
 - Tons of various fixes and improvements to v2.0.
 
