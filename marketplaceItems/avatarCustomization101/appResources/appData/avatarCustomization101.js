@@ -8,7 +8,7 @@
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v2222")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
     var DEBUG = true;
@@ -26,6 +26,34 @@
         }
 
         return newObject;
+    }
+
+    // Color functions found https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+
+    function hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    function arrayToRGB (color) {
+        if (Array.isArray(color)) {
+            var rgbFormat = {
+                r: color[0] * 255,
+                g: color[1] * 255,
+                b: color[2] * 255
+            }
+            return rgbFormat;
+        } else {
+            return color;
+        }
     }
 
     // #endregion UTILITY FUNCTIONS
@@ -129,20 +157,20 @@
 
     // #region MATERIAL
 
-    var materialID;
-    var materialProperties;
-    var STRING_GLASS_MAT = "glass";
-    var STRING_CHAIN_MAT = "chainmail";
-    var STRING_DISCO_MAT = "disco";
-    var STRING_DEFAULT_MAT = "default";
-    var STRING_RED_MAT = "red";
-    var STRING_TEXTURE_MAT = "texture";
-    var MATERIAL_DEFAULT = MATERIAL_DATA.defaults;
-    var MATERIAL_GLASS = MATERIAL_DATA.glass;
-    var MATERIAL_CHAINMAIL = MATERIAL_DATA.chainmail;
-    var MATERIAL_DISCO = MATERIAL_DATA.disco;
-    var MATERIAL_RED = MATERIAL_DATA.red;
-    var MATERIAL_TEXTURE = MATERIAL_DATA.texture;
+    var materialID,
+        materialProperties,
+        STRING_GLASS_MAT = "glass",
+        STRING_CHAIN_MAT = "chainmail",
+        STRING_DISCO_MAT = "disco",
+        STRING_DEFAULT_MAT = "default",
+        STRING_RED_MAT = "red",
+        STRING_TEXTURE_MAT = "texture",
+        MATERIAL_DEFAULT = MATERIAL_DATA.defaults,
+        MATERIAL_GLASS = MATERIAL_DATA.glass,
+        MATERIAL_CHAINMAIL = MATERIAL_DATA.chainmail,
+        MATERIAL_DISCO = MATERIAL_DATA.disco,
+        MATERIAL_RED = MATERIAL_DATA.red,
+        MATERIAL_TEXTURE = MATERIAL_DATA.texture;
 
     // Subtype event strings
     var STRING_NAMED_MATERIAL_SELECTED = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_NAMED_MATERIAL_SELECTED,
@@ -152,6 +180,8 @@
 
     // @args updatesObject name [string]
     function updateMaterial(newMaterialDataToApply, isNamed, isPBR) {
+
+        print("UPDATING MATERIAL ", JSON.stringify(newMaterialDataToApply))
 
         // Applies to all materials
         materialProperties = {
@@ -177,10 +207,58 @@
         }
 
         var type = isPBR ? "pbr" : "shadeless";
+        var dynamicPropertyData = dynamicData[STRING_MATERIAL][type];
 
+        // update the ui with values
         for (var property in newMaterialDataToApply.materials) {
             // take all properties in materials and put inside dynamic data
-            dynamicData[STRING_MATERIAL][type][property] = newMaterialDataToApply.materials[property];
+
+            var isMap = property.indexOf("Map");
+            var newValue = newMaterialDataToApply.materials[property];
+
+            if (property === "model") { 
+                continue;
+            }
+
+            if (property === "unlit") {
+                if (newValue) {
+                    // true
+                    // shadeless
+                    dynamicData[STRING_MATERIAL].typeSelectedIndex = 1;
+                } else {
+                    // hifi-pbr
+                    dynamicData[STRING_MATERIAL].typeSelectedIndex = 2;
+                }
+                continue;
+            }
+            
+            if (isMap) {
+
+                // need only the image name?? 
+                //****  */ 
+
+                print("Property", property, newMaterialDataToApply.materials[property]);
+
+                if (property === "normalMap" || property === "occlusionMap") {
+                    // Map only property
+                    dynamicPropertyData[property].value = newValue;
+                    dynamicPropertyData[property].map = newValue;
+                } else {
+                    var propertyName = property.replace("Map", "");
+                    dynamicPropertyData[propertyName].map = newValue
+                }
+            } else {
+
+                if (Array.isArray(newValue)) {
+                    // is a color 
+                    var rgb = arrayToRGB(newValue);
+                    var hex = rgbToHex(rgb);
+
+                    var colorValue = hex;
+
+                }
+                dynamicPropertyData[propertyName].value = colorValue ? colorValue : newValue;
+            }
         }
 
         if (materialID) {
@@ -217,6 +295,12 @@
                 updateMaterial(MATERIAL_TEXTURE, true, false);
                 break;
         }
+    }
+
+    function updateMaterialUI() {
+
+
+
     }
 
     // #endregion MATERIAL
@@ -622,19 +706,6 @@
                         break;
 
                 }
-
-                // if (data.subtype && data.subtype === "modelTypeSelected") {
-                //     // choosing "Select one", "hifi-pbr", "shadeless"
-
-                //     dynamicData[STRING_MATERIAL].typeSelectedIndex = data.updates;
-                
-                // } else {
-                //     if (data.name) {
-                //         applyNamedMaterial(data.name);
-                //     } else {
-                //         updateMaterial(data.updates, false, true); // *** todo add if pbr or shadeless
-                //     }
-                // }
 
                 updateUI(STRING_MATERIAL);
 

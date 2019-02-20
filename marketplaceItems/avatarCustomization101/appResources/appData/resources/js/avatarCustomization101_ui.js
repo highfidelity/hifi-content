@@ -409,6 +409,9 @@
                 }
             }
         },
+        mounted() {
+            console.log("HELLO ROBIN" + JSON.stringify(this.propertyInfo));
+        },
         computed: {
             propertyInfo() {
                 // sets material properties to be interpreted by components
@@ -543,6 +546,7 @@
             updateValue(value) {
                 console.log("calling color picker updating value" + this.colors + value);
                 this.colors = value;
+
                 this.onchange();
             },
             cancelColor() {
@@ -565,7 +569,7 @@
         },
         data() {
             return {
-                colors: this.propertyInfo.value === "N/A" ? "N/A" : this.propertyInfo.value
+                colors: this.propertyInfo.value === "N/A" ? "N/A" : formatColor(this.propertyInfo.value)
             };
         },
         mounted () {
