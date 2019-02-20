@@ -12,25 +12,6 @@
 Tablet, Vec3, Window */
 
 (function() {
-    var REPEAT_DISTANCE_CHECK_MS = 60;
-    var MINIMUM_MOVEMENT_TO_DRAW_M = 0.0005;
-    var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
-    var DECAY_TIME_S = 60;
-    var MAX_LINE_POINTS = 100;
-    var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerDraw.mp3'));
-    var DRAW_SOUND_VOLUME = 0.01;
-    var distanceCheckInterval = null;
-    var polyLine = null;
-    var lineStartPosition;
-    var previousLinePoint;
-    var linePoints = [{x: 0, y: 0, z: 0 }];
-    var lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-    var lineStrokeWidths = [];
-    var paintSphere;
-    var parentJointIndex;
-    var activeTriggerPress = false;
-    var activeGripPress = false;
-    var paintSphereDimensions;
 
     // *************************************
     // START UTILITY FUNCTIONS
@@ -58,18 +39,57 @@ Tablet, Vec3, Window */
     // END UTILITY FUNCTIONS
     // *************************************
 
+    /* GET RANDOM HIFI COLOR: Choose one of HiFi's brand colors at random and return it's index # */
+    var HIFI_COLORS = [
+        { red: 0, green: 0, blue: 0 }, // black
+        { red: 255, green: 0, blue: 26 }, // red
+        { red: 255, green: 66, blue: 167 }, // Magenta
+        { red: 126, green: 140, blue: 129 }, // Neutral 4
+        { red: 183, green: 200, blue: 185 }, // Neutral 3
+        { red: 216, green: 225, blue: 217 }, // Neutral 2
+        { red: 241, green: 243, blue: 238 }, // Neutral 1
+        { red: 23, green: 41, blue: 131 }, // Blue
+        { red: 0, green: 158, blue: 224 }, // Cyan
+        { red: 0, green: 144, blue: 54 }, // Green
+        { red: 255, green: 237, blue: 0 } // Yellow
+    ];
+    var HIFI_COLORS_URLS = [
+        Script.resolvePath("assets/textures/black.png"),
+        Script.resolvePath("assets/textures/red.png"),
+        Script.resolvePath("assets/textures/magenta.png"),
+        Script.resolvePath("assets/textures/neutral4.png"),
+        Script.resolvePath("assets/textures/neutral3.png"),
+        Script.resolvePath("assets/textures/neutral2.png"),
+        Script.resolvePath("assets/textures/neutral1.png"),
+        Script.resolvePath("assets/textures/blue.png"),
+        Script.resolvePath("assets/textures/cyan.png"),
+        Script.resolvePath("assets/textures/green.png"),
+        Script.resolvePath("assets/textures/yellow.png")
+    ];
+    function getRandomHiFiColorIndex() {
+        var numberOfHifiColors = HIFI_COLORS.length;
+        return Math.floor(Math.random() * numberOfHifiColors);
+    }
+
     /* CREATE A PAINTBALL: Checks that paint sphere does not already exist, then calculate position of avatar's hand and 
     create a paint sphere there */
+    var paintSphere;
+    var paintSphereMaterial;
+    var parentJointIndex;
+    var randomHiFiColorIndex;
     function createPaintSphere() {
         if (paintSphere) {
             return;
         }
-        var fingertipJointName = dominantHandJoint + "Index4";
-        parentJointIndex = MyAvatar.getJointIndex(fingertipJointName);
-        if (parentJointIndex === -1) {
-            fingertipJointName = dominantHandJoint + "Index3";
-            parentJointIndex = MyAvatar.getJointIndex(fingertipJointName);
+        parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint + "Index4");
+        if (parentJointIndex === -1){
+            MyAvatar.getJointIndex(dominantHandJoint + "Index3");
         }
+        if (parentJointIndex === -1){
+            MyAvatar.getJointIndex(dominantHandJoint);
+            print("ERROR: Falling back to dominant hand joint as index finger tip could not be found");
+        }
+        randomHiFiColorIndex = getRandomHiFiColorIndex();
         paintSphere = Entities.addEntity({
             name: "Draw App Sphere",
             type: "Model",
@@ -81,6 +101,19 @@ Tablet, Vec3, Window */
             grab: { grabbable: false },
             collisionless: true
         }, 'avatar');
+        paintSphereMaterial = Entities.addEntity({
+            type: "Material",
+            name: "Draw App Material",
+            materialURL: "materialData",
+            priority: 1,
+            parentID: paintSphere,
+            materialData: JSON.stringify({
+                materials: {
+                    albedo: HIFI_COLORS[randomHiFiColorIndex],
+                    emissiveMap: HIFI_COLORS_URLS[randomHiFiColorIndex]
+                }
+            })
+        },true);
     }
 
     /* REGISTER CONTROLLER MAPPING: Listen for controller trigger movements and act when the trigger is pressed or 
@@ -88,6 +121,8 @@ Tablet, Vec3, Window */
     var MINIMUM_TRIGGER_PRESS_VALUE = 0.97;
     var controllerMapping;
     var controllerMappingName = 'Hifi-DrawApp';
+    var activeTriggerPress = false;
+    var activeGripPress = false;
     function registerControllerMapping() {
         controllerMapping = Controller.newMapping(controllerMappingName);
         controllerMapping.from(Controller.Standard.RT).to(function (value) {
@@ -135,6 +170,21 @@ Tablet, Vec3, Window */
     /* ON TRIGGER PRESS DRAW: Store the initial point and begin checking distance hand has moved on an interval. If hand 
     has moved more than minimum distance, draw a polyline entity with a lifetime of 1 minute and continue checking 
     hand distance. Every time hand moves more than the minumum, update the polyline with another node. */
+    var REPEAT_DISTANCE_CHECK_MS = 60;
+    var MINIMUM_MOVEMENT_TO_DRAW_M = 0.0005;
+    var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
+    var DECAY_TIME_S = 60;
+    var MAX_LINE_POINTS = 100;
+    var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerDraw.mp3'));
+    var DRAW_SOUND_VOLUME = 0.01;
+    var distanceCheckInterval = null;
+    var polyLine = null;
+    var lineStartPosition;
+    var previousLinePoint;
+    var linePoints = [{x: 0, y: 0, z: 0 }];
+    var lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
+    var lineStrokeWidths = [];
+    var paintSphereDimensions;
     function triggerPressed() {
         if (tablet.tabletShown || activeGripPress) {
             return;
@@ -159,7 +209,8 @@ Tablet, Vec3, Window */
                         linePoints: linePoints,
                         normals: lineNormals,
                         strokeWidths: lineStrokeWidths,
-                        color: { red: 255, green: 255, blue: 255 },
+                        color: HIFI_COLORS[randomHiFiColorIndex],
+                        textures: HIFI_COLORS_URLS[randomHiFiColorIndex],
                         isUVModeStretch: true,
                         lifetime: DECAY_TIME_S,
                         collisionless: true,
@@ -187,7 +238,8 @@ Tablet, Vec3, Window */
                             linePoints: linePoints,
                             normals: lineNormals,
                             strokeWidths: lineStrokeWidths,
-                            color: { red: 255, green: 255, blue: 255 },
+                            color: HIFI_COLORS[randomHiFiColorIndex],
+                            textures: HIFI_COLORS_URLS[randomHiFiColorIndex],
                             isUVModeStretch: true,
                             lifetime: DECAY_TIME_S,
                             collisionless: true,
@@ -211,10 +263,22 @@ Tablet, Vec3, Window */
             }
         }, REPEAT_DISTANCE_CHECK_MS);
     }
+
+    /* STOP DRAWING THE CURRENT LINE: stop sound, reset current line variables */
+    function stopDrawing() {
+        if (injector) {
+            injector.stop();
+            injector = null;
+        }
+        polyLine = null;
+        linePoints = [{x: 0, y: 0, z: 0 }];
+        lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
+        lineStrokeWidths = [];
+        desktopActionProgress= false;
+    }
    
 
-    /* ON TRIGGER RELEASE DRAW: Stop checking distance hand has moved and update current polyline lifetime to decay in 1 
-    minute. */
+    /* ON TRIGGER RELEASE DRAW: Stop checking distance hand has moved */
     function triggerReleased() {
         if (activeTriggerPress) {
             activeTriggerPress = false;
@@ -222,14 +286,7 @@ Tablet, Vec3, Window */
                 Script.clearInterval(distanceCheckInterval);
                 distanceCheckInterval = null;
             }
-            if (injector) {
-                injector.stop();
-                injector = null;
-            }
-            polyLine = null;
-            linePoints = [{x: 0, y: 0, z: 0 }];
-            lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-            lineStrokeWidths = [];
+            stopDrawing();
         }
     }
 
@@ -238,6 +295,7 @@ Tablet, Vec3, Window */
     var DELETE_AGAIN_MS = 100;
     var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
     var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
+    var DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M = 1.5;
     var deletingInterval;
     function gripPressed() {
         if (tablet.tabletShown || activeTriggerPress) {
@@ -256,10 +314,10 @@ Tablet, Vec3, Window */
                     for (var i = 0; i < numberLinePoints; i++) {
                         var distanceFromMarkerTip = Vec3.distance(fingerTipPosition,
                             Vec3.sum(lineBoundingBoxCenter, lineProperties.linePoints[i]));
-                        if (distanceFromMarkerTip <= shortestDistance ) {
+                        if (distanceFromMarkerTip <= shortestDistance) {
                             foundANearbyLine = true;
                             lineToDelete = nearbyDrawAppLine;
-                            shortestDistance = distance;
+                            shortestDistance = DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M;
                         }
                     }
                 });
@@ -284,16 +342,17 @@ Tablet, Vec3, Window */
     var previousLinePointDesktop;
     var pickRay;
     var desktopActionProgress = false;
-    var distance = 1.5;
     function mousePressed(event) {
-        if (tablet.tabletShown) {
+        if (Settings.getValue("io.highfidelity.isEditing", false) || tablet.tabletShown) {
             return;
         }
-        if (event.button === "LEFT") {
+        if (event.isLeftButton) {
             pickRay = Camera.computePickRay(event.x, event.y);
             desktopActionProgress = true;
-            lineStartPosition = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, distance));
-            previousLinePoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, distance));
+            lineStartPosition = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, 
+                DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M));
+            previousLinePoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, 
+                DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M));
         }
     }
 
@@ -308,7 +367,8 @@ Tablet, Vec3, Window */
         }
         if (event.isLeftButton) {
             pickRay = Camera.computePickRay(event.x, event.y);
-            var currentLinePoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, distance));
+            var currentLinePoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, 
+                DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M));
             if (Vec3.distance(previousLinePointDesktop, currentLinePoint) > MINIMUM_MOVEMENT_TO_DRAW_M) {
                 var displacementFromStart = Vec3.subtract(currentLinePoint, lineStartPosition);
                 linePoints.push(displacementFromStart);
@@ -325,7 +385,8 @@ Tablet, Vec3, Window */
                         linePoints: linePoints,
                         normals: lineNormals,
                         strokeWidths: lineStrokeWidths,
-                        color: { red: 255, green: 255, blue: 255 },
+                        color: HIFI_COLORS[randomHiFiColorIndex],
+                        textures: HIFI_COLORS_URLS[randomHiFiColorIndex],
                         isUVModeStretch: true,
                         lifetime: DECAY_TIME_S,
                         collisionless: true,
@@ -353,7 +414,8 @@ Tablet, Vec3, Window */
                             linePoints: linePoints,
                             normals: lineNormals,
                             strokeWidths: lineStrokeWidths,
-                            color: { red: 255, green: 255, blue: 255 },
+                            color: HIFI_COLORS[randomHiFiColorIndex],
+                            textures: HIFI_COLORS_URLS[randomHiFiColorIndex],
                             isUVModeStretch: true,
                             lifetime: DECAY_TIME_S,
                             collisionless: true,
@@ -378,18 +440,10 @@ Tablet, Vec3, Window */
         }
     }
 
-    /* ON MOUSE RELEASE: Stop checking distance cursor has moved and update current polyline lifetime to decay in 1 
-    minute. */
+    /* ON MOUSE RELEASE: Stop checking distance cursor has moved */
     function mouseReleased(event) {
         if (event.button === "LEFT") {
-            if (injector) {
-                injector.stop();
-                injector = null;
-            }
-            polyLine = null;
-            linePoints = [{x: 0, y: 0, z: 0 }];
-            lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-            lineStrokeWidths = [];
+            stopDrawing();
             desktopActionProgress= false;
         }
     }
@@ -548,11 +602,11 @@ Tablet, Vec3, Window */
     }
 
     /* WHEN USER DOMAIN CHANGES: Close app to remove paint sphere in hand when leaving the domain */
-    var WAIT_TO_CLEAN_UP = 2000;
+    var WAIT_TO_CLEAN_UP_MS = 2000;
     function domainChanged() {
         Script.setTimeout(function() {
             cleanUp();
-        }, WAIT_TO_CLEAN_UP);
+        }, WAIT_TO_CLEAN_UP_MS);
     }
 
     /* WHEN USER CHANGES DOMINANT HAND: Switch default hand to place paint sphere in */
@@ -563,9 +617,6 @@ Tablet, Vec3, Window */
         }
         dominantHand = MyAvatar.getDominantHand();
         dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
-        if (paintSphere) {
-            onClicked();
-        }
         if (distanceCheckInterval) {
             Script.clearInterval(distanceCheckInterval);
             distanceCheckInterval = null;
@@ -574,9 +625,39 @@ Tablet, Vec3, Window */
             Script.clearInterval(deletingInterval);
             deletingInterval = null;
         }
-        Script.setTimeout(function() {
+        if (paintSphere) {
             onClicked();
-        }, WAIT_TO_REOPEN_APP_MS);
+            Script.setTimeout(function() {
+                onClicked();
+            }, WAIT_TO_REOPEN_APP_MS);
+        }  
+    }
+
+    /* TABLET SHOWN CHANGED: If draw app is open and tablet is shown, disable it. When the tablet closes while draw
+    app is open, reenable it */
+    function tabletShownChanged() {
+        if (!paintSphere) {
+            return;
+        }
+        if (tablet.tabletShown) {
+            if (HMD.active) {
+                if (activeTriggerPress) {
+                    triggerReleased();
+                } else if (activeGripPress) {
+                    gripReleased();
+                }
+                closeHMDMode();
+            } else {
+                mouseReleased();
+                closeDesktopMode();
+            }
+        } else {
+            if (HMD.active) {
+                setUpHMDMode();
+            } else {
+                setUpDesktopMode();
+            }
+        }
     }
 
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
@@ -588,6 +669,7 @@ Tablet, Vec3, Window */
     var dominantHand = MyAvatar.getDominantHand();
     var dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
     MyAvatar.dominantHandChanged.connect(handChanged);
+    tablet.tabletShownChanged.connect(tabletShownChanged);
     registerControllerMapping();
     HMD.displayModeChanged.connect(displayModeChange);
     button.clicked.connect(onClicked);
