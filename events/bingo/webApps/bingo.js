@@ -19,6 +19,7 @@ var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
 
+// Creates a new table in the Bingo DB.
 var currentTableName;
 function createNewTable(newTablePrefix, response) {
     currentTableName = newTablePrefix + "_" + Date.now();
@@ -54,6 +55,7 @@ function createNewTable(newTablePrefix, response) {
     });
 }
 
+// Called when the Bingo Boss requests a new round
 function startNewRound(calledNumbers, newTablePrefix, response) {
     if (currentTableName) {
         var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers)
@@ -77,6 +79,7 @@ function startNewRound(calledNumbers, newTablePrefix, response) {
     }
 }
 
+// Gets a random valid Bingo number associated with the passed `currentColumn`
 const POSSIBLE_NUMBERS_PER_COLUMN = 15;
 function getRandomBingoNumber(currentColumn) {
     var min = 1 + POSSIBLE_NUMBERS_PER_COLUMN * currentColumn;
@@ -85,7 +88,8 @@ function getRandomBingoNumber(currentColumn) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function getBingoNumbers() {
+// Generates an array of valid Bingo numbers
+function generateBingoNumbers() {
     var userCardNumbers = [];
 
     for (var currentColumn = 0; currentColumn < NUM_COLS; currentColumn++) {
@@ -105,7 +109,7 @@ function getBingoNumbers() {
     return userCardNumbers;
 }
 
-
+// Returns a random valid card color
 const CARD_COLORS = [
     {"red": 178, "green": 0, "blue": 18},
     {"red": 178, "green": 46, "blue": 116},
@@ -119,11 +123,13 @@ function getCardColor() {
 }
 
 
+// Adds a new player to the current Bingo table in the Bingo DB.
+// Adds the new player's card numbers and color to the DB.
 const BINGO_STRING = "BINGO";
 const NUM_ROWS = BINGO_STRING.length;
 const NUM_COLS = NUM_ROWS;
 function addNewPlayer(username, response) {
-    var userCardNumbers = getBingoNumbers();
+    var userCardNumbers = generateBingoNumbers();
     var userCardColor = getCardColor();
 
     var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers, cardColor)
@@ -137,8 +143,7 @@ function addNewPlayer(username, response) {
 
             response.statusCode = 200;
             response.setHeader('Content-Type', 'application/json');
-            response.end(JSON.stringify(responseObject));
-            throw error;
+            return response.end(JSON.stringify(responseObject));
         }
 
         var responseObject = {
@@ -155,6 +160,11 @@ function addNewPlayer(username, response) {
 }
 
 
+// Handles any GET requests made to the Bingo server endpoint
+// The three handled method types are:
+// "searchOrAdd"
+// "searchOnly"
+// "newRound"
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
     
@@ -179,7 +189,14 @@ function handleGetRequest(request, response) {
             var query = `SELECT * FROM \`${currentTableName}\` WHERE username='${username}'`;
             connection.query(query, function(error, results, fields) {
                 if (error) {
-                    throw error;
+                    var responseObject = {
+                        status: "error",
+                        text: error
+                    };
+    
+                    response.statusCode = 200;
+                    response.setHeader('Content-Type', 'application/json');
+                    return response.end(JSON.stringify(responseObject));
                 }
         
                 if (results.length === 0) {
@@ -224,6 +241,8 @@ function handleGetRequest(request, response) {
     }
 }
 
+// A utility function for creating a "CASE" argument in an SQL
+// query when recording winners. 
 function createCaseString(winnersArray) {
     var caseString = '';
 
@@ -239,6 +258,8 @@ function createCaseString(winnersArray) {
     return caseString;
 }
 
+// A utility function for creating a "IN" argument in an SQL
+// query when recording winners.
 function createQueryInString(winnersArray) {
     var inString = '';
 
@@ -253,6 +274,9 @@ function createQueryInString(winnersArray) {
     return inString;
 }
 
+// Records the prizes that a given list of users has won.
+// This method is inefficient: we are storing a mostly-empty
+// "prizeWon" column in each of our tables.
 function recordWinners(winnersArray, response) {
     if (!currentTableName) {
         var responseObject = {
@@ -293,6 +317,9 @@ function recordWinners(winnersArray, response) {
     });
 }
 
+// Handles all POST requests made to the Bingo endpoint.
+// The one handled request type is:
+// "recordPrizes"
 function handlePostRequest(request, response) {
     let body = '';
     request.on('data', chunk => {
@@ -338,6 +365,7 @@ function handlePostRequest(request, response) {
     })
 }
 
+// Starts the NodejS HTTP server.
 function startServer() {
     const server = http.createServer((request, response) => {
         if (request.method === "GET") {
@@ -357,6 +385,7 @@ function startServer() {
     });
 }
 
+// Connects to the Bingo DB
 var mysql = require('mysql');
 var connection;
 function connectToBingoDB() {
@@ -376,6 +405,7 @@ function connectToBingoDB() {
     });
 }
 
+// Creates the Bingo DB
 function createBingoDB() {
     connection = mysql.createConnection({
         host: dbInfo.mySQLHost,
@@ -393,6 +423,7 @@ function createBingoDB() {
     connection.end();
 }
 
+// Called on startup.
 function startup() {
     //createBingoDB();
     connectToBingoDB();
