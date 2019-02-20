@@ -82,10 +82,10 @@ Tablet, Vec3, Window */
             return;
         }
         parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint + "Index4");
-        if (parentJointIndex === -1){
+        if (parentJointIndex === -1) {
             MyAvatar.getJointIndex(dominantHandJoint + "Index3");
         }
-        if (parentJointIndex === -1){
+        if (parentJointIndex === -1) {
             MyAvatar.getJointIndex(dominantHandJoint);
             print("ERROR: Falling back to dominant hand joint as index finger tip could not be found");
         }
@@ -113,7 +113,7 @@ Tablet, Vec3, Window */
                     emissiveMap: HIFI_COLORS_URLS[randomHiFiColorIndex]
                 }
             })
-        },true);
+        }, 'avatar');
     }
 
     /* REGISTER CONTROLLER MAPPING: Listen for controller trigger movements and act when the trigger is pressed or 
@@ -175,7 +175,7 @@ Tablet, Vec3, Window */
     var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
     var DECAY_TIME_S = 60;
     var MAX_LINE_POINTS = 100;
-    var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerDraw.mp3'));
+    var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/draw.mp3'));
     var DRAW_SOUND_VOLUME = 0.01;
     var distanceCheckInterval = null;
     var polyLine = null;
@@ -274,7 +274,7 @@ Tablet, Vec3, Window */
         linePoints = [{x: 0, y: 0, z: 0 }];
         lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
         lineStrokeWidths = [];
-        desktopActionProgress= false;
+        desktopActionProgress = false;
     }
    
 
@@ -450,9 +450,9 @@ Tablet, Vec3, Window */
 
     /* ON CLICKING APP BUTTON: (on the toolbar or tablet) if we are opening the app, play a sound and get the paint sphere.
     If we are closing the app, remove the paint sphere */
-    var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerOpen.mp3'));
+    var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/open.mp3'));
     var OPEN_SOUND_VOLUME = 0.2;
-    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/markerClose.mp3'));
+    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/close.mp3'));
     var CLOSE_SOUND_VOLUME = 0.3;
     function onClicked() {
         if (paintSphere) {
@@ -482,6 +482,7 @@ Tablet, Vec3, Window */
     if applicable. Search for any unreferenced paint spheres and delete if found. */
     function appEnding() {
         cleanUp();
+        tablet.tabletShownChanged.disconnect(tabletShownChanged);
         MyAvatar.dominantHandChanged.disconnect(handChanged);
         HMD.displayModeChanged.disconnect(displayModeChange);
         button.clicked.disconnect(onClicked);
