@@ -50,6 +50,8 @@
 
     Gate.prototype = {
         remotelyCallable: ['openGate', 'closeGate'],
+
+        // Sets up this entity's closed and opened positions
         preload: function(entityID){
             _this.entityID = entityID;
             var name = Entities.getEntityProperties(_this.entityID, 'name').name;
@@ -152,6 +154,7 @@
             }, POSITION_CHECK_INTERVAL_MS);
         },
 
+        // Ensures the gate is closed when the script stops
         unload: function() {
             if (gatePositionCheckInterval) {
                 Script.clearInterval(gatePositionCheckInterval);

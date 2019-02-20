@@ -29,13 +29,17 @@
         /* ADD ANOTHER USER: Increase total user by one and update the text */
         addOne: function() {
             _this.count++;
-            Entities.editEntity(_this.entityID, { text: _this.count.toString() });
+            Entities.editEntity(_this.entityID, {
+                text: _this.count.toString()
+            });
         },
 
         /* RESET THE COUNTER: Set the count and text back to 0 */
         reset: function() {
             _this.count = 0;
-            Entities.editEntity(_this.entityID, { text: "0" });
+            Entities.editEntity(_this.entityID, {
+                text: "0"
+            });
         }
     };
     

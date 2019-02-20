@@ -18,7 +18,6 @@
     };
 
     Particle.prototype = {
-        calledNumbers: [],
         remotelyCallable: ['turnOn', 'turnOff'],
         
         /* ON LOADING THE APP: Save a reference to this entity ID */
@@ -26,7 +25,7 @@
             _this.entityID = entityID;
         },
 
-        /* TURN ON PARTICLE: Set emitRate higher to turn on a particle */
+        /* TURN ON PARTICLE: Set emitRate higher to turn on a particle emitter */
         turnOn: function() {
             var name = Entities.getEntityProperties(_this.entityID, 'name').name;
             if (name.indexOf("Confetti") !== -1) {
@@ -36,7 +35,7 @@
             }
         },
 
-        /* TURN OFF PARTICLE: Set emitRate back to 0 to turn off a particle */
+        /* TURN OFF PARTICLE: Set emitRate back to 0 to turn off a particle emitter */
         turnOff: function() {
             Entities.editEntity(_this.entityID, { emitRate: 0 });
         }

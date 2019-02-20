@@ -13,7 +13,7 @@
 
     var _this;
 
-    /* CHECK IF A USER IS RUNNING THE CARD APP: Get a list of running scripts usingg the script discovery service API. 
+    /* CHECK IF A USER IS RUNNING THE CARD APP: Get a list of running scripts using the script discovery service API. 
     Search that list for the card app script and return whether or not it was found */
     var isRunningStandaloneBingoApp = function() {
         var isRunning = false;
@@ -28,7 +28,7 @@
     };
 
     BingoCardRemover.prototype = {
-        /* ON LOADING THE SCRIPT: If the user is running the card app, stop the card app script to stop/close the app. */
+        /* ON LOADING THE SCRIPT: If the user is running the Bingo Card script, stop it */
         preload: function(entityID){
             _this.entityID = entityID;
             if (isRunningStandaloneBingoApp) {

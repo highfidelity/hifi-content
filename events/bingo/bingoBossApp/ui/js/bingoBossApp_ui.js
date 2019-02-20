@@ -9,6 +9,7 @@
 
 /* globals $ document EventBridge setTimeout */
 
+// Emit an event specific to the `bingoBossApp` over the EventBridge.
 function emitBingoBossEvent(type) {
     var event = {
         app: 'bingoBossApp',
@@ -18,6 +19,8 @@ function emitBingoBossEvent(type) {
 }
 
 
+// Handle incoming events over the EventBridge.
+// Possible events include updating the "status text" area of the Boss app.
 function onScriptEventReceived(scriptEvent) {
     try {
         scriptEvent = JSON.parse(scriptEvent);
@@ -58,6 +61,7 @@ function onLoad() {
 }
 
 
+// Wait for the DOM to be ready before calling onLoad().
 document.addEventListener("DOMContentLoaded", function(event) {
     onLoad();
 });

@@ -25,6 +25,7 @@ function parseColor(scriptColorObject) {
 }
 
 
+// Handle messages over the EventBridge from bingoCard_app.js
 function onScriptEventReceived(scriptEvent) {
     if (JSON.parse(scriptEvent).type === "initializeCard") {
         scriptEvent = JSON.parse(scriptEvent);
@@ -114,6 +115,7 @@ function onLoad() {
 }
 
 
+// Call onLoad() once the DOM is ready
 document.addEventListener("DOMContentLoaded", function(event) {
     onLoad();
 });

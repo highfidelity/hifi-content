@@ -17,7 +17,7 @@
     // START UTILITY FUNCTIONS
     // *************************************
 
-    /* ENCODE URL PARAMETERS: Formats data to send to Google sheet*/
+    // Takes a JSON object and translates that into URL query parameters
     function encodeURLParams(params) {
         var paramPairs = [];
         for (var key in params) {
@@ -26,8 +26,9 @@
         return paramPairs.join("&");
     }
 
-    /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
-    mode requested. */
+    // Plays the specified sound at the specified position and volume and localOnly
+    // Only plays a sound if it is downloaded.
+    // Only plays one sound at a time.
     var injector;
     function playSound(sound, volume, position, localOnly){
         if (sound.downloaded) {
@@ -46,8 +47,8 @@
     // END UTILITY FUNCTIONS
     // *************************************
 
-    /* CREATE A GEM: Checks that gem does not already exist, then calculates position over avatar's head and 
-    creates a gem there */
+    // Checks that a Bingo gem does not already exist, then calculates the correct position
+    // over the avatar's head and creates a gem there
     var playingMarker;
     function createGem() {
         if (playingMarker) {
@@ -70,10 +71,11 @@
             modelURL: Script.resolvePath("assets/models/gem-overlay.fbx"),
             type: "Model",
             userData: "{ \"grabbableKey\": { \"grabbable\": false } }"
-        }, true);
+        }, 'avatar');
     }
 
-    /* GET RANDOM SOUND: Randomly selects one of the sounds in the 'headerSounds' array */
+    // Called on startup. Fills `currentHeaderSounds` with five random sounds from
+    // `headerSounds`. Persists across app UI open/close.
     var currentHeaderSounds = [];
     function fillRandomSoundsArray() {        
         for (var i = 0; i < BINGO_STRING.length; i++) {
@@ -87,7 +89,7 @@
         }
     }
 
-    /* LOAD SOUNDS: Prepare each sound file for playback using Soundcache API */
+    // Prepare each sound file for playback using SoundCache API, then call `fillRandomSoundsArray()`
     var BINGO_STRING = "BINGO";
     var headerSounds = [];
     function cacheSounds() {
@@ -115,9 +117,14 @@
         fillRandomSoundsArray();
     }
 
-    /* FIND OR CREATE BINGO CARD:  Search the google sheet for the user's name to see if they have already been assigned 
-    numbers for this round. If they have numbers already, retrieve them. If they do not have numbers, get new ones
-    and add one to the player counter text. */
+    // Two main cases here:
+    // 1. The user has previously filled their `userCardNumbers` array with a result from the backend.
+    //     Send a message to the UI with those numbers, the selectedNumberIDs, and the cardColor
+    // 2. The user doesn't have a cached `userCardNumbers` array. In that case:
+    //     i. Request card numbers and card color from the server
+    //     ii. If the response indicates success, send that data to the UI
+    //         a. If the server indicates that the user is new, tell the player counter text to
+    //             add one to its count.
     var REQUEST_URL = Script.require(Script.resolvePath('../secrets/secrets.json?0')).requestURL;
     var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
     var request = Script.require('request').request;
@@ -169,15 +176,14 @@
         });         
     }
 
-    /* ON OPENING THE APP: Create the gem over the user's head to show that they are active in the game, preload the 
-    sounds that will be used and populate a bingo card with previously used numbers or, if no numbers are found for 
-    the user, get a new set of numbers */
+    // When the user opens the app, add the Bingo gem above their avatar's head
     function onOpened() {
         createGem();
     }
 
-    /* ON CLOSING THE APP: Make sure the confetti and gem get deleted and their respective variables set back to null 
-    if applicable. Search for any unreferenced gems and delete if found. */
+    
+    // When the user closes the app, delete the bingo gem (if it exists),
+    // and delete the confetti particle (if it exists)
     var confettiParticle;
     function onClosed() {
         if (playingMarker) {
@@ -196,10 +202,8 @@
         });
     }
 
-    /* ON WEB EVENT: Respond to a web event from bingo.html by immediate action or calling another function. If 
-    the event is a push on a button, determine which type of sound action is required. If the event was 
-    pressing a header button or highlighting or clearing a number button, play the corresponding sound. If the event 
-    was the user calling "Bingo", create the confetti and set a timeout to remove it. */
+   
+    // Handle EventBridge messages from bingoCard_ui.js.
     var WIN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoWin.wav"));
     var SELECT_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSelect.wav"));
     var DESELECT_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoDeselect.wav"));
@@ -223,7 +227,7 @@
             playSound(currentHeaderSounds[event.index], 0.05, MyAvatar.position, false);
         } else if (event.type === 'calledBingo') {
             playSound(WIN_SOUND, 1, WHEEL_POSITION, false);
-            Entities.callEntityMethod(SCANNER_ENTRY_ZONE, 'callBingo');
+            Entities.callEntityServerMethod(SCANNER_ENTRY_ZONE, 'callBingo');
             if (confettiParticle) {
                 Entities.deleteEntity(confettiParticle);
             }
@@ -302,7 +306,7 @@
                 type: "ParticleEffect",
                 serverScripts: Script.resolvePath("../serverScripts/bingoScannerZone/bingoScannerParticleServer.js"),
                 userData: "{\"grabbableKey\":{\"grabbable\":false}}"
-            }, true);
+            }, 'avatar');
             Script.setTimeout(function() {
                 if (confettiParticle) {
                     Entities.editEntity(confettiParticle, { emitRate: 0 });
@@ -317,7 +321,8 @@
         }
     }
 
-    /* ON APP START: Setup app UI, button, and messaging between it's html page and this script */
+    // When the script starts up, setup AppUI and call `cacheSounds()`.
+    // Also hook up necessary signals and open the app's UI.
     var ui;
     var AppUi = Script.require('appUi');
     var appPage = Script.resolvePath('ui/bingoCard_ui.html?12');
@@ -332,15 +337,21 @@
             sortOrder: 1
         });
         cacheSounds();
+        AvatarList.avatarSessionChangedEvent.connect(sessionChanged);
+        ui.open();
     }
 
-    /* WHEN USER SESSION CHANGES: End this script so users will not be left with a card when leaving the domain */
+    // WHEN USER SESSION CHANGES: End this script so users will not be left with a card when leaving the domain
     function sessionChanged() {
         ScriptDiscoveryService.stopScript(Script.resolvePath('bingoCard_app.js?11'));
     }
     
+    // When the script is shutting down, disconnect necessary signals and ensure onClosed() is called
+    function onEnding() {
+        AvatarList.avatarSessionChangedEvent.disconnect(sessionChanged);
+        onClosed();
+    }
+
     startup();
-    ui.open();
-    AvatarList.avatarSessionChangedEvent.connect(sessionChanged);
-    Script.scriptEnding.connect(onClosed);
+    Script.scriptEnding.connect(onEnding);
 }());
