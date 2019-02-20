@@ -11,32 +11,34 @@
 
 /* global module */
 
-var directory = Script.resolvePath("../images");
-var chainmail = directory + "/chainmail_";
-var disco = directory + "/disco_";
-var texture = directory + "/texture_";
+var directory = Script.resolvePath("../images") + "/";
+var chainmail = "chainmail_";
+var disco = "disco_";
+var texture = "texture_";
 
+// contains names
 var MAPS = {
     chainmail: {
-        "albedoMap": chainmail + "albedoMap.png",
-        "metallicMap": chainmail + "metallicMap.png",
-        "normalMap": chainmail + "normalMap.png",
-        "occlusionMap": chainmail + "occlusionMap.png",
+        "albedoMap": directory + chainmail + "albedoMap.png",
+        "metallicMap": directory + chainmail + "metallicMap.png",
+        "normalMap": directory + chainmail + "normalMap.png",
+        "occlusionMap": directory + chainmail + "occlusionMap.png",
     },
     disco: {
-        "albedoMap": disco + "albedoMap.jpg",
-        "emissiveMap": disco + "emissiveMap.jpg",
-        "metallicMap": disco + "metallicMap.jpg",
-        "roughnessMap": disco + "roughnessMap.jpg",
-        "normalMap": disco + "normalMap.jpg"
+        "albedoMap": directory + disco + "albedoMap.jpg",
+        "emissiveMap": directory + disco + "emissiveMap.jpg",
+        "metallicMap": directory + disco + "metallicMap.jpg",
+        "roughnessMap": directory + disco + "roughnessMap.jpg",
+        "normalMap": directory + disco + "normalMap.jpg"
     },
     texture: {
-        "albedoMap": texture + "emissiveMap_albedoMap.jpg",
-        "emissiveMap": texture + "emissiveMap_albedoMap.jpg"
+        "albedoMap": directory + texture + "emissiveMap_albedoMap.jpg",
+        "emissiveMap": directory + texture + "emissiveMap_albedoMap.jpg"
     }
 }
 
 var MATERIAL_DATA = {
+    directory: directory,
     defaults: {
         // *** under construction **
     },

@@ -556,12 +556,16 @@
                 if (DEBUG) {
                     console.log("calling color picker updating value" + this.colors + value);
                 }
-                this.colors = value;
+                // this.colors = value;
 
                 this.onchange();
             },
             cancelColor() {
-                this.colors = "NA";
+                // this.colors = "N/A";
+                this.setColorToNA();
+                this.onchange();
+            },
+            setColorToNA() {
                 var id = "#" + this.colorElementIds + "-jscolor";
                 
                 if (DEBUG) {
@@ -571,23 +575,38 @@
                 $(id).css("background-color", "");
                 $(id).css("color", "#ff0000");
                 $(id).val("N/A");
-
-                this.onchange();
             }
         },
         computed: {
             colorElementIds() {
                 return this.propertyInfo.name + "-color-id";
-            }
+            }, 
+            // colors () {
+            //     if (newValue === "N/A") {
+            //         this.setColorToNA();
+            //     }
+            //     return this.propertyInfo.value;
+            // }
+            // colors () {
+            //     if (this.propertyInfo.value === "N/A") {
+            //         this.cancelColor();
+            //     }
+            //     return this.colors;
+            // }
+        },
+        updated: function() {
+            console.log("robin robin" + this.colors) // Logs true every second
         },
         data() {
             return {
-                colors: this.propertyInfo.value === "N/A" ? "N/A" : formatColor(this.propertyInfo.value)
+                colors: this.propertyInfo.value
             };
         },
-        mounted () {
-            if (this.propertyInfo.value === "N/A") {
-                this.cancelColor();
+        watch: {
+            colors (newValue, oldValue) {
+                console.log("NEW VALUE GAHH" + newValue + oldValue);
+
+                this.colors = newValue;
             }
         },
         template: /* html */ `
@@ -602,7 +621,7 @@
                             :colorpickerid="colorElementIds"
                             :value="colors"
                             :onchange="updateValue"
-                            :cancelcolor="cancelColor"
+                            :cancelcolor="setColorToNA"
                         ></jscolor>
 
                     </div>
@@ -643,7 +662,7 @@
     // JSColor picker made for Vue.js by mudream4869
     // https://gist.github.com/mudream4869/d956736a96bac2a89155a0c416a0ac35
     Vue.component('jscolor', {
-        props : ['value', 'id', 'colorpickerid', 'onchange', 'cancelcolor'],
+        props : ['value', 'colorpickerid', 'onchange', 'cancelcolor'],
         mounted : function(){
             window.jscolor.installByClassName('jscolor');
             this.$el.jscolor.fromString(this.value);
@@ -657,9 +676,9 @@
                 }
             }(this));
 
-            if (this.value === "NA") {
-                this.cancelcolor();
-            }
+            // if (this.value === "N/A") {
+            //     this.cancelcolor();
+            // }
         },
         computed: {
             styling() {
@@ -673,11 +692,11 @@
             return {
                 color: this.value
             }
-        },
+        }, // **** JSCOLOR
         template: `
             <input 
                 v-bind:id="elementId"
-                v-model="color"
+                v-bind:value="color"
                 class="jscolor"
                 v-bind:style="styling"
             />

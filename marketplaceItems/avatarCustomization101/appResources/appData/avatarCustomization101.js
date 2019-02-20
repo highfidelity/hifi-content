@@ -20,7 +20,7 @@
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v22222")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v123")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
     var DEBUG = true;
@@ -50,7 +50,11 @@
         } : null;
     }
 
-    function rgbToHex(r, g, b) {
+    function rgbToHex(colorObject) {
+        var r = colorObject.r;
+        var g = colorObject.g;
+        var b = colorObject.b;
+
         var str = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
         if (DEBUG) {
             print("RgbToHex" + str);
@@ -192,6 +196,8 @@
         STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY,
         STRING_UPDATE_ENTITY_PROPERTIES = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_ENTITY_PROPERTIES;
 
+    var PATH_TO_IMAGES = MATERIAL_DATA.directory;
+
     // @args updatesObject name [string]
     function updateMaterial(newMaterialDataToApply, isNamed, isPBR) {
 
@@ -215,63 +221,57 @@
                 materials: newMaterialDataToApply.materials
             })
         };
+
+        var type = isPBR ? "pbr" : "shadeless";
         
-        if (!isNamed) {
+        if (isNamed) {
+            
+            // is named
+            // only clicking a named button will do this
+            setMaterialPropertiesToDefaults();
+        } else {
+            // is not named material
             dynamicData[STRING_MATERIAL].selectedMaterial = "";
         }
 
-        var type = isPBR ? "pbr" : "shadeless";
-
-        print("Before:", dynamicData[STRING_MATERIAL].selectedTypeIndex);
-        
-        // set the drop-down index to hifi-PBR (index 2) or shadeless (index 1)
+        // set the UI drop-down index to hifi-PBR (index 2) or shadeless (index 1)
         dynamicData[STRING_MATERIAL].selectedTypeIndex = isPBR ? 2 : 1;
 
-        print("After:", dynamicData[STRING_MATERIAL].selectedTypeIndex);
-        
+        // Update UI with values
         var dynamicPropertyData = dynamicData[STRING_MATERIAL][type];
+        var materialData = newMaterialDataToApply.materials;
 
-        // update the ui with values
-        for (var property in newMaterialDataToApply.materials) {
-            // take all properties in materials and put inside dynamic data 
-            // to refresh UI
+        for (var property in dynamicPropertyData) {
 
-            var isMap = property.indexOf("Map");
-            var newValue = newMaterialDataToApply.materials[property];
+            var key = property;
+            var mapKey = property + "Map";
+            var newValue = materialData[key];
+            var newMapValue = materialData[mapKey];
 
-            if (property === "model" || property === "unlit" ) { 
+            if ( !newValue && !newMapValue ) {
+                // property doesnt exist in new materialData
                 continue;
             }
 
-            print("ROBIN", property);
-            
-            // if (isMap) {
+            // handle prepping newValue first
+            if (newValue) {
+                var isMap = key.indexOf("Map") !== -1;
+                var isColor = Array.isArray(newValue);
 
-            //     // need only the image name?? 
-            //     //****  */ 
+                newValue = isMap ? prepImageBackendToUI(newValue) : newValue;
+                newValue = isColor ? convertColorBackendToUI(newValue) : newValue;
 
-            //     print("Property", property, newMaterialDataToApply.materials[property]);
+                dynamicPropertyData[key].value = newValue;
+                dynamicPropertyData[key].map = isMap ? newValue : null; // in case it's component type is mapOnly
+            }
 
-            //     if (property === "normalMap" || property === "occlusionMap") {
-            //         // Map only property
-            //         dynamicPropertyData[property].value = newValue;
-            //         dynamicPropertyData[property].map = newValue;
-            //     } else {
-            //         var propertyName = property.replace("Map", "");
-            //         dynamicPropertyData[propertyName].map = newValue
-            //     }
-            // } else {
+            // component type mapOnly would not get here
+            if (newMapValue) {
+                // we know it's a map prep it like so
+                newMapValue = prepImageBackendToUI(newMapValue);
+                dynamicPropertyData[key].map = newMapValue;
+            }
 
-            //     if (Array.isArray(newValue)) {
-            //         // is a color 
-            //         var rgb = arrayToRGB(newValue);
-            //         var hex = rgbToHex(rgb);
-
-            //         var colorValue = hex;
-
-            //     }
-            //     dynamicPropertyData[propertyName].value = colorValue ? colorValue : newValue;
-            // }
         }
 
         if (materialID) {
@@ -283,6 +283,52 @@
             print("Material must be created! Entities.addEntity");
             materialID = Entities.addEntity(materialProperties, "avatar");
         }
+
+    }
+
+    function prepImageBackendToUI(file) {
+        return file.replace(PATH_TO_IMAGES, "");
+    }
+
+    function prepImageUIToBackend(file) {
+        return PATH_TO_IMAGES + file;
+    }
+
+    function convertColorBackendToUI(arrayColor){
+        // array -> rgb -> hex
+        var rgb = arrayToRGB(arrayColor);
+        var hex = rgbToHex(rgb);
+        return hex;
+    }
+
+    function convertColorUIToBackend(hexColor){
+        // hex -> rgb -> array
+        var rgb = hexToRgb(arrayColor);
+        return [ 
+            rgb.r / 255.0,
+            rgb.g / 255.0, 
+            rgb.b / 255.0 
+        ];
+
+    }
+
+    function setMaterialPropertiesToDefaults () {
+
+        // shadeless
+        setDefaults(dynamicData[STRING_MATERIAL].shadeless, defaultMaterialProperties.shadeless);
+        // pbr
+        setDefaults(dynamicData[STRING_MATERIAL].pbr, defaultMaterialProperties.pbr);
+
+        function setDefaults(dynamicObject, defaultObject) {
+            for (var key in defaultObject) {
+                var defaultValue = defaultObject[key].value;
+                var defaultMap = defaultObject[key].map;
+    
+                dynamicObject[key].value = defaultValue;
+                dynamicObject[key].map = defaultMap;
+            }
+        }
+
     }
 
     // presets
@@ -496,6 +542,11 @@
     // UI variables
     var ui;
     var dynamicData = deepCopy(CONFIG.INITIAL_DYNAMIC_DATA);
+    // set default UI values to be parsed when set to defaults
+    var defaultMaterialProperties = {
+        shadeless: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].shadeless),
+        pbr: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].pbr),
+    }
 
     // Tab dynamic variables
     var currentTab;
