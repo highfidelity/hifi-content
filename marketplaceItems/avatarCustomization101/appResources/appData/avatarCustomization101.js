@@ -18,9 +18,9 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v2222")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v22222")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v123")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
     var DEBUG = true;
@@ -51,7 +51,11 @@
     }
 
     function rgbToHex(r, g, b) {
-        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        var str = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+        if (DEBUG) {
+            print("RgbToHex" + str);
+        }
+        return str;
     }
 
     function arrayToRGB (color) {
@@ -61,6 +65,11 @@
                 g: color[1] * 255,
                 b: color[2] * 255
             }
+
+            if (DEBUG) {
+                print("arrayToRGB" + JSON.stringify(rgbFormat));
+            }
+
             return rgbFormat;
         } else {
             return color;
@@ -212,35 +221,29 @@
         }
 
         var type = isPBR ? "pbr" : "shadeless";
+
+        print("Before:", dynamicData[STRING_MATERIAL].selectedTypeIndex);
+        
+        // set the drop-down index to hifi-PBR (index 2) or shadeless (index 1)
+        dynamicData[STRING_MATERIAL].selectedTypeIndex = isPBR ? 2 : 1;
+
+        print("After:", dynamicData[STRING_MATERIAL].selectedTypeIndex);
+        
         var dynamicPropertyData = dynamicData[STRING_MATERIAL][type];
 
         // update the ui with values
         for (var property in newMaterialDataToApply.materials) {
-
-            // ** UNDER CONSTRUCTION ** 
-            // ** BELOW IS A DRAFT FOR THE LOGIC AND NOT THE ACTUAL CODE  **
-
             // take all properties in materials and put inside dynamic data 
             // to refresh UI
 
-            // var isMap = property.indexOf("Map");
-            // var newValue = newMaterialDataToApply.materials[property];
+            var isMap = property.indexOf("Map");
+            var newValue = newMaterialDataToApply.materials[property];
 
-            // if (property === "model") { 
-            //     continue;
-            // }
+            if (property === "model" || property === "unlit" ) { 
+                continue;
+            }
 
-            // if (property === "unlit") {
-            //     if (newValue) {
-            //         // true
-            //         // shadeless
-            //         dynamicData[STRING_MATERIAL].typeSelectedIndex = 1;
-            //     } else {
-            //         // hifi-pbr
-            //         dynamicData[STRING_MATERIAL].typeSelectedIndex = 2;
-            //     }
-            //     continue;
-            // }
+            print("ROBIN", property);
             
             // if (isMap) {
 

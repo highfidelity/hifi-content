@@ -339,18 +339,18 @@
                 // take the static list of types
                 // get the key from the selected index
 
-                var selectedTypeIndex = this.selectedTypeIndex;
+                var selectedTypeIndex = this.dynamic.selectedTypeIndex;
                 var typeList = this.static.COMPONENT_DATA.TYPE_LIST;
                 var selectedTypeData = typeList[selectedTypeIndex];
                 var key = selectedTypeData.key;
 
                 return this.static.COMPONENT_DATA.PROPERTIES_LISTS[key];
-            }
-        },
-        data() {
-            return {
-                selectedTypeIndex: this.dynamic.selectedTypeIndex,
-                selectedTypeData: this.static.COMPONENT_DATA.TYPE_LIST[this.dynamic.selectedTypeIndex]
+            },
+            selectedTypeIndex() {
+                return this.dynamic.selectedTypeIndex;
+            },
+            selectedTypeData() {
+                return this.static.COMPONENT_DATA.TYPE_LIST[this.dynamic.selectedTypeIndex];
             }
         },
         template: /* html */ `
