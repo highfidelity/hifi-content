@@ -90,7 +90,6 @@
                 return;
             }
 
-            playSound(OPEN_SOUND, GAME_AUDIO_POSITION, 1);
             playSound(OPEN_SOUND, Entities.getEntityProperties(_this.entityID, 'localPosition').localPosition, 1);
 
             // Start opening the gate.

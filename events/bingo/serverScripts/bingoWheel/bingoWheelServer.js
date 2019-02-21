@@ -91,6 +91,7 @@
             if (injector) {
                 injector.stop();
             }
+
             injector = Audio.playSound(sound, {
                 position: position || GAME_AUDIO_POSITION,
                 volume: volume
@@ -443,7 +444,7 @@
                 bingoWheelEditTimeout = false;
                 wheelSpinning = false;
 
-                playSound(BLIP_SOUND, GAME_AUDIO_POSITION, 0.5);
+                playSound(BLIP_SOUND, 0.5, GAME_AUDIO_POSITION);
             }
         },
 
@@ -503,11 +504,15 @@
                     }
                     i++;
                 }
+
+                if (possibleBingoCalls.length === 0) {
+                    return;
+                }
                 
                 Entities.editEntity(_this.entityID, {
                     angularVelocity: WHEELSPIN_ANGULAR_VELOCITY
                 });
-                playSound(SPIN_SOUND, GAME_AUDIO_POSITION, 0.8);
+                playSound(SPIN_SOUND, 0.8, GAME_AUDIO_POSITION);
 
                 if (bingoWheelEditTimeout) {
                     Script.clearTimeout(bingoWheelEditTimeout);

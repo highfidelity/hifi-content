@@ -19,7 +19,6 @@
     var SCANNER_SPOTLIGHT = "{c589869a-2a8d-4bc7-8ec7-2b353120ba61}";
     var CONFETTI_PARTICLE_EFFECT = "{82ca8364-628d-4e1d-8923-8df17f0aae43}";
     var BINGO_PARTICLE_EFFECT = "{cd06838a-d138-4f10-8796-fc5227019426}";
-    var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
     var COMPUTING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoComputing.wav"));
     var SCANNER_WIN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoScannerWin.wav"));
     var SCANNER_LOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoLose.wav"));
@@ -93,12 +92,14 @@
             Entities.editEntity(SCANNER_SPOTLIGHT, { visible: true });
             var usernameToScan = params[0];
             Entities.callEntityMethod(BINGO_WHEEL, 'requestAlreadyCalledNumbers', [_this.entityID, usernameToScan]);
+            console.log("Requesting already called numbers from Bingo Wheel server script...");
         },
 
         // After this script calls `requestAlreadyCalledNumbers()`, the Bingo wheel will respond with 
         // `alreadyCalledNumbersReply()`. At that point, we want to get the card numbers of the user
         // who entered the scanner.
         alreadyCalledNumbersReply: function(id, args) {
+            console.log("Received already called numbers from Bingo Wheel server script!");
             var calledNumbers = JSON.parse(args[0]);
             var username = args[1];
             _this.getUsersCardNumbers(username, calledNumbers);
@@ -108,6 +109,7 @@
         // If the user is a new user, automatically call lose().
         // Otherwise, go on to validate a win.
         getUsersCardNumbers: function(username, calledNumbers) {
+            console.log("Requesting user's card numbers from server...");
             var searchParamString = encodeURLParams({
                 type: "searchOnly",
                 username: username
@@ -118,6 +120,8 @@
                 if (error || !response || response.status !== "success") {
                     return;
                 }
+
+                console.log("Retrieved user's card numbers from server!");
 
                 if (response.newUser) {
                     _this.lose();
