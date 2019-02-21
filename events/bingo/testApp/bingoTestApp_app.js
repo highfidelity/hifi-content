@@ -12,7 +12,7 @@
     // START UTILITY INCLUDES
     // *************************************
     var request = Script.require(Script.resolvePath('../modules/request.js')).request;
-    var REQUEST_URL = Script.require(Script.resolvePath('../secrets/secrets.json')).requestURL;
+    var REQUEST_URL = Script.require(Script.resolvePath('../config/config.json?' + Date.now())).requestURL;
     var NUMBER_WHEEL_ENTITY_ID = "{57e5e385-3968-4ebf-8048-a7650423d83b}";
     // *************************************
     // END UTILITY INCLUDES

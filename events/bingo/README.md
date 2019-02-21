@@ -4,11 +4,11 @@ A Bingo game for High Fidelity. Requires setting up a domain in a very specific 
 ## Secrets
 
 The code for this game is open source. There are two sets of secrets that you must have set up for this game to work:
-1. A `secrets.json` file in `<bingo root>/secrets/secrets.json` that contains the data below.
+1. A `config.json` file in `<bingo root>/config/config.json` that contains the data below.
 2. A `dbInfo.json` file in `<bingo root>/webApps/dbInfo.json` that contains the data below.
 
-### `secrets.json`
-Here's what your `secrets.json` file should look like:
+### `config.json`
+Here's what your `config.json` file should look like:
 ```
 {
     "requestURL": "<a deployed version of the bingo.js Web App",
@@ -40,7 +40,7 @@ You can perform a local 1-person test of this new code by doing the following:
 4. Run MySQL locally.
     - You can create the necessary Bingo database by modifying the `startup()` function within the `bingo.js` web app script.
 5. Run a local HTTP server to serve the client/server scripts, then change all of the script URLs on the content.
-    - With Python 3.x installed, stand up a simple HTTP server with `python -m http.server 8888` from the `bingo` directory.
+    - With NodeJS and `npm` installed, stand up a simple HTTP server with `npm install http-server -g` followed by `http-server -p 8888` from the `bingo` directory.
 
 
 # Release Notes

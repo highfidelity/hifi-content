@@ -21,15 +21,15 @@
     var REMOVE_CARDS_SCRIPT = Script.resolvePath("../../entityScripts/cardRemover/bingoCardRemover.js");
     var CARD_SPAWNER_SCRIPT = Script.resolvePath("../../entityScripts/cardSpawner/bingoCardSpawner.js");
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 1000;
-    var REQUEST_URL = Script.require(Script.resolvePath('../../secrets/secrets.json?2')).requestURL;
-    var DB_TABLE_PREFIX = Script.require(Script.resolvePath('../../secrets/secrets.json?2')).dbTablePrefix;
+    var REQUEST_URL = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).requestURL;
+    var DB_TABLE_PREFIX = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).dbTablePrefix;
     var BINGO_WALL = "{df198d93-a9b7-4619-9128-97a53fea2451}";
     var BINGO_WHEEL_TEXT = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
     var USERS_ALLOWED_TO_SPIN_WHEEL =
-        Script.require(Script.resolvePath('../../secrets/secrets.json?2')).usersAllowedToSpinWheel;
+        Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).usersAllowedToSpinWheel;
 
     // START PRIZE VARS
-    var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../secrets/secrets.json?2')).gameAudioPosition;
+    var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
     var DRUMROLL_SOUND = SoundCache.getSound(Script.resolvePath("sounds/drumroll.wav"));
     var LOWER_DOORS_DELAY_MS = 1150;
     var currentRoundWinners = [];
@@ -234,7 +234,7 @@
                 }
             }
 
-            var possiblePrizes = Script.require(Script.resolvePath('../../secrets/secrets.json?' + Date.now())).possiblePrizes;
+            var possiblePrizes = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).possiblePrizes;
             while (roundPrizes.length < 3) {
                 maybePushRandomPrize(possiblePrizes[Math.floor(Math.random() * possiblePrizes.length)]);
             }
@@ -286,7 +286,7 @@
                 method: "POST"
             }, function (error, response) {
                 if (error || !response || response.status !== "success") {
-                    print("ERROR when recording winners: ", error || JSON.stringify(response));
+                    print("ERROR when recording winners: ", error, JSON.stringify(response));
                     return;
                 }
             });
@@ -342,14 +342,13 @@
 
             newRoundURLParams = encodeURLParams({ 
                 type: "newRound",
-                calledNumbers: JSON.stringify(calledNumbers),
                 newTablePrefix: DB_TABLE_PREFIX
             });
             request({
                 uri: REQUEST_URL + "?" + newRoundURLParams
             }, function (error, response) {
                 if (error || !response || response.status !== "success") {
-                    print("ERROR: Could not reset round.", JSON.stringify(response));
+                    print("ERROR: Could not reset round.", error, JSON.stringify(response));
                     return;
                 }
                 Entities.editEntity(BINGO_WHEEL_TEXT, {
@@ -520,6 +519,26 @@
             }   
         },
 
+        sendCalledNumbersToServer: function() {
+            var requestBody = {
+                "type": "replaceCalledNumbers",
+                "calledNumbers": calledNumbers
+            };
+            request({
+                uri: REQUEST_URL,
+                json: true,
+                body: requestBody,
+                method: "POST"
+            }, function (error, response) {
+                if (error || !response || response.status !== "success") {
+                    print("ERROR when sending called numbers array to server: ", error, JSON.stringify(response));
+                    return;
+                } else {
+                    print("Called numbers successfully stored on server.");
+                }
+            });
+        },
+
         /* ADD A CALLED NUMBER TO LIST: Add the number to the list and set an lightBlinkInterval to toggle the light on and off 
         every 500MS. After 6 toggles, clear the lightBlinkInterval, leaving the light on. */
         addCalledNumber: function(calledNumber) {
@@ -555,12 +574,14 @@
                     lightBlinkInterval = false;
                 }
             }, LIGHT_BLINK_INTERVAL_MS);
+
+            _this.sendCalledNumbersToServer();
         }, 
 
         // A debug method used to immediately call all numbers
-        // Relies on `secrets.json` containing `"debugMode": true`
+        // Relies on `config.json` containing `"debugMode": true`
         callAllNumbers: function(thisID, params) {
-            var debugMode = Script.require(Script.resolvePath('../../secrets/secrets.json?' + Date.now())).debugMode;
+            var debugMode = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).debugMode;
             if (!debugMode) {
                 return;
             }

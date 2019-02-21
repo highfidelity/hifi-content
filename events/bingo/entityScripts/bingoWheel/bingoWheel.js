@@ -13,7 +13,7 @@
 
 (function() {
     var USERS_ALLOWED_TO_SPIN_WHEEL =
-        Script.require(Script.resolvePath('../../secrets/secrets.json?0')).usersAllowedToSpinWheel;
+        Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).usersAllowedToSpinWheel;
 
     var _this;
 

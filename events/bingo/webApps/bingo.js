@@ -21,8 +21,10 @@ var dbInfo = require('./dbInfo.json');
 
 // Creates a new table in the Bingo DB.
 var currentTableName;
+var currentCalledNumbers = [];
 function createNewTable(newTablePrefix, response) {
     currentTableName = newTablePrefix + "_" + Date.now();
+    currentCalledNumbers = [];
 
     var query = `CREATE TABLE \`${currentTableName}\` (
         username VARCHAR(50) PRIMARY KEY,
@@ -56,27 +58,8 @@ function createNewTable(newTablePrefix, response) {
 }
 
 // Called when the Bingo Boss requests a new round
-function startNewRound(calledNumbers, newTablePrefix, response) {
-    if (currentTableName) {
-        var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers)
-            VALUES ('BINGO BOSS', '${calledNumbers}')`;
-        connection.query(query, function(error, results, fields) {
-            if (error) {
-                var responseObject = {
-                    status: "error",
-                    text: "Error starting new round! " + JSON.stringify(error)
-                };
-    
-                response.statusCode = 200;
-                response.setHeader('Content-Type', 'application/json');
-                return response.end(JSON.stringify(responseObject));
-            }
-    
-            createNewTable(newTablePrefix, response);
-        });
-    } else {
-        createNewTable(newTablePrefix, response);
-    }
+function startNewRound(newTablePrefix, response) {
+    createNewTable(newTablePrefix, response);
 }
 
 // Gets a random valid Bingo number associated with the passed `currentColumn`
@@ -165,6 +148,7 @@ function addNewPlayer(username, response) {
 // "searchOrAdd"
 // "searchOnly"
 // "newRound"
+// "getCalledNumbers"
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
     
@@ -233,9 +217,18 @@ function handleGetRequest(request, response) {
             return response.end(JSON.stringify(responseObject));
         }
     } else if (type === "newRound") {
-        return startNewRound(queryParamObject.calledNumbers, queryParamObject.newTablePrefix, response);
-    } else {
+        return startNewRound(queryParamObject.newTablePrefix, response);
+    } else if (type === "getCalledNumbers") {
+        var responseObject = {
+            "status": "success",
+            "calledNumbers": currentCalledNumbers
+        };
+
         response.statusCode = 200;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    } else {
+        response.statusCode = 501;
         response.setHeader('Content-Type', 'text/plain');
         return response.end(JSON.stringify(queryParamObject) + '\n');
     }
@@ -317,9 +310,54 @@ function recordWinners(winnersArray, response) {
     });
 }
 
+// Inserts the new called numbers array into the current table,
+// then replaces the `currentCalledNumbers` var in memory with the one
+// passed into this function.
+// This ensures we don't have to do a DB fetch when users fetch the
+// currentCalledNumbers with a GET request.
+function replaceCalledNumbers(newCalledNumbers, response) {
+    if (currentTableName) {
+        var query = `REPLACE INTO \`${currentTableName}\` (username, cardNumbers)
+            VALUES ('BINGO BOSS', '${JSON.stringify(newCalledNumbers)}')`;
+        connection.query(query, function(error, results, fields) {
+            if (error) {
+                var responseObject = {
+                    status: "error",
+                    text: "Error replacing called numbers! " + JSON.stringify(error)
+                };
+    
+                response.statusCode = 200;
+                response.setHeader('Content-Type', 'application/json');
+                return response.end(JSON.stringify(responseObject));
+            }
+
+            currentCalledNumbers = newCalledNumbers;
+            
+            var responseObject = {
+                status: "success",
+                text: "Replaced called numbers."
+            };
+
+            response.statusCode = 200;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        });
+    } else {
+        var responseObject = {
+            status: "error",
+            text: "replaceCalledNumbers was called, but there was no currentTableName!"
+        };
+
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+}
+
 // Handles all POST requests made to the Bingo endpoint.
 // The one handled request type is:
 // "recordPrizes"
+// "replaceCalledNumbers"
 function handlePostRequest(request, response) {
     let body = '';
     request.on('data', chunk => {
@@ -352,7 +390,20 @@ function handlePostRequest(request, response) {
             } else {
                 recordWinners(body.winners, response);
             }            
-        } else {
+        } else if (body.type === "replaceCalledNumbers") {
+            if (!body.calledNumbers) {
+                var responseObject = {
+                    status: "error",
+                    text: "No valid calledNumbers array provided!"
+                };
+
+                response.statusCode = 200;
+                response.setHeader('Content-Type', 'application/json');
+                return response.end(JSON.stringify(responseObject));
+            } else {
+                replaceCalledNumbers(body.calledNumbers, response);
+            }
+        }else {
             var responseObject = {
                 status: "error",
                 text: "Invalid request type provided!"
@@ -365,9 +416,10 @@ function handlePostRequest(request, response) {
     })
 }
 
-// Starts the NodejS HTTP server.
+// Starts the NodeJS HTTP server.
 function startServer() {
     const server = http.createServer((request, response) => {
+        response.setHeader('Access-Control-Allow-Origin', '*');
         if (request.method === "GET") {
             handleGetRequest(request, response);
         } else if (request.method === "POST") {

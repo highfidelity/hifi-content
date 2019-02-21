@@ -7,8 +7,7 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-/* globals $ document EventBridge setTimeout */
-
+/* globals $ document EventBridge setTimeout setInterval requestURL */
 
 // Turns a color JSON object into a CSS rgb() string.
 function parseColor(scriptColorObject) {
@@ -101,10 +100,87 @@ function onScriptEventReceived(scriptEvent) {
     }
 }
 
+// Scrolls the "Called Numbers" UI element "left" or "right", if possible
+function scrollCalledNumbers(direction) {
+    var el = document.getElementById("calledNumbers");
+    var leftX = document.getElementById("scrollCalledNumbersLeft").offsetLeft +
+        document.getElementById("scrollCalledNumbersLeft").offsetWidth;
+    var rightX = document.getElementById("scrollCalledNumbersRight").offsetLeft;
+    var visibleLength = parseInt(rightX - leftX);
+    var AMOUNT_TO_MOVE_PX = Math.min(visibleLength / 2, 125);
+
+    var currentOffset = el.style.left;
+    currentOffset = currentOffset === "" ? 0 : currentOffset.slice(0, -2);
+    currentOffset = parseInt(currentOffset);
+    var newOffset;
+
+    if (direction === "left") {
+        newOffset = currentOffset + AMOUNT_TO_MOVE_PX;
+        // Don't move any more left such that any of the text would be off-banner
+        newOffset = Math.min(0, newOffset);
+        el.style.left = newOffset + "px";
+    } else {
+        newOffset = currentOffset - AMOUNT_TO_MOVE_PX;
+        // Don't move any more right such that any of the text would be off-banner
+        newOffset = Math.max(-(el.offsetWidth - visibleLength), newOffset);
+        el.style.left = newOffset + "px";
+    }
+}
+
+// Formats the called numbers array into something human-readable
+function formatCalledNumbers(numbers) {
+    var formattedNumbers = [];
+
+    for (var i = 0; i < numbers.length; i++) {
+        if (numbers[i] < 16) {
+            formattedNumbers[i] = "<span class='bingoB'>B" + numbers[i] + "</span>";
+        } else if (numbers[i] < 31) {
+            formattedNumbers[i] = "<span class='bingoI'>I" + numbers[i] + "</span>";
+        } else if (numbers[i] < 46) {
+            formattedNumbers[i] = "<span class='bingoN'>N" + numbers[i] + "</span>";
+        } else if (numbers[i] < 61) {
+            formattedNumbers[i] = "<span class='bingoG'>G" + numbers[i] + "</span>";
+        } else if (numbers[i] < 76) {
+            formattedNumbers[i] = "<span class='bingoO'>O" + numbers[i] + "</span>";
+        }
+    }
+
+    return formattedNumbers.join(", ");
+}
+
+
+// Gets the already-called BINGO numbers from the server, then displays them
+// (formatted) in the Card UI.
+function getCalledNumbers(requestURL) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            var response;
+            try {
+                response = JSON.parse(this.responseText);
+            } catch (error) {
+                console.log("ERROR when parsing getCalledNumbers request: " + JSON.stringify(error));
+                return;
+            }
+
+            if (!response.calledNumbers || response.calledNumbers.length === 0) {
+                document.getElementById("calledNumbers").innerHTML = "Nothing yet!";
+            } else {
+                var formattedNumbers = formatCalledNumbers(response.calledNumbers);
+                document.getElementById("calledNumbers").innerHTML = formattedNumbers;
+            }
+        }
+    };
+    xhttp.open("GET", requestURL, true);
+    xhttp.send();
+}
+
 
 // This delay is necessary to allow for the JS EventBridge to become active.
 // The delay is still necessary for HTML apps in RC78+.
 var EVENTBRIDGE_SETUP_DELAY = 500;
+var NUMBER_CHECK_INTERVAL_MS = 5000;
+var CONFIG_URL = "../../../config/config.json";
 function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
@@ -112,6 +188,23 @@ function onLoad() {
             type: "eventBridgeReady"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
+
+    // Get config.json from the server to know which URL to make future requests to,
+    // then setup the interval to get called numbers.
+    // This must not fail.
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            var requestURL = JSON.parse(this.responseText).requestURL + "?type=getCalledNumbers";
+
+            setInterval(function() {
+                getCalledNumbers(requestURL);
+            }, NUMBER_CHECK_INTERVAL_MS);
+            getCalledNumbers(requestURL);
+        }
+    };
+    xhttp.open("GET", CONFIG_URL, true);
+    xhttp.send();
 }
 
 

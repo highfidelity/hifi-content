@@ -16,7 +16,7 @@
     var _this;
 
     var debounceTimer = false;
-    var appPage = Script.resolvePath('../../bingoCardApp/ui/bingoCard_ui.html?12');
+    var appPage = Script.resolvePath('../../bingoCardApp/ui/bingoCard_ui.html?13');
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
 
     // *************************************

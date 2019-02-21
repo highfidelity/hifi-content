@@ -3,7 +3,7 @@
         <title>Bingo Card</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700|Fira+Sans" rel="stylesheet">
         <link rel="stylesheet" href="css/bingoCard_ui.css?2">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script type="text/javascript" src="js/bingoCard_ui.js"></script>
@@ -45,9 +45,24 @@
             <button class="button-number" id="23"></button>
         </div>
         
-        <div class="bottomPanel">
+        <div id="bottomPanel">
             <button id="bingoButton">Call Bingo</button><br>
-            <text id="helpText">Retrieving BINGO data...</text>
+            <span id="helpText">Retrieving BINGO data...</span>
+        </div>
+
+        <div id="calledNumbersContainer">
+            <div id="calledNumbersTitle">
+                Called:
+            </div>
+            <div id="scrollCalledNumbersLeft" onclick="scrollCalledNumbers('left')">
+                <
+            </div>
+            <div id="calledNumbers">
+
+            </div>
+            <div id="scrollCalledNumbersRight" onclick="scrollCalledNumbers('right')">
+                >
+            </div>
         </div>
     </body>
 </html>

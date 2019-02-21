@@ -12,7 +12,7 @@
 (function() { 
     var _this;
 
-    var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../secrets/secrets.json?1')).gameAudioPosition;
+    var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
     var MOVEMENT_VELOCITY_M_PER_SEC = 1.4;
     var POSITION_CHECK_INTERVAL_MS = 25;
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath("sounds/openGate.wav"));

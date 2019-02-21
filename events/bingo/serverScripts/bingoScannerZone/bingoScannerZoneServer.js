@@ -19,14 +19,14 @@
     var SCANNER_SPOTLIGHT = "{c589869a-2a8d-4bc7-8ec7-2b353120ba61}";
     var CONFETTI_PARTICLE_EFFECT = "{82ca8364-628d-4e1d-8923-8df17f0aae43}";
     var BINGO_PARTICLE_EFFECT = "{cd06838a-d138-4f10-8796-fc5227019426}";
-    var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../secrets/secrets.json?1')).gameAudioPosition;
+    var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
     var COMPUTING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoComputing.wav"));
     var SCANNER_WIN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoScannerWin.wav"));
     var SCANNER_LOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoLose.wav"));
     var SAD_TROMBONE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoSadTrombone.wav"));
     var WAIT_TO_CLOSE_TRAP_DOOR_MS = 1500;
     var WAIT_TO_CLOSE_WIN_GATE_MS = 2000;
-    var REQUEST_URL = Script.require(Script.resolvePath('../../secrets/secrets.json?0')).requestURL;
+    var REQUEST_URL = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).requestURL;
 
     var _this;
     

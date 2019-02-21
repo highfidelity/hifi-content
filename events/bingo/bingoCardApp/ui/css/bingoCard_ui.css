@@ -1,6 +1,6 @@
 body {
-    margin: 10;
-    width: 100% - 10px;
+    margin: 0;
+    width: 100%;
     font-family: 'Raleway', sans-serif;
     color: #cccbcb;
     background: linear-gradient(#2b2b2b, #303030);
@@ -94,7 +94,7 @@ input[type=button][pressed=pressed] {
     color: white;
 }
 
-.bottomPanel {
+#bottomPanel {
     margin-top: 20px;
     text-align: center;
     width: 100%;
@@ -124,4 +124,71 @@ input[type=button][pressed=pressed] {
 #helpText {
     display: block;
     margin-top: 6px;
+}
+
+#calledNumbersContainer {
+    position: fixed;
+    display: flex;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    padding: 0;
+    overflow: hidden;
+    background-color: #121212;
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 24px;
+    color: white;
+}
+
+#calledNumbersTitle {
+    padding: 0 6px;
+}
+
+#calledNumbersContainer > div {
+    flex-shrink: 0;
+    z-index: 2;
+    background: #121212;
+}
+
+#calledNumbers {
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    z-index: 1 !important; 
+    white-space: nowrap;
+    left: 0px;
+}
+
+.bingoB {
+    color: #FB0CF8;
+}
+.bingoI {
+    color: #FBB617;
+}
+.bingoN {
+    color: #36C51E;
+}
+.bingoG {
+    color: #1860FA;
+}
+.bingoO {
+    color: #FB101B;
+}
+
+#scrollCalledNumbersLeft, #scrollCalledNumbersRight {
+    width: 50px;
+    background: #292929 !important;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+#scrollCalledNumbersRight {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    height: 60px;
 }

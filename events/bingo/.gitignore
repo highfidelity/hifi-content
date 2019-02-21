@@ -1,5 +1,5 @@
 /.vs/
 
-secrets/secrets.json
+config/config.json
 webApps/dbInfo.json
 webApps/node_modules/

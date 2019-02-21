@@ -125,7 +125,7 @@
     //     ii. If the response indicates success, send that data to the UI
     //         a. If the server indicates that the user is new, tell the player counter text to
     //             add one to its count.
-    var REQUEST_URL = Script.require(Script.resolvePath('../secrets/secrets.json?0')).requestURL;
+    var REQUEST_URL = Script.require(Script.resolvePath('../config/config.json?' + Date.now())).requestURL;
     var PLAYER_COUNTER_TEXT = "{15d6a1a1-c361-4c8e-8b9a-f4cb4ae2dd83}";
     var request = Script.require('request').request;
     var userCardNumbers = [];
@@ -325,7 +325,7 @@
     // Also hook up necessary signals and open the app's UI.
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('ui/bingoCard_ui.html?12');
+    var appPage = Script.resolvePath('ui/bingoCard_ui.html?13');
     function startup() {
         ui = new AppUi({
             buttonName: "BINGO",
