@@ -466,6 +466,7 @@
                 <material-slider 
                     v-if="propertyInfo.componentType === STRING_SLIDER"
                     :propertyInfo="propertyInfo"
+                    :defaultvalue="propertyInfo.value"
                     :onchange="updateProperty"
                 />
 
@@ -479,7 +480,7 @@
     })
 
     Vue.component('material-slider', {
-        props: ['propertyInfo', 'onchange'],
+        props: ['propertyInfo', 'onchange', 'defaultvalue'],
         computed: {
             sliderDefault() {
                 if (this.propertyInfo.value) {
@@ -493,6 +494,20 @@
                 }
             }
         },
+        data() {
+            return {
+                sliderDefault: this.propertyInfo.value 
+                    ? this.propertyInfo.value 
+                    : this.propertyInfo.mapValue ? 1 : 0
+            };
+        },
+        watch: {
+            defaultvalue(value, newValue) {
+                this.sliderDefault = value 
+                    ? value 
+                    : this.propertyInfo.mapValue ? 1 : 0
+            }
+        },
         template: /* html */ `
             <div class="flex-container-row">
                 <p class="flex-item">{{ propertyInfo.name }}</p>
@@ -500,7 +515,7 @@
                     <slider
                         :name="propertyInfo.name"
                         :max="1"
-                        :increment="0.1"
+                        :increment="0.01"
                         :min="0"
                         :defaultvalue="sliderDefault"
                         :onchange="onchange"
@@ -580,53 +595,8 @@
         computed: {
             colorElementIds() {
                 return this.propertyInfo.name + "-color-id";
-            }, 
-            // colors () {
-            //     if (newValue === "N/A") {
-            //         this.setColorToNA();
-            //     }
-            //     return this.propertyInfo.value;
-            // }
-            // colors: {
-            //     get () {
-            //         return this.propertyInfo.value;
-            //     },
-            //     set () {
-
-            //         if (this.propertyInfo.value === "N/A") {
-            //             this.setColorToNA();
-            //         }
-
-            //         return this.propertyInfo.value;
-
-            //     }
-            // }
-            // () {
-            //     if (this.propertyInfo.value === "N/A") {
-            //         this.cancelColor();
-            //     }
-            //     return this.colors;
-            // }
+            }
         },
-        // updated: function() {
-        //     console.log("robin robin" + this.colors) // Logs true every second
-        // },
-        // data() {
-        //     return {
-        //         colors: this.propertyInfo.value
-        //     };
-        // },
-        // watch: {
-        //     colors (newValue, oldValue) {
-        //         console.log("GAHHH")
-
-        //         if (this.propertyInfo.value === "N/A") {
-        //             this.setColorToNA();
-        //         }
-
-        //         this.colors = this.propertyInfo.value;
-        //     }
-        // },
         template: /* html */ `
             <div class="flex-item">
 
@@ -681,6 +651,15 @@
     // https://gist.github.com/mudream4869/d956736a96bac2a89155a0c416a0ac35
     Vue.component('jscolor', {
         props : ['value', 'colorpickerid', 'onchange', 'cancelcolor'],
+        // methods: {
+        //     onChange(target) {
+
+        //         this.value = target.jscolor.toHEXString();
+        //         this.$refs.color_span.style.backgroundColor = this.value;
+        //         this.$emit('input', this.value);
+
+        //     }
+        // },
         mounted : function(){
             window.jscolor.installByClassName('jscolor');
             this.$el.jscolor.fromString(this.value);
@@ -693,10 +672,6 @@
                     _this.onchange(this.value);
                 }
             }(this));
-
-            // if (this.value === "N/A") {
-            //     this.cancelcolor();
-            // }
         },
         computed: {
             styling() {
@@ -706,11 +681,6 @@
                 return this.colorpickerid + "-jscolor";
             }
         },
-        // data() {
-        //     return {
-        //         color: this.value
-        //     }
-        // }, // **** JSCOLOR
         watch: {
             value (value, oldValue) {
                 console.log("JSCOLORRRRR");
@@ -719,15 +689,6 @@
                 } else {
                     this.$el.jscolor.fromString(value);
                     this.$emit('input', value);
-                    // var id = this.elementId;
-                
-                    // if (DEBUG) {
-                    //     console.log("Cancel color here " + id);
-                    // }
-    
-                    // $(id).css("background-color", value);
-                    // // this.$el.jscolor.fromString(this.value);
-                    // $(id).val(this.value);
                 }
             }
         },
@@ -1071,7 +1032,7 @@
         },
         watch: {
             defaultvalue(newDefaultVal) {
-                this.val = newDefaultVal;
+                this.val = newDefaultVal.toFixed(2);;
             },
             val(newVal){
                 this.onchange(newVal, this.title);
@@ -1239,10 +1200,19 @@
                 selected: this.defaultimage ? PREFIX + this.defaultimage : PREFIX + NO_IMAGE
             }
         },
+        watch: {
+            defaultimage(value, oldValue) { 
+                console.log("IMAGE VALUE IS ", value);
+                this.selected = this.defaultimage ? PREFIX + this.defaultimage : PREFIX + NO_IMAGE;
+            }
+        },
         template: /* html */ `
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img class="dropdown-item-image" v-bind:src="selected">
+                    <img 
+                        class="dropdown-item-image" 
+                        v-bind:src="selected"
+                    >
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in itemsList">

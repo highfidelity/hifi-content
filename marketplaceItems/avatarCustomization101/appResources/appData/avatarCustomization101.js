@@ -55,7 +55,7 @@
         var g = colorObject.g;
         var b = colorObject.b;
 
-        var str = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+        var str = "" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
         if (DEBUG) {
             print("RgbToHex" + str);
         }
@@ -65,9 +65,9 @@
     function arrayToRGB (color) {
         if (Array.isArray(color)) {
             var rgbFormat = {
-                r: color[0] * 255,
-                g: color[1] * 255,
-                b: color[2] * 255
+                r: Math.floor( color[0] * 255 ),
+                g: Math.floor( color[1] * 255 ),
+                b: Math.floor( color[2] * 255 )
             }
 
             if (DEBUG) {
