@@ -196,48 +196,169 @@
         STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY,
         STRING_UPDATE_ENTITY_PROPERTIES = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_ENTITY_PROPERTIES;
 
+    // componentTypes
+    var STRING_COLOR = CONFIG.STRING_COLOR,
+        STRING_SLIDER = CONFIG.STRING_SLIDER,
+        STRING_MAP_ONLY = CONFIG.STRING_MAP_ONLY;
+
     var PATH_TO_IMAGES = MATERIAL_DATA.directory;
 
-    // @args updatesObject name [string]
-    function updateMaterial(newMaterialDataToApply, isNamed, isPBR) {
-
-        print("UPDATING MATERIAL ", JSON.stringify(newMaterialDataToApply))
-
-        // Applies to all materials
-        materialProperties = {
-            type: "Material",
-            name: "Avatar101-Material",
-            parentID: MyAvatar.sessionUUID,
-            description: newMaterialDataToApply.description,
-            materialURL: "materialData",
-            priority: 1,
-            materialMappingScale: {
-                x: newMaterialDataToApply.materialMappingScale.x,
-                y: newMaterialDataToApply.materialMappingScale.y
-            },
-            parentMaterialName: newMaterialDataToApply.parentMaterialName,
-            materialData: JSON.stringify({
-                materialVersion: 1,
-                materials: newMaterialDataToApply.materials
-            })
+    // Updates single property
+    // propertyName
+    // newMaterialData { value: "" map: "" }
+    // componentType: STRING_COLOR / STRING_SLIDER / STRING_MAP_ONLY
+    // isPBR: boolean
+    function updateMaterialProperty(propertyName, newMaterialData, componentType, isPBR) {
+        
+        var updates = {
+            unlit: isPBR ? false: true
         };
 
         var type = isPBR ? "pbr" : "shadeless";
+
         
-        if (isNamed) {
-            
-            // is named
-            // only clicking a named button will do this
-            setMaterialPropertiesToDefaults();
-        } else {
-            // is not named material
-            dynamicData[STRING_MATERIAL].selectedMaterial = "";
+
+        var value = newMaterialData.value;
+        var map = newMaterialData.map;
+
+        var key = propertyName;
+        var keyMap = propertyName + "Map";
+
+        // update UI values
+        dynamicData[STRING_MATERIAL][type].value = value;
+        dynamicData[STRING_MATERIAL][type].map = map; 
+
+        switch (componentType) {
+            case STRING_COLOR:
+                value = convertColorUIToBackend(value);
+                break;
+            case STRING_SLIDER:
+                // nothing to convert
+                break; 
+            case STRING_MAP_ONLY:
+                value = prepImageUIToBackend(value);
+                keyMap = "";
+                break;
         }
+
+        if (map && keyMap) {
+            updates[keyMap] = prepImageUIToBackend(map);
+        }
+        updates[key] = value;
+
+        updateMaterial({ materials: updates }, false, isPBR);
+    }
+
+    function createOrUpdateMaterialEntity(newMaterialData, isNamed, isPBR) {
+
+        var materialEntityProperties;
+
+        if (!materialID) {
+            // create material entity properties
+            materialEntityProperties = {
+                // static defaults
+                type: "Material",
+                name: "Avatar101-Material",
+                parentID: MyAvatar.sessionUUID,
+                materialURL: "materialData",
+                priority: 1,
+                parentMaterialName: 1,
+                materials: { // to be stringified
+                    model: "hifi_pbr",
+                },
+
+                // dynamic properties 
+                description: newMaterialData.description ? newMaterialData.description : "",
+                materialMappingScale: newMaterialData.materialMappingScale ? newMaterialData.materialMappingScale : { x: 1, y: 1 },
+                materialData: isNamed 
+                    ? JSON.stringify({ materialVersion: 1, materials: newMaterialData.materials })
+                    : getMaterialDataString(isPBR, newMaterialData.materials)
+            };
+
+            materialID = Entities.addEntity(materialEntityProperties, "avatar");
+
+        } else {
+
+            if (isNamed) {
+                
+                var updates = {
+                    description: newMaterialData.description,
+                    materialMappingScale: newMaterialData.materialMappingScale,
+                    materialData: JSON.stringify({ materialVersion: 1, materials: newMaterialData.materials })
+                };
+
+                Entities.editEntity(materialID, updates);
+
+            } else {
+
+                // get old properties
+                materialEntityProperties = Entities.getEntityProperties(materialID, ["materialData"])
+                var materialDataString = getMaterialDataString(isPBR, newMaterialData.materials, materialData);
+
+                Entities.editEntity(materialID, { materialData: materialDataString });
+            }
+
+            
+            // var materialData = materialEntityProperties.materialData;
+            // var description = newMaterialData.description ? newMaterialData.description : materialEntityProperties.description;
+            // var materialMappingScale = newMaterialData.materialMappingScale ? newMaterialData.materialMappingScale : materialEntityProperties.materialMappingScale;
+
+            // var materialDataString = isNamed 
+            // ? JSON.stringify({ materialVersion: 1, materials: newMaterialDataToApply.materials })
+            // : getMaterialDataString(isPBR, newMaterialData.materials)
+            
+            // getMaterialDataString(isPBR, newMaterialData.materials, materialData);
+
+            // var updates = {
+            //     description: description,
+            //     materialMappingScale: materialMappingScale,
+            //     materialData: materialDataString
+            // }
+
+            // Entities.editEntity(materialID, updates);
+        }
+    }
+
+    // get material data string for setting in entity properties
+    function getMaterialDataString (isPBR, newMaterialData, oldMaterialDataString) {
+
+        var materialData = {};
+
+        // parse old material data
+        if (oldMaterialDataString) {
+            try {
+                materialData = JSON.parse(oldMaterialDataString).materials;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // set material version
+        materialData.materialVersion = 1;
+        // loop through all material data
+        for(var key in newMaterialData) {
+            materialData[key] = newMaterialData[key];
+
+            if (key === "unlit" && !isPBR ) {
+                // unlit exists and is false
+                // is shadeless
+                delete materialData[key];
+            }
+        }
+
+        return JSON.stringify({ materialVersion: 1, materials: materialData });
+    }
+
+    // button is pressed and must loop through all UI elements to update
+    // newMaterialData.materials passed in
+    function updateMaterialDynamicDataUI(newMaterialDataToApply, isPBR) {
 
         // set the UI drop-down index to hifi-PBR (index 2) or shadeless (index 1)
         dynamicData[STRING_MATERIAL].selectedTypeIndex = isPBR ? 2 : 1;
+        var type = isPBR ? "pbr" : "shadeless";
 
-        // Update UI with values
+        // *** FOR NAMED PROPERTIES ONLY ***
+        // Update UI with values 
         var dynamicPropertyData = dynamicData[STRING_MATERIAL][type];
         var materialData = newMaterialDataToApply.materials;
 
@@ -273,17 +394,20 @@
             }
 
         }
+    }
 
-        if (materialID) {
-            // exists
-            print("Material exists, Entities.editEntity time to update!");
-            Entities.editEntity(materialID, materialProperties);
-        } else {
-            // needs to be created
-            print("Material must be created! Entities.addEntity");
-            materialID = Entities.addEntity(materialProperties, "avatar");
-        }
+    // @args updatesObject name [string]
+    function updateMaterial(newMaterialDataToApply, isNamed, isPBR) {
 
+        createOrUpdateMaterialEntity(newMaterialDataToApply, isNamed, isPBR);
+
+        if (isNamed) {
+            // is named
+            // only clicking a named button will do this
+            setMaterialPropertiesToDefaults();
+            updateMaterialDynamicDataUI(newMaterialDataToApply, isPBR);
+
+        } 
     }
 
     function prepImageBackendToUI(file) {
@@ -333,12 +457,22 @@
 
     // presets
     function applyNamedMaterial(materialName) {
+
+        dynamicData[STRING_MATERIAL].selectedMaterial = materialName;
+
         switch (materialName){
             case STRING_DEFAULT_MAT:
-                // updateMaterial materialName, isNamed, isPBR
-                updateMaterial(MATERIAL_DEFAULT, true, true);
+
+                setMaterialPropertiesToDefaults();
+                dynamicData[STRING_MATERIAL].selectedTypeIndex = 0; // "Select one"
+
+                if (materialID) {
+                    Entities.deleteEntity(materialID);
+                }
+
                 break;
             case STRING_GLASS_MAT:
+                // updateMaterial materialName, isNamed, isPBR
                 updateMaterial(MATERIAL_GLASS, true, true);
                 break;
             case STRING_CHAIN_MAT:
@@ -735,6 +869,13 @@
                         applyNamedMaterial(data.name);
                         break;
                     case STRING_UPDATE_PROPERTY:
+
+                        var propertyName = data.updates.propertyName;
+                        var newMaterialData = data.updates.newMaterialData;
+                        var componentType = data.updates.componentType;
+                        var isPBR = data.updates.isPBR;
+
+                        updateMaterialProperty(propertyName, newMaterialData, componentType, isPBR)
 
                         break;
                     case STRING_UPDATE_ENTITY_PROPERTIES:

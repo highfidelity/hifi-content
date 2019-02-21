@@ -34,7 +34,9 @@
         // Material tab events
         EVENT_UPDATE_MATERIAL = APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL,
         EVENT_UPDATE_BLENDSHAPE = APP_NAME + CONFIG.EVENT_UPDATE_BLENDSHAPE,
-        EVENT_UPDATE_FLOW = APP_NAME + CONFIG.EVENT_UPDATE_FLOW;
+        EVENT_UPDATE_FLOW = APP_NAME + CONFIG.EVENT_UPDATE_FLOW,
+
+        STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
 
     // Debug
 
@@ -322,9 +324,6 @@
                     console.log("Materials updateTypeSelected clicked");
                 }
 
-                this.selectedTypeIndex = newTypeSelectedIndex;
-                this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[newTypeSelectedIndex];
-
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_MATERIAL,
                     subtype: CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_MODEL_TYPE_SELECTED,
@@ -333,24 +332,26 @@
                 
             }
         },
-        computed: {
-            staticPropertyList() {
-                // get the list of properties to populate below
-                // take the static list of types
-                // get the key from the selected index
+        data() {
 
-                var selectedTypeIndex = this.dynamic.selectedTypeIndex;
-                var typeList = this.static.COMPONENT_DATA.TYPE_LIST;
-                var selectedTypeData = typeList[selectedTypeIndex];
-                var key = selectedTypeData.key;
+            var selectedTypeIndex = this.dynamic.selectedTypeIndex;
+            var typeList = this.static.COMPONENT_DATA.TYPE_LIST;
+            var selectedTypeData = typeList[selectedTypeIndex];
+            var key = selectedTypeData.key;
 
-                return this.static.COMPONENT_DATA.PROPERTIES_LISTS[key];
-            },
-            selectedTypeIndex() {
-                return this.dynamic.selectedTypeIndex;
-            },
-            selectedTypeData() {
-                return this.static.COMPONENT_DATA.TYPE_LIST[this.dynamic.selectedTypeIndex];
+            return {   
+                selectedTypeIndex: selectedTypeIndex,
+                selectedTypeData: selectedTypeData,
+                staticPropertyList: typeList[key]
+            }
+        },
+        watch: {
+            dynamic(value, oldvalue) {
+                // *** can be more performant
+                console.log("dynamic was updated");
+                this.selectedTypeIndex = value.selectedTypeIndex;
+                this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[value.selectedTypeIndex];
+                this.staticPropertyList = this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.selectedTypeData.key]
             }
         },
         template: /* html */ `
@@ -378,7 +379,7 @@
 
                 <drop-down
                     :items="static.COMPONENT_DATA.TYPE_LIST"
-                    :selectedItemIndex="selectedTypeIndex"
+                    :selectedItemIndex="this.dynamic.selectedTypeIndex"
                     :onselect="updateTypeSelected"
                 >
                 </drop-down>
@@ -481,19 +482,6 @@
 
     Vue.component('material-slider', {
         props: ['propertyInfo', 'onchange', 'defaultvalue'],
-        computed: {
-            sliderDefault() {
-                if (this.propertyInfo.value) {
-                    return this.propertyInfo.value;
-                }
-
-                if (propertyInfo.mapValue) {
-                    // if a map is defined, but no value is set for the slider, 
-                    // set the value to 1
-                    return 1;
-                }
-            }
-        },
         data() {
             return {
                 sliderDefault: this.propertyInfo.value 
