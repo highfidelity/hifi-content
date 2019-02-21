@@ -280,7 +280,7 @@
         } else {
 
             if (isNamed) {
-                
+
                 var updates = {
                     description: newMaterialData.description,
                     materialMappingScale: newMaterialData.materialMappingScale,
@@ -468,6 +468,7 @@
 
                 if (materialID) {
                     Entities.deleteEntity(materialID);
+                    materialID = null;
                 }
 
                 break;
@@ -863,7 +864,8 @@
 
                 switch (data.subtype) {
                     case STRING_MODEL_TYPE_SELECTED:
-                        dynamicData[STRING_MATERIAL].typeSelectedIndex = data.updates;
+                        applyNamedMaterial(STRING_DEFAULT_MAT);
+                        dynamicData[STRING_MATERIAL].selectedTypeIndex = data.updates;
                         break;
                     case STRING_NAMED_MATERIAL_SELECTED: 
                         applyNamedMaterial(data.name);

@@ -321,7 +321,7 @@
                 // updates the index of the selected type: "shadeless" or "hifi-pbr" or "Select one" (none selected) 
 
                 if (DEBUG) {
-                    console.log("Materials updateTypeSelected clicked");
+                    console.log("Materials updateTypeSelected clicked" + newTypeSelectedIndex);
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
@@ -348,10 +348,11 @@
         watch: {
             dynamic(value, oldvalue) {
                 // *** can be more performant
-                console.log("dynamic was updated");
-                this.selectedTypeIndex = value.selectedTypeIndex;
+                console.log("dynamic was updated" + value.selectedTypeIndex);
+                this.selectedTypeIndex = this.dynamic.selectedTypeIndex;
                 this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[value.selectedTypeIndex];
                 this.staticPropertyList = this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.selectedTypeData.key]
+                console.log("ROBIN IS HERE" + JSON.stringify(this.staticPropertyList));
             }
         },
         template: /* html */ `
@@ -380,7 +381,7 @@
                 <drop-down
                     :items="static.COMPONENT_DATA.TYPE_LIST"
                     :selectedItemIndex="this.dynamic.selectedTypeIndex"
-                    :onselect="updateTypeSelected"
+                    :selectItem="updateTypeSelected"
                 >
                 </drop-down>
                 
@@ -1123,14 +1124,14 @@
     //   index: index in list
     // }
     Vue.component('drop-down', {
-        props: ["items", "selectedItemIndex", "onselect"],
+        props: ["items", "selectedItemIndex", "selectItem"],
         methods: {
             onSelect(itemIndex) {
                 if (DEBUG) {
                     console.log("drop-down component index:" + itemIndex);
                 }
                 this.selected = this.items[itemIndex];
-                this.onselect(itemIndex);
+                this.selectItem(itemIndex);
             }
         },
         data() {
