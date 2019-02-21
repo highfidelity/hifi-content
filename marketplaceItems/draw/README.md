@@ -10,6 +10,6 @@ grip. You will need to close your tablet to draw.
 The emissive paint sphere at the user's fingertip is rendering in lighter color than expected for most colors
 
 ## Releases
-### 2019-02-20_16-06-00 | Marketplace v1.0 | [b248089] (https://github.com/highfidelity/hifi-content/commit/b248089128d17ebef784a3bbb7dadac37c3ff73e)
+### 2019-02-20_16-06-00 | Marketplace v1.0 | [c3bbc1e] (https://github.com/highfidelity/hifi-content/commit/c3bbc1ed1770af1ef607a3e64edcb379a0198687)
 
 - Initial Release
