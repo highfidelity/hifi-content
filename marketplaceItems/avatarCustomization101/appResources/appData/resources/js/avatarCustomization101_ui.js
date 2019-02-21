@@ -1014,10 +1014,7 @@
         },
         watch: {
             defaultvalue(newDefaultVal) {
-                this.val = newDefaultVal.toFixed(2);;
-            },
-            val(newVal){
-                this.onchange(newVal, this.title);
+                this.val = newDefaultVal.toFixed(2);
             }
         },
         template: /* html */ `
