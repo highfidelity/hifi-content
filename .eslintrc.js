@@ -36,6 +36,7 @@ module.exports = {
         "Messages": false,
         "Midi": false,
         "ModelCache": false,
+        "module": false,
         "MyAvatar": false,
         "Overlays": false,
         "OverlayWebWindow": false,
