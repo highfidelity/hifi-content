@@ -2,16 +2,20 @@ body {
     margin: 10;
     width: 100% - 10px;
     font-family: 'Raleway', sans-serif;
-    color: #cccbcb;
-    background: linear-gradient(#2b2b2b, #303030);
+    color: #000000;
+    background-image: url("../images/voxel.png");
+    background-size: contain;
+    background-color: #d8e1d9;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-
-input[type=button]:disabled {
-    color: #252525;
-    background: linear-gradient(#575757 20%, #252525 100%);
-}
-
-input[type=button][pressed=pressed] {
-    color: #00b4ef;
-}
+.h4Style {
+    display: block;
+    font-size: 1em;
+    margin-top: 1.33em;
+    margin-bottom: 1.33em;
+    margin-left: 0;
+    margin-right: 0;
+    font-weight: bold;
+  }
