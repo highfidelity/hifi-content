@@ -587,28 +587,46 @@
             //     }
             //     return this.propertyInfo.value;
             // }
-            // colors () {
+            // colors: {
+            //     get () {
+            //         return this.propertyInfo.value;
+            //     },
+            //     set () {
+
+            //         if (this.propertyInfo.value === "N/A") {
+            //             this.setColorToNA();
+            //         }
+
+            //         return this.propertyInfo.value;
+
+            //     }
+            // }
+            // () {
             //     if (this.propertyInfo.value === "N/A") {
             //         this.cancelColor();
             //     }
             //     return this.colors;
             // }
         },
-        updated: function() {
-            console.log("robin robin" + this.colors) // Logs true every second
-        },
-        data() {
-            return {
-                colors: this.propertyInfo.value
-            };
-        },
-        watch: {
-            colors (newValue, oldValue) {
-                console.log("NEW VALUE GAHH" + newValue + oldValue);
+        // updated: function() {
+        //     console.log("robin robin" + this.colors) // Logs true every second
+        // },
+        // data() {
+        //     return {
+        //         colors: this.propertyInfo.value
+        //     };
+        // },
+        // watch: {
+        //     colors (newValue, oldValue) {
+        //         console.log("GAHHH")
 
-                this.colors = newValue;
-            }
-        },
+        //         if (this.propertyInfo.value === "N/A") {
+        //             this.setColorToNA();
+        //         }
+
+        //         this.colors = this.propertyInfo.value;
+        //     }
+        // },
         template: /* html */ `
             <div class="flex-item">
 
@@ -619,7 +637,7 @@
 
                         <jscolor
                             :colorpickerid="colorElementIds"
-                            :value="colors"
+                            :value="propertyInfo.value"
                             :onchange="updateValue"
                             :cancelcolor="setColorToNA"
                         ></jscolor>
@@ -688,15 +706,35 @@
                 return this.colorpickerid + "-jscolor";
             }
         },
-        data() {
-            return {
-                color: this.value
+        // data() {
+        //     return {
+        //         color: this.value
+        //     }
+        // }, // **** JSCOLOR
+        watch: {
+            value (value, oldValue) {
+                console.log("JSCOLORRRRR");
+                if (value === "N/A") {
+                    this.cancelcolor();
+                } else {
+                    this.$el.jscolor.fromString(value);
+                    this.$emit('input', value);
+                    // var id = this.elementId;
+                
+                    // if (DEBUG) {
+                    //     console.log("Cancel color here " + id);
+                    // }
+    
+                    // $(id).css("background-color", value);
+                    // // this.$el.jscolor.fromString(this.value);
+                    // $(id).val(this.value);
+                }
             }
-        }, // **** JSCOLOR
+        },
         template: `
             <input 
                 v-bind:id="elementId"
-                v-bind:value="color"
+                v-bind:value="value"
                 class="jscolor"
                 v-bind:style="styling"
             />
