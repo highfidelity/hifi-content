@@ -193,8 +193,7 @@
     // Subtype event strings
     var STRING_NAMED_MATERIAL_SELECTED = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_NAMED_MATERIAL_SELECTED,
         STRING_MODEL_TYPE_SELECTED = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_MODEL_TYPE_SELECTED,
-        STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY,
-        STRING_UPDATE_ENTITY_PROPERTIES = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_ENTITY_PROPERTIES;
+        STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
 
     // componentTypes
     var STRING_COLOR = CONFIG.STRING_COLOR,
@@ -216,13 +215,19 @@
 
         var type = isPBR ? "pbr" : "shadeless";
 
-        
-
         var value = newMaterialData.value;
         var map = newMaterialData.map;
 
         var key = propertyName;
         var keyMap = propertyName + "Map";
+
+        if (value !== undefined) {
+
+        }
+
+        if (map !== undefined) {
+
+        }
 
         // update UI values
         dynamicData[STRING_MATERIAL][type].value = value;
@@ -230,13 +235,17 @@
 
         switch (componentType) {
             case STRING_COLOR:
-                value = convertColorUIToBackend(value);
+                if (value !== undefined) {
+                    value = convertColorUIToBackend(value);
+                }
                 break;
             case STRING_SLIDER:
                 // nothing to convert
                 break; 
             case STRING_MAP_ONLY:
-                value = prepImageUIToBackend(value);
+                if (value !== undefined) {
+                    value = prepImageUIToBackend(value);
+                }
                 keyMap = "";
                 break;
         }
@@ -244,7 +253,9 @@
         if (map && keyMap) {
             updates[keyMap] = prepImageUIToBackend(map);
         }
-        updates[key] = value;
+        if (value !== undefined) {
+            updates[key] = value;
+        }
 
         updateMaterial({ materials: updates }, false, isPBR);
     }
@@ -292,30 +303,13 @@
             } else {
 
                 // get old properties
-                materialEntityProperties = Entities.getEntityProperties(materialID, ["materialData"])
+                materialEntityProperties = Entities.getEntityProperties(materialID, ["materialData"]);
+                var materialData = materialEntityProperties.materialData;
                 var materialDataString = getMaterialDataString(isPBR, newMaterialData.materials, materialData);
 
                 Entities.editEntity(materialID, { materialData: materialDataString });
+
             }
-
-            
-            // var materialData = materialEntityProperties.materialData;
-            // var description = newMaterialData.description ? newMaterialData.description : materialEntityProperties.description;
-            // var materialMappingScale = newMaterialData.materialMappingScale ? newMaterialData.materialMappingScale : materialEntityProperties.materialMappingScale;
-
-            // var materialDataString = isNamed 
-            // ? JSON.stringify({ materialVersion: 1, materials: newMaterialDataToApply.materials })
-            // : getMaterialDataString(isPBR, newMaterialData.materials)
-            
-            // getMaterialDataString(isPBR, newMaterialData.materials, materialData);
-
-            // var updates = {
-            //     description: description,
-            //     materialMappingScale: materialMappingScale,
-            //     materialData: materialDataString
-            // }
-
-            // Entities.editEntity(materialID, updates);
         }
     }
 
@@ -333,8 +327,6 @@
             }
         }
 
-        // set material version
-        materialData.materialVersion = 1;
         // loop through all material data
         for(var key in newMaterialData) {
             materialData[key] = newMaterialData[key];
@@ -427,7 +419,7 @@
 
     function convertColorUIToBackend(hexColor){
         // hex -> rgb -> array
-        var rgb = hexToRgb(arrayColor);
+        var rgb = hexToRgb(hexColor);
         return [ 
             rgb.r / 255.0,
             rgb.g / 255.0, 
@@ -877,13 +869,11 @@
                         var componentType = data.updates.componentType;
                         var isPBR = data.updates.isPBR;
 
+                        console.log("update Property" + propertyName + JSON.stringify(newMaterialData));
+
                         updateMaterialProperty(propertyName, newMaterialData, componentType, isPBR)
 
                         break;
-                    case STRING_UPDATE_ENTITY_PROPERTIES:
-                        updateMaterial(data.updates, false, true);
-                        break;
-
                 }
 
                 updateUI(STRING_MATERIAL);

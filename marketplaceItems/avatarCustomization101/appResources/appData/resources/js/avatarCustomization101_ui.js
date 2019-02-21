@@ -306,17 +306,6 @@
                 }));
 
             },
-            updateMaterialProperties(materialPropertiesObject) {
-                if (DEBUG) {
-                    console.log("Materials updateMaterialProperties clicked");
-                }
-
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_UPDATE_MATERIAL,
-                    subtype: STRING_UPDATE_ENTITY_PROPERTIES,
-                    updates: materialPropertiesObject
-                }));
-            }, 
             updateTypeSelected(newTypeSelectedIndex) {
                 // updates the index of the selected type: "shadeless" or "hifi-pbr" or "Select one" (none selected) 
 
@@ -348,11 +337,9 @@
         watch: {
             dynamic(value, oldvalue) {
                 // *** can be more performant
-                console.log("dynamic was updated" + value.selectedTypeIndex);
                 this.selectedTypeIndex = this.dynamic.selectedTypeIndex;
                 this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[value.selectedTypeIndex];
                 this.staticPropertyList = this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.selectedTypeData.key]
-                console.log("ROBIN IS HERE" + JSON.stringify(this.staticPropertyList));
             }
         },
         template: /* html */ `
@@ -411,11 +398,23 @@
                 if (DEBUG) {
                     console.log("updating property!" + this.propertyInfo.name);
                 }
-            }
-        },
-        mounted() {
-            if (DEBUG) {
-                console.log("MaterialPropertyContainer mounted propertyInfo: " + JSON.stringify(this.propertyInfo));
+
+                var propertyName = this.propertyInfo.name;
+                var newMaterialData = info;
+                var componentType = this.propertyInfo.componentType;
+                var isPBR = this.dynamic.selectedItemIndex === 1 ? false : true; // 1 = shadeless, 2 = pbr
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_MATERIAL,
+                    subtype: STRING_UPDATE_PROPERTY,
+                    updates: {
+                        propertyName,
+                        newMaterialData,
+                        componentType,
+                        isPBR
+                    }
+                }));
+
             }
         },
         computed: {
@@ -433,7 +432,7 @@
                 var mapValue = componentType === STRING_COLOR || componentType === STRING_SLIDER ? dynamicPropertyData.map : dynamicPropertyData.value;
 
                 if (DEBUG) {
-                    console.log("MaterialPropertyContainer PropertyInfo compiling: " + JSON.stringify(mapList) + JSON.stringify(this.static.PROPERTY_MAP_IMAGES));
+                    // console.log("MaterialPropertyContainer PropertyInfo compiling: " + JSON.stringify(mapList) + JSON.stringify(this.static.PROPERTY_MAP_IMAGES));
                 }
 
                 var propertyInfo = {
@@ -462,19 +461,19 @@
                 <material-color-picker
                     v-if="propertyInfo.componentType === STRING_COLOR"
                     :propertyInfo="propertyInfo"
-                    :onchange="updateProperty"
+                    :updateproperty="updateProperty"
                 />
 
                 <material-slider 
                     v-if="propertyInfo.componentType === STRING_SLIDER"
                     :propertyInfo="propertyInfo"
                     :defaultvalue="propertyInfo.value"
-                    :onchange="updateProperty"
+                    :updateproperty="updateProperty"
                 />
 
                 <material-map 
                     :propertyInfo="propertyInfo"
-                    :onchange="updateProperty"
+                    :updateproperty="updateProperty"
                 />
 
             </div>
@@ -482,7 +481,12 @@
     })
 
     Vue.component('material-slider', {
-        props: ['propertyInfo', 'onchange', 'defaultvalue'],
+        props: ['propertyInfo', 'updateproperty', 'defaultvalue'],
+        methods: {
+            onSliderUpdate (newValue) {
+                this.updateproperty({ value: +newValue });
+            }
+        },
         data() {
             return {
                 sliderDefault: this.propertyInfo.value 
@@ -507,7 +511,7 @@
                         :increment="0.01"
                         :min="0"
                         :defaultvalue="sliderDefault"
-                        :onchange="onchange"
+                        :onchange="onSliderUpdate"
                     ></slider>
                 </div>
             </div>
@@ -515,21 +519,10 @@
     })
 
     Vue.component('material-map', { // *** 
-        props: ['propertyInfo', 'onchange' ],
+        props: ['propertyInfo', 'updateproperty' ],
         methods:{
             updateMap(fileName) {                
-
-                // ** Under construction **
-
-                // EventBridge.emitWebEvent(JSON.stringify({
-                //     type: EVENT_UPDATE_MATERIAL,
-                //     subtype: "modelTypeSelected",
-                //     updates: {
-                //         propertyName: this.propertyInfo.name,
-                //         property 
-                //     }
-                // }));
-                
+                this.updateproperty({ map: fileName });
             }
         },
         template: /* html */ `
@@ -543,7 +536,7 @@
                     <drop-down-images
                         :items="propertyInfo.mapList"
                         :defaultimage="propertyInfo.mapValue"
-                        :onselect="onchange"
+                        :onselect="updateMap"
                     ></drop-down-images>
                 
                 </div>
@@ -553,7 +546,7 @@
     })
 
     Vue.component('material-color-picker', {
-        props: ['propertyInfo', 'onchange'],
+        props: ['propertyInfo', 'updateproperty'],
         methods: {
             updateValue(value) {
 
@@ -562,7 +555,7 @@
                 }
                 // this.colors = value;
 
-                this.onchange();
+                this.updateproperty({ value: value });
             },
             cancelColor() {
                 // this.colors = "N/A";
