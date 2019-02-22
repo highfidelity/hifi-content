@@ -92,8 +92,12 @@
                 injector.stop();
             }
 
+            if (!position) {
+                position = GAME_AUDIO_POSITION;
+            }
+
             injector = Audio.playSound(sound, {
-                position: position || GAME_AUDIO_POSITION,
+                position: position,
                 volume: volume
             });
         }
