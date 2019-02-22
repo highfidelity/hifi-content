@@ -45,6 +45,10 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
+## v2.2.1 | 2019-02-22_13-42-00 | [commit 8f6403c](https://github.com/highfidelity/hifi-content/commits/8f6403c)
+
+- Minor code review changes. No functional changes.
+
 ## v2.2 | 2019-02-21_16-00-00 | [commit 419c111](https://github.com/highfidelity/hifi-content/commits/419c111)
 
 - Bingo players can now see all of the numbers that were called in a round in their Card app.
