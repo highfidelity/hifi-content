@@ -11,7 +11,7 @@ The code for this game is open source. There are two sets of secrets that you mu
 Here's what your `config.json` file should look like:
 ```
 {
-    "requestURL": "<a deployed version of the bingo.js Web App",
+    "requestURL": "<a deployed version of the bingo.js Web App. MAKE SURE you also update REQUEST_URL in bingoCard_ui.js!>",
     "usersAllowedToSpinWheel": [<an array of strings dictating who can spin the Bingo wheel>],
     "gameAudioPosition": { "x": <int>, "y": <int>, "z": <int> },
     "dbTablePrefix": "<a prefix for all of the Bingo tables in your DB associated with this deployment>",

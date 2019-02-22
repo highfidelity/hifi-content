@@ -180,7 +180,7 @@ function getCalledNumbers(requestURL) {
 // The delay is still necessary for HTML apps in RC78+.
 var EVENTBRIDGE_SETUP_DELAY = 500;
 var NUMBER_CHECK_INTERVAL_MS = 5000;
-var CONFIG_URL = "../../../config/config.json";
+var REQUEST_URL = "https://highfidelity.co/bingo";
 function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
@@ -189,22 +189,12 @@ function onLoad() {
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
 
-    // Get config.json from the server to know which URL to make future requests to,
-    // then setup the interval to get called numbers.
-    // This must not fail.
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            var requestURL = JSON.parse(this.responseText).requestURL + "?type=getCalledNumbers";
+    var requestURL = REQUEST_URL + "?type=getCalledNumbers";
 
-            setInterval(function() {
-                getCalledNumbers(requestURL);
-            }, NUMBER_CHECK_INTERVAL_MS);
-            getCalledNumbers(requestURL);
-        }
-    };
-    xhttp.open("GET", CONFIG_URL, true);
-    xhttp.send();
+    setInterval(function() {
+        getCalledNumbers(requestURL);
+    }, NUMBER_CHECK_INTERVAL_MS);
+    getCalledNumbers(requestURL);
 }
 
 
