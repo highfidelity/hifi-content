@@ -13,6 +13,7 @@
 // Sends an event to the App JS and clears the `firstRun` `div`.
 function appreciateSwitchClicked(checkbox) {
     EventBridge.emitWebEvent(JSON.stringify({
+        app: "appreciate",
         method: "appreciateSwitchClicked",
         appreciateEnabled: checkbox.checked
     }));
@@ -30,6 +31,7 @@ function neverWhistleCheckboxClicked(checkbox) {
     }
 
     EventBridge.emitWebEvent(JSON.stringify({
+        app: "appreciate",
         method: "neverWhistleCheckboxClicked",
         neverWhistle: checkbox.checked
     }));
@@ -58,6 +60,7 @@ function setEntityColor(jscolor) {
     document.getElementById("currentIntensity").style.backgroundImage = bgString;
 
     EventBridge.emitWebEvent(JSON.stringify({
+        app: "appreciate",
         method: "setEntityColor",
         entityColor: newEntityColor
     }));
@@ -116,6 +119,31 @@ function onScriptEventReceived(message) {
     }
 }
 
+// This function detects a keydown on the document, which enables the app
+// to forward these keypress events to the app JS.
+function onKeyDown(e) {
+    var key = e.key.toUpperCase();
+    if (key === "Z") {
+        EventBridge.emitWebEvent(JSON.stringify({
+            app: "appreciate",
+            method: "zKeyDown",
+            repeat: e.repeat
+        }));
+    }
+}
+
+// This function detects a keyup on the document, which enables the app
+// to forward these keypress events to the app JS.
+function onKeyUp(e) {
+    var key = e.key.toUpperCase();
+    if (key === "Z") {
+        EventBridge.emitWebEvent(JSON.stringify({
+            app: "appreciate",
+            method: "zKeyUp"
+        }));
+    }
+}
+
 // This delay is necessary to allow for the JS EventBridge to become active.
 // The delay is still necessary for HTML apps in RC78+.
 var EVENTBRIDGE_SETUP_DELAY = 500;
@@ -123,9 +151,13 @@ function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
+            app: "appreciate",
             method: "eventBridgeReady"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
 }
 
 onLoad();

@@ -898,6 +898,10 @@
     //     "Never Whistle" checkbox
     // - "setEntityColor" - Sent when the user chooses a new Entity Color.
     function onMessage(message) {
+        if (message.app !== "appreciate") {
+            return;
+        }
+
         switch (message.method) {
             case "eventBridgeReady":
                 ui.sendMessage({
@@ -926,8 +930,32 @@
                 Settings.setValue("appreciate/entityColor", JSON.stringify(intensityEntityColorMax));
                 break;
 
+            case "zKeyDown":
+                var pressEvent = {
+                    "text": "Z",
+                    "isShifted": false,
+                    "isMeta": false,
+                    "isControl": false,
+                    "isAlt": false,
+                    "isAutoRepeat": message.repeat
+                };
+                keyPressEvent(pressEvent);
+                break;
+
+            case "zKeyUp":
+                var releaseEvent = {
+                    "text": "Z",
+                    "isShifted": false,
+                    "isMeta": false,
+                    "isControl": false,
+                    "isAlt": false,
+                    "isAutoRepeat": false
+                };
+                keyReleaseEvent(releaseEvent);
+                break;
+
             default:
-                console.log("Unhandled message in appreciate_app.js");
+                console.log("Unhandled message from appreciate_ui.js: " + JSON.stringify(message));
                 break;
         }
     }
