@@ -12,7 +12,7 @@
         <div id="title">
             <h1 class="size48">LAST<span> AVATAR </span>STANDING</h1>
         </div>
-        <input type="button" class="green" id="begin" value="NEW GAME">
+        <input type="button" class="green" id="begin" disabled=true value="NEW GAME">
         <input type="button" class="red" id="end" disabled=true value="END GAME">
         <h4>Choose Question Details (Optional) <br>& Click 'New Question'</h4>
         
@@ -94,9 +94,20 @@
         <br>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script>
+            var databaseButton = document.getElementById("catalog");
+            var typeButton = document.getElementById("selectedType");
+            var diffButton = document.getElementById("selectedDifficulty");
+            var catButton = document.getElementById("selectedCategory");
+            var endButton = document.getElementById("end");
+            var beginButton = document.getElementById("begin");
+            var newQButton = document.getElementById("newQuestion");
+            var showQButton = document.getElementById("showQuestion");
+            var answerButton = document.getElementById("showAnswers");
+
             function toggleMenu(menu) {
                 document.getElementById(menu).classList.toggle("show");
-            }        
+            }    
+
             window.onclick = function(event) {
                 if (!event.target.matches('#selectedType') && !event.target.matches('#selectedDifficulty')
                     && !event.target.matches('#selectedCategory') && !event.target.matches('#catalog')) {
@@ -110,6 +121,7 @@
                     }
                 }
             }
+            
             function onScriptEventReceived(event) {
                 if (event === "newGame") {
                     databaseButton.disabled = true;
@@ -201,8 +213,9 @@
                         triviaData = JSON.parse(event);
                     } catch (e){
                         console.log(e, "parsing error");
+                        return;
                     }
-                    if (!triviaData.application || triviaData.application !== "trivia") {
+                    if (!event || !triviaData || !triviaData.application || triviaData.application !== "trivia") {
                         return;
                     } else if ("question" in triviaData) {
                         document.getElementById("question").innerHTML = triviaData.question;
@@ -244,17 +257,14 @@
 
             $(document).ready(function () {
                 EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+                var event = {
+                    app: 'trivia',
+                    type: "listening"
+                };
+                EventBridge.emitWebEvent(JSON.stringify(event));
+                beginButton.disabled = false;
             });
 
-            var databaseButton = document.getElementById("catalog");
-            var typeButton = document.getElementById("selectedType");
-            var diffButton = document.getElementById("selectedDifficulty");
-            var catButton = document.getElementById("selectedCategory");
-            var endButton = document.getElementById("end");
-            var beginButton = document.getElementById("begin");
-            var newQButton = document.getElementById("newQuestion");
-            var showQButton = document.getElementById("showQuestion");
-            var answerButton = document.getElementById("showAnswers");
             $('#begin').click(function() {
                 var event = {
                     app: 'trivia',

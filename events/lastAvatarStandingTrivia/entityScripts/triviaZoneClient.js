@@ -116,6 +116,7 @@
                     console.log("Host started the game, making a validator");
                     bubble = Entities.getEntityProperties(
                         Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
+                    Entities.callEntityServerMethod("rezValidator", [MyAvatar.sessionUUID]);
                     gameOn = bubble.visible;
                 } else if (message.type === 'game off') {
                     Script.setTimeout(function(){

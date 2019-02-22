@@ -70,6 +70,7 @@
         prizeMoney,
         winnerID = null,
         correctColor = null;
+    var lastTime = 0;
     
     // The following function from https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
     var htmlEnDeCode = (function() {
@@ -530,17 +531,23 @@
             });
             return count;
         } else if (state === "begin") {
+            console.log("creating validators");
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
+                console.log("creating a validator");
                 var avatar = AvatarManager.getAvatar(avatarID);
                 if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties)) {
-                    Entities.callEntityServerMethod(bubble, "rezValidator", [avatar.sessionUUID]);             
+                    console.log("created validator", avatar.sessionUUID);
+                    Entities.callEntityServerMethod(gameZone, "rezValidator", [avatar.sessionUUID]);   
+                    Script.setTimeout(function(){
+                        console.log(Entities.findEntitiesByName(avatar.sessionUUID, gameZoneProperties.position, 50));
+                    },1000);          
                 }
             });
         } else {
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
                 if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties)) {
-                    Entities.callEntityServerMethod(bubble, "deleteValidator", [avatar.sessionUUID]);             
+                    Entities.callEntityServerMethod(gameZone, "deleteValidator", [avatar.sessionUUID]);             
                 }
             });
         }
@@ -779,177 +786,203 @@
 
     function onWebEventReceived(event) {
         if (typeof event === 'string') {
-            event = JSON.parse(event);
+            try {
+                event = JSON.parse(event);
+            } catch (e) {
+                console.log("error parsing web event", e);
+                return;
+            }
             if (event.app === 'trivia') {
-                switch (event.type) {
-                    case 'catalog':
-                        switch (event.value) {
-                            case "Default Catalog":
-                                useGoogle = false;
-                                break;
-                            case "Custom Catalog":
-                                useGoogle = true;
-                                triviaURL = SECRETS.trivia_URL;
-                                answer = Window.prompt("What is the tab name of the sheet to use?", "");
-                                if (answer === null) {
-                                    tablet.emitScriptEvent("nothingEntered");
-                                    useGoogle = false;
-                                } else {
-                                    gSheetTabName = answer;
+                var newTime = new Date();
+                if (newTime - lastTime > 100) {
+                    switch (event.type) {
+                        case 'listening':
+                            if (triviaData) {
+                                if (triviaData.length !== 0 && !useGoogle) {
+                                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                                    tablet.emitScriptEvent("gameInProgress");   
+                                } else if (bubbleState === true && !useGoogle) {
+                                    tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                                    tablet.emitScriptEvent("noQuestionPosted");  
+                                } else if (triviaData.length !== 0 && useGoogle) {
+                                    tablet.emitScriptEvent(JSON.stringify(triviaData));
+                                    tablet.emitScriptEvent("gameInProgressCustom");  
+                                } else if (bubbleState === true && useGoogle) {
+                                    tablet.emitScriptEvent(JSON.stringify(triviaData));
+                                    tablet.emitScriptEvent("noQuestionPostedCustom");  
                                 }
-                                break;
-                            case "Misc. Catalog":                                
-                                var answer = Window.prompt("URL of your GSheets script?", "");
-                                if (answer === null) {
-                                    tablet.emitScriptEvent("nothingEntered");
+                            }
+                            break;
+                        case 'catalog':
+                            switch (event.value) {
+                                case "Default Catalog":
                                     useGoogle = false;
-                                } else {
-                                    triviaURL = answer;
+                                    break;
+                                case "Custom Catalog":
+                                    useGoogle = true;
+                                    triviaURL = SECRETS.trivia_URL;
                                     answer = Window.prompt("What is the tab name of the sheet to use?", "");
                                     if (answer === null) {
                                         tablet.emitScriptEvent("nothingEntered");
                                         useGoogle = false;
                                     } else {
-                                        useGoogle = true;
                                         gSheetTabName = answer;
                                     }
-                                }
-                                break;
-                        }
-                        break;
-                    case 'begin':
-                        begin();
-                        break;
-                    case 'end':
-                        clearGame(true);
-                        break;
-                    case 'type':
-                        switch (event.value) {
-                            case "Any Type":
-                                type = null;
-                                break;
-                            case "Multiple Choice":
-                                type = "multiple";
-                                break;
-                            case "True or False":
-                                type = "boolean";
-                                break;
-                        }
-                        break;
-                    case 'difficulty':
-                        switch (event.value) {
-                            case "Any Difficulty":
-                                difficulty = null;
-                                break;
-                            case "Easy":
-                                difficulty = "easy";
-                                break;
-                            case "Medium":
-                                difficulty = "medium";
-                                break;
-                            case "Hard":
-                                difficulty = "hard";
-                                break;
-                        }
-                        break;
-                    case 'category':
-                        switch (event.value) {
-                            case "Any Category":
-                                category = null;
-                                break;
-                            case "General Knowledge":
-                                category = "9";
-                                break;
-                            case "Books":
-                                category = "10";
-                                break;
-                            case "Film":
-                                category = "11";
-                                break;
-                            case "Music":
-                                category = "12";
-                                break;
-                            case "Musicals and Theatres":
-                                category = "13";
-                                break;
-                            case "Television":
-                                category = "14";
-                                break;
-                            case "Video Games":
-                                category = "15";
-                                break;
-                            case "Board Games":
-                                category = "16";
-                                break;
-                            case "Comics":
-                                category = "29";
-                                break;
-                            case "Japanese Anime and Manga":
-                                category = "31";
-                                break;
-                            case "Cartoon and Animations":
-                                category = "32";
-                                break;
-                            case "Computers":
-                                category = "18";
-                                break;
-                            case "Mathematics":
-                                category = "19";
-                                break;
-                            case "Gadgets":
-                                category = "30";
-                                break;
-                            case "Art":
-                                category = "25";
-                                break;
-                            case "Celebrities":
-                                category = "26";
-                                break;
-                            case "Animals":
-                                category = "27";
-                                break;
-                            case "Vehicles":
-                                category = "28";
-                                break;
-                            case "Mythology":
-                                category = "20";
-                                break;
-                            case "Sports":
-                                category = "21";
-                                break;
-                            case "History":
-                                category = "23";
-                                break;
-                            case "Geography":
-                                category = "22";
-                                break;
-                            case "Politics":
-                                category = "24";
-                                break;
-                        }
-                        break;
-                    case 'newQuestion':
-                        getQuestion();
-                        break;
-                    case 'showQuestion':
-                        showQuestion();
-                        break;
-                    case 'showAnswers':
-                        showAnswers();
-                        startTimer();
-                        Script.setTimeout(function() {
-                            showCorrect();
-                            if (useGoogle) {
-                                tablet.emitScriptEvent("re-enableCustom");
-                            } else {
-                                tablet.emitScriptEvent("re-enable");
+                                    break;
+                                case "Misc. Catalog":                                
+                                    var answer = Window.prompt("URL of your GSheets script?", "");
+                                    if (answer === null) {
+                                        tablet.emitScriptEvent("nothingEntered");
+                                        useGoogle = false;
+                                    } else {
+                                        triviaURL = answer;
+                                        answer = Window.prompt("What is the tab name of the sheet to use?", "");
+                                        if (answer === null) {
+                                            tablet.emitScriptEvent("nothingEntered");
+                                            useGoogle = false;
+                                        } else {
+                                            useGoogle = true;
+                                            gSheetTabName = answer;
+                                        }
+                                    }
+                                    break;
+                            }                        
+                            break;
+                        case 'begin':
+                            begin();
+                            break;
+                        case 'end':
+                            clearGame(true);
+                            break;
+                        case 'type':
+                            switch (event.value) {
+                                case "Any Type":
+                                    type = null;
+                                    break;
+                                case "Multiple Choice":
+                                    type = "multiple";
+                                    break;
+                                case "True or False":
+                                    type = "boolean";
+                                    break;
                             }
-                        }, TEN_SECONDS_MS);
-                        break;
-                    default:
-                        print(JSON.stringify(event));
-                        print("error in detecting event.type");
+                            break;
+                        case 'difficulty':
+                            switch (event.value) {
+                                case "Any Difficulty":
+                                    difficulty = null;
+                                    break;
+                                case "Easy":
+                                    difficulty = "easy";
+                                    break;
+                                case "Medium":
+                                    difficulty = "medium";
+                                    break;
+                                case "Hard":
+                                    difficulty = "hard";
+                                    break;
+                            }
+                            break;
+                        case 'category':
+                            switch (event.value) {
+                                case "Any Category":
+                                    category = null;
+                                    break;
+                                case "General Knowledge":
+                                    category = "9";
+                                    break;
+                                case "Books":
+                                    category = "10";
+                                    break;
+                                case "Film":
+                                    category = "11";
+                                    break;
+                                case "Music":
+                                    category = "12";
+                                    break;
+                                case "Musicals and Theatres":
+                                    category = "13";
+                                    break;
+                                case "Television":
+                                    category = "14";
+                                    break;
+                                case "Video Games":
+                                    category = "15";
+                                    break;
+                                case "Board Games":
+                                    category = "16";
+                                    break;
+                                case "Comics":
+                                    category = "29";
+                                    break;
+                                case "Japanese Anime and Manga":
+                                    category = "31";
+                                    break;
+                                case "Cartoon and Animations":
+                                    category = "32";
+                                    break;
+                                case "Computers":
+                                    category = "18";
+                                    break;
+                                case "Mathematics":
+                                    category = "19";
+                                    break;
+                                case "Gadgets":
+                                    category = "30";
+                                    break;
+                                case "Art":
+                                    category = "25";
+                                    break;
+                                case "Celebrities":
+                                    category = "26";
+                                    break;
+                                case "Animals":
+                                    category = "27";
+                                    break;
+                                case "Vehicles":
+                                    category = "28";
+                                    break;
+                                case "Mythology":
+                                    category = "20";
+                                    break;
+                                case "Sports":
+                                    category = "21";
+                                    break;
+                                case "History":
+                                    category = "23";
+                                    break;
+                                case "Geography":
+                                    category = "22";
+                                    break;
+                                case "Politics":
+                                    category = "24";
+                                    break;
+                            }
+                            break;
+                        case 'newQuestion':
+                            getQuestion();
+                            break;
+                        case 'showQuestion':
+                            showQuestion();
+                            break;
+                        case 'showAnswers':
+                            showAnswers();
+                            startTimer();
+                            Script.setTimeout(function() {
+                                showCorrect();
+                                if (useGoogle) {
+                                    tablet.emitScriptEvent("re-enableCustom");
+                                } else {
+                                    tablet.emitScriptEvent("re-enable");
+                                }
+                            }, TEN_SECONDS_MS);
+                            break;
+                        default:
+                            print(JSON.stringify(event));
+                            print("error in detecting event.type");
+                    }
                 }
+                lastTime = newTime;
             }
         }
     }
@@ -957,6 +990,9 @@
     function onScreenChanged(type, url) {
         open = (url === appPage);
         button.editProperties({isActive: open});
+        if (open) {
+            tablet.webEventReceived.connect(onWebEventReceived);
+        }
     }
 
     function appEnding() {
@@ -970,7 +1006,9 @@
         tablet.removeButton(button);
         AvatarManager.avatarRemovedEvent.disconnect(updateCountOnAvatarRemoved);
         tablet.screenChanged.disconnect(onScreenChanged);
-        tablet.webEventReceived.disconnect(onWebEventReceived);
+        if (open) {
+            tablet.webEventReceived.disconnect(onWebEventReceived);
+        }
         Users.usernameFromIDReply.disconnect(setUserName);
     }
 
@@ -991,7 +1029,5 @@
     Users.usernameFromIDReply.connect(setUserName);
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);
-    tablet.webEventReceived.connect(onWebEventReceived);
-
     Script.scriptEnding.connect(appEnding);
 }());
