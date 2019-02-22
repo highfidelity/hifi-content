@@ -26,7 +26,7 @@
         return paramPairs.join("&");
     }
 
-    // Plays the specified sound at the specified position and volume and localOnly
+    // Plays the specified sound at the specified position, volume, and localOnly
     // Only plays a sound if it is downloaded.
     // Only plays one sound at a time.
     var injector;

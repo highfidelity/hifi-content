@@ -186,7 +186,14 @@
         // Add or remove a username from the array that contains presence data
         // for each prize door zone
         addOrRemovePrizeZoneAvatar: function(senderID, params) {
-            var data = JSON.parse(params);
+            var data;
+            try {
+                data = JSON.parse(params);
+            } catch (error) {
+                console.log("ERROR parsing data in addOrRemovePrizeZoneAvatar(): " + error);
+                return;
+            }
+            
             var username = data.username;
             var zoneNumber = data.prizeDoorNumber;
             var isAdding = data.isAdding;
@@ -374,10 +381,15 @@
                 Entities.editEntity(BINGO_PRIZE_DOOR_2_TEXT, {text: ""});
                 Entities.editEntity(BINGO_PRIZE_DOOR_3_TEXT, {text: ""});
 
-                var bouncerZoneUserData = JSON.parse(
-                    Entities.getEntityProperties(MAIN_STAGE_BOUNCER_ZONE, 'userData').userData);
-                bouncerZoneUserData.whitelist.usernames = [];
-                Entities.editEntity(MAIN_STAGE_BOUNCER_ZONE, { userData: JSON.stringify(bouncerZoneUserData) });
+                var bouncerZoneUserData;
+                try {
+                    bouncerZoneUserData = JSON.parse(
+                        Entities.getEntityProperties(MAIN_STAGE_BOUNCER_ZONE, 'userData').userData);
+                    bouncerZoneUserData.whitelist.usernames = [];
+                    Entities.editEntity(MAIN_STAGE_BOUNCER_ZONE, {userData: JSON.stringify(bouncerZoneUserData)});
+                } catch (error) {
+                    console.log("ERROR parsing bouncer zone user data: " + error);
+                }
 
                 bingoWallLights.forEach(function(light) {
                     Entities.editEntity(light, { visible: false });
