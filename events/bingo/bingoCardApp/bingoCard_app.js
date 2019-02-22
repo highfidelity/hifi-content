@@ -356,4 +356,4 @@
 
     startup();
     Script.scriptEnding.connect(onEnding);
-}());
+})();

@@ -218,4 +218,4 @@
 
     Script.scriptEnding.connect(onScriptEnding);
     startup();
-}());
+})();
