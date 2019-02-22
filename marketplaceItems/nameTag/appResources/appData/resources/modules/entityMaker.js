@@ -54,7 +54,7 @@ EntityMaker.prototype.edit = function(props){
 };
 
 EntityMaker.prototype.get = function(key){
-    return this._property[key];
+    return this.properties[key];
 };
 
 EntityMaker.prototype.show = function(){

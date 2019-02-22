@@ -1,5 +1,5 @@
 var overlayProps = {
-    dimensions: [0.5, 0.1,0],
+    dimensions: [1, 0.1,0],
     renderLayer: "front",
     type: "Text",
     lineHeight: 0.1,

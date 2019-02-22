@@ -1,88 +1,84 @@
-Script.require('./bind.js');
 var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 var _this;
 function PickRayController(){
-    this.eventHandler = null;
-    this.rayType = 'local';
-    this.intersection = null;
-    this.lastPick = null;
-    this.currentPick = null;
-    this.mappingName = null;
-    this.mapping = null;
-    this._boundMousePressHandler = null;
     _this = this;
+    _this.eventHandler = null;
+    _this.rayType = 'local';
+    _this.intersection = null;
+    _this.lastPick = null;
+    _this.currentPick = null;
+    _this.mappingName = null;
+    _this.mapping = null;
+    _this._boundMousePressHandler = null;
 }
 
 PickRayController.prototype.create =
     function(){
-        this.mapping = Controller.newMapping(this.mappingName);
+        _this.mapping = Controller.newMapping(_this.mappingName);
 
-        this.mapping.from(Controller.Standard.LTClick).to(function (value) {
+        _this.mapping.from(Controller.Standard.LTClick).to(function (value) {
             if (value === 0) {
                 return;
             }
 
-            this.getUUIDFromLaser(Controller.Standard.LeftHand);
+            _this.getUUIDFromLaser(Controller.Standard.LeftHand);
         });
 
 
-        this.mapping.from(Controller.Standard.RTClick).to(function (value) {
+        _this.mapping.from(Controller.Standard.RTClick).to(function (value) {
             if (value === 0) {
                 return;
             }
 
-            this.getUUIDFromLaser(Controller.Standard.RightHand);
+            _this.getUUIDFromLaser(Controller.Standard.RightHand);
         });
 
-        this._boundMousePressHandler = this.mousePressHandler.bind(this);
-        return this;
+        return _this;
     };
 // The following two functions are a modified version of what's found in scripts/system/libraries/controllers.js
 
 PickRayController.prototype.handleUUID = 
     function(uuid){
-        if (!this.lastPick && !this.currentPick) {
-            this.currentPick = uuid;
-            this.lastPick = uuid;
+        if (!_this.lastPick && !_this.currentPick) {
+            _this.currentPick = uuid;
+            _this.lastPick = uuid;
         } else {
-            this.lastPick = this.currentPick;
-            this.currentPick = uuid;
+            _this.lastPick = _this.currentPick;
+            _this.currentPick = uuid;
         }
     };
 PickRayController.prototype.setType =
     function(type){
-        this.rayType = type;
+        _this.rayType = type;
 
-        return this;
+        return _this;
     };
 PickRayController.prototype.setMapName =
     function (name) {
-        this.mappingName = name;
+        _this.mappingName = name;
 
-        return this;
+        return _this;
     };
 PickRayController.prototype.pickRayTypeHandler = 
     function (pickRay){
-        console.log("\n\n#1\n\n")
         if (arguments.length === 2) {
             pickRay = { origin: arguments[0], direction: arguments[1] };
         }
-        switch (this.rayType) {
+        switch (_this.rayType) {
             case 'avatar':
                 var avatarIntersection = AvatarList.findRayIntersection(pickRay, [], [MyAvatar.sessionUUID]);
-                console.log("\n\n#3\n\n")
-                this.intersection = avatarIntersection;
-                this.handleUUID(avatarIntersection.avatarID);
+                _this.intersection = avatarIntersection;
+                _this.handleUUID(avatarIntersection.avatarID);
                 break;
             case 'local':
                 var overlayIntersection = Overlays.findRayIntersection(pickRay, [], []);
-                this.intersection = overlayIntersection;
-                this.handleUUID(overlayIntersection.overlayID);
+                _this.intersection = overlayIntersection;
+                _this.handleUUID(overlayIntersection.overlayID);
                 break;
             case 'entity':
                 var entityIntersection = Entities.findRayIntersection(pickRay, [], []);
-                this.intersection = entityIntersection;
-                this.handleUUID(entityIntersection.avatarID);
+                _this.intersection = entityIntersection;
+                _this.handleUUID(entityIntersection.avatarID);
                 break;
             default:
                 console.log("ray type not handled");
@@ -95,12 +91,12 @@ PickRayController.prototype.mousePressHandler =
         if (HMD.active || !event.isLeftButton) {
             return;
         }
-        log("event", event)
+        // log("event", event, false)
         var pickRay = Camera.computePickRay(event.x, event.y);
-        log("pickRay", pickRay)
+        // log("pickRay", pickRay, false);
         _this.pickRayTypeHandler(pickRay);
         if (_this.currentPick) {
-            log("intersection", _this.intersection.intersection)
+            // log("intersection", _this.intersection.intersection)
             _this.eventHandler(_this.currentPick, _this.intersection);
         }
     };
@@ -111,14 +107,14 @@ PickRayController.prototype.getUUIDFromLaser =
             ? Controller.Standard.LeftHand
             : Controller.Standard.RightHand;
 
-        var pose = this.getControllerWorldLocation(hand);
+        var pose = _this.getControllerWorldLocation(hand);
         var start = pose.position;
         var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
 
-        this.pickRayTypeHandler(start, direction);
+        _this.pickRayTypeHandler(start, direction);
 
-        if (this.currentPick) {
-            this.eventHandler(this.currentPick, this.intersection);
+        if (_this.currentPick) {
+            _this.eventHandler(_this.currentPick, _this.intersection);
         }
     };
 // Utility function for the ControllerWorldLocation offset 
@@ -166,7 +162,7 @@ PickRayController.prototype.getControllerWorldLocation =
                 }
 
             } else if (!HMD.isHandControllerAvailable()) {
-                // NOTE: keep this offset in sync with scripts/system/controllers/handControllerPointer.js:493
+                // NOTE: keep _this offset in sync with scripts/system/controllers/handControllerPointer.js:493
                 var VERTICAL_HEAD_LASER_OFFSET = 0.1 * MyAvatar.sensorToWorldScale;
                 position = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, { x: 0, y: VERTICAL_HEAD_LASER_OFFSET, z: 0 }));
                 orientation = Quat.multiply(Camera.orientation, Quat.angleAxis(-90, { x: 1, y: 0, z: 0 }));
@@ -186,27 +182,27 @@ PickRayController.prototype.getControllerWorldLocation =
 // Enables mouse press and trigger events 
 PickRayController.prototype.enable = 
     function(){
-        Controller.mousePressEvent.connect(this.mousePressHandler);
-        Controller.enableMapping(this.mappingName);
+        Controller.mousePressEvent.connect(_this.mousePressHandler);
+        Controller.enableMapping(_this.mappingName);
 
-        return this;
+        return _this;
     };
 PickRayController.prototype.disable = 
     function(){
-        Controller.mousePressEvent.disconnect(this._boundMousePressHandler);
-        Controller.disableMapping(this.mappingName);
+        Controller.mousePressEvent.disconnect(_this.mousePressHandler);
+        Controller.disableMapping(_this.mappingName);
 
-        return this;
+        return _this;
     };
 PickRayController.prototype.destroy =
     function(){
-        this.disable();
+        _this.disable();
     }
 PickRayController.prototype.registerEventHandler = 
     function(fn){
-        this.eventHandler = fn;
+        _this.eventHandler = fn;
 
-        return this;
+        return _this;
     };
 
 module.exports = PickRayController;
