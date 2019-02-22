@@ -50,6 +50,19 @@
     // Checks that a Bingo gem does not already exist, then calculates the correct position
     // over the avatar's head and creates a gem there
     var playingMarker;
+    var GEM_STATIC_PROPS = {
+        "name": "Playing Bingo",
+        "collisionless": true,
+        "dimensions": {
+            "x": 0.1,
+            "y": 0.12,
+            "z": 0.1
+        },
+        "grabbable": false,
+        "modelURL": Script.resolvePath("assets/models/gem-overlay.fbx"),
+        "type": "Model",
+        "userData": "{ \"grabbableKey\": { \"grabbable\": false } }"
+    };
     function createGem() {
         if (playingMarker) {
             return;
@@ -57,21 +70,10 @@
         var entitySpawnPosition = MyAvatar.position;
         var yPositionOverHead = entitySpawnPosition.y + 0.5 * MyAvatar.getHeight() + 0.1;
         entitySpawnPosition.y = yPositionOverHead;
-        playingMarker = Entities.addEntity({
-            name: "Playing Bingo",
-            collisionless: true,
-            dimensions: {
-                x: 0.1,
-                y: 0.12,
-                z: 0.1
-            },
-            position: entitySpawnPosition,
-            grabbable: false,
-            parentID: MyAvatar.sessionUUID,
-            modelURL: Script.resolvePath("assets/models/gem-overlay.fbx"),
-            type: "Model",
-            userData: "{ \"grabbableKey\": { \"grabbable\": false } }"
-        }, 'avatar');
+        var props = GEM_STATIC_PROPS;
+        props.position = entitySpawnPosition;
+        props.parentID = MyAvatar.sessionUUID;
+        playingMarker = Entities.addEntity(props, 'avatar');
     }
 
     // Called on startup. Fills `currentHeaderSounds` with five random sounds from

@@ -26,25 +26,30 @@ function parseColor(scriptColorObject) {
 
 // Handle messages over the EventBridge from bingoCard_app.js
 function onScriptEventReceived(scriptEvent) {
-    if (JSON.parse(scriptEvent).type === "initializeCard") {
-        scriptEvent = JSON.parse(scriptEvent);
+    var parsedScriptEvent;
 
+    try {
+        parsedScriptEvent = JSON.parse(scriptEvent);
+    } catch (error) {
+        return;
+    }
+
+    if (parsedScriptEvent.type === "initializeCard") {
         $(".button-number").each(function(index){
-            document.getElementById(index).innerHTML = scriptEvent.allNumbers[index];
-            if (scriptEvent.selectedNumberIDs.indexOf(index) > -1) {
+            document.getElementById(index).innerHTML = parsedScriptEvent.allNumbers[index];
+            if (parsedScriptEvent.selectedNumberIDs.indexOf(index) > -1) {
                 document.getElementById(index).classList.add("selected");
             }
         });
 
         // Handle selection of Free space, which has HTML id === -1
-        if (scriptEvent.selectedNumberIDs.indexOf(-1) > -1) {
+        if (parsedScriptEvent.selectedNumberIDs.indexOf(-1) > -1) {
             document.getElementById("-1").classList.add("selected");
         }
 
         document.getElementById("helpText").innerHTML = " ";
 
-
-        var parsedColor = parseColor(scriptEvent.cardColor);
+        var parsedColor = parseColor(parsedScriptEvent.cardColor);
         $('body').css("background", parsedColor);
         
         $(".button-number").click(function() {
@@ -93,7 +98,7 @@ function onScriptEventReceived(scriptEvent) {
                 type: 'calledBingo'
             }));
         });
-    } else if (JSON.parse(scriptEvent).type === "notLoggedIn") {
+    } else if (parsedScriptEvent.type === "notLoggedIn") {
         document.getElementById("helpText").innerHTML = "Please log in, then re-open the BINGO app!";
         document.getElementsByClassName("button-container")[0].style.visibility = "hidden";
         document.getElementById("bingoButton").style.visibility = "hidden";
