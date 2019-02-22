@@ -35,8 +35,8 @@ Here's what your `dbInfo.json` file should look like:
 You can perform a local 1-person test of this new code by doing the following:
 1. Restore a Bingo content archive onto your local sandbox so that you have all of the necessary content.
 2. Set up your Secrets as per the  "Secrets" section above.
-3. Run the `bingo.js` Web app from a local NodeJS v10.15.1 installation
-    - Run `node bingo.js` from the `webApps` directory
+3. Run the `bingo.js` Web app from a local NodeJS v10.15.1 installation.
+    - Run `node bingo.js` from the `webApps` directory.
 4. Run MySQL locally.
     - You can create the necessary Bingo database by modifying the `startup()` function within the `bingo.js` web app script.
 5. Run a local HTTP server to serve the client/server scripts, then change all of the script URLs on the content.
@@ -47,7 +47,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 ## v2.2 | 2019-02-21_16-00-00 | [commit 419c111](https://github.com/highfidelity/hifi-content/commits/419c111)
 
-- Bingo players can now see all of the numbers that were called in a round in their Card app
+- Bingo players can now see all of the numbers that were called in a round in their Card app.
 
 ## v2.1 | 2019-02-20_15-28-00 | [commit 9070468](https://github.com/highfidelity/hifi-content/commits/9070468)
 
