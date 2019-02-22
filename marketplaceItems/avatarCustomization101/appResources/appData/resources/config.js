@@ -27,7 +27,6 @@ var STRING_DEFAULT = "default",
     STRING_RED = "red",
     STRING_TEXTURE = "texture";
 
-
 // material component names
 var STRING_COLOR = "color",
     STRING_SLIDER = "slider",
@@ -64,7 +63,7 @@ var CONFIG = {
 
     // Variables shared by ui and javascript files
     UPDATE_UI: APP_NAME + "_update_ui",
-    BUTTON_NAME: "Avatar 101",
+    BUTTON_NAME: "AVATAR101",
     EVENT_BRIDGE_OPEN_MESSAGE: "_eventBridgeOpen",
 
     // UI to app events
@@ -124,7 +123,6 @@ var CONFIG = {
                 TITLE: STRING_MATERIAL,
                 SUBTITLE: "Change avatars materials for each submesh.",
                 COMPONENT_NAME: "material-tab",
-
                 COMPONENT_DATA: {
                     PBR_LIST: [STRING_DEFAULT, STRING_GLASS, STRING_CHAINMAIL, STRING_DISCO],
                     SHADELESS_LIST: [STRING_RED, STRING_TEXTURE],

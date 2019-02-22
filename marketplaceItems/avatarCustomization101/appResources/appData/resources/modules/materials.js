@@ -39,9 +39,6 @@ var MAPS = {
 
 var MATERIAL_DATA = {
     directory: directory,
-    defaults: {
-        // *** under construction **
-    },
     glass: {
         "materialMappingScale": { "x":1, "y":1 },
         "parentMaterialName": 1,

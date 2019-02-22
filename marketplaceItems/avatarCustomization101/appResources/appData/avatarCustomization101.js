@@ -18,7 +18,7 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v22222")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v22222222111")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
@@ -176,14 +176,12 @@
     // #region MATERIAL
 
     var materialID,
-        materialProperties,
         STRING_GLASS_MAT = "glass",
         STRING_CHAIN_MAT = "chainmail",
         STRING_DISCO_MAT = "disco",
         STRING_DEFAULT_MAT = "default",
         STRING_RED_MAT = "red",
         STRING_TEXTURE_MAT = "texture",
-        MATERIAL_DEFAULT = MATERIAL_DATA.defaults,
         MATERIAL_GLASS = MATERIAL_DATA.glass,
         MATERIAL_CHAINMAIL = MATERIAL_DATA.chainmail,
         MATERIAL_DISCO = MATERIAL_DATA.disco,
@@ -197,224 +195,50 @@
 
     // componentTypes
     var STRING_COLOR = CONFIG.STRING_COLOR,
-        STRING_SLIDER = CONFIG.STRING_SLIDER,
         STRING_MAP_ONLY = CONFIG.STRING_MAP_ONLY;
 
     var PATH_TO_IMAGES = MATERIAL_DATA.directory;
 
-    // Updates single property
     // propertyName
     // newMaterialData { value: "" map: "" }
     // componentType: STRING_COLOR / STRING_SLIDER / STRING_MAP_ONLY
     // isPBR: boolean
     function updateMaterialProperty(propertyName, newMaterialData, componentType, isPBR) {
+
+        var value = newMaterialData.value;
+        var map = newMaterialData.map;
         
+        var property = propertyName;
+        var propertyMap = property + "Map";
+
+        if (DEBUG) {
+            print("Update Material Property key: ", property, " value: ", value);
+            print("Update Material Property key: ", propertyMap, " map: ", map);
+        }
+        
+        // update UI values
+        var type = isPBR ? "pbr" : "shadeless";
+
+        // prep data for changing material entity in updateMaterial()
         var updates = {
             unlit: isPBR ? false: true
         };
 
-        var type = isPBR ? "pbr" : "shadeless";
-
-        var value = newMaterialData.value;
-        var map = newMaterialData.map;
-
-        var key = propertyName;
-        var keyMap = propertyName + "Map";
-
         if (value !== undefined) {
+            value = componentType === STRING_COLOR ? convertColorUIToBackend(value) : value;
+            value = componentType === STRING_MAP_ONLY ? convertImageUIToBackend(value) : value;
+            // slider value does not need to be changed
 
+            updates[property] = value;
+            dynamicData[STRING_MATERIAL][type][property].value = value;
         }
 
-        if (map !== undefined) {
-
-        }
-
-        // update UI values
-        dynamicData[STRING_MATERIAL][type].value = value;
-        dynamicData[STRING_MATERIAL][type].map = map; 
-
-        switch (componentType) {
-            case STRING_COLOR:
-                if (value !== undefined) {
-                    value = convertColorUIToBackend(value);
-                }
-                break;
-            case STRING_SLIDER:
-                // nothing to convert
-                break; 
-            case STRING_MAP_ONLY:
-                if (value !== undefined) {
-                    value = prepImageUIToBackend(value);
-                }
-                keyMap = "";
-                break;
-        }
-
-        if (map && keyMap) {
-            updates[keyMap] = prepImageUIToBackend(map);
-        }
-        if (value !== undefined) {
-            updates[key] = value;
+        if (map !== undefined && componentType !== STRING_MAP_ONLY) {
+            updates[propertyMap] = convertImageUIToBackend(map);
+            dynamicData[STRING_MATERIAL][type][property].map = map;
         }
 
         updateMaterial({ materials: updates }, false, isPBR);
-    }
-
-    function createOrUpdateMaterialEntity(newMaterialData, isNamed, isPBR) {
-
-        var materialEntityProperties;
-
-        if (!materialID) {
-            // create material entity properties
-            materialEntityProperties = {
-                // static defaults
-                type: "Material",
-                name: "Avatar101-Material",
-                parentID: MyAvatar.sessionUUID,
-                materialURL: "materialData",
-                priority: 1,
-                parentMaterialName: 1,
-                materials: { // to be stringified
-                    model: "hifi_pbr",
-                },
-
-                // dynamic properties 
-                description: newMaterialData.description ? newMaterialData.description : "",
-                materialMappingScale: newMaterialData.materialMappingScale ? newMaterialData.materialMappingScale : { x: 1, y: 1 },
-                materialData: isNamed 
-                    ? JSON.stringify({ materialVersion: 1, materials: newMaterialData.materials })
-                    : getMaterialDataString(isPBR, newMaterialData.materials)
-            };
-
-            materialID = Entities.addEntity(materialEntityProperties, "avatar");
-
-        } else {
-
-            if (isNamed) {
-
-                var updates = {
-                    description: newMaterialData.description,
-                    materialMappingScale: newMaterialData.materialMappingScale,
-                    materialData: JSON.stringify({ materialVersion: 1, materials: newMaterialData.materials })
-                };
-
-                Entities.editEntity(materialID, updates);
-
-            } else {
-
-                // get old properties
-                materialEntityProperties = Entities.getEntityProperties(materialID, ["materialData"]);
-                var materialData = materialEntityProperties.materialData;
-                var materialDataString = getMaterialDataString(isPBR, newMaterialData.materials, materialData);
-
-                Entities.editEntity(materialID, { materialData: materialDataString });
-
-            }
-        }
-    }
-
-    // get material data string for setting in entity properties
-    function getMaterialDataString (isPBR, newMaterialData, oldMaterialDataString) {
-
-        var materialData = {};
-
-        // parse old material data
-        if (oldMaterialDataString) {
-            try {
-                materialData = JSON.parse(oldMaterialDataString).materials;
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        // loop through all material data
-        for(var key in newMaterialData) {
-            materialData[key] = newMaterialData[key];
-
-            if (key === "unlit" && !isPBR ) {
-                // unlit exists and is false
-                // is shadeless
-                delete materialData[key];
-            }
-        }
-
-        return JSON.stringify({ materialVersion: 1, materials: materialData });
-    }
-
-    // button is pressed and must loop through all UI elements to update
-    // newMaterialData.materials passed in
-    function updateMaterialDynamicDataUI(newMaterialDataToApply, isPBR) {
-
-        // set the UI drop-down index to hifi-PBR (index 2) or shadeless (index 1)
-        dynamicData[STRING_MATERIAL].selectedTypeIndex = isPBR ? 2 : 1;
-        var type = isPBR ? "pbr" : "shadeless";
-
-        // *** FOR NAMED PROPERTIES ONLY ***
-        // Update UI with values 
-        var dynamicPropertyData = dynamicData[STRING_MATERIAL][type];
-        var materialData = newMaterialDataToApply.materials;
-
-        for (var property in dynamicPropertyData) {
-
-            var key = property;
-            var mapKey = property + "Map";
-            var newValue = materialData[key];
-            var newMapValue = materialData[mapKey];
-
-            if ( !newValue && !newMapValue ) {
-                // property doesnt exist in new materialData
-                continue;
-            }
-
-            // handle prepping newValue first
-            if (newValue) {
-                var isMap = key.indexOf("Map") !== -1;
-                var isColor = Array.isArray(newValue);
-
-                newValue = isMap ? prepImageBackendToUI(newValue) : newValue;
-                newValue = isColor ? convertColorBackendToUI(newValue) : newValue;
-
-                dynamicPropertyData[key].value = newValue;
-                dynamicPropertyData[key].map = isMap ? newValue : null; // in case it's component type is mapOnly
-            }
-
-            // component type mapOnly would not get here
-            if (newMapValue) {
-                // we know it's a map prep it like so
-                newMapValue = prepImageBackendToUI(newMapValue);
-                dynamicPropertyData[key].map = newMapValue;
-            }
-
-        }
-    }
-
-    // @args updatesObject name [string]
-    function updateMaterial(newMaterialDataToApply, isNamed, isPBR) {
-
-        createOrUpdateMaterialEntity(newMaterialDataToApply, isNamed, isPBR);
-
-        if (isNamed) {
-            // is named
-            // only clicking a named button will do this
-            setMaterialPropertiesToDefaults();
-            updateMaterialDynamicDataUI(newMaterialDataToApply, isPBR);
-
-        } 
-    }
-
-    function prepImageBackendToUI(file) {
-        return file.replace(PATH_TO_IMAGES, "");
-    }
-
-    function prepImageUIToBackend(file) {
-        return PATH_TO_IMAGES + file;
-    }
-
-    function convertColorBackendToUI(arrayColor){
-        // array -> rgb -> hex
-        var rgb = arrayToRGB(arrayColor);
-        var hex = rgbToHex(rgb);
-        return hex;
     }
 
     function convertColorUIToBackend(hexColor){
@@ -425,7 +249,178 @@
             rgb.g / 255.0, 
             rgb.b / 255.0 
         ];
+    }
 
+    function convertImageUIToBackend(file) {
+        if (file && file.indexOf("no.jpg") !== -1) {
+            print("I AM HERE");
+            return null;
+        } 
+        return PATH_TO_IMAGES + file;
+    }
+
+
+    // prioritize a properties over b properties
+    function mergeObjectProperties(a, b) {
+
+        for(var key in b) {
+            a[key] = b[key];
+        }
+        return a;
+    }
+
+    function convertColorBackendToUI(arrayColor){
+        // array -> rgb -> hex
+        var rgb = arrayToRGB(arrayColor);
+        var hex = rgbToHex(rgb);
+        return hex;
+    }
+
+    // button is pressed and must loop through all UI elements to update
+    // newMaterialData.materials passed in
+    // for Named buttons only
+    function updateMaterialDynamicDataUI(newMaterialDataToApply, isPBR) {
+
+        // set the UI drop-down index to hifi-PBR (index 2) or shadeless (index 1)
+        dynamicData[STRING_MATERIAL].selectedTypeIndex = isPBR ? 2 : 1;
+        var type = isPBR ? "pbr" : "shadeless";
+
+        // Update UI with values 
+        var dynamicPropertyData = dynamicData[STRING_MATERIAL][type];
+        var newMaterials = newMaterialDataToApply.materials;
+
+        // Loop through all newMaterialProperties
+        for (var property in newMaterials) {
+
+            
+            var key = property;
+            var value = newMaterials[key];
+
+            print("Key is :", key, " dynamic property data is :", JSON.stringify(dynamicPropertyData));
+            
+            if (key === "model" || key === "unlit") {
+                // property doesnt exist in ui properties
+                continue;
+            }
+
+            if (key.indexOf("Map") !== -1) {
+                // is a Map
+                var uiValue = prepImageBackendToUI(value);
+
+                if (dynamicPropertyData[key]) {
+                    // is Map Only
+                    dynamicPropertyData[key].value = uiValue;
+                    dynamicPropertyData[key].map = uiValue;
+                } else {
+                    // is slider or color component type
+                    var uiProperty = key.replace("Map", "");
+                    dynamicPropertyData[uiProperty].map = uiValue;
+                }
+
+            } else {
+                // is Color or Slider value
+                dynamicPropertyData[key].value = Array.isArray(value) 
+                    ? convertColorBackendToUI(value) // is color
+                    : value;
+            }
+
+        }
+
+    }
+
+    // @args updatesObject name [string]
+    function updateMaterial(newMaterialData, isNamed, isPBR) {
+
+        var materialEntityProperties;
+
+        // these properties change
+        var description = newMaterialData.description 
+            ? newMaterialData.description
+            : ""; // default value
+
+        var materialMappingScale = newMaterialData.materialMappingScale 
+            ? newMaterialData.materialMappingScale 
+            : { x: 1, y: 1 }; // default value
+
+        var newMaterials = newMaterialData.materials;
+
+        // If material already exists and isNamed === false
+        // Merge old material properties and new material properties
+        if (materialID && !isNamed) {
+
+            var oldMaterialDataString;
+            var oldMaterials = {};
+
+            oldMaterialDataString = Entities.getEntityProperties(materialID, ["materialData"]).materialData;
+            try {
+                // get old materials values and properties to carry over to new
+                oldMaterials = JSON.parse(oldMaterialDataString).materials;
+            } catch (e) {
+                console.error("Issues parsing oldMaterialDataString" + e);
+            }
+
+            // merge new materials and old material properties together
+            newMaterials = mergeObjectProperties(oldMaterials, newMaterials);
+
+            print("ROBIN IS THIS " + JSON.stringify(newMaterials));
+
+            if (newMaterials["unlit"] && !isPBR) {
+                // unlit exists and is false
+                // is shadeless
+                delete newMaterials["unlit"];
+            }
+
+        }
+
+        // Create new material 
+        if (!materialID) {
+
+            newMaterials.model = "hifi_pbr"; 
+
+            // create material entity properties
+            materialEntityProperties = {
+                // static defaults
+                type: "Material",
+                name: "Avatar101-Material",
+                parentID: MyAvatar.sessionUUID,
+                materialURL: "materialData",
+                priority: 1,
+                parentMaterialName: 1,
+                description: description,
+                materialMappingScale: materialMappingScale,
+                materialData: JSON.stringify({
+                    materialVersion: 1, 
+                    materials: newMaterials 
+                })
+            };
+
+            materialID = Entities.addEntity(materialEntityProperties, "avatar");
+
+        } else {
+
+            // Update old material
+            var updates = {
+                description: description,
+                materialMappingScale: materialMappingScale,
+                materialData: JSON.stringify({
+                    materialVersion: 1, 
+                    materials: newMaterials 
+                })
+            };
+
+            Entities.editEntity(materialID, updates);
+        }
+
+        if (isNamed) {
+            // is Named
+            // Update the ui with new properties
+            setMaterialPropertiesToDefaults();
+            updateMaterialDynamicDataUI(newMaterialData, isPBR);
+        } 
+    }
+
+    function prepImageBackendToUI(file) {
+        return file.replace(PATH_TO_IMAGES, "");
     }
 
     function setMaterialPropertiesToDefaults () {
@@ -791,7 +786,6 @@
     var EVENT_UPDATE_MATERIAL = CONFIG.EVENT_UPDATE_MATERIAL;
     var EVENT_UPDATE_BLENDSHAPE = CONFIG.EVENT_UPDATE_BLENDSHAPE;
     var EVENT_UPDATE_FLOW = CONFIG.EVENT_UPDATE_FLOW;
-    var EVENT_UPDATE_ANIMATION = CONFIG.EVENT_UPDATE_ANIMATION;
     var EVENT_CHANGE_TAB = CONFIG.EVENT_CHANGE_TAB;
     var EVENT_UPDATE_AVATAR = CONFIG.EVENT_UPDATE_AVATAR;
 

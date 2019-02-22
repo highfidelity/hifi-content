@@ -38,8 +38,12 @@
 
         STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
 
-    // Debug
+    // Static TAB DATA
+    var STATIC_DATA = CONFIG.STATIC_DATA;
+    var TAB_LIST = STATIC_DATA.TAB_LIST;
+    var TAB_DATA = STATIC_DATA.TAB_DATA;
 
+    // Debug
     var DEBUG = true;
 
     // Components
@@ -150,17 +154,24 @@
         props: ['staticdata', 'dynamicdata'],
         computed: {
             tabDataList() {
-                var TAB_LIST = this.staticdata.TAB_LIST;
-                var TAB_DATA = this.staticdata.TAB_DATA;
-                return TAB_LIST.map((tabName) => {
+                var dynamic = this.dynamicdata;
+                // var TAB_DATA = this.TAB_DATA;
+
+                return this.TAB_LIST.map((tabName) => {
 
                     var tabData = {
-                        static: TAB_DATA[tabName.toUpperCase()],
-                        dynamic: this.dynamicdata[tabName.toLowerCase()]
+                        static: this.TAB_DATA[tabName.toUpperCase()],
+                        dynamic: dynamic[tabName.toLowerCase()]
                     }
 
                     return tabData;
                 });
+            }
+        },
+        data() {
+            return {
+                TAB_LIST: TAB_LIST,
+                TAB_DATA: TAB_DATA
             }
         },
         template: /* html */ `
@@ -431,10 +442,6 @@
                 var mapList = this.static.PROPERTY_MAP_IMAGES[mapName] ? this.static.PROPERTY_MAP_IMAGES[mapName] : [];
                 var mapValue = componentType === STRING_COLOR || componentType === STRING_SLIDER ? dynamicPropertyData.map : dynamicPropertyData.value;
 
-                if (DEBUG) {
-                    // console.log("MaterialPropertyContainer PropertyInfo compiling: " + JSON.stringify(mapList) + JSON.stringify(this.static.PROPERTY_MAP_IMAGES));
-                }
-
                 var propertyInfo = {
                     name: name,
                     componentType: componentType, 
@@ -518,10 +525,10 @@
         `
     })
 
-    Vue.component('material-map', { // *** 
+    Vue.component('material-map', { // ***
         props: ['propertyInfo', 'updateproperty' ],
         methods:{
-            updateMap(fileName) {                
+            updateMap(fileName) {
                 this.updateproperty({ map: fileName });
             }
         },
@@ -553,12 +560,9 @@
                 if (DEBUG) {
                     console.log("calling color picker updating value" + this.colors + value);
                 }
-                // this.colors = value;
-
                 this.updateproperty({ value: value });
             },
             cancelColor() {
-                // this.colors = "N/A";
                 this.setColorToNA();
                 this.onchange();
             },
