@@ -1,6 +1,11 @@
 # Last Avatar Standing Trivia Game
 
 ### Release Notes:
+**February 22, 2019**
+[3ec1830](https://github.com/highfidelity/hifi-content/pull/303/commits/3ec1830b8e8a161f5f7d6b7432051215790ba204)
+Version 1.1.2
+- Fixed bug with eventbridge connection between the client script and html for the host app.
+
 **February 15, 2019**
 [4eb6328](https://github.com/highfidelity/hifi-content/pull/296/commits/4eb63286b45020a20371acfd6145dd7043604d2b)
 Version 1.1.1
