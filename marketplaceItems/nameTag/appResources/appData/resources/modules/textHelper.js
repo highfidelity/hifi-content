@@ -37,7 +37,7 @@ var charMap = {
     J: 0.05,
     K: 0.06,
     L: 0.05,
-    M: 0.75,
+    M: 0.075,
     N: 0.0625,
     O: 0.0625,
     P: 0.06,
@@ -47,11 +47,14 @@ var charMap = {
     T: 0.06,
     U: 0.06,
     V: 0.06,
-    W: 0.75,
+    W: 0.075,
     X: 0.06,
     Y: 0.06,
     Z: 0.06
 }
+
+var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
+
 
 function TextHelper(){
     this.text = "";
@@ -89,16 +92,21 @@ TextHelper.prototype.createTextArray =
     };
     
 // Comment
+var DEFAULT_CHAR_SIZE = 0.035;
 TextHelper.prototype.getTotalTextLength = 
     function(){
         var lengthArray = this.textArray.map(function(letter){
-            return charMap[letter];
+            if (charMap[letter]){
+                return charMap[letter];
+            } else {
+                return DEFAULT_CHAR_SIZE;
+            }
         });
 
         var defaultTextLength = lengthArray.reduce(function(prev, curr){
             return prev + curr;
         }, 0);
-
+        log(defaultTextLength);
         this.adjustForScale(defaultTextLength);
 
         return this.totalTextLength;
