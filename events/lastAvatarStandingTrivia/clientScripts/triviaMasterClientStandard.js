@@ -305,6 +305,7 @@
     function onClicked() { 
         if (open) {
             tablet.gotoHomeScreen(); 
+            tablet.webEventReceived.disconnect(onWebEventReceived);
         } else {
             tablet.gotoWebScreen(appPage);  
             Script.setTimeout(function(){
@@ -538,9 +539,6 @@
                 if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties)) {
                     console.log("created validator", avatar.sessionUUID);
                     Entities.callEntityServerMethod(gameZone, "rezValidator", [avatar.sessionUUID]);   
-                    Script.setTimeout(function(){
-                        console.log(Entities.findEntitiesByName(avatar.sessionUUID, gameZoneProperties.position, 50));
-                    },1000);          
                 }
             });
         } else {
@@ -794,7 +792,7 @@
             }
             if (event.app === 'trivia') {
                 var newTime = new Date();
-                if (newTime - lastTime > 100) {
+                if (newTime - lastTime > HFC_INCREMENT) {
                     switch (event.type) {
                         case 'listening':
                             if (triviaData) {
@@ -810,7 +808,9 @@
                                 } else if (bubbleState === true && useGoogle) {
                                     tablet.emitScriptEvent(JSON.stringify(triviaData));
                                     tablet.emitScriptEvent("noQuestionPostedCustom");  
-                                }
+                                } 
+                            } else {
+                                tablet.emitScriptEvent("newGame");
                             }
                             break;
                         case 'catalog':
@@ -981,8 +981,8 @@
                             print(JSON.stringify(event));
                             print("error in detecting event.type");
                     }
+                    lastTime = newTime;
                 }
-                lastTime = newTime;
             }
         }
     }
