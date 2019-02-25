@@ -120,18 +120,16 @@ Tablet, Users, Vec3, Window */
         if (questionMark) {
             cleanUp();
             playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true, false);
-            
+            Messages.messageReceived.disconnect(checkMessage);
         } else {
             button.editProperties({ isActive: true });
             playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true, false);
             createQuestionMark();
-            
-            Messages.messageReceived.connect(checkMessage);
-            // subscribe to messages if not already, if message received contains UUID, avatarSelected
+            Messages.messageReceived.connect(checkMessage);\
         }
     }
 
-    // Handles avatar being selected
+    /* Handles avatar being selected */
     pickRayController
         .registerEventHandler(selectAvatar)
         .setType("avatar")
@@ -157,13 +155,6 @@ Tablet, Users, Vec3, Window */
             onClicked();
             playSound(SELECTED_SOUND, SELECTED_SOUND_VOLUME, MyAvatar.position, true, false);
         }
-
-        // MAYBE JUST TOGGLE APP?
-
-        // remove question mark
-        // sound
-        // particle
-        // close app
     }
 
     /* ON STOPPING THE SCRIPT: Disconnect signals and clean up */
@@ -190,8 +181,6 @@ Tablet, Users, Vec3, Window */
             Entities.deleteEntity(questionMark);
             questionMark = null;
         }
-        // unsubscribe from messages if subscribed and not admin or waiting to ask
-        // pickRayController.disable(); if needed
         button.editProperties({ isActive: false });
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
             var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
@@ -229,12 +218,8 @@ Tablet, Users, Vec3, Window */
         adminStatus = Users.getCanKick() ? true : false;
         if (adminStatus) {
             pickRayController.enable();
-            // subscribe to messages if not already
         } else {
             pickRayController.disable();
-            
-            Messages.messageReceived.disconnect(checkMessage);
-            // unsubscribe from messages if subscribed and not admin or waiting to ask
         }
     }
 
