@@ -104,7 +104,7 @@ Tablet, Users, Vec3, Window */
             var questionMarkDimensions = Entities.getEntityProperties(questionMark, 'dimensions').dimensions;
             questionMarkDimensions = Vec3.multiply(questionMarkDimensions, GROWTH_RATIO);
             Entities.editEntity(questionMark, { dimensions: questionMarkDimensions });
-            if (questionMarkDimensions.y > MAX_HEIGHT_M) {
+            if (growingInterval && questionMarkDimensions.y > MAX_HEIGHT_M) {
                 print("stop growing");
                 Script.clearInterval(growingInterval);
                 growingInterval = null;
@@ -175,6 +175,7 @@ Tablet, Users, Vec3, Window */
     function cleanUp() {
         if (growingInterval) {
             Script.clearInterval(growingInterval);
+            growingInterval = null;
         }
         if (injector) {
             injector.stop();
