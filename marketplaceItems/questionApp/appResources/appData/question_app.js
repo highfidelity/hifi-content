@@ -20,8 +20,8 @@ Tablet, Users, Vec3, Window */
     var PickRayController = Script.require('./resources/modules/pickRayController.js?' + Date.now());
     var pickRayController = new PickRayController();
 
-    /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
-    mode requested. */
+    /* PLAY A SOUND: Plays the specified sound at the specified position using the volume and playback 
+    modes requested. */
     var injector;
     function playSound(sound, volume, position, localOnly, loop){
         if (sound.downloaded) {
@@ -72,7 +72,7 @@ Tablet, Users, Vec3, Window */
             print("ERROR: Falling back to hips joint as head could not be found");
         }
         var questionMarkLocalYPosition = avatarHeight * offsetRatio;
-        questionMark = Entities.addEntity({
+        var questionMarkProperties = {
             name: "Question App Mark",
             type: "Model",
             modelURL: Script.resolvePath("resources/models/sphere-white-emissive.fbx"),
@@ -83,8 +83,9 @@ Tablet, Users, Vec3, Window */
             dimensions: { x: 0.2, y: 0.2, z: 0.2 },
             grab: { grabbable: false },
             collisionless: true
-        }, 'avatar');
-        questionMarkMaterial = Entities.addEntity({
+        };
+        questionMark = Entities.addEntity(questionMarkProperties, 'avatar');
+        var questionMarkMaterialProperties = {
             type: "Material",
             name: "Question App Material",
             materialURL: "materialData",
@@ -96,7 +97,8 @@ Tablet, Users, Vec3, Window */
                     emissive: { red: 0, green: 1, blue: 0 }
                 }
             })
-        }, 'avatar');
+        };
+        questionMarkMaterial = Entities.addEntity(questionMarkMaterialProperties, 'avatar');
         print("start growing");
         growingInterval = Script.setInterval(function() {
             var questionMarkDimensions = Entities.getEntityProperties(questionMark, 'dimensions').dimensions;
@@ -105,6 +107,7 @@ Tablet, Users, Vec3, Window */
             if (questionMarkDimensions.y > MAX_HEIGHT_M) {
                 print("stop growing");
                 Script.clearInterval(growingInterval);
+                growingInterval = null;
             }
         }, GROWTH_INTERVAL_MS);
     }
@@ -125,7 +128,7 @@ Tablet, Users, Vec3, Window */
             button.editProperties({ isActive: true });
             playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true, false);
             createQuestionMark();
-            Messages.messageReceived.connect(checkMessage);\
+            Messages.messageReceived.connect(checkMessage);
         }
     }
 
@@ -203,7 +206,12 @@ Tablet, Users, Vec3, Window */
     function checkMessage(channel, message, sender) {
         if (channel === QUESTION_CHANNEL) {
             print("MESSAGE: ", message);
-            message = JSON.parse(message);
+            try {
+                message = JSON.parse(message);
+            } catch (error) {
+                print("Couldn't parse message: " + error);
+                return;
+            }
             print("MESSAGE UUID: ",message.UUID);
             print("MY ID: ", MyAvatar.sessionUUID);
             if (message.UUID === MyAvatar.sessionUUID) {
