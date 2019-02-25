@@ -1,4 +1,4 @@
 {
-    "scriptURL": "./appResources/appData/draw_app.js",
-    "homeURL": "./appResources/appData/resources/draw_ui.html"
+    "scriptURL": "http://mpassets.highfidelity.com/f4013efe-7d42-43f7-a7be-51dc6ca177aa-v1/appResources/appData/draw_app.js",
+    "homeURL": "http://mpassets.highfidelity.com/f4013efe-7d42-43f7-a7be-51dc6ca177aa-v1/appResources/appData/resources/draw_ui.html"
 }
