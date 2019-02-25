@@ -50,6 +50,7 @@ Tablet, Users, Vec3, Window */
     var GROWTH_INTERVAL_MS = 1000; // takes 4 min 38 sec to reach height of 0.8 from 0.2 at ratio:1.005, interval: 1000
     var MAX_HEIGHT_M = 0.8;
     var GROWTH_RATIO = 1.1;
+    var QUESTION_MARK_PROPERTY_NAME = "Question App Mark";
     var questionMark;
     var questionMarkMaterial;
     var growingInterval;
@@ -73,7 +74,7 @@ Tablet, Users, Vec3, Window */
         }
         var questionMarkLocalYPosition = avatarHeight * offsetRatio;
         var questionMarkProperties = {
-            name: "Question App Mark",
+            name: QUESTION_MARK_PROPERTY_NAME,
             type: "Model",
             modelURL: Script.resolvePath("resources/models/sphere-white-emissive.fbx"),
             lifetime: 360000,
@@ -118,7 +119,7 @@ Tablet, Users, Vec3, Window */
     var OPEN_SOUND_VOLUME = 0.2;
     var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('resources/sounds/close.mp3?0'));
     var CLOSE_SOUND_VOLUME = 0.3;
-    var QUESTION_CHANNEL = "TriviaChannel";
+    var QUESTION_CHANNEL = "QuestionChannel";
     function onClicked() {
         if (questionMark) {
             cleanUp();
@@ -188,7 +189,7 @@ Tablet, Users, Vec3, Window */
         button.editProperties({ isActive: false });
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
             var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
-            if (name === "Question App Mark") {
+            if (name === QUESTION_MARK_PROPERTY_NAME) {
                 Entities.deleteEntity(avatarEntity.id);
                 questionMark = null;
             }
