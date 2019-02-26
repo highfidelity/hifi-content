@@ -31,7 +31,7 @@
         STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
 
     // Debug
-    var DEBUG = true;
+    var DEBUG = false;
 
     // Components
 

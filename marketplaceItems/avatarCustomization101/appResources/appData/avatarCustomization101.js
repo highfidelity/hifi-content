@@ -23,7 +23,7 @@
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
-    var DEBUG = true;
+    var DEBUG = false;
 
     // #region UTILITY FUNCTIONS
 
