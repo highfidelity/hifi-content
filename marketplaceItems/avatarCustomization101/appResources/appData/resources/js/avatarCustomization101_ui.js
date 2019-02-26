@@ -17,9 +17,6 @@
     var UPDATE_UI = CONFIG.UPDATE_UI,
         APP_NAME = CONFIG.APP_NAME;
 
-    // Static strings
-    var STRING_INFO = CONFIG.STRING_INFO;
-
     // Events 
     // !important Add APP_NAME to each event
     var EVENT_BRIDGE_OPEN_MESSAGE = APP_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
@@ -112,7 +109,7 @@
                     tabID: tabName + "-tab",
                     // disable tabs if avi is NOT enabled 
                     // or avi is NOT enabled and the tab name is string info
-                    isDisabled: !isAviEnabled || (!isAviEnabled && tabName !== STRING_INFO),
+                    isDisabled: !isAviEnabled || (!isAviEnabled && tabName !== CONFIG.STRING_INFO),
                     flexGrowSize: flexGrowSize
                 }
             }
@@ -209,6 +206,7 @@
 
     // #endregion Tabs and Tab Layout
  
+
     // #region Info tab
 
     Vue.component('info-tab', {
@@ -282,8 +280,9 @@
 
     // #endregion Info tab
 
+
     // #region Material tab components
-    
+
     Vue.component('material-tab', {
         props: ['dynamic', 'static'],
         methods: {
@@ -329,9 +328,15 @@
         },
         watch: {
             dynamic(value) {
+
+                console.log("ROBIN I UPDATED");
+
+
                 this.selectedTypeIndex = this.dynamic.selectedTypeIndex;
                 this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[value.selectedTypeIndex];
                 this.staticPropertyList = this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.selectedTypeData.key]
+            
+                console.log("ROBIN I UPDATED" + this.staticPropertyList.length);
             }
         },
         template: /* html */ `
@@ -386,19 +391,14 @@
                     console.log("updating property!" + this.propertyInfo.name);
                 }
 
-                var propertyName = this.propertyInfo.name;
-                var newMaterialData = info;
-                var componentType = this.propertyInfo.componentType;
-                var isPBR = this.dynamic.selectedItemIndex === 1 ? false : true; // 1 = shadeless, 2 = pbr
-
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_MATERIAL,
                     subtype: STRING_UPDATE_PROPERTY,
                     updates: {
-                        propertyName,
-                        newMaterialData,
-                        componentType,
-                        isPBR
+                        propertyName: this.propertyInfo.name,
+                        newMaterialData: info,
+                        componentType: this.propertyInfo.componentType,
+                        isPBR: this.dynamic.selectedItemIndex === 1 ? false : true // 1 = shadeless, 2 = pbr
                     }
                 }));
 
@@ -406,22 +406,31 @@
         },
         computed: {
             propertyInfo() {
+
+                console.log(JSON.stringify(this.property) + " : " + "WAT BRO");
+
                 // sets material properties to be interpreted by components
+
+                var propertyName = this.property.key;
+                var componentType = this.property.componentType;
+                var mapName = componentType !== STRING_MAP_ONLY ? propertyName + "Map" : propertyName;
+
                 var propertyInfo = {
-                    name: this.property.key,
-                    componentType: this.property.componentType, 
-                    value: this.dynamic[name].value,
-                    mapName: componentType !== STRING_MAP_ONLY 
-                        ? name + "Map" 
-                        : name,
+                    name: propertyName,
+                    componentType: componentType, 
+                    value: this.dynamic[propertyName].value,
+                    mapName: mapName,
                     mapValue: componentType === this.STRING_COLOR || componentType === this.STRING_SLIDER 
-                        ? this.dynamic[name].map 
-                        : this.dynamic[name].value,
+                        ? this.dynamic[propertyName].map 
+                        : this.dynamic[propertyName].value,
                     mapList: this.static.PROPERTY_MAP_IMAGES[mapName] 
                         ? this.static.PROPERTY_MAP_IMAGES[mapName] 
                         : [],
                     isColor: componentType === this.STRING_COLOR, // for binding the right css class
                 };
+
+                console.log("Property Info is : " + JSON.stringify(propertyInfo));
+
                 return propertyInfo;
             }
         },
@@ -451,6 +460,7 @@
                 <material-map 
                     :propertyInfo="propertyInfo"
                     :updateproperty="updateProperty"
+                    :iscolor="propertyInfo.isColor"
                 />
 
             </div>
@@ -480,12 +490,12 @@
         },
         template: /* html */ `
             <div class="flex-container-row">
-                <p class="flex-item">{{ propertyInfo.name }}</p>
-                <div class="flex-item">
+                <p class="material-label flex-item ">{{ propertyInfo.name }}</p>
+                <div class="flex-item material-option">
                     <slider
                         :name="propertyInfo.name"
                         :defaultvalue="sliderDefault"
-                        :onchange="onSliderUpdate"
+                        :onsliderupdate="onSliderUpdate"
                     ></slider>
                 </div>
             </div>
@@ -493,19 +503,19 @@
     })
 
     Vue.component('material-map', { 
-        props: ['propertyInfo', 'updateproperty' ],
+        props: ['propertyInfo', 'updateproperty', 'iscolor' ],
         methods:{
             updateMap(fileName) {
                 this.updateproperty({ map: fileName });
             }
         },
         template: /* html */ `
-            <div class="flex-container-row">
+            <div v-bind:class="{ 'flex-container-row': !iscolor, 'flex-item': iscolor }">
 
-                <p class="flex-item">
+                <p class="material-label" v-bind:class="{ 'flex-item': !iscolor, 'material-label': !iscolor }">
                     {{ propertyInfo.mapName }}
                 </p>
-                <div class="flex-item">
+                <div class="material-option" v-bind:class="{ 'flex-item': !iscolor }">
                 
                     <drop-down-images
                         :items="propertyInfo.mapList"
@@ -523,7 +533,6 @@
         props: ['propertyInfo', 'updateproperty'],
         methods: {
             updateValue(value) {
-
                 if (DEBUG) {
                     console.log("calling color picker updating value" + this.colors + value);
                 }
@@ -551,11 +560,11 @@
             }
         },
         template: /* html */ `
-            <div class="flex-item">
+            <div class="flex-item material-label">
 
                 <p>{{ propertyInfo.name }}</p>
 
-                <div class="flex-container-row">
+                <div class="flex-container-row justify-content-start material-option">
                     <div class="flex-item">
 
                         <jscolor
@@ -606,15 +615,6 @@
     // https://gist.github.com/mudream4869/d956736a96bac2a89155a0c416a0ac35
     Vue.component('jscolor', {
         props : ['value', 'colorpickerid', 'onchange', 'cancelcolor'],
-        // methods: {
-        //     onChange(target) {
-
-        //         this.value = target.jscolor.toHEXString();
-        //         this.$refs.color_span.style.backgroundColor = this.value;
-        //         this.$emit('input', this.value);
-
-        //     }
-        // },
         mounted : function(){
             window.jscolor.installByClassName('jscolor');
             this.$el.jscolor.fromString(this.value);
@@ -627,10 +627,14 @@
                     _this.onchange(this.value);
                 }
             }(this));
+
+            if (this.value === "N/A") {
+                this.cancelcolor();
+            }
         },
         computed: {
             styling() {
-                return 'width:100px; height:50px; padding-left:10px;';
+                return 'width:90px; height:50px; padding-left:10px;';
             },
             elementId() {
                 return this.colorpickerid + "-jscolor";
@@ -713,6 +717,7 @@
     })
     // #endregion Blendshapes tab
 
+
     // #region Flow tab
     Vue.component('flow-tab', {
         props: ['dynamic', 'static'],
@@ -761,7 +766,7 @@
 
                 <template v-for="jointFlowOption in static.COMPONENT_DATA.JOINT_FLOW_OPTIONS">
 
-                    <p>{{ jointFlowOption.title }}</p>
+                    <p>{{ jointFlowOption.name }}</p>
 
                     <slider 
                         :title="jointFlowOption.name"
@@ -861,6 +866,7 @@
 
     // #endregion Simple Test Components
 
+
     // #region EDIT COMPONENTS
 
     Vue.component('slider', {
@@ -873,6 +879,7 @@
             'increment', 
             'eventbridgeeventtypeslider', 
             'eventbridgeeventsubtypeslider',
+            'onsliderupdate'
         ],
         computed: {
             sliderId() {
@@ -881,7 +888,7 @@
             sliderValueId() {
                 return this.name + "Value";
             },
-            sliderOptions () {
+            sliderOptions() {
                 return {
                     min: this.min ? this.min : 0,
                     max: this.max ? this.max : 1,
@@ -896,6 +903,11 @@
                     console.log("Slider change: " + this.eventbridgeeventtypeslider + " " + this.eventbridgeeventsubtypeslider + " " + this.title + " " + +this.val);
                 }
 
+                if (this.onsliderupdate) {
+                    this.onsliderupdate(this.val);
+                    return;
+                }
+
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: this.eventbridgeeventtypeslider,
                     subtype: this.eventbridgeeventsubtypeslider ? this.eventbridgeeventsubtypeslider : "",
@@ -905,7 +917,11 @@
         },
         data() {
             return {
-                val: this.defaultvalue ? this.defaultvalue : this.min
+                val: this.defaultvalue 
+                    ? this.defaultvalue.toFixed(2) 
+                    : this.min 
+                        ? this.min.toFixed(2)
+                        : Number(0).toFixed(2)
             }
         },
         watch: {
@@ -1028,7 +1044,7 @@
         },
         template: /* html */ `
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-secondary dropdown-toggle" style="width: 150px" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{ selected.name }}
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -1077,8 +1093,10 @@
             }
         },
         watch: {
-            defaultimage(value, oldValue) { 
-                console.log("IMAGE VALUE IS ", value);
+            defaultimage(value, oldValue) {
+                if (DEBUG) {
+                    console.log("IMAGE VALUE IS ", value);
+                }
                 this.selected = this.defaultimage ? PREFIX + this.defaultimage : PREFIX + NO_IMAGE;
             }
         },
@@ -1092,7 +1110,9 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in itemsList">
-                        <a class="dropdown-item" href="#" @click="onSelect(item)"><img class="dropdown-item-image" v-bind:src="item"/></a>
+                        <a class="dropdown-item" href="#" @click="onSelect(item)">
+                            <img class="dropdown-item-image" v-bind:src="item"/>
+                        </a>
                     </template>
                 </div>
             </div>
@@ -1181,6 +1201,7 @@
 
     // #endregion EDIT COMPONENTS
 
+
     var app = new Vue({
         el: '#app',
         data: {
@@ -1188,6 +1209,7 @@
             dynamicData: CONFIG.INITIAL_DYNAMIC_DATA
         }
     });
+
 
     function onScriptEventReceived(message) {
         var data;
@@ -1217,6 +1239,7 @@
         }
     }
 
+
     function onLoad() {
 
         // Open the EventBridge to communicate with the main script.
@@ -1226,6 +1249,7 @@
         }));
 
     }
+
 
     document.addEventListener('DOMContentLoaded', onLoad, false);
 

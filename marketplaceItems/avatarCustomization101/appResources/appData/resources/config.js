@@ -106,7 +106,7 @@ var CONFIG = {
 
     DATA_FOR_FLOW_APP: {
         CUSTOM_FLOW_DATA: CUSTOM_FLOW_DATA,
-        CUSTOM_COLLISION_DATA: CUSTOM_COLLISION_DATA,
+        CUSTOM_COLLISION_DATA: CUSTOM_COLLISION_DATA
     },
 
     STATIC_DATA: {
@@ -115,13 +115,13 @@ var CONFIG = {
             INFO: {
                 TAB_NAME: STRING_INFO,
                 TITLE: STRING_INFO,
-                SUBTITLE: "Thank you for downloading the Avatar Customization 101 app.",
+                SUBTITLE: "Thank you for downloading the Avatar Customization 101 app!",
                 COMPONENT_NAME: "info-tab"
             },
             MATERIAL: {
                 TAB_NAME: STRING_MATERIAL, // key for dynamic data
                 TITLE: STRING_MATERIAL,
-                SUBTITLE: "Change avatars materials for each submesh.",
+                SUBTITLE: "Using material entities, you can change materials on a submesh.",
                 COMPONENT_NAME: "material-tab",
                 COMPONENT_DATA: {
                     PBR_LIST: [STRING_DEFAULT, STRING_GLASS, STRING_CHAINMAIL, STRING_DISCO],
@@ -151,7 +151,7 @@ var CONFIG = {
                         emissiveMap: [
                             "texture_emissiveMap_albedoMap.jpg",
                             "disco_emissiveMap.jpg"
-                        ],
+                        ]
                     },
                     
                     TYPE_LIST: [

@@ -26,6 +26,8 @@
     var DEBUG = true;
 
     // #region UTILITY FUNCTIONS
+
+    // Deep copy object utility
     function deepCopy(objectToCopy) {
 
         var newObject;
@@ -41,6 +43,7 @@
 
 
     // Color functions found https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+    // Convert color format hex to rgb
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
@@ -50,13 +53,17 @@
         } : null;
     }
 
-
+    var BITS_16 = 16;
+    var SHIFT_LEFT_24 = 24;
+    var SHIFT_LEFT_16 = 16;
+    var SHIFT_LEFT_8 = 8;
+    // Convert color format rgb to hex
     function rgbToHex(colorObject) {
         var r = colorObject.r;
         var g = colorObject.g;
         var b = colorObject.b;
 
-        var str = "" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+        var str = "" + ((1 << SHIFT_LEFT_24) + (r << SHIFT_LEFT_16) + (g << SHIFT_LEFT_8) + b).toString(BITS_16).slice(1);
         if (DEBUG) {
             print("RgbToHex" + str);
         }
@@ -64,13 +71,15 @@
     }
 
 
+    var RGB_255 = 255.0;
+    // Convert color format array to rgb
     function arrayToRGB(color) {
 
         if (Array.isArray(color)) {
             var rgbFormat = {
-                r: Math.floor( color[0] * 255.0 ),
-                g: Math.floor( color[1] * 255.0 ),
-                b: Math.floor( color[2] * 255.0 )
+                r: Math.floor( color[0] * RGB_255 ),
+                g: Math.floor( color[1] * RGB_255 ),
+                b: Math.floor( color[2] * RGB_255 )
             };
 
             if (DEBUG) {
@@ -82,19 +91,20 @@
             return color;
         }
     }
-
     // #endregion UTILITY FUNCTIONS
 
     // #region MIRROR FUNCTIONS
 
     var MIRROR_DISTANCE_M = 0.5;
-
     var mirrorCubeID;
     var mirrorZoneID;
-
+    // Creates mirror
     function spawnMirror() {
-        // create mirrror parent to avatar
-        var position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_M }));
+
+        var position = Vec3.sum(
+            MyAvatar.position, 
+            Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_M })
+        );
         mirrorCubeID = Entities.addEntity({
             type: "Box",
             name: "mirror",
@@ -108,16 +118,23 @@
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",
             collisionless: true,
             script: Script.resolvePath("./resources/modules/mirrorClient.js")
-        }, "domain");
+        }, "avatar");
+
     }
 
+    // Delete mirror entity
     function deleteMirror() {
-        // Delete mirror entity 
-        // set mirrorID to null
-        Entities.deleteEntity(mirrorCubeID);
-        Entities.deleteEntity(mirrorZoneID);
-        mirrorCubeID = null;
-        mirrorZoneID = null;
+        // Delete mirror entity if it exists
+        if (mirrorCubeID) {
+            Entities.deleteEntity(mirrorCubeID);
+            mirrorCubeID = null;
+        }
+
+        if (mirrorZoneID) {
+            Entities.deleteEntity(mirrorZoneID);
+            mirrorZoneID = null;
+        }
+
     }
 
     // #endregion MIRROR FUNCTIONS
@@ -125,16 +142,18 @@
     // #region AVATAR FUNCTIONS
 
     var STRING_BOOKMARK_NAME = CONFIG.STRING_BOOKMARK_NAME;
-
+    // Bookmark avatar with wearables
     function bookmarkAvatar() {
         AvatarBookmarks.addBookmark(STRING_BOOKMARK_NAME);
     }
 
+    // Save and change the avatar to Avi
     function saveAvatarAndChangeToAvi() {
         bookmarkAvatar();
         changeAvatarToAvi();
     }
 
+    // Load saved avatar if saved, if not send user an alert
     function restoreAvatar() {
         var bookmarksObject = AvatarBookmarks.getBookmarks();
 
@@ -148,15 +167,13 @@
 
     }
 
+    // Switch avatar to Avi
+    // Update state to avi to enabled
     function changeAvatarToAvi() {
         // Set avatar to Avi.fst
         MyAvatar.useFullAvatarURL(AVATAR_URL);
         MyAvatar.setAttachmentsVariant([]);
         setIsAviEnabledTrue();
-    }
-
-    function isAviYourCurrentAvatar() {
-        return MyAvatar.skeletonModelURL === AVATAR_URL;
     }
 
     // Contains all steps to set the app state to isAviEnabled = true
@@ -248,9 +265,9 @@
         // hex -> rgb -> array
         var rgb = hexToRgb(hexColor);
         return [ 
-            rgb.r / 255.0,
-            rgb.g / 255.0, 
-            rgb.b / 255.0 
+            rgb.r / RGB_255,
+            rgb.g / RGB_255, 
+            rgb.b / RGB_255 
         ];
     }
 
@@ -280,13 +297,15 @@
     }
 
 
+    var PBR_INDEX = 2;
+    var SHADELESS_INDEX = 1;
     // button is pressed and must loop through all UI elements to update
     // newMaterialData.materials passed in
     // for Named buttons only
     function updateMaterialDynamicDataUI(newMaterialDataToApply, isPBR) {
 
         // set the UI drop-down index to hifi-PBR (index 2) or shadeless (index 1)
-        dynamicData[STRING_MATERIAL].selectedTypeIndex = isPBR ? 2 : 1;
+        dynamicData[STRING_MATERIAL].selectedTypeIndex = isPBR ? PBR_INDEX : SHADELESS_INDEX;
         var type = isPBR ? "pbr" : "shadeless";
 
         // Update UI with values 
@@ -296,11 +315,12 @@
         // Loop through all newMaterialProperties
         for (var property in newMaterials) {
 
-            
             var key = property;
             var value = newMaterials[key];
 
-            print("Key is :", key, " dynamic property data is :", JSON.stringify(dynamicPropertyData));
+            if (DEBUG) {
+                print("Key is :", key, " dynamic property data is :", JSON.stringify(dynamicPropertyData));
+            }
             
             if (key === "model" || key === "unlit") {
                 // property doesnt exist in ui properties
@@ -309,7 +329,7 @@
 
             if (key.indexOf("Map") !== -1) {
                 // is a Map
-                var uiValue = prepImageBackendToUI(value);
+                var uiValue = value.replace(PATH_TO_IMAGES, ""); // remove path url
 
                 if (dynamicPropertyData[key]) {
                     // is Map Only
@@ -333,7 +353,7 @@
     }
 
 
-    // @args updatesObject name [string]
+    // Update material or create a new material
     function updateMaterial(newMaterialData, isNamed, isPBR) {
 
         var materialEntityProperties;
@@ -382,9 +402,7 @@
 
             newMaterials.model = "hifi_pbr"; 
 
-            // create material entity properties
             materialEntityProperties = {
-                // static defaults
                 type: "Material",
                 name: "Avatar101-Material",
                 parentID: MyAvatar.sessionUUID,
@@ -425,11 +443,8 @@
     }
 
 
-    function prepImageBackendToUI(file) {
-        return file.replace(PATH_TO_IMAGES, "");
-    }
-
-
+    // For both shadeless properties in dynamic data
+    // Set back to default values
     function setMaterialPropertiesToDefaults() {
         // shadeless
         setDefaults(dynamicData[STRING_MATERIAL].shadeless, defaultMaterialProperties.shadeless);
@@ -437,6 +452,9 @@
         setDefaults(dynamicData[STRING_MATERIAL].pbr, defaultMaterialProperties.pbr);
     }
 
+
+    // Take the dynamic data object and use the default object 
+    // to set values to default value
     function setDefaults(dynamicObject, defaultObject) {
         for (var key in defaultObject) {
             var defaultValue = defaultObject[key].value;
@@ -448,22 +466,20 @@
     }
 
 
-    // presets
+    // Apply the named material to material entity
     function applyNamedMaterial(materialName) {
 
+        // Set the selected material in UI
         dynamicData[STRING_MATERIAL].selectedMaterial = materialName;
 
         switch (materialName){
             case STRING_DEFAULT_MAT:
-
                 setMaterialPropertiesToDefaults();
                 dynamicData[STRING_MATERIAL].selectedTypeIndex = 0; // "Select one"
-
                 if (materialID) {
                     Entities.deleteEntity(materialID);
                     materialID = null;
                 }
-
                 break;
             case STRING_GLASS_MAT:
                 // updateMaterial materialName, isNamed, isPBR
@@ -510,10 +526,12 @@
 
     }
 
-    // presets
+    // Apply the named blendshape to avatar
     function applyNamedBlendshapes(blendshapeName) {
-        // switch statement that matches the blendshape name
-        //      "smile" -> updateBlendshapes(BLEND_SMILE);
+
+        // Set the selected blendshape data in UI
+        dynamicData[STRING_BLENDSHAPES].selected = blendshapeName;
+
         switch (blendshapeName){
             case "default":
                 updateBlendshapes(BLENDSHAPE_DATA.defaults, true);
@@ -528,7 +546,6 @@
                 updateBlendshapes(BLENDSHAPE_DATA.angry, true);
                 break;
         }
-        dynamicData[STRING_BLENDSHAPES].selected = blendshapeName;
     }
 
     // #endregion BLENDSHAPES
@@ -569,7 +586,7 @@
     function updateFlow(newFlowDataToApply, subtype) {
 
         if (DEBUG) {
-            print("updating flow: ", subtype, JSON.stringify(newFlowDataToApply))
+            print("updating flow: ", subtype, JSON.stringify(newFlowDataToApply));
         }
 
         // propertyName is the key and value is the new propety value
@@ -595,11 +612,6 @@
 
     // #region APP
 
-    // App variables
-    var UPDATE_UI = CONFIG.UPDATE_UI;
-    var BUTTON_NAME = CONFIG.BUTTON_NAME;
-    var APP_NAME = CONFIG.APP_NAME;
-
     // Static strings
     var STRING_MATERIAL = CONFIG.STRING_MATERIAL,
         STRING_BLENDSHAPES = CONFIG.STRING_BLENDSHAPES,
@@ -619,10 +631,11 @@
     // Tab dynamic variables
     var currentTab;
 
+    // Create menu button
     function startup() {
 
         ui = new AppUi({
-            buttonName: BUTTON_NAME,
+            buttonName: CONFIG.BUTTON_NAME,
             home: URL,
             onMessage: onMessage,
             // graphicsDirectory: Script.resolvePath("./resources/icons/"),
@@ -630,31 +643,30 @@
             onClosed: onClosed
         });
 
-        // check avatar, if avatar is Avi.fst (or fbx) then set APP_AVI_ENABLED state
-        // if not Avi avatar, dynamicData.aviEnabled is false
-        // loadAnimationsIntoCache();
-
         Script.scriptEnding.connect(unload);
     }
 
+
+    // Called each time app is closed
     function onClosed() {
 
         deleteMirror();
         // save lastTab that the user was on
         dynamicData.state.activeTabName = currentTab;
-
         MyAvatar.hasScriptedBlendshapes = false;
 
     }
 
+
+    // Called each time app is opened
     function onOpened() {
 
         if (DEBUG) {
-            print("ACA101 onOpened: isAviEnabled ", isAviYourCurrentAvatar());
+            print("ACA101 onOpened: isAviEnabled ", MyAvatar.skeletonModelURL === AVATAR_URL);
             print("ACA101 onOpened: activeTabName is ", dynamicData.state.activeTabName);
         }
 
-        if (isAviYourCurrentAvatar()) {
+        if (MyAvatar.skeletonModelURL === AVATAR_URL) {
 
             setIsAviEnabledTrue();
 
@@ -670,6 +682,7 @@
 
     }
 
+    // Functionality for each time a tab is switched
     function switchTabs(tabName) {
         
         var previousTab = currentTab;
@@ -689,37 +702,26 @@
         if (currentTab === STRING_BLENDSHAPES) {
             // enable scripted blendshapes
             MyAvatar.hasScriptedBlendshapes = true;
-            // startBlendshapeInterval();
         }
         if (previousTab === STRING_BLENDSHAPES && currentTab !== STRING_BLENDSHAPES){
             // disable scripted blendshapes
             MyAvatar.hasScriptedBlendshapes = false;
-            // stopBlendshapeInterval();
         }
 
     }
 
     function unload() {
-
-
         deleteMirror();
 
         // Set blendshapes back to normal
         MyAvatar.hasScriptedBlendshapes = true;
-        // startBlendshapeInterval();
         applyNamedBlendshapes(BLENDSHAPE_DATA.defaults);
         MyAvatar.hasScriptedBlendshapes = false;
-
-        // Script.setTimeout(function () {
-            
-        //     stopBlendshapeInterval();
-        // }, 200);
 
         if (materialID) {
             Entities.deleteEntity(materialID);
             materialID = null;
         }
-
     }
 
     // #endregion APP
@@ -733,13 +735,13 @@
         // EventBridge message from HTML script.
 
         // Check against EVENT_NAME to ensure we're getting the correct messages from the correct app
-        if (!data.type || data.type.indexOf(APP_NAME) === -1) {
+        if (!data.type || data.type.indexOf(CONFIG.APP_NAME) === -1) {
             if (DEBUG_EVENTS) {
-                print("Event type event name index check: ", !data.type, data.type.indexOf(APP_NAME) === -1);
+                print("Event type event name index check: ", !data.type, data.type.indexOf(CONFIG.APP_NAME) === -1);
             }
             return;
         }
-        data.type = data.type.replace(APP_NAME, "");
+        data.type = data.type.replace(CONFIG.APP_NAME, "");
 
         if (DEBUG_EVENTS) {
             print("onMessage: ", data.type);
@@ -748,10 +750,8 @@
 
         switch (data.type) {
             case CONFIG.EVENT_BRIDGE_OPEN_MESSAGE:
-
                 updateUI();
                 break;
-
             case CONFIG.EVENT_UPDATE_AVATAR:
 
                 switch (data.subtype) {
@@ -767,23 +767,16 @@
                     default:
                         break;
                 }
-
                 break;
-
             case CONFIG.EVENT_CHANGE_TAB:
-
                 switchTabs(data.value);
-
                 break;
-
             case CONFIG.EVENT_UPDATE_MATERIAL:
-
                 // delegates the method depending on if 
                 // event has name property or updates property
                 if (DEBUG) {
-                    print("MATERIAL EVENT" , data.subtype, " ", data.name);
+                    print("MATERIAL EVENT" , data.subtype, " ", data.name, " ", data.updates);
                 }
-
                 switch (data.subtype) {
                     case STRING_MODEL_TYPE_SELECTED:
                         applyNamedMaterial(STRING_DEFAULT_MAT);
@@ -800,36 +793,26 @@
                         var isPBR = data.updates.isPBR;
 
                         console.log("update Property" + propertyName + JSON.stringify(newMaterialData));
-
                         updateMaterialProperty(propertyName, newMaterialData, componentType, isPBR);
-
                         break;
                 }
-
                 updateUI(STRING_MATERIAL);
-
                 break;
 
             case CONFIG.EVENT_UPDATE_BLENDSHAPE:
-
                 if (data.name) {
                     applyNamedBlendshapes(data.name);
                 } else {
                     updateBlendshapes(data.updates);
                 }
-
                 updateUI(STRING_BLENDSHAPES);
-
                 break;
             case CONFIG.EVENT_UPDATE_FLOW:
-
                 switch (data.subtype) {
                     case STRING_DEBUG_TOGGLE:
-
                         if (DEBUG) {
                             print("TOGGLE DEBUG SPHERES ", data.updates);
                         }
-
                         addRemoveFlowDebugSpheres(data.updates);
                         break;
                     case STRING_COLLISIONS_TOGGLE:
@@ -845,9 +828,7 @@
                         console.error("Flow recieved no matching subtype");
                         break;
                 }
-
                 updateUI(STRING_FLOW);
-
                 break;
             default:
                 break;
@@ -856,22 +837,20 @@
     }
 
     function updateUI(type) {
-
         var messageObject = {
-            type: UPDATE_UI,
+            type: CONFIG.UPDATE_UI,
             subtype: type ? type : "",
             value: type ? dynamicData[type] : dynamicData
         };
-
         if (DEBUG_EVENTS) {
             print("Update UI", type);
         }
-
         ui.sendToHtml(messageObject);
     }
 
     // #endregion EVENTS
 
+    // Initialize the app
     startup();
 
 }());

@@ -104,6 +104,10 @@
     margin: 0;
 }
 
+.justify-content-start {
+    justify-content: flex-start;
+} 
+
 .btn-primary.flex-item {
     flex-basis: 6rem;
 }
@@ -146,10 +150,13 @@
     background-color:  #7E8C81;
 }
 
-.selected {
-
+.material-label {
+    width: 120px;
 }
 
+.material-option {
+    width: 200px;
+}
 
 /* Utils */
 
@@ -202,8 +209,8 @@
   /* Image drop down */ 
 
   .dropdown-item-image {
-    width: 100px;
-    height: 50px;
+    width: 160px;
+    height: 40px;
   }
 
   .form-check-input {
