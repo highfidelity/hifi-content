@@ -305,11 +305,6 @@ var CONFIG = {
         material: {
             selectedTypeIndex: 0,
             selectedMaterial: "",
-            materialEntityProperties: {
-                name: "",
-                scale: {},
-                position: {}
-            },
             shadeless: {
                 // component type color
                 albedo: { value: "N/A", map: null },
@@ -323,7 +318,7 @@ var CONFIG = {
                 roughness: { value: 0, map: null },
                 metallic: { value: 0, map: null },
                 scattering: { value: 0, map: null },
-                opacity: { value: 0, map: null },
+                opacity: { value: 1, map: null },
                 // component type map only
                 normalMap: { value: null, map: null },
                 occlusionMap: { value: null, map: null }

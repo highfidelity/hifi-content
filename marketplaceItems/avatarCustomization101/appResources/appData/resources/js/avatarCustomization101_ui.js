@@ -27,21 +27,11 @@
 
         // Info tab events
         EVENT_UPDATE_AVATAR = APP_NAME + CONFIG.EVENT_UPDATE_AVATAR,
-        EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR = CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR,
-        EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR = CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR,
-        EVENT_RESTORE_SAVED_AVATAR = CONFIG.EVENT_RESTORE_SAVED_AVATAR,
-
-        // Material tab events
         EVENT_UPDATE_MATERIAL = APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL,
         EVENT_UPDATE_BLENDSHAPE = APP_NAME + CONFIG.EVENT_UPDATE_BLENDSHAPE,
         EVENT_UPDATE_FLOW = APP_NAME + CONFIG.EVENT_UPDATE_FLOW,
 
         STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
-
-    // Static TAB DATA
-    var STATIC_DATA = CONFIG.STATIC_DATA;
-    var TAB_LIST = STATIC_DATA.TAB_LIST;
-    var TAB_DATA = STATIC_DATA.TAB_DATA;
 
     // Debug
     var DEBUG = true;
@@ -120,6 +110,8 @@
                     active: (tabName === this.activetabname),
                     href: "#" + tabName,
                     tabID: tabName + "-tab",
+                    // disable tabs if avi is NOT enabled 
+                    // or avi is NOT enabled and the tab name is string info
                     isDisabled: !isAviEnabled || (!isAviEnabled && tabName !== STRING_INFO),
                     flexGrowSize: flexGrowSize
                 }
@@ -154,24 +146,16 @@
         props: ['staticdata', 'dynamicdata'],
         computed: {
             tabDataList() {
-                var dynamic = this.dynamicdata;
-                // var TAB_DATA = this.TAB_DATA;
 
-                return this.TAB_LIST.map((tabName) => {
+                return this.staticdata.TAB_LIST.map((tabName) => {
 
                     var tabData = {
-                        static: this.TAB_DATA[tabName.toUpperCase()],
-                        dynamic: dynamic[tabName.toLowerCase()]
+                        static: this.staticdata.TAB_DATA[tabName.toUpperCase()],
+                        dynamic: this.dynamicdata[tabName.toLowerCase()]
                     }
 
                     return tabData;
                 });
-            }
-        },
-        data() {
-            return {
-                TAB_LIST: TAB_LIST,
-                TAB_DATA: TAB_DATA
             }
         },
         template: /* html */ `
@@ -243,15 +227,13 @@
                 this.isModalSaveAvatarVisible = false;
             },
             restoreAvatar() {
-                // restore avatar
-
                 if (DEBUG) {
                     console.log("restoreAvatar clicked");
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_AVATAR,
-                    subtype: EVENT_RESTORE_SAVED_AVATAR
+                    subtype: CONFIG.EVENT_RESTORE_SAVED_AVATAR
                 }));
 
             }
@@ -302,6 +284,8 @@
 
     // #region Material tab components
 
+    var MATERIAL_TAB = CONFIG.MATERIAL_TAB;
+
     Vue.component('material-tab', {
         props: ['dynamic', 'static'],
         methods: {
@@ -339,15 +323,14 @@
             var selectedTypeData = typeList[selectedTypeIndex];
             var key = selectedTypeData.key;
 
-            return {   
+            return {
                 selectedTypeIndex: selectedTypeIndex,
                 selectedTypeData: selectedTypeData,
                 staticPropertyList: typeList[key]
             }
         },
         watch: {
-            dynamic(value, oldvalue) {
-                // *** can be more performant
+            dynamic(value) {
                 this.selectedTypeIndex = this.dynamic.selectedTypeIndex;
                 this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[value.selectedTypeIndex];
                 this.staticPropertyList = this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.selectedTypeData.key]
@@ -397,11 +380,6 @@
         `
     })
 
-    // material component names
-    var STRING_COLOR = CONFIG.STRING_COLOR,
-        STRING_SLIDER = CONFIG.STRING_SLIDER,
-        STRING_MAP_ONLY = CONFIG.STRING_MAP_ONLY;
-
     Vue.component('material-property-container', {
         props: ['property', 'dynamic', "static"],
         methods: {
@@ -440,7 +418,7 @@
                 var value = dynamicPropertyData.value;
                 var mapName = componentType !== STRING_MAP_ONLY ? name + "Map" : name;
                 var mapList = this.static.PROPERTY_MAP_IMAGES[mapName] ? this.static.PROPERTY_MAP_IMAGES[mapName] : [];
-                var mapValue = componentType === STRING_COLOR || componentType === STRING_SLIDER ? dynamicPropertyData.map : dynamicPropertyData.value;
+                var mapValue = componentType === this.STRING_COLOR || componentType === this.STRING_SLIDER ? dynamicPropertyData.map : dynamicPropertyData.value;
 
                 var propertyInfo = {
                     name: name,
@@ -449,7 +427,7 @@
                     mapName: mapName,
                     mapValue: mapValue,
                     mapList: mapList,
-                    isColor: componentType === STRING_COLOR, // for binding the right css class
+                    isColor: componentType === this.STRING_COLOR, // for binding the right css class
                 };
 
                 return propertyInfo;
@@ -457,9 +435,9 @@
         },
         data() {
             return {
-                STRING_COLOR: STRING_COLOR,
-                STRING_SLIDER: STRING_SLIDER,
-                STRING_MAP_ONLY: STRING_MAP_ONLY
+                STRING_COLOR: CONFIG.STRING_COLOR,
+                STRING_SLIDER: CONFIG.STRING_SLIDER,
+                STRING_MAP_ONLY: CONFIG.STRING_MAP_ONLY
             }
         },
         template: /* html */ `
@@ -525,7 +503,7 @@
         `
     })
 
-    Vue.component('material-map', { // ***
+    Vue.component('material-map', { 
         props: ['propertyInfo', 'updateproperty' ],
         methods:{
             updateMap(fileName) {
@@ -564,7 +542,7 @@
             },
             cancelColor() {
                 this.setColorToNA();
-                this.onchange();
+                this.updateValue("");
             },
             setColorToNA() {
                 var id = "#" + this.colorElementIds + "-jscolor";
@@ -612,6 +590,7 @@
         `
     })
 
+
     Vue.component('cancel-x', {
         props: ['onclick', 'isdisabled'],
         methods: {
@@ -632,6 +611,7 @@
             </div>
         `
     })
+
 
     // JSColor picker made for Vue.js by mudream4869
     // https://gist.github.com/mudream4869/d956736a96bac2a89155a0c416a0ac35
@@ -669,7 +649,6 @@
         },
         watch: {
             value (value, oldValue) {
-                console.log("JSCOLORRRRR");
                 if (value === "N/A") {
                     this.cancelcolor();
                 } else {
@@ -687,11 +666,10 @@
             />
         `
     });
-
     // #endregion material tab components
 
-    // #region Blendshapes tab
 
+    // #region Blendshapes tab
     Vue.component('blendshapes-tab', {
         props: ['dynamic', 'static'],
         methods: {
@@ -701,7 +679,7 @@
                 }
 
                 EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_UPDATE_BLENDSHAPE,
+                    type: this.EVENT_UPDATE_BLENDSHAPE,
                     name: blendshapeName
                 }));
 
@@ -712,18 +690,11 @@
                 }
                 var sliderChange = createSliderChangeCallback(this.dynamic.updatedProperties, EVENT_UPDATE_BLENDSHAPE);
                 sliderChange(+value, name);
-            },
+            }
         },
-        computed: {
-            facialBlendshapeList() {
-                var blendshapeList = this.static.COMPONENT_DATA.FACIAL_BLENDSHAPES_OPTIONS;
-                var currentProperties = this.dynamic.updatedProperties;
-
-                return createSliderInfoFromLists(blendshapeList, currentProperties, getName);
-
-                function getName(name) {
-                    return name.replace(/_|-|\./g, '');
-                }
+        data() {
+            return {
+                EVENT_UPDATE_BLENDSHAPE: EVENT_UPDATE_BLENDSHAPE
             }
         },
         template: /* html */ `
@@ -739,18 +710,18 @@
 
                 <h3>Facial Blendshapes</h3>
 
-                <template v-for="blendshapeData in facialBlendshapeList">
+                <template v-for="blendshape in static.COMPONENT_DATA.FACIAL_BLENDSHAPES_OPTIONS">
 
-                    <p>{{ blendshapeData.title }}</p>
+                    <p>{{ blendshape.name }}</p>
 
                     <slider 
-                        :title="blendshapeData.title"
-                        :name="blendshapeData.name"
-                        :max="blendshapeData.max"
-                        :increment="blendshapeData.increment"
-                        :min="blendshapeData.min"
-                        :defaultvalue="blendshapeData.defaultValue"
-                        :onchange="onSliderChange"
+                        :title="blendshape.name"
+                        :name="blendshape.name.replace(/_|-|\./g, '')"
+                        :max="blendshape.min ? blendshape.min : 1"
+                        :increment="blendshape.increment ? blendshape.increment : 0.1"
+                        :min="blendshape.min ? blendshape.min : 0"
+                        :defaultvalue="dynamic.updatedProperties[blendshape.name]"
+                        :eventbridgeeventtype="EVENT_UPDATE_BLENDSHAPE"
                     ></slider>
 
                 </template>
@@ -758,8 +729,8 @@
             </div>
         `
     })
-
     // #endregion Blendshapes tab
+
 
     // Helper for formatting slider data using both the staticList and dynamicData
     function createSliderInfoFromLists(staticList, dynamicData, nameFunction) {
@@ -929,7 +900,7 @@
 
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_AVATAR,
-                    subtype: EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR
+                    subtype: CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR
                 }));
 
                 this.close();
@@ -943,7 +914,7 @@
 
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_AVATAR,
-                    subtype: EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR
+                    subtype: CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR
                 }));
 
                 this.close();
@@ -997,7 +968,17 @@
     // #region EDIT COMPONENTS
 
     Vue.component('slider', {
-        props: ['title', 'name', 'max', 'min', 'defaultvalue', 'increment', 'onchange'],
+        props: [
+            'title', 
+            'name', 
+            'max', 
+            'min', 
+            'defaultvalue', 
+            'increment', 
+            'eventbridgeeventtype', 
+            'eventbridgeeventsubtype',
+            'onchange' // *** to out
+        ],
         computed: {
             sliderId() {
                 return this.name;
@@ -1007,8 +988,17 @@
             }
         },
         methods: {
-            onChange() {
-                this.onchange(this.val, this.title);
+            // onChange() {
+            //     this.onchange(this.val, this.title);
+            // },
+            onSliderChange() {
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: this.eventbridgeeventtype,
+                    subtype: this.eventbridgeeventsubtype ? this.eventbridgeeventsubtype : "",
+                    updates: { [this.title]: +this.val } // expected { [name]: value}
+                }));
+
             }
         },
         data() {
@@ -1016,11 +1006,11 @@
                 val: this.defaultvalue ? this.defaultvalue : this.min
             }
         },
-        watch: {
-            defaultvalue(newDefaultVal) {
-                this.val = newDefaultVal.toFixed(2);
-            }
-        },
+        // watch: {
+        //     defaultvalue(newDefaultVal) {
+        //         this.val = newDefaultVal.toFixed(2);
+        //     }
+        // },
         template: /* html */ `
             <div class="flex-container-row">
 
@@ -1034,7 +1024,7 @@
                         type="range"
 
                         v-model="val"
-                        @change="onChange()"
+                        @change="onSliderChange()"
                     >
                 </div>
                 <span 

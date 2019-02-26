@@ -20,7 +20,7 @@
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v22222222111")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v12345")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
     var DEBUG = true;
@@ -101,7 +101,7 @@
                 "z": 0.001
             },
             position: position,
-            rotation: MyAvatar.orientation, // Quat.cancelOutRollAndPitch(Quat.lookAt(position, MyAvatar.position, Vec3.UNIT_Y)),
+            rotation: MyAvatar.orientation,
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",
             collisionless: true,
             script: Script.resolvePath("./resources/modules/mirrorClient.js")
@@ -111,10 +111,15 @@
     function deleteMirror() {
         // Delete mirror entity 
         // set mirrorID to null
-        Entities.deleteEntity(mirrorCubeID);
-        Entities.deleteEntity(mirrorZoneID);
-        mirrorCubeID = null;
-        mirrorZoneID = null;
+        if (mirrorCubeID) {
+            Entities.deleteEntity(mirrorCubeID);
+            mirrorCubeID = null;
+        }
+
+        if (mirrorZoneID) {
+            Entities.deleteEntity(mirrorZoneID);
+            mirrorZoneID = null;
+        }
     }
 
     // #endregion MIRROR FUNCTIONS
@@ -122,13 +127,8 @@
     // #region AVATAR FUNCTIONS
 
     var STRING_BOOKMARK_NAME = CONFIG.STRING_BOOKMARK_NAME;
-
-    function bookmarkAvatar() {
-        AvatarBookmarks.addBookmark(STRING_BOOKMARK_NAME);
-    }
-
     function saveAvatarAndChangeToAvi() {
-        bookmarkAvatar();
+        AvatarBookmarks.addBookmark(STRING_BOOKMARK_NAME);
         changeAvatarToAvi();
     }
 
@@ -139,10 +139,38 @@
             AvatarBookmarks.loadBookmark(STRING_BOOKMARK_NAME);
             AvatarBookmarks.removeBookmark(STRING_BOOKMARK_NAME);
             setIsAviEnabledFalse();
+
         } else {
             Window.alert("No bookmark was saved in the avatar app.");
         }
 
+    }
+
+    function onAvatarChanged() {
+        if (MyAvatar.skeletonModelURL === AVATAR_URL) {
+
+            setIsAviEnabledTrue();
+
+        } else {
+
+            setIsAviEnabledFalse();
+
+            // Set blendshapes back to normal
+            MyAvatar.hasScriptedBlendshapes = true;
+            startBlendshapeInterval();
+            applyNamedBlendshapes(BLENDSHAPES_DEFAULT);
+
+            Script.setTimeout(function () {
+                MyAvatar.hasScriptedBlendshapes = false;
+                stopBlendshapeInterval();
+            }, 200);
+
+            // delete material
+            if (materialID) {
+                Entities.deleteEntity(materialID);
+                materialID = null;
+            }
+        }
     }
 
     function changeAvatarToAvi() {
@@ -152,14 +180,11 @@
         setIsAviEnabledTrue();
     }
 
-    function isAviYourCurrentAvatar() {
-        return MyAvatar.skeletonModelURL === AVATAR_URL;
-    }
-
     // Contains all steps to set the app state to isAviEnabled = true
     function setIsAviEnabledTrue() {
         dynamicData.state.isAviEnabled = true;
         spawnMirror();
+
         updateUI(STRING_STATE);
     }
 
@@ -218,6 +243,7 @@
         
         // update UI values
         var type = isPBR ? "pbr" : "shadeless";
+        dynamicData[STRING_MATERIAL].selectedMaterial = "";
 
         // prep data for changing material entity in updateMaterial()
         var updates = {
@@ -230,7 +256,7 @@
             // slider value does not need to be changed
 
             updates[property] = value;
-            dynamicData[STRING_MATERIAL][type][property].value = value;
+            dynamicData[STRING_MATERIAL][type][property].value = componentType === STRING_COLOR && value === null ? "N/A" : value;
         }
 
         if (map !== undefined && componentType !== STRING_MAP_ONLY) {
@@ -241,8 +267,14 @@
         updateMaterial({ materials: updates }, false, isPBR);
     }
 
+    
     function convertColorUIToBackend(hexColor){
         // hex -> rgb -> array
+
+        if (!hexColor) {
+            return null;
+        }
+        
         var rgb = hexToRgb(hexColor);
         return [ 
             rgb.r / 255.0,
@@ -251,9 +283,9 @@
         ];
     }
 
+
     function convertImageUIToBackend(file) {
         if (file && file.indexOf("no.jpg") !== -1) {
-            print("I AM HERE");
             return null;
         } 
         return PATH_TO_IMAGES + file;
@@ -262,8 +294,7 @@
 
     // prioritize a properties over b properties
     function mergeObjectProperties(a, b) {
-
-        for(var key in b) {
+        for (var key in b) {
             a[key] = b[key];
         }
         return a;
@@ -296,8 +327,6 @@
             var key = property;
             var value = newMaterials[key];
 
-            print("Key is :", key, " dynamic property data is :", JSON.stringify(dynamicPropertyData));
-            
             if (key === "model" || key === "unlit") {
                 // property doesnt exist in ui properties
                 continue;
@@ -361,8 +390,6 @@
 
             // merge new materials and old material properties together
             newMaterials = mergeObjectProperties(oldMaterials, newMaterials);
-
-            print("ROBIN IS THIS " + JSON.stringify(newMaterials));
 
             if (newMaterials["unlit"] && !isPBR) {
                 // unlit exists and is false
@@ -596,14 +623,17 @@
         STRING_JOINTS = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS;
 
     // Called when user navigates to flow tab
-    function addRemoveFlowDebugSpheres(isEnabled) {
+    function addRemoveFlowDebugSpheres(isEnabled, setDebug) {
         // draw debug circles on the joints
         var flowSettings = GlobalDebugger.getDisplayData();
 
         // the state of flow is the opposite of what we want
         if (flowSettings.debug !== isEnabled) {
             GlobalDebugger.toggleDebugShapes();
-            dynamicData[STRING_FLOW].showDebug = isEnabled;
+
+            if (setDebug) {
+                dynamicData[STRING_FLOW].showDebug = isEnabled;
+            }
         }
 
     }
@@ -684,9 +714,7 @@
             onClosed: onClosed
         });
 
-        // check avatar, if avatar is Avi.fst (or fbx) then set APP_AVI_ENABLED state
-        // if not Avi avatar, dynamicData.aviEnabled is false
-        // loadAnimationsIntoCache();
+        MyAvatar.skeletonModelURLChanged.connect(onAvatarChanged);
 
         Script.scriptEnding.connect(unload);
     }
@@ -697,18 +725,21 @@
         // save lastTab that the user was on
         dynamicData.state.activeTabName = currentTab;
 
-        MyAvatar.hasScriptedBlendshapes = false;
+        // disable debug spheres
+        addRemoveFlowDebugSpheres(false);
+
+        // MyAvatar.hasScriptedBlendshapes = false;
 
     }
 
     function onOpened() {
 
         if (DEBUG) {
-            print("ACA101 onOpened: isAviEnabled ", isAviYourCurrentAvatar());
+            print("ACA101 onOpened: isAviEnabled ", MyAvatar.skeletonModelURL === AVATAR_URL);
             print("ACA101 onOpened: activeTabName is ", dynamicData.state.activeTabName);
         }
 
-        if (isAviYourCurrentAvatar()) {
+        if (MyAvatar.skeletonModelURL === AVATAR_URL) {
 
             setIsAviEnabledTrue();
 
@@ -731,10 +762,12 @@
 
         // Flow tab conditionals
         if (currentTab === STRING_FLOW && dynamicData[STRING_FLOW].showDebug){
+            print("SHOW DEBUG : ", currentTab === STRING_FLOW && dynamicData[STRING_FLOW].showDebug);
             // enable debug spheres
             addRemoveFlowDebugSpheres(true);
         }
-        if (previousTab === STRING_FLOW && currentTab !== STRING_FLOW){
+
+        if (previousTab === STRING_FLOW && currentTab !== STRING_FLOW) {
             // disable debug spheres
             addRemoveFlowDebugSpheres(false);
         }
@@ -758,6 +791,13 @@
 
         deleteMirror();
 
+        setAvatarSettingsToDefaults();
+
+        MyAvatar.skeletonModelURLChanged.disconnect(onAvatarChanged);
+
+    }
+
+    function setAvatarSettingsToDefaults () {
         // Set blendshapes back to normal
         MyAvatar.hasScriptedBlendshapes = true;
         startBlendshapeInterval();
@@ -772,7 +812,6 @@
             Entities.deleteEntity(materialID);
             materialID = null;
         }
-
     }
 
     // #endregion APP
@@ -811,12 +850,12 @@
         }
 
         switch (data.type) {
-            case EVENT_BRIDGE_OPEN_MESSAGE:
+            case CONFIG.EVENT_BRIDGE_OPEN_MESSAGE:
 
                 updateUI();
                 break;
 
-            case EVENT_UPDATE_AVATAR:
+            case CONFIG.EVENT_UPDATE_AVATAR:
 
                 switch (data.subtype) {
                     case EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR:
@@ -834,13 +873,13 @@
 
                 break;
 
-            case EVENT_CHANGE_TAB:
+            case CONFIG.EVENT_CHANGE_TAB:
 
                 switchTabs(data.value);
 
                 break;
 
-            case EVENT_UPDATE_MATERIAL:
+            case CONFIG.EVENT_UPDATE_MATERIAL:
 
                 // delegates the method depending on if 
                 // event has name property or updates property
@@ -874,7 +913,7 @@
 
                 break;
 
-            case EVENT_UPDATE_BLENDSHAPE:
+            case CONFIG.EVENT_UPDATE_BLENDSHAPE:
 
                 if (data.name) {
                     applyNamedBlendshapes(data.name);
@@ -885,12 +924,12 @@
                 updateUI(STRING_BLENDSHAPES);
 
                 break;
-            case EVENT_UPDATE_FLOW:
+            case CONFIG.EVENT_UPDATE_FLOW:
 
                 switch (data.subtype) {
                     case STRING_DEBUG_TOGGLE:
                         print("TOGGLE DEBUG SPHERES ", data.updates)
-                        addRemoveFlowDebugSpheres(data.updates);
+                        addRemoveFlowDebugSpheres(data.updates, true);
                         break;
                     case STRING_COLLISIONS_TOGGLE:
                         addRemoveCollisions(data.updates);

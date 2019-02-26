@@ -68,6 +68,7 @@ var MATERIAL_DATA = {
             "model": "hifi_pbr",
             "roughness": 0.2,
             "unlit": false,
+            "opacity": 1,
             "albedoMap": MAPS.chainmail.albedoMap,
             "metallicMap": MAPS.chainmail.metallicMap,
             "normalMap": MAPS.chainmail.normalMap,
@@ -80,6 +81,7 @@ var MATERIAL_DATA = {
         "materials": {
             "model": "hifi_pbr",
             "unlit": false,
+            "opacity": 1,
             "emissiveMap": MAPS.disco.emissiveMap,
             "albedoMap": MAPS.disco.albedoMap,
             "metallicMap": MAPS.disco.metallicMap,
