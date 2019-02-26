@@ -1,6 +1,11 @@
 # Last Avatar Standing Trivia Game
 
 ### Release Notes:
+**February 26, 2019**
+[c2be06d](https://github.com/highfidelity/hifi-content/pull/303/commits/c2be06dfb25fe91238895d953e00b65134f6aac5)
+Version 1.1.2
+- Fixed bug with eventbridge connection between the client script and html for the host app.
+
 **February 15, 2019**
 [4eb6328](https://github.com/highfidelity/hifi-content/pull/296/commits/4eb63286b45020a20371acfd6145dd7043604d2b)
 Version 1.1.1
@@ -40,5 +45,6 @@ You can switch databases at any time, but to re-enter custom or miscellaneous da
 4. Simplify html with button state-machine.
 5. Replace timeout on unloading the color check scripts with a callback when player removals are complete.
 6. There is a known issue with the time gap between events when the timer finishes counting down, the determination of the game state, and the potential removal of players from the board that may affect players who are transitting answer zone boundaries at the end of the countdown and immediately thereafter.  Players are advised to select and move to their answer as quickly as possible and remain there until a new question is posted.
+7. There is a known issue where game events from button presses occur multiple times in quick succession (e.g. mutliple sequential prompts for custom databases)  Reloading scripts seems to clear the issue.  It seems to occur when hosting trivia in one domain and then hosting in another domain without reloading scripts.
 
 
