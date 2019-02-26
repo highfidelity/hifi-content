@@ -45,6 +45,10 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
+## v2.2.2 | 2019-02-25_17-16-00 | [commit 517c311](https://github.com/highfidelity/hifi-content/commits/517c311)
+
+- Force scripts to re-read config file more often.
+
 ## v2.2.1 | 2019-02-22_13-42-00 | [commit 8f6403c](https://github.com/highfidelity/hifi-content/commits/8f6403c)
 
 - Minor code review changes. No functional changes.
