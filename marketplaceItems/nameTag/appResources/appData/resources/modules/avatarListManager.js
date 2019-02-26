@@ -27,13 +27,11 @@ function AvatarListManager(){
 }
 
 // Create the manager and hook up username signal
-AvatarListManager.prototype.create =
-    function(){
-        // console.log("in create");
-        Users.usernameFromIDReply.connect(_this.handleUserName);
+function create(){
+    Users.usernameFromIDReply.connect(_this.handleUserName);
 
-        return _this;
-    };
+    return _this;
+}
 
 // Destory the manager and disconnect from username signal
 AvatarListManager.prototype.destroy =
@@ -45,166 +43,334 @@ AvatarListManager.prototype.destroy =
 
 // Add a user to the manager
 var MAIN_SCALER = 0.75;
-var INTERVAL_CHECK_MS = 20;
+var INTERVAL_CHECK_MS = 100;
 var DEFAULT_LEFT_MARGIN = 0.070;
 var LINE_HEIGHT_SCALER = 1.0;
-AvatarListManager.prototype.add = 
-    function (uuid, intersection){
-        // console.log("adding user");
-        _this.avatars[uuid] = {
-            dateAdded: Date.now(),
-            avatarInfo: null,
-            localEntityMain: new LocalEntity('local')
-                .add(entityProps),
-            localEntitySub: new LocalEntity('local')
-                .add(entityProps),
-            intersection: intersection.intersection, 
-            lastDistance: null,
-            redrawTimeout: null,
-            mainInitialLineHeight: null,
-            mainInitialDimensions: null,
-            subInitialLineHeight: null,
-            subInitialDimensions: null
-        };
+var DISTANCE_SCALER = 0.35;
+function add(uuid, intersection){
+    _this.avatars[uuid] = {
+        dateAdded: Date.now(),
+        avatarInfo: null,
+        localEntityMain: new LocalEntity('local')
+            .add(entityProps),
+        localEntitySub: new LocalEntity('local')
+            .add(entityProps),
+        intersection: intersection.intersection, 
+        lastDistance: null,
+        redrawTimeout: null,
+        previousDistance: null,
+        currentDistance: null,
+        initialDistance: null,
+        mainInitialDimensions: null,
+        subInitialDimensions: null
+    };
 
-        _this.getInfo(uuid);
-        var avatar = _this.avatars[uuid];
+    _this.getInfo(uuid);
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
 
-        var localEntityMain = avatar.localEntityMain;
+    var localEntityMain = avatar.localEntityMain;
 
-        var avatarInfo = avatar.avatarInfo;
-        // log("_this.avatars[uuid]", _this.avatars[uuid]);
-        // log("avatarInfo in add", avatarInfo);
-        localEntityMain.add("text", avatarInfo.displayName);
+    localEntityMain.add("text", avatarInfo.displayName);
+
+    var textProps = localEntityMain.get(['text', 'lineHeight']);
+    var position = 
+        intersection.intersection;
+    textHelper
+        .setText(textProps.text)
+        .setLineHeight(textProps.lineHeight);
+    
+    var eye = Camera.position;
+    var target = avatarInfo.position;
+    var distance = Vec3.distance(target, eye);
+    avatar.previousDistance = distance;
+    var adjustedScaler = distance * DISTANCE_SCALER;
+    var dimensions = [textHelper.getTotalTextLength(), textProps.lineHeight, 0.1];
+    var scaledDimensions = Vec3.multiply(
+        Vec3.multiply(dimensions, adjustedScaler), 
+        MAIN_SCALER);
+    var lineHeight = scaledDimensions.y * LINE_HEIGHT_SCALER;
+
+    avatar.initialDistance = distance;
+    avatar.mainInitialDimensions = scaledDimensions; 
+    localEntityMain
+        .add("lineHeight", lineHeight)
+        .add("dimensions", scaledDimensions)
+        .add("position", position)
+        .add("parentID", uuid)
+        // .add("leftMargin", DEFAULT_LEFT_MARGIN * MAIN_SCALER)
+        .create(true);
+
+    _this.getUN(uuid);
+
+    avatar.redrawTimeout = Script.setInterval(function(){
+        _this.maybeRedraw(uuid);
+    }, INTERVAL_CHECK_MS, uuid);
+    return _this;
+}
+
+ 
+function handleSelect(uuid, intersection) {
+    if (uuid in _this.avatars) {
+        _this.remove(uuid);
+    } else {
+        _this.add(uuid, intersection);
+    }    
+}
 
 
-        var calculatedProps = _this.calculateNewScaledProperties(uuid, "main");
-        // log("calculatedProps", calculatedProps)
-        var lineHeight = calculatedProps.scaledDimensions.y * MAIN_SCALER * LINE_HEIGHT_SCALER;
-        // log("lineHeight", lineHeight)
-        var dimensions = Vec3.multiply(calculatedProps.scaledDimensions, MAIN_SCALER);
-        // log("dimensions", dimensions)
-        var position = intersection.intersection;
-        // log("position", position)
-        avatar.mainInitialLineHeight = lineHeight;
-        avatar.mainInitialDimensions = dimensions;
-        textHelper
-            .setText(avatarInfo.displayName)
-            .setLineHeight(lineHeight);
-             
-        localEntityMain
+function reDraw(uuid, type){
+    var avatar = _this.avatars[uuid];
+    var localEntity;
+    var initialDimensions = null;
+    var initialDistance = null;
+    var currentDistance = null;
+    var newDimensions = null;
+    var lineHeight = null;
+
+    if (type === "main") {
+        localEntity = avatar.localEntityMain;
+        initialDimensions = avatar.mainInitialDimensions;
+        initialDistance = avatar.initialDistance;
+        currentDistance = avatar.currentDistance;
+        newDimensions = [
+            (initialDimensions[X] / initialDistance) * currentDistance,
+            (initialDimensions[Y] / initialDistance) * currentDistance,
+            (initialDimensions[Z] / initialDistance) * currentDistance
+        ];
+
+        lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
+        localEntity
             .add("lineHeight", lineHeight)
-            .add("dimensions", dimensions)
-            // .add("leftMargin", DEFAULT_LEFT_MARGIN * MAIN_SCALER)
-            .add("position", position)
-            .add("parentID", uuid)
-            .create(true);
+            .add("dimensions", newDimensions)
+            .sync();
 
-        _this.getUN(uuid);
+    } else {
+        log('making sub');
+        localEntity = avatar.localEntitySub;
 
-        avatar.redrawTimeout = Script.setInterval(function(){
-            _this.maybeRedraw(uuid);
-        }, INTERVAL_CHECK_MS, uuid);
-        return _this;
-    };
+        initialDimensions = avatar.subInitialDimensions;
+        initialDistance = avatar.initialDistance;
+        currentDistance = avatar.currentDistance;
+        newDimensions = [
+            (initialDimensions[X] / initialDistance) * currentDistance,
+            (initialDimensions[Y] / initialDistance) * currentDistance,
+            (initialDimensions[Z] / initialDistance) * currentDistance
+        ];
+        var adjustedScaler = currentDistance * DISTANCE_SCALER;
 
-AvatarListManager.prototype.handleSelect =
-    function(uuid, intersection) {
-        // console.log("in handleSelect");
-        if (uuid in _this.avatars) {
-            // console.log("removing avatar")
-            _this.remove(uuid);
-        } else {
-            // console.log("adding avatar");
-            _this.add(uuid, intersection);
-        }    
-    };
+        lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
+        var localPosition = 
+            [0, SUB_OFFSET * adjustedScaler * SUB_NAME_SCALER, 0];
+        localEntity
+            .add("lineHeight", lineHeight)
+            .add("dimensions", newDimensions)
+            .add("localPosition", localPosition)
+            .sync();
+    }
+}
 
-AvatarListManager.prototype.reDraw = 
-    function (uuid, type){
-        var avatar = _this.avatars[uuid];
+var MAX_DISTANCE_METERS = 0.01;
+function maybeRedraw(uuid){
+    _this.getInfo(uuid);
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
+    var eye = Camera.position;
+    var target = avatarInfo.position;
+    avatar.previousDistance = avatar.currentDistance;
+    avatar.currentDistance = Vec3.distance(target, eye);
+    var distanceDelta = Math.abs(avatar.currentDistance - avatar.previousDistance);
 
-        var localEntity;
-        var calculatedProps;
-        if (type === "main") {
-            localEntity = avatar.localEntityMain;
-            calculatedProps = _this.calculateNewScaledProperties(uuid, "main");
+    if (distanceDelta < MAX_DISTANCE_METERS){
+        return;
+    }
 
-            var lineHeight = 
-                avatar.mainInitialLineHeight * calculatedProps.adjustedScaler;
-            var dimensions = 
-                Vec3.multiply(avatar.mainInitialDimensions, calculatedProps.adjustedScaler);
-            // log("lineHeight", lineHeight);
-            // log("dimensions", dimensions);
-            localEntity
-                .add("lineHeight", lineHeight)
-                .add("dimensions", dimensions)
-                // .add("leftMargin", DEFAULT_LEFT_MARGIN * MAIN_SCALER)
-                .sync();
+    _this.reDraw(uuid, "main");
+    
+    if (avatarInfo.username) {
+        _this.reDraw(uuid, "sub");
+    }
+}
 
-        } else {
-            localEntity = avatar.localEntitySub;
-            calculatedProps = _this.calculateNewScaledProperties(uuid, "sub");
-            // log("calculatedProps", calculatedProps);
-            // log("LH", avatar.subInitialLineHeight);
-            // log("D", avatar.subInitialDimensions);
-            // log("AS", calculatedProps.adjustedScaler);
-            var lineHeight = 
-                avatar.subInitialLineHeight * calculatedProps.adjustedScaler;
-            var dimensions =  
-                Vec3.multiply(avatar.subInitialDimensions, calculatedProps.adjustedScaler);
-            var localPosition = 
-                [0, SUB_OFFSET[Y] * calculatedProps.adjustedScaler, 0]
-            localEntity
-                .add("lineHeight", lineHeight)
-                .add("localPosition", localPosition)
-                .add("dimensions",dimensions)
-                // .add("leftMargin", DEFAULT_LEFT_SUB_MARGIN * subNameScaler)
-                .sync();
-        }
-    };
+// Make the smaller username when it is available
+var SUB_OFFSET = -0.175;
+var SUB_BACKGROUND = [0, 0, 0];
+var SUB_TEXTCOLOR = [255 ,150,255];
+var SUB_NAME_SCALER = 0.55;
+var SUB_PADDING = 1.0;
+var DEFAULT_LEFT_SUB_MARGIN = 0.03;
+function makeSubName(uuid){
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;      
 
-var MAX_DISTANCE_METERS = 0.02;
-AvatarListManager.prototype.maybeRedraw =
-    function(uuid){
-        _this.getInfo(uuid);
+    var localEntityMain = avatar.localEntityMain;
+    var localEntitySub = avatar.localEntitySub;
+
+    localEntitySub.add("text", avatarInfo.username);
+
+    var textProps = localEntitySub.get(['text', 'lineHeight']);
+
+    textHelper
+        .setText(textProps.text)
+        .setLineHeight(textProps.lineHeight);
+    
+    var eye = Camera.position;
+    var target = avatarInfo.position;
+    var distance = Vec3.distance(target, eye);
+
+    var adjustedScaler = distance * DISTANCE_SCALER;
+    var dimensions = [textHelper.getTotalTextLength(), textProps.lineHeight, 0.1];
+    var scaledDimensions = Vec3.multiply(
+        Vec3.multiply(dimensions, adjustedScaler), 
+        SUB_NAME_SCALER);
+    var lineHeight = scaledDimensions.y * LINE_HEIGHT_SCALER; 
+    var localPosition = [0, SUB_OFFSET * adjustedScaler * SUB_NAME_SCALER, 0];
+    
+    avatar.subInitialLineHeight = lineHeight;
+    avatar.subInitialDimensions = scaledDimensions;
+    avatar.subInitialLocalPosition = localPosition;
+
+    localEntitySub
+        .add("lineHeight", lineHeight)
+        .add("localPosition", localPosition)
+        .add("backgroundColor", SUB_BACKGROUND)
+        .add("textColor", SUB_TEXTCOLOR)
+        .add("parentID", localEntityMain.id)
+        .add("dimensions", scaledDimensions)
+        .create(true);
+}
+
+// Request the username
+
+function getUN(uuid){
+    if(_this.avatars[uuid].avatarInfo.username) {
+        return;
+    } else if (Users.canKick) {
+        Users.requestUsernameFromID(uuid);
+    } else {
+        // query metavers
+        // iterate location.nodeid matches uuid
+        // data.users[n].location.node_id;
+    }
+}
+
+// Get the current data for an avatar
+function getInfo(uuid){
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
+    var newAvatarInfo = AvatarManager.getAvatar(uuid);
+    var combinedAvatarInfo = Object.assign({}, newAvatarInfo, {username: avatarInfo === null ? null : avatarInfo.username });
+    _this.avatars[uuid] = Object.assign({}, avatar, {avatarInfo: combinedAvatarInfo});
+
+    return _this;
+}
+
+// Remove the avatar from the list
+function remove(uuid){
+    Script.clearInterval(_this.avatars[uuid].redrawTimeout);
+    _this.avatars[uuid].redrawTimeout = null;
+    _this.removeOverlay(uuid);
+    delete _this.avatars[uuid];
+
+    return _this;
+}
+
+// Reset the avatar list
+function reset(){
+    _this.removeAllOverlays();
+    _this.avatars = {};
+
+    return _this;
+}
+// Remove all the current overlays
+function removeAllOverlays(){
+    for (var uuid in _this.avatars) {
+        _this.removeOverlay(uuid);
+    }
+
+    return _this;
+}
+
+// Remove a single overlay
+function removeOverlay(uuid){
+    _this.avatars[uuid].localEntityMain.destroy();
+    if (_this.avatars[uuid].localEntitySub) {
+        _this.avatars[uuid].localEntitySub.destroy();
+    }
+    return _this;
+}
+
+// Handler for the username call
+function handleUserName(uuid, username){
+    if (username) {
         var avatar = _this.avatars[uuid];
         var avatarInfo = avatar.avatarInfo;
-        var eye = Camera.position;
-        // log("eye", eye);
-        var target = avatarInfo.position;
-        // log("target", target);
-        var distance = Vec3.distance(target, eye);
-        // log("maybe redraw", distance);
-        // log("avatar.lastDistanceFromCamera)", avatar.lastDistanceFromCamera);
-        var distanceDifference = Math.abs(distance - avatar.lastDistanceFromCamera);
-        // log("distanceDifference", distanceDifference)
-        avatar.lastDistanceFromCamera = distance;
-        if (distanceDifference < MAX_DISTANCE_METERS){
-            // log("Returning out of distance check")
-            return;
+        avatarInfo.username = username;
+        _this.getInfoAboutUser(username);
+        _this.makeSubName(uuid);
+    }
+};
+
+var FRIEND_BACKGROUND = [150, 255, 0];
+function handleFriend(uuid){
+    var localEntityMain = _this.avatars[uuid].localEntityMain;
+    var localEntitySub = _this.avatars[uuid].localEntitySub;
+    localEntityMain
+        .edit("textColor", FRIEND_BACKGROUND);
+    localEntitySub
+        .edit("backgroundColor", FRIEND_BACKGROUND);
+};
+
+function maybeRemove(uuid) {
+    if (uuid in _this.avatars) {
+        _this.remove(uuid);
+    }
+};
+
+var METAVERSE_BASE = Account.metaverseServerURL;
+function getInfoAboutUser(uuid) {
+    var url = METAVERSE_BASE + '/api/v1/users?filter=connections&status=online';
+    requestJSON(url, function (connectionsData) {
+        var users = connectionsData.users;
+        for (var i = 0; i < users.length; i++) {
+            var user = users[i];
+            if (user.location && user.location.node_id === uuid) {
+                _this.handleFriend(uuid, user.username);
+            }
         }
-        log("running redraw on main")
-        _this.reDraw(uuid, "main");
-        
-        // log("AVATAR INFO USER NAME", avatarInfo);
-        if (avatarInfo.username) {
-            _this.reDraw(uuid, "sub");
-        }
-    };
-var DISTANCE_SCALER = .35;
+    });
+};
+
+AvatarListManager.prototype = {
+    create: create,
+    add: add, // uuid, intersection
+    handleSelect: handleSelect, // uuid, intersection
+    reDraw: reDraw, // uuid, type
+    maybeRedraw: maybeRedraw, // uuid
+    makeSubName: makeSubName, // uuid
+    getUN: getUN, // uuid
+    getInfo: getInfo, // uuid
+    remove: remove, // uuid
+    reset: reset,
+    removeAllOverlays: removeAllOverlays,
+    removeOverlay: removeOverlay, // uuid
+    handleUserName: handleUserName, // uuid, username
+    handleFriend: handleFriend, // uuid
+    maybeRemove: maybeRemove, // uuid
+    getInfoAboutUser: getInfoAboutUser // uuid
+}
+
+module.exports = AvatarListManager;
+
+
 AvatarListManager.prototype.calculateNewScaledProperties =
     function(uuid, type){
         var avatar = _this.avatars[uuid];
         var avatarInfo = avatar.avatarInfo;
         var eye = Camera.position;
-        // log("eye", eye);
         var target = avatarInfo.position;
-        // log("target", target);
         var distance = Vec3.distance(target, eye);
-        log("distance", distance)
-        var adjustedScaler = distance * DISTANCE_SCALER;
-        log("adjustedScaler", adjustedScaler)
+        var adjustedScaler = null;
         var currentDimensions = null;
         var scaledDimensions = null;
         var localEntity = null;
@@ -215,200 +381,45 @@ AvatarListManager.prototype.calculateNewScaledProperties =
             localEntity = avatar.localEntityMain;
             initialLineHeight = avatar.mainInitialLineHeight;
             initialDimensions = avatar.mainInitialDimensions;
+            initialDistance = avatar.mainInitialDistance;
         } else {
             localEntity = avatar.localEntitySub;
             initialLineHeight = avatar.subInitialLineHeight;
             initialDimensions = avatar.subInitialDimensions;
+            initialDistance = avatar.subInitialDistance;
         }
 
         avatar.lastDistanceFromCamera = distance;
         
         if (initialLineHeight === null && initialDimensions === null) {
-            log("### made it to 1")
+            // log("### made it to 1")
             var textProps = localEntity.get(['text', 'lineHeight']);
             // log("textProps", textProps)
             textHelper
                 .setText(textProps.text)
                 .setLineHeight(textProps.lineHeight);
             currentDimensions = [textHelper.getTotalTextLength(), textProps.lineHeight, 0.1];
+            adjustedScaler = distance * DISTANCE_SCALER;
             scaledDimensions = Vec3.multiply(currentDimensions, adjustedScaler);
+
         } else {
-            log("### made it to 2")
-            scaledDimensions = Vec3.multiply(initialDimensions, adjustedScaler);
+            // log("### made it to 2")
+            // var adjustedDistance = distance - initialDistance;
+            // var adjustedDistance =  Math.abs(initialDistance - distance);
+            // log("original distance", distance);
+            // log("adjustedDistance", adjustedDistance);
+            // log("abs both", Math.abs(distance - initialDistance));
+            // log("abs individusal", Math.abs(distance) - Math.abs(initialDistance));
+            // adjustedScaler = (initialDistance * DISTANCE_SCALER) + (distance * DISTANCE_SCALER);
+            // adjustedScaler = (initialDistance + distance ) * DISTANCE_SCALER;
+            // adjustedScaler = (initialDistance - distance ) * DISTANCE_SCALER;
+            // adjustedScaler = (Math.abs(initialDistance - distance) + initialDistance) * DISTANCE_SCALER;
+            // log(adjustedScaler);
         }
         
         return {
             scaledDimensions: scaledDimensions,
-            adjustedScaler: adjustedScaler
+            adjustedScaler: adjustedScaler,
+            distance: distance
         };
     };
-
-// Make the smaller username when it is available
-var SUB_OFFSET = [0, -0.12, 0];
-var SUB_BACKGROUND = [0, 0, 0];
-var SUB_TEXTCOLOR = [255 ,150,255];
-var subNameScaler = 0.55;
-var SUB_PADDING = 0.975;
-var DEFAULT_LEFT_SUB_MARGIN = 0.03;
-var LINE_HEIGHT_SCALER = 0.95;
-
-AvatarListManager.prototype.makeSubName = 
-    function(uuid){
-        var avatar = _this.avatars[uuid];
-        var avatarInfo = avatar.avatarInfo;      
-        var localEntityMain = avatar.localEntityMain;
-        var localEntitySub = avatar.localEntitySub;
-        localEntitySub.add("text", avatarInfo.username);
-
-        // calculatedProps.scaledDimensions.x = calculatedProps.scaledDimensions.x;
-        var calculatedProps = _this.calculateNewScaledProperties(uuid, "sub");
-        var localPosition = 
-            [0, SUB_OFFSET[Y] * calculatedProps.adjustedScaler * subNameScaler, 0];
-        var lineHeight = 
-            calculatedProps.scaledDimensions.y * subNameScaler * LINE_HEIGHT_SCALER;
-        calculatedProps.scaledDimensions = 
-            Vec3.multiply(calculatedProps.scaledDimensions, SUB_PADDING);
-        var dimensions = 
-            Vec3.multiply(calculatedProps.scaledDimensions, subNameScaler);
-
-        // log("calculatedProps", calculatedProps);
-        // log("lineheight", lineHeight);
-        // log("dimensions", dimensions)
-        
-        avatar.subInitialLineHeight = lineHeight;
-        avatar.subInitialDimensions = dimensions;
-
-        localEntitySub
-            // .add("lineHeight", calculatedProps.scaledDimensions.y * subNameScaler * LINE_HEIGHT_SCALER)
-            .add("lineHeight", lineHeight)
-            // .add("localPosition", [0, SUB_OFFSET[1] * calculatedProps.adjustedScaler * subNameScaler, 0])
-            .add("localPosition", localPosition)
-            .add("backgroundColor", SUB_BACKGROUND)
-            .add("textColor", SUB_TEXTCOLOR)
-            .add("parentID", localEntityMain.id)
-            // .add("dimensions", Vec3.multiply(calculatedProps.scaledDimensions, subNameScaler))
-            .add("dimensions", dimensions)
-            // .add("leftMargin", DEFAULT_LEFT_SUB_MARGIN * subNameScaler)
-            .create(true);
-    };
-
-// Request the username
-AvatarListManager.prototype.getUN =
-    function(uuid){
-        log("calling for username")
-        Users.requestUsernameFromID(uuid);
-    };
-
-// Get the current data for an avatar
-AvatarListManager.prototype.getInfo = 
-    function(uuid){
-        var avatar = _this.avatars[uuid];
-        // log("in get info with:", avatar);
-        _this.avatars[uuid] = Object.assign({}, avatar, {avatarInfo: AvatarManager.getAvatar(uuid)});
-        // log("### HEY THIS IS THE POSITION FROM GETiNFO",_this.avatars[uuid].avatarInfo.position);
-
-        return _this;
-    };
-
-// Remove the avatar from the list
-AvatarListManager.prototype.remove = 
-    function (uuid){
-        Script.clearInterval(_this.avatars[uuid].redrawTimeout);
-        _this.avatars[uuid].redrawTimeout = null;
-        _this.removeOverlay(uuid);
-        delete _this.avatars[uuid];
-
-        return _this;
-    };
-
-// Reset the avatar list
-AvatarListManager.prototype.reset = 
-    function(){
-        _this.removeAllOverlays();
-        _this.avatars = {};
-
-        return _this;
-    };
-// Remove all the current overlays
-AvatarListManager.prototype.removeAllOverlays = 
-    function(){
-        for (var uuid in _this.avatars) {
-            _this.removeOverlay(uuid);
-        }
-
-        return _this;
-    };
-
-// Remove a single overlay
-AvatarListManager.prototype.removeOverlay = 
-    function(uuid){
-        _this.avatars[uuid].localEntityMain.destroy();
-        if (_this.avatars[uuid].localEntitySub) {
-            _this.avatars[uuid].localEntitySub.destroy();
-        }
-        return _this;
-    };
-
-// Handler for the username call
-AvatarListManager.prototype.handleUserName = 
-    function(uuid, username){
-        log("###$ username", username);
-        log("UUID", uuid)
-        if (username) {
-            // log("_this.avatars", _this.avatars);
-            var avatar = _this.avatars[uuid];
-            var avatarInfo = avatar.avatarInfo;
-            _this.avatars[uuid].avatarInfo.username = username;
-            // console.log("about to get user info")
-            _this.getInfoAboutUser(username);
-            _this.makeSubName(uuid);
-        }
-    };
-
-var FRIEND_BACKGROUND = [150, 255, 0];
-AvatarListManager.prototype.handleFriend = 
-    function(uuid){
-        var localEntityMain = _this.avatars[uuid].localEntityMain;
-        var localEntitySub = _this.avatars[uuid].localEntitySub;
-        localEntityMain
-            .edit("textColor", FRIEND_BACKGROUND);
-        localEntitySub
-            .edit("backgroundColor", FRIEND_BACKGROUND);
-    };
-
-AvatarListManager.prototype.maybeRemove =
-    function (uuid) {
-        if (uuid in _this.avatars) {
-            _this.remove(uuid);
-        }
-    };
-
-var METAVERSE_BASE = Account.metaverseServerURL;
-var SAFETY_LIMIT = 400;
-AvatarListManager.prototype.getInfoAboutUser = 
-    function getInfoAboutUser(specificUsername) {
-        // log("running get info about user");
-        var url = METAVERSE_BASE + '/api/v1/users?filter=connections&per_page=' + SAFETY_LIMIT + '&search=' + encodeURIComponent(specificUsername);
-        requestJSON(url, function (connectionsData) {
-            // You could have (up to SAFETY_LIMIT connections whose usernames contain the specificUsername.
-            // Search returns all such matches.
-            // log("made it to callback");
-            var users = connectionsData.users;
-            // log("users", users)
-            // log("specific user name", specificUsername);
-            for (var i = 0; i < users.length; i++) {
-                var user = users[i];
-                if (user.username.toLowerCase() === specificUsername.toLowerCase() && user.connection === "friend") {
-                    console.log("connection data:" + JSON.stringify(user));
-                    var formattedSessionId = user.location.node_id || '';
-                    if (formattedSessionId !== '' && formattedSessionId.indexOf("{") != 0) {
-                        formattedSessionId = "{" + formattedSessionId + "}";
-                    }
-                    log("handling friend!!")
-                    _this.handleFriend(formattedSessionId);
-                }
-            }
-        });
-    };
-
-module.exports = AvatarListManager;
