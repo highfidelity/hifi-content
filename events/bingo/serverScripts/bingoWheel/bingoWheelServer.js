@@ -22,14 +22,10 @@
     var CARD_SPAWNER_SCRIPT = Script.resolvePath("../../entityScripts/cardSpawner/bingoCardSpawner.js");
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 1000;
     var REQUEST_URL = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).requestURL;
-    var DB_TABLE_PREFIX = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).dbTablePrefix;
     var BINGO_WALL = "{df198d93-a9b7-4619-9128-97a53fea2451}";
     var BINGO_WHEEL_TEXT = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
-    var USERS_ALLOWED_TO_SPIN_WHEEL =
-        Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).usersAllowedToSpinWheel;
 
     // START PRIZE VARS
-    var GAME_AUDIO_POSITION = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
     var DRUMROLL_SOUND = SoundCache.getSound(Script.resolvePath("sounds/drumroll.wav"));
     var LOWER_DOORS_DELAY_MS = 1150;
     var currentRoundWinners = [];
@@ -92,8 +88,11 @@
                 injector.stop();
             }
 
+            var gameAudioPosition =
+                Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
+
             if (!position) {
-                position = GAME_AUDIO_POSITION;
+                position = gameAudioPosition;
             }
 
             injector = Audio.playSound(sound, {
@@ -352,9 +351,10 @@
 
             Entities.callEntityMethod(playerCounterText, 'reset');
 
+            var dbTablePrefix = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).dbTablePrefix;
             newRoundURLParams = encodeURLParams({ 
                 type: "newRound",
-                newTablePrefix: DB_TABLE_PREFIX
+                newTablePrefix: dbTablePrefix
             });
             request({
                 uri: REQUEST_URL + "?" + newRoundURLParams
@@ -460,7 +460,9 @@
                 bingoWheelEditTimeout = false;
                 wheelSpinning = false;
 
-                playSound(BLIP_SOUND, 0.5, GAME_AUDIO_POSITION);
+                var gameAudioPosition =
+                    Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
+                playSound(BLIP_SOUND, 0.5, gameAudioPosition);
             }
         },
 
@@ -469,7 +471,9 @@
         spinBingoWheel: function(thisID, params) {
             var spinnerUsername = params[0];
 
-            if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(spinnerUsername) > -1) {
+            var usersAllowedToSpinWheel =
+                Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).usersAllowedToSpinWheel;
+            if (usersAllowedToSpinWheel.indexOf(spinnerUsername) > -1) {
                 if (!gameReady) {
                     console.log("User attempted to spin wheel, but game is not ready!");
                     return;
@@ -528,7 +532,9 @@
                 Entities.editEntity(_this.entityID, {
                     angularVelocity: WHEELSPIN_ANGULAR_VELOCITY
                 });
-                playSound(SPIN_SOUND, 0.8, GAME_AUDIO_POSITION);
+                var gameAudioPosition =
+                    Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
+                playSound(SPIN_SOUND, 0.8, gameAudioPosition);
 
                 if (bingoWheelEditTimeout) {
                     Script.clearTimeout(bingoWheelEditTimeout);
@@ -607,7 +613,9 @@
                 return;
             }
 
-            if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(params[0]) > -1) {
+            var usersAllowedToSpinWheel =
+                Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).usersAllowedToSpinWheel;
+            if (usersAllowedToSpinWheel.indexOf(params[0]) > -1) {
                 for (var i = 0; i < 76; i++) {
                     _this.addCalledNumber(i);
                 }

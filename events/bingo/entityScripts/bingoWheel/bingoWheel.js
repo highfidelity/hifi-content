@@ -12,9 +12,6 @@
 /* global AccountServices, Audio, Entities, Math, MyAvatar, Script, String */
 
 (function() {
-    var USERS_ALLOWED_TO_SPIN_WHEEL =
-        Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).usersAllowedToSpinWheel;
-
     var _this;
 
     var Wheel = function() {
@@ -33,7 +30,10 @@
             if (mouseEvent.button !== "Primary") {
                 return;
             }
-            if (USERS_ALLOWED_TO_SPIN_WHEEL.indexOf(AccountServices.username) >= 0){
+
+            var usersAllowedToSpinWheel = 
+                Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).usersAllowedToSpinWheel;
+            if (usersAllowedToSpinWheel.indexOf(AccountServices.username) >= 0){
                 Entities.callEntityServerMethod(_this.entityID, 'spinBingoWheel',
                     [AccountServices.username]);
             }
