@@ -189,19 +189,26 @@ PickRayController.prototype.getControllerWorldLocation =
     };
 
 // Enables mouse press and trigger events 
+var controllerConnected = false;
 PickRayController.prototype.enable = 
     function(){
-        Controller.mousePressEvent.connect(_this.mousePressHandler);
-        Controller.enableMapping(_this.mappingName);
-
-        return _this;
+        if (!controllerConnected) {
+            controllerConnected = true;
+            Controller.mousePressEvent.connect(_this.mousePressHandler);
+            Controller.enableMapping(_this.mappingName);
+            return _this;
+        }
+        return -1;
     };
 PickRayController.prototype.disable = 
     function(){
-        Controller.mousePressEvent.disconnect(_this.mousePressHandler);
-        Controller.disableMapping(_this.mappingName);
-
-        return _this;
+        if (controllerConnected) {
+            controllerConnected = false;
+            Controller.mousePressEvent.disconnect(_this.mousePressHandler);
+            Controller.disableMapping(_this.mappingName);
+            return _this;
+        }
+        return -1;
     };
 PickRayController.prototype.destroy =
     function(){

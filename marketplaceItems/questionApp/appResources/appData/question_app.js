@@ -51,9 +51,11 @@ Tablet, Users, Vec3, Window */
     var MAX_HEIGHT_M = 0.8;
     var GROWTH_RATIO = 1.1;
     var QUESTION_MARK_PROPERTY_NAME = "Question App Mark";
+    var QUESTION_MARK_START_DIMENSIONS_M = { x: 0.2, y: 0.2, z: 0.2 };
     var questionMark;
     var questionMarkMaterial;
     var growingInterval;
+    var lastDimensions = QUESTION_MARK_START_DIMENSIONS_M;
     function createQuestionMark() {
         if (questionMark) {
             return;
@@ -81,7 +83,7 @@ Tablet, Users, Vec3, Window */
             parentID: MyAvatar.sessionUUID,
             parentJointIndex: parentJointIndex,
             localPosition: { x: 0, y: questionMarkLocalYPosition, z: 0 },
-            dimensions: { x: 0.2, y: 0.2, z: 0.2 },
+            dimensions: QUESTION_MARK_START_DIMENSIONS_M,
             grab: { grabbable: false },
             collisionless: true
         };
@@ -105,6 +107,7 @@ Tablet, Users, Vec3, Window */
             var questionMarkDimensions = Entities.getEntityProperties(questionMark, 'dimensions').dimensions;
             questionMarkDimensions = Vec3.multiply(questionMarkDimensions, GROWTH_RATIO);
             Entities.editEntity(questionMark, { dimensions: questionMarkDimensions });
+            lastDimensions = questionMarkDimensions;
             if (growingInterval && questionMarkDimensions.y > MAX_HEIGHT_M) {
                 print("stop growing");
                 Script.clearInterval(growingInterval);
@@ -117,19 +120,22 @@ Tablet, Users, Vec3, Window */
     If we are closing the app, remove the question mark and play a different sound */
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('resources/sounds/open.mp3'));
     var OPEN_SOUND_VOLUME = 0.2;
-    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('resources/sounds/close.mp3?0'));
+    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('resources/sounds/close.mp3?100'));
     var CLOSE_SOUND_VOLUME = 0.3;
     var QUESTION_CHANNEL = "QuestionChannel";
     function onClicked() {
+        print("Question App");
         if (questionMark) {
             cleanUp();
-            playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true, false);
             Messages.messageReceived.disconnect(checkMessage);
+            MyAvatar.scaleChanged.disconnect(avatarScaleChanged);
+            playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true, false);
         } else {
             button.editProperties({ isActive: true });
             playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true, false);
             createQuestionMark();
             Messages.messageReceived.connect(checkMessage);
+            MyAvatar.scaleChanged.connect(avatarScaleChanged);
         }
     }
 
@@ -156,7 +162,9 @@ Tablet, Users, Vec3, Window */
     function avatarSelected() {
         print("I AM THE CHOSEN AVATAR!");
         if (questionMark) {
-            onClicked();
+            cleanUp();
+            Messages.messageReceived.disconnect(checkMessage);
+            MyAvatar.scaleChanged.disconnect(avatarScaleChanged);
             playSound(SELECTED_SOUND, SELECTED_SOUND_VOLUME, MyAvatar.position, true, false);
         }
     }
@@ -166,14 +174,30 @@ Tablet, Users, Vec3, Window */
         cleanUp();
         Messages.unsubscribe(QUESTION_CHANNEL);
         Users.canKickChanged.disconnect(adminStatusCheck);
-        pickRayController.destroy();
         button.clicked.disconnect(onClicked);
-        Window.domainChanged.disconnect(domainChanged);
         tablet.removeButton(button);
+        pickRayController.destroy();
+        Window.domainChanged.disconnect(domainChanged);
+    }
+
+    /* REMOVE QUESTION MARK: Remove referenced question mark if it exists and any other strays */
+    function removeQuestionMarkEntities() {
+        if (questionMark) {
+            Entities.deleteEntity(questionMark);
+            questionMark = null;
+        }
+        MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
+            var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
+            if (name === QUESTION_MARK_PROPERTY_NAME) {
+                Entities.deleteEntity(avatarEntity.id);
+                questionMark = null;
+            }
+        });
     }
 
     /* CLEANUP: Remove question mark, search for any unreferenced question marks to clean up */
     function cleanUp() {
+        removeQuestionMarkEntities();
         if (growingInterval) {
             Script.clearInterval(growingInterval);
             growingInterval = null;
@@ -182,18 +206,7 @@ Tablet, Users, Vec3, Window */
             injector.stop();
             injector = null;
         }
-        if (questionMark) {
-            Entities.deleteEntity(questionMark);
-            questionMark = null;
-        }
-        button.editProperties({ isActive: false });
-        MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
-            var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
-            if (name === QUESTION_MARK_PROPERTY_NAME) {
-                Entities.deleteEntity(avatarEntity.id);
-                questionMark = null;
-            }
-        });
+        button.editProperties({ isActive: false }); 
     }
 
     /* WHEN USER DOMAIN CHANGES: Close app to remove question mark when leaving the domain */
@@ -225,12 +238,18 @@ Tablet, Users, Vec3, Window */
     /* ADMIN STATUS CHANGED: User permissions have changed, set adminStatus */
     var adminStatus;
     function adminStatusCheck() {
+        print("QUESTIONAPP");
         adminStatus = Users.getCanKick() ? true : false;
         if (adminStatus) {
             pickRayController.enable();
         } else {
             pickRayController.disable();
         }
+    }
+
+    /* AVATAR SCALE CHANGED: Reset question mark entity back to appropriate size */
+    function avatarScaleChanged() {
+        Entities.editEntity(questionMark, { dimensions: lastDimensions });
     }
 
     Messages.subscribe(QUESTION_CHANNEL);
