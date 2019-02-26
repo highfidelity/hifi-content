@@ -20,13 +20,12 @@
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v22222222111")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v12345")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
     var DEBUG = true;
 
     // #region UTILITY FUNCTIONS
-
     function deepCopy(objectToCopy) {
 
         var newObject;
@@ -40,6 +39,7 @@
         return newObject;
     }
 
+
     // Color functions found https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -49,6 +49,7 @@
             b: parseInt(result[3], 16)
         } : null;
     }
+
 
     function rgbToHex(colorObject) {
         var r = colorObject.r;
@@ -62,13 +63,15 @@
         return str;
     }
 
-    function arrayToRGB (color) {
+
+    function arrayToRGB(color) {
+
         if (Array.isArray(color)) {
             var rgbFormat = {
-                r: Math.floor( color[0] * 255 ),
-                g: Math.floor( color[1] * 255 ),
-                b: Math.floor( color[2] * 255 )
-            }
+                r: Math.floor( color[0] * 255.0 ),
+                g: Math.floor( color[1] * 255.0 ),
+                b: Math.floor( color[2] * 255.0 )
+            };
 
             if (DEBUG) {
                 print("arrayToRGB" + JSON.stringify(rgbFormat));
@@ -111,15 +114,10 @@
     function deleteMirror() {
         // Delete mirror entity 
         // set mirrorID to null
-        if (mirrorCubeID) {
-            Entities.deleteEntity(mirrorCubeID);
-            mirrorCubeID = null;
-        }
-
-        if (mirrorZoneID) {
-            Entities.deleteEntity(mirrorZoneID);
-            mirrorZoneID = null;
-        }
+        Entities.deleteEntity(mirrorCubeID);
+        Entities.deleteEntity(mirrorZoneID);
+        mirrorCubeID = null;
+        mirrorZoneID = null;
     }
 
     // #endregion MIRROR FUNCTIONS
@@ -127,8 +125,13 @@
     // #region AVATAR FUNCTIONS
 
     var STRING_BOOKMARK_NAME = CONFIG.STRING_BOOKMARK_NAME;
-    function saveAvatarAndChangeToAvi() {
+
+    function bookmarkAvatar() {
         AvatarBookmarks.addBookmark(STRING_BOOKMARK_NAME);
+    }
+
+    function saveAvatarAndChangeToAvi() {
+        bookmarkAvatar();
         changeAvatarToAvi();
     }
 
@@ -139,38 +142,10 @@
             AvatarBookmarks.loadBookmark(STRING_BOOKMARK_NAME);
             AvatarBookmarks.removeBookmark(STRING_BOOKMARK_NAME);
             setIsAviEnabledFalse();
-
         } else {
             Window.alert("No bookmark was saved in the avatar app.");
         }
 
-    }
-
-    function onAvatarChanged() {
-        if (MyAvatar.skeletonModelURL === AVATAR_URL) {
-
-            setIsAviEnabledTrue();
-
-        } else {
-
-            setIsAviEnabledFalse();
-
-            // Set blendshapes back to normal
-            MyAvatar.hasScriptedBlendshapes = true;
-            startBlendshapeInterval();
-            applyNamedBlendshapes(BLENDSHAPES_DEFAULT);
-
-            Script.setTimeout(function () {
-                MyAvatar.hasScriptedBlendshapes = false;
-                stopBlendshapeInterval();
-            }, 200);
-
-            // delete material
-            if (materialID) {
-                Entities.deleteEntity(materialID);
-                materialID = null;
-            }
-        }
     }
 
     function changeAvatarToAvi() {
@@ -180,11 +155,14 @@
         setIsAviEnabledTrue();
     }
 
+    function isAviYourCurrentAvatar() {
+        return MyAvatar.skeletonModelURL === AVATAR_URL;
+    }
+
     // Contains all steps to set the app state to isAviEnabled = true
     function setIsAviEnabledTrue() {
         dynamicData.state.isAviEnabled = true;
         spawnMirror();
-
         updateUI(STRING_STATE);
     }
 
@@ -243,7 +221,6 @@
         
         // update UI values
         var type = isPBR ? "pbr" : "shadeless";
-        dynamicData[STRING_MATERIAL].selectedMaterial = "";
 
         // prep data for changing material entity in updateMaterial()
         var updates = {
@@ -256,7 +233,7 @@
             // slider value does not need to be changed
 
             updates[property] = value;
-            dynamicData[STRING_MATERIAL][type][property].value = componentType === STRING_COLOR && value === null ? "N/A" : value;
+            dynamicData[STRING_MATERIAL][type][property].value = value;
         }
 
         if (map !== undefined && componentType !== STRING_MAP_ONLY) {
@@ -267,14 +244,8 @@
         updateMaterial({ materials: updates }, false, isPBR);
     }
 
-    
     function convertColorUIToBackend(hexColor){
         // hex -> rgb -> array
-
-        if (!hexColor) {
-            return null;
-        }
-        
         var rgb = hexToRgb(hexColor);
         return [ 
             rgb.r / 255.0,
@@ -283,9 +254,9 @@
         ];
     }
 
-
     function convertImageUIToBackend(file) {
         if (file && file.indexOf("no.jpg") !== -1) {
+            print("I AM HERE");
             return null;
         } 
         return PATH_TO_IMAGES + file;
@@ -294,6 +265,7 @@
 
     // prioritize a properties over b properties
     function mergeObjectProperties(a, b) {
+
         for (var key in b) {
             a[key] = b[key];
         }
@@ -306,6 +278,7 @@
         var hex = rgbToHex(rgb);
         return hex;
     }
+
 
     // button is pressed and must loop through all UI elements to update
     // newMaterialData.materials passed in
@@ -327,6 +300,8 @@
             var key = property;
             var value = newMaterials[key];
 
+            print("Key is :", key, " dynamic property data is :", JSON.stringify(dynamicPropertyData));
+            
             if (key === "model" || key === "unlit") {
                 // property doesnt exist in ui properties
                 continue;
@@ -356,6 +331,7 @@
         }
 
     }
+
 
     // @args updatesObject name [string]
     function updateMaterial(newMaterialData, isNamed, isPBR) {
@@ -390,6 +366,8 @@
 
             // merge new materials and old material properties together
             newMaterials = mergeObjectProperties(oldMaterials, newMaterials);
+
+            print("ROBIN IS THIS " + JSON.stringify(newMaterials));
 
             if (newMaterials["unlit"] && !isPBR) {
                 // unlit exists and is false
@@ -446,28 +424,29 @@
         } 
     }
 
+
     function prepImageBackendToUI(file) {
         return file.replace(PATH_TO_IMAGES, "");
     }
 
-    function setMaterialPropertiesToDefaults () {
 
+    function setMaterialPropertiesToDefaults() {
         // shadeless
         setDefaults(dynamicData[STRING_MATERIAL].shadeless, defaultMaterialProperties.shadeless);
         // pbr
         setDefaults(dynamicData[STRING_MATERIAL].pbr, defaultMaterialProperties.pbr);
-
-        function setDefaults(dynamicObject, defaultObject) {
-            for (var key in defaultObject) {
-                var defaultValue = defaultObject[key].value;
-                var defaultMap = defaultObject[key].map;
-    
-                dynamicObject[key].value = defaultValue;
-                dynamicObject[key].map = defaultMap;
-            }
-        }
-
     }
+
+    function setDefaults(dynamicObject, defaultObject) {
+        for (var key in defaultObject) {
+            var defaultValue = defaultObject[key].value;
+            var defaultMap = defaultObject[key].map;
+
+            dynamicObject[key].value = defaultValue;
+            dynamicObject[key].map = defaultMap;
+        }
+    }
+
 
     // presets
     function applyNamedMaterial(materialName) {
@@ -509,86 +488,26 @@
 
     // #region BLENDSHAPES
 
-    var TRANSITION_TIME_SECONDS = 0.25;
-    var STRING_AWE = "awe";
-    var STRING_ANGRY = "angry";
-    var STRING_DEFAULT = "default";
-    var STRING_LAUGH = "laugh";
-    var BLENDSHAPES_DEFAULT = BLENDSHAPE_DATA.defaults;
-    var BLENDSHAPES_AWE = BLENDSHAPE_DATA.awe;
-    var BLENDSHAPES_LAUGH = BLENDSHAPE_DATA.laugh;
-    var BLENDSHAPES_ANGRY = BLENDSHAPE_DATA.angry;
-
-    var lastEmotionUsed = BLENDSHAPES_DEFAULT; // values associated with the last emotion lerping
-    var isChangingEmotion = false; // transitioning
-    var changingEmotionPercentage = 0.0; // with transitioning
-    var isBlendshapeIntervalEnabled = false;
-
-    // used to mix between blendshape expressions
-    function mixBlendshapesInterval (deltaTime) {
-        if (!isChangingEmotion) {
-            return;
-        }
-
-        var blendshapeDynamicData = dynamicData[STRING_BLENDSHAPES];
-
-        changingEmotionPercentage += deltaTime / TRANSITION_TIME_SECONDS;
-        if (changingEmotionPercentage >= 1.0) {
-            changingEmotionPercentage = 1.0;
-            isChangingEmotion = false;
-        }
-        for (var blendshape in blendshapeDynamicData.updatedProperties) {
-            MyAvatar.setBlendshape(blendshape,
-                mixValue(lastEmotionUsed[blendshape], blendshapeDynamicData.updatedProperties[blendshape], changingEmotionPercentage));
-        }
-
-        // Helper function
-        function mixValue(valueA, valueB, percentage) {
-            return valueA + ((valueB - valueA) * percentage);
-        }
-    
-    }
-
-    function startBlendshapeInterval () {
-
-        if (!isBlendshapeIntervalEnabled) {
-            isBlendshapeIntervalEnabled = true;
-            Script.update.connect(mixBlendshapesInterval);
-        }
-
-    }
-
-    function stopBlendshapeInterval () {
-
-        if (isBlendshapeIntervalEnabled) {
-            isBlendshapeIntervalEnabled = false;
-            Script.update.disconnect(mixBlendshapesInterval);
-        }
-
-    }
-
-    function updateBlendshapes(newBlendshapeDataToApply, isName) {
-
+    // Take newBlendshapeData and update selected blendshape, properties, and the avatar blendshapes
+    function updateBlendshapes(newBlendshapeData, isName) {
         if (DEBUG) {
-            print("New blendshape data", JSON.stringify(newBlendshapeDataToApply));
+            print("New blendshape data", JSON.stringify(newBlendshapeData));
         }
-
-        var blendshapeDynamicData = dynamicData[STRING_BLENDSHAPES];
 
         if (!isName) {
             // is not named blendshape, ensure last blendshape is not selected
-            blendshapeDynamicData.selected = "";
+            dynamicData[STRING_BLENDSHAPES].selected = "";
         }
 
-        lastEmotionUsed = deepCopy(blendshapeDynamicData.updatedProperties);
+        // update all dynamic data blendshapes
+        for (var property in newBlendshapeData) {
+            // set it in dynamic data for ui
+            dynamicData[STRING_BLENDSHAPES].updatedProperties[property] = newBlendshapeData[property]; 
 
-        // update all blendshapes in dynamic data
-        for(var property in newBlendshapeDataToApply) {
-            blendshapeDynamicData.updatedProperties[property] = newBlendshapeDataToApply[property];
+            // set it on the avatar
+            MyAvatar.setBlendshape(property, newBlendshapeData[property]);
         }
 
-        changingEmotionPercentage = 0.0;
-        isChangingEmotion = true;
     }
 
     // presets
@@ -596,17 +515,17 @@
         // switch statement that matches the blendshape name
         //      "smile" -> updateBlendshapes(BLEND_SMILE);
         switch (blendshapeName){
-            case STRING_DEFAULT:
-                updateBlendshapes(BLENDSHAPES_DEFAULT, true);
+            case "default":
+                updateBlendshapes(BLENDSHAPE_DATA.defaults, true);
                 break;
-            case STRING_AWE:
-                updateBlendshapes(BLENDSHAPES_AWE, true);
+            case "awe":
+                updateBlendshapes(BLENDSHAPE_DATA.awe, true);
                 break;
-            case STRING_LAUGH:
-                updateBlendshapes(BLENDSHAPES_LAUGH, true);
+            case "laugh":
+                updateBlendshapes(BLENDSHAPE_DATA.laugh, true);
                 break;
-            case STRING_ANGRY:
-                updateBlendshapes(BLENDSHAPES_ANGRY, true);
+            case "angry":
+                updateBlendshapes(BLENDSHAPE_DATA.angry, true);
                 break;
         }
         dynamicData[STRING_BLENDSHAPES].selected = blendshapeName;
@@ -623,17 +542,14 @@
         STRING_JOINTS = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS;
 
     // Called when user navigates to flow tab
-    function addRemoveFlowDebugSpheres(isEnabled, setDebug) {
+    function addRemoveFlowDebugSpheres(isEnabled) {
         // draw debug circles on the joints
         var flowSettings = GlobalDebugger.getDisplayData();
 
         // the state of flow is the opposite of what we want
         if (flowSettings.debug !== isEnabled) {
             GlobalDebugger.toggleDebugShapes();
-
-            if (setDebug) {
-                dynamicData[STRING_FLOW].showDebug = isEnabled;
-            }
+            dynamicData[STRING_FLOW].showDebug = isEnabled;
         }
 
     }
@@ -697,8 +613,8 @@
     // set default UI values to be parsed when set to defaults
     var defaultMaterialProperties = {
         shadeless: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].shadeless),
-        pbr: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].pbr),
-    }
+        pbr: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].pbr)
+    };
 
     // Tab dynamic variables
     var currentTab;
@@ -714,7 +630,9 @@
             onClosed: onClosed
         });
 
-        MyAvatar.skeletonModelURLChanged.connect(onAvatarChanged);
+        // check avatar, if avatar is Avi.fst (or fbx) then set APP_AVI_ENABLED state
+        // if not Avi avatar, dynamicData.aviEnabled is false
+        // loadAnimationsIntoCache();
 
         Script.scriptEnding.connect(unload);
     }
@@ -725,21 +643,18 @@
         // save lastTab that the user was on
         dynamicData.state.activeTabName = currentTab;
 
-        // disable debug spheres
-        addRemoveFlowDebugSpheres(false);
-
-        // MyAvatar.hasScriptedBlendshapes = false;
+        MyAvatar.hasScriptedBlendshapes = false;
 
     }
 
     function onOpened() {
 
         if (DEBUG) {
-            print("ACA101 onOpened: isAviEnabled ", MyAvatar.skeletonModelURL === AVATAR_URL);
+            print("ACA101 onOpened: isAviEnabled ", isAviYourCurrentAvatar());
             print("ACA101 onOpened: activeTabName is ", dynamicData.state.activeTabName);
         }
 
-        if (MyAvatar.skeletonModelURL === AVATAR_URL) {
+        if (isAviYourCurrentAvatar()) {
 
             setIsAviEnabledTrue();
 
@@ -762,26 +677,24 @@
 
         // Flow tab conditionals
         if (currentTab === STRING_FLOW && dynamicData[STRING_FLOW].showDebug){
-            print("SHOW DEBUG : ", currentTab === STRING_FLOW && dynamicData[STRING_FLOW].showDebug);
             // enable debug spheres
             addRemoveFlowDebugSpheres(true);
         }
-
-        if (previousTab === STRING_FLOW && currentTab !== STRING_FLOW) {
+        if (previousTab === STRING_FLOW && currentTab !== STRING_FLOW){
             // disable debug spheres
             addRemoveFlowDebugSpheres(false);
         }
 
         // Blendshape tab conditionals
-        if(currentTab === STRING_BLENDSHAPES) {
+        if (currentTab === STRING_BLENDSHAPES) {
             // enable scripted blendshapes
             MyAvatar.hasScriptedBlendshapes = true;
-            startBlendshapeInterval();
+            // startBlendshapeInterval();
         }
         if (previousTab === STRING_BLENDSHAPES && currentTab !== STRING_BLENDSHAPES){
             // disable scripted blendshapes
             MyAvatar.hasScriptedBlendshapes = false;
-            stopBlendshapeInterval();
+            // stopBlendshapeInterval();
         }
 
     }
@@ -791,43 +704,27 @@
 
         deleteMirror();
 
-        setAvatarSettingsToDefaults();
-
-        MyAvatar.skeletonModelURLChanged.disconnect(onAvatarChanged);
-
-    }
-
-    function setAvatarSettingsToDefaults () {
         // Set blendshapes back to normal
         MyAvatar.hasScriptedBlendshapes = true;
-        startBlendshapeInterval();
-        applyNamedBlendshapes(BLENDSHAPES_DEFAULT);
+        // startBlendshapeInterval();
+        applyNamedBlendshapes(BLENDSHAPE_DATA.defaults);
+        MyAvatar.hasScriptedBlendshapes = false;
 
-        Script.setTimeout(function () {
-            MyAvatar.hasScriptedBlendshapes = false;
-            stopBlendshapeInterval();
-        }, 200);
+        // Script.setTimeout(function () {
+            
+        //     stopBlendshapeInterval();
+        // }, 200);
 
         if (materialID) {
             Entities.deleteEntity(materialID);
             materialID = null;
         }
+
     }
 
     // #endregion APP
 
     // #region EVENTS
-
-    var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.EVENT_BRIDGE_OPEN_MESSAGE;
-    var EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR = CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR;
-    var EVENT_RESTORE_SAVED_AVATAR = CONFIG.EVENT_RESTORE_SAVED_AVATAR;
-    var EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR = CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR;
-    var EVENT_UPDATE_MATERIAL = CONFIG.EVENT_UPDATE_MATERIAL;
-    var EVENT_UPDATE_BLENDSHAPE = CONFIG.EVENT_UPDATE_BLENDSHAPE;
-    var EVENT_UPDATE_FLOW = CONFIG.EVENT_UPDATE_FLOW;
-    var EVENT_CHANGE_TAB = CONFIG.EVENT_CHANGE_TAB;
-    var EVENT_UPDATE_AVATAR = CONFIG.EVENT_UPDATE_AVATAR;
-
     var DEBUG_EVENTS = true;
 
     // Handles events recieved from the UI
@@ -858,13 +755,13 @@
             case CONFIG.EVENT_UPDATE_AVATAR:
 
                 switch (data.subtype) {
-                    case EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR:
+                    case CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR:
                         saveAvatarAndChangeToAvi();
                         break;
-                    case EVENT_RESTORE_SAVED_AVATAR:
+                    case CONFIG.EVENT_RESTORE_SAVED_AVATAR:
                         restoreAvatar();
                         break;
-                    case EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR:
+                    case CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR:
                         changeAvatarToAvi();
                         break;
                     default:
@@ -904,7 +801,7 @@
 
                         console.log("update Property" + propertyName + JSON.stringify(newMaterialData));
 
-                        updateMaterialProperty(propertyName, newMaterialData, componentType, isPBR)
+                        updateMaterialProperty(propertyName, newMaterialData, componentType, isPBR);
 
                         break;
                 }
@@ -928,8 +825,12 @@
 
                 switch (data.subtype) {
                     case STRING_DEBUG_TOGGLE:
-                        print("TOGGLE DEBUG SPHERES ", data.updates)
-                        addRemoveFlowDebugSpheres(data.updates, true);
+
+                        if (DEBUG) {
+                            print("TOGGLE DEBUG SPHERES ", data.updates);
+                        }
+
+                        addRemoveFlowDebugSpheres(data.updates);
                         break;
                     case STRING_COLLISIONS_TOGGLE:
                         addRemoveCollisions(data.updates);

@@ -283,9 +283,7 @@
     // #endregion Info tab
 
     // #region Material tab components
-
-    var MATERIAL_TAB = CONFIG.MATERIAL_TAB;
-
+    
     Vue.component('material-tab', {
         props: ['dynamic', 'static'],
         methods: {
@@ -409,27 +407,21 @@
         computed: {
             propertyInfo() {
                 // sets material properties to be interpreted by components
-                
-                var propertyData = this.property; // get all data
-
-                var name = propertyData.key;
-                var dynamicPropertyData = this.dynamic[name];
-                var componentType = propertyData.componentType;
-                var value = dynamicPropertyData.value;
-                var mapName = componentType !== STRING_MAP_ONLY ? name + "Map" : name;
-                var mapList = this.static.PROPERTY_MAP_IMAGES[mapName] ? this.static.PROPERTY_MAP_IMAGES[mapName] : [];
-                var mapValue = componentType === this.STRING_COLOR || componentType === this.STRING_SLIDER ? dynamicPropertyData.map : dynamicPropertyData.value;
-
                 var propertyInfo = {
-                    name: name,
-                    componentType: componentType, 
-                    value: value,
-                    mapName: mapName,
-                    mapValue: mapValue,
-                    mapList: mapList,
+                    name: this.property.key,
+                    componentType: this.property.componentType, 
+                    value: this.dynamic[name].value,
+                    mapName: componentType !== STRING_MAP_ONLY 
+                        ? name + "Map" 
+                        : name,
+                    mapValue: componentType === this.STRING_COLOR || componentType === this.STRING_SLIDER 
+                        ? this.dynamic[name].map 
+                        : this.dynamic[name].value,
+                    mapList: this.static.PROPERTY_MAP_IMAGES[mapName] 
+                        ? this.static.PROPERTY_MAP_IMAGES[mapName] 
+                        : [],
                     isColor: componentType === this.STRING_COLOR, // for binding the right css class
                 };
-
                 return propertyInfo;
             }
         },
@@ -492,9 +484,6 @@
                 <div class="flex-item">
                     <slider
                         :name="propertyInfo.name"
-                        :max="1"
-                        :increment="0.01"
-                        :min="0"
                         :defaultvalue="sliderDefault"
                         :onchange="onSliderUpdate"
                     ></slider>
@@ -683,20 +672,13 @@
                     name: blendshapeName
                 }));
 
-            },
-            onSliderChange(value, name) {
-                if (DEBUG) {
-                    console.log("blendshape slider changed " + value + name);
-                }
-                var sliderChange = createSliderChangeCallback(this.dynamic.updatedProperties, EVENT_UPDATE_BLENDSHAPE);
-                sliderChange(+value, name);
             }
         },
         data() {
             return {
                 EVENT_UPDATE_BLENDSHAPE: EVENT_UPDATE_BLENDSHAPE
             }
-        },
+        },  // *** :eventbridgeeventsubtype=""
         template: /* html */ `
             <div>
 
@@ -717,11 +699,11 @@
                     <slider 
                         :title="blendshape.name"
                         :name="blendshape.name.replace(/_|-|\./g, '')"
-                        :max="blendshape.min ? blendshape.min : 1"
-                        :increment="blendshape.increment ? blendshape.increment : 0.1"
-                        :min="blendshape.min ? blendshape.min : 0"
+                        :max="blendshape.min"
+                        :increment="blendshape.increment"
+                        :min="blendshape.min"
                         :defaultvalue="dynamic.updatedProperties[blendshape.name]"
-                        :eventbridgeeventtype="EVENT_UPDATE_BLENDSHAPE"
+                        :eventbridgeeventtypeslider="EVENT_UPDATE_BLENDSHAPE"
                     ></slider>
 
                 </template>
@@ -731,151 +713,65 @@
     })
     // #endregion Blendshapes tab
 
-
-    // Helper for formatting slider data using both the staticList and dynamicData
-    function createSliderInfoFromLists(staticList, dynamicData, nameFunction) {
-
-        return staticList.map(compileSliderInfo);
-
-        function compileSliderInfo(optionInfo) {
-
-            // Lists of strings or objects with the property name as a key
-            var name = optionInfo.name ? optionInfo.name : optionInfo;
-
-            var sliderInfo = {
-                name: nameFunction ? nameFunction(name) : name,
-                title: name,
-                min: optionInfo.min ? optionInfo.min : 0,
-                max: optionInfo.max ? optionInfo.max : 1,
-                increment: optionInfo.increment ? optionInfo.increment : 0.1,
-                defaultValue: dynamicData[name] ? dynamicData[name] : 0
-            }
-            return sliderInfo;
-        }
-    }
-
-    function createSliderChangeCallback(dynamicData, eventBridgeTypeString, eventBridgeSubtypeString) {
-
-        return sliderChangedCallback;
-
-        function sliderChangedCallback(value, name) {
-            // Do not send data over EventBridge unless slider changed value
-            if (dynamicData[name] !== value) {
-                var updates = {};
-                updates[name] = value;
-    
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: eventBridgeTypeString,
-                    subtype: eventBridgeSubtypeString ? eventBridgeSubtypeString : "",
-                    updates: updates // expected { [name]: value}
-                }));
-            }
-        }
-    }
-
     // #region Flow tab
-
     Vue.component('flow-tab', {
         props: ['dynamic', 'static'],
-        methods: {
-            debugToggle(value) {
-                if (DEBUG) {
-                    console.log("debugToggle" + value);
-                }
-
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_UPDATE_FLOW,
-                    subtype: "debugToggle",
-                    updates: value
-                }));
-            },
-            collisionsToggle(value) {
-                if (DEBUG) {
-                    console.log("collisionsToggle" + value);
-                }
-
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_UPDATE_FLOW,
-                    subtype: "collisionsToggle",
-                    updates: value
-                }));
-            },
-            onChangeHairFlowSlider(value, name) {
-                var sliderChange = createSliderChangeCallback(this.dynamic.hairFlowOptions, EVENT_UPDATE_FLOW, "hair");
-                sliderChange(value, name);
-            },
-            onChangeJointFlowSlider(value, name) {
-                var sliderChange = createSliderChangeCallback(this.dynamic.jointFlowOptions, EVENT_UPDATE_FLOW, "joints");
-                sliderChange(value, name);
+        data() {
+            return {
+                EVENT_UPDATE_FLOW: EVENT_UPDATE_FLOW
             }
-        },
-        computed: {
-
-            hairFlowOptionsList() {
-                var staticHairFlowList = this.static.COMPONENT_DATA.HAIR_FLOW_OPTIONS;
-                var currentProperties = this.dynamic.hairFlowOptions;
-
-                return createSliderInfoFromLists(staticHairFlowList, currentProperties);
-            },
-            jointFlowOptionsList() {
-                var staticJointFlowList = this.static.COMPONENT_DATA.JOINT_FLOW_OPTIONS;
-                var currentProperties = this.dynamic.jointFlowOptions;
-
-                function getName(name) {
-                    return name + "joints";
-                }
-
-                return createSliderInfoFromLists(staticJointFlowList, currentProperties, getName);
-            }
-
         },
         template: /* html */ `
             <div>
 
                 <checkbox
-                    :onchange="debugToggle"
                     :label="'Show Debug'"
                     v-bind:defaultvalue="dynamic.showDebug"
+                    :eventbridgeeventtype="EVENT_UPDATE_FLOW"
+                    :eventbridgeeventsubtype="'debugToggle'"
                 ></checkbox>
 
                 <checkbox
-                    :onchange="collisionsToggle"
                     :label="'Enable Collisions'"
                     v-bind:defaultvalue="dynamic.enableCollisions"
+                    :eventbridgeeventtype="EVENT_UPDATE_FLOW"
+                    :eventbridgeeventsubtype="'hair'"
                 ></checkbox>
 
                 <h3>Hair Flow Options</h3>
 
-                <template v-for="hairFlowOption in hairFlowOptionsList">
+                <template v-for="hairFlowOption in static.COMPONENT_DATA.HAIR_FLOW_OPTIONS">
 
-                    <p>{{ hairFlowOption.title }}</p>
+                    <p>{{ hairFlowOption.name }}</p>
 
                     <slider 
-                        :title="hairFlowOption.title"
+                        :title="hairFlowOption.name"
                         :name="hairFlowOption.name"
                         :max="hairFlowOption.max"
                         :increment="hairFlowOption.increment"
                         :min="hairFlowOption.min"
-                        :defaultvalue="hairFlowOption.defaultValue"
-                        :onchange="onChangeHairFlowSlider"
+                        :defaultvalue="dynamic.hairFlowOptions[hairFlowOption.name]"
+                        :eventbridgeeventtypeslider="EVENT_UPDATE_FLOW"
+                        :eventbridgeeventsubtypeslider="'hair'"
                     ></slider>
 
                 </template>
 
                 <h3>Head Joint Options</h3>
 
-                <template v-for="jointFlowOption in jointFlowOptionsList">
+                <template v-for="jointFlowOption in static.COMPONENT_DATA.JOINT_FLOW_OPTIONS">
 
                     <p>{{ jointFlowOption.title }}</p>
 
                     <slider 
-                        :title="jointFlowOption.title"
-                        :name="jointFlowOption.name"
+                        :title="jointFlowOption.name"
+                        :name="jointFlowOption.name + 'joints'"
                         :max="jointFlowOption.max"
                         :increment="jointFlowOption.increment"
                         :min="jointFlowOption.min"
-                        :defaultvalue="jointFlowOption.defaultValue"
-                        :onchange="onChangeJointFlowSlider"
+                        :defaultvalue="dynamic.jointFlowOptions[jointFlowOption.name]"
+                        :eventbridgeeventtypeslider="EVENT_UPDATE_FLOW"
+                        :eventbridgeeventsubtypeslider="'joints'"
                     ></slider>
 
                 </template>
@@ -883,8 +779,8 @@
             </div>
         `
     })
-
     // #endregion Flow tab
+
 
     // #region Simple Test Components
 
@@ -975,9 +871,8 @@
             'min', 
             'defaultvalue', 
             'increment', 
-            'eventbridgeeventtype', 
-            'eventbridgeeventsubtype',
-            'onchange' // *** to out
+            'eventbridgeeventtypeslider', 
+            'eventbridgeeventsubtypeslider',
         ],
         computed: {
             sliderId() {
@@ -985,20 +880,27 @@
             },
             sliderValueId() {
                 return this.name + "Value";
+            },
+            sliderOptions () {
+                return {
+                    min: this.min ? this.min : 0,
+                    max: this.max ? this.max : 1,
+                    step: this.increment ? this.increment : 0.1
+                }
             }
         },
         methods: {
-            // onChange() {
-            //     this.onchange(this.val, this.title);
-            // },
             onSliderChange() {
 
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: this.eventbridgeeventtype,
-                    subtype: this.eventbridgeeventsubtype ? this.eventbridgeeventsubtype : "",
-                    updates: { [this.title]: +this.val } // expected { [name]: value}
-                }));
+                if (DEBUG) {
+                    console.log("Slider change: " + this.eventbridgeeventtypeslider + " " + this.eventbridgeeventsubtypeslider + " " + this.title + " " + +this.val);
+                }
 
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: this.eventbridgeeventtypeslider,
+                    subtype: this.eventbridgeeventsubtypeslider ? this.eventbridgeeventsubtypeslider : "",
+                    updates: { [this.title]: +this.val } // expected { [name]: value }
+                }));
             }
         },
         data() {
@@ -1006,19 +908,19 @@
                 val: this.defaultvalue ? this.defaultvalue : this.min
             }
         },
-        // watch: {
-        //     defaultvalue(newDefaultVal) {
-        //         this.val = newDefaultVal.toFixed(2);
-        //     }
-        // },
+        watch: {
+            defaultvalue(newDefaultVal) {
+                this.val = newDefaultVal.toFixed(2);
+            }
+        },
         template: /* html */ `
             <div class="flex-container-row">
 
                 <div class="slidecontainer flex-item">
                     <input 
-                        v-bind:min="min" 
-                        v-bind:max="max" 
-                        v-bind:step="increment" 
+                        v-bind:min="sliderOptions.min" 
+                        v-bind:max="sliderOptions.max" 
+                        v-bind:step="sliderOptions.step" 
                         class="slider" 
                         v-bind:id="sliderId"
                         type="range"
@@ -1029,6 +931,7 @@
                 </div>
                 <span 
                     class="flex-item"
+                    style="width: 20px;"
                     v-bind:id="sliderValueId"
                 >
                     {{ val }}
@@ -1197,7 +1100,20 @@
     })
 
     Vue.component('checkbox', {
-        props: ['onchange', 'label', 'defaultvalue'],
+        props: ['label', 'defaultvalue', 'eventbridgeeventtype', 'eventbridgeeventsubtype'],
+        methods: {
+            checkBoxOnChange(value) {
+                if (DEBUG) {
+                    console.log("Checkbox event: " + this.eventbridgeeventtype + " " + this.eventbridgeeventsubtype+ " " + value);
+                }
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: this.eventbridgeeventtype,
+                    subtype: this.eventbridgeeventsubtype,
+                    updates: value
+                }));
+            }
+        },
         computed: {
             id() {
                 return this.label.replace(/ /g,'');
@@ -1212,7 +1128,7 @@
             <div class="form-check">
                 <input 
                     v-model="val" 
-                    v-on:change="onchange(val)"
+                    v-on:change="checkBoxOnChange(val)"
                     v-bind:id="id" 
 
                     type="checkbox" 
