@@ -70,7 +70,6 @@
         prizeMoney,
         winnerID = null,
         correctColor = null;
-    var lastTime = 0;
     
     // The following function from https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
     var htmlEnDeCode = (function() {
