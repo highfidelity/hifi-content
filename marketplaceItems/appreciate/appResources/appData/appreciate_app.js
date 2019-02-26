@@ -981,6 +981,34 @@
     }
 
 
+    // When called, this function will stop the versions of this script that are
+    // baked into the client installation IF there's another version of the script
+    // running that ISN'T the baked version.
+    function maybeStopBakedScriptVersions() {
+        var THIS_SCRIPT_FILENAME = "appreciate_app.js";
+        var RELATIVE_PATH_TO_BAKED_SCRIPT = "system/experiences/appreciate/appResources/appData/" + THIS_SCRIPT_FILENAME;
+        var bakedLocalScriptPaths = [];
+        var alsoRunningNonBakedVersion = false;
+
+        var runningScripts = ScriptDiscoveryService.getRunning();
+        runningScripts.forEach(function(scriptObject) {
+            if (scriptObject.local && scriptObject.url.indexOf(RELATIVE_PATH_TO_BAKED_SCRIPT) > -1) {
+                bakedLocalScriptPaths.push(scriptObject.path);
+            }
+
+            if (scriptObject.name === THIS_SCRIPT_FILENAME && scriptObject.url.indexOf(RELATIVE_PATH_TO_BAKED_SCRIPT) === -1) {
+                alsoRunningNonBakedVersion = true;
+            }
+        });
+
+        if (alsoRunningNonBakedVersion && bakedLocalScriptPaths.length > 0) {
+            for (var i = 0; i < bakedLocalScriptPaths.length; i++) {
+                ScriptDiscoveryService.stopScript(bakedLocalScriptPaths[i]);
+            }
+        }
+    }
+
+
     // Called when the script starts up
     var BUTTON_NAME = "APPRECIATE";
     var APP_UI_URL = Script.resolvePath('resources/appreciate_ui.html');
@@ -1004,6 +1032,7 @@
         getSounds();
         getAnimations();
         HMD.displayModeChanged.connect(enableOrDisableAppreciate);
+        maybeStopBakedScriptVersions();
     }
 
 
