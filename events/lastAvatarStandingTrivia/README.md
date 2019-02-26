@@ -2,7 +2,7 @@
 
 ### Release Notes:
 **February 26, 2019**
-[fe10899](https://github.com/highfidelity/hifi-content/pull/303/commits/fe108995d95ac9e87eb8bdd27848d9cea1331e1d)
+[c2be06d](https://github.com/highfidelity/hifi-content/pull/303/commits/c2be06dfb25fe91238895d953e00b65134f6aac5)
 Version 1.1.2
 - Fixed bug with eventbridge connection between the client script and html for the host app.
 
