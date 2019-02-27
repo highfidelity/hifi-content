@@ -1,0 +1,4 @@
+{
+    "scriptURL": "./appResources/appData/draw_app.js",
+    "homeURL": "./appResources/appData/resources/draw_ui.html"
+}
