@@ -313,7 +313,7 @@ var CONFIG = {
         info: {},
         material: {
             selectedTypeIndex: 0,
-            selectedMaterial: "",
+            selectedMaterial: "default",
             shadeless: {
                 // component type color
                 albedo: { value: "N/A", map: null },

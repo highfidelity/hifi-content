@@ -607,7 +607,7 @@
                         <jscolor
                             :colorpickerid="colorElementIds"
                             :value="propertyInfo.value"
-                            :onchange="updateValue"
+                            :updatecolorvalue="updateValue"
                             :cancelcolor="setColorToNA"
                         ></jscolor>
 
@@ -651,7 +651,7 @@
     // JSColor picker made for Vue.js by mudream4869
     // https://gist.github.com/mudream4869/d956736a96bac2a89155a0c416a0ac35
     Vue.component('jscolor', {
-        props : ['value', 'colorpickerid', 'onchange', 'cancelcolor'],
+        props : ['value', 'colorpickerid', 'updatecolorvalue', 'cancelcolor'],
         mounted : function(){
             window.jscolor.installByClassName('jscolor');
             this.$el.jscolor.fromString(this.value);
@@ -660,8 +660,7 @@
                     if (DEBUG) {
                         console.log("I'm changing!", this.value);
                     }
-                    _this.$emit('input', this.value);
-                    _this.onchange(this.value);
+                    _this.updatecolorvalue(this.value);
                 }
             }(this));
 
@@ -929,7 +928,8 @@
             },
             style() {
                 var selected = this.selectedbutton === this.text ? " active " : "";
-                return "btn btn-primary " + this.classes + selected;
+                var disabled = this.isdisabled ? " disabled " : "";
+                return "btn btn-primary " + this.classes + selected + disabled;
             }
         },
         methods: {
@@ -998,7 +998,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in items">
-                        <a class="dropdown-item" href="#" @click="onSelect(item.index)">{{ item.name }}</a> 
+                        <a class="dropdown-item" href="#" @click.prevent="onSelect(item.index)">{{ item.name }}</a> 
                     </template>
                 </div>
             </div>
@@ -1055,7 +1055,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <template v-for="item in itemsList">
-                        <a class="dropdown-item" href="#" @click="onSelect(item)">
+                        <a class="dropdown-item" href="#" @click.prevent="onSelect(item)">
                             <img class="dropdown-item-image" v-bind:src="item"/>
                         </a>
                     </template>
