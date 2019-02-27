@@ -10,6 +10,8 @@ When this script is attached to an entity as an entity script, the entity serves
 
 NOTE that, when Script Pauser restores a Paused script that is a certified script, the "Installed" state of that script will be lost. This means that, when Script Pauser restores a previously-installed certified app, the Inventory app will not show that app as "Installed", even though its associated script is running.
 
+The Script Pauser will not Pause a script that a user runs _after_ they have started running this Entity Script.
+
 ## Setup
 1. Add an entity to your domain.
     - A big Box primitive would work perfectly.
@@ -32,5 +34,5 @@ Here's the object to add to the entity's `userData`:
 
 # Releases
 
-## 2019-02-26_17-00-00 :: [4b5af1b](https://github.com/highfidelity/hifi-content/commit/4b5af1b)
+## 2019-02-26_17-00-00 :: [3bc4394](https://github.com/highfidelity/hifi-content/commit/3bc4394)
 - Initial release
