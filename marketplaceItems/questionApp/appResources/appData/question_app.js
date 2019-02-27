@@ -50,9 +50,6 @@ Tablet, Users, Vec3, Window */
 
     /* CREATE A QUESTION MARK: Checks that question Mark does not already exist, then calculates position above 
     avatar's head and creates a question mark entity there */
-    var QUESTION_MARK_Y_OFFSET_RATIO_FROM_HEAD_TOP = 0.1;
-    var QUESTION_MARK_Y_OFFSET_RATIO_FROM_HEAD = 0.28;
-    var QUESTION_MARK_Y_OFFSET_RATIO_FROM_HIPS = 0.55;
     var GROWTH_INTERVAL_MS = 500; // takes 4 min 38 sec to reach height of 0.8 from 0.2 at ratio:1.005, interval: 1000
     var MAX_HEIGHT_M = 0.8;
     var GROWTH_RATIO = 1.005;
@@ -62,10 +59,15 @@ Tablet, Users, Vec3, Window */
     var HIFI_YELLOW = { red: 255, green: 237, blue: 0 };
     var HIFI_RED = { red: 255, green: 0, blue: 16 };
     var HALF = 0.5;
+    var Y_OFFSET_HEAD_TOP_TO_ENTITY_M = 0.1;
+    var OFFSET_RATIO_HEADTOP_M = 0.1;
+    var OFFSET_RATIO_HEAD_M = 0.2;
+    var OFFSET_RATIO_HIPS_M = 0.5;
     var questionMark;
     var questionMarkMaterial;
     var changingInterval;
     var parentJointIndex;
+    var yOffsetParentJointToHeadTop;
     var offsetRatio;
     var lastDimensions = QUESTION_MARK_START_DIMENSIONS_M;
     function createQuestionMark() {
@@ -74,16 +76,20 @@ Tablet, Users, Vec3, Window */
         }
         var avatarHeight = MyAvatar.getHeight();
         parentJointIndex = MyAvatar.getJointIndex("HeadTop_End");
-        offsetRatio = QUESTION_MARK_Y_OFFSET_RATIO_FROM_HEAD_TOP;
+        print("HEAD_TOP_END");
+        offsetRatio = OFFSET_RATIO_HEADTOP_M;
         if (parentJointIndex === -1) {
+            print("NOPE...HEAD");
             parentJointIndex = MyAvatar.getJointIndex("Head");
-            offsetRatio = QUESTION_MARK_Y_OFFSET_RATIO_FROM_HEAD;
+            offsetRatio = OFFSET_RATIO_HEAD_M;
         }
         if (parentJointIndex === -1) {
+            print("NOPE...HIPS");
             parentJointIndex = MyAvatar.getJointIndex("Hips");
-            offsetRatio = QUESTION_MARK_Y_OFFSET_RATIO_FROM_HIPS;
+            offsetRatio = OFFSET_RATIO_HIPS_M;
         }
-        var questionMarkLocalYPosition = avatarHeight * offsetRatio + HALF * QUESTION_MARK_START_DIMENSIONS_M.y;
+        yOffsetParentJointToHeadTop = offsetRatio * avatarHeight;
+        var questionMarkLocalYPosition = yOffsetParentJointToHeadTop + HALF * QUESTION_MARK_START_DIMENSIONS_M.y;
         var questionMarkProperties = {
             name: QUESTION_MARK_PROPERTY_NAME,
             type: "Model",
@@ -116,7 +122,7 @@ Tablet, Users, Vec3, Window */
         var colorChanging = true;
         var growing = true;
         changingInterval = Script.setInterval(function() {
-            if (!growing && !colorChanging) {
+            if (changingInterval && !growing && !colorChanging) {
                 Script.clearInterval(changingInterval);
                 changingInterval = null;
             }
@@ -154,13 +160,17 @@ Tablet, Users, Vec3, Window */
             Entities.editEntity(questionMarkMaterial, { materialData: JSON.stringify(materialData)});
             if (changingInterval && growing) {
                 avatarHeight = MyAvatar.getHeight();
-                var questionMarkProperties = Entities.getEntityProperties(questionMark, ['dimensions', 'localRotation']);
-                var questionMarkDimensions = questionMarkProperties.dimensions;
+                var questionMarkDimensions = Entities.getEntityProperties(questionMark, 'dimensions').dimensions;
                 if (questionMarkDimensions.y < MAX_HEIGHT_M) {
                     questionMarkDimensions = Vec3.multiply(questionMarkDimensions, GROWTH_RATIO);
+                    print("yOffsetParentJointToHeadTop: ", yOffsetParentJointToHeadTop);
+                    print("Y_OFFSET_HEAD_TOP_TO_ENTITY_M: ", Y_OFFSET_HEAD_TOP_TO_ENTITY_M);
+                    print("HALF * questionMarkDimensions.y: ", HALF * questionMarkDimensions.y);
+                    var newLocalPositionY = yOffsetParentJointToHeadTop + Y_OFFSET_HEAD_TOP_TO_ENTITY_M + (HALF * questionMarkDimensions.y);
+                    print("newLocalPositionY: ", newLocalPositionY);
                     Entities.editEntity(questionMark, { 
                         dimensions: questionMarkDimensions,
-                        localPosition: { x: 0, y: avatarHeight * offsetRatio + HALF * questionMarkDimensions.y, z: 0 }
+                        localPosition: { x: 0, y: newLocalPositionY, z: 0 }
                     });
                 } else {
                     growing = false;
@@ -330,10 +340,12 @@ Tablet, Users, Vec3, Window */
     /* AVATAR SCALE CHANGED: Reset question mark entity back to appropriate size */
     function avatarScaleChanged() {
         var avatarHeight = MyAvatar.getHeight();
-        var questionMarkHeight = Entities.getEntityProperties(questionMark, 'dimensions'.dimensions.y);
+        yOffsetParentJointToHeadTop = offsetRatio * avatarHeight;
+        var questionMarkHeight = Entities.getEntityProperties(questionMark, 'dimensions').dimensions.y;
+        var newLocalPosition = yOffsetParentJointToHeadTop + Y_OFFSET_HEAD_TOP_TO_ENTITY_M + HALF * questionMarkHeight;
         Entities.editEntity(questionMark, { 
             dimensions: lastDimensions,
-            localPosition: { x: 0, y: avatarHeight * offsetRatio + HALF * questionMarkHeight, z: 0 }
+            localPosition: { x: 0, y: newLocalPosition, z: 0 }
         });
     }
 
