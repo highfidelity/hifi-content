@@ -38,13 +38,6 @@ Tablet, Users, Vec3, Window */
         }
     }
 
-    /* RGB VALUE TO FLOAT VALUE: Convert RGB value to float */
-    var RGB_MAX = 255;
-    var NUMBER_DECIMAL_PLACES = 2;
-    function rgbValueToFloat(rgbValue) {
-        return (rgbValue/RGB_MAX).toFixed(NUMBER_DECIMAL_PLACES);
-    }
-
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
@@ -56,13 +49,9 @@ Tablet, Users, Vec3, Window */
     var GROWTH_RATIO = 1.005;
     var QUESTION_MARK_PROPERTY_NAME = "Question App Mark";
     var QUESTION_MARK_START_DIMENSIONS_M = { x: 0.1, y: 0.2, z: 0.02 };
-    var HIFI_CYAN = { red: 0, green: 158, blue: 224 };
-    var HIFI_YELLOW = { red: 255, green: 237, blue: 0 };
-    var HIFI_RED = { red: 255, green: 0, blue: 16 };
     var HALF = 0.5;
     var Y_OFFSET_HEAD_TOP_TO_ENTITY_M = 0.1;
     var questionMark;
-    var questionMarkMaterial;
     var changingInterval;
     var parentJointIndex;
     var lastDimensions = QUESTION_MARK_START_DIMENSIONS_M;
@@ -91,26 +80,8 @@ Tablet, Users, Vec3, Window */
             collisionless: true
         };
         questionMark = Entities.addEntity(questionMarkProperties, 'avatar');
-        var questionMarkMaterialProperties = {
-            type: "Material",
-            name: "Question App Material",
-            materialURL: "materialData",
-            priority: 1,
-            parentID: questionMark,
-            materialData: JSON.stringify({
-                materials: {
-                    albedo: HIFI_CYAN,
-                    emissive: { red: 0, green: rgbValueToFloat(HIFI_CYAN.green), blue: rgbValueToFloat(HIFI_CYAN.blue) }
-                }
-            })
-        };
-        questionMarkMaterial = Entities.addEntity(questionMarkMaterialProperties, 'avatar');
-        var growing = true;
         changingInterval = Script.setInterval(function() {
-            if (changingInterval && !growing) {
-                Script.clearInterval(changingInterval);
-                changingInterval = null;
-            } else if (changingInterval && growing) {
+            if (changingInterval) {
                 var questionMarkDimensions = Entities.getEntityProperties(questionMark, 'dimensions').dimensions;
                 if (questionMarkDimensions.y < MAX_HEIGHT_M) {
                     questionMarkDimensions = Vec3.multiply(questionMarkDimensions, GROWTH_RATIO);
@@ -121,10 +92,11 @@ Tablet, Users, Vec3, Window */
                         dimensions: questionMarkDimensions,
                         position: entitySpawnPosition
                     });
+                    lastDimensions = questionMarkDimensions;
                 } else {
-                    growing = false;
+                    Script.clearInterval(changingInterval);
+                    changingInterval = null;
                 }
-                lastDimensions = questionMarkDimensions;
             }
         }, GROWTH_INTERVAL_MS);
     }
