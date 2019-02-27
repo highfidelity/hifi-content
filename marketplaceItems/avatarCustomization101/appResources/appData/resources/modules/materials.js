@@ -22,7 +22,7 @@ var MAPS = {
         "albedoMap": directory + chainmail + "albedoMap.png",
         "metallicMap": directory + chainmail + "metallicMap.png",
         "normalMap": directory + chainmail + "normalMap.png",
-        "occlusionMap": directory + chainmail + "occlusionMap.png",
+        "occlusionMap": directory + chainmail + "occlusionMap.png"
     },
     disco: {
         "albedoMap": directory + disco + "albedoMap.jpg",
@@ -35,7 +35,7 @@ var MAPS = {
         "albedoMap": directory + texture + "emissiveMap_albedoMap.jpg",
         "emissiveMap": directory + texture + "emissiveMap_albedoMap.jpg"
     }
-}
+};
 
 var MATERIAL_DATA = {
     directory: directory,

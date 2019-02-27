@@ -17,8 +17,8 @@
     Script.include(Script.resolvePath("./resources/modules/flow.js?v12"));
 
     var AppUi = Script.require("appUi"),
-        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v12344555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v22222222111")),
+        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v123445555"),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v222222221111")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
@@ -195,30 +195,7 @@
 
     // #region MATERIAL
 
-    var materialID,
-        STRING_GLASS_MAT = "glass",
-        STRING_CHAIN_MAT = "chainmail",
-        STRING_DISCO_MAT = "disco",
-        STRING_DEFAULT_MAT = "default",
-        STRING_RED_MAT = "red",
-        STRING_TEXTURE_MAT = "texture",
-        MATERIAL_GLASS = MATERIAL_DATA.glass,
-        MATERIAL_CHAINMAIL = MATERIAL_DATA.chainmail,
-        MATERIAL_DISCO = MATERIAL_DATA.disco,
-        MATERIAL_RED = MATERIAL_DATA.red,
-        MATERIAL_TEXTURE = MATERIAL_DATA.texture;
-
-    // Subtype event strings
-    var STRING_NAMED_MATERIAL_SELECTED = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_NAMED_MATERIAL_SELECTED,
-        STRING_MODEL_TYPE_SELECTED = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_MODEL_TYPE_SELECTED,
-        STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
-
-    // componentTypes
-    var STRING_COLOR = CONFIG.STRING_COLOR,
-        STRING_MAP_ONLY = CONFIG.STRING_MAP_ONLY;
-
-    var PATH_TO_IMAGES = MATERIAL_DATA.directory;
-
+    var materialID;
     // propertyName
     // newMaterialData { value: "" map: "" }
     // componentType: STRING_COLOR / STRING_SLIDER / STRING_MAP_ONLY
@@ -234,6 +211,7 @@
         if (DEBUG) {
             print("Update Material Property key: ", property, " value: ", value);
             print("Update Material Property key: ", propertyMap, " map: ", map);
+            print("Update Material Property isPBR: ", isPBR);
         }
         
         // update UI values
@@ -245,15 +223,15 @@
         };
 
         if (value !== undefined) {
-            value = componentType === STRING_COLOR ? convertColorUIToBackend(value) : value;
-            value = componentType === STRING_MAP_ONLY ? convertImageUIToBackend(value) : value;
+            value = componentType === CONFIG.STRING_COLOR ? convertColorUIToBackend(value) : value;
+            value = componentType === CONFIG.STRING_MAP_ONLY ? convertImageUIToBackend(value) : value;
             // slider value does not need to be changed
 
             updates[property] = value;
             dynamicData[STRING_MATERIAL][type][property].value = value;
         }
 
-        if (map !== undefined && componentType !== STRING_MAP_ONLY) {
+        if (map !== undefined && componentType !== CONFIG.STRING_MAP_ONLY) {
             updates[propertyMap] = convertImageUIToBackend(map);
             dynamicData[STRING_MATERIAL][type][property].map = map;
         }
@@ -273,10 +251,9 @@
 
     function convertImageUIToBackend(file) {
         if (file && file.indexOf("no.jpg") !== -1) {
-            print("I AM HERE");
             return null;
         } 
-        return PATH_TO_IMAGES + file;
+        return MATERIAL_DATA.directory + file;
     }
 
 
@@ -329,7 +306,7 @@
 
             if (key.indexOf("Map") !== -1) {
                 // is a Map
-                var uiValue = value.replace(PATH_TO_IMAGES, ""); // remove path url
+                var uiValue = value.replace(MATERIAL_DATA.directory, ""); // remove path url
 
                 if (dynamicPropertyData[key]) {
                     // is Map Only
@@ -386,8 +363,6 @@
 
             // merge new materials and old material properties together
             newMaterials = mergeObjectProperties(oldMaterials, newMaterials);
-
-            print("ROBIN IS THIS " + JSON.stringify(newMaterials));
 
             if (newMaterials["unlit"] && !isPBR) {
                 // unlit exists and is false
@@ -473,7 +448,7 @@
         dynamicData[STRING_MATERIAL].selectedMaterial = materialName;
 
         switch (materialName){
-            case STRING_DEFAULT_MAT:
+            case CONFIG.STRING_DEFAULT:
                 setMaterialPropertiesToDefaults();
                 dynamicData[STRING_MATERIAL].selectedTypeIndex = 0; // "Select one"
                 if (materialID) {
@@ -481,21 +456,21 @@
                     materialID = null;
                 }
                 break;
-            case STRING_GLASS_MAT:
+            case CONFIG.STRING_GLASS:
                 // updateMaterial materialName, isNamed, isPBR
-                updateMaterial(MATERIAL_GLASS, true, true);
+                updateMaterial(MATERIAL_DATA.glass, true, true);
                 break;
-            case STRING_CHAIN_MAT:
-                updateMaterial(MATERIAL_CHAINMAIL, true, true);
+            case CONFIG.STRING_CHAINMAIL:
+                updateMaterial(MATERIAL_DATA.chainmail, true, true);
                 break;
-            case STRING_DISCO_MAT:
-                updateMaterial(MATERIAL_DISCO, true, true);
+            case CONFIG.STRING_DISCO:
+                updateMaterial(MATERIAL_DATA.disco, true, true);
                 break;
-            case STRING_RED_MAT:
-                updateMaterial(MATERIAL_RED, true, false);
+            case CONFIG.STRING_RED:
+                updateMaterial(MATERIAL_DATA.red, true, false);
                 break;
-            case STRING_TEXTURE_MAT:
-                updateMaterial(MATERIAL_TEXTURE, true, false);
+            case CONFIG.STRING_TEXTURE:
+                updateMaterial(MATERIAL_DATA.texture, true, false);
                 break;
         }
     }
@@ -559,17 +534,22 @@
         STRING_JOINTS = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS;
 
     // Called when user navigates to flow tab
-    function addRemoveFlowDebugSpheres(isEnabled) {
+    function addRemoveFlowDebugSpheres(isEnabled, setShowDebugSpheres) {
         // draw debug circles on the joints
         var flowSettings = GlobalDebugger.getDisplayData();
 
         // the state of flow is the opposite of what we want
         if (flowSettings.debug !== isEnabled) {
             GlobalDebugger.toggleDebugShapes();
-            dynamicData[STRING_FLOW].showDebug = isEnabled;
+
+            // set the setting if setShowDebugSpheres is true
+            if (setShowDebugSpheres) {
+                dynamicData[STRING_FLOW].showDebug = isEnabled;
+            }
         }
 
     }
+
 
     function addRemoveCollisions(isEnabled) {
         // draw debug circles on the joints
@@ -582,6 +562,7 @@
         }
 
     }
+
 
     function updateFlow(newFlowDataToApply, subtype) {
 
@@ -778,14 +759,14 @@
                     print("MATERIAL EVENT" , data.subtype, " ", data.name, " ", data.updates);
                 }
                 switch (data.subtype) {
-                    case STRING_MODEL_TYPE_SELECTED:
-                        applyNamedMaterial(STRING_DEFAULT_MAT);
+                    case CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_MODEL_TYPE_SELECTED:
+                        applyNamedMaterial(CONFIG.STRING_DEFAULT);
                         dynamicData[STRING_MATERIAL].selectedTypeIndex = data.updates;
                         break;
-                    case STRING_NAMED_MATERIAL_SELECTED: 
+                    case CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_NAMED_MATERIAL_SELECTED: 
                         applyNamedMaterial(data.name);
                         break;
-                    case STRING_UPDATE_PROPERTY:
+                    case CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY:
 
                         var propertyName = data.updates.propertyName;
                         var newMaterialData = data.updates.newMaterialData;
@@ -813,7 +794,7 @@
                         if (DEBUG) {
                             print("TOGGLE DEBUG SPHERES ", data.updates);
                         }
-                        addRemoveFlowDebugSpheres(data.updates);
+                        addRemoveFlowDebugSpheres(data.updates, true);
                         break;
                     case STRING_COLLISIONS_TOGGLE:
                         addRemoveCollisions(data.updates);

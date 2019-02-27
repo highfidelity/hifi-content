@@ -33,8 +33,6 @@
     // Debug
     var DEBUG = false;
 
-    // Components
-
     // #region Tabs and Tab Layout
 
     Vue.component('page-content', {
@@ -278,6 +276,82 @@
         `
     })
 
+    
+    Vue.component('modal-save-avatar', {
+        props: ["close"],
+        methods: {
+            changeAvatarToAviAndSaveAvatar() {
+                // save avatar
+
+                if (DEBUG) {
+                    console.log("changeAvatarToAviAndSaveAvatar clicked");
+                }
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_AVATAR,
+                    subtype: CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR
+                }));
+
+                this.close();
+            },
+            changeAvatarToAviWithoutSavingAvatar() {
+                // do not save avatar
+
+                if (DEBUG) {
+                    console.log("changeAvatarToAviWithoutSavingAvatar clicked");
+                }
+
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: EVENT_UPDATE_AVATAR,
+                    subtype: CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR
+                }));
+
+                this.close();
+            }
+        },
+        data() {
+            return {
+                withoutSavingText: "No, I'd like to change my avatar without saving"
+            };
+        },
+        template: /* html */ `
+            <modal 
+                v-bind:alert="true" 
+                v-bind:hidex="false" 
+                v-bind:isfullscreen="false" 
+                @close="close"
+            >
+
+                <div slot="header"><h2>Save Avatar?</h2></div>
+                
+                <div slot="body">
+                    <div class="p-3 mt-2">
+                        <p>Would you like to favorite your current avatar?</p>
+                        <p>To change avatar back:</p>
+                        <p>Avatar App > Favorites > Click Avatar</p>
+                    
+                        <div id="save-avatar" class="flex-container-row">
+                            <button-big 
+                                :text="'Yes, favorite my avatar'" 
+                                :onclick="changeAvatarToAviAndSaveAvatar" 
+                                :classes="'flex-item two-lines'"
+                            ></button-big>
+                            <button-big 
+                                :text="withoutSavingText" 
+                                :onclick="changeAvatarToAviWithoutSavingAvatar" 
+                                :classes="'flex-item two-lines'"
+                            ></button-big>
+
+                        </div>
+                    </div>
+                </div>
+                
+                <div slot="footer" class="text-center"></div>
+
+            </modal>
+        `
+    })
+
     // #endregion Info tab
 
 
@@ -328,15 +402,9 @@
         },
         watch: {
             dynamic(value) {
-
-                console.log("ROBIN I UPDATED");
-
-
                 this.selectedTypeIndex = this.dynamic.selectedTypeIndex;
                 this.selectedTypeData = this.static.COMPONENT_DATA.TYPE_LIST[value.selectedTypeIndex];
                 this.staticPropertyList = this.static.COMPONENT_DATA.PROPERTIES_LISTS[this.selectedTypeData.key]
-            
-                console.log("ROBIN I UPDATED" + this.staticPropertyList.length);
             }
         },
         template: /* html */ `
@@ -407,10 +475,7 @@
         computed: {
             propertyInfo() {
 
-                console.log(JSON.stringify(this.property) + " : " + "WAT BRO");
-
                 // sets material properties to be interpreted by components
-
                 var propertyName = this.property.key;
                 var componentType = this.property.componentType;
                 var mapName = componentType !== STRING_MAP_ONLY ? propertyName + "Map" : propertyName;
@@ -428,8 +493,6 @@
                         : [],
                     isColor: componentType === this.STRING_COLOR, // for binding the right css class
                 };
-
-                console.log("Property Info is : " + JSON.stringify(propertyInfo));
 
                 return propertyInfo;
             }
@@ -682,7 +745,7 @@
             return {
                 EVENT_UPDATE_BLENDSHAPE: EVENT_UPDATE_BLENDSHAPE
             }
-        },  // *** :eventbridgeeventsubtype=""
+        }, 
         template: /* html */ `
             <div>
 
@@ -740,7 +803,7 @@
                     :label="'Enable Collisions'"
                     v-bind:defaultvalue="dynamic.enableCollisions"
                     :eventbridgeeventtype="EVENT_UPDATE_FLOW"
-                    :eventbridgeeventsubtype="'hair'"
+                    :eventbridgeeventsubtype="'collisionsToggle'"
                 ></checkbox>
 
                 <h3>Hair Flow Options</h3>
@@ -785,87 +848,6 @@
         `
     })
     // #endregion Flow tab
-
-
-    // #region Simple Test Components
-
-    Vue.component('modal-save-avatar', {
-        props: ["close"],
-        methods: {
-            changeAvatarToAviAndSaveAvatar() {
-                // save avatar
-
-                if (DEBUG) {
-                    console.log("changeAvatarToAviAndSaveAvatar clicked");
-                }
-
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_UPDATE_AVATAR,
-                    subtype: CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR
-                }));
-
-                this.close();
-            },
-            changeAvatarToAviWithoutSavingAvatar() {
-                // do not save avatar
-
-                if (DEBUG) {
-                    console.log("changeAvatarToAviWithoutSavingAvatar clicked");
-                }
-
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: EVENT_UPDATE_AVATAR,
-                    subtype: CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_WITHOUT_SAVING_AVATAR
-                }));
-
-                this.close();
-            }
-        },
-        data() {
-            return {
-                withoutSavingText: "No, I'd like to change my avatar without saving"
-            };
-        },
-        template: /* html */ `
-            <modal 
-                v-bind:alert="true" 
-                v-bind:hidex="false" 
-                v-bind:isfullscreen="false" 
-                @close="close"
-            >
-
-                <div slot="header"><h2>Save Avatar?</h2></div>
-                
-                <div slot="body">
-                    <div class="p-3 mt-2">
-                        <p>Would you like to favorite your current avatar?</p>
-                        <p>To change avatar back:</p>
-                        <p>Avatar App > Favorites > Click Avatar</p>
-                    
-                        <div id="save-avatar" class="flex-container-row">
-                            <button-big 
-                                :text="'Yes, favorite my avatar'" 
-                                :onclick="changeAvatarToAviAndSaveAvatar" 
-                                :classes="'flex-item two-lines'"
-                            ></button-big>
-                            <button-big 
-                                :text="withoutSavingText" 
-                                :onclick="changeAvatarToAviWithoutSavingAvatar" 
-                                :classes="'flex-item two-lines'"
-                            ></button-big>
-
-                        </div>
-                    </div>
-                </div>
-                
-                <div slot="footer" class="text-center"></div>
-
-            </modal>
-        `
-    })
-
-    // #endregion Simple Test Components
-
 
     // #region EDIT COMPONENTS
 
@@ -956,8 +938,6 @@
         `
     })
 
-    // "Others to modify, You will learn about customizing your avatar in hifi"
-    // <title-list :title="" :items=""></title-list>
     Vue.component('title-list', {
         props: ['title', 'items'],
         template: /* html */ `
@@ -976,7 +956,7 @@
         props: ['text', 'onclick', 'classes', 'isdisabled', "selectedbutton", "onclickvalue"],
         computed: {
             disabledButton() {
-                return this.isdisabled ? this.isdisabled : false;
+                return this.isdisabled;
             },
             style() {
                 var selected = this.selectedbutton === this.text ? " active " : "";
@@ -1057,7 +1037,7 @@
     })
 
     var NO_IMAGE = "no.jpg";
-    var PREFIX = "images/"; // ***
+    var PREFIX = "images/";
 
     Vue.component('drop-down-images', {
         props: ["items", "defaultimage", "onselect"],
