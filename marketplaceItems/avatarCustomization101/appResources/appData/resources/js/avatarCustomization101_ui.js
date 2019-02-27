@@ -13,20 +13,16 @@
 
 (function () {
 
-    // Consts
-    var UPDATE_UI = CONFIG.UPDATE_UI,
-        APP_NAME = CONFIG.APP_NAME;
-
     // Events 
     // !important Add APP_NAME to each event
-    var EVENT_BRIDGE_OPEN_MESSAGE = APP_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
-        EVENT_CHANGE_TAB = APP_NAME + CONFIG.EVENT_CHANGE_TAB,
+    var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.APP_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
+        EVENT_CHANGE_TAB = CONFIG.APP_NAME + CONFIG.EVENT_CHANGE_TAB,
 
         // Info tab events
-        EVENT_UPDATE_AVATAR = APP_NAME + CONFIG.EVENT_UPDATE_AVATAR,
-        EVENT_UPDATE_MATERIAL = APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL,
-        EVENT_UPDATE_BLENDSHAPE = APP_NAME + CONFIG.EVENT_UPDATE_BLENDSHAPE,
-        EVENT_UPDATE_FLOW = APP_NAME + CONFIG.EVENT_UPDATE_FLOW,
+        EVENT_UPDATE_AVATAR = CONFIG.APP_NAME + CONFIG.EVENT_UPDATE_AVATAR,
+        EVENT_UPDATE_MATERIAL = CONFIG.APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL,
+        EVENT_UPDATE_BLENDSHAPE = CONFIG.APP_NAME + CONFIG.EVENT_UPDATE_BLENDSHAPE,
+        EVENT_UPDATE_FLOW = CONFIG.APP_NAME + CONFIG.EVENT_UPDATE_FLOW,
 
         STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
 
@@ -39,17 +35,14 @@
         props: ['dynamicdata', 'staticdata'],
         template: /* html */ `
             <div>
-
                 <navigation 
                     :dynamicdata="dynamicdata"
                     :tablist="staticdata.TAB_LIST"
                 ></navigation>
-                
                 <tab-content-container
                     :staticdata="staticdata"
                     :dynamicdata="dynamicdata"
                 ></tab-content-container>
-
             </div>
         `
     })
@@ -79,11 +72,9 @@
         props: ['tabname', 'activetabname', 'isavienabled'],
         methods: {
             switchTab(tabName) {
-
                 if (DEBUG) {
                     console.log("Tab has been clicked: " + tabName);
                 }
-
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_CHANGE_TAB,
                     value: tabName
@@ -92,10 +83,8 @@
         },
         computed: {
             tabInfo() {
-
                 var tabName = this.tabname;
                 var isAviEnabled = this.isavienabled;
-
                 // set tab size depending on the size of the word
                 var flexGrowSize = tabName.length < 5 ? 1 : 2;
                 flexGrowSize = tabName.length < 10 ? flexGrowSize : 3;
@@ -141,14 +130,11 @@
         props: ['staticdata', 'dynamicdata'],
         computed: {
             tabDataList() {
-
                 return this.staticdata.TAB_LIST.map((tabName) => {
-
                     var tabData = {
                         static: this.staticdata.TAB_DATA[tabName.toUpperCase()],
                         dynamic: this.dynamicdata[tabName.toLowerCase()]
                     }
-
                     return tabData;
                 });
             }
@@ -192,7 +178,6 @@
 
                 <component 
                     :is="tabdata.static.COMPONENT_NAME"
-
                     :isavienabled="isavienabled"
                     :dynamic="tabdata.dynamic"
                     :static="tabdata.static"
@@ -226,12 +211,10 @@
                 if (DEBUG) {
                     console.log("restoreAvatar clicked");
                 }
-
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_AVATAR,
                     subtype: CONFIG.EVENT_RESTORE_SAVED_AVATAR
                 }));
-
             }
         },
         data() {
@@ -282,7 +265,6 @@
         methods: {
             changeAvatarToAviAndSaveAvatar() {
                 // save avatar
-
                 if (DEBUG) {
                     console.log("changeAvatarToAviAndSaveAvatar clicked");
                 }
@@ -296,7 +278,6 @@
             },
             changeAvatarToAviWithoutSavingAvatar() {
                 // do not save avatar
-
                 if (DEBUG) {
                     console.log("changeAvatarToAviWithoutSavingAvatar clicked");
                 }
@@ -364,7 +345,6 @@
                 if (DEBUG) {
                     console.log("Materials applyNamedMaterial clicked " + materialName);
                 }
-
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_MATERIAL,
                     subtype: CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_NAMED_MATERIAL_SELECTED,
@@ -374,11 +354,9 @@
             },
             updateTypeSelected(newTypeSelectedIndex) {
                 // updates the index of the selected type: "shadeless" or "hifi-pbr" or "Select one" (none selected) 
-
                 if (DEBUG) {
                     console.log("Materials updateTypeSelected clicked" + newTypeSelectedIndex);
                 }
-
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: EVENT_UPDATE_MATERIAL,
                     subtype: CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_MODEL_TYPE_SELECTED,
@@ -388,12 +366,10 @@
             }
         },
         data() {
-
             var selectedTypeIndex = this.dynamic.selectedTypeIndex;
             var typeList = this.static.COMPONENT_DATA.TYPE_LIST;
             var selectedTypeData = typeList[selectedTypeIndex];
             var key = selectedTypeData.key;
-
             return {
                 selectedTypeIndex: selectedTypeIndex,
                 selectedTypeData: selectedTypeData,
@@ -474,7 +450,6 @@
         },
         computed: {
             propertyInfo() {
-
                 // sets material properties to be interpreted by components
                 var propertyName = this.property.key;
                 var componentType = this.property.componentType;
@@ -493,7 +468,6 @@
                         : [],
                     isColor: componentType === this.STRING_COLOR, // for binding the right css class
                 };
-
                 return propertyInfo;
             }
         },
@@ -733,12 +707,10 @@
                 if (DEBUG) {
                     console.log("applyNamedBlendshape clicked " + blendshapeName);
                 }
-
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: this.EVENT_UPDATE_BLENDSHAPE,
                     name: blendshapeName
                 }));
-
             }
         },
         data() {
@@ -880,16 +852,13 @@
         },
         methods: {
             onSliderChange() {
-
                 if (DEBUG) {
                     console.log("Slider change: " + this.eventbridgeeventtypeslider + " " + this.eventbridgeeventsubtypeslider + " " + this.title + " " + +this.val);
                 }
-
                 if (this.onsliderupdate) {
                     this.onsliderupdate(this.val);
                     return;
                 }
-
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: this.eventbridgeeventtypeslider,
                     subtype: this.eventbridgeeventsubtypeslider ? this.eventbridgeeventsubtypeslider : "",
@@ -1043,15 +1012,12 @@
         props: ["items", "defaultimage", "onselect"],
         methods: {
             onSelect(url) {
-
                 this.selected = url;
                 var fileName = url.replace(PREFIX, "");
-
                 if (DEBUG) {
                     console.log("DropDown Image value:" + url);
                     console.log("DropDown Image file name:" + fileName);
                 }
-
                 this.onselect(fileName);
             }
         },
@@ -1063,7 +1029,6 @@
                 if (DEBUG) {
                     console.log(JSON.stringify(this.items));
                 }
-
                 return itemsList;
             }
         },
@@ -1199,7 +1164,7 @@
         try {
             data = JSON.parse(message);
             switch (data.type) {
-                case UPDATE_UI:
+                case CONFIG.UPDATE_UI:
                     if (DEBUG) {
                         print("onScriptEventRecieved: Update UI");
                     }
@@ -1221,13 +1186,11 @@
 
 
     function onLoad() {
-
         // Open the EventBridge to communicate with the main script.
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
             type: EVENT_BRIDGE_OPEN_MESSAGE
         }));
-
     }
 
 

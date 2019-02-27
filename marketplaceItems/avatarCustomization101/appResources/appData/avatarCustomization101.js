@@ -147,11 +147,13 @@
         AvatarBookmarks.addBookmark(STRING_BOOKMARK_NAME);
     }
 
+
     // Save and change the avatar to Avi
     function saveAvatarAndChangeToAvi() {
         bookmarkAvatar();
         changeAvatarToAvi();
     }
+
 
     // Load saved avatar if saved, if not send user an alert
     function restoreAvatar() {
@@ -167,6 +169,7 @@
 
     }
 
+
     // Switch avatar to Avi
     // Update state to avi to enabled
     function changeAvatarToAvi() {
@@ -176,12 +179,14 @@
         setIsAviEnabledTrue();
     }
 
+
     // Contains all steps to set the app state to isAviEnabled = true
     function setIsAviEnabledTrue() {
         dynamicData.state.isAviEnabled = true;
         spawnMirror();
         updateUI(STRING_STATE);
     }
+
 
     // Contains all steps to set the app state to isAviEnabled = false
     function setIsAviEnabledFalse() {
@@ -191,11 +196,11 @@
         updateUI(STRING_STATE);
     }
 
+
     // #endregion AVATAR FUNCTIONS
 
     // #region MATERIAL
 
-    var materialID;
     // propertyName
     // newMaterialData { value: "" map: "" }
     // componentType: STRING_COLOR / STRING_SLIDER / STRING_MAP_ONLY
@@ -204,12 +209,11 @@
 
         var value = newMaterialData.value;
         var map = newMaterialData.map;
-        
-        var property = propertyName;
-        var propertyMap = property + "Map";
+
+        var propertyMap = propertyName + "Map";
 
         if (DEBUG) {
-            print("Update Material Property key: ", property, " value: ", value);
+            print("Update Material Property key: ", propertyName, " value: ", value);
             print("Update Material Property key: ", propertyMap, " map: ", map);
             print("Update Material Property isPBR: ", isPBR);
         }
@@ -219,7 +223,7 @@
 
         // prep data for changing material entity in updateMaterial()
         var updates = {
-            unlit: isPBR ? false: true
+            unlit: !isPBR
         };
 
         if (value !== undefined) {
@@ -227,13 +231,13 @@
             value = componentType === CONFIG.STRING_MAP_ONLY ? convertImageUIToBackend(value) : value;
             // slider value does not need to be changed
 
-            updates[property] = value;
-            dynamicData[STRING_MATERIAL][type][property].value = value;
+            updates[propertyName] = value;
+            dynamicData[STRING_MATERIAL][type][propertyName].value = value;
         }
 
         if (map !== undefined && componentType !== CONFIG.STRING_MAP_ONLY) {
             updates[propertyMap] = convertImageUIToBackend(map);
-            dynamicData[STRING_MATERIAL][type][property].map = map;
+            dynamicData[STRING_MATERIAL][type][propertyName].map = map;
         }
 
         updateMaterial({ materials: updates }, false, isPBR);
@@ -259,7 +263,6 @@
 
     // prioritize a properties over b properties
     function mergeObjectProperties(a, b) {
-
         for (var key in b) {
             a[key] = b[key];
         }
@@ -280,7 +283,6 @@
     // newMaterialData.materials passed in
     // for Named buttons only
     function updateMaterialDynamicDataUI(newMaterialDataToApply, isPBR) {
-
         // set the UI drop-down index to hifi-PBR (index 2) or shadeless (index 1)
         dynamicData[STRING_MATERIAL].selectedTypeIndex = isPBR ? PBR_INDEX : SHADELESS_INDEX;
         var type = isPBR ? "pbr" : "shadeless";
@@ -291,7 +293,6 @@
 
         // Loop through all newMaterialProperties
         for (var property in newMaterials) {
-
             var key = property;
             var value = newMaterials[key];
 
@@ -329,10 +330,9 @@
 
     }
 
-
+    var materialID;
     // Update material or create a new material
     function updateMaterial(newMaterialData, isNamed, isPBR) {
-
         var materialEntityProperties;
 
         // these properties change
@@ -374,7 +374,6 @@
 
         // Create new material 
         if (!materialID) {
-
             newMaterials.model = "hifi_pbr"; 
 
             materialEntityProperties = {
@@ -395,7 +394,6 @@
             materialID = Entities.addEntity(materialEntityProperties, "avatar");
 
         } else {
-
             // Update old material
             var updates = {
                 description: description,
@@ -443,7 +441,6 @@
 
     // Apply the named material to material entity
     function applyNamedMaterial(materialName) {
-
         // Set the selected material in UI
         dynamicData[STRING_MATERIAL].selectedMaterial = materialName;
 
@@ -484,7 +481,6 @@
         if (DEBUG) {
             print("New blendshape data", JSON.stringify(newBlendshapeData));
         }
-
         if (!isName) {
             // is not named blendshape, ensure last blendshape is not selected
             dynamicData[STRING_BLENDSHAPES].selected = "";
@@ -503,7 +499,6 @@
 
     // Apply the named blendshape to avatar
     function applyNamedBlendshapes(blendshapeName) {
-
         // Set the selected blendshape data in UI
         dynamicData[STRING_BLENDSHAPES].selected = blendshapeName;
 
@@ -565,15 +560,12 @@
 
 
     function updateFlow(newFlowDataToApply, subtype) {
-
         if (DEBUG) {
             print("updating flow: ", subtype, JSON.stringify(newFlowDataToApply));
         }
-
         // propertyName is the key and value is the new propety value
         // for example newFlowDataToApply = { stiffness: 0.5 }
         for (var propertyName in newFlowDataToApply) {
-
             var newValue = newFlowDataToApply[propertyName];
 
             if (subtype === STRING_HAIR) {
@@ -614,7 +606,6 @@
 
     // Create menu button
     function startup() {
-
         ui = new AppUi({
             buttonName: CONFIG.BUTTON_NAME,
             home: URL,
@@ -623,7 +614,6 @@
             onOpened: onOpened,
             onClosed: onClosed
         });
-
         Script.scriptEnding.connect(unload);
     }
 
@@ -641,20 +631,16 @@
 
     // Called each time app is opened
     function onOpened() {
-
         if (DEBUG) {
             print("ACA101 onOpened: isAviEnabled ", MyAvatar.skeletonModelURL === AVATAR_URL);
             print("ACA101 onOpened: activeTabName is ", dynamicData.state.activeTabName);
         }
-
         if (MyAvatar.skeletonModelURL === AVATAR_URL) {
-
             setIsAviEnabledTrue();
 
             // if your last closed tab has extra setup functionality
             // ensure you have the correct view for the current tab
             switchTabs(dynamicData.state.activeTabName);
-
         } else {
             setIsAviEnabledFalse();
         }
@@ -665,16 +651,13 @@
 
     // Functionality for each time a tab is switched
     function switchTabs(tabName) {
-        
         var previousTab = currentTab;
         currentTab = tabName;
-
         // Flow tab conditionals
         if (currentTab === STRING_FLOW && dynamicData[STRING_FLOW].showDebug){
             // enable debug spheres
             addRemoveFlowDebugSpheres(true);
-        }
-        if (previousTab === STRING_FLOW && currentTab !== STRING_FLOW){
+        } else if (previousTab === STRING_FLOW && currentTab !== STRING_FLOW){
             // disable debug spheres
             addRemoveFlowDebugSpheres(false);
         }
@@ -683,17 +666,14 @@
         if (currentTab === STRING_BLENDSHAPES) {
             // enable scripted blendshapes
             MyAvatar.hasScriptedBlendshapes = true;
-        }
-        if (previousTab === STRING_BLENDSHAPES && currentTab !== STRING_BLENDSHAPES){
+        } else if (previousTab === STRING_BLENDSHAPES && currentTab !== STRING_BLENDSHAPES){
             // disable scripted blendshapes
             MyAvatar.hasScriptedBlendshapes = false;
         }
-
     }
 
     function unload() {
         deleteMirror();
-
         // Set blendshapes back to normal
         MyAvatar.hasScriptedBlendshapes = true;
         applyNamedBlendshapes(BLENDSHAPE_DATA.defaults);
@@ -712,9 +692,7 @@
 
     // Handles events recieved from the UI
     function onMessage(data) {
-
         // EventBridge message from HTML script.
-
         // Check against EVENT_NAME to ensure we're getting the correct messages from the correct app
         if (!data.type || data.type.indexOf(CONFIG.APP_NAME) === -1) {
             if (DEBUG_EVENTS) {
