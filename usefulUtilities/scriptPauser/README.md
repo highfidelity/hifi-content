@@ -10,7 +10,7 @@ When this script is attached to an entity as an entity script, the entity serves
 - Script Pauser will check for blacklisted scripts every 10 seconds.
 - When Script Pauser stops a blacklisted script, it notifies the user that it has done so via a text banner notification.
 
-NOTE: when Script Pauser restores a Paused script that is a certified script, the "Installed" state of that script will be lost; When Script Pauser restores a previously-installed certified app, the Inventory app will not show that app as "Installed", even though its associated script is running.
+NOTE: when Script Pauser restores a Paused script that is a certified script, the "Installed" state of that script will be lost; when Script Pauser restores a previously-installed certified app, the Inventory app will not show that app as "Installed", even though its associated script is running.
 
 ## Setup
 1. Add an entity to your domain.
@@ -34,5 +34,5 @@ Here's the object to add to the entity's `userData`:
 
 # Releases
 
-## 2019-02-26_17-00-00 :: [3bc4394](https://github.com/highfidelity/hifi-content/commit/3bc4394)
+## 2019-02-26_17-00-00 :: [5d396c5](https://github.com/highfidelity/hifi-content/commit/5d396c5)
 - Initial release
