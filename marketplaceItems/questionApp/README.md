@@ -7,8 +7,7 @@ Simply toggle the app on to put a question mark above your head. Admins in the d
 When an admin is ready for you to ask your question, they will remove your question mark and you will hear a sound. Your app will also toggle off at this time.
 
 ## Known Issue
+When changing avatars, you will lose your question mark entity. This is handled by closing the app, but the user will lose the status of their question.
 
 ## Releases
-### 2019-02-**_**-**-00 | Marketplace v1.0 | [*******] (https://github.com/highfidelity/hifi-content/commit/********************)
-
-- Initial Release
+### 2019-02-**_**-**-00 | Test V1 | [*******] (https://github.com/highfidelity/hifi-content/commit/********************)

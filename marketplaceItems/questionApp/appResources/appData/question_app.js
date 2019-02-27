@@ -114,18 +114,7 @@ Tablet, Users, Vec3, Window */
     function onClicked() {
         if (questionMark) {
             cleanUp();
-            if (messagesReceivedConnected) {
-                Messages.messageReceived.disconnect(checkMessage);
-                messagesReceivedConnected = false;
-            }
-            if (scaleChangedConnected) {
-                MyAvatar.scaleChanged.disconnect(avatarScaleChanged);
-                scaleChangedConnected = false;
-            }
-            if (skeletonChangedConnected) {
-                MyAvatar.skeletonModelURLChanged.disconnect(skeletonChanged);
-                skeletonChangedConnected = false;
-            }
+            disconnectSignalHandlers();
             playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true, false);
         } else {
             button.editProperties({ isActive: true });
@@ -161,6 +150,22 @@ Tablet, Users, Vec3, Window */
         }));
     }
 
+    /* DISCONNECT SIGNAL HANDLERS: disconnect any open signal handlers */
+    function disconnectSignalHandlers() {
+        if (messagesReceivedConnected) {
+            Messages.messageReceived.disconnect(checkMessage);
+            messagesReceivedConnected = false;
+        }
+        if (scaleChangedConnected) {
+            MyAvatar.scaleChanged.disconnect(avatarScaleChanged);
+            scaleChangedConnected = false;
+        }
+        if (skeletonChangedConnected) {
+            MyAvatar.skeletonModelURLChanged.disconnect(skeletonChanged);
+            skeletonChangedConnected = false;
+        }
+    }
+
     /* AVATAR SELECTED: When a user is selected, the question mark disappears and a sound 
     plays for the selected user as their app toggles off. */
     var SELECTED_SOUND = SoundCache.getSound(Script.resolvePath('resources/sounds/selected.mp3'));
@@ -168,18 +173,7 @@ Tablet, Users, Vec3, Window */
     function avatarSelected() {
         if (questionMark) {
             cleanUp();
-            if (messagesReceivedConnected) {
-                Messages.messageReceived.disconnect(checkMessage);
-                messagesReceivedConnected = false;
-            }
-            if (scaleChangedConnected) {
-                MyAvatar.scaleChanged.disconnect(avatarScaleChanged);
-                scaleChangedConnected = false;
-            }
-            if (skeletonChangedConnected) {
-                MyAvatar.skeletonModelURLChanged.disconnect(skeletonChanged);
-                skeletonChangedConnected = false;
-            }
+            disconnectSignalHandlers();
             playSound(SELECTED_SOUND, SELECTED_SOUND_VOLUME, MyAvatar.position, true, false);
         }
     }
@@ -282,18 +276,7 @@ Tablet, Users, Vec3, Window */
         }
         button.editProperties({ isActive: false }); 
         questionMark = null;
-        if (messagesReceivedConnected) {
-            Messages.messageReceived.disconnect(checkMessage);
-            messagesReceivedConnected = false;
-        }
-        if (scaleChangedConnected) {
-            MyAvatar.scaleChanged.disconnect(avatarScaleChanged);
-            scaleChangedConnected = false;
-        }
-        if (skeletonChangedConnected) {
-            MyAvatar.skeletonModelURLChanged.disconnect(skeletonChanged);
-            skeletonChangedConnected = false;
-        }
+        disconnectSignalHandlers();
         playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true, false);
     }
 
