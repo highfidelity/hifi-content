@@ -1,0 +1,556 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{7a989fb7-25ce-401b-950f-a5f752a41aca}",
+    "type": "Box",
+    "lastEdited": 1551310248424197,
+    "name": "Vending Machine Button 2",
+    "position": {
+        "x": 0.34600830078125,
+        "y": 0.6201934814453125,
+        "z": 0.42885929346084595
+    },
+    "dimensions": {
+        "x": 0.6317158937454224,
+        "y": 0.3431677222251892,
+        "z": 0.2367202192544937
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1551310287054271,
+    "lastEditedBy": "{5c14368d-41db-4377-b591-e0d470877dab}",
+    "parentID": "{48a5af55-3eb6-4ff4-8cfa-22382c93b513}",
+    "queryAACube": {
+        "x": 417.6992492675781,
+        "y": -75.44432830810547,
+        "z": 313.9957275390625,
+        "scale": 0.7568787932395935
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "http://localhost:8888/entityClientScripts/vendingMachineButton.js",
+    "scriptTimestamp": 1551304917740,
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{46fc2aa7-f88e-41b5-a1cc-d10d220477aa}",
+    "type": "Image",
+    "lastEdited": 1551310252946826,
+    "name": "Vending Machine Button 2",
+    "position": {
+        "x": 0.688934326171875,
+        "y": -0.0029296875,
+        "z": 0.12447278946638107
+    },
+    "dimensions": {
+        "x": 0.6010810732841492,
+        "y": 0.31466060876846313,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "created": 1551310287056135,
+    "lastEditedBy": "{5c14368d-41db-4377-b591-e0d470877dab}",
+    "parentID": "{23d6440a-7330-4a94-ba44-02596a4422fe}",
+    "queryAACube": {
+        "x": 417.7402038574219,
+        "y": -75.40811920166016,
+        "z": 314.159423828125,
+        "scale": 0.678534984588623
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "script": "http://localhost:8888/entityClientScripts/vendingMachineButton.js",
+    "imageURL": "https://hifi-content.s3.amazonaws.com/DomainContent/production/no-image.jpg",
+    "keepAspectRatio": false,
+    "textures": {
+        "tex.picture": "https://hifi-content.s3.amazonaws.com/DomainContent/production/no-image.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{0645031c-5c3a-4796-9b88-5dc4e539ec1c}",
+    "type": "Box",
+    "lastEdited": 1551310274656021,
+    "name": "Vending Machine Button 4",
+    "position": {
+        "x": 0.345977783203125,
+        "y": 0.1916961669921875,
+        "z": 0.42884624004364014
+    },
+    "dimensions": {
+        "x": 0.6317158937454224,
+        "y": 0.3431677222251892,
+        "z": 0.2367202192544937
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1551310296721298,
+    "lastEditedBy": "{5c14368d-41db-4377-b591-e0d470877dab}",
+    "parentID": "{48a5af55-3eb6-4ff4-8cfa-22382c93b513}",
+    "queryAACube": {
+        "x": 417.69921875,
+        "y": -75.8728256225586,
+        "z": 313.9957275390625,
+        "scale": 0.7568787932395935
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "http://localhost:8888/entityClientScripts/vendingMachineButton.js",
+    "scriptTimestamp": 1551304917740,
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{90dc2125-c416-436b-8736-e6628c801369}",
+    "type": "Image",
+    "lastEdited": 1551310269484587,
+    "name": "Vending Machine Button 4",
+    "position": {
+        "x": 0.68896484375,
+        "y": -0.431427001953125,
+        "z": 0.12444663047790527
+    },
+    "dimensions": {
+        "x": 0.6010810732841492,
+        "y": 0.31466060876846313,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "created": 1551310296720089,
+    "lastEditedBy": "{5c14368d-41db-4377-b591-e0d470877dab}",
+    "parentID": "{23d6440a-7330-4a94-ba44-02596a4422fe}",
+    "queryAACube": {
+        "x": 417.7402038574219,
+        "y": -75.83661651611328,
+        "z": 314.159423828125,
+        "scale": 0.678534984588623
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "script": "http://localhost:8888/entityClientScripts/vendingMachineButton.js",
+    "imageURL": "https://hifi-content.s3.amazonaws.com/DomainContent/production/no-image.jpg",
+    "keepAspectRatio": false,
+    "textures": {
+        "tex.picture": "https://hifi-content.s3.amazonaws.com/DomainContent/production/no-image.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{6c26d25b-1509-449f-82d7-beea5fb5818f}",
+    "type": "Box",
+    "lastEdited": 1551310285582772,
+    "name": "Vending Machine Button 3",
+    "position": {
+        "x": -0.3411865234375,
+        "y": 0.191680908203125,
+        "z": 0.4288671910762787
+    },
+    "dimensions": {
+        "x": 0.6317158937454224,
+        "y": 0.3431677222251892,
+        "z": 0.2367202192544937
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1551310296716222,
+    "lastEditedBy": "{5c14368d-41db-4377-b591-e0d470877dab}",
+    "parentID": "{48a5af55-3eb6-4ff4-8cfa-22382c93b513}",
+    "queryAACube": {
+        "x": 416.3744812011719,
+        "y": -76.08665466308594,
+        "z": 313.48089599609375,
+        "scale": 2.035614013671875
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "http://localhost:8888/entityClientScripts/vendingMachineButton.js",
+    "scriptTimestamp": 1551304917740,
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{23d6440a-7330-4a94-ba44-02596a4422fe}",
+    "type": "Box",
+    "lastEdited": 1551310212132598,
+    "name": "Vending Machine Button 1",
+    "position": {
+        "x": -0.341156005859375,
+        "y": 0.6201705932617188,
+        "z": 0.4288802742958069
+    },
+    "dimensions": {
+        "x": 0.6317158937454224,
+        "y": 0.3431677222251892,
+        "z": 0.2367202192544937
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1551302590947446,
+    "lastEditedBy": "{5c14368d-41db-4377-b591-e0d470877dab}",
+    "parentID": "{48a5af55-3eb6-4ff4-8cfa-22382c93b513}",
+    "queryAACube": {
+        "x": 416.3744812011719,
+        "y": -76.08665466308594,
+        "z": 313.48089599609375,
+        "scale": 2.04425048828125
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "http://localhost:8888/entityClientScripts/vendingMachineButton.js",
+    "scriptTimestamp": 1551304917740,
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{9fdf1692-2494-44a2-b12d-26e7cd8f222a}",
+    "type": "Image",
+    "lastEdited": 1551310218081727,
+    "name": "Vending Machine Button 1",
+    "position": {
+        "x": 0.0017472829204052687,
+        "y": -0.0029753276612609625,
+        "z": 0.12451142817735672
+    },
+    "dimensions": {
+        "x": 0.6010810732841492,
+        "y": 0.31466060876846313,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "created": 1551310053850618,
+    "lastEditedBy": "{5c14368d-41db-4377-b591-e0d470877dab}",
+    "parentID": "{23d6440a-7330-4a94-ba44-02596a4422fe}",
+    "queryAACube": {
+        "x": 416.3744812011719,
+        "y": -76.08665466308594,
+        "z": 313.48089599609375,
+        "scale": 2.035604953765869
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "script": "http://localhost:8888/entityClientScripts/vendingMachineButton.js",
+    "imageURL": "https://hifi-content.s3.amazonaws.com/DomainContent/production/no-image.jpg",
+    "keepAspectRatio": false,
+    "textures": {
+        "tex.picture": "https://hifi-content.s3.amazonaws.com/DomainContent/production/no-image.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{93f180be-1adc-4e99-a4e6-680094d2c59b}",
+    "type": "Image",
+    "lastEdited": 1551310281610254,
+    "name": "Vending Machine Button 3",
+    "position": {
+        "x": 0.001739501953125,
+        "y": -0.0029754638671875,
+        "z": 0.12451472878456116
+    },
+    "dimensions": {
+        "x": 0.6010810732841492,
+        "y": 0.31466060876846313,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "created": 1551310296717821,
+    "lastEditedBy": "{5c14368d-41db-4377-b591-e0d470877dab}",
+    "parentID": "{6c26d25b-1509-449f-82d7-beea5fb5818f}",
+    "queryAACube": {
+        "x": 416.3744812011719,
+        "y": -76.08665466308594,
+        "z": 313.48089599609375,
+        "scale": 2.035604953765869
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "script": "http://localhost:8888/entityClientScripts/vendingMachineButton.js",
+    "imageURL": "https://hifi-content.s3.amazonaws.com/DomainContent/production/no-image.jpg",
+    "keepAspectRatio": false,
+    "textures": {
+        "tex.picture": "https://hifi-content.s3.amazonaws.com/DomainContent/production/no-image.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{48a5af55-3eb6-4ff4-8cfa-22382c93b513}",
+    "type": "Box",
+    "lastEdited": 1551307934663384,
+    "name": "Vending Machine Base",
+    "dimensions": {
+        "x": 1.6133038997650146,
+        "y": 2.329941987991333,
+        "z": 0.9119147062301636
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1551302551007936,
+    "lastEditedBy": "{5c14368d-41db-4377-b591-e0d470877dab}",
+    "queryAACube": {
+        "x": -1.4885369539260864,
+        "y": -1.4885369539260864,
+        "z": -1.4885369539260864,
+        "scale": 2.977073907852173
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{f9786105-c5c9-461c-a35a-abb1ca99c9cf}",
+  "Version": 111
+}
