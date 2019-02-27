@@ -40,8 +40,9 @@ Tablet, Users, Vec3, Window */
 
     /* RGB VALUE TO FLOAT VALUE: Convert RGB value to float */
     var RGB_MAX = 255;
+    var NUMBER_DECIMAL_PLACES = 2;
     function rgbValueToFloat(rgbValue) {
-        return rgbValue/RGB_MAX;
+        return (rgbValue/RGB_MAX).toFixed(NUMBER_DECIMAL_PLACES);
     }
 
     // *************************************
@@ -60,36 +61,22 @@ Tablet, Users, Vec3, Window */
     var HIFI_RED = { red: 255, green: 0, blue: 16 };
     var HALF = 0.5;
     var Y_OFFSET_HEAD_TOP_TO_ENTITY_M = 0.1;
-    var OFFSET_RATIO_HEADTOP_M = 0.1;
-    var OFFSET_RATIO_HEAD_M = 0.2;
-    var OFFSET_RATIO_HIPS_M = 0.5;
     var questionMark;
     var questionMarkMaterial;
     var changingInterval;
     var parentJointIndex;
-    var yOffsetParentJointToHeadTop;
-    var offsetRatio;
     var lastDimensions = QUESTION_MARK_START_DIMENSIONS_M;
     function createQuestionMark() {
         if (questionMark) {
             return;
         }
-        var avatarHeight = MyAvatar.getHeight();
-        parentJointIndex = MyAvatar.getJointIndex("HeadTop_End");
-        print("HEAD_TOP_END");
-        offsetRatio = OFFSET_RATIO_HEADTOP_M;
+        parentJointIndex = MyAvatar.getJointIndex("Hips");
         if (parentJointIndex === -1) {
-            print("NOPE...HEAD");
-            parentJointIndex = MyAvatar.getJointIndex("Head");
-            offsetRatio = OFFSET_RATIO_HEAD_M;
+            parentJointIndex = 0;
         }
-        if (parentJointIndex === -1) {
-            print("NOPE...HIPS");
-            parentJointIndex = MyAvatar.getJointIndex("Hips");
-            offsetRatio = OFFSET_RATIO_HIPS_M;
-        }
-        yOffsetParentJointToHeadTop = offsetRatio * avatarHeight;
-        var questionMarkLocalYPosition = yOffsetParentJointToHeadTop + HALF * QUESTION_MARK_START_DIMENSIONS_M.y;
+        var entitySpawnPosition = MyAvatar.position;
+        entitySpawnPosition.y = entitySpawnPosition.y + HALF * MyAvatar.getHeight() + HALF * 
+            QUESTION_MARK_START_DIMENSIONS_M.y + Y_OFFSET_HEAD_TOP_TO_ENTITY_M;
         var questionMarkProperties = {
             name: QUESTION_MARK_PROPERTY_NAME,
             type: "Model",
@@ -98,7 +85,7 @@ Tablet, Users, Vec3, Window */
             parentID: MyAvatar.sessionUUID,
             parentJointIndex: parentJointIndex,
             localRotation: Quat.fromVec3Degrees({ x: 0, y: 180, z: 0 }),
-            localPosition: { x: 0, y: questionMarkLocalYPosition, z: 0 },
+            position: entitySpawnPosition,
             dimensions: QUESTION_MARK_START_DIMENSIONS_M,
             grab: { grabbable: false },
             collisionless: true
@@ -159,18 +146,15 @@ Tablet, Users, Vec3, Window */
             materialData.materials.emissive.blue = rgbValueToFloat(materialData.materials.albedo.blue);
             Entities.editEntity(questionMarkMaterial, { materialData: JSON.stringify(materialData)});
             if (changingInterval && growing) {
-                avatarHeight = MyAvatar.getHeight();
                 var questionMarkDimensions = Entities.getEntityProperties(questionMark, 'dimensions').dimensions;
                 if (questionMarkDimensions.y < MAX_HEIGHT_M) {
                     questionMarkDimensions = Vec3.multiply(questionMarkDimensions, GROWTH_RATIO);
-                    print("yOffsetParentJointToHeadTop: ", yOffsetParentJointToHeadTop);
-                    print("Y_OFFSET_HEAD_TOP_TO_ENTITY_M: ", Y_OFFSET_HEAD_TOP_TO_ENTITY_M);
-                    print("HALF * questionMarkDimensions.y: ", HALF * questionMarkDimensions.y);
-                    var newLocalPositionY = yOffsetParentJointToHeadTop + Y_OFFSET_HEAD_TOP_TO_ENTITY_M + (HALF * questionMarkDimensions.y);
-                    print("newLocalPositionY: ", newLocalPositionY);
+                    var entitySpawnPosition = MyAvatar.position;
+                    entitySpawnPosition.y = entitySpawnPosition.y + HALF * MyAvatar.getHeight() + HALF * 
+                        questionMarkDimensions.y + Y_OFFSET_HEAD_TOP_TO_ENTITY_M;
                     Entities.editEntity(questionMark, { 
                         dimensions: questionMarkDimensions,
-                        localPosition: { x: 0, y: newLocalPositionY, z: 0 }
+                        position: entitySpawnPosition
                     });
                 } else {
                     growing = false;
@@ -339,13 +323,13 @@ Tablet, Users, Vec3, Window */
 
     /* AVATAR SCALE CHANGED: Reset question mark entity back to appropriate size */
     function avatarScaleChanged() {
-        var avatarHeight = MyAvatar.getHeight();
-        yOffsetParentJointToHeadTop = offsetRatio * avatarHeight;
-        var questionMarkHeight = Entities.getEntityProperties(questionMark, 'dimensions').dimensions.y;
-        var newLocalPosition = yOffsetParentJointToHeadTop + Y_OFFSET_HEAD_TOP_TO_ENTITY_M + HALF * questionMarkHeight;
+        var questionMarkDimensions = Entities.getEntityProperties(questionMark, 'dimensions').dimensions;
+        var entitySpawnPosition = MyAvatar.position;
+        entitySpawnPosition.y = entitySpawnPosition.y + HALF * MyAvatar.getHeight() + HALF * 
+            questionMarkDimensions.y + Y_OFFSET_HEAD_TOP_TO_ENTITY_M;
         Entities.editEntity(questionMark, { 
             dimensions: lastDimensions,
-            localPosition: { x: 0, y: newLocalPosition, z: 0 }
+            position: entitySpawnPosition
         });
     }
 
@@ -381,7 +365,8 @@ Tablet, Users, Vec3, Window */
     var button = tablet.addButton({
         text: 'QUESTION',
         icon: Script.resolvePath('resources/icons/question-i.png'),
-        activeIcon: Script.resolvePath('resources/icons/question-a.png')
+        activeIcon: Script.resolvePath('resources/icons/question-a.png'),
+        sortOrder: 1
     });
     adminStatusCheck();
     Users.canKickChanged.connect(adminStatusCheck);
