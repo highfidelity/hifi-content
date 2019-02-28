@@ -106,7 +106,7 @@ TextHelper.prototype.getTotalTextLength =
         var defaultTextLength = lengthArray.reduce(function(prev, curr){
             return prev + curr;
         }, 0);
-        log(defaultTextLength);
+        // log(defaultTextLength);
         this.adjustForScale(defaultTextLength);
 
         return this.totalTextLength;

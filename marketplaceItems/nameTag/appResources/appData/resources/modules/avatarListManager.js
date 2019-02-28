@@ -1,6 +1,7 @@
 var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
 var entityProps = Script.require('./defaultOverlayProps.js?' + Date.now());
+var backgroundProps = Script.require('./defaultBackgroundProps.js?' + Date.now());
 var textHelper = new (Script.require('./textHelper.js?' + Date.now()));
 var request = Script.require('request').request;
 var X = 0;
@@ -8,6 +9,8 @@ var Y = 1;
 var Z = 2;
 
 var _this;
+
+
 
 function AvatarListManager(){
     _this = this;
@@ -35,13 +38,18 @@ function destroy(){
 
 // Add a user to the manager
 function add(uuid, intersection){
+    log("intersection", intersection);
     if (!_this.avatars[uuid]) {
         _this.avatars[uuid] = {
             avatarInfo: null,
             localEntityMain: new LocalEntity('local')
                 .add(entityProps),
+            localEntityMainBackground: new LocalEntity('local')
+                .add(backgroundProps),
             localEntitySub: new LocalEntity('local')
                 .add(entityProps),
+            localEntitySublBackground: new LocalEntity('local')
+                .add(backgroundProps),
             intersection: intersection.intersection, 
             lastDistance: null,
             previousDistance: null,
@@ -49,6 +57,7 @@ function add(uuid, intersection){
             initialDistance: null,
             mainInitialDimensions: null,
             subInitialDimensions: null,
+            previousName: null,
             created: null
         };
         _this.getInfo(uuid);
@@ -62,70 +71,43 @@ function add(uuid, intersection){
     return _this;
 }
 
-var DESTROY = true;
-var HIDE = false;
-function shouldDestoryOrHide(uuid){
-    var avatar = _this.avatars[uuid];
-    if (avatar) {
-        _this.removeOverlay(uuid, HIDE);
-    } else {
-        _this.removeOverlay(uuid, DESTROY);
-    }
-}
 
-var CREATE = true;
-var SHOW = false;
-function shouldShowOrCreate(uuid, intersection){
-    log("should show or create")
-    var localEntityMainID = _this.avatars[uuid].localEntityMain.id;
-    var localEntitySubID = _this.avatars[uuid].localEntitySub.id;
-    log("localEntityMainID", localEntityMainID);
-    if (localEntityMainID) {
-        log("should show");
-        _this.makeMainName(uuid, intersection, SHOW);
-    } else {
-        log("should create");
-        _this.makeMainName(uuid, intersection, CREATE);
-    }
+// Remove the avatar from the list
+function remove(uuid){
+    shouldDestoryOrHide(uuid);
 
-    if (localEntityMainID && localEntitySubID) {
-        _this.makeSubName(uuid, SHOW);
-    } else if (localEntityMainID) {
-        _this.makeSubName(uuid, CREATE);
-    }
+    delete _this.selectedAvatars[uuid];
+    shouldToggleInterval();
+    
+    return _this;
 }
 
 
-function shouldToggleInterval(){
-    var currentNumberOfAvatarsSelected = Object.keys(_this.selectedAvatars).length;
-
-    if (currentNumberOfAvatarsSelected === 0 && _this.redrawTimeout) {
-        toggleInterval();
-        return;
+// Remove all the current overlays
+function removeAllOverlays(){
+    for (var uuid in _this.selectedAvatars) {
+        _this.removeOverlay(uuid);
+        delete _this.selectedAvatars[uuid];
     }
 
-    if (currentNumberOfAvatarsSelected > 0 && !_this.redrawTimeout) {
-        toggleInterval();
-        return; 
+    return _this;
+}
+
+// Remove a single overlay
+function removeOverlay(uuid, shouldDestory){
+    var type = shouldDestory ? 'destroy' : 'hide';
+
+    _this.avatars[uuid].localEntityMain[type]();
+    _this.avatars[uuid].localEntityMainBackground[type]();
+    if (_this.avatars[uuid].localEntitySub) {
+        _this.avatars[uuid].localEntitySub[type]();
     }
+
+    return _this;
 }
 
 
-function handleUUIDChanged(){
-
-}
-
-
-// makes sure clear interval exists before changing.
-function maybeClearInterval(){
-    if (_this.redrawTimeout) {
-        Script.clearInterval(_this.redrawTimeout);
-        _this.redrawTimeout = null;
-    }
-}
-
-
-var Z_SIZE = 0.1;
+var Z_SIZE = 1;
 var SUB_OFFSET = -0.175;
 var MAIN_SCALER = 0.75;
 var SUB_SCALER = 0.55;
@@ -182,22 +164,221 @@ function calculateInitialProperties(uuid, type) {
     };
 }
 
-function getDistance(avatar) {
-    var eye = Camera.position;
-    var target = avatar.avatarInfo.position;
 
-    avatar.previousDistance = avatar.currentDistance;
-    avatar.currentDistance = Vec3.distance(target, eye);
-
-    return avatar.currentDistance;
+function handleSelect(uuid, intersection) {
+    if (uuid in _this.selectedAvatars) {
+        _this.remove(uuid);
+    } else {
+        _this.add(uuid, intersection);
+    }    
 }
 
-var REDRAW_TIMEOUT = 25;
-function makeMainName(uuid, intersection, shouldCreate){
-    log("made it to makeMainName")
+
+// Handler for the username call
+function handleUserName(uuid, username){
+    log("in handle user name");
+    if (username) {
+        var avatar = _this.avatars[uuid];
+        var avatarInfo = avatar.avatarInfo;
+        avatarInfo.username = username;
+        _this.getInfoAboutUser(username);
+        _this.makeSubName(uuid, CREATE);
+        _this.getInfoAboutUser(uuid);
+    }
+}
+
+
+function handleUUIDChanged(){
+
+}
+
+
+var FRIEND_BACKGROUND = [150, 255, 0];
+function handleFriend(uuid, username) {
+    log("handle friend");
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
+    avatarInfo.username = username;
+
+    var localEntityMain = avatar.localEntityMain;
+    var localEntitySub = avatar.localEntitySub;
+    
+    localEntityMain
+        .edit("textColor", FRIEND_BACKGROUND);
+
+    if (localEntitySub.id){         
+        localEntitySub
+            .edit("backgroundColor", FRIEND_BACKGROUND);
+    } else {
+        _this.makeSubName(uuid, CREATE);
+                 
+        localEntitySub
+            .edit("backgroundColor", FRIEND_BACKGROUND);
+
+    }
+}
+
+
+// Handle redrawing if needed
+function reDraw(uuid, type){
+    var avatar = _this.avatars[uuid];
+    var localEntity;
+    var initialDimensions = null;
+    var initialDistance = null;
+    var currentDistance = null;
+    var newDimensions = null;
+    var lineHeight = null;
+    var adjustedScaler = null;
+    var localPosition = null;
+
+    initialDistance = avatar.initialDistance;
+    currentDistance = avatar.currentDistance;
+    
+    if (type === "main") {
+        localEntity = avatar.localEntityMain;
+        initialDimensions = avatar.mainInitialDimensions;
+    } else {
+        localEntity = avatar.localEntitySub;
+        initialDimensions = avatar.subInitialDimensions;
+    }
+
+    // log("initial dimensions", initialDimensions)
+    // log("initialDistance", initialDistance)
+    // log("currentDistance", currentDistance)
+
+    newDimensions = [
+        (initialDimensions[X] / initialDistance) * currentDistance,
+        (initialDimensions[Y] / initialDistance) * currentDistance,
+        (initialDimensions[Z] / initialDistance) * currentDistance
+    ];
+
+    lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
+
+    adjustedScaler = currentDistance * DISTANCE_SCALER;
+
+    localEntity
+        .add("lineHeight", lineHeight)
+        .add("dimensions", newDimensions);
+
+    if (type === "sub") {
+        localPosition =
+            [0, SUB_OFFSET * adjustedScaler * SUB_SCALER, 0];
+        localEntity
+            .add("localPosition", localPosition);
+    }
+
+    // log('running sync')
+    localEntity
+        .sync();
+}
+
+
+function maybeDelete(uuid){
+    // log("in maybe delete");
+    var avatar = _this.avatars[uuid];
+    var createdTime = avatar.created;
+    var currentTime = Date.now();
+    var timeSinceCreated = currentTime - createdTime;
+
+    if (timeSinceCreated > DELETE_TIMEOUT_MS) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+// makes sure clear interval exists before changing.
+function maybeClearInterval(){
+    if (_this.redrawTimeout) {
+        Script.clearInterval(_this.redrawTimeout);
+        _this.redrawTimeout = null;
+    }
+}
+
+
+function updateName(uuid, name){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
     var localEntityMain = avatar.localEntityMain;
+    var localEntityMainBackground = avatar.localEntityMainBackground;
+    var calculatedProps = null;
+    var distance = null;
+    var scaledDimensions = null;
+    var lineHeight = null;
+
+    localEntityMain.add("text", avatarInfo.displayName);
+    calculatedProps = _this.calculateInitialProperties(uuid, "main");
+    lineHeight = calculatedProps.lineHeight;
+    scaledDimensions = calculatedProps.scaledDimensions;
+    distance = calculatedProps.distance;
+    avatar.initialDistance = distance;
+    avatar.mainInitialDimensions = scaledDimensions;
+    avatar.previousName = avatarInfo.displayName;
+
+    localEntityMain
+        .add("lineHeight", lineHeight)
+        .add("dimensions", scaledDimensions)
+        .sync();
+    localEntityMainBackground
+        .add("lineHeight", lineHeight)
+        .add("dimensions", scaledDimensions)
+        .sync();
+}
+
+var MAX_DISTANCE_METERS = 0.0;
+var DELETE_TIMEOUT_MS = 20000;
+function maybeRedraw(uuid){
+    _this.getInfo(uuid);
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
+    
+    if (_this.maybeDelete(uuid)) {
+        _this.remove(uuid);
+
+        return;
+    }
+
+    _this.getDistance(avatar);
+    var distanceDelta = Math.abs(avatar.currentDistance - avatar.previousDistance);
+
+    if (distanceDelta < MAX_DISTANCE_METERS){
+        return;
+    }
+
+    if (avatar.previousName !== avatarInfo.displayName) {
+        log("previous name different");
+        updateName(uuid, avatarInfo.displayName);
+    } else {
+        _this.reDraw(uuid, "main");
+    }
+    
+    if (avatarInfo.username) {
+        _this.reDraw(uuid, "sub");
+    }
+}
+
+
+function maybeRemove(uuid) {
+    if (uuid in _this.avatars) {
+        _this.remove(uuid);
+    }
+}
+
+function checkAllSelectedForRedraw(){
+    for (var avatar in _this.selectedAvatars) {
+        maybeRedraw(avatar);
+    }
+}
+
+
+var REDRAW_TIMEOUT = 100;
+function makeMainName(uuid, intersection, shouldCreate){
+    // log("made it to makeMainName")
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
+    var localEntityMain = avatar.localEntityMain;
+    var localEntityMainBackground = avatar.localEntityMainBackground;
     var calculatedProps = null;
     var position = null;
     var distance = null;
@@ -206,9 +387,9 @@ function makeMainName(uuid, intersection, shouldCreate){
 
     position = intersection.intersection;
     avatar.created = Date.now();
-    
+    avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
     if (shouldCreate){
-        log("creating");
+        // log("creating");
         localEntityMain.add("text", avatarInfo.displayName);
 
         calculatedProps = _this.calculateInitialProperties(uuid, "main");
@@ -217,22 +398,35 @@ function makeMainName(uuid, intersection, shouldCreate){
         distance = calculatedProps.distance;
         avatar.initialDistance = distance;
         avatar.mainInitialDimensions = scaledDimensions;
-    
+        avatar.previousName = avatarInfo.displayName;
         localEntityMain
             .add("lineHeight", lineHeight)
             .add("dimensions", scaledDimensions)
             .add("position", position)
             .add("parentID", uuid)
             .create(true);
+        log("#### orientation", localEntityMain.get("rotation", true));
+        
+        localEntityMainBackground
+            .add("lineHeight", lineHeight)
+            .add("dimensions", scaledDimensions)
+            .add("position", position)
+            .add("parentID", uuid)
+            .add("rotation", localEntityMain.get("rotation", true))
+            .add("localRotation", Quat.fromPitchYawRollDegrees(300,0,0))
+            .create(true);
+
 
     } else {
-        log("showing");
+        // log("showing");
         localEntityMain.edit("position", position);
+        localEntityMainBackground.edit("position", position);
         _this.getInfo(uuid);
         _this.getDistance(avatar);
         _this.reDraw(uuid, "main");
         Script.setTimeout(function(){
             localEntityMain.show();
+            localEntityMainBackground.show();
         }, REDRAW_TIMEOUT);
     }
 
@@ -285,130 +479,6 @@ function makeSubName(uuid, shouldCreate){
 }
 
 
-function handleSelect(uuid, intersection) {
-    if (uuid in _this.selectedAvatars) {
-        _this.remove(uuid);
-    } else {
-        _this.add(uuid, intersection);
-    }    
-}
-
-
-// Handle redrawing if needed
-function reDraw(uuid, type){
-    var avatar = _this.avatars[uuid];
-    var localEntity;
-    var initialDimensions = null;
-    var initialDistance = null;
-    var currentDistance = null;
-    var newDimensions = null;
-    var lineHeight = null;
-    var adjustedScaler = null;
-    var localPosition = null;
-
-    initialDistance = avatar.initialDistance;
-    currentDistance = avatar.currentDistance;
-    
-    if (type === "main") {
-        localEntity = avatar.localEntityMain;
-        initialDimensions = avatar.mainInitialDimensions;
-    } else {
-        localEntity = avatar.localEntitySub;
-        initialDimensions = avatar.subInitialDimensions;
-    }
-
-    log("initial dimensions", initialDimensions)
-    log("initialDistance", initialDistance)
-    log("currentDistance", currentDistance)
-
-    newDimensions = [
-        (initialDimensions[X] / initialDistance) * currentDistance,
-        (initialDimensions[Y] / initialDistance) * currentDistance,
-        (initialDimensions[Z] / initialDistance) * currentDistance
-    ];
-
-    lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
-
-    adjustedScaler = currentDistance * DISTANCE_SCALER;
-
-    localEntity
-        .add("lineHeight", lineHeight)
-        .add("dimensions", newDimensions);
-
-    if (type === "sub") {
-        localPosition =
-            [0, SUB_OFFSET * adjustedScaler * SUB_SCALER, 0];
-        localEntity
-            .add("localPosition", localPosition);
-    }
-
-    log('running sync')
-    localEntity
-        .sync();
-}
-
-
-var MAX_DISTANCE_METERS = 0.01;
-var DELETE_TIMEOUT_MS = 1000;
-function maybeRedraw(uuid){
-    _this.getInfo(uuid);
-    var avatar = _this.avatars[uuid];
-    var avatarInfo = avatar.avatarInfo;
-    
-    if (_this.maybeDelete(uuid)) {
-        _this.removeOverlay(uuid);
-
-        return;
-    }
-
-    _this.getDistance(avatar);
-    var distanceDelta = Math.abs(avatar.currentDistance - avatar.previousDistance);
-
-    if (distanceDelta < MAX_DISTANCE_METERS){
-        return;
-    }
-
-    _this.reDraw(uuid, "main");
-    
-    if (avatarInfo.username) {
-        _this.reDraw(uuid, "sub");
-    }
-}
-
-function maybeDelete(uuid){
-    log("in maybe delete");
-    var avatar = _this.avatars[uuid];
-    var createdTime = avatar.created;
-    var currentTime = Date.now();
-    var timeSinceCreated = currentTime - createdTime;
-
-    if (timeSinceCreated > DELETE_TIMEOUT_MS) {
-        return true;
-    } else {
-        return false;
-    }
-
-}
-
-function checkAllSelectedForRedraw(){
-    for (var avatar in _this.selectedAvatars) {
-        maybeRedraw(avatar);
-    }
-}
-
-
-// Turn off and on the redraw check
-var INTERVAL_CHECK_MS = 100;
-function toggleInterval(){
-    if (_this.redrawTimeout){
-        maybeClearInterval();
-    } else {
-        _this.redrawTimeout = 
-            Script.setInterval(_this.checkAllSelectedForRedraw, INTERVAL_CHECK_MS);
-    }
-}
-
-
 // Request the username
 function getUN(uuid){
     if (_this.avatars[uuid].avatarInfo.username) {
@@ -416,9 +486,7 @@ function getUN(uuid){
     } else if (Users.canKick) {
         Users.requestUsernameFromID(uuid);
     } else {
-        // query metavers
-        // iterate location.nodeid matches uuid
-        // data.users[n].location.node_id;
+        _this.getInfoAboutUser(uuid);
     }
 }
 
@@ -435,71 +503,14 @@ function getInfo(uuid){
 }
 
 
-// Remove the avatar from the list
-function remove(uuid){
-    shouldDestoryOrHide(uuid);
+function getDistance(avatar) {
+    var eye = Camera.position;
+    var target = avatar.avatarInfo.position;
 
-    delete _this.selectedAvatars[uuid];
-    shouldToggleInterval();
-    
-    return _this;
-}
+    avatar.previousDistance = avatar.currentDistance;
+    avatar.currentDistance = Vec3.distance(target, eye);
 
-
-// Reset the avatar list
-function reset(){
-    _this.removeAllOverlays();
-    _this.avatars = {};
-    shouldToggleInterval();
-
-    return _this;
-}
-
-
-// Remove all the current overlays
-function removeAllOverlays(){
-    for (var uuid in _this.selectedAvatars) {
-        _this.removeOverlay(uuid);
-        delete _this.selectedAvatars[uuid];
-    }
-
-    return _this;
-}
-
-
-// Remove a single overlay
-function removeOverlay(uuid, shouldDestory){
-    var type = shouldDestory ? 'destroy' : 'hide';
-
-    _this.avatars[uuid].localEntityMain[type]();
-    if (_this.avatars[uuid].localEntitySub) {
-        _this.avatars[uuid].localEntitySub[type]();
-    }
-
-    return _this;
-}
-
-
-// Handler for the username call
-function handleUserName(uuid, username){
-    if (username) {
-        var avatar = _this.avatars[uuid];
-        var avatarInfo = avatar.avatarInfo;
-        avatarInfo.username = username;
-        _this.getInfoAboutUser(username);
-        _this.makeSubName(uuid, CREATE);
-    }
-}
-
-
-var FRIEND_BACKGROUND = [150, 255, 0];
-function handleFriend(uuid){
-    var localEntityMain = _this.avatars[uuid].localEntityMain;
-    var localEntitySub = _this.avatars[uuid].localEntitySub;
-    localEntityMain
-        .edit("textColor", FRIEND_BACKGROUND);
-    localEntitySub
-        .edit("backgroundColor", FRIEND_BACKGROUND);
+    return avatar.currentDistance;
 }
 
 
@@ -517,17 +528,96 @@ function requestJSON(url, callback) {
 
 
 var METAVERSE_BASE = Account.metaverseServerURL;
+var REG_EX_FOR_ID_FORMATTING = /[\{\}]/g;
 function getInfoAboutUser(uuid) {
+    log("running get info about users");
     var url = METAVERSE_BASE + '/api/v1/users?filter=connections&status=online';
     requestJSON(url, function (connectionsData) {
         var users = connectionsData.users;
         for (var i = 0; i < users.length; i++) {
             var user = users[i];
-            if (user.location && user.location.node_id === uuid) {
+            if (user.location && user.location.node_id === uuid.replace(REG_EX_FOR_ID_FORMATTING, "")) { 
                 _this.handleFriend(uuid, user.username);
+                break;
             }
         }
     });
+}
+
+
+
+// Reset the avatar list
+function reset(){
+    _this.removeAllOverlays();
+    _this.avatars = {};
+    shouldToggleInterval();
+
+    return _this;
+}
+
+
+var CREATE = true;
+var SHOW = false;
+function shouldShowOrCreate(uuid, intersection){
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
+
+    // log("should show or create")
+    var localEntityMainID = avatar.localEntityMain.id;
+    var localEntitySubID = avatar.localEntitySub.id;
+    // log("localEntityMainID", localEntityMainID);
+    if (localEntityMainID) {
+        // log("should show");
+        _this.makeMainName(uuid, intersection, SHOW);
+    } else {
+        // log("should create");
+        _this.makeMainName(uuid, intersection, CREATE);
+    }
+
+    if (localEntityMainID && localEntitySubID) {
+        _this.makeSubName(uuid, SHOW);
+    } else if (localEntityMainID && avatarInfo.username) {
+        _this.makeSubName(uuid, CREATE);
+    }
+}
+
+
+var DESTROY = true;
+var HIDE = false;
+function shouldDestoryOrHide(uuid){
+    var avatar = _this.avatars[uuid];
+    if (avatar) {
+        _this.removeOverlay(uuid, HIDE);
+    } else {
+        _this.removeOverlay(uuid, DESTROY);
+    }
+}
+
+
+function shouldToggleInterval(){
+    var currentNumberOfAvatarsSelected = Object.keys(_this.selectedAvatars).length;
+
+    if (currentNumberOfAvatarsSelected === 0 && _this.redrawTimeout) {
+        toggleInterval();
+        return;
+    }
+
+    if (currentNumberOfAvatarsSelected > 0 && !_this.redrawTimeout) {
+        toggleInterval();
+        return; 
+    }
+}
+
+
+// Turn off and on the redraw check
+var INTERVAL_CHECK_MS = 100;
+function toggleInterval(){
+    if (_this.redrawTimeout){
+        maybeClearInterval();
+    } else {
+        _this.redrawTimeout = 
+            Script.setInterval(_this.checkAllSelectedForRedraw, INTERVAL_CHECK_MS);
+    }
 }
 
 
@@ -535,39 +625,37 @@ AvatarListManager.prototype = {
     create: create,
     destroy: destroy,
     add: add, // uuid, intersection
+    remove: remove, // uuid
+    removeAllOverlays: removeAllOverlays,
+    removeOverlay: removeOverlay, // uuid
     calculateInitialProperties: calculateInitialProperties,
     handleSelect: handleSelect, // uuid, intersection
     handleUserName: handleUserName, // uuid, username
     handleUUIDChanged: handleUUIDChanged, // ## todo
     handleFriend: handleFriend, // uuid
-    checkAllSelectedForRedraw: checkAllSelectedForRedraw,
     reDraw: reDraw, // uuid, type
-    maybeRedraw: maybeRedraw, // uuid
-    // maybeRemove: maybeRemove, // uuid
-    makeMainName: makeMainName, // uuid
-    makeSubName: makeSubName, // uuid
     maybeDelete: maybeDelete,
     maybeClearInterval: maybeClearInterval, // ## todo
+    maybeRedraw: maybeRedraw, // uuid
+    maybeRemove: maybeRemove, // uuid
+    checkAllSelectedForRedraw: checkAllSelectedForRedraw,
+    makeMainName: makeMainName, // uuid
+    makeSubName: makeSubName, // uuid
     getUN: getUN, // uuid
     getInfo: getInfo, // uuid
     getDistance: getDistance,
-    remove: remove, // uuid
-    reset: reset,
-    removeAllOverlays: removeAllOverlays,
-    removeOverlay: removeOverlay, // uuid
     getInfoAboutUser: getInfoAboutUser, // uuid
+    reset: reset,
     shouldShowOrCreate: shouldShowOrCreate
 };
 
 module.exports = AvatarListManager;
 
 
+/*
 
 var DEFAULT_LEFT_MARGIN = 0.070;
 
-function maybeRemove(uuid) {
-    if (uuid in _this.avatars) {
-        _this.remove(uuid);
-    }
-}
+
+*/
 

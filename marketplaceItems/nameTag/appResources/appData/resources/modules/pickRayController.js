@@ -10,6 +10,7 @@ function PickRayController(){
     _this.mappingName = null;
     _this.mapping = null;
     _this._boundMousePressHandler = null;
+    _this.shouldDoublePress = null;
 }
 
 PickRayController.prototype.create =
@@ -53,6 +54,13 @@ PickRayController.prototype.setType =
 
         return _this;
     };
+
+PickRayController.prototype.setShouldDoublePress =
+    function(shouldDoublePress){
+        _this.shouldDoublePress = shouldDoublePress;
+
+        return _this;
+    };
 PickRayController.prototype.setMapName =
     function (name) {
         _this.mappingName = name;
@@ -88,6 +96,8 @@ PickRayController.prototype.pickRayTypeHandler =
 // Handle the interaction when in desktop and a mouse is pressed
 PickRayController.prototype.mousePressHandler = 
     function mousePressHandler(event) {
+        console.log("single press heard");
+        // log("mouse event:", event);
         if (HMD.active || !event.isLeftButton) {
             return;
         }
@@ -100,6 +110,12 @@ PickRayController.prototype.mousePressHandler =
             _this.eventHandler(_this.currentPick, _this.intersection);
         }
     };
+
+PickRayController.prototype.doublePressHandler = 
+    function doublePressHandler(event) {
+        console.log("double press heard");
+        _this.mousePressHandler(event);
+    };    
 // Returns the right UUID based on hand triggered
 PickRayController.prototype.getUUIDFromLaser = 
     function (hand) {
@@ -183,6 +199,9 @@ PickRayController.prototype.getControllerWorldLocation =
 PickRayController.prototype.enable = 
     function(){
         Controller.mousePressEvent.connect(_this.mousePressHandler);
+        if (_this.shouldDoublePress){
+            Controller.mouseDoublePressEvent.connect(_this.doublePressHandler);
+        }
         Controller.enableMapping(_this.mappingName);
 
         return _this;
@@ -190,6 +209,9 @@ PickRayController.prototype.enable =
 PickRayController.prototype.disable = 
     function(){
         Controller.mousePressEvent.disconnect(_this.mousePressHandler);
+        if (_this.shouldDoublePress){
+            Controller.mouseDoublePressEvent.disconnect(_this.doublePressHandler);
+        }
         Controller.disableMapping(_this.mappingName);
 
         return _this;
@@ -206,3 +228,29 @@ PickRayController.prototype.registerEventHandler =
     };
 
 module.exports = PickRayController;
+
+/*
+
+PickRayController.prototype.enable = 
+    function(){
+        if (!controllerConnected) {
+            controllerConnected = true;
+            Controller.mousePressEvent.connect(_this.mousePressHandler);
+            Controller.enableMapping(_this.mappingName);
+            return _this;
+        }
+        return -1;
+    };
+PickRayController.prototype.disable = 
+    function(){
+        if (controllerConnected) {
+            controllerConnected = false;
+            Controller.mousePressEvent.disconnect(_this.mousePressHandler);
+            Controller.disableMapping(_this.mappingName);
+            return _this;
+        }
+        return -1;
+    };
+
+
+*/

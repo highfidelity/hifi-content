@@ -40,6 +40,7 @@
         .registerEventHandler(selectAvatar)
         .setType("avatar")
         .setMapName("hifi_nametags")
+        .setShouldDoublePress(true)
         .create();
 
     function selectAvatar(uuid, intersection) {
