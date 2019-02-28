@@ -12,25 +12,22 @@
 // color picker by xiaokaike | http://xiaokaike.github.io/vue-color/ | https://github.com/xiaokaike/vue-color
 
 (function () {
-
     // Events 
     // !important Add APP_NAME to each event
     var EVENT_BRIDGE_OPEN_MESSAGE = CONFIG.APP_NAME + CONFIG.EVENT_BRIDGE_OPEN_MESSAGE,
         EVENT_CHANGE_TAB = CONFIG.APP_NAME + CONFIG.EVENT_CHANGE_TAB,
-
-        // Info tab events
         EVENT_UPDATE_AVATAR = CONFIG.APP_NAME + CONFIG.EVENT_UPDATE_AVATAR,
         EVENT_UPDATE_MATERIAL = CONFIG.APP_NAME + CONFIG.EVENT_UPDATE_MATERIAL,
         EVENT_UPDATE_BLENDSHAPE = CONFIG.APP_NAME + CONFIG.EVENT_UPDATE_BLENDSHAPE,
         EVENT_UPDATE_FLOW = CONFIG.APP_NAME + CONFIG.EVENT_UPDATE_FLOW,
-
         STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
 
     // Debug
     var DEBUG = false;
 
-    // #region Tabs and Tab Layout
+    // #region TABS AND TAB LAYOUT
 
+    // Entry point to page
     Vue.component('page-content', {
         props: ['dynamicdata', 'staticdata'],
         template: /* html */ `
@@ -47,6 +44,8 @@
         `
     })
 
+
+    // Tab bar
     Vue.component('navigation', {
         props: ['tablist', 'dynamicdata'],
         template: /* html */ `
@@ -68,6 +67,7 @@
         `
     })
 
+    // Each tab in navigation
     Vue.component('tab', {
         props: ['tabname', 'activetabname', 'isavienabled'],
         methods: {
@@ -126,6 +126,9 @@
         `
     })
 
+
+    // Entry point for the content to each tab
+    // Loops through the tab data to create content
     Vue.component('tab-content-container', {
         props: ['staticdata', 'dynamicdata'],
         computed: {
@@ -157,6 +160,8 @@
         `
     })
 
+
+    // Delegate each tab to the named component
     Vue.component('tab-content', {
         props: ['tabdata', 'tabid', 'isavienabled', 'activetabname'],
         computed: {
@@ -190,8 +195,9 @@
     // #endregion Tabs and Tab Layout
  
 
-    // #region Info tab
+    // #region INFO TAB
 
+    // Info tab content container
     Vue.component('info-tab', {
         props: ['isavienabled'],
         methods: {
@@ -260,6 +266,7 @@
     })
 
     
+    // Called in the info tab
     Vue.component('modal-save-avatar', {
         props: ["close"],
         methods: {
@@ -292,7 +299,7 @@
         },
         data() {
             return {
-                withoutSavingText: "No, I'd like to change my avatar without saving"
+                withoutSavingText: "No, do not favorite my avatar"
             };
         },
         template: /* html */ `
@@ -333,11 +340,12 @@
         `
     })
 
-    // #endregion Info tab
+    // #endregion INFO TAB
 
 
-    // #region Material tab components
+    // #region MATERIAL TAB
 
+    // Material tab content container
     Vue.component('material-tab', {
         props: ['dynamic', 'static'],
         methods: {
@@ -427,6 +435,7 @@
         `
     })
 
+    // Each material property is delegated to the proper component
     Vue.component('material-property-container', {
         props: ['property', 'dynamic', "static"],
         methods: {
@@ -504,6 +513,7 @@
         `
     })
 
+    // Material slider component
     Vue.component('material-slider', {
         props: ['propertyInfo', 'updateproperty', 'defaultvalue'],
         methods: {
@@ -539,6 +549,8 @@
         `
     })
 
+
+    // Material map component
     Vue.component('material-map', { 
         props: ['propertyInfo', 'updateproperty', 'iscolor' ],
         methods:{
@@ -566,6 +578,8 @@
         `
     })
 
+
+    // Material color component
     Vue.component('material-color-picker', {
         props: ['propertyInfo', 'updateproperty'],
         methods: {
@@ -606,7 +620,7 @@
 
                         <jscolor
                             :colorpickerid="colorElementIds"
-                            :value="propertyInfo.value"
+                            :value="propertyInfo.value ? propertyInfo.value : 'N/A'"
                             :updatecolorvalue="updateValue"
                             :cancelcolor="setColorToNA"
                         ></jscolor>
@@ -626,6 +640,7 @@
     })
 
 
+    // Cancels the color component
     Vue.component('cancel-x', {
         props: ['onclick', 'isdisabled'],
         methods: {
@@ -648,6 +663,7 @@
     })
 
 
+    // Used in the material color component
     // JSColor picker made for Vue.js by mudream4869
     // https://gist.github.com/mudream4869/d956736a96bac2a89155a0c416a0ac35
     Vue.component('jscolor', {
@@ -695,10 +711,13 @@
             />
         `
     });
-    // #endregion material tab components
+
+    // #endregion MATERIAL TAB
 
 
-    // #region Blendshapes tab
+    // #region BLENDSHAPES TAB
+
+    // Hosts blendshape data
     Vue.component('blendshapes-tab', {
         props: ['dynamic', 'static'],
         methods: {
@@ -749,10 +768,13 @@
             </div>
         `
     })
-    // #endregion Blendshapes tab
+
+    // #endregion BLENDSHAPES TAB
 
 
-    // #region Flow tab
+    // #region FLOW TAB
+    
+    // Hosts flow tab and creates sliders
     Vue.component('flow-tab', {
         props: ['dynamic', 'static'],
         data() {
@@ -818,10 +840,13 @@
             </div>
         `
     })
-    // #endregion Flow tab
+
+    // #endregion FLOW TAB
+
 
     // #region EDIT COMPONENTS
 
+    // Slider
     Vue.component('slider', {
         props: [
             'title', 
@@ -906,6 +931,8 @@
         `
     })
 
+
+    // Title used in each tab content
     Vue.component('title-list', {
         props: ['title', 'items'],
         template: /* html */ `
@@ -920,6 +947,8 @@
         `
     })
 
+
+    // Buttons used in app
     Vue.component('button-big', {
         props: ['text', 'onclick', 'classes', 'isdisabled', "selectedbutton", "onclickvalue"],
         computed: {
@@ -948,6 +977,8 @@
         `
     })
 
+
+    // Row of buttons with title
     Vue.component('options-row-buttons', {
         props: ['title', 'onclick', 'buttonlist', "selectedbutton"],
         template: /* html */ `
@@ -969,12 +1000,14 @@
         `
     })
 
+
+    // Drop down menu
     // items are in the following format 
     // { 
     //   name: "Title of Dropdown", 
     //   value: what you want to pass into onSelect
     //   index: index in list
-    // }
+    // }  
     Vue.component('drop-down', {
         props: ["items", "selectedItemIndex", "selectItem"],
         methods: {
@@ -1005,9 +1038,10 @@
         `
     })
 
+
     var NO_IMAGE = "no.jpg";
     var PREFIX = "images/";
-
+    // Hosts the images drop down
     Vue.component('drop-down-images', {
         props: ["items", "defaultimage", "onselect"],
         methods: {
@@ -1064,6 +1098,8 @@
         `
     })
 
+    
+    // Checkboxes
     Vue.component('checkbox', {
         props: ['label', 'defaultvalue', 'eventbridgeeventtype', 'eventbridgeeventsubtype'],
         methods: {
@@ -1104,6 +1140,8 @@
         `
     })
 
+
+    // Modal used in save avatar
     Vue.component('modal', {
         props: {
             alert: { type: Boolean },
@@ -1147,6 +1185,7 @@
     // #endregion EDIT COMPONENTS
 
 
+    // Create the vue instance with the static data and dynamic data
     var app = new Vue({
         el: '#app',
         data: {
@@ -1156,6 +1195,7 @@
     });
 
 
+    // Handle updates from High Fidelity
     function onScriptEventReceived(message) {
         var data;
         if (DEBUG) {
@@ -1185,6 +1225,7 @@
     }
 
 
+    // Load the app
     function onLoad() {
         // Open the EventBridge to communicate with the main script.
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);

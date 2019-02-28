@@ -18,7 +18,7 @@
 
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v123445555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v2222222211111")),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v222222221111111")),
         BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
@@ -29,15 +29,12 @@
 
     // Deep copy object utility
     function deepCopy(objectToCopy) {
-
         var newObject;
-
         try {
             newObject = JSON.parse(JSON.stringify(objectToCopy));
         } catch (e) {
             console.error("Error with deepCopy utility method" + e);
         }
-
         return newObject;
     }
 
@@ -52,6 +49,7 @@
             b: parseInt(result[3], 16)
         } : null;
     }
+
 
     var BITS_16 = 16;
     var SHIFT_LEFT_24 = 24;
@@ -91,19 +89,20 @@
             return color;
         }
     }
+
     // #endregion UTILITY FUNCTIONS
+
 
     // #region MIRROR FUNCTIONS
 
-    var MIRROR_DISTANCE_M = 0.5;
+    var MIRROR_DISTANCE_Z_M = 0.5;
+    var MIRROR_DISTANCE_Y_M = 0.8;
     var mirrorCubeID;
-    var mirrorZoneID;
     // Creates mirror
     function spawnMirror() {
-
         var position = Vec3.sum(
             MyAvatar.position, 
-            Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: 0.5, z: -MIRROR_DISTANCE_M })
+            Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: MIRROR_DISTANCE_Y_M, z: -MIRROR_DISTANCE_Z_M })
         );
         mirrorCubeID = Entities.addEntity({
             type: "Box",
@@ -117,10 +116,10 @@
             rotation: MyAvatar.orientation,
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",
             collisionless: true,
-            script: Script.resolvePath("./resources/modules/mirrorClient.js")
+            script: Script.resolvePath("./resources/modules/mirrorClient.js?v4")
         }, "avatar");
-
     }
+
 
     // Delete mirror entity
     function deleteMirror() {
@@ -129,15 +128,10 @@
             Entities.deleteEntity(mirrorCubeID);
             mirrorCubeID = null;
         }
-
-        if (mirrorZoneID) {
-            Entities.deleteEntity(mirrorZoneID);
-            mirrorZoneID = null;
-        }
-
     }
 
     // #endregion MIRROR FUNCTIONS
+
 
     // #region AVATAR FUNCTIONS
 
@@ -166,7 +160,6 @@
         } else {
             Window.alert("No bookmark was saved in the avatar app.");
         }
-
     }
 
 
@@ -183,7 +176,6 @@
     // Contains all steps to set the app state to isAviEnabled = true
     function setIsAviEnabledTrue() {
         dynamicData.state.isAviEnabled = true;
-        spawnMirror();
         updateUI(STRING_STATE);
     }
 
@@ -192,12 +184,18 @@
     function setIsAviEnabledFalse() {
         dynamicData.state.isAviEnabled = false;
         dynamicData.state.activeTabName = STRING_INFO;
+        if (materialID) {
+            Entities.deleteEntity(materialID);
+            materialID = null;
+        }
+        removeBlendshapes();
+        deleteMirror();
 
         updateUI(STRING_STATE);
     }
 
-
     // #endregion AVATAR FUNCTIONS
+
 
     // #region MATERIAL
 
@@ -206,10 +204,8 @@
     // componentType: STRING_COLOR / STRING_SLIDER / STRING_MAP_ONLY
     // isPBR: boolean
     function updateMaterialProperty(propertyName, newMaterialData, componentType, isPBR) {
-
         var value = newMaterialData.value;
         var map = newMaterialData.map;
-
         var propertyMap = propertyName + "Map";
 
         if (DEBUG) {
@@ -243,15 +239,19 @@
         updateMaterial({ materials: updates }, false, isPBR);
     }
 
+
     function convertColorUIToBackend(hexColor){
-        // hex -> rgb -> array
-        var rgb = hexToRgb(hexColor);
-        return [ 
-            rgb.r / RGB_255,
-            rgb.g / RGB_255, 
-            rgb.b / RGB_255 
-        ];
+        if (hexColor) {
+            // hex -> rgb -> array
+            var rgb = hexToRgb(hexColor);
+            return [ 
+                rgb.r / RGB_255,
+                rgb.g / RGB_255, 
+                rgb.b / RGB_255 
+            ];
+        }
     }
+
 
     function convertImageUIToBackend(file) {
         if (file && file.indexOf("no.jpg") !== -1) {
@@ -264,7 +264,12 @@
     // prioritize a properties over b properties
     function mergeObjectProperties(a, b) {
         for (var key in b) {
-            a[key] = b[key];
+            if (b[key] === null && a[key]) {
+                // remove any values in a if new b value is null
+                delete a[key];
+            } else {
+                a[key] = b[key];
+            }
         }
         return a;
     }
@@ -330,6 +335,7 @@
 
     }
 
+
     var materialID;
     // Update material or create a new material
     function updateMaterial(newMaterialData, isNamed, isPBR) {
@@ -353,7 +359,11 @@
             var oldMaterialDataString;
             var oldMaterials = {};
 
-            oldMaterialDataString = Entities.getEntityProperties(materialID, ["materialData"]).materialData;
+            var oldMaterialProperties = Entities.getEntityProperties(materialID, ["materialData", "materialMappingScale", "description"]);
+            oldMaterialDataString = oldMaterialProperties.materialData;
+            description = oldMaterialProperties.description;
+            materialMappingScale = oldMaterialProperties.materialMappingScale;
+
             try {
                 // get old materials values and properties to carry over to new
                 oldMaterials = JSON.parse(oldMaterialDataString).materials;
@@ -380,11 +390,11 @@
                 type: "Material",
                 name: "Avatar101-Material",
                 parentID: MyAvatar.sessionUUID,
-                materialURL: "materialData",
-                priority: 1,
-                parentMaterialName: 1,
-                description: description,
-                materialMappingScale: materialMappingScale,
+                materialURL: "materialData", // utilize material data to define properties
+                priority: 1, // multiple materials can be parented, highest priority is rendered
+                parentMaterialName: 2, // avatar submesh
+                description: description, // description of the material
+                materialMappingScale: materialMappingScale, // scale of the material
                 materialData: JSON.stringify({
                     materialVersion: 1, 
                     materials: newMaterials 
@@ -474,6 +484,7 @@
 
     // #endregion MATERIAL
 
+
     // #region BLENDSHAPES
 
     // Take newBlendshapeData and update selected blendshape, properties, and the avatar blendshapes
@@ -494,8 +505,8 @@
             // set it on the avatar
             MyAvatar.setBlendshape(property, newBlendshapeData[property]);
         }
-
     }
+
 
     // Apply the named blendshape to avatar
     function applyNamedBlendshapes(blendshapeName) {
@@ -518,7 +529,20 @@
         }
     }
 
+
+    var BLENDSHAPE_RESET_MS = 50;
+    // Set Blendshapes back to default
+    function removeBlendshapes() {
+        MyAvatar.hasScriptedBlendshapes = true;
+        applyNamedBlendshapes("default");
+        Script.setTimeout(function () {
+            MyAvatar.hasScriptedBlendshapes = false;
+            updateUI(STRING_BLENDSHAPES);
+        }, BLENDSHAPE_RESET_MS);
+    }
+
     // #endregion BLENDSHAPES
+
 
     // #region FLOW
 
@@ -527,7 +551,6 @@
         STRING_COLLISIONS_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_COLLISIONS_TOGGLE,
         STRING_HAIR = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_HAIR,
         STRING_JOINTS = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS;
-
     // Called when user navigates to flow tab
     function addRemoveFlowDebugSpheres(isEnabled, setShowDebugSpheres) {
         // draw debug circles on the joints
@@ -576,12 +599,11 @@
                 GlobalDebugger.setCollisionDataValue("HeadTop_End", propertyName, newValue);
                 dynamicData[STRING_FLOW].jointFlowOptions[propertyName] = newValue;
             }
-
         }
-
     }
 
     // #endregion FLOW
+
 
     // #region APP
 
@@ -591,7 +613,6 @@
         STRING_FLOW = CONFIG.STRING_FLOW,
         STRING_INFO = CONFIG.STRING_INFO,
         STRING_STATE = CONFIG.STRING_STATE;
-
     // UI variables
     var ui;
     var dynamicData = deepCopy(CONFIG.INITIAL_DYNAMIC_DATA);
@@ -600,32 +621,43 @@
         shadeless: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].shadeless),
         pbr: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].pbr)
     };
-
     // Tab dynamic variables
     var currentTab;
-
     // Create menu button
     function startup() {
         ui = new AppUi({
             buttonName: CONFIG.BUTTON_NAME,
             home: URL,
             onMessage: onMessage,
-            // graphicsDirectory: Script.resolvePath("./resources/icons/"),
+            graphicsDirectory: Script.resolvePath("./resources/icons/"),
             onOpened: onOpened,
             onClosed: onClosed
         });
         Script.scriptEnding.connect(unload);
+        MyAvatar.skeletonModelURLChanged.connect(onAvatarModelURLChanged);
+    }
+
+
+    // Checks the current avatar model and sees if the avatar url is Avi
+    function onAvatarModelURLChanged() {
+        if (MyAvatar.skeletonModelURL === AVATAR_URL) {
+            setIsAviEnabledTrue();
+            // if your last closed tab has extra setup functionality
+            // ensure you have the correct view for the current tab
+            switchTabs(dynamicData.state.activeTabName);
+        } else {
+            setIsAviEnabledFalse();
+        }
     }
 
 
     // Called each time app is closed
     function onClosed() {
-
-        deleteMirror();
         // save lastTab that the user was on
         dynamicData.state.activeTabName = currentTab;
         MyAvatar.hasScriptedBlendshapes = false;
-
+        addRemoveFlowDebugSpheres(false);
+        deleteMirror();
     }
 
 
@@ -635,19 +667,10 @@
             print("ACA101 onOpened: isAviEnabled ", MyAvatar.skeletonModelURL === AVATAR_URL);
             print("ACA101 onOpened: activeTabName is ", dynamicData.state.activeTabName);
         }
-        if (MyAvatar.skeletonModelURL === AVATAR_URL) {
-            setIsAviEnabledTrue();
-
-            // if your last closed tab has extra setup functionality
-            // ensure you have the correct view for the current tab
-            switchTabs(dynamicData.state.activeTabName);
-        } else {
-            setIsAviEnabledFalse();
-        }
-
-        updateUI();
-
+        onAvatarModelURLChanged();
+        spawnMirror();
     }
+
 
     // Functionality for each time a tab is switched
     function switchTabs(tabName) {
@@ -661,7 +684,6 @@
             // disable debug spheres
             addRemoveFlowDebugSpheres(false);
         }
-
         // Blendshape tab conditionals
         if (currentTab === STRING_BLENDSHAPES) {
             // enable scripted blendshapes
@@ -672,20 +694,20 @@
         }
     }
 
-    function unload() {
-        deleteMirror();
-        // Set blendshapes back to normal
-        MyAvatar.hasScriptedBlendshapes = true;
-        applyNamedBlendshapes(BLENDSHAPE_DATA.defaults);
-        MyAvatar.hasScriptedBlendshapes = false;
 
+    function unload() {
+        onClosed();
+        // Set blendshapes back to normal
+        removeBlendshapes();
         if (materialID) {
             Entities.deleteEntity(materialID);
             materialID = null;
         }
+        MyAvatar.skeletonModelURLChanged.disconnect(onAvatarModelURLChanged);
     }
 
     // #endregion APP
+
 
     // #region EVENTS
     var DEBUG_EVENTS = true;
@@ -792,8 +814,8 @@
             default:
                 break;
         }
-
     }
+
 
     function updateUI(type) {
         var messageObject = {
@@ -811,5 +833,4 @@
 
     // Initialize the app
     startup();
-
 }());

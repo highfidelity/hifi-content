@@ -63,7 +63,7 @@ var CONFIG = {
 
     // Variables shared by ui and javascript files
     UPDATE_UI: APP_NAME + "_update_ui",
-    BUTTON_NAME: "AVATAR101",
+    BUTTON_NAME: "AVATAR-101",
     EVENT_BRIDGE_OPEN_MESSAGE: "_eventBridgeOpen",
 
     // UI to app events
@@ -307,7 +307,7 @@ var CONFIG = {
 
     INITIAL_DYNAMIC_DATA: {
         state: {
-            isAviEnabled: true,
+            isAviEnabled: false,
             activeTabName: STRING_INFO
         },
         info: {},

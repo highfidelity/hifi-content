@@ -31,12 +31,20 @@
     var lastDimensions = { x: 0, y: 0 };        // The previous dimensions of the mirror
     var previousFarClipDistance;    // Store the specator camera's previous far clip distance that we override for the mirror
 
+    var ROBIN_DEBUG = false;
+
     // LOCAL FUNCTIONS    
     
     // When x or y dimensions of the mirror change - reset the resolution of the 
     // spectator camera and edit the mirror overlay to adjust for the new dimensions
     function updateMirrorDimensions(forceUpdate) {
+        if (ROBIN_DEBUG) {
+            print("MIRRORROBIN : updateMirrorDimensions1" + mirrorOverlayRunning);
+        }
         if (mirrorOverlayRunning) {
+            if (ROBIN_DEBUG) {
+                print("MIRRORROBIN : updateMirrorDimensions2" + mirrorOverlayRunning);
+            }
             var newDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
 
             if (forceUpdate === true || (newDimensions.x !== lastDimensions.x || newDimensions.y !== lastDimensions.y)) {
@@ -57,7 +65,13 @@
     // Takes in an mirror scaler number which is used for the index of "halfDimSigns" that is needed to adjust the mirror 
     // overlay's position. Deletes and re-adds the mirror overlay so the url and position is updated.
     function updateMirrorOverlay() {
+        if (ROBIN_DEBUG) {
+            print("MIRRORROBIN : updateMirrorOverlay1" + mirrorOverlayRunning);
+        }
         if (mirrorOverlayRunning) {
+            if (ROBIN_DEBUG) {
+                print("MIRRORROBIN : updateMirrorOverlay2" + mirrorOverlayRunning);
+            }
             var mirrorProps = Entities.getEntityProperties(_this.entityID, ["rotation", "dimensions", "position"]);
             var dimX = mirrorProps.dimensions.x;
             var dimY = mirrorProps.dimensions.y;
@@ -101,7 +115,13 @@
     // Sets up spectator camera to render the mirror, calls 'updateMirrorOverlay' once to set up
     // mirror overlay, then connects 'updateMirrorDimensions' to update dimension changes
     _this.mirrorOverlayOn = function(onPreload) {
+        if (ROBIN_DEBUG) {
+            print("MIRRORROBIN : mirrorOverlayOn1" + mirrorOverlayRunning);
+        }
         if (!mirrorOverlayRunning) {
+            if (ROBIN_DEBUG) {
+                print("MIRRORROBIN : mirrorOverlayOn2" + mirrorOverlayRunning);
+            }
             if (!spectatorCameraConfig.attachedEntityId) {
                 mirrorOverlayRunning = true;
                 spectatorCameraConfig.mirrorProjection = true;
@@ -116,21 +136,29 @@
                 updateMirrorOverlay();
                 Script.update.connect(updateMirrorDimensions);
             } else {
-                print("Cannot turn on mirror if spectator camera is already in use");
+                if (ROBIN_DEBUG) {
+                    print("Cannot turn on mirror if spectator camera is already in use");
+                }
             }
         }
     };
     
     // Resets spectator camera, deletes the mirror overlay, and disconnects 'updateMirrorDimensions' 
     _this.mirrorOverlayOff = function() {
+        if (ROBIN_DEBUG) {
+            print("MIRRORROBIN : mirrorOverlayOff1" + mirrorOverlayRunning);
+        }
         if (mirrorOverlayRunning) {
+            if (ROBIN_DEBUG) {
+                print("MIRRORROBIN : mirrorOverlayOff2" + mirrorOverlayRunning);
+            }
             spectatorCameraConfig.enableSecondaryCameraRenderConfigs(false);
             spectatorCameraConfig.mirrorProjection = false;
             spectatorCameraConfig.attachedEntityId = null;
             spectatorCameraConfig.farClipPlaneDistance = previousFarClipDistance;
             Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
-            Overlays.deleteOverlay(mirrorOverlayID);
             Script.update.disconnect(updateMirrorDimensions);
+            Overlays.deleteOverlay(mirrorOverlayID);
             mirrorOverlayRunning = false;
         }
     };
@@ -145,6 +173,9 @@
     
     // Turn off mirror on unload
     _this.unload = function(entityID) {
+        if (ROBIN_DEBUG) {
+            print("MIRRORROBIN : unload" + mirrorOverlayRunning);
+        }
         _this.mirrorOverlayOff();
     };
 });
