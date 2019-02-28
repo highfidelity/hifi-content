@@ -126,13 +126,16 @@ AvatarListManager.prototype.reDraw =
 
         var localEntity;
         var calculatedProps;
+        var lineHeight;
+        var dimensions;
+        var localPosition;
         if (type === "main") {
             localEntity = avatar.localEntityMain;
             calculatedProps = _this.calculateNewScaledProperties(uuid, "main");
 
-            var lineHeight = 
+            lineHeight = 
                 avatar.mainInitialLineHeight * calculatedProps.adjustedScaler;
-            var dimensions = 
+            dimensions = 
                 Vec3.multiply(avatar.mainInitialDimensions, calculatedProps.adjustedScaler);
             // log("lineHeight", lineHeight);
             // log("dimensions", dimensions);
@@ -149,11 +152,11 @@ AvatarListManager.prototype.reDraw =
             // log("LH", avatar.subInitialLineHeight);
             // log("D", avatar.subInitialDimensions);
             // log("AS", calculatedProps.adjustedScaler);
-            var lineHeight = 
+            lineHeight = 
                 avatar.subInitialLineHeight * calculatedProps.adjustedScaler;
-            var dimensions =  
+            dimensions =  
                 Vec3.multiply(avatar.subInitialDimensions, calculatedProps.adjustedScaler);
-            var localPosition = 
+            localPosition = 
                 [0, SUB_OFFSET[Y] * calculatedProps.adjustedScaler, 0]
             localEntity
                 .add("lineHeight", lineHeight)
@@ -412,3 +415,4 @@ AvatarListManager.prototype.getInfoAboutUser =
     };
 
 module.exports = AvatarListManager;
+
