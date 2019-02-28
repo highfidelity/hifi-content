@@ -10,4 +10,4 @@ When an admin is ready for you to ask your question, they will remove your quest
 When changing avatars, you will lose your question mark entity. This is handled by closing the app, but the user will lose the status of their question.
 
 ## Releases
-### 2019-02-27_14-31-00 | [d81f050](https://github.com/highfidelity/hifi-content/commit/d81f050cee249c64b884d23de66cff6f9c38e102)
+### 2019-02-27_17-30-00 | [2c6ac8d](https://github.com/highfidelity/hifi-content/commit/2c6ac8dd2fbbbebb7005a7089075b7549843a812)
