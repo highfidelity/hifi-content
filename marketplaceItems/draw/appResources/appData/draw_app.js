@@ -39,7 +39,6 @@ Tablet, Vec3, Window */
     var RGB_MAX_VALUE = 255;
     var DECIMAL_PLACES = 2;
     function rgbConversion(rgbColorValue) {
-        print("CONVERTING ", rgbColorValue, " to ", (rgbColorValue/RGB_MAX_VALUE).toFixed(DECIMAL_PLACES));
         return (rgbColorValue/RGB_MAX_VALUE).toFixed(DECIMAL_PLACES);
     }
 
@@ -109,11 +108,10 @@ Tablet, Vec3, Window */
             grab: { grabbable: false },
             collisionless: true
         }, 'avatar');
-        var emissive = {};
-        print("SENDING ", HIFI_COLORS[randomHiFiColorIndex].red, " TO BE CONVERTED");
-        emissive.red = rgbConversion(HIFI_COLORS[randomHiFiColorIndex].red);
-        emissive.green = rgbConversion(HIFI_COLORS[randomHiFiColorIndex].green);
-        emissive.blue = rgbConversion(HIFI_COLORS[randomHiFiColorIndex].blue);
+        var hifiColorRescaled = {};
+        hifiColorRescaled.red = rgbConversion(HIFI_COLORS[randomHiFiColorIndex].red);
+        hifiColorRescaled.green = rgbConversion(HIFI_COLORS[randomHiFiColorIndex].green);
+        hifiColorRescaled.blue = rgbConversion(HIFI_COLORS[randomHiFiColorIndex].blue);
         paintSphereMaterial = Entities.addEntity({
             type: "Material",
             name: "Draw App Material",
@@ -122,8 +120,8 @@ Tablet, Vec3, Window */
             parentID: paintSphere,
             materialData: JSON.stringify({
                 materials: {
-                    albedo: HIFI_COLORS[randomHiFiColorIndex],
-                    emissive: emissive
+                    albedo: hifiColorRescaled,
+                    emissive: hifiColorRescaled
                 }
             })
         }, 'avatar');
