@@ -37,6 +37,21 @@ function neverWhistleCheckboxClicked(checkbox) {
     }));
 }
 
+// Called when the user checks/unchecks the Show Appreciation Entity checkbox.
+// Sends an event to the App JS.
+function showAppreciationEntityCheckboxClicked(checkbox) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        method: "showAppreciationEntityCheckboxClicked",
+        showAppreciationEntity: checkbox.checked
+    }));
+
+    if (checkbox.checked) {
+        document.getElementById("colorPickerContainer").style.visibility = "visible";
+    } else {
+        document.getElementById("colorPickerContainer").style.visibility = "hidden";
+    }
+}
+
 // Called when the user changes the entity's color using the jscolor picker.
 // Modifies the color of the Intensity Meter gradient and sends a message to the App JS.
 var START_COLOR_MULTIPLIER = 0.2;
@@ -87,6 +102,15 @@ function onScriptEventReceived(message) {
             }
             document.getElementById("appreciateSwitch").checked = message.appreciateEnabled;
             document.getElementById("neverWhistleCheckbox").checked = message.neverWhistleEnabled;
+
+            var showAppreciationEntityCheckbox = document.getElementById("showAppreciationEntityCheckbox");
+            showAppreciationEntityCheckbox.checked = message.showAppreciationEntity;
+            if (showAppreciationEntityCheckbox.checked) {
+                document.getElementById("colorPickerContainer").style.visibility = "visible";
+            } else {
+                document.getElementById("colorPickerContainer").style.visibility = "hidden";
+            }
+
             if (message.neverWhistleEnabled) {
                 var crosshatch = document.getElementById("crosshatch");
                 crosshatch.style.display = "inline-block";
