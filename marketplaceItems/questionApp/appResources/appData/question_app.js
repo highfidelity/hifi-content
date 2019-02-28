@@ -48,9 +48,9 @@ Tablet, Users, Vec3, Window */
     var MAX_HEIGHT_M = 0.8;
     var GROWTH_RATIO = 1.005;
     var QUESTION_MARK_PROPERTY_NAME = "Question App Mark";
-    var QUESTION_MARK_START_DIMENSIONS_M = { x: 0.1, y: 0.2, z: 0.02 };
+    var QUESTION_MARK_START_DIMENSIONS_M = { x: 0.15, y: 0.15, z: 0.02 };
     var HALF = 0.5;
-    var Y_OFFSET_HEAD_TOP_TO_ENTITY_M = 0.1;
+    var Y_OFFSET_HEAD_TOP_TO_ENTITY_M = 0.05;
     var questionMark;
     var changingInterval;
     var parentJointIndex;
@@ -73,7 +73,6 @@ Tablet, Users, Vec3, Window */
             lifetime: 360000,
             parentID: MyAvatar.sessionUUID,
             parentJointIndex: parentJointIndex,
-            localRotation: Quat.fromVec3Degrees({ x: 0, y: 180, z: 0 }),
             position: entitySpawnPosition,
             dimensions: QUESTION_MARK_START_DIMENSIONS_M,
             grab: { grabbable: false },
