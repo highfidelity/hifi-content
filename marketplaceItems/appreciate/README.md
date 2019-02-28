@@ -6,8 +6,10 @@ Show someone else that you like what they're doing. Open the app to see usage in
 
 ## Releases
 
-### 2019-02-22_10-40-00 | Marketplace v1.3 | [add7049](https://github.com/highfidelity/hifi-content/commit/add7049)
+### 2019-02-22_10-40-00 | Marketplace v1.3 | [f0e4eb1](https://github.com/highfidelity/hifi-content/commit/f0e4eb1)
 
+- Optimize app
+- Add option to not show Appreciation Dodecahedron while Appreciating
 - Forward Z keypresses to the Appreciate script that the user makes when the App's HTML UI is focused
 
 ### 2019-02-19_13-09-00 | Marketplace v1.2 | [0e2fa82](https://github.com/highfidelity/hifi-content/commit/0e2fa82)
