@@ -1,37 +1,9 @@
 body {
-    margin: 10;
-    width: 100% - 10px;
+    margin: 0;
+    width: 100%;
     font-family: 'Raleway', sans-serif;
     color: #cccbcb;
     background: linear-gradient(#2b2b2b, #303030);
-}
-
-.top-bar {
-    height: 90px;
-    background: linear-gradient(#2b2b2b, #303030);
-    font-weight: bold;
-    padding-left: 30px;
-    padding-right: 30px;
-    display: flex;
-    align-items: center;
-    position: fixed;
-    width: 480px;
-    top: 0;
-    z-index: 1;
-}
-
-.content {
-    margin-top: 90px;
-    padding: 30px;
-}
-
-td {
-    width: 20%
-}
-
-table {
-    width: 100%;
-    text-align: center
 }
 
 input[type=button] {
@@ -83,116 +55,25 @@ input[type=button][pressed=pressed] {
     color: #00b4ef;
 }
 
-.correct {
-    color: #00b4ef;
-}
-
-.dropdown {
-    font-family: 'Raleway', sans-serif;
-    font-weight: bold;
-    font-size: 13px;
-    position: relative;
-    width: 132px;
-}
-
-.dropdown select {
-    clear: both;
-}
-
-.dropdown:focus {
-    border: none;
-    outline: none;
-}
-
-.dropdown li {
-    list-style-type: none;
-    padding: 3px 0 1px 12px;
-    width: 120px;
-    height: auto;
-    font-size: 15px;
-    color: #404040;
-    background-color: #d4d4d4;
-    z-index: 999;
-}
-
-.dropdown li:hover {
-    background-color: #e6eaeb;
-}
-
-.styled-select { 
-    height: 50px;
-    overflow: hidden;
-    width: 290px;
- }
-
-.dropdown-items {
-    display: none;
-    position: absolute;
-    background-color: #dddcdc;
-    min-width: 125px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-
-.dropdown-items a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.dropdown-items a:hover {
-    background-color: #f1f1f1
-}
-
-.dropdown-type {
-    margin:0;
-    padding: 0
-}
-
-.dropdown-difficulty {
-    margin:0;
-    padding: 0
-}
-
-.dropdown-category {
-    margin:0;
-    padding: 0
-}
-
-#categoryDropdown {
-    width: 210px
-}
-#categoryDropdown li{
-    width: 210px
-}
-
- .show {
-    display:block;
-}
-
 .button-container {
     display: grid;
-    width: 100%;
+    margin: 0 auto;
+    width: 450px;
     grid-template-columns: repeat(5, 90px);
-    grid-template-rows: repeat(6, 90px);
+    grid-template-rows: repeat(5, 90px);
 }
 
 .button-headers-container {
     background-image:url("../images/bingo-card-head.png");
-    background-size: 452px 86px;
-    background-position:center;
-    width:450px;
-    height:90px;
+    background-size: 450px 90px;
+    background-position: center;
+    width: 450px;
+    height: 90px;
+    display: flex;
+    margin: 0 auto;
 }
 
-.button-number {
-    background-color: white;
-    font-size: 2em;
-    padding: 0;
-}
-
-.button-free {
+.button-number, .button-free {
     background-color: white;
     font-size: 2em;
     padding: 0;
@@ -205,6 +86,7 @@ input[type=button][pressed=pressed] {
     width: 90px;
     border: 0;
     padding: 0;
+    margin: 0;
 }
 
 .selected {
@@ -212,13 +94,13 @@ input[type=button][pressed=pressed] {
     color: white;
 }
 
-.bottomPanel {
-    margin-top: -60px;
+#bottomPanel {
+    margin-top: 20px;
     text-align: center;
     width: 100%;
 }
 
-#BingoButton {
+#bingoButton {
     margin: 0px;
     padding: 10px;
     font-size: 2em;
@@ -233,9 +115,80 @@ input[type=button][pressed=pressed] {
     cursor: pointer;
 }
 
-#BingoButton:enabled:hover {
+#bingoButton:enabled:hover {
     background: linear-gradient(#8f0070, #43008f);
     color: #fff;
     border: none;
 }
 
+#helpText {
+    display: block;
+    margin-top: 6px;
+}
+
+#calledNumbersContainer {
+    position: fixed;
+    display: flex;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    padding: 0;
+    overflow: hidden;
+    background-color: #121212;
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 24px;
+    color: white;
+}
+
+#calledNumbersTitle {
+    padding: 0 6px;
+}
+
+#calledNumbersContainer > div {
+    flex-shrink: 0;
+    z-index: 2;
+    background: #121212;
+}
+
+#calledNumbers {
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    z-index: 1 !important; 
+    white-space: nowrap;
+    left: 0px;
+}
+
+.bingoB {
+    color: #FB0CF8;
+}
+.bingoI {
+    color: #FBB617;
+}
+.bingoN {
+    color: #36C51E;
+}
+.bingoG {
+    color: #1860FA;
+}
+.bingoO {
+    color: #FB101B;
+}
+
+#scrollCalledNumbersLeft, #scrollCalledNumbersRight {
+    width: 50px;
+    background: #292929 !important;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+#scrollCalledNumbersRight {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    height: 60px;
+}

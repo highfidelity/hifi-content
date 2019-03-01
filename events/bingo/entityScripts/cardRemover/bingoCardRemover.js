@@ -13,11 +13,11 @@
 
     var _this;
 
-    /* CHECK IF A USER IS RUNNING THE CARD APP: Get a list of running scripts usingg the script discovery service API. 
+    /* CHECK IF A USER IS RUNNING THE CARD APP: Get a list of running scripts using the script discovery service API. 
     Search that list for the card app script and return whether or not it was found */
     var isRunningStandaloneBingoApp = function() {
         var isRunning = false;
-        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("bingoCard_app.js?10") !== -1) {
+        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("bingoCard_app.js?11") !== -1) {
             isRunning = true;
         }
         return isRunning;
@@ -28,11 +28,11 @@
     };
 
     BingoCardRemover.prototype = {
-        /* ON LOADING THE SCRIPT: If the user is running the card app, stop the card app script to stop/close the app. */
+        /* ON LOADING THE SCRIPT: If the user is running the Bingo Card script, stop it */
         preload: function(entityID){
             _this.entityID = entityID;
             if (isRunningStandaloneBingoApp) {
-                ScriptDiscoveryService.stopScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js?10'));
+                ScriptDiscoveryService.stopScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js?11'));
             }
         }
     };
