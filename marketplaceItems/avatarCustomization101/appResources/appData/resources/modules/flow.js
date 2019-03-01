@@ -1286,7 +1286,7 @@ var CUSTOM_DATA = CONFIG.DATA_FOR_FLOW_APP;
             stopFlow();
             MyAvatar.clearJointsData();
             initFlow();
-        }, 200);
+        }, 500);
     });
 
     MyAvatar.scaleChanged.connect(function () {

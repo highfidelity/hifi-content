@@ -32,13 +32,32 @@
     var previousFarClipDistance;    // Store the specator camera's previous far clip distance that we override for the mirror
     var owningAvatarID;
 
+
     // LOCAL FUNCTIONS    
 
     // If owning avatar crashes or leaves domain, mirror will delete itself
     function avatarRemovedDeleteMirror(avatarID) {
         if (owningAvatarID === avatarID) {
+            console.log("AVATAR IS REMOVED THAT IS OWNER OF THE MIRROR");
             _this.mirrorOverlayOff();
         }
+    }
+    
+    
+    // Will delete keeps track if the owning avatar is still in the domain and in range
+    var heartbeatInterval;
+    var HEARTBEAT_INTERVAL_MS = 1000;
+    var HEARTBEAT_AVATAR_IN_RANGE_M = 100;
+    function startHeartbeat() {
+        heartbeatInterval = Script.setInterval(function() {
+            var position = Entities.getEntityProperties(_this.entityID, 'position').position;
+            var list = AvatarList.getAvatarsInRange(position, HEARTBEAT_AVATAR_IN_RANGE_M);
+            print("MIRROR HEARTBEAT ", owningAvatarID, list.indexOf(owningAvatarID) === -1);
+            if (list.indexOf(owningAvatarID) === -1) {
+                Script.clearInterval(heartbeatInterval);
+                _this.mirrorOverlayOff();
+            }
+        }, HEARTBEAT_INTERVAL_MS);
     }
     
     // When x or y dimensions of the mirror change - reset the resolution of the 
@@ -124,6 +143,7 @@
                 spectatorCameraConfig.resetSizeSpectatorCamera(initialResolution.x, initialResolution.y);
                 spectatorCameraConfig.enableSecondaryCameraRenderConfigs(true);
                 AvatarList.avatarRemovedEvent.connect(avatarRemovedDeleteMirror);
+                startHeartbeat();
                 updateMirrorOverlay();
             } else {
                 print("Cannot turn on mirror if spectator camera is already in use");
@@ -142,6 +162,10 @@
             Overlays.deleteOverlay(mirrorOverlayID);
             mirrorOverlayRunning = false;
             AvatarList.avatarRemovedEvent.disconnect(avatarRemovedDeleteMirror);
+            if (heartbeatInterval) {
+                Script.clearInterval(heartbeatInterval);
+            }
+            Entities.deleteEntity(_this.entityID);
         }
     };
     

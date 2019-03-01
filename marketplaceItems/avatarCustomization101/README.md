@@ -1,12 +1,12 @@
-## Hello and welcome to Avatar 101!
+## Hello and Welcome to Avatar 101!
 
-Avatar 101 showcases customizations that creators can make to their avatars namely goes into:
+Avatar 101 showcases customizations that creators can make to their avatars using High Fidelity.
 
-Avatar materials using material entities
-Blendshapes applying and manipulating them in High Fidelity
-Flow using flow avatar joints 
+1. Avatar materials using material entities
+2. Blendshapes applying and manipulating them in High Fidelity
+3. Flow using flow avatar joints
 
-In this app I will talk you through the code and teach you how to customize your avatar to your needs! 
+In this app, I describe ways to customize and direct you to more in depth resources that will help you customize your avatar to your needs! 
 
 The app utilizes “Avi” a customized Woody avatar that has a jacket submesh, specifically named blendshapes on its face, and flow joints on its leaf hair.
 
@@ -16,10 +16,6 @@ The app utilizes “Avi” a customized Woody avatar that has a jacket submesh, 
 2. Click Switch Avatar on the Info tab
 3. Click "Yes" to save the avatar you're currently wearing or click "No" if not
 4. Follow along with the other tabs below to understand what's happening
-
-
-- Blendshapes are built into the avatar.fst file and is updated by High Fidelity function call MyAvatar.setBlendshape for each blendshape
-- Flow is enabled when flow.js is a running script and the avatar has specifically named blendshape names (there are plans to include this in the High Fidelity engine)
 
 Wearing your own avatar, change your avatar to “Avi” in the Info tab and start exploring the different options.
 
@@ -36,7 +32,7 @@ Have fun with playing with the different options! The "Default" button will dele
 
 A material entity's property format is:
 
-```
+```Javascript
 {
     type: "Material",
     name: "Avatar101-Material",
@@ -80,8 +76,9 @@ Most adjustments has two channels: a value and a map. A value describes the colo
 
 To see all material resource options like "emissive", "emissiveMap", "albedo", "albedoMap" and how they relate to eachother checkout [High Fidelity Documentation Globals Material](https://docs.highfidelity.com/api-reference/globals#Material).
 
-To see al material entity properties [High Fidelity Documentation Material Entities Properties] (https://docs.highfidelity.com/api-reference/namespaces/entities#.EntityProperties-Material)
+To see al material entity properties [High Fidelity Documentation Material Entities Properties](https://docs.highfidelity.com/api-reference/namespaces/entities#.EntityProperties-Material)
 
+*Material Entities* - These are high fidelity entities that can be extracted from an existing model that describes the material data from that model to render you can learn more about the properties here - https://docs.highfidelity.com/api-reference/namespaces/entities#.EntityProperties-Material
 
 #### View preset entity in the create menu
 1. Press one of the buttons 
@@ -94,8 +91,27 @@ To see al material entity properties [High Fidelity Documentation Material Entit
 8. Copy this data and follow steps in "How to use Materials" below for your avatar to adjust materials on your personal avatar
 
 ## Blendshapes Tab
+```
+Blendshapes are described in the High Fidelity docs, please view [Avatar Standards Blendshapes](https://docs.highfidelity.com/create/avatars/create-avatars/avatar-standards.html#blendshapes)
+```
 
 To see the naming conventions for blendshapes in high fidelity please see [High Fidelity Documentation Avatar Standards Blendshapes](https://docs.highfidelity.com/create/avatars/create-avatars/avatar-standards.html#blendshapes).
+
+Blendshapes are the system that helps us have facial expressions and have your eyes blink in High Fidelity! The High Fidelity system requires a specific naming convention for the blendshapes. 
+
+Blendshapes are built into the avatar.fst file and is updated by a High Fidelity function call MyAvatar.setBlendshape for each blendshape.
+
+Each blendshape needs to be named to work with our system.
+
+![Blendshape screenshot in Maya](githubResources/blendshapes_maya.png)
+You can specify blendshapes in Maya or Blender.
+
+![Blendshape screenshot in .fst file](githubResources/blendshapes_fst_screenshot.png)
+[See avatar.fst file](appResources/appData/resources/avatar/avatar.fst)
+
+The key functions are 
+
+Checkout [Facial Expressions app](https://raw.githubusercontent.com/highfidelity/hifi/3553f97776b3d3d51d9ac2c16f648ca15c165f81/scripts/developer/facialExpressions.js) for more information on blendshapes.
 
 This adjusts an avatar’s facial expressions to emote different emotions.
 
@@ -103,26 +119,31 @@ Reference [Avi's .fst file](appResources/appData/resources/avatar/avatar.fst) to
 
 ## Flow Tab
 
-How to use Materials for your avatar
-Vocabulary
+Flow is described more in depth via the High Fidelity docs linked: [High Fidelity Add Flow to Your Avatar](https://docs.highfidelity.com/create/avatars/create-avatars/add-flow.html)
 
-*Parts* - often coined as submeshes inside an avatar I will use this word to describe different parts that make up a full avatar mesh. For example avatar hair is a mesh that make up an avatar. In this tutorial, we use the jacket as a part of the avatar that you can customize.
+Flow is enabled when flow.js is a running script and the avatar has specifically named joint names (there are plans to include this in the High Fidelity engine). These joints follow the flow_[TYPE]_[INDEX] or sim[TYPE][INDEX]
 
-*Material Entities* - These are high fidelity entities that can be extracted from an existing model that describes the material data from that model to render you can learn more about the properties here - https://docs.highfidelity.com/api-reference/namespaces/entities#.EntityProperties-Material
+Flow.js is a script that applies physics to the joints in your avatar that are named specifically to be recognized by the flow script.
 
-This app manipulates and uses material entities.
+How to get flow working on your avatar:
 
-Channel - each option in the adjustments section change the channel 
+Follow through the walkthrough [Add Flow](https://docs.highfidelity.com/create/avatars/create-avatars/add-flow.html#flow-threads) in the High Fidelity docs.
+
+![Blendshape screenshot in .fst file](githubResources/flowJoints.png)
+You can specify flow joints in Maya or Blender.
+
+The joints need to be named for the flow.js to recognize.
 
 #### Hello World Material: How to get Materials working on your avatar manually
 
 1. Open High Fidelity 
 2. Open the Console
     1. Alt + Ctrl + J 
-    2. Turn on Developer Menu: Settings > Developer Menu 
+    2. OR Turn on via Developer Menu: Settings > Developer Menu 
     3. Developer > Scripting > Console... 
 3. Copy and paste below in the console and hit enter:
 
+```Javascript
 var materialID = Entities.addEntity({
     type: "Material",
     name: "Hello_World_Material",
@@ -138,21 +159,9 @@ var materialID = Entities.addEntity({
         }
     })
 }, ’avatar’);
+```
 
-4. Your avatar should have an image as one of the sub meshes. Feel free to open The create menu to view the named “Hello_World_Material”.
+4. Your avatar should have an image as one of its sub meshes. Feel free to open The Create Menu to view the named “Hello_World_Material”.
+5. To choose a different submesh for this material, open the Create Menu. 
 
-Blendshapes
-
-Each blendshape needs to be named to work with our system.
-
-The key functions are 
-
-Checkout [Facial Expressions app](https://raw.githubusercontent.com/highfidelity/hifi/3553f97776b3d3d51d9ac2c16f648ca15c165f81/scripts/developer/facialExpressions.js) for more information on blendshapes.
-
-Flow
-
-Flow.js is a script that applies physics to the joints in your avatar that are named specifically to be recognized by the flow script.
-
-How to get flow working on your avatar:
-
-Follow through the walkthrough [Add Flow](https://docs.highfidelity.com/create/avatars/create-avatars/add-flow.html#flow-threads) in the High Fidelity docs.
+Happy creating!

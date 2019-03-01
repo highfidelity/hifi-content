@@ -14,7 +14,7 @@
 
 (function () {
 
-    Script.include(Script.resolvePath("./resources/modules/flow.js?v123"));
+    Script.include(Script.resolvePath("./resources/modules/flow.js?v1234"));
 
     // Modules
     var AppUi = Script.require("appUi"),
@@ -114,10 +114,11 @@
                 "z": 0.001
             },
             position: position,
+            owningAvatarID: MyAvatar.sessionUUID,
             rotation: MyAvatar.orientation,
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",
             collisionless: true,
-            script: Script.resolvePath("./resources/modules/mirrorClient.js?v5")
+            script: Script.resolvePath("./resources/modules/mirrorClient.js?v6")
         }, "avatar");
     }
 
@@ -713,21 +714,19 @@
 
 
     // #region EVENTS
-    var DEBUG_EVENTS = true;
-
     // Handles events recieved from the UI
     function onMessage(data) {
         // EventBridge message from HTML script.
         // Check against EVENT_NAME to ensure we're getting the correct messages from the correct app
         if (!data.type || data.type.indexOf(CONFIG.APP_NAME) === -1) {
-            if (DEBUG_EVENTS) {
+            if (DEBUG) {
                 print("Event type event name index check: ", !data.type, data.type.indexOf(CONFIG.APP_NAME) === -1);
             }
             return;
         }
         data.type = data.type.replace(CONFIG.APP_NAME, "");
 
-        if (DEBUG_EVENTS) {
+        if (DEBUG) {
             print("onMessage: ", data.type);
             print("subtype: ", data.subtype);
         }
@@ -826,7 +825,7 @@
             subtype: type ? type : "",
             value: type ? dynamicData[type] : dynamicData
         };
-        if (DEBUG_EVENTS) {
+        if (DEBUG) {
             print("Update UI", type);
         }
         ui.sendToHtml(messageObject);
