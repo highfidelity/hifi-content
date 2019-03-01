@@ -92,12 +92,15 @@ TextHelper.prototype.createTextArray =
     };
     
 // Comment
-var DEFAULT_CHAR_SIZE = 0.035;
+var DEFAULT_CHAR_SIZE = 0.045;
+var NUMBER = 0.05;
 TextHelper.prototype.getTotalTextLength = 
     function(){
         var lengthArray = this.textArray.map(function(letter){
             if (charMap[letter]){
                 return charMap[letter];
+            } else if (!isNaN(letter)){
+                return NUMBER;        
             } else {
                 return DEFAULT_CHAR_SIZE;
             }

@@ -59,15 +59,15 @@ function add(uuid, intersection){
             localPositionOfIntersection: null
         };
         _this.getInfo(uuid);
-        // _this.getUN(uuid);
+        _this.getUN(uuid);
     }
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
     avatar.intersection = intersection.intersection;
-    avatarInfo.localPositionOfIntersection = worldToLocal(avatar.intersection, avatarInfo.position, avatarInfo.orientation)
+    avatar.localPositionOfIntersection = worldToLocal(avatar.intersection, avatarInfo.position, avatarInfo.orientation)
     _this.selectedAvatars[uuid] = true;
     _this.shouldShowOrCreate(uuid); 
-    // shouldToggleInterval();
+    shouldToggleInterval();
 
     return _this;
 }
@@ -119,7 +119,7 @@ function removeOverlay(uuid, shouldDestory){
 
 
 var Z_SIZE = 0.01;
-var SUB_OFFSET = -0.175;
+var SUB_OFFSET = -0.120;
 var MAIN_SCALER = 0.75;
 var SUB_SCALER = 0.55;
 var LINE_HEIGHT_SCALER = 0.95;
@@ -164,7 +164,8 @@ function calculateInitialProperties(uuid, type) {
     
     if (type === "sub") {
         localPosition =
-            [0, SUB_OFFSET * adjustedScaler * SUB_SCALER, 0];
+            [0, -lineHeight + SUB_OFFSET, 0];
+            // [0, lineHeight * adjustedScaler * SUB_SCALER * SUB_OFFSET, 0];
     }
 
     return {
@@ -279,7 +280,7 @@ function reDraw(uuid, type){
             .add("localPosition", localPosition);
     }
 
-    var position = localEntity.get('position', true);  
+    // var position = localEntity.get('position', true);  
     // log("position",position);
     // if (type === "main") {
     //     localEntityMainBackground
@@ -364,14 +365,15 @@ function updateName(uuid, name){
 
     avatar.localEntityMain = new LocalEntity('local').add(entityProps);
     avatar.localEntitySub = new LocalEntity('local').add(entityProps);
-    var localOffset = avatarInfo.localPositionOfIntersection;
+    var localOffset = avatar.localPositionOfIntersection;
+    log("localoffset", localOffset);
     avatar.intersection = localToWorld(localOffset, avatarInfo.position, avatarInfo.orientation)
     _this.makeMainName(uuid, CREATE);
-    // _this.makeSubName(uuid, CREATE);
+    _this.makeSubName(uuid, CREATE);
 }
 
-var MAX_DISTANCE_METERS = 0.0;
-var DELETE_TIMEOUT_MS = 20000;
+var MAX_DISTANCE_METERS = 0.1;
+var DELETE_TIMEOUT_MS = 7500;
 function maybeRedraw(uuid){
     _this.getInfo(uuid);
     var avatar = _this.avatars[uuid];
@@ -394,11 +396,11 @@ function maybeRedraw(uuid){
         log("previous name different");
         updateName(uuid, avatarInfo.displayName);
     } else {
-        // _this.reDraw(uuid, "main");
+        _this.reDraw(uuid, "main");
     }
     
     if (avatarInfo.username) {
-        // _this.reDraw(uuid, "sub");
+        _this.reDraw(uuid, "sub");
     }
 }
 
@@ -411,7 +413,7 @@ function maybeRemove(uuid) {
 
 function checkAllSelectedForRedraw(){
     for (var avatar in _this.selectedAvatars) {
-        // maybeRedraw(avatar);
+        maybeRedraw(avatar);
     }
 }
 
@@ -488,7 +490,7 @@ function makeMainName(uuid, shouldCreate){
 
 // Make the smaller username when it is available
 var SUB_BACKGROUND = [0, 0, 0];
-var SUB_TEXTCOLOR = [255 ,150,255];
+var SUB_TEXTCOLOR = [255 ,200,255];
 var SUB_PADDING = 1.0;
 var DEFAULT_LEFT_SUB_MARGIN = 0.03;
 function makeSubName(uuid, shouldCreate){

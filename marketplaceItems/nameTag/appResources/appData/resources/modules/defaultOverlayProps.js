@@ -6,7 +6,7 @@ var overlayProps = {
     textColor: [255, 255, 255],
     textAlpha: 1.0,
     backgroundColor: [0, 0, 0],
-    backgroundAlpha: 0.0,
+    backgroundAlpha: 0.8,
     billboardMode: "full",
     leftMargin: 0.00,
     rightMargin: 0.0,
