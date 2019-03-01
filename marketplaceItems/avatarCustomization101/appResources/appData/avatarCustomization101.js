@@ -360,7 +360,8 @@
             var oldMaterialDataString;
             var oldMaterials = {};
 
-            var oldMaterialProperties = Entities.getEntityProperties(materialID, ["materialData", "materialMappingScale", "description"]);
+            var oldMaterialProperties = 
+                Entities.getEntityProperties(materialID, ["materialData", "materialMappingScale", "description"]);
             oldMaterialDataString = oldMaterialProperties.materialData;
             description = oldMaterialProperties.description;
             materialMappingScale = oldMaterialProperties.materialMappingScale;
@@ -602,38 +603,6 @@
             }
         }
     }
-
-
-    // *** 
-    // var runningScripts = [];
-    // // Run the flow script if willLoadScript is true
-    // // If willLoadScript is false, unload our flow script
-    // function setupOrUnloadFlowScript(willLoadScript) {
-    //     if (willLoadScript && isFlowRunning()) {
-    //         ScriptDiscoveryService.loadScript(flowScriptPath);
-    //     } else if (!willLoadScript && isFlowRunning()) {
-    //         // Is our flow script in the list of scripts?
-    //         runningScripts.forEach(function(scriptInfo) {
-    //             if (scriptInfo.url.indexOf(flowScriptPath) > -1) {
-    //                 // ensure it's our flow script running
-    //                 ScriptDiscoveryService.stopScript(flowScriptPath);
-    //             }
-    //         });
-    //     }
-    // }
-
-    // // returns whether the flow script is running
-    // // if the flow script is already running on the person's machine 
-    // // do not load a new flow script
-    // function isFlowRunning() {
-    //     runningScripts = ScriptDiscoveryService.getRunning();
-    //     runningScripts.forEach(function(scriptInfo) {
-    //         if (scriptInfo.url.indexOf("flow.js") > -1) {
-    //             return true;
-    //         }
-    //     });
-    //     return false;
-    // }
 
     // #endregion FLOW
 
