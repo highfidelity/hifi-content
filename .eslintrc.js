@@ -64,6 +64,7 @@ module.exports = {
         "Uuid": false,
         "UndoStack": false,
         "UserActivityLogger": false,
+        "Users": false,
         "Vec3": false,
         "WebSocket": false,
         "WebWindow": false,

@@ -38,6 +38,7 @@ EntityMaker.prototype.add = function(props){
 
 EntityMaker.prototype.sync = function(){
     Entities.editEntity(this.id, this.properties);
+    // log("sync props used:", this.properties)
     this.properties = {};
 
     return this;
@@ -104,8 +105,8 @@ EntityMaker.prototype.hide = function(){
 
 EntityMaker.prototype.create = function(clearPropertiesAfter){
     this.id = Entities.addEntity(this.properties, this.type);
-    console.log("in create and just made", this.id);
-    log("props used:", this.properties)
+    // console.log("in create and just made", this.id);
+    // log("create props used:", this.properties)
     if (clearPropertiesAfter) {
         this.properties = {};
     }

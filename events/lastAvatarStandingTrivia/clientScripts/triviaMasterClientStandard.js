@@ -304,6 +304,7 @@
     function onClicked() { 
         if (open) {
             tablet.gotoHomeScreen(); 
+            tablet.webEventReceived.disconnect(onWebEventReceived);
         } else {
             tablet.gotoWebScreen(appPage);  
             Script.setTimeout(function(){
@@ -533,14 +534,15 @@
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
                 if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties)) {
-                    Entities.callEntityServerMethod(bubble, "rezValidator", [avatar.sessionUUID]);             
+                    console.log("created validator", avatar.sessionUUID);
+                    Entities.callEntityServerMethod(gameZone, "rezValidator", [avatar.sessionUUID]);   
                 }
             });
         } else {
             AvatarManager.getAvatarIdentifiers().forEach(function(avatarID) {
                 var avatar = AvatarManager.getAvatar(avatarID);
                 if (avatar.sessionUUID && isPositionInsideBox(avatar.position, gameZoneProperties)) {
-                    Entities.callEntityServerMethod(bubble, "deleteValidator", [avatar.sessionUUID]);             
+                    Entities.callEntityServerMethod(gameZone, "deleteValidator", [avatar.sessionUUID]);             
                 }
             });
         }
@@ -777,11 +779,38 @@
         }
     }
 
+
     function onWebEventReceived(event) {
         if (typeof event === 'string') {
-            event = JSON.parse(event);
+            try {
+                event = JSON.parse(event);
+            } catch (e) {
+                console.log("error parsing web event", e);
+                return;
+            }
             if (event.app === 'trivia') {
                 switch (event.type) {
+                    case 'listening':
+                        if (triviaData) {
+                            if (triviaData.length !== 0 && !useGoogle) {
+                                tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                                tablet.emitScriptEvent("gameInProgress");   
+                            } else if (bubbleState === true && !useGoogle) {
+                                tablet.emitScriptEvent(JSON.stringify(triviaData[0]));
+                                tablet.emitScriptEvent("noQuestionPosted");  
+                            } else if (triviaData.length !== 0 && useGoogle) {
+                                tablet.emitScriptEvent(JSON.stringify(triviaData));
+                                tablet.emitScriptEvent("gameInProgressCustom");  
+                            } else if (bubbleState === true && useGoogle) {
+                                tablet.emitScriptEvent(JSON.stringify(triviaData));
+                                tablet.emitScriptEvent("noQuestionPostedCustom");  
+                            } else {
+                                tablet.emitScriptEvent("newGame");
+                            }
+                        } else {
+                            tablet.emitScriptEvent("newGame");
+                        }
+                        break;
                     case 'catalog':
                         switch (event.value) {
                             case "Default Catalog":
@@ -815,7 +844,7 @@
                                     }
                                 }
                                 break;
-                        }
+                        }                        
                         break;
                     case 'begin':
                         begin();
@@ -957,6 +986,9 @@
     function onScreenChanged(type, url) {
         open = (url === appPage);
         button.editProperties({isActive: open});
+        if (open) {
+            tablet.webEventReceived.connect(onWebEventReceived);
+        }
     }
 
     function appEnding() {
@@ -970,7 +1002,9 @@
         tablet.removeButton(button);
         AvatarManager.avatarRemovedEvent.disconnect(updateCountOnAvatarRemoved);
         tablet.screenChanged.disconnect(onScreenChanged);
-        tablet.webEventReceived.disconnect(onWebEventReceived);
+        if (open) {
+            tablet.webEventReceived.disconnect(onWebEventReceived);
+        }
         Users.usernameFromIDReply.disconnect(setUserName);
     }
 
@@ -991,7 +1025,5 @@
     Users.usernameFromIDReply.connect(setUserName);
     button.clicked.connect(onClicked);
     tablet.screenChanged.connect(onScreenChanged);
-    tablet.webEventReceived.connect(onWebEventReceived);
-
     Script.scriptEnding.connect(appEnding);
 }());
