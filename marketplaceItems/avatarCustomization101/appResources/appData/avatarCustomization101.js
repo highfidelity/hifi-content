@@ -13,9 +13,10 @@
 /* global GlobalDebugger */
 
 (function () {
-    // Modules
-    Script.include(Script.resolvePath("./resources/modules/flow.js?v12"));
 
+    Script.include(Script.resolvePath("./resources/modules/flow.js?v123"));
+
+    // Modules
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v123445555"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js?v222222221111111")),
@@ -116,7 +117,7 @@
             rotation: MyAvatar.orientation,
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",
             collisionless: true,
-            script: Script.resolvePath("./resources/modules/mirrorClient.js?v4")
+            script: Script.resolvePath("./resources/modules/mirrorClient.js?v5")
         }, "avatar");
     }
 
@@ -602,6 +603,38 @@
         }
     }
 
+
+    // *** 
+    // var runningScripts = [];
+    // // Run the flow script if willLoadScript is true
+    // // If willLoadScript is false, unload our flow script
+    // function setupOrUnloadFlowScript(willLoadScript) {
+    //     if (willLoadScript && isFlowRunning()) {
+    //         ScriptDiscoveryService.loadScript(flowScriptPath);
+    //     } else if (!willLoadScript && isFlowRunning()) {
+    //         // Is our flow script in the list of scripts?
+    //         runningScripts.forEach(function(scriptInfo) {
+    //             if (scriptInfo.url.indexOf(flowScriptPath) > -1) {
+    //                 // ensure it's our flow script running
+    //                 ScriptDiscoveryService.stopScript(flowScriptPath);
+    //             }
+    //         });
+    //     }
+    // }
+
+    // // returns whether the flow script is running
+    // // if the flow script is already running on the person's machine 
+    // // do not load a new flow script
+    // function isFlowRunning() {
+    //     runningScripts = ScriptDiscoveryService.getRunning();
+    //     runningScripts.forEach(function(scriptInfo) {
+    //         if (scriptInfo.url.indexOf("flow.js") > -1) {
+    //             return true;
+    //         }
+    //     });
+    //     return false;
+    // }
+
     // #endregion FLOW
 
 
@@ -684,6 +717,7 @@
             // disable debug spheres
             addRemoveFlowDebugSpheres(false);
         }
+
         // Blendshape tab conditionals
         if (currentTab === STRING_BLENDSHAPES) {
             // enable scripted blendshapes

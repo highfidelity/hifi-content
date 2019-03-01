@@ -143,7 +143,11 @@ var materialID = Entities.addEntity({
 
 Blendshapes
 
-How to get Materials working on your avatar:
+Each blendshape needs to be named to work with our system.
+
+The key functions are 
+
+Checkout [Facial Expressions app](https://raw.githubusercontent.com/highfidelity/hifi/3553f97776b3d3d51d9ac2c16f648ca15c165f81/scripts/developer/facialExpressions.js) for more information on blendshapes.
 
 Flow
 
@@ -151,3 +155,4 @@ Flow.js is a script that applies physics to the joints in your avatar that are n
 
 How to get flow working on your avatar:
 
+Follow through the walkthrough [Add Flow](https://docs.highfidelity.com/create/avatars/create-avatars/add-flow.html#flow-threads) in the High Fidelity docs.
