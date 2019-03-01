@@ -41,6 +41,7 @@ function neverWhistleCheckboxClicked(checkbox) {
 // Sends an event to the App JS.
 function showAppreciationEntityCheckboxClicked(checkbox) {
     EventBridge.emitWebEvent(JSON.stringify({
+        app: "appreciate",
         method: "showAppreciationEntityCheckboxClicked",
         showAppreciationEntity: checkbox.checked
     }));
