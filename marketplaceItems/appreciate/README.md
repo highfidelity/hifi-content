@@ -6,7 +6,7 @@ Show someone else that you like what they're doing. Open the app to see usage in
 
 ## Releases
 
-### 2019-02-22_10-40-00 | Marketplace v1.3 | [f0e4eb1](https://github.com/highfidelity/hifi-content/commit/f0e4eb1)
+### 2019-02-22_10-40-00 | Marketplace v1.3 | [6fe7a8f](https://github.com/highfidelity/hifi-content/commit/6fe7a8f)
 
 - Optimize app
 - Add option to not show Appreciation Dodecahedron while Appreciating
