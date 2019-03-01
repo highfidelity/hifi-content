@@ -1,6 +1,6 @@
 /*
     Vending Machine!
-    vendingMachineClient.js
+    vendingMachineButton.js
     Created by Mark Brosche and Zach Fox on 2019-02-27
     Copyright 2019 High Fidelity, Inc.
 
@@ -19,7 +19,7 @@
 
     // This function checks for playing audio injectors before starting a new audio sound.
     var AUDIO_OPTIONS = {
-        volume: 0.5,
+        volume: 0.2,
         localOnly: false
     };
     var soundInjector = false;
