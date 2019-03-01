@@ -10,8 +10,6 @@ var Z = 2;
 
 var _this;
 
-
-
 function AvatarListManager(){
     _this = this;
     _this.avatars = {};
@@ -43,12 +41,12 @@ function add(uuid, intersection){
             avatarInfo: null,
             localEntityMain: new LocalEntity('local')
                 .add(entityProps),
-            localEntityMainBackground: new LocalEntity('local')
-                .add(backgroundProps),
+            // localEntityMainBackground: new LocalEntity('local')
+            //     .add(backgroundProps),
             localEntitySub: new LocalEntity('local')
                 .add(entityProps),
-            localEntitySublBackground: new LocalEntity('local')
-                .add(backgroundProps),
+            // localEntitySublBackground: new LocalEntity('local')
+                // .add(backgroundProps),
             intersection: intersection.intersection, 
             lastDistance: null,
             previousDistance: null,
@@ -57,19 +55,33 @@ function add(uuid, intersection){
             mainInitialDimensions: null,
             subInitialDimensions: null,
             previousName: null,
-            created: null
+            created: null,
+            localPositionOfIntersection: null
         };
         _this.getInfo(uuid);
-        _this.getUN(uuid);
+        // _this.getUN(uuid);
     }
-
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
+    avatar.intersection = intersection.intersection;
+    avatarInfo.localPositionOfIntersection = worldToLocal(avatar.intersection, avatarInfo.position, avatarInfo.orientation)
     _this.selectedAvatars[uuid] = true;
-    _this.shouldShowOrCreate(uuid, intersection);
-    shouldToggleInterval();
+    _this.shouldShowOrCreate(uuid); 
+    // shouldToggleInterval();
 
     return _this;
 }
 
+function localToWorld(localOffset, framePosition, frameOrientation) {
+    var worldOffset = Vec3.multiplyQbyV(frameOrientation, localOffset);
+    return Vec3.sum(framePosition, worldOffset);
+}
+
+function worldToLocal(worldPosition, framePosition, frameOrientation, optionalInverseFrameOrientation) {
+    var inverseFrameOrientation = optionalInverseFrameOrientation || Quat.inverse(frameOrientation);
+    var worldOffset = Vec3.subtract(worldPosition, framePosition);
+    return Vec3.multiplyQbyV(inverseFrameOrientation, worldOffset);
+}
 
 // Remove the avatar from the list
 function remove(uuid){
@@ -97,7 +109,7 @@ function removeOverlay(uuid, shouldDestory){
     var type = shouldDestory ? 'destroy' : 'hide';
 
     _this.avatars[uuid].localEntityMain[type]();
-    _this.avatars[uuid].localEntityMainBackground[type]();
+    // _this.avatars[uuid].localEntityMainBackground[type]();
     if (_this.avatars[uuid].localEntitySub) {
         _this.avatars[uuid].localEntitySub[type]();
     }
@@ -106,7 +118,7 @@ function removeOverlay(uuid, shouldDestory){
 }
 
 
-var Z_SIZE = 1;
+var Z_SIZE = 0.01;
 var SUB_OFFSET = -0.175;
 var MAIN_SCALER = 0.75;
 var SUB_SCALER = 0.55;
@@ -180,7 +192,6 @@ function handleUserName(uuid, username){
         var avatar = _this.avatars[uuid];
         var avatarInfo = avatar.avatarInfo;
         avatarInfo.username = username;
-        _this.getInfoAboutUser(username);
         _this.makeSubName(uuid, CREATE);
         _this.getInfoAboutUser(uuid);
     }
@@ -222,6 +233,7 @@ function handleFriend(uuid, username) {
 function reDraw(uuid, type){
     var avatar = _this.avatars[uuid];
     var localEntity;
+    // var localEntityMainBackground;
     var initialDimensions = null;
     var initialDistance = null;
     var currentDistance = null;
@@ -235,6 +247,7 @@ function reDraw(uuid, type){
     
     if (type === "main") {
         localEntity = avatar.localEntityMain;
+        // localEntityMainBackground = avatar.localEntityMainBackground;
         initialDimensions = avatar.mainInitialDimensions;
     } else {
         localEntity = avatar.localEntitySub;
@@ -266,6 +279,23 @@ function reDraw(uuid, type){
             .add("localPosition", localPosition);
     }
 
+    var position = localEntity.get('position', true);  
+    // log("position",position);
+    // if (type === "main") {
+    //     localEntityMainBackground
+    //         // .add("lineHeight", lineHeight)
+    //         .add("dimensions", newDimensions)
+    //         // .add("dimensions", [5, 1, 0.1])
+    //         .add("position", position)
+    //         .add("parentID", uuid)
+    //         // .add("rotation", Camera.orientation)
+    //         .add("rotation", rotateBillboard(position, Camera.frustum.position))
+    //         // .add("rotation", Quat.inverse(MyAvatar.orientation))
+    //         // .add("rotation", localEntityMain.get("rotation", true))
+    //         // .add("localRotation", Quat.fromPitchYawRollDegrees(300,0,0))
+    //         .create(true);
+    // }
+
     // log('running sync')
     localEntity
         .sync();
@@ -296,33 +326,48 @@ function maybeClearInterval(){
 }
 
 
+// function updateName(uuid, name){
+//     var avatar = _this.avatars[uuid];
+//     var avatarInfo = avatar.avatarInfo;
+//     var localEntityMain = avatar.localEntityMain;
+//     // var localEntityMainBackground = avatar.localEntityMainBackground;
+//     var calculatedProps = null;
+//     var distance = null;
+//     var scaledDimensions = null;
+//     var lineHeight = null;
+
+//     localEntityMain.add("text", avatarInfo.displayName);
+//     calculatedProps = _this.calculateInitialProperties(uuid, "main");
+//     lineHeight = calculatedProps.lineHeight;
+//     scaledDimensions = calculatedProps.scaledDimensions;
+//     distance = calculatedProps.distance;
+//     avatar.initialDistance = distance;
+//     avatar.mainInitialDimensions = scaledDimensions;
+//     avatar.previousName = avatarInfo.displayName;
+
+//     localEntityMain
+//         .add("lineHeight", lineHeight)
+//         .add("dimensions", scaledDimensions)
+//         .sync();
+//     // localEntityMainBackground
+//     //     .add("lineHeight", lineHeight)
+//     //     .add("dimensions", scaledDimensions)
+//     //     .sync();
+// }
 function updateName(uuid, name){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
-    var localEntityMain = avatar.localEntityMain;
-    var localEntityMainBackground = avatar.localEntityMainBackground;
-    var calculatedProps = null;
-    var distance = null;
-    var scaledDimensions = null;
-    var lineHeight = null;
+    avatar.localEntityMain;
+    avatar.localEntitySub;
+    avatar.localEntityMain.destroy();
+    avatar.localEntitySub.destroy();
 
-    localEntityMain.add("text", avatarInfo.displayName);
-    calculatedProps = _this.calculateInitialProperties(uuid, "main");
-    lineHeight = calculatedProps.lineHeight;
-    scaledDimensions = calculatedProps.scaledDimensions;
-    distance = calculatedProps.distance;
-    avatar.initialDistance = distance;
-    avatar.mainInitialDimensions = scaledDimensions;
-    avatar.previousName = avatarInfo.displayName;
-
-    localEntityMain
-        .add("lineHeight", lineHeight)
-        .add("dimensions", scaledDimensions)
-        .sync();
-    localEntityMainBackground
-        .add("lineHeight", lineHeight)
-        .add("dimensions", scaledDimensions)
-        .sync();
+    avatar.localEntityMain = new LocalEntity('local').add(entityProps);
+    avatar.localEntitySub = new LocalEntity('local').add(entityProps);
+    var localOffset = avatarInfo.localPositionOfIntersection;
+    avatar.intersection = localToWorld(localOffset, avatarInfo.position, avatarInfo.orientation)
+    _this.makeMainName(uuid, CREATE);
+    // _this.makeSubName(uuid, CREATE);
 }
 
 var MAX_DISTANCE_METERS = 0.0;
@@ -349,11 +394,11 @@ function maybeRedraw(uuid){
         log("previous name different");
         updateName(uuid, avatarInfo.displayName);
     } else {
-        _this.reDraw(uuid, "main");
+        // _this.reDraw(uuid, "main");
     }
     
     if (avatarInfo.username) {
-        _this.reDraw(uuid, "sub");
+        // _this.reDraw(uuid, "sub");
     }
 }
 
@@ -366,70 +411,75 @@ function maybeRemove(uuid) {
 
 function checkAllSelectedForRedraw(){
     for (var avatar in _this.selectedAvatars) {
-        maybeRedraw(avatar);
+        // maybeRedraw(avatar);
     }
 }
 
 
 var REDRAW_TIMEOUT = 100;
-function makeMainName(uuid, intersection, shouldCreate){
+function makeMainName(uuid, shouldCreate){
     // log("made it to makeMainName")
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
     var localEntityMain = avatar.localEntityMain;
-    var localEntityMainBackground = avatar.localEntityMainBackground;
+    // var localEntityMainBackground = avatar.localEntityMainBackground;
     var calculatedProps = null;
     var position = null;
     var distance = null;
     var scaledDimensions = null;
     var lineHeight = null;
 
-    position = intersection.intersection;
+    position = avatar.intersection;
+    log("position", position)
     avatar.created = Date.now();
     avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
     if (shouldCreate){
-        // log("creating");
+        log("creating", avatarInfo.displayName);
         localEntityMain.add("text", avatarInfo.displayName);
 
         calculatedProps = _this.calculateInitialProperties(uuid, "main");
+        log("calculated props", calculatedProps)
         lineHeight = calculatedProps.lineHeight;
         scaledDimensions = calculatedProps.scaledDimensions;
         distance = calculatedProps.distance;
         avatar.initialDistance = distance;
         avatar.mainInitialDimensions = scaledDimensions;
         avatar.previousName = avatarInfo.displayName;
+        var localPosition = [0, 0, 1];
+        var newPosition = Vec3.sum(Vec3.multiplyQbyV(MyAvatar.orientation, localPosition), position);
+        
         localEntityMain
             .add("lineHeight", lineHeight)
             .add("dimensions", scaledDimensions)
             .add("position", position)
+            // .add("position", position)
             .add("parentID", uuid)
             .create(true);
-        log("#### orientation", localEntityMain.get("rotation", true));
+              
+        // log("#### orientation", localEntityMain.get("rotation", true));
         
-        localEntityMainBackground
-            .add("lineHeight", lineHeight)
-            // .add("dimensions", scaledDimensions)
-            .add("dimensions", [5, 5, 5])
-            .add("position", position)
-            .add("parentID", uuid)
-            // .add("rotation", Camera.orientation)
-            .add("rotation", rotateBillboard(MyAvatar.position, Camera.position))
-            // .add("rotation", Quat.inverse(MyAvatar.orientation))
-            // .add("rotation", localEntityMain.get("rotation", true))
-            // .add("localRotation", Quat.fromPitchYawRollDegrees(300,0,0))
-            .create(true);
-
-
+        // localEntityMainBackground
+        //     // .add("lineHeight", lineHeight)
+        //     .add("dimensions", scaledDimensions)
+        //     // .add("dimensions", [5, 1, 0.1])
+        //     .add("position", position)
+        //     .add("parentID", localEntityMain.id)
+        //     // .add("rotation", Camera.orientation)
+        //     .add("rotation", rotateBillboard(position, Camera.position))
+        //     // .add("rotation", Quat.inverse(MyAvatar.orientation))
+        //     // .add("rotation", localEntityMain.get("rotation", true))
+        //     // .add("localRotation", Quat.fromPitchYawRollDegrees(300,0,0))
+        //     .create(true);
     } else {
         // log("showing");
         localEntityMain.edit("position", position);
-        localEntityMainBackground.edit("position", position);
+        // localEntityMainBackground.edit("position", position);
         _this.getInfo(uuid);
         _this.getDistance(avatar);
         _this.reDraw(uuid, "main");
         Script.setTimeout(function(){
             localEntityMain.show();
-            localEntityMainBackground.show();
+            // localEntityMainBackground.show();
         }, REDRAW_TIMEOUT);
     }
 
@@ -561,7 +611,7 @@ function reset(){
 
 var CREATE = true;
 var SHOW = false;
-function shouldShowOrCreate(uuid, intersection){
+function shouldShowOrCreate(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
@@ -571,10 +621,10 @@ function shouldShowOrCreate(uuid, intersection){
     // log("localEntityMainID", localEntityMainID);
     if (localEntityMainID) {
         // log("should show");
-        _this.makeMainName(uuid, intersection, SHOW);
+        _this.makeMainName(uuid, SHOW);
     } else {
         // log("should create");
-        _this.makeMainName(uuid, intersection, CREATE);
+        _this.makeMainName(uuid, CREATE);
     }
 
     if (localEntityMainID && localEntitySubID) {
@@ -656,8 +706,9 @@ AvatarListManager.prototype = {
 function rotateBillboard(position, frustrumPos){
     var avatarUp = Quat.getUp(MyAvatar.orientation);
     
-    var newRotaiton = Quat.conjugate(Quat.lookAt(frustrumPos, position, avatarUp));
-    log("new rotation", newRotaiton);
+    // var newRotation = Quat.lookAt(frustrumPos, position, avatarUp);
+    var newRotation = Quat.conjugate(Quat.lookAt(frustrumPos, position, avatarUp));
+    return newRotation;
 }
 
 module.exports = AvatarListManager;
@@ -683,3 +734,13 @@ cross of position - frustrum, avatarUp
 glm conjugate = to quat = look at frustrumpos, position, avatarup
 
 */
+
+// var box = Entities.addEntity({type: "Box", position: MyAvatar.position})
+
+// Script.clearInterval(clearTimer);
+// var handler = function(){
+//     var position = Entities.getEntityProperties(box, 'position');
+//     var rotation = rotateBillboard(position, Camera.frustum.position);
+//     Entities.editEntity(box, {rotation: rotation});
+// };
+// var clearTimer = Script.setInterval(handler, 10);

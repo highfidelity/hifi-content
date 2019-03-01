@@ -78,7 +78,7 @@ EntityMaker.prototype.get = function(propertyKeys, queryEntity){
                 this.properties[prop] = entityProps[prop];
             }
         }
-        log("entityProps in entity maker get", entityProps)
+        // log("entityProps in entity maker get", entityProps)
         return entityProps;
     }
 
