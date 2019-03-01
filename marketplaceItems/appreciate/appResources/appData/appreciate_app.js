@@ -75,7 +75,7 @@
     // If the interval that updates the intensity interval exists,
     // clear it.
     var updateIntensityEntityInterval = false;
-    var UPDATE_INTENSITY_ENTITY_INTERVAL_MS = 60;
+    var UPDATE_INTENSITY_ENTITY_INTERVAL_MS = 75;
     function maybeClearUpdateIntensityEntityInterval() {
         if (updateIntensityEntityInterval) {
             Script.clearInterval(updateIntensityEntityInterval);
@@ -97,7 +97,7 @@
         "y": 0,
         "z": 0
     };
-    var ANGVER_DISTANCE_THRESHOLD_PERCENT_CHANGE = 0.2;
+    var ANGVEL_DISTANCE_THRESHOLD_PERCENT_CHANGE = 0.35;
     var lastDimensions= {
         "x": 0,
         "y": 0,
@@ -126,7 +126,7 @@
         "blue": 0,
         "green": 0
     };
-    var COLOR_DISTANCE_THRESHOLD_PERCENT_CHANGE = 0.2;
+    var COLOR_DISTANCE_THRESHOLD_PERCENT_CHANGE = 0.35;
     var TWO = 2;
     function colorChangedEnough(current, last, thresh) {
         var currentLength = Math.sqrt(
@@ -253,7 +253,7 @@
 
                 var currentAngularVelocity = Vec3.multiply(currentInitialAngularVelocity,
                     currentIntensity * ANGVEL_ENTITY_MULTIPLY_FACTOR);
-                if (xyzVecChangedEnough(currentAngularVelocity, lastAngularVelocity, ANGVER_DISTANCE_THRESHOLD_PERCENT_CHANGE)) {
+                if (xyzVecChangedEnough(currentAngularVelocity, lastAngularVelocity, ANGVEL_DISTANCE_THRESHOLD_PERCENT_CHANGE)) {
                     propsToUpdate.angularVelocity = currentAngularVelocity;
                     lastAngularVelocity = currentAngularVelocity;
                 }
