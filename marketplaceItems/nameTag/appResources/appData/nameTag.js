@@ -17,7 +17,7 @@
     // START UTILITY FUNCTIONS
     // *************************************
     // #region Utilty
-
+    var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
     var PickRayController = Script.require('./resources/modules/pickRayController.js?' + Date.now());
     var AvatarListManager = Script.require('./resources/modules/avatarListManager.js?' + Date.now());
     var pickRayController = new PickRayController();
@@ -45,6 +45,7 @@
 
     function selectAvatar(uuid, intersection) {
         console.log("in selectAvatar");
+        log("intersection", intersection)
         avatarListManager.handleSelect(uuid, intersection);
     }
 
