@@ -1,7 +1,7 @@
 # Vending Machine
 
 ## Description
-This is the code repo for the Vending Machine Blueprint from High Fidelity.  This item allows you as a content creator to provide quick access to marketplace items you wish to promote, whether it's your own or someone else's!  By clicking or triggering on any of the buttons, a user will bring up the marketplace checkout page for that item and have it delivered to their inventory. The vending machine does not rez items, so user permissions for your domain will not be affected!
+This is the code repo for the Vending Machine Blueprint from High Fidelity.  This item allows you as a content creator to provide quick access to marketplace items you wish to promote, whether it's your own or someone else's!  By clicking or triggering on any of the buttons, a user will bring up the marketplace checkout page for that item and have it delivered to their inventory. The vending machine does not rez items, so you don't need to mess with user permissions!
 
 ## Instructions
 To set the items you want your vending machine to sell:
@@ -16,6 +16,7 @@ To set the items you want your vending machine to sell:
 
 ## Releases
 ### Version 1
+SHA [75b8596](https://github.com/highfidelity/hifi-content/pull/310/commits/75b8596005fd44c829a6560a1d026a8452c1c868)
 March 1, 2019
 - Initial Release
 
