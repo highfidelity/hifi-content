@@ -165,5 +165,5 @@ Happy creating!
 
 # Releases
 
- ## 2019-03-04_10:00 :: [5d396c5](https://github.com/highfidelity/hifi-content/commit/5d396c5)
+ ## 2019-03-04_10:00 :: [](https://github.com/highfidelity/hifi-content/commit/5d396c5)
 - Initial release
