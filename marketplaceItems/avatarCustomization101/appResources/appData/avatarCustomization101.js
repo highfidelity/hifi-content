@@ -63,11 +63,11 @@
     }
 
 
+    // Convert color format rgb to hex
     var BITS_16 = 16;
     var SHIFT_LEFT_24 = 24;
     var SHIFT_LEFT_16 = 16;
     var SHIFT_LEFT_8 = 8;
-    // Convert color format rgb to hex
     function rgbToHex(colorObject) {
         var r = colorObject.r;
         var g = colorObject.g;
@@ -81,8 +81,8 @@
     }
 
 
-    var RGB_255 = 255.0;
     // Convert color format array to rgb
+    var RGB_255 = 255.0;
     function arrayToRGB(color) {
 
         if (Array.isArray(color)) {

@@ -6,7 +6,7 @@ Avatar 101 showcases customizations that creators can make to their avatars usin
 2. Blendshapes applying and manipulating them in High Fidelity
 3. Flow using flow avatar joints
 
-In this README, I describe ways to customize and direct you to more in depth resources that will help you customize your avatar to your needs! I recommend having both this README open and [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js)) open for reference.
+In this README, I describe ways to customize and direct you to more in depth resources that will help you customize your avatar to your needs! I recommend having both this README open and [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js) open for reference.
 
 The app utilizes “Avi,” a customized Woody avatar, with a jacket submesh, specifically named blendshapes on its face, and flow joints on its leaf hair. We use Avi because he is specifically configured to interact with the app. 
 
