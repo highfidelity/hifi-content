@@ -1,7 +1,7 @@
 //
 //  avatarCustomization_ui.js
 //
-//  Defines the Tablet UI for the Avatar Customization 101 App.
+//  Defines the Tablet UI for the Avatar Customization 101 App using Vue.js
 // 
 //  Created by Robin Wilson 2/20/2019
 //  Copyright 2019 High Fidelity, Inc.
@@ -23,7 +23,7 @@
         STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
 
     // Debug
-    var DEBUG = true;
+    var DEBUG = false;
 
     var INITIAL_DYNAMIC = {
         state: {
@@ -1266,13 +1266,11 @@
                     if (DEBUG) {
                         console.log("onScriptEventRecieved: Update UI");
                     }
-
                     if (data.subtype) {
                         app.dynamicData[data.subtype] = data.value;
                     } else {
                         app.dynamicData = data.value;
                     }
-
                     break;
                 default:
                     break;

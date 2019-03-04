@@ -21,6 +21,18 @@ For applying materials to your *own* avatar, please see the below section *Hello
 3. Click "Yes" to save the avatar you're currently wearing or click "No" if not
 4. Follow along with the other tabs below to understand what's happening
 
+## App Layout
+
+App data is organized in config.js. 
+
+## Tablet UI
+
+This app utilizes Vue.js, a Javascript framework, to help create and reuse components.
+
+We will not focus too deeply on the tablet app side. Much of it deals with how Vue operates. If anything is too confusing here, the [Vue.JS documentation](https://vuejs.org/v2/guide/) is fantastic. Hopefully, this gives you an idea of how to use Vue in conjunction with HIFI.
+
+The updateUI() function handles updating the tablet app view with new data handled in dynamicData. 
+
 ## Material tab
 
 Click on the preset buttons to create a material entity or choose from the drop down menu to select "shadeless" or "hifi-pbr" to start with small material property adjustments (See method *updateMaterial()* in avatarCustomization101.js [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js)).

@@ -35,7 +35,7 @@
         STRING_INFO = CONFIG.STRING_INFO,
         STRING_STATE = CONFIG.STRING_STATE;
 
-    var DEBUG = true;
+    var DEBUG = false;
 
     // #region UTILITY
 
