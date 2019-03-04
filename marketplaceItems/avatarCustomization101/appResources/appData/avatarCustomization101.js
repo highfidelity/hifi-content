@@ -14,7 +14,10 @@
 
 (function () {
 
-    Script.include(Script.resolvePath("./resources/modules/flow.js?v1234"));
+    var FLOW_TIMEOUT_MS = 500;
+    Script.setTimeout(function() {
+        Script.include(Script.resolvePath("./resources/modules/flow.js?v1234"));
+    }, FLOW_TIMEOUT_MS);
 
     // Modules
     var AppUi = Script.require("appUi"),
@@ -24,7 +27,7 @@
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
-    var DEBUG = false;
+    var DEBUG = true;
 
     // #region UTILITY FUNCTIONS
 
@@ -96,29 +99,39 @@
 
     // #region MIRROR FUNCTIONS
 
-    var MIRROR_DISTANCE_Z_M = 0.5;
-    var MIRROR_DISTANCE_Y_M = 0.8;
-    var mirrorCubeID;
+    var MIRROR_DISTANCE_Z_M = 0.5,
+        MIRROR_DISTANCE_Y_M = 0.8,
+        LIFETIME_MS = 10000,
+        mirrorCubeID;
     // Creates mirror
     function spawnMirror() {
+        // Remove old mirror
+        MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
+            var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
+            if (name === "Avatar 101 Mirror") {
+                Entities.deleteEntity(avatarEntity.id);
+            }
+        });
+
+        // Create new mirror
         var position = Vec3.sum(
             MyAvatar.position, 
             Vec3.multiplyQbyV(MyAvatar.orientation, { x: 0, y: MIRROR_DISTANCE_Y_M, z: -MIRROR_DISTANCE_Z_M })
         );
         mirrorCubeID = Entities.addEntity({
             type: "Box",
-            name: "mirror",
+            name: "Avatar 101 Mirror",
             dimensions: {
                 "x": 0.6,
                 "y": 0.7,
                 "z": 0.001
             },
+            lifetime: LIFETIME_MS,
             position: position,
-            owningAvatarID: MyAvatar.sessionUUID,
             rotation: MyAvatar.orientation,
             userData: "{\"grabbableKey\":{\"grabbable\":false}}",
             collisionless: true,
-            script: Script.resolvePath("./resources/modules/mirrorClient.js?v6")
+            script: Script.resolvePath("./resources/modules/mirrorClient.js?v9")
         }, "avatar");
     }
 
@@ -137,16 +150,9 @@
 
     // #region AVATAR FUNCTIONS
 
-    var STRING_BOOKMARK_NAME = CONFIG.STRING_BOOKMARK_NAME;
-    // Bookmark avatar with wearables
-    function bookmarkAvatar() {
-        AvatarBookmarks.addBookmark(STRING_BOOKMARK_NAME);
-    }
-
-
     // Save and change the avatar to Avi
     function saveAvatarAndChangeToAvi() {
-        bookmarkAvatar();
+        AvatarBookmarks.addBookmark(CONFIG.STRING_BOOKMARK_NAME);
         changeAvatarToAvi();
     }
 
@@ -155,9 +161,9 @@
     function restoreAvatar() {
         var bookmarksObject = AvatarBookmarks.getBookmarks();
 
-        if (bookmarksObject[STRING_BOOKMARK_NAME]) {
-            AvatarBookmarks.loadBookmark(STRING_BOOKMARK_NAME);
-            AvatarBookmarks.removeBookmark(STRING_BOOKMARK_NAME);
+        if (bookmarksObject[CONFIG.STRING_BOOKMARK_NAME]) {
+            AvatarBookmarks.loadBookmark(CONFIG.STRING_BOOKMARK_NAME);
+            AvatarBookmarks.removeBookmark(CONFIG.STRING_BOOKMARK_NAME);
             setIsAviEnabledFalse();
         } else {
             Window.alert("No bookmark was saved in the avatar app.");
@@ -171,16 +177,8 @@
         // Set avatar to Avi.fst
         MyAvatar.useFullAvatarURL(AVATAR_URL);
         MyAvatar.setAttachmentsVariant([]);
-        setIsAviEnabledTrue();
-    }
-
-
-    // Contains all steps to set the app state to isAviEnabled = true
-    function setIsAviEnabledTrue() {
         dynamicData.state.isAviEnabled = true;
-        updateUI(STRING_STATE);
     }
-
 
     // Contains all steps to set the app state to isAviEnabled = false
     function setIsAviEnabledFalse() {
@@ -201,18 +199,18 @@
 
     // #region MATERIAL
 
+    // This takes the format of the UI defined in config.js and converts it into 
+    // the argument format update material expects
     // propertyName
     // newMaterialData { value: "" map: "" }
     // componentType: STRING_COLOR / STRING_SLIDER / STRING_MAP_ONLY
     // isPBR: boolean
     function updateMaterialProperty(propertyName, newMaterialData, componentType, isPBR) {
-        var value = newMaterialData.value;
-        var map = newMaterialData.map;
         var propertyMap = propertyName + "Map";
 
         if (DEBUG) {
-            print("Update Material Property key: ", propertyName, " value: ", value);
-            print("Update Material Property key: ", propertyMap, " map: ", map);
+            print("Update Material Property key: ", propertyName, " value: ", newMaterialData.value);
+            print("Update Material Property key: ", propertyMap, " map: ", newMaterialData.map);
             print("Update Material Property isPBR: ", isPBR);
         }
         
@@ -224,25 +222,30 @@
             unlit: !isPBR
         };
 
-        if (value !== undefined) {
-            value = componentType === CONFIG.STRING_COLOR ? convertColorUIToBackend(value) : value;
-            value = componentType === CONFIG.STRING_MAP_ONLY ? convertImageUIToBackend(value) : value;
+        if (newMaterialData.value !== undefined) { // null is a valid entry
+            var value = componentType === CONFIG.STRING_COLOR 
+                ? convertHexToArrayColor(newMaterialData.value) 
+                : newMaterialData.value;
+            value = componentType === CONFIG.STRING_MAP_ONLY 
+                ? addFileDirectory(newMaterialData.value) 
+                : newMaterialData.value;
             // slider value does not need to be changed
 
             updates[propertyName] = value;
-            dynamicData[STRING_MATERIAL][type][propertyName].value = value;
+            dynamicData[STRING_MATERIAL][type][propertyName].value = newMaterialData.value;
         }
 
-        if (map !== undefined && componentType !== CONFIG.STRING_MAP_ONLY) {
-            updates[propertyMap] = convertImageUIToBackend(map);
-            dynamicData[STRING_MATERIAL][type][propertyName].map = map;
+        if (newMaterialData.map !== undefined && componentType !== CONFIG.STRING_MAP_ONLY) { // null is a valid entry
+            updates[propertyMap] = addFileDirectory(newMaterialData.map);
+            dynamicData[STRING_MATERIAL][type][propertyName].map = newMaterialData.map;
         }
 
         updateMaterial({ materials: updates }, false, isPBR);
     }
 
 
-    function convertColorUIToBackend(hexColor){
+    // Convert hex color to array color
+    function convertHexToArrayColor(hexColor){
         if (hexColor) {
             // hex -> rgb -> array
             var rgb = hexToRgb(hexColor);
@@ -255,8 +258,9 @@
     }
 
 
-    function convertImageUIToBackend(file) {
-        if (file && file.indexOf("no.jpg") !== -1) {
+    // Add file directory to file name
+    function addFileDirectory(file) {
+        if (file && file.indexOf("no.jpg") !== -1) { // the "nothing selected" texture
             return null;
         } 
         return MATERIAL_DATA.directory + file;
@@ -276,7 +280,8 @@
         return a;
     }
 
-    function convertColorBackendToUI(arrayColor){
+    // Array color to hex color
+    function convertArrayToHexColor(arrayColor){
         // array -> rgb -> hex
         var rgb = arrayToRGB(arrayColor);
         var hex = rgbToHex(rgb);
@@ -329,7 +334,7 @@
             } else {
                 // is Color or Slider value
                 dynamicPropertyData[key].value = Array.isArray(value) 
-                    ? convertColorBackendToUI(value) // is color
+                    ? convertArrayToHexColor(value) // is color
                     : value;
             }
 
@@ -533,14 +538,14 @@
     }
 
 
-    var BLENDSHAPE_RESET_MS = 50;
     // Set Blendshapes back to default
+    var BLENDSHAPE_RESET_MS = 50;
     function removeBlendshapes() {
         MyAvatar.hasScriptedBlendshapes = true;
         applyNamedBlendshapes("default");
         Script.setTimeout(function () {
             MyAvatar.hasScriptedBlendshapes = false;
-            updateUI(STRING_BLENDSHAPES);
+            // updateUI(STRING_BLENDSHAPES);
         }, BLENDSHAPE_RESET_MS);
     }
 
@@ -549,11 +554,6 @@
 
     // #region FLOW
 
-    // Subtype event strings
-    var STRING_DEBUG_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_DEBUG_TOGGLE,
-        STRING_COLLISIONS_TOGGLE = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_COLLISIONS_TOGGLE,
-        STRING_HAIR = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_HAIR,
-        STRING_JOINTS = CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS;
     // Called when user navigates to flow tab
     function addRemoveFlowDebugSpheres(isEnabled, setShowDebugSpheres) {
         // draw debug circles on the joints
@@ -594,11 +594,11 @@
         for (var propertyName in newFlowDataToApply) {
             var newValue = newFlowDataToApply[propertyName];
 
-            if (subtype === STRING_HAIR) {
+            if (subtype === CONFIG.FLOW_EVENTS_SUBTYPE.STRING_HAIR) {
                 GlobalDebugger.setJointDataValue("leaf", propertyName, newValue);
                 dynamicData[STRING_FLOW].hairFlowOptions[propertyName] = newValue;
 
-            } else if (subtype === STRING_JOINTS) {
+            } else if (subtype === CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS) {
                 GlobalDebugger.setCollisionDataValue("HeadTop_End", propertyName, newValue);
                 dynamicData[STRING_FLOW].jointFlowOptions[propertyName] = newValue;
             }
@@ -626,17 +626,22 @@
     };
     // Tab dynamic variables
     var currentTab;
-    // Create menu button
+    // Create menu button and connect all callbacks to signals on startup
     function startup() {
         ui = new AppUi({
             buttonName: CONFIG.BUTTON_NAME,
             home: URL,
-            onMessage: onMessage,
-            graphicsDirectory: Script.resolvePath("./resources/icons/"),
+            onMessage: onMessage, // UI event listener  
+            // Icons are located in this directory
+            // AppUI is looking for icons named with the BUTTON_NAME "avatar-101" 
+            // For example: avatar-101-a.svg for active button icon, avatar-101-i.svg for inactive button icon
+            graphicsDirectory: Script.resolvePath("./resources/icons/"), 
             onOpened: onOpened,
             onClosed: onClosed
         });
+        // Connect unload function to the script ending
         Script.scriptEnding.connect(unload);
+        // Connect function callback to model url changed signal
         MyAvatar.skeletonModelURLChanged.connect(onAvatarModelURLChanged);
     }
 
@@ -644,13 +649,14 @@
     // Checks the current avatar model and sees if the avatar url is Avi
     function onAvatarModelURLChanged() {
         if (MyAvatar.skeletonModelURL === AVATAR_URL) {
-            setIsAviEnabledTrue();
+            dynamicData.state.isAviEnabled = true;
             // if your last closed tab has extra setup functionality
             // ensure you have the correct view for the current tab
             switchTabs(dynamicData.state.activeTabName);
         } else {
             setIsAviEnabledFalse();
         }
+        updateUI(STRING_STATE);
     }
 
 
@@ -670,8 +676,11 @@
             print("ACA101 onOpened: isAviEnabled ", MyAvatar.skeletonModelURL === AVATAR_URL);
             print("ACA101 onOpened: activeTabName is ", dynamicData.state.activeTabName);
         }
+        // Checks avatar model url
         onAvatarModelURLChanged();
         spawnMirror();
+
+        updateUI(STRING_STATE);
     }
 
 
@@ -679,6 +688,7 @@
     function switchTabs(tabName) {
         var previousTab = currentTab;
         currentTab = tabName;
+
         // Flow tab conditionals
         if (currentTab === STRING_FLOW && dynamicData[STRING_FLOW].showDebug){
             // enable debug spheres
@@ -696,9 +706,12 @@
             // disable scripted blendshapes
             MyAvatar.hasScriptedBlendshapes = false;
         }
+
+        updateUI(STRING_STATE);
     }
 
 
+    // Unload functions
     function unload() {
         onClosed();
         // Set blendshapes back to normal
@@ -707,6 +720,7 @@
             Entities.deleteEntity(materialID);
             materialID = null;
         }
+        // Disconnect function callback from signal when model url changes
         MyAvatar.skeletonModelURLChanged.disconnect(onAvatarModelURLChanged);
     }
 
@@ -714,6 +728,7 @@
 
 
     // #region EVENTS
+
     // Handles events recieved from the UI
     function onMessage(data) {
         // EventBridge message from HTML script.
@@ -733,6 +748,8 @@
 
         switch (data.type) {
             case CONFIG.EVENT_BRIDGE_OPEN_MESSAGE:
+                console.log("ROBIN IS GREAT 2");
+                onOpened();
                 updateUI();
                 break;
             case CONFIG.EVENT_UPDATE_AVATAR:
@@ -750,9 +767,11 @@
                     default:
                         break;
                 }
+                updateUI(STRING_STATE);
                 break;
             case CONFIG.EVENT_CHANGE_TAB:
                 switchTabs(data.value);
+                updateUI(STRING_STATE);
                 break;
             case CONFIG.EVENT_UPDATE_MATERIAL:
                 // delegates the method depending on if 
@@ -792,20 +811,20 @@
                 break;
             case CONFIG.EVENT_UPDATE_FLOW:
                 switch (data.subtype) {
-                    case STRING_DEBUG_TOGGLE:
+                    case CONFIG.FLOW_EVENTS_SUBTYPE.STRING_DEBUG_TOGGLE:
                         if (DEBUG) {
                             print("TOGGLE DEBUG SPHERES ", data.updates);
                         }
                         addRemoveFlowDebugSpheres(data.updates, true);
                         break;
-                    case STRING_COLLISIONS_TOGGLE:
+                    case CONFIG.FLOW_EVENTS_SUBTYPE.STRING_COLLISIONS_TOGGLE:
                         addRemoveCollisions(data.updates);
                         break;
-                    case STRING_HAIR: 
-                        updateFlow(data.updates, STRING_HAIR);
+                    case CONFIG.FLOW_EVENTS_SUBTYPE.STRING_HAIR: 
+                        updateFlow(data.updates, CONFIG.FLOW_EVENTS_SUBTYPE.STRING_HAIR);
                         break;
-                    case STRING_JOINTS: 
-                        updateFlow(data.updates, STRING_JOINTS);
+                    case CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS: 
+                        updateFlow(data.updates, CONFIG.FLOW_EVENTS_SUBTYPE.STRING_JOINTS);
                         break;
                     default: 
                         console.error("Flow recieved no matching subtype");
@@ -819,6 +838,7 @@
     }
 
 
+    // Send information to update the UI
     function updateUI(type) {
         var messageObject = {
             type: CONFIG.UPDATE_UI,
@@ -833,6 +853,7 @@
 
     // #endregion EVENTS
 
+
     // Initialize the app
     startup();
-}());
+})();

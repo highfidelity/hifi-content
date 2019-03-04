@@ -23,7 +23,62 @@
         STRING_UPDATE_PROPERTY = CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_UPDATE_PROPERTY;
 
     // Debug
-    var DEBUG = false;
+    var DEBUG = true;
+
+    var INITIAL_DYNAMIC = {
+        state: {
+            isAviEnabled: false,
+            activeTabName: STRING_INFO
+        },
+        info: {},
+        material: {
+            selectedTypeIndex: 0,
+            selectedMaterial: "default",
+            shadeless: {
+                // component type color
+                albedo: { value: "N/A", map: null },
+                emissive: { value: "N/A", map: null }
+            },
+            pbr: {
+                // component type color
+                albedo: { value: "N/A", map: null }, 
+                emissive: { value: "N/A", map: null }, 
+                // component type sliders
+                roughness: { value: 0, map: null },
+                metallic: { value: 0, map: null },
+                scattering: { value: 0, map: null },
+                opacity: { value: 1, map: null },
+                // component type map only
+                normalMap: { value: null, map: null },
+                occlusionMap: { value: null, map: null }
+            }
+        },
+        blendshapes: {
+            selected: "default",
+            updatedProperties: {
+                "EyeBlink_L": 0.00,
+                "EyeBlink_R": 0.00,
+                "BrowsU_L": 0.00,
+                "BrowsU_R": 0.00,
+                "JawOpen": 0.00,
+                "Sneer": 0
+            }
+        },
+        flow: {
+            showDebug: true,
+            enableCollisions: true,
+            hairFlowOptions: {
+                stiffness: CUSTOM_FLOW_DATA.leaf.stiffness, 
+                radius: CUSTOM_FLOW_DATA.leaf.radius, 
+                gravity: CUSTOM_FLOW_DATA.leaf.gravity, 
+                damping: CUSTOM_FLOW_DATA.leaf.damping
+            },
+            jointFlowOptions: {
+                radius: CUSTOM_COLLISION_DATA.HeadTop_End.radius,
+                offset: CUSTOM_COLLISION_DATA.HeadTop_End.offset
+            }
+        }
+    };
 
     // #region TABS AND TAB LAYOUT
 
@@ -1164,7 +1219,7 @@
                         <header class="modal-header">
                             <slot name="header"></slot>
                             <button v-if="!hidex" type="button" class="btn-close" @click="close">
-                                X<!-- <div data-icon="w" class="icon"></div> -->
+                                X
                             </button> 
                         </header>
 
@@ -1190,7 +1245,7 @@
         el: '#app',
         data: {
             staticData: CONFIG.STATIC_DATA,
-            dynamicData: CONFIG.INITIAL_DYNAMIC_DATA
+            dynamicData: INITIAL_DYNAMIC
         }
     });
 
@@ -1199,14 +1254,17 @@
     function onScriptEventReceived(message) {
         var data;
         if (DEBUG) {
-            print("onScriptEventRecieved");
+            console.log("onScriptEventRecieved " + message);
         }
         try {
             data = JSON.parse(message);
             switch (data.type) {
+                // case "aviChanged": 
+                //     app.dynamicData["state"].isAviEnabled = data.value;
+                //     break;
                 case CONFIG.UPDATE_UI:
                     if (DEBUG) {
-                        print("onScriptEventRecieved: Update UI");
+                        console.log("onScriptEventRecieved: Update UI");
                     }
 
                     if (data.subtype) {
@@ -1217,24 +1275,46 @@
 
                     break;
                 default:
+                    break;
             }
         } catch (e) {
-            console.log(e);
+            console.log("Issue with onScriptEventRecieved " + e);
             return;
         }
     }
 
 
-    // Load the app
+    // var LOAD_TIMEOUT_MS = 200;
+    // // Load the app
+    // function onLoad() {
+    //     console.log("ROBIN IS GREAT 1");
+    //     setTimeout(function() {
+    //         // Open the EventBridge to communicate with the main script.
+    //         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+    //         EventBridge.emitWebEvent(JSON.stringify({
+    //             type: EVENT_BRIDGE_OPEN_MESSAGE
+    //         }));
+    //     }, LOAD_TIMEOUT_MS);
+    // }
+
+
+    // document.addEventListener('DOMContentLoaded', onLoad, false);
+
+
+    var EVENTBRIDGE_SETUP_DELAY = 50;
+    // This is how much time to give the Eventbridge to wake up.  This won't be needed in RC78 and will be removed.
     function onLoad() {
-        // Open the EventBridge to communicate with the main script.
-        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-        EventBridge.emitWebEvent(JSON.stringify({
-            type: EVENT_BRIDGE_OPEN_MESSAGE
-        }));
+        setTimeout(function () {
+            // Open the EventBridge to communicate with the main script.
+            // Allow time for EventBridge to become ready.
+            EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+            EventBridge.emitWebEvent(JSON.stringify({
+                type: EVENT_BRIDGE_OPEN_MESSAGE
+            }));
+        }, EVENTBRIDGE_SETUP_DELAY);
     }
 
+    // Main  
+    onLoad();
 
-    document.addEventListener('DOMContentLoaded', onLoad, false);
-
-}());
+})();
