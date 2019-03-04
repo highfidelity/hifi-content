@@ -1284,25 +1284,8 @@
     }
 
 
-    // var LOAD_TIMEOUT_MS = 200;
-    // // Load the app
-    // function onLoad() {
-    //     console.log("ROBIN IS GREAT 1");
-    //     setTimeout(function() {
-    //         // Open the EventBridge to communicate with the main script.
-    //         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-    //         EventBridge.emitWebEvent(JSON.stringify({
-    //             type: EVENT_BRIDGE_OPEN_MESSAGE
-    //         }));
-    //     }, LOAD_TIMEOUT_MS);
-    // }
-
-
-    // document.addEventListener('DOMContentLoaded', onLoad, false);
-
-
-    var EVENTBRIDGE_SETUP_DELAY = 50;
-    // This is how much time to give the Eventbridge to wake up.  This won't be needed in RC78 and will be removed.
+    // This will not be needed in later releases and will be removed
+    var EVENTBRIDGE_SETUP_DELAY = 50; // This is how much time to give the Eventbridge to wake up
     function onLoad() {
         setTimeout(function () {
             // Open the EventBridge to communicate with the main script.
@@ -1314,7 +1297,7 @@
         }, EVENTBRIDGE_SETUP_DELAY);
     }
 
+
     // Main  
     onLoad();
-
 })();

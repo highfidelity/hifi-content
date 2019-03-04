@@ -14,6 +14,7 @@
 
 (function () {
 
+    // Include flow
     var FLOW_TIMEOUT_MS = 500;
     Script.setTimeout(function() {
         Script.include(Script.resolvePath("./resources/modules/flow.js?v1234"));
@@ -27,9 +28,16 @@
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
+    // Static strings
+    var STRING_MATERIAL = CONFIG.STRING_MATERIAL,
+        STRING_BLENDSHAPES = CONFIG.STRING_BLENDSHAPES,
+        STRING_FLOW = CONFIG.STRING_FLOW,
+        STRING_INFO = CONFIG.STRING_INFO,
+        STRING_STATE = CONFIG.STRING_STATE;
+
     var DEBUG = true;
 
-    // #region UTILITY FUNCTIONS
+    // #region UTILITY
 
     // Deep copy object utility
     function deepCopy(objectToCopy) {
@@ -94,10 +102,10 @@
         }
     }
 
-    // #endregion UTILITY FUNCTIONS
+    // #endregion UTILITY
 
 
-    // #region MIRROR FUNCTIONS
+    // #region MIRROR
 
     var MIRROR_DISTANCE_Z_M = 0.5,
         MIRROR_DISTANCE_Y_M = 0.8,
@@ -145,10 +153,10 @@
         }
     }
 
-    // #endregion MIRROR FUNCTIONS
+    // #endregion MIRROR
 
 
-    // #region AVATAR FUNCTIONS
+    // #region AVATAR
 
     // Save and change the avatar to Avi
     function saveAvatarAndChangeToAvi() {
@@ -184,17 +192,14 @@
     function setIsAviEnabledFalse() {
         dynamicData.state.isAviEnabled = false;
         dynamicData.state.activeTabName = STRING_INFO;
-        if (materialID) {
-            Entities.deleteEntity(materialID);
-            materialID = null;
-        }
+        deleteJacketMaterial();
         removeBlendshapes();
         deleteMirror();
 
         updateUI(STRING_STATE);
     }
 
-    // #endregion AVATAR FUNCTIONS
+    // #endregion AVATAR
 
 
     // #region MATERIAL
@@ -289,11 +294,11 @@
     }
 
 
-    var PBR_INDEX = 2;
-    var SHADELESS_INDEX = 1;
     // button is pressed and must loop through all UI elements to update
     // newMaterialData.materials passed in
     // for Named buttons only
+    var PBR_INDEX = 2;
+    var SHADELESS_INDEX = 1;
     function updateMaterialDynamicDataUI(newMaterialDataToApply, isPBR) {
         // set the UI drop-down index to hifi-PBR (index 2) or shadeless (index 1)
         dynamicData[STRING_MATERIAL].selectedTypeIndex = isPBR ? PBR_INDEX : SHADELESS_INDEX;
@@ -307,16 +312,13 @@
         for (var property in newMaterials) {
             var key = property;
             var value = newMaterials[key];
-
             if (DEBUG) {
                 print("Key is :", key, " dynamic property data is :", JSON.stringify(dynamicPropertyData));
             }
-            
             if (key === "model" || key === "unlit") {
                 // property doesnt exist in ui properties
                 continue;
             }
-
             if (key.indexOf("Map") !== -1) {
                 // is a Map
                 var uiValue = value.replace(MATERIAL_DATA.directory, ""); // remove path url
@@ -330,21 +332,18 @@
                     var uiProperty = key.replace("Map", "");
                     dynamicPropertyData[uiProperty].map = uiValue;
                 }
-
             } else {
                 // is Color or Slider value
                 dynamicPropertyData[key].value = Array.isArray(value) 
                     ? convertArrayToHexColor(value) // is color
                     : value;
             }
-
         }
-
     }
 
 
-    var materialID;
     // Update material or create a new material
+    var materialID;
     function updateMaterial(newMaterialData, isNamed, isPBR) {
         var materialEntityProperties;
 
@@ -392,6 +391,16 @@
 
         // Create new material 
         if (!materialID) {
+
+            // Delete old material entity
+            // In case materialID reference was lost but material still exists on Avi
+            MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
+                var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
+                if (name === "Avatar101-Material") {
+                    Entities.deleteEntity(avatarEntity.id);
+                }
+            });
+
             newMaterials.model = "hifi_pbr"; 
 
             materialEntityProperties = {
@@ -466,10 +475,7 @@
             case CONFIG.STRING_DEFAULT:
                 setMaterialPropertiesToDefaults();
                 dynamicData[STRING_MATERIAL].selectedTypeIndex = 0; // "Select one"
-                if (materialID) {
-                    Entities.deleteEntity(materialID);
-                    materialID = null;
-                }
+                deleteJacketMaterial();
                 break;
             case CONFIG.STRING_GLASS:
                 // updateMaterial materialName, isNamed, isPBR
@@ -487,6 +493,15 @@
             case CONFIG.STRING_TEXTURE:
                 updateMaterial(MATERIAL_DATA.texture, true, false);
                 break;
+        }
+    }
+
+
+    // Delete material
+    function deleteJacketMaterial() {
+        if (materialID) {
+            Entities.deleteEntity(materialID);
+            materialID = null;
         }
     }
 
@@ -571,7 +586,7 @@
 
     }
 
-
+    // Add collisions or remove collisions using the toggleCollisions flow function
     function addRemoveCollisions(isEnabled) {
         // draw debug circles on the joints
         var flowSettings = GlobalDebugger.getDisplayData();
@@ -585,11 +600,12 @@
     }
 
 
+    // Update flow options
     function updateFlow(newFlowDataToApply, subtype) {
         if (DEBUG) {
             print("updating flow: ", subtype, JSON.stringify(newFlowDataToApply));
         }
-        // propertyName is the key and value is the new propety value
+        // propertyName is the key and value is the new property value
         // for example newFlowDataToApply = { stiffness: 0.5 }
         for (var propertyName in newFlowDataToApply) {
             var newValue = newFlowDataToApply[propertyName];
@@ -610,35 +626,32 @@
 
     // #region APP
 
-    // Static strings
-    var STRING_MATERIAL = CONFIG.STRING_MATERIAL,
-        STRING_BLENDSHAPES = CONFIG.STRING_BLENDSHAPES,
-        STRING_FLOW = CONFIG.STRING_FLOW,
-        STRING_INFO = CONFIG.STRING_INFO,
-        STRING_STATE = CONFIG.STRING_STATE;
-    // UI variables
-    var ui;
-    var dynamicData = deepCopy(CONFIG.INITIAL_DYNAMIC_DATA);
-    // set default UI values to be parsed when set to defaults
-    var defaultMaterialProperties = {
-        shadeless: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].shadeless),
-        pbr: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].pbr)
-    };
-    // Tab dynamic variables
-    var currentTab;
     // Create menu button and connect all callbacks to signals on startup
+    var ui;
+    var dynamicData; // UI data
+    var defaultMaterialProperties; // set default UI values to be parsed when setDefaults() is called for materials
     function startup() {
+        // Set initial UI data for our app and Vue
+        // App data will be populated after updateUI is called in onMessage EVENT_BRIDGE_OPEN_MESSAGE 
+        dynamicData = deepCopy(CONFIG.INITIAL_DYNAMIC_DATA);
+        defaultMaterialProperties = {
+            shadeless: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].shadeless),
+            pbr: deepCopy(CONFIG.INITIAL_DYNAMIC_DATA[STRING_MATERIAL].pbr)
+        };
+        
+        // Create the tablet app
         ui = new AppUi({
             buttonName: CONFIG.BUTTON_NAME,
             home: URL,
             onMessage: onMessage, // UI event listener  
-            // Icons are located in this directory
+            // Icons are located in graphicsDirectory
             // AppUI is looking for icons named with the BUTTON_NAME "avatar-101" 
             // For example: avatar-101-a.svg for active button icon, avatar-101-i.svg for inactive button icon
             graphicsDirectory: Script.resolvePath("./resources/icons/"), 
             onOpened: onOpened,
             onClosed: onClosed
         });
+
         // Connect unload function to the script ending
         Script.scriptEnding.connect(unload);
         // Connect function callback to model url changed signal
@@ -685,6 +698,7 @@
 
 
     // Functionality for each time a tab is switched
+    var currentTab;
     function switchTabs(tabName) {
         var previousTab = currentTab;
         currentTab = tabName;
@@ -716,10 +730,7 @@
         onClosed();
         // Set blendshapes back to normal
         removeBlendshapes();
-        if (materialID) {
-            Entities.deleteEntity(materialID);
-            materialID = null;
-        }
+        deleteJacketMaterial();
         // Disconnect function callback from signal when model url changes
         MyAvatar.skeletonModelURLChanged.disconnect(onAvatarModelURLChanged);
     }
