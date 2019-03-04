@@ -12,20 +12,17 @@
 
 /* global GlobalDebugger */
 
-(function () {
+(function() {
 
-    // Include flow
-    var FLOW_TIMEOUT_MS = 500;
-    Script.setTimeout(function() {
-        Script.include(Script.resolvePath("./resources/modules/flow.js?v1234"));
-    }, FLOW_TIMEOUT_MS);
+    // Include flow to access GlobalDebugger available in flow.js
+    Script.include(Script.resolvePath("./resources/modules/flow.js"));
 
     // Modules
     var AppUi = Script.require("appUi"),
-        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html?v123445555"),
-        CONFIG = Script.require(Script.resolvePath("./resources/config.js?v222222221111111")),
-        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js?v1")),
-        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js?v1234")),
+        URL = Script.resolvePath("./resources/avatarCustomization101_ui.html"),
+        CONFIG = Script.require(Script.resolvePath("./resources/config.js")),
+        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
+        MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
     // Static strings
@@ -759,12 +756,10 @@
 
         switch (data.type) {
             case CONFIG.EVENT_BRIDGE_OPEN_MESSAGE:
-                console.log("ROBIN IS GREAT 2");
                 onOpened();
                 updateUI();
                 break;
             case CONFIG.EVENT_UPDATE_AVATAR:
-
                 switch (data.subtype) {
                     case CONFIG.EVENT_CHANGE_AVATAR_TO_AVI_AND_SAVE_AVATAR:
                         saveAvatarAndChangeToAvi();

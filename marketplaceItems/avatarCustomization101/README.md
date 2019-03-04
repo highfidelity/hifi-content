@@ -2,9 +2,9 @@
 
 Avatar 101 showcases customizations that creators can make to their avatars using High Fidelity.
 
-1. Avatar materials using material entities
-2. Blendshapes applying and manipulating them in High Fidelity
-3. Flow using flow avatar joints
+1. Avatar materials using material entities (See section **Material Tab**)
+2. Blendshapes applying and manipulating them in High Fidelity (See section **Blendshapes Tab**)
+3. Flow using flow avatar joints (See section **Flow Tab**)
 
 In this README, I describe ways to customize and direct you to more in depth resources that will help you customize your avatar to your needs! I recommend having both this README open and [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js) open for reference.
 
@@ -12,7 +12,8 @@ The app utilizes “Avi,” a customized Woody avatar, with a jacket submesh, sp
 
 Please feel free to download and open Avi's .fbx and .fst files in your favorite 3D modelling software to inspect. Avi's .fst and .fbx files are located in the [avatar folder](appResources/appData/resources/avatar).
 
-For applying materials to your *own* avatar, please see the below section *Hello World Material: How to get Materials working on your avatar manually*.
+#### For applying materials to your *own* avatar: 
+Please see the below section *Hello World Material: How to get Materials working on your avatar manually*.
 
 ## Steps using the App
 
@@ -21,19 +22,52 @@ For applying materials to your *own* avatar, please see the below section *Hello
 3. Click "Yes" to save the avatar you're currently wearing or click "No" if not
 4. Follow along with the other tabs below to understand what's happening
 
-## App Layout
+## A Brief App Layout and Organization Overview
 
-App data is organized in config.js. 
+The README is focused mainly on customizing your avatar and using the High Fidelity Javascript API calls in avatarCustomization101.js. These are described in the sections: **Materials Tab**, **Blendshapes Tab**, and **Flow Tab**.
 
-## Tablet UI
+Please skip this section unless you are interested in learning more about how the app works as a Tablet app with Vue.js.
 
-This app utilizes Vue.js, a Javascript framework, to help create and reuse components.
+#### avatarCustomization101.js
 
-We will not focus too deeply on the tablet app side. Much of it deals with how Vue operates. If anything is too confusing here, the [Vue.JS documentation](https://vuejs.org/v2/guide/) is fantastic. Hopefully, this gives you an idea of how to use Vue in conjunction with HIFI.
+This is where all of the High Fidelity API calls are managed. These interact with the High Fidelity system.
 
-The updateUI() function handles updating the tablet app view with new data handled in dynamicData. 
+#### avatarCustomization101_ui.js
 
-## Material tab
+This app utilizes Vue.js, a Javascript framework, to help create and reuse components, handle data updates, and send events over the Eventbridge.
+
+Check out the [Vue.JS documentation](https://vuejs.org/v2/guide/) for more  information.
+
+The updateUI() function in avatarCustomization101.js handles updating the tablet app view with new data handled in dynamicData. This file recieves those updates in function onScriptEventReceived().
+
+#### config.js
+
+App data is organized and defined in config.js. The variables are referenced by both avatarCustomization101_ui.js and avatarCustomization101.js to ensure each variable matches eachother.
+
+When the app is initialized in avatarCustomization101_ui.js, Vue takes the initial data outlined in config.js and creates the UI.
+
+CONFIG.INITIAL_DYNAMIC_DATA is the initial dynamic data that will change when updateUI() is called in avatarCustomization101.js. 
+CONFIG.STATIC_DATA is data that will not change.
+
+In avatarCustomization101.js, dynamicData is initialized with a deep copy of CONFIG.INITIAL_DYNAMIC_DATA. It uses this object to send updates to the Tablet via updateUI().  
+
+#### How the Tablet UI updates with Users Input
+
+Users interact with the Tablet UI such as clicking a preset button on the materials tab. The button is clicked and a message is sent over the EventBridge in the format: 
+```
+EventBridge.emitWebEvent(JSON.stringify({
+    type: EVENT_UPDATE_MATERIAL,
+    subtype: CONFIG.MATERIAL_EVENTS_SUBTYPE.STRING_NAMED_MATERIAL_SELECTED,
+    name: materialName
+}));
+```
+AvatarCustomization.js recieves this message in the onMessage function and delegates the message in the type switch statement. Subtype is determined afterward. 
+
+After the change has been managed, *dynamicData* variable is updated and sent over  via ui.sendToHtml(messageObject) for the UI to update it's dynamic data object. 
+
+The user sees the change in the Tablet. 
+
+## Material Tab
 
 Click on the preset buttons to create a material entity or choose from the drop down menu to select "shadeless" or "hifi-pbr" to start with small material property adjustments (See method *updateMaterial()* in avatarCustomization101.js [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js)).
 
@@ -107,7 +141,34 @@ To see the naming conventions for blendshapes in high fidelity please see [High 
 
 Blendshapes are the system that helps us have facial expressions and have your eyes blink in High Fidelity! The High Fidelity system requires a specific naming convention for the blendshapes. 
 
-Blendshapes are built into the avatar.fst file and is updated by a High Fidelity function call MyAvatar.setBlendshape for each blendshape.
+Blendshapes are built into the avatar.fbx and described in the avatar.fst file. 
+
+The main function used to update blendshapes is [MyAvatar.setBlendshape()](https://docs.highfidelity.com/api-reference/namespaces/myavatar#.setBlendshape). It takes a blendshape name such as "EyeBlink_L" and a value to set it to.
+
+To try it! 
+
+Open your console in High Fidelity:
+1. Open High Fidelity 
+2. Open the Console
+    1. Alt + Ctrl + J 
+    2. OR Turn on via Developer Menu: Settings > Developer Menu 
+    3. Developer > Scripting > Console...
+
+Copy and paste this code in your console:
+```
+MyAvatar.hasScriptedBlendshapes = true;
+
+
+
+```
+
+To set it back to default:
+```
+MyAvatar.hasScriptedBlendshapes = false;
+
+```
+
+ is updated by a High Fidelity function call [MyAvatar.setBlendshape](https://docs.highfidelity.com/api-reference/namespaces/myavatar#.setBlendshape) for each blendshape.
 
 Each blendshape needs to be named to work with our system.
 
