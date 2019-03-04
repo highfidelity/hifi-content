@@ -16,7 +16,7 @@ To set the items you want your vending machine to sell:
 
 ## Releases
 ### Version 1
-SHA [75b8596](https://github.com/highfidelity/hifi-content/pull/310/commits/75b8596005fd44c829a6560a1d026a8452c1c868)
+SHA [6b12156](https://github.com/highfidelity/hifi-content/pull/311/commits/6b12156a0144f49c9e0a9a837c4dc410cb5aa74a)
 March 1, 2019
 - Initial Release
 
