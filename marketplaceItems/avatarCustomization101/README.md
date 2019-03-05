@@ -135,40 +135,40 @@ To see all material entity properties [High Fidelity Documentation Material Enti
 
 ## Blendshapes Tab
 
-Blendshapes are described in the High Fidelity docs, please view [Avatar Standards Blendshapes](https://docs.highfidelity.com/create/avatars/create-avatars/avatar-standards.html#blendshapes)
-
-To see the naming conventions for blendshapes in high fidelity please see [High Fidelity Documentation Avatar Standards Blendshapes](https://docs.highfidelity.com/create/avatars/create-avatars/avatar-standards.html#blendshapes).
-
-Blendshapes are the system that helps us have facial expressions and have your eyes blink in High Fidelity! The High Fidelity system requires a specific naming convention for the blendshapes. 
+Blendshapes are the system that helps us have facial expressions, blink your eyes, and talk with your mouth in High Fidelity! The High Fidelity system requires a specific naming convention for the blendshapes.
 
 Blendshapes are built into the avatar.fbx and described in the avatar.fst file. 
 
-The main function used to update blendshapes is [MyAvatar.setBlendshape()](https://docs.highfidelity.com/api-reference/namespaces/myavatar#.setBlendshape). It takes a blendshape name such as "EyeBlink_L" and a value to set it to.
+First, enable scripted blendshapes by setting MyAvatar.hasScriptedBlendshapes to true. 
 
-To try it! 
+Then update one blendshape with [MyAvatar.setBlendshape(name, value)](https://docs.highfidelity.com/api-reference/namespaces/myavatar#.setBlendshape). It takes a blendshape name such as "EyeBlink_L" and a value to set it to. 
 
-Open your console in High Fidelity:
+#### Try it with your avatar
+
+**Open your console in High Fidelity:**
 1. Open High Fidelity 
 2. Open the Console
     1. Alt + Ctrl + J 
     2. OR Turn on via Developer Menu: Settings > Developer Menu 
     3. Developer > Scripting > Console...
 
-Copy and paste this code in your console:
+**Copy and paste this code in your console to wink!**
 ```
-MyAvatar.hasScriptedBlendshapes = true;
-
-
-
+MyAvatar.hasScriptedBlendshapes = true; 
+MyAvatar.setBlendshape("EyeBlink_L", 1); 
 ```
 
-To set it back to default:
+**Copy and paste to set back to default**
 ```
+MyAvatar.setBlendshape("EyeBlink_L", 0); 
 MyAvatar.hasScriptedBlendshapes = false;
-
 ```
 
- is updated by a High Fidelity function call [MyAvatar.setBlendshape](https://docs.highfidelity.com/api-reference/namespaces/myavatar#.setBlendshape) for each blendshape.
+#### More Blendshape Information
+
+Blendshapes are described in the High Fidelity docs, please view [Avatar Standards Blendshapes](https://docs.highfidelity.com/create/avatars/create-avatars/avatar-standards.html#blendshapes)
+
+To see the naming conventions for blendshapes in high fidelity please see [High Fidelity Documentation Avatar Standards Blendshapes](https://docs.highfidelity.com/create/avatars/create-avatars/avatar-standards.html#blendshapes).
 
 Each blendshape needs to be named to work with our system.
 

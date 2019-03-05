@@ -81,7 +81,6 @@
     // Convert color format array to rgb
     var RGB_255 = 255.0;
     function arrayToRGB(color) {
-
         if (Array.isArray(color)) {
             var rgbFormat = {
                 r: Math.floor( color[0] * RGB_255 ),
@@ -92,7 +91,6 @@
             if (DEBUG) {
                 print("arrayToRGB" + JSON.stringify(rgbFormat));
             }
-
             return rgbFormat;
         } else {
             return color;
@@ -225,12 +223,12 @@
         };
 
         if (newMaterialData.value !== undefined) { // null is a valid entry
-            var value = componentType === CONFIG.STRING_COLOR 
-                ? convertHexToArrayColor(newMaterialData.value) 
-                : newMaterialData.value;
-            value = componentType === CONFIG.STRING_MAP_ONLY 
-                ? addFileDirectory(newMaterialData.value) 
-                : newMaterialData.value;
+            var value = newMaterialData.value;
+            if (componentType === CONFIG.STRING_COLOR) {
+                value = convertHexToArrayColor(newMaterialData.value);
+            } else if (componentType === CONFIG.STRING_MAP_ONLY) {
+                value = addFileDirectory(newMaterialData.value)
+            }
             // slider value does not need to be changed
 
             updates[propertyName] = value;
@@ -372,7 +370,8 @@
                 // get old materials values and properties to carry over to new
                 oldMaterials = JSON.parse(oldMaterialDataString).materials;
             } catch (e) {
-                console.error("Issues parsing oldMaterialDataString" + e);
+                console.error("Issues parsing oldMaterialDataString " + e);
+                return;
             }
 
             // merge new materials and old material properties together
@@ -383,7 +382,6 @@
                 // is shadeless
                 delete newMaterials["unlit"];
             }
-
         }
 
         // Create new material 
@@ -580,7 +578,6 @@
                 dynamicData[STRING_FLOW].showDebug = isEnabled;
             }
         }
-
     }
 
     // Add collisions or remove collisions using the toggleCollisions flow function
@@ -593,7 +590,6 @@
             GlobalDebugger.toggleCollisions();
             dynamicData[STRING_FLOW].enableCollisions = isEnabled;
         }
-
     }
 
 
