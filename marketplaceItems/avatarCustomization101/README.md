@@ -6,7 +6,7 @@ Avatar 101 showcases customizations that creators can make to their avatars usin
 2. Blendshapes applying and manipulating them in High Fidelity (See section **Blendshapes Tab**)
 3. Flow using flow avatar joints (See section **Flow Tab**)
 
-In this README, I explain ways to customize your avatar, how to script these changes in the hifi console, and reference more in-depth sources. I recommend having both this README and [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js) open for reference.
+In this README, I explain ways to customize your avatar, how to script these changes in the hifi console, and reference more in-depth sources. I recommend having both this README and [avatarCustomization101_app.js](appResources/appData/resources/avatarCustomization101_app.js) open for reference.
 
 The app utilizes “Avi,” a customized Woody avatar, with a jacket submesh, specifically named blendshapes on its face, and flow joints on its leaf hair. We use Avi because he is specifically configured to interact with the app.
 
@@ -21,11 +21,11 @@ Please feel free to download and open Avi's .fbx and .fst files in your favorite
 
 ## A Brief App Layout and Organization Overview
 
-The README is focused mainly on customizing your avatar and using the High Fidelity Javascript API calls in avatarCustomization101.js. These are described in the sections: **Materials Tab**, **Blendshapes Tab**, and **Flow Tab**.
+The README is focused mainly on customizing your avatar and using the High Fidelity Javascript API calls in avatarCustomization101_app.js. These are described in the sections: **Materials Tab**, **Blendshapes Tab**, and **Flow Tab**.
 
 Please skip this section unless you are interested in learning more about how the app works as a Tablet app with Vue.js.
 
-### avatarCustomization101.js
+### avatarCustomization101_app.js
 
 This is where all of the High Fidelity API calls are managed. These interact with the High Fidelity system.
 
@@ -35,18 +35,18 @@ This app utilizes Vue.js, a Javascript framework, to help create and reuse compo
 
 Check out the [Vue.JS documentation](https://vuejs.org/v2/guide/) for more  information.
 
-The updateUI() function in avatarCustomization101.js handles updating the tablet app view with new data handled in dynamicData. This file receives those updates in function onScriptEventReceived().
+The updateUI() function in avatarCustomization101_app.js handles updating the tablet app view with new data handled in dynamicData. This file receives those updates in function onScriptEventReceived().
 
 ### config.js
 
-App data is organized and defined in config.js. The variables are referenced by both avatarCustomization101_ui.js and avatarCustomization101.js to ensure each variable matches each other.
+App data is organized and defined in config.js. The variables are referenced by both avatarCustomization101_ui.js and avatarCustomization101_app.js to ensure each variable matches each other.
 
 When the app is initialized in avatarCustomization101_ui.js, Vue takes the initial data outlined in config.js and creates the UI.
 
-CONFIG.INITIAL_DYNAMIC_DATA is the initial dynamic data that will change when updateUI() is called in avatarCustomization101.js.
+CONFIG.INITIAL_DYNAMIC_DATA is the initial dynamic data that will change when updateUI() is called in avatarCustomization101_app.js.
 CONFIG.STATIC_DATA is data that will not change.
 
-In avatarCustomization101.js, dynamicData is initialized with a deep copy of CONFIG.INITIAL_DYNAMIC_DATA. It uses this object to send updates to the Tablet via updateUI(). 
+In avatarCustomization101_app.js, dynamicData is initialized with a deep copy of CONFIG.INITIAL_DYNAMIC_DATA. It uses this object to send updates to the Tablet via updateUI(). 
 
 ### How the Tablet UI updates with Users Input
 
@@ -64,7 +64,7 @@ After the change has been managed, *dynamicData* variable is updated and sent ov
 
 # Material Tab
 
-Click on the preset buttons to create a material entity or choose from the drop-down menu to select "shadeless" or "hifi-pbr" to start with small material property adjustments (See method *updateMaterial()* in avatarCustomization101.js [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js)).
+Click on the preset buttons to create a material entity or choose from the drop-down menu to select "shadeless" or "hifi-pbr" to start with small material property adjustments (See method *updateMaterial()* in [avatarCustomization101_app.js](appResources/appData/resources/avatarCustomization101_app.js)).
 
 Have fun with playing with the different options in the app! The "Default" button will delete the material entity and you can start again.
 
@@ -237,5 +237,5 @@ This app showcases material entities, blendshapes, and flow to customize your av
 
 # Releases
 
-## 2019-03-04_10:00 :: [](https://github.com/highfidelity/hifi-content/commit/5d396c5)
+## 2019-03-05_09-11-00 :: [42bb961](https://github.com/highfidelity/hifi-content/commit/42bb961)
 - Initial release

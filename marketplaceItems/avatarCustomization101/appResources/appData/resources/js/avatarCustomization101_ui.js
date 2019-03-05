@@ -281,7 +281,7 @@
         data() {
             return {
                 isModalSaveAvatarVisible: false,
-                title: "You will learn about customizing your avatar in High Fidelity:",
+                title: "You will learn about customizing avatars in High Fidelity:",
                 items: ["Materials", "Blendshapes", "Flow"]
             };
         },
@@ -292,6 +292,13 @@
                     :title="title" 
                     :items="items"
                 ></title-list>
+
+                <p class="mb-1">
+                    We encourage you to check out the app's code on Github and detailed README.
+                </p>
+                <p class="mb-5">
+                    Find the link in the marketplace item description. 
+                </p>
 
                 <div class="flex-container-row">
                     <button-big 
@@ -992,7 +999,7 @@
         props: ['title', 'items'],
         template: /* html */ `
             <div>
-                <p>{{ title }}</p>
+                <p class="my-2">{{ title }}</p>
                 <ul>
                     <template v-for="item in items">
                         <li>{{ item }}</li>
