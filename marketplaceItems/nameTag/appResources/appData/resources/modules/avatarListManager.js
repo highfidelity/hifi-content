@@ -164,11 +164,11 @@ function calculateInitialProperties(uuid, type) {
     );
     lineHeight = scaledDimensions.y * LINE_HEIGHT_SCALER;
 
-    if (type === "main") {
-        log("!!!!!!!! lineHeight", lineHeight)
-        log("!!!!!!!! scaledDimensions", scaledDimensions.y)
+    // if (type === "main") {
+    //     log("!!!!!!!! lineHeight", lineHeight)
+    //     log("!!!!!!!! scaledDimensions", scaledDimensions.y)
     
-    }
+    // }
     
     if (type === "sub") {
         var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y
@@ -276,7 +276,6 @@ function reDraw(uuid, type){
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
     adjustedScaler = currentDistance * DISTANCE_SCALER;
-
     localEntity
         .add("lineHeight", lineHeight)
         .add("dimensions", newDimensions);
@@ -298,22 +297,26 @@ function reDraw(uuid, type){
         // localEntity
         //     .add("lineHeight", lineHeight)
         //     .add("dimensions", newDimensions);
-        if (type === "sub") {
-            // var currentSubDimensions = avatar.localEntitySub.get('dimensions', true);
-            var currentMainDimensions = avatar.localEntityMain.get('dimensions', true);
-    
-            var localEntityMainY = currentMainDimensions.y
-            var differenceY = localEntityMainY - avatar.mainInitialDimensions.y
-    
-            // localPosition =
-            //     [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
-    
-            // localPosition =
-            //     [0, (-localEntityMainY - differenceY) + (SUB_OFFSET * adjustedScaler), 0]
-    
-            // localEntity
-            //     .add("localPosition", localPosition);
-        }
+
+    }
+    if (type === "sub") {
+        // var currentSubDimensions = avatar.localEntitySub.get('dimensions', true);
+        // var currentMainDimensions = avatar.localEntityMain.get('dimensions', true);
+
+        // var localEntityMainY = currentMainDimensions.y
+        // var differenceY = localEntityMainY - avatar.mainInitialDimensions.y
+
+        localPosition =
+            [0, avatar.subInitialLocalPosition.y * adjustedScaler, 0]
+
+        // localPosition =
+        //     [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
+
+        // localPosition =
+        //     [0, (-localEntityMainY - differenceY) + (SUB_OFFSET * adjustedScaler), 0]
+
+        localEntity
+            .add("localPosition", localPosition);
     }
 
     localEntity
@@ -500,6 +503,7 @@ function makeSubName(uuid, shouldCreate){
     var scaledDimensions = null;
     var lineHeight = null;
     var localPosition = null;
+
 
     if (shouldCreate) {
         localEntitySub.add("text", avatarInfo.username);
