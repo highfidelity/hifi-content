@@ -227,7 +227,7 @@
             if (componentType === CONFIG.STRING_COLOR) {
                 value = convertHexToArrayColor(newMaterialData.value);
             } else if (componentType === CONFIG.STRING_MAP_ONLY) {
-                value = addFileDirectory(newMaterialData.value)
+                value = addFileDirectory(newMaterialData.value);
             }
             // slider value does not need to be changed
 
