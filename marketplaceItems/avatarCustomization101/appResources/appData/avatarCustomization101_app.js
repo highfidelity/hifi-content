@@ -658,6 +658,9 @@
     function onAvatarModelURLChanged() {
         if (MyAvatar.skeletonModelURL === AVATAR_URL) {
             dynamicData.state.isAviEnabled = true;
+            if (!mirrorCubeID) {
+                spawnMirror();
+            }
             // if your last closed tab has extra setup functionality
             // ensure you have the correct view for the current tab
             switchTabs(dynamicData.state.activeTabName);
