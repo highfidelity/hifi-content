@@ -1,4 +1,4 @@
-## Hello and Welcome to Avatar 101!
+# Hello and Welcome to Avatar 101!
 
 Avatar 101 showcases customizations that creators can make to their avatars using High Fidelity.
 
@@ -6,16 +6,13 @@ Avatar 101 showcases customizations that creators can make to their avatars usin
 2. Blendshapes applying and manipulating them in High Fidelity (See section **Blendshapes Tab**)
 3. Flow using flow avatar joints (See section **Flow Tab**)
 
-In this README, I describe ways to customize and direct you to more in depth resources that will help you customize your avatar to your needs! I recommend having both this README open and [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js) open for reference.
+In this README, I explain ways to customize your avatar, how to script these changes in the hifi console, and reference more in depth sources. I recommend having both this README open and [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js) open for reference.
 
 The app utilizes “Avi,” a customized Woody avatar, with a jacket submesh, specifically named blendshapes on its face, and flow joints on its leaf hair. We use Avi because he is specifically configured to interact with the app. 
 
 Please feel free to download and open Avi's .fbx and .fst files in your favorite 3D modelling software to inspect. Avi's .fst and .fbx files are located in the [avatar folder](appResources/appData/resources/avatar).
 
-#### For applying materials to your *own* avatar: 
-Please see the below section *Hello World Material: How to get Materials working on your avatar manually*.
-
-## Steps using the App
+# Steps using the App
 
 1. Download the "Avatar 101" app from the High Fidelity Marketplace
 2. Click Switch Avatar on the Info tab
@@ -28,11 +25,11 @@ The README is focused mainly on customizing your avatar and using the High Fidel
 
 Please skip this section unless you are interested in learning more about how the app works as a Tablet app with Vue.js.
 
-#### avatarCustomization101.js
+### avatarCustomization101.js
 
 This is where all of the High Fidelity API calls are managed. These interact with the High Fidelity system.
 
-#### avatarCustomization101_ui.js
+### avatarCustomization101_ui.js
 
 This app utilizes Vue.js, a Javascript framework, to help create and reuse components, handle data updates, and send events over the Eventbridge.
 
@@ -40,7 +37,7 @@ Check out the [Vue.JS documentation](https://vuejs.org/v2/guide/) for more  info
 
 The updateUI() function in avatarCustomization101.js handles updating the tablet app view with new data handled in dynamicData. This file recieves those updates in function onScriptEventReceived().
 
-#### config.js
+### config.js
 
 App data is organized and defined in config.js. The variables are referenced by both avatarCustomization101_ui.js and avatarCustomization101.js to ensure each variable matches eachother.
 
@@ -51,7 +48,7 @@ CONFIG.STATIC_DATA is data that will not change.
 
 In avatarCustomization101.js, dynamicData is initialized with a deep copy of CONFIG.INITIAL_DYNAMIC_DATA. It uses this object to send updates to the Tablet via updateUI().  
 
-#### How the Tablet UI updates with Users Input
+### How the Tablet UI updates with Users Input
 
 Users interact with the Tablet UI such as clicking a preset button on the materials tab. The button is clicked and a message is sent over the EventBridge in the format: 
 ```
@@ -67,13 +64,13 @@ After the change has been managed, *dynamicData* variable is updated and sent ov
 
 The user sees the change in the Tablet. 
 
-## Material Tab
+# Material Tab
 
 Click on the preset buttons to create a material entity or choose from the drop down menu to select "shadeless" or "hifi-pbr" to start with small material property adjustments (See method *updateMaterial()* in avatarCustomization101.js [avatarCustomization101.js](appResources/appData/resources/avatarCustomization101.js)).
 
-Have fun with playing with the different options! The "Default" button will delete the material entity and you can start again.
+Have fun with playing with the different options in the app! The "Default" button will delete the material entity and you can start again.
 
-A material entity's property format is:
+#### Material Entity Property Format
 
 ```Javascript
 {
@@ -101,11 +98,54 @@ A material entity's property format is:
 }
 ```
 
-#### Watch LIVE updates in the Create Menu while running this app
-1. Look for and select the named entity "Avatar101-Material" in the Entity List.
-2. In the Create Menu > Properties > Scroll down to User Data to see the properties change.
+### Watch LIVE updates in the Create Menu while running this app
+1. In Avatar101 app, press one of the material preset buttons 
+2. Open Create Menu > Entity List Window
+3. Set Search Radius to 1m
+4. Select the entity in the list “Avatar101-Material”
+5. In the Create Tools Window > Property Tab 
+6. Material Data will have a list of the properties and the values adjusted
+7. Select “Tree” and switch to “Code” to reveal the Material Data object
 
-#### Material Shading Models and how they're handled for Material Entities
+### Hello World Material: Try Creating a Material Entity for your Avatar
+
+#### Open your console in High Fidelity
+1. Open High Fidelity 
+2. Open the Console
+    1. Alt + Ctrl + J 
+    2. OR Turn on via Developer Menu: Settings > Developer Menu 
+    3. Developer > Scripting > Console... 
+3. Copy and paste below in the console and hit enter:
+
+    ```Javascript
+    var materialID = Entities.addEntity({
+        type: "Material",
+        name: "Hello_World_Material",
+        parentID: MyAvatar.sessionUUID, 
+        materialURL: "materialData",
+        priority: 1,
+        materialData: JSON.stringify({
+            materialVersion: 1,
+            materials: {
+                "model": "hifi_pbr",
+                "albedoMap": "http://cdn.shopify.com/s/files/1/0891/8314/products/Troll_Face_Decal_4ccf767e2e2d9_grande.jpeg?v=1459053675",
+                "emissiveMap": "http://cdn.shopify.com/s/files/1/0891/8314/products/Troll_Face_Decal_4ccf767e2e2d9_grande.jpeg?v=1459053675"
+            }
+        })
+    }, ’avatar’);
+    ```
+
+4. Your avatar should have an image as one of its sub meshes. open the Create Menu to view the named “Hello_World_Material” entity
+5. To choose a different submesh for this material say a jacket rather than hair
+    1. Open the Create Menu 
+    2. Create Tools > Properties tab
+    3. Set "Priority" to 1
+    4. Set "Submesh to Replace" to another number rather than the default, likely try 1 or 2
+6. Have fun adjusting the material!
+
+For material settings inspiration, the Avatar 101 app has material presets defined in [materials.js](appResources/appData/resources/modules/materials.js).
+
+### Material Shading Models and how they're handled for Material Entities
 
 Currently, all shading models in material entities are "hifi-pbr". What indicates the difference between hifi-pbr and shadeless is the "unlit" property.
 
@@ -113,7 +153,7 @@ Currently, all shading models in material entities are "hifi-pbr". What indicate
 
 *shadeless* is the shading model that currently does not have "unlit" specified to a value. These will not react to light and therefore will ultimately show the texture map without shadows. See "red" and "texture" in [materials.js](appResources/appData/resources/modules/materials.js).
 
-#### Material Entity Properties
+### Material Entity Properties
 
 Most adjustments has two channels: a value and a map. A value describes the color or intensity that is used to update the material. The map showcases an image that will be used to inform the pattern of the image. 
 
@@ -123,17 +163,7 @@ To see all material entity properties [High Fidelity Documentation Material Enti
 
 *Material Entities* - These are high fidelity entities that can be extracted from an existing model that describes the material data from that model to render you can learn more about the properties here - https://docs.highfidelity.com/api-reference/namespaces/entities#.EntityProperties-Material
 
-#### View preset entity in the create menu
-1. Press one of the buttons 
-2. Open Create Menu > Entity List Window
-3. Set Search Radius to 1m
-4. Select the entity in the list “Avatar101-Material”
-5. In the Create Tools Window > Property Tab 
-6. Material Data will have a list of the properties and the values adjusted
-7. Select “Tree” and switch to “Code” to reveal the Material Data object
-8. Copy this data and follow steps in "How to use Materials" below for your avatar to adjust materials on your personal avatar
-
-## Blendshapes Tab
+# Blendshapes Tab
 
 Blendshapes are the system that helps us have facial expressions, blink your eyes, and talk with your mouth in High Fidelity! The High Fidelity system requires a specific naming convention for the blendshapes.
 
@@ -141,9 +171,13 @@ Blendshapes are built into the avatar.fbx and described in the avatar.fst file.
 
 First, enable scripted blendshapes by setting MyAvatar.hasScriptedBlendshapes to true. 
 
-Then update one blendshape with [MyAvatar.setBlendshape(name, value)](https://docs.highfidelity.com/api-reference/namespaces/myavatar#.setBlendshape). It takes a blendshape name such as "EyeBlink_L" and a value to set it to. 
+Then update one blendshape with [MyAvatar.setBlendshape(name, value)](https://docs.highfidelity.com/api-reference/namespaces/myavatar#.setBlendshape). It takes a blendshape name such as "EyeBlink_L" and a value to set it to.
 
-#### Try it with your avatar
+The blendshape presets are defined in blendshapes.js
+
+Blendshapes are described in the High Fidelity docs, please view [High Fidelity Documentation Avatar Standards Blendshapes](https://docs.highfidelity.com/create/avatars/create-avatars/avatar-standards.html#blendshapes)
+
+## Try Blendshapes with your Avatar
 
 **Open your console in High Fidelity:**
 1. Open High Fidelity 
@@ -153,6 +187,8 @@ Then update one blendshape with [MyAvatar.setBlendshape(name, value)](https://do
     3. Developer > Scripting > Console...
 
 **Copy and paste this code in your console to wink!**
+This will only work if your avatar has blendshapes that are named appropriately. 
+You're welcome to use Avi if not! 
 ```
 MyAvatar.hasScriptedBlendshapes = true; 
 MyAvatar.setBlendshape("EyeBlink_L", 1); 
@@ -164,11 +200,9 @@ MyAvatar.setBlendshape("EyeBlink_L", 0);
 MyAvatar.hasScriptedBlendshapes = false;
 ```
 
-#### More Blendshape Information
+### More Blendshape Information
 
-Blendshapes are described in the High Fidelity docs, please view [Avatar Standards Blendshapes](https://docs.highfidelity.com/create/avatars/create-avatars/avatar-standards.html#blendshapes)
-
-To see the naming conventions for blendshapes in high fidelity please see [High Fidelity Documentation Avatar Standards Blendshapes](https://docs.highfidelity.com/create/avatars/create-avatars/avatar-standards.html#blendshapes).
+Reference [Avi's .fst file](appResources/appData/resources/avatar/avatar.fst) to see the list of blendshapes specified.
 
 Each blendshape needs to be named to work with our system.
 
@@ -178,63 +212,28 @@ You can specify blendshapes in Maya or Blender.
 ![Blendshape screenshot in .fst file](githubResources/blendshapes_fst_screenshot.png)
 [See avatar.fst file](appResources/appData/resources/avatar/avatar.fst)
 
-The key functions are 
+Another app that uses blendshapes is the [Facial Expressions app](https://raw.githubusercontent.com/highfidelity/hifi/3553f97776b3d3d51d9ac2c16f648ca15c165f81/scripts/developer/facialExpressions.js). This adjusts an avatar’s facial expressions to emote different emotions.
 
-Checkout [Facial Expressions app](https://raw.githubusercontent.com/highfidelity/hifi/3553f97776b3d3d51d9ac2c16f648ca15c165f81/scripts/developer/facialExpressions.js) for more information on blendshapes.
+# Flow Tab
 
-This adjusts an avatar’s facial expressions to emote different emotions.
+Flow is enabled when [flow.js](appResources/appData/resources/modules/flow.js) is a running script and the avatar has specifically named joint names (there are plans to include this in the High Fidelity engine). These joints follow the flow_[TYPE]_[INDEX] or sim[TYPE][INDEX]
 
-Reference [Avi's .fst file](appResources/appData/resources/avatar/avatar.fst) to see the list of blendshapes specified.
-
-## Flow Tab
+[Flow.js](appResources/appData/resources/modules/flow.js) is a script that applies physics to the joints in your avatar that are named specifically to be recognized by the flow script. As creators, we only need to customize the JSON in the flow.js app for our avatar's flow. See walkthrough linked below.
 
 Flow is described more in depth via the High Fidelity docs linked: [High Fidelity Add Flow to Your Avatar](https://docs.highfidelity.com/create/avatars/create-avatars/add-flow.html)
 
-Flow is enabled when flow.js is a running script and the avatar has specifically named joint names (there are plans to include this in the High Fidelity engine). These joints follow the flow_[TYPE]_[INDEX] or sim[TYPE][INDEX]
+### How to get flow working on your avatar
 
-Flow.js is a script that applies physics to the joints in your avatar that are named specifically to be recognized by the flow script. As creators, we only need to customize the JSON in the flow.js app for our avatar's flow. See the walkthrough below.
+Flow thread naming conventions are shown in the flow walkthrough [High Fidelity Add Flow to Your Avatar Flow Threads](https://docs.highfidelity.com/create/avatars/create-avatars/add-flow.html#flow-threads) in the High Fidelity docs.
 
-How to get flow working on your avatar:
-
-Follow through the walkthrough [Add Flow](https://docs.highfidelity.com/create/avatars/create-avatars/add-flow.html#flow-threads) in the High Fidelity docs.
-
-![Blendshape screenshot in .fst file](githubResources/flowJoints.png)
+![Flow joints in .fst file](githubResources/flowJoints.png)
 You can specify flow joints in Maya or Blender.
 
-The joints need to be named for flow.js to recognize.
+# Conclusion
 
-#### Hello World Material: How to get Materials working on your avatar manually
+This app showcases material entities, blendshapes, and flow to customize your avatar in High Fidelity! This app of course is not complete and can be expanded upon to incorporate other avatars! 
 
-1. Open High Fidelity 
-2. Open the Console
-    1. Alt + Ctrl + J 
-    2. OR Turn on via Developer Menu: Settings > Developer Menu 
-    3. Developer > Scripting > Console... 
-3. Copy and paste below in the console and hit enter:
-
-```Javascript
-var materialID = Entities.addEntity({
-    type: "Material",
-    name: "Hello_World_Material",
-    parentID: MyAvatar.sessionUUID,
-    materialURL: "materialData",
-    priority: 1,
-    materialData: JSON.stringify({
-        materialVersion: 1,
-        materials: {
-            "model": "hifi_pbr",
-            "albedoMap": "http://cdn.shopify.com/s/files/1/0891/8314/products/Troll_Face_Decal_4ccf767e2e2d9_grande.jpeg?v=1459053675",
-            "emissiveMap": "http://cdn.shopify.com/s/files/1/0891/8314/products/Troll_Face_Decal_4ccf767e2e2d9_grande.jpeg?v=1459053675"
-        }
-    })
-}, ’avatar’);
-```
-
-4. Your avatar should have an image as one of its sub meshes. Feel free to open The Create Menu to view the named “Hello_World_Material”
-5. To choose a different submesh for this material, open the Create Menu
-
-Happy creating!
-
+### Happy creating!
 
 # Releases
 

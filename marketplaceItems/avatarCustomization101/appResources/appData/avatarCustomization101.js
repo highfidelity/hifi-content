@@ -13,15 +13,17 @@
 /* global GlobalDebugger */
 
 (function() {
-
     // Include flow to access GlobalDebugger available in flow.js
-    Script.include(Script.resolvePath("./resources/modules/flow.js"));
+    var FLOW_DELAY_MS = 2000;
+    Script.setTimeout(function() {
+        Script.include(Script.resolvePath("./resources/modules/flow.js"));
+    }, FLOW_DELAY_MS);
 
     // Modules
     var AppUi = Script.require("appUi"),
         URL = Script.resolvePath("./resources/avatarCustomization101_ui.html"),
         CONFIG = Script.require(Script.resolvePath("./resources/config.js")),
-        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.js")),
+        BLENDSHAPE_DATA = Script.require(Script.resolvePath("./resources/modules/blendshapes.json")),
         MATERIAL_DATA = Script.require(Script.resolvePath("./resources/modules/materials.js")),
         AVATAR_URL = Script.resolvePath("./resources/avatar/avatar.fst");
 
