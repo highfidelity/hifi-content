@@ -121,10 +121,11 @@ function removeOverlay(uuid, shouldDestory){
 
 
 var Z_SIZE = 0.01;
-var SUB_OFFSET = -0.120;
+// var SUB_OFFSET = -0.120;
+var SUB_OFFSET = -0.0101;
 var MAIN_SCALER = 0.75;
 var SUB_SCALER = 0.55;
-var LINE_HEIGHT_SCALER = 0.95;
+var LINE_HEIGHT_SCALER = 0.99;
 var DISTANCE_SCALER = 0.35;
 function calculateInitialProperties(uuid, type) {
     var avatar = _this.avatars[uuid];
@@ -163,11 +164,19 @@ function calculateInitialProperties(uuid, type) {
         type === "main" ? MAIN_SCALER : SUB_SCALER
     );
     lineHeight = scaledDimensions.y * LINE_HEIGHT_SCALER;
+
+    if (type === "main") {
+        log("!!!!!!!! lineHeight", lineHeight)
+        log("!!!!!!!! scaledDimensions", scaledDimensions.y)
+    
+    }
     
     if (type === "sub") {
+        var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y
+        var differenceY = localEntityMainY - scaledDimensions.y
         localPosition =
             // [0, -lineHeight + SUB_OFFSET, 0];
-            [0, SUB_OFFSET * adjustedScaler * SUB_SCALER, 0];
+            [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
             // [0, lineHeight * adjustedScaler * SUB_SCALER * SUB_OFFSET, 0];
     }
 
@@ -208,7 +217,7 @@ function handleUUIDChanged(){
 }
 
 
-var FRIEND_BACKGROUND = [20, 255, 20];
+var FRIEND_TEXT = [240, 240, 240];
 function handleFriend(uuid, username) {
     log("handle friend");
     var avatar = _this.avatars[uuid];
@@ -220,16 +229,16 @@ function handleFriend(uuid, username) {
     var localEntitySub = avatar.localEntitySub;
     
     localEntityMain
-        .edit("textColor", FRIEND_BACKGROUND);
+        .edit("textColor", FRIEND_TEXT);
 
     if (localEntitySub.id){         
-        localEntitySub
-            .edit("backgroundColor", FRIEND_BACKGROUND);
+        // localEntitySub
+            // .edit("backgroundColor", FRIEND_TEXT);
     } else {
-        _this.makeSubName(uuid, CREATE);
+        // _this.makeSubName(uuid, CREATE);
                  
-        localEntitySub
-            .edit("backgroundColor", FRIEND_BACKGROUND);
+        // localEntitySub
+            // .edit("backgroundColor", FRIEND_TEXT);
 
     }
 }
@@ -273,15 +282,22 @@ function reDraw(uuid, type){
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
     adjustedScaler = currentDistance * DISTANCE_SCALER;
-
-    if (avatar.displayNameLength <= avatar.usernameLength) {
-        log("@@@ username is bigger")
+    if (type === "sub"){
+        log("REDRAW SUB lineHeight", lineHeight)
+        log("REDRAW SUB newDimensions", newDimensions)
+    }
+    
+    var subScaledX = avatar.subInitialScaledDimensions.x
+    var mainEntityX = avatar.mainInitialDimensions.x
+    
+    if (mainEntityX <= subScaledX) {
+        log("2 @@@ username is bigger")
         var currentSubDimensions = avatar.localEntitySub.get('dimensions', true);
         var currentMainDimensions = avatar.localEntityMain.get('dimensions', true);
         // var currentLineHeight = avatar.localEntityMain.get('lineHeight');
         log("currentSubDimensions",currentSubDimensions);
         log("currentMainDimensions",currentMainDimensions);
-        var newMainLineHeight = currentMainDimensions.y * 0.8
+        var newMainLineHeight = currentMainDimensions.y * LINE_HEIGHT_SCALER;
         var newMainDimensions = [currentSubDimensions.x, currentMainDimensions.y, currentMainDimensions.z]
         log("newMainLineHeight",newMainLineHeight);
         log("newMainDimensions",newMainDimensions);
@@ -290,15 +306,30 @@ function reDraw(uuid, type){
             .add('dimensions', newMainDimensions)
             .sync();
     } else {
-        localEntity
-            .add("lineHeight", lineHeight)
-            .add("dimensions", newDimensions);
+        log("IN REDRAW IN 2nD PATH")
+        // localEntity
+        //     .add("lineHeight", lineHeight)
+        //     .add("dimensions", newDimensions);
 
         if (type === "sub") {
-            localPosition =
-                [0, SUB_OFFSET * adjustedScaler * SUB_SCALER, 0];
-            localEntity
-                .add("localPosition", localPosition);
+            var currentSubDimensions = avatar.localEntitySub.get('dimensions', true);
+            var currentMainDimensions = avatar.localEntityMain.get('dimensions', true);
+
+            var localEntityMainY = currentMainDimensions.y
+            var differenceY = localEntityMainY - newDimensions.y
+
+            // localPosition =
+            //     [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
+        
+            // var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y
+            // var differenceY = localEntityMainY - scaledDimensions.y
+            // localPosition =
+                // [0, -lineHeight + SUB_OFFSET, 0];
+                // [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
+                // [0, lineHeight * adjustedScaler * SUB_SCALER * SUB_OFFSET, 0];
+
+            // localEntity
+            //     .add("localPosition", localPosition);
         }
         // log('running sync')
         localEntity
@@ -496,8 +527,8 @@ function makeMainName(uuid, shouldCreate){
 
 
 // Make the smaller username when it is available
-var SUB_BACKGROUND = [0, 0, 0];
-var SUB_TEXTCOLOR = [255 ,20, 250];
+var SUB_BACKGROUND = "#1A1A1A";
+var SUB_TEXTCOLOR = "#868481";
 var SUB_PADDING = 1.0;
 var DEFAULT_LEFT_SUB_MARGIN = 0.03;
 function makeSubName(uuid, shouldCreate){
@@ -519,30 +550,46 @@ function makeSubName(uuid, shouldCreate){
         scaledDimensions = calculatedProps.scaledDimensions;
         log("avatar.displayNameLength", avatar.displayNameLength)
         log("avatar.usernameLength", avatar.usernameLength)
-        if (avatar.displayNameLength >= avatar.usernameLength) {
+        avatar.subInitialScaledDimensions = scaledDimensions;
+
+        var subScaledX = scaledDimensions.x
+        var mainEntityX = localEntityMain.get('dimensions', true).x
+        if (mainEntityX >= subScaledX) {
             log("@@@ display name is bigger");            
-            var localEntityX = localEntityMain.get('dimensions').x;
-            var adjustedScale = [localEntityX, scaledDimensions.y, scaledDimensions.z];
+            var localEntityMainX = localEntityMain.get('dimensions', true).x;
+            var adjustedScale = [localEntityMainX, scaledDimensions.y, scaledDimensions.z];
         } else {
             log("@@@ username is bigger")
             var adjustedScale = scaledDimensions;
-            var currentMainDimensions = localEntityMain.get('dimensions');
-            var currentLineHeight = localEntityMain.get('lineHeight');
+            var currentMainDimensions = localEntityMain.get('dimensions', true);
+            var currentLineHeight = localEntityMain.get('lineHeight', true);
             localEntityMain
-                .add('lineHeight', currentMainDimensions.y * 0.8)
                 .add('dimensions', [adjustedScale.x, currentMainDimensions.y, currentMainDimensions.z])
                 .sync()
         }
+        // if (avatar.displayNameLength >= avatar.usernameLength) {
+        //     log("@@@ display name is bigger");            
+        //     var localEntityX = localEntityMain.get('dimensions', true).x;
+        //     var adjustedScale = [localEntityX, scaledDimensions.y, scaledDimensions.z];
+        // } else {
+        //     log("@@@ username is bigger")
+        //     var adjustedScale = scaledDimensions;
+        //     var currentMainDimensions = localEntityMain.get('dimensions', true);
+        //     var currentLineHeight = localEntityMain.get('lineHeight', true);
+        //     localEntityMain
+        //         .add('dimensions', [adjustedScale.x, currentMainDimensions.y, currentMainDimensions.z])
+        //         .sync()
+        // }
 
         distance = calculatedProps.distance;
         localPosition = calculatedProps.localPosition;
     
         avatar.subInitialDimensions = adjustedScale;
         avatar.subInitialLocalPosition = localPosition;
-    
         localEntitySub
             .add("lineHeight", lineHeight)
             .add("localPosition", localPosition)
+            // .add("backgroundAlpha", 0.0)
             .add("backgroundColor", SUB_BACKGROUND)
             .add("textColor", SUB_TEXTCOLOR)
             .add("parentID", localEntityMain.id)

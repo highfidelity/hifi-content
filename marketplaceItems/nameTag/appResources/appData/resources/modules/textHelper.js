@@ -50,7 +50,18 @@ var charMap = {
     W: 0.075,
     X: 0.06,
     Y: 0.06,
-    Z: 0.06
+    Z: 0.06,
+    "!": 0.025,
+    "@": 0.08,
+    "#": 0.07,
+    "$": 0.058,
+    "%": 0.07,
+    " ": 0.12,
+    "^": 0.04,
+    "&": 0.06,
+    "*": 0.04,
+    "(": 0.04,
+    ")": 0.04
 }
 
 var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
@@ -92,7 +103,7 @@ TextHelper.prototype.createTextArray =
     };
     
 // Comment
-var DEFAULT_CHAR_SIZE = 0.045;
+var DEFAULT_CHAR_SIZE = 0.048;
 var NUMBER = 0.05;
 TextHelper.prototype.getTotalTextLength = 
     function(){

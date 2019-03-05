@@ -45,7 +45,7 @@
 
     function selectAvatar(uuid, intersection) {
         console.log("in selectAvatar");
-        log("intersection", intersection)
+        // log("intersection", intersection)
         avatarListManager.handleSelect(uuid, intersection);
     }
 
