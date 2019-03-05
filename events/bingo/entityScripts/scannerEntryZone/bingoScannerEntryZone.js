@@ -11,47 +11,26 @@
 (function() {
     var _this;
 
-    var SCANNER_ENTRY_GATE = "{e47e5730-4aff-465e-bccc-9ed04c163f3b}";
-
-    var scannerSpotlight;
-    var hasCalledBingo = false;
-
     var BingoScannerZone = function() {
         _this = this;
     };
 
     BingoScannerZone.prototype = {
-        remotelyCallable: ['callBingo'],
-
-        /* ON LOADING THE SCRIPT: If the user is running the card app, stop the card app script to stop/close the app. */
+        // Record the entity's ID
         preload: function(entityID) {
             _this.entityID = entityID;
-            var scannerEntryZoneMarker = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
-            var scannerZoneMarker = Entities.getEntityProperties(scannerEntryZoneMarker, 'parentID').parentID;
-            Entities.getChildrenIDs(scannerZoneMarker).forEach(function(child) {
-                var name = Entities.getEntityProperties(child, 'name').name;
-                if (name === "Bingo Scanner Spotlight") {
-                    scannerSpotlight = child;
-                }
-            });
-        },
-
-        callBingo: function() {
-            hasCalledBingo = true;
         },
         
-        /* ON ENTERING THE ZONE: If the user is running the card app, stop the card app script to stop/close the app. */
+        // When the user enters the entry zone, tell the server script attached to this entity
+        // someone has entered the entry zone.
         enterEntity: function() {
-            var scannerIsOccupied = Entities.getEntityProperties(scannerSpotlight, 'visible').visible;
-            if (hasCalledBingo && !scannerIsOccupied) {
-                hasCalledBingo = false;
-                Entities.callEntityServerMethod(SCANNER_ENTRY_GATE, 'openGate');
-            }
+            Entities.callEntityServerMethod(_this.entityID, 'serverEnterEntity');
         },
 
-        /* ON LEAVING THE ZONE: Call the entry gate's server method that closes the gate. */
+        // When the user leaves the entry zone, tell the server script attached to this entity
+        // someone has left the entry zone.
         leaveEntity: function(entityID, mouseEvent) {
-            Entities.callEntityServerMethod(SCANNER_ENTRY_GATE, 'closeGate');
+            Entities.callEntityServerMethod(_this.entityID, 'serverLeaveEntity');
         }
     };
     

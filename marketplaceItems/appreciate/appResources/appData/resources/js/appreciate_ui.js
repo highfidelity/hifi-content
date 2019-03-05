@@ -13,6 +13,7 @@
 // Sends an event to the App JS and clears the `firstRun` `div`.
 function appreciateSwitchClicked(checkbox) {
     EventBridge.emitWebEvent(JSON.stringify({
+        app: "appreciate",
         method: "appreciateSwitchClicked",
         appreciateEnabled: checkbox.checked
     }));
@@ -30,9 +31,26 @@ function neverWhistleCheckboxClicked(checkbox) {
     }
 
     EventBridge.emitWebEvent(JSON.stringify({
+        app: "appreciate",
         method: "neverWhistleCheckboxClicked",
         neverWhistle: checkbox.checked
     }));
+}
+
+// Called when the user checks/unchecks the Show Appreciation Entity checkbox.
+// Sends an event to the App JS.
+function showAppreciationEntityCheckboxClicked(checkbox) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "appreciate",
+        method: "showAppreciationEntityCheckboxClicked",
+        showAppreciationEntity: checkbox.checked
+    }));
+
+    if (checkbox.checked) {
+        document.getElementById("colorPickerContainer").style.visibility = "visible";
+    } else {
+        document.getElementById("colorPickerContainer").style.visibility = "hidden";
+    }
 }
 
 // Called when the user changes the entity's color using the jscolor picker.
@@ -58,6 +76,7 @@ function setEntityColor(jscolor) {
     document.getElementById("currentIntensity").style.backgroundImage = bgString;
 
     EventBridge.emitWebEvent(JSON.stringify({
+        app: "appreciate",
         method: "setEntityColor",
         entityColor: newEntityColor
     }));
@@ -84,6 +103,15 @@ function onScriptEventReceived(message) {
             }
             document.getElementById("appreciateSwitch").checked = message.appreciateEnabled;
             document.getElementById("neverWhistleCheckbox").checked = message.neverWhistleEnabled;
+
+            var showAppreciationEntityCheckbox = document.getElementById("showAppreciationEntityCheckbox");
+            showAppreciationEntityCheckbox.checked = message.showAppreciationEntity;
+            if (showAppreciationEntityCheckbox.checked) {
+                document.getElementById("colorPickerContainer").style.visibility = "visible";
+            } else {
+                document.getElementById("colorPickerContainer").style.visibility = "hidden";
+            }
+
             if (message.neverWhistleEnabled) {
                 var crosshatch = document.getElementById("crosshatch");
                 crosshatch.style.display = "inline-block";
@@ -116,6 +144,31 @@ function onScriptEventReceived(message) {
     }
 }
 
+// This function detects a keydown on the document, which enables the app
+// to forward these keypress events to the app JS.
+function onKeyDown(e) {
+    var key = e.key.toUpperCase();
+    if (key === "Z") {
+        EventBridge.emitWebEvent(JSON.stringify({
+            app: "appreciate",
+            method: "zKeyDown",
+            repeat: e.repeat
+        }));
+    }
+}
+
+// This function detects a keyup on the document, which enables the app
+// to forward these keypress events to the app JS.
+function onKeyUp(e) {
+    var key = e.key.toUpperCase();
+    if (key === "Z") {
+        EventBridge.emitWebEvent(JSON.stringify({
+            app: "appreciate",
+            method: "zKeyUp"
+        }));
+    }
+}
+
 // This delay is necessary to allow for the JS EventBridge to become active.
 // The delay is still necessary for HTML apps in RC78+.
 var EVENTBRIDGE_SETUP_DELAY = 500;
@@ -123,9 +176,13 @@ function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
+            app: "appreciate",
             method: "eventBridgeReady"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
 }
 
 onLoad();

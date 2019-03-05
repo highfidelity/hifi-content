@@ -42,8 +42,7 @@
     
 
     // Linearly scales an RGB color between 0 and 1 based on RGB color values
-    // between 0 and 255. Used when updating the albedo of the material entity
-    // applied to the Appreciate Entity
+    // between 0 and 255.
     function linearScaleColor(intensity, min, max) {
         var output = {
             "red": 0,
@@ -76,7 +75,7 @@
     // If the interval that updates the intensity interval exists,
     // clear it.
     var updateIntensityEntityInterval = false;
-    var UPDATE_INTENSITY_ENTITY_INTERVAL_MS = 65;
+    var UPDATE_INTENSITY_ENTITY_INTERVAL_MS = 75;
     function maybeClearUpdateIntensityEntityInterval() {
         if (updateIntensityEntityInterval) {
             Script.clearInterval(updateIntensityEntityInterval);
@@ -87,10 +86,60 @@
             Entities.deleteEntity(intensityEntity);
             intensityEntity = false;
         }
-        if (intensityMaterialEntity) {
-            Entities.deleteEntity(intensityMaterialEntity);
-            intensityMaterialEntity = false;
+    }
+
+
+    // Determines if any XYZ JSON object has changed "enough" based on
+    // last xyz values and current xyz values.
+    // Used for determining if angular velocity and dimensions have changed enough.
+    var lastAngularVelocity = {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    };
+    var ANGVEL_DISTANCE_THRESHOLD_PERCENT_CHANGE = 0.35;
+    var lastDimensions= {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    };
+    var DIMENSIONS_DISTANCE_THRESHOLD_PERCENT_CHANGE = 0.2;
+    function xyzVecChangedEnough(current, last, thresh) {
+        var currentLength = Math.sqrt(
+            Math.pow(current.x, TWO) + Math.pow(current.y, TWO) + Math.pow(current.z, TWO));
+        var lastLength = Math.sqrt(
+            Math.pow(last.x, TWO) + Math.pow(last.y, TWO) + Math.pow(last.z, TWO));
+
+        var change = Math.abs(currentLength - lastLength);
+        if (change/lastLength > thresh) {
+            return true;
         }
+
+        return false;
+    }
+
+
+    // Determines if color values have changed "enough" based on
+    // last color and current color
+    var lastColor = {
+        "red": 0,
+        "blue": 0,
+        "green": 0
+    };
+    var COLOR_DISTANCE_THRESHOLD_PERCENT_CHANGE = 0.35;
+    var TWO = 2;
+    function colorChangedEnough(current, last, thresh) {
+        var currentLength = Math.sqrt(
+            Math.pow(current.red, TWO) + Math.pow(current.green, TWO) + Math.pow(current.blue, TWO));
+        var lastLength = Math.sqrt(
+            Math.pow(last.red, TWO) + Math.pow(last.green, TWO) + Math.pow(last.blue, TWO));
+
+        var change = Math.abs(currentLength - lastLength);
+        if (change/lastLength > thresh) {
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -98,7 +147,6 @@
     // current intensity of their appreciation.
     // Many of these property values are empirically determined.
     var intensityEntity = false;
-    var intensityMaterialEntity = false;
     var INTENSITY_ENTITY_MAX_DIMENSIONS = {
         "x": 0.24,
         "y": 0.24,
@@ -175,17 +223,16 @@
         "faceCamera": false,
         "isFacingAvatar": false
     };
-    var INTENSITY_MATERIAL_ENTITY_PROPS = {
-        "name": "Intensity Entity Material",
-        "type": "Material",
-        "materialURL": "materialData"
-    };
     var currentInitialAngularVelocity = {
         "x": 0,
         "y": 0,
         "z": 0
     };
     function updateIntensityEntity() {
+        if (!showAppreciationEntity) {
+            return;
+        }
+
         if (currentIntensity > 0) {
             if (intensityEntity) {
                 intensityEntityColorMin.red = intensityEntityColorMax.red * MIN_COLOR_MULTIPLIER;
@@ -194,27 +241,30 @@
 
                 var color = linearScaleColor(currentIntensity, intensityEntityColorMin, intensityEntityColorMax);
 
-                if (intensityMaterialEntity) {
-                    Entities.editEntity(intensityMaterialEntity, {
-                        materialData: JSON.stringify({
-                            "materialVersion": 1,
-                            "materials": [
-                                {
-                                    "roughness": 0.0,
-                                    "albedo": [color.red/255, color.green/255, color.blue/255],
-                                }
-                            ]
-                        })
-                    });
+                var propsToUpdate = {
+                    position: halfwayBetweenHands()
+                };
+
+                var currentDimensions = Vec3.multiply(INTENSITY_ENTITY_MAX_DIMENSIONS, currentIntensity);
+                if (xyzVecChangedEnough(currentDimensions, lastDimensions, DIMENSIONS_DISTANCE_THRESHOLD_PERCENT_CHANGE)) {
+                    propsToUpdate.dimensions = currentDimensions;
+                    lastDimensions = currentDimensions;
                 }
 
-                Entities.editEntity(intensityEntity, {
-                    position: halfwayBetweenHands(),
-                    dimensions: Vec3.multiply(INTENSITY_ENTITY_MAX_DIMENSIONS, currentIntensity),
-                    angularVelocity: Vec3.multiply(currentInitialAngularVelocity,
-                        currentIntensity * ANGVEL_ENTITY_MULTIPLY_FACTOR),
-                    color: color
-                });
+                var currentAngularVelocity = Vec3.multiply(currentInitialAngularVelocity,
+                    currentIntensity * ANGVEL_ENTITY_MULTIPLY_FACTOR);
+                if (xyzVecChangedEnough(currentAngularVelocity, lastAngularVelocity, ANGVEL_DISTANCE_THRESHOLD_PERCENT_CHANGE)) {
+                    propsToUpdate.angularVelocity = currentAngularVelocity;
+                    lastAngularVelocity = currentAngularVelocity;
+                }
+
+                var currentColor = color;
+                if (colorChangedEnough(currentColor, lastColor, COLOR_DISTANCE_THRESHOLD_PERCENT_CHANGE)) {
+                    propsToUpdate.color = currentColor;
+                    lastColor = currentColor;
+                }
+
+                Entities.editEntity(intensityEntity, propsToUpdate);
             } else {
                 var props = INTENSITY_ENTITY_PROPERTIES;
                 props.position = halfwayBetweenHands();
@@ -228,19 +278,11 @@
                 props.angularVelocity = currentInitialAngularVelocity;
 
                 intensityEntity = Entities.addEntity(props, "avatar");
-                
-                var materialProps = INTENSITY_MATERIAL_ENTITY_PROPS;
-                materialProps.parentID = intensityEntity;
-                intensityMaterialEntity = Entities.addEntity(materialProps, "avatar");
             }
         } else {
             if (intensityEntity) {
                 Entities.deleteEntity(intensityEntity);
                 intensityEntity = false;
-            }
-            if (intensityMaterialEntity) {
-                Entities.deleteEntity(intensityMaterialEntity);
-                intensityMaterialEntity = false;
             }
             
             maybeClearUpdateIntensityEntityInterval();
@@ -575,7 +617,7 @@
 
         calculateHandEffect(handsLinearVelocity, handsAngularVelocity);
 
-        if (!updateIntensityEntityInterval) {
+        if (!updateIntensityEntityInterval && showAppreciationEntity) {
             updateIntensityEntityInterval = Script.setInterval(updateIntensityEntity, UPDATE_INTENSITY_ENTITY_INTERVAL_MS);
         }
     }
@@ -806,7 +848,7 @@
         MyAvatar.overrideAnimation(currentAnimation.url, currentAnimationFPS, true, currentlyPlayingFrame, frameCount);
         currentAnimationTimestamp = Date.now();
         
-        if (!updateIntensityEntityInterval) {
+        if (!updateIntensityEntityInterval && showAppreciationEntity) {
             updateIntensityEntityInterval = Script.setInterval(updateIntensityEntity, UPDATE_INTENSITY_ENTITY_INTERVAL_MS);
         }
     }
@@ -864,6 +906,7 @@
     // Enables or disables the app's main functionality
     var appreciateEnabled = Settings.getValue("appreciate/enabled", false);
     var neverWhistleEnabled = Settings.getValue("appreciate/neverWhistle", false);
+    var showAppreciationEntity = Settings.getValue("appreciate/showAppreciationEntity", true);
     var keyEventsWired = false;
     function enableOrDisableAppreciate() {
         if (appreciateEnabled) {
@@ -898,12 +941,17 @@
     //     "Never Whistle" checkbox
     // - "setEntityColor" - Sent when the user chooses a new Entity Color.
     function onMessage(message) {
+        if (message.app !== "appreciate") {
+            return;
+        }
+
         switch (message.method) {
             case "eventBridgeReady":
                 ui.sendMessage({
                     method: "updateUI",
                     appreciateEnabled: appreciateEnabled,
                     neverWhistleEnabled: neverWhistleEnabled,
+                    showAppreciationEntity: showAppreciationEntity,
                     isFirstRun: Settings.getValue("appreciate/firstRun", true),
                     entityColor: intensityEntityColorMax
                 });
@@ -921,13 +969,42 @@
                 Settings.setValue("appreciate/neverWhistle", neverWhistleEnabled);
                 break;
 
+            case "showAppreciationEntityCheckboxClicked":
+                showAppreciationEntity = message.showAppreciationEntity;
+                Settings.setValue("appreciate/showAppreciationEntity", showAppreciationEntity);
+                break;
+
             case "setEntityColor":
                 intensityEntityColorMax = message.entityColor;
                 Settings.setValue("appreciate/entityColor", JSON.stringify(intensityEntityColorMax));
                 break;
 
+            case "zKeyDown":
+                var pressEvent = {
+                    "text": "Z",
+                    "isShifted": false,
+                    "isMeta": false,
+                    "isControl": false,
+                    "isAlt": false,
+                    "isAutoRepeat": message.repeat
+                };
+                keyPressEvent(pressEvent);
+                break;
+
+            case "zKeyUp":
+                var releaseEvent = {
+                    "text": "Z",
+                    "isShifted": false,
+                    "isMeta": false,
+                    "isControl": false,
+                    "isAlt": false,
+                    "isAutoRepeat": false
+                };
+                keyReleaseEvent(releaseEvent);
+                break;
+
             default:
-                console.log("Unhandled message in appreciate_app.js");
+                console.log("Unhandled message from appreciate_ui.js: " + JSON.stringify(message));
                 break;
         }
     }
@@ -967,17 +1044,41 @@
             Controller.keyReleaseEvent.disconnect(keyReleaseEvent);
             keyEventsWired = false;
         }
-
-        if (intensityMaterialEntity) {
-            Entities.deleteEntity(intensityMaterialEntity);
-            intensityMaterialEntity = false;
-        }
+        
         if (intensityEntity) {
             Entities.deleteEntity(intensityEntity);
             intensityEntity = false;
         }
 
         HMD.displayModeChanged.disconnect(enableOrDisableAppreciate);
+    }
+
+
+    // When called, this function will stop the versions of this script that are
+    // baked into the client installation IF there's another version of the script
+    // running that ISN'T the baked version.
+    function maybeStopBakedScriptVersions() {
+        var THIS_SCRIPT_FILENAME = "appreciate_app.js";
+        var RELATIVE_PATH_TO_BAKED_SCRIPT = "system/experiences/appreciate/appResources/appData/" + THIS_SCRIPT_FILENAME;
+        var bakedLocalScriptPaths = [];
+        var alsoRunningNonBakedVersion = false;
+
+        var runningScripts = ScriptDiscoveryService.getRunning();
+        runningScripts.forEach(function(scriptObject) {
+            if (scriptObject.local && scriptObject.url.indexOf(RELATIVE_PATH_TO_BAKED_SCRIPT) > -1) {
+                bakedLocalScriptPaths.push(scriptObject.path);
+            }
+
+            if (scriptObject.name === THIS_SCRIPT_FILENAME && scriptObject.url.indexOf(RELATIVE_PATH_TO_BAKED_SCRIPT) === -1) {
+                alsoRunningNonBakedVersion = true;
+            }
+        });
+
+        if (alsoRunningNonBakedVersion && bakedLocalScriptPaths.length > 0) {
+            for (var i = 0; i < bakedLocalScriptPaths.length; i++) {
+                ScriptDiscoveryService.stopScript(bakedLocalScriptPaths[i]);
+            }
+        }
     }
 
 
@@ -1004,6 +1105,7 @@
         getSounds();
         getAnimations();
         HMD.displayModeChanged.connect(enableOrDisableAppreciate);
+        maybeStopBakedScriptVersions();
     }
 
 

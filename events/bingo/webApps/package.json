@@ -1,0 +1,10 @@
+{
+    "name": "Bingo",
+    "version": "1.0.0",
+    "description": "High Fidelity Bingo",
+    "main": "bingo.js",
+    "author": "Zach Fox",
+    "dependencies": {
+        "mysql": "^2.16.0"
+    }
+}

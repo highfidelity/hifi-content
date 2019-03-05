@@ -12,20 +12,22 @@
 
 (function() {
     var _this;
+    
+    // START EXTERNAL INCLUDES
+    var request = Script.require(Script.resolvePath('../../modules/request.js')).request;
+    // END EXTERNAL INCLUDES
 
     var LIGHT_BLINK_INTERVAL_MS = 500;
     var REMOVE_CARDS_SCRIPT = Script.resolvePath("../../entityScripts/cardRemover/bingoCardRemover.js");
     var CARD_SPAWNER_SCRIPT = Script.resolvePath("../../entityScripts/cardSpawner/bingoCardSpawner.js");
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 1000;
-    var WAIT_WHILE_CARDS_ARE_DELETED_MS = 3000;
-    var SPREADSHEET_URL = Script.require(Script.resolvePath('../../secrets/bingoSheetURL.json')).sheetURL;
+    var REQUEST_URL = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).requestURL;
     var BINGO_WALL = "{df198d93-a9b7-4619-9128-97a53fea2451}";
     var BINGO_WHEEL_TEXT = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
 
-    var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
+    // START PRIZE VARS
     var DRUMROLL_SOUND = SoundCache.getSound(Script.resolvePath("sounds/drumroll.wav"));
     var LOWER_DOORS_DELAY_MS = 1150;
-    var POSSIBLE_PRIZES = ["Oculus Rift", "Vive", "HFC!", "All Players Win!!!"];
     var currentRoundWinners = [];
     var BINGO_PRIZE_DOOR_1_TEXT = "{ff7674bb-5569-4381-b370-1dfa1d2a9723}";
     var BINGO_PRIZE_DOOR_1 = "{8724dc08-c0fb-4feb-bda1-8686023f8355}";
@@ -36,8 +38,21 @@
     var BINGO_PRIZE_DOOR_3_TEXT = "{ec35d3dd-b99a-450c-bd90-5665adfaf9f2}";
     var BINGO_PRIZE_DOOR_3 = "{a3843b9d-70d7-407b-b7ca-378a31fac21f}";
     var avatarsInDoor3Zone = [];
+    // END PRIZE VARS
 
     var MAIN_STAGE_BOUNCER_ZONE = "{5ca26b63-c61b-447e-8985-b0269b33eed0}";
+    
+    var possibleBingoCalls = [];
+    var wheelSpinning = false;
+    var BINGO_WHEEL_EDIT_TIMEOUT_DEFAULT_MS = 80;
+    var TIME_BETWEEN_EDITS_STEP_MULTIPLIER = 1.2;
+    var bingoWheelEditTimeout;
+    var currentTimeBetweenEdits;
+    var BLIP_SOUND = SoundCache.getSound(Script.resolvePath('sounds/blip.wav'));
+    var SPIN_SOUND = SoundCache.getSound(Script.resolvePath('sounds/wheelSpin.mp3'));
+    var BINGO_TEXT_ENTITY_ID = "{3a78b930-eba5-4f52-b906-f4fd78ad1ca9}";
+    var WHEELSPIN_ANGULAR_VELOCITY = { x: 0, y: 0, z: -10 };
+    var SLOWEST_ANGVEL_Z = -0.1;
     
     var gameReady = false;
     var playerCounterText;
@@ -45,10 +60,9 @@
     var gameOnLights = [];
     var registrationSign;
     var cardRemoverSign;
-    var calledLettersAndNumbers = [];
+    var calledNumbers = [];
     var lightBlinkInterval;
     var newRoundURLParams;
-    var request = Script.require(Script.resolvePath('../../modules/request.js')).request;
 
     // *************************************
     // START UTILITY FUNCTIONS
@@ -63,14 +77,26 @@
         return paramPairs.join("&");
     }
 
+
+    // Plays a sound a specified volume and position.
+    // If no position is specified, will use `GAME_AUDIO_POSITION`
+    // Only plays a sound if it's downloaded. Only plays one sound simultaneously.
     var injector;
-    function playSound(sound, volume) {
+    function playSound(sound, volume, position) {
         if (sound.downloaded) {
             if (injector) {
                 injector.stop();
             }
+
+            var gameAudioPosition =
+                Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
+
+            if (!position) {
+                position = gameAudioPosition;
+            }
+
             injector = Audio.playSound(sound, {
-                position: GAME_AUDIO_POSITION,
+                position: position,
                 volume: volume
             });
         }
@@ -80,6 +106,7 @@
     // END UTILITY FUNCTIONS
     // *************************************
 
+    // Lowers all prize doors
     function lowerDoors() {
         Entities.callEntityMethod(BINGO_PRIZE_DOOR_1, 'openGate');
         Entities.callEntityMethod(BINGO_PRIZE_DOOR_2, 'openGate');
@@ -91,17 +118,26 @@
     };
 
     Wheel.prototype = {
-        remotelyCallable: ['requestAlreadyCalledNumbers', 'newRound', 'addCalledLetterAndNumber', 'lightsOn', 'lightsOut', 
-            'openRegistration', 'closeRegistration', 'addCurrentRoundWinner', 'addOrRemovePrizeZoneAvatar', 'givePrizes'],
+        remotelyCallable: ['requestAlreadyCalledNumbers', 'newRound', 'lightsOn', 'lightsOut', 'spinBingoWheel',
+            'openRegistration', 'closeRegistration', 'addCurrentRoundWinner', 'addOrRemovePrizeZoneAvatar', 'givePrizes',
+            'callAllNumbers'],
         
-        /* ON LOADING THE APP: Save a reference to this entity ID and wait 1 second before getting lights and starting 
-        a new round */
+        // On script preload, save a reference to this entity ID and wait 1 second before getting 
+        // relevant entity IDs and starting a new round.
         preload: function(entityID) {
             _this.entityID = entityID;
             Script.setTimeout(function() {
                 _this.getGameEntities();
                 _this.newRound();
             }, WAIT_FOR_ENTITIES_TO_LOAD_MS);
+        },
+
+        /* ON UNLOADING THE APP: Clear any bingoWheelEditTimeout */
+        unload: function(entityID) {
+            if (bingoWheelEditTimeout) {
+                Script.clearTimeout(bingoWheelEditTimeout);
+                bingoWheelEditTimeout = false;
+            }
         },
 
         /* GET PARTS OF GAME: Get references to all lights and signs that will need to be edited. They are all 
@@ -129,7 +165,7 @@
             });
         },
         
-        /* GAME ON: Double check that game set lights are on */
+        // Ensure that all gameOnLights are turned on.
         lightsOn: function() {
             gameOnLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: true });
@@ -146,8 +182,17 @@
             }
         },
 
+        // Add or remove a username from the array that contains presence data
+        // for each prize door zone
         addOrRemovePrizeZoneAvatar: function(senderID, params) {
-            var data = JSON.parse(params);
+            var data;
+            try {
+                data = JSON.parse(params);
+            } catch (error) {
+                console.log("ERROR parsing data in addOrRemovePrizeZoneAvatar(): " + error);
+                return;
+            }
+            
             var username = data.username;
             var zoneNumber = data.prizeDoorNumber;
             var isAdding = data.isAdding;
@@ -178,7 +223,7 @@
             2. Randomizes the prizes, ensuring no duplicates
             3. Updates the text entities behind the doors
             4. Moves the doors to reveal the text entities
-            5. Records valid winners and their prizes on the Google Sheet 
+            5. Records valid winners and their prizes on the server 
         */
         givePrizes: function() {
             if (currentRoundWinners.length === 0) {
@@ -200,8 +245,9 @@
                 }
             }
 
+            var possiblePrizes = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).possiblePrizes;
             while (roundPrizes.length < 3) {
-                maybePushRandomPrize(POSSIBLE_PRIZES[Math.floor(Math.random() * POSSIBLE_PRIZES.length)]);
+                maybePushRandomPrize(possiblePrizes[Math.floor(Math.random() * possiblePrizes.length)]);
             }
 
             Entities.editEntity(BINGO_PRIZE_DOOR_1_TEXT, {text: roundPrizes[0]});
@@ -245,13 +291,13 @@
             }
             
             request({
-                uri: SPREADSHEET_URL,
+                uri: REQUEST_URL,
                 json: true,
                 body: requestBody,
                 method: "POST"
             }, function (error, response) {
                 if (error || !response || response.status !== "success") {
-                    print("ERROR when recording winners: ", error || JSON.stringify(response));
+                    print("ERROR when recording winners: ", error, JSON.stringify(response));
                     return;
                 }
             });
@@ -282,14 +328,18 @@
             gameReady = true;
         },
 
-        /* NEW ROUND: Clear the list of called numbers and winners,
-        turn on game set lights and turn off all bingo wall number lights. 
-        Clear any lightBlinkInterval, close registration, and put up the card remover sign. */
+        // When a new round is requested:
+        // 1. Ensure the card spawner sign is invisible
+        // 2. Ensure the card remover sign is visible
+        // 3. Reset the player counter text
+        // 4. Send a request to the server to start a new round. If that request succeeds:
+        //     i. Change the Bingo wheel text to read "BINGO"
+        //     ii. Mark the game as "not ready"
+        //     iii. Clear the calledNumbers, winners, and avatars-in-prize-zones arrays
+        //     iv. Close the prize door gates and clear the prize door text entities
+        //     v. Clear the userData whitelist on the stage bouncer zone
+        //     vi. Turn off all of the bingo wall lights
         newRound: function() {
-            newRoundURLParams = encodeURLParams({ 
-                type: "newRound",
-                calledLettersAndNumbers: JSON.stringify(calledLettersAndNumbers)
-            });
             Entities.editEntity(registrationSign, {
                 visible: false,
                 script: ""
@@ -298,12 +348,19 @@
                 visible: true,
                 script: REMOVE_CARDS_SCRIPT
             });
+
             Entities.callEntityMethod(playerCounterText, 'reset');
+
+            var dbTablePrefix = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).dbTablePrefix;
+            newRoundURLParams = encodeURLParams({ 
+                type: "newRound",
+                newTablePrefix: dbTablePrefix
+            });
             request({
-                uri: SPREADSHEET_URL + "?" + newRoundURLParams
+                uri: REQUEST_URL + "?" + newRoundURLParams
             }, function (error, response) {
                 if (error || !response || response.status !== "success") {
-                    print("ERROR: Could not reset round.", response);
+                    print("ERROR: Could not reset round.", error, JSON.stringify(response));
                     return;
                 }
                 Entities.editEntity(BINGO_WHEEL_TEXT, {
@@ -312,7 +369,7 @@
                 });
 
                 gameReady = false;
-                calledLettersAndNumbers = [];
+                calledNumbers = [];
                 currentRoundWinners = [];
                 avatarsInDoor1Zone = [];
                 avatarsInDoor2Zone = [];
@@ -324,10 +381,15 @@
                 Entities.editEntity(BINGO_PRIZE_DOOR_2_TEXT, {text: ""});
                 Entities.editEntity(BINGO_PRIZE_DOOR_3_TEXT, {text: ""});
 
-                var bouncerZoneUserData = JSON.parse(
-                    Entities.getEntityProperties(MAIN_STAGE_BOUNCER_ZONE, 'userData').userData);
-                bouncerZoneUserData.whitelist.usernames = [];
-                Entities.editEntity(MAIN_STAGE_BOUNCER_ZONE, { userData: JSON.stringify(bouncerZoneUserData) });
+                var bouncerZoneUserData;
+                try {
+                    bouncerZoneUserData = JSON.parse(
+                        Entities.getEntityProperties(MAIN_STAGE_BOUNCER_ZONE, 'userData').userData);
+                    bouncerZoneUserData.whitelist.usernames = [];
+                    Entities.editEntity(MAIN_STAGE_BOUNCER_ZONE, {userData: JSON.stringify(bouncerZoneUserData)});
+                } catch (error) {
+                    console.log("ERROR parsing bouncer zone user data: " + error);
+                }
 
                 bingoWallLights.forEach(function(light) {
                     Entities.editEntity(light, { visible: false });
@@ -339,27 +401,14 @@
             });
         },
 
-        /* GAME OVER: Turn off all lights, take down card remover sign, and close registration. */
+        // If the Bingo boss requests "lights out":
+        // 1. Call `newRound()`
+        // 2. Turn off the `gameOnLights`
         lightsOut: function() {
             _this.newRound();
             gameOnLights.forEach(function(light) {
                 Entities.editEntity(light, { visible: false });
             });
-            // This is an extra check to be sure cards are deleted in case the "New Round" call is not processed.
-            Entities.editEntity(cardRemoverSign, {
-                visible: true,
-                script: REMOVE_CARDS_SCRIPT
-            });
-            Entities.editEntity(registrationSign, {
-                visible: false,
-                script: ""
-            });
-            Script.setTimeout(function() {
-                Entities.editEntity(cardRemoverSign, {
-                    visible: false,
-                    script: ""
-                });
-            }, WAIT_WHILE_CARDS_ARE_DELETED_MS);
         },
 
         /* TURN ON A WALL LIGHT : Edit the visibilty to turn on a light. */
@@ -376,36 +425,151 @@
             });
         },
 
-        /* REQUEST CALLED NUMBERS: This is a remotely called function coming from either the client script of this entity 
-        or server script of the scanner zone.. The list of called numbers will be returned to whichever 
-        entity requested them. */
+        /* REQUEST CALLED NUMBERS: This is a remotely called function coming from the scanner zone.
+        The list of called numbers will be returned to the scanner zone for determining a winner. */
         requestAlreadyCalledNumbers: function(thisID, params) {
-            var referrer = params[0];
-            var requesterUsername;
+            var scannerZoneID = params[0];
+            var requesterUsername = params[1];
+            Entities.callEntityMethod(scannerZoneID, 'alreadyCalledNumbersReply', 
+                [JSON.stringify(calledNumbers), requesterUsername]);
+        },
+        
+        // Edits the bingo wheel text based on the bingo wheel's current velocity.
+        // Calls `addCalledNumber()` if the wheel has stopped.
+        editBingoWheel: function() {
+            var currentAngularVelocity = Entities.getEntityProperties(
+                _this.entityID, 'angularVelocity').angularVelocity;
 
-            if (referrer === "bingoWheel") {
-                var callerSessionUUID = params[1];
-                requesterUsername = params[2];
-                if (gameReady) {
-                    Entities.callEntityClientMethod(callerSessionUUID, _this.entityID, 'alreadyCalledNumbersReply', 
-                        [JSON.stringify(calledLettersAndNumbers), requesterUsername]);
-                } else {
-                    Entities.callEntityClientMethod(callerSessionUUID, _this.entityID, 'alreadyCalledNumbersReply', 
-                        [JSON.stringify(calledLettersAndNumbers)]);
-                }
-            } else if (referrer === "bingoScanner") {
-                var machineZoneID = params[1];
-                requesterUsername = params[2];
-                Entities.callEntityMethod(machineZoneID, 'alreadyCalledNumbersReply', 
-                    [JSON.stringify(calledLettersAndNumbers), requesterUsername]);
+            if (currentAngularVelocity.z < SLOWEST_ANGVEL_Z) {
+                Entities.editEntity(BINGO_TEXT_ENTITY_ID, {
+                    text: possibleBingoCalls[Math.floor(Math.random() * possibleBingoCalls.length)],
+                    lineHeight: 1.58
+                });
+                currentTimeBetweenEdits *= TIME_BETWEEN_EDITS_STEP_MULTIPLIER;
+                bingoWheelEditTimeout = Script.setTimeout(_this.editBingoWheel, currentTimeBetweenEdits);
+            } else {
+                var bingoCall = possibleBingoCalls[Math.floor(Math.random() * possibleBingoCalls.length)];
+                Entities.editEntity(BINGO_TEXT_ENTITY_ID, {
+                    text: bingoCall
+                });
+
+                // Remove the BINGO letter from the call
+                bingoCall = bingoCall.substring(2, bingoCall.length);
+                _this.addCalledNumber(parseInt(bingoCall));
+
+                bingoWheelEditTimeout = false;
+                wheelSpinning = false;
+
+                var gameAudioPosition =
+                    Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
+                playSound(BLIP_SOUND, 0.5, gameAudioPosition);
             }
+        },
+
+        // Starts the Bingo wheel if the user who clicked the wheel is allowed to spin it.
+        // Fills in `possibleBingoCalls` letter/number array based on already-called numbers.
+        spinBingoWheel: function(thisID, params) {
+            var spinnerUsername = params[0];
+
+            var usersAllowedToSpinWheel =
+                Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).usersAllowedToSpinWheel;
+            if (usersAllowedToSpinWheel.indexOf(spinnerUsername) > -1) {
+                if (!gameReady) {
+                    console.log("User attempted to spin wheel, but game is not ready!");
+                    return;
+                }
+
+                if (wheelSpinning) {
+                    return;
+                }
+
+                wheelSpinning = true;
+
+                var i = 1;
+                var currentGeneratedBingoCall;
+                possibleBingoCalls = [];
+
+                while (i < 16) {
+                    currentGeneratedBingoCall = "B " + String(i);
+                    if (calledNumbers.indexOf(i) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+                while (i < 31) {
+                    currentGeneratedBingoCall = "I " + String(i);
+                    if (calledNumbers.indexOf(i) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+                while (i < 46) {
+                    currentGeneratedBingoCall = "N " + String(i);
+                    if (calledNumbers.indexOf(i) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+                while (i < 61) {
+                    currentGeneratedBingoCall = "G " + String(i);
+                    if (calledNumbers.indexOf(i) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+                while (i < 76) {
+                    currentGeneratedBingoCall = "O " + String(i);
+                    if (calledNumbers.indexOf(i) === -1) {
+                        possibleBingoCalls.push(currentGeneratedBingoCall);
+                    }
+                    i++;
+                }
+
+                if (possibleBingoCalls.length === 0) {
+                    return;
+                }
+                
+                Entities.editEntity(_this.entityID, {
+                    angularVelocity: WHEELSPIN_ANGULAR_VELOCITY
+                });
+                var gameAudioPosition =
+                    Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
+                playSound(SPIN_SOUND, 0.8, gameAudioPosition);
+
+                if (bingoWheelEditTimeout) {
+                    Script.clearTimeout(bingoWheelEditTimeout);
+                    bingoWheelEditTimeout = false;
+                }
+
+                currentTimeBetweenEdits = BINGO_WHEEL_EDIT_TIMEOUT_DEFAULT_MS;
+                _this.editBingoWheel();
+            }   
+        },
+
+        sendCalledNumbersToServer: function() {
+            var requestBody = {
+                "type": "replaceCalledNumbers",
+                "calledNumbers": calledNumbers
+            };
+            request({
+                uri: REQUEST_URL,
+                json: true,
+                body: requestBody,
+                method: "POST"
+            }, function (error, response) {
+                if (error || !response || response.status !== "success") {
+                    print("ERROR when sending called numbers array to server: ", error, JSON.stringify(response));
+                    return;
+                } else {
+                    print("Called numbers successfully stored on server.");
+                }
+            });
         },
 
         /* ADD A CALLED NUMBER TO LIST: Add the number to the list and set an lightBlinkInterval to toggle the light on and off 
         every 500MS. After 6 toggles, clear the lightBlinkInterval, leaving the light on. */
-        addCalledLetterAndNumber: function(thisID, args) {
-            calledLettersAndNumbers.push(args[0]);
-            var callNumber = args[0].substring(2, args[0].length);
+        addCalledNumber: function(calledNumber) {
+            calledNumbers.push(calledNumber);
             var lightOn = false;
             var blinks = 0;
 
@@ -417,8 +581,8 @@
 
                 // ...and also make sure that the light associated with the last number we called
                 // is ON.
-                if (calledLettersAndNumbers.length > 0) {
-                    var lastCallNumber = calledLettersAndNumbers[calledLettersAndNumbers.length - 1];
+                if (calledNumbers.length > 0) {
+                    var lastCallNumber = calledNumbers[calledNumbers.length - 2];
                     _this.lightOn(lastCallNumber);
                 }
             }
@@ -426,10 +590,10 @@
             lightBlinkInterval = Script.setInterval(function() {
                 blinks++;
                 if (lightOn) {
-                    _this.lightOff(callNumber);
+                    _this.lightOff(calledNumber);
                     lightOn = false;
                 } else {
-                    _this.lightOn(callNumber);
+                    _this.lightOn(calledNumber);
                     lightOn = true;
                 }
                 if (blinks > 6) {
@@ -437,6 +601,25 @@
                     lightBlinkInterval = false;
                 }
             }, LIGHT_BLINK_INTERVAL_MS);
+
+            _this.sendCalledNumbersToServer();
+        }, 
+
+        // A debug method used to immediately call all numbers
+        // Relies on `config.json` containing `"debugMode": true`
+        callAllNumbers: function(thisID, params) {
+            var debugMode = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).debugMode;
+            if (!debugMode) {
+                return;
+            }
+
+            var usersAllowedToSpinWheel =
+                Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).usersAllowedToSpinWheel;
+            if (usersAllowedToSpinWheel.indexOf(params[0]) > -1) {
+                for (var i = 0; i < 76; i++) {
+                    _this.addCalledNumber(i);
+                }
+            }
         }
     };
     

@@ -12,7 +12,6 @@
 (function() { 
     var _this;
 
-    var GAME_AUDIO_POSITION = { x: -79, y: -14, z: 6 };
     var MOVEMENT_VELOCITY_M_PER_SEC = 1.4;
     var POSITION_CHECK_INTERVAL_MS = 25;
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath("sounds/openGate.wav"));
@@ -33,8 +32,11 @@
             if (injector) {
                 injector.stop();
             }
+            
+            var gameAudioPosition =
+                Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).gameAudioPosition;
             injector = Audio.playSound(sound, {
-                position: GAME_AUDIO_POSITION,
+                position: gameAudioPosition,
                 volume: volume
             });
         }
@@ -50,6 +52,8 @@
 
     Gate.prototype = {
         remotelyCallable: ['openGate', 'closeGate'],
+
+        // Sets up this entity's closed and opened positions
         preload: function(entityID){
             _this.entityID = entityID;
             var name = Entities.getEntityProperties(_this.entityID, 'name').name;
@@ -88,7 +92,6 @@
                 return;
             }
 
-            playSound(OPEN_SOUND, GAME_AUDIO_POSITION, 1);
             playSound(OPEN_SOUND, Entities.getEntityProperties(_this.entityID, 'localPosition').localPosition, 1);
 
             // Start opening the gate.
@@ -152,6 +155,7 @@
             }, POSITION_CHECK_INTERVAL_MS);
         },
 
+        // Ensures the gate is closed when the script stops
         unload: function() {
             if (gatePositionCheckInterval) {
                 Script.clearInterval(gatePositionCheckInterval);
