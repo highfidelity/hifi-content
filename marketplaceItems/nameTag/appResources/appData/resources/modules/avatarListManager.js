@@ -55,7 +55,6 @@ function add(uuid, intersection){
             mainInitialDimensions: null,
             subInitialDimensions: null,
             previousName: null,
-            created: null,
             localPositionOfIntersection: null,
             displayNameLength: 0,
             usernameLength: 0
@@ -262,16 +261,11 @@ function reDraw(uuid, type){
     
     if (type === "main") {
         localEntity = avatar.localEntityMain;
-        // localEntityMainBackground = avatar.localEntityMainBackground;
         initialDimensions = avatar.mainInitialDimensions;
     } else {
         localEntity = avatar.localEntitySub;
         initialDimensions = avatar.subInitialDimensions;
     }
-
-    // log("initial dimensions", initialDimensions)
-    // log("initialDistance", initialDistance)
-    // log("currentDistance", currentDistance)
 
     newDimensions = [
         (initialDimensions[X] / initialDistance) * currentDistance,
@@ -282,11 +276,10 @@ function reDraw(uuid, type){
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
     adjustedScaler = currentDistance * DISTANCE_SCALER;
-    if (type === "sub"){
-        log("REDRAW SUB lineHeight", lineHeight)
-        log("REDRAW SUB newDimensions", newDimensions)
-    }
-    
+
+    localEntity
+        .add("lineHeight", lineHeight)
+        .add("dimensions", newDimensions);
     var subScaledX = avatar.subInitialScaledDimensions.x
     var mainEntityX = avatar.mainInitialDimensions.x
     
@@ -294,13 +287,8 @@ function reDraw(uuid, type){
         log("2 @@@ username is bigger")
         var currentSubDimensions = avatar.localEntitySub.get('dimensions', true);
         var currentMainDimensions = avatar.localEntityMain.get('dimensions', true);
-        // var currentLineHeight = avatar.localEntityMain.get('lineHeight');
-        log("currentSubDimensions",currentSubDimensions);
-        log("currentMainDimensions",currentMainDimensions);
         var newMainLineHeight = currentMainDimensions.y * LINE_HEIGHT_SCALER;
         var newMainDimensions = [currentSubDimensions.x, currentMainDimensions.y, currentMainDimensions.z]
-        log("newMainLineHeight",newMainLineHeight);
-        log("newMainDimensions",newMainDimensions);
         avatar.localEntityMain
             .add('lineHeight', newMainLineHeight)
             .add('dimensions', newMainDimensions)
@@ -310,32 +298,26 @@ function reDraw(uuid, type){
         // localEntity
         //     .add("lineHeight", lineHeight)
         //     .add("dimensions", newDimensions);
-
         if (type === "sub") {
-            var currentSubDimensions = avatar.localEntitySub.get('dimensions', true);
+            // var currentSubDimensions = avatar.localEntitySub.get('dimensions', true);
             var currentMainDimensions = avatar.localEntityMain.get('dimensions', true);
-
+    
             var localEntityMainY = currentMainDimensions.y
-            var differenceY = localEntityMainY - newDimensions.y
-
+            var differenceY = localEntityMainY - avatar.mainInitialDimensions.y
+    
             // localPosition =
             //     [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
-        
-            // var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y
-            // var differenceY = localEntityMainY - scaledDimensions.y
+    
             // localPosition =
-                // [0, -lineHeight + SUB_OFFSET, 0];
-                // [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
-                // [0, lineHeight * adjustedScaler * SUB_SCALER * SUB_OFFSET, 0];
-
+            //     [0, (-localEntityMainY - differenceY) + (SUB_OFFSET * adjustedScaler), 0]
+    
             // localEntity
             //     .add("localPosition", localPosition);
         }
-        // log('running sync')
-        localEntity
-            .sync();
     }
 
+    localEntity
+        .sync();
 
 }
 
@@ -455,74 +437,51 @@ function checkAllSelectedForRedraw(){
 }
 
 
-var REDRAW_TIMEOUT = 100;
+var REDRAW_TIMEOUT = 150;
 function makeMainName(uuid, shouldCreate){
-    // log("made it to makeMainName")
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
     var localEntityMain = avatar.localEntityMain;
-    // var localEntityMainBackground = avatar.localEntityMainBackground;
     var calculatedProps = null;
     var position = null;
     var distance = null;
     var scaledDimensions = null;
     var lineHeight = null;
 
+    // Get the intersection position for use later in redraw
     position = avatar.intersection;
-    log("position", position)
-    avatar.created = Date.now();
     avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
+    // # TODO REMOVE DISPLAY NAME USAGE IF NOT WORKING
     avatar.displayNameLength = avatarInfo.displayName.length;
     if (shouldCreate){
         log("creating", avatarInfo.displayName);
         localEntityMain.add("text", avatarInfo.displayName);
 
         calculatedProps = _this.calculateInitialProperties(uuid, "main");
-        log("calculated props", calculatedProps)
-        lineHeight = calculatedProps.lineHeight;
-        scaledDimensions = calculatedProps.scaledDimensions;
+        // log("calculated props", calculatedProps)
         distance = calculatedProps.distance;
+        scaledDimensions = calculatedProps.scaledDimensions;
+        lineHeight = calculatedProps.lineHeight;
+
         avatar.initialDistance = distance;
         avatar.mainInitialDimensions = scaledDimensions;
         avatar.previousName = avatarInfo.displayName;
-        var localPosition = [0, 0, 1];
-        var newPosition = Vec3.sum(Vec3.multiplyQbyV(MyAvatar.orientation, localPosition), position);
         
         localEntityMain
             .add("lineHeight", lineHeight)
             .add("dimensions", scaledDimensions)
             .add("position", position)
-            // .add("position", position)
             .add("parentID", uuid)
             .create(true);
-              
-        // log("#### orientation", localEntityMain.get("rotation", true));
-        
-        // localEntityMainBackground
-        //     // .add("lineHeight", lineHeight)
-        //     .add("dimensions", scaledDimensions)
-        //     // .add("dimensions", [5, 1, 0.1])
-        //     .add("position", position)
-        //     .add("parentID", localEntityMain.id)
-        //     // .add("rotation", Camera.orientation)
-        //     .add("rotation", rotateBillboard(position, Camera.position))
-        //     // .add("rotation", Quat.inverse(MyAvatar.orientation))
-        //     // .add("rotation", localEntityMain.get("rotation", true))
-        //     // .add("localRotation", Quat.fromPitchYawRollDegrees(300,0,0))
-        //     .create(true);
     } else {
-        // log("showing");
         localEntityMain.edit("position", position);
-        // localEntityMainBackground.edit("position", position);
         _this.getInfo(uuid);
         _this.getDistance(avatar);
         _this.reDraw(uuid, "main");
         Script.setTimeout(function(){
             localEntityMain.show();
-            // localEntityMainBackground.show();
         }, REDRAW_TIMEOUT);
     }
-
 }
 
 
