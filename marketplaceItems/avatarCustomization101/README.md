@@ -237,5 +237,5 @@ This app showcases material entities, blendshapes, and flow to customize your av
 
 # Releases
 
-## 2019-03-05_09-11-00 :: [9e2164b](https://github.com/highfidelity/hifi-content/commit/9e2164b)
+## 2019-03-05_09-11-00 :: [a9cb28d](https://github.com/highfidelity/hifi-content/commit/a9cb28d)
 - Initial release
