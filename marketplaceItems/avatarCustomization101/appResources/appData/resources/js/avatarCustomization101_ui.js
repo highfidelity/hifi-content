@@ -323,6 +323,10 @@
                     :close="closeModalSaveAvatar"
                 ></modal-save-avatar>
 
+                <p class="mt-5 alert alert-warning" role="alert">
+                    Please unload any currently running flow.js scripts.
+                </p>
+
             </div>
         `
     })
