@@ -39,6 +39,7 @@ function add(uuid, intersection){
     if (!_this.avatars[uuid]) {
         _this.avatars[uuid] = {
             avatarInfo: null,
+            created: null,
             localEntityMain: new LocalEntity('local')
                 .add(entityProps),
             // localEntityMainBackground: new LocalEntity('local')
@@ -64,6 +65,7 @@ function add(uuid, intersection){
     }
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
+    avatar.created = Date.now();
     avatar.intersection = intersection.intersection;
     avatar.localPositionOfIntersection = worldToLocal(avatar.intersection, avatarInfo.position, avatarInfo.orientation)
     _this.selectedAvatars[uuid] = true;
@@ -172,10 +174,19 @@ function calculateInitialProperties(uuid, type) {
     
     if (type === "sub") {
         var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y
-        var differenceY = localEntityMainY - scaledDimensions.y
+        var localEntityMainPosition = avatar.localEntityMain.get('position', true)
+        var halfLocalEntityMainY = localEntityMainY / 2;
+        var halfScaledD = scaledDimensions.y / 2;
+        var totalHalfs = halfLocalEntityMainY + halfScaledD;
+        // log("localEntityMainY", localEntityMainY);
+        // log("localEntityMainPosition", localEntityMainPosition.y);
+        // log("scaledDimensions.y", scaledDimensions.y);
+        
+        // var differenceY = localEntityMainY - scaledDimensions.y
         localPosition =
             // [0, -lineHeight + SUB_OFFSET, 0];
-            [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
+            [0, (-totalHalfs), 0]
+            // [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
             // [0, lineHeight * adjustedScaler * SUB_SCALER * SUB_OFFSET, 0];
     }
 
@@ -199,7 +210,7 @@ function handleSelect(uuid, intersection) {
 
 // Handler for the username call
 function handleUserName(uuid, username){
-    log("in handle user name");
+    // log("in handle user name");
     if (username) {
         var avatar = _this.avatars[uuid];
         var avatarInfo = avatar.avatarInfo;
@@ -216,9 +227,10 @@ function handleUUIDChanged(){
 }
 
 
-var FRIEND_TEXT = [240, 240, 240];
+// var FRIEND_TEXT = [255, 255, 255];
+var FRIEND_TEXT = [100, 255, 50];
 function handleFriend(uuid, username) {
-    log("handle friend");
+    // log("handle friend");
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
     avatarInfo.username = username;
@@ -231,10 +243,11 @@ function handleFriend(uuid, username) {
         .edit("textColor", FRIEND_TEXT);
 
     if (localEntitySub.id){         
-        // localEntitySub
+        localEntitySub
+            .edit("textColor", FRIEND_TEXT);
             // .edit("backgroundColor", FRIEND_TEXT);
     } else {
-        // _this.makeSubName(uuid, CREATE);
+        _this.makeSubName(uuid, CREATE);
                  
         // localEntitySub
             // .edit("backgroundColor", FRIEND_TEXT);
@@ -279,35 +292,42 @@ function reDraw(uuid, type){
     localEntity
         .add("lineHeight", lineHeight)
         .add("dimensions", newDimensions);
-    var subScaledX = avatar.subInitialScaledDimensions.x
-    var mainEntityX = avatar.mainInitialDimensions.x
+    // var subScaledX = avatar.subInitialScaledDimensions.x
+    // var mainEntityX = avatar.mainInitialDimensions.x
     
-    if (mainEntityX <= subScaledX) {
-        log("2 @@@ username is bigger")
-        var currentSubDimensions = avatar.localEntitySub.get('dimensions', true);
-        var currentMainDimensions = avatar.localEntityMain.get('dimensions', true);
-        var newMainLineHeight = currentMainDimensions.y * LINE_HEIGHT_SCALER;
-        var newMainDimensions = [currentSubDimensions.x, currentMainDimensions.y, currentMainDimensions.z]
-        avatar.localEntityMain
-            .add('lineHeight', newMainLineHeight)
-            .add('dimensions', newMainDimensions)
-            .sync();
-    } else {
-        log("IN REDRAW IN 2nD PATH")
-        // localEntity
-        //     .add("lineHeight", lineHeight)
-        //     .add("dimensions", newDimensions);
-
-    }
+    // if (mainEntityX <= subScaledX) {
+    //     log("2 @@@ username is bigger")
+    //     var currentMainDimensions = avatar.localEntityMain.get('dimensions', true);
+    //     var initialMainDimensions = avatar.mainInitialDimensions;
+    //     newDimensions = [
+    //         (initialMainDimensions[X] / initialDistance) * currentDistance,
+    //         (initialMainDimensions[Y] / initialDistance) * currentDistance,
+    //         (initialMainDimensions[Z] / initialDistance) * currentDistance
+    //     ];
+        // var newMainLineHeight = currentMainDimensions.y * LINE_HEIGHT_SCALER;
+        // var newMainDimensions = [newDimensions[X], currentMainDimensions.y, currentMainDimensions.z];
+    //     log("currentMainDimensions", currentMainDimensions)
+    //     log("newMainDimensions", newMainDimensions)
+    //     log("newDimensions", newDimensions)
+    //     avatar.localEntityMain
+    //         .add('lineHeight', newMainDimensions.y)
+    //         .add('dimensions', newMainDimensions)
+    //         .sync();
+    // }
+    
     if (type === "sub") {
+        var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y;
+        var subInitialLocalPosition = avatar.subInitialLocalPosition[Y];
         // var currentSubDimensions = avatar.localEntitySub.get('dimensions', true);
         // var currentMainDimensions = avatar.localEntityMain.get('dimensions', true);
-
+        // log("subInitialLocalPosition", subInitialLocalPosition)
+        var newLocalPosition = subInitialLocalPosition / initialDistance * currentDistance;
         // var localEntityMainY = currentMainDimensions.y
         // var differenceY = localEntityMainY - avatar.mainInitialDimensions.y
-
+        // log("localEnityMainY", localEntityMainY) 
+        // log("newLocalPosition", newLocalPosition) 
         localPosition =
-            [0, avatar.subInitialLocalPosition.y * adjustedScaler, 0]
+            [0, newLocalPosition, 0];
 
         // localPosition =
         //     [0, (-localEntityMainY + differenceY) + (SUB_OFFSET * adjustedScaler), 0]
@@ -331,7 +351,8 @@ function maybeDelete(uuid){
     var createdTime = avatar.created;
     var currentTime = Date.now();
     var timeSinceCreated = currentTime - createdTime;
-
+    log('avatar name', avatar.displayName);
+    log('timeSinceCreated', timeSinceCreated);    
     if (timeSinceCreated > DELETE_TIMEOUT_MS) {
         return true;
     } else {
@@ -388,14 +409,13 @@ function updateName(uuid, name){
     avatar.localEntityMain = new LocalEntity('local').add(entityProps);
     avatar.localEntitySub = new LocalEntity('local').add(entityProps);
     var localOffset = avatar.localPositionOfIntersection;
-    log("localoffset", localOffset);
     avatar.intersection = localToWorld(localOffset, avatarInfo.position, avatarInfo.orientation)
     _this.makeMainName(uuid, CREATE);
     _this.makeSubName(uuid, CREATE);
 }
 
 var MAX_DISTANCE_METERS = 0.1;
-var DELETE_TIMEOUT_MS = 5000;
+var DELETE_TIMEOUT_MS = 120000;
 function maybeRedraw(uuid){
     _this.getInfo(uuid);
     var avatar = _this.avatars[uuid];
@@ -414,6 +434,7 @@ function maybeRedraw(uuid){
         return;
     }
 
+    avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
     if (avatar.previousName !== avatarInfo.displayName) {
         log("previous name different");
         updateName(uuid, avatarInfo.displayName);
@@ -457,7 +478,7 @@ function makeMainName(uuid, shouldCreate){
     // # TODO REMOVE DISPLAY NAME USAGE IF NOT WORKING
     avatar.displayNameLength = avatarInfo.displayName.length;
     if (shouldCreate){
-        log("creating", avatarInfo.displayName);
+        // log("creating", avatarInfo.displayName);
         localEntityMain.add("text", avatarInfo.displayName);
 
         calculatedProps = _this.calculateInitialProperties(uuid, "main");
@@ -511,24 +532,26 @@ function makeSubName(uuid, shouldCreate){
         calculatedProps = _this.calculateInitialProperties(uuid, "sub");
         lineHeight = calculatedProps.lineHeight;
         scaledDimensions = calculatedProps.scaledDimensions;
-        log("avatar.displayNameLength", avatar.displayNameLength)
-        log("avatar.usernameLength", avatar.usernameLength)
+        // log("avatar.displayNameLength", avatar.displayNameLength)
+        // log("avatar.usernameLength", avatar.usernameLength)
         avatar.subInitialScaledDimensions = scaledDimensions;
 
         var subScaledX = scaledDimensions.x
         var mainEntityX = localEntityMain.get('dimensions', true).x
         if (mainEntityX >= subScaledX) {
-            log("@@@ display name is bigger");            
+            // log("@@@ display name is bigger");            
             var localEntityMainX = localEntityMain.get('dimensions', true).x;
             var adjustedScale = [localEntityMainX, scaledDimensions.y, scaledDimensions.z];
         } else {
-            log("@@@ username is bigger")
+            // log("@@@ username is bigger")
             var adjustedScale = scaledDimensions;
             var currentMainDimensions = localEntityMain.get('dimensions', true);
             var currentLineHeight = localEntityMain.get('lineHeight', true);
+            var newMainDimensions = [adjustedScale.x, currentMainDimensions.y, currentMainDimensions.z]
             localEntityMain
-                .add('dimensions', [adjustedScale.x, currentMainDimensions.y, currentMainDimensions.z])
+                .add('dimensions', newMainDimensions)
                 .sync()
+            avatar.mainInitialDimensions = newMainDimensions;
         }
         // if (avatar.displayNameLength >= avatar.usernameLength) {
         //     log("@@@ display name is bigger");            
@@ -619,7 +642,7 @@ function requestJSON(url, callback) {
 var METAVERSE_BASE = Account.metaverseServerURL;
 var REG_EX_FOR_ID_FORMATTING = /[\{\}]/g;
 function getInfoAboutUser(uuid) {
-    log("running get info about users");
+    // log("running get info about users");
     var url = METAVERSE_BASE + '/api/v1/users?filter=connections&status=online';
     requestJSON(url, function (connectionsData) {
         var users = connectionsData.users;
