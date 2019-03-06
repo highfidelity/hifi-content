@@ -11,32 +11,32 @@
 (function() {
     var _this;
 
-    var CONFETTI_PARTICLE_SEARCH_M = 2;
 
     var BingoScannerZone = function() {
         _this = this;
     };
 
     BingoScannerZone.prototype = {
-        /* ON LOADING THE SCRIPT: Save a reference to this. */
+        // On load, save a reference to this entity's ID.
         preload: function(entityID) {
             _this.entityID = entityID;
         },
         
-        /* ON ENTERING THE ZONE: Remove confetti particles if necessary and call server to scan card. */
+        // When a user enters this zone entity, clear the user's bingo confetti particles (if any)
+        // and call the `enterEntityServer` server method on this entity.
         enterEntity: function() {
-            Entities.findEntities(MyAvatar.position, CONFETTI_PARTICLE_SEARCH_M).forEach(function(nearbyEntity) {
-                var properties = Entities.getEntityProperties(nearbyEntity, ['parentID', 'name']);
-                if (properties.name === "Bingo Confetti Particle" && properties.parentID === MyAvatar.sessionUUID) {
-                    Entities.deleteEntity(nearbyEntity);
+            MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
+                var name = Entities.getEntityProperties(avatarEntity, 'name').name;
+                if (name === "Bingo Confetti Particle") {
+                    Entities.deleteEntity(avatarEntity.id);
                 }
             });
-            Entities.callEntityServerMethod(_this.entityID, 'scanCard', [AccountServices.username]);
+            Entities.callEntityServerMethod(_this.entityID, 'enterEntityServer', [AccountServices.username]);
         },
 
-        /* ON LEAVING THE ZONE: Call the zone's server method that handles a user leaving the zone. */
+        // When a user leaves this zone entity, call the `leaveEntityServer` server method on this entity.
         leaveEntity: function(entityID, mouseEvent) {
-            Entities.callEntityServerMethod(_this.entityID, 'userLeftZone', [AccountServices.username]);
+            Entities.callEntityServerMethod(_this.entityID, 'leaveEntityServer', [AccountServices.username]);
         }
     };
     

@@ -6,6 +6,12 @@ Show someone else that you like what they're doing. Open the app to see usage in
 
 ## Releases
 
+### 2019-02-22_10-49-00 | Marketplace v1.3 | [51704b5](https://github.com/highfidelity/hifi-content/commit/51704b5)
+
+- Optimize app
+- Add option to not show Appreciation Dodecahedron while Appreciating
+- Forward Z keypresses to the Appreciate script that the user makes when the App's HTML UI is focused
+
 ### 2019-02-19_13-09-00 | Marketplace v1.2 | [0e2fa82](https://github.com/highfidelity/hifi-content/commit/0e2fa82)
 
 - Introduced functionality to stop running versions of Appreciate when those versions are baked into the client installation AND other versions of Appreciate are running

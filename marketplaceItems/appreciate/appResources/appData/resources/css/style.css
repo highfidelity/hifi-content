@@ -172,31 +172,18 @@ input:checked + .slider:before {
 }
 /* END PROGRESS BAR CSS */
 
-/* The container */
-#neverWhistleContainer {
-  margin: 0 0 0 12px;
-  position: relative;
-  top: 16px;
-  padding-left: 35px;
-  cursor: pointer;
-  font-size: 18px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-/* Hide the browser's default checkbox */
-#neverWhistleContainer input {
+#optionsContainer {
+  display: flex;
+  flex-direction: column;
+  height: 150px;
+  width: calc(100vw - 24px);
+  margin: 12px 12px 0 12px;
   position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
 }
 
 #colorPickerContainer {
-  margin: 36px 0 0 12px;
+  margin: 8px 0 0 0;
+  visibility: hidden;
 }
 
 #colorPickerContainer > input {
@@ -206,7 +193,6 @@ input:checked + .slider:before {
   min-width: 185px;
 }
 
-/* Create a custom checkbox */
 .checkmark {
   position: absolute;
   top: 0;
@@ -216,16 +202,6 @@ input:checked + .slider:before {
   background-color: #eee;
 }
 
-/* On mouse-over, add a grey background color */
-#neverWhistleContainer:hover input ~ .checkmark {
-  background-color: #ccc;
-}
-
-/* When the checkbox is checked, add a blue background */
-#neverWhistleContainer input:checked ~ .checkmark {
-  background-color: #0093C5;
-}
-
 /* Create the checkmark/indicator (hidden when not checked) */
 .checkmark:after {
   content: "";
@@ -233,13 +209,56 @@ input:checked + .slider:before {
   display: none;
 }
 
+#neverWhistleContainer,
+#showAppreciationEntityContainer {
+  display: block;
+  margin: 8px 0 0 0;
+  height: 25px;
+  position: relative;
+  padding-left: 35px;
+  cursor: pointer;
+  font-size: 18px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#showAppreciationEntityContainer {
+  margin-top: 16px;
+}
+
+/* Hide the browser's default checkbox */
+#neverWhistleContainer input,
+#showAppreciationEntityContainer input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* On mouse-over, add a grey background color */
+#neverWhistleContainer:hover input ~ .checkmark,
+#showAppreciationEntityContainer:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+#neverWhistleContainer input:checked ~ .checkmark,
+#showAppreciationEntityContainer input:checked ~ .checkmark {
+  background-color: #0093C5;
+}
+
 /* Show the checkmark when checked */
-#neverWhistleContainer input:checked ~ .checkmark:after {
+#neverWhistleContainer input:checked ~ .checkmark:after,
+#showAppreciationEntityContainer input:checked ~ .checkmark:after {
   display: block;
 }
 
 /* Style the checkmark/indicator */
-#neverWhistleContainer .checkmark:after {
+#neverWhistleContainer .checkmark:after,
+#showAppreciationEntityContainer .checkmark:after {
   left: 9px;
   top: 3px;
   width: 8px;
@@ -251,7 +270,12 @@ input:checked + .slider:before {
 }
 
 #instructions {
-  margin: 100px 12px 0 12px;
+  position: fixed;
+  height: 150px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0 12px;
   font-size: 18px;
 }
 

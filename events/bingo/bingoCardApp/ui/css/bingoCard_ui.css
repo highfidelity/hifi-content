@@ -1,0 +1,194 @@
+body {
+    margin: 0;
+    width: 100%;
+    font-family: 'Raleway', sans-serif;
+    color: #cccbcb;
+    background: linear-gradient(#2b2b2b, #303030);
+}
+
+input[type=button] {
+    font-family: 'Raleway';
+    font-weight: bold;
+    font-size: 13px;
+    text-transform: uppercase;
+    vertical-align: top;
+    height: 28px;
+    min-width: 50px;
+    padding: 0px 18px;
+    margin-right: 6px;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    background-color: #000;
+    background: linear-gradient(#343434 20%, #000 100%);
+    cursor: pointer;
+}
+input[type=button].gray {
+    color: #121212;
+    background-color: #949494;
+    background: linear-gradient(#949494 20%, #cacaca 100%);
+}
+
+input[type=button]:enabled:hover {
+    background: linear-gradient(#000, #000);
+    border: none;
+}
+
+input[type=button].gray:enabled:hover {
+    background: linear-gradient(#fff, #fff);
+    border: none;
+}
+
+input[type=button]:active {
+    background: linear-gradient(#343434, #343434);
+}
+input[type=button].gray:active {
+    background: linear-gradient(#afafaf, #afafaf);
+}
+
+input[type=button]:disabled {
+    color: #252525;
+    background: linear-gradient(#575757 20%, #252525 100%);
+}
+
+input[type=button][pressed=pressed] {
+    color: #00b4ef;
+}
+
+.button-container {
+    display: grid;
+    margin: 0 auto;
+    width: 450px;
+    grid-template-columns: repeat(5, 90px);
+    grid-template-rows: repeat(5, 90px);
+}
+
+.button-headers-container {
+    background-image:url("../images/bingo-card-head.png");
+    background-size: 450px 90px;
+    background-position: center;
+    width: 450px;
+    height: 90px;
+    display: flex;
+    margin: 0 auto;
+}
+
+.button-number, .button-free {
+    background-color: white;
+    font-size: 2em;
+    padding: 0;
+}
+
+.button-letter {
+    font-size: 5em;
+    background-color: rgba(255, 255, 255, 0);
+    height: 90px;
+    width: 90px;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.selected {
+    background-color: black;
+    color: white;
+}
+
+#bottomPanel {
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+#bingoButton {
+    margin: 0px;
+    padding: 10px;
+    font-size: 2em;
+    font-family: 'Raleway';
+    font-weight: bold;
+    vertical-align: top;
+    border-radius: 5px;
+    border: none;
+    color: #000;
+    background-color: #fff;
+    background: linear-gradient(#f59ee6 20%, rgb(132, 124, 240) 100%);
+    cursor: pointer;
+}
+
+#bingoButton:enabled:hover {
+    background: linear-gradient(#8f0070, #43008f);
+    color: #fff;
+    border: none;
+}
+
+#helpText {
+    display: block;
+    margin-top: 6px;
+}
+
+#calledNumbersContainer {
+    position: fixed;
+    display: flex;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    padding: 0;
+    overflow: hidden;
+    background-color: #121212;
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 24px;
+    color: white;
+}
+
+#calledNumbersTitle {
+    padding: 0 6px;
+}
+
+#calledNumbersContainer > div {
+    flex-shrink: 0;
+    z-index: 2;
+    background: #121212;
+}
+
+#calledNumbers {
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    z-index: 1 !important; 
+    white-space: nowrap;
+    left: 0px;
+}
+
+.bingoB {
+    color: #FB0CF8;
+}
+.bingoI {
+    color: #FBB617;
+}
+.bingoN {
+    color: #36C51E;
+}
+.bingoG {
+    color: #1860FA;
+}
+.bingoO {
+    color: #FB101B;
+}
+
+#scrollCalledNumbersLeft, #scrollCalledNumbersRight {
+    width: 50px;
+    background: #292929 !important;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+#scrollCalledNumbersRight {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    height: 60px;
+}

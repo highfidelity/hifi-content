@@ -35,6 +35,13 @@ Tablet, Vec3, Window */
         }
     }
 
+    /* Convert RGB value to 0-1 scale */
+    var RGB_MAX_VALUE = 255;
+    var DECIMAL_PLACES = 2;
+    function rgbConversion(rgbColorValue) {
+        return (rgbColorValue/RGB_MAX_VALUE).toFixed(DECIMAL_PLACES);
+    }
+
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
@@ -54,17 +61,17 @@ Tablet, Vec3, Window */
         { red: 255, green: 237, blue: 0 } // Yellow
     ];
     var HIFI_COLORS_URLS = [
-        Script.resolvePath("assets/textures/black.png"),
-        Script.resolvePath("assets/textures/red.png"),
-        Script.resolvePath("assets/textures/magenta.png"),
-        Script.resolvePath("assets/textures/neutral4.png"),
-        Script.resolvePath("assets/textures/neutral3.png"),
-        Script.resolvePath("assets/textures/neutral2.png"),
-        Script.resolvePath("assets/textures/neutral1.png"),
-        Script.resolvePath("assets/textures/blue.png"),
-        Script.resolvePath("assets/textures/cyan.png"),
-        Script.resolvePath("assets/textures/green.png"),
-        Script.resolvePath("assets/textures/yellow.png")
+        Script.resolvePath("resources/textures/black.png"),
+        Script.resolvePath("resources/textures/red.png"),
+        Script.resolvePath("resources/textures/magenta.png"),
+        Script.resolvePath("resources/textures/neutral4.png"),
+        Script.resolvePath("resources/textures/neutral3.png"),
+        Script.resolvePath("resources/textures/neutral2.png"),
+        Script.resolvePath("resources/textures/neutral1.png"),
+        Script.resolvePath("resources/textures/blue.png"),
+        Script.resolvePath("resources/textures/cyan.png"),
+        Script.resolvePath("resources/textures/green.png"),
+        Script.resolvePath("resources/textures/yellow.png")
     ];
     function getRandomHiFiColorIndex() {
         var numberOfHifiColors = HIFI_COLORS.length;
@@ -93,7 +100,7 @@ Tablet, Vec3, Window */
         paintSphere = Entities.addEntity({
             name: "Draw App Sphere",
             type: "Model",
-            modelURL: Script.resolvePath("assets/models/sphere-white-emissive.fbx"),
+            modelURL: Script.resolvePath("resources/models/sphere-white-emissive.fbx"),
             parentID: MyAvatar.sessionUUID,
             parentJointIndex: parentJointIndex,
             localPosition: { x: 0, y: 0, z: 0 },
@@ -101,6 +108,10 @@ Tablet, Vec3, Window */
             grab: { grabbable: false },
             collisionless: true
         }, 'avatar');
+        var hifiColorRescaled = {};
+        hifiColorRescaled.red = rgbConversion(HIFI_COLORS[randomHiFiColorIndex].red);
+        hifiColorRescaled.green = rgbConversion(HIFI_COLORS[randomHiFiColorIndex].green);
+        hifiColorRescaled.blue = rgbConversion(HIFI_COLORS[randomHiFiColorIndex].blue);
         paintSphereMaterial = Entities.addEntity({
             type: "Material",
             name: "Draw App Material",
@@ -109,8 +120,8 @@ Tablet, Vec3, Window */
             parentID: paintSphere,
             materialData: JSON.stringify({
                 materials: {
-                    albedo: HIFI_COLORS[randomHiFiColorIndex],
-                    emissiveMap: HIFI_COLORS_URLS[randomHiFiColorIndex]
+                    albedo: hifiColorRescaled,
+                    emissive: hifiColorRescaled
                 }
             })
         }, 'avatar');
@@ -175,7 +186,7 @@ Tablet, Vec3, Window */
     var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
     var DECAY_TIME_S = 60;
     var MAX_LINE_POINTS = 100;
-    var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/draw.mp3'));
+    var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('resources/sounds/draw.mp3'));
     var DRAW_SOUND_VOLUME = 0.01;
     var distanceCheckInterval = null;
     var polyLine = null;
@@ -450,9 +461,9 @@ Tablet, Vec3, Window */
 
     /* ON CLICKING APP BUTTON: (on the toolbar or tablet) if we are opening the app, play a sound and get the paint sphere.
     If we are closing the app, remove the paint sphere */
-    var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/open.mp3'));
+    var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('resources/sounds/open.mp3'));
     var OPEN_SOUND_VOLUME = 0.2;
-    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('assets/sounds/close.mp3'));
+    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('resources/sounds/close.mp3'));
     var CLOSE_SOUND_VOLUME = 0.3;
     function onClicked() {
         if (paintSphere) {
@@ -664,8 +675,8 @@ Tablet, Vec3, Window */
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
     var button = tablet.addButton({
         text: 'DRAW',
-        icon: Script.resolvePath('assets/icons/draw-i.png'),
-        activeIcon: Script.resolvePath('assets/icons/draw-a.png')
+        icon: Script.resolvePath('resources/icons/draw-i.png'),
+        activeIcon: Script.resolvePath('resources/icons/draw-a.png')
     });
     var dominantHand = MyAvatar.getDominantHand();
     var dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";

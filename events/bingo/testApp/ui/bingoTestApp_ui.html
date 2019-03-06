@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+    Bingo Test App UI
+    Created by Zach Fox on 2019-02-14
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
+
+<html>
+    <head>
+        <title>Bingo Test App</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+        <script type="text/javascript" src="js/bingoTestApp_ui.js"></script>
+    </head>
+
+    <body>
+        <div id="loadingContainer">
+        </div>
+
+        <div id="mainContainer">
+            <div id="titleBarContainer">
+                <div id="titleText" style="font-weight:bold;">
+                    Bingo Test App
+                </div>
+            </div>
+
+            <div id="buttonsContainer">
+                <input type="button" id="requestNewRound" value="Request New Round" onclick="emitBingoEvent('requestNewRound')">
+                <input type="button" id="addManyUsers" value="Add Many Users" onclick="emitBingoEvent('addManyUsers')">
+                <input type="button" id="callAllNumbers" value="Call All Numbers" onclick="emitBingoEvent('callAllNumbers')">
+            </div>
+
+            <div id="statusContainer">
+
+            </div>
+        </div>
+    </body>
+</html>

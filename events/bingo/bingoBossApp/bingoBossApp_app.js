@@ -15,9 +15,8 @@
     // START UTILITY FUNCTIONS
     // *************************************
 
-    /* PLAY SOUND: Plays the specified sound at the specified volume at the position of the front of stage */
+    // Plays the specified sound at the specified volume at number wheel's position
     var NUMBER_WHEEL = "{57e5e385-3968-4ebf-8048-a7650423d83b}";
-    var soundPosition = Entities.getEntityProperties(NUMBER_WHEEL, 'position').position;
     var injector;
     function playSound(sound, volume) {
         if (sound.downloaded) {
@@ -25,18 +24,32 @@
                 injector.stop();
             }
             injector = Audio.playSound(sound, {
-                position: soundPosition,
+                position: Entities.getEntityProperties(NUMBER_WHEEL, 'position').position,
                 volume: volume
             });
         }
+    }
+
+
+    // Update the "status" text area in the app's UI with the supplied `statusText`
+    var lastStatusText = "Nothing to report!";
+    function sendStatusUpdateToUI(statusText) {
+        if (statusText) {
+            lastStatusText = statusText;
+        }
+        ui.sendMessage({
+            app: 'bingoBossApp',
+            method: "updateStatus",
+            statusText: lastStatusText
+        });
     }
 
     // *************************************
     // END UTILITY FUNCTIONS
     // *************************************
 
-    /* GAME ON: This will play a sound and then, halfway through the sound, it will call a server method on the 
-    wheel to begin the game */
+    // Play the "beginning game" sound and then, halfway through the sound, call a server method on the 
+    // Bingo wheel to turn the Bingo lights on
     var BEGINNING_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBeginning.wav"));
     var MS_PER_S = 1000;
     var HALF = 0.5;
@@ -47,7 +60,8 @@
         }, BEGINNING_SOUND.duration * MS_PER_S * HALF);
     }
 
-    /* OPEN REGISTRATION: This will play a sound and call a server method on the wheel to open registration */
+    // Play the "open registration" sound and then, halfway through the sound, call a server method on the 
+    // Bingo wheel to open registration
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoBoomOpener.wav"));
     var TEN_PERCENT = 0.1;
     function openRegistration() {
@@ -57,7 +71,8 @@
         }, OPEN_SOUND.duration * MS_PER_S * TEN_PERCENT);
     }
     
-    /* CLOSE REGISTRATION: This will play a sound and call a server method on the wheel to close registration */
+    // Play the "close registration" sound and then, halfway through the sound, call a server method on the 
+    // Bingo wheel to close registration
     var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoGong.wav"));
     var THIRTY_FIVE_PERCENT = 0.35;
     function closeRegistration() {
@@ -67,14 +82,16 @@
         }, CLOSE_SOUND.duration * MS_PER_S * THIRTY_FIVE_PERCENT);
     }
 
-    /* NEW ROUND: Play sound and call wheel server function */
+    // Play the "new round" sound and then call a server method on the 
+    // Bingo wheel to start a new round
     var NEW_ROUND_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoOrgan.wav"));
     function newRound() {
         playSound(NEW_ROUND_SOUND, 1);
         Entities.callEntityServerMethod(NUMBER_WHEEL, 'newRound');
     }
 
-    /* GAME OVER: This will play a sound and call a server method on the wheel to end the game */
+    // Play the "lights out" sound and then, halfway through the sound, call a server method on the 
+    // Bingo wheel to turn the lights out
     var FAREWELL_SOUND = SoundCache.getSound(Script.resolvePath("assets/sounds/bingoFarewell.wav"));
     var NINETY_PERCENT = 0.9;
     function lightsOut() {
@@ -84,31 +101,42 @@
         }, FAREWELL_SOUND.duration * MS_PER_S * NINETY_PERCENT);
     }
 
+
+    // Tell the number wheel to give prizes to avatars in the prize zones
     function givePrizes() {
         Entities.callEntityServerMethod(NUMBER_WHEEL, 'givePrizes');
     }
 
-    /* ON WEB EVENT: Call the correct function or print an error when an event is received from bingoBossApp_ui.html */
+    // Handle EventBridge Web Events from bingoBossApp_ui.html
     function onWebEventReceived(event) {
-        if (event.app === 'bingo') {
+        if (event.app === 'bingoBossApp') {
             switch (event.type) {
+                case "eventBridgeReady":
+                    sendStatusUpdateToUI();
+                    break;
                 case 'lightsOn':
                     lightsOn();
+                    sendStatusUpdateToUI("Last button clicked: Lights On");
                     break;
                 case 'openRegistration':
                     openRegistration();
+                    sendStatusUpdateToUI("Last button clicked: Open Registration");
                     break;
                 case 'closeRegistration':
                     closeRegistration();
+                    sendStatusUpdateToUI("Last button clicked: Close Registration");
                     break; 
                 case 'newRound':
                     newRound();
+                    sendStatusUpdateToUI("Last button clicked: New Round");
                     break;
                 case 'lightsOut':
                     lightsOut();
+                    sendStatusUpdateToUI("Last button clicked: Lights Out");
                     break;
                 case 'givePrizes':
                     givePrizes();
+                    sendStatusUpdateToUI("Last button clicked: Give Prizes");
                     break;
                 default:
                     print("error in detecting event.type in Bingo app");
@@ -116,10 +144,10 @@
         }
     }
 
-    /* ON APP START: Setup app UI, button, and messaging between it's html page and this script */
+    // Setup AppUI module
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('bingoBossApp_ui.html?5');
+    var appPage = Script.resolvePath('ui/bingoBossApp_ui.html?1');
     function startup() {
         ui = new AppUi({
             buttonName: "BOSS",
@@ -130,4 +158,4 @@
     }
 
     startup();
-}());
+})();

@@ -15,16 +15,15 @@
 
     var _this;
 
-    var canClick = true;
-    var appPage = Script.resolvePath('../../bingoCardApp/bingoCard_ui.html?12');
+    var debounceTimer = false;
+    var appPage = Script.resolvePath('../../bingoCardApp/ui/bingoCard_ui.html?13');
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
 
     // *************************************
     // START UTILITY FUNCTIONS
     // *************************************
 
-    /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
-    mode requested. */
+    /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the specified volume */
     var injector;
     var audioVolume = 0.2;
     function playSound(sound) {
@@ -44,11 +43,11 @@
     // END UTILITY FUNCTIONS
     // *************************************
 
-    /* CHECK IF A USER IS RUNNING THE CARD APP: Get a list of running scripts usingg the script discovery service API. 
+    /* CHECK IF A USER IS RUNNING THE CARD APP: Get a list of running scripts using the script discovery service API. 
     Search that list for the card app script and return whether or not it was found */
     var isRunningStandaloneBingoApp = function() {
         var isRunning = false;
-        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("bingoCard_app.js?10") !== -1) {
+        if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("bingoCard_app.js?11") !== -1) {
             isRunning = true;
         }
         return isRunning;
@@ -59,29 +58,38 @@
     };
 
     BingoCardSpawner.prototype = {
-
-        /* ON LOADING THE APP: Save a reference to this entity ID */
-        preload: function(entityID){
+        /* ON LOADING THE SCRIPT: Save a reference to this entity ID */
+        preload: function(entityID) {
             _this.entityID = entityID;
         },
 
-        /* WHEN A USER MOUSE CLICKS THIS ENTITY:  If it was left click and the user has not clicked it within the last 
-        5 seconds, play the sound for getting a card, and if the user is not running the card script, load it. If they 
-        are already running the script, go to the app page on the tablet. */
+        /* WHEN THE SCRIPT IS STOPPED: If `debounceTimer` is defined, stop that timer. */
+        unload: function() {
+            if (debounceTimer) {
+                Script.clearTimeout(debounceTimer);
+                debounceTimer = false;
+            }
+        },
+
+        // When a user left-clicks this entity, AND they haven't clicked it recently:
+        // - Play a sound
+        // - Check if the user is running the Bingo card script
+        //     - If they are, load the app's UI
+        //     - If they aren't, load the Bingo card script
+        // - Start the debounce timer to prevent a user from clicking on the sign too quickly
         mousePressOnEntity: function(id, event) {
-            if (event.isLeftButton && canClick) {
-                canClick = false;
+            if (event.isLeftButton && !debounceTimer) {
                 playSound(GET_CARD_SOUND);
                 if (!isRunningStandaloneBingoApp()) {
-                    ScriptDiscoveryService.loadScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js?10'));
+                    ScriptDiscoveryService.loadScript(Script.resolvePath('../../bingoCardApp/bingoCard_app.js?11'));
                 } else {
                     var cardAppIsOpen = tablet.isPathLoaded(appPage);
                     if (!cardAppIsOpen) {
                         tablet.gotoWebScreen(appPage);
                     }
                 }
-                Script.setTimeout(function() {
-                    canClick = true;
+                debounceTimer = Script.setTimeout(function() {
+                    debounceTimer = false;
                 }, WAIT_TO_CLICK_MS);
             }
         }

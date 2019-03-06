@@ -72,7 +72,11 @@ module.exports = {
         "XMLHttpRequest": false,
         "console": false,
         "location": false,
-        "print": false
+        "print": false,
+        "$": false,
+        "document": false,
+        "EventBridge": false,
+        "module": false
     },
     "rules": {
         "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
