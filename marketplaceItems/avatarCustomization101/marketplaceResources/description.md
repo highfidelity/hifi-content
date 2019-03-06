@@ -15,11 +15,13 @@ Avatar 101 is a learning tool to showcase customizations you and other creators 
 
 The app utilizes “Avi,” a customized Woody avatar, with a jacket submesh, specifically named blendshapes on its face, and flow joints on its leaf hair. We use Avi because he is specifically configured to interact with the app.
 
-*We highly recommend checking out the Github README and source code to learn more about the customizations!*
+**We highly recommend checking out the Github README and source code to learn more about the customizations!**
 
 Happy learning and happy customizing!
 
 Brought to you by the Experiences team as a blueprint project with the source code and a detailed README about how it was made. Feel free to modify the code to your needs!
+
+**Please note! To use this app, please unload any running flow.js scripts. Any additional running flow.js scripts will conflict.**
 
 
 Release Log: 2019-03-05_09-11-00: Initial Release
