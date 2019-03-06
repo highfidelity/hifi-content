@@ -1,7 +1,6 @@
 var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
 var entityProps = Script.require('./defaultOverlayProps.js?' + Date.now());
-var backgroundProps = Script.require('./defaultBackgroundProps.js?' + Date.now());
 var textHelper = new (Script.require('./textHelper.js?' + Date.now()));
 var request = Script.require('request').request;
 var X = 0;
@@ -12,6 +11,7 @@ var _this;
 
 function AvatarListManager(){
     _this = this;
+
     _this.avatars = {};
     _this.selectedAvatars = {};
     _this.redrawTimeout = null;
@@ -27,64 +27,82 @@ function create(){
 
 
 // Destory the manager and disconnect from username signal
-function destroy(){
+function destroy(){  
     Users.usernameFromIDReply.disconnect(_this.handleUserName);
     _this.reset();
 
     return _this;
 }
 
-// Add a user to the manager
+
+// properties to give new avatars added to the list
+function NewAvatarProps(intersection){
+    return {
+        avatarInfo: null,
+        created: null,
+        localEntityMain: new LocalEntity('local')
+            .add(entityProps),
+        localEntitySub: new LocalEntity('local')
+            .add(entityProps),
+        intersection: intersection.intersection,
+        lastDistance: null,
+        previousDistance: null,
+        currentDistance: null,
+        initialDistance: null,
+        mainInitialDimensions: null,
+        subInitialDimensions: null,
+        previousName: null,
+        localPositionOfIntersection: null,
+        displayNameLength: 0,
+        usernameLength: 0
+    };
+}
+
+
+// Add a user to the list
 function add(uuid, intersection){
+    // User Doesn't exist so give them new props, get their current avatar info, and handle different ways to get the username
     if (!_this.avatars[uuid]) {
-        _this.avatars[uuid] = {
-            avatarInfo: null,
-            created: null,
-            localEntityMain: new LocalEntity('local')
-                .add(entityProps),
-            // localEntityMainBackground: new LocalEntity('local')
-            //     .add(backgroundProps),
-            localEntitySub: new LocalEntity('local')
-                .add(entityProps),
-            // localEntitySublBackground: new LocalEntity('local')
-                // .add(backgroundProps),
-            intersection: intersection.intersection, 
-            lastDistance: null,
-            previousDistance: null,
-            currentDistance: null,
-            initialDistance: null,
-            mainInitialDimensions: null,
-            subInitialDimensions: null,
-            previousName: null,
-            localPositionOfIntersection: null,
-            displayNameLength: 0,
-            usernameLength: 0
-        };
+        _this.avatars[uuid] = new NewAvatarProps(intersection); 
         _this.getInfo(uuid);
         _this.getUN(uuid);
     }
+
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
+
+    // Save the created time to check if it needs to be deleted
     avatar.created = Date.now();
     avatar.intersection = intersection.intersection;
-    avatar.localPositionOfIntersection = worldToLocal(avatar.intersection, avatarInfo.position, avatarInfo.orientation)
+
+    // Save the intersection position local to the avatar in case we need it again
+    avatar.localPositionOfIntersection = worldToLocal(avatar.intersection, avatarInfo.position, avatarInfo.orientation);
+
     _this.selectedAvatars[uuid] = true;
+
+    // When the user clicks someone, we are either creating or showing a hidden nameTag
     _this.shouldShowOrCreate(uuid); 
+    // Check to see if anyone is in the list to see if we need to put people
     shouldToggleInterval();
 
     return _this;
 }
 
+
+// Convert a point from local to world location
 function localToWorld(localOffset, framePosition, frameOrientation) {
     var worldOffset = Vec3.multiplyQbyV(frameOrientation, localOffset);
     return Vec3.sum(framePosition, worldOffset);
 }
 
-function worldToLocal(worldPosition, framePosition, frameOrientation, optionalInverseFrameOrientation) {
-    var inverseFrameOrientation = optionalInverseFrameOrientation || Quat.inverse(frameOrientation);
+
+// Convert from world to local space
+function worldToLocal(worldPosition, framePosition, frameOrientation) {
+    var inverseFrameOrientation = Quat.inverse(frameOrientation);
     var worldOffset = Vec3.subtract(worldPosition, framePosition);
     return Vec3.multiplyQbyV(inverseFrameOrientation, worldOffset);
 }
+
 
 // Remove the avatar from the list
 function remove(uuid){
@@ -761,14 +779,6 @@ AvatarListManager.prototype = {
     shouldShowOrCreate: shouldShowOrCreate
 };
 
-
-function rotateBillboard(position, frustrumPos){
-    var avatarUp = Quat.getUp(MyAvatar.orientation);
-    
-    // var newRotation = Quat.lookAt(frustrumPos, position, avatarUp);
-    var newRotation = Quat.conjugate(Quat.lookAt(frustrumPos, position, avatarUp));
-    return newRotation;
-}
 
 module.exports = AvatarListManager;
 

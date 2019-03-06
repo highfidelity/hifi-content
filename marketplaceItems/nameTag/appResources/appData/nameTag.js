@@ -62,7 +62,7 @@
 
 
     var BUTTON_NAME = "NAME_TAG";
-    var URL = Script.resolvePath('./resources/nametag_ui.html');
+    var URL = Script.resolvePath('./resources/nameTag_ui.html');
     var appUi = Script.require('appUi');
 
     var ui = new appUi({

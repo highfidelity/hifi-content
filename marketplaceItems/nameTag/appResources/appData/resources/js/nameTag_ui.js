@@ -79,63 +79,47 @@ var app = new Vue({
 
 // Handle incoming tablet messages
 function onScriptEventReceived(message) {
-    var data;
     try {
-        data = JSON.parse(message);
-        switch (data.type) {
-            case "UPDATE_SOLO":
-                app.soloList = data.value;
-                break;
-            case "DISPLAY_ERROR":
-                if (app.showingError) {
-                    return;
-                }
-                var MS_TIMEOUT = 2500;
-                app.showingError = true;
-                app.fadeIn = true;
-                app.fadeOut = false;
-                setTimeout(function() {
-                    app.showingError = false;
-                    app.fadeIn = false;
-                    app.fadeOut = true;
-                }, MS_TIMEOUT)
-            default:
-        }
+        message = JSON.parse(message);
     } catch (e) {
         console.log(e)
         return;
     }
+
+    switch (data.type) {
+        case "UPDATE_SOLO":
+            app.soloList = data.value;
+            break;
+        case "DISPLAY_ERROR":
+            if (app.showingError) {
+                return;
+            }
+            var MS_TIMEOUT = 2500;
+            app.showingError = true;
+            app.fadeIn = true;
+            app.fadeOut = false;
+            setTimeout(function() {
+                app.showingError = false;
+                app.fadeIn = false;
+                app.fadeOut = true;
+            }, MS_TIMEOUT)
+        default:
+    }
+    
 }
 
 
 // This is how much time to give the Eventbridge to wake up.  This won't be needed in RC78 and will be removed.
 // Run when the JS is loaded and give enough time to for EventBridge to come back
-var EVENTBRIDGE_SETUP_DELAY = 100;
+var EVENTBRIDGE_SETUP_DELAY = 500;
 function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
-            type: "EVENT_BRIDGE_OPEN_MESSAGE"
+            app: "nametags",
+            method: "eventBridgeReady"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
 }
 
-
-// #endregion
-// *************************************
-// END EVENTBRIDGE
-// *************************************
-
-// *************************************
-// START MAIN
-// *************************************
-// #region Main
-
-
 onLoad();
-
-
-// #endregion
-// *************************************
-// END MAIN 
-// *************************************

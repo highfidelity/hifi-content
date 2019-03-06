@@ -1,0 +1,58 @@
+<!--
+        
+    Audio Focus
+    Created by Milad Nazeri on 2019-01-07
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+    Point to solo someone to hear them better in a crowd!
+    TABLET UI HTML
+
+-->
+
+<html>
+
+    <head>
+        <title>Nametag</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="./css/style.css">
+        <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    </head>
+
+    <body>
+
+        <div id="loadingContainer">
+
+        </div>
+        
+        <div id="mainContainer">
+
+            <div id="titleText" style="font-weight:bold;">
+                Name Tag V1.0
+            </div>
+            <label class="switch">
+                <input id="nameTagSwitch" type="checkbox" onclick="nameTagSwitchClicked(this)">
+                <span clss="slider round"></span>
+            </label>
+        </div>
+
+        <div id="firstRun:" style="display: none;">
+            <i id="tutorialArrow"></i>
+            <div>&nbsp; Use this switch to enable or disable nametags</div>
+        </div>
+
+        <div id="optionsContainer">
+            <span style="font-weight:bold;">Options</span>
+
+            <label id="size">
+                Change general size
+                <input id="sizeSlider" type="range" name="size-slide" min="1" max="100">
+            </label>
+        </div>
+
+        <script type="text/javascript" src="js/audioFocus_ui.js"></script>
+    </body>
+
+</html>
