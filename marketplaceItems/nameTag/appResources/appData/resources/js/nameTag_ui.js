@@ -13,7 +13,6 @@
 */
 
 
-
 // *************************************
 // START EVENTBRIDGE
 // *************************************
@@ -54,41 +53,14 @@ function onScriptEventReceived(message) {
             // }
             document.getElementById("nameTagSwitch").checked = message.nameTagEnabled;
             document.getElementById("sizeSlider").value = message.currentUserScaler;            
-            // document.getElementById("neverWhistleCheckbox").checked = message.neverWhistleEnabled;
-
-            // var showAppreciationEntityCheckbox = document.getElementById("showAppreciationEntityCheckbox");
-            // showAppreciationEntityCheckbox.checked = message.showAppreciationEntity;
-            // if (showAppreciationEntityCheckbox.checked) {
-            //     document.getElementById("colorPickerContainer").style.visibility = "visible";
-            // } else {
-            //     document.getElementById("colorPickerContainer").style.visibility = "hidden";
-            // }
-
-            // if (message.neverWhistleEnabled) {
-            //     var crosshatch = document.getElementById("crosshatch");
-            //     crosshatch.style.display = "inline-block";
-            // }
 
             document.getElementById("loadingContainer").style.display = "none";
 
-            // var color = document.getElementById("colorPicker").jscolor;
-            // color.fromRGB(message.entityColor.red, message.entityColor.green, message.entityColor.blue);
-
-            // var startColor = {
-            //     "red": Math.floor(color.rgb[0] * START_COLOR_MULTIPLIER),
-            //     "green": Math.floor(color.rgb[1] * START_COLOR_MULTIPLIER),
-            //     "blue": Math.floor(color.rgb[2] * START_COLOR_MULTIPLIER)
-            // };
-            // var currentIntensityDisplayWidth = document.getElementById("currentIntensityDisplay").offsetWidth;
-            // document.getElementById("currentIntensity").style.backgroundImage = 
-            //     "linear-gradient(to right, rgb(" + startColor.red + ", " +
-            //     startColor.green + ", " + startColor.blue + ") 0, " +
-            //     color.toHEXString() + " " + currentIntensityDisplayWidth + "px)";
             break;
         default:
             console.log("Unknown message received from nameTag.js! " + JSON.stringify(message));
             break;
-        }
+    }
     
 }
 

@@ -139,7 +139,6 @@ function removeOverlay(uuid, shouldDestory){
 
 
 var Z_SIZE = 0.01;
-// var SUB_OFFSET = -0.120;
 var SUB_OFFSET = -0.0101;
 var MAIN_SCALER = 0.75;
 var SUB_SCALER = 0.55;
@@ -183,22 +182,22 @@ function calculateInitialProperties(uuid, type) {
         Vec3.multiply(
             Vec3.multiply(dimensions, adjustedScaler), 
             type === "main" ? MAIN_SCALER : SUB_SCALER
-        )
+        );
 
     // if (userScaler !== previousUserScaler) {
-        scaledDimensions = Vec3.multiply(scaledDimensions, userScaler); 
+        // scaledDimensions = Vec3.multiply(scaledDimensions, userScaler); 
     // }
     
     lineHeight = scaledDimensions.y * LINE_HEIGHT_SCALER;
 
     
     if (type === "sub") {
-        var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y
+        var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y;
         var halfLocalEntityMainY = localEntityMainY / 2;
         var halfScaledD = scaledDimensions.y / 2;
         var totalHalfs = halfLocalEntityMainY + halfScaledD;
         localPosition =
-            [0, (-totalHalfs), 0]
+            [0, (-totalHalfs), 0];
     }
 
     return {
@@ -274,7 +273,6 @@ function handleFriend(uuid, username) {
 function registerInitialScaler(initalScaler){
     userScaler = initalScaler;
     previousUserScaler = initalScaler;
-
 }
 
 // Handle redrawing if needed
@@ -309,12 +307,12 @@ function reDraw(uuid, type, userScaleChanged){
 
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
-    log("userScaler", userScaler);
-    log("previousUserScaler", previousUserScaler);
-    if (userScaler !== previousUserScaler) {
-        newDimensions = Vec3.multiply(newDimensions, userScaler); 
-        lineHeight = lineHeight * userScaler;
-    }
+    // log("userScaler", userScaler);
+    // log("previousUserScaler", previousUserScaler);
+    // if (userScaler !== previousUserScaler) {
+    newDimensions = Vec3.multiply(newDimensions, userScaler); 
+    lineHeight = lineHeight * userScaler;
+    // }
 
     localEntity
         .add("lineHeight", lineHeight)
@@ -324,9 +322,9 @@ function reDraw(uuid, type, userScaleChanged){
         var subInitialLocalPosition = avatar.subInitialLocalPosition[Y];
         var newLocalPosition = subInitialLocalPosition / initialDistance * currentDistance;
         
-        if (userScaler !== previousUserScaler) {
+        // if (userScaler !== previousUserScaler) {
             newLocalPosition = newLocalPosition * userScaler;
-        }
+        // }
 
         localPosition =
             [0, newLocalPosition, 0];
@@ -466,10 +464,16 @@ function makeMainName(uuid, shouldCreate){
         // log("calculated props", calculatedProps)
         distance = calculatedProps.distance;
         scaledDimensions = calculatedProps.scaledDimensions;
+
+        // if (userScaler !== previousUserScaler) {
+        
+        avatar.mainInitialDimensions = scaledDimensions;
+        scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
+
         lineHeight = calculatedProps.lineHeight;
+        lineHeight = lineHeight * userScaler;
 
         avatar.initialDistance = distance;
-        avatar.mainInitialDimensions = scaledDimensions;
         avatar.previousName = avatarInfo.displayName;
         
         localEntityMain
@@ -506,7 +510,6 @@ function makeSubName(uuid, shouldCreate){
     var lineHeight = null;
     var localPosition = null;
 
-
     if (shouldCreate) {
         localEntitySub.add("text", avatarInfo.username);
 
@@ -515,27 +518,46 @@ function makeSubName(uuid, shouldCreate){
         scaledDimensions = calculatedProps.scaledDimensions;
         avatar.subInitialScaledDimensions = scaledDimensions;
 
-        var subScaledX = scaledDimensions.x
-        var mainEntityX = localEntityMain.get('dimensions', true).x
+        scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
+        lineHeight = lineHeight * userScaler;
+
+        var subScaledX = scaledDimensions.x;
+        var mainEntityX = localEntityMain.get('dimensions', true).x;
+
         if (mainEntityX >= subScaledX) {
             var localEntityMainX = localEntityMain.get('dimensions', true).x;
             var adjustedScale = [localEntityMainX, scaledDimensions.y, scaledDimensions.z];
         } else {
             var adjustedScale = scaledDimensions;
             var currentMainDimensions = localEntityMain.get('dimensions', true);
-            var currentLineHeight = localEntityMain.get('lineHeight', true);
-            var newMainDimensions = [adjustedScale.x, currentMainDimensions.y, currentMainDimensions.z]
+            var newMainDimensions = [adjustedScale.x, currentMainDimensions.y, currentMainDimensions.z];
             localEntityMain
                 .add('dimensions', newMainDimensions)
-                .sync()
+                .sync();
             avatar.mainInitialDimensions = newMainDimensions;
         }
 
         distance = calculatedProps.distance;
-        localPosition = calculatedProps.localPosition;
-    
+        // localPosition = calculatedProps.localPosition;
         avatar.subInitialDimensions = adjustedScale;
+        
+        // log("userScaler", userScaler)
+        // var localPositionY = localPosition[Y];
+        // var localPositionY = localPosition[Y] * userScaler;
+        // log("localPosition2", localPosition)
+        // localPosition = [localPosition[X], localPositionY, localPosition[Z]];
+        // log("localPosition3", localPosition)
+        var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y;
+        log("localEntityMainY", localEntityMainY)
+        var halfLocalEntityMainY = localEntityMainY / 2;
+        var halfScaledD = adjustedScale[Y] / 2;
+        var totalHalfs = halfLocalEntityMainY + halfScaledD;
+        localPosition =
+            [0, (-totalHalfs), 0];
         avatar.subInitialLocalPosition = localPosition;
+        
+        // log("localPosition1", localPosition)
+        
         localEntitySub
             .add("lineHeight", lineHeight)
             .add("localPosition", localPosition)
@@ -618,7 +640,6 @@ function getInfoAboutUser(uuid) {
         }
     });
 }
-
 
 
 // Reset the avatar list

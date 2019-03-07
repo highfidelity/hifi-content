@@ -12,28 +12,12 @@
 */
 
 (function () {
-
-    // *************************************
-    // START UTILITY FUNCTIONS
-    // *************************************
-    // #region Utilty
+    
     var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
     var PickRayController = Script.require('./resources/modules/pickRayController.js?' + Date.now());
     var AvatarListManager = Script.require('./resources/modules/avatarListManager.js?' + Date.now());
     var pickRayController = new PickRayController();
     var avatarListManager = new AvatarListManager().create();
-
-
-    // #endregion
-    // *************************************
-    // END UTILITY FUNCTIONS
-    // *************************************
-
-    // *************************************
-    // START AVATAR FUNCTIONS
-    // *************************************
-    // #region Solo
-
 
     // Handles avatar being solo'd
     pickRayController
@@ -45,85 +29,8 @@
 
     function selectAvatar(uuid, intersection) {
         console.log("in selectAvatar");
-        // log("intersection", intersection)
         avatarListManager.handleSelect(uuid, intersection);
     }
-
-
-    // #endregion
-    // *************************************
-    // STOP SOLO FUNCTIONS
-    // *************************************
-
-    // *************************************
-    // START TABLET FUNCTIONS
-    // *************************************
-    // #region Tabletv 
-
-
-    // var BUTTON_NAME = "NAME_TAG";
-    // var URL = Script.resolvePath('./resources/nameTag_ui.html');
-    // var appUi = Script.require('appUi');
-
-    // var ui = new appUi({
-    //     buttonName: BUTTON_NAME,
-    //     home: URL,
-    //     graphicsDirectory: Script.resolvePath("./resources/images/icons/"),
-    //     onMessage: onMessage
-    // });
-
-
-    // Handles incoming tablet messages
-    // function onMessage(data) {
-    //     switch (data.type) {
-    //         case "EVENT_BRIDGE_OPEN_MESSAGE":
-    //             updateUI();
-    //             break;
-    //         case "CLEAR_LIST":
-    //             resetTags();
-    //             break;
-    //         case "REMOVE_USER":
-    //             removeUser(data.value);
-    //             break;
-    //         default:
-    //     }
-    // }
-
-
-    // Handles how the UI gets updated
-    function updateUI() {
-        // var avatarNames = [];
-        // for (var key in avatars) {
-        //     avatarNames.push(avatars[key].name);
-        // }
-        // ui.sendToHtml({
-        //     type: "UPDATE_TAGS",
-        //     value: avatarNames
-        // });
-    }
-
-    // #endregion 
-    // *************************************
-    // STOP TABLET FUNCTIONS
-    // *************************************
-
-    // *************************************
-    // START MAIN
-    // *************************************
-    // #region MAIN
-
-    pickRayController.enable();
-
-    // #endregion
-    // *************************************
-    // STOP MAIN
-    // *************************************
-
-
-    // *************************************
-    // START CLEANUP
-    // *************************************
-    // #region Cleanup 
 
 
     // Handles reset of list if you change domains
@@ -137,9 +44,6 @@
         avatarListManager.maybeRemove(uuid);
     }
 
-    Window.domainChanged.connect(onDomainChange);
-
-    AvatarManager.avatarRemovedEvent.connect(onAvatarRemoved);
 
     // Called when the script is closing
     function scriptEnding() {
@@ -150,47 +54,26 @@
         AvatarManager.avatarRemovedEvent.disconnect(onAvatarRemoved);
     }
 
+
     // Updates the Current Intensity Meter UI element. Called when intensity changes.
-    function updateCurrentIntensityUI() {
+    function updateCurrentUserScaler() {
         var currentUserScaler = Settings.getValue("nametag/enabled", false);
         ui.sendMessage({method: "updateCurrentUserScaler", currentUserScaler: currentUserScaler});
     }
 
+
     function onOpened() {
-        updateCurrentIntensityUI();
+        updateCurrentUserScaler();
     }
-    
-    // function enableOrDisableAppreciate() {
-    //     if (appreciateEnabled) {
-    //         maybeSetupHandPositionCheckInterval();
-            
-    //         if (!keyEventsWired && !HMD.active) {
-    //             Controller.keyPressEvent.connect(keyPressEvent);
-    //             Controller.keyReleaseEvent.connect(keyReleaseEvent);
-    //             keyEventsWired = true;
-    //         }
-    //     } else {
-    //         maybeClearHandPositionCheckInterval();
-    //         maybeClearHandVelocityCheckIntervalAndStopSound();
-    //         maybeClearStopAppreciatingTimeout();
-    //         stopAppreciating();
 
-    //         if (keyEventsWired) {
-    //             Controller.keyPressEvent.disconnect(keyPressEvent);
-    //             Controller.keyReleaseEvent.disconnect(keyReleaseEvent);
-    //             keyEventsWired = false;
-    //         }
-    //     }
-    // }
 
-    // Called when the script starts up
-    
-
+    // var currentUserScaler = 1.0;
     var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
     avatarListManager.registerInitialScaler(currentUserScaler);
     function updateUserScaler(newSize){
         avatarListManager.updateUserScaler(newSize);
     }
+
 
     // Enables or disables the app's main functionality
     var nameTagEnabled = Settings.getValue("nametag/enabled", false);
@@ -201,6 +84,7 @@
             pickRayController.disable();
         }
     }
+
 
     function onMessage(message) {
         if (message.app !== "nametag") {
@@ -215,10 +99,8 @@
                     // isFirstRun: Settings.getValue("appreciate/firstRun", true),
                 });
                 break;
-
             case "nametagSwitchClicked":
                 // Settings.setValue("appreciate/firstRun", false);
-                log("nameTagSwitchClicked")
                 nameTagEnabled = message.nameTagEnabled;
                 Settings.setValue("nametag/enabled", nameTagEnabled);
                 enableOrDisableNameTag();
@@ -234,6 +116,7 @@
                 break;
         }
     }
+
 
     // When called, this function will stop the versions of this script that are
     // baked into the client installation IF there's another version of the script
@@ -262,6 +145,7 @@
         }
     }
 
+    
     var BUTTON_NAME = "NAMETAG";
     var APP_UI_URL = Script.resolvePath('resources/nameTag_ui.html');
     var AppUI = Script.require('appUi');
@@ -275,8 +159,12 @@
             onOpened: onOpened,
             onMessage: onMessage
         });
-        
-        // enableOrDisableNameTag();
+
+
+        Window.domainChanged.connect(onDomainChange);
+        AvatarManager.avatarRemovedEvent.connect(onAvatarRemoved);
+
+        enableOrDisableNameTag();
         // maybeStopBakedScriptVersions();
     }
 
@@ -285,6 +173,54 @@
     startup();
 
 
+})();
+
+
+    // *************************************
+    // START MAIN
+    // *************************************
+    // #region MAIN
+
+    // pickRayController.enable();
+
+    // #endregion
+    // *************************************
+    // STOP MAIN
+    // *************************************
+
+
+    // #endregion
+    // *************************************
+    // STOP SOLO FUNCTIONS
+    // *************************************
+
+    // #endregion 
+    // *************************************
+    // STOP TABLET FUNCTIONS
+    // *************************************
+
+    // *************************************
+    // START CLEANUP
+    // *************************************
+    // #region Cleanup 
+
+
+    // *************************************
+    // START UTILITY FUNCTIONS
+    // *************************************
+    // #region Utilty
+
+
+
+    // #endregion
+    // *************************************
+    // END UTILITY FUNCTIONS
+    // *************************************
+
+    // *************************************
+    // START AVATAR FUNCTIONS
+    // *************************************
+    // #region Solo
 
 
     // #endregion
@@ -292,28 +228,3 @@
     // STOP CLEANUP
     // *************************************
 
-})();
-
-
-
-// Calculate the distance
-
-// Update the overlay
-
-// Track how long the overlay lasts
-
-// 
-
-// Create an overlay
-
-// Get a user name
-
-// Create the second overlay
-
-// Handle being a friend
-
-// Make sure always in front
-
-// Get the intersection point
-
-// Controller Interaction
