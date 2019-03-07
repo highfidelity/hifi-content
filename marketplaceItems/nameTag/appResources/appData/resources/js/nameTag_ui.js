@@ -1,6 +1,6 @@
 /*
 
-    Audio Focus
+    Name Tag
     Created by Milad Nazeri on 2019-01-07
     Copyright 2019 High Fidelity, Inc.
 
@@ -12,69 +12,30 @@
     
 */
 
-// *************************************
-// START VUE
-// *************************************
-// #region Vue
 
-
-Vue.component('solo-list', {
-    props: ['list'],
-    template: /*html*/`
-    <div id="avatar-list" >
-        <div v-for="(name, index) in list" :key="index">
-            <solo-item :name="name"></solo-item>
-        </div>
-    </div>
-    `
-})
-
-
-Vue.component('solo-item', {
-    props: ['name'],
-    methods: {
-        clicked: function(name) {
-            EventBridge.emitWebEvent(JSON.stringify({
-                type: "REMOVE_USER",
-                value: name
-            }));
-        }
-    },
-    template: /*html*/`
-        <div class="shadow name">
-            <span >{{name}}</span><span class="close" @click="clicked(name)">X</span>
-        </div>
-    `
-})
-
-
-var app = new Vue({
-    el: '#app',
-    methods: {
-        clear: function() {
-            EventBridge.emitWebEvent(JSON.stringify({
-                type: "CLEAR_LIST"
-            }));
-        }
-    },
-    data: {
-        soloList: [],
-        showingError: false,
-        fadeIn: false,
-        fadeOut: false
-    }
-});
-
-
-// #endregion
-// *************************************
-// END VUE 
-// *************************************
 
 // *************************************
 // START EVENTBRIDGE
 // *************************************
 // #region Eventbridge
+
+function nameTagSwitchClicked(checkbox) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "nametag",
+        method: "nametagSwitchClicked",
+        nameTagEnabled: checkbox.checked
+    }));
+    // document.getElementById("firstRun").style.display = "none";
+}
+
+function userSliderChanged(slider) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "nametag",
+        method: "updateUserScaler",
+        currentUserScaler: slider.value
+    }));
+    // document.getElementById("firstRun").style.display = "none";
+}
 
 
 // Handle incoming tablet messages
@@ -82,29 +43,52 @@ function onScriptEventReceived(message) {
     try {
         message = JSON.parse(message);
     } catch (e) {
-        console.log(e)
+        console.log(e);
         return;
     }
 
-    switch (data.type) {
-        case "UPDATE_SOLO":
-            app.soloList = data.value;
+    switch (message.method) {
+        case "updateUI":
+            // if (message.isFirstRun) {
+            //     document.getElementById("firstRun").style.display = "block";
+            // }
+            document.getElementById("nameTagSwitch").checked = message.nameTagEnabled;
+            document.getElementById("sizeSlider").value = message.currentUserScaler;            
+            // document.getElementById("neverWhistleCheckbox").checked = message.neverWhistleEnabled;
+
+            // var showAppreciationEntityCheckbox = document.getElementById("showAppreciationEntityCheckbox");
+            // showAppreciationEntityCheckbox.checked = message.showAppreciationEntity;
+            // if (showAppreciationEntityCheckbox.checked) {
+            //     document.getElementById("colorPickerContainer").style.visibility = "visible";
+            // } else {
+            //     document.getElementById("colorPickerContainer").style.visibility = "hidden";
+            // }
+
+            // if (message.neverWhistleEnabled) {
+            //     var crosshatch = document.getElementById("crosshatch");
+            //     crosshatch.style.display = "inline-block";
+            // }
+
+            document.getElementById("loadingContainer").style.display = "none";
+
+            // var color = document.getElementById("colorPicker").jscolor;
+            // color.fromRGB(message.entityColor.red, message.entityColor.green, message.entityColor.blue);
+
+            // var startColor = {
+            //     "red": Math.floor(color.rgb[0] * START_COLOR_MULTIPLIER),
+            //     "green": Math.floor(color.rgb[1] * START_COLOR_MULTIPLIER),
+            //     "blue": Math.floor(color.rgb[2] * START_COLOR_MULTIPLIER)
+            // };
+            // var currentIntensityDisplayWidth = document.getElementById("currentIntensityDisplay").offsetWidth;
+            // document.getElementById("currentIntensity").style.backgroundImage = 
+            //     "linear-gradient(to right, rgb(" + startColor.red + ", " +
+            //     startColor.green + ", " + startColor.blue + ") 0, " +
+            //     color.toHEXString() + " " + currentIntensityDisplayWidth + "px)";
             break;
-        case "DISPLAY_ERROR":
-            if (app.showingError) {
-                return;
-            }
-            var MS_TIMEOUT = 2500;
-            app.showingError = true;
-            app.fadeIn = true;
-            app.fadeOut = false;
-            setTimeout(function() {
-                app.showingError = false;
-                app.fadeIn = false;
-                app.fadeOut = true;
-            }, MS_TIMEOUT)
         default:
-    }
+            console.log("Unknown message received from nameTag.js! " + JSON.stringify(message));
+            break;
+        }
     
 }
 
@@ -116,7 +100,7 @@ function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
-            app: "nametags",
+            app: "nametag",
             method: "eventBridgeReady"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);

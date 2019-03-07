@@ -61,33 +61,33 @@
     // #region Tabletv 
 
 
-    var BUTTON_NAME = "NAME_TAG";
-    var URL = Script.resolvePath('./resources/nameTag_ui.html');
-    var appUi = Script.require('appUi');
+    // var BUTTON_NAME = "NAME_TAG";
+    // var URL = Script.resolvePath('./resources/nameTag_ui.html');
+    // var appUi = Script.require('appUi');
 
-    var ui = new appUi({
-        buttonName: BUTTON_NAME,
-        home: URL,
-        graphicsDirectory: Script.resolvePath("./resources/images/icons/"),
-        onMessage: onMessage
-    });
+    // var ui = new appUi({
+    //     buttonName: BUTTON_NAME,
+    //     home: URL,
+    //     graphicsDirectory: Script.resolvePath("./resources/images/icons/"),
+    //     onMessage: onMessage
+    // });
 
 
     // Handles incoming tablet messages
-    function onMessage(data) {
-        switch (data.type) {
-            case "EVENT_BRIDGE_OPEN_MESSAGE":
-                updateUI();
-                break;
-            case "CLEAR_LIST":
-                resetTags();
-                break;
-            case "REMOVE_USER":
-                removeUser(data.value);
-                break;
-            default:
-        }
-    }
+    // function onMessage(data) {
+    //     switch (data.type) {
+    //         case "EVENT_BRIDGE_OPEN_MESSAGE":
+    //             updateUI();
+    //             break;
+    //         case "CLEAR_LIST":
+    //             resetTags();
+    //             break;
+    //         case "REMOVE_USER":
+    //             removeUser(data.value);
+    //             break;
+    //         default:
+    //     }
+    // }
 
 
     // Handles how the UI gets updated
@@ -150,8 +150,141 @@
         AvatarManager.avatarRemovedEvent.disconnect(onAvatarRemoved);
     }
 
+    // Updates the Current Intensity Meter UI element. Called when intensity changes.
+    function updateCurrentIntensityUI() {
+        var currentUserScaler = Settings.getValue("nametag/enabled", false);
+        ui.sendMessage({method: "updateCurrentUserScaler", currentUserScaler: currentUserScaler});
+    }
+
+    function onOpened() {
+        updateCurrentIntensityUI();
+    }
+    
+    // function enableOrDisableAppreciate() {
+    //     if (appreciateEnabled) {
+    //         maybeSetupHandPositionCheckInterval();
+            
+    //         if (!keyEventsWired && !HMD.active) {
+    //             Controller.keyPressEvent.connect(keyPressEvent);
+    //             Controller.keyReleaseEvent.connect(keyReleaseEvent);
+    //             keyEventsWired = true;
+    //         }
+    //     } else {
+    //         maybeClearHandPositionCheckInterval();
+    //         maybeClearHandVelocityCheckIntervalAndStopSound();
+    //         maybeClearStopAppreciatingTimeout();
+    //         stopAppreciating();
+
+    //         if (keyEventsWired) {
+    //             Controller.keyPressEvent.disconnect(keyPressEvent);
+    //             Controller.keyReleaseEvent.disconnect(keyReleaseEvent);
+    //             keyEventsWired = false;
+    //         }
+    //     }
+    // }
+
+    // Called when the script starts up
+    
+
+    var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
+    avatarListManager.registerInitialScaler(currentUserScaler);
+    function updateUserScaler(newSize){
+        avatarListManager.updateUserScaler(newSize);
+    }
+
+    // Enables or disables the app's main functionality
+    var nameTagEnabled = Settings.getValue("nametag/enabled", false);
+    function enableOrDisableNameTag() {
+        if (nameTagEnabled) {
+            pickRayController.enable();
+        } else {
+            pickRayController.disable();
+        }
+    }
+
+    function onMessage(message) {
+        if (message.app !== "nametag") {
+            return;
+        }
+        switch (message.method) {
+            case "eventBridgeReady":
+                ui.sendMessage({
+                    method: "updateUI",
+                    nameTagEnabled: nameTagEnabled,
+                    currentUserScaler: currentUserScaler
+                    // isFirstRun: Settings.getValue("appreciate/firstRun", true),
+                });
+                break;
+
+            case "nametagSwitchClicked":
+                // Settings.setValue("appreciate/firstRun", false);
+                log("nameTagSwitchClicked")
+                nameTagEnabled = message.nameTagEnabled;
+                Settings.setValue("nametag/enabled", nameTagEnabled);
+                enableOrDisableNameTag();
+                break;
+            case "updateUserScaler":
+                currentUserScaler = +message.currentUserScaler;
+                log("currentUserScaler", typeof currentUserScaler);
+                Settings.setValue("nameTag/userScaler", currentUserScaler);
+                updateUserScaler(currentUserScaler);
+                break;
+            default:
+                console.log("Unhandled message from nameTag_ui.js: " + JSON.stringify(message));
+                break;
+        }
+    }
+
+    // When called, this function will stop the versions of this script that are
+    // baked into the client installation IF there's another version of the script
+    // running that ISN'T the baked version.
+    function maybeStopBakedScriptVersions() {
+        var THIS_SCRIPT_FILENAME = "nameTag.js";
+        var RELATIVE_PATH_TO_BAKED_SCRIPT = "system/experiences/nameTag/appResources/appData/" + THIS_SCRIPT_FILENAME;
+        var bakedLocalScriptPaths = [];
+        var alsoRunningNonBakedVersion = false;
+
+        var runningScripts = ScriptDiscoveryService.getRunning();
+        runningScripts.forEach(function(scriptObject) {
+            if (scriptObject.local && scriptObject.url.indexOf(RELATIVE_PATH_TO_BAKED_SCRIPT) > -1) {
+                bakedLocalScriptPaths.push(scriptObject.path);
+            }
+
+            if (scriptObject.name === THIS_SCRIPT_FILENAME && scriptObject.url.indexOf(RELATIVE_PATH_TO_BAKED_SCRIPT) === -1) {
+                alsoRunningNonBakedVersion = true;
+            }
+        });
+
+        if (alsoRunningNonBakedVersion && bakedLocalScriptPaths.length > 0) {
+            for (var i = 0; i < bakedLocalScriptPaths.length; i++) {
+                ScriptDiscoveryService.stopScript(bakedLocalScriptPaths[i]);
+            }
+        }
+    }
+
+    var BUTTON_NAME = "NAMETAG";
+    var APP_UI_URL = Script.resolvePath('resources/nameTag_ui.html');
+    var AppUI = Script.require('appUi');
+    var ui;
+    function startup() {
+        ui = new AppUI({
+            buttonName: BUTTON_NAME,
+            home: APP_UI_URL,
+            // clap by Rena from the Noun Project
+            graphicsDirectory: Script.resolvePath("./resources/images/icons/"),
+            onOpened: onOpened,
+            onMessage: onMessage
+        });
+        
+        // enableOrDisableNameTag();
+        // maybeStopBakedScriptVersions();
+    }
+
 
     Script.scriptEnding.connect(scriptEnding);
+    startup();
+
+
 
 
     // #endregion

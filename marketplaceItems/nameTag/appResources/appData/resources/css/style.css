@@ -1,3 +1,4 @@
+
 /* 
 
 *************************************
@@ -40,30 +41,156 @@ html {
 body {
     background: linear-gradient(to bottom, rgba(247,251,252,1) 0%,rgba(217,237,242,1) 40%,rgba(173,217,228,1) 100%); 
     font-family: 'Raleway', sans-serif;
+    /* color: #afafaf; */
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 
-button {
+#mainContainer {
+    width: 100vw;
+    height: 100vh;
+}
+
+#loadingContainer {
+    background-color: rgba(0, 0, 0, 0.8);
+    background-image: url('../images/loadingSpinner.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 999;
+    display: none;
+}
+
+#firstRun {
+    background-color: rgba(0, 0, 0, 0.9);
+    width: 100vw;
+    height: calc(100vh - 60px);
+    position: fixed;
+    z-index: 998;
+    padding: 8px 12px 0 50%;
+    font-size: 24px;
+    text-align: right;
+    display: none;
+  }
+
+
+#tutorialArrow {
+    border: solid #00b4ef;
+    border-width: 0 5px 5px 0;
+    margin-right: 28px;
+    display: inline-block;
+    padding: 5px;
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+}
+
+#titleBarContainer {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    padding: 0 16px;
+    font-size: 24px;
+    background-color: #121212;
+    color: #ffffff;
+    justify-content: space-between;
+  }
+
+.switch {
+    position: relative;
     display: block;
-    background: linear-gradient(to bottom, #4eb5e5 0%,#389ed5 100%); /* W3C */
-    border: none;
-    border-radius: 5px;
-    border-bottom: 4px solid #2b8bc6;
-    color: #fbfbfb;
-    font-weight: 600;
-    font-family: 'Open Sans', sans-serif;
-    text-shadow: 1px 1px 1px rgba(0,0,0,.4);
-    font-size: 15px;
-    text-align: left;
-    padding: 7px 8px 5px 8px;
-    box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2); 
-    margin-top: 25px;
+    width: 70px;
+    height: 34px;
 }
 
-button:hover {
-    color: rgba(255, 0, 255, .5);
-    background: linear-gradient(to bottom, #4eb5e5 100%,#389ed5 0%); /* W3C */
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  
+input:checked + .slider {
+    background-color: #00b4ef;
+}
+  
+input:focus + .slider {
+    box-shadow: 0 0 1px #00b4ef;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(35px);
+    -ms-transform: translateX(35px);
+    transform: translateX(35px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+
+
+
+#optionsContainer {
+  display: flex;
+  flex-direction: column;
+  height: 150px;
+  width: calc(100vw - 24px);
+  margin: 24px 12px 0 12px;
+  position: absolute;
+}
+
+
+#instructions {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    background-color: black;
+    color: white;
+    position: fixed;
+    /* height: 100px; */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 12px;
+    font-size: 18px;
+  }
+  
+  #instructions > div {
+    margin: 12px 0px;
+  }
 
 /* 
 
@@ -143,7 +270,7 @@ START IDS
 */
 
 
-#logo {
+/* #logo {
     vertical-align: text-bottom;
     width: 30px;
     height: 30px;
@@ -156,7 +283,7 @@ START IDS
 
 #instructions {
     mix-blend-mode: multiply;
-    background-color: rgba(0, 200, 255, .5);
+    background-color: whtite;
     padding: 5px 5px 15px 12px;
 }
 
@@ -176,7 +303,7 @@ START IDS
     background-color: rgba(0, 0, 0, 1);
     color: red;
     font-size: 25px;
-}
+} */
 
 
 /* 
