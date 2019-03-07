@@ -6,7 +6,9 @@ var request = Script.require('request').request;
 var X = 0;
 var Y = 1;
 var Z = 2;
-
+var HALF = 0.5;
+var SHOULD_QUERY_ENTITY = true;
+var CLEAR_ENTITY_EDIT_PROPS = true;
 var _this;
 
 function AvatarListManager(){
@@ -61,11 +63,11 @@ function NewAvatarProps(intersection){
 
 // Add a user to the list
 function add(uuid, intersection){
-    // User Doesn't exist so give them new props, get their current avatar info, and handle different ways to get the username
+    // User Doesn't exist so give them new props and save in the cache, get their current avatar info, and handle the different ways to get the username(friend or admin)
     if (!_this.avatars[uuid]) {
         _this.avatars[uuid] = new NewAvatarProps(intersection); 
         _this.getInfo(uuid);
-        _this.getUN(uuid);
+        // _this.getUN(uuid);
     }
 
     var avatar = _this.avatars[uuid];
@@ -78,11 +80,13 @@ function add(uuid, intersection){
     // Save the intersection position local to the avatar in case we need it again
     avatar.localPositionOfIntersection = worldToLocal(avatar.intersection, avatarInfo.position, avatarInfo.orientation);
 
+    // Add this avatar to the selected list
     _this.selectedAvatars[uuid] = true;
 
     // When the user clicks someone, we are either creating or showing a hidden nameTag
     _this.shouldShowOrCreate(uuid); 
-    // Check to see if anyone is in the list to see if we need to put people
+
+    // Check to see if anyone is in the selected list now to see if we need to start the interval checking
     shouldToggleInterval();
 
     return _this;
@@ -138,19 +142,19 @@ function removeOverlay(uuid, shouldDestory){
 }
 
 
+// Calculate our initial properties for either the main or the sub entity
 var Z_SIZE = 0.01;
-var SUB_OFFSET = -0.0101;
 var MAIN_SCALER = 0.75;
 var SUB_SCALER = 0.55;
 var LINE_HEIGHT_SCALER = 0.99;
-var DISTANCE_SCALER = 0.35;
+var DISTANCE_SCALER = 0.35; // Empirical value
 var userScaler = 1.0;
 var previousUserScaler = userScaler;
 function calculateInitialProperties(uuid, type) {
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
-    var localEntity;
+    var localEntity = null;
     var adjustedScaler = null;
     var textProps = null;
     var target = null;
@@ -158,9 +162,10 @@ function calculateInitialProperties(uuid, type) {
     var dimensions = null;
     var lineHeight = null;
     var scaledDimensions = null;
-    var localPosition = null;
+    var localPositionOffset = null;
     var initialDimensions = null;
 
+    // Handle if we are asking for the main or sub properties
     if (type === "main") {
         localEntity = avatar.localEntityMain;
         initialDimensions = avatar.mainInitialDimensions;
@@ -169,34 +174,37 @@ function calculateInitialProperties(uuid, type) {
         initialDimensions = avatar.subInitialDimensions;
     }
 
+    // use the text helper to calculate what our dimensions for the text box should be
     textProps = localEntity.get(['text', 'lineHeight']);
     textHelper
         .setText(textProps.text)
         .setLineHeight(textProps.lineHeight);
     
+    // Calculate the distance from the camera to the target avatar
     target = avatarInfo.position;    
-    distance = _this.getDistance(avatar, target);
+    distance = _this.getDistance(uuid, target);
+    
+    // Adjust the distance by the distance scaler
     adjustedScaler = distance * DISTANCE_SCALER;
+    // Get the new dimensions from the text helper
     dimensions = [textHelper.getTotalTextLength(), textProps.lineHeight, Z_SIZE];
-    scaledDimensions = 
-        Vec3.multiply(
-            Vec3.multiply(dimensions, adjustedScaler), 
-            type === "main" ? MAIN_SCALER : SUB_SCALER
-        );
+    // Adjust the dimensions by the distance scaler
+    scaledDimensions = Vec3.multiply(dimensions, adjustedScaler), 
+    // Adjust those scaled dimensions by the main scaler or the sub scaler to control the general size
+    scaledDimensions = Vec3.multiply(
+        scaledDimensions,
+        type === "main" ? MAIN_SCALER : SUB_SCALER
+    );
+    // Adjust the lineheight to be the new scaled dimensions Y 
+    lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
 
-    // if (userScaler !== previousUserScaler) {
-        // scaledDimensions = Vec3.multiply(scaledDimensions, userScaler); 
-    // }
-    
-    lineHeight = scaledDimensions.y * LINE_HEIGHT_SCALER;
-
-    
+    // Get the local position offset by adding Half the Y dimensions of the main with half the dimensions of the sub dimensions
     if (type === "sub") {
-        var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y;
-        var halfLocalEntityMainY = localEntityMainY / 2;
-        var halfScaledD = scaledDimensions.y / 2;
+        var localEntityMainY = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY)[Y];
+        var halfLocalEntityMainY = localEntityMainY * HALF;
+        var halfScaledD = scaledDimensions[Y] * HALF;
         var totalHalfs = halfLocalEntityMainY + halfScaledD;
-        localPosition =
+        localPositionOffset =
             [0, (-totalHalfs), 0];
     }
 
@@ -204,7 +212,7 @@ function calculateInitialProperties(uuid, type) {
         distance: distance,
         scaledDimensions: scaledDimensions,
         lineHeight: lineHeight,
-        localPosition: localPosition
+        localPositionOffset: localPositionOffset
     };
 }
 
@@ -276,16 +284,16 @@ function registerInitialScaler(initalScaler){
 }
 
 // Handle redrawing if needed
-function reDraw(uuid, type, userScaleChanged){
+function reDraw(uuid, type){
     var avatar = _this.avatars[uuid];
+
     var localEntity;
-    // var localEntityMainBackground;
     var initialDimensions = null;
     var initialDistance = null;
     var currentDistance = null;
     var newDimensions = null;
     var lineHeight = null;
-    var localPosition = null;
+    var localPositionOffset = null;
 
     initialDistance = avatar.initialDistance;
     currentDistance = avatar.currentDistance;
@@ -307,30 +315,26 @@ function reDraw(uuid, type, userScaleChanged){
 
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
-    // log("userScaler", userScaler);
-    // log("previousUserScaler", previousUserScaler);
-    // if (userScaler !== previousUserScaler) {
     newDimensions = Vec3.multiply(newDimensions, userScaler); 
     lineHeight = lineHeight * userScaler;
-    // }
 
     localEntity
         .add("lineHeight", lineHeight)
         .add("dimensions", newDimensions);
     
     if (type === "sub") {
-        var subInitialLocalPosition = avatar.subInitialLocalPosition[Y];
-        var newLocalPosition = subInitialLocalPosition / initialDistance * currentDistance;
+        var subInitialLocalPositionOffsetY = avatar.subInitialLocalPositionOffset[Y];
+        var newLocalPosition = (subInitialLocalPositionOffsetY / initialDistance) * currentDistance * userScaler;
         
         // if (userScaler !== previousUserScaler) {
-            newLocalPosition = newLocalPosition * userScaler;
+            // newLocalPosition = newLocalPosition * userScaler;
         // }
 
-        localPosition =
+        localPositionOffset =
             [0, newLocalPosition, 0];
 
         localEntity
-            .add("localPosition", localPosition);
+            .add("localPositionOffset", localPositionOffset);
     }
 
     localEntity
@@ -406,7 +410,7 @@ function maybeRedraw(uuid){
         return;
     }
 
-    _this.getDistance(avatar);
+    _this.getDistance(uuid);
     var distanceDelta = Math.abs(avatar.currentDistance - avatar.previousDistance);
 
     if (distanceDelta < MAX_DISTANCE_METERS){
@@ -440,7 +444,7 @@ function checkAllSelectedForRedraw(){
 }
 
 
-var REDRAW_TIMEOUT = 150;
+var REDRAW_TIMEOUT = 250;
 function makeMainName(uuid, shouldCreate){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -453,39 +457,44 @@ function makeMainName(uuid, shouldCreate){
 
     // Get the intersection position for use later in redraw
     position = avatar.intersection;
+    
+    // Give the user an anonymous display name if the display name is empty
     avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
-    // # TODO REMOVE DISPLAY NAME USAGE IF NOT WORKING
-    avatar.displayNameLength = avatarInfo.displayName.length;
+
+    // The check to see if should show or create 
     if (shouldCreate){
-        // log("creating", avatarInfo.displayName);
         localEntityMain.add("text", avatarInfo.displayName);
 
+        // Returns back the properties we need based on what we are looking for and the distance from the avatar
         calculatedProps = _this.calculateInitialProperties(uuid, "main");
-        // log("calculated props", calculatedProps)
         distance = calculatedProps.distance;
         scaledDimensions = calculatedProps.scaledDimensions;
-
-        // if (userScaler !== previousUserScaler) {
-        
-        avatar.mainInitialDimensions = scaledDimensions;
-        scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
-
         lineHeight = calculatedProps.lineHeight;
-        lineHeight = lineHeight * userScaler;
 
+        // Capture the inital dimensions, distance, and displayName in case we need to redraw
+        avatar.mainInitialDimensions = scaledDimensions;
         avatar.initialDistance = distance;
         avatar.previousName = avatarInfo.displayName;
-        
+
+        // Multiply the new dimensions with the user selected scaler
+        scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
+
+        // Adjust the lineHeight
+        lineHeight = lineHeight * userScaler;
+
         localEntityMain
             .add("lineHeight", lineHeight)
             .add("dimensions", scaledDimensions)
             .add("position", position)
             .add("parentID", uuid)
-            .create(true);
+            .create(CLEAR_ENTITY_EDIT_PROPS);
     } else {
+        // Get the position which is calculated from the initial local nametag position translated to new worldspace
         localEntityMain.edit("position", position);
+        // Get all the latest info need to redraw
         _this.getInfo(uuid);
         _this.getDistance(avatar);
+        // Redraw the main nametag and give a little time to show it
         _this.reDraw(uuid, "main");
         Script.setTimeout(function(){
             localEntityMain.show();
@@ -508,29 +517,30 @@ function makeSubName(uuid, shouldCreate){
     var distance = null;
     var scaledDimensions = null;
     var lineHeight = null;
-    var localPosition = null;
+    var localPositionOffset = null;
 
     if (shouldCreate) {
         localEntitySub.add("text", avatarInfo.username);
 
+        
         calculatedProps = _this.calculateInitialProperties(uuid, "sub");
         lineHeight = calculatedProps.lineHeight;
         scaledDimensions = calculatedProps.scaledDimensions;
-        avatar.subInitialScaledDimensions = scaledDimensions;
+        avatar.subInitialDimensions = scaledDimensions;
 
         scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
         lineHeight = lineHeight * userScaler;
 
-        var subScaledX = scaledDimensions.x;
-        var mainEntityX = localEntityMain.get('dimensions', true).x;
+        var subScaledX = scaledDimensions[X];
+        var mainEntityX = localEntityMain.get('dimensions', true)[X];
 
         if (mainEntityX >= subScaledX) {
-            var localEntityMainX = localEntityMain.get('dimensions', true).x;
-            var adjustedScale = [localEntityMainX, scaledDimensions.y, scaledDimensions.z];
+            var localEntityMainX = localEntityMain.get('dimensions', true)[X];
+            var adjustedScale = [localEntityMainX, scaledDimensions[Y], scaledDimensions[Z]];
         } else {
             var adjustedScale = scaledDimensions;
             var currentMainDimensions = localEntityMain.get('dimensions', true);
-            var newMainDimensions = [adjustedScale.x, currentMainDimensions.y, currentMainDimensions.z];
+            var newMainDimensions = [adjustedScale[X], currentMainDimensions[Y], currentMainDimensions[Z]];
             localEntityMain
                 .add('dimensions', newMainDimensions)
                 .sync();
@@ -538,29 +548,17 @@ function makeSubName(uuid, shouldCreate){
         }
 
         distance = calculatedProps.distance;
-        // localPosition = calculatedProps.localPosition;
-        avatar.subInitialDimensions = adjustedScale;
-        
-        // log("userScaler", userScaler)
-        // var localPositionY = localPosition[Y];
-        // var localPositionY = localPosition[Y] * userScaler;
-        // log("localPosition2", localPosition)
-        // localPosition = [localPosition[X], localPositionY, localPosition[Z]];
-        // log("localPosition3", localPosition)
-        var localEntityMainY = avatar.localEntityMain.get('dimensions', true).y;
-        log("localEntityMainY", localEntityMainY)
+        var localEntityMainY = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY)[Y];
         var halfLocalEntityMainY = localEntityMainY / 2;
         var halfScaledD = adjustedScale[Y] / 2;
         var totalHalfs = halfLocalEntityMainY + halfScaledD;
-        localPosition =
+        localPositionOffset =
             [0, (-totalHalfs), 0];
-        avatar.subInitialLocalPosition = localPosition;
-        
-        // log("localPosition1", localPosition)
+        avatar.subInitialLocalPositionOffset = localPositionOffset;
         
         localEntitySub
             .add("lineHeight", lineHeight)
-            .add("localPosition", localPosition)
+            .add("localPositionOffset", localPositionOffset)
             .add("backgroundColor", SUB_BACKGROUND)
             .add("textColor", SUB_TEXTCOLOR)
             .add("parentID", localEntityMain.id)
@@ -573,6 +571,124 @@ function makeSubName(uuid, shouldCreate){
         }, REDRAW_TIMEOUT);
     }
    
+}
+
+var REDRAW_TIMEOUT = 250;
+var SUB_BACKGROUND = "#1A1A1A";
+var SUB_TEXTCOLOR = "#868481";
+function makeNameTag(uuid, shouldCreate, type) {
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
+
+    var localEntityMain = avatar.localEntityMain;
+    var localEntitySub = avatar.localEntitySub;
+    var name = null;
+    var localEntity = null;
+    var calculatedProps = null;
+    var position = null;
+    var distance = null;
+    var scaledDimensions = null;
+    var lineHeight = null;
+    var avatar = _this.avatars[uuid];
+    var localEntityMain = avatar.localEntityMain;
+    var localPositionOffset = null;
+    var adjustedScale = null;
+    var parentID = null;
+
+    // Common values needed by both
+
+    position = avatar.intersection;
+    // Returns back the properties we need based on what we are looking for and the distance from the avatar
+    calculatedProps = _this.calculateInitialProperties(uuid, type);
+    distance = calculatedProps.distance;
+    scaledDimensions = calculatedProps.scaledDimensions;
+    lineHeight = calculatedProps.lineHeight;
+
+    // Initial values specific to which type
+
+    if (type === "main"){
+        localEntity = localEntityMain;
+        avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
+        // Capture the inital dimensions, distance, and displayName in case we need to redraw
+        avatar.previousDisplayName = avatarInfo.displayName;
+        avatar.mainInitialDimensions = scaledDimensions;
+        avatar.initialDistance = distance;
+        name = avatarInfo.displayName;
+        parentID = uuid;
+    } else {
+        localEntity = localEntitySub;
+        avatar.subInitialDimensions = scaledDimensions;
+        avatar.subInitialLocalPositionOffset = localPositionOffset;
+        name = avatarInfo.username;
+        parentID = localEntityMain.id;
+
+        // Get the current x dimensions to see which one is bigger to know how to stretch out the names
+        var subScaledX = scaledDimensions[X];
+        var mainEntityX = localEntityMain.get('dimensions', CLEAR_ENTITY_EDIT_PROPS)[X];
+
+        if (mainEntityX >= subScaledX) {
+            // use the x dimensions of the main entity and the rest of the dimensions from calculated sub dimensions
+            scaledDimensions = [mainEntityX, scaledDimensions[Y], scaledDimensions[Z]];
+        } else {
+            var currentMainDimensions = localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
+            // use the x dimensions of the sub entity and the rest of the dimensions from the calculated main dimensions
+            var newMainDimensions = [scaledDimensions[X], currentMainDimensions[Y], currentMainDimensions[Z]];
+            // Save the new inital dimensions for the main entity after it has been resized
+            avatar.mainInitialDimensions = newMainDimensions;
+            // Apply the new dimensions
+            localEntityMain.edit('dimensions', newMainDimensions);                
+        }
+    }
+
+    if (shouldCreate) {
+        // Common values
+
+        localEntity.add("text", name);
+        // Multiply the new dimensions and line height with the user selected scaler
+        scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
+        lineHeight = lineHeight * userScaler;
+        localEntity
+            .add("lineHeight", lineHeight)
+            .add("dimensions", scaledDimensions)
+            .add("parentID", parentID);
+    
+        // Final values specific to which type
+
+        if (type === "main") {
+            localEntity
+                .add("position", position);
+
+        } else {
+            localEntity
+                .add("localPositionOffset", localPositionOffset)
+                .add("backgroundColor", SUB_BACKGROUND)
+                .add("textColor", SUB_TEXTCOLOR);
+        }
+        localEntity
+            .create(CLEAR_ENTITY_EDIT_PROPS);
+
+    } else {
+
+        if (type === "main") {
+            localEntityMain.edit("position", position);
+            // Get the position which is calculated from the initial local nametag position translated to new worldspace
+            // Get all the latest info need to redraw
+            _this.getInfo(uuid);
+            _this.getDistance(avatar);
+
+        } else {
+            localEntity
+                .add("localPositionOffset", localPositionOffset)
+                .add("backgroundColor", SUB_BACKGROUND)
+                .add("textColor", SUB_TEXTCOLOR);
+        }
+
+        // Redraw the nametag and give a little time to show it
+        _this.reDraw(uuid, type);
+        Script.setTimeout(function(){
+            localEntity.show();
+        }, REDRAW_TIMEOUT);
+    }
 }
 
 
@@ -592,6 +708,7 @@ function getUN(uuid){
 function getInfo(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
+
     var newAvatarInfo = AvatarManager.getAvatar(uuid);
     var combinedAvatarInfo = Object.assign({}, newAvatarInfo, {username: avatarInfo === null ? null : avatarInfo.username });
     _this.avatars[uuid] = Object.assign({}, avatar, {avatarInfo: combinedAvatarInfo});
@@ -600,7 +717,10 @@ function getInfo(uuid){
 }
 
 
-function getDistance(avatar) {
+function getDistance(uuid) {
+    var avatar = _this.avatars[uuid];
+    var avatarInfo = avatar.avatarInfo;
+
     var eye = Camera.position;
     var target = avatar.avatarInfo.position;
 
@@ -658,18 +778,17 @@ function shouldShowOrCreate(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
-    // log("should show or create")
     var localEntityMainID = avatar.localEntityMain.id;
     var localEntitySubID = avatar.localEntitySub.id;
-    // log("localEntityMainID", localEntityMainID);
+
+    // If we have the display name entity, then we show it, if not then we create it.
     if (localEntityMainID) {
-        // log("should show");
         _this.makeMainName(uuid, SHOW);
     } else {
-        // log("should create");
         _this.makeMainName(uuid, CREATE);
     }
 
+    // If we have both the display and username entity, then we show it.  If we have the mainID and also a username in the avatar info, then we create it.
     if (localEntityMainID && localEntitySubID) {
         _this.makeSubName(uuid, SHOW);
     } else if (localEntityMainID && avatarInfo.username) {

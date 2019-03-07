@@ -57,7 +57,7 @@
 
     // Updates the Current Intensity Meter UI element. Called when intensity changes.
     function updateCurrentUserScaler() {
-        var currentUserScaler = Settings.getValue("nametag/enabled", false);
+        // var currentUserScaler = Settings.getValue("nametag/enabled", false);
         ui.sendMessage({method: "updateCurrentUserScaler", currentUserScaler: currentUserScaler});
     }
 
@@ -67,8 +67,8 @@
     }
 
 
-    // var currentUserScaler = 1.0;
-    var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
+    var currentUserScaler = 1.0;
+    // var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
     avatarListManager.registerInitialScaler(currentUserScaler);
     function updateUserScaler(newSize){
         avatarListManager.updateUserScaler(newSize);
@@ -108,7 +108,7 @@
             case "updateUserScaler":
                 currentUserScaler = +message.currentUserScaler;
                 log("currentUserScaler", typeof currentUserScaler);
-                Settings.setValue("nameTag/userScaler", currentUserScaler);
+                // Settings.setValue("nameTag/userScaler", currentUserScaler);
                 updateUserScaler(currentUserScaler);
                 break;
             default:
