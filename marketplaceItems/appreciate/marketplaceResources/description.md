@@ -4,6 +4,11 @@ Open the app to view usage instructions and some app options, including an optio
 
 **Changelog:**
 
+v1.4 (2019-03)
+
+- Fixed an issue where a user could press the "Z" key to appreciate while the Appreciate UI was focused even if the Appreciate switch was turned off
+- Fixed an issue where Appreciation Intensity decayed too quickly after switching from HMD mode to Desktop mode
+
 v1.3 (2019-03)
 
 - Optimized the app, which significantly eases the load on the network and the Avatar Mixer
