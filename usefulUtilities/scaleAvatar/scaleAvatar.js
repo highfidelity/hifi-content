@@ -1,10 +1,35 @@
 (function () {
-    var CONTROLLER_MAPPING_LEFT = "com.highfidelity.scaleAvatarLeft",
-        CONTROLLER_MAPPING_RIGHT = "com.highfidelity.scaleAvatarRight";
+    var CONTROLLER_MAPPING_GRIP_LEFT = "com.highfidelity.scaleAvatarGripLeft",
+        CONTROLLER_MAPPING_GRIP_RIGHT = "com.highfidelity.scaleAvatarGripRight";
+    var CONTROLLER_MAPPING_TRIGGER_LEFT = "com.highfidelity.scaleAvatarTriggerLeft",
+        CONTROLLER_MAPPING_TRIGGER_RIGHT = "com.highfidelity.scaleAvatarTriggerRight";
 
     var isRightPressed = false;
     var isLeftPressed = false;
     var PRESSED_MIN_VALUE = 0.8;
+
+    var GRABBING_ENTITY_CHANNEL = 'Hifi-Object-Manipulation';
+    
+    Messages.subscribe('Hifi-Object-Manipulation');
+    Messages.messageReceived.connect(onMessageRecieved);
+
+    var STRING_GRAB = "grab";
+    var STRING_RELEASE = "release";
+    var stopScale = false;
+    function onMessageRecieved(messageName, infoString) { 
+        if (messageName === GRABBING_ENTITY_CHANNEL) {
+            if (infoString.indexOf(STRING_GRAB)) {
+
+                // GRABBING A THING
+            }
+        }
+    }
+
+    // Messages.sendMessage('Hifi-Object-Manipulation', JSON.stringify({
+    //     action: 'grab',
+    //     grabbedEntity: targetProps.id,
+    //     joint: this.hand === RIGHT_HAND ? "RightHand" : "LeftHand"
+    // }));
 
     var DEBUG = true;
 
@@ -110,6 +135,10 @@
         }
     }
 
+    function isGrabbingEntity() {
+
+    }
+
 
     // Get the distance between the avatar's hands
     function distanceBetweenHands() {
@@ -120,19 +149,19 @@
 
 
     function setupScaleAvatarWithGrip() {
-        var controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_LEFT);
+        var controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_GRIP_LEFT);
         controllerMapping.from(Controller.Standard.LeftGrip).to(leftOnGripPress);
-        Controller.enableMapping(CONTROLLER_MAPPING_LEFT);
+        Controller.enableMapping(CONTROLLER_MAPPING_GRIP_LEFT);
 
-        controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_RIGHT);
+        controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_GRIP_RIGHT);
         controllerMapping.from(Controller.Standard.RightGrip).to(rightOnGripPress);
-        Controller.enableMapping(CONTROLLER_MAPPING_RIGHT);
+        Controller.enableMapping(CONTROLLER_MAPPING_GRIP_RIGHT);
     }
 
 
     function unload() {
-        Controller.disableMapping(CONTROLLER_MAPPING_LEFT);
-        Controller.disableMapping(CONTROLLER_MAPPING_RIGHT);
+        Controller.disableMapping(CONTROLLER_MAPPING_GRIP_LEFT);
+        Controller.disableMapping(CONTROLLER_MAPPING_GRIP_RIGHT);
 
         if (pressedInterval) {
             Script.clearInterval(pressedInterval);
