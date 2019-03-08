@@ -61,7 +61,25 @@ var charMap = {
     "&": 0.06,
     "*": 0.04,
     "(": 0.04,
-    ")": 0.04
+    ")": 0.04,
+    "_": 0.041,
+    "{": 0.034,
+    "}": 0.034,
+    "/": 0.04,
+    "|": 0.02,
+    "<": 0.049,
+    ">": 0.049,
+    "[": 0.0300,
+    "]": 0.0300,
+    ".": 0.0260,
+    ",": 0.0260,
+    "?": 0.048,
+    "~": 0.0610,
+    "`": 0.0310,
+    "+": 0.0510,
+    "=": 0.0510
+
+
 }
 
 var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
@@ -126,7 +144,6 @@ TextHelper.prototype.getTotalTextLength =
         return this.totalTextLength;
     };
     
-// Comment
 TextHelper.prototype.adjustForScale = 
     function(defaultTextLength){
         this.totalTextLength = defaultTextLength * this.scaler;
