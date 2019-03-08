@@ -10,15 +10,15 @@
 
     function rightOnGripPress(value) {
         if (!isRightPressed && value >= PRESSED_MIN_VALUE) { // not already pressed and value > 0.8
+            if (DEBUG) {
+                print("right pressed!");
+            }
             
             if (isNearGrabbingObject(STRING_RIGHT)) {
                 return;
             }
             
             isRightPressed = true;
-            if (DEBUG) {
-                print("right pressed!");
-            }
         } else if (isRightPressed && value < PRESSED_MIN_VALUE) {
             isRightPressed = false;
         }
@@ -34,8 +34,10 @@
         var entityList = Entities.findEntities(handPosition, NEAR_GRAB_RADIUS_M);
 
         for (var i = 0; i < entityList.length; i++) {
-            var parentID = Entities.getEntityProperties(entityList[i], "parentID").parentID;
-            if (MyAvatar.sessionUUID === parentID) {
+            var properties = Entities.getEntityProperties(entityList[i], ["parentID", "grabbable"]).parentID;
+            var parentID = properties.parentID;
+            var grabbable = properties.grabbable;
+            if (grabbable && MyAvatar.sessionUUID === parentID) {
                 return true;
             }
         }
@@ -45,15 +47,15 @@
     var NEAR_GRAB_RADIUS_M = 1.0;
     function leftOnGripPress(value) {
         if (!isLeftPressed && value >= PRESSED_MIN_VALUE) { // not already pressed and value > 0.8
+            if (DEBUG) {
+                print("left pressed!");
+            }
             
             if (isNearGrabbingObject(STRING_LEFT)) {
                 return;
             }
 
             isLeftPressed = true;
-            if (DEBUG) {
-                print("left pressed!");
-            }
         } else if (isLeftPressed && value < PRESSED_MIN_VALUE) {
             isLeftPressed = false;
         }
