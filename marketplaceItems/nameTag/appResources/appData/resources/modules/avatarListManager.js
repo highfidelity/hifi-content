@@ -129,11 +129,13 @@ function removeAllOverlays(){
 
 // Remove a single overlay
 function removeOverlay(uuid, shouldDestory){
+    var avatar = _this.avatars[uuid];
+
     var type = shouldDestory ? 'destroy' : 'hide';
 
-    _this.avatars[uuid].localEntityMain[type]();
-    if (_this.avatars[uuid].localEntitySub) {
-        _this.avatars[uuid].localEntitySub[type]();
+    avatar.localEntityMain[type]();
+    if (avatar.localEntitySub) {
+        avatar.localEntitySub[type]();
     }
 
     return _this;
@@ -184,13 +186,15 @@ function calculateInitialProperties(uuid, type) {
     dimensions = [textHelper.getTotalTextLength(), DEFAULT_LINE_HEIGHT, Z_SIZE];
     // Adjust the dimensions by the distance scaler
     scaledDimensions = Vec3.multiply(dimensions, adjustedScaler);
-    // Adjust those scaled dimensions by the main scaler or the sub scaler to control the general size
+
+    // Before we scale for the general size, save the initial dimensions for length comparison later
     if (type === "main") {
         avatar.preMainGeneralSizeScaler = scaledDimensions;
     } else {
         avatar.preSubGeneralSizeScaler = scaledDimensions;
     }
 
+    // Adjust those scaled dimensions by the main scaler or the sub scaler to control the general size
     scaledDimensions = Vec3.multiply(
         scaledDimensions,
         type === "main" ? MAIN_SCALER : SUB_SCALER
@@ -207,6 +211,7 @@ function calculateInitialProperties(uuid, type) {
 }
 
 
+// Handles what happens when an avatar gets triggered on
 function handleSelect(uuid, intersection) {
     if (uuid in _this.selectedAvatars) {
         _this.remove(uuid);
@@ -218,38 +223,30 @@ function handleSelect(uuid, intersection) {
 
 // Handler for the username call
 function handleUserName(uuid, username){
-    // log("in handle user name");
     if (username) {
         var avatar = _this.avatars[uuid];
         var avatarInfo = avatar.avatarInfo;
+
         avatarInfo.username = username;
-        avatar.usernameLength = username.length;
         _this.makeNameTag(uuid, CREATE, "sub");
+        // Check to see if they are also a friend
         _this.getInfoAboutUser(uuid);
     }
-}
-
-
-function handleUUIDChanged(){
-
 }
 
 
 var FRIEND_TEXT = "#FFFFFF";
 var FRIEND_MAIN_BACKGROUND = "#3D3D3D";
 var FRIEND_SUB_BACKGROUND = "#111111";
-
-// var FRIEND_TEXT = [100, 255, 50];
 function handleFriend(uuid, username) {
-    // log("handle friend");
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
-    avatarInfo.username = username;
-    avatar.usernameLength = username.length;
 
     var localEntityMain = avatar.localEntityMain;
     var localEntitySub = avatar.localEntitySub;
-    
+
+    avatarInfo.username = username;
+
     localEntityMain
         .edit("textColor", FRIEND_TEXT)
         .edit("backgroundColor", FRIEND_MAIN_BACKGROUND);
@@ -257,17 +254,17 @@ function handleFriend(uuid, username) {
     if (localEntitySub.id){         
         localEntitySub
             .edit("textColor", FRIEND_TEXT)
-            .edit("backgroundColor", FRIEND_SUB_BACKGROUND)
+            .edit("backgroundColor", FRIEND_SUB_BACKGROUND);
     } else {
         _this.makeNameTag(uuid, CREATE, "sub");
                  
         localEntitySub
             .edit("backgroundColor", FRIEND_SUB_BACKGROUND);
-
     }
 }
 
 
+// Register the beggining scaler in case it was saved from a previous session
 function registerInitialScaler(initalScaler){
     userScaler = initalScaler;
 }
@@ -711,7 +708,7 @@ AvatarListManager.prototype = {
     calculateInitialProperties: calculateInitialProperties,
     handleSelect: handleSelect, // uuid, intersection
     handleUserName: handleUserName, // uuid, username
-    handleUUIDChanged: handleUUIDChanged, // ## todo
+    // handleUUIDChanged: handleUUIDChanged, // ## todoX
     handleFriend: handleFriend, // uuid
     reDraw: reDraw, // uuid, type
     maybeDelete: maybeDelete,
