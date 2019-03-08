@@ -275,9 +275,10 @@ function registerInitialScaler(initalScaler){
 
 // Handle redrawing if needed
 function reDraw(uuid, type){
+    log("redraw type: ", type);
     var avatar = _this.avatars[uuid];
 
-    var localEntity;
+    var localEntity = null;
     var initialDimensions = null;
     var initialDistance = null;
     var currentDistance = null;
@@ -301,12 +302,11 @@ function reDraw(uuid, type){
         (initialDimensions[Y] / initialDistance) * currentDistance,
         (initialDimensions[Z] / initialDistance) * currentDistance
     ];
-
-
+    // log("newDimensions 1: ", newDimensions)
     newDimensions = Vec3.multiply(newDimensions, userScaler); 
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
-    // log("newDimensions", newDimensions)
+    log("newDimensions 2: ", newDimensions);
     localEntity
         .add("lineHeight", lineHeight)
         .add("dimensions", newDimensions);
@@ -325,14 +325,12 @@ function reDraw(uuid, type){
 
     localEntity
         .sync();
-
 }
 
+
 function updateUserScaler(newUSerScaler){
-    // previousUserScaler = userScaler;
     userScaler = newUSerScaler;
     for (var avatar in _this.selectedAvatars) {
-        // log("avatar:", avatar);
         var avatarInfo = _this.avatars[avatar].avatarInfo;
         _this.reDraw(avatar, "main");
         
@@ -344,13 +342,11 @@ function updateUserScaler(newUSerScaler){
 
 
 function maybeDelete(uuid){
-    // log("in maybe delete");
     var avatar = _this.avatars[uuid];
     var createdTime = avatar.created;
     var currentTime = Date.now();
     var timeSinceCreated = currentTime - createdTime;
-    // log('avatar name', avatar.displayName);
-    // log('timeSinceCreated', timeSinceCreated);    
+
     if (timeSinceCreated > DELETE_TIMEOUT_MS) {
         return true;
     } else {
@@ -367,19 +363,24 @@ function maybeClearInterval(){
     }
 }
 
+
 function updateName(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
+    
     avatar.localEntityMain.destroy();
     avatar.localEntitySub.destroy();
 
     avatar.localEntityMain = new LocalEntity('local').add(entityProps);
     avatar.localEntitySub = new LocalEntity('local').add(entityProps);
+
     var localOffset = avatar.localPositionOfIntersection;
     avatar.intersection = localToWorld(localOffset, avatarInfo.position, avatarInfo.orientation)
+
     _this.makeNameTag(uuid, CREATE, "main");
     _this.makeNameTag(uuid, CREATE, "sub");
 }
+
 
 var MAX_DISTANCE_METERS = 0.1;
 var DELETE_TIMEOUT_MS = 10000;
@@ -403,13 +404,15 @@ function maybeRedraw(uuid){
 
     avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
     if (avatar.previousName !== avatarInfo.displayName) {
-        // log("previous name different");
+        log("previous name different");
         updateName(uuid, avatarInfo.displayName);
     } else {
+        log("redraw main")
         _this.reDraw(uuid, "main");
     }
     
     if (avatarInfo.username) {
+        log("redraw main")
         _this.reDraw(uuid, "sub");
     }
 }
@@ -421,11 +424,13 @@ function maybeRemove(uuid) {
     }
 }
 
+
 function checkAllSelectedForRedraw(){
     for (var avatar in _this.selectedAvatars) {
         maybeRedraw(avatar);
     }
 }
+
 
 var REDRAW_TIMEOUT = 100;
 var SUB_BACKGROUND = "#1A1A1A";
@@ -436,6 +441,7 @@ function makeNameTag(uuid, shouldCreate, type) {
 
     var localEntityMain = avatar.localEntityMain;
     var localEntitySub = avatar.localEntitySub;
+    
     var name = null;
     var localEntity = null;
     var calculatedProps = null;
@@ -443,15 +449,13 @@ function makeNameTag(uuid, shouldCreate, type) {
     var distance = null;
     var scaledDimensions = null;
     var lineHeight = null;
-    var avatar = _this.avatars[uuid];
-    var localEntityMain = avatar.localEntityMain;
     var localPositionOffset = null;
-    var adjustedScale = null;
     var parentID = null;
     
     // Make sure an anonymous name is covered before sending to calculate
     if (type === "main"){
         avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
+        avatar.previousName = avatarInfo.displayName;
     }
     // Common values needed by both
 
@@ -568,8 +572,11 @@ function getInfo(uuid){
     var avatarInfo = avatar.avatarInfo;
 
     var newAvatarInfo = AvatarManager.getAvatar(uuid);
-    var combinedAvatarInfo = Object.assign({}, newAvatarInfo, {username: avatarInfo === null ? null : avatarInfo.username });
-    _this.avatars[uuid] = Object.assign({}, avatar, {avatarInfo: combinedAvatarInfo});
+    var combinedAvatarInfo = Object.assign({}, newAvatarInfo, {
+        username: avatarInfo === null ? null : avatarInfo.username 
+    });
+
+    _this.avatars[uuid] = Object.assign({}, avatar, { avatarInfo: combinedAvatarInfo });
 
     return _this;
 }
@@ -712,8 +719,6 @@ AvatarListManager.prototype = {
     maybeRedraw: maybeRedraw, // uuid
     maybeRemove: maybeRemove, // uuid
     checkAllSelectedForRedraw: checkAllSelectedForRedraw,
-    // makeMainName: makeMainName, // uuid
-    // makeSubName: makeSubName, // uuid
     makeNameTag: makeNameTag,
     getUN: getUN, // uuid
     getInfo: getInfo, // uuid
@@ -727,35 +732,3 @@ AvatarListManager.prototype = {
 
 
 module.exports = AvatarListManager;
-
-
-/*
-
-var DEFAULT_LEFT_MARGIN = 0.070;
-
-Billboard
-
-input
-1. position
-2. rotation
-3. billboardMode
-4. frustrumPos
-
-
-avatarUp - GetUp on avatar orientation
-
-cross of position - frustrum, avatarUp
-
-glm conjugate = to quat = look at frustrumpos, position, avatarup
-
-*/
-
-// var box = Entities.addEntity({type: "Box", position: MyAvatar.position})
-
-// Script.clearInterval(clearTimer);
-// var handler = function(){
-//     var position = Entities.getEntityProperties(box, 'position');
-//     var rotation = rotateBillboard(position, Camera.frustum.position);
-//     Entities.editEntity(box, {rotation: rotation});
-// };
-// var clearTimer = Script.setInterval(handler, 10);

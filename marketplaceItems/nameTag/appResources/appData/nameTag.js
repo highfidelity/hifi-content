@@ -107,7 +107,7 @@
                 break;
             case "updateUserScaler":
                 currentUserScaler = +message.currentUserScaler;
-                log("currentUserScaler", typeof currentUserScaler);
+                // log("currentUserScaler", typeof currentUserScaler);
                 // Settings.setValue("nameTag/userScaler", currentUserScaler);
                 updateUserScaler(currentUserScaler);
                 break;

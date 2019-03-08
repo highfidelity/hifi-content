@@ -12,6 +12,7 @@ var overlayProps = {
     rightMargin: 0.0,
     topMargin: 0.0,
     bottomMargin: 0.0
+    // visible: false
 };
 
 module.exports = overlayProps;
