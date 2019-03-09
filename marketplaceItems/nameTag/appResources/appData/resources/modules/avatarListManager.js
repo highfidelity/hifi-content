@@ -175,7 +175,7 @@ function calculateInitialProperties(uuid, type) {
     textHelper
         .setText(name)
         .setLineHeight(DEFAULT_LINE_HEIGHT);
-    
+        log("DEFAULT_LINE_HEIGHT", DEFAULT_LINE_HEIGHT)    
     // Calculate the distance from the camera to the target avatar
     target = avatarInfo.position;    
     distance = _this.getDistance(uuid, target);
@@ -184,7 +184,8 @@ function calculateInitialProperties(uuid, type) {
     adjustedScaler = distance * DISTANCE_SCALER;
     // Get the new dimensions from the text helper
     dimensions = [textHelper.getTotalTextLength(), DEFAULT_LINE_HEIGHT, Z_SIZE];
-    // Adjust the dimensions by the distance scaler
+    log("dimensions", dimensions)
+    // Adjust the dimensions by the modified distance scaler
     scaledDimensions = Vec3.multiply(dimensions, adjustedScaler);
 
     // Before we scale for the general size, save the initial dimensions for length comparison later
@@ -227,7 +228,7 @@ function handleUserName(uuid, username){
         var avatar = _this.avatars[uuid];
         var avatarInfo = avatar.avatarInfo;
 
-        avatarInfo.username = username;
+        avatarInfo.username = username.trim();
         _this.makeNameTag(uuid, CREATE, "sub");
         // Check to see if they are also a friend
         _this.getInfoAboutUser(uuid);
@@ -245,7 +246,7 @@ function handleFriend(uuid, username) {
     var localEntityMain = avatar.localEntityMain;
     var localEntitySub = avatar.localEntitySub;
 
-    avatarInfo.username = username;
+    avatarInfo.username = username.trim();
 
     localEntityMain
         .edit("textColor", FRIEND_TEXT)
@@ -294,27 +295,33 @@ function reDraw(uuid, type){
         initialDimensions = avatar.subInitialDimensions;
     }
 
+    // Find our new dimensions from the new distance 
     newDimensions = [
         (initialDimensions[X] / initialDistance) * currentDistance,
         (initialDimensions[Y] / initialDistance) * currentDistance,
         (initialDimensions[Z] / initialDistance) * currentDistance
     ];
-    // log("newDimensions 1: ", newDimensions)
+    // If there is a userScaler, then make sure the new size reflects that
     newDimensions = Vec3.multiply(newDimensions, userScaler); 
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
-    log("newDimensions 2: ", newDimensions);
+    // log("newDimensions 2: ", newDimensions);
     localEntity
         .add("lineHeight", lineHeight)
         .add("dimensions", newDimensions);
     
     if (type === "sub") {
-        // log("subInitialLocalPositionOffset", avatar.subInitialLocalPositionOffset)
-        var subInitialLocalPositionOffsetY = avatar.subInitialLocalPositionOffset[Y];
-        var newLocalPosition = (subInitialLocalPositionOffsetY / initialDistance) * currentDistance * userScaler;
+        // Use the same process to figure out thew localPosition offset
+        // var subInitialLocalPositionOffsetY = avatar.subInitialLocalPositionOffset[Y];
+        // var newLocalPosition = (subInitialLocalPositionOffsetY / initialDistance) * currentDistance * userScaler;
+        var localEntityMainY = _this.avatars[uuid].localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY)[Y];
+        var halfLocalEntityMainY = localEntityMainY * HALF;
+        var halfScaledD = newDimensions[Y] * HALF;
+        var totalHalfs = halfLocalEntityMainY + halfScaledD;
+        localPositionOffset = [0, -totalHalfs, 0];
 
-        localPositionOffset =
-            [0, newLocalPosition, 0];
+        // localPositionOffset =
+        //     [0, newLocalPosition, 0];
 
         localEntity
             .add("localPosition", localPositionOffset);
@@ -325,6 +332,7 @@ function reDraw(uuid, type){
 }
 
 
+// Handle the user updating scale
 function updateUserScaler(newUSerScaler){
     userScaler = newUSerScaler;
     for (var avatar in _this.selectedAvatars) {
@@ -338,8 +346,10 @@ function updateUserScaler(newUSerScaler){
 }
 
 
+// Check to see if the time since created for the name tag needs to be deleted
 function maybeDelete(uuid){
     var avatar = _this.avatars[uuid];
+
     var createdTime = avatar.created;
     var currentTime = Date.now();
     var timeSinceCreated = currentTime - createdTime;
@@ -352,7 +362,7 @@ function maybeDelete(uuid){
 }
 
 
-// makes sure clear interval exists before changing.
+// Makes sure clear interval exists before changing.
 function maybeClearInterval(){
     if (_this.redrawTimeout) {
         Script.clearInterval(_this.redrawTimeout);
@@ -361,6 +371,7 @@ function maybeClearInterval(){
 }
 
 
+// Update both of the nametags if the display name changes.  
 function updateName(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -379,6 +390,7 @@ function updateName(uuid){
 }
 
 
+// Check to see if the display named changed or if the distance is big enough to need a redraw
 var MAX_DISTANCE_METERS = 0.1;
 var DELETE_TIMEOUT_MS = 10000;
 function maybeRedraw(uuid){
@@ -399,7 +411,7 @@ function maybeRedraw(uuid){
         return;
     }
 
-    avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
+    avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName.trim();
     if (avatar.previousName !== avatarInfo.displayName) {
         log("previous name different");
         updateName(uuid, avatarInfo.displayName);
@@ -415,6 +427,7 @@ function maybeRedraw(uuid){
 }
 
 
+// Check to see if the uuid is in the avatars list before removing
 function maybeRemove(uuid) {
     if (uuid in _this.avatars) {
         _this.remove(uuid);
@@ -422,6 +435,7 @@ function maybeRemove(uuid) {
 }
 
 
+// Go through the selected avatar list and see if any of the avatars need a redraw
 function checkAllSelectedForRedraw(){
     for (var avatar in _this.selectedAvatars) {
         maybeRedraw(avatar);
@@ -429,10 +443,12 @@ function checkAllSelectedForRedraw(){
 }
 
 
+// Create or make visible either the sub or the main tag
 var REDRAW_TIMEOUT = 100;
 var SUB_BACKGROUND = "#1A1A1A";
 var SUB_TEXTCOLOR = "#868481";
 function makeNameTag(uuid, shouldCreate, type) {
+    log("type", type);
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
@@ -451,18 +467,18 @@ function makeNameTag(uuid, shouldCreate, type) {
     
     // Make sure an anonymous name is covered before sending to calculate
     if (type === "main"){
-        avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName;
+        avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName.trim();
         avatar.previousName = avatarInfo.displayName;
+        position = avatar.intersection;
     }
     // Common values needed by both
 
-    position = avatar.intersection;
     // Returns back the properties we need based on what we are looking for and the distance from the avatar
     calculatedProps = _this.calculateInitialProperties(uuid, type);
     distance = calculatedProps.distance;
     scaledDimensions = calculatedProps.scaledDimensions;
+    log("scaledDimensions3", scaledDimensions)
     lineHeight = calculatedProps.lineHeight;
-    localPositionOffset = calculatedProps.localPositionOffset;
     
     // Initial values specific to which type
     if (type === "main"){
@@ -480,21 +496,21 @@ function makeNameTag(uuid, shouldCreate, type) {
         parentID = localEntityMain.id;
 
         // Compare the Pre General size scaled dimensions to see which entity should expand 
-        var mainEntityDimensions = localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
-        if (avatar.preMainGeneralSizeScaler[X] >= avatar.preSubGeneralSizeScaler[X]) {
-            log("display name bigger")
-            // use the x dimensions of the main entity and the rest of the dimensions from calculated sub dimensions
-            scaledDimensions = [mainEntityDimensions[X], scaledDimensions[Y], scaledDimensions[Z]];
-            avatar.subInitialDimensions = scaledDimensions;
-        } else {
-            log("username bigger")
-            // use the x dimensions of the sub entity and the rest of the dimensions from the calculated main dimensions
-            var newMainDimensions = [scaledDimensions[X], mainEntityDimensions[Y], mainEntityDimensions[Z]];
-            // Save the new inital dimensions for the main entity after it has been resized
-            avatar.mainInitialDimensions = newMainDimensions;
-            // Apply the new dimensions
-            localEntityMain.edit('dimensions', newMainDimensions);            
-        }
+        // var mainEntityDimensions = localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
+        // if (avatar.preMainGeneralSizeScaler[X] >= avatar.preSubGeneralSizeScaler[X]) {
+        //     log("display name bigger")
+        //     // use the x dimensions of the main entity and the rest of the dimensions from calculated sub dimensions
+        //     scaledDimensions = [mainEntityDimensions[X], scaledDimensions[Y], scaledDimensions[Z]];
+        //     avatar.subInitialDimensions = scaledDimensions;
+        // } else {
+        //     log("username bigger")
+        //     // use the x dimensions of the sub entity and the rest of the dimensions from the calculated main dimensions
+        //     var newMainDimensions = [scaledDimensions[X], mainEntityDimensions[Y], mainEntityDimensions[Z]];
+        //     // Save the new inital dimensions for the main entity after it has been resized
+        //     avatar.mainInitialDimensions = newMainDimensions;
+        //     // Apply the new dimensions
+        //     localEntityMain.edit('dimensions', newMainDimensions);            
+        // }
     }
 
     if (shouldCreate) {
@@ -502,9 +518,11 @@ function makeNameTag(uuid, shouldCreate, type) {
         log("name", name);
         localEntity.add("text", name);
         // Multiply the new dimensions and line height with the user selected scaler
+        log("scaledDimensions1", scaledDimensions)
         scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
         lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
         // lineHeight = scaledDimensions.y * userScaler;
+        log("scaledDimensions2", scaledDimensions)
         localEntity
             .add("lineHeight", lineHeight)
             .add("dimensions", scaledDimensions)
@@ -518,7 +536,7 @@ function makeNameTag(uuid, shouldCreate, type) {
 
         } else {
             // Get the local position offset by adding Half the Y dimensions of the main with half the dimensions of the sub dimensions
-            var localEntityMainY = localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY)[Y];
+            var localEntityMainY = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY)[Y];
             var halfLocalEntityMainY = localEntityMainY * HALF;
             var halfScaledD = scaledDimensions[Y] * HALF;
             var totalHalfs = halfLocalEntityMainY + halfScaledD;
@@ -529,6 +547,7 @@ function makeNameTag(uuid, shouldCreate, type) {
                 .add("backgroundColor", SUB_BACKGROUND)
                 .add("textColor", SUB_TEXTCOLOR);
         }
+
         localEntity
             .create(CLEAR_ENTITY_EDIT_PROPS);
 

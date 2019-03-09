@@ -1,3 +1,18 @@
+/*
+
+    Name Tag
+    textHelper.js
+    Created by Milad Nazeri on 2019-03-08
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+    Module to help calculate text size
+
+*/
+
+
 var charMap = {
     a: 0.05,
     b: 0.051, 
@@ -50,13 +65,15 @@ var charMap = {
     W: 0.075,
     X: 0.06,
     Y: 0.06,
-    Z: 0.06,
+    Z: 0.06
+};
+
+var symbolMap = {
     "!": 0.025,
     "@": 0.08,
     "#": 0.07,
     "$": 0.058,
     "%": 0.07,
-    " ": 0.12,
     "^": 0.04,
     "&": 0.06,
     "*": 0.04,
@@ -78,11 +95,7 @@ var charMap = {
     "`": 0.0310,
     "+": 0.0510,
     "=": 0.0510
-
-
-}
-
-var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
+};
 
 
 function TextHelper(){
@@ -94,62 +107,73 @@ function TextHelper(){
     this.scaler = 1.0;
 }
 
-// Comment
-TextHelper.prototype.setText =
-    function(newText){
-        this.text = newText;
-        this.createTextArray();
 
-        return this;
-    };
+// Set the text that needs to be calculated on
+function setText(newText){
+    this.text = newText;
+    this.createTextArray();
 
-// Comment
-TextHelper.prototype.setLineHeight = 
-    function(newLineHeight){
-        this.lineHeight = newLineHeight;
-        this.scaler = this.lineHeight / this.DEFAULT_LINE_HEIGHT;
+    return this;
+}
 
-        return this;
-    };
+
+// Set the line height which helps calculate the font size
+function setLineHeight(newLineHeight){
+    this.lineHeight = newLineHeight;
+    this.scaler = this.lineHeight / this.DEFAULT_LINE_HEIGHT;
+
+    return this;
+}
     
-// Comment
-TextHelper.prototype.createTextArray = 
-    function(){
-        this.textArray = this.text.split("");
 
-        return this;
-    };
-    
-// Comment
-var DEFAULT_CHAR_SIZE = 0.048;
+// Split the string into a text array to be operated on
+function createTextArray(){
+    this.textArray = this.text.split("");
+}
+
+
+// Calculate the sign dimensions
+var DEFAULT_CHAR_SIZE = 0.025;
 var NUMBER = 0.05;
-TextHelper.prototype.getTotalTextLength = 
-    function(){
-        var lengthArray = this.textArray.map(function(letter){
-            if (charMap[letter]){
-                return charMap[letter];
-            } else if (!isNaN(letter)){
-                return NUMBER;        
-            } else {
-                return DEFAULT_CHAR_SIZE;
-            }
-        });
+var DIGIT_REGEX = /\d/g;
+var WHITE_SPACE_REGEX = /[ ]/g;
+var SPACE = 0.018;
+function getTotalTextLength(){
+    // Map the string array to it's sizes
+    var lengthArray = this.textArray.map(function(letter){
+        if (charMap[letter]){
+            return charMap[letter];
+        } else if (letter.match(DIGIT_REGEX)){
+            return NUMBER;
+        } else if (symbolMap[letter]) {
+            return symbolMap[letter];
+        } else if (letter.match(WHITE_SPACE_REGEX)) {
+            return SPACE;
+        } else {
+            return DEFAULT_CHAR_SIZE;
+        }
+    });
 
-        var defaultTextLength = lengthArray.reduce(function(prev, curr){
-            return prev + curr;
-        }, 0);
-        // log(defaultTextLength);
-        this.adjustForScale(defaultTextLength);
+    // add up all the values in the array
+    var defaultTextLength = lengthArray.reduce(function(prev, curr){
+        return prev + curr;
+    }, 0);
 
-        return this.totalTextLength;
-    };
-    
-TextHelper.prototype.adjustForScale = 
-    function(defaultTextLength){
-        this.totalTextLength = defaultTextLength * this.scaler;
+    this.adjustForScale(defaultTextLength);
 
-        return this;
-    };
-    
+    return this.totalTextLength;
+}
+
+
+// Account for the text length
+function adjustForScale(defaultTextLength){
+    this.totalTextLength = defaultTextLength * this.scaler;
+}
+
+
+TextHelper.prototype = {
+    setText: setText,
+    setLineHeight: setLineHeight
+};
 
 module.exports = TextHelper;
