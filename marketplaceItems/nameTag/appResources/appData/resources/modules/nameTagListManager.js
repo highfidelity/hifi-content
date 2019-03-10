@@ -36,7 +36,7 @@ function nameTagListManager(){
 
 // Create the manager and hook up username signal
 function create(){
-    Users.usernameFromIDReply.connect(_this.handleUserName);
+    Users.usernameFromIDReply.connect(handleUserName);
 
     return _this;
 }
@@ -44,7 +44,7 @@ function create(){
 
 // Destory the manager and disconnect from username signal
 function destroy(){  
-    Users.usernameFromIDReply.disconnect(_this.handleUserName);
+    Users.usernameFromIDReply.disconnect(handleUserName);
     _this.reset();
 
     return _this;
@@ -78,8 +78,8 @@ function add(uuid, intersection){
     // User Doesn't exist so give them new props and save in the cache, get their current avatar info, and handle the different ways to get the username(friend or admin)
     if (!_this.avatars[uuid]) {
         _this.avatars[uuid] = new NewAvatarProps(intersection); 
-        _this.getInfo(uuid);
-        _this.getUN(uuid);
+        getAvatarData(uuid);
+        getUN(uuid);
     }
 
     var avatar = _this.avatars[uuid];
@@ -96,7 +96,7 @@ function add(uuid, intersection){
     _this.selectedAvatars[uuid] = true;
 
     // When the user clicks someone, we are either creating or showing a hidden nameTag
-    _this.shouldShowOrCreate(uuid); 
+    shouldShowOrCreate(uuid); 
 
     // Check to see if anyone is in the selected list now to see if we need to start the interval checking
     shouldToggleInterval();
@@ -131,18 +131,19 @@ function remove(uuid){
 }
 
 
-// Remove all the current overlays
-function removeAllOverlays(){
+// Remove all the current LocalEntities
+function removeAllLocalEntities(){
     for (var uuid in _this.selectedAvatars) {
-        _this.removeOverlay(uuid);
+        _this.removeLocalEntities(uuid);
         delete _this.selectedAvatars[uuid];
     }
 
     return _this;
 }
 
-// Remove a single overlay
-function removeOverlay(uuid, shouldDestory){
+
+// Remove a single LocalEntity
+function removeLocalEntity(uuid, shouldDestory){
     var avatar = _this.avatars[uuid];
 
     var type = shouldDestory ? 'destroy' : 'hide';
@@ -189,34 +190,26 @@ function calculateInitialProperties(uuid, type) {
     textHelper
         .setText(name)
         .setLineHeight(DEFAULT_LINE_HEIGHT);
-        log("DEFAULT_LINE_HEIGHT", DEFAULT_LINE_HEIGHT)    
+
     // Calculate the distance from the camera to the target avatar
     target = avatarInfo.position;    
-    distance = _this.getDistance(uuid, target);
+    distance = getDistance(uuid, target);
     
     // Adjust the distance by the distance scaler
     adjustedScaler = distance * DISTANCE_SCALER;
     // Get the new dimensions from the text helper
     dimensions = [textHelper.getTotalTextLength(), DEFAULT_LINE_HEIGHT, Z_SIZE];
-    log("dimensions", dimensions)
     // Adjust the dimensions by the modified distance scaler
     scaledDimensions = Vec3.multiply(dimensions, adjustedScaler);
-
-    // Before we scale for the general size, save the initial dimensions for length comparison later
-    if (type === "main") {
-        avatar.preMainGeneralSizeScaler = scaledDimensions;
-    } else {
-        avatar.preSubGeneralSizeScaler = scaledDimensions;
-    }
 
     // Adjust those scaled dimensions by the main scaler or the sub scaler to control the general size
     scaledDimensions = Vec3.multiply(
         scaledDimensions,
         type === "main" ? MAIN_SCALER : SUB_SCALER
     );
+
     // Adjust the lineheight to be the new scaled dimensions Y 
     lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
-
 
     return {
         distance: distance,
@@ -229,9 +222,9 @@ function calculateInitialProperties(uuid, type) {
 // Handles what happens when an avatar gets triggered on
 function handleSelect(uuid, intersection) {
     if (uuid in _this.selectedAvatars) {
-        _this.remove(uuid);
+        remove(uuid);
     } else {
-        _this.add(uuid, intersection);
+        add(uuid, intersection);
     }    
 }
 
@@ -243,9 +236,9 @@ function handleUserName(uuid, username){
         var avatarInfo = avatar.avatarInfo;
 
         avatarInfo.username = username.trim();
-        _this.makeNameTag(uuid, CREATE, "sub");
+        makeNameTag(uuid, CREATE, "sub");
         // Check to see if they are also a friend
-        _this.getInfoAboutUser(uuid);
+        getInfoAboutUser(uuid);
     }
 }
 
@@ -271,7 +264,7 @@ function handleFriend(uuid, username) {
             .edit("textColor", FRIEND_TEXT)
             .edit("backgroundColor", FRIEND_SUB_BACKGROUND);
     } else {
-        _this.makeNameTag(uuid, CREATE, "sub");
+        makeNameTag(uuid, CREATE, "sub");
                  
         localEntitySub
             .edit("backgroundColor", FRIEND_SUB_BACKGROUND);
@@ -287,7 +280,6 @@ function registerInitialScaler(initalScaler){
 
 // Handle redrawing if needed
 function reDraw(uuid, type){
-    log("redraw type: ", type);
     var avatar = _this.avatars[uuid];
 
     var localEntity = null;
@@ -315,27 +307,24 @@ function reDraw(uuid, type){
         (initialDimensions[Y] / initialDistance) * currentDistance,
         (initialDimensions[Z] / initialDistance) * currentDistance
     ];
+
     // If there is a userScaler, then make sure the new size reflects that
     newDimensions = Vec3.multiply(newDimensions, userScaler); 
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
-    // log("newDimensions 2: ", newDimensions);
     localEntity
         .add("lineHeight", lineHeight)
         .add("dimensions", newDimensions);
     
     if (type === "sub") {
-        // Use the same process to figure out thew localPosition offset
-        // var subInitialLocalPositionOffsetY = avatar.subInitialLocalPositionOffset[Y];
-        // var newLocalPosition = (subInitialLocalPositionOffsetY / initialDistance) * currentDistance * userScaler;
-        var localEntityMainY = _this.avatars[uuid].localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY)[Y];
-        var halfLocalEntityMainY = localEntityMainY * HALF;
-        var halfScaledD = newDimensions[Y] * HALF;
-        var totalHalfs = halfLocalEntityMainY + halfScaledD;
-        localPositionOffset = [0, -totalHalfs, 0];
+        // Get the localPosition offset
+        var localEntityMainDimensions = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
 
-        // localPositionOffset =
-        //     [0, newLocalPosition, 0];
+        localPositionOffset = [
+            0, 
+            getLocalPositionOffset(localEntityMainDimensions, newDimensions), 
+            0
+        ];
 
         localEntity
             .add("localPosition", localPositionOffset);
@@ -346,15 +335,24 @@ function reDraw(uuid, type){
 }
 
 
+// Calculate where the suboffset should be placed
+function getLocalPositionOffset(main, sub){
+    var halfLocalEntityMainY = main[Y] * HALF;
+    var halfScaledD = sub[Y] * HALF;
+    var totalHalfs = halfLocalEntityMainY + halfScaledD;
+    return -totalHalfs;
+}
+
+
 // Handle the user updating scale
 function updateUserScaler(newUSerScaler){
     userScaler = newUSerScaler;
     for (var avatar in _this.selectedAvatars) {
         var avatarInfo = _this.avatars[avatar].avatarInfo;
-        _this.reDraw(avatar, "main");
+        reDraw(avatar, "main");
         
         if (avatarInfo.username) {
-            _this.reDraw(avatar, "sub");
+            reDraw(avatar, "sub");
         }
     }
 }
@@ -385,7 +383,7 @@ function maybeClearInterval(){
 }
 
 
-// Update both of the nametags if the display name changes.  
+// Remake the nametags if the display name changes.  
 function updateName(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -397,10 +395,10 @@ function updateName(uuid){
     avatar.localEntitySub = new LocalEntity('local').add(entityProps);
 
     var localOffset = avatar.localPositionOfIntersection;
-    avatar.intersection = localToWorld(localOffset, avatarInfo.position, avatarInfo.orientation)
+    avatar.intersection = localToWorld(localOffset, avatarInfo.position, avatarInfo.orientation);
 
-    _this.makeNameTag(uuid, CREATE, "main");
-    _this.makeNameTag(uuid, CREATE, "sub");
+    makeNameTag(uuid, CREATE, "main");
+    makeNameTag(uuid, CREATE, "sub");
 }
 
 
@@ -408,17 +406,17 @@ function updateName(uuid){
 var MAX_DISTANCE_METERS = 0.1;
 var DELETE_TIMEOUT_MS = 10000;
 function maybeRedraw(uuid){
-    _this.getInfo(uuid);
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
+    getAvatarData(uuid);
     
-    if (_this.maybeDelete(uuid)) {
-        _this.remove(uuid);
+    if (maybeDelete(uuid)) {
+        remove(uuid);
 
         return;
     }
 
-    _this.getDistance(uuid);
+    getDistance(uuid);
     var distanceDelta = Math.abs(avatar.currentDistance - avatar.previousDistance);
 
     if (distanceDelta < MAX_DISTANCE_METERS){
@@ -426,17 +424,15 @@ function maybeRedraw(uuid){
     }
 
     avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName.trim();
+
     if (avatar.previousName !== avatarInfo.displayName) {
-        log("previous name different");
         updateName(uuid, avatarInfo.displayName);
     } else {
-        log("redraw main")
-        _this.reDraw(uuid, "main");
+        reDraw(uuid, "main");
     }
     
     if (avatarInfo.username) {
-        log("redraw main")
-        _this.reDraw(uuid, "sub");
+        reDraw(uuid, "sub");
     }
 }
 
@@ -444,7 +440,7 @@ function maybeRedraw(uuid){
 // Check to see if the uuid is in the avatars list before removing
 function maybeRemove(uuid) {
     if (uuid in _this.avatars) {
-        _this.remove(uuid);
+        remove(uuid);
     }
 }
 
@@ -462,7 +458,6 @@ var REDRAW_TIMEOUT = 100;
 var SUB_BACKGROUND = "#1A1A1A";
 var SUB_TEXTCOLOR = "#868481";
 function makeNameTag(uuid, shouldCreate, type) {
-    log("type", type);
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
@@ -485,13 +480,13 @@ function makeNameTag(uuid, shouldCreate, type) {
         avatar.previousName = avatarInfo.displayName;
         position = avatar.intersection;
     }
+
     // Common values needed by both
 
     // Returns back the properties we need based on what we are looking for and the distance from the avatar
-    calculatedProps = _this.calculateInitialProperties(uuid, type);
+    calculatedProps = calculateInitialProperties(uuid, type);
     distance = calculatedProps.distance;
     scaledDimensions = calculatedProps.scaledDimensions;
-    log("scaledDimensions3", scaledDimensions)
     lineHeight = calculatedProps.lineHeight;
     
     // Initial values specific to which type
@@ -508,54 +503,37 @@ function makeNameTag(uuid, shouldCreate, type) {
         avatar.subInitialDimensions = scaledDimensions;
         name = avatarInfo.username;
         parentID = localEntityMain.id;
-
-        // Compare the Pre General size scaled dimensions to see which entity should expand 
-        // var mainEntityDimensions = localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
-        // if (avatar.preMainGeneralSizeScaler[X] >= avatar.preSubGeneralSizeScaler[X]) {
-        //     log("display name bigger")
-        //     // use the x dimensions of the main entity and the rest of the dimensions from calculated sub dimensions
-        //     scaledDimensions = [mainEntityDimensions[X], scaledDimensions[Y], scaledDimensions[Z]];
-        //     avatar.subInitialDimensions = scaledDimensions;
-        // } else {
-        //     log("username bigger")
-        //     // use the x dimensions of the sub entity and the rest of the dimensions from the calculated main dimensions
-        //     var newMainDimensions = [scaledDimensions[X], mainEntityDimensions[Y], mainEntityDimensions[Z]];
-        //     // Save the new inital dimensions for the main entity after it has been resized
-        //     avatar.mainInitialDimensions = newMainDimensions;
-        //     // Apply the new dimensions
-        //     localEntityMain.edit('dimensions', newMainDimensions);            
-        // }
     }
 
     if (shouldCreate) {
         // Common values
-        log("name", name);
+
         localEntity.add("text", name);
+
         // Multiply the new dimensions and line height with the user selected scaler
-        log("scaledDimensions1", scaledDimensions)
         scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
         lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
-        // lineHeight = scaledDimensions.y * userScaler;
-        log("scaledDimensions2", scaledDimensions)
         localEntity
             .add("lineHeight", lineHeight)
             .add("dimensions", scaledDimensions)
             .add("parentID", parentID);
     
-        // Final values specific to which type
+        // Final values specific to each type
 
         if (type === "main") {
             localEntity
                 .add("position", position);
 
         } else {
-            // Get the local position offset by adding Half the Y dimensions of the main with half the dimensions of the sub dimensions
-            var localEntityMainY = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY)[Y];
-            var halfLocalEntityMainY = localEntityMainY * HALF;
-            var halfScaledD = scaledDimensions[Y] * HALF;
-            var totalHalfs = halfLocalEntityMainY + halfScaledD;
-            localPositionOffset = [0, -totalHalfs, 0];
-            avatar.subInitialLocalPositionOffset = localPositionOffset;
+            // Get the localPosition offset
+            var localEntityMainDimensions = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
+
+            localPositionOffset = [
+                0,
+                getLocalPositionOffset(localEntityMainDimensions, scaledDimensions),
+                0
+            ];
+
             localEntity
                 .add("localPosition", localPositionOffset)
                 .add("backgroundColor", SUB_BACKGROUND)
@@ -567,16 +545,17 @@ function makeNameTag(uuid, shouldCreate, type) {
 
     } else {
         // Handle if we are just showing again
+
         if (type === "main") {
             // Get the position which is calculated from the initial local nametag position translated to new worldspace
             // Get all the latest info need to redraw
             localEntityMain.edit("position", position);
-            _this.getInfo(uuid);
-            _this.getDistance(uuid);
+            getAvatarData(uuid);
+            getDistance(uuid);
         }
 
         // Redraw the nametag and give a little time to show it
-        _this.reDraw(uuid, type);
+        reDraw(uuid, type);
         Script.setTimeout(function(){
             localEntity.show();
         }, REDRAW_TIMEOUT);
@@ -589,29 +568,33 @@ function getUN(uuid){
     if (_this.avatars[uuid].avatarInfo.username) {
         return;
     } else if (Users.canKick) {
+        // User has admin priv and can get the username this way
         Users.requestUsernameFromID(uuid);
     } else {
-        _this.getInfoAboutUser(uuid);
+        getInfoAboutUser(uuid);
     }
 }
 
 
-// Get the current data for an avatar]
-function getInfo(uuid){
+// Get the current data for an avatar
+function getAvatarData(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
     var newAvatarInfo = AvatarManager.getAvatar(uuid);
+    // Save the username so it doesn't get overwritten when grabbing new avatarData
     var combinedAvatarInfo = Object.assign({}, newAvatarInfo, {
         username: avatarInfo === null ? null : avatarInfo.username 
     });
 
+    // Now combine that avatar data with the main avatar object
     _this.avatars[uuid] = Object.assign({}, avatar, { avatarInfo: combinedAvatarInfo });
 
     return _this;
 }
 
 
+// Calculate the distance between the camera and the target avatar
 function getDistance(uuid) {
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -626,6 +609,7 @@ function getDistance(uuid) {
 }
 
 
+// Request wrapper for the url endpoint
 function requestJSON(url, callback) {
     request({
         uri: url
@@ -639,17 +623,17 @@ function requestJSON(url, callback) {
 }
 
 
+// Get info about a user through the metaverse to see if you are friends
 var METAVERSE_BASE = Account.metaverseServerURL;
 var REG_EX_FOR_ID_FORMATTING = /[\{\}]/g;
 function getInfoAboutUser(uuid) {
-    // log("running get info about users");
     var url = METAVERSE_BASE + '/api/v1/users?filter=connections&status=online';
     requestJSON(url, function (connectionsData) {
         var users = connectionsData.users;
         for (var i = 0; i < users.length; i++) {
             var user = users[i];
             if (user.location && user.location.node_id === uuid.replace(REG_EX_FOR_ID_FORMATTING, "")) { 
-                _this.handleFriend(uuid, user.username);
+                handleFriend(uuid, user.username);
                 break;
             }
         }
@@ -659,7 +643,7 @@ function getInfoAboutUser(uuid) {
 
 // Reset the avatar list
 function reset(){
-    _this.removeAllOverlays();
+    removeAllLocalEntities();
     _this.avatars = {};
     shouldToggleInterval();
 
@@ -667,6 +651,7 @@ function reset(){
 }
 
 
+// Handle whether this is a new nametag or old one made visible again
 var CREATE = true;
 var SHOW = false;
 function shouldShowOrCreate(uuid){
@@ -678,32 +663,34 @@ function shouldShowOrCreate(uuid){
 
     // If we have the display name entity, then we show it, if not then we create it.
     if (localEntityMainID) {
-        _this.makeNameTag(uuid, SHOW, "main");
+        makeNameTag(uuid, SHOW, "main");
     } else {
-        _this.makeNameTag(uuid, CREATE, "main");
+        makeNameTag(uuid, CREATE, "main");
     }
 
     // If we have both the display and username entity, then we show it.  If we have the mainID and also a username in the avatar info, then we create it.
     if (localEntityMainID && localEntitySubID) {
-        _this.makeNameTag(uuid, SHOW, "sub");
+        makeNameTag(uuid, SHOW, "sub");
     } else if (localEntityMainID && avatarInfo.username) {
-        _this.makeNameTag(uuid, CREATE, "sub");
+        makeNameTag(uuid, CREATE, "sub");
     }
 }
 
 
+// Handle if we are destroying the nametag or if we need to make a new one.
 var DESTROY = true;
 var HIDE = false;
 function shouldDestoryOrHide(uuid){
     var avatar = _this.avatars[uuid];
     if (avatar) {
-        _this.removeOverlay(uuid, HIDE);
+        removeLocalEntity(uuid, HIDE);
     } else {
-        _this.removeOverlay(uuid, DESTROY);
+        removeLocalEntity(uuid, DESTROY);
     }
 }
 
 
+// Check to see if we need to toggle our interval check because we went to 0 avatars or if we got our first avatar in the select list.
 function shouldToggleInterval(){
     var currentNumberOfAvatarsSelected = Object.keys(_this.selectedAvatars).length;
 
@@ -719,14 +706,14 @@ function shouldToggleInterval(){
 }
 
 
-// Turn off and on the redraw check
+// Turn off and on the redraw check.
 var INTERVAL_CHECK_MS = 100;
 function toggleInterval(){
     if (_this.redrawTimeout){
         maybeClearInterval();
     } else {
         _this.redrawTimeout = 
-            Script.setInterval(_this.checkAllSelectedForRedraw, INTERVAL_CHECK_MS);
+            Script.setInterval(checkAllSelectedForRedraw, INTERVAL_CHECK_MS);
     }
 }
 
@@ -734,30 +721,11 @@ function toggleInterval(){
 nameTagListManager.prototype = {
     create: create,
     destroy: destroy,
-    add: add, // uuid, intersection
-    remove: remove, // uuid
-    removeAllOverlays: removeAllOverlays,
-    removeOverlay: removeOverlay, // uuid
-    calculateInitialProperties: calculateInitialProperties,
-    handleSelect: handleSelect, // uuid, intersection
-    handleUserName: handleUserName, // uuid, username
-    // handleUUIDChanged: handleUUIDChanged, // ## todoX
-    handleFriend: handleFriend, // uuid
-    reDraw: reDraw, // uuid, type
-    maybeDelete: maybeDelete,
-    maybeClearInterval: maybeClearInterval, // ## todo
-    maybeRedraw: maybeRedraw, // uuid
-    maybeRemove: maybeRemove, // uuid
-    checkAllSelectedForRedraw: checkAllSelectedForRedraw,
-    makeNameTag: makeNameTag,
-    getUN: getUN, // uuid
-    getInfo: getInfo, // uuid
-    getDistance: getDistance,
-    getInfoAboutUser: getInfoAboutUser, // uuid    
+    handleSelect: handleSelect, 
+    maybeRemove: maybeRemove, 
     registerInitialScaler: registerInitialScaler,
-    reset: reset,
-    shouldShowOrCreate: shouldShowOrCreate,
-    updateUserScaler: updateUserScaler
+    updateUserScaler: updateUserScaler,
+    reset: reset
 };
 
 

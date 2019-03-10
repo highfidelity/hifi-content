@@ -2,6 +2,7 @@
 
     Nametag
     Created by Milad Nazeri on 2019-02-16
+    Additional code by Zach Foxx
     Copyright 2019 High Fidelity, Inc.
 
     Distributed under the Apache License, Version 2.0.
@@ -26,8 +27,8 @@
         .setShouldDoublePress(true)
         .create();
 
+
     function selectAvatar(uuid, intersection) {
-        console.log("in selectAvatar");
         nameTagListManager.handleSelect(uuid, intersection);
     }
 
@@ -46,7 +47,6 @@
 
     // Called when the script is closing
     function scriptEnding() {
-        console.log("script finished")
         nameTagListManager.destroy();
         pickRayController.destroy();
         Window.domainChanged.disconnect(onDomainChange);
@@ -54,19 +54,20 @@
     }
 
 
-    // Updates the Current Intensity Meter UI element. Called when intensity changes.
+    // Updates the current user scale
     function updateCurrentUserScaler() {
         var currentUserScaler = Settings.getValue("nametag/enabled", false);
         ui.sendMessage({method: "updateCurrentUserScaler", currentUserScaler: currentUserScaler});
     }
 
 
+    // Run when the tablet is opened
     function onOpened() {
         updateCurrentUserScaler();
     }
 
 
-    // var currentUserScaler = 1.0;
+    // Register the initial userScaler if it was saved in your settings
     var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
     nameTagListManager.registerInitialScaler(currentUserScaler);
     function updateUserScaler(newSize){
@@ -95,18 +96,15 @@
                     method: "updateUI",
                     nameTagEnabled: nameTagEnabled,
                     currentUserScaler: currentUserScaler
-                    // isFirstRun: Settings.getValue("appreciate/firstRun", true),
                 });
                 break;
             case "nametagSwitchClicked":
-                // Settings.setValue("appreciate/firstRun", false);
                 nameTagEnabled = message.nameTagEnabled;
                 Settings.setValue("nametag/enabled", nameTagEnabled);
                 enableOrDisableNameTag();
                 break;
             case "updateUserScaler":
                 currentUserScaler = +message.currentUserScaler;
-                // log("currentUserScaler", typeof currentUserScaler);
                 Settings.setValue("nameTag/userScaler", currentUserScaler);
                 updateUserScaler(currentUserScaler);
                 break;
@@ -153,7 +151,7 @@
         ui = new AppUI({
             buttonName: BUTTON_NAME,
             home: APP_UI_URL,
-            // clap by Rena from the Noun Project
+            // User by Craig from the Noun Project
             graphicsDirectory: Script.resolvePath("./resources/images/icons/"),
             onOpened: onOpened,
             onMessage: onMessage
@@ -164,7 +162,7 @@
         AvatarManager.avatarRemovedEvent.connect(onAvatarRemoved);
 
         enableOrDisableNameTag();
-        // maybeStopBakedScriptVersions();
+        maybeStopBakedScriptVersions();
     }
 
 
@@ -173,57 +171,3 @@
 
 
 })();
-
-
-    // *************************************
-    // START MAIN
-    // *************************************
-    // #region MAIN
-
-    // pickRayController.enable();
-
-    // #endregion
-    // *************************************
-    // STOP MAIN
-    // *************************************
-
-
-    // #endregion
-    // *************************************
-    // STOP SOLO FUNCTIONS
-    // *************************************
-
-    // #endregion 
-    // *************************************
-    // STOP TABLET FUNCTIONS
-    // *************************************
-
-    // *************************************
-    // START CLEANUP
-    // *************************************
-    // #region Cleanup 
-
-
-    // *************************************
-    // START UTILITY FUNCTIONS
-    // *************************************
-    // #region Utilty
-
-
-
-    // #endregion
-    // *************************************
-    // END UTILITY FUNCTIONS
-    // *************************************
-
-    // *************************************
-    // START AVATAR FUNCTIONS
-    // *************************************
-    // #region Solo
-
-
-    // #endregion
-    // *************************************
-    // STOP CLEANUP
-    // *************************************
-

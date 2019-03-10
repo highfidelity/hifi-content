@@ -1,39 +1,34 @@
 /*
 
-    Name Tag
+    Nametag
     Created by Milad Nazeri on 2019-01-07
     Copyright 2019 High Fidelity, Inc.
 
     Distributed under the Apache License, Version 2.0.
     See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-    Point to solo someone to hear them better in a crowd!
     TABLET UI JS
     
 */
 
 
-// *************************************
-// START EVENTBRIDGE
-// *************************************
-// #region Eventbridge
-
+// Handle the enable button being clicked
 function nameTagSwitchClicked(checkbox) {
     EventBridge.emitWebEvent(JSON.stringify({
         app: "nametag",
         method: "nametagSwitchClicked",
         nameTagEnabled: checkbox.checked
     }));
-    // document.getElementById("firstRun").style.display = "none";
 }
 
+
+// Handle the slider being changed
 function userSliderChanged(slider) {
     EventBridge.emitWebEvent(JSON.stringify({
         app: "nametag",
         method: "updateUserScaler",
         currentUserScaler: slider.value
     }));
-    // document.getElementById("firstRun").style.display = "none";
 }
 
 
@@ -48,20 +43,14 @@ function onScriptEventReceived(message) {
 
     switch (message.method) {
         case "updateUI":
-            // if (message.isFirstRun) {
-            //     document.getElementById("firstRun").style.display = "block";
-            // }
             document.getElementById("nameTagSwitch").checked = message.nameTagEnabled;
             document.getElementById("sizeSlider").value = message.currentUserScaler;            
-
             document.getElementById("loadingContainer").style.display = "none";
-
             break;
         default:
             console.log("Unknown message received from nameTag.js! " + JSON.stringify(message));
             break;
     }
-    
 }
 
 
