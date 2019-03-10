@@ -1,6 +1,23 @@
+/*
+
+    Nametag
+    pickRayController.js
+    Created by Milad Nazeri on 2019-03-08
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+    Easy pickray controllers for Entities, Overlays, and Avatars
+
+*/
+
+
 var _this;
+
 function PickRayController(){
     _this = this;
+
     _this.eventHandler = null;
     _this.rayType = 'local';
     _this.intersection = null;
@@ -10,8 +27,11 @@ function PickRayController(){
     _this.mapping = null;
     _this._boundMousePressHandler = null;
     _this.shouldDoublePress = null;
+    _this.controllEnabled = false;
 }
 
+
+// After setup is given, this gets the Controller ready to be enabled
 function create(){
     _this.mapping = Controller.newMapping(_this.mappingName);
 
@@ -20,7 +40,7 @@ function create(){
             return;
         }
 
-        _this.getUUIDFromLaser(Controller.Standard.LeftHand);
+        getUUIDFromLaser(Controller.Standard.LeftHand);
     });
 
 
@@ -29,13 +49,14 @@ function create(){
             return;
         }
 
-        _this.getUUIDFromLaser(Controller.Standard.RightHand);
+        getUUIDFromLaser(Controller.Standard.RightHand);
     });
 
     return _this;
 }
 
 
+// Handle if the uuid picked on is new or different
 function handleUUID(uuid){
     if (!_this.lastPick && !_this.currentPick) {
         _this.currentPick = uuid;
@@ -47,6 +68,7 @@ function handleUUID(uuid){
 }
 
 
+// Set type of raypick for what kind of uuids to return
 function setType(type){
     _this.rayType = type;
 
@@ -54,6 +76,7 @@ function setType(type){
 }
 
 
+// Set if double presses should register as well
 function setShouldDoublePress(shouldDoublePress){
     _this.shouldDoublePress = shouldDoublePress;
 
@@ -61,6 +84,7 @@ function setShouldDoublePress(shouldDoublePress){
 }
 
 
+// Set the mapping name for the controller
 function setMapName(name) {
     _this.mappingName = name;
 
@@ -68,26 +92,28 @@ function setMapName(name) {
 }
 
 
-// The following two functions are a modified version of what's found in scripts/system/libraries/controllers.js
 function pickRayTypeHandler(pickRay){
+    // Handle if pickray is system generated or user generated
     if (arguments.length === 2) {
         pickRay = { origin: arguments[0], direction: arguments[1] };
     }
+
+    // Each different ray pick type needs a different findRayIntersection function
     switch (_this.rayType) {
         case 'avatar':
             var avatarIntersection = AvatarList.findRayIntersection(pickRay, [], [MyAvatar.sessionUUID]);
             _this.intersection = avatarIntersection;
-            _this.handleUUID(avatarIntersection.avatarID);
+            handleUUID(avatarIntersection.avatarID);
             break;
         case 'local':
             var overlayIntersection = Overlays.findRayIntersection(pickRay, [], []);
             _this.intersection = overlayIntersection;
-            _this.handleUUID(overlayIntersection.overlayID);
+            handleUUID(overlayIntersection.overlayID);
             break;
         case 'entity':
             var entityIntersection = Entities.findRayIntersection(pickRay, [], []);
             _this.intersection = entityIntersection;
-            _this.handleUUID(entityIntersection.avatarID);
+            handleUUID(entityIntersection.avatarID);
             break;
         default:
             console.log("ray type not handled");
@@ -97,21 +123,20 @@ function pickRayTypeHandler(pickRay){
 
 // Handle the interaction when in desktop and a mouse is pressed
 function mousePressHandler(event) {
-    console.log("single press heard");
     if (HMD.active || !event.isLeftButton) {
         return;
     }
     var pickRay = Camera.computePickRay(event.x, event.y);
-    _this.pickRayTypeHandler(pickRay);
+    pickRayTypeHandler(pickRay);
     if (_this.currentPick) {
         _this.eventHandler(_this.currentPick, _this.intersection);
     }
 }
 
 
+// Function to call when double press is singled
 function doublePressHandler(event) {
-    console.log("double press heard");
-    _this.mousePressHandler(event);
+    mousePressHandler(event);
 }
 
 
@@ -121,11 +146,12 @@ function getUUIDFromLaser(hand) {
         ? Controller.Standard.LeftHand
         : Controller.Standard.RightHand;
 
-    var pose = _this.getControllerWorldLocation(hand);
+    var pose = getControllerWorldLocation(hand);
     var start = pose.position;
+    // Get the direction that the hand is facing in the world
     var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
 
-    _this.pickRayTypeHandler(start, direction);
+    pickRayTypeHandler(start, direction);
 
     if (_this.currentPick) {
         _this.eventHandler(_this.currentPick, _this.intersection);
@@ -133,6 +159,7 @@ function getUUIDFromLaser(hand) {
 }
 
 
+// The following two functions are a modified version of what's found in scripts/system/libraries/controllers.js
 // Utility function for the ControllerWorldLocation offset 
 function getGrabPointSphereOffset(handController) {
     // These values must match what's in scripts/system/libraries/controllers.js
@@ -197,37 +224,61 @@ function getControllerWorldLocation(handController, doOffset) {
 
 // Enables mouse press and trigger events  
 function enable(){
-    Controller.mousePressEvent.connect(_this.mousePressHandler);
-    if (_this.shouldDoublePress){
-        Controller.mouseDoublePressEvent.connect(_this.doublePressHandler);
-    }
-    Controller.enableMapping(_this.mappingName);
+    if (!_this.controllEnabled) {
+        Controller.mousePressEvent.connect(mousePressHandler);
+        if (_this.shouldDoublePress) {
+            Controller.mouseDoublePressEvent.connect(doublePressHandler);
+        }
+        Controller.enableMapping(_this.mappingName);
+        _this.controllEnabled = true;
 
-    return _this;
+        return _this;
+    }
+
+    return -1;
 }
 
 
+// Disable the controller and mouse press
 function disable(){
-    Controller.mousePressEvent.disconnect(_this.mousePressHandler);
-    if (_this.shouldDoublePress){
-        Controller.mouseDoublePressEvent.disconnect(_this.doublePressHandler);
-    }
-    Controller.disableMapping(_this.mappingName);
+    if (_this.controllEnabled) {
+        Controller.mousePressEvent.disconnect(mousePressHandler);
+        if (_this.shouldDoublePress){
+            Controller.mouseDoublePressEvent.disconnect(doublePressHandler);
+        }
+        Controller.disableMapping(_this.mappingName);
 
-    return _this;
+        return _this;
+    }
+
+    return -1;
 }
 
 
+// Synonym for disable
 function destroy(){
     _this.disable();
 }
 
 
+// Register the function to be called on a click
 function registerEventHandler(fn){
     _this.eventHandler = fn;
 
     return _this;
 }
+
+
+PickRayController.prototype = {
+    create: create,
+    setType: setType,
+    setShouldDoublePress: setShouldDoublePress,
+    setMapName: setMapName,
+    enable: enable,
+    disable: disable,
+    destroy: destroy,
+    registerEventHandler: registerEventHandler
+};
 
 
 module.exports = PickRayController;

@@ -1,6 +1,20 @@
+/*
+
+    Nametag
+    nameTagListManager.js
+    Created by Milad Nazeri on 2019-03-09
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+    Helps manage the list of avatars added to the nametag list
+
+*/
+
 var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
-var entityProps = Script.require('./defaultOverlayProps.js?' + Date.now());
+var entityProps = Script.require('./defaultLocalEntityProps.js?' + Date.now());
 var textHelper = new (Script.require('./textHelper.js?' + Date.now()));
 var request = Script.require('request').request;
 var X = 0;
@@ -11,7 +25,7 @@ var SHOULD_QUERY_ENTITY = true;
 var CLEAR_ENTITY_EDIT_PROPS = true;
 var _this;
 
-function AvatarListManager(){
+function nameTagListManager(){
     _this = this;
 
     _this.avatars = {};
@@ -582,7 +596,7 @@ function getUN(uuid){
 }
 
 
-// Get the current data for an avatar
+// Get the current data for an avatar]
 function getInfo(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -717,7 +731,7 @@ function toggleInterval(){
 }
 
 
-AvatarListManager.prototype = {
+nameTagListManager.prototype = {
     create: create,
     destroy: destroy,
     add: add, // uuid, intersection
@@ -747,4 +761,4 @@ AvatarListManager.prototype = {
 };
 
 
-module.exports = AvatarListManager;
+module.exports = nameTagListManager;

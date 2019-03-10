@@ -1,23 +1,22 @@
 /*
 
-    Name Tag
+    Nametag
     Created by Milad Nazeri on 2019-02-16
     Copyright 2019 High Fidelity, Inc.
 
     Distributed under the Apache License, Version 2.0.
     See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-    Point to solo someone to hear them better in a crowd!
+    Click on someone to get a nametag for them
     
 */
 
 (function () {
     
-    var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
     var PickRayController = Script.require('./resources/modules/pickRayController.js?' + Date.now());
-    var AvatarListManager = Script.require('./resources/modules/avatarListManager.js?' + Date.now());
+    var NameTagListManager = Script.require('./resources/modules/nameTagListManager.js?' + Date.now());
     var pickRayController = new PickRayController();
-    var avatarListManager = new AvatarListManager().create();
+    var nameTagListManager = new NameTagListManager().create();
 
     // Handles avatar being solo'd
     pickRayController
@@ -29,26 +28,26 @@
 
     function selectAvatar(uuid, intersection) {
         console.log("in selectAvatar");
-        avatarListManager.handleSelect(uuid, intersection);
+        nameTagListManager.handleSelect(uuid, intersection);
     }
 
 
     // Handles reset of list if you change domains
     function onDomainChange() {
-        avatarListManager.reset();
+        nameTagListManager.reset();
     }
 
 
     // Handles removing an avatar from the list if they leave the domain
     function onAvatarRemoved(uuid) {
-        avatarListManager.maybeRemove(uuid);
+        nameTagListManager.maybeRemove(uuid);
     }
 
 
     // Called when the script is closing
     function scriptEnding() {
         console.log("script finished")
-        avatarListManager.destroy();
+        nameTagListManager.destroy();
         pickRayController.destroy();
         Window.domainChanged.disconnect(onDomainChange);
         AvatarManager.avatarRemovedEvent.disconnect(onAvatarRemoved);
@@ -69,9 +68,9 @@
 
     // var currentUserScaler = 1.0;
     var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
-    avatarListManager.registerInitialScaler(currentUserScaler);
+    nameTagListManager.registerInitialScaler(currentUserScaler);
     function updateUserScaler(newSize){
-        avatarListManager.updateUserScaler(newSize);
+        nameTagListManager.updateUserScaler(newSize);
     }
 
 

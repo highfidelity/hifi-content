@@ -4,7 +4,6 @@ var backgroundProps = {
     type: "Box",
     color: "#244752",
     modelURL: Script.resolvePath('../models/nametag-background2.fbx'),
-    // billboardMode: "full",
     alpha: 1.0
 };
 
