@@ -1,5 +1,5 @@
 {
-    "name": "Multi-Con Vote",
+    "name": "MultiConVote",
     "version": "1.0.0",
     "description": "High Fidelity Multi-Con Vote Webapp",
     "main": "multiConVote.js",

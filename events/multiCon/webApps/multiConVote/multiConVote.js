@@ -14,8 +14,62 @@ var dbInfo = require('./dbInfo.json');
 
 
 // Gets all information associated with users participating in the Best Avatar Contest
-function getParticipants(reponse) {
+function getParticipants(voterUsername, response) {
+    // have they voted?
+        // yes
+        // no
 
+    var query = `SELECT * FROM \`multiConAvatarContestParticipants\``;
+    connection.query(query, function(error, results) {
+        if (error) {
+            var responseObject = {
+                status: "error",
+                text: "Error while getting all participants! " + JSON.stringify(error)
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+        
+        var avatarInformation = results;
+
+        query = `SELECT votedFor FROM \`multiConAvatarContestVotes\` WHERE voterUsername = '${voterUsername}'`
+        
+        connection.query(query, function(error, results) {
+            if (error) {
+                var responseObject = {
+                    status: "error",
+                    text: "Error while getting previous vote information! " + JSON.stringify(error)
+                };
+    
+                response.statusCode = 500;
+                response.setHeader('Content-Type', 'application/json');
+                return response.end(JSON.stringify(responseObject));
+            }
+
+            if (results.length > 0) {
+                var avatarVotedFor = results[0].votedFor;
+
+                for (var i = 0; i < avatarInformation.length; i++) {
+                    if (avatarInformation[i].username === avatarVotedFor) {
+                        avatarInformation[i].votedFor = true;
+                        break;
+                    }
+                }
+            }
+
+            var responseObject = {
+                status: "success",
+                text: "Successfully recieved avatar information.",
+                data: avatarInformation
+            };
+    
+            response.statusCode = 200;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        });
+    });
 }
 
 
@@ -58,7 +112,8 @@ function handleGetRequest(request, response) {
 
     switch(type) {
         case "getParticipants":
-            getParticipants(response);
+            var voterUsername = queryParamObject.voterUsername;
+            getParticipants(voterUsername, response);
         break;
 
 
@@ -130,9 +185,10 @@ function createNewTables(response) {
         }
 
         query = `CREATE TABLE \`multiConAvatarContestParticipants\` (
-            username VARCHAR(100) PRIMARY KEY
+            username VARCHAR(100) PRIMARY KEY,
+            imageURL VARCHAR(250)
         )`;
-
+    
         connection.query(query, function(error, results, fields) {
             if (error) {
                 throw error;
@@ -173,7 +229,7 @@ function createMultiConVoteDB() {
 
 // Called on startup.
 function startup() {
-    //createMultiConVoteDB();
+    // createMultiConVoteDB();
     connectToMultiConVoteDB();
 }
 
