@@ -12,7 +12,6 @@
 
 */
 
-var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
 var entityProps = Script.require('./defaultLocalEntityProps.js?' + Date.now());
 var textHelper = new (Script.require('./textHelper.js?' + Date.now()));
@@ -23,7 +22,6 @@ var Z = 2;
 var HALF = 0.5;
 var SHOULD_QUERY_ENTITY = true;
 var CLEAR_ENTITY_EDIT_PROPS = true;
-var TOTAL_X_MARGIN = entityProps.leftMargin + entityProps.rightMargin;
 
 
 var _this;
@@ -264,8 +262,6 @@ function calculateInitialProperties(uuid, type) {
     var lineHeight = null;
     var scaledDimensions = null;
     var name = null;
-    var leftMargin = null;
-    var rightMargin = null;
 
     // Handle if we are asking for the main or sub properties
     if (type === "main") {
@@ -289,8 +285,6 @@ function calculateInitialProperties(uuid, type) {
     adjustedScaler = distance * DISTANCE_SCALER;
     // Get the new dimensions from the text helper
     dimensions = [textHelper.getTotalTextLength(), DEFAULT_LINE_HEIGHT, Z_SIZE];
-    // Add Margins to the dimensions
-    dimensions[X] = dimensions[X] + TOTAL_X_MARGIN;
     // Adjust the dimensions by the modified distance scaler
     scaledDimensions = Vec3.multiply(dimensions, adjustedScaler);
 
@@ -303,17 +297,10 @@ function calculateInitialProperties(uuid, type) {
     // Adjust the lineheight to be the new scaled dimensions Y 
     lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
 
-    // Adjust the margins as well
-    leftMargin = localEntity.get("leftMargin") * adjustedScaler;
-    rightMargin = localEntity.get("rightMargin") * adjustedScaler;
-
-
     return {
         distance: distance,
         scaledDimensions: scaledDimensions,
-        lineHeight: lineHeight,
-        leftMargin: leftMargin,
-        rightMargin: rightMargin
+        lineHeight: lineHeight
     };
 }
 
@@ -338,8 +325,6 @@ function makeNameTag(uuid, shouldCreate, type) {
     var lineHeight = null;
     var localPositionOffset = null;
     var parentID = null;
-    var leftMargin = null;
-    var rightMargin = null; 
 
     // Make sure an anonymous name is covered before sending to calculate
     if (type === "main") {
@@ -355,27 +340,19 @@ function makeNameTag(uuid, shouldCreate, type) {
     distance = calculatedProps.distance;
     scaledDimensions = calculatedProps.scaledDimensions;
     lineHeight = calculatedProps.lineHeight;
-    leftMargin = calculatedProps.leftMargin;
-    rightMargin = calculatedProps.rightMargin;
-    log("leftMargin", leftMargin);
-    log("rightMargin", rightMargin);
 
     // Initial values specific to which type
     if (type === "main") {
         localEntity = localEntityMain;
-        // Capture the inital dimensions, distance, margins, and displayName in case we need to redraw
+        // Capture the inital dimensions, distance, and displayName in case we need to redraw
         avatar.previousDisplayName = avatarInfo.displayName;
         avatar.mainInitialDimensions = scaledDimensions;
         avatar.initialDistance = distance;
         name = avatarInfo.displayName;
         parentID = uuid;
-        avatar.mainInitialLeftMargin = leftMargin;
-        avatar.mainInitialRightMargin = rightMargin;
     } else {
         localEntity = localEntitySub;
         avatar.subInitialDimensions = scaledDimensions;
-        avatar.subInitialLeftMargin = leftMargin;
-        avatar.subInitialRightMargin = rightMargin;
         name = avatarInfo.username;
         parentID = localEntityMain.id;
     }
@@ -388,14 +365,10 @@ function makeNameTag(uuid, shouldCreate, type) {
         // Multiply the new dimensions and line height with the user selected scaler
         scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
         lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
-        leftMargin = leftMargin * userScaler;
-        rightMargin = rightMargin * userScaler;
 
         localEntity
             .add("lineHeight", lineHeight)
             .add("dimensions", scaledDimensions)
-            .add("leftMargin", leftMargin)
-            .add("rightMargin", rightMargin)
             .add("parentID", parentID);
 
 
@@ -490,8 +463,6 @@ function reDraw(uuid, type) {
     var newDimensions = null;
     var lineHeight = null;
     var localPositionOffset = null;
-    var leftMargin = null;
-    var rightMargin = null; 
 
     initialDistance = avatar.initialDistance;
     currentDistance = avatar.currentDistance;
@@ -499,8 +470,6 @@ function reDraw(uuid, type) {
     if (type === "main") {
         localEntity = avatar.localEntityMain;
         initialDimensions = avatar.mainInitialDimensions;
-        leftMargin = avatar.mainInitialLeftMargin;
-        rightMargin = avatar.mainInitialRightMargin;
     } else {
         localEntity = avatar.localEntitySub;
         initialDimensions = avatar.subInitialDimensions;
@@ -513,18 +482,11 @@ function reDraw(uuid, type) {
         (initialDimensions[Z] / initialDistance) * currentDistance
     ];
 
-    // Same process for the margins
-    leftMargin = (leftMargin / initialDistance) * currentDistance;
-    rightMargin = (rightMargin / initialDistance) * currentDistance;
-
     // If there is a userScaler, then make sure the new size reflects that
     newDimensions = Vec3.multiply(newDimensions, userScaler);
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
-    leftMargin = leftMargin * userScaler;
-    rightMargin = rightMargin * userScaler;
 
     localEntity
-        .add("leftMargin", leftMargin)
         .add("rightMargin", rightMargin)
         .add("lineHeight", lineHeight)
         .add("dimensions", newDimensions);

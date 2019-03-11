@@ -18,8 +18,8 @@ var _this;
 function PickRayController(){
     _this = this;
 
+    _this.rayType = null;
     _this.eventHandler = null;
-    _this.rayType = 'local';
     _this.intersection = null;
     _this.lastPick = null;
     _this.currentPick = null;

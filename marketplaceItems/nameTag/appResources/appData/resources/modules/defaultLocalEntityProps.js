@@ -21,9 +21,7 @@ var overlayProps = {
     textAlpha: 1.0,
     backgroundColor: "#2D2D2D",
     backgroundAlpha: 1,
-    billboardMode: "full",
-    leftMargin: 0.03,
-    rightMargin: 0.03
+    billboardMode: "full"
 };
 
 module.exports = overlayProps;

@@ -140,6 +140,6 @@ EntityMaker.prototype = {
     hide: hide,
     create: create,
     destroy: destroy
-}
+};
 
 module.exports = EntityMaker;
