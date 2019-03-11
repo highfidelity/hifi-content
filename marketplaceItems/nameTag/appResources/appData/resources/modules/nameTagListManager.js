@@ -421,7 +421,7 @@ function makeNameTag(uuid, shouldCreate, type) {
 
 // Check to see if the display named changed or if the distance is big enough to need a redraw.
 var MAX_DISTANCE_METERS = 0.1;
-var DELETE_TIMEOUT_MS = 10000;
+var DELETE_TIMEOUT_MS = 6500;
 function maybeRedraw(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -659,7 +659,7 @@ function shouldToggleInterval(){
 
 
 // Turn off and on the redraw check.
-var INTERVAL_CHECK_MS = 100;
+var INTERVAL_CHECK_MS = 50;
 function toggleInterval(){
     if (_this.redrawTimeout){
         maybeClearInterval();
