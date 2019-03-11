@@ -1,12 +1,8 @@
 //
 //  scaleAvatar.js
 //
-//  Run script on client. In VR, when you hold down both grips and both triggers, 
-//  scale your avatar your avatar by moving your hands further away from eachother 
-//  to scale larger or closer together to scale smaller.
-//
 //  Created by Robin Wilson on 3/11/2019
-//  Copyright 2017 High Fidelity, Inc.
+//  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -27,33 +23,28 @@
 
 
     // Sets up the scaling functionality if all buttons are pressed
-    var SCALE_BUFFER = 1, // increase/decrease the sensitivity of scaling
-        PRESSED_INTERVAL_MS = 25, 
-        isScaling = false, // the avatar is scaling after triggers and grips are pressed
+    var PRESSED_INTERVAL_MS = 25, 
         initialDistance = null,
         initialScale = null,
         scalingInterval = null;
     function handleAllPressed() {
-        if (areAllPressed() && isScaling) {
+        if (areAllPressed() && scalingInterval) {
             // setup was completed already, do not need to continue
             return;
-        } else if (areAllPressed() && !isScaling) {
+        } else if (areAllPressed() && !scalingInterval) {
             // Initial time isScaling called
             initialDistance = distanceBetweenHands();
-            isScaling = true;
             initialScale = MyAvatar.scale;
 
             // Setup pressed interval
             scalingInterval = Script.setInterval(function() {
-                if (isScaling) {
-                    if (DEBUG) {
-                        print("init" + JSON.stringify(initialDistance));
-                        print("distance" + JSON.stringify(distanceBetweenHands()));
-                    }
-                    var currentDistance = distanceBetweenHands();
-                    var deltaDistance = currentDistance - initialDistance;
-                    MyAvatar.scale = initialScale + deltaDistance * SCALE_BUFFER;
+                if (DEBUG) {
+                    print("init" + JSON.stringify(initialDistance));
+                    print("distance" + JSON.stringify(distanceBetweenHands()));
                 }
+                var currentDistance = distanceBetweenHands();
+                var deltaDistance = currentDistance - initialDistance;
+                MyAvatar.scale = initialScale + deltaDistance;
             }, PRESSED_INTERVAL_MS);
         } else {
             // areAllPressed is false 
@@ -64,7 +55,6 @@
                 }
                 Script.clearInterval(scalingInterval);
                 scalingInterval = null;
-                isScaling = false;
                 initialDistance = null;
             }
         }
@@ -80,28 +70,25 @@
 
 
     // With specific controller button, sets up controller pressed callback
-    var PRESSED_MIN_VALUE = 0.8;
+    var PRESSED_MIN_VALUE = 0.95;
     function setupButtonPressListener(isPressedKey, controllerReference, mappingName) {
-        var isPressedKeyName = isPressedKey;
-        var MAPPING_NAME = mappingName;
-
         function pressedCallback(value) {
-            if (!isPressed[isPressedKeyName] && value >= PRESSED_MIN_VALUE) { 
+            if (!isPressed[isPressedKey] && value >= PRESSED_MIN_VALUE) { 
                 // not already pressed and value > 0.8
                 if (DEBUG) {
-                    print(isPressedKeyName + " pressed!");
+                    print(isPressedKey + " pressed!");
                 }
-                isPressed[isPressedKeyName] = true;
-            } else if (isPressed[isPressedKeyName] && value < PRESSED_MIN_VALUE) {
+                isPressed[isPressedKey] = true;
+            } else if (isPressed[isPressedKey] && value < PRESSED_MIN_VALUE) {
                 // stop pressing button
-                isPressed[isPressedKeyName] = false;
+                isPressed[isPressedKey] = false;
             }
             handleAllPressed();
         }
-
-        var controllerMapping = Controller.newMapping(MAPPING_NAME);
+        // Map the controller button to the presssedCallback
+        var controllerMapping = Controller.newMapping(mappingName);
         controllerMapping.from(controllerReference).to(pressedCallback);
-        Controller.enableMapping(MAPPING_NAME);
+        Controller.enableMapping(mappingName);
     }
 
 
@@ -130,6 +117,7 @@
         }
     }
 
+    
     setupScaleAvatarWithGrip();
     Script.scriptEnding.connect(unload);
 })();
