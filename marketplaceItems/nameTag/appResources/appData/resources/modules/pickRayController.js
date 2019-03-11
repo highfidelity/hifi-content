@@ -160,6 +160,7 @@ function getUUIDFromLaser(hand) {
 
 
 // The following two functions are a modified version of what's found in scripts/system/libraries/controllers.js
+
 // Utility function for the ControllerWorldLocation offset 
 function getGrabPointSphereOffset(handController) {
     // These values must match what's in scripts/system/libraries/controllers.js

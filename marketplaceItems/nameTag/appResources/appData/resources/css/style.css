@@ -1,36 +1,8 @@
-
-/* 
-
-*************************************
-START SETUP
-*************************************
-
-*/
-
-
 *, *:before, *:after {
     -webkit-box-sizing: inherit;
     -moz-box-sizing: inherit;
     box-sizing: inherit;
 }
-
-
-/* 
-
-*************************************
-END SETUP
-************************************* 
-
-*/
-
-/* 
-
-*************************************
-START ELEMENTS
-*************************************
-
-*/
-
 
 html {
     -webkit-box-sizing: border-box;
@@ -41,7 +13,6 @@ html {
 body {
     background: linear-gradient(to bottom, rgba(247,251,252,1) 0%,rgba(217,237,242,1) 40%,rgba(173,217,228,1) 100%); 
     font-family: 'Raleway', sans-serif;
-    /* color: #afafaf; */
     overflow: hidden;
     margin: 0;
     padding: 0;
@@ -61,7 +32,6 @@ body {
     height: 100vh;
     position: fixed;
     z-index: 999;
-    display: none;
 }
 
 #firstRun {
@@ -74,17 +44,6 @@ body {
     font-size: 24px;
     text-align: right;
     display: none;
-  }
-
-
-#tutorialArrow {
-    border: solid #00b4ef;
-    border-width: 0 5px 5px 0;
-    margin-right: 28px;
-    display: inline-block;
-    padding: 5px;
-    transform: rotate(-135deg);
-    -webkit-transform: rotate(-135deg);
 }
 
 #titleBarContainer {
@@ -96,8 +55,37 @@ body {
     background-color: #121212;
     color: #ffffff;
     justify-content: space-between;
-  }
+}
 
+#optionsContainer {
+    display: flex;
+    flex-direction: column;
+    height: 150px;
+    width: calc(100vw - 24px);
+    margin: 24px 12px 0 12px;
+    position: absolute;
+}
+
+#instructions {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    background-color: black;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 12px;
+    font-size: 18px;
+}
+  
+#instructions > div {
+    margin: 12px 0px;
+}
+
+
+/* Switch CSS */
 .switch {
     position: relative;
     display: block;
@@ -135,7 +123,7 @@ body {
     background-color: white;
     -webkit-transition: .4s;
     transition: .4s;
-  }
+}
 
   
 input:checked + .slider {
@@ -155,189 +143,8 @@ input:checked + .slider:before {
 /* Rounded sliders */
 .slider.round {
     border-radius: 34px;
-  }
+}
   
   .slider.round:before {
     border-radius: 50%;
-  }
-
-
-
-#optionsContainer {
-  display: flex;
-  flex-direction: column;
-  height: 150px;
-  width: calc(100vw - 24px);
-  margin: 24px 12px 0 12px;
-  position: absolute;
 }
-
-
-#instructions {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    background-color: black;
-    color: white;
-    position: fixed;
-    /* height: 100px; */
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 12px 12px;
-    font-size: 18px;
-  }
-  
-  #instructions > div {
-    margin: 12px 0px;
-  }
-
-/* 
-
-*************************************
-END ELEMENTS
-************************************* 
-
-*/
-
-/* 
-
-*************************************
-START CLASSES
-*************************************
-
-*/
-
-
-.center {
-    display: block;
-    margin: auto;
-    color: red;
-}
-
-.shadow {
-    box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2);
-}
-
-.close {
-    background-color: rgba(255, 255, 255, .5);
-    padding: 1px 4px 1px 3px;
-    margin-left: 10px;
-    float: right;
-}
-
-.close:hover {
-    background-color: rgba(255, 0, 255, .5);
-}
-
-
-.name {
-    background-color: rgba(0, 200, 255, .5);
-    margin-top: 15px; 
-    padding: 6px 6px 4px 6px;
-    min-width: 50px;
-    max-width: 250px;
-}
-
-.animated {
-    animation-duration: 0.5s;
-    animation-fill-mode: both;
-}
-
-.fade-out {
-    animation-name: fade-out;
-}
-
-.fade-in {
-    animation-name: fade-in;
-}
-
-
-/* 
-
-*************************************
-END CLASSES
-*************************************
-
-*/
-
-/* 
-
-*************************************
-START IDS
-*************************************
-
-*/
-
-
-/* #logo {
-    vertical-align: text-bottom;
-    width: 30px;
-    height: 30px;
-}
-
-#header {
-    margin-top: 10px;
-    display: inline-block;
-}
-
-#instructions {
-    mix-blend-mode: multiply;
-    background-color: whtite;
-    padding: 5px 5px 15px 12px;
-}
-
-#sub-header {
-    margin-top: 25px;
-    margin-bottom: -10px;
-}
-
-#error {
-    opacity: 0;
-    position: absolute;
-    bottom: 0;
-    left:0;
-    right: 0;
-    padding: 5px 5px 15px 12px;
-    margin: 8px 8px;
-    background-color: rgba(0, 0, 0, 1);
-    color: red;
-    font-size: 25px;
-} */
-
-
-/* 
-
-*************************************
-END IDS
-*************************************
-
-*/
-
-/* 
-
-*************************************
-START ANIMATIONS
-*************************************
-
-*/
-
-
-@keyframes fade-out {
-    0% {opacity: 1;}
-    100% {opacity: 0;}
- }
-
- @keyframes fade-in {
-    0% {opacity: 0;}
-    100% {opacity: 1;}
- }
-
-
- /* 
-
-*************************************
-END ANIMATIONS
-*************************************
-
-*/
