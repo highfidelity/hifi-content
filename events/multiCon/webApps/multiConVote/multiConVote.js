@@ -175,7 +175,7 @@ function connectToMultiConVoteDB() {
 
 // Creates the necessary tables for the Multi-Con Vote app to work.
 function createNewTables(response) {
-    var query = `CREATE TABLE \`multiConAvatarContestVotes\` (
+    var query = `CREATE TABLE IF NOT EXISTS \`multiConAvatarContestVotes\` (
         voterUsername VARCHAR(100) PRIMARY KEY,
         votedFor VARCHAR(100)
     )`;
@@ -183,17 +183,17 @@ function createNewTables(response) {
         if (error) {
             throw error;
         }
+    });
 
-        query = `CREATE TABLE \`multiConAvatarContestParticipants\` (
-            username VARCHAR(100) PRIMARY KEY,
-            imageURL VARCHAR(250)
-        )`;
-    
-        connection.query(query, function(error, results, fields) {
-            if (error) {
-                throw error;
-            }
-        });
+    var query = `CREATE TABLE IF NOT EXISTS \`multiConAvatarContestParticipants\` (
+        username VARCHAR(100) PRIMARY KEY,
+        imageURL VARCHAR(250)
+    )`;
+
+    connection.query(query, function(error, results, fields) {
+        if (error) {
+            throw error;
+        }
     });
 }
 
@@ -206,7 +206,7 @@ function createMultiConVoteDB() {
         password: dbInfo.mySQLPassword
     });
 
-    var query = `CREATE DATABASE ${dbInfo.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
+    var query = `CREATE DATABASE IF NOT EXISTS ${dbInfo.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
     connection.query(query, function(error, results, fields) {
         if (error) {
             throw error;
@@ -229,7 +229,7 @@ function createMultiConVoteDB() {
 
 // Called on startup.
 function startup() {
-    // createMultiConVoteDB();
+    createMultiConVoteDB();
     connectToMultiConVoteDB();
 }
 
