@@ -12,7 +12,7 @@ With Nametag, you can click anywhere on an avatar and get a quick view of who th
 
 ## Releases
 
-### 2019-03-10_11-00-00 | Marketplace v1.0 | [658ed4e](https://github.com/highfidelity/hifi-content/commit/658ed4e)
+### 2019-03-10_11-00-00 | Marketplace v1.0 | [754e955]
 
 - Initial Release
 

@@ -169,5 +169,4 @@
     Script.scriptEnding.connect(scriptEnding);
     startup();
 
-
 })();
