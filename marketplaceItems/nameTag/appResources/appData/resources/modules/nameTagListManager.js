@@ -489,7 +489,6 @@ function reDraw(uuid, type) {
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
     localEntity
-        .add("rightMargin", rightMargin)
         .add("lineHeight", lineHeight)
         .add("dimensions", newDimensions);
 
