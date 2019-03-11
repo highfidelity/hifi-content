@@ -12,7 +12,7 @@ With Nametag, you can click anywhere on an avatar and get a quick view of who th
 
 ## Releases
 
-### 2019-03-10_11-00-00 | Marketplace v1.0 | [cff2ee0]pu
+### 2019-03-10_11-00-00 | Marketplace v1.0 | [cff2ee0]
 
 - Initial Release
 
