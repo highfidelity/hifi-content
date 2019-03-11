@@ -179,6 +179,7 @@ function handleUserName(uuid, username) {
 }
 
 
+// Update the look of the nametags if the user is your friend.
 var FRIEND_TEXT = "#FFFFFF";
 var FRIEND_MAIN_BACKGROUND = "#3D3D3D";
 var FRIEND_SUB_BACKGROUND = "#111111";
@@ -200,6 +201,7 @@ function handleFriend(uuid, username) {
             .edit("textColor", FRIEND_TEXT)
             .edit("backgroundColor", FRIEND_SUB_BACKGROUND);
     } else {
+        // You aren't an admin so this is the first time we are making a sub nametag
         makeNameTag(uuid, CREATE, "sub");
 
         localEntitySub
