@@ -142,7 +142,7 @@ function remove(uuid){
 // Remove all the current LocalEntities.
 function removeAllLocalEntities(){
     for (var uuid in _this.selectedAvatars) {
-        this.removeLocalEntities(uuid);
+        removeLocalEntity(uuid);
         delete _this.selectedAvatars[uuid];
     }
 
@@ -494,7 +494,7 @@ function reDraw(uuid, type) {
 
     if (type === "sub") {
         // Get the localPosition offset
-        var localEntityMainDimensions = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
+        var localEntityMainDimensions = avatar.localEntityMain.get('dimensions');
 
         localPositionOffset = [
             0,
