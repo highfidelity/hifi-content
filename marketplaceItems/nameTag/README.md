@@ -20,4 +20,4 @@ With Nametag, you can click anywhere on an avatar and get a quick view of who th
 [Trello Card](https://trello.com/c/9BVI2fyL/71-combined-name-tag-app)
 
 ## Known issues
-- Some avatars with bad collision shapes don't recieve the pickray
+- Some avatars with bad collision shapes don't receive the pickray
