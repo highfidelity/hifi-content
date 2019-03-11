@@ -1,142 +1,64 @@
+/*
+
+*/
+
 (function () {
-    var CONTROLLER_MAPPING_GRIP_LEFT = "com.highfidelity.scaleAvatarGripLeft",
-        CONTROLLER_MAPPING_GRIP_RIGHT = "com.highfidelity.scaleAvatarGripRight";
-    var CONTROLLER_MAPPING_TRIGGER_LEFT = "com.highfidelity.scaleAvatarTriggerLeft",
-        CONTROLLER_MAPPING_TRIGGER_RIGHT = "com.highfidelity.scaleAvatarTriggerRight";
-
-    var isRightPressed = false;
-    var isLeftPressed = false;
-    var PRESSED_MIN_VALUE = 0.8;
-
-    var GRABBING_ENTITY_CHANNEL = 'Hifi-Object-Manipulation';
-    
-    Messages.subscribe('Hifi-Object-Manipulation');
-    Messages.messageReceived.connect(onMessageRecieved);
-
-    var STRING_GRAB = "grab";
-    var STRING_RELEASE = "release";
-    var stopScale = false;
-    function onMessageRecieved(messageName, infoString) { 
-        if (messageName === GRABBING_ENTITY_CHANNEL) {
-            if (infoString.indexOf(STRING_GRAB)) {
-
-                // GRABBING A THING
-            }
-        }
-    }
-
-    // Messages.sendMessage('Hifi-Object-Manipulation', JSON.stringify({
-    //     action: 'grab',
-    //     grabbedEntity: targetProps.id,
-    //     joint: this.hand === RIGHT_HAND ? "RightHand" : "LeftHand"
-    // }));
-
     var DEBUG = true;
 
-    function rightOnGripPress(value) {
-        if (!isRightPressed && value >= PRESSED_MIN_VALUE) { // not already pressed and value > 0.8
-            if (DEBUG) {
-                print("right pressed!");
-            }
-            
-            if (isNearGrabbingObject(STRING_RIGHT)) {
-                return;
-            }
-            
-            isRightPressed = true;
-        } else if (isRightPressed && value < PRESSED_MIN_VALUE) {
-            isRightPressed = false;
-        }
-        handleBothGripPressed();
-    }
-
-    var STRING_LEFT = "left";
-    var STRING_RIGHT = "right";
-    function isNearGrabbingObject(handString) {
-
-        var controller = handString === STRING_LEFT ? Controller.Standard.LeftHand : Controller.Standard.RightHand;
-        var handPosition = Controller.getPoseValue(controller).translation / MyAvatar.sensorToWorldScale;
-        var entityList = Entities.findEntities(handPosition, NEAR_GRAB_RADIUS_M);
-
-        for (var i = 0; i < entityList.length; i++) {
-            var properties = Entities.getEntityProperties(entityList[i], ["parentID", "grabbable"]).parentID;
-            var parentID = properties.parentID;
-            var grabbable = properties.grabbable;
-            if (grabbable && MyAvatar.sessionUUID === parentID) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    var NEAR_GRAB_RADIUS_M = 1.0;
-    function leftOnGripPress(value) {
-        if (!isLeftPressed && value >= PRESSED_MIN_VALUE) { // not already pressed and value > 0.8
-            if (DEBUG) {
-                print("left pressed!");
-            }
-            
-            if (isNearGrabbingObject(STRING_LEFT)) {
-                return;
-            }
-
-            isLeftPressed = true;
-        } else if (isLeftPressed && value < PRESSED_MIN_VALUE) {
-            isLeftPressed = false;
-        }
-        handleBothGripPressed();
+    // Returns boolean that all buttons are pressed
+    var isPressed = {
+        rightGrip: false,
+        leftGrip: false,
+        rightTrigger: false,
+        leftTrigger: false
+    };
+    function areAllPressed() {
+        return isPressed.rightGrip && isPressed.leftGrip && isPressed.rightTrigger && isPressed.leftTrigger;
     }
 
 
-    var SCALE_BUFFER = 1; // increase/decrease the sensitivity of scaling
-    var PRESSED_INTERVAL_MS = 25; 
-    var isPressed = false; // both grips pressed
-    var initialDistance = null;
-    var initialScale = null;
-    var pressedInterval = null;
-    function handleBothGripPressed() {
-        if (isRightPressed && isLeftPressed && isPressed) {
-            // setup done, do not need to continue
-            // or either left or right is not pressed
+    // Sets up the scaling functionality if all buttons are pressed
+    var SCALE_BUFFER = 1, // increase/decrease the sensitivity of scaling
+        PRESSED_INTERVAL_MS = 25, 
+        isScaling = false, // the avatar is scaling after triggers and grips are pressed
+        initialDistance = null,
+        initialScale = null,
+        scalingInterval = null;
+    function handleAllPressed() {
+        if (areAllPressed() && isScaling) {
+            // setup was completed already, do not need to continue
             return;
-        }
+        } else if (areAllPressed() && !isScaling) {
+            // Initial time isScaling called
+            initialDistance = distanceBetweenHands();
+            isScaling = true;
+            initialScale = MyAvatar.scale;
 
-        if (isRightPressed && isLeftPressed) {
-            if (!isPressed) {
-                // Both pressed initially
-                initialDistance = distanceBetweenHands();
-                isPressed = true;
-                initialScale = MyAvatar.scale;
-
-                // Setup pressed interval
-                pressedInterval = Script.setInterval(function() {
-                    if (isPressed) {
-                        if (DEBUG) {
-                            print("init" + JSON.stringify(initialDistance));
-                            print("distance" + JSON.stringify(distanceBetweenHands()));
-                        }
-                        var currentDistance = distanceBetweenHands();
-                        var deltaDistance = currentDistance - initialDistance;
-                        MyAvatar.scale = initialScale + deltaDistance * SCALE_BUFFER;
+            // Setup pressed interval
+            scalingInterval = Script.setInterval(function() {
+                if (isScaling) {
+                    if (DEBUG) {
+                        print("init" + JSON.stringify(initialDistance));
+                        print("distance" + JSON.stringify(distanceBetweenHands()));
                     }
-                }, PRESSED_INTERVAL_MS);
-            }
+                    var currentDistance = distanceBetweenHands();
+                    var deltaDistance = currentDistance - initialDistance;
+                    MyAvatar.scale = initialScale + deltaDistance * SCALE_BUFFER;
+                }
+            }, PRESSED_INTERVAL_MS);
         } else {
-            // remove pressed interval
-            if (pressedInterval) {
+            // areAllPressed is false 
+            // we need to stop scaling and remove the scalingInterval
+            if (scalingInterval) {
                 if (DEBUG) {
                     print("CLEAR INTERVAL");
                 }
-                Script.clearInterval(pressedInterval);
-                pressedInterval = null;
-                isPressed = false;
+                Script.clearInterval(scalingInterval);
+                scalingInterval = null;
+                isScaling = false;
                 initialDistance = null;
             }
         }
-    }
-
-    function isGrabbingEntity() {
-
     }
 
 
@@ -148,23 +70,54 @@
     }
 
 
-    function setupScaleAvatarWithGrip() {
-        var controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_GRIP_LEFT);
-        controllerMapping.from(Controller.Standard.LeftGrip).to(leftOnGripPress);
-        Controller.enableMapping(CONTROLLER_MAPPING_GRIP_LEFT);
+    // With specific controller button, sets up controller pressed callback
+    var PRESSED_MIN_VALUE = 0.8;
+    function setupButtonPressListener(isPressedKey, controllerReference, mappingName) {
+        var isPressedKeyName = isPressedKey;
+        var MAPPING_NAME = mappingName;
 
-        controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_GRIP_RIGHT);
-        controllerMapping.from(Controller.Standard.RightGrip).to(rightOnGripPress);
-        Controller.enableMapping(CONTROLLER_MAPPING_GRIP_RIGHT);
+        function pressedCallback(value) {
+            if (!isPressed[isPressedKeyName] && value >= PRESSED_MIN_VALUE) { 
+                // not already pressed and value > 0.8
+                if (DEBUG) {
+                    print(isPressedKeyName + " pressed!");
+                }
+                isPressed[isPressedKeyName] = true;
+            } else if (isPressed[isPressedKeyName] && value < PRESSED_MIN_VALUE) {
+                // stop pressing button
+                isPressed[isPressedKeyName] = false;
+            }
+            handleAllPressed();
+        }
+
+        var controllerMapping = Controller.newMapping(MAPPING_NAME);
+        controllerMapping.from(controllerReference).to(pressedCallback);
+        Controller.enableMapping(MAPPING_NAME);
     }
 
 
-    function unload() {
-        Controller.disableMapping(CONTROLLER_MAPPING_GRIP_LEFT);
-        Controller.disableMapping(CONTROLLER_MAPPING_GRIP_RIGHT);
+    // Sets up action listeners for the buttons
+    var CONTROLLER_MAPPING_GRIP_LEFT = "com.highfidelity.scaleAvatarGripLeft",
+        CONTROLLER_MAPPING_GRIP_RIGHT = "com.highfidelity.scaleAvatarGripRight",
+        CONTROLLER_MAPPING_TRIGGER_LEFT = "com.highfidelity.scaleAvatarTriggerLeft",
+        CONTROLLER_MAPPING_TRIGGER_RIGHT = "com.highfidelity.scaleAvatarTriggerRight";
+    function setupScaleAvatarWithGrip() {
+        setupButtonPressListener("rightGrip", Controller.Standard.RightGrip, CONTROLLER_MAPPING_GRIP_RIGHT);
+        setupButtonPressListener("leftGrip", Controller.Standard.LeftGrip, CONTROLLER_MAPPING_GRIP_LEFT);
+        setupButtonPressListener("rightTrigger", Controller.Standard.RT, CONTROLLER_MAPPING_TRIGGER_RIGHT);
+        setupButtonPressListener("leftTrigger", Controller.Standard.LT, CONTROLLER_MAPPING_TRIGGER_LEFT);
+    }
 
-        if (pressedInterval) {
-            Script.clearInterval(pressedInterval);
+
+    // Removes controller mappings and stops the interval if it is running
+    function unload() {
+        Controller.disableMapping(CONTROLLER_MAPPING_GRIP_RIGHT);
+        Controller.disableMapping(CONTROLLER_MAPPING_GRIP_LEFT);
+        Controller.disableMapping(CONTROLLER_MAPPING_TRIGGER_RIGHT);
+        Controller.disableMapping(CONTROLLER_MAPPING_TRIGGER_LEFT);
+
+        if (scalingInterval) {
+            Script.clearInterval(scalingInterval);
         }
     }
 
