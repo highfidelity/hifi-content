@@ -30,6 +30,41 @@ body {
     justify-content: space-between;
 }
 
+#popupContainer {
+    z-index: 999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8); 
+}
+
+#popupContentContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 350px;
+    height: 450px;
+    margin: -225px 0 0 -175px;
+    background: #333;
+    font-size: 32px;
+    padding: 12px;
+}
+
+#popupButtonsContainer {
+    position: absolute;
+    display: flex;
+    bottom: 12px;
+    left: 0;
+    right: 0;
+    justify-content: space-evenly;
+}
+
+#popupButtonsContainer > input {
+    width: calc(50% - 36px);
+}
+
 #buttonsContainer {
     margin: 0 8px;
     height: calc(100vh - 60px - 180px);
@@ -59,6 +94,11 @@ input[type=button].gray {
     background-color: #949494;
     background: linear-gradient(#949494 20%, #cacaca 100%);
 }
+input[type=button].red {
+    color: #FFFFFF;
+    background-color: #C62147;
+    background: linear-gradient(#C62147 20%, #C62147 100%);
+}
 
 input[type=button]:enabled:hover {
     background: linear-gradient(#000, #000);
@@ -69,12 +109,19 @@ input[type=button].gray:enabled:hover {
     background: linear-gradient(#fff, #fff);
     border: none;
 }
+input[type=button].red:enabled:hover {
+    background: linear-gradient(#EA4C5F, #EA4C5F);
+    border: none;
+}
 
 input[type=button]:active {
     background: linear-gradient(#343434, #343434);
 }
 input[type=button].gray:active {
     background: linear-gradient(#afafaf, #afafaf);
+}
+input[type=button].red:active {
+    background: linear-gradient(#EA4C5F, #EA4C5F);
 }
 
 input[type=button]:disabled {
@@ -87,6 +134,7 @@ input[type=button][pressed=pressed] {
 }
 
 #statusContainer {
+    z-index: 998;
     position: fixed;
     left: 0;
     right: 0;
