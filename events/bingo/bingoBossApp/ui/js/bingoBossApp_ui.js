@@ -19,6 +19,19 @@ function emitBingoBossEvent(type) {
 }
 
 
+// Shows a confirmation popup before emitting a bingo boss event
+function showPopup(elementID) {
+    $('#popupConfirm').unbind('click');
+
+    $('#popupConfirm').click(function() {
+        document.getElementById('popupContainer').style.display = "none";
+        emitBingoBossEvent(elementID);
+    });
+
+    document.getElementById('popupContainer').style.display = "block";
+}
+
+
 // Handle incoming events over the EventBridge.
 // Possible events include updating the "status text" area of the Boss app.
 function onScriptEventReceived(scriptEvent) {
@@ -57,6 +70,14 @@ function onLoad() {
 
     $('.bingoButton').click(function() {
         emitBingoBossEvent($(this).attr('id'));
+    });
+
+    $('.popupBingoButton').click(function() {
+        showPopup($(this).attr('id'));
+    });
+
+    $('#popupCancel').click(function() {
+        document.getElementById('popupContainer').style.display = "none";
     });
 }
 
