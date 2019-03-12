@@ -8,9 +8,45 @@
         <script src="js/multiConVoteApp_ui.js"></script>
     </head>
     <body>
-        <div id="titleBarContainer">
-            <div id="titleText" style="font-weight:bold;">
-                Multi-Con Festival App v1.0
+        <div id="loadingContainer">
+        </div>
+
+        <div id="votingModalContainer" onclick="closeVotingModal()" style="display:none;">
+            <div id="votingModalContentContainer" onclick="event.stopPropagation()">
+                <div id="cancelVote" onclick="closeVotingModal()">
+                </div>
+                <div id="votingModalImage">
+                </div>
+                <div id="confirmVoteContainer" onclick="confirmVote()">
+                    <div id="confirmVoteIcon">
+                    </div>
+                    <div id="confirmVoteText">
+                    </div>
+                    <div id="votingModalPadding">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabBarContainer">
+            <div id="infoTab"  onclick="selectTab('info')">
+                Info
+            </div>
+            <div id="voteTab" onclick="selectTab('vote')" class="selected">
+                Avatar Contest
+            </div>
+            <div id="scheduleTab" onclick="selectTab('schedule')">
+                Schedule
+            </div>
+        </div>
+        <div id="contentContainer">
+            <div id="infoContainer" >
+                SUP
+            </div>
+            <div id="voteContainer" class="selected">
+
+            </div>
+            <div id="scheduleContainer">
             </div>
         </div>
     </body>
