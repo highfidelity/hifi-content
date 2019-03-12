@@ -28,6 +28,7 @@ function PickRayController(){
     _this.shouldDoublePress = null;
     _this.controllEnabled = false;
 }
+
  
 // *************************************
 // START UTILITY

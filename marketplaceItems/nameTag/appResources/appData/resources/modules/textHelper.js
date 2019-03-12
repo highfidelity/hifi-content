@@ -212,7 +212,6 @@ function getTotalTextLength(){
 // END API
 // *************************************
 
-
 TextHelper.prototype = {
     setText: setText,
     setLineHeight: setLineHeight,
