@@ -21,3 +21,4 @@ With Nametag, you can click anywhere on an avatar and get a quick view of who th
 
 ## Known issues
 - Some avatars with bad collision shapes don't receive the pickray
+- Avatars that aren't standing y up will have strange positioning on the nametags

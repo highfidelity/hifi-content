@@ -12,7 +12,7 @@
 
 */
 
-var overlayProps = {
+var localEntityProps = {
     dimensions: [1, 0.1, 0],
     renderLayer: "front",
     type: "Text",
@@ -22,6 +22,7 @@ var overlayProps = {
     backgroundColor: "#2D2D2D",
     backgroundAlpha: 1,
     billboardMode: "full"
+    // lifetime: 10
 };
 
-module.exports = overlayProps;
+module.exports = localEntityProps;

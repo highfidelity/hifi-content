@@ -11,8 +11,6 @@
     Helps manage the list of avatars added to the nametag list
 
 */
-var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
-
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
 var entityProps = Script.require('./defaultLocalEntityProps.js?' + Date.now());
 var textHelper = new (Script.require('./textHelper.js?' + Date.now()));
@@ -23,6 +21,7 @@ var Z = 2;
 var HALF = 0.5;
 var SHOULD_QUERY_ENTITY = true;
 var CLEAR_ENTITY_EDIT_PROPS = true;
+var LIFETIME_ADD = 10;
 
 // *************************************
 // START UTILTY
@@ -153,8 +152,13 @@ function removeLocalEntity(uuid, shouldDestory){
 // Handler for the username call.
 function handleUserName(uuid, username) {
     if (username) {
-        var avatar = _this.avatars[uuid];
-        var avatarInfo = avatar.avatarInfo;
+        try {
+            var avatar = _this.avatars[uuid];
+            var avatarInfo = avatar.avatarInfo;
+        } catch (e) {
+            return;
+        }
+
 
         avatarInfo.username = username.trim();
         makeNameTag(uuid, CREATE, "sub");
@@ -212,6 +216,7 @@ function maybeDelete(uuid){
     var currentTime = Date.now();
     var timeSinceCreated = currentTime - createdTime;
 
+    
     if (timeSinceCreated > DELETE_TIMEOUT_MS) {
         return true;
     } else {
@@ -299,7 +304,7 @@ var SUB_TEXTCOLOR = "#868481";
 var LEFT_MARGIN_SCALER = 0.15;
 var RIGHT_MARGIN_SCALER = 0.10;
 var TOP_MARGIN_SCALER = 0.07;
-var BOTTOM_MARGIN_SCALER = 0.01;
+var BOTTOM_MARGIN_SCALER = 0.03;
 function makeNameTag(uuid, shouldCreate, type) {
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -515,6 +520,10 @@ function reDraw(uuid, type) {
 // Go through the selected avatar list and see if any of the avatars need a redraw.
 function checkAllSelectedForRedraw(){
     for (var avatar in _this.selectedAvatars) {
+        if (AvatarManager.getAvatar(avatar)) {
+
+        }
+
         maybeRedraw(avatar);
     }
 }
@@ -625,6 +634,9 @@ function shouldShowOrCreate(uuid){
         makeNameTag(uuid, SHOW, "sub");
     } else if (localEntityMainID && avatarInfo.username) {
         makeNameTag(uuid, CREATE, "sub");
+    } else if (localEntityMainID && !avatarInfo.username && Users.canKick) {
+        console.log("retrying user name")
+        Users.requestUsernameFromID(uuid);
     }
 }
 
@@ -671,6 +683,23 @@ function toggleInterval(){
 }
 
 
+function returnCurrentListOfEntities(){
+    var entities = [];
+    for (var uuid in _this.avatars) {
+        var avatar = _this.avatars[uuid];
+        if (avatar.localEntityMain.id) {
+            entities.push(avatar.localEntityMain.id);
+        }
+
+        if (avatar.localEntitySub.id) {
+            entities.push(avatar.localEntitySub.id);
+        }
+    }
+
+    return entities;
+}
+
+
 // #endregion
 // *************************************
 // END UTILTY
@@ -695,7 +724,6 @@ function nameTagListManager(){
 // Create the manager and hook up username signal.
 function create() {
     Users.usernameFromIDReply.connect(handleUserName);
-
     return _this;
 }
 

@@ -184,19 +184,14 @@ function getTotalTextLength(){
     // Map the string array to it's sizes
     var lengthArray = _this.textArray.map(function(letter){
         if (charMap[letter]){
-            console.log("1")
             return charMap[letter];
         } else if (letter.match(DIGIT_REGEX)){
-            console.log("1")
             return NUMBER;
         } else if (symbolMap[letter]) {
-            console.log("1")
             return symbolMap[letter];
         } else if (letter.match(WHITE_SPACE_REGEX)) {
-            console.log("1")
             return SPACE;
         } else {
-            console.log("1")
             return DEFAULT_CHAR_SIZE;
         }
     });
