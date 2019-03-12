@@ -80,7 +80,6 @@ function requestJSON(url, callback) {
 }
 
 
-
 // Add a user to the list.
 function add(uuid, intersection){
     // User Doesn't exist so give them new props and save in the cache, get their current avatar info, and handle the different ways to get the username(friend or admin)
