@@ -45,6 +45,12 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
+## WEBAPP VERSION BUMPED TO V2.2.2 FOR PARITY
+
+No non-backend changes here!
+
+- Added an online exporter tool to make it easier for our team to give prizes out to players when All Players Win
+
 ## v2.2.2 | 2019-02-25_17-16-00 | [commit 517c311](https://github.com/highfidelity/hifi-content/commits/517c311)
 
 - Force scripts to re-read config file more often.
