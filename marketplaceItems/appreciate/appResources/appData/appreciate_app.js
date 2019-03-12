@@ -860,6 +860,10 @@
     var desktopDebounceTimer = false;
     var DESKTOP_DEBOUNCE_TIMEOUT_MS = 160;
     function keyPressEvent(event) {
+        if (!appreciateEnabled) {
+            return;
+        }
+
         if ((event.text.toUpperCase() === "Z") &&
             !event.isShifted &&
             !event.isMeta &&
@@ -896,6 +900,10 @@
     
     // When the "Z" key is released, we want to stop appreciating a short time later.
     function keyReleaseEvent(event) {
+        if (!appreciateEnabled) {
+            return;
+        }
+
         if ((event.text.toUpperCase() === "Z") &&
             !event.isAutoRepeat) {
             stopAppreciatingSoon();
@@ -909,6 +917,9 @@
     var showAppreciationEntity = Settings.getValue("appreciate/showAppreciationEntity", true);
     var keyEventsWired = false;
     function enableOrDisableAppreciate() {
+        maybeClearHandPositionCheckInterval();
+        maybeClearHandVelocityCheckIntervalAndStopSound();
+
         if (appreciateEnabled) {
             maybeSetupHandPositionCheckInterval();
             
@@ -918,9 +929,6 @@
                 keyEventsWired = true;
             }
         } else {
-            maybeClearHandPositionCheckInterval();
-            maybeClearHandVelocityCheckIntervalAndStopSound();
-            maybeClearStopAppreciatingTimeout();
             stopAppreciating();
 
             if (keyEventsWired) {

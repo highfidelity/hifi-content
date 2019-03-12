@@ -6,6 +6,11 @@ Show someone else that you like what they're doing. Open the app to see usage in
 
 ## Releases
 
+### 2019-03-08_11-37-00 | Marketplace v1.4 | [93bf464](https://github.com/highfidelity/hifi-content/commit/93bf464)
+
+- Fixed an issue where a user could press the "Z" key to appreciate while the Appreciate UI was focused even if the Appreciate switch was turned off
+- Fixed an issue where Appreciation Intensity decayed too quickly after switching from HMD mode to Desktop mode
+
 ### 2019-02-22_10-49-00 | Marketplace v1.3 | [51704b5](https://github.com/highfidelity/hifi-content/commit/51704b5)
 
 - Optimize app

@@ -45,6 +45,10 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
+## v2.3 | 2019-03-11_11-16-00 | [commit 386f36f](https://github.com/highfidelity/hifi-content/commits/386f36f)
+
+- Bingo Boss App: Add a confirmation popup for buttons that start a new round
+
 ## v2.2.2 | 2019-02-25_17-16-00 | [commit 517c311](https://github.com/highfidelity/hifi-content/commits/517c311)
 
 - Force scripts to re-read config file more often.

@@ -14,14 +14,24 @@
                 BINGO Boss App
             </div>
         </div>
+
+        <div id="popupContainer" style="display:none;">
+            <div id="popupContentContainer">
+                <span>This action will start a new round.<br/><br/><strong>Are you sure</strong> you want to start a new round?</span>
+                <div id="popupButtonsContainer">
+                    <input type="button" class="gray" id="popupCancel" value="CANCEL">
+                    <input type="button" class="red" id="popupConfirm" value="CONFIRM">
+                </div>
+            </div>
+        </div>
         
         <div id="buttonsContainer">
             <input type="button" class="gray bingoButton" id="lightsOn" value="Lights On">
             <input type="button" class="gray bingoButton" id="openRegistration" value="Open Registration">
             <input type="button" class="gray bingoButton" id="closeRegistration" value="Close Registration">
             <input type="button" class="gray bingoButton" id="givePrizes" value="Give Prizes">
-            <input type="button" class="gray bingoButton" id="newRound" value="New Round">
-            <input type="button" class="gray bingoButton" id="lightsOut" value="Lights Out">
+            <input type="button" class="gray popupBingoButton" id="newRound" value="New Round">
+            <input type="button" class="gray popupBingoButton" id="lightsOut" value="Lights Out">
         </div>
 
         <div id="statusContainer">
