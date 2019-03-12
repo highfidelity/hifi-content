@@ -18,6 +18,7 @@
 var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
+var parseQueryString = require('querystring');
 
 // Creates a new table in the Bingo DB.
 var currentTableName;
@@ -40,7 +41,7 @@ function createNewTable(newTablePrefix, response) {
                 text: "Could not create new table! " + error
             };
     
-            response.statusCode = 200;
+            response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
@@ -124,7 +125,7 @@ function addNewPlayer(username, response) {
                 text: "Error adding new player!"
             };
 
-            response.statusCode = 200;
+            response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
@@ -178,7 +179,7 @@ function handleGetRequest(request, response) {
                         text: error
                     };
     
-                    response.statusCode = 200;
+                    response.statusCode = 500;
                     response.setHeader('Content-Type', 'application/json');
                     return response.end(JSON.stringify(responseObject));
                 }
@@ -212,7 +213,7 @@ function handleGetRequest(request, response) {
                 status: "error"
             };
 
-            response.statusCode = 200;
+            response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
@@ -227,6 +228,36 @@ function handleGetRequest(request, response) {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
         return response.end(JSON.stringify(responseObject));
+    } else if (type === "exportAllPlayersWinData") {
+        var responseHtml = `
+<html>
+    <head>
+        <title>Bingo</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <form action="/bingo" method="post">
+            Bingo Table Prefix:<br>
+            <input type="text" name="prefix"><br>
+
+            All Players Receive (HFC):<br>
+            <input type="text" name="allPlayersReceiveAmount"><br>
+
+            Password (use Bingo MySQL user's password):<br>
+            <input type="password" name="password"><br><br>
+
+            <input type="hidden" name="type" value="exportAllPlayersWinData">
+            
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>
+        `;
+    
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return response.end(responseHtml);
     } else {
         response.statusCode = 501;
         response.setHeader('Content-Type', 'text/plain');
@@ -277,7 +308,7 @@ function recordWinners(winnersArray, response) {
             text: "Tried to record prizes, but there's no `currentTableName`!"
         };
 
-        response.statusCode = 200;
+        response.statusCode = 500;
         response.setHeader('Content-Type', 'application/json');
         return response.end(JSON.stringify(responseObject));
     }
@@ -295,7 +326,7 @@ function recordWinners(winnersArray, response) {
                 winnersArray: winnersArray
             };
     
-            response.statusCode = 200;
+            response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
@@ -326,7 +357,7 @@ function replaceCalledNumbers(newCalledNumbers, response) {
                     text: "Error replacing called numbers! " + JSON.stringify(error)
                 };
     
-                response.statusCode = 200;
+                response.statusCode = 500;
                 response.setHeader('Content-Type', 'application/json');
                 return response.end(JSON.stringify(responseObject));
             }
@@ -348,16 +379,127 @@ function replaceCalledNumbers(newCalledNumbers, response) {
             text: "replaceCalledNumbers was called, but there was no currentTableName!"
         };
 
-        response.statusCode = 200;
+        response.statusCode = 500;
         response.setHeader('Content-Type', 'application/json');
         return response.end(JSON.stringify(responseObject));
     }
 }
 
+
+// Given some input data, formats the human-readable text data
+// in an arbitrary way as needed by the team.
+function formatDataForExport(tablePrefix, allWinnersReceive, data, response) {
+    var finalResponseText = `Requested Table Prefix: "${tablePrefix}"\n\n`;
+
+    for (var i = 0; i < data.length; i++) {
+        finalResponseText += "Bingo Round #" + (i + 1) + "\n";
+
+        var currentUsernameList = data[i];
+        var someoneWonAllPlayersWin = false;
+        var currentResponseText = "";
+        for (var j = 0; j < currentUsernameList.length; j++) {
+            currentResponseText += allWinnersReceive + ",";
+            currentResponseText += "Event Grant,";
+            currentResponseText += currentUsernameList[j].username;
+            currentResponseText += "\n";
+
+            if (String(currentUsernameList[j].prizeWon).toLowerCase().indexOf("all") > -1) {
+                someoneWonAllPlayersWin = true;
+            }
+        }
+
+        if (someoneWonAllPlayersWin) {
+            finalResponseText += "Amount of HFC,Type,Username\n";
+            finalResponseText += currentResponseText;
+        } else {
+            finalResponseText += "NOBODY WON 'All Players Win' in this round.";
+        }
+
+        finalResponseText += "\n\n\n";
+    }
+
+    response.statusCode = 200;
+    response.setHeader('Content-Type', 'text');
+    return response.end(finalResponseText);
+}
+
+// Handles data export request as per the user-submitted form.
+// Uses password-based authentication using the same password
+// as the db password.
+function handleDataExportRequest(formData, response) {
+    if (formData.password !== dbInfo.mySQLPassword) {
+        var responseObject = {
+            status: "error",
+            text: "Not authorized."
+        };
+    
+        response.statusCode = 401;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));    
+    }
+
+    var query = `SHOW TABLES LIKE '${formData.prefix}_%'`;
+    connection.query(query, function(error, results, fields) {
+        if (error) {
+            var responseObject = {
+                status: "error",
+                text: "Couldn't export player data! Error while showing tables with prefix: " + error
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        if (results.length === 0) {
+            var responseObject = {
+                status: "error",
+                text: "There are no tables with that prefix! Go back and make sure you've input a valid prefix."
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        var allResults = [];
+
+        for (var i = 0; i < results.length; i++) {
+            var currentTableName;
+            for (var key in results[i]) {
+                currentTableName = results[i][key];
+            }
+            
+            query = `SELECT username,prizeWon FROM \`${currentTableName}\` WHERE username != 'BINGO BOSS'`;
+            
+            connection.query(query, function(error, tableResults, fields) {
+                if (error) {
+                    var responseObject = {
+                        status: "error",
+                        text: "Couldn't export player data! Error while getting data from table: " + error
+                    };
+        
+                    response.statusCode = 500;
+                    response.setHeader('Content-Type', 'application/json');
+                    return response.end(JSON.stringify(responseObject));
+                }
+
+                allResults.push(tableResults);
+
+                if (allResults.length === results.length) {
+                    formatDataForExport(formData.prefix, formData.allPlayersReceiveAmount, allResults, response);
+                }
+            });
+        }
+    }); 
+}
+
+
 // Handles all POST requests made to the Bingo endpoint.
-// The one handled request type is:
+// The handled request types are:
 // "recordPrizes"
 // "replaceCalledNumbers"
+// "exportData"
 function handlePostRequest(request, response) {
     let body = '';
     request.on('data', chunk => {
@@ -367,14 +509,18 @@ function handlePostRequest(request, response) {
         try {
             body = JSON.parse(body);
         } catch (error) {
-            var responseObject = {
-                status: "error",
-                text: "Error handling POST request!"
-            };
-
-            response.statusCode = 200;
-            response.setHeader('Content-Type', 'application/json');
-            return response.end(JSON.stringify(responseObject));
+            try {
+                body = parseQueryString.parse(body);
+            } catch (error) {
+                var responseObject = {
+                    status: "error",
+                    text: "Error handling POST request!"
+                };
+    
+                response.statusCode = 500;
+                response.setHeader('Content-Type', 'application/json');
+                return response.end(JSON.stringify(responseObject));
+            }
         }
         
         if (body.type === "recordPrizes") {
@@ -384,7 +530,7 @@ function handlePostRequest(request, response) {
                     text: "No valid winners array provided!"
                 };
 
-                response.statusCode = 200;
+                response.statusCode = 500;
                 response.setHeader('Content-Type', 'application/json');
                 return response.end(JSON.stringify(responseObject));
             } else {
@@ -397,19 +543,21 @@ function handlePostRequest(request, response) {
                     text: "No valid calledNumbers array provided!"
                 };
 
-                response.statusCode = 200;
+                response.statusCode = 500;
                 response.setHeader('Content-Type', 'application/json');
                 return response.end(JSON.stringify(responseObject));
             } else {
                 replaceCalledNumbers(body.calledNumbers, response);
             }
-        }else {
+        } else if (body.type === "exportAllPlayersWinData") {
+            handleDataExportRequest(body, response);     
+        } else {
             var responseObject = {
                 status: "error",
                 text: "Invalid request type provided!"
             };
 
-            response.statusCode = 200;
+            response.statusCode = 501;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
