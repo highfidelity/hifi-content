@@ -1,5 +1,5 @@
 //
-//  multiConVoteApp_app.js
+//  multiConApp_app.js
 //
 //  Created by Robin Wilson and Zach Fox on 2019-03-11
 //  Copyright 2019 High Fidelity, Inc.
@@ -35,7 +35,8 @@
                     app: 'multiConVote',
                     method: "initializeUI",
                     // [{username: <participant username>, votedFor: <true || undefined>, imageURL: <path to image> }] 
-                    voteData: response.data 
+                    voteData: response.data,
+                    activeTabName: Settings.getValue("multiCon/activeTabName", "info")
                 });
             }
         });
@@ -71,7 +72,7 @@
     }
 
 
-    // Handle EventBridge Web Events from multiConVoteApp_ui.html
+    // Handle EventBridge Web Events from App UI JS
     function onWebEventReceived(event) {
         if (event.app === 'multiConVote') {
             switch (event.type) {
@@ -81,6 +82,10 @@
 
                 case "vote":
                     vote(event.data.usernameToVoteFor);
+                    break;
+
+                case "changeActiveTabName":
+                    Settings.setValue("multiCon/activeTabName", event.data);
                     break;
 
                 default:
@@ -93,7 +98,7 @@
     // Setup AppUI module
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('ui/multiConVoteApp_ui.html?0');
+    var appPage = Script.resolvePath('ui/multiConApp_ui.html?0');
     function startup() {
         ui = new AppUi({
             buttonName: "MULTICON",

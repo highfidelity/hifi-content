@@ -89,9 +89,15 @@ body {
     align-content: center;
     justify-content: center;
 }
-
 #confirmVoteContainer:hover {
     background-color: #2222EE;
+}
+
+#confirmVoteContainer.votedFor {
+    background-color: #CCCCFF;
+}
+#confirmVoteContainer.votedFor:hover {
+    background-color: #FFFFFF;
 }
 
 #confirmVoteIcon {
@@ -159,11 +165,9 @@ body {
     display: none;
 }
 
-#scheduleContainer {
-    background-image: url("../images/schedule.jpg");
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
+#infoContainer {
+    margin: 12px;
+    font-size: 20px;
 }
 
 #voteContainer {
@@ -226,4 +230,11 @@ body {
     line-height: 40px;
     padding: 0 4px;
     color: #000;
+}
+
+#scheduleContainer {
+    background-image: url("../images/schedule.jpg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
 }

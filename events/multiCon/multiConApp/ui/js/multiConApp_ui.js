@@ -1,5 +1,5 @@
 //
-//  multiConVoteApp_ui.js
+//  multiConApp_ui.js
 //
 //  Created by Robin Wilson and Zach Fox on 2019-03-11
 //  Copyright 2019 High Fidelity, Inc.
@@ -9,7 +9,7 @@
 
 /* globals document EventBridge setTimeout */
 
-// Emit an event specific to the `multiConVoteApp` over the EventBridge.
+// Emit an event specific to the `multiConApp` over the EventBridge.
 function emitMultiConVoteEvent(type, data) {
     var event = {
         app: 'multiConVote',
@@ -36,6 +36,24 @@ function selectTab(tabName) {
 
     var selectedContainer = document.getElementById(tabName + "Container");
     selectedContainer.classList.add("selected");
+
+    emitMultiConVoteEvent("changeActiveTabName", tabName);
+}
+
+function modifyVoteButton(username, votedFor) {
+    var confirmVoteText = document.getElementById("confirmVoteText");
+    var confirmVoteContainer = document.getElementById("confirmVoteContainer");
+
+    confirmVoteContainer.classList = "";
+
+    if (votedFor) {
+        confirmVoteText.innerHTML = `You voted for ${username}!`;
+        confirmVoteContainer.classList.add("votedFor");
+        confirmVoteContainer.onclick = function(){};
+    } else {
+        confirmVoteText.innerHTML = `Vote for ${username}`;
+        confirmVoteContainer.onclick = function() { confirmVote(); };
+    }
 }
 
 
@@ -47,13 +65,7 @@ function openVotingModal(element, username, fullImageURL) {
     var votingModalImage = document.getElementById("votingModalImage");
     votingModalImage.style.backgroundImage = `url('${fullImageURL}')`;
 
-    var confirmVoteText = document.getElementById("confirmVoteText");
-
-    if (element.classList.contains("voted")) {
-        confirmVoteText.innerHTML = `You voted for ${username}!`;
-    } else {
-        confirmVoteText.innerHTML = `Vote for ${username}`;
-    }
+    modifyVoteButton(username, element.classList.contains("voted"));
 }
 
 
@@ -94,9 +106,7 @@ function voteSuccess(usernameVotedFor) {
     var votingModalContainer = document.getElementById("votingModalContainer");
     var usernameToVoteFor = votingModalContainer.getAttribute("data-username");
 
-    var confirmVoteText = document.getElementById("confirmVoteText");
-    confirmVoteText.innerHTML = `You voted for ${usernameToVoteFor}!`;
-
+    modifyVoteButton(usernameToVoteFor, true);
 
     var voteContainer = document.getElementById("voteContainer");
     for (i = 0; i < voteContainer.children.length; i++) {
@@ -164,6 +174,7 @@ function onScriptEventReceived(scriptEvent) {
     switch (scriptEvent.method) {
         case "initializeUI":
             initializeUI(scriptEvent.voteData);
+            selectTab(scriptEvent.activeTabName);
             break;
 
         case "voteError":
@@ -175,7 +186,7 @@ function onScriptEventReceived(scriptEvent) {
             break;
 
         default:
-            console.log("Unknown message from multiConVoteApp_app.js: " + JSON.stringify(scriptEvent));
+            console.log("Unknown message from multiConApp_app.js: " + JSON.stringify(scriptEvent));
             break;
     }
 }

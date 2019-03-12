@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-        <link rel="stylesheet" href="css/multiConVoteApp_ui.css?2">
-        <script src="js/multiConVoteApp_ui.js"></script>
+        <link rel="stylesheet" href="css/multiConApp_ui.css?2">
+        <script src="js/multiConApp_ui.js"></script>
     </head>
     <body>
         <div id="loadingContainer">
@@ -17,7 +17,7 @@
                 </div>
                 <div id="votingModalImage">
                 </div>
-                <div id="confirmVoteContainer" onclick="confirmVote()">
+                <div id="confirmVoteContainer">
                     <div id="confirmVoteIcon">
                     </div>
                     <div id="confirmVoteText">
@@ -29,10 +29,10 @@
         </div>
 
         <div id="tabBarContainer">
-            <div id="infoTab"  onclick="selectTab('info')">
+            <div id="infoTab"  onclick="selectTab('info')" class="selected">
                 Info
             </div>
-            <div id="voteTab" onclick="selectTab('vote')" class="selected">
+            <div id="voteTab" onclick="selectTab('vote')">
                 Avatar Contest
             </div>
             <div id="scheduleTab" onclick="selectTab('schedule')">
@@ -40,11 +40,10 @@
             </div>
         </div>
         <div id="contentContainer">
-            <div id="infoContainer" >
-                SUP
+            <div id="infoContainer" class="selected">
+                Here, we'll put a bunch of copy that explains what MultiCon is and stuff like that.
             </div>
-            <div id="voteContainer" class="selected">
-
+            <div id="voteContainer">
             </div>
             <div id="scheduleContainer">
             </div>
