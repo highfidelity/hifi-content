@@ -11,6 +11,7 @@
     Helps manage the list of avatars added to the nametag list
 
 */
+var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
 var entityProps = Script.require('./defaultLocalEntityProps.js?' + Date.now());
@@ -280,7 +281,7 @@ function calculateInitialProperties(uuid, type) {
         scaledDimensions,
         type === "main" ? MAIN_SCALER : SUB_SCALER
     );
-
+    
     // Adjust the lineheight to be the new scaled dimensions Y 
     lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
 
@@ -296,6 +297,10 @@ function calculateInitialProperties(uuid, type) {
 var REDRAW_TIMEOUT = 100;
 var SUB_BACKGROUND = "#1A1A1A";
 var SUB_TEXTCOLOR = "#868481";
+var LEFT_MARGIN_SCALER = 0.15;
+var RIGHT_MARGIN_SCALER = 0.10;
+var TOP_MARGIN_SCALER = 0.07;
+var BOTTOM_MARGIN_SCALER = 0.01;
 function makeNameTag(uuid, shouldCreate, type) {
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -346,14 +351,20 @@ function makeNameTag(uuid, shouldCreate, type) {
 
     if (shouldCreate) {
         // Common values
-
         localEntity.add("text", name);
 
         // Multiply the new dimensions and line height with the user selected scaler
         scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
         lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
+        // Add some room for the margin by using lineHeight as a reference
+        scaledDimensions[X] += (lineHeight * LEFT_MARGIN_SCALER) + (lineHeight * RIGHT_MARGIN_SCALER);
+        scaledDimensions[Y] += (lineHeight * TOP_MARGIN_SCALER) + (lineHeight * BOTTOM_MARGIN_SCALER);
 
         localEntity
+            .add("leftMargin", lineHeight * LEFT_MARGIN_SCALER)
+            .add("rightMargin", lineHeight * RIGHT_MARGIN_SCALER)
+            .add("topMargin", lineHeight * TOP_MARGIN_SCALER)
+            .add("bottomMargin", lineHeight * BOTTOM_MARGIN_SCALER)
             .add("lineHeight", lineHeight)
             .add("dimensions", scaledDimensions)
             .add("parentID", parentID);
@@ -364,11 +375,9 @@ function makeNameTag(uuid, shouldCreate, type) {
         if (type === "main") {
             localEntity
                 .add("position", position);
-
         } else {
             // Get the localPosition offset
-            var localEntityMainDimensions = avatar.localEntityMain.get('dimensions');
-
+            var localEntityMainDimensions = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
             localPositionOffset = [
                 0,
                 getLocalPositionOffset(localEntityMainDimensions, scaledDimensions),
@@ -469,17 +478,25 @@ function reDraw(uuid, type) {
         (initialDimensions[Z] / initialDistance) * currentDistance
     ];
 
-    // If there is a userScaler, then make sure the new size reflects that
+    // Multiply the new dimensions and line height with the user selected scaler
     newDimensions = Vec3.multiply(newDimensions, userScaler);
     lineHeight = newDimensions[Y] * LINE_HEIGHT_SCALER;
 
+    // Add some room for the margin by using lineHeight as a reference
+    newDimensions[X] += (lineHeight * LEFT_MARGIN_SCALER) + (lineHeight * RIGHT_MARGIN_SCALER);
+    newDimensions[Y] += (lineHeight * TOP_MARGIN_SCALER) + (lineHeight * BOTTOM_MARGIN_SCALER);
+
     localEntity
+        .add("leftMargin", lineHeight * LEFT_MARGIN_SCALER)
+        .add("rightMargin", lineHeight * RIGHT_MARGIN_SCALER)
+        .add("topMargin", lineHeight * TOP_MARGIN_SCALER)
+        .add("bottomMargin", lineHeight * BOTTOM_MARGIN_SCALER)
         .add("lineHeight", lineHeight)
         .add("dimensions", newDimensions);
 
     if (type === "sub") {
         // Get the localPosition offset
-        var localEntityMainDimensions = avatar.localEntityMain.get('dimensions');
+        var localEntityMainDimensions = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
 
         localPositionOffset = [
             0,

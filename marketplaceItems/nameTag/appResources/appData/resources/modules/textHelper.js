@@ -42,7 +42,7 @@ var charMap = {
     t: 0.035,
     u: 0.051,
     v: 0.05,
-    w: 0.05,
+    w: 0.07,
     x: 0.05,
     y: 0.05,
     z: 0.05,
@@ -184,14 +184,19 @@ function getTotalTextLength(){
     // Map the string array to it's sizes
     var lengthArray = _this.textArray.map(function(letter){
         if (charMap[letter]){
+            console.log("1")
             return charMap[letter];
         } else if (letter.match(DIGIT_REGEX)){
+            console.log("1")
             return NUMBER;
         } else if (symbolMap[letter]) {
+            console.log("1")
             return symbolMap[letter];
         } else if (letter.match(WHITE_SPACE_REGEX)) {
+            console.log("1")
             return SPACE;
         } else {
+            console.log("1")
             return DEFAULT_CHAR_SIZE;
         }
     });
@@ -219,3 +224,8 @@ TextHelper.prototype = {
 };
 
 module.exports = TextHelper;
+
+// var text = new TextHelper();
+// text.setText("lowbar");
+// text.setLineHeight("0.1");
+// text.getTotalTextLength();
