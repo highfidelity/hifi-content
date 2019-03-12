@@ -24,6 +24,12 @@ function EntityMaker(type) {
 }
 
 
+// *************************************
+// START API
+// *************************************
+// #region API
+
+
 // Add properties to the cache / temporary storage
 function add(props){
     // You can either add an object of props or 2 arguments as key and value
@@ -130,6 +136,11 @@ function destroy(){
     return this;
 }
 
+
+// #endregion
+// *************************************
+// END API
+// *************************************
 
 EntityMaker.prototype = {
     add: add, 

@@ -13,6 +13,12 @@
 */
 
 
+// *************************************
+// START MAPS
+// *************************************
+// #region MAPS
+
+
 var charMap = {
     a: 0.05,
     b: 0.051, 
@@ -97,8 +103,13 @@ var symbolMap = {
     "=": 0.0510
 };
 
-var _this = null;
 
+// #endregion
+// *************************************
+// END MAPS
+// *************************************
+
+var _this = null;
 function TextHelper(){
     _this = this; 
 
@@ -108,6 +119,40 @@ function TextHelper(){
     this.totalTextLength = 0;
     this.scaler = 1.0;
 }
+
+
+// *************************************
+// START UTILITY
+// *************************************
+// #region UTILITY
+
+
+// Split the string into a text array to be operated on
+function createTextArray(){
+    _this.textArray = _this.text.split("");
+}
+
+
+// Account for the text length
+function adjustForScale(defaultTextLength){
+    _this.totalTextLength = defaultTextLength * _this.scaler;
+}
+
+
+// #endregion
+// *************************************
+// END UTILITY
+// *************************************
+
+// #endregion
+// *************************************
+// END name
+// *************************************
+
+// *************************************
+// START API
+// *************************************
+// #region API
 
 
 // Set the text that needs to be calculated on
@@ -127,14 +172,8 @@ function setLineHeight(newLineHeight){
 
     return _this;
 }
+
     
-
-// Split the string into a text array to be operated on
-function createTextArray(){
-    _this.textArray = _this.text.split("");
-}
-
-
 // Calculate the sign dimensions
 var DEFAULT_CHAR_SIZE = 0.025;
 var NUMBER = 0.05;
@@ -168,10 +207,10 @@ function getTotalTextLength(){
 }
 
 
-// Account for the text length
-function adjustForScale(defaultTextLength){
-    _this.totalTextLength = defaultTextLength * _this.scaler;
-}
+// #endregion
+// *************************************
+// END API
+// *************************************
 
 
 TextHelper.prototype = {

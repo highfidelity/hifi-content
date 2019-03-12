@@ -23,8 +23,6 @@ var HALF = 0.5;
 var SHOULD_QUERY_ENTITY = true;
 var CLEAR_ENTITY_EDIT_PROPS = true;
 
-
-var _this;
 // *************************************
 // START UTILTY
 // *************************************
@@ -81,19 +79,6 @@ function requestJSON(url, callback) {
     });
 }
 
-
-// #endregion
-// *************************************
-// END UTILTY
-// *************************************
-
-function nameTagListManager(){
-    _this = this;
-
-    _this.avatars = {};
-    _this.selectedAvatars = {};
-    _this.redrawTimeout = null;
-}
 
 
 // Add a user to the list.
@@ -382,7 +367,7 @@ function makeNameTag(uuid, shouldCreate, type) {
 
         } else {
             // Get the localPosition offset
-            var localEntityMainDimensions = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
+            var localEntityMainDimensions = avatar.localEntityMain.get('dimensions');
 
             localPositionOffset = [
                 0,
@@ -667,6 +652,21 @@ function toggleInterval(){
         _this.redrawTimeout = 
             Script.setInterval(checkAllSelectedForRedraw, INTERVAL_CHECK_MS);
     }
+}
+
+
+// #endregion
+// *************************************
+// END UTILTY
+// *************************************
+
+var _this = null;
+function nameTagListManager(){
+    _this = this;
+
+    _this.avatars = {};
+    _this.selectedAvatars = {};
+    _this.redrawTimeout = null;
 }
 
 

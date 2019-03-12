@@ -14,7 +14,6 @@
 
 
 var _this;
-
 function PickRayController(){
     _this = this;
 
@@ -29,115 +28,11 @@ function PickRayController(){
     _this.shouldDoublePress = null;
     _this.controllEnabled = false;
 }
-
-
-// After setup is given, this gets the Controller ready to be enabled
-function create(){
-    _this.mapping = Controller.newMapping(_this.mappingName);
-
-    _this.mapping.from(Controller.Standard.LTClick).to(function (value) {
-        if (value === 0) {
-            return;
-        }
-
-        getUUIDFromLaser(Controller.Standard.LeftHand);
-    });
-
-
-    _this.mapping.from(Controller.Standard.RTClick).to(function (value) {
-        if (value === 0) {
-            return;
-        }
-
-        getUUIDFromLaser(Controller.Standard.RightHand);
-    });
-
-    return _this;
-}
-
-
-// Handle if the uuid picked on is new or different
-function handleUUID(uuid){
-    if (!_this.lastPick && !_this.currentPick) {
-        _this.currentPick = uuid;
-        _this.lastPick = uuid;
-    } else {
-        _this.lastPick = _this.currentPick;
-        _this.currentPick = uuid;
-    }
-}
-
-
-// Set type of raypick for what kind of uuids to return
-function setType(type){
-    _this.rayType = type;
-
-    return _this;
-}
-
-
-// Set if double presses should register as well
-function setShouldDoublePress(shouldDoublePress){
-    _this.shouldDoublePress = shouldDoublePress;
-
-    return _this;
-}
-
-
-// Set the mapping name for the controller
-function setMapName(name) {
-    _this.mappingName = name;
-
-    return _this;
-}
-
-
-function pickRayTypeHandler(pickRay){
-    // Handle if pickray is system generated or user generated
-    if (arguments.length === 2) {
-        pickRay = { origin: arguments[0], direction: arguments[1] };
-    }
-
-    // Each different ray pick type needs a different findRayIntersection function
-    switch (_this.rayType) {
-        case 'avatar':
-            var avatarIntersection = AvatarList.findRayIntersection(pickRay, [], [MyAvatar.sessionUUID]);
-            _this.intersection = avatarIntersection;
-            handleUUID(avatarIntersection.avatarID);
-            break;
-        case 'local':
-            var overlayIntersection = Overlays.findRayIntersection(pickRay, [], []);
-            _this.intersection = overlayIntersection;
-            handleUUID(overlayIntersection.overlayID);
-            break;
-        case 'entity':
-            var entityIntersection = Entities.findRayIntersection(pickRay, [], []);
-            _this.intersection = entityIntersection;
-            handleUUID(entityIntersection.avatarID);
-            break;
-        default:
-            console.log("ray type not handled");
-    }
-}
-
-
-// Handle the interaction when in desktop and a mouse is pressed
-function mousePressHandler(event) {
-    if (HMD.active || !event.isLeftButton) {
-        return;
-    }
-    var pickRay = Camera.computePickRay(event.x, event.y);
-    pickRayTypeHandler(pickRay);
-    if (_this.currentPick) {
-        _this.eventHandler(_this.currentPick, _this.intersection);
-    }
-}
-
-
-// Function to call when double press is singled
-function doublePressHandler(event) {
-    mousePressHandler(event);
-}
+ 
+// *************************************
+// START UTILITY
+// *************************************
+// #region UTILITY
 
 
 // Returns the right UUID based on hand triggered
@@ -223,6 +118,126 @@ function getControllerWorldLocation(handController, doOffset) {
 }
 
 
+// Handle if the uuid picked on is new or different
+function handleUUID(uuid){
+    if (!_this.lastPick && !_this.currentPick) {
+        _this.currentPick = uuid;
+        _this.lastPick = uuid;
+    } else {
+        _this.lastPick = _this.currentPick;
+        _this.currentPick = uuid;
+    }
+}
+
+
+function pickRayTypeHandler(pickRay){
+    // Handle if pickray is system generated or user generated
+    if (arguments.length === 2) {
+        pickRay = { origin: arguments[0], direction: arguments[1] };
+    }
+
+    // Each different ray pick type needs a different findRayIntersection function
+    switch (_this.rayType) {
+        case 'avatar':
+            var avatarIntersection = AvatarList.findRayIntersection(pickRay, [], [MyAvatar.sessionUUID]);
+            _this.intersection = avatarIntersection;
+            handleUUID(avatarIntersection.avatarID);
+            break;
+        case 'local':
+            var overlayIntersection = Overlays.findRayIntersection(pickRay, [], []);
+            _this.intersection = overlayIntersection;
+            handleUUID(overlayIntersection.overlayID);
+            break;
+        case 'entity':
+            var entityIntersection = Entities.findRayIntersection(pickRay, [], []);
+            _this.intersection = entityIntersection;
+            handleUUID(entityIntersection.avatarID);
+            break;
+        default:
+            console.log("ray type not handled");
+    }
+}
+
+
+// Handle the interaction when in desktop and a mouse is pressed
+function mousePressHandler(event) {
+    if (HMD.active || !event.isLeftButton) {
+        return;
+    }
+    var pickRay = Camera.computePickRay(event.x, event.y);
+    pickRayTypeHandler(pickRay);
+    if (_this.currentPick) {
+        _this.eventHandler(_this.currentPick, _this.intersection);
+    }
+}
+
+
+// Function to call when double press is singled
+function doublePressHandler(event) {
+    mousePressHandler(event);
+}
+
+
+// #endregion
+// *************************************
+// END UTILITY
+// *************************************
+
+// *************************************
+// START API
+// *************************************
+// #region API
+
+
+// After setup is given, this gets the Controller ready to be enabled
+function create(){
+    _this.mapping = Controller.newMapping(_this.mappingName);
+
+    _this.mapping.from(Controller.Standard.LTClick).to(function (value) {
+        if (value === 0) {
+            return;
+        }
+
+        getUUIDFromLaser(Controller.Standard.LeftHand);
+    });
+
+
+    _this.mapping.from(Controller.Standard.RTClick).to(function (value) {
+        if (value === 0) {
+            return;
+        }
+
+        getUUIDFromLaser(Controller.Standard.RightHand);
+    });
+
+    return _this;
+}
+
+
+// Set type of raypick for what kind of uuids to return
+function setType(type){
+    _this.rayType = type;
+
+    return _this;
+}
+
+
+// Set if double presses should register as well
+function setShouldDoublePress(shouldDoublePress){
+    _this.shouldDoublePress = shouldDoublePress;
+
+    return _this;
+}
+
+
+// Set the mapping name for the controller
+function setMapName(name) {
+    _this.mappingName = name;
+
+    return _this;
+}
+
+
 // Enables mouse press and trigger events  
 function enable(){
     if (!_this.controllEnabled) {
@@ -269,6 +284,11 @@ function registerEventHandler(fn){
     return _this;
 }
 
+
+// #endregion
+// *************************************
+// END API
+// *************************************
 
 PickRayController.prototype = {
     create: create,
