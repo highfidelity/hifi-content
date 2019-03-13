@@ -145,7 +145,7 @@ function startServer() {
     });
     
     const HOSTNAME = 'localhost';
-    const PORT = 3002;
+    const PORT = 3003;
     server.listen(PORT, HOSTNAME, () => {
         console.log(`MultiCon Vote App Server running at http://${HOSTNAME}:${PORT}/`);
     });

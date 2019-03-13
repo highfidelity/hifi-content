@@ -224,20 +224,9 @@ ul {
     justify-content: center;
     align-items: flex-start;
     align-content: flex-start;
-    padding: 10px 0;
+    justify-content: space-evenly;
+    padding: 18px 12px 18px 6px;
     background-color: #FFF !important;
-}
-
-#votedOverlay {
-    position: relative;
-    top: -100px; /* Same height as .participantContainer */
-    left: 0;
-    width: 100%;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 4px 4px #ff66ff;
 }
 
 .participantContainer {
@@ -250,7 +239,9 @@ ul {
 }
 
 .participantContainer:hover {
-    box-shadow: 0 0 2px 2px #ffb3ff;
+    outline-style: solid;
+    outline-color:#ffb3ff;
+    outline-width: 3px;
 }
 
 .participantImage {
@@ -260,3 +251,9 @@ ul {
     background-repeat: no-repeat;
     background-size: cover;
 } 
+
+.voted {
+    outline-style: solid;
+    outline-color:#ff66ff;
+    outline-width: 4px;
+}

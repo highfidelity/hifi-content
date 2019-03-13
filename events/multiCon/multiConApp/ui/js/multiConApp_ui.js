@@ -113,11 +113,6 @@ function voteSuccess(usernameVotedFor) {
 
         if (currentChild.getAttribute("data-username") === usernameVotedFor) {
             currentChild.classList.add("voted");
-
-            // Remove the "voted overlay" div from the DOM
-            var votedOverlay = document.getElementById("votedOverlay");
-            votedOverlay.parentNode.removeChild(votedOverlay);
-            currentChild.appendChild(votedOverlay);
         }
     }
 }
@@ -169,7 +164,6 @@ function initializeUI(myUsername, voteData) {
         var extraDiv = "";
         if (voteData[i].votedFor) {
             currentClassList += " voted";
-            extraDiv = "<div id='votedOverlay'></div>"
         }
         currentParticipantHTML = `
 <div data-username="${voteData[i].username}" class="${currentClassList}" onclick="openVotingModal(this, '${voteData[i].username}', '${currentFullImageURL}')">

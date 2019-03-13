@@ -14,7 +14,7 @@
     // 1. Get vote app data from the server
     // 2. Send a message to the App's UI to add that data to the UI.
     var request = Script.require('request').request;
-    var REQUEST_URL = "http://localhost:3002";
+    var REQUEST_URL = "https://highfidelity.co/multiConVote";
     function initializeUI() {
         // get information from the backend
         var myUsername = AccountServices.username;
