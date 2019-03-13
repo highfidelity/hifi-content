@@ -47,11 +47,11 @@ function modifyVoteButton(username, votedFor) {
     confirmVoteContainer.classList = "";
 
     if (votedFor) {
-        confirmVoteText.innerHTML = `You voted for ${username}!`;
+        confirmVoteText.innerHTML = `You voted for <span style="font-weight:700;">${username}</span>!`;
         confirmVoteContainer.classList.add("votedFor");
         confirmVoteContainer.onclick = function(){};
     } else {
-        confirmVoteText.innerHTML = `Vote for ${username}`;
+        confirmVoteText.innerHTML = `Vote for <span style="font-weight:700;">${username}</span>`;
         confirmVoteContainer.onclick = function() { confirmVote(); };
     }
 }

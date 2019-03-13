@@ -5,17 +5,13 @@
 }
 
 ::-webkit-scrollbar {
-    width: 10px;
-}
- 
-::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    border-radius: 10px;
+    width: 14px;
+    background: transparent;
 }
  
 ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.8); 
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.6) !important;
 }
 
 html {
@@ -26,11 +22,32 @@ html {
 
 body {
     font-family: 'Raleway', sans-serif;
-    color: #cccbcb;
-    background-color: #2b2b2b;
+    color: #FFF;
+    background-color: #49A4DF;
     overflow: hidden;
     margin: 0;
-    padding: 0;
+}
+
+h1 {
+    color: #ff66ff;
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: normal;
+    margin: 0;
+}
+
+ul {
+    margin: 0;
+}
+
+#appContainer {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    padding: 8px;
 }
 
 #loadingContainer {
@@ -91,7 +108,7 @@ body {
 }
 
 #confirmVoteContainer {
-    background-color: #000088;
+    background-color: #ff66ff;
     height: 120px;
     width: 100%;
     position: absolute;
@@ -104,14 +121,11 @@ body {
     justify-content: center;
 }
 #confirmVoteContainer:hover {
-    background-color: #2222EE;
+    background-color: #F4B8FB;
 }
 
 #confirmVoteContainer.votedFor {
-    background-color: #CCCCFF;
-}
-#confirmVoteContainer.votedFor:hover {
-    background-color: #FFFFFF;
+    background-color: #6fdb5d;
 }
 
 #confirmVoteIcon {
@@ -126,10 +140,10 @@ body {
 }
 
 #confirmVoteText {
-    color: #000000;
+    color: #FFF;
     width: auto;
     text-align: center;
-    font-weight: bold;
+    font-weight: 500;
     font-size: 28px;
     padding: 0 10px;
     overflow-wrap: break-word;
@@ -147,12 +161,13 @@ body {
     align-items: center;
     height: 60px;
     font-size: 24px;
-    background-color: #121212;
+    background-color: #49A4DF;
     color: #ffffff;
     justify-content: space-evenly;
 }
 
 #tabBarContainer > div {
+    background-color: #49A4DF;
     cursor: pointer;
     height: 60px;
     line-height: 60px;
@@ -163,17 +178,20 @@ body {
 }
 
 #tabBarContainer > div:hover {
-    background: #333;
+    background-color: #5fafe3;
 }
 
 #tabBarContainer > div.selected {
-    background: #2b2b2b;
+    background-color: #FFF;
+    color: #ff66ff;
 }
 
 #contentContainer > div {
-    height: calc(100vh - 60px);
+    height: calc(100vh - 60px - 16px);
     width: 100%;
     overflow-y: overlay;
+    background-color: #FFF;
+    color: #000;
 }
 
 #contentContainer > div:not(.selected) {
@@ -182,7 +200,7 @@ body {
 
 #infoCopy {
     padding: 12px;
-    font-size: 20px;
+    font-size: 18px;
 }
 
 #headerImage {
@@ -200,20 +218,22 @@ body {
     align-items: flex-start;
     align-content: flex-start;
     padding: 10px 0;
+    background-color: #49A4DF !important;
 }
 
 .participantContainer {
     width: 150px;
     height: 190px;
     margin: 2px;
-    background: #fff;
+    background-color: #fff;
+    color: #000;
     cursor: pointer;
 }
 
 .participantContainer:hover {
     outline-style: solid;
     outline-width: 3px;
-    outline-color: #00FF00;
+    outline-color: #ff66ff;
 }
 
 #votedOverlay {
@@ -222,7 +242,7 @@ body {
     left: 0;
     width: 100%;
     height: 190px;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(44, 86, 36, 0.6);
     background-repeat: no-repeat;
     display: flex;
     align-items: center;
@@ -252,7 +272,6 @@ body {
     height: 40px; /* centers text vertically if line height and height are the same */
     line-height: 40px;
     padding: 0 4px;
-    color: #000;
 }
 
 #scheduleContainer {
@@ -260,4 +279,5 @@ body {
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
+    background-color: #49A4DF !important;
 }
