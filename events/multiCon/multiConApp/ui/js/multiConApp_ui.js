@@ -122,15 +122,47 @@ function voteSuccess(usernameVotedFor) {
 }
 
 
-function initializeUI(voteData) {
+function hashCode(inputString) {
+    var hash = 0;
+    for (var i = 0; i < inputString.length; i++) {
+        var character = inputString.charCodeAt(i);
+        hash = ((hash<<5)-hash)+character;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
+}
+
+
+var seed = 1;
+function randomNumberSeeded() {
+    var x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+}
+
+
+function shuffleArray(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(randomNumberSeeded() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
+}
+
+
+function initializeUI(myUsername, voteData) {
+    seed = hashCode(myUsername);
+    voteData = shuffleArray(voteData);
+
     document.getElementById("loadingContainer").style.display = "none";
 
     var voteContainer = document.getElementById("voteContainer");
     var currentParticipantHTML;
     var currentFullImageURL;
     for (var i = 0; i < voteData.length; i++) {
-        currentFullImageURL = voteData[i].imageURL;
-        currentFullImageURL.replace("-thumbnail", "");
+        currentFullImageURL = "https://highfidelity.co/events/multiCon/images/" + voteData[i].username + ".jpg";
 
         var currentClassList = "participantContainer";
         var extraDiv = "";
@@ -140,7 +172,7 @@ function initializeUI(voteData) {
         }
         currentParticipantHTML = `
 <div data-username="${voteData[i].username}" class="${currentClassList}" onclick="openVotingModal(this, '${voteData[i].username}', '${currentFullImageURL}')">
-    <div class="participantImage" style="background-image: url('${voteData[i].imageURL}')">
+    <div class="participantImage" style="background-image: url('${currentFullImageURL}')">
     </div>
     <div class="participantName">
         ${voteData[i].username}
@@ -170,7 +202,7 @@ function onScriptEventReceived(scriptEvent) {
     
     switch (scriptEvent.method) {
         case "initializeUI":
-            initializeUI(scriptEvent.voteData);
+            initializeUI(scriptEvent.myUsername, scriptEvent.voteData);
             selectTab(scriptEvent.activeTabName);
             break;
 

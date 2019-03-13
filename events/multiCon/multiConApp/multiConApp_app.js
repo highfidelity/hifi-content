@@ -35,6 +35,7 @@
                     app: 'multiConVote',
                     method: "initializeUI",
                     // [{username: <participant username>, votedFor: <true || undefined>, imageURL: <path to image> }] 
+                    myUsername: myUsername,
                     voteData: response.data,
                     activeTabName: Settings.getValue("multiCon/activeTabName", "info")
                 });
@@ -93,18 +94,38 @@
             }
         }
     }
+
+    var UNLOAD_TIMESTAMP = Script.require(Script.resolvePath("../config/config.json?" + Date.now())).unloadTimestampUTC;
+    function checkIfShouldUnload() {
+        var now = new Date();
+
+        if (now > UNLOAD_TIMESTAMP) {
+            var scriptList = ScriptDiscoveryService.getRunning();
+            scriptList.forEach(function (scriptInfo) {
+                if (APP_NAME.toLowerCase.indexOf(scriptInfo.name.toLowerCase()) > -1) {
+                    ScriptDiscoveryService.stopScript(scriptInfo.url);
+                    return true;
+                }
+            });
+        }
+        return false;
+    }
     
 
     // Setup AppUI module
     var ui;
     var AppUi = Script.require('appUi');
     var appPage = Script.resolvePath('ui/multiConApp_ui.html?0');
+    var APP_NAME = "MULTICON";
     function startup() {
+        checkIfShouldUnload();
+
         ui = new AppUi({
-            buttonName: "MULTICON",
+            buttonName: APP_NAME,
             home: appPage,
             graphicsDirectory: Script.resolvePath("assets/icons/"),
-            onMessage: onWebEventReceived
+            onMessage: onWebEventReceived,
+            onOpened: checkIfShouldUnload
         });
     }
 
