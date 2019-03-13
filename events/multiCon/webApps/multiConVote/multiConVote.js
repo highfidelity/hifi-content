@@ -102,10 +102,46 @@ function vote(votedUsername, votedFor, response) {
 }
 
 
+function getLeaderboard(response) {
+    var query = `SELECT votedFor, COUNT(*) FROM multiConAvatarContestVotes
+        WHERE votedTimestamp < TIMESTAMP('2019-03-16', '22:00:00') GROUP BY votedFor ORDER BY COUNT(*) DESC`;
+
+    connection.query(query, function(error, results, fields) {
+        if (error) {
+            var responseObject = {
+                status: "error",
+                text: "Error while retrieving leaderboard! " + JSON.stringify(error)
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        var responseHTML = "<table><tr><th>Avatar Name</th><th># of Votes</th></tr>";
+        for (var i = 0; i < results.length; i++) {
+            responseHTML += `
+<tr>
+    <td>${results[i].votedFor}</td>
+    <td>${results[i]["COUNT(*)"]}</td>
+</tr>
+            `;
+        }
+        
+        responseHTML += "</table>";
+
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'text/html');
+        return response.end(responseHTML);
+    });
+}
+
+
 // Handles any GET requests made to the server endpoint
 // The handled method types are:
 // "getParticipants"
 // "vote"
+// "getLeaderboard"
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
     var type = queryParamObject.type;
@@ -121,6 +157,11 @@ function handleGetRequest(request, response) {
             var voterUsername = queryParamObject.voterUsername;
             var votedFor = queryParamObject.votedFor;
             vote(voterUsername, votedFor, response);
+        break;
+
+
+        case "getLeaderboard":
+            getLeaderboard(response);
         break;
 
 
