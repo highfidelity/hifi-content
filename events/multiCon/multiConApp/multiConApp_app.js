@@ -95,7 +95,7 @@
         }
     }
 
-    
+
     var UNLOAD_TIMESTAMP = Script.require(Script.resolvePath("../config/config.json?" + Date.now())).unloadTimestampUTC;
     function checkIfShouldUnload() {
         var now = new Date();
@@ -117,7 +117,7 @@
     var ui;
     var AppUi = Script.require('appUi');
     var appPage = Script.resolvePath('ui/multiConApp_ui.html?0');
-    var APP_NAME = "MULTICON";
+    var APP_NAME = "VOTE";
     function startup() {
         checkIfShouldUnload();
 
