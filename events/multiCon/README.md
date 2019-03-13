@@ -37,6 +37,6 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v1.0 | 2019-03-13_15-11-00 | [commit dc798e2](https://github.com/highfidelity/hifi-content/commits/dc798e2)
+## v1.0 | 2019-03-13_15-11-00 | [commit 32bba8e](https://github.com/highfidelity/hifi-content/commits/32bba8e)
 
 - Initial Release.
