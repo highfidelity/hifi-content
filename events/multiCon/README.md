@@ -5,6 +5,7 @@ It's a festival in VR!
 
 The code for this content is open source. You must set up some configuration files for this content to work:
 1. A `dbInfo.json` file in `<multiCon root>/webApps/multiConVote/dbInfo.json` that contains the data below.
+2. A `config.json` file in `<multiCon root>/config/config.json` that contains the data below.
 
 ### `dbInfo.json`
 Here's what your `dbInfo.json` file should look like:
@@ -14,6 +15,14 @@ Here's what your `dbInfo.json` file should look like:
     "mySQLUsername": "<MySQL DB username>",
     "mySQLPassword": "<MySQL DB password>",
     "databaseName": "<the name of the database associated with the Multi-Con Vote app>"
+}
+```
+
+### `config.json`
+Here's what your `config.json` file should look like:
+```
+{
+    "unloadTimestampUTC": "<The UTC timestamp of the time after which the app should automatically unload>"
 }
 ```
 
@@ -28,6 +37,6 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v1.0 | 2019-xx-xx_xx-xx-xx | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+## v1.0 | 2019-03-13_15-11-00 | [commit 5ff322c](https://github.com/highfidelity/hifi-content/commits/5ff322c)
 
 - Initial Release.
