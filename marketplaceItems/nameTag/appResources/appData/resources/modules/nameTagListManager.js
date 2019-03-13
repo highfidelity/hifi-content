@@ -21,7 +21,6 @@ var Z = 2;
 var HALF = 0.5;
 var SHOULD_QUERY_ENTITY = true;
 var CLEAR_ENTITY_EDIT_PROPS = true;
-var LIFETIME_ADD = 10;
 
 // *************************************
 // START UTILTY
@@ -33,11 +32,6 @@ var LIFETIME_ADD = 10;
 function NewAvatarProps(intersection) {
     return {
         avatarInfo: null,
-        created: null,
-        localEntityMain: new LocalEntity('local')
-            .add(entityProps),
-        localEntitySub: new LocalEntity('local')
-            .add(entityProps),
         intersection: intersection.intersection,
         previousDistance: null,
         currentDistance: null,
@@ -87,13 +81,14 @@ function add(uuid, intersection){
         _this.avatars[uuid] = new NewAvatarProps(intersection); 
         getAvatarData(uuid);
         getUN(uuid);
+    } else {
+        getAvatarData(uuid);
     }
 
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
-    // Save the created time to check if it needs to be deleted
-    avatar.created = Date.now();
+    // Save the intersection point
     avatar.intersection = intersection.intersection;
 
     // Save the intersection position local to the avatar in case we need it again
@@ -102,8 +97,10 @@ function add(uuid, intersection){
     // Add this avatar to the selected list
     _this.selectedAvatars[uuid] = true;
 
-    // When the user clicks someone, we are either creating or showing a hidden nameTag
-    shouldShowOrCreate(uuid); 
+    avatar.localEntityMain = new LocalEntity('local').add(entityProps);
+    avatar.localEntitySub = new LocalEntity('local').add(entityProps);
+    // When the user clicks someone, we create their nametag
+    makeNameTag(uuid, "main");
 
     // Check to see if anyone is in the selected list now to see if we need to start the interval checking
     shouldToggleInterval();
@@ -114,9 +111,13 @@ function add(uuid, intersection){
 
 // Remove the avatar from the list.
 function remove(uuid){
-    shouldDestoryOrHide(uuid);
+    if (_this.selectedAvatars[uuid]){
+        delete _this.selectedAvatars[uuid];
+    }
 
-    delete _this.selectedAvatars[uuid];
+    delete _this.avatars[uuid];
+    removeLocalEntity(uuid);
+
     shouldToggleInterval();
     
     return _this;
@@ -135,14 +136,12 @@ function removeAllLocalEntities(){
 
 
 // Remove a single LocalEntity.
-function removeLocalEntity(uuid, shouldDestory){
+function removeLocalEntity(uuid){
     var avatar = _this.avatars[uuid];
 
-    var type = shouldDestory ? 'destroy' : 'hide';
-
-    avatar.localEntityMain[type]();
+    avatar.localEntityMain.destroy();
     if (avatar.localEntitySub) {
-        avatar.localEntitySub[type]();
+        avatar.localEntityMain.destroy();
     }
 
     return _this;
@@ -161,7 +160,7 @@ function handleUserName(uuid, username) {
 
 
         avatarInfo.username = username.trim();
-        makeNameTag(uuid, CREATE, "sub");
+        makeNameTag(uuid, "sub");
         // Check to see if they are also a friend
         getInfoAboutUser(uuid);
     }
@@ -191,7 +190,7 @@ function handleFriend(uuid, username) {
             .edit("backgroundColor", FRIEND_SUB_BACKGROUND);
     } else {
         // You aren't an admin so this is the first time we are making a sub nametag
-        makeNameTag(uuid, CREATE, "sub");
+        makeNameTag(uuid, "sub");
 
         localEntitySub
             .edit("backgroundColor", FRIEND_SUB_BACKGROUND);
@@ -208,23 +207,6 @@ function getLocalPositionOffset(main, sub){
 }
 
 
-// Check to see if the time since created for the name tag needs to be deleted.
-function maybeDelete(uuid){
-    var avatar = _this.avatars[uuid];
-
-    var createdTime = avatar.created;
-    var currentTime = Date.now();
-    var timeSinceCreated = currentTime - createdTime;
-
-    
-    if (timeSinceCreated > DELETE_TIMEOUT_MS) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-
 // Makes sure clear interval exists before changing.
 function maybeClearInterval(){
     if (_this.redrawTimeout) {
@@ -238,7 +220,7 @@ function maybeClearInterval(){
 var Z_SIZE = 0.01;
 var MAIN_SCALER = 0.75;
 var SUB_SCALER = 0.55;
-var LINE_HEIGHT_SCALER = 0.99;
+var LINE_HEIGHT_SCALER = 0.20;
 var DISTANCE_SCALER = 0.35; // Empirical value
 var userScaler = 1.0;
 var DEFAULT_LINE_HEIGHT = entityProps.lineHeight;
@@ -305,7 +287,7 @@ var LEFT_MARGIN_SCALER = 0.15;
 var RIGHT_MARGIN_SCALER = 0.10;
 var TOP_MARGIN_SCALER = 0.07;
 var BOTTOM_MARGIN_SCALER = 0.03;
-function makeNameTag(uuid, shouldCreate, type) {
+function makeNameTag(uuid, type) {
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
@@ -352,68 +334,49 @@ function makeNameTag(uuid, shouldCreate, type) {
         name = avatarInfo.username;
         parentID = localEntityMain.id;
     }
+    console.log("NAME", name);
+    // Common values
+    localEntity.add("text", name);
 
-    if (shouldCreate) {
-        // Common values
-        localEntity.add("text", name);
+    // Multiply the new dimensions and line height with the user selected scaler
+    scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
+    lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
+    // Add some room for the margin by using lineHeight as a reference
+    scaledDimensions[X] += (lineHeight * LEFT_MARGIN_SCALER) + (lineHeight * RIGHT_MARGIN_SCALER);
+    scaledDimensions[Y] += (lineHeight * TOP_MARGIN_SCALER) + (lineHeight * BOTTOM_MARGIN_SCALER);
 
-        // Multiply the new dimensions and line height with the user selected scaler
-        scaledDimensions = Vec3.multiply(scaledDimensions, userScaler);
-        lineHeight = scaledDimensions[Y] * LINE_HEIGHT_SCALER;
-        // Add some room for the margin by using lineHeight as a reference
-        scaledDimensions[X] += (lineHeight * LEFT_MARGIN_SCALER) + (lineHeight * RIGHT_MARGIN_SCALER);
-        scaledDimensions[Y] += (lineHeight * TOP_MARGIN_SCALER) + (lineHeight * BOTTOM_MARGIN_SCALER);
+    localEntity
+        .add("leftMargin", lineHeight * LEFT_MARGIN_SCALER)
+        .add("rightMargin", lineHeight * RIGHT_MARGIN_SCALER)
+        .add("topMargin", lineHeight * TOP_MARGIN_SCALER)
+        .add("bottomMargin", lineHeight * BOTTOM_MARGIN_SCALER)
+        .add("lineHeight", lineHeight)
+        .add("dimensions", scaledDimensions)
+        .add("parentID", parentID);
 
+
+    // Final values specific to each type
+
+    if (type === "main") {
         localEntity
-            .add("leftMargin", lineHeight * LEFT_MARGIN_SCALER)
-            .add("rightMargin", lineHeight * RIGHT_MARGIN_SCALER)
-            .add("topMargin", lineHeight * TOP_MARGIN_SCALER)
-            .add("bottomMargin", lineHeight * BOTTOM_MARGIN_SCALER)
-            .add("lineHeight", lineHeight)
-            .add("dimensions", scaledDimensions)
-            .add("parentID", parentID);
-
-
-        // Final values specific to each type
-
-        if (type === "main") {
-            localEntity
-                .add("position", position);
-        } else {
-            // Get the localPosition offset
-            var localEntityMainDimensions = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
-            localPositionOffset = [
-                0,
-                getLocalPositionOffset(localEntityMainDimensions, scaledDimensions),
-                0
-            ];
-
-            localEntity
-                .add("localPosition", localPositionOffset)
-                .add("backgroundColor", SUB_BACKGROUND)
-                .add("textColor", SUB_TEXTCOLOR);
-        }
-
-        localEntity
-            .create(CLEAR_ENTITY_EDIT_PROPS);
-
+            .add("position", position);
     } else {
-        // Handle if we are just showing again
+        // Get the localPosition offset
+        var localEntityMainDimensions = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
+        localPositionOffset = [
+            0,
+            getLocalPositionOffset(localEntityMainDimensions, scaledDimensions),
+            0
+        ];
 
-        if (type === "main") {
-            // Get the position which is calculated from the initial local nametag position translated to new worldspace
-            // Get all the latest info need to redraw
-            localEntityMain.edit("position", position);
-            getAvatarData(uuid);
-            getDistance(uuid);
-        }
-
-        // Redraw the nametag and give a little time to show it
-        reDraw(uuid, type);
-        Script.setTimeout(function () {
-            localEntity.show();
-        }, REDRAW_TIMEOUT);
+        localEntity
+            .add("localPosition", localPositionOffset)
+            .add("backgroundColor", SUB_BACKGROUND)
+            .add("textColor", SUB_TEXTCOLOR);
     }
+
+    localEntity
+        .create(CLEAR_ENTITY_EDIT_PROPS);
 }
 
 
@@ -424,12 +387,6 @@ function maybeRedraw(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
     getAvatarData(uuid);
-    
-    if (maybeDelete(uuid)) {
-        remove(uuid);
-
-        return;
-    }
 
     getDistance(uuid);
     var distanceDelta = Math.abs(avatar.currentDistance - avatar.previousDistance);
@@ -520,10 +477,6 @@ function reDraw(uuid, type) {
 // Go through the selected avatar list and see if any of the avatars need a redraw.
 function checkAllSelectedForRedraw(){
     for (var avatar in _this.selectedAvatars) {
-        if (AvatarManager.getAvatar(avatar)) {
-
-        }
-
         maybeRedraw(avatar);
     }
 }
@@ -543,8 +496,8 @@ function updateName(uuid) {
     var localOffset = avatar.localPositionOfIntersection;
     avatar.intersection = localToWorld(localOffset, avatarInfo.position, avatarInfo.orientation);
 
-    makeNameTag(uuid, CREATE, "main");
-    makeNameTag(uuid, CREATE, "sub");
+    makeNameTag(uuid, "main");
+    makeNameTag(uuid, "sub");
 }
 
 
@@ -612,48 +565,6 @@ function getInfoAboutUser(uuid) {
 }
 
 
-// Handle whether this is a new nametag or old one made visible again.
-var CREATE = true;
-var SHOW = false;
-function shouldShowOrCreate(uuid){
-    var avatar = _this.avatars[uuid];
-    var avatarInfo = avatar.avatarInfo;
-
-    var localEntityMainID = avatar.localEntityMain.id;
-    var localEntitySubID = avatar.localEntitySub.id;
-
-    // If we have the display name entity, then we show it, if not then we create it.
-    if (localEntityMainID) {
-        makeNameTag(uuid, SHOW, "main");
-    } else {
-        makeNameTag(uuid, CREATE, "main");
-    }
-
-    // If we have both the display and username entity, then we show it.  If we have the mainID and also a username in the avatar info, then we create it.
-    if (localEntityMainID && localEntitySubID) {
-        makeNameTag(uuid, SHOW, "sub");
-    } else if (localEntityMainID && avatarInfo.username) {
-        makeNameTag(uuid, CREATE, "sub");
-    } else if (localEntityMainID && !avatarInfo.username && Users.canKick) {
-        console.log("retrying user name")
-        Users.requestUsernameFromID(uuid);
-    }
-}
-
-
-// Handle if we are destroying the nametag or if we need to make a new one.
-var DESTROY = true;
-var HIDE = false;
-function shouldDestoryOrHide(uuid){
-    var avatar = _this.avatars[uuid];
-    if (avatar) {
-        removeLocalEntity(uuid, HIDE);
-    } else {
-        removeLocalEntity(uuid, DESTROY);
-    }
-}
-
-
 // Check to see if we need to toggle our interval check because we went to 0 avatars 
 // or if we got our first avatar in the select list.
 function shouldToggleInterval(){
@@ -680,23 +591,6 @@ function toggleInterval(){
         _this.redrawTimeout = 
             Script.setInterval(checkAllSelectedForRedraw, INTERVAL_CHECK_MS);
     }
-}
-
-
-function returnCurrentListOfEntities(){
-    var entities = [];
-    for (var uuid in _this.avatars) {
-        var avatar = _this.avatars[uuid];
-        if (avatar.localEntityMain.id) {
-            entities.push(avatar.localEntityMain.id);
-        }
-
-        if (avatar.localEntitySub.id) {
-            entities.push(avatar.localEntitySub.id);
-        }
-    }
-
-    return entities;
 }
 
 
@@ -740,7 +634,7 @@ function destroy() {
 // Handles what happens when an avatar gets triggered on.
 function handleSelect(uuid, intersection) {
     if (uuid in _this.selectedAvatars) {
-        remove(uuid);
+        removeLocalEntity(uuid);
     } else {
         add(uuid, intersection);
     }

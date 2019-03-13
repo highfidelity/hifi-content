@@ -21,8 +21,8 @@ var localEntityProps = {
     textAlpha: 1.0,
     backgroundColor: "#2D2D2D",
     backgroundAlpha: 1,
-    billboardMode: "full"
-    // lifetime: 10
+    billboardMode: "full",
+    lifetime: 6
 };
 
 module.exports = localEntityProps;

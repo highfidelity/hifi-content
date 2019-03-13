@@ -114,34 +114,6 @@
         }
     }
 
-
-    // When called, this function will stop the versions of this script that are
-    // baked into the client installation IF there's another version of the script
-    // running that ISN'T the baked version.
-    function maybeStopBakedScriptVersions() {
-        var THIS_SCRIPT_FILENAME = "nameTag.js";
-        var RELATIVE_PATH_TO_BAKED_SCRIPT = "system/experiences/nameTag/appResources/appData/" + THIS_SCRIPT_FILENAME;
-        var bakedLocalScriptPaths = [];
-        var alsoRunningNonBakedVersion = false;
-
-        var runningScripts = ScriptDiscoveryService.getRunning();
-        runningScripts.forEach(function(scriptObject) {
-            if (scriptObject.local && scriptObject.url.indexOf(RELATIVE_PATH_TO_BAKED_SCRIPT) > -1) {
-                bakedLocalScriptPaths.push(scriptObject.path);
-            }
-
-            if (scriptObject.name === THIS_SCRIPT_FILENAME && scriptObject.url.indexOf(RELATIVE_PATH_TO_BAKED_SCRIPT) === -1) {
-                alsoRunningNonBakedVersion = true;
-            }
-        });
-
-        if (alsoRunningNonBakedVersion && bakedLocalScriptPaths.length > 0) {
-            for (var i = 0; i < bakedLocalScriptPaths.length; i++) {
-                ScriptDiscoveryService.stopScript(bakedLocalScriptPaths[i]);
-            }
-        }
-    }
-
     
     var BUTTON_NAME = "NAMETAG";
     var APP_UI_URL = Script.resolvePath('resources/nameTag_ui.html');
@@ -162,7 +134,6 @@
         AvatarManager.avatarRemovedEvent.connect(onAvatarRemoved);
 
         enableOrDisableNameTag();
-        maybeStopBakedScriptVersions();
     }
 
 
