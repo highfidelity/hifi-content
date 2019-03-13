@@ -158,16 +158,24 @@ body {
 
 #contentContainer > div {
     height: calc(100vh - 60px);
-    width: 100vw;
+    width: 100%;
 }
 
 #contentContainer > div:not(.selected) {
     display: none;
 }
 
-#infoContainer {
-    margin: 12px;
+#infoCopy {
+    padding: 12px;
     font-size: 20px;
+}
+
+#headerImage {
+    background-image: url('../images/header.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 50vw;
 }
 
 #voteContainer {

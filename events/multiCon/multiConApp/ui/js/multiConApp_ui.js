@@ -85,7 +85,8 @@ function confirmVote() {
         return;
     }
 
-    document.getElementById("loadingContainer").style.display = "block";
+    var confirmVoteText = document.getElementById("confirmVoteText");
+    confirmVoteText.innerHTML = `Voting...`;
     
     emitMultiConVoteEvent("vote", {
         usernameToVoteFor: usernameToVoteFor
@@ -93,16 +94,12 @@ function confirmVote() {
 }
 
 function voteError() {
-    document.getElementById("loadingContainer").style.display = "none";
-
     var confirmVoteText = document.getElementById("confirmVoteText");
     confirmVoteText.innerHTML = `Your vote failed! Your vote hasn't changed.`;
 }
 
 
 function voteSuccess(usernameVotedFor) {
-    document.getElementById("loadingContainer").style.display = "none";
-
     var votingModalContainer = document.getElementById("votingModalContainer");
     var usernameToVoteFor = votingModalContainer.getAttribute("data-username");
 
