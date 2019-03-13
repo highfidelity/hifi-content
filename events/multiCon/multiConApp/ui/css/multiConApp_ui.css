@@ -21,11 +21,15 @@ html {
 }
 
 body {
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Cairo', sans-serif;
     color: #FFF;
     background-color: #49A4DF;
     overflow: hidden;
     margin: 0;
+}
+
+h1, h2, h3 {
+    font-family: 'Cairo', sans-serif;
 }
 
 h1 {
@@ -125,7 +129,7 @@ ul {
 }
 
 #confirmVoteContainer.votedFor {
-    background-color: #6fdb5d;
+    background-color: #ff66ff;
 }
 
 #confirmVoteIcon {
@@ -219,66 +223,41 @@ ul {
     align-items: flex-start;
     align-content: flex-start;
     padding: 10px 0;
-    background-color: #49A4DF !important;
+    background-color: #FFF !important;
 }
 
 #votedOverlay {
     position: relative;
-    top: -190px; /* Same height as .participantContainer */
+    top: -100px; /* Same height as .participantContainer */
     left: 0;
     width: 100%;
-    height: 190px;
-    background-color: rgba(44, 86, 36, 0.6);
-    background-repeat: no-repeat;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 5px;
-    box-shadow: 0 0 2px 2px rgba(167, 233, 156, 0.4);
-}
-
-#votedOverlay > img {
-    display: block;
-    margin-top: -18px;
-    width: 50px;
-    height: 50px;
+    box-shadow: 0 0 4px 4px #ff66ff;
 }
 
 .participantContainer {
-    width: 150px;
-    height: 190px;
+    width: 100px;
+    height: 100px;
     margin: 2px;
     background-color: #fff;
     color: #000;
     cursor: pointer;
-    border-radius: 5px;
 }
 
 .participantContainer:hover {
-    box-shadow: 0 0 4px 4px #ff66ff;
+    box-shadow: 0 0 2px 2px #ffb3ff;
 }
 
 .participantImage {
     width: 100%;
-    height: 150px;
+    height: 100px;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    border-radius: 5px 5px 0 0;
-}
-
-.participantName {
-    font-size: 22px;
-    overflow-wrap: break-word;
-    word-break: break-all;
-    overflow: hidden;
-    width: 100%;
-    height: 40px; /* centers text vertically if line height and height are the same */
-    line-height: 40px;
-    padding: 0 4px;
-    background-color: #ffcdff;
-    border-radius: 0 0 5px 5px;
-}
+} 
 
 #scheduleContainer {
     background-image: url("../images/schedule.jpg");
@@ -286,4 +265,15 @@ ul {
     background-size: contain;
     background-position: center;
     background-color: #49A4DF !important;
+}
+
+#clock {
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    margin-top: 6px;
+    font-size: 26px;
+    text-align: center;
+    font-weight: bold;
+    color: #FFF;
 }

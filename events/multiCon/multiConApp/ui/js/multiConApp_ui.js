@@ -19,6 +19,27 @@ function emitMultiConVoteEvent(type, data) {
     EventBridge.emitWebEvent(JSON.stringify(event));
 }
 
+// Add zero in front of numbers < 10
+function maybePrependZero(i) {
+    if (i < 10) {
+        i = "0" + i;
+    }
+    return i;
+}
+
+
+var clockUpdateTimeout = false;
+function updateClock() {
+    var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+    m = maybePrependZero(m);
+    s = maybePrependZero(s);
+    document.getElementById('clock').innerHTML = "PDT: " + h + ":" + m + ":" + s;
+    clockUpdateTimeout = setTimeout(updateClock, 500);
+}
+
 
 function selectTab(tabName) {
     var tabBarContainer = document.getElementById("tabBarContainer");
@@ -38,6 +59,13 @@ function selectTab(tabName) {
     selectedContainer.classList.add("selected");
 
     emitMultiConVoteEvent("changeActiveTabName", tabName);
+
+    if (tabName === "schedule") {
+        updateClock();
+    } else if (clockUpdateTimeout) {
+        clearTimeout(clockUpdateTimeout);
+        clockUpdateTimeout = false;
+    }
 }
 
 function modifyVoteButton(username, votedFor) {
@@ -168,14 +196,11 @@ function initializeUI(myUsername, voteData) {
         var extraDiv = "";
         if (voteData[i].votedFor) {
             currentClassList += " voted";
-            extraDiv = "<div id='votedOverlay'><img src='images/check.svg'></img></div>"
+            extraDiv = "<div id='votedOverlay'></div>"
         }
         currentParticipantHTML = `
 <div data-username="${voteData[i].username}" class="${currentClassList}" onclick="openVotingModal(this, '${voteData[i].username}', '${currentFullImageURL}')">
     <div class="participantImage" style="background-image: url('${currentFullImageURL}')">
-    </div>
-    <div class="participantName">
-        ${voteData[i].username}
     </div>
     ${extraDiv}
 </div>
