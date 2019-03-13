@@ -177,7 +177,8 @@ function connectToMultiConVoteDB() {
 function createNewTables(response) {
     var query = `CREATE TABLE IF NOT EXISTS \`multiConAvatarContestVotes\` (
         voterUsername VARCHAR(100) PRIMARY KEY,
-        votedFor VARCHAR(100)
+        votedFor VARCHAR(100),
+        votedTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`;
     connection.query(query, function(error, results, fields) {
         if (error) {
