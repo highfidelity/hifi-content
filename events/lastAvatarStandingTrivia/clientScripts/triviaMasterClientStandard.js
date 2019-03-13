@@ -1,6 +1,8 @@
 //  triviaMasterClientStandard.js
 //
 //  Created by Rebecca Stankus on 06/11/18
+//  Modified by Mark Brosche on 10/16/18
+//  Updated 3/13/19 by Mark Brosche
 //  Copyright 2018 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -24,8 +26,8 @@
         TEN_SECONDS_MS = 10 * ONE_SECOND_MS,
         ZONE_COLOR_INDEX = 19,
         HALF_MULTIPLIER = 0.5,
-        FIRST_WAIT_TO_COUNT_AVATARS = 1000,
-        WAIT_TO_SHOW_QUESTION = 500,
+        FIRST_WAIT_TO_COUNT_AVATARS = ONE_SECOND_MS,
+        WAIT_TO_SHOW_QUESTION = 0.5 * ONE_SECOND_MS,
         MIN_PLAYERS = 3,
         HFC_INCREMENT = 100,
         HFC_HALVER = 0.5,
@@ -60,6 +62,7 @@
         gameZone,
         gameZoneProperties,
         avatarCounter,
+        formattedQuestion = null,
         intervalTimer,
         bubble,
         bubbleState = false,
@@ -70,6 +73,7 @@
         prizeMoney,
         winnerID = null,
         correctColor = null;
+    var formattedAnswer = null;
     
     // The following function from https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
     var htmlEnDeCode = (function() {
@@ -328,6 +332,10 @@
     }
 
     function getQuestion() {
+        if (intervalTimer) {
+            Script.clearInterval(intervalTimer);
+            intervalTimer = false;
+        }
         Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
         if (useGoogle){
             try {
@@ -400,7 +408,7 @@
 
     function showQuestion() {
         clearBoard();
-        var formattedQuestion;
+        formattedQuestion = null;
         Script.setTimeout(function() {
             choiceTexts.forEach(function(choice) {
                 Entities.callEntityServerMethod(choice, "textUpdate", ["", true]);
@@ -437,13 +445,13 @@
                 });
             } else {
                 currentChoices = [];
-                currentChoices.push(triviaData.correct_answer);
+                currentChoices.push({"text": triviaData.correct_answer, "correct": true});
                 triviaData.incorrect_answers.forEach(function(choice) {
-                    currentChoices.push(choice);
+                    currentChoices.push({"text": choice, "correct": false});
                 });
                 shuffle(currentChoices);
                 currentChoices.forEach(function(choice, index) {
-                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice, true]);
+                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice.text, true]);
                 });
             }        
         } else {
@@ -465,13 +473,13 @@
                 });
             } else {
                 currentChoices = [];
-                currentChoices.push(triviaData[0].correct_answer);
+                currentChoices.push({"text": triviaData[0].correct_answer, "correct": true});
                 triviaData[0].incorrect_answers.forEach(function(choice) {
-                    currentChoices.push(choice);
+                    currentChoices.push({"text": choice, "correct": false});
                 });
                 shuffle(currentChoices);
                 currentChoices.forEach(function(choice, index) {
-                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice, true]);
+                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice.text, true]);
                 });
             }        
         }
@@ -578,13 +586,13 @@
                     prizeMoney = MIN_PRIZE;
                 }
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_DECREASE_SFX']);
-                Entities.callEntityServerMethod(gameZoneProperties.id, "loseCoins");
+                // Entities.callEntityServerMethod(gameZoneProperties.id, "loseCoins");
                 Entities.callEntityServerMethod(gameZoneProperties.id, "halfHFC");
                 break;
             case "increase pot":
                 prizeMoney += HFC_INCREMENT;
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_INCREASE_SFX']);
-                Entities.callEntityServerMethod(gameZoneProperties.id, "winCoins");
+                // Entities.callEntityServerMethod(gameZoneProperties.id, "winCoins");
                 Entities.callEntityServerMethod(gameZoneProperties.id, "plusHFC");
                 break;
             case "game over":
@@ -637,6 +645,10 @@
     }
 
     function clearBoard() {
+        if (intervalTimer) {
+            Script.clearInterval(intervalTimer);
+            intervalTimer = false;
+        }
         lights.forEach(function(light) {
             Entities.callEntityServerMethod(light,"lightsOn");
         });
@@ -653,15 +665,20 @@
     }
 
     function startTimer() {
+        if (intervalTimer) {
+            Script.clearInterval(intervalTimer);
+            intervalTimer = false;
+        }
         Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['TIMER_SOUND']);
         var seconds = 10;
         Entities.callEntityServerMethod(timer, "textUpdate", [seconds, true]);
         intervalTimer = Script.setInterval(function() {
             seconds--;
             Entities.callEntityServerMethod(timer, "textUpdate", [seconds, true]);
-            if (seconds === 0) {
+            if (seconds <= 0) {
                 Script.clearInterval(intervalTimer);
                 intervalTimer = false;
+                seconds = 0;
             }
         }, ONE_SECOND_MS);
     }
@@ -702,15 +719,13 @@
 
     function showCorrect() {
         if (useGoogle){
-            var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData.correct_answer);
+            formattedAnswer = triviaData.correct_answer;
             correctColor = null;
-            choiceTexts.forEach(function(textEntity) {
-                var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
-                if (properties.text === htmlEnDeCode.htmlDecode(triviaData.correct_answer)) {
-                    var color = properties.name.substr(ZONE_COLOR_INDEX);
-                    correctColor = color;
-                }
-            });
+            var correctIndex = currentChoices[currentChoices.map(function(e) { 
+                return e.correct; 
+            }).indexOf(true)];
+            var properties = Entities.getEntityProperties(choiceTexts[currentChoices.indexOf(correctIndex)], ['name']);
+            correctColor = properties.name.substr(ZONE_COLOR_INDEX);
             lights.forEach(function(light) {
                 var lightName = Entities.getEntityProperties(light, 'name').name;
                 if (lightName.indexOf(correctColor) === -1) {
@@ -739,15 +754,13 @@
 
             Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
         } else {
-            var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
+            formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
             correctColor = null;
-            choiceTexts.forEach(function(textEntity) {
-                var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
-                if (properties.text === htmlEnDeCode.htmlDecode(triviaData[0].correct_answer)) {
-                    var color = properties.name.substr(ZONE_COLOR_INDEX);
-                    correctColor = color;
-                }
-            });
+            var correctIndex = currentChoices[currentChoices.map(function(e) { 
+                return e.correct; 
+            }).indexOf(true)];
+            var properties = Entities.getEntityProperties(choiceTexts[currentChoices.indexOf(correctIndex)], ['name']);
+            correctColor = properties.name.substr(ZONE_COLOR_INDEX);
             lights.forEach(function(light) {
                 var lightName = Entities.getEntityProperties(light, 'name').name;
                 if (lightName.indexOf(correctColor) === -1) {
@@ -959,6 +972,7 @@
                         break;
                     case 'newQuestion':
                         getQuestion();
+
                         break;
                     case 'showQuestion':
                         showQuestion();
