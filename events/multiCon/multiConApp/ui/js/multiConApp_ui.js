@@ -19,28 +19,6 @@ function emitMultiConVoteEvent(type, data) {
     EventBridge.emitWebEvent(JSON.stringify(event));
 }
 
-// Add zero in front of numbers < 10
-function maybePrependZero(i) {
-    if (i < 10) {
-        i = "0" + i;
-    }
-    return i;
-} 
-
-var hoursFromUTCToPDT = 7;
-var clockUpdateTimeout = false;
-function updateClock() {
-    var today = new Date();
-    var h = today.getUTCHours() - hoursFromUTCToPDT;
-    h = h < 0 ? h + 24 : h;
-    var m = today.getUTCMinutes();
-    var s = today.getUTCSeconds();
-    m = maybePrependZero(m);
-    s = maybePrependZero(s);
-    document.getElementById('clock').innerHTML = "PDT: " + h + ":" + m + ":" + s;
-    clockUpdateTimeout = setTimeout(updateClock, 500);
-}
-
 
 function selectTab(tabName) {
     var tabBarContainer = document.getElementById("tabBarContainer");
@@ -60,14 +38,8 @@ function selectTab(tabName) {
     selectedContainer.classList.add("selected");
 
     emitMultiConVoteEvent("changeActiveTabName", tabName);
-
-    if (tabName === "schedule") {
-        updateClock();
-    } else if (clockUpdateTimeout) {
-        clearTimeout(clockUpdateTimeout);
-        clockUpdateTimeout = false;
-    }
 }
+
 
 function modifyVoteButton(username, votedFor) {
     var confirmVoteText = document.getElementById("confirmVoteText");
