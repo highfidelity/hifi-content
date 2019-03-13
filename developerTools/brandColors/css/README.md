@@ -8,4 +8,4 @@ Example:
 class="hifi-red-text hifi-red-background"
 
 # Relesase Notes
-### 2019-03-12_13-25-17 | 1.0 | 
+### 2019-03-12_13-25-17 | 1.0 | a4f6211]
