@@ -26,6 +26,7 @@ body {
     background-color: #49A4DF;
     overflow: hidden;
     margin: 0;
+    line-height: 22px;
 }
 
 h1, h2, h3 {

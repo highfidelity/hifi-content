@@ -25,15 +25,16 @@ function maybePrependZero(i) {
         i = "0" + i;
     }
     return i;
-}
+} 
 
-
+var hoursFromUTCToPDT = 7;
 var clockUpdateTimeout = false;
 function updateClock() {
     var today = new Date();
-    var h = today.getHours();
-    var m = today.getMinutes();
-    var s = today.getSeconds();
+    var h = today.getUTCHours() - hoursFromUTCToPDT;
+    h = h < 0 ? h + 24 : h;
+    var m = today.getUTCMinutes();
+    var s = today.getUTCSeconds();
     m = maybePrependZero(m);
     s = maybePrependZero(s);
     document.getElementById('clock').innerHTML = "PDT: " + h + ":" + m + ":" + s;
