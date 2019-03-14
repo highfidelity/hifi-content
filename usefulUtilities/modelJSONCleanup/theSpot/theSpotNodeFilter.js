@@ -1,12 +1,12 @@
 // Consts
 const PATH_TO_MODELS_JSON = ('./models.json');
 const PATH_TO_WRITE_JSON = ('./models2.json');
-const MIN_Y = -50;
-const MAX_Y = 90;
-const MIN_X = -170;
-const MAX_X = 180;
-const MIN_Z = -127;
-const MAX_Z = 60;
+const MIN_Y = -75;
+const MAX_Y = 100;
+const MIN_X = -200;
+const MAX_X = 200;
+const MIN_Z = -150;
+const MAX_Z = 150;
 
 // Dependencies
 const fs = require('fs');
@@ -49,6 +49,8 @@ let nameBlackListGroup = [
 ];
 // Name white list
 let nameWhiteListGroup = [
+    "Money Tree-Collider-Temp",
+    "Temp-Floor-Collider"
 ];
 
 // Type black list
