@@ -34,7 +34,6 @@
                 ui.sendMessage({
                     app: 'multiConVote',
                     method: "initializeUI",
-                    // [{username: <participant username>, votedFor: <true || undefined>, imageURL: <path to image> }] 
                     myUsername: myUsername,
                     voteData: response.data,
                     activeTabName: Settings.getValue("multiCon/activeTabName", "info")

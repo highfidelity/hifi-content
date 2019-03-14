@@ -58,13 +58,13 @@ function modifyVoteButton(username, votedFor) {
 }
 
 
-function openVotingModal(element, username, fullImageURL) {
+function openVotingModal(element, username) {
     var votingModalContainer = document.getElementById("votingModalContainer");
     votingModalContainer.setAttribute("data-username", username);
     votingModalContainer.style.display = "block";
 
     var votingModalImage = document.getElementById("votingModalImage");
-    votingModalImage.style.backgroundImage = `url('${fullImageURL}')`;
+    votingModalImage.style.backgroundImage = `url('https://highfidelity.co/events/multiCon/images/full/${username}.jpg')`;
 
     modifyVoteButton(username, element.classList.contains("voted"));
 }
@@ -156,9 +156,9 @@ function initializeUI(myUsername, voteData) {
 
     var voteContainer = document.getElementById("voteContainer");
     var currentParticipantHTML;
-    var currentFullImageURL;
+    var currentThumbnailURL;
     for (var i = 0; i < voteData.length; i++) {
-        currentFullImageURL = "https://highfidelity.co/events/multiCon/images/" + voteData[i].username + ".jpg";
+        currentThumbnailURL = "https://highfidelity.co/events/multiCon/images/thumbs/" + voteData[i].username + ".jpg";
 
         var currentClassList = "participantContainer";
         var extraDiv = "";
@@ -166,8 +166,8 @@ function initializeUI(myUsername, voteData) {
             currentClassList += " voted";
         }
         currentParticipantHTML = `
-<div data-username="${voteData[i].username}" class="${currentClassList}" onclick="openVotingModal(this, '${voteData[i].username}', '${currentFullImageURL}')">
-    <div class="participantImage" style="background-image: url('${currentFullImageURL}')">
+<div data-username="${voteData[i].username}" class="${currentClassList}" onclick="openVotingModal(this, '${voteData[i].username}')">
+    <div class="participantImage" style="background-image: url('${currentThumbnailURL}')">
     </div>
     ${extraDiv}
 </div>
