@@ -15,4 +15,4 @@ Node script that can be used to help cleanup models.json
 - Either gzip the models file and replace the content archive version, then zip up the content archive again and upload or just upload the new models.json
 
 # Relesase Notes
-### 2019-03-14_09-02-12 | 1.0 | a4f6211]
+### 2019-03-14_09-02-12 | 1.0 | [e29f0c0]
