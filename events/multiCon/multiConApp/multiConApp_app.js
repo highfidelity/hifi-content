@@ -47,17 +47,27 @@
         var myUsername = AccountServices.username;
         if (myUsername === "Unknown user") {
             console.log("User tried to vote, but is not logged in!");
+            ui.sendMessage({
+                app: 'multiConVote',
+                method: "voteError",
+                errorText: "You must log in to vote."
+            });
             return;
         }
         var queryParamString = "type=vote&voterUsername=" + myUsername + "&votedFor=" + usernameToVoteFor;
         request({
-            uri: REQUEST_URL + "?" + queryParamString
+            uri: REQUEST_URL + "?" + queryParamString,
+            // Necessary to make request.js add correct useragent header string
+            headers: {
+                dummyHeader: "dummyHeader"
+            }
         }, function (error, response) {
             if (error || !response || response.status !== "success") {
                 console.error("Error voting: " + JSON.stringify(response));
                 ui.sendMessage({
                     app: 'multiConVote',
-                    method: "voteError"
+                    method: "voteError",
+                    errorText: "Server error. Your vote hasn't changed."
                 });
                 return;
             }

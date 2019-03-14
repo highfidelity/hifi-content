@@ -94,9 +94,9 @@ function confirmVote() {
     });
 }
 
-function voteError() {
+function voteError(errorText) {
     var confirmVoteText = document.getElementById("confirmVoteText");
-    confirmVoteText.innerHTML = `Your vote failed! Your vote hasn't changed.`;
+    confirmVoteText.innerHTML = `Your vote failed! ${errorText}`;
 }
 
 
@@ -199,7 +199,7 @@ function onScriptEventReceived(scriptEvent) {
             break;
 
         case "voteError":
-            voteError();
+            voteError(scriptEvent.errorText);
             break;
 
         case "voteSuccess":

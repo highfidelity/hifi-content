@@ -74,9 +74,20 @@ function getParticipants(voterUsername, response) {
 
 
 // Saves voter information to the 'multiConAvatarContestVotes' table.
-function vote(votedUsername, votedFor, response) {
-    var query = `REPLACE INTO \`multiConAvatarContestVotes\` (voterUsername, votedFor)
-        VALUES ('${votedUsername}', '${votedFor}')`;
+function vote(votedUsername, votedFor, voterIPv4Address, voterUserAgent, response) {
+    if (voterUserAgent.indexOf("HighFidelityInterface") === -1) {
+        var responseObject = {
+            status: "error",
+            text: "Error while voting!"
+        };
+
+        response.statusCode = 500;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
+    var query = `REPLACE INTO \`multiConAvatarContestVotes\` (voterUsername, votedFor, voterIPv4Address)
+        VALUES ('${votedUsername}', '${votedFor}', '${voterIPv4Address}')`;
 
     connection.query(query, function(error, results, fields) {
         if (error) {
@@ -156,7 +167,13 @@ function handleGetRequest(request, response) {
         case "vote":
             var voterUsername = queryParamObject.voterUsername;
             var votedFor = queryParamObject.votedFor;
-            vote(voterUsername, votedFor, response);
+            var voterIPAddress = (request.headers['x-forwarded-for'] || '').split(',').pop() || 
+                request.connection.remoteAddress || 
+                request.socket.remoteAddress || 
+                request.connection.socket.remoteAddress;
+            console.log(voterIPAddress);
+            var voterUserAgent = request.headers['user-agent'];
+            vote(voterUsername, votedFor, voterIPAddress, voterUserAgent, response);
         break;
 
 
@@ -219,6 +236,7 @@ function createNewTables(response) {
     var query = `CREATE TABLE IF NOT EXISTS \`multiConAvatarContestVotes\` (
         voterUsername VARCHAR(100) PRIMARY KEY,
         votedFor VARCHAR(100),
+        voterIPv4Address VARCHAR(45),
         votedTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`;
     connection.query(query, function(error, results, fields) {
