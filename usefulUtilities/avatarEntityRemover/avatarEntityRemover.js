@@ -17,17 +17,22 @@
         "Snow", "ASingleGiggle", "XaosPrincess", "krougeau", "CornyNachos",
         "bigtin", "Octuplex", "Dalek", "MMMaellon", "Dalus", "Scena", "Lathe",
         "vegaslon", "Xeverian", "VardVR", "1029chris", "Menithal", "Virtual_Origin",
-        "Grifftech", "zfox"];
+        "Grifftech", "zfox", "scobot", "prophecy288"];
     var removedAvatarEntityProperties = [];
     var enableAvatarEntityRestore = false;
+    var tryAgainDeleteInterval = false;
+    var TRY_DELETE_AGAIN_MS = 1000;
 
 
-    function maybeSaveThenDelete(entityID) {
+    function maybeSaveThenDelete(entityID, properties) {
         if (enableAvatarEntityRestore) {
-            var props = Entities.getEntityProperties(entityID);
-            removedAvatarEntityProperties.push(props);
+            removedAvatarEntityProperties.push(properties);
         }
 
+        // This will do nothing unless the user has lock/unlock rights
+        Entities.editEntity(entityID, {"locked": false});
+
+        Entities.editEntity(entityID, {"dimensions": {"x": 0.01, "y": 0.01, "z": 0.01}});
         Entities.deleteEntity(entityID);
     }
 
@@ -37,20 +42,46 @@
             return;
         }
 
-        var props = Entities.getEntityProperties(entityID, ['avatarEntity', 'entityHostType']);
-        if (props.avatarEntity || props.entityHostType === "avatar") {
+        var props = Entities.getEntityProperties(entityID, ['avatarEntity', 'entityHostType', 'locked', 'owningAvatarID']);
+
+        if (props.owningAvatarID === MyAvatar.sessionUUID && (props.avatarEntity || props.entityHostType === "avatar")) {
+            if (props.locked) {
+                Window.location = "localhost";
+                return;
+            }
+
+            // This will do nothing unless the user has lock/unlock rights
+            Entities.editEntity(entityID, {locked: false});
+
+            Entities.editEntity(entityID, {"dimensions": {"x": 0.01, "y": 0.01, "z": 0.01}});
             Entities.deleteEntity(entityID);
         }
     }
 
 
-    function removeAllCurrentAvatarEntities() {
+    function maybeRemoveAllCurrentAvatarEntities() {
         if (APPROVED_USERNAMES.indexOf(AccountServices.username) > -1) {
             return;
         }
 
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
-            maybeSaveThenDelete(avatarEntity.id);
+            Entities.deleteEntity(avatarEntity.id);
+        });
+    }
+
+
+    function maybeSaveThenRemoveAllCurrentAvatarEntities() {
+        if (APPROVED_USERNAMES.indexOf(AccountServices.username) > -1) {
+            return;
+        }
+
+        MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
+            if (avatarEntity.properties.locked) {
+                Window.location = "localhost";
+                return;
+            }
+
+            maybeSaveThenDelete(avatarEntity.id, avatarEntity.properties);
         });
     }
     
@@ -75,7 +106,8 @@
             }
 
             Entities.addingEntity.connect(onAddingEntity);
-            removeAllCurrentAvatarEntities();
+            maybeSaveThenRemoveAllCurrentAvatarEntities();
+            tryAgainDeleteInterval = Script.setInterval(maybeRemoveAllCurrentAvatarEntities, TRY_DELETE_AGAIN_MS);
         },
 
         unload: function() {
@@ -85,8 +117,11 @@
                 removedAvatarEntityProperties.forEach(function(props) {
                     Entities.addEntity(props, "avatar");
                 });
+            }
 
-                removedAvatarEntityProperties = [];
+            if (tryAgainDeleteInterval) {
+                Script.clearInterval(tryAgainDeleteInterval);
+                tryAgainDeleteInterval = false;
             }
         }
     };
