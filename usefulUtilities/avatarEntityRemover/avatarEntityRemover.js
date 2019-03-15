@@ -39,7 +39,7 @@
 
         var props = Entities.getEntityProperties(entityID, ['avatarEntity', 'entityHostType']);
         if (props.avatarEntity || props.entityHostType === "avatar") {
-            maybeSaveThenDelete(entityID);
+            Entities.deleteEntity(entityID);
         }
     }
 
