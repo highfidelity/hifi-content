@@ -11,12 +11,11 @@ When this script is attached to an entity as an entity script, the entity serves
 
 ## Setup
 1. Add an entity to your domain.
-    - A big Box primitive would work perfectly.
-    - Note that anyone who can modify the `userData` of this entity will be able to control which scripts are blacklisted and temporarily paused!
-    - A good place for this entity is right under the floor near your domain's spawn point. You want to ensure that all visitors to your domain load this entity.
+    - A giant Zone entity would work perfectly. A good place for this entity is centered around your domain's content. Its dimensions should be large enough to encompass the domain's content. You want to ensure that all visitors to your domain load this entity.
+    - Note that anyone who can modify the `userData` of this entity will be able to control this script's configurable settings!
 2. Add the below `userData` object to the attached entity's `userData`
     1. Set the `enableAvatarEntityRestore` `bool` in the `userData` to `true` if you want removed avatar entities to be restored when the script is unloaded; set it to `false` otherwise.
-3. Add the `scriptPauser.js` script to the entity
+3. Add the `avatarEntityRemover.js` script to the entity
 
 Here's the object to add to the entity's `userData`:
 ```
