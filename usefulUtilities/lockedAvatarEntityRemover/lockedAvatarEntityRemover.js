@@ -14,6 +14,8 @@
     var tryAgainDeleteInterval = false;
     var TRY_DELETE_AGAIN_MS = 1000;
     var DELETE_INTERVAL_MS = 5000;
+    var cleanUserDomain = false;
+    var neverMoveUsers = [];
 
     function removeAllAvatarEntities() {
         var avatarEntityCount = 0;
@@ -45,6 +47,11 @@
             }
         });
         console.log("You WERE wearing " + avatarEntityCount + " avatar entities, " + lockedCount + " of which were locked.");
+
+        if (avatarEntityCount === 0 && cleanUserDomain && neverMoveUsers.indexOf(AccountServices.username) === -1) {
+            console.log("You are clean now. Sending you to " + cleanUserDomain + "...");
+            Window.location = cleanUserDomain;
+        }
     }
     
 
@@ -52,6 +59,25 @@
 
     LockedAvatarEntityRemover.prototype = {
         preload: function (id) {
+            var properties = Entities.getEntityProperties(id, ["userData"]);
+            var userData;
+
+            try {
+                userData = JSON.parse(properties.userData);
+            } catch (e) {
+                console.error("Error parsing userData: ", e);
+            }
+
+            if (userData) {
+                if (userData.cleanUserDomain) {
+                    cleanUserDomain = userData.cleanUserDomain;
+                }
+
+                if (userData.neverMoveUsers) {
+                    neverMoveUsers = userData.neverMoveUsers;
+                }
+            }
+
             removeAllAvatarEntities();
             tryAgainDeleteInterval = Script.setInterval(removeAllAvatarEntities, DELETE_INTERVAL_MS);
         },
