@@ -4,6 +4,7 @@ When this script is attached to an entity as an entity script, the entity serves
 ## Features
 - Avatar Entity Remover will prevent new avatar entities from being added by a user when the script is running.
 - Avatar Entity Remover will remove existing avatar entities from an avatar when they load the script.
+- If a user of a locked avatar entity loads the script, they will be kicked to a user-configurable domain.
 - Using a configuration switch, you can enable a feature that will restore all removed avatar entities when the Avatar Entity Remover script is unloaded.
 
 ## Exclusions
@@ -15,12 +16,14 @@ When this script is attached to an entity as an entity script, the entity serves
     - Note that anyone who can modify the `userData` of this entity will be able to control this script's configurable settings!
 2. Add the below `userData` object to the attached entity's `userData`
     1. Set the `enableAvatarEntityRestore` `bool` in the `userData` to `true` if you want removed avatar entities to be restored when the script is unloaded; set it to `false` otherwise.
+    2. Set the `kickDomain` value in the `userData` to the domain to which you want users of locked avatar entities to be moved.
 3. Add the `avatarEntityRemover.js` script to the entity
 
 Here's the object to add to the entity's `userData`:
 ```
 {
-    "enableAvatarEntityRestore": <true|false>
+    "enableAvatarEntityRestore": <true|false>,
+    "kickDomain": <The domain to which you want users of locked avatar entities to be moved. Defaults to "hifi://domain">
 }
 ```
 

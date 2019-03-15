@@ -20,6 +20,7 @@
         "Grifftech", "zfox", "scobot", "prophecy288"];
     var removedAvatarEntityProperties = [];
     var enableAvatarEntityRestore = false;
+    var kickDomain = "hifi://domain";
     var tryAgainDeleteInterval = false;
     var TRY_DELETE_AGAIN_MS = 1000;
 
@@ -47,7 +48,7 @@
         if (props.owningAvatarID === MyAvatar.sessionUUID && (props.avatarEntity || props.entityHostType === "avatar")) {
             if (props.locked) {
                 console.log("Boot Code 00000002");
-                Window.location = "localhost";
+                Window.location = kickDomain;
                 return;
             }
 
@@ -79,7 +80,7 @@
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
             if (avatarEntity.properties.locked) {
                 console.log("Boot Code 00000001");
-                Window.location = "localhost";
+                Window.location = kickDomain;
                 return;
             }
 
@@ -104,7 +105,11 @@
             if (userData) {
                 if (userData.enableAvatarEntityRestore) {
                     enableAvatarEntityRestore = userData.enableAvatarEntityRestore;
-                } 
+                }
+
+                if (userData.kickDomain) {
+                    kickDomain = userData.kickDomain;
+                }
             }
 
             Entities.addingEntity.connect(onAddingEntity);
