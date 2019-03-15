@@ -19,7 +19,7 @@ Here's the object to add to the entity's `userData`:
 {
     "maxMovementAllowedM": <A number, in meters, specifying the maximum distance you want users to be able to move. If not set, defaults to 1000.>,
     "contentBoundaryCorner1": {"x": <x value of corner 1>, "y": <y value of corner 1>, "z": <z value of corner 1>},
-    "contentBoundaryCorner2": {"x": <x value of corner 2>, "y": <y value of corner 2>, "z": <z value of corner 2>},
+    "contentBoundaryCorner2": {"x": <x value of corner 2>, "y": <y value of corner 2>, "z": <z value of corner 2>}
 }
 ```
 

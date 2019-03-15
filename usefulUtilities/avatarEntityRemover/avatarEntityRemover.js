@@ -46,6 +46,7 @@
 
         if (props.owningAvatarID === MyAvatar.sessionUUID && (props.avatarEntity || props.entityHostType === "avatar")) {
             if (props.locked) {
+                console.log("Boot Code 00000002");
                 Window.location = "localhost";
                 return;
             }
@@ -77,6 +78,7 @@
 
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
             if (avatarEntity.properties.locked) {
+                console.log("Boot Code 00000001");
                 Window.location = "localhost";
                 return;
             }

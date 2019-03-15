@@ -26,12 +26,12 @@
 
     var previousLocation = false;
     function recordLocation() {
-        var currentLocation = MyAvatar.location;
+        var currentLocation = MyAvatar.position;
 
         if (previousLocation) {
             if (Vec3.distance(previousLocation, currentLocation) > maxMovementAllowedM &&
                 !isLocationInBox(currentLocation, contentBoundaryCorners[0], contentBoundaryCorners[1])) {
-                MyAvatar.location = previousLocation;
+                MyAvatar.position = previousLocation;
                 return;
             }
         }
