@@ -21,6 +21,7 @@
     var removedAvatarEntityProperties = [];
     var enableAvatarEntityRestore = false;
     var kickDomain = "hifi://domain";
+    var enableCollisionlessAvatarEntities = false;
     var tryAgainDeleteInterval = false;
     var TRY_DELETE_AGAIN_MS = 1000;
 
@@ -43,9 +44,14 @@
             return;
         }
 
-        var props = Entities.getEntityProperties(entityID, ['avatarEntity', 'entityHostType', 'locked', 'owningAvatarID']);
-
+        var props = Entities.getEntityProperties(entityID, ['avatarEntity', 'entityHostType', 'locked', 'owningAvatarID', 'collisionless']);
+        
         if (props.owningAvatarID === MyAvatar.sessionUUID && (props.avatarEntity || props.entityHostType === "avatar")) {
+
+            if (enableCollisionlessAvatarEntities && props.collisionless) {
+                return;
+            }
+
             if (props.locked) {
                 console.log("Boot Code 00000002");
                 Window.location = kickDomain;
@@ -67,6 +73,10 @@
         }
 
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
+            if (enableCollisionlessAvatarEntities && avatarEntity.properties.collisionless) {
+                return;
+            }
+
             Entities.deleteEntity(avatarEntity.id);
         });
     }
@@ -81,6 +91,10 @@
             if (avatarEntity.properties.locked) {
                 console.log("Boot Code 00000001");
                 Window.location = kickDomain;
+                return;
+            }
+
+            if (enableCollisionlessAvatarEntities && avatarEntity.properties.collisionless) {
                 return;
             }
 
@@ -109,6 +123,10 @@
 
                 if (userData.kickDomain) {
                     kickDomain = userData.kickDomain;
+                }
+
+                if (userData.enableCollisionlessAvatarEntities) {
+                    enableCollisionlessAvatarEntities = userData.enableCollisionlessAvatarEntities;
                 }
             }
 

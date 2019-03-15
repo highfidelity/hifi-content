@@ -15,15 +15,17 @@ When this script is attached to an entity as an entity script, the entity serves
     - A giant Zone entity would work perfectly. A good place for this entity is centered around your domain's content. Its dimensions should be large enough to encompass the domain's content. You want to ensure that all visitors to your domain load this entity.
     - Note that anyone who can modify the `userData` of this entity will be able to control this script's configurable settings!
 2. Add the below `userData` object to the attached entity's `userData`
-    1. Set the `enableAvatarEntityRestore` `bool` in the `userData` to `true` if you want removed avatar entities to be restored when the script is unloaded; set it to `false` otherwise.
-    2. Set the `kickDomain` value in the `userData` to the domain to which you want users of locked avatar entities to be moved.
+    1. Set the `enableAvatarEntityRestore` `bool`.
+    2. Set the `kickDomain` value in the `userData`.
+    3. Set the `enableCollisionlessAvatarEntities` `bool`.
 3. Add the `avatarEntityRemover.js` script to the entity
 
 Here's the object to add to the entity's `userData`:
 ```
 {
-    "enableAvatarEntityRestore": <true|false>,
-    "kickDomain": <The domain to which you want users of locked avatar entities to be moved. Defaults to "hifi://domain">
+    "enableAvatarEntityRestore": <`true` if you want removed avatar entities to be restored when the script is unloaded; `false` otherwise>,
+    "kickDomain": <The domain to which you want users of locked avatar entities to be moved. Defaults to "hifi://domain">,
+    "enableCollisionlessAvatarEntities": <`true` if you want to allow collisionless avatar entities in your domain; `false` otherwise>
 }
 ```
 
