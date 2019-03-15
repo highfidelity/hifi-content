@@ -10,8 +10,8 @@ Every second, Push Preventer records your avatar's location. If you have moved m
     - Note that anyone who can modify the `userData` of this entity will be able to control this script's configurable settings!
 2. Add the below `userData` object to the attached entity's `userData`
     1. Set the `maxMovementAllowedM` value in the `userData` to the maximum distance you want users to be able to move.
-    2. Set the `contentBoundaryCorner1` value in the `userdata` to one corner of your content's boundary.
-    3. Set the `contentBoundaryCorner2` value in the `userdata` to the other corner of your content's boundary.
+    2. Set the `contentBoundaryCorner1` value in the `userData` to one corner of your content's boundary.
+    3. Set the `contentBoundaryCorner2` value in the `userData` to the other corner of your content's boundary.
 3. Add the `pushPreventer.js` script to the entity
 
 Here's the object to add to the entity's `userData`:
@@ -25,5 +25,5 @@ Here's the object to add to the entity's `userData`:
 
 # Releases
 
-## 2019-03-15_xx-xx-00 :: [xxxxxxx](https://github.com/highfidelity/hifi-content/commit/xxxxxxx)
+## 2019-03-15_13-19-00 :: [02c7431](https://github.com/highfidelity/hifi-content/commit/02c7431)
 - Initial release
