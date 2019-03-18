@@ -7,13 +7,6 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
-//
-// NOTE 2019-02-13:
-// In its current form, this script has been closely adapted from
-// the Google Script that the Experiences team used for previous Bingo
-// events. I made a couple of bugfixes and optimizations, but not many.
-// I wanted to maintain as much backwards compatibility as possible.
-//
 
 var http = require('http');
 var url = require('url');
@@ -31,7 +24,8 @@ function createNewTable(newTablePrefix, response) {
         username VARCHAR(50) PRIMARY KEY,
         cardNumbers VARCHAR(1000),
         cardColor VARCHAR(60),
-        prizeWon VARCHAR(100)
+        prizeWon VARCHAR(100),
+        email VARCHAR(120)
     )`;
     connection.query(query, function(error) {
         if (error) {
@@ -144,12 +138,58 @@ function addNewPlayer(username, response) {
 }
 
 
+function getWinnerInfo(username, response) {
+    if (!currentTableName) {
+        var responseObject = {
+            status: "error"
+        };
+
+        response.statusCode = 500;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
+    var query = `SELECT * FROM \`${currentTableName}\` WHERE username='${username}' AND prizeWon IS NOT NULL`;
+    connection.query(query, function(error, results) {
+        if (error) {
+            var responseObject = {
+                status: "error"
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        if (results.length === 1) {
+            var responseObject = {
+                "status": "success",
+                "currentTableName": currentTableName,
+                "prizeWon": results[0].prizeWon
+            };
+            response.statusCode = 200;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        } else {
+            var responseObject = {
+                status: "error"
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+    });
+}
+
+
 // Handles any GET requests made to the Bingo server endpoint
 // The three handled method types are:
 // "searchOrAdd"
 // "searchOnly"
 // "newRound"
 // "getCalledNumbers"
+// "setEmail"
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
     
@@ -258,6 +298,8 @@ function handleGetRequest(request, response) {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html; charset=utf-8');
         return response.end(responseHtml);
+    } else if (type === "getWinnerInfo") {
+        return getWinnerInfo(queryParamObject.username, response);
     } else {
         var responseObject = {
             status: "error",
@@ -353,7 +395,7 @@ function recordWinners(winnersArray, response) {
 // currentCalledNumbers with a GET request.
 function replaceCalledNumbers(newCalledNumbers, response) {
     if (currentTableName) {
-        var query = `REPLACE INTO \`${currentTableName}\` (username, cardNumbers)
+        var query = `UPDATE INTO \`${currentTableName}\` (username, cardNumbers)
             VALUES ('BINGO BOSS', '${JSON.stringify(newCalledNumbers)}')`;
         connection.query(query, function(error) {
             if (error) {
@@ -552,6 +594,47 @@ function handleDataExportRequest(formData, response) {
 }
 
 
+// Handles updating the "email" column associated with a passed "username" field.
+// Useful for admins when exporting prize winner data.
+function setEmail(suppliedTableName, username, email, response) {
+    if (!(username && email)) {
+        var responseObject = {
+            status: "error",
+            text: "Couldn't update email address! Username or email wasn't supplied."
+        };
+
+        response.statusCode = 500;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
+    var query = `UPDATE \`${suppliedTableName}\` SET email='${email}' WHERE username='${username}'`;
+    connection.query(query, function(error) {
+        if (error) {
+            console.log(error);
+            var responseObject = {
+                status: "error",
+                text: "Couldn't update email address! Error: " + error
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        var responseObject = {
+            status: "success",
+            username: username,
+            text: "Associated the supplied email address with the supplied username!"
+        };
+
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'application/json');
+        response.end(JSON.stringify(responseObject));
+    });
+}
+
+
 // Handles all POST requests made to the Bingo endpoint.
 // The handled request types are:
 // "recordPrizes"
@@ -608,6 +691,8 @@ function handlePostRequest(request, response) {
             }
         } else if (body.type === "exportWinnerData") {
             handleDataExportRequest(body, response);     
+        } else if (body.type === "setEmail") {
+            setEmail(body.tableName, body.username, body.email, response);
         } else {
             var responseObject = {
                 status: "error",
