@@ -43,5 +43,5 @@ Place a `config.json` file in the same directory as this script in the following
 
 # Releases
 
-## 2019-03-15_19-00-00 :: [8235d97](https://github.com/highfidelity/hifi-content/commit/8235d97)
+## 2019-03-15_19-00-00 :: [b564b47](https://github.com/highfidelity/hifi-content/commit/b564b47)
 - Initial release

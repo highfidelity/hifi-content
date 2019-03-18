@@ -10,5 +10,5 @@ When this script is attached to an entity as an entity script, the entity serves
 
 # Releases
 
-## 2019-03-15_16-36-00 :: [6207a63](https://github.com/highfidelity/hifi-content/commit/6207a63)
+## 2019-03-15_16-36-00 :: [b564b47](https://github.com/highfidelity/hifi-content/commit/b564b47)
 - Initial release
