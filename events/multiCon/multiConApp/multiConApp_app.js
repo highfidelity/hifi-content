@@ -46,7 +46,6 @@
     function vote(usernameToVoteFor) {
         var myUsername = AccountServices.username;
         if (myUsername === "Unknown user") {
-            console.log("User tried to vote, but is not logged in!");
             ui.sendMessage({
                 app: 'multiConVote',
                 method: "voteError",

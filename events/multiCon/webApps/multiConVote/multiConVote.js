@@ -15,10 +15,6 @@ var dbInfo = require('./dbInfo.json');
 
 // Gets all information associated with users participating in the Best Avatar Contest
 function getParticipants(voterUsername, response) {
-    // have they voted?
-        // yes
-        // no
-
     var query = `SELECT * FROM \`multiConAvatarContestParticipants\``;
     connection.query(query, function(error, results) {
         if (error) {
