@@ -11,4 +11,4 @@ var hifiColors = script.require(brandColors.js);
 entity.color = hifiColors.BLACK;
 
 # Relesase Notes
-### 2019-03-12_13-25-17 | 1.0 | a4f6211]
+### 2019-03-12_13-25-17 | 1.0 | a4f6211
