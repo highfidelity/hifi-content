@@ -31,13 +31,19 @@
     var currentRoundWinners = [];
     var BINGO_PRIZE_DOOR_1_TEXT = "{ff7674bb-5569-4381-b370-1dfa1d2a9723}";
     var BINGO_PRIZE_DOOR_1 = "{8724dc08-c0fb-4feb-bda1-8686023f8355}";
+    var BINGO_PRIZE_DOOR_ZONE_1 = "{79b71cfe-b866-4598-8141-fdc2baa4a7ec}";
     var avatarsInDoor1Zone = [];
+    var sessionUUIDsInDoor1Zone = [];
     var BINGO_PRIZE_DOOR_2_TEXT = "{7c80210b-8554-4ed4-8c3f-bade78aa074b}";
     var BINGO_PRIZE_DOOR_2 = "{26cb7c69-40e0-44d6-8a10-b3a261ef0abc}";
+    var BINGO_PRIZE_DOOR_ZONE_2 = "{4abcb0fb-56d5-4d0e-a1e0-9f8c7041be3a}";
     var avatarsInDoor2Zone = [];
+    var sessionUUIDsInDoor2Zone = [];
     var BINGO_PRIZE_DOOR_3_TEXT = "{ec35d3dd-b99a-450c-bd90-5665adfaf9f2}";
     var BINGO_PRIZE_DOOR_3 = "{a3843b9d-70d7-407b-b7ca-378a31fac21f}";
+    var BINGO_PRIZE_DOOR_ZONE_3 = "{962fe8f3-14d6-42fa-bf1d-0939e5f8bdb7}";
     var avatarsInDoor3Zone = [];
+    var sessionUUIDsInDoor3Zone = [];
     // END PRIZE VARS
 
     var MAIN_STAGE_BOUNCER_ZONE = "{5ca26b63-c61b-447e-8985-b0269b33eed0}";
@@ -194,27 +200,31 @@
             }
             
             var username = data.username;
+            var sessionUUID = data.sessionUUID;
             var zoneNumber = data.prizeDoorNumber;
             var isAdding = data.isAdding;
 
-            function addOrRemove(array, username, isAdding) {
-                var idx = array.indexOf(username);
+            function addOrRemove(array, data, isAdding) {
+                var idx = array.indexOf(data);
 
                 if (idx > -1 && !isAdding) {
-                    console.log("Removing " + username + " from list of avatars currently in Prize Zone " + zoneNumber + "!");
+                    console.log("Removing " + data + " from list of avatars currently in Prize Zone " + zoneNumber + "!");
                     array.splice(idx, 1);
                 } else if (idx === -1 && isAdding) {
-                    console.log("Adding " + username + " to list of avatars currently in Prize Zone " + zoneNumber + "!");
-                    array.push(username);
+                    console.log("Adding " + data + " to list of avatars currently in Prize Zone " + zoneNumber + "!");
+                    array.push(data);
                 }
             }
 
             if (zoneNumber === 1) {
                 addOrRemove(avatarsInDoor1Zone, username, isAdding);
+                addOrRemove(sessionUUIDsInDoor1Zone, sessionUUID, isAdding);
             } else if (zoneNumber === 2) {
                 addOrRemove(avatarsInDoor2Zone, username, isAdding);
+                addOrRemove(sessionUUIDsInDoor2Zone, sessionUUID, isAdding);
             } else if (zoneNumber === 3) {
                 addOrRemove(avatarsInDoor3Zone, username, isAdding);
+                addOrRemove(sessionUUIDsInDoor3Zone, sessionUUID, isAdding);
             }
         },
 
@@ -237,6 +247,7 @@
                 console.log("Bingo Boss pressed 'Give Prizes', but there are no avatars in the prize zones!");
                 return;
             }
+            console.log("ZRF FASPOIEUHFJPAOISUEJHFOPIAUSJEF");
 
             var roundPrizes = [];
             function maybePushRandomPrize(prizeString) {
@@ -246,6 +257,9 @@
             }
 
             var possiblePrizes = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).possiblePrizes;
+            var possiblePrizesEmailRequired =
+                Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).possiblePrizesEmailRequired;
+            possiblePrizes = possiblePrizes.concat(possiblePrizesEmailRequired);
             while (roundPrizes.length < 3) {
                 maybePushRandomPrize(possiblePrizes[Math.floor(Math.random() * possiblePrizes.length)]);
             }
@@ -269,6 +283,11 @@
                         username: avatarsInDoor1Zone[i],
                         prizeWon: roundPrizes[0]
                     });
+
+                    if (possiblePrizesEmailRequired.indexOf(roundPrizes[0]) > -1) {
+                        console.log("ZRF HERE 01: " + sessionUUIDsInDoor1Zone[i]);
+                        Entities.callEntityClientMethod(sessionUUIDsInDoor1Zone[i], BINGO_PRIZE_DOOR_ZONE_1, "openWinnerApp");
+                    }
                 }
             }
 
@@ -278,15 +297,31 @@
                         username: avatarsInDoor2Zone[i],
                         prizeWon: roundPrizes[1]
                     });
+
+                    if (possiblePrizesEmailRequired.indexOf(roundPrizes[1]) > -1) {
+                        console.log("ZRF HERE 02: " + sessionUUIDsInDoor2Zone[i]);
+                        Entities.callEntityClientMethod(sessionUUIDsInDoor2Zone[i], BINGO_PRIZE_DOOR_ZONE_2, "openWinnerApp");
+                    }
                 }
             }
 
+            console.log("ZRF avatarsInDoor3Zone.length: " + avatarsInDoor3Zone.length);
             for (i = 0; i < avatarsInDoor3Zone.length; i++) {
+                console.log("ZRF AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                 if (currentRoundWinners.indexOf(avatarsInDoor3Zone[i]) > -1) {
                     requestBody.winners.push({
                         username: avatarsInDoor3Zone[i],
                         prizeWon: roundPrizes[2]
                     });
+
+                    console.log("ZRF");
+                    console.log(JSON.stringify(possiblePrizesEmailRequired));
+                    console.log(roundPrizes[2]);
+                    console.log(possiblePrizesEmailRequired.indexOf(roundPrizes[2]));
+
+                    if (possiblePrizesEmailRequired.indexOf(roundPrizes[2]) > -1) {
+                        Entities.callEntityClientMethod(sessionUUIDsInDoor3Zone[i], BINGO_PRIZE_DOOR_ZONE_3, "openWinnerApp");
+                    }
                 }
             }
             
@@ -372,8 +407,11 @@
                 calledNumbers = [];
                 currentRoundWinners = [];
                 avatarsInDoor1Zone = [];
+                sessionUUIDsInDoor1Zone = [];
                 avatarsInDoor2Zone = [];
+                sessionUUIDsInDoor2Zone = [];
                 avatarsInDoor3Zone = [];
+                sessionUUIDsInDoor3Zone = [];
                 Entities.callEntityMethod(BINGO_PRIZE_DOOR_1, 'closeGate');
                 Entities.callEntityMethod(BINGO_PRIZE_DOOR_2, 'closeGate');
                 Entities.callEntityMethod(BINGO_PRIZE_DOOR_3, 'closeGate');

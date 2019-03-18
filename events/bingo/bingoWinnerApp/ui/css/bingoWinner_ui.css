@@ -31,7 +31,7 @@ body {
 #initialTextContainer,
 #statusTextContainer,
 #closeButtonContainer {
-    padding: 16px;
+    padding: 16px 16px 0 16px;
     font-size: 22px;
 }
 

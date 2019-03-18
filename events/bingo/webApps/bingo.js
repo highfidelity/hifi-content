@@ -486,7 +486,8 @@ function formatDataForExport(tablePrefix, allWinnersReceive, data, response) {
             if (perTableData[i][j].prizeWon) {
                 prizesWonThisRound.push({
                     "username": perTableData[i][j].username,
-                    "prizeWon": perTableData[i][j].prizeWon   
+                    "prizeWon": perTableData[i][j].prizeWon,
+                    "email": perTableData[i][j].email
                 });
             }
         }
@@ -495,7 +496,7 @@ function formatDataForExport(tablePrefix, allWinnersReceive, data, response) {
             finalResponseHTML += "<h3>Prize Winner(s) CSV:</h3>";
             finalResponseHTML += "<pre>Username,Prize Won,Winner Email Address\n"
             for (j = 0; j < prizesWonThisRound.length; j++) {
-                finalResponseHTML += `${prizesWonThisRound[j].username},${prizesWonThisRound[j].prizeWon},temp@temp.com\n`;
+                finalResponseHTML += `${prizesWonThisRound[j].username},${prizesWonThisRound[j].prizeWon},${prizesWonThisRound[j].email}\n`;
             }
             finalResponseHTML += "</pre>";
         }
@@ -561,14 +562,14 @@ function handleDataExportRequest(formData, response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        query = `SELECT username, prizeWon, sourceTableName FROM (`;
+        query = `SELECT username, prizeWon, email, sourceTableName FROM (`;
         for (var i = 0; i < results.length; i++) {
             var currentTableName;
             for (var key in results[i]) {
                 currentTableName = results[i][key];
             }
 
-            query += `SELECT username, prizeWon, '${currentTableName}' as sourceTableName FROM \`${currentTableName}\``;
+            query += `SELECT username, prizeWon, email, '${currentTableName}' as sourceTableName FROM \`${currentTableName}\``;
 
             if (i < (results.length - 1)) {
                 query += " UNION ALL ";

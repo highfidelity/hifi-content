@@ -13,9 +13,11 @@ Here's what your `config.json` file should look like:
 {
     "requestURL": "<a deployed version of the bingo.js Web App. MAKE SURE you also update REQUEST_URL in bingoCard_ui.js!>",
     "usersAllowedToSpinWheel": [<an array of strings dictating who can spin the Bingo wheel>],
+    "usersAllowedOnStage": [<an array of strings dictating who is allowed on stage>],
     "gameAudioPosition": { "x": <int>, "y": <int>, "z": <int> },
     "dbTablePrefix": "<a prefix for all of the Bingo tables in your DB associated with this deployment>",
     "possiblePrizes": [<an array of short strings dictating the prizes that players can win>],
+    "pozziblePrizesEmailRequired": [<an array of short strings dictating the prizes that players can win. if a player wins one of these prizes, they will be prompted for their email address.>],
     "debugMode": <true|false, depending on whether you want to enable various debug functions, such as the ability to use the Bingo Test App to call all numbers immediately>
 }
 ```

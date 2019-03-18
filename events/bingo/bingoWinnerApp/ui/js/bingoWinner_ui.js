@@ -44,9 +44,10 @@ function initializeUI(prizeWon) {
 
     var initialTextContainer = document.getElementById("initialTextContainer");
     initialTextContainer.innerHTML = `
-        <p>Congratulations, you won a prize while playing Bingo Extremeo!</p>
+        <p>Congratulations, you won a physical prize while playing Bingo Extremeo!</p>
         <p>Your prize is: <strong>${prizeWon}</strong></p>
-        <p>To claim your prize, type your email address into the text field below, then click SUBMIT.</p>
+        <p>To claim your prize, enter your email address into the text field below, then click SUBMIT.</p>
+        <p>If you signed up for BINGO EXTREMEO through Eventbrite, enter the same email address you used there.</p>
     `;
 
     var formContainer = document.getElementById("formContainer");
