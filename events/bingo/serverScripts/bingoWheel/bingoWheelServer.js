@@ -247,7 +247,6 @@
                 console.log("Bingo Boss pressed 'Give Prizes', but there are no avatars in the prize zones!");
                 return;
             }
-            console.log("ZRF FASPOIEUHFJPAOISUEJHFOPIAUSJEF");
 
             var roundPrizes = [];
             function maybePushRandomPrize(prizeString) {
@@ -285,7 +284,6 @@
                     });
 
                     if (possiblePrizesEmailRequired.indexOf(roundPrizes[0]) > -1) {
-                        console.log("ZRF HERE 01: " + sessionUUIDsInDoor1Zone[i]);
                         Entities.callEntityClientMethod(sessionUUIDsInDoor1Zone[i], BINGO_PRIZE_DOOR_ZONE_1, "openWinnerApp");
                     }
                 }
@@ -299,25 +297,17 @@
                     });
 
                     if (possiblePrizesEmailRequired.indexOf(roundPrizes[1]) > -1) {
-                        console.log("ZRF HERE 02: " + sessionUUIDsInDoor2Zone[i]);
                         Entities.callEntityClientMethod(sessionUUIDsInDoor2Zone[i], BINGO_PRIZE_DOOR_ZONE_2, "openWinnerApp");
                     }
                 }
             }
 
-            console.log("ZRF avatarsInDoor3Zone.length: " + avatarsInDoor3Zone.length);
             for (i = 0; i < avatarsInDoor3Zone.length; i++) {
-                console.log("ZRF AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                 if (currentRoundWinners.indexOf(avatarsInDoor3Zone[i]) > -1) {
                     requestBody.winners.push({
                         username: avatarsInDoor3Zone[i],
                         prizeWon: roundPrizes[2]
                     });
-
-                    console.log("ZRF");
-                    console.log(JSON.stringify(possiblePrizesEmailRequired));
-                    console.log(roundPrizes[2]);
-                    console.log(possiblePrizesEmailRequired.indexOf(roundPrizes[2]));
 
                     if (possiblePrizesEmailRequired.indexOf(roundPrizes[2]) > -1) {
                         Entities.callEntityClientMethod(sessionUUIDsInDoor3Zone[i], BINGO_PRIZE_DOOR_ZONE_3, "openWinnerApp");

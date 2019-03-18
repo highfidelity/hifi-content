@@ -184,12 +184,12 @@ function getWinnerInfo(username, response) {
 
 
 // Handles any GET requests made to the Bingo server endpoint
-// The three handled method types are:
+// The handled method types are:
 // "searchOrAdd"
 // "searchOnly"
 // "newRound"
 // "getCalledNumbers"
-// "setEmail"
+// "exportWinnerData"
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
     
@@ -395,7 +395,7 @@ function recordWinners(winnersArray, response) {
 // currentCalledNumbers with a GET request.
 function replaceCalledNumbers(newCalledNumbers, response) {
     if (currentTableName) {
-        var query = `UPDATE INTO \`${currentTableName}\` (username, cardNumbers)
+        var query = `REPLACE INTO \`${currentTableName}\` (username, cardNumbers)
             VALUES ('BINGO BOSS', '${JSON.stringify(newCalledNumbers)}')`;
         connection.query(query, function(error) {
             if (error) {
@@ -612,7 +612,6 @@ function setEmail(suppliedTableName, username, email, response) {
     var query = `UPDATE \`${suppliedTableName}\` SET email='${email}' WHERE username='${username}'`;
     connection.query(query, function(error) {
         if (error) {
-            console.log(error);
             var responseObject = {
                 status: "error",
                 text: "Couldn't update email address! Error: " + error
@@ -641,6 +640,7 @@ function setEmail(suppliedTableName, username, email, response) {
 // "recordPrizes"
 // "replaceCalledNumbers"
 // "exportWinnerData"
+// "setEmail"
 function handlePostRequest(request, response) {
     let body = '';
     request.on('data', chunk => {
