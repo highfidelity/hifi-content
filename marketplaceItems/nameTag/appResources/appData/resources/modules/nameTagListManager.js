@@ -11,6 +11,9 @@
     Helps manage the list of avatars added to the nametag list
 
 */
+
+var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
+
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
 var entityProps = Script.require('./defaultLocalEntityProps.js?' + Date.now());
 var textHelper = new (Script.require('./textHelper.js?' + Date.now()));
@@ -88,8 +91,21 @@ function add(uuid, intersection){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
+    // Update the intersection to not cut into the avatar.  
+    // Note:  This will be changed in RC81 to make use of the render front layer.  
+    var localOffset = [0, 0, 2];
+    // var orientation = avatar.orientation;
+    var orientation = MyAvatar.orientation;    
+    // log("orientation", orientation);
+    // log("intersection", intersection);
+    // log("localOffset", localOffset);
+    var newIntersectionPoint = localToWorld(localOffset, intersection.intersection, orientation);
+    // log("newIntersectionPoint", newIntersectionPoint);
     // Save the intersection point
-    avatar.intersection = intersection.intersection;
+    avatar.intersection = newIntersectionPoint;
+
+    // local offset for the intersection 
+
 
     // Save the intersection position local to the avatar in case we need it again
     avatar.localPositionOfIntersection = worldToLocal(avatar.intersection, avatarInfo.position, avatarInfo.orientation);
@@ -220,7 +236,7 @@ function maybeClearInterval(){
 var Z_SIZE = 0.01;
 var MAIN_SCALER = 0.75;
 var SUB_SCALER = 0.55;
-var LINE_HEIGHT_SCALER = 0.20;
+var LINE_HEIGHT_SCALER = 0.99;
 var DISTANCE_SCALER = 0.35; // Empirical value
 var userScaler = 1.0;
 var DEFAULT_LINE_HEIGHT = entityProps.lineHeight;
@@ -288,6 +304,7 @@ var RIGHT_MARGIN_SCALER = 0.10;
 var TOP_MARGIN_SCALER = 0.07;
 var BOTTOM_MARGIN_SCALER = 0.03;
 function makeNameTag(uuid, type) {
+    log("make name tag")
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
 
@@ -346,10 +363,10 @@ function makeNameTag(uuid, type) {
     scaledDimensions[Y] += (lineHeight * TOP_MARGIN_SCALER) + (lineHeight * BOTTOM_MARGIN_SCALER);
 
     localEntity
-        .add("leftMargin", lineHeight * LEFT_MARGIN_SCALER)
-        .add("rightMargin", lineHeight * RIGHT_MARGIN_SCALER)
-        .add("topMargin", lineHeight * TOP_MARGIN_SCALER)
-        .add("bottomMargin", lineHeight * BOTTOM_MARGIN_SCALER)
+        // .add("leftMargin", lineHeight * LEFT_MARGIN_SCALER)
+        // .add("rightMargin", lineHeight * RIGHT_MARGIN_SCALER)
+        // .add("topMargin", lineHeight * TOP_MARGIN_SCALER)
+        // .add("bottomMargin", lineHeight * BOTTOM_MARGIN_SCALER)
         .add("lineHeight", lineHeight)
         .add("dimensions", scaledDimensions)
         .add("parentID", parentID);
@@ -633,11 +650,22 @@ function destroy() {
 
 // Handles what happens when an avatar gets triggered on.
 function handleSelect(uuid, intersection) {
-    if (uuid in _this.selectedAvatars) {
+    var inSelected = uuid in _this.selectedAvatars;
+
+    if (inSelected) {
+        log("in remove")
         removeLocalEntity(uuid);
-    } else {
-        add(uuid, intersection);
+        return;
     }
+    
+    if (!inSelected) {
+        log("in add ")
+        add(uuid);
+        return;
+    }
+    log("going to add")
+    return;
+
 }
 
 

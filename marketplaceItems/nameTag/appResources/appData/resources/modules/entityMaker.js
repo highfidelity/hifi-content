@@ -121,6 +121,7 @@ function hide(){
 
 // Add an entity if it isn't created
 function create(clearPropertiesAfter){
+    // console.log("entityProps made with:", JSON.stringify(this.properties));
     this.id = Entities.addEntity(this.properties, this.type);
     if (clearPropertiesAfter) {
         this.properties = {};
