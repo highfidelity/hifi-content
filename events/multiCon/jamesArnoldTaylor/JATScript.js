@@ -141,7 +141,7 @@
     var CONTROL_BUTTON_PROPERTIES = [
         {
             "name": "play",
-            "url": "https://hifi-content.s3.amazonaws.com/alan/dev/playback_play-button.fbx",
+            "url": Script.resolvePath("models/playback_play-button.fbx"),
             "position": {
                 "x": 16.6961,
                 "y": -11.1147,
@@ -152,7 +152,7 @@
         },
         {
             "name": "pause",
-            "url": "https://hifi-content.s3.amazonaws.com/alan/dev/playback_pause-button.fbx",
+            "url": Script.resolvePath("models/playback_pause-button.fbx"),
             "position": {
                 "x": 17.1057,
                 "y": -11.1149,
@@ -163,7 +163,7 @@
         },
         {
             "name": "previous",
-            "url": "https://hifi-content.s3.amazonaws.com/alan/dev/playback_ff-rw-button.fbx",
+            "url": Script.resolvePath("models/playback_ff-rw-button.fbx"),
             "position": {
                 "x": 17.5153,
                 "y": -11.1150,
@@ -174,7 +174,7 @@
         },
         {
             "name": "next",
-            "url": "https://hifi-content.s3.amazonaws.com/alan/dev/playback_ff-rw-button.fbx",
+            "url": Script.resolvePath("models/playback_ff-rw-button.fbx"),
             "position": {
                 "x": 17.9249,
                 "y": -11.1151,
@@ -266,24 +266,33 @@
         rezVideoControlButtons();
         rezTextOverlay();
         rezWebOverlay();
+        
+        Overlays.mousePressOnOverlay.connect(onMousePressOnOverlay);
+        Script.scriptEnding.connect(onScriptEnding);
+        Messages.subscribe(STATUS_MESSAGE_CHANNEL);
+        Messages.messageReceived.connect(onMessageReceived);
     }
 
     function onScriptEnding() {
         for (var i = 0; i < rezzedAvatarOverlays.length; i++) {
             console.log("Deleting local entity with ID " + rezzedAvatarOverlays[i]);
             Overlays.deleteOverlay(rezzedAvatarOverlays[i]);
+            rezzedAvatarOverlays[i] = false;
         }
         for (i = 0; i < rezzedAvatarOverlays.length; i++) {
             console.log("Deleting local entity with ID " + rezzedControlButtonOverlays[i]);
             Overlays.deleteOverlay(rezzedControlButtonOverlays[i]);
+            rezzedControlButtonOverlays[i] = false;
         }
 
         if (textOverlay) {
             Overlays.deleteOverlay(textOverlay);
+            textOverlay = false;
         }
 
         if (webOverlay) {
             Overlays.deleteOverlay(webOverlay);
+            webOverlay = false;
         }
 
         Overlays.mousePressOnOverlay.disconnect(onMousePressOnOverlay);
@@ -336,9 +345,5 @@
         }
     }
 
-    Overlays.mousePressOnOverlay.connect(onMousePressOnOverlay);
-    Script.scriptEnding.connect(onScriptEnding);
-    Messages.subscribe(STATUS_MESSAGE_CHANNEL);
-    Messages.messageReceived.connect(onMessageReceived);
     startup();
 })();
