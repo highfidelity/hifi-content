@@ -523,6 +523,7 @@ function formatDataForExport(tablePrefix, allWinnersReceive, data, response) {
     return response.end(finalResponseHTML);
 }
 
+
 // Handles data export request as per the user-submitted form.
 // Uses password-based authentication using the same password
 // as the db password.

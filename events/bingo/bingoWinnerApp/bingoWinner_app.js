@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers */
 //
 // bingoWinnerApp.js
 // Created by Zach Fox on 2019-03-18
@@ -7,8 +6,6 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
-
-/* globals */
 
 (function() {
     // Two main cases here:
