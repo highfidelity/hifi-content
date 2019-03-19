@@ -47,7 +47,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v3.0 | 2019-03-18_17-00-00 | [commit fd3836a](https://github.com/highfidelity/hifi-content/commits/fd3836a)
+## v3.0 | 2019-03-18_17-00-00 | [commit 81d1c43](https://github.com/highfidelity/hifi-content/commits/81d1c43)
 
 - New Bingo export tool
 - Added a feature to the bouncer zone such that it no longer relies on hard-coded usernames
