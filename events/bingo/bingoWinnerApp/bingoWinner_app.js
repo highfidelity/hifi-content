@@ -57,7 +57,9 @@
                 ui.sendMessage({
                     app: APP_NAME,
                     method: "emailUpdateError",
-                    errorText: "We couldn't update your email address. Please contact High Fidelity. Error code: 2"
+                    errorText: "We couldn't update your email address. " +
+                        "Please contact support@highfidelity.com and include your High Fidelity username, " +
+                        "the prize you won, the current date, and \"Error Code: 2\"."
                 });
                 return;
             }
@@ -102,7 +104,9 @@
                 ui.sendMessage({
                     app: APP_NAME,
                     method: "error",
-                    errorText: "Application error. Please contact High Fidelity. Error code: 3"
+                    errorText: "We couldn't update your email address. " +
+                        "Please contact support@highfidelity.com and include your High Fidelity username, " +
+                        "the prize you won, the current date, and \"Error Code: 3\"."
                 });
             }
         });

@@ -60,6 +60,9 @@ function showError(errorText) {
 
     var statusTextContainer = document.getElementById("statusTextContainer");
     statusTextContainer.innerHTML = errorText;
+
+    var closeButtonContainer = document.getElementById("closeButtonContainer");
+    closeButtonContainer.style.display = "block";
 }
 
 
