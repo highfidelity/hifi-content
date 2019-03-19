@@ -24,6 +24,7 @@ var Z = 2;
 var HALF = 0.5;
 var SHOULD_QUERY_ENTITY = true;
 var CLEAR_ENTITY_EDIT_PROPS = true;
+var MILISECONDS_IN_SECOND = 1000;
 
 // *************************************
 // START UTILTY
@@ -43,7 +44,8 @@ function NewAvatarProps(intersection) {
         subInitialDimensions: null,
         previousName: null,
         localPositionOfIntersection: null,
-        subInitialLocalPositionOffset: null
+        subInitialLocalPositionOffset: null,
+        timeoutStarted: true
     };
 }
 
@@ -92,13 +94,18 @@ function add(uuid, intersection){
     var avatarInfo = avatar.avatarInfo;
 
     // Update the intersection to not cut into the avatar.  
-    // Note:  This will be changed in RC81 to make use of the render front layer.  
-    var localOffset = [0, 0, 2];
+    // Note:  This will be changed in RC81 to make use of the render front layer.
+    var avatarDistance = getDistance(uuid);
+    var DISTANCE_AMOUNT = 0.25;
+    var scaledDistance = avatarDistance * DISTANCE_AMOUNT;
+    var localOffset = [0, 0, DISTANCE_AMOUNT];
     // var orientation = avatar.orientation;
     var orientation = MyAvatar.orientation;    
     // log("orientation", orientation);
     // log("intersection", intersection);
     // log("localOffset", localOffset);
+    // orientation = Quat.multiply(orientation, avatarInfo.orientation);
+    orientation = Quat.lookAt(Camera.position, intersection.intersection, Quat.getUp(Camera.orientation));
     var newIntersectionPoint = localToWorld(localOffset, intersection.intersection, orientation);
     // log("newIntersectionPoint", newIntersectionPoint);
     // Save the intersection point
@@ -117,6 +124,16 @@ function add(uuid, intersection){
     avatar.localEntitySub = new LocalEntity('local').add(entityProps);
     // When the user clicks someone, we create their nametag
     makeNameTag(uuid, "main");
+    // Create the sub if they have it
+    if (avatarInfo.username){
+        makeNameTag(uuid, "sub");
+    }
+
+    var deleteEnttyInMiliseconds = entityProps.lifetime * MILISECONDS_IN_SECOND;
+    // Remove from list after lifetime is over
+    avatar.timeoutStarted = Script.setTimeout(function () {
+        removeLocalEntity(uuid);
+    }, deleteEnttyInMiliseconds);
 
     // Check to see if anyone is in the selected list now to see if we need to start the interval checking
     shouldToggleInterval();
@@ -144,7 +161,6 @@ function remove(uuid){
 function removeAllLocalEntities(){
     for (var uuid in _this.selectedAvatars) {
         removeLocalEntity(uuid);
-        delete _this.selectedAvatars[uuid];
     }
 
     return _this;
@@ -159,6 +175,7 @@ function removeLocalEntity(uuid){
     if (avatar.localEntitySub) {
         avatar.localEntityMain.destroy();
     }
+    delete _this.selectedAvatars[uuid];
 
     return _this;
 }
@@ -363,10 +380,10 @@ function makeNameTag(uuid, type) {
     scaledDimensions[Y] += (lineHeight * TOP_MARGIN_SCALER) + (lineHeight * BOTTOM_MARGIN_SCALER);
 
     localEntity
-        // .add("leftMargin", lineHeight * LEFT_MARGIN_SCALER)
-        // .add("rightMargin", lineHeight * RIGHT_MARGIN_SCALER)
-        // .add("topMargin", lineHeight * TOP_MARGIN_SCALER)
-        // .add("bottomMargin", lineHeight * BOTTOM_MARGIN_SCALER)
+        .add("leftMargin", lineHeight * LEFT_MARGIN_SCALER)
+        .add("rightMargin", lineHeight * RIGHT_MARGIN_SCALER)
+        .add("topMargin", lineHeight * TOP_MARGIN_SCALER)
+        .add("bottomMargin", lineHeight * BOTTOM_MARGIN_SCALER)
         .add("lineHeight", lineHeight)
         .add("dimensions", scaledDimensions)
         .add("parentID", parentID);
@@ -653,17 +670,24 @@ function handleSelect(uuid, intersection) {
     var inSelected = uuid in _this.selectedAvatars;
 
     if (inSelected) {
-        log("in remove")
+        var timeoutStarted = _this.avatars[uuid].timeoutStarted;
+        // log("timerStarted", timeoutStarted);
+        // log("in remove");
+        if (timeoutStarted) {
+            Script.clearTimeout(timeoutStarted);
+            timeoutStarted = null;
+        }
+
         removeLocalEntity(uuid);
         return;
     }
     
     if (!inSelected) {
-        log("in add ")
-        add(uuid);
+        // log("in add ")
+        add(uuid, intersection);
         return;
     }
-    log("going to add")
+    // log("going to add")
     return;
 
 }
