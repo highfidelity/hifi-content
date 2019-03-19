@@ -7,17 +7,11 @@
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
 //
-//
-// NOTE 2019-02-13:
-// In its current form, this script has been closely adapted from
-// the Google Script that the Experiences team used for previous Bingo
-// events. I made a couple of bugfixes and optimizations, but not many.
-// I wanted to maintain as much backwards compatibility as possible.
-//
 
 var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
+var parseQueryString = require('querystring');
 
 // Creates a new table in the Bingo DB.
 var currentTableName;
@@ -30,9 +24,10 @@ function createNewTable(newTablePrefix, response) {
         username VARCHAR(50) PRIMARY KEY,
         cardNumbers VARCHAR(1000),
         cardColor VARCHAR(60),
-        prizeWon VARCHAR(100)
+        prizeWon VARCHAR(100),
+        email VARCHAR(120)
     )`;
-    connection.query(query, function(error, results, fields) {
+    connection.query(query, function(error) {
         if (error) {
             var responseObject = {
                 status: "error",
@@ -40,7 +35,7 @@ function createNewTable(newTablePrefix, response) {
                 text: "Could not create new table! " + error
             };
     
-            response.statusCode = 200;
+            response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
@@ -117,14 +112,14 @@ function addNewPlayer(username, response) {
 
     var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers, cardColor)
         VALUES ('${username}', '${JSON.stringify(userCardNumbers)}', '${JSON.stringify(userCardColor)}')`;
-    connection.query(query, function(error, results, fields) {
+    connection.query(query, function(error) {
         if (error) {
             var responseObject = {
                 status: "error",
                 text: "Error adding new player!"
             };
 
-            response.statusCode = 200;
+            response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
@@ -143,12 +138,58 @@ function addNewPlayer(username, response) {
 }
 
 
+function getWinnerInfo(username, response) {
+    if (!currentTableName) {
+        var responseObject = {
+            status: "error"
+        };
+
+        response.statusCode = 500;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
+    var query = `SELECT * FROM \`${currentTableName}\` WHERE username='${username}' AND prizeWon IS NOT NULL`;
+    connection.query(query, function(error, results) {
+        if (error) {
+            var responseObject = {
+                status: "error"
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        if (results.length === 1) {
+            var responseObject = {
+                "status": "success",
+                "currentTableName": currentTableName,
+                "prizeWon": results[0].prizeWon
+            };
+            response.statusCode = 200;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        } else {
+            var responseObject = {
+                status: "error"
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+    });
+}
+
+
 // Handles any GET requests made to the Bingo server endpoint
-// The three handled method types are:
+// The handled method types are:
 // "searchOrAdd"
 // "searchOnly"
 // "newRound"
 // "getCalledNumbers"
+// "exportWinnerData"
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
     
@@ -171,19 +212,19 @@ function handleGetRequest(request, response) {
             }
 
             var query = `SELECT * FROM \`${currentTableName}\` WHERE username='${username}'`;
-            connection.query(query, function(error, results, fields) {
+            connection.query(query, function(error, results) {
                 if (error) {
                     var responseObject = {
                         status: "error",
                         text: error
                     };
     
-                    response.statusCode = 200;
+                    response.statusCode = 500;
                     response.setHeader('Content-Type', 'application/json');
                     return response.end(JSON.stringify(responseObject));
                 }
         
-                if (results.length === 0) {
+                if (results.length === 0 && type === "searchOrAdd") {
                     addNewPlayer(username, response);
                 } else if (results.length === 0 && type === "searchOnly") {
                     var responseObject = {
@@ -212,7 +253,7 @@ function handleGetRequest(request, response) {
                 status: "error"
             };
 
-            response.statusCode = 200;
+            response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
@@ -227,10 +268,47 @@ function handleGetRequest(request, response) {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
         return response.end(JSON.stringify(responseObject));
+    } else if (type === "exportWinnerData") {
+        var responseHtml = `
+<html>
+    <head>
+        <title>Bingo</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <form action="/bingo" method="post">
+            Bingo Table Prefix:<br>
+            <input type="text" name="prefix"><br>
+
+            All Players Receive (HFC):<br>
+            <input type="text" name="allPlayersReceiveAmount"><br>
+
+            Password (use Bingo MySQL user's password):<br>
+            <input type="password" name="password"><br><br>
+
+            <input type="hidden" name="type" value="exportWinnerData">
+            
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>
+        `;
+    
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return response.end(responseHtml);
+    } else if (type === "getWinnerInfo") {
+        return getWinnerInfo(queryParamObject.username, response);
     } else {
+        var responseObject = {
+            status: "error",
+            text: "Invalid request type provided!"
+        };
+
         response.statusCode = 501;
-        response.setHeader('Content-Type', 'text/plain');
-        return response.end(JSON.stringify(queryParamObject) + '\n');
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
     }
 }
 
@@ -277,7 +355,7 @@ function recordWinners(winnersArray, response) {
             text: "Tried to record prizes, but there's no `currentTableName`!"
         };
 
-        response.statusCode = 200;
+        response.statusCode = 500;
         response.setHeader('Content-Type', 'application/json');
         return response.end(JSON.stringify(responseObject));
     }
@@ -287,7 +365,7 @@ function recordWinners(winnersArray, response) {
             SET prizeWon = (case ${createCaseString(winnersArray)} end)
             WHERE username in (${createQueryInString(winnersArray)})
     `;
-    connection.query(query, function(error, results, fields) {
+    connection.query(query, function(error) {
         if (error) {
             var responseObject = {
                 status: "error",
@@ -295,7 +373,7 @@ function recordWinners(winnersArray, response) {
                 winnersArray: winnersArray
             };
     
-            response.statusCode = 200;
+            response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
@@ -319,14 +397,14 @@ function replaceCalledNumbers(newCalledNumbers, response) {
     if (currentTableName) {
         var query = `REPLACE INTO \`${currentTableName}\` (username, cardNumbers)
             VALUES ('BINGO BOSS', '${JSON.stringify(newCalledNumbers)}')`;
-        connection.query(query, function(error, results, fields) {
+        connection.query(query, function(error) {
             if (error) {
                 var responseObject = {
                     status: "error",
                     text: "Error replacing called numbers! " + JSON.stringify(error)
                 };
     
-                response.statusCode = 200;
+                response.statusCode = 500;
                 response.setHeader('Content-Type', 'application/json');
                 return response.end(JSON.stringify(responseObject));
             }
@@ -348,16 +426,222 @@ function replaceCalledNumbers(newCalledNumbers, response) {
             text: "replaceCalledNumbers was called, but there was no currentTableName!"
         };
 
-        response.statusCode = 200;
+        response.statusCode = 500;
         response.setHeader('Content-Type', 'application/json');
         return response.end(JSON.stringify(responseObject));
     }
 }
 
+
+// Given some input data, formats the human-readable text data
+// in an arbitrary way as needed by the team.
+function formatDataForExport(tablePrefix, allWinnersReceive, data, response) {
+    var finalResponseHTML = `<html><body>`;
+    finalResponseHTML += `<h1>Requested Table Prefix: "${tablePrefix}"</h1>`;
+
+    var perTableData = [];
+    var currentTableNameProcessing;
+    var currentTableData = [];
+
+    if (data.length > 0) {
+        currentTableNameProcessing = data[0].sourceTableName;
+    } else {
+        var responseObject = {
+            status: "error",
+            text: "There are no tables with that prefix! Go back and make sure you've input a valid prefix."
+        };
+
+        response.statusCode = 500;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
+    for (var i = 0; i < data.length; i++) {
+        if (data[i].sourceTableName !== currentTableNameProcessing) {
+            perTableData.push(currentTableData);
+            currentTableNameProcessing = data[i].sourceTableName;
+            currentTableData = [];
+        }
+
+        currentTableData.push(data[i]);
+    }
+
+    perTableData.push(currentTableData);
+
+    for (var i = 0; i < perTableData.length; i++) {
+        var numAllPlayersWin = 0;
+        var prizesWonThisRound = [];
+
+        for (var j = 0; j < perTableData[i].length; j++) {
+            if (String(perTableData[i][j].prizeWon).toLowerCase().indexOf("all") > -1) {
+                numAllPlayersWin++;
+            }
+        }
+
+        for (j = 0; j < perTableData[i].length; j++) {
+            if (j === 0) {
+                finalResponseHTML += `<h2>Bingo Round #${(i + 1)} (MySQL Table Name ${perTableData[i][j].sourceTableName})</h2>`;
+            }
+
+            if (perTableData[i][j].prizeWon) {
+                prizesWonThisRound.push({
+                    "username": perTableData[i][j].username,
+                    "prizeWon": perTableData[i][j].prizeWon,
+                    "email": perTableData[i][j].email
+                });
+            }
+        }
+
+        if (prizesWonThisRound.length > 0) {
+            finalResponseHTML += "<h3>Prize Winner(s) CSV:</h3>";
+            finalResponseHTML += "<pre>Username,Prize Won,Winner Email Address\n"
+            for (j = 0; j < prizesWonThisRound.length; j++) {
+                finalResponseHTML += `${prizesWonThisRound[j].username},${prizesWonThisRound[j].prizeWon},${prizesWonThisRound[j].email}\n`;
+            }
+            finalResponseHTML += "</pre>";
+        }
+
+        finalResponseHTML += `<h3>CSV useful for when someone wins "All Players Win":</h3>`;
+
+        if (numAllPlayersWin > 0) {
+            finalResponseHTML += "<pre>Amount of HFC,Type,Username\n";
+            for (j = 0; j < perTableData[i].length; j++) {
+                
+
+                finalResponseHTML += `${(allWinnersReceive * numAllPlayersWin)},Event Grant,${perTableData[i][j].username}\n`;
+            }
+            finalResponseHTML += "</pre>";
+        } else {
+            finalResponseHTML += "<p>NOBODY WON 'All Players Win' in this round.<p>";
+        }
+    }
+
+    finalResponseHTML += `</html></body>`;
+
+    response.statusCode = 200;
+    response.setHeader('Content-Type', 'text/html');
+    return response.end(finalResponseHTML);
+}
+
+
+// Handles data export request as per the user-submitted form.
+// Uses password-based authentication using the same password
+// as the db password.
+function handleDataExportRequest(formData, response) {
+    if (formData.password !== dbInfo.mySQLPassword) {
+        var responseObject = {
+            status: "error",
+            text: "Not authorized."
+        };
+    
+        response.statusCode = 401;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));    
+    }
+
+    var query = `SHOW TABLES LIKE '${formData.prefix}_%'`;
+    connection.query(query, function(error, results) {
+        if (error) {
+            var responseObject = {
+                status: "error",
+                text: "Couldn't export player data! Error while showing tables with prefix: " + error
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        if (results.length === 0) {
+            var responseObject = {
+                status: "error",
+                text: "There are no tables with that prefix! Go back and make sure you've input a valid prefix."
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        query = `SELECT username, prizeWon, email, sourceTableName FROM (`;
+        for (var i = 0; i < results.length; i++) {
+            var currentTableName;
+            for (var key in results[i]) {
+                currentTableName = results[i][key];
+            }
+
+            query += `SELECT username, prizeWon, email, '${currentTableName}' as sourceTableName FROM \`${currentTableName}\``;
+
+            if (i < (results.length - 1)) {
+                query += " UNION ALL ";
+            }
+        }
+        query += `) as B WHERE B.username != 'BINGO BOSS'`;
+            
+        connection.query(query, function(error, results) {
+            if (error) {
+                var responseObject = {
+                    status: "error",
+                    text: "Couldn't export player data! Error while getting data from DB: " + error
+                };
+    
+                response.statusCode = 500;
+                response.setHeader('Content-Type', 'application/json');
+                return response.end(JSON.stringify(responseObject));
+            }
+
+            formatDataForExport(formData.prefix, formData.allPlayersReceiveAmount, results, response);
+        });
+    });
+}
+
+
+// Handles updating the "email" column associated with a passed "username" field.
+// Useful for admins when exporting prize winner data.
+function setEmail(suppliedTableName, username, email, response) {
+    if (!(username && email)) {
+        var responseObject = {
+            status: "error",
+            text: "Couldn't update email address! Username or email wasn't supplied."
+        };
+
+        response.statusCode = 500;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
+    var query = `UPDATE \`${suppliedTableName}\` SET email='${email}' WHERE username='${username}'`;
+    connection.query(query, function(error) {
+        if (error) {
+            var responseObject = {
+                status: "error",
+                text: "Couldn't update email address! Error: " + error
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        var responseObject = {
+            status: "success",
+            username: username,
+            text: "Associated the supplied email address with the supplied username!"
+        };
+
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'application/json');
+        response.end(JSON.stringify(responseObject));
+    });
+}
+
+
 // Handles all POST requests made to the Bingo endpoint.
-// The one handled request type is:
+// The handled request types are:
 // "recordPrizes"
 // "replaceCalledNumbers"
+// "exportWinnerData"
+// "setEmail"
 function handlePostRequest(request, response) {
     let body = '';
     request.on('data', chunk => {
@@ -367,14 +651,18 @@ function handlePostRequest(request, response) {
         try {
             body = JSON.parse(body);
         } catch (error) {
-            var responseObject = {
-                status: "error",
-                text: "Error handling POST request!"
-            };
-
-            response.statusCode = 200;
-            response.setHeader('Content-Type', 'application/json');
-            return response.end(JSON.stringify(responseObject));
+            try {
+                body = parseQueryString.parse(body);
+            } catch (error) {
+                var responseObject = {
+                    status: "error",
+                    text: "Error handling POST request!"
+                };
+    
+                response.statusCode = 500;
+                response.setHeader('Content-Type', 'application/json');
+                return response.end(JSON.stringify(responseObject));
+            }
         }
         
         if (body.type === "recordPrizes") {
@@ -384,7 +672,7 @@ function handlePostRequest(request, response) {
                     text: "No valid winners array provided!"
                 };
 
-                response.statusCode = 200;
+                response.statusCode = 500;
                 response.setHeader('Content-Type', 'application/json');
                 return response.end(JSON.stringify(responseObject));
             } else {
@@ -397,19 +685,23 @@ function handlePostRequest(request, response) {
                     text: "No valid calledNumbers array provided!"
                 };
 
-                response.statusCode = 200;
+                response.statusCode = 500;
                 response.setHeader('Content-Type', 'application/json');
                 return response.end(JSON.stringify(responseObject));
             } else {
                 replaceCalledNumbers(body.calledNumbers, response);
             }
-        }else {
+        } else if (body.type === "exportWinnerData") {
+            handleDataExportRequest(body, response);     
+        } else if (body.type === "setEmail") {
+            setEmail(body.tableName, body.username, body.email, response);
+        } else {
             var responseObject = {
                 status: "error",
                 text: "Invalid request type provided!"
             };
 
-            response.statusCode = 200;
+            response.statusCode = 501;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
@@ -465,8 +757,8 @@ function createBingoDB() {
         password: dbInfo.mySQLPassword
     });
 
-    var query = `CREATE DATABASE ${dbInfo.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
-    connection.query(query, function(error, results, fields) {
+    var query = `CREATE DATABASE IF NOT EXISTS ${dbInfo.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
+    connection.query(query, function(error) {
         if (error) {
             throw error;
         }
@@ -477,7 +769,7 @@ function createBingoDB() {
 
 // Called on startup.
 function startup() {
-    //createBingoDB();
+    createBingoDB();
     connectToBingoDB();
 }
 
