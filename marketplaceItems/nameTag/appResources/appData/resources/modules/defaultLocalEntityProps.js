@@ -22,7 +22,7 @@ var localEntityProps = {
     backgroundColor: "#2D2D2D",
     backgroundAlpha: 1,
     billboardMode: "full",
-    lifetime: 6
+    lifetime: 20
     // The following will be added back in 81
     // renderLayer: "front",
 };
