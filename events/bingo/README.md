@@ -47,11 +47,12 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## WEBAPP VERSION BUMPED TO V2.3 FOR PARITY
+## v3.0 | 2019-03-18_17-00-00 | [commit d48967d](https://github.com/highfidelity/hifi-content/commits/d48967d)
 
-No non-backend changes here!
-
-- Added an online exporter tool to make it easier for our team to give prizes out to players when All Players Win
+- New Bingo export tool
+- Added a feature to the bouncer zone such that it no longer relies on hard-coded usernames
+- Fixed a bug where a user could not get a card, enter the scanner, fail verification, then re-enter the scanner and get Bingo
+- Added a "Bingo Winner" app, to be used by Bingo winners who win physical prizes
 
 ## v2.3 | 2019-03-11_11-16-00 | [commit 386f36f](https://github.com/highfidelity/hifi-content/commits/386f36f)
 
