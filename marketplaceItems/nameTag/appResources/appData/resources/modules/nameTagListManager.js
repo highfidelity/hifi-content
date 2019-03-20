@@ -1,6 +1,6 @@
 /*
 
-    Nametag
+    User Inspector
     nameTagListManager.js
     Created by Milad Nazeri on 2019-03-09
     Copyright 2019 High Fidelity, Inc.
@@ -11,8 +11,6 @@
     Helps manage the list of avatars added to the nametag list
 
 */
-
-var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
 var entityProps = Script.require('./defaultLocalEntityProps.js?' + Date.now());
@@ -82,7 +80,8 @@ function requestJSON(url, callback) {
 // Add a user to the list.
 var DISTANCE_AMOUNT = 0.5;
 function add(uuid, intersection){
-    // User Doesn't exist so give them new props and save in the cache, get their current avatar info, and handle the different ways to get the username(friend or admin)
+    // User Doesn't exist so give them new props and save in the cache, get their current avatar info, 
+    // and handle the different ways to get the username(friend or admin)
     if (!_this.avatars[uuid]) {
         _this.avatars[uuid] = new NewAvatarProps(intersection); 
         getAvatarData(uuid);
@@ -93,53 +92,27 @@ function add(uuid, intersection){
 
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
-    /*
-    - Get Intersection point where you clicked
-    - Calc - offset between avatar position and where you clicked
-    - Add to that distance a small offset
-    - position nametag on ray between camera and the avatar position
-        - Subtract offset you have calculated
-    
-    */
-    // Save the intersection position local to the avatar in case we need it again
-    // avatar.localPositionOfIntersection = worldToLocal(avatar.intersection, avatarInfo.position, avatarInfo.orientation);
-    // Save the intersection point
 
     avatar.intersection = intersection.intersection;
-    var vec = Vec3.subtract(avatar.intersection, Camera.position);
-    vec = Vec3.normalize(vec);
-    vec = Vec3.multiply(vec, DISTANCE_AMOUNT);
-    var finalPosition = Vec3.subtract(avatar.intersection, vec);
-    avatar.subtractedPickPosition = finalPosition;
-    // log("scaledOffset", scaledOffset);
-    // var pickRay = {
-    //     origin: Camera.position,
-    //     direction: Quat.multiply(Camera.orientation, avatarInfo.orientation)
-    // };
-    // var rayIntersection = AvatarManager.findRayIntersection(pickRay,[],[MyAvatar.sessionUUID]).intersection;
-    // var vecToTry = Vec3.subtract(Camera.position, avatarInfo.position);
-    // var scaledOffset = Vec3.multiply(avatar.localPositionOfIntersection, DISTANCE_AMOUNT);
-    // vecToTry = Vec3.normalize(vecToTry);
-    // avatar.subtractedPickPosition = Vec3.subtract(vecToTry, scaledOffset);
-    // var finalVec = Vec3.sum(Vec3.subtract(vecToTry, Avatar.position) camera.position);
-    // Vec3.multiplyQbyV()
-    // log("rayIntersection", rayIntersection)
-    log("avatar.subtractedPickPosition", avatar.subtractedPickPosition);
-    // Update the intersection to not cut into the avatar.  
-    // Note:  This will be changed in RC81 to make use of the render front layer.
-    // var avatarDistance = getDistance(uuid);
-    // var scaledDistance = avatarDistance * DISTANCE_AMOUNT;
-    // var localOffset = [0, 0, scaledDistance];
-    // var newIntersectionPoint = localToWorld(localOffset, intersection.intersection, Camera.orientation);
+    // Almost all of this is removed in RC81 when render in front is fixed
+    var vectorBetweenIntersectionAndCamera = 
+        Vec3.subtract(avatar.intersection, Camera.position);
 
-    // // Save the original camera position
-    // avatar.initialCameraPosition = Camera.position;
+    var normalizedVectorBetweenIntersectionAndCamera = 
+        Vec3.normalize(vectorBetweenIntersectionAndCamera);
 
-    // Add this avatar to the selected list
+    var scaledNormalizedVectorBetweenIntersectionAndCamera = 
+        Vec3.multiply(normalizedVectorBetweenIntersectionAndCamera, DISTANCE_AMOUNT);
+
+    var finalPosition = 
+        Vec3.subtract(avatar.intersection, scaledNormalizedVectorBetweenIntersectionAndCamera);
+
+    avatar.finalNameTagPosition = finalPosition;
     _this.selectedAvatars[uuid] = true;
 
     avatar.localEntityMain = new LocalEntity('local').add(entityProps);
     avatar.localEntitySub = new LocalEntity('local').add(entityProps);
+
     // When the user clicks someone, we create their nametag
     makeNameTag(uuid, "main");
     // Create the sub if they have it
@@ -359,7 +332,7 @@ function makeNameTag(uuid, type) {
     if (type === "main") {
         avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName.trim();
         avatar.previousName = avatarInfo.displayName;
-        position = avatar.subtractedPickPosition;
+        position = avatar.finalNameTagPosition;
     }
 
     // Common values needed by both
@@ -385,7 +358,6 @@ function makeNameTag(uuid, type) {
         name = avatarInfo.username;
         parentID = localEntityMain.id;
     }
-    console.log("NAME", name);
     // Common values
     localEntity.add("text", name);
 
@@ -480,35 +452,6 @@ function reDraw(uuid, type) {
     if (type === "main") {
         localEntity = avatar.localEntityMain;
         initialDimensions = avatar.mainInitialDimensions;
-
-        
-        // var rayIntersection = AvatarManager.findRayIntersection(pickRay,[],[MyAvatar.sessionUUID]).intersection;
-        // avatar.intersection = intersection.intersection;
-        // var vec = Vec3.subtract(avatar.intersection, Camera.position);
-        // vec = Vec3.normalize(vec);
-        // vec = Vec3.multiply(vec, DISTANCE_AMOUNT);
-        // var finalPosition = Vec3.subtract(avatar.intersection, vec);
-        // avatar.subtractedPickPosition = finalPosition;
-
-        // More code to be removed in 81.  Same as the origi    nal make.
-        // var avatarDistance = getDistance(uuid);
-        // var scaledDistance = avatarDistance * DISTANCE_AMOUNT;
-        // var localOffset = [0, 0, 0.7];
-        // var newIntersectionPoint = localToWorld(localOffset, avatar.intersection, Camera.orientation);
-        // var newIntersectionPoint = localToWorld(avatar.localPositionOfIntersection, avatar.intersection, orientation);
-        // avatar.intersection = newIntersectionPoint;
-
-        // var scaledDistance = avatarDistance * DISTANCE_AMOUNT;
-
-        // newIntersectionPoint = [
-        //     (avatar.intersection[X] * Camera.position[X]) / avatar.initialCameraPosition[X],
-        //     (avatar.intersection[Y] * Camera.position[Y]) / avatar.initialCameraPosition[Y],
-        //     (avatar.intersection[Z] * Camera.position[Z]) / avatar.initialCameraPosition[Z]
-        // ];
-
-        // localEntity
-        //     .add("position", newIntersectionPoint);
-        
     } else {
         localEntity = avatar.localEntitySub;
         initialDimensions = avatar.subInitialDimensions;

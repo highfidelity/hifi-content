@@ -1,6 +1,6 @@
 /*
 
-    Nametag
+    User Inspector
     textHelper.js
     Created by Milad Nazeri on 2019-03-08
     Copyright 2019 High Fidelity, Inc.

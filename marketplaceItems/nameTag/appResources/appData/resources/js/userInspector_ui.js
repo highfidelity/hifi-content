@@ -1,6 +1,6 @@
 /*
 
-    Nametag
+    User Inspector
     Created by Milad Nazeri on 2019-01-07
     Copyright 2019 High Fidelity, Inc.
 

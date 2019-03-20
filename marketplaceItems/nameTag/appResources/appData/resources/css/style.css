@@ -21,6 +21,8 @@ body {
 #mainContainer {
     width: 100vw;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 #loadingContainer {
@@ -48,28 +50,44 @@ body {
 
 #titleBarContainer {
     display: flex;
-    align-items: center;
-    height: 60px;
+    height: 55px;
     padding: 0 16px;
+    padding-top: 10px;
     font-size: 24px;
     background-color: #121212;
     color: #ffffff;
     justify-content: space-between;
 }
 
-#optionsContainer {
-    display: flex;
-    flex-direction: column;
-    height: 150px;
-    width: calc(100vw - 24px);
-    margin: 24px 12px 0 12px;
-    position: absolute;
+#instructionsContainer {
+    /* display: flex-item; */
+    /* align-items: column; */
+    /* flex-direction: column; */
+    /* height: 60px; */
+    padding: 20px 16px;
+    font-size: 24px;
+    /* background-color: #121212; */
+    color: #000000;
+    /* position: relative; */
+    /* justify-content: space-between; */
 }
 
-#instructions {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+#optionsContainer {
+    /* display: flex-item; */
+    /* flex-direction: column; */
+    /* height: 150px; */
+    width: calc(100vw - 24px);
+    margin: 24px 12px 0 12px;
+    /* position: absolute; */
+}
+
+#viewDetailsContainer {
+    /* display: flex-item; */
+    /* flex-direction: column; */
+    height: 150px;
+    width: 100vw;
+    /* margin: 24px 12px 0 12px; */
+    /* position: absolute; */
     background-color: black;
     color: white;
     position: fixed;
@@ -78,6 +96,10 @@ body {
     right: 0;
     padding: 12px 12px;
     font-size: 18px;
+}
+
+#instructions {
+
 }
   
 #instructions > div {

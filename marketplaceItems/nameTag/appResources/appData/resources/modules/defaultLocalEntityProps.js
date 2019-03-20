@@ -1,6 +1,6 @@
 /*
 
-    Nametag
+    User Inspector
     defaultLocalEntityProps.js
     Created by Milad Nazeri on 2019-03-09
     Copyright 2019 High Fidelity, Inc.
@@ -22,7 +22,7 @@ var localEntityProps = {
     backgroundColor: "#2D2D2D",
     backgroundAlpha: 1,
     billboardMode: "full",
-    lifetime: 20
+    lifetime: 5
     // The following will be added back in 81
     // renderLayer: "front",
 };

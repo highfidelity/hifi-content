@@ -1,6 +1,6 @@
 /*
 
-    Nametag
+    User Inspector
     Created by Milad Nazeri on 2019-02-16
     Additional code by Zach Foxx
     Copyright 2019 High Fidelity, Inc.
@@ -23,7 +23,7 @@
     pickRayController
         .registerEventHandler(selectAvatar)
         .setType("avatar")
-        .setMapName("hifi_nametags")
+        .setMapName("hifi_userInspector")
         .setShouldDoublePress(true)
         .create();
 
@@ -109,14 +109,14 @@
                 updateUserScaler(currentUserScaler);
                 break;
             default:
-                console.log("Unhandled message from nameTag_ui.js: " + JSON.stringify(message));
+                console.log("Unhandled message from userInspector_ui.js: " + JSON.stringify(message));
                 break;
         }
     }
 
     
-    var BUTTON_NAME = "NAMETAG";
-    var APP_UI_URL = Script.resolvePath('resources/nameTag_ui.html');
+    var BUTTON_NAME = "INSPECTOR";
+    var APP_UI_URL = Script.resolvePath('resources/userInspector_ui.html');
     var AppUI = Script.require('appUi');
     var ui;
     function startup() {
