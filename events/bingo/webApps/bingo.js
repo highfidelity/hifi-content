@@ -25,7 +25,8 @@ function createNewTable(newTablePrefix, response) {
         cardNumbers VARCHAR(1000),
         cardColor VARCHAR(60),
         prizeWon VARCHAR(100),
-        email VARCHAR(120)
+        email VARCHAR(120),
+        ipv4 VARCHAR(45)
     )`;
     connection.query(query, function(error) {
         if (error) {
@@ -106,12 +107,12 @@ function getCardColor() {
 const BINGO_STRING = "BINGO";
 const NUM_ROWS = BINGO_STRING.length;
 const NUM_COLS = NUM_ROWS;
-function addNewPlayer(username, response) {
+function addNewPlayer(username, ipv4, response) {
     var userCardNumbers = generateBingoNumbers();
     var userCardColor = getCardColor();
 
-    var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers, cardColor)
-        VALUES ('${username}', '${JSON.stringify(userCardNumbers)}', '${JSON.stringify(userCardColor)}')`;
+    var query = `INSERT INTO \`${currentTableName}\` (username, cardNumbers, cardColor, ipv4)
+        VALUES ('${username}', '${JSON.stringify(userCardNumbers)}', '${JSON.stringify(userCardColor)}', '${ipv4}')`;
     connection.query(query, function(error) {
         if (error) {
             var responseObject = {
@@ -225,7 +226,11 @@ function handleGetRequest(request, response) {
                 }
         
                 if (results.length === 0 && type === "searchOrAdd") {
-                    addNewPlayer(username, response);
+                    var ipv4 = (request.headers['x-forwarded-for'] || '').split(',').pop() || 
+                        request.connection.remoteAddress || 
+                        request.socket.remoteAddress || 
+                        request.connection.socket.remoteAddress;
+                    addNewPlayer(username, ipv4, response);
                 } else if (results.length === 0 && type === "searchOnly") {
                     var responseObject = {
                         status: "success",
@@ -280,9 +285,6 @@ function handleGetRequest(request, response) {
         <form action="/bingo" method="post">
             Bingo Table Prefix:<br>
             <input type="text" name="prefix"><br>
-
-            All Players Receive (HFC):<br>
-            <input type="text" name="allPlayersReceiveAmount"><br>
 
             Password (use Bingo MySQL user's password):<br>
             <input type="password" name="password"><br><br>
@@ -435,7 +437,7 @@ function replaceCalledNumbers(newCalledNumbers, response) {
 
 // Given some input data, formats the human-readable text data
 // in an arbitrary way as needed by the team.
-function formatDataForExport(tablePrefix, allWinnersReceive, data, response) {
+function formatDataForExport(tablePrefix, data, response) {
     var finalResponseHTML = `<html><body>`;
     finalResponseHTML += `<h1>Requested Table Prefix: "${tablePrefix}"</h1>`;
 
@@ -487,32 +489,29 @@ function formatDataForExport(tablePrefix, allWinnersReceive, data, response) {
                 prizesWonThisRound.push({
                     "username": perTableData[i][j].username,
                     "prizeWon": perTableData[i][j].prizeWon,
-                    "email": perTableData[i][j].email
+                    "email": perTableData[i][j].email,
+                    "ipv4": perTableData[i][j].ipv4
                 });
             }
         }
 
         if (prizesWonThisRound.length > 0) {
             finalResponseHTML += "<h3>Prize Winner(s) CSV:</h3>";
-            finalResponseHTML += "<pre>Username,Prize Won,Winner Email Address\n"
+            finalResponseHTML += "<pre>Username,Prize Won,Winner Email Address,IP Address\n"
             for (j = 0; j < prizesWonThisRound.length; j++) {
-                finalResponseHTML += `${prizesWonThisRound[j].username},${prizesWonThisRound[j].prizeWon},${prizesWonThisRound[j].email}\n`;
+                finalResponseHTML += `${prizesWonThisRound[j].username},${prizesWonThisRound[j].prizeWon},${prizesWonThisRound[j].email},${prizesWonThisRound[j].ipv4}\n`;
             }
             finalResponseHTML += "</pre>";
         }
 
-        finalResponseHTML += `<h3>CSV useful for when someone wins "All Players Win":</h3>`;
-
         if (numAllPlayersWin > 0) {
+            finalResponseHTML += `<h3>"All Players Win" CSV:</h3>`;
             finalResponseHTML += "<pre>Amount of HFC,Type,Username\n";
             for (j = 0; j < perTableData[i].length; j++) {
-                
-
-                finalResponseHTML += `${(allWinnersReceive * numAllPlayersWin)},Event Grant,${perTableData[i][j].username}\n`;
+                // When a player wins "All Players Win", all players will receive 100 HFC - this is hardcoded.
+                finalResponseHTML += `${(100 * numAllPlayersWin)},Event Grant,${perTableData[i][j].username}\n`;
             }
             finalResponseHTML += "</pre>";
-        } else {
-            finalResponseHTML += "<p>NOBODY WON 'All Players Win' in this round.<p>";
         }
     }
 
@@ -563,14 +562,14 @@ function handleDataExportRequest(formData, response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        query = `SELECT username, prizeWon, email, sourceTableName FROM (`;
+        query = `SELECT username, prizeWon, email, ipv4, sourceTableName FROM (`;
         for (var i = 0; i < results.length; i++) {
             var currentTableName;
             for (var key in results[i]) {
                 currentTableName = results[i][key];
             }
 
-            query += `SELECT username, prizeWon, email, '${currentTableName}' as sourceTableName FROM \`${currentTableName}\``;
+            query += `SELECT username, prizeWon, email, ipv4, '${currentTableName}' as sourceTableName FROM \`${currentTableName}\``;
 
             if (i < (results.length - 1)) {
                 query += " UNION ALL ";
@@ -590,7 +589,7 @@ function handleDataExportRequest(formData, response) {
                 return response.end(JSON.stringify(responseObject));
             }
 
-            formatDataForExport(formData.prefix, formData.allPlayersReceiveAmount, results, response);
+            formatDataForExport(formData.prefix, results, response);
         });
     });
 }
