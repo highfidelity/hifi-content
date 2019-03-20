@@ -19,7 +19,7 @@ var localEntityProps = {
     // This will have to be changed in 81 until we bring unlit property to local text entities
     textColor: "#EEEEEE",
     textAlpha: 1.0,
-    backgroundColor: "#4D4D4D",
+    backgroundColor: "#2D2D2D",
     backgroundAlpha: 1,
     billboardMode: "full",
     lifetime: 5

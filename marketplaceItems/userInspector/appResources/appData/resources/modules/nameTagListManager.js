@@ -304,7 +304,6 @@ function calculateInitialProperties(uuid, type) {
 
 
 // Create or make visible either the sub or the main tag.
-var REDRAW_TIMEOUT = 100;
 var SUB_BACKGROUND = "#1A1A1A";
 var SUB_TEXTCOLOR = "#868481";
 var LEFT_MARGIN_SCALER = 0.15;
@@ -407,7 +406,6 @@ function makeNameTag(uuid, type) {
 
 // Check to see if the display named changed or if the distance is big enough to need a redraw.
 var MAX_DISTANCE_METERS = 0.1;
-var DELETE_TIMEOUT_MS = 6500;
 function maybeRedraw(uuid){
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -662,8 +660,6 @@ function handleSelect(uuid, intersection) {
 
     if (inSelected) {
         var timeoutStarted = _this.avatars[uuid].timeoutStarted;
-        // log("timerStarted", timeoutStarted);
-        // log("in remove");
         if (timeoutStarted) {
             Script.clearTimeout(timeoutStarted);
             timeoutStarted = null;
@@ -674,13 +670,9 @@ function handleSelect(uuid, intersection) {
     }
     
     if (!inSelected) {
-        // log("in add ")
         add(uuid, intersection);
         return;
     }
-    // log("going to add")
-    return;
-
 }
 
 
