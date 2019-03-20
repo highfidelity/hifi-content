@@ -20,8 +20,8 @@ body {
 #titleBarContainer {
     display: flex;
     align-items: center;
-    height: 60px;
-    padding: 0 16px;
+    height: 54px;
+    padding: 0 12px;
     font-size: 24px;
     background-color: #121212;
     color: #ffffff;
@@ -43,7 +43,7 @@ body {
     background-color: #FFF;
     color: #000;
     font-size: 22px;
-    padding: 16px;
+    padding: 12px;
     /* The below styles will position this modal 
     in the center of the screen, horizontally and veritcally */
     width: calc(80% - 32px);
@@ -56,12 +56,12 @@ body {
 }
 
 #modalTextContainer {
-    margin-top: 16px;
+    margin-top: 12px;
 }
 
 #modalButtonContainer {
     position: absolute;
-    bottom: 16px;
+    bottom: 12px;
     left: 0;
     right: 0;
     display: flex;
@@ -70,18 +70,26 @@ body {
     align-items: center;
 }
 
+#instructionsContainer,
 #formContainer,
 #statusContainer {
-    padding: 16px;
+    padding: 0 12px 12px 12px;
     font-size: 22px;
 }
 
+#instructionsContainer {
+    height: auto;
+    font-size: 16px;
+    padding-top: 12px;
+    padding-bottom: 4px;
+}
+
 #statusContainer {
-    height: 150px;
+    height: auto;
 }
 
 #formContainer > form > div {
-    margin: 16px 0;
+    margin: 12px 0;
 }
 
 form {

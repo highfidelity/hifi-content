@@ -170,6 +170,7 @@
         ui = new AppUi({
             buttonName: APP_NAME,
             home: appPage,
+            // Deploy by Olivier Magnet from the Noun Project
             graphicsDirectory: Script.resolvePath("assets/icons/"),
             onMessage: onWebEventReceived
         });
