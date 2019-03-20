@@ -1,16 +1,14 @@
-/*
-
-    User Inspector
-    nameTagListManager.js
-    Created by Milad Nazeri on 2019-03-09
-    Copyright 2019 High Fidelity, Inc.
-
-    Distributed under the Apache License, Version 2.0.
-    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-
-    Helps manage the list of avatars added to the nametag list
-
-*/
+//
+//  User Inspector
+//  nameTagListManager.js
+//  Created by Milad Nazeri on 2019-03-09
+//  Copyright 2019 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//  Helps manage the list of avatars added to the nametag list
+//
 
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
 var entityProps = Script.require('./defaultLocalEntityProps.js?' + Date.now());
@@ -163,9 +161,6 @@ function removeLocalEntity(uuid){
     var avatar = _this.avatars[uuid];
 
     avatar.localEntityMain.destroy();
-    if (avatar.localEntitySub) {
-        avatar.localEntityMain.destroy();
-    }
     delete _this.selectedAvatars[uuid];
 
     return _this;

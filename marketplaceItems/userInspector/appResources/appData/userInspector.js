@@ -1,16 +1,14 @@
-/*
-
-    User Inspector
-    Created by Milad Nazeri on 2019-02-16
-    Additional code by Zach Foxx
-    Copyright 2019 High Fidelity, Inc.
-
-    Distributed under the Apache License, Version 2.0.
-    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-
-    Click on someone to get a nametag for them
-    
-*/
+//
+//    User Inspector
+//    Created by Milad Nazeri on 2019-02-16
+//    Additional code by Zach Foxx
+//    Copyright 2019 High Fidelity, Inc.
+//
+//    Distributed under the Apache License, Version 2.0.
+//    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//    Click on someone to get a nametag for them
+//    
 
 (function () {
     
@@ -68,8 +66,6 @@
 
 
     // Register the initial userScaler if it was saved in your settings
-    var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
-    nameTagListManager.registerInitialScaler(currentUserScaler);
     function updateUserScaler(newSize){
         nameTagListManager.updateUserScaler(newSize);
     }
@@ -120,6 +116,9 @@
     var AppUI = Script.require('appUi');
     var ui;
     function startup() {
+        var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
+        nameTagListManager.registerInitialScaler(currentUserScaler);
+        
         ui = new AppUI({
             buttonName: BUTTON_NAME,
             home: APP_UI_URL,
