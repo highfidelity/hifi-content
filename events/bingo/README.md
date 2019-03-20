@@ -47,6 +47,13 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
+## v3.1 | 2019-03-18_17-00-00 | [commit 04d3f7a](https://github.com/highfidelity/hifi-content/commits/04d3f7a)
+
+All changes made to webapp ONLY:
+- Add IP address to the data that is recorded in an attempt to prevent winner multiboxing
+- Hardcoded "100" as the amount of HFC that all players win if someone wins "All Players Win"
+- Changed export tool to not show `"All Players Win" CSV` when nobody wins "All Players Win"
+
 ## v3.0 | 2019-03-18_17-00-00 | [commit 81d1c43](https://github.com/highfidelity/hifi-content/commits/81d1c43)
 
 - New Bingo export tool
