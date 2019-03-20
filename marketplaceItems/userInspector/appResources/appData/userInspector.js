@@ -66,6 +66,8 @@
 
 
     // Register the initial userScaler if it was saved in your settings
+    var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
+    nameTagListManager.registerInitialScaler(currentUserScaler);
     function updateUserScaler(newSize){
         nameTagListManager.updateUserScaler(newSize);
     }
@@ -116,9 +118,6 @@
     var AppUI = Script.require('appUi');
     var ui;
     function startup() {
-        var currentUserScaler = Settings.getValue("nameTag/userScaler", 1.0);
-        nameTagListManager.registerInitialScaler(currentUserScaler);
-        
         ui = new AppUI({
             buttonName: BUTTON_NAME,
             home: APP_UI_URL,
