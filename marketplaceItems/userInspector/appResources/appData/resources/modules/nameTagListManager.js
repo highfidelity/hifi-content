@@ -390,8 +390,6 @@ function makeNameTag(uuid, type) {
             getLocalPositionOffset(localEntityMainDimensions, scaledDimensions),
             0
         ];
-        localPositionOffset = Vec3.multiplyQbyV(Camera.orientation, localPositionOffset);
-        // localPositionOffset = Vec3.multiplyQbyV(localEntityMain.get("rotation", SHOULD_QUERY_ENTITY), localPositionOffset);
 
         localEntity
             .add("localPosition", localPositionOffset)
