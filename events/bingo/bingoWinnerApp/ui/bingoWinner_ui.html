@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <title>Bingo Winner</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700|Fira+Sans" rel="stylesheet">
+        <link rel="stylesheet" href="css/bingoWinner_ui.css?2">
+        <script type="text/javascript" src="js/bingoWinner_ui.js?0"></script>
+    </head>
+    <body>
+        <div id="loadingContainer">
+        </div>
+
+        <div id="titleBarContainer">
+            <div id="titleText" style="font-weight:bold;">
+                BINGO Winner App
+            </div>
+        </div>
+
+        <div id="initialTextContainer">
+
+        </div>
+
+        <div id="formContainer" style="display:none;">
+            <form action="javascript:void(0);" onsubmit="updateEmail()">
+                <input type="email" id="email" autofocus required>
+                <input type="submit" value="SUBMIT">
+            </form>
+        </div>
+
+        <div id="statusTextContainer">
+
+        </div>
+
+        <div id="closeButtonContainer" style="display:none;">
+            <input id="closeButton" type="button" value="FINISH AND CLOSE" onclick="finishAndClose()">
+        </div>
+    </body>
+</html>

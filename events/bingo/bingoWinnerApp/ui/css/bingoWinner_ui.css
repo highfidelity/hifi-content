@@ -1,0 +1,88 @@
+body {
+    margin: 0;
+    width: 100%;
+    font-family: 'Raleway', sans-serif;
+    color: #cccbcb;
+    background: linear-gradient(#2b2b2b, #303030);
+}
+
+#loadingContainer {
+    background-color: rgba(0, 0, 0, 0.8);
+    background-image: url('../images/loadingSpinner.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 999;
+}
+
+#titleBarContainer {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    padding: 0 16px;
+    font-size: 24px;
+    background-color: #121212;
+    color: #ffffff;
+    justify-content: space-between;
+}
+
+#initialTextContainer,
+#statusTextContainer,
+#closeButtonContainer {
+    padding: 16px 16px 0 16px;
+    font-size: 22px;
+}
+
+#formContainer {
+    padding: 16px;
+    font-size: 22px;
+}
+
+form {
+    margin: 0;
+}
+
+input[type=email] {
+    height: 40px;
+    line-height: 40px;
+    width: 70%;
+    font-size: 20px;
+}
+
+input[type=submit], input[type=button] {
+    font-family: 'Raleway';
+    font-weight: bold;
+    font-size: 20px;
+    text-transform: uppercase;
+    vertical-align: top;
+    height: 40px;
+    min-width: 50px;
+    padding: 0px 18px;
+    margin-right: 6px;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    background-color: #000;
+    background: linear-gradient(#343434 20%, #000 100%);
+    cursor: pointer;
+}
+input[type=submit]:enabled:hover,
+input[type=button]:enabled:hover {
+    background: linear-gradient(#000, #000);
+    border: none;
+}
+input[type=submit]:active,
+input[type=button]:active {
+    background: linear-gradient(#343434, #343434);
+}
+input[type=submit][pressed=pressed],
+input[type=button][pressed=pressed] {
+    color: #00b4ef;
+}
+
+#closeButton {
+    width: 100%;
+    margin: 0 auto;
+}

@@ -1,0 +1,259 @@
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+::-webkit-scrollbar {
+    width: 14px;
+    background: transparent;
+}
+ 
+::-webkit-scrollbar-thumb {
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.6) !important;
+}
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    color: #FFF;
+    background-color: #49A4DF;
+    overflow: hidden;
+    margin: 0;
+    line-height: 28px;
+}
+
+h1, h2, h3 {
+    font-family: 'Cairo', sans-serif;
+}
+
+h1 {
+    color: #ff66ff;
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: normal;
+    margin: 0;
+}
+
+ul {
+    margin: 0;
+}
+
+#appContainer {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    padding: 8px;
+}
+
+#loadingContainer {
+    background-color: rgba(0, 0, 0, 0.8);
+    background-image: url('../images/loadingSpinner.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 999;
+}
+
+#votingModalContainer {
+    background-color: rgba(0, 0, 0, 0.8);
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 998;
+}
+
+#votingModalContentContainer {
+    background-color: #FFF;
+    /* The below styles will position this modal 
+    in the center of the screen, horizontally and veritcally */
+    width: 80%;
+    height: 80vh;
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    margin-top: -40vh;
+    margin-left: -40%;
+}
+
+#cancelVote {
+    /* Close by Trident from the Noun Project */
+    background-image: url('../images/close.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    float: right;
+    height: 30px;
+    width: 30px;
+    margin: 8px 8px 0 0;
+}
+
+#cancelVote:hover {
+    background-image: url('../images/close_inverted.svg');
+}
+
+#votingModalImage {
+    width: 100%;
+    height: calc(80vh - 120px);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+#confirmVoteContainer {
+    background-color: #ff66ff;
+    height: 120px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+}
+#confirmVoteContainer:hover {
+    background-color: #F4B8FB;
+}
+
+#confirmVoteContainer.votedFor {
+    background-color: #ff66ff;
+}
+
+#confirmVoteIcon {
+    /* Check by Robert Won from the Noun Project */
+    background-image: url('../images/check.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 30px;
+    width: 30px;
+    flex-shrink: 0;
+    margin: 0 4px;
+}
+
+#confirmVoteText {
+    color: #FFF;
+    width: auto;
+    text-align: center;
+    font-weight: 500;
+    font-size: 28px;
+    padding: 0 10px;
+    overflow-wrap: break-word;
+}
+
+#votingModalPadding {
+    height: 30px;
+    width: 30px;
+    flex-shrink: 0;
+    margin: 0 4px;
+}
+
+#tabBarContainer {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    font-size: 24px;
+    background-color: #49A4DF;
+    color: #ffffff;
+    justify-content: space-evenly;
+}
+
+#tabBarContainer > div {
+    background-color: #49A4DF;
+    cursor: pointer;
+    height: 60px;
+    line-height: 60px;
+    padding: 0 16px;
+    margin: 0;
+    text-align: center;
+    flex-grow: 1;
+    border-radius: 12px 12px 0 0;
+}
+
+#tabBarContainer > div:hover {
+    background-color: #5fafe3;
+}
+
+#tabBarContainer > div.selected {
+    background-color: #FFF;
+    color: #ff66ff;
+}
+
+#contentContainer > div {
+    height: calc(100vh - 60px - 16px);
+    width: 100%;
+    overflow-y: overlay;
+    background-color: #FFF;
+    color: #000;
+}
+
+#contentContainer > div:not(.selected) {
+    display: none;
+}
+
+#infoCopy {
+    padding: 12px;
+    font-size: 18px;
+    line-height: 22px;
+}
+
+#headerImage {
+    background-image: url('../images/header.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 50vw;
+}
+
+#voteContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: flex-start;
+    justify-content: space-evenly;
+    padding: 18px 12px 18px 6px;
+    background-color: #FFF !important;
+}
+
+.participantContainer {
+    width: 100px;
+    height: 100px;
+    margin: 3px;
+    background-color: #fff;
+    color: #000;
+    cursor: pointer;
+}
+
+.participantContainer:hover {
+    outline-style: solid;
+    outline-color:#ffb3ff;
+    outline-width: 3px;
+}
+
+.participantImage {
+    width: 100%;
+    height: 100px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+} 
+
+.voted {
+    outline-style: solid;
+    outline-color:#ff66ff;
+    outline-width: 4px;
+}
