@@ -15,7 +15,7 @@
 // Handle the enable button being clicked
 function nameTagSwitchClicked(checkbox) {
     EventBridge.emitWebEvent(JSON.stringify({
-        app: "nametag",
+        app: "userInspector",
         method: "nametagSwitchClicked",
         nameTagEnabled: checkbox.checked
     }));
@@ -25,7 +25,7 @@ function nameTagSwitchClicked(checkbox) {
 // Handle the slider being changed
 function userSliderChanged(slider) {
     EventBridge.emitWebEvent(JSON.stringify({
-        app: "nametag",
+        app: "userInspector",
         method: "updateUserScaler",
         currentUserScaler: slider.value
     }));
@@ -41,6 +41,10 @@ function onScriptEventReceived(message) {
         return;
     }
 
+    if (message.app !== "userInspector") {
+        return; 
+    }
+
     switch (message.method) {
         case "updateUI":
             document.getElementById("nameTagSwitch").checked = message.nameTagEnabled;
@@ -48,7 +52,7 @@ function onScriptEventReceived(message) {
             document.getElementById("loadingContainer").style.display = "none";
             break;
         default:
-            console.log("Unknown message received from nameTag.js! " + JSON.stringify(message));
+            console.log("Unknown message received from userInspector.js! " + JSON.stringify(message));
             break;
     }
 }
@@ -61,7 +65,7 @@ function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
-            app: "nametag",
+            app: "userInspector",
             method: "eventBridgeReady"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
