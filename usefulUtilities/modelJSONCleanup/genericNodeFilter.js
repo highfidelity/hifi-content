@@ -112,7 +112,7 @@ modelJSONEntities = modelJSONEntities.filter( ent => {
         let parent = parentMap[parentID];
         if (!parent) {
             countNoParentInDomain++;
-            // Entity has a parentID, but there is no parent in the domain so delelte it
+            // Entity has a parentID, but there is no parent in the domain so delete it
             return false;
         }
         if (parent.position) {
