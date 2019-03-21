@@ -71,7 +71,7 @@
                 "rightMargin": 0,
                 "bottomMargin": 0,
                 "leftMargin": 0
-            });
+            }, "local");
             _this.updateStatusText();
         },
         
