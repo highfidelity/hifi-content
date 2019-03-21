@@ -25,5 +25,5 @@ Here's the object to add to the entity's `userData`:
 
 # Releases
 
-## 2019-03-15_13-19-00 :: [02c7431](https://github.com/highfidelity/hifi-content/commit/02c7431)
+## 2019-03-15_13-19-00 :: [3963656](https://github.com/highfidelity/hifi-content/commit/3963656)
 - Initial release

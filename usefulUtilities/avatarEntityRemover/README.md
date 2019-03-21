@@ -41,5 +41,5 @@ Here's the format of the `config.json` file:
 
 # Releases
 
-## 2019-03-15_10-23-00 :: [6417299](https://github.com/highfidelity/hifi-content/commit/6417299)
+## 2019-03-15_10-23-00 :: [3963656](https://github.com/highfidelity/hifi-content/commit/3963656)
 - Initial release
