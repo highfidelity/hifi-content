@@ -107,7 +107,7 @@ modelJSONEntities = modelJSONEntities.filter( ent => {
     }
 
     // Entities with Parents
-    if(ent.parentID) {
+    if (ent.parentID) {
         let parentID = ent.parentID;
         let parent = parentMap[parentID];
         if (!parent) {
