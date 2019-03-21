@@ -11,13 +11,7 @@
 
 
 (function () {
-    var APPROVED_USERNAMES = ["Whyroc", "Judas", "Monoglu", "Spade_", "Red_SIM",
-        "ultranique", "Lyra121", "project8vr", "DragonSMP", "123.Basinsky.321",
-        "SUP3RFlyN1NJA", "Koala", "bon3s", "Aimily", "Saracen", "Silverfish",
-        "Snow", "ASingleGiggle", "XaosPrincess", "krougeau", "CornyNachos",
-        "bigtin", "Octuplex", "Dalek", "MMMaellon", "Dalus", "Scena", "Lathe",
-        "vegaslon", "Xeverian", "VardVR", "1029chris", "Menithal", "Virtual_Origin",
-        "Grifftech", "zfox", "scobot", "prophecy288"];
+    var APPROVED_USERNAMES = Script.require(Script.resolvePath("config.json?" + Date.now())).approvedUsernames;
     var removedAvatarEntityProperties = [];
     var enableAvatarEntityRestore = false;
     var kickDomain = "hifi://domain";
@@ -26,6 +20,8 @@
     var TRY_DELETE_AGAIN_MS = 1000;
 
 
+    // Saves an entity's properties if the configuration options are set to enable that feature,
+    // then deletes the entity
     function maybeSaveThenDelete(entityID, properties) {
         if (enableAvatarEntityRestore) {
             removedAvatarEntityProperties.push(properties);
@@ -39,6 +35,12 @@
     }
 
 
+    // Gets called when the script runner adds an entity to their entity tree.
+    // 1. Checks if the user is approved to add avatar entities, and stops execution if they are
+    // 2. Gets some properties of the added entity
+    // 3. If the added avatar entity is locked, kicks the user to a different domain
+    // 4. If the added avatar entity is unlocked,
+    //     depending on certain entity properties, keeps or deletes the entity.
     function onAddingEntity(entityID) {
         if (APPROVED_USERNAMES.indexOf(AccountServices.username) > -1) {
             return;
@@ -47,7 +49,6 @@
         var props = Entities.getEntityProperties(entityID, ['avatarEntity', 'entityHostType', 'locked', 'owningAvatarID', 'collisionless']);
         
         if (props.owningAvatarID === MyAvatar.sessionUUID && (props.avatarEntity || props.entityHostType === "avatar")) {
-
             if (enableCollisionlessAvatarEntities && props.collisionless) {
                 return;
             }
@@ -67,6 +68,9 @@
     }
 
 
+    // Gets called on a short interval. If the user isn't approved to add avatar entities,
+    // removes all avatar entities (unless the script is configured to allow collisionless avatar entities
+    // and the avatar entity is collisionless).
     function maybeRemoveAllCurrentAvatarEntities() {
         if (APPROVED_USERNAMES.indexOf(AccountServices.username) > -1) {
             return;
@@ -82,6 +86,9 @@
     }
 
 
+    // Gets called on script startup. If the user isn't approved to add avatar entities,
+    // calls `maybeSaveThenDelete()`. If the user is wearing any locked avatar entities,
+    // they'll get kicked to a different domain.
     function maybeSaveThenRemoveAllCurrentAvatarEntities() {
         if (APPROVED_USERNAMES.indexOf(AccountServices.username) > -1) {
             return;
@@ -106,6 +113,7 @@
     var AvatarEntityRemover = function() {};
 
     AvatarEntityRemover.prototype = {
+        // On script startup, sets configuration options from `userData` and starts main script logic
         preload: function (id) {
             var properties = Entities.getEntityProperties(id, ["userData"]);
             var userData;
@@ -135,6 +143,8 @@
             tryAgainDeleteInterval = Script.setInterval(maybeRemoveAllCurrentAvatarEntities, TRY_DELETE_AGAIN_MS);
         },
 
+        // Disconnects signals, stops timers, and, if enabled as a configuration option, restores the avatar entities
+        // that this script deleted
         unload: function() {
             Entities.addingEntity.disconnect(onAddingEntity);
 

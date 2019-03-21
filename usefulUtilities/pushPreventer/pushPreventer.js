@@ -18,12 +18,18 @@
     var contentBoundaryCorners = [{"x": 0, "y": 0, "z": 0}, {"x": 0, "y": 0, "z": 0}];
 
 
+    // Returns true if a given location is within a given box
     function isLocationInBox(location, cornerA, cornerB) {
         return (location.x >= cornerA.x && location.y >= cornerA.y && location.z >= cornerA.z &&
             location.x <= cornerB.x && location.y <= cornerB.y && location.z <= cornerB.z);
     }
 
 
+    // 1. Gets the avatar's current location
+    // 2. If we've previously stored a location, and the avatar has moved more than they're allowed to,
+    //     and they've moved outside the configurable boundaries, move the user back to the previously
+    //     recorded location.
+    // 3. Records the current location as the previous location.
     var previousLocation = false;
     function recordLocation() {
         var currentLocation = MyAvatar.position;
@@ -40,6 +46,8 @@
     }
 
 
+    // A utility function used to ensure that all of the values in "box corner 1" are less than
+    // those in "box corner 2"
     function maybeSwapCorners(dimension) {
         var temp;
         if (contentBoundaryCorners[0][dimension] > contentBoundaryCorners[1][dimension]) {
@@ -50,6 +58,7 @@
     }
 
 
+    // Ensures that all of the values in "box corner 1" are less than those in "box corner 2".
     function fixupContentBoundaryCorners() {
         maybeSwapCorners("x");
         maybeSwapCorners("y");
@@ -60,6 +69,8 @@
     var PushPreventer = function() {};
 
     PushPreventer.prototype = {
+        // Sets some configuration options based on `userData`, and ensures that data is valid and usable.
+        // Then, sets up the main logic interval.
         preload: function (id) {
             var properties = Entities.getEntityProperties(id, ["userData"]);
             var userData;
@@ -98,6 +109,7 @@
             recordLocationInterval = Script.setInterval(recordLocation, RECORD_LOCATION_INTERVAL_MS);
         },
 
+        // Clears the main logic interval.
         unload: function() {
             if (recordLocationInterval) {
                 Script.clearInterval(recordLocationInterval);

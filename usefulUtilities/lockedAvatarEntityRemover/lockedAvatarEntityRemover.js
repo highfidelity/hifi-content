@@ -17,6 +17,10 @@
     var cleanUserDomain = false;
     var neverMoveUsers = [];
 
+    // Removes all avatar entities forcibly, including locked avatar entities.
+    // The user must have lock/unlock permissions in the domain in which the client runs the script.
+    // After forcible avatar entity removal, the user is moved to a configurable location
+    // (unless their username is on a configurable list).
     function removeAllAvatarEntities() {
         var avatarEntityCount = 0;
         var lockedCount = 0;
@@ -58,6 +62,8 @@
     var LockedAvatarEntityRemover = function() {};
 
     LockedAvatarEntityRemover.prototype = {
+        // Sets up some configuration options based on `userData`, then kicks off the
+        // main removal interval.
         preload: function (id) {
             var properties = Entities.getEntityProperties(id, ["userData"]);
             var userData;
@@ -82,6 +88,7 @@
             tryAgainDeleteInterval = Script.setInterval(removeAllAvatarEntities, DELETE_INTERVAL_MS);
         },
 
+        // Clears the main removal interval
         unload: function() {
             if (tryAgainDeleteInterval) {
                 Script.clearInterval(tryAgainDeleteInterval);

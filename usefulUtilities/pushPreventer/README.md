@@ -1,5 +1,5 @@
 # Push Preventer
-When this script is attached to an entity as an entity script, the entity serves as an "Push Preventer", useful for preventing avatars from being pushed too far outside a specified area.
+When this script is attached to an entity as an entity script, the entity serves as a "Push Preventer", useful for preventing avatars from being pushed too far outside a specified area.
 
 ## Features
 Every second, Push Preventer records your avatar's location. If you have moved more than a configurable number of meters since the last time your location has been recorded, your location will be reset to the last-recorded location UNLESS you just moved to a location within some configurable spatial boundary.

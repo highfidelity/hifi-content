@@ -1,5 +1,5 @@
 # Locked Avatar Entity Remover
-When this script is attached to an entity as an entity script, the entity serves as an "Locked Avatar Entity Remover", useful for removing _locked and unlocked_ avatar entities in a domain. **This script will only fully work if it is deployed in a domain in which everyone has lock/unlock permissions!**
+When this script is attached to an entity as an entity script, the entity serves as a "Locked Avatar Entity Remover", useful for removing _locked and unlocked_ avatar entities in a domain. **This script will only fully work if it is deployed in a domain in which everyone has lock/unlock permissions!**
 
 ## Features
 - Avatar Entity Remover will forcibly remove _locked and unlocked_ avatar entities from an avatar.
