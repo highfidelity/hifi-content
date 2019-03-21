@@ -18,15 +18,17 @@ When this script is attached to an entity as an entity script, the entity serves
     1. Set the `enableAvatarEntityRestore` `bool`.
     2. Set the `kickDomain` value in the `userData`.
     3. Set the `enableCollisionlessAvatarEntities` `bool`.
+    4. Set the `configURL` value, if necessary.
 3. Add a `config.json` file in the same directory as the script. See below for the format of `config.json`.
 4. Add the `avatarEntityRemover.js` script to the entity
 
 Here's the object to add to the entity's `userData`:
 ```
 {
-    "enableAvatarEntityRestore": <`true` if you want removed avatar entities to be restored when the script is unloaded; `false` otherwise>,
-    "kickDomain": <The domain to which you want users of locked avatar entities to be moved. Defaults to "hifi://domain">,
-    "enableCollisionlessAvatarEntities": <`true` if you want to allow collisionless avatar entities in your domain; `false` otherwise>
+    "enableAvatarEntityRestore": <Optional. `true` if you want removed avatar entities to be restored when the script is unloaded; `false` otherwise. Defaults to `false`.>,
+    "kickDomain": <Optional. The domain to which you want users of locked avatar entities to be moved. Defaults to "hifi://domain".>,
+    "enableCollisionlessAvatarEntities": <Optional. `true` if you want to allow collisionless avatar entities in your domain; `false` otherwise. Defaults to `false`.>,
+    "configURL": "<Optional. A URL to a config file, the structure of which is outlined below. >"
 }
 ```
 

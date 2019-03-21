@@ -1,0 +1,67 @@
+<!--
+
+   User Inspector
+   Created by Milad Nazeri on 2019-01-07
+   Copyright 2019 High Fidelity, Inc.
+
+   Distributed under the Apache License, Version 2.0.
+   See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+   Point to solo someone to hear them better in a crowd!
+
+   TABLET UI HTML
+
+-->
+
+<html>
+
+   <head>
+       <title>User Inspector</title>
+       <meta charset="utf-8">
+       <link rel="stylesheet" type="text/css" href="./css/style.css">
+       <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+   </head>
+
+   <body>
+       <div id="loadingContainer">
+       </div>
+       <div id="mainContainer">
+           <div id="titleBarContainer">
+               <div id="titleText" style="font-weight:bold;">
+                   User Inspector V1.0
+               </div>
+               <label class="switch">
+                   <input id="nameTagSwitch" type="checkbox" onclick="nameTagSwitchClicked(this)">
+                   <span class="slider round"></span>
+               </label>
+           </div>
+           <div id="instructionsContainer">
+                <div id="desktopModeInstructions">
+                    <b>Desktop Mode</b><br/> 
+                    Mouse click on a user to activate
+                </div>
+                <br/>
+                <div id="vrModeInstructions">
+                    <b>VR Mode</b><br/> 
+                    Trigger on a user to activate
+                </div>
+           </div>
+           <div id="optionsContainer">
+               <label id="size">
+                   <b>Adjust the size of the nametag.</b><br/>
+                   Change nametag size
+                   <input id="sizeSlider" type="range" name="size-slide" min="0.6" max="2.2" step="0.1" value="1.0" onchange="userSliderChanged(this)">
+               </label>
+           </div>
+           <div id="viewDetailsContainer">
+               <b>Details</b>
+               <br/>
+                If they are your friend, the text will be brighter and you will also see their username.<br/>
+               <br/>                
+                If you are an admin you will see their username.<br/>
+           </div>
+       </div>
+
+       <script type="text/javascript" src="js/userInspector_ui.js"></script>
+   </body>
+
+</html>

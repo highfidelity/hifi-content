@@ -11,7 +11,7 @@
 
 
 (function () {
-    var APPROVED_USERNAMES = Script.require(Script.resolvePath("config.json?" + Date.now())).approvedUsernames;
+    var approvedUsernames = [];
     var removedAvatarEntityProperties = [];
     var enableAvatarEntityRestore = false;
     var kickDomain = "hifi://domain";
@@ -42,7 +42,7 @@
     // 4. If the added avatar entity is unlocked,
     //     depending on certain entity properties, keeps or deletes the entity.
     function onAddingEntity(entityID) {
-        if (APPROVED_USERNAMES.indexOf(AccountServices.username) > -1) {
+        if (approvedUsernames.indexOf(AccountServices.username) > -1) {
             return;
         }
 
@@ -72,7 +72,7 @@
     // removes all avatar entities (unless the script is configured to allow collisionless avatar entities
     // and the avatar entity is collisionless).
     function maybeRemoveAllCurrentAvatarEntities() {
-        if (APPROVED_USERNAMES.indexOf(AccountServices.username) > -1) {
+        if (approvedUsernames.indexOf(AccountServices.username) > -1) {
             return;
         }
 
@@ -90,7 +90,7 @@
     // calls `maybeSaveThenDelete()`. If the user is wearing any locked avatar entities,
     // they'll get kicked to a different domain.
     function maybeSaveThenRemoveAllCurrentAvatarEntities() {
-        if (APPROVED_USERNAMES.indexOf(AccountServices.username) > -1) {
+        if (approvedUsernames.indexOf(AccountServices.username) > -1) {
             return;
         }
 
@@ -135,6 +135,15 @@
 
                 if (userData.enableCollisionlessAvatarEntities) {
                     enableCollisionlessAvatarEntities = userData.enableCollisionlessAvatarEntities;
+                }
+
+                if (userData.configURL) {
+                    var configURL = userData.configURL;
+                    // Cachebusting attempt
+                    if (configURL.indexOf("?") === -1) {
+                        configURL = configURL + "?" + Date.now();
+                    }
+                    approvedUsernames = Script.require(Script.resolvePath(configURL)).approvedUsernames;
                 }
             }
 
