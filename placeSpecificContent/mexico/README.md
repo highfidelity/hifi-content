@@ -5,7 +5,8 @@
 
 ## Release Notes
 
-### v1.0
+### v1.0 03-21-19_12-51-00
+SHA [7bf7415](https://github.com/highfidelity/hifi-content/pull/329/commits/7bf7415c866816ba651381ccb231ad8579afe1a3)
 Partial content moved over from previous folder at hifi-content.s3-us-west-1.amazonaws.com/DomainContent/Mexico/
 Bugs fixed:
 - Food works in desktop mode
