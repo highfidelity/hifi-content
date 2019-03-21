@@ -239,9 +239,7 @@ function setMapName(name) {
 
 // Enables mouse press and trigger events  
 function enable(){
-    console.log("made it to enable")
     if (!_this.controllEnabled) {
-        console.log("about to enable controls");
         Controller.mousePressEvent.connect(mousePressHandler);
         if (_this.shouldDoublePress) {
             Controller.mouseDoublePressEvent.connect(doublePressHandler);
@@ -258,9 +256,7 @@ function enable(){
 
 // Disable the controller and mouse press
 function disable(){
-    console.log("made it to disable")
     if (_this.controllEnabled) {
-        console.log("about to disable controls");
         Controller.mousePressEvent.disconnect(mousePressHandler);
         if (_this.shouldDoublePress){
             Controller.mouseDoublePressEvent.disconnect(doublePressHandler);

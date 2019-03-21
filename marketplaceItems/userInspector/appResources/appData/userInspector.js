@@ -80,13 +80,9 @@
     // Enables or disables the app's main functionality
     var nameTagEnabled = Settings.getValue("nametag/enabled", false);
     function enableOrDisableNameTag() {
-        console.log("nameTagEnabled? ", nameTagEnabled);
-        console.log("type of enabled", typeof nameTagEnabled);
         if (nameTagEnabled) {
-            console.log("running enabled")
             pickRayController.enable();
         } else {
-            console.log("running disabled")
             pickRayController.disable();
             nameTagListManager.reset();
         }
