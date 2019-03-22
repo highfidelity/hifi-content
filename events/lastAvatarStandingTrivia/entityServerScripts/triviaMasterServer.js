@@ -40,6 +40,7 @@
         "deleteValidator",
         "checkAnswer",
         "loseCoins",
+        "stopSound",
         "winCoins",
         "halfHFC",
         "plusHFC",
@@ -412,7 +413,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:   Vec3.sum(coin.position, {x: -1, y: 3, z: 2}),
+            position:   Vec3.sum(coin.position, {x: -1, y: 3, z: -2}),
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -492,7 +493,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position: Vec3.sum(coin.position, {x: -1, y: 3, z: 2}),
+            position: Vec3.sum(coin.position, {x: -1, y: 3, z: -2}),
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -718,6 +719,13 @@
 
     this.deleteValidator = function(id, params){
         Entities.deleteEntity(params[0]);
+    };
+
+    this.stopSound = function(id) {
+        console.log("stopping sound");
+        if (injector) {
+            injector.stop();
+        }
     };
 
     this.playSound = function(id, sound) {

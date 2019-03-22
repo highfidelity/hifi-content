@@ -17,7 +17,7 @@
     var PLATE_COLLISION_HULL_URL = Script.resolvePath("plate-whole-hub.obj");
 
     var INTERVAL = 5000;
-    var DISTANCE = 0.5;
+    var DISTANCE = 0.3;
 
     var PLATE_DIMENSIONS = {x: 0.4040, y: 0.0303, z: 0.4040};
     var POSITION_Y_OFFSET = 0.1;
@@ -57,9 +57,9 @@
             dishProperties.gravity = {x:0, y: -4, z: 0};
             dishProperties.userData = "{\"grabbableKey\":{\"grabbable\":true}}";
             dishProperties.shapeType = "Compound";
-            dishProperties.compoundShapeURL = PLATE_COLLISION_HULL_URL,
-            dishProperties.dynamic = true,
-            dishProperties.collidesWith = "";
+            dishProperties.compoundShapeURL = PLATE_COLLISION_HULL_URL;
+            dishProperties.dynamic = true;
+            dishProperties.collidesWith = "static,dynamic";
             dishProperties.friction = 0.9;
             dishProperties.restitution = 0.1;
             position = dishProperties.position;

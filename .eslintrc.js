@@ -36,6 +36,7 @@ module.exports = {
         "Messages": false,
         "Midi": false,
         "ModelCache": false,
+        "module": false,
         "MyAvatar": false,
         "Overlays": false,
         "OverlayWebWindow": false,
@@ -63,6 +64,7 @@ module.exports = {
         "Uuid": false,
         "UndoStack": false,
         "UserActivityLogger": false,
+        "Users": false,
         "Vec3": false,
         "WebSocket": false,
         "WebWindow": false,
@@ -70,7 +72,11 @@ module.exports = {
         "XMLHttpRequest": false,
         "console": false,
         "location": false,
-        "print": false
+        "print": false,
+        "$": false,
+        "document": false,
+        "EventBridge": false,
+        "module": false
     },
     "rules": {
         "brace-style": ["error", "1tbs", { "allowSingleLine": false }],

@@ -14,9 +14,7 @@
 
     var cacheBuster = Util.Scripts.cacheBuster,
         findSurfaceBelowPosition = Util.Maths.findSurfaceBelowPosition,
-        getNameProps = Util.Entity.getNameProps,
         getUserData = Util.Entity.getUserData,
-        inFrontOf = Util.Avatar.inFrontOf,
         makeColor = Util.Color.makeColor,
         updateUserData = Util.Entity.updateUserData,
         vec = Util.Maths.vec;
@@ -28,17 +26,17 @@
         LOG_VALUE = Util.Debug.LOG_VALUE,
         LOG_ARCHIVE = Util.Debug.LOG_ARCHIVE, 
         LOG_CONFIG = {
-            "Log_Enter": true,
-            "Log_Update": true,
-            "Log_Error": true,
-            "Log_Value": true,
+            "Log_Enter": false,
+            "Log_Update": false,
+            "Log_Error": false,
+            "Log_Value": false,
             "LOG_ARCHIVE": false
         },
         log = Util.Debug.log(LOG_CONFIG);  
     
     // Init
     var BASE_NAME = "HappyKiosk_",
-        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/O_Projects/Hifi/Scripts/hifi-content/Prototyping/HappyKiosk/",
+        baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/Prototyping/HappyKiosk/",
         baseURLButtons = "https://hifi-content.s3.amazonaws.com/alan/dev/",
         debug = false,
         kioskZoneScriptServer = cacheBuster(debug, baseURL, "Happy-Kiosk_Zone_Server.js"),
@@ -145,7 +143,7 @@
         userData = userData || {};
         var properties = {
             name: name,
-            type: "Box",
+            type: "Zone",
             position: position,
             rotation: rotation,
             locked: false,
@@ -153,7 +151,8 @@
             serverScripts: kioskZoneScriptServer,
             dimensions: dimensions,
             collisionless: true,
-            visible: false,
+            visible: true,
+            alpha: 0.0,
             userData: userData
         };
         var id = Entities.addEntity(properties);
@@ -431,8 +430,7 @@
             shapeType: "simple-compound",
             position: position,
             rotation: rotation,
-            script: kioskButtonScriptClient,
-            serverScripts: kioskButtonScriptServer,
+            serverScripts: kioskEmptyScriptServer,
             locked: false,
             dimensions: dimensions,
             collisionless: true,

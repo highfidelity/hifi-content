@@ -14,6 +14,8 @@
     var MIN_RANGE = 5;
     var HALF_MULTIPLIER = 0.5;
     var TRIVIA_CHANNEL = Script.require(Script.resolvePath("../clientScripts/triviaInfo.json")).TRIVIA_CHANNEL;
+    var AUDIO_VOLUME = 0.5,
+        SOUND = SoundCache.getSound(Script.resolvePath('../entities/sounds/wrong-local.wav'));
 
     var currentZoneOverlayPosition;
     var currentZoneOverlay;
@@ -21,7 +23,8 @@
     var _this;
     var gameOn = false;
     var gameZone;
-    var bubble;
+    var injector,
+        bubble;
 
     var TriviaZone = function() {
         _this = this;
@@ -48,6 +51,21 @@
                     "Trivia Player Game Zone", MyAvatar.position, RANGE)[0], ['position', 'rotation', 'dimensions']);
             bubble = Entities.getEntityProperties(
                 Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
+        },
+
+        playSound: function(sound, localOnly){
+            if (sound.downloaded) {
+                if (injector) {
+                    injector.stop();
+                }
+                injector = Audio.playSound(sound, {
+                    position: MyAvatar.position,
+                    volume: AUDIO_VOLUME,
+                    localOnly: localOnly
+                });
+            } else {
+                console.log("no sound downloaded");
+            }
         },
 
         isAvatarInsideZone: function(position, zoneProperties) {
@@ -95,10 +113,11 @@
             if (channel === TRIVIA_CHANNEL) {
                 message = JSON.parse(message);
                 if (message.type === 'game on') {
+                    console.log("Host started the game, making a validator");
                     bubble = Entities.getEntityProperties(
                         Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
+                    Entities.callEntityServerMethod("rezValidator", [MyAvatar.sessionUUID]);
                     gameOn = bubble.visible;
-                    Entities.callEntityServerMethod(_this.entityID, "rezValidator", [MyAvatar.sessionUUID]);
                 } else if (message.type === 'game off') {
                     Script.setTimeout(function(){
                         bubble = Entities.getEntityProperties(
@@ -119,12 +138,17 @@
                 Entities.findEntitiesByName("Trivia Bubble", MyAvatar.position, RANGE)[0], ['visible']);
             gameOn = bubble.visible;
             if (gameOn === true && _this.isAvatarInsideZone(MyAvatar.position, gameZone)) {
-                MyAvatar.orientation = { x: 0, y: 0, z: 0 };
                 MyAvatar.position = DISQUALIFIED_POSITION;
+                console.log("Validator not present for: ", MyAvatar.sessionUUID);
+                Script.setTimeout(function(){
+                    MyAvatar.orientation = Quat.cancelOutRollAndPitch(Quat.lookAt(MyAvatar.position, gameZone.position, Vec3.UNIT_Y));
+                }, 100);
+                _this.playSound(SOUND, true);
                 try {
                     var playerValidator = Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, MIN_RANGE);
                     for (var i = 0; i < playerValidator.length; i++){
                         Entities.callEntityServerMethod(_this.entityID, "deleteValidator", [playerValidator[i]]);
+                        console.log("no validator present", JSON.stringify(playerValidator));
                     }
                     playerValidator = null;
                 } catch (e) {
@@ -143,10 +167,12 @@
                 Messages.subscribe(TRIVIA_CHANNEL);    
                 var playerValidator = Entities.getEntityProperties(
                     Entities.findEntitiesByName(MyAvatar.sessionUUID, gameZone.position, MIN_RANGE)[0],['name']);
+                console.log("validator?", JSON.stringify(playerValidator));
                 try {
                     if (playerValidator.name === MyAvatar.sessionUUID && gameOn === false){
                         playerValidator = null;
                     } else if (playerValidator.name !== MyAvatar.sessionUUID && gameOn === true){
+                        console.log("no validator present", JSON.stringify(playerValidator));
                         playerValidator = null;
                         _this.ejectUser();
                     } else {
@@ -156,6 +182,7 @@
                     console.log("no validator present", e);
                 }
                 Settings.setValue("activeTriviaColor", _this.color);
+                console.log("My Color is now ",Settings.getValue("activeTriviaColor"));
                 _this.createChoiceOverlay();
             } 
         },

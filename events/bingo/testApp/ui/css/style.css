@@ -1,0 +1,86 @@
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    background-color: #393939;
+    color: #afafaf;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+#mainContainer {
+  width: 100vw;
+  height: 100vh;
+}
+
+#loadingContainer {
+    background-color: rgba(0, 0, 0, 0.8);
+    background-image: url('../images/loadingSpinner.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 999;
+}
+
+#titleBarContainer {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    padding: 0 16px;
+    font-size: 24px;
+    background-color: #121212;
+    color: #ffffff;
+    justify-content: space-between;
+}
+
+#buttonsContainer {
+    margin: 0 8px;
+    height: calc(100vh - 60px - 180px);
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+}
+
+input[type=button] {
+    display: block;
+    font-family: 'Raleway';
+    font-weight: bold;
+    font-size: 20px;
+    text-transform: uppercase;
+    height: 42px;
+    min-width: 150px;
+    padding: 0px 18px;
+    border-radius: 5px;
+    border: none;
+    color: #121212;
+    background-color: #949494;
+    background: linear-gradient(#949494 20%, #cacaca 100%);
+    cursor: pointer;
+}
+
+input[type=button]:enabled:hover {
+    background: linear-gradient(#fff, #fff);
+    border: none;
+}
+
+input[type=button]:active {
+    background: linear-gradient(#afafaf, #afafaf);
+}
+
+input[type=button]:disabled {
+    color: #252525;
+    background: linear-gradient(#575757 20%, #252525 100%);
+}

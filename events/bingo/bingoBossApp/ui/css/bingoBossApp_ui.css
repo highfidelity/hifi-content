@@ -1,0 +1,157 @@
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    color: #cccbcb;
+    background-color: #2b2b2b;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+#titleBarContainer {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    padding: 0 16px;
+    font-size: 24px;
+    background-color: #121212;
+    color: #ffffff;
+    justify-content: space-between;
+}
+
+#popupContainer {
+    z-index: 999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8); 
+}
+
+#popupContentContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 350px;
+    height: 450px;
+    margin: -225px 0 0 -175px;
+    background: #333;
+    font-size: 32px;
+    padding: 12px;
+}
+
+#popupButtonsContainer {
+    position: absolute;
+    display: flex;
+    bottom: 12px;
+    left: 0;
+    right: 0;
+    justify-content: space-evenly;
+}
+
+#popupButtonsContainer > input {
+    width: calc(50% - 36px);
+}
+
+#buttonsContainer {
+    margin: 0 8px;
+    height: calc(100vh - 60px - 180px);
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+}
+
+input[type=button] {
+    display: block;
+    font-family: 'Raleway';
+    font-weight: bold;
+    font-size: 20px;
+    text-transform: uppercase;
+    height: 42px;
+    min-width: 150px;
+    padding: 0px 18px;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    background-color: #000;
+    background: linear-gradient(#343434 20%, #000 100%);
+    cursor: pointer;
+}
+input[type=button].gray {
+    color: #121212;
+    background-color: #949494;
+    background: linear-gradient(#949494 20%, #cacaca 100%);
+}
+input[type=button].red {
+    color: #FFFFFF;
+    background-color: #C62147;
+    background: linear-gradient(#C62147 20%, #C62147 100%);
+}
+
+input[type=button]:enabled:hover {
+    background: linear-gradient(#000, #000);
+    border: none;
+}
+
+input[type=button].gray:enabled:hover {
+    background: linear-gradient(#fff, #fff);
+    border: none;
+}
+input[type=button].red:enabled:hover {
+    background: linear-gradient(#EA4C5F, #EA4C5F);
+    border: none;
+}
+
+input[type=button]:active {
+    background: linear-gradient(#343434, #343434);
+}
+input[type=button].gray:active {
+    background: linear-gradient(#afafaf, #afafaf);
+}
+input[type=button].red:active {
+    background: linear-gradient(#EA4C5F, #EA4C5F);
+}
+
+input[type=button]:disabled {
+    color: #252525;
+    background: linear-gradient(#575757 20%, #252525 100%);
+}
+
+input[type=button][pressed=pressed] {
+    color: #00b4ef;
+}
+
+#statusContainer {
+    z-index: 998;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 180px;
+    padding: 12px 16px;
+    background-color: #121212;
+    color: #ffffff;
+}
+
+#statusHeader {
+    font-size: 20px;
+}
+
+#statusText {
+    font-size: 16px;
+    margin-top: 8px;
+    font-family: 'Inconsolata', monospace;
+}

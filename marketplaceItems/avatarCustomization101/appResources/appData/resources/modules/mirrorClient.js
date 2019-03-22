@@ -31,7 +31,8 @@
     var lastDimensions = { x: 0, y: 0 };        // The previous dimensions of the mirror
     var previousFarClipDistance;    // Store the specator camera's previous far clip distance that we override for the mirror
 
-    // LOCAL FUNCTIONS    
+
+    // LOCAL FUNCTIONS
     
     // When x or y dimensions of the mirror change - reset the resolution of the 
     // spectator camera and edit the mirror overlay to adjust for the new dimensions
@@ -109,12 +110,12 @@
                 previousFarClipDistance = spectatorCameraConfig.farClipPlaneDistance;
                 spectatorCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
                 Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 0;
-                var mirrorEntityDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
+                var entityProperties = Entities.getEntityProperties(_this.entityID, ['dimensions']);
+                var mirrorEntityDimensions = entityProperties.dimensions;
                 var initialResolution = _this.calculateMirrorResolution(mirrorEntityDimensions);
                 spectatorCameraConfig.resetSizeSpectatorCamera(initialResolution.x, initialResolution.y);
                 spectatorCameraConfig.enableSecondaryCameraRenderConfigs(true);
                 updateMirrorOverlay();
-                Script.update.connect(updateMirrorDimensions);
             } else {
                 print("Cannot turn on mirror if spectator camera is already in use");
             }
@@ -130,8 +131,8 @@
             spectatorCameraConfig.farClipPlaneDistance = previousFarClipDistance;
             Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
             Overlays.deleteOverlay(mirrorOverlayID);
-            Script.update.disconnect(updateMirrorDimensions);
             mirrorOverlayRunning = false;
+            Entities.deleteEntity(_this.entityID);
         }
     };
     

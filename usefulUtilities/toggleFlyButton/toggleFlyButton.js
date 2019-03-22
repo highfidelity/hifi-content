@@ -11,7 +11,7 @@
 (function() { 
     var _this;
     var flyingEnabled;
-    var statusTextOverlayID;
+    var statusTextEntityID;
     // Since there's no signal in-engine for when a user's flying preferences
     // change, we need to check the settings on an interval.
     // See:
@@ -26,20 +26,20 @@
     };
 
     ToggleFlyButton.prototype = {
-        // Set up the entity ID, rez the status text overlay, and connect the
+        // Set up the entity ID, rez the status text Local Entity, and connect the
         // HMD displayModeChanged signal
         preload: function(entityID){
             _this.entityID = entityID;
-            _this.rezStatusTextOverlay();
+            _this.rezStatusTextLocalEntity();
             HMD.displayModeChanged.connect(_this.updateStatusText);
             updateStatusTextInterval = Script.setInterval(_this.updateStatusText, UPDATE_STATUS_TEXT_INTERVAL_MS);
         },
         
-        // When the script goes down, delete the status text overlay (if it exists),
+        // When the script goes down, delete the status text Local Entity (if it exists),
         // and disconnect our signal
         unload: function() {
-            if (statusTextOverlayID) {
-                Overlays.deleteOverlay(statusTextOverlayID);
+            if (statusTextEntityID) {
+                Entities.deleteEntity(statusTextEntityID);
             }
             HMD.displayModeChanged.disconnect(_this.updateStatusText);
             Script.clearInterval(updateStatusTextInterval);
@@ -54,41 +54,42 @@
             _this.toggleFlyingEnabled();
         },
         
-        // Create the status text overlay that'll show Flying Preference
+        // Create the status text Local Entity that'll show Flying Preference
         // status.
-        rezStatusTextOverlay: function() {
-            statusTextOverlayID = Overlays.addOverlay("text3d", {
+        rezStatusTextLocalEntity: function() {
+            statusTextEntityID = Entities.addEntity({
                 "parentID": _this.entityID,
-                "localPosition": {
-                    x: -0.5593090057373047,
-                    y: 0.1416434347629547,
-                    z: 0.1189870834350586
-                },
+                "type": "Text",
+                // eslint-disable-next-line no-magic-numbers
+                "localPosition": [-0.5593090057373047, 0.15, 0.102],
+                // eslint-disable-next-line no-magic-numbers
+                "localRotation": Quat.fromVec3Degrees([-90, 0, 0]),
                 "lineHeight": 0.11,
-                "dimensions": {x: 0.5120117664337158, y: 0.1607130914926529},
+                // eslint-disable-next-line no-magic-numbers
+                "dimensions": [0.512, 0.111, 0.05],
                 "topMargin": 0,
                 "rightMargin": 0,
                 "bottomMargin": 0,
-                "leftMargin": 0,
-            });
+                "leftMargin": 0
+            }, "local");
             _this.updateStatusText();
         },
         
-        // Update the status text overlay according to whether or not
+        // Update the status text Local Entity according to whether or not
         // the user has Flying enabled.
         updateStatusText: function() {
             // This should never happen, but protect against trying to
-            // edit the overlay if the overlay doesn't exist.
-            if (!statusTextOverlayID) {
+            // edit the entity if the entity doesn't exist.
+            if (!statusTextEntityID) {
                 return;
             }
 
             flyingEnabled = MyAvatar.getFlyingEnabled();
             
-            var overlayText = (flyingEnabled ? "ENABLED" : "DISABLED");
+            var entityText = (flyingEnabled ? "ENABLED" : "DISABLED");
             
-            Overlays.editOverlay(statusTextOverlayID, {
-                "text": overlayText
+            Entities.editEntity(statusTextEntityID, {
+                "text": entityText
             });
         },
         
@@ -103,7 +104,7 @@
             MyAvatar.setFlyingHMDPref(!flyingEnabled);
             
             // This preference doesn't update instantaneously,
-            // so we have to wait a few milliseconds before updating the overlay's text.
+            // so we have to wait a few milliseconds before updating the Local Entity's text.
             Script.setTimeout(function() {
                 _this.updateStatusText();
             }, UPDATE_TEXT_DELAY_MS);
