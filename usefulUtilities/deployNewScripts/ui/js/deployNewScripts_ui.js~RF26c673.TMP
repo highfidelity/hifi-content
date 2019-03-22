@@ -35,11 +35,10 @@ function scriptTextKeyUp() {
         statusContainer.innerHTML = "";
         return;
     }
-    
-    document.getElementById("submitButton").disabled = true;
 
     keyUpTimeout = setTimeout(function() {
         statusContainer.innerHTML = "...";
+        document.getElementById("submitButton").disabled = true;
         deployNewScripts(true);
     }, KEY_UP_DELAY_MS);
 }

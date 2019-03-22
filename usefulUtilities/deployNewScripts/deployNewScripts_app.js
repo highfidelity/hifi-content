@@ -24,11 +24,11 @@
     }
 
 
-    function matches(prefixToMatch, fullText, isPrefixMatch) {
-        if (isPrefixMatch) {
-            return (fullText.indexOf(prefixToMatch) > -1);
+    function matches(substringToMatch, fullText, isSubstringMatch) {
+        if (isSubstringMatch) {
+            return (fullText.indexOf(substringToMatch) > -1);
         } else {
-            return (prefixToMatch === fullText);
+            return (substringToMatch === fullText);
         }
     }
     
@@ -44,7 +44,7 @@
     }
 
 
-    function editEntities(entitiesToChange, oldText, newText, isPrefixMatch, isDryRun) {
+    function editEntities(entitiesToChange, oldText, newText, isSubstringMatch, isDryRun) {
         var numModifiedClientScripts = 0;
         var numModifiedServerScripts = 0;
         var numLockedScripts = 0;
@@ -59,13 +59,11 @@
             }
 
             var newScript = "";
-            var scriptSuffix = "";
     
-            if (oldText.client !== "" && matches(oldText.client, entitiesToChange[i].script, isPrefixMatch)) {
+            if (oldText.client !== "" && matches(oldText.client, entitiesToChange[i].script, isSubstringMatch)) {
                 newScript = "";
-                if (isPrefixMatch) {
-                    scriptSuffix = entitiesToChange[i].script.replace(oldText.client, "");
-                    newScript = newText.client + scriptSuffix;
+                if (isSubstringMatch) {
+                    newScript = entitiesToChange[i].script.replace(oldText.client, newText.client);
                 } else {
                     newScript = newText.client;
                 }
@@ -73,11 +71,10 @@
                 numModifiedClientScripts++;
             }
         
-            if (oldText.server !== "" && matches(oldText.server, entitiesToChange[i].serverScripts, isPrefixMatch)) {
+            if (oldText.server !== "" && matches(oldText.server, entitiesToChange[i].serverScripts, isSubstringMatch)) {
                 newScript = "";
-                if (isPrefixMatch) {
-                    scriptSuffix = entitiesToChange[i].serverScripts.replace(oldText.server, "");
-                    newScript = newText.server + scriptSuffix;
+                if (isSubstringMatch) {
+                    newScript = entitiesToChange[i].serverScripts.replace(oldText.server, newText.server);
                 } else {
                     newScript = newText.server;
                 }
@@ -106,7 +103,7 @@
     var SEARCH_RADIUS_M = 10000;
     var WAIT_BEFORE_EDITING_MS = 500;
     var operationInProgress = false;
-    function deployNewScripts(oldText, newText, isPrefixMatch, isDryRun) {
+    function deployNewScripts(oldText, newText, isSubstringMatch, isDryRun) {
         if (operationInProgress) {
             ui.sendMessage({
                 app: APP_NAME,
@@ -121,16 +118,18 @@
         for (var entityIndex in allEntities) {
             var entity = Entities.getEntityProperties(allEntities[entityIndex], ["id", "locked", "script", "serverScripts"]);
 
-            if ((entity.script && matches(oldText.client, entity.script, isPrefixMatch)) ||
-                (entity.serverScripts && matches(oldText.server, entity.serverScripts, isPrefixMatch))) {
+            if ((entity.script && matches(oldText.client, entity.script, isSubstringMatch)) ||
+                (entity.serverScripts && matches(oldText.server, entity.serverScripts, isSubstringMatch))) {
                 entitiesToChange.push(new EntityObject(entity.id, entity.locked, entity.script, entity.serverScripts));
             }
         }
 
-        unlockEntities(entitiesToChange);
+        if (!isDryRun) {
+            unlockEntities(entitiesToChange);
+        }
 
         Script.setTimeout(function() {
-            editEntities(entitiesToChange, oldText, newText, isPrefixMatch, isDryRun);
+            editEntities(entitiesToChange, oldText, newText, isSubstringMatch, isDryRun);
             operationInProgress = false;
         }, WAIT_BEFORE_EDITING_MS);
     }
@@ -149,7 +148,7 @@
 
 
             case "deployNewScripts":
-                deployNewScripts(event.data.oldText, event.data.newText, event.data.isPrefixMatch, event.data.isDryRun);
+                deployNewScripts(event.data.oldText, event.data.newText, event.data.isSubstringMatch, event.data.isDryRun);
                 break;
 
 
