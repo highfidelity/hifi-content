@@ -262,6 +262,7 @@ function disable(){
             Controller.mouseDoublePressEvent.disconnect(doublePressHandler);
         }
         Controller.disableMapping(_this.mappingName);
+        _this.controllEnabled = false;
 
         return _this;
     }

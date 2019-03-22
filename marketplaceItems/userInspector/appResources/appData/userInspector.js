@@ -55,7 +55,11 @@
     // Updates the current user scale
     function updateCurrentUserScaler() {
         var currentUserScaler = Settings.getValue("nametag/enabled", false);
-        ui.sendMessage({method: "updateCurrentUserScaler", currentUserScaler: currentUserScaler});
+        ui.sendMessage({
+            app: "userInspector",
+            method: "updateCurrentUserScaler", 
+            currentUserScaler: currentUserScaler
+        });
     }
 
 
@@ -80,17 +84,19 @@
             pickRayController.enable();
         } else {
             pickRayController.disable();
+            nameTagListManager.reset();
         }
     }
 
 
     function onMessage(message) {
-        if (message.app !== "nametag") {
+        if (message.app !== "userInspector") {
             return;
         }
         switch (message.method) {
             case "eventBridgeReady":
                 ui.sendMessage({
+                    app: "userInspector",
                     method: "updateUI",
                     nameTagEnabled: nameTagEnabled,
                     currentUserScaler: currentUserScaler
