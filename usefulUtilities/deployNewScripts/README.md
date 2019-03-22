@@ -20,5 +20,5 @@ Press "SUBMIT", confirm your choice, and you're done!
 
 # Release Notes
 
-## 2019-03-20_16-53-00 | [commit be9f241](https://github.com/highfidelity/hifi-content/commits/be9f241)
+## 2019-03-20_16-53-00 | [commit 40ba106](https://github.com/highfidelity/hifi-content/commits/40ba106)
 - Initial Release
