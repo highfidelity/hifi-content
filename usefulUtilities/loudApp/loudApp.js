@@ -1,5 +1,7 @@
 (function () {
 
+    var AppUi = Script.require("appUi");
+
     var userStore = {}, // houses all users, see User constructor for structure
         interval = null, // handled by updateInterval 
         UPDATE_INTERVAL_TIME = 60; // Audio update time
@@ -22,20 +24,8 @@
     // velocity constants
     var SAMPLE_LENGTH = 100;
 
-    // button options
-    var button,
-        isAppActive = false,
-        isTabletUIOpen = false,
-        buttonName = "SEEK LOUD",
-        tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system"),
-        APP_URL = Script.resolvePath('./Tablet/Loud_Tablet.html?v2'),
-        ACTIVE_ICON_URL = Script.resolvePath('./icons/LoudIcon.svg'),
-        ICON_URL = Script.resolvePath('./icons/LoudIcon_White.svg'),
-        EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen";
-
     // app methods
     var LISTEN_TOGGLE = "listen_toggle",
-        SET_ACTIVE_MESSAGE = "setActive",
         CLOSE_DIALOG_MESSAGE = "closeDialog",
         SELECT_AVATAR = "selectAvatar",
         BAN = "ban",
@@ -57,277 +47,212 @@
         },
     };
 
-    // audio constants
-    var AVERAGING_RATIO = 0.05,
-        LOUDNESS_FLOOR = 11.0,
-        LOUDNESS_SCALE = 2.8 / 5.0,
-        LOG2 = Math.log(2.0),
-        AUDIO_PEAK_DECAY = 0.02;
+
 
     // Range of time to send setGain requests
     // Ensure gain packets do not get lost
     var LISTEN_GAIN = 0; // default value
 
-    var audio = {
+    var DEBUG = true;
 
-        update: function (uuid) {
-            var user = userStore[uuid];
-            if (!user) {
-                return;
-            }
+    // #region AUDIO
 
-            // scale audio
-            function scaleAudio(val) {
-                var audioLevel = 0.0;
-                if (val <= LOUDNESS_FLOOR) {
-                    audioLevel = val / LOUDNESS_FLOOR * LOUDNESS_SCALE;
-                } else {
-                    audioLevel = (val - (LOUDNESS_FLOOR - 1)) * LOUDNESS_SCALE;
-                }
-                if (audioLevel > 1.0) {
-                    audioLevel = 1;
-                }
-                return audioLevel;
-            }
-
-            // the VU meter should work similarly to the one in AvatarInputs: log scale, exponentially averaged
-            // But of course it gets the data at a different rate, so we tweak the averaging ratio and frequency
-            // of updating (the latter for efficiency too).
+    // Updates avatar's audio level in the userStore
+    var AVERAGING_RATIO = 0.05,
+        LOUDNESS_FLOOR = 11.0,
+        LOUDNESS_SCALE = 2.8 / 5.0,
+        LOG2 = Math.log(2.0),
+        AUDIO_PEAK_DECAY = 0.02;
+    function updateAudioForAvatar(uuid) {
+        if (!userStore[uuid]) {
+            return;
+        }
+        // scale audio
+        function scaleAudio(val) {
             var audioLevel = 0.0;
-            var avgAudioLevel = 0.0;
-
-            if (user) {
-                // we will do exponential moving average by taking some the last loudness and averaging
-                user.accumulatedLevel = AVERAGING_RATIO * (user.accumulatedLevel || 0) + (1 - AVERAGING_RATIO) * (user.audioLoudness);
-
-                // add 1 to insure we don't go log() and hit -infinity.  Math.log is
-                // natural log, so to get log base 2, just divide by ln(2).
-                audioLevel = scaleAudio(Math.log(user.accumulatedLevel + 1) / LOG2);
-
-                // decay avgAudioLevel
-                avgAudioLevel = Math.max((1 - AUDIO_PEAK_DECAY) * (user.avgAudioLevel || 0), audioLevel).toFixed(3);
-
-            }
-
-            userStore[uuid].audioLevel = audioLevel;
-            userStore[uuid].avgAudioLevel = avgAudioLevel;
-        },
-
-        listenToAvatar: function (targetUUID) {
-            print("listenToAvatar isListening", settings.ui.isListening);
-            print("listenToAvatar targetUUID", targetUUID);
-            print("listenToAvatar targetUUID", activeTargetUUID);
-
-            if (settings.ui.isListening) {
-                // is already listening to activeTargetUUID
-                userStore[activeTargetUUID].isToggled = false;
-                Audio.removeFromSoloList([activeTargetUUID]);
-
-                // activeTargetUUID = targetUUID;
-                // Audio.addToSoloList([targetUUID]);
-                // userStore[targetUUID].isToggled = true;
-                // return;
+            if (val <= LOUDNESS_FLOOR) {
+                audioLevel = val / LOUDNESS_FLOOR * LOUDNESS_SCALE;
             } else {
-                // turn on settings.ui.isListening and mute everyone but the target avatar
-                settings.ui.isListening = true;
+                audioLevel = (val - (LOUDNESS_FLOOR - 1)) * LOUDNESS_SCALE;
             }
-
-            // add new target and unmute
-            Audio.addToSoloList([targetUUID]);
-            userStore[targetUUID].isToggled = true;
-            activeTargetUUID = targetUUID;
-        },
-
-        resetListenToAvatar: function () {
-
-            Audio.resetSoloList();
-
-            print("activeTargetUUID: ", activeTargetUUID);
-            print("userStore activeTargetUUID: ", JSON.stringify(userStore[activeTargetUUID]));
-
-            if (userStore[activeTargetUUID]) {
-                userStore[activeTargetUUID].isToggled = false;
+            if (audioLevel > 1.0) {
+                audioLevel = 1;
             }
-            
-            settings.ui.isListening = false;
-            activeTargetUUID = null;
+            return audioLevel;
+        }
+        // the VU meter should work similarly to the one in AvatarInputs: log scale, exponentially averaged
+        // But of course it gets the data at a different rate, so we tweak the averaging ratio and frequency
+        // of updating (the latter for efficiency too).
+        var audioLevel = 0.0;
+        var avgAudioLevel = 0.0;
+        if (userStore[uuid]) {
+            // we will do exponential moving average by taking some the last loudness and averaging
+            userStore[uuid].accumulatedLevel = AVERAGING_RATIO * (userStore[uuid].accumulatedLevel || 0) + (1 - AVERAGING_RATIO) * (userStore[uuid].audioLoudness);
 
-            // for (var i = 0; i < muteList.length; i++) {
+            // add 1 to insure we don't go log() and hit -infinity.  Math.log is
+            // natural log, so to get log base 2, just divide by ln(2).
+            audioLevel = scaleAudio(Math.log(userStore[uuid].accumulatedLevel + 1) / LOG2);
 
-            //     userStore[muteList[i]].isToggled = false;
-            //     this.unmute(muteList[i]);
-            // }
+            // decay avgAudioLevel
+            avgAudioLevel = Math.max((1 - AUDIO_PEAK_DECAY) * (userStore[uuid].avgAudioLevel || 0), audioLevel).toFixed(3);
+        }
+        userStore[uuid].audioLevel = audioLevel;
+        userStore[uuid].avgAudioLevel = avgAudioLevel;
+    }
 
-            // muteList = [];
 
+    // Solos target avatar 
+    // Mutes the old target avatar
+    function startListeningToAvatar(targetUUID) {
+        if (DEBUG) {
+            console.log("startListeningToAvatar isListening" + settings.ui.isListening + "targetUUID" + targetUUID + "activeTargetUUID" + activeTargetUUID);
+        }
+        if (settings.ui.isListening) {
+            // is already listening to activeTargetUUID
+            // mute old target
+            userStore[activeTargetUUID].isToggled = false;
+            Audio.removeFromSoloList([activeTargetUUID]);
+        } else {
+            // turn on settings.ui.isListening
+            settings.ui.isListening = true;
+        }
+        // add new target
+        Audio.addToSoloList([targetUUID]);
+        userStore[targetUUID].isToggled = true;
+        activeTargetUUID = targetUUID;
+    }
+
+
+    // Stops soloing target avatar
+    function stopListening() {
+        if (DEBUG) {
+            console.log("stopListening activeTargetUUID: " + activeTargetUUID + "userStore[activeTargetUUID]" + JSON.stringify(userStore[activeTargetUUID]));
+        }
+        Audio.resetSoloList();
+        if (userStore[activeTargetUUID]) {
+            userStore[activeTargetUUID].isToggled = false;
+        }
+        settings.ui.isListening = false;
+        activeTargetUUID = null;
+    }
+
+    // #endregion AUDIO
+
+
+    // #region LIST MANAGEMENT
+
+    // return all avatars in radius
+    function getAvatarsInRadius(radius) {
+        return AvatarList.getAvatarsInRange(MyAvatar.position, radius).filter(function (uuid) {
+            return uuid !== MyAvatar.sessionUUID;
+        });
+    }
+
+
+    // searches the top 10 list to get the index
+    function getIndexOfSettingsUser(uuid) {
+        if (settings.users.length) {
+            var index = settings.users.map(function (item) {
+                // print(item.uuid)
+                return item.uuid;
+            }).indexOf(uuid);
+            return index;
+        }
+        return -1;
+    }
+
+    // #endregion LIST MANAGEMENT
+
+
+    // #region APP
+
+    var ui;
+    var BUTTON_NAME = "SEEK LOUD",
+        APP_URL = Script.resolvePath('./Tablet/Loud_Tablet.html?v2'),
+        EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen";
+    function startup() {
+        // Create the tablet app
+        ui = new AppUi({
+            buttonName: BUTTON_NAME,
+            onMessage: webEvent.recieved, // UI event listener  
+            home: APP_URL,
+            // Icons are located in graphicsDirectory
+            // AppUI is looking for icons named with the BUTTON_NAME "avatar-101" 
+            // For example: avatar-101-a.svg for active button icon, avatar-101-i.svg for inactive button icon
+            graphicsDirectory: Script.resolvePath("./icons/"), 
+            onOpened: onOpened,
+            onClosed: onClosed
+        });
+
+        AvatarList.avatarAddedEvent.connect(userUtils.addUser);
+        AvatarList.avatarRemovedEvent.connect(userUtils.removeUser);
+        Users.usernameFromIDReply.connect(userUtils.setUserName);
+        
+        Script.scriptEnding.connect(unload);
+
+        updateInterval.start();
+    }
+
+
+    function onOpened() {
+        overlays.addAll();
+    }
+    
+
+    function onClosed() {
+        overlays.removeAll();
+    }
+
+
+    function doUIUpdate(update) {
+        ui.sendToHtml({
+            type: UPDATE_UI,
+            value: settings,
+            update: update || {}
+        });
+    }
+
+
+    function sortAvatarsByLoudness() {
+        // sort by audioLevel
+        function sortNumber(a, b) {
+            return b.avgAudioLevel - a.avgAudioLevel;
         }
 
-    };
+        overlays.removeAll();
 
-    var lists = {
+        var avatarList = settings.ui.isAllAvatarsInTopTenEnabled ? Object.keys(userStore) : getAvatarsInRadius(SEARCH_RADIUS);
+        settings.users = avatarList.map(function (uuid) { return userStore[uuid]; });
+        settings.users = settings.users.sort(sortNumber).slice(0, 10);
 
-        // currently not used
-        getAvatarsInRadius: function (radius) {
-            return AvatarList.getAvatarsInRange(MyAvatar.position, radius).filter(function (uuid) {
-                return uuid !== MyAvatar.sessionUUID;
+        overlays.addAll();
+    }
+
+
+    function unload() {
+        if (settings.users) {
+            settings.users.forEach(function (user) {
+                if (user.overlayID) {
+                    overlays.deleteOverlay(user.uuid)
+                }
             });
-        },
-
-        // returns an array of avatarPaldata
-        // Example of returned: [{"audioLoudness":0,"isReplicated":false,"palOrbOffset":0.2948298454284668,"position":{"x":0.5748982429504395,"y":-10.898207664489746,"z":2.4195659160614014},"sessionDisplayName":"Robin","sessionUUID":""}]
-        allAvatars: function () {
-            return AvatarList.getPalData().data;
-        },
-
-        // searches the top 10 list to get the index
-        getIndexOfSettingsUser: function (uuid) {
-            if (settings.users.length) {
-                var index = settings.users.map(function (item) {
-                    // print(item.uuid)
-                    return item.uuid;
-                }).indexOf(uuid);
-                return index;
-            }
-            return -1;
         }
+        
+        updateInterval.stop();
 
-    };
+        stopListening();
 
-    var app = {
+        Users.usernameFromIDReply.disconnect(userUtils.setUserName);
+        AvatarList.avatarAddedEvent.disconnect(userUtils.addUser);
+        AvatarList.avatarRemovedEvent.disconnect(userUtils.removeUser);
+    }
 
-        setup: function () {
-            button = tablet.addButton({
-                text: buttonName,
-                icon: ICON_URL,
-                activeIcon: ACTIVE_ICON_URL,
-                isActive: isAppActive
-            });
-
-            if (button) {
-                button.clicked.connect(this.onTabletButtonClicked);
-            } else {
-                console.error("ERROR: Tablet button not created! App not started.");
-                tablet = null;
-                return;
-            }
-
-            tablet.gotoHomeScreen();
-            tablet.screenChanged.connect(this.onTabletScreenChanged);
-
-            AvatarList.avatarAddedEvent.connect(userUtils.addUser);
-            AvatarList.avatarRemovedEvent.connect(userUtils.removeUser);
-            Users.usernameFromIDReply.connect(userUtils.setUserName);
-
-            updateInterval.start();
-        },
-
-        onTabletButtonClicked: function () {
-            // Application tablet/toolbar button clicked.
-            if (isTabletUIOpen) {
-                tablet.gotoHomeScreen();
-            } else {
-                // Initial button active state is communicated via URL parameter so that active state is set immediately without
-                // waiting for the event bridge to be established.
-                tablet.gotoWebScreen(APP_URL + "?active=" + isAppActive);
-            }
-        },
-
-        doUIUpdate: function (update) {
-
-            if (isTabletUIOpen) {
-                tablet.emitScriptEvent(JSON.stringify({
-                    type: UPDATE_UI,
-                    value: settings,
-                    update: update || {}
-                }));
-            }
-        },
-
-        setAppActive: function (active) {
-            // print("SETUP APP ACTIVE");
-            // Start/stop application activity.
-            if (active) {
-                // *** 
+    // #endregion APP
 
 
-            } else {
+    // #region OVERLAYS
 
-            }
-            // isAppActive = active;
-
-        },
-
-        onTabletScreenChanged: function (type, url) {
-            // Tablet screen changed / desktop dialog changed.
-            var wasTabletUIOpen = isTabletUIOpen;
-
-            isTabletUIOpen = url.substring(0, APP_URL.length) === APP_URL; // Ignore URL parameter.
-            if (isTabletUIOpen === wasTabletUIOpen) {
-                return;
-            }
-
-            if (isTabletUIOpen) {
-
-                button.editProperties({ isActive: true });
-
-                overlays.addAll();
-
-                tablet.webEventReceived.connect(webEvent.recieved);
-            } else {
-
-                overlays.removeAll();
-
-                button.editProperties({ isActive: false });
-                tablet.webEventReceived.disconnect(webEvent.recieved);
-            }
-        },
-
-        sortData: function () {
-            // sort by audioLevel
-            function sortNumber(a, b) {
-                return b.avgAudioLevel - a.avgAudioLevel;
-            }
-
-            overlays.removeAll();
-
-            var avatarList = settings.ui.isAllAvatarsInTopTenEnabled ? Object.keys(userStore) : lists.getAvatarsInRadius(SEARCH_RADIUS);
-            settings.users = avatarList.map(function (uuid) { return userStore[uuid]; });
-            settings.users = settings.users.sort(sortNumber).slice(0, 10);
-
-            overlays.addAll();
-
-        },
-
-        unload: function () {
-
-            if (isAppActive) {
-                this.setAppActive(false);
-            }
-            if (isTabletUIOpen) {
-                tablet.webEventReceived.disconnect(webEvent.recieved);
-            }
-            if (button) {
-                button.clicked.connect(this.onTabletButtonClicked);
-                tablet.removeButton(button);
-                button = null;
-            }
-            if (settings.users) {
-                settings.users.forEach(function (user) {
-                    if (user.overlayID) {
-                        overlays.deleteOverlay(user.uuid)
-                    }
-                });
-            }
-
-            audio.resetListenToAvatar();
-
-            Users.usernameFromIDReply.disconnect(userUtils.setUserName);
-            AvatarList.avatarAddedEvent.disconnect(userUtils.addUser);
-            AvatarList.avatarRemovedEvent.disconnect(userUtils.removeUser);
-
-            tablet = null;
-        }
-    };
+    // #endregion OVERLAYS
 
     var overlays = {
 
@@ -414,7 +339,7 @@
         },
 
         handleUpdate: function () {
-            var palList = lists.allAvatars();
+            var palList = AvatarList.getPalData().data;
 
             // Add users to userStore
             for (var a = 0; a < palList.length; a++) {
@@ -424,17 +349,18 @@
                 var isInUserStore = userStore[currentUUID] !== undefined;
 
                 if (hasUUID && !isInUserStore) {
+                    // UUID exists and is NOT in userStore
 
                     userUtils.addUser(currentUUID);
 
                 } else if (hasUUID) {
+                    // UUID exists and IS in userStore already
 
                     userStore[currentUUID].audioLoudness = palList[a].audioLoudness;
                     userStore[currentUUID].currentPosition = palList[a].position;
 
                     // *** Update ***
-
-                    audio.update(currentUUID);
+                    updateAudioForAvatar(currentUUID);
 
                     if (settings.ui.isExpandingAudioEnabled && userStore[currentUUID].overlayID) {
 
@@ -461,7 +387,7 @@
                 }
             }
 
-            app.doUIUpdate();
+            doUIUpdate();
         }
     };
 
@@ -469,7 +395,7 @@
 
         // print("REMOVE USER FROM SETTINGS");
 
-        var settingsUsersListIndex = lists.getIndexOfSettingsUser(uuid);
+        var settingsUsersListIndex = getIndexOfSettingsUser(uuid);
         var muteListIndex = muteList.indexOf(uuid);
 
         if (settingsUsersListIndex !== -1) {
@@ -480,7 +406,7 @@
             }
 
             settings.users.splice(settingsUsersListIndex, 1);
-            app.doUIUpdate();
+            doUIUpdate();
         }
 
         if (muteListIndex !== -1) {
@@ -505,29 +431,16 @@
                     // print("OPEN EVENTBRIDGE");
                     if (!settings.users.length) {
                         // only add people to the list if there are none
-                        app.sortData();
-                        app.doUIUpdate();
+                        sortAvatarsByLoudness();
                     }
-                    break;
-                case SET_ACTIVE_MESSAGE:
-                    // print("Event recieved: ", SET_ACTIVE_MESSAGE);
-                    if (isAppActive !== message.value) {
-                        // button.editProperties({
-                        //     isActive: message.value
-                        // });
-                        app.setAppActive(message.value);
-                    }
-                    // tablet.gotoHomeScreen(); // Automatically close app.
                     break;
                 case LISTEN_TOGGLE:
                     // print("Event recieved: ", LISTEN_TOGGLE);
                     handleEvent.listenToggle(message.value);
-                    app.doUIUpdate();
                     break;
                 case SELECT_AVATAR:
                     // print("Event recieved: ", BAN);
                     handleEvent.selectAvatar(message.value);
-                    app.doUIUpdate();
                     break;
                 case REFRESH:
                     // print("Event recieved: ", REFRESH);
@@ -540,16 +453,13 @@
                 case BAN:
                     // print("Event recieved: ", BAN);
                     handleEvent.ban(message.value);
-                    app.doUIUpdate();
                     break;
                 case MUTE:
                     // print("Event recieved: ", MUTE);
                     handleEvent.mute(message.value);
-                    app.doUIUpdate();
                     break;
                 case TOGGLE_EXPANDING_AUDIO:
                     handleEvent.toggleExpandingAudio();
-                    app.doUIUpdate();
                     break;
                 case TOGGLE_ALL_AVATARS:
                     handleEvent.toggleAllAvatars();
@@ -562,14 +472,12 @@
                             }
                         });
                     }
-                    // print("CLOSE_DIALOGUE");
-                    tablet.gotoHomeScreen();
                     break;
                 default:
                     break;
             }
-        },
-
+            doUIUpdate();
+        }
     };
 
     function AveragingFilter(length) {
@@ -634,8 +542,8 @@
 
         setUserName: function (uuid, userName) {
             userStore[uuid].userName = userName ? userName : userStore[uuid].displayName;
-            if (lists.getIndexOfSettingsUser(uuid) !== -1) {
-                app.doUIUpdate();
+            if (getIndexOfSettingsUser(uuid) !== -1) {
+                doUIUpdate();
             }
         },
 
@@ -713,15 +621,15 @@
             print("LISTEN TOGGLE ", avatarInfo.uuid !== activeTargetUUID, JSON.stringify(avatarInfo));
 
             if (avatarInfo.uuid !== activeTargetUUID) {
-                audio.listenToAvatar(avatarInfo.uuid);
+                startListeningToAvatar(avatarInfo.uuid);
             } else {
-                audio.resetListenToAvatar();
+                stopListening();
             }
         },
         refresh: function () {
-            app.sortData();
-            app.doUIUpdate();
-            audio.resetListenToAvatar();
+            sortAvatarsByLoudness();
+            doUIUpdate();
+            stopListening();
             muteList = [];
         },
         mute: function (avatarInfo) {
@@ -729,16 +637,5 @@
         }
     };
 
-    function scriptEnding() {
-
-        updateInterval.stop();
-        app.unload();
-
-    }
-
-    app.setup();
-    updateInterval.start();
-
-    Script.scriptEnding.connect(scriptEnding);
-
+    startup();
 })();
