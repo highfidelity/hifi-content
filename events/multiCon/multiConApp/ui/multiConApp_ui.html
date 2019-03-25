@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <title>MULTI-CON</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700|Cairo" rel="stylesheet">
+        <link rel="stylesheet" href="css/multiConApp_ui.css?2">
+        <script src="js/multiConApp_ui.js"></script>
+    </head>
+    <body>
+        <div id="loadingContainer">
+        </div>
+
+        <div id="votingModalContainer" onclick="closeVotingModal()" style="display:none;">
+            <div id="votingModalContentContainer" onclick="event.stopPropagation()">
+                <div id="cancelVote" onclick="closeVotingModal()">
+                </div>
+                <div id="votingModalImage">
+                </div>
+                <div id="confirmVoteContainer">
+                    <div id="confirmVoteIcon">
+                    </div>
+                    <div id="confirmVoteText">
+                    </div>
+                    <div id="votingModalPadding">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="appContainer">
+            <div id="tabBarContainer">
+                <div id="infoTab"  onclick="selectTab('info')" class="selected">
+                    Info
+                </div>
+                <div id="voteTab" onclick="selectTab('vote')">
+                    Avatar Contest
+                </div>
+            </div>
+            <div id="contentContainer">
+                <div id="infoContainer" class="selected">
+                    <div id="headerImage"></div>
+                    <div id="infoCopy">
+                        <h1>Multi-Con VR Avatar Contest</h1>
+                        <p>Check out <span style="text-decoration:underline;color:#217ebb;" onclick="selectTab('vote')">these entries</span> inspired by characters in Anime + Animation. Then vote for the winner.</p>
+                        <p>Voting Closes Today at 1:45 pm PDT</p>
+                        <h2>Prizes:</h2>
+                        <ul>
+                            <li>$10,000* 1st Place</li>
+                            <li>$5,000* 2nd Place</li>
+                            <li>$1,000* 3rd Place</li>
+                            <li>$300* Every Avatar in the Contest</li>
+                        </ul>
+
+                        <p>*All cash prizes paid in High Fidelity Coin</p>
+                        <p><strong>Next Contest:</strong> Multi-Con VR: Fantasy + Sci-Fi April 27</p>
+                    </div>
+                </div>
+                <div id="voteContainer">
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

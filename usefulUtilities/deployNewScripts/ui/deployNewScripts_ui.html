@@ -1,0 +1,78 @@
+<html>
+    <head>
+        <title>Deploy New Scripts</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+        <link rel="stylesheet" href="css/deployNewScripts_ui.css?0">
+        <script type="text/javascript" src="js/deployNewScripts_ui.js?0"></script>
+    </head>
+    <body>
+        <div id="loadingContainer">
+        </div>
+
+        <div id="titleBarContainer">
+            <div id="titleText" style="font-weight:bold;">
+                Deploy New Scripts
+            </div>
+        </div>
+
+        <div id="modalContainer" onclick="closeModal()" style="display:none;">
+            <div id="modalContentContainer" onclick="event.stopPropagation()">
+                <div id="modalTextContainer">
+
+                </div>
+                <div id="modalButtonContainer">
+                    <input type="button" onclick="closeModal()" value="CANCEL">
+                    <input type="button" onclick="deployNewScripts(false)" value="CONFIRM">
+                </div>
+            </div>
+        </div>
+
+        <div id="instructionsContainer">
+            Use this tool to deploy new scripts in the domain that you are in.
+            Enable "Perform Substring Matching" to part of the script URLs (i.e. upon a new release).
+        </div>
+
+        <div id="formContainer">
+            <form id="form" action="javascript:void(0);" onsubmit="maybeOpenModal()">
+                <div>
+                    <input type="checkbox" id="isSubstringMatch" onclick="isSubstringMatchClicked()">
+                    <label id="isSubstringMatchLabel" for="isSubstringMatch">Perform Substring Matching</label>
+                </div>
+
+                <div id="clientScriptContainer">
+                    <div>
+                        <label id="oldClientTextLabel" for="oldClientText">Old Client Script (Exactly)</label>
+                        <input type="text" id="oldClientText" onKeyUp="scriptTextKeyUp()" placeholder="Old Client Script (Exactly)">
+                    </div>
+
+                    <div>
+                        <label id="newClientTextLabel" for="newClientText">New Client Script (Exactly)</label>
+                        <input type="text" id="newClientText" onKeyUp="scriptTextKeyUp()" placeholder="New Client Script (Exactly)">
+                    </div>
+                </div>
+
+                <div id="serverScriptContainer">
+                    <div>
+                        <label id="oldServerTextLabel" for="oldServerText">Old Server Script (Exactly)</label>
+                        <input type="text" id="oldServerText" onKeyUp="scriptTextKeyUp()" placeholder="Old Server Script (Exactly)">
+                    </div>
+
+                    <div>
+                        <label id="newServerTextLabel" for="newServerText">New Server Script (Exactly)</label>
+                        <input type="text" id="newServerText" onKeyUp="scriptTextKeyUp()" placeholder="New Server Script (Exactly)">
+                    </div>
+                </div>
+
+                <div>
+                    <input id="submitButton" type="submit" value="SUBMIT">
+                </div>
+            </form>
+        </div>
+
+        <div id="statusContainer">
+
+        </div>
+    </body>
+</html>

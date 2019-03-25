@@ -18,6 +18,8 @@
     };
 
     BingoPrizeDoorZone.prototype = {
+        remotelyCallable: ['openWinnerApp'],
+
         /* ON LOADING THE SCRIPT: Save a reference to this. Also get `prizeDoorNumber`. */
         preload: function(entityID) {
             _this.entityID = entityID;
@@ -34,6 +36,7 @@
             if (prizeDoorNumber) {
                 var data = {
                     "username": AccountServices.username,
+                    "sessionUUID": MyAvatar.sessionUUID,
                     "prizeDoorNumber": prizeDoorNumber,
                     "isAdding": true
                 };
@@ -48,12 +51,27 @@
             if (prizeDoorNumber) {
                 var data = {
                     "username": AccountServices.username,
+                    "sessionUUID": MyAvatar.sessionUUID,
                     "prizeDoorNumber": prizeDoorNumber,
                     "isAdding": false
                 };
 
                 Entities.callEntityServerMethod(BINGO_WHEEL_ID, 'addOrRemovePrizeZoneAvatar', [JSON.stringify(data)]);
             }
+        },
+
+        openWinnerApp: function(id, args) {
+            var WINNER_APP_NAME = "bingoWinner_app.js";
+            var WINNER_APP_URL = Script.resolvePath("../../bingoWinnerApp/" + WINNER_APP_NAME);
+            var currentlyRunningScripts = ScriptDiscoveryService.getRunning();
+            
+            currentlyRunningScripts.forEach(function(scriptObject) {
+                if (scriptObject.url.indexOf(WINNER_APP_NAME) > -1) {
+                    ScriptDiscoveryService.stopScript(scriptObject.url);
+                }
+            });
+
+            ScriptDiscoveryService.loadScript(WINNER_APP_URL);
         }
     };
     

@@ -14,7 +14,7 @@
 
 (function () {
     // Hardcoded approved usernames
-    var APPROVED_USERNAMES = ["philip", "ryan", "zfox", "Becky", "market", "kayla_hf"];
+    var APPROVED_USERNAMES = ["philip"];
     // Dynamically approved usernames
     var userDataUsernameWhitelist;
 
@@ -206,12 +206,16 @@
         // Determines whether or not my username is on the whitelist
         // populated at the top of this script. 
         function isOnHardcodedWhitelist() {
-            if (APPROVED_USERNAMES.length === 0) {
+            var configWhitelist = Script.require(
+                Script.resolvePath("../../config/config.json?" + Date.now())).usersAllowedOnStage;
+            var hardcodedWhitelist = APPROVED_USERNAMES.concat(configWhitelist);
+
+            if (hardcodedWhitelist.length === 0) {
                 return false;
             }
 
             var currentUsername = AccountServices.username.toLowerCase();
-            var lowerCaseHardcodedUsernames = APPROVED_USERNAMES.map(function(value) {
+            var lowerCaseHardcodedUsernames = hardcodedWhitelist.map(function(value) {
                 return value.toLowerCase();
             });
 

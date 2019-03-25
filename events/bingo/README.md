@@ -13,9 +13,11 @@ Here's what your `config.json` file should look like:
 {
     "requestURL": "<a deployed version of the bingo.js Web App. MAKE SURE you also update REQUEST_URL in bingoCard_ui.js!>",
     "usersAllowedToSpinWheel": [<an array of strings dictating who can spin the Bingo wheel>],
+    "usersAllowedOnStage": [<an array of strings dictating who is allowed on stage>],
     "gameAudioPosition": { "x": <int>, "y": <int>, "z": <int> },
     "dbTablePrefix": "<a prefix for all of the Bingo tables in your DB associated with this deployment>",
     "possiblePrizes": [<an array of short strings dictating the prizes that players can win>],
+    "pozziblePrizesEmailRequired": [<an array of short strings dictating the prizes that players can win. if a player wins one of these prizes, they will be prompted for their email address.>],
     "debugMode": <true|false, depending on whether you want to enable various debug functions, such as the ability to use the Bingo Test App to call all numbers immediately>
 }
 ```
@@ -44,6 +46,20 @@ You can perform a local 1-person test of this new code by doing the following:
 
 
 # Release Notes
+
+## v3.1 | 2019-03-18_17-00-00 | [commit 04d3f7a](https://github.com/highfidelity/hifi-content/commits/04d3f7a)
+
+All changes made to webapp ONLY:
+- Add IP address to the data that is recorded in an attempt to prevent winner multiboxing
+- Hardcoded "100" as the amount of HFC that all players win if someone wins "All Players Win"
+- Changed export tool to not show `"All Players Win" CSV` when nobody wins "All Players Win"
+
+## v3.0 | 2019-03-18_17-00-00 | [commit 81d1c43](https://github.com/highfidelity/hifi-content/commits/81d1c43)
+
+- New Bingo export tool
+- Added a feature to the bouncer zone such that it no longer relies on hard-coded usernames
+- Fixed a bug where a user could not get a card, enter the scanner, fail verification, then re-enter the scanner and get Bingo
+- Added a "Bingo Winner" app, to be used by Bingo winners who win physical prizes
 
 ## v2.3 | 2019-03-11_11-16-00 | [commit 386f36f](https://github.com/highfidelity/hifi-content/commits/386f36f)
 
