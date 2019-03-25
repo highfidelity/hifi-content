@@ -1,0 +1,16 @@
+{
+    "PATH_TO_MODELS_JSON": "",
+    "PATH_TO_WRITE_JSON": "",
+    "MIN_X": 0,
+    "MAX_X": 0,
+    "MIN_Y": 0,
+    "MAX_Y": 0,
+    "MIN_Z": 0,
+    "MAX_Z": 0,
+    "nameBlackListGroup": [],
+    "nameWhiteListGroup": [],
+    "typeBlackListGroup": [],
+    "typeWhiteListGroup": [],
+    "patternMatchBlackListGroup": [],
+    "patternMatchWhiteListGroup": []
+}

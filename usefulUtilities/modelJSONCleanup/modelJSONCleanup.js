@@ -1,17 +1,11 @@
+// Either supply the location of the config file in the argument or default to it being in the same folder as the script
 // Consts
-const PATH_TO_MODELS_JSON = ('./models.json');
-const PATH_TO_WRITE_JSON = ('./models2.json');
-const MIN_Y = -75;
-const MAX_Y = 100;
-const MIN_X = -200;
-const MAX_X = 200;
-const MIN_Z = -150;
-const MAX_Z = 150;
+const CONFIG = require(process.argv[2] || './config.json');
 
 // Dependencies
 const fs = require('fs');
 const path = require('path');
-const modeljson = require(PATH_TO_MODELS_JSON);
+const modeljson = require(CONFIG.PATH_TO_MODELS_JSON);
 
 let modelJSONEntities = modeljson.Entities;
 
@@ -38,36 +32,28 @@ let countNoParentInDomain = 0;
 let countRemainingKeeps = 0;
 
 // Name black list
-let nameBlackListGroup = [
-    'Glass Piece',
-    'Gun Material',
-    "Plate Piece",
-    "Space Shot",
-    "Plate",
-    "Space Juice Primitive",
-    "Space Juice CC-BY Jarlan Perez"
-];
+let nameBlackListGroup = CONFIG.nameBlackListGroup;
+console.log("\nnameBlackListGroup: \n", nameBlackListGroup, "\n");
+
 // Name white list
-let nameWhiteListGroup = [
-    "Money Tree-Collider-Temp",
-    "Temp-Floor-Collider"
-];
+let nameWhiteListGroup = CONFIG.nameWhiteListGroup;
+console.log("\nnameWhiteListGroup: \n", nameWhiteListGroup, "\n");
 
 // Type black list
-let typeBlackListGroup = [
-];
+let typeBlackListGroup = CONFIG.typeBlackListGroup;
+console.log("\ntypeBlackListGroup: \n", typeBlackListGroup, "\n");
+
 // Type white list
-let typeWhiteListGroup = [
-    'zone'
-];
+let typeWhiteListGroup = CONFIG.typeWhiteListGroup;
+console.log("\ntypeWhiteListGroup: \n", typeWhiteListGroup, "\n");
 
 // Pattern match black list
-let patternMatchBlackListGroup = [
-    'temp'
-];
+let patternMatchBlackListGroup = CONFIG.patternMatchBlackListGroup;
+console.log("\npatternMatchBlackListGroup: \n", patternMatchBlackListGroup, "\n");
+
 // Pattern match white list
-let patternMatchWhiteListGroup = [
-];
+let patternMatchWhiteListGroup = CONFIG.patternMatchWhiteListGroup;
+console.log("\npatternMatchWhiteListGroup: \n", patternMatchWhiteListGroup, "\n");
 
 // Main entity filter
 modelJSONEntities = modelJSONEntities.filter( ent => {
@@ -118,7 +104,7 @@ modelJSONEntities = modelJSONEntities.filter( ent => {
     }
 
     // Entities with Parents
-    if(ent.parentID) {
+    if (ent.parentID) {
         let parentID = ent.parentID;
         let parent = parentMap[parentID];
         if (!parent) {
@@ -129,9 +115,9 @@ modelJSONEntities = modelJSONEntities.filter( ent => {
         if (parent.position) {
             // Delete anything with a parent that is in bounds
             if (
-                (parent.position.y < MAX_Y && parent.position.y > MIN_Y) &&
-                (parent.position.x < MAX_X && parent.position.x > MIN_X) &&
-                (parent.position.z < MAX_Z && parent.position.z > MIN_Z)
+                (parent.position.x < CONFIG.MAX_X && parent.position.x > CONFIG.MIN_X) &&
+                (parent.position.y < CONFIG.MAX_Y && parent.position.y > CONFIG.MIN_Y) &&
+                (parent.position.z < CONFIG.MAX_Z && parent.position.z > CONFIG.MIN_Z)
             ) {
                 countParentInBound++;
                 return true;
@@ -140,14 +126,15 @@ modelJSONEntities = modelJSONEntities.filter( ent => {
                 return false;
             }
         }
-    } 
+    } else if (ent.position) {
     // Entities without Parents
-    else if(ent.position) {
+
             // Delete anything with a parent that is in bounds
             if (
-                (ent.position.y < MAX_Y && ent.position.y > MIN_Y) &&
-                (ent.position.x < MAX_X && ent.position.x > MIN_X) &&
-                (ent.position.z < MAX_Z && ent.position.z > MIN_Z)
+                (ent.position.x < CONFIG.MAX_X && ent.position.x > CONFIG.MIN_X) &&
+
+                (ent.position.y < CONFIG.MAX_Y && ent.position.y > CONFIG.MIN_Y) &&
+                (ent.position.z < CONFIG.MAX_Z && ent.position.z > CONFIG.MIN_Z)
             ) {
                 countInBound++
                 return true;
@@ -175,7 +162,7 @@ console.log("countParentInBound: ", countParentInBound);
 console.log("countParentOutBound: ", countParentOutBound);
 console.log("countNoParentInDomain: ", countNoParentInDomain);
 console.log("countRemainingKeeps: ", countRemainingKeeps);
-console.log("\nFinal ent Length: ", modelJSONEntities.length, "\n");;
+console.log("\nFinal ent Length: ", modelJSONEntities.length, "\n");
 
 // Sum of deletes
 var deletes = [countOutBound, countParentOutBound, countNameBlackListGroup, countTypeBlackListGroup, countNoParentInDomain, countPatternMatchBlackListGroup].reduce( (prev, curr) => {
@@ -189,8 +176,8 @@ var keeps = [countInBound, countParentInBound, countNameWhiteListGroup, countTyp
 console.log("total Keeps: ", keeps);
 
 // Replace the filtered entities in the models.json
-modeljson.Entities = modelJSONEntities ;
+modeljson.Entities = modelJSONEntities;
 
 // Write the new models json to disk with a new file name in case we need to run this again on the original list
 let jsonToWrite = JSON.stringify(modeljson, null, 4);
-fs.writeFileSync(path.join(__dirname, 'models2.json'), jsonToWrite)
+fs.writeFileSync(path.join(__dirname, CONFIG.PATH_TO_WRITE_JSON), jsonToWrite);

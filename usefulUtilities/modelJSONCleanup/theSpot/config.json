@@ -1,0 +1,31 @@
+{
+    "PATH_TO_MODELS_JSON": "./models.json",
+    "PATH_TO_WRITE_JSON": "./models2.json",
+    "MIN_X": -200,
+    "MAX_X": 200,
+    "MIN_Y": -75,
+    "MAX_Y": 100,
+    "MIN_Z": -150,
+    "MAX_Z": 150,
+    "nameBlackListGroup": [
+        "Glass Piece",
+        "Gun Material",
+        "Plate Piece",
+        "Space Shot",
+        "Plate",
+        "Space Juice Primitive",
+        "Space Juice CC-BY Jarlan Perez"
+    ],
+    "nameWhiteListGroup": [
+        "Money Tree-Collider-Temp",
+        "Temp-Floor-Collider"
+    ],
+    "typeBlackListGroup": [],
+    "typeWhiteListGroup": [
+        "zone"
+    ],
+    "patternMatchBlackListGroup": [
+        "temp"
+    ],
+    "patternMatchWhiteListGroup": []
+}

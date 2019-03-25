@@ -7,12 +7,14 @@ Node script that can be used to help cleanup models.json
 - Get an archive of the domain you would like
 - Extract the zip
 - Extract the models gzip file
-- Duplicate the generic js filter file for the specific domain
-- In the JS file add the path to the models.json and the new models.json
-- Follow the comment instructions to tweak to your needs
-- Save and run node "nameOfTheJSFile"
+- Duplicate the config.json file and fill out the fields
+- Refer to the comments in the modelJSONCleanup file for more information on the fields in the config.json file.
+- Run `node modelJSONCleanup.js <"path to config file">`
+- If a path isn't provided for that argument, it will be assumed that the config.json is in the same directory as the js file
 - You will get a log of what was kept and deleted, if it doesn't add up, you can tweak the results
 - Either gzip the models file and replace the content archive version, then zip up the content archive again and upload or just upload the new models.json
 
 # Relesase Notes
 ### 2019-03-14_09-02-12 | 1.0 | [e29f0c0]
+
+### 2019-03-25_14-48-08 | 1.1 | [e29f0c0]
