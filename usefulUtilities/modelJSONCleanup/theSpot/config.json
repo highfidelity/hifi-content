@@ -1,6 +1,6 @@
 {
-    "PATH_TO_MODELS_JSON": "./models.json",
-    "PATH_TO_WRITE_JSON": "./models2.json",
+    "PATH_TO_MODELS_JSON": "./theSpot/models.json",
+    "PATH_TO_WRITE_JSON": "./theSpot/models2.json",
     "MIN_X": -200,
     "MAX_X": 200,
     "MIN_Y": -75,

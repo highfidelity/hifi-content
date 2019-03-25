@@ -8,10 +8,10 @@ Node script that can be used to help cleanup models.json
 - Extract the zip
 - Extract the models gzip file
 - Duplicate the config.json file and fill out the fields
-- Refer to the comments in the modelJSONCleanup file for more information on the fields in the config.json file.
+- Refer to the comments in the modelJSONCleanup file for more information on the fields in the config.json file
 - Run `node modelJSONCleanup.js "<path to config file>"`
 - If a path isn't provided for that argument, it will be assumed that the config.json is in the same directory as the js file
-- You will get a log of what was kept and deleted, if it doesn't add up, you can tweak the results
+- You will get a log printed out of how many and what kind were kept and deleted, and if it doesn't add up, you can tweak the fields in the config.json for new results
 - Either gzip the models file and replace the content archive version, then zip up the content archive again and upload or just upload the new models.json
 
 # Relesase Notes
@@ -22,4 +22,3 @@ Node script that can be used to help cleanup models.json
 
 # Trello Link
 https://trello.com/c/2OtVISFs/124-create-node-script-to-help-clean-up-modelsjson
-

@@ -2,10 +2,32 @@
 // Consts
 const CONFIG = require(process.argv[2] || './config.json');
 
+// Field to error check that the config.json contains all the proper keys
+let configJSONFieldsToCheck = [
+    "PATH_TO_MODELS_JSON", "PATH_TO_WRITE_JSON", 
+    "MIN_X", "MAX_X", "MIN_Y", "MAX_Y", "MIN_Z", "MAX_Z", 
+    "nameBlackListGroup", "nameWhiteListGroup", "typeBlackListGroup", "typeWhiteListGroup", "patternMatchBlackListGroup", "patternMatchWhiteListGroup"
+].filter(field =>{
+    // If the field is in the config file, remove it from the array
+    if (field in CONFIG) {
+        return false;
+    }
+    return true;
+});
+
+if (configJSONFieldsToCheck.length !== 0) {
+    console.log("The config.json doesn't contain all the fields needed.  Please review before continuing");
+    console.log("Missing the following fields: ", configJSONFieldsToCheck)
+    return;
+}
+
 // Dependencies
 const fs = require('fs');
 const path = require('path');
 const modeljson = require(CONFIG.PATH_TO_MODELS_JSON);
+
+
+
 
 let modelJSONEntities = modeljson.Entities;
 
@@ -114,11 +136,9 @@ modelJSONEntities = modelJSONEntities.filter( ent => {
         }
         if (parent.position) {
             // Delete anything with a parent that is in bounds
-            if (
-                (parent.position.x < CONFIG.MAX_X && parent.position.x > CONFIG.MIN_X) &&
+            if ((parent.position.x < CONFIG.MAX_X && parent.position.x > CONFIG.MIN_X) &&
                 (parent.position.y < CONFIG.MAX_Y && parent.position.y > CONFIG.MIN_Y) &&
-                (parent.position.z < CONFIG.MAX_Z && parent.position.z > CONFIG.MIN_Z)
-            ) {
+                (parent.position.z < CONFIG.MAX_Z && parent.position.z > CONFIG.MIN_Z)) {
                 countParentInBound++;
                 return true;
             } else {
@@ -130,12 +150,9 @@ modelJSONEntities = modelJSONEntities.filter( ent => {
     // Entities without Parents
 
             // Delete anything with a parent that is in bounds
-            if (
-                (ent.position.x < CONFIG.MAX_X && ent.position.x > CONFIG.MIN_X) &&
-
+            if ((ent.position.x < CONFIG.MAX_X && ent.position.x > CONFIG.MIN_X) &&
                 (ent.position.y < CONFIG.MAX_Y && ent.position.y > CONFIG.MIN_Y) &&
-                (ent.position.z < CONFIG.MAX_Z && ent.position.z > CONFIG.MIN_Z)
-            ) {
+                (ent.position.z < CONFIG.MAX_Z && ent.position.z > CONFIG.MIN_Z)) {
                 countInBound++
                 return true;
             } else {
@@ -165,14 +182,16 @@ console.log("countRemainingKeeps: ", countRemainingKeeps);
 console.log("\nFinal ent Length: ", modelJSONEntities.length, "\n");
 
 // Sum of deletes
-var deletes = [countOutBound, countParentOutBound, countNameBlackListGroup, countTypeBlackListGroup, countNoParentInDomain, countPatternMatchBlackListGroup].reduce( (prev, curr) => {
-    return prev += curr;
-}, 0);
+var deletes = [countOutBound, countParentOutBound, countNameBlackListGroup, countTypeBlackListGroup, countNoParentInDomain, countPatternMatchBlackListGroup]
+    .reduce((prev, curr) => {
+        return prev += curr;
+    }, 0);
 console.log("total Deletes: ", deletes);
 // Sum of Keeps
-var keeps = [countInBound, countParentInBound, countNameWhiteListGroup, countTypeWhiteListGroup, countPatternMatchWhiteListGroup, countRemainingKeeps].reduce( (prev, curr) => {
-    return prev += curr;
-}, 0);
+var keeps = [countInBound, countParentInBound, countNameWhiteListGroup, countTypeWhiteListGroup, countPatternMatchWhiteListGroup, countRemainingKeeps]
+    .reduce((prev, curr) => {
+        return prev += curr;
+    }, 0);
 console.log("total Keeps: ", keeps);
 
 // Replace the filtered entities in the models.json
