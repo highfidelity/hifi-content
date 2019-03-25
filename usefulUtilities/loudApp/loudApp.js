@@ -9,8 +9,7 @@
     var muteList = []; // houses avatars that are muted
     
     // status of our app
-    var isListening = false,
-        activeTargetUUID = null;
+    var activeTargetUUID = null;
     
     // overlay options
     var selectedUserUUID, // selected avatar with yellow overlay
@@ -67,10 +66,7 @@
 
     // Range of time to send setGain requests
     // Ensure gain packets do not get lost
-    var GAIN_TIMEOUT = 0,
-        GAIN_TIMEOUT_MULTIPLIER = 1500,
-        MUTE_GAIN = -60, // mute value
-        LISTEN_GAIN = 0; // default value
+    var LISTEN_GAIN = 0; // default value
 
     var audio = {
 
@@ -117,93 +113,29 @@
             userStore[uuid].avgAudioLevel = avgAudioLevel;
         },
 
-        mute: function (uuid) {
-
-            // Script.setTimeout(function () {
-            //     Users.setAvatarGain(uuid, MUTE_GAIN);
-            // }, Math.random() * GAIN_TIMEOUT_MULTIPLIER + GAIN_TIMEOUT);
-        },
-
-        unmute: function (uuid) {
-            // Script.setTimeout(function () {
-            //     Users.setAvatarGain(uuid, LISTEN_GAIN);
-            // }, Math.random() * GAIN_TIMEOUT_MULTIPLIER + GAIN_TIMEOUT);
-        },
-
         listenToAvatar: function (targetUUID) {
+            print("listenToAvatar isListening", settings.ui.isListening);
+            print("listenToAvatar targetUUID", targetUUID);
+            print("listenToAvatar targetUUID", activeTargetUUID);
 
-            if (isListening) {
+            if (settings.ui.isListening) {
+                // is already listening to activeTargetUUID
+                userStore[activeTargetUUID].isToggled = false;
+                Audio.removeFromSoloList([activeTargetUUID]);
 
-                var oldTargetUUID = activeTargetUUID;
-                var oldTarget = userStore[oldTargetUUID];
-                oldTarget.isToggled = false;
-                Audio.removeFromSoloList([oldTargetUUID]);
-
-                Audio.addToSoloList([targetUUID]);
-                
-                // // mute old target
-
-                // this.mute(oldTargetUUID);
-
-                // // unmute new target
-                activeTargetUUID = targetUUID;
-                var newTarget = userStore[activeTargetUUID];
-                newTarget.isToggled = true;
-
-                // var muteListIndex = muteList.indexOf(oldTargetUUID);
-
-                // this.unmute(activeTargetUUID);
-
-                return;
+                // activeTargetUUID = targetUUID;
+                // Audio.addToSoloList([targetUUID]);
+                // userStore[targetUUID].isToggled = true;
+                // return;
+            } else {
+                // turn on settings.ui.isListening and mute everyone but the target avatar
+                settings.ui.isListening = true;
             }
 
-            // turn on isListening and mute everyone but the target avatar
-            isListening = true;
+            // add new target and unmute
+            Audio.addToSoloList([targetUUID]);
+            userStore[targetUUID].isToggled = true;
             activeTargetUUID = targetUUID;
-            settings.ui.isListening = true;
-
-            Audio.addToSoloList([activeTargetUUID]);
-            userStore[activeTargetUUID].isToggled = true;
-
-            // var newRadiusList = lists.getAvatarsInRadius(SEARCH_RADIUS); // Object.keys(userStore);
-            // for (var i = 0; i < newRadiusList.length; i++) {
-            //     var uuid = newRadiusList[i];
-
-            //     var muteListIndex = muteList.indexOf(uuid);
-
-            //     if (muteListIndex === -1) {
-            //         muteList.push(uuid);
-            //     }
-            // }
-
-            // for (var i = 0; i < settings.users.length; i++) {
-            //     var uuid = settings.users[i].uuid;
-
-            //     var muteListIndex = muteList.indexOf(uuid);
-
-            //     if (muteListIndex === -1) {
-            //         muteList.push(uuid);
-            //     }
-            // }
-
-
-            // for (var i = 0; i < muteList.length; i++) {
-
-            //     var user = userStore[uuid];
-            //     var isTarget = targetUUID === uuid;
-
-            //     if (isTarget) {
-            //         user.isToggled = true;
-
-            //     } else {
-            //         // not target avatar
-            //         // mute
-            //         user.isToggled = false;
-
-            //         this.mute(uuid);
-            //     }
-            // }
-
         },
 
         resetListenToAvatar: function () {
@@ -217,7 +149,7 @@
                 userStore[activeTargetUUID].isToggled = false;
             }
             
-            isListening = false;
+            settings.ui.isListening = false;
             activeTargetUUID = null;
 
             // for (var i = 0; i < muteList.length; i++) {
@@ -400,8 +332,6 @@
     var overlays = {
 
         addOverlayToUser: function (uuid) {
-            var user = userStore[uuid];
-
             var overlayPosition = AvatarList.getAvatar(uuid).getNeckPosition(); // user.currentPosition
 
             var overlayProperties = {
@@ -414,96 +344,67 @@
             };
 
             var overlayID = Overlays.addOverlay("sphere", overlayProperties);
-            user.overlayID = overlayID;
+            userStore[uuid].overlayID = overlayID;
         },
+
         deleteOverlay: function (uuid) {
-            var user = userStore[uuid];
-
-            Overlays.deleteOverlay(user.overlayID);
-
-            user.overlayID = null;
+            Overlays.deleteOverlay(userStore[uuid].overlayID);
+            userStore[uuid].overlayID = null;
         },
 
         updateOverlaySize: function (uuid) {
-            var user = userStore[uuid];
-            var dimensionsWithSound = OVERLAY_MIN_DIMENSIONS + user.avgAudioLevel * (OVERLAY_MAX_DIMENSIONS - OVERLAY_MIN_DIMENSIONS);
-
-            Overlays.editOverlay(user.overlayID, { dimensions: { x: dimensionsWithSound, y: dimensionsWithSound, z: dimensionsWithSound } });
+            var dimensionsWithSound = OVERLAY_MIN_DIMENSIONS + userStore[uuid].avgAudioLevel * (OVERLAY_MAX_DIMENSIONS - OVERLAY_MIN_DIMENSIONS);
+            Overlays.editOverlay(userStore[uuid].overlayID, { 
+                dimensions: { 
+                    x: dimensionsWithSound, 
+                    y: dimensionsWithSound, 
+                    z: dimensionsWithSound 
+                } 
+            });
         },
 
         setOverlaySizeToDefault: function (uuid) {
-            var user = userStore[uuid];
-
-            if (user.overlayID) {
-                Overlays.editOverlay(user.overlayID, { dimensions: OVERLAY_DEFAULT_DIMENSIONS });
+            if (userStore[uuid].overlayID) {
+                Overlays.editOverlay(userStore[uuid].overlayID, { 
+                    dimensions: OVERLAY_DEFAULT_DIMENSIONS 
+                });
             }
         },
 
         selectUser: function (uuid) {
-            var user = userStore[uuid];
-
             if (selectedUserUUID) {
                 this.deselectUser(selectedUserUUID);
             }
-
-            Overlays.editOverlay(user.overlayID, { color: COLOR_SELECTED });
-
-            user.isSelected = true;
-            selectedUserUUID = user.uuid;
+            Overlays.editOverlay(userStore[uuid].overlayID, { color: COLOR_SELECTED });
+            userStore[uuid].isSelected = true;
+            selectedUserUUID = uuid;
         },
 
         deselectUser: function (uuid) {
-            var user = userStore[uuid];
-            user.isSelected = false;
-
-            Overlays.editOverlay(user.overlayID, { color: COLOR_IN_LIST });
-
+            userStore[uuid].isSelected = false;
+            Overlays.editOverlay(userStore[uuid].overlayID, { color: COLOR_IN_LIST });
             selectedUserUUID = null;
         },
 
         removeAll: function () {
             // remove previous overlays
             for (var i = 0; i < settings.users.length; i++) {
-                var user = settings.users[i];
-                var uuid = user.uuid;
-
-                this.deleteOverlay(uuid);
+                this.deleteOverlay(settings.users[i].uuid);
             }
         },
 
         addAll: function () {
             // add new overlays
             for (var i = 0; i < settings.users.length; i++) {
-                var user = settings.users[i];
-                var uuid = user.uuid;
-
-                this.addOverlayToUser(uuid);
+                this.addOverlayToUser(settings.users[i].uuid);
             }
         }
 
-    }
-
-    // currently not used in this version
-    var velocity = {
-        update: function (uuid) {
-            var user = userStore[uuid];
-            if (!user.previousPosition) {
-
-                user.previousPosition = user.currentPosition;
-
-                return;
-            }
-            var distance = Vec3.distance(user.previousPosition, user.currentPosition);
-            user.avgDistance = +user.distanceFilter.process(distance).toFixed(3);
-            user.previousPosition = user.currentPosition;
-        }
     }
 
     var updateInterval = {
         start: function () {
-
             interval = Script.setInterval(this.handleUpdate, UPDATE_INTERVAL_TIME);
-
         },
 
         stop: function () {
@@ -513,69 +414,33 @@
         },
 
         handleUpdate: function () {
-
             var palList = lists.allAvatars();
-
-            // if (isListening) {
-            //     // refresh mute list with avatars in range
-            //     var list = lists.getAvatarsInRadius(SEARCH_RADIUS);
-
-            //     for (var i = 0; i < list.length; i++) {
-            //         var uuid = list[i];
-
-            //         if (muteList.indexOf(uuid) === -1) {
-            //             muteList.push(uuid);
-            //             audio.mute(uuid);
-            //         }
-            //     }
-
-            // }
 
             // Add users to userStore
             for (var a = 0; a < palList.length; a++) {
+                var currentUUID = palList[a].sessionUUID;
 
-                var user = palList[a];
-                var uuid = palList[a].sessionUUID;
-
-                var hasUUID = uuid;
-                var isInUserStore = userStore[uuid] !== undefined;
+                var hasUUID = palList[a].sessionUUID;
+                var isInUserStore = userStore[currentUUID] !== undefined;
 
                 if (hasUUID && !isInUserStore) {
 
-                    //print("ADDED USER TO USERSTORE");
-
-                    userUtils.addUser(uuid);
+                    userUtils.addUser(currentUUID);
 
                 } else if (hasUUID) {
 
-                    //print("UPDATE AUDIO", uuid, JSON.stringify(userStore[uuid]));
-
-                    userStore[uuid].audioLoudness = user.audioLoudness;
-                    userStore[uuid].currentPosition = user.position;
+                    userStore[currentUUID].audioLoudness = palList[a].audioLoudness;
+                    userStore[currentUUID].currentPosition = palList[a].position;
 
                     // *** Update ***
 
-                    audio.update(uuid);
+                    audio.update(currentUUID);
 
-                    if (settings.ui.isExpandingAudioEnabled && userStore[uuid].overlayID) {
+                    if (settings.ui.isExpandingAudioEnabled && userStore[currentUUID].overlayID) {
 
-                        overlays.updateOverlaySize(uuid);
+                        overlays.updateOverlaySize(currentUUID);
 
                     }
-
-                    // VELOCITY
-                    // velocity.update(uuid);
-
-                    // if (userStore[uuid].avgDistance > 1) { // 1 moving over a meter a ~second
-                    //     overlays.addOverlayToUser(uuid);
-                    //     userStore[uuid].hasMovedFast = true;
-
-                    //     var index = lists.getIndexOfSettingsUser(uuid);
-
-                    //     if (index === -1) {
-                    //         settings.users.push(userStore[uuid]);
-                    //     }
-                    // }
                 }
             }
 
@@ -845,7 +710,7 @@
 
         listenToggle: function (avatarInfo) {
 
-            // print("LISTEN TOGGLE ", avatarInfo.uuid !== activeTargetUUID, JSON.stringify(avatarInfo));
+            print("LISTEN TOGGLE ", avatarInfo.uuid !== activeTargetUUID, JSON.stringify(avatarInfo));
 
             if (avatarInfo.uuid !== activeTargetUUID) {
                 audio.listenToAvatar(avatarInfo.uuid);
