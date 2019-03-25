@@ -17,4 +17,9 @@ Node script that can be used to help cleanup models.json
 # Relesase Notes
 ### 2019-03-14_09-02-12 | 1.0 | [e29f0c0]
 
-### 2019-03-25_14-48-08 | 1.1 | [e29f0c0]
+### 2019-03-25_14-48-08 | 1.1 | [0a422fa]
+- Updated to use config.json
+
+# Trello Link
+https://trello.com/c/2OtVISFs/124-create-node-script-to-help-clean-up-modelsjson
+
