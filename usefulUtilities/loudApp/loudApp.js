@@ -4,15 +4,15 @@
 
     var userStore = {}, // houses all users, see User constructor for structure
         interval = null, // handled by updateInterval 
-        UPDATE_INTERVAL_TIME = 60; // Audio update time
+        UPDATE_INTERVAL_TIME = 500; // Audio update time
 
     // radius that avatars are factored in muting and top 10 loudest
     var SEARCH_RADIUS = 10;
     var muteList = []; // houses avatars that are muted
-    
+
     // status of our app
     var activeTargetUUID = null;
-    
+
     // overlay options
     var selectedUserUUID, // selected avatar with yellow overlay
         OVERLAY_MIN_DIMENSIONS = 0.2,
@@ -20,9 +20,6 @@
         OVERLAY_DEFAULT_DIMENSIONS = { x: 0.3, y: 0.3, z: 0.3 },
         COLOR_IN_LIST = { red: 255, blue: 255, green: 255 },
         COLOR_SELECTED = { red: 255, blue: 0, green: 255 };
-
-    // velocity constants
-    var SAMPLE_LENGTH = 100;
 
     // app methods
     var LISTEN_TOGGLE = "listen_toggle",
@@ -35,7 +32,7 @@
         UPDATE_UI = "update_ui",
         TOGGLE_ALL_AVATARS = "toggleAllAvatars",
         TOGGLE_EXPANDING_AUDIO = "toggleExpandingAudio";
-        // *** New Features ***
+    // *** New Features ***
 
     // sent to Vue to update our html UI
     // app options are housed here
@@ -46,7 +43,6 @@
             isAllAvatarsInTopTenEnabled: false
         },
     };
-
 
 
     // Range of time to send setGain requests
@@ -174,33 +170,37 @@
         // Create the tablet app
         ui = new AppUi({
             buttonName: BUTTON_NAME,
-            onMessage: webEvent.recieved, // UI event listener  
+            onMessage: onMessage, // UI event listener  
             home: APP_URL,
             // Icons are located in graphicsDirectory
             // AppUI is looking for icons named with the BUTTON_NAME "avatar-101" 
             // For example: avatar-101-a.svg for active button icon, avatar-101-i.svg for inactive button icon
-            graphicsDirectory: Script.resolvePath("./icons/"), 
+            graphicsDirectory: Script.resolvePath("./icons/"),
             onOpened: onOpened,
             onClosed: onClosed
         });
 
-        AvatarList.avatarAddedEvent.connect(userUtils.addUser);
-        AvatarList.avatarRemovedEvent.connect(userUtils.removeUser);
-        Users.usernameFromIDReply.connect(userUtils.setUserName);
-        
+        AvatarList.avatarAddedEvent.connect(addUser);
+        AvatarList.avatarRemovedEvent.connect(removeUser);
+        Users.usernameFromIDReply.connect(setUserName);
+
         Script.scriptEnding.connect(unload);
 
-        updateInterval.start();
+        startUpdateInterval();
     }
 
 
     function onOpened() {
-        overlays.addAll();
+        Users.requestsDomainListData = true;
+        startUpdateInterval();
+        addAllOverlays();
     }
-    
+
 
     function onClosed() {
-        overlays.removeAll();
+        Users.requestsDomainListData = false;
+        stopUpdateInterval();
+        removeAllOverlays();
     }
 
 
@@ -219,13 +219,13 @@
             return b.avgAudioLevel - a.avgAudioLevel;
         }
 
-        overlays.removeAll();
+        removeAllOverlays();
 
         var avatarList = settings.ui.isAllAvatarsInTopTenEnabled ? Object.keys(userStore) : getAvatarsInRadius(SEARCH_RADIUS);
         settings.users = avatarList.map(function (uuid) { return userStore[uuid]; });
         settings.users = settings.users.sort(sortNumber).slice(0, 10);
 
-        overlays.addAll();
+        addAllOverlays();
     }
 
 
@@ -233,18 +233,18 @@
         if (settings.users) {
             settings.users.forEach(function (user) {
                 if (user.overlayID) {
-                    overlays.deleteOverlay(user.uuid)
+                    deleteOverlay(user.uuid)
                 }
             });
         }
-        
-        updateInterval.stop();
+
+        stopUpdateInterval();
 
         stopListening();
 
-        Users.usernameFromIDReply.disconnect(userUtils.setUserName);
-        AvatarList.avatarAddedEvent.disconnect(userUtils.addUser);
-        AvatarList.avatarRemovedEvent.disconnect(userUtils.removeUser);
+        Users.usernameFromIDReply.disconnect(setUserName);
+        AvatarList.avatarAddedEvent.disconnect(addUser);
+        AvatarList.avatarRemovedEvent.disconnect(removeUser);
     }
 
     // #endregion APP
@@ -252,266 +252,216 @@
 
     // #region OVERLAYS
 
-    // #endregion OVERLAYS
+    function addOverlayToUser(uuid) {
+        var overlayPosition = AvatarList.getAvatar(uuid).getNeckPosition(); // user.currentPosition
 
-    var overlays = {
+        var overlayProperties = {
+            position: overlayPosition, // assigned on creation
+            dimensions: { x: 0.3, y: 0.3, z: 0.3 },
+            solid: true,
+            parentID: uuid, // assigned on creation
+            color: COLOR_IN_LIST,
+            drawInFront: true
+        };
 
-        addOverlayToUser: function (uuid) {
-            var overlayPosition = AvatarList.getAvatar(uuid).getNeckPosition(); // user.currentPosition
-
-            var overlayProperties = {
-                position: overlayPosition, // assigned on creation
-                dimensions: { x: 0.3, y: 0.3, z: 0.3 },
-                solid: true,
-                parentID: uuid, // assigned on creation
-                color: COLOR_IN_LIST,
-                drawInFront: true
-            };
-
-            var overlayID = Overlays.addOverlay("sphere", overlayProperties);
-            userStore[uuid].overlayID = overlayID;
-        },
-
-        deleteOverlay: function (uuid) {
-            Overlays.deleteOverlay(userStore[uuid].overlayID);
-            userStore[uuid].overlayID = null;
-        },
-
-        updateOverlaySize: function (uuid) {
-            var dimensionsWithSound = OVERLAY_MIN_DIMENSIONS + userStore[uuid].avgAudioLevel * (OVERLAY_MAX_DIMENSIONS - OVERLAY_MIN_DIMENSIONS);
-            Overlays.editOverlay(userStore[uuid].overlayID, { 
-                dimensions: { 
-                    x: dimensionsWithSound, 
-                    y: dimensionsWithSound, 
-                    z: dimensionsWithSound 
-                } 
-            });
-        },
-
-        setOverlaySizeToDefault: function (uuid) {
-            if (userStore[uuid].overlayID) {
-                Overlays.editOverlay(userStore[uuid].overlayID, { 
-                    dimensions: OVERLAY_DEFAULT_DIMENSIONS 
-                });
-            }
-        },
-
-        selectUser: function (uuid) {
-            if (selectedUserUUID) {
-                this.deselectUser(selectedUserUUID);
-            }
-            Overlays.editOverlay(userStore[uuid].overlayID, { color: COLOR_SELECTED });
-            userStore[uuid].isSelected = true;
-            selectedUserUUID = uuid;
-        },
-
-        deselectUser: function (uuid) {
-            userStore[uuid].isSelected = false;
-            Overlays.editOverlay(userStore[uuid].overlayID, { color: COLOR_IN_LIST });
-            selectedUserUUID = null;
-        },
-
-        removeAll: function () {
-            // remove previous overlays
-            for (var i = 0; i < settings.users.length; i++) {
-                this.deleteOverlay(settings.users[i].uuid);
-            }
-        },
-
-        addAll: function () {
-            // add new overlays
-            for (var i = 0; i < settings.users.length; i++) {
-                this.addOverlayToUser(settings.users[i].uuid);
-            }
-        }
-
+        var overlayID = Overlays.addOverlay("sphere", overlayProperties);
+        userStore[uuid].overlayID = overlayID;
     }
 
-    var updateInterval = {
-        start: function () {
-            interval = Script.setInterval(this.handleUpdate, UPDATE_INTERVAL_TIME);
-        },
+    function deleteOverlay(uuid) {
+        Overlays.deleteOverlay(userStore[uuid].overlayID);
+        userStore[uuid].overlayID = null;
+    }
 
-        stop: function () {
-            if (interval) {
-                Script.clearInterval(interval);
+    function updateOverlaySize(uuid) {
+        var dimensionsWithSound = OVERLAY_MIN_DIMENSIONS + userStore[uuid].avgAudioLevel * (OVERLAY_MAX_DIMENSIONS - OVERLAY_MIN_DIMENSIONS);
+        Overlays.editOverlay(userStore[uuid].overlayID, {
+            dimensions: {
+                x: dimensionsWithSound,
+                y: dimensionsWithSound,
+                z: dimensionsWithSound
             }
-        },
+        });
+    }
 
-        handleUpdate: function () {
-            var palList = AvatarList.getPalData().data;
-
-            // Add users to userStore
-            for (var a = 0; a < palList.length; a++) {
-                var currentUUID = palList[a].sessionUUID;
-
-                var hasUUID = palList[a].sessionUUID;
-                var isInUserStore = userStore[currentUUID] !== undefined;
-
-                if (hasUUID && !isInUserStore) {
-                    // UUID exists and is NOT in userStore
-
-                    userUtils.addUser(currentUUID);
-
-                } else if (hasUUID) {
-                    // UUID exists and IS in userStore already
-
-                    userStore[currentUUID].audioLoudness = palList[a].audioLoudness;
-                    userStore[currentUUID].currentPosition = palList[a].position;
-
-                    // *** Update ***
-                    updateAudioForAvatar(currentUUID);
-
-                    if (settings.ui.isExpandingAudioEnabled && userStore[currentUUID].overlayID) {
-
-                        overlays.updateOverlaySize(currentUUID);
-
-                    }
-                }
-            }
-
-            // Remove users from userStore
-            for (var uuid in userStore) {
-                // if user crashes, leaving domain signal will not be called
-                // handle this case
-
-                var hasUUID = uuid;
-                var isInNewList = palList.map(function (item) {
-                    return item.sessionUUID;
-                }).indexOf(uuid) !== -1;
-
-                if (hasUUID && !isInNewList) {
-
-                    userUtils.removeUser(uuid);
-
-                }
-            }
-
-            doUIUpdate();
+    function setOverlaySizeToDefault(uuid) {
+        if (userStore[uuid].overlayID) {
+            Overlays.editOverlay(userStore[uuid].overlayID, {
+                dimensions: OVERLAY_DEFAULT_DIMENSIONS
+            });
         }
-    };
+    }
+
+    function deselectUserOverlay(uuid) {
+        userStore[uuid].isSelected = false;
+        Overlays.editOverlay(userStore[uuid].overlayID, { color: COLOR_IN_LIST });
+        selectedUserUUID = null;
+    }
+
+    function removeAllOverlays() {
+        // remove previous overlays
+        for (var i = 0; i < settings.users.length; i++) {
+            deleteOverlay(settings.users[i].uuid);
+        }
+    }
+
+    function addAllOverlays() {
+        // add new overlays
+        for (var i = 0; i < settings.users.length; i++) {
+            addOverlayToUser(settings.users[i].uuid);
+        }
+    }
+
+    // #endregion OVERLAYS
+
+    function startUpdateInterval() {
+        console.log("Start update interval:" + interval);
+        if (!interval) {
+            interval = Script.setInterval(handleUpdate, UPDATE_INTERVAL_TIME);
+        }
+    }
+
+    function stopUpdateInterval() {
+        if (interval) {
+            Script.clearInterval(interval);
+            interval = null;
+        }
+    }
+
+    function handleUpdate() {
+        var palList = AvatarList.getPalData().data;
+
+        // Add users to userStore
+        for (var a = 0; a < palList.length; a++) {
+            var currentUUID = palList[a].sessionUUID;
+
+            var hasUUID = palList[a].sessionUUID;
+            var isInUserStore = userStore[currentUUID] !== undefined;
+
+            if (hasUUID && !isInUserStore) {
+                // UUID exists and is NOT in userStore
+
+                addUser(currentUUID);
+
+            } else if (hasUUID) {
+                // UUID exists and IS in userStore already
+
+                userStore[currentUUID].audioLoudness = palList[a].audioLoudness;
+                userStore[currentUUID].currentPosition = palList[a].position;
+
+                // *** Update ***
+                updateAudioForAvatar(currentUUID);
+                if (settings.ui.isExpandingAudioEnabled && userStore[currentUUID].overlayID) {
+                    updateOverlaySize(currentUUID);
+                }
+            }
+        }
+
+        // Remove users from userStore
+        for (var uuid in userStore) {
+            // if user crashes, leaving domain signal will not be called
+            // handle this case
+
+            var hasUUID = uuid;
+            var isInNewList = palList.map(function (item) {
+                return item.sessionUUID;
+            }).indexOf(uuid) !== -1;
+
+            if (hasUUID && !isInNewList) {
+
+                removeUser(uuid);
+
+            }
+        }
+
+        doUIUpdate();
+    }
 
     function removeUserFromSettingsUser(uuid) {
-
-        // print("REMOVE USER FROM SETTINGS");
-
         var settingsUsersListIndex = getIndexOfSettingsUser(uuid);
         var muteListIndex = muteList.indexOf(uuid);
 
         if (settingsUsersListIndex !== -1) {
-
             if (settings.users[settingsUsersListIndex].overlayID) {
-                overlays.deleteOverlay(uuid);
+                deleteOverlay(uuid);
                 // userStore[uuid].hasMovedFast = true;
             }
-
             settings.users.splice(settingsUsersListIndex, 1);
             doUIUpdate();
         }
-
         if (muteListIndex !== -1) {
             muteList.splice(muteListIndex, 1);
         }
-
     }
 
-    var webEvent = {
 
-        recieved: function (data) {
-            // EventBridge message from HTML script.
-            var message;
-            try {
-                message = JSON.parse(data);
-            } catch (e) {
-                return;
-            }
-
-            switch (message.type) {
-                case EVENT_BRIDGE_OPEN_MESSAGE:
-                    // print("OPEN EVENTBRIDGE");
-                    if (!settings.users.length) {
-                        // only add people to the list if there are none
-                        sortAvatarsByLoudness();
-                    }
-                    break;
-                case LISTEN_TOGGLE:
-                    // print("Event recieved: ", LISTEN_TOGGLE);
-                    handleEvent.listenToggle(message.value);
-                    break;
-                case SELECT_AVATAR:
-                    // print("Event recieved: ", BAN);
-                    handleEvent.selectAvatar(message.value);
-                    break;
-                case REFRESH:
-                    // print("Event recieved: ", REFRESH);
-                    handleEvent.refresh();
-                    break;
-                case GOTO:
-                    // print("Event recieved: ", GOTO);
-                    handleEvent.goto(message.value);
-                    break;
-                case BAN:
-                    // print("Event recieved: ", BAN);
-                    handleEvent.ban(message.value);
-                    break;
-                case MUTE:
-                    // print("Event recieved: ", MUTE);
-                    handleEvent.mute(message.value);
-                    break;
-                case TOGGLE_EXPANDING_AUDIO:
-                    handleEvent.toggleExpandingAudio();
-                    break;
-                case TOGGLE_ALL_AVATARS:
-                    handleEvent.toggleAllAvatars();
-                    break;
-                case CLOSE_DIALOG_MESSAGE:
-                    if (settings.users) {
-                        settings.users.forEach(function (user) {
-                            if (user.overlayID) {
-                                overlays.deleteOverlay(user.uuid)
-                            }
-                        });
-                    }
-                    break;
-                default:
-                    break;
-            }
-            doUIUpdate();
+    // Handles messages from UI
+    function onMessage(data) {
+        // EventBridge message from HTML script.
+        var message;
+        try {
+            message = JSON.parse(data);
+        } catch (e) {
+            return;
         }
-    };
 
-    function AveragingFilter(length) {
-        // initialise the array of past values
-        this.pastValues = [];
-        for (var i = 0; i < length; i++) {
-            this.pastValues.push(0);
+        switch (message.type) {
+            case EVENT_BRIDGE_OPEN_MESSAGE:
+                print("OPEN EVENTBRIDGE");
+                if (!settings.users.length) {
+                    // only add people to the list if there are none
+                    sortAvatarsByLoudness();
+                }
+                break;
+            case LISTEN_TOGGLE:
+                print("Event recieved: ", LISTEN_TOGGLE);
+                listenToggle(message.value);
+                break;
+            case SELECT_AVATAR:
+                print("Event recieved: ", BAN);
+                selectAvatar(message.value);
+                break;
+            case REFRESH:
+                print("Event recieved: ", REFRESH);
+                refresh();
+                break;
+            case GOTO:
+                print("Event recieved: ", GOTO);
+                handleGoTo(message.value);
+                break;
+            case BAN:
+                print("Event recieved: ", BAN);
+                Users.kick(message.value.uuid);
+                break;
+            case MUTE:
+                print("Event recieved: ", MUTE);
+                Users.mute(message.value.uuid);
+                break;
+            case TOGGLE_EXPANDING_AUDIO:
+                toggleExpandingAudio();
+                break;
+            case TOGGLE_ALL_AVATARS:
+                toggleAllAvatars();
+                break;
+            case CLOSE_DIALOG_MESSAGE:
+                if (settings.users) {
+                    settings.users.forEach(function (user) {
+                        if (user.overlayID) {
+                            deleteOverlay(user.uuid)
+                        }
+                    });
+                }
+                break;
+            default:
+                break;
         }
-        // single arg is the nextInputValue
-        this.process = function () {
-            if (this.pastValues.length === 0 && arguments[0]) {
-                return arguments[0];
-            } else if (arguments[0] !== null) {
-                this.pastValues.push(arguments[0]);
-                this.pastValues.shift();
-                var nextOutputValue = 0;
-                for (var value in this.pastValues) nextOutputValue += this.pastValues[value];
-                return nextOutputValue / this.pastValues.length;
-            } else {
-                return 0;
-            }
-        };
-    };
+        doUIUpdate();
+    }
 
-    var filter = (function () {
-        return {
-            createAveragingFilter: function (length) {
-                var newAveragingFilter = new AveragingFilter(length);
-                return newAveragingFilter;
-            }
-        };
-    })();
+    
+    // #region USER UTILITIES
 
-    // constructor for each user in userStore
+    // Constructor for each user in userStore
     function User(uuid, displayName, initialGain) {
 
         this.uuid = uuid;
@@ -529,113 +479,101 @@
         this.audioAccumulated = 0;
         this.audioAvg = 0;
         this.audioLoudness = 0;
-
-        // used for velocity
-        this.hasMovedFast = false;
-        this.previousPosition = null;
-        this.currentDistance = null;
-        this.distanceFilter = filter.createAveragingFilter(SAMPLE_LENGTH);
-        this.avgDistance = 0;
     }
 
-    var userUtils = {
 
-        setUserName: function (uuid, userName) {
-            userStore[uuid].userName = userName ? userName : userStore[uuid].displayName;
-            if (getIndexOfSettingsUser(uuid) !== -1) {
-                doUIUpdate();
-            }
-        },
-
-        addUser: function (sessionUUID) {
-            var avatarData = AvatarList.getAvatar(sessionUUID);
-            if (!userStore[sessionUUID]) {
-
-                userStore[sessionUUID] = new User(sessionUUID, avatarData.displayName, LISTEN_GAIN);
-                Users.requestUsernameFromID(sessionUUID);
-            }
-        },
-
-        removeUser: function (sessionUUID) {
-
-            removeUserFromSettingsUser(sessionUUID);
-
-            if (userStore[sessionUUID]) {
-                delete userStore[sessionUUID];
-            }
-
-        }
-    }
-
-    var handleEvent = {
-
-        toggleAllAvatars: function () {
-            settings.ui.isAllAvatarsInTopTenEnabled = !settings.ui.isAllAvatarsInTopTenEnabled;
-        },
-
-        toggleExpandingAudio: function () {
-            settings.ui.isExpandingAudioEnabled = !settings.ui.isExpandingAudioEnabled;
-
-            if (!settings.ui.isExpandingAudioEnabled) {
-                // set all users audio bubbles to 0.3 radius
-                for (var i = 0; i < settings.users.length; i++) {
-                    var user = settings.users[i];
-
-                    overlays.setOverlaySizeToDefault(user.uuid);
-                }
-            }
-        },
-
-        selectAvatar: function (avatarInfo) {
-            var uuid = avatarInfo.uuid;
-
-            var userPosition = avatarInfo.currentPosition;
-
-            var orientationTowardsUser = Quat.cancelOutRollAndPitch(Quat.lookAtSimple(MyAvatar.position, userPosition));
-            MyAvatar.orientation = orientationTowardsUser;
-
-            if (selectedUserUUID === uuid) {
-                overlays.deselectUser(uuid);
-            } else {
-                overlays.selectUser(uuid);
-            }
-        },
-
-        goto: function (avatarInfo) {
-            var uuid = avatarInfo.uuid;
-
-            var userOrientation = AvatarList.getAvatar(uuid).orientation;
-            var offset = Vec3.multiplyQbyV(userOrientation, { x: 0, y: 0.2, z: 1.5 });
-            var newPosition = Vec3.sum(avatarInfo.currentPosition, offset);
-
-            MyAvatar.position = newPosition;
-            MyAvatar.orientation = userOrientation;
-        },
-
-        ban: function (avatarInfo) {
-            Users.kick(avatarInfo.uuid);
-        },
-
-        listenToggle: function (avatarInfo) {
-
-            print("LISTEN TOGGLE ", avatarInfo.uuid !== activeTargetUUID, JSON.stringify(avatarInfo));
-
-            if (avatarInfo.uuid !== activeTargetUUID) {
-                startListeningToAvatar(avatarInfo.uuid);
-            } else {
-                stopListening();
-            }
-        },
-        refresh: function () {
-            sortAvatarsByLoudness();
+    // Signal callback when usernameFromIDReply returns after username request
+    function setUserName(uuid, userName) {
+        userStore[uuid].userName = userName ? userName : userStore[uuid].displayName;
+        if (getIndexOfSettingsUser(uuid) !== -1) {
             doUIUpdate();
-            stopListening();
-            muteList = [];
-        },
-        mute: function (avatarInfo) {
-            Users.mute(avatarInfo.uuid);
         }
-    };
+    }
+
+
+    // Add user to userStore
+    function addUser(sessionUUID) {
+        var avatarData = AvatarList.getAvatar(sessionUUID);
+        if (!userStore[sessionUUID]) {
+            userStore[sessionUUID] = new User(sessionUUID, avatarData.displayName, LISTEN_GAIN);
+            // Request username from ID
+            Users.requestUsernameFromID(sessionUUID);
+        }
+    }
+
+
+    // Remove user from userStore
+    function removeUser(sessionUUID) {
+        removeUserFromSettingsUser(sessionUUID);
+        if (userStore[sessionUUID]) {
+            delete userStore[sessionUUID];
+        }
+    }
+
+    // #endregion USER UTILITIES
+
+
+    // #region WEBEVENTS
+
+    function toggleAllAvatars() {
+        settings.ui.isAllAvatarsInTopTenEnabled = !settings.ui.isAllAvatarsInTopTenEnabled;
+    }
+
+    function toggleExpandingAudio() {
+        settings.ui.isExpandingAudioEnabled = !settings.ui.isExpandingAudioEnabled;
+
+        if (!settings.ui.isExpandingAudioEnabled) {
+            // set all users audio bubbles to 0.3 radius
+            for (var i = 0; i < settings.users.length; i++) {
+                var user = settings.users[i];
+
+                setOverlaySizeToDefault(user.uuid);
+            }
+        }
+    }
+
+    function selectAvatar(avatarInfo) {
+        var uuid = avatarInfo.uuid;
+
+        var userPosition = avatarInfo.currentPosition;
+
+        var orientationTowardsUser = Quat.cancelOutRollAndPitch(Quat.lookAtSimple(MyAvatar.position, userPosition));
+        MyAvatar.orientation = orientationTowardsUser;
+
+        if (selectedUserUUID === uuid) {
+            deselectUser(uuid);
+        } else {
+            selectUser(uuid);
+        }
+    }
+
+    // Teleport behind the target avatar
+    function handleGoTo(avatarInfo) {
+        var userOrientation = AvatarList.getAvatar(avatarInfo.uuid).orientation;
+        var offset = Vec3.multiplyQbyV(userOrientation, { x: 0, y: 0.2, z: 1.5 });
+        var newPosition = Vec3.sum(avatarInfo.currentPosition, offset);
+
+        MyAvatar.position = newPosition;
+        MyAvatar.orientation = userOrientation;
+    }
+
+    function listenToggle(avatarInfo) {
+
+        print("LISTEN TOGGLE ", avatarInfo.uuid !== activeTargetUUID, JSON.stringify(avatarInfo));
+
+        if (avatarInfo.uuid !== activeTargetUUID) {
+            startListeningToAvatar(avatarInfo.uuid);
+        } else {
+            stopListening();
+        }
+    }
+    function refresh() {
+        sortAvatarsByLoudness();
+        doUIUpdate();
+        stopListening();
+    }
+
+    // #endregion WEBEVENTS
 
     startup();
 })();
