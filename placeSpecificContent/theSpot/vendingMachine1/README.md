@@ -4,14 +4,10 @@
 This is the code for vending machine number 1 in The Spot.  This item is based on the Vending Machine Blueprint available in the High Fidelity Marketplace. 
 
 
-## Releases
-### Version 1
-SHA []()
-March 15, 2019 15:39:00
+## Release Notes
+### 2019-03-25_15-55-00 | [commit 9eed144](https://github.com/highfidelity/hifi-content/pull/333/commits/9eed1446774ace7bc540e7994b12e239f0e87439)
+- Initial Release
 
-
-## Links
-https://trello.com/c/EzUTGzzw
 
 ## Known issues
 
