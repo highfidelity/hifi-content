@@ -178,6 +178,7 @@
     // Close the app callback
     function onClosed() {
         Users.requestsDomainListData = previousValueOfRequestsDomainListData;
+        deselectUserOverlay(selectedUserUUID);
         stopUpdateInterval();
         removeAllOverlays();
         stopListening();
@@ -286,12 +287,11 @@
 
     // Sets overlay to default color
     function deselectUserOverlay(uuid) {
-        if (!selectedUserUUID) {
-            return;
+        if (selectedUserUUID) {
+            userStore[uuid].isSelected = false;
+            Overlays.editOverlay(userStore[uuid].overlayID, { color: OVERLAY_DEFAULT_COLOR });
+            selectedUserUUID = null;
         }
-        userStore[uuid].isSelected = false;
-        Overlays.editOverlay(userStore[uuid].overlayID, { color: OVERLAY_DEFAULT_COLOR });
-        selectedUserUUID = null;
     }
 
 
@@ -470,7 +470,8 @@
             case GOTO:
                 // teleport behind the target avatar
                 var avatarInfo = data.value;
-                var offset = Vec3.multiplyQbyV(AvatarList.getAvatar(avatarInfo.uuid).orientation, { x: 0, y: 0.2, z: 1.5 });
+                var userOrientation = AvatarList.getAvatar(avatarInfo.uuid).orientation;
+                var offset = Vec3.multiplyQbyV(userOrientation, { x: 0, y: 0.2, z: 1.5 });
                 var newPosition = Vec3.sum(avatarInfo.currentPosition, offset);
         
                 MyAvatar.position = newPosition;
@@ -511,7 +512,7 @@
     // #region USER UTILITIES
 
     // Constructor for each user in userStore
-    function User(uuid, displayName, initialGain) {
+    function User(uuid, displayName) {
 
         this.uuid = uuid;
         this.displayName = displayName;
