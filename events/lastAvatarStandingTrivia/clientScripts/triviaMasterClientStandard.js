@@ -472,6 +472,9 @@
                     }
                 });
             } else {
+                // These next few lines ensure we can still index questions as the host even
+                // after shuffling the order they are displayed on the board.  This
+                // saves us from doing an unreliable string comparison.
                 currentChoices = [];
                 currentChoices.push({"text": triviaData[0].correct_answer, "correct": true});
                 triviaData[0].incorrect_answers.forEach(function(choice) {
