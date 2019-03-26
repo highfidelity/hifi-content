@@ -105,10 +105,9 @@
         Audio.resetSoloList();
 
         // Reset isToggled
-        userStore.forEach(function(user) {
-            user.isToggled = false;
-        })
-
+        for (var userID in userStore) {
+            userStore[userID].isToggled = false;
+        }
         settings.ui.isListening = false;
         activeTargetUUID = null;
     }
@@ -221,7 +220,6 @@
                 }
             });
         }
-
         Users.requestsDomainListData = previousValueOfRequestsDomainListData;
         stopUpdateInterval();
         stopListening();
@@ -289,6 +287,9 @@
 
     // Sets overlay to default color
     function deselectUserOverlay(uuid) {
+        if (!selectedUserUUID) {
+            return;
+        }
         userStore[uuid].isSelected = false;
         Overlays.editOverlay(userStore[uuid].overlayID, { color: OVERLAY_DEFAULT_COLOR });
         selectedUserUUID = null;
@@ -404,7 +405,7 @@
                 deleteOverlay(uuid);
             }
             settings.users.splice(settingsUsersListIndex, 1);
-            doUIUpdate();
+            doUIUpdate("users");
         }
     }
 
@@ -434,6 +435,7 @@
                     // only add people to the list if there are none
                     sortAvatarsByLoudness();
                 }
+                console.log("SETTINGS IS:" + JSON.stringify(settings.ui));
                 doUIUpdate();
                 break;
 
@@ -463,7 +465,7 @@
             case REFRESH:
                 deselectUserOverlay(selectedUserUUID);
                 sortAvatarsByLoudness();
-                doUIUpdate();
+                doUIUpdate("users");
                 stopListening();
                 break;
 
@@ -535,7 +537,7 @@
     function setUserName(uuid, userName) {
         userStore[uuid].userName = userName ? userName : userStore[uuid].displayName;
         if (getIndexOfSettingsUser(uuid) !== -1) {
-            doUIUpdate();
+            doUIUpdate("users");
         }
     }
 

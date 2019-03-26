@@ -13,7 +13,7 @@
         <div class="container" id="app">
             <h2>Loud List</h2>
             <p>Default search for loudest radius is 10m.</p>
-            <options :isexpandingaudioenabled="settings.ui.isExpandingAudioEnabled" :isallavatarsintoptenenabled="settings.ui.isAllAvatarsInTopTenEnabled" ></options>
+            <options :isexpandingaudioenabled="settings.ui.isExpandingAudioEnabled" :isallavatarsintoptenenabled="settings.ui.searchWholeDomainForLoudestEnabled"></options>
             <people-table :users="settings.users"></people-table>
         </div>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>

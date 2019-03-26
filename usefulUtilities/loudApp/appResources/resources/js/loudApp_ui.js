@@ -20,24 +20,33 @@
             isexpandingaudioenabled: { type: Boolean },
             isallavatarsintoptenenabled: { type: Boolean }
         },
-        data () {
-            return {
-                expandingAudioValue: this.isexpandingaudioenabled,
-                allAvatarsInTopTenEnabledValue: this.isallavatarsintoptenenabled
-            }
-        },
         methods: {
-            toggleExpandingAudio(value){
+            toggleExpandingAudio(value) {
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: TOGGLE_EXPANDING_AUDIO,
                     value: value
                 }));
             },
-            toggleAllAvatars(value){
+            toggleAllAvatars(value) {
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: SEARCH_WHOLE_DOMAIN_FOR_LOUDEST_ENABLED,
                     value: value
                 }));
+            }
+        },
+        data() {
+            console.log("CHECK:" + this.isexpandingaudioenabled + " " + this.isallavatarsintoptenenabled);
+            return {
+                expandingAudioValue: this.isexpandingaudioenabled,
+                allAvatarsInTopTenEnabledValue: this.isallavatarsintoptenenabled
+            }
+        },
+        watch: {
+            isexpandingaudioenabled(value, newValue) {
+                this.expandingAudioValue = value;
+            },
+            isallavatarsintoptenenabled(value, newValue) {
+                this.allAvatarsInTopTenEnabledValue = value;
             }
         },
         template:`
@@ -151,7 +160,7 @@
                 users: [],
                 ui: {
                     isExpandingAudioEnabled: false,
-                    isAllAvatarsInTopTenEnabled: false
+                    searchWholeDomainForLoudestEnabled: false
                 }
             }
         }
@@ -161,8 +170,10 @@
         var data;
         try {
             data = JSON.parse(message);
+            console.log("onScriptEventRecieved:" + JSON.stringify(data.value.ui));
             switch (data.type) {
                 case UPDATE_UI:
+                    // console.log("UPDATEUI check" + JSON.stringify(data.value.ui));
                     if (message.key) {
                         app.settings[message.key] = data.value
                     } else {
