@@ -30,26 +30,11 @@
 
     // Updates avatar's audio level in the userStore
     var AVERAGING_RATIO = 0.05,
-        LOUDNESS_FLOOR = 11.0,
-        LOUDNESS_SCALE = 2.8 / 5.0,
         LOG2 = Math.log(2.0),
         AUDIO_PEAK_DECAY = 0.02;
     function updateAudioForAvatar(uuid) {
         if (!userStore[uuid]) {
             return;
-        }
-        // scale audio
-        function scaleAudio(val) {
-            var audioLevel = 0.0;
-            if (val <= LOUDNESS_FLOOR) {
-                audioLevel = val / LOUDNESS_FLOOR * LOUDNESS_SCALE;
-            } else {
-                audioLevel = (val - (LOUDNESS_FLOOR - 1)) * LOUDNESS_SCALE;
-            }
-            if (audioLevel > 1.0) {
-                audioLevel = 1;
-            }
-            return audioLevel;
         }
         // the VU meter should work similarly to the one in AvatarInputs: log scale, exponentially averaged
         // But of course it gets the data at a different rate, so we tweak the averaging ratio and frequency
@@ -69,6 +54,23 @@
         }
         userStore[uuid].audioLevel = audioLevel;
         userStore[uuid].avgAudioLevel = avgAudioLevel;
+    }
+
+
+    // Scale audio level
+    var LOUDNESS_FLOOR = 11.0,
+        LOUDNESS_SCALE = 2.8 / 5.0;
+    function scaleAudio(val) {
+        var audioLevel = 0.0;
+        if (val <= LOUDNESS_FLOOR) {
+            audioLevel = val / LOUDNESS_FLOOR * LOUDNESS_SCALE;
+        } else {
+            audioLevel = (val - (LOUDNESS_FLOOR - 1)) * LOUDNESS_SCALE;
+        }
+        if (audioLevel > 1.0) {
+            audioLevel = 1;
+        }
+        return audioLevel;
     }
 
 
@@ -101,9 +103,12 @@
             console.log("stopListening activeTargetUUID: " + activeTargetUUID + "userStore[activeTargetUUID]" + JSON.stringify(userStore[activeTargetUUID]));
         }
         Audio.resetSoloList();
-        if (userStore[activeTargetUUID]) {
-            userStore[activeTargetUUID].isToggled = false;
-        }
+
+        // Reset isToggled
+        userStore.forEach(function(user) {
+            user.isToggled = false;
+        })
+
         settings.ui.isListening = false;
         activeTargetUUID = null;
     }
@@ -125,7 +130,6 @@
     function getIndexOfSettingsUser(uuid) {
         if (settings.users.length) {
             var index = settings.users.map(function (item) {
-                // print(item.uuid)
                 return item.uuid;
             }).indexOf(uuid);
             return index;
@@ -159,13 +163,13 @@
         Users.usernameFromIDReply.connect(setUserName);
 
         Script.scriptEnding.connect(unload);
-
-        startUpdateInterval();
     }
 
 
     // Open the app callback
+    var previousValueOfRequestsDomainListData;
     function onOpened() {
+        previousValueOfRequestsDomainListData = Users.requestsDomainListData;
         Users.requestsDomainListData = true;
         startUpdateInterval();
         addAllOverlays();
@@ -174,9 +178,10 @@
 
     // Close the app callback
     function onClosed() {
-        Users.requestsDomainListData = false;
+        Users.requestsDomainListData = previousValueOfRequestsDomainListData;
         stopUpdateInterval();
         removeAllOverlays();
+        stopListening();
     }
 
 
@@ -193,15 +198,17 @@
     // Sorts users by loudness in userStore then populates ten loudest list
     var SEARCH_RADIUS_DEFAULT = 10; // radius that avatars are factored in muting and top 10 loudest
     function sortAvatarsByLoudness() {
-        // sort by audioLevel
-        function sortNumber(a, b) {
-            return b.avgAudioLevel - a.avgAudioLevel;
-        }
         removeAllOverlays();
         var avatarList = settings.ui.searchWholeDomainForLoudestEnabled ? Object.keys(userStore) : getAvatarsInRadius(SEARCH_RADIUS_DEFAULT);
         settings.users = avatarList.map(function (uuid) { return userStore[uuid]; });
         settings.users = settings.users.sort(sortNumber).slice(0, 10);
         addAllOverlays();
+    }
+
+
+    // Sort by audioLevel
+    function sortNumber(a, b) {
+        return b.avgAudioLevel - a.avgAudioLevel;
     }
 
 
@@ -215,6 +222,7 @@
             });
         }
 
+        Users.requestsDomainListData = previousValueOfRequestsDomainListData;
         stopUpdateInterval();
         stopListening();
 
@@ -243,8 +251,7 @@
             color: OVERLAY_DEFAULT_COLOR,
             drawInFront: true
         };
-        var overlayID = Overlays.addOverlay("sphere", overlayProperties);
-        userStore[uuid].overlayID = overlayID;
+        userStore[uuid].overlayID = Overlays.addOverlay("sphere", overlayProperties);
     }
 
 
@@ -355,7 +362,6 @@
             if (hasUUID && !isInUserStore) {
                 // UUID exists and is NOT in userStore
                 addUser(currentUUID);
-
             } else if (hasUUID) {
                 // UUID exists and IS in userStore already
                 userStore[currentUUID].audioLoudness = palList[a].audioLoudness;
@@ -455,9 +461,10 @@
                 break;
 
             case REFRESH:
+                deselectUserOverlay(selectedUserUUID);
                 sortAvatarsByLoudness();
                 doUIUpdate();
-                stopListening();    
+                stopListening();
                 break;
 
             case GOTO:
