@@ -14,5 +14,5 @@ Happy loud sniping!
 
 ## Releases
 
-## 2019-03-26_16-20-00 :: [2f6d2a5b](https://github.com/highfidelity/hifi-content/commit/2f6d2a5b)
+## 2019-03-26_16-20-00 :: [3331337a](https://github.com/highfidelity/hifi-content/commit/3331337a)
 - Initial release
