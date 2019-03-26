@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Notify</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+        <link rel="stylesheet" href="css/notify_ui.css?0">
+        <script type="text/javascript" src="js/notify_ui.js?0"></script>
+    </head>
+    <body>
+        <div id="loadingContainer">
+        </div>
+
+        <div id="titleBarContainer">
+            <div id="titleText" style="font-weight:bold;">
+                Notify
+            </div>
+        </div>
+
+        <div id="formContainer">
+            <form id="form" action="javascript:void(0);" onsubmit="submitForm()">
+                <div>
+                    <label id="notificationBodyLabel" for="notificationBody">Notification Body Text</label>
+                    <input type="text" id="notificationBody" placeholder="Body Text">
+                </div>
+
+                <div>
+                    <input id="submitButton" type="submit" value="SUBMIT">
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

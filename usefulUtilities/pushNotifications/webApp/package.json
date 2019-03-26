@@ -1,0 +1,7 @@
+{
+    "name": "Notify",
+    "version": "1.0.0",
+    "description": "An HTTPS server as part of the Notify app for High Fidelity",
+    "main": "notifyServer.js",
+    "author": "Zach Fox"
+}
