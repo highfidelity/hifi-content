@@ -22,11 +22,11 @@
         TABLET_BUTTON_PRESSED = Script.resolvePath('../entities/icons/questionMark-a.png'),
         SEARCH_RADIUS = 1000,
         ONE_SECOND_MS = 1000;
-    var FIVE_SECONDS = 5 * ONE_SECOND_MS,
+    var FIVE_SECONDS_MS = 5 * ONE_SECOND_MS,
         TEN_SECONDS_MS = 10 * ONE_SECOND_MS,
         ZONE_COLOR_INDEX = 19,
         HALF_MULTIPLIER = 0.5,
-        FIRST_WAIT_TO_COUNT_AVATARS = ONE_SECOND_MS,
+        FIRST_WAIT_TO_COUNT_AVATARS_MS = ONE_SECOND_MS,
         WAIT_TO_SHOW_QUESTION = 0.5 * ONE_SECOND_MS,
         MIN_PLAYERS = 3,
         HFC_INCREMENT = 100,
@@ -195,7 +195,7 @@
                     data.application = "trivia";
                     tablet.emitScriptEvent(JSON.stringify(data));
                 }
-            }, FIVE_SECONDS);
+            }, FIVE_SECONDS_MS);
         }
     }
 
@@ -589,13 +589,11 @@
                     prizeMoney = MIN_PRIZE;
                 }
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_DECREASE_SFX']);
-                // Entities.callEntityServerMethod(gameZoneProperties.id, "loseCoins");
                 Entities.callEntityServerMethod(gameZoneProperties.id, "halfHFC");
                 break;
             case "increase pot":
                 prizeMoney += HFC_INCREMENT;
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_INCREASE_SFX']);
-                // Entities.callEntityServerMethod(gameZoneProperties.id, "winCoins");
                 Entities.callEntityServerMethod(gameZoneProperties.id, "plusHFC");
                 break;
             case "game over":
@@ -746,13 +744,13 @@
             if (anyCorrect === 0) {
                 Script.setTimeout(function() {
                     prizeCalculator("everyone wrong");
-                }, FIRST_WAIT_TO_COUNT_AVATARS);
+                }, FIRST_WAIT_TO_COUNT_AVATARS_MS);
             } else {
                 Script.setTimeout(function() {
                     Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
                     correctCount = isAnyAvatarCorrect(correctColor);
                     updateAvatarCounter(true);
-                }, FIRST_WAIT_TO_COUNT_AVATARS);
+                }, FIRST_WAIT_TO_COUNT_AVATARS_MS);
             }
 
             Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
@@ -781,14 +779,14 @@
             if (anyCorrect === 0) {
                 Script.setTimeout(function() {
                     prizeCalculator("everyone wrong");
-                }, FIRST_WAIT_TO_COUNT_AVATARS);
+                }, FIRST_WAIT_TO_COUNT_AVATARS_MS);
             } else {
                 Script.setTimeout(function() {
                     Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
                     correctCount = isAnyAvatarCorrect(correctColor);
                     console.log("loading the check answer script for ", correctColor, "and how many are right: ", correctCount);
                     updateAvatarCounter(true);
-                }, FIRST_WAIT_TO_COUNT_AVATARS);
+                }, FIRST_WAIT_TO_COUNT_AVATARS_MS);
             }
     
             Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
