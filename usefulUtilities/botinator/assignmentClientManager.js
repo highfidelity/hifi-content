@@ -1,8 +1,8 @@
 // Assignment client Manager
 (function () {
 
-    // Link to get the urls from
-    var GOOGLE_SHEET_URL = "https://script.googleusercontent.com/a/macros/highfidelity.io/echo?user_content_key=z30W_Z9rqfb41pGEoxCkUM9yv8ZN8mxWuMyDWUHroj3cJ65OTSWNE_Zq7wvrTybnnFtRp6azMkya2K4Hj_UvG2HA9j2tP4Hjm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_nRPgeZU6HP_Ok_bZ6q4uc2IEwUGUhs3tubd_SaoYEJGc6Y4WQVrmGLClD6RzMAfZPxqtsdMQ32tpzl66ygAELl7JpluoKw78VudcD_Dja5DuJzk35EV1vQ&lib=MzB5vcFo1OT_VNOUwG7287OYoCQvnAuFY";
+    // Bots to use
+    Script.require("./botstoLoad.js");
 
     // The Assignment Client channel
     var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
@@ -15,13 +15,6 @@
 
     // Array of Clips that haven't been assigned yet.  Keep running timer checks until this is to 0. 
     var notAssignedClips = [];
-
-    function makePosition(x,y,z){
-        var pos = {};
-        pos.x = x;
-        pos.y = y;
-        pos.z = z;           
-    }
 
     // Total amount to stop grabbing from the spreadsheet.
     var TOTAL_TO_GRAB = 100;
@@ -40,7 +33,7 @@
 
     // Check timer reference
     var checkTimer;
-    var CHECK_TIMER_INTERVAL = 5000;
+    var CHECK_TIMER_INTERVAL = 2500;
 
     AssignmentClientPlayerObject.prototype = {
         setPosition: function (x, y, z) {
@@ -48,9 +41,10 @@
             this.position.y = y;
             this.position.z = z;
         },
-        getStatus: function () {
-            getHeartBeat();
-        },
+        // I don't think I need this #TODO
+        // getStatus: function () {
+        //     getHeartBeat();
+        // },
         subscribeToChannel: function (channel) {
             this.subscribedChannel = channel;
         },
@@ -66,95 +60,35 @@
         }
     }
 
-    function getHeartBeat(channel) {
-        Messages.sendMessage(channel, JSON.stringify({
-            action: "GET_HEARTBEAT"
-        }));
-    }
-
-    // helper function to wrap an HTTP get request.
-    function XHR(url, successCb, failureCb, TIMEOUT) {
-        print("XHR: request url = " + url);
-        var self = this;
-        this.url = url;
-        this.successCb = successCb;
-        this.failureCb = failureCb;
-        this.req = new XMLHttpRequest();
-        this.req.open("GET", url, true);
-        this.req.timeout = TIMEOUT;
-        this.req.ontimeout = function () {
-            if (self.failureCb) {
-                self.failureCb(0, "timeout");
-            }
-        };
-        this.req.onreadystatechange = function () {
-            if (self.req.readyState === self.req.DONE) {
-                if (self.req.status === 200 || self.req.status === 203) {
-                    if (self.successCb) {
-                        self.successCb(self.req.responseText);
-                    }
-                } else {
-                    if (self.failureCb) {
-                        self.failureCb(self.req.status, "done");
-                    }
-                }
-            }
-        };
-        this.req.send();
-    }
-
-    // this will contain the contents of the google spreadsheet.
-    var TABLE = {};
-
-    function sheetSuccess(response) {
-        log("sheetSuccess status, response = " + response);
-        TABLE = JSON.parse(response);
-        TABLE.shift(); // strip off the header row.
-        for (var i = 0; i < TOTAL_TO_GRAB; i++){
-            var baseHFRName = baseName(TABLE[i].avatar_HFR);
-            notAssignedClips[i] = baseHFRName;
-        }
-        checkTimer = Script.setInterval(onCheckTimer, CHECK_TIMER_INTERVAL);
-    }
-
-    function getTableIndex(name){
-        return TABLE.map(function(row){
-            return row.avatar_HFR;
-        }).indexOf(name);
-    }
-
-    function sheetFailure(status, reason) {
-        log("sheetFailure status code = " + status + ", reason = " + reason);
-    }
-
-    // asynchronously start downloading the spreadsheet.
-    var sheetXHR = new XHR(GOOGLE_SHEET_URL, sheetSuccess, sheetFailure);
-
-    // TABLE[self._avatarIndex].avatar_HFR;
-
-    function baseName(str) {
-        var base = new String(str).substring(str.lastIndexOf('/') + 1);
-        if (base.lastIndexOf(".") !== -1) {
-            base = base.substring(0, base.lastIndexOf("."));
-        }
-        return base;
-    }
+    // // I don't think I need this #TODO
+    // function getHeartBeat(channel) {
+    //     Messages.sendMessage(channel, JSON.stringify({
+    //         action: "GET_HEARTBEAT"
+    //     }));
+    // }
 
     function onMessageReceived(channel, message, sender) {
-        message = JSON.parse(message);
-        if (channel === ASSIGNMENT_MANAGER_CHANNEL) {
-            switch (message.action) {
-                case "REGISTER_ME":
-                    var fileName = notAssignedClips.splice(0,1);
-                    var tableIndex = getTableIndex(fileName)
-                    var row = TABLE[tableIndex];
-                    var position = makePosition(row.positionX, row.positionY,row.positionZ)
-                    assignmentClientPlayers[message.uuid] = new AssignmentClientPlayerObject(message.uuid, "HIFI_PLAYER_CHANNEL:" + message.uuid, fileName, position);
-                    break;
-                default:
-                    break;
-            }
+        try {
+            message = JSON.parse(message);
+        } catch(error) {
+            console.log("invalid object")
+            return;
         }
+        if (channel !== ASSIGNMENT_MANAGER_CHANNEL) {
+            return;
+        }
+
+        switch (message.action) {
+            case "REGISTER_ME":
+                var fileName = notAssignedClips.splice(0,1);
+                var tableIndex = getTableIndex(fileName)
+                var row = TABLE[tableIndex];
+                var position = makePosition(row.positionX, row.positionY,row.positionZ)
+                assignmentClientPlayers[message.uuid] = new AssignmentClientPlayerObject(message.uuid, "HIFI_PLAYER_CHANNEL:" + message.uuid, fileName, position);
+                break;
+            default:
+                break;
+    }
 
         let splitIndex = channel.indexOf(":");
         let newChannel;
