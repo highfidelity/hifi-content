@@ -455,7 +455,10 @@
             text: speechBubbleMessage,
             textColor: speechBubbleTextColor,
             color: speechBubbleTextColor,
-            backgroundColor: speechBubbleBackgroundColor
+            backgroundColor: speechBubbleBackgroundColor,
+            "grab": {
+                "grabbable": false
+            }
         };
 
         var headRotation =
