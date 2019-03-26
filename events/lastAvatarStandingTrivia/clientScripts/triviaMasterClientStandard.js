@@ -72,8 +72,8 @@
         useGoogle = false,
         prizeMoney,
         winnerID = null,
-        correctColor = null;
-    var formattedAnswer = null;
+        correctColor = null,
+        formattedAnswer = null;
     
     // The following function from https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
     var htmlEnDeCode = (function() {

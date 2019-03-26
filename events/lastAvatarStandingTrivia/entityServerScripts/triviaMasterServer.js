@@ -61,9 +61,6 @@
             Vec3.sum(gameZone.position, Vec3.multiplyQbyV(gameZone.rotation, {x:  5.75, y: -2, z:  0})),
             Vec3.sum(gameZone.position, Vec3.multiplyQbyV(gameZone.rotation, {x: -5.75, y: -2, z:  -0.33}))
         ];   
-        console.log(JSON.stringify("entity POSITION.................", _entityID, entityProperties));
-        console.log(JSON.stringify("zone POSITION.................", gameZone));
-        console.log(JSON.stringify("COIN POSITION.................", coin));
         if (entityProperties.name === 'Trivia Player Game Zone') {
             NEXT_QUESTION_SFX = SoundCache.getSound(Script.resolvePath('../entities/sounds/new-question.wav'));
             TIMER_SOUND = SoundCache.getSound(Script.resolvePath('../entities/sounds/intense-countdown-10-sec.wav'));
@@ -408,7 +405,6 @@
     };
 
     this.plusHFC = function(){     
-        console.log(JSON.stringify("PLUS HFC.................", coin.position)); 
         Entities.addEntity({
             type: "ParticleEffect",
             name: "Trivia Pot Increase Particle",            
@@ -489,8 +485,6 @@
     };
 
     this.halfHFC = function(){       
-        console.log(JSON.stringify("HALF HFC.................", coin.position));
-
         Entities.addEntity({
             type: "ParticleEffect",
             name: "Trivia Pot Decrease Particle",            
