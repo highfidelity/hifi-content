@@ -405,7 +405,7 @@
                 deleteOverlay(uuid);
             }
             settings.users.splice(settingsUsersListIndex, 1);
-            doUIUpdate("users");
+            doUIUpdate();
         }
     }
 
@@ -435,7 +435,6 @@
                     // only add people to the list if there are none
                     sortAvatarsByLoudness();
                 }
-                console.log("SETTINGS IS:" + JSON.stringify(settings.ui));
                 doUIUpdate();
                 break;
 
@@ -465,7 +464,7 @@
             case REFRESH:
                 deselectUserOverlay(selectedUserUUID);
                 sortAvatarsByLoudness();
-                doUIUpdate("users");
+                doUIUpdate();
                 stopListening();
                 break;
 
@@ -537,7 +536,7 @@
     function setUserName(uuid, userName) {
         userStore[uuid].userName = userName ? userName : userStore[uuid].displayName;
         if (getIndexOfSettingsUser(uuid) !== -1) {
-            doUIUpdate("users");
+            doUIUpdate();
         }
     }
 

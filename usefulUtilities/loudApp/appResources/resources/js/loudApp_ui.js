@@ -35,7 +35,6 @@
             }
         },
         data() {
-            console.log("CHECK:" + this.isexpandingaudioenabled + " " + this.isallavatarsintoptenenabled);
             return {
                 expandingAudioValue: this.isexpandingaudioenabled,
                 allAvatarsInTopTenEnabledValue: this.isallavatarsintoptenenabled
@@ -170,10 +169,8 @@
         var data;
         try {
             data = JSON.parse(message);
-            console.log("onScriptEventRecieved:" + JSON.stringify(data.value.ui));
             switch (data.type) {
                 case UPDATE_UI:
-                    // console.log("UPDATEUI check" + JSON.stringify(data.value.ui));
                     if (message.key) {
                         app.settings[message.key] = data.value
                     } else {
