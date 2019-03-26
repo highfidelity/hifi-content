@@ -2,13 +2,10 @@
 
     var AppUi = Script.require("appUi");
 
-    var userStore = {}, // houses all users, see User constructor for structure
-        interval = null, // handled by updateInterval 
-        UPDATE_INTERVAL_TIME = 500; // Audio update time
+    var userStore = {}; // houses all users, see User constructor for structure
 
     // radius that avatars are factored in muting and top 10 loudest
     var SEARCH_RADIUS = 10;
-    var muteList = []; // houses avatars that are muted
 
     // status of our app
     var activeTargetUUID = null;
@@ -21,17 +18,6 @@
         COLOR_IN_LIST = { red: 255, blue: 255, green: 255 },
         COLOR_SELECTED = { red: 255, blue: 0, green: 255 };
 
-    // app methods
-    var LISTEN_TOGGLE = "listen_toggle",
-        CLOSE_DIALOG_MESSAGE = "closeDialog",
-        SELECT_AVATAR = "selectAvatar",
-        BAN = "ban",
-        MUTE = "mute",
-        REFRESH = "refresh",
-        GOTO = "goto",
-        UPDATE_UI = "update_ui",
-        TOGGLE_ALL_AVATARS = "toggleAllAvatars",
-        TOGGLE_EXPANDING_AUDIO = "toggleExpandingAudio";
     // *** New Features ***
 
     // sent to Vue to update our html UI
@@ -40,10 +26,10 @@
         users: [],
         ui: {
             isExpandingAudioEnabled: false,
-            isAllAvatarsInTopTenEnabled: false
-        },
+            isAllAvatarsInTopTenEnabled: false,
+            isListening: false
+        }
     };
-
 
     // Range of time to send setGain requests
     // Ensure gain packets do not get lost
@@ -172,9 +158,6 @@
             buttonName: BUTTON_NAME,
             onMessage: onMessage, // UI event listener  
             home: APP_URL,
-            // Icons are located in graphicsDirectory
-            // AppUI is looking for icons named with the BUTTON_NAME "avatar-101" 
-            // For example: avatar-101-a.svg for active button icon, avatar-101-i.svg for inactive button icon
             graphicsDirectory: Script.resolvePath("./icons/"),
             onOpened: onOpened,
             onClosed: onClosed
@@ -204,16 +187,18 @@
     }
 
 
-    function doUIUpdate(update) {
+    function doUIUpdate(key) {
         ui.sendToHtml({
             type: UPDATE_UI,
-            value: settings,
-            update: update || {}
+            value: key ? settings[key] : settings,
+            key: key ? key : ""
         });
     }
 
 
     function sortAvatarsByLoudness() {
+        console.log("SORT AVATARS BY LOUDNESS");
+
         // sort by audioLevel
         function sortNumber(a, b) {
             return b.avgAudioLevel - a.avgAudioLevel;
@@ -231,7 +216,7 @@
 
     function unload() {
         if (settings.users) {
-            settings.users.forEach(function (user) {
+            settings.users.forEach(function(user) {
                 if (user.overlayID) {
                     deleteOverlay(user.uuid)
                 }
@@ -239,7 +224,6 @@
         }
 
         stopUpdateInterval();
-
         stopListening();
 
         Users.usernameFromIDReply.disconnect(setUserName);
@@ -263,15 +247,16 @@
             color: COLOR_IN_LIST,
             drawInFront: true
         };
-
         var overlayID = Overlays.addOverlay("sphere", overlayProperties);
         userStore[uuid].overlayID = overlayID;
     }
+
 
     function deleteOverlay(uuid) {
         Overlays.deleteOverlay(userStore[uuid].overlayID);
         userStore[uuid].overlayID = null;
     }
+
 
     function updateOverlaySize(uuid) {
         var dimensionsWithSound = OVERLAY_MIN_DIMENSIONS + userStore[uuid].avgAudioLevel * (OVERLAY_MAX_DIMENSIONS - OVERLAY_MIN_DIMENSIONS);
@@ -284,6 +269,7 @@
         });
     }
 
+
     function setOverlaySizeToDefault(uuid) {
         if (userStore[uuid].overlayID) {
             Overlays.editOverlay(userStore[uuid].overlayID, {
@@ -292,11 +278,22 @@
         }
     }
 
+
     function deselectUserOverlay(uuid) {
         userStore[uuid].isSelected = false;
         Overlays.editOverlay(userStore[uuid].overlayID, { color: COLOR_IN_LIST });
         selectedUserUUID = null;
     }
+
+    function selectUserOverlay(uuid) {
+        if (selectedUserUUID) {
+            deselectUserOverlay(selectedUserUUID);
+        }
+        userStore[uuid].isSelected = true;
+        Overlays.editOverlay(userStore[uuid].overlayID, { color: COLOR_SELECTED });
+        selectedUserUUID = uuid;
+    }
+
 
     function removeAllOverlays() {
         // remove previous overlays
@@ -305,6 +302,7 @@
         }
     }
 
+
     function addAllOverlays() {
         // add new overlays
         for (var i = 0; i < settings.users.length; i++) {
@@ -312,23 +310,31 @@
         }
     }
 
+
     // #endregion OVERLAYS
 
+    var interval = null, // handled by updateInterval 
+        UPDATE_INTERVAL_TIME = 100; // Audio update time
     function startUpdateInterval() {
-        console.log("Start update interval:" + interval);
-        if (!interval) {
+        if (interval === null) {
             interval = Script.setInterval(handleUpdate, UPDATE_INTERVAL_TIME);
         }
     }
 
+
     function stopUpdateInterval() {
-        if (interval) {
+        if (interval !== null) {
             Script.clearInterval(interval);
             interval = null;
         }
     }
 
     function handleUpdate() {
+        // if (DEBUG) {
+        //     console.log("handle update:" + interval);
+        //     console.log("settings.users length: " + settings.users.length);
+        // }
+
         var palList = AvatarList.getPalData().data;
 
         // Add users to userStore
@@ -361,57 +367,63 @@
         for (var uuid in userStore) {
             // if user crashes, leaving domain signal will not be called
             // handle this case
-
             var hasUUID = uuid;
             var isInNewList = palList.map(function (item) {
                 return item.sessionUUID;
             }).indexOf(uuid) !== -1;
 
             if (hasUUID && !isInNewList) {
-
                 removeUser(uuid);
-
             }
         }
-
         doUIUpdate();
     }
 
     function removeUserFromSettingsUser(uuid) {
+        if (selectedUserUUID === uuid) {
+            selectedUserUUID = null;
+        }
         var settingsUsersListIndex = getIndexOfSettingsUser(uuid);
-        var muteListIndex = muteList.indexOf(uuid);
-
         if (settingsUsersListIndex !== -1) {
             if (settings.users[settingsUsersListIndex].overlayID) {
                 deleteOverlay(uuid);
-                // userStore[uuid].hasMovedFast = true;
             }
             settings.users.splice(settingsUsersListIndex, 1);
             doUIUpdate();
-        }
-        if (muteListIndex !== -1) {
-            muteList.splice(muteListIndex, 1);
         }
     }
 
 
     // Handles messages from UI
+    var LISTEN_TOGGLE = "listen_toggle",
+        SELECT_AVATAR = "selectAvatar",
+        BAN = "ban",
+        MUTE = "mute",
+        REFRESH = "refresh",
+        GOTO = "goto",
+        UPDATE_UI = "update_ui",
+        SET_GET_ALL_AVATARS = "setGetAllAvatars",
+        TOGGLE_EXPANDING_AUDIO = "toggleExpandingAudio";
     function onMessage(data) {
+
+        print("got message!", typeof data, JSON.stringify(data));
         // EventBridge message from HTML script.
-        var message;
-        try {
-            message = JSON.parse(data);
-        } catch (e) {
-            return;
-        }
+        var message = data;
+        // try {
+        //     message = JSON.parse(data);
+        // } catch (e) {
+        //     return;
+        // }
 
         switch (message.type) {
             case EVENT_BRIDGE_OPEN_MESSAGE:
                 print("OPEN EVENTBRIDGE");
                 if (!settings.users.length) {
+                    print("settings.users.length is 0");
                     // only add people to the list if there are none
                     sortAvatarsByLoudness();
                 }
+                doUIUpdate();
                 break;
             case LISTEN_TOGGLE:
                 print("Event recieved: ", LISTEN_TOGGLE);
@@ -423,7 +435,9 @@
                 break;
             case REFRESH:
                 print("Event recieved: ", REFRESH);
-                refresh();
+                sortAvatarsByLoudness();
+                doUIUpdate();
+                stopListening();    
                 break;
             case GOTO:
                 print("Event recieved: ", GOTO);
@@ -438,24 +452,16 @@
                 Users.mute(message.value.uuid);
                 break;
             case TOGGLE_EXPANDING_AUDIO:
-                toggleExpandingAudio();
+                console.log("Event recieved: " + TOGGLE_EXPANDING_AUDIO + message.value);
+                toggleExpandingAudio(message.value);
                 break;
-            case TOGGLE_ALL_AVATARS:
-                toggleAllAvatars();
-                break;
-            case CLOSE_DIALOG_MESSAGE:
-                if (settings.users) {
-                    settings.users.forEach(function (user) {
-                        if (user.overlayID) {
-                            deleteOverlay(user.uuid)
-                        }
-                    });
-                }
+            case SET_GET_ALL_AVATARS:
+                console.log("Event recieved: " + SET_GET_ALL_AVATARS + message.value);
+                setGetAllAvatars(message.value);
                 break;
             default:
                 break;
         }
-        doUIUpdate();
     }
 
     
@@ -515,18 +521,16 @@
 
     // #region WEBEVENTS
 
-    function toggleAllAvatars() {
-        settings.ui.isAllAvatarsInTopTenEnabled = !settings.ui.isAllAvatarsInTopTenEnabled;
+    function setGetAllAvatars(value) {
+        settings.ui.isAllAvatarsInTopTenEnabled = value; // !settings.ui.isAllAvatarsInTopTenEnabled;
     }
 
-    function toggleExpandingAudio() {
-        settings.ui.isExpandingAudioEnabled = !settings.ui.isExpandingAudioEnabled;
-
+    function toggleExpandingAudio(value) {
+        settings.ui.isExpandingAudioEnabled = value; // !settings.ui.isExpandingAudioEnabled;
         if (!settings.ui.isExpandingAudioEnabled) {
             // set all users audio bubbles to 0.3 radius
             for (var i = 0; i < settings.users.length; i++) {
                 var user = settings.users[i];
-
                 setOverlaySizeToDefault(user.uuid);
             }
         }
@@ -541,9 +545,9 @@
         MyAvatar.orientation = orientationTowardsUser;
 
         if (selectedUserUUID === uuid) {
-            deselectUser(uuid);
+            deselectUserOverlay(uuid);
         } else {
-            selectUser(uuid);
+            selectUserOverlay(uuid);
         }
     }
 
@@ -566,11 +570,6 @@
         } else {
             stopListening();
         }
-    }
-    function refresh() {
-        sortAvatarsByLoudness();
-        doUIUpdate();
-        stopListening();
     }
 
     // #endregion WEBEVENTS

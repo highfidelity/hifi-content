@@ -12,7 +12,7 @@
     <body>
         <div class="container" id="app">
             <h2>Loud List</h2>
-            <options :ui="settings.ui"></options>
+            <options :isexpandingaudioenabled="settings.ui.isExpandingAudioEnabled" :isallavatarsintoptenenabled="settings.ui.isAllAvatarsInTopTenEnabled" ></options>
             <people-table :users="settings.users"></people-table>
             
             <!-- <input-card v-for="n in allInputs" v-bind:title="n.title" v-bind:id="n.id" v-bind:input_options="inputTypes" v-bind:input="n.input"></input-card> -->
@@ -20,12 +20,8 @@
             <!-- <show-message v-if="settings.ui.showMessage" v-bind:message="settings.message"></show-message> -->
             <!-- <restart-game v-if="settings.ui.gameEnding"></restart-game> -->
         </div>
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.7.0/Sortable.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.15.0/vuedraggable.min.js"></script>
         <script src="js/Loud_Tablet.js"></script>
     </body>
 

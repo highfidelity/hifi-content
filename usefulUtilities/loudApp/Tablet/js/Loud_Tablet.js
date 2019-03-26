@@ -2,8 +2,6 @@
 
     "use strict";
 
-    // Consts
-    // /////////////////////////////////////////////////////////////////////////
     var EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
         UPDATE_UI = "update_ui",
         LISTEN_TOGGLE = "listen_toggle",
@@ -12,52 +10,40 @@
         GOTO = "goto",
         TOGGLE_EXPANDING_AUDIO = "toggleExpandingAudio",
         REFRESH = "refresh",
-        TOGGLE_ALL_AVATARS = "toggleAllAvatars",
-        SET_ACTIVE_MESSAGE = "setActive",
+        SET_GET_ALL_AVATARS = "setGetAllAvatars",
         SELECT_AVATAR = "selectAvatar",
         EVENTBRIDGE_SETUP_DELAY = 200;
 
-    // Components
-    // /////////////////////////////////////////////////////////////////////////
-    // Vue.component('options', {
-    //     props: {
-    //         users: { type: Array}
-    //     },
-    //     template:`
-    //         <table class="table">
-    //                 <tbody>
-    //                     <tr>
-    //                         <td><button class="btn-sm mt-1 mr-1" v-bind:class="{ 'btn-primary': !user.isToggled, 'btn-warning': user.isToggled }"  v-on:click="toggleRadius()">All Users</button></td>
-    //                         <td><button class="btn-sm mt-1 mr-1"  v-on:click="refresh()">Refresh</button></td>
-    //                     </tr>
-    //                 </tbody>
-    //         </table>
-    //     `
-    // })
     
     Vue.component('options', {
         props: {
-            ui: {
-                isExpandingAudioEnabled: { type: Boolean },
-                isAllAvatarsInTopTenEnabled: { type: Boolean }
+            isexpandingaudioenabled: { type: Boolean },
+            isallavatarsintoptenenabled: { type: Boolean }
+        },
+        data () {
+            return {
+                expandingAudioValue: this.isexpandingaudioenabled,
+                allAvatarsInTopTenEnabledValue: this.isallavatarsintoptenenabled
             }
         },
         methods: {
-            toggleExpandingAudio(){
+            toggleExpandingAudio(value){
                 EventBridge.emitWebEvent(JSON.stringify({
-                    type: TOGGLE_EXPANDING_AUDIO
+                    type: TOGGLE_EXPANDING_AUDIO,
+                    value: value
                 }));
             },
-            toggleAllAvatars(){
+            toggleAllAvatars(value){
                 EventBridge.emitWebEvent(JSON.stringify({
-                    type: TOGGLE_ALL_AVATARS
+                    type: SET_GET_ALL_AVATARS,
+                    value: value
                 }));
             }
         },
         template:`
             <form>
-                <input type="checkbox" v-model="ui.isExpandingAudioEnabled" name="toggleExpandingAudio" value="toggleExpandingAudio" v-on:change="toggleExpandingAudio()"> Toggle Expanding Audio<br>
-                <input type="checkbox" v-model="ui.isAllAvatarsInTopTenEnabled" name="toggleAllAvatars" value="toggleAllAvatars" v-on:change="toggleAllAvatars()"> Find 10 Loudest in Domain *will not mute all avatars<br>
+                <input type="checkbox" v-model="expandingAudioValue" name="toggleExpandingAudio" value="toggleExpandingAudio" v-on:change="toggleExpandingAudio(expandingAudioValue)"> Enable Expanding Overlay<br>
+                <input type="checkbox" v-model="allAvatarsInTopTenEnabledValue" name="toggleAllAvatars" value="toggleAllAvatars" v-on:change="toggleAllAvatars(allAvatarsInTopTenEnabledValue)"> Enable Get All Avatars In Domain<br>
             </form>
         `
     })
@@ -149,38 +135,39 @@
             }
         },
         template:`
-                <tr v-bind:class="{ 'background-green': user.isSelected }">
-                    <td><button class="btn-sm mt-1 mr-1" v-bind:class="{ 'btn-primary': !user.isToggled, 'btn-warning': user.isToggled }"  v-on:click="listenToggle()">Listen</button></td>
-                    <td><button class="btn-sm mt-1 mr-1"  v-on:click="goto()">Go to</button></td>
-                    <td><button class="btn-sm btn-primary mt-1 mr-1"  v-on:click="mute()">Mute</button></td>
-                    <td><button class="btn-sm btn-primary mt-1 mr-1"  v-on:click="ban()">Ban</button></td>
-                </tr>
+            <tr v-bind:class="{ 'background-green': user.isSelected }">
+                <td><button class="btn-sm mt-1 mr-1" v-bind:class="{ 'btn-primary': !user.isToggled, 'btn-warning': user.isToggled }"  v-on:click="listenToggle()">Listen</button></td>
+                <td><button class="btn-sm mt-1 mr-1"  v-on:click="goto()">Go to</button></td>
+                <td><button class="btn-sm btn-primary mt-1 mr-1"  v-on:click="mute()">Mute</button></td>
+                <td><button class="btn-sm btn-primary mt-1 mr-1"  v-on:click="ban()">Ban</button></td>
+            </tr>
         `
     })
 
-    // App
-    // /////////////////////////////////////////////////////////////////////////
     var app = new Vue({
         el: '#app',
         data: {
             settings: {
+                users: [],
                 ui: {
-                    currentDance: false,
-                    danceList: false
+                    isExpandingAudioEnabled: false,
+                    isAllAvatarsInTopTenEnabled: false
                 }
             }
         }
     });
 
-    // Procedural
-    // /////////////////////////////////////////////////////////////////////////
     function onScriptEventReceived(message) {
         var data;
         try {
             data = JSON.parse(message);
             switch (data.type) {
                 case UPDATE_UI:
-                    app.settings = data.value;
+                    if (message.key) {
+                        app.settings[message.key] = data.value
+                    } else {
+                        app.settings = data.value;
+                    }
                     break;
                 default:
             }
@@ -191,10 +178,7 @@
     }
     
     function onLoad() {
-        
         // Initial button active state is communicated via URL parameter.
-        // isActive = location.search.replace("?active=", "") === "true";
-
         setTimeout(function () {
             // Open the EventBridge to communicate with the main script.
             // Allow time for EventBridge to become ready.
@@ -202,16 +186,9 @@
             EventBridge.emitWebEvent(JSON.stringify({
                 type: EVENT_BRIDGE_OPEN_MESSAGE
             }));
-            EventBridge.emitWebEvent(JSON.stringify({
-                type: SET_ACTIVE_MESSAGE,
-                value: true
-            }));
         }, EVENTBRIDGE_SETUP_DELAY);
-
     }
 
-    // App
-    // /////////////////////////////////////////////////////////////////////////    
     onLoad();
 
 }());
