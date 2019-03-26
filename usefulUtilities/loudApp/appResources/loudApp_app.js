@@ -1,40 +1,29 @@
+//
+//  loudApp_app.js
+//
+//  Created by Robin Wilson and Milad Nazeri 8/20/2018
+//  Updated by Robin Wilson 3/26/2019
+//  Copyright 2019 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 (function () {
 
     var AppUi = Script.require("appUi");
 
+    // Data management
     var userStore = {}; // houses all users, see User constructor for structure
-
-    // radius that avatars are factored in muting and top 10 loudest
-    var SEARCH_RADIUS = 10;
-
-    // status of our app
-    var activeTargetUUID = null;
-
-    // overlay options
-    var selectedUserUUID, // selected avatar with yellow overlay
-        OVERLAY_MIN_DIMENSIONS = 0.2,
-        OVERLAY_MAX_DIMENSIONS = 1,
-        OVERLAY_DEFAULT_DIMENSIONS = { x: 0.3, y: 0.3, z: 0.3 },
-        COLOR_IN_LIST = { red: 255, blue: 255, green: 255 },
-        COLOR_SELECTED = { red: 255, blue: 0, green: 255 };
-
-    // *** New Features ***
-
     // sent to Vue to update our html UI
     // app options are housed here
     var settings = {
         users: [],
         ui: {
             isExpandingAudioEnabled: false,
-            isAllAvatarsInTopTenEnabled: false,
+            searchWholeDomainForLoudestEnabled: false,
             isListening: false
         }
     };
-
-    // Range of time to send setGain requests
-    // Ensure gain packets do not get lost
-    var LISTEN_GAIN = 0; // default value
-
     var DEBUG = true;
 
     // #region AUDIO
@@ -85,6 +74,7 @@
 
     // Solos target avatar 
     // Mutes the old target avatar
+    var activeTargetUUID = null;
     function startListeningToAvatar(targetUUID) {
         if (DEBUG) {
             console.log("startListeningToAvatar isListening" + settings.ui.isListening + "targetUUID" + targetUUID + "activeTargetUUID" + activeTargetUUID);
@@ -148,9 +138,10 @@
 
     // #region APP
 
-    var ui;
-    var BUTTON_NAME = "SEEK LOUD",
-        APP_URL = Script.resolvePath('./Tablet/Loud_Tablet.html?v2'),
+    // Create the tablet button and setup app callbacks
+    var ui,
+        BUTTON_NAME = "SEEK LOUD",
+        APP_URL = Script.resolvePath('./resources/loudApp_ui.html'),
         EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen";
     function startup() {
         // Create the tablet app
@@ -158,7 +149,7 @@
             buttonName: BUTTON_NAME,
             onMessage: onMessage, // UI event listener  
             home: APP_URL,
-            graphicsDirectory: Script.resolvePath("./icons/"),
+            graphicsDirectory: Script.resolvePath("./resources/icons/"),
             onOpened: onOpened,
             onClosed: onClosed
         });
@@ -173,6 +164,7 @@
     }
 
 
+    // Open the app callback
     function onOpened() {
         Users.requestsDomainListData = true;
         startUpdateInterval();
@@ -180,6 +172,7 @@
     }
 
 
+    // Close the app callback
     function onClosed() {
         Users.requestsDomainListData = false;
         stopUpdateInterval();
@@ -187,6 +180,7 @@
     }
 
 
+    // Update UI
     function doUIUpdate(key) {
         ui.sendToHtml({
             type: UPDATE_UI,
@@ -196,24 +190,22 @@
     }
 
 
+    // Sorts users by loudness in userStore then populates ten loudest list
+    var SEARCH_RADIUS_DEFAULT = 10; // radius that avatars are factored in muting and top 10 loudest
     function sortAvatarsByLoudness() {
-        console.log("SORT AVATARS BY LOUDNESS");
-
         // sort by audioLevel
         function sortNumber(a, b) {
             return b.avgAudioLevel - a.avgAudioLevel;
         }
-
         removeAllOverlays();
-
-        var avatarList = settings.ui.isAllAvatarsInTopTenEnabled ? Object.keys(userStore) : getAvatarsInRadius(SEARCH_RADIUS);
+        var avatarList = settings.ui.searchWholeDomainForLoudestEnabled ? Object.keys(userStore) : getAvatarsInRadius(SEARCH_RADIUS_DEFAULT);
         settings.users = avatarList.map(function (uuid) { return userStore[uuid]; });
         settings.users = settings.users.sort(sortNumber).slice(0, 10);
-
         addAllOverlays();
     }
 
 
+    // Unloads the app
     function unload() {
         if (settings.users) {
             settings.users.forEach(function(user) {
@@ -236,15 +228,19 @@
 
     // #region OVERLAYS
 
+    // Adds overlay to users in top loudest list
+    var selectedUserUUID, // selected avatar with yellow overlay
+        OVERLAY_DEFAULT_DIMENSIONS = { x: 0.3, y: 0.3, z: 0.3 },
+        OVERLAY_DEFAULT_COLOR = { red: 255, blue: 255, green: 255 },
+        OVERLAY_SELECTED_COLOR = { red: 255, blue: 0, green: 255 };
     function addOverlayToUser(uuid) {
         var overlayPosition = AvatarList.getAvatar(uuid).getNeckPosition(); // user.currentPosition
-
         var overlayProperties = {
             position: overlayPosition, // assigned on creation
-            dimensions: { x: 0.3, y: 0.3, z: 0.3 },
+            dimensions: OVERLAY_DEFAULT_DIMENSIONS,
             solid: true,
             parentID: uuid, // assigned on creation
-            color: COLOR_IN_LIST,
+            color: OVERLAY_DEFAULT_COLOR,
             drawInFront: true
         };
         var overlayID = Overlays.addOverlay("sphere", overlayProperties);
@@ -252,12 +248,16 @@
     }
 
 
+    // Deletes overlay
     function deleteOverlay(uuid) {
         Overlays.deleteOverlay(userStore[uuid].overlayID);
         userStore[uuid].overlayID = null;
     }
 
 
+    // Updates overlay dimensions to correspond with loudness
+    var OVERLAY_MIN_DIMENSIONS = 0.2,
+        OVERLAY_MAX_DIMENSIONS = 1;
     function updateOverlaySize(uuid) {
         var dimensionsWithSound = OVERLAY_MIN_DIMENSIONS + userStore[uuid].avgAudioLevel * (OVERLAY_MAX_DIMENSIONS - OVERLAY_MIN_DIMENSIONS);
         Overlays.editOverlay(userStore[uuid].overlayID, {
@@ -270,6 +270,7 @@
     }
 
 
+    // Sets overlay size to the default
     function setOverlaySizeToDefault(uuid) {
         if (userStore[uuid].overlayID) {
             Overlays.editOverlay(userStore[uuid].overlayID, {
@@ -279,22 +280,27 @@
     }
 
 
+    // Sets overlay to default color
     function deselectUserOverlay(uuid) {
         userStore[uuid].isSelected = false;
-        Overlays.editOverlay(userStore[uuid].overlayID, { color: COLOR_IN_LIST });
+        Overlays.editOverlay(userStore[uuid].overlayID, { color: OVERLAY_DEFAULT_COLOR });
         selectedUserUUID = null;
     }
 
+
+    // Sets overlay to selected color
     function selectUserOverlay(uuid) {
         if (selectedUserUUID) {
+            // deselect the old selected user
             deselectUserOverlay(selectedUserUUID);
         }
         userStore[uuid].isSelected = true;
-        Overlays.editOverlay(userStore[uuid].overlayID, { color: COLOR_SELECTED });
+        Overlays.editOverlay(userStore[uuid].overlayID, { color: OVERLAY_SELECTED_COLOR });
         selectedUserUUID = uuid;
     }
 
 
+    // Removes all overlays on users in top ten loudest list
     function removeAllOverlays() {
         // remove previous overlays
         for (var i = 0; i < settings.users.length; i++) {
@@ -303,6 +309,7 @@
     }
 
 
+    // Removes all overlays on users in top ten loudest list
     function addAllOverlays() {
         // add new overlays
         for (var i = 0; i < settings.users.length; i++) {
@@ -310,9 +317,12 @@
         }
     }
 
-
     // #endregion OVERLAYS
 
+
+    // #region UPDATE
+
+    // Starts the update interval
     var interval = null, // handled by updateInterval 
         UPDATE_INTERVAL_TIME = 100; // Audio update time
     function startUpdateInterval() {
@@ -322,6 +332,7 @@
     }
 
 
+    // Clears the update interval
     function stopUpdateInterval() {
         if (interval !== null) {
             Script.clearInterval(interval);
@@ -329,12 +340,9 @@
         }
     }
 
-    function handleUpdate() {
-        // if (DEBUG) {
-        //     console.log("handle update:" + interval);
-        //     console.log("settings.users length: " + settings.users.length);
-        // }
 
+    // Updates the list, removes avatars that have left, updates loudness
+    function handleUpdate() {
         var palList = AvatarList.getPalData().data;
 
         // Add users to userStore
@@ -346,16 +354,12 @@
 
             if (hasUUID && !isInUserStore) {
                 // UUID exists and is NOT in userStore
-
                 addUser(currentUUID);
 
             } else if (hasUUID) {
                 // UUID exists and IS in userStore already
-
                 userStore[currentUUID].audioLoudness = palList[a].audioLoudness;
                 userStore[currentUUID].currentPosition = palList[a].position;
-
-                // *** Update ***
                 updateAudioForAvatar(currentUUID);
                 if (settings.ui.isExpandingAudioEnabled && userStore[currentUUID].overlayID) {
                     updateOverlaySize(currentUUID);
@@ -379,9 +383,14 @@
         doUIUpdate();
     }
 
-    function removeUserFromSettingsUser(uuid) {
-        if (selectedUserUUID === uuid) {
-            selectedUserUUID = null;
+
+    // Delete from top ten loudest list
+    function removeUserFromSettings(uuid) {
+        if (selectedUserUUID === uuid) { // targeted user with yellow overlay
+            deselectUserOverlay(uuid);
+        }
+        if (activeTargetUUID === uuid) { // is listening to this user
+             stopListening();
         }
         var settingsUsersListIndex = getIndexOfSettingsUser(uuid);
         if (settingsUsersListIndex !== -1) {
@@ -393,6 +402,10 @@
         }
     }
 
+    // #endregion UPDATE
+
+
+    // #region WEBEVENTS
 
     // Handles messages from UI
     var LISTEN_TOGGLE = "listen_toggle",
@@ -402,67 +415,90 @@
         REFRESH = "refresh",
         GOTO = "goto",
         UPDATE_UI = "update_ui",
-        SET_GET_ALL_AVATARS = "setGetAllAvatars",
+        SEARCH_WHOLE_DOMAIN_FOR_LOUDEST_ENABLED = "searchWholeDomainForLoudestEnabled",
         TOGGLE_EXPANDING_AUDIO = "toggleExpandingAudio";
     function onMessage(data) {
+        if (DEBUG) {
+            console.log("LoudApp recieved message: " + data.type);
+        }
 
-        print("got message!", typeof data, JSON.stringify(data));
-        // EventBridge message from HTML script.
-        var message = data;
-        // try {
-        //     message = JSON.parse(data);
-        // } catch (e) {
-        //     return;
-        // }
-
-        switch (message.type) {
+        switch (data.type) {
             case EVENT_BRIDGE_OPEN_MESSAGE:
-                print("OPEN EVENTBRIDGE");
                 if (!settings.users.length) {
-                    print("settings.users.length is 0");
                     // only add people to the list if there are none
                     sortAvatarsByLoudness();
                 }
                 doUIUpdate();
                 break;
+
             case LISTEN_TOGGLE:
-                print("Event recieved: ", LISTEN_TOGGLE);
-                listenToggle(message.value);
+                var avatarInfo = data.value;
+                if (DEBUG) {
+                    console.log("LISTEN TOGGLE ", avatarInfo.uuid !== activeTargetUUID, JSON.stringify(avatarInfo));
+                }
+                if (avatarInfo.uuid !== activeTargetUUID) {
+                    startListeningToAvatar(avatarInfo.uuid);
+                } else {
+                    stopListening();
+                }
                 break;
+
             case SELECT_AVATAR:
-                print("Event recieved: ", BAN);
-                selectAvatar(message.value);
+                var avatarInfo = data.value;
+                var orientationTowardsUser = Quat.cancelOutRollAndPitch(Quat.lookAtSimple(MyAvatar.position, avatarInfo.currentPosition));
+                MyAvatar.orientation = orientationTowardsUser;
+                if (selectedUserUUID === avatarInfo.uuid) {
+                    deselectUserOverlay(avatarInfo.uuid);
+                } else {
+                    selectUserOverlay(avatarInfo.uuid);
+                }
                 break;
+
             case REFRESH:
-                print("Event recieved: ", REFRESH);
                 sortAvatarsByLoudness();
                 doUIUpdate();
                 stopListening();    
                 break;
+
             case GOTO:
-                print("Event recieved: ", GOTO);
-                handleGoTo(message.value);
+                // teleport behind the target avatar
+                var avatarInfo = data.value;
+                var offset = Vec3.multiplyQbyV(AvatarList.getAvatar(avatarInfo.uuid).orientation, { x: 0, y: 0.2, z: 1.5 });
+                var newPosition = Vec3.sum(avatarInfo.currentPosition, offset);
+        
+                MyAvatar.position = newPosition;
+                MyAvatar.orientation = userOrientation;
                 break;
+
             case BAN:
-                print("Event recieved: ", BAN);
-                Users.kick(message.value.uuid);
+                Users.kick(data.value.uuid);
                 break;
+
             case MUTE:
-                print("Event recieved: ", MUTE);
-                Users.mute(message.value.uuid);
+                Users.mute(data.value.uuid);
                 break;
+
             case TOGGLE_EXPANDING_AUDIO:
-                console.log("Event recieved: " + TOGGLE_EXPANDING_AUDIO + message.value);
-                toggleExpandingAudio(message.value);
+                settings.ui.isExpandingAudioEnabled = data.value;
+                if (!settings.ui.isExpandingAudioEnabled) {
+                    // set all users audio bubbles to 0.3 radius
+                    for (var i = 0; i < settings.users.length; i++) {
+                        var user = settings.users[i];
+                        setOverlaySizeToDefault(user.uuid);
+                    }
+                }
                 break;
-            case SET_GET_ALL_AVATARS:
-                console.log("Event recieved: " + SET_GET_ALL_AVATARS + message.value);
-                setGetAllAvatars(message.value);
+
+            case SEARCH_WHOLE_DOMAIN_FOR_LOUDEST_ENABLED:
+                settings.ui.searchWholeDomainForLoudestEnabled = data.value
                 break;
+
             default:
                 break;
         }
     }
+
+    // #endregion WEBEVENTS
 
     
     // #region USER UTILITIES
@@ -498,6 +534,7 @@
 
 
     // Add user to userStore
+    var LISTEN_GAIN = 0; // default value
     function addUser(sessionUUID) {
         var avatarData = AvatarList.getAvatar(sessionUUID);
         if (!userStore[sessionUUID]) {
@@ -510,69 +547,13 @@
 
     // Remove user from userStore
     function removeUser(sessionUUID) {
-        removeUserFromSettingsUser(sessionUUID);
+        removeUserFromSettings(sessionUUID);
         if (userStore[sessionUUID]) {
             delete userStore[sessionUUID];
         }
     }
 
     // #endregion USER UTILITIES
-
-
-    // #region WEBEVENTS
-
-    function setGetAllAvatars(value) {
-        settings.ui.isAllAvatarsInTopTenEnabled = value; // !settings.ui.isAllAvatarsInTopTenEnabled;
-    }
-
-    function toggleExpandingAudio(value) {
-        settings.ui.isExpandingAudioEnabled = value; // !settings.ui.isExpandingAudioEnabled;
-        if (!settings.ui.isExpandingAudioEnabled) {
-            // set all users audio bubbles to 0.3 radius
-            for (var i = 0; i < settings.users.length; i++) {
-                var user = settings.users[i];
-                setOverlaySizeToDefault(user.uuid);
-            }
-        }
-    }
-
-    function selectAvatar(avatarInfo) {
-        var uuid = avatarInfo.uuid;
-
-        var userPosition = avatarInfo.currentPosition;
-
-        var orientationTowardsUser = Quat.cancelOutRollAndPitch(Quat.lookAtSimple(MyAvatar.position, userPosition));
-        MyAvatar.orientation = orientationTowardsUser;
-
-        if (selectedUserUUID === uuid) {
-            deselectUserOverlay(uuid);
-        } else {
-            selectUserOverlay(uuid);
-        }
-    }
-
-    // Teleport behind the target avatar
-    function handleGoTo(avatarInfo) {
-        var userOrientation = AvatarList.getAvatar(avatarInfo.uuid).orientation;
-        var offset = Vec3.multiplyQbyV(userOrientation, { x: 0, y: 0.2, z: 1.5 });
-        var newPosition = Vec3.sum(avatarInfo.currentPosition, offset);
-
-        MyAvatar.position = newPosition;
-        MyAvatar.orientation = userOrientation;
-    }
-
-    function listenToggle(avatarInfo) {
-
-        print("LISTEN TOGGLE ", avatarInfo.uuid !== activeTargetUUID, JSON.stringify(avatarInfo));
-
-        if (avatarInfo.uuid !== activeTargetUUID) {
-            startListeningToAvatar(avatarInfo.uuid);
-        } else {
-            stopListening();
-        }
-    }
-
-    // #endregion WEBEVENTS
 
     startup();
 })();

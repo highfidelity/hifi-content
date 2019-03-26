@@ -10,7 +10,7 @@
         GOTO = "goto",
         TOGGLE_EXPANDING_AUDIO = "toggleExpandingAudio",
         REFRESH = "refresh",
-        SET_GET_ALL_AVATARS = "setGetAllAvatars",
+        SEARCH_WHOLE_DOMAIN_FOR_LOUDEST_ENABLED = "searchWholeDomainForLoudestEnabled",
         SELECT_AVATAR = "selectAvatar",
         EVENTBRIDGE_SETUP_DELAY = 200;
 
@@ -35,15 +35,15 @@
             },
             toggleAllAvatars(value){
                 EventBridge.emitWebEvent(JSON.stringify({
-                    type: SET_GET_ALL_AVATARS,
+                    type: SEARCH_WHOLE_DOMAIN_FOR_LOUDEST_ENABLED,
                     value: value
                 }));
             }
         },
         template:`
             <form>
-                <input type="checkbox" v-model="expandingAudioValue" name="toggleExpandingAudio" value="toggleExpandingAudio" v-on:change="toggleExpandingAudio(expandingAudioValue)"> Enable Expanding Overlay<br>
-                <input type="checkbox" v-model="allAvatarsInTopTenEnabledValue" name="toggleAllAvatars" value="toggleAllAvatars" v-on:change="toggleAllAvatars(allAvatarsInTopTenEnabledValue)"> Enable Get All Avatars In Domain<br>
+                <input type="checkbox" v-model="expandingAudioValue" name="toggleExpandingAudio" value="toggleExpandingAudio" v-on:change="toggleExpandingAudio(expandingAudioValue)"> Enable expanding overlays<br>
+                <input type="checkbox" v-model="allAvatarsInTopTenEnabledValue" name="toggleAllAvatars" value="toggleAllAvatars" v-on:change="toggleAllAvatars(allAvatarsInTopTenEnabledValue)"> Enable search for all avatars in domain<br>
             </form>
         `
     })
@@ -94,7 +94,7 @@
             }
         },
         template:`
-            <tr v-bind:class="{ 'background-green': user.isSelected }">
+            <tr v-bind:class="{ 'background-yellow': user.isSelected }">
                 <td v-on:click="selectAvatar()" >{{ user.userName ? user.userName : user.displayName }}</td>
                 <td>{{ user.avgAudioLevel }}</td>
                 <td>{{ user.avgAudioLoudness }}</td>
@@ -135,7 +135,7 @@
             }
         },
         template:`
-            <tr v-bind:class="{ 'background-green': user.isSelected }">
+            <tr v-bind:class="{ 'background-yellow': user.isSelected }">
                 <td><button class="btn-sm mt-1 mr-1" v-bind:class="{ 'btn-primary': !user.isToggled, 'btn-warning': user.isToggled }"  v-on:click="listenToggle()">Listen</button></td>
                 <td><button class="btn-sm mt-1 mr-1"  v-on:click="goto()">Go to</button></td>
                 <td><button class="btn-sm btn-primary mt-1 mr-1"  v-on:click="mute()">Mute</button></td>
