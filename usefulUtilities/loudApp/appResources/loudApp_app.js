@@ -185,11 +185,10 @@
 
 
     // Update UI
-    function doUIUpdate(key) {
+    function doUIUpdate() {
         ui.sendToHtml({
             type: UPDATE_UI,
-            value: key ? settings[key] : settings,
-            key: key ? key : ""
+            value: settings
         });
     }
 

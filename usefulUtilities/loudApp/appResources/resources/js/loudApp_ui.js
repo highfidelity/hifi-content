@@ -171,11 +171,7 @@
             data = JSON.parse(message);
             switch (data.type) {
                 case UPDATE_UI:
-                    if (message.key) {
-                        app.settings[message.key] = data.value
-                    } else {
-                        app.settings = data.value;
-                    }
+                    app.settings = data.value;
                     break;
                 default:
             }
