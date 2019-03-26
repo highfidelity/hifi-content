@@ -1,32 +1,81 @@
+// Assignment client player
+
 (function () {
 
-    var APP_NAME = "PLAYBACK",
-        ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL",
-        RECORDER_COMMAND_ERROR = "error",
-        HIFI_PLAYER_CHANNEL = "HIFI_PLAYER_CHANNEL:" + Agent.sessionUUID,
-        PLAYER_ACTION_PLAY = "play",
-        PLAYER_ACTION_STOP = "stop",
-        heartbeatTimer = null,
-        HEARTBEAT_INTERVAL = 3000,
-        TIMESTAMP_UPDATE_INTERVAL = 2500,
-        AUTOPLAY_SEARCH_INTERVAL = 5000,
-        AUTOPLAY_ERROR_INTERVAL = 30000,  // 30s
-        scriptUUID,
-        registerd = false,
-        Player;
-
+    // *************************************
+    // START UTILITY FUNCTIONS
+    // *************************************
+    // #region UTILITY FUNCTIONS
+    
+    
     function log(message) {
         print(APP_NAME + " " + scriptUUID + ": " + message);
     }
 
+    function sendHeartbeat() {
+        Messages.sendMessage(HIFI_PLAYER_CHANNEL, JSON.stringify({
+            playing: Player.isPlaying(),
+            recording: Player.recording()
+        }));
+    }
+
+    function onHeartbeatTimer() {
+        sendHeartbeat();
+        heartbeatTimer = Script.setTimeout(onHeartbeatTimer, HEARTBEAT_INTERVAL);
+    }
+
+    function startHeartbeat() {
+        onHeartbeatTimer();
+    }
+
+    function stopHeartbeat() {
+        if (heartbeatTimer) {
+            Script.clearTimeout(heartbeatTimer);
+            heartbeatTimer = null;
+        }
+    }
+    
+    
+    // #endregion
+    // *************************************
+    // END UTILITY FUNCTIONS
+    // *************************************
+
+    // *************************************
+    // START CONSTS_AND_VARS
+    // *************************************
+    // #region CONSTS_AND_VARS
+    
+    
+    var APP_NAME = "PLAYBACK";
+    var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
+    var RECORDER_COMMAND_ERROR = "error";
+    var HIFI_PLAYER_CHANNEL = "HIFI_PLAYER_CHANNEL:" + Agent.sessionUUID;
+    var PLAYER_ACTION_PLAY = "play";
+    var PLAYER_ACTION_STOP = "stop";
+    var heartbeatTimer = null;
+    var HEARTBEAT_INTERVAL = 3000;
+    var scriptUUID;
+    var registerd = false;
+    var Player;    
+
+   
+    // #endregion
+    // *************************************
+    // END CONSTS_AND_VARS
+    // *************************************
+
+    // *************************************
+    // START PLAYER
+    // *************************************
+    // #region PLAYER
+    
+    
     Player = (function () {
         // Recording playback functions.
         var userID = null,
             isPlayingRecording = false,
             recordingFilename = "",
-            // autoPlayTimer = null,
-
-            // autoPlay,
             playRecording;
 
         function error(message) {
@@ -103,34 +152,30 @@
             recording: recording,
         };
     }());
+    
+    
+    // #endregion
+    // *************************************
+    // END PLAYER
+    // *************************************
+    
 
-    function sendHeartbeat() {
-        Messages.sendMessage(HIFI_PLAYER_CHANNEL, JSON.stringify({
-            playing: Player.isPlaying(),
-            recording: Player.recording()
-        }));
-    }
-
-    function onHeartbeatTimer() {
-        sendHeartbeat();
-        heartbeatTimer = Script.setTimeout(onHeartbeatTimer, HEARTBEAT_INTERVAL);
-    }
-
-    function startHeartbeat() {
-        onHeartbeatTimer();
-    }
-
-    function stopHeartbeat() {
-        if (heartbeatTimer) {
-            Script.clearTimeout(heartbeatTimer);
-            heartbeatTimer = null;
-        }
-    }
-
+    // *************************************
+    // START MESSAGES
+    // *************************************
+    // #region MESSAGES
+    
+    
     function onMessageReceived(channel, message, sender) {
-        message = JSON.parse(message);
+        try {
+            message = JSON.parse(message);
+        } catch (e) {
+            console.log("Can not parse message object")
+            console.log(e)
+        }
+        
         if (channel === ASSIGNMENT_MANAGER_CHANNEL) {
-            switch (messages.action){
+            switch (message.action){
                 case "GET_HEARTBEAT":
                     sendHeartbeat();
                     break;
@@ -148,7 +193,7 @@
         }
 
         if (channel === HIFI_PLAYER_CHANNEL){
-                switch (message.action) {
+            switch (message.action) {
                 case "REGISTERATION ACCEPTED":
                     registerd = true;
                     break;
@@ -160,15 +205,28 @@
                     }
                     sendHeartbeat();
                     break;
-                case PLAYER_COMMAND_STOP:
+                case PLAYER_ACTION_STOP:
                     Player.stop();
                     sendHeartbeat();
                     break;
-                }
             }
+        }
     }
+        
+    
+    // #endregion
+    // *************************************
+    // END MESSAGES
+    // *************************************
 
-    function setUp() {
+
+    // *************************************
+    // START MAIN
+    // *************************************
+    // #region MAIN
+    
+    
+    function startUp() {
         scriptUUID = Agent.sessionUUID;
 
         Messages.messageReceived.connect(onMessageReceived);
@@ -178,8 +236,26 @@
         startHeartbeat();
 
         UserActivityLogger.logAction("playRecordingAC_script_load");
+
+        Script.scriptEnding.connect(tearDown);
+
     }
 
+    startUp();
+    
+    
+    // #endregion
+    // *************************************
+    // END MAIN
+    // *************************************
+    
+
+    // *************************************
+    // START CLEANUP
+    // *************************************
+    // #region CLEANUP
+    
+    
     function tearDown() {
         stopHeartbeat();
         Player.stop();
@@ -187,8 +263,11 @@
         Messages.messageReceived.disconnect(onMessageReceived);
         Messages.unsubscribe(HIFI_PLAYER_CHANNEL);
     }
-
-    setUp();
-    Script.scriptEnding.connect(tearDown);
+    
+    
+    // #endregion
+    // *************************************
+    // END CLEANUP
+    // *************************************
 
 }());

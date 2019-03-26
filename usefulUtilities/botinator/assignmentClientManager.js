@@ -1,8 +1,41 @@
 // Assignment client Manager
+
 (function () {
 
-    // Bots to use
-    Script.require("./botstoLoad.js");
+    // *************************************
+    // START UTILITY FUNCTIONS
+    // *************************************
+    // #region UTILITY FUNCTIO   
+    
+    
+    // Use a ring to cycle through the list for as many unique recordings as are available
+    function findValue(index) {
+        return array[(index - 1) % array.length];
+    }
+    
+    // Get a random location based on the user's desired min and max range.   
+    function getRandomLocation(locationObject) {
+        return { 
+            x: randFloat(locationObject.min_x, locationObject.max_x), 
+            y: randFloat(locationObject.min_y, locationObject.max_y), 
+            z: randFloat(locationObject.min_z, locationObject.max_z) 
+        };
+    }
+
+
+    // #endregion
+    // *************************************
+    // END UTILITY FUNCTIONS
+    // *************************************
+
+    // *************************************
+    // START CONSTS_AND_VARS
+    // *************************************
+    // #region CONSTS_AND_VARS
+
+
+    // List of possible bots to use    
+    var BOTS = Script.require("./botstoLoad.js");
 
     // The Assignment Client channel
     var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
@@ -13,12 +46,33 @@
     // Map of the loadedClips and which player is playing them.
     var loadedClipsAndPlayers = {};
 
-    // Array of Clips that haven't been assigned yet.  Keep running timer checks until this is to 0. 
-    var notAssignedClips = [];
+    // Range to pull the random location from
+    // #FEATURE Maybe make sure that the locations are unique in case it messed up any needed testing if they are too close together.
+    var locationRange = { 
+        min_x: 0, max_x: 0, 
+        y: 0, 
+        min_z: 0, max_z: 0
+    };    
 
-    // Total amount to stop grabbing from the spreadsheet.
-    var TOTAL_TO_GRAB = 100;
-    
+    // Total number of bots needed
+    var totalNumberOfBots = 0;
+
+    // Check timer reference
+    var checkTimer;
+    var CHECK_TIMER_INTERVAL = 2500;
+
+
+    // #endregion
+    // *************************************
+    // END CONSTS_AND_VARS
+    // *************************************
+
+    // *************************************
+    // START ASSIGNMENT_CLIENT_PLAYER
+    // *************************************
+    // #region ASSIGNMENT_CLIENT_PLAYER
+
+
     // Individual AssignmentClientPlayerObject
     function AssignmentClientPlayerObject(uuid, channel, fileToPlay, position) {
         this.uuid = uuid;
@@ -31,42 +85,61 @@
         }));
     }
 
-    // Check timer reference
-    var checkTimer;
-    var CHECK_TIMER_INTERVAL = 2500;
 
-    AssignmentClientPlayerObject.prototype = {
-        setPosition: function (x, y, z) {
-            this.position.x = x;
-            this.position.y = y;
-            this.position.z = z;
-        },
-        // I don't think I need this #TODO
-        // getStatus: function () {
-        //     getHeartBeat();
-        // },
-        subscribeToChannel: function (channel) {
-            this.subscribedChannel = channel;
-        },
-        updateStatus: function (statusObject) {
-            this.loadedClip = statusObject.loadedClip;
-            this.isPlaying = statusObject.isPlaying;
-        },
-        playClip: function(){
-            Messages.sendMessage(this.subscribedChannel, JSON.stringify({
-                action: "play",
-                file: this.fileToPlay
-            }));
-        }
+    // Sets the position to play this bot at
+    function setPosition (position) {
+        this.position.x = position;
     }
 
-    // // I don't think I need this #TODO
-    // function getHeartBeat(channel) {
-    //     Messages.sendMessage(channel, JSON.stringify({
-    //         action: "GET_HEARTBEAT"
-    //     }));
-    // }
 
+    // Subscribe this player to a channel
+    function subscribeToChannel (channel) {
+        this.subscribedChannel = channel;
+    }
+
+
+    // Update the status of this player
+    function updateStatus(statusObject) {
+        this.loadedClip = statusObject.loadedClip;
+        this.isPlaying = statusObject.isPlaying;
+    }
+
+
+    // Play the current clip
+    function playClip(){
+        Messages.sendMessage(this.subscribedChannel, JSON.stringify({
+            action: "play",
+            file: this.fileToPlay
+        }));
+    }
+
+
+    // I don't think I need this #TODO
+    // getStatus: function () {
+    //     getHeartBeat();
+    // },
+
+
+    AssignmentClientPlayerObject.prototype = {
+        setPosition: setPosition,
+        subscribeToChannel: subscribeToChannel,
+        updateStatus: updateStatus, 
+        playClip: playClip 
+    }
+
+
+    // #endregion
+    // *************************************
+    // END ASSIGNMENT_CLIENT_PLAYER
+    // *************************************
+    
+    // *************************************
+    // START MESSAGES
+    // *************************************
+    // #region MESSAGES
+
+
+    // Handle Messages received
     function onMessageReceived(channel, message, sender) {
         try {
             message = JSON.parse(message);
@@ -88,18 +161,27 @@
                 break;
             default:
                 break;
-    }
+        }
 
         let splitIndex = channel.indexOf(":");
         let newChannel;
         if ( splitIndex > -1 ) {
             newChannel = channel.split(splitIndex + 1);
             console.log("messag", JSON.stringify(message));
-            // switch (message.command) {
-
-            // }
         }
     }
+
+
+    // #endregion
+    // *************************************
+    // END MESSAGES
+    // *************************************
+
+    // *************************************
+    // START TIMERS
+    // *************************************
+    // #region TIMERS
+    
 
     function onCheckTimer(){
         if (notAssignedClips.length !== 0) {
@@ -110,18 +192,57 @@
             Script.clearInterval(checkTimer);
             checkTimer = null;
         }
-        
-    }
+    }    
+    
+    // #endregion
+    // *************************************
+    // END TIMERS
+    // *************************************
 
-    Messages.messageReceived.connect(onMessageReceived);
-    Messages.subscribe(HIFI_PLAYER_CHANNEL);
-    Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
+    // *************************************
+    // START MAIN
+    // *************************************
+    // #region MAIN
+    
+    
+    function startUp(){
 
+        Script.scriptEnding.connect(onEnding);    
+    }    
+    
+    startUp();
+    
+
+    // #endregion
+    // *************************************
+    // END MAIN
+    // *************************************
+
+    // *************************************
+    // START CLEANUP
+    // *************************************
+    // #region CLEANUP
+
+    
     function onEnding(){
         if (checkTimer){
             Script.clearInterval(checkTimer);
         }
     }
 
-    Script.scriptEnding.connect(onEnding);
+
+    // #endregion
+    // *************************************
+    // END CLEANUP
+    // *************************************
+
 });
+
+
+
+    // // I don't think I need this #TODO
+    // function getHeartBeat(channel) {
+    //     Messages.sendMessage(channel, JSON.stringify({
+    //         action: "GET_HEARTBEAT"
+    //     }));
+   // }
