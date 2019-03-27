@@ -2,8 +2,8 @@
 //
 //  Created by Rebecca Stankus on 06/11/18
 //  Modified by Mark Brosche on 10/16/18
-//  Updated 3/13/19 by Mark Brosche
-//  Copyright 2018 High Fidelity, Inc.
+//  Updated 3/26/19 by Mark Brosche
+//  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -20,14 +20,14 @@
         GOOGLE_URL = SECRETS.GOOGLE_URL,
         TABLET_BUTTON_IMAGE = Script.resolvePath('../entities/icons/questionMark-i.png'),
         TABLET_BUTTON_PRESSED = Script.resolvePath('../entities/icons/questionMark-a.png'),
-        SEARCH_RADIUS = 1000,
+        SEARCH_RADIUS_M = 1000,
         ONE_SECOND_MS = 1000;
     var FIVE_SECONDS_MS = 5 * ONE_SECOND_MS,
         TEN_SECONDS_MS = 10 * ONE_SECOND_MS,
         ZONE_COLOR_INDEX = 19,
         HALF_MULTIPLIER = 0.5,
         FIRST_WAIT_TO_COUNT_AVATARS_MS = ONE_SECOND_MS,
-        WAIT_TO_SHOW_QUESTION = 0.5 * ONE_SECOND_MS,
+        WAIT_TO_SHOW_QUESTION_MS = 0.5 * ONE_SECOND_MS,
         MIN_PLAYERS = 3,
         HFC_INCREMENT = 100,
         HFC_HALVER = 0.5,
@@ -237,7 +237,7 @@
     }
     
     function findTargets() {
-        Entities.findEntities(MyAvatar.position, SEARCH_RADIUS).forEach(function(element) {
+        Entities.findEntities(MyAvatar.position, SEARCH_RADIUS_M).forEach(function(element) {
             var name = Entities.getEntityProperties(element, ['name']).name;
             if (name.indexOf("Trivia") !== -1) {
                 var serverScriptURL = Entities.getEntityProperties(element, ['serverScripts']).serverScripts;
@@ -422,7 +422,7 @@
             }
             Entities.callEntityServerMethod(questionText, "textUpdate", [formattedQuestion, true]);
             Entities.callEntityServerMethod(answerText, "textUpdate", ["", false]);
-        }, WAIT_TO_SHOW_QUESTION);
+        }, WAIT_TO_SHOW_QUESTION_MS);
     }
 
     function showAnswers() {
@@ -689,16 +689,16 @@
         var correctZoneColorID = null;
         switch (correctColor){
             case "Red":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0];
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS_M)[0];
                 break;
             case "Green":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0];
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS_M)[0];
                 break;
             case "Yellow":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0];
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS_M)[0];
                 break;
             case "Blue":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0];
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS_M)[0];
                 break;
         }
         var correctColorZoneProperties = Entities.getEntityProperties(
