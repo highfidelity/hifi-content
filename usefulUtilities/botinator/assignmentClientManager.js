@@ -7,7 +7,7 @@
     // *************************************
     // #region UTILITY FUNCTIO   
     
-    console.log("\n\n\nC-v11\n\n\n")
+    console.log("\n\n\nC-v11\n\n\n");
     // Use a ring to cycle through the list for as many unique recordings as are available
     function findValue(index, array, offset) {
         offset = offset || 0;
@@ -48,17 +48,17 @@
     }
 
     // Make a unique copy of a data object
-    function copy(data){
-        return JSON.parse(JSON.stringify(data));
-    }
+    // function copy(data){
+    //     return JSON.parse(JSON.stringify(data));
+    // }
 
-    function getPreviousData(){
-        return {
-            totalNumberOfBots: totalNumberOfBots, 
-            contentBoundaryCorners: copy(contentBoundaryCorners),
+    // function getPreviousData(){
+    //     return {
+    //         totalNumberOfBots: totalNumberOfBots, 
+    //         contentBoundaryCorners: copy(contentBoundaryCorners),
 
-        }
-    }
+    //     }
+    // }
 
 
     // Stop all the bots currently playing
@@ -66,8 +66,14 @@
         availableAssignmentClientPlayers.forEach(function(ac){
             ac.stop();
         });
+        botCount = 0;
     }
 
+    function updateAllBotsPosition(){
+        availableAssignmentClientPlayers.forEach(function(ac){
+            ac.position = getRandomLocation(contentBoundaryCorners);
+        });
+    }
 
     // #endregion
     // *************************************
@@ -82,7 +88,7 @@
 
     // List of possible bots to use    
     var BOTS = Script.require("./botsToLoad.js");
-    console.log("bots:", JSON.stringify(BOTS))
+    console.log("bots:", JSON.stringify(BOTS));
     // The Assignment Client channel
     var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
     var ASSIGNMENT_CLIENT_MESSANGER_CHANNEL = "ASSIGNMENT_CLIENT_MESSANGER_CHANNEL";
@@ -105,10 +111,10 @@
     // Range to pull the random location from    
     var contentBoundaryCorners = [[0,0,0], [0,0,0]];
 
-    var previousSettings = {
-        botCount: botCount,
-        contentBoundaryCorners: copy(contentBoundaryCorners)
-    };
+    // var previousSettings = {
+    //     botCount: botCount,
+    //     contentBoundaryCorners: copy(contentBoundaryCorners)
+    // };
 
     // Check for if currently running
     var currentlyRunningBots = false;
@@ -134,7 +140,6 @@
     // STOP AVATARS
     // PLAY AVATARS
 
-    
     
     // #endregion
     // *************************************
@@ -171,7 +176,7 @@
 
 
     // Play the current clip
-    function playClip(){
+    function play(){
         Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
             action: "PLAY",
             fileToPlay: this.fileToPlay,
@@ -181,10 +186,19 @@
     }
 
 
+    // Play the current clip
+    function stop(){
+        Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
+            action: "STOP",
+            uuid: this.uuid
+        }));
+    }
+
     AssignmentClientPlayerObject.prototype = {
         setPosition: setPosition,
         updateStatus: updateStatus, 
-        playClip: playClip 
+        play: play,
+        stop: stop
     };
 
 
@@ -221,12 +235,12 @@
         switch (message.action) {
             case "REGISTER_ME":
                 var fileName = findValue(botCount, BOTS);
-                console.log("fileName", fileName)
+                // console.log("fileName", fileName)
                 var position = getRandomLocation(contentBoundaryCorners);
-                console.log("position", position)
+                // console.log("position", position)
                 availableAssignmentClientPlayers.push( 
                     new AssignmentClientPlayerObject(message.uuid, fileName, position));
-                console.log(JSON.stringify(availableAssignmentClientPlayers));
+                // console.log(JSON.stringify(availableAssignmentClientPlayers));
                 break;
             case "ARE_YOU_THERE_MANAGER":
                 Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
@@ -234,7 +248,7 @@
                 }));
                 break;
             default:
-                console.log("unrecongized action in assignmentClientManger.js")
+                console.log("unrecongized action in assignmentClientManger.js");
                 break;
         }
     }
@@ -256,8 +270,9 @@
 
         switch (message.action) {
             case "REFRESH_SETTINGS":
+                console.log("in refresh settings");
                 if (currentlyRunningBots) {
-                    stopAllBots()
+                    stopAllBots();
                     currentlyRunningBots = false;
                 }   
 
@@ -265,21 +280,18 @@
                     JSON.stringify(message.contentBoundaryCorners)) {
                     contentBoundaryCorners = message.contentBoundaryCorners;
                     fixupContentBoundaryCorners();
-                    availableAssignmentClientPlayers.forEach(function(ac){
-                        ac.position = getRandomLocation(contentBoundaryCorners);
-                    });
                     // All the players need the new boundries
-                    updateCurrentPositions();
+                    updateAllBotsPosition();
                 }
 
-                if (totalNumberOfBotsNeeded !== message.totalNumberOfBots) {
-                    totalNumberOfBotsNeeded = message.totalNumberOfBots;
-                    
+                if (totalNumberOfBotsNeeded !== message.totalNumberOfBotsNeeded) {
+                    totalNumberOfBotsNeeded = message.totalNumberOfBotsNeeded;
                 }
-
 
                 break;
             case "PLAY":
+                console.log("in play")
+
                 if (currentlyRunningBots) {
                     return;
                 }
@@ -287,6 +299,7 @@
                 startSequence();
                 break;
             case "STOP":
+                console.log("in stop")
                 if (currentlyRunningBots) {
                     stopAllBots();
                 }
@@ -334,9 +347,9 @@
     // Start playing sequence to fill players with bots
     var AC_AVAILABILITY_CHECK_MS = 1000;
     function startSequence(){
-        console.log("in start sequence")
-        console.log("botCount", botCount)
-        console.log("totalNumberOfBots", totalNumberOfBotsNeeded)
+        console.log("in start sequence");
+        console.log("botCount", botCount);
+        console.log("totalNumberOfBots", totalNumberOfBotsNeeded);
 
         // Check to see how many bots are needed
         if (botCount >= totalNumberOfBotsNeeded) {
@@ -345,7 +358,7 @@
 
         if (botCount < availableAssignmentClientPlayers.length) {
             var player = availableAssignmentClientPlayers[botCount];
-            player.playClip();
+            player.play();
             botCount++;
 
             if (botCount >= totalNumberOfBotsNeeded) {
