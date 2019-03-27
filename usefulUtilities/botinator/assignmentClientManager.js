@@ -7,12 +7,17 @@
     // *************************************
     // #region UTILITY FUNCTIO   
     
-    
+    console.log("\n\n\nC-v11\n\n\n")
     // Use a ring to cycle through the list for as many unique recordings as are available
-    function findValue(index) {
-        return array[(index - 1) % array.length];
+    function findValue(index, array, offset) {
+        offset = offset || 0;
+        return array[(index + offset) % array.length];
     }
     
+    function randFloat(low, high) {
+        return low + Math.random() * (high - low);
+    }
+
     // Get a random location based on the user's desired min and max range.   
     function getRandomLocation(locationObject) {
         return { 
@@ -35,31 +40,31 @@
 
 
     // List of possible bots to use    
-    var BOTS = Script.require("./botstoLoad.js");
-
+    var BOTS = Script.require("./botsToLoad.js");
+    console.log("bots:", JSON.stringify(BOTS))
     // The Assignment Client channel
     var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
 
-    // I need a map of the Assignment Client Players and their assignment client player object
-    var assignmentClientPlayers = {};
-
-    // Map of the loadedClips and which player is playing them.
-    var loadedClipsAndPlayers = {};
+    // Array of the assignment client players and their assignment client player object
+    var availableAssignmentClientPlayers = [];
 
     // Range to pull the random location from
     // #FEATURE Maybe make sure that the locations are unique in case it messed up any needed testing if they are too close together.
     var locationRange = { 
-        min_x: 0, max_x: 0, 
-        y: 0, 
-        min_z: 0, max_z: 0
-    };    
+        min_x: -3, max_x: 3, 
+        min_y: 1, max_y: 2,
+        min_z: -2, max_z: 2
+    };
 
     // Total number of bots needed
-    var totalNumberOfBots = 0;
+    var totalNumberOfBots = 30;
 
     // Check timer reference
-    var checkTimer;
-    var CHECK_TIMER_INTERVAL = 2500;
+    // var checkTimer;
+    // var CHECK_TIMER_INTERVAL = 2500;
+
+    // Current assignment count we are at
+    var botCount = 0;
 
 
     // #endregion
@@ -74,27 +79,17 @@
 
 
     // Individual AssignmentClientPlayerObject
-    function AssignmentClientPlayerObject(uuid, channel, fileToPlay, position) {
+    function AssignmentClientPlayerObject(uuid, fileToPlay, position) {
         this.uuid = uuid;
         this.fileToPlay = fileToPlay;
         this.isPlaying = "";
-        this.subscribedChannel = channel;
         this.position = position;
-        Messages.sendMessage(this.subscribedChannel, JSON.stringify({
-            action: "REGISTERATION ACCEPTED"
-        }));
     }
 
 
     // Sets the position to play this bot at
     function setPosition (position) {
-        this.position.x = position;
-    }
-
-
-    // Subscribe this player to a channel
-    function subscribeToChannel (channel) {
-        this.subscribedChannel = channel;
+        this.position = position;
     }
 
 
@@ -107,25 +102,20 @@
 
     // Play the current clip
     function playClip(){
-        Messages.sendMessage(this.subscribedChannel, JSON.stringify({
-            action: "play",
-            file: this.fileToPlay
+        Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
+            action: "PLAY",
+            fileToPlay: this.fileToPlay,
+            position: this.position,
+            uuid: this.uuid
         }));
     }
 
 
-    // I don't think I need this #TODO
-    // getStatus: function () {
-    //     getHeartBeat();
-    // },
-
-
     AssignmentClientPlayerObject.prototype = {
         setPosition: setPosition,
-        subscribeToChannel: subscribeToChannel,
         updateStatus: updateStatus, 
         playClip: playClip 
-    }
+    };
 
 
     // #endregion
@@ -139,36 +129,47 @@
     // #region MESSAGES
 
 
+    Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
+    // #TODO subscribe to tablet
+
     // Handle Messages received
-    function onMessageReceived(channel, message, sender) {
+    function onMangerChannelMessageReceived(channel, message, sender) {
         try {
             message = JSON.parse(message);
-        } catch(error) {
-            console.log("invalid object")
+        } catch (error) {
+            console.log("invalid object");
             return;
         }
-        if (channel !== ASSIGNMENT_MANAGER_CHANNEL) {
+
+        if (channel !== ASSIGNMENT_MANAGER_CHANNEL || sender === Agent.sessionUUID) {
             return;
         }
+
+        console.log("MESSAGE IN MANAGER", JSON.stringify(message));
 
         switch (message.action) {
             case "REGISTER_ME":
-                var fileName = notAssignedClips.splice(0,1);
-                var tableIndex = getTableIndex(fileName)
-                var row = TABLE[tableIndex];
-                var position = makePosition(row.positionX, row.positionY,row.positionZ)
-                assignmentClientPlayers[message.uuid] = new AssignmentClientPlayerObject(message.uuid, "HIFI_PLAYER_CHANNEL:" + message.uuid, fileName, position);
+                var fileName = findValue(botCount, BOTS, 35);
+                console.log("fileName", fileName)
+                var position = getRandomLocation(locationRange);
+                console.log("position", position)
+                availableAssignmentClientPlayers.push( 
+                    new AssignmentClientPlayerObject(message.uuid, fileName, position));
+                console.log(JSON.stringify(availableAssignmentClientPlayers));
+                break;
+            case "ARE_YOU_THERE_MANAGER":
+                Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
+                    action: "REGISTER_MANAGER"
+                }));
                 break;
             default:
+                console.log("unrecongized action in assignmentClientManger.js")
                 break;
         }
+    }
 
-        let splitIndex = channel.indexOf(":");
-        let newChannel;
-        if ( splitIndex > -1 ) {
-            newChannel = channel.split(splitIndex + 1);
-            console.log("messag", JSON.stringify(message));
-        }
+    function onTabletChannelMessageReceived(){
+
     }
 
 
@@ -183,16 +184,16 @@
     // #region TIMERS
     
 
-    function onCheckTimer(){
-        if (notAssignedClips.length !== 0) {
-            Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
-                action: "GET_UUID"
-            }));
-        } else {
-            Script.clearInterval(checkTimer);
-            checkTimer = null;
-        }
-    }    
+    // function onCheckTimer(){
+    //     if (notAssignedClips.length !== 0) {
+    //         Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
+    //             action: "GET_UUID"
+    //         }));
+    //     } else {
+    //         Script.clearInterval(checkTimer);
+    //         checkTimer = null;
+    //     }
+    // }    
     
     // #endregion
     // *************************************
@@ -205,9 +206,44 @@
     // #region MAIN
     
     
-    function startUp(){
+    // Start playing sequence to fill players with bots
+    var AC_AVAILABILITY_CHECK_MS = 1000;
+    function startSequence(){
+        console.log("in start sequence")
+        console.log("botCount", botCount)
+        console.log("totalNumberOfBots", totalNumberOfBots)
 
-        Script.scriptEnding.connect(onEnding);    
+        // Check to see how many bots are needed
+        if (botCount >= totalNumberOfBots) {
+            return;
+        }
+
+        if (botCount < availableAssignmentClientPlayers.length) {
+            var player = availableAssignmentClientPlayers[botCount];
+            player.playClip();
+            botCount++;
+
+            if (botCount >= totalNumberOfBots) {
+                return;
+            }
+        }
+
+        Script.setTimeout(function(){
+            startSequence();
+        }, AC_AVAILABILITY_CHECK_MS);
+    }
+
+    function startUp(){
+        Messages.messageReceived.connect(onMangerChannelMessageReceived);
+        Script.scriptEnding.connect(onEnding);
+
+        // For Testing
+        startSequence();
+
+        Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
+            action: "REGISTER_MANAGER"
+        }));
+        
     }    
     
     startUp();
@@ -225,9 +261,9 @@
 
     
     function onEnding(){
-        if (checkTimer){
-            Script.clearInterval(checkTimer);
-        }
+        // if (checkTimer){
+        //     Script.clearInterval(checkTimer);
+        // }
     }
 
 
@@ -236,13 +272,4 @@
     // END CLEANUP
     // *************************************
 
-});
-
-
-
-    // // I don't think I need this #TODO
-    // function getHeartBeat(channel) {
-    //     Messages.sendMessage(channel, JSON.stringify({
-    //         action: "GET_HEARTBEAT"
-    //     }));
-   // }
+})();

@@ -11,30 +11,6 @@
     function log(message) {
         print(APP_NAME + " " + scriptUUID + ": " + message);
     }
-
-    function sendHeartbeat() {
-        Messages.sendMessage(HIFI_PLAYER_CHANNEL, JSON.stringify({
-            playing: Player.isPlaying(),
-            recording: Player.recording()
-        }));
-    }
-
-    function onHeartbeatTimer() {
-        sendHeartbeat();
-        heartbeatTimer = Script.setTimeout(onHeartbeatTimer, HEARTBEAT_INTERVAL);
-    }
-
-    function startHeartbeat() {
-        onHeartbeatTimer();
-    }
-
-    function stopHeartbeat() {
-        if (heartbeatTimer) {
-            Script.clearTimeout(heartbeatTimer);
-            heartbeatTimer = null;
-        }
-    }
-    
     
     // #endregion
     // *************************************
@@ -49,15 +25,11 @@
     
     var APP_NAME = "PLAYBACK";
     var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
-    var RECORDER_COMMAND_ERROR = "error";
-    var HIFI_PLAYER_CHANNEL = "HIFI_PLAYER_CHANNEL:" + Agent.sessionUUID;
-    var PLAYER_ACTION_PLAY = "play";
-    var PLAYER_ACTION_STOP = "stop";
-    var heartbeatTimer = null;
-    var HEARTBEAT_INTERVAL = 3000;
     var scriptUUID;
-    var registerd = false;
-    var Player;    
+
+    var player; 
+
+    var manager;
 
    
     // #endregion
@@ -71,145 +43,126 @@
     // #region PLAYER
     
     
-    Player = (function () {
-        // Recording playback functions.
-        var userID = null,
-            isPlayingRecording = false,
-            recordingFilename = "",
-            playRecording;
+    // Player for the hfr recordings
+    function Player() {
+        this.isPlayingRecording = false;
+        this.recordingFilename = "";
+        this.playRecording;
+    }
 
-        function error(message) {
-            // Send error message to user.
-            Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
-                command: RECORDER_COMMAND_ERROR,
-                user: userID,
-                message: message
-            }));
-        }
 
-        function play(recording, position, orientation) {
-            var errorMessage;
+    function play(fileToPlay, position, orientation) {
+        console.log("play playing " + JSON.stringify(fileToPlay));
 
-            playRecording = function (recording, position, orientation, isManual) {
-                orientation = orientation || Quat.IDENTITY;
-                
-                Recording.loadRecording(recording, function (success) {
-                    var errorMessage;
+        orientation = orientation || Quat.IDENTITY;
+        
+        Recording.loadRecording(fileToPlay, function (success) {
+            console.log("IN LOAD RECORDING");
+            if (success) {
+                console.log("IN LOAD RECORDING sUCCESS ");
 
-                    if (success) {
-                        Users.disableIgnoreRadius();
+                Users.disableIgnoreRadius();
 
-                        Agent.isAvatar = true;
-                        Avatar.position = position;
-                        Avatar.orientation = orientation;
+                Agent.isAvatar = true;
+                Avatar.position = position;
+                Avatar.orientation = orientation;
 
-                        Recording.setPlayFromCurrentLocation(true);
-                        Recording.setPlayerUseDisplayName(true);
-                        Recording.setPlayerUseHeadModel(false);
-                        Recording.setPlayerUseAttachments(true);
-                        Recording.setPlayerLoop(true);
-                        Recording.setPlayerUseSkeletonModel(true);
+                Recording.setPlayFromCurrentLocation(true);
+                Recording.setPlayerUseDisplayName(true);
+                Recording.setPlayerUseHeadModel(false);
+                Recording.setPlayerUseAttachments(true);
+                Recording.setPlayerLoop(true);
+                Recording.setPlayerUseSkeletonModel(true);
 
-                        Recording.setPlayerTime(0.0);
-                        Recording.startPlaying();
+                Recording.setPlayerTime(0.0);
+                Recording.startPlaying();
 
-                        UserActivityLogger.logAction("playRecordingAC_play_recording");
-                    } else {
-                        errorMessage = "Could not load recording " + recording.slice(4);  // Remove leading "atp:".
-                        log(errorMessage);
-                        error(errorMessage);
+            } else {
+                var errorMessage = "Could not load recording " + fileToPlay;
+                log(errorMessage);
 
-                        isPlayingRecording = false;
-                        recordingFilename = "";
-
-                    }
-                });
-            };
-        }
-
-        function stop() {
-            log("Stop playing " + recordingFilename);
-            if (Recording.isPlaying()) {
-                Recording.stopPlaying();
-                Agent.isAvatar = false;
+                this.isPlayingRecording = false;
+                this.recordingFilename = "";
             }
-            isPlayingRecording = false;
-            recordingFilename = "";
-        }
+        });
+    }
 
-        function isPlaying() {
-            return isPlayingRecording;
-        }
 
-        function recording() {
-            return recordingFilename;
-        }
+    function stop() {
+        console.log("Stop playing " + this.recordingFilename);
 
-        return {
-            play: play,
-            stop: stop,
-            isPlaying: isPlaying,
-            recording: recording,
-        };
-    }());
-    
+        if (Recording.isPlaying()) {
+            Recording.stopPlaying();
+            Agent.isAvatar = false;
+        }
+        this.isPlayingRecording = false;
+        this.recordingFilename = "";
+    }
+
+
+    function isPlaying() {
+        console.log("isPlaying");
+        return this.isPlayingRecording;
+    }
+
+
+    Player.prototype = {
+        play: play,
+        stop: stop,
+        isPlaying: isPlaying
+    };
+
     
     // #endregion
     // *************************************
     // END PLAYER
     // *************************************
-    
 
     // *************************************
     // START MESSAGES
     // *************************************
     // #region MESSAGES
     
-    
+    var PLAYER_MESSAGES = ["REGISTER_ME", "ARE_YOU_THERE_MANAGER"];
     function onMessageReceived(channel, message, sender) {
         try {
             message = JSON.parse(message);
         } catch (e) {
-            console.log("Can not parse message object")
-            console.log(e)
+            console.log("Can not parse message object");
+            console.log(e);
         }
         
-        if (channel === ASSIGNMENT_MANAGER_CHANNEL) {
-            switch (message.action){
-                case "GET_HEARTBEAT":
-                    sendHeartbeat();
-                    break;
-                case "GET_UUID":
-                    if (registerd === false) {
-                        Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
-                            action: "REGISTERME",
-                            uuid: scriptUUID
-                        }));
-                    }
-                    break;
-                default:
-                    break;
-            }
+        if (channel !== ASSIGNMENT_MANAGER_CHANNEL || sender === scriptUUID || PLAYER_MESSAGES.indexOf(message.action) > -1) {
+            return;
         }
 
-        if (channel === HIFI_PLAYER_CHANNEL){
-            switch (message.action) {
-                case "REGISTERATION ACCEPTED":
-                    registerd = true;
-                    break;
-                case PLAYER_ACTION_PLAY:
-                    if (!Player.isPlaying()) {
-                        Player.play(sender, message.recording, message.position, message.orientation);
-                    } else {
-                        log("Didn't start playing " + message.recording + " because already playing " + Player.recording());
-                    }
-                    sendHeartbeat();
-                    break;
-                case PLAYER_ACTION_STOP:
-                    Player.stop();
-                    sendHeartbeat();
-                    break;
-            }
+        console.log("sender:" + sender);
+        console.log("MESSAGE IN PLAYER:" + scriptUUID, JSON.stringify(message));
+
+        switch (message.action){
+            case "PLAY":
+                if (message.uuid !== scriptUUID) {
+                    return;
+                }
+                
+                if (!player.isPlaying()) {
+                    player.play(message.fileToPlay, message.position, message.orientation);
+                } else {
+                    log("Didn't start playing " + message.fileToPlay + " because already playing " + player.recording());
+                }
+                break;
+            case "STOP":
+                player.stop();
+                break;
+            case "REGISTER_MANAGER": 
+                manager = true;
+                break;
+            case "UPDATE_LOCATION":
+                // #TODO
+                break; 
+            default:
+                console.log("unrecongized action in assignmentClientPlayer.js");
+                break;
         }
     }
         
@@ -219,28 +172,47 @@
     // END MESSAGES
     // *************************************
 
-
     // *************************************
     // START MAIN
     // *************************************
     // #region MAIN
     
     
-    function startUp() {
-        scriptUUID = Agent.sessionUUID;
+    var MANAGER_CHECK_RETRY_MS = 2000;
+    function searchForManager(){
+        if (manager) {
+            Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
+                action: "REGISTER_ME",
+                uuid: scriptUUID
+            }));
 
-        Messages.messageReceived.connect(onMessageReceived);
-        Messages.subscribe(HIFI_PLAYER_CHANNEL);
-        Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
-    
-        startHeartbeat();
+            return;
+        } else {
+            Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
+                action: "ARE_YOU_THERE_MANAGER"
+            }));
+        }
 
-        UserActivityLogger.logAction("playRecordingAC_script_load");
-
-        Script.scriptEnding.connect(tearDown);
-
+        Script.setTimeout(function(){
+            searchForManager();
+        }, MANAGER_CHECK_RETRY_MS);
     }
 
+    function startUp() {
+        scriptUUID = Agent.sessionUUID;
+        console.log("script UUID", scriptUUID);
+        player = new Player();
+
+        Messages.messageReceived.connect(onMessageReceived);
+        Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
+
+
+        searchForManager();
+
+        Script.scriptEnding.connect(onEnding);
+    }
+
+    // Give a little time for the manager to become available
     startUp();
     
     
@@ -249,19 +221,17 @@
     // END MAIN
     // *************************************
     
-
     // *************************************
     // START CLEANUP
     // *************************************
     // #region CLEANUP
     
     
-    function tearDown() {
-        stopHeartbeat();
-        Player.stop();
+    function onEnding() {
+        player.stop();
 
         Messages.messageReceived.disconnect(onMessageReceived);
-        Messages.unsubscribe(HIFI_PLAYER_CHANNEL);
+        Messages.unsubscribe(ASSIGNMENT_MANAGER_CHANNEL);
     }
     
     
@@ -270,4 +240,4 @@
     // END CLEANUP
     // *************************************
 
-}());
+})();
