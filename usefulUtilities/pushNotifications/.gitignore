@@ -1,1 +1,2 @@
-webApp/secrets/*
+webApp/app/secrets/*
+webApp/app/node_modules

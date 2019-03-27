@@ -1,12 +1,11 @@
 // Setting up local https support
-const fs = require('fs');
-const https = require('https');
-const path = require('path');
-const parseQueryString = require('querystring');
-const webpush = require('web-push');
-const dbInfo = require('./secrets/dbInfo.json');
-const vapidKeysFile = require('./secrets/vapidKeys.json');
-const crypto = require('crypto');
+var fs = require('fs');
+var http = require('http');
+var path = require('path');
+var parseQueryString = require('querystring');
+var webpush = require('web-push');
+var dbInfo = require('./secrets/dbInfo.json');
+var vapidKeysFile = require('./secrets/vapidKeys.json');
 
 const vapidKeys = {
     publicKey: vapidKeysFile.publicKey,
@@ -20,9 +19,8 @@ webpush.setVapidDetails('mailto:admin@highfidelity.co',
 
 
 function saveSubscriptionToDatabase(body, response) {
-    var username = body.username;
-    var query = `INSERT INTO \`subscriptions\` (username, subscription)
-        VALUES (${username}, ${JSON.stringify(body)})`;
+    var query = `REPLACE INTO \`subscriptions\` (username, subscription)
+        VALUES ('${body.username}', '${JSON.stringify(body.subscription)}')`;
 
     connection.query(query, function (error) {
         if (error) {
@@ -48,10 +46,11 @@ function saveSubscriptionToDatabase(body, response) {
 
 
 function handleNewSubscription(body, response) {
-    if (!body || !body.endpoint) {
+    if (!body.subscription || !body.subscription.endpoint) {
         var responseObject = {
             status: "error",
-            text: "Subscription must have an endpoint."
+            text: "Subscription must have an endpoint.",
+            body: body
         };
 
         response.statusCode = 400;
@@ -89,8 +88,8 @@ function deleteSubscriptionFromDatabase(username, response) {
 }
 
 
-function sendNotification(username, subscription, dataToSend, response) {
-    return webpush.sendNotification(subscription, dataToSend)
+function sendNotification(username, subscription, payloadText, response) {
+    return webpush.sendNotification(subscription, payloadText)
         .then(() => {
             var responseObject = {
                 status: "success"
@@ -101,6 +100,7 @@ function sendNotification(username, subscription, dataToSend, response) {
             return response.end(JSON.stringify(responseObject));
         })
         .catch((err) => {
+            console.log(JSON.stringify(err));
             if (err.statusCode === 410) {
                 deleteSubscriptionFromDatabase(username, response)
             } else {
@@ -132,6 +132,7 @@ function getSubscriptionFromDatabase(username, response) {
             return response.end(JSON.stringify(responseObject));
         }
 
+        // We don't want anyone to know that the server doesn't have that username in the DB
         if (results.length === 0) {
             var responseObject = {
                 status: "success"
@@ -151,22 +152,38 @@ function getSubscriptionFromDatabase(username, response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        var dataToSend = {
+        var payloadText = "yoooo";
 
-        };
+        var subscription;
 
-        sendNotification(username, results[0].subscription, dataToSend, response);
+        try {
+            subscription = JSON.parse(results[0].subscription);
+        } catch (error) {
+            var responseObject = {
+                status: "error",
+                text: `Error while parsing subscription from DB! ${error}`
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        sendNotification(username, subscription, payloadText, response);
     });
 }
 
 
 function handlePushRequest(body, response) {
+    console.log(JSON.stringify(body));
     getSubscriptionFromDatabase(body.username, response);
 }
 
 
 // Handles all POST requests made to the server.
 function handlePostRequest(request, response) {
+    console.log(`Post request URL: ${request.url}`);
+
     let body = '';
     request.on('data', chunk => {
         body += chunk.toString();
@@ -189,9 +206,9 @@ function handlePostRequest(request, response) {
             }
         }
 
-        if (request.url === "api/subscription") {
+        if (request.url === "/api/notify/subscription") {
             handleNewSubscription(body, response);
-        } else if (request.url === "api/push") {
+        } else if (request.url === "/api/notify/push") {
             handlePushRequest(body, response);
         } else {
             var responseObject = {
@@ -206,83 +223,12 @@ function handlePostRequest(request, response) {
     })
 }
 
-
-function handleGetRequest(request, response) {
-    var filePath = './www' + request.url;
-
-    if (!filePath.endsWith("/") && path.extname(filePath) === "") {
-        filePath += "/index.html";
-    }
-
-    if (filePath.endsWith("/")) {
-        filePath += "index.html";
-    }
-
-    console.log(`Client requested: ${filePath}`);
-
-    if (!fs.existsSync(filePath)) {
-        response.writeHead(500);
-        response.end(`File does not exist.`);
-        return response.end();
-    }
-
-    var fileExtension = path.extname(filePath);
-    var contentType = 'text/html';
-    switch (fileExtension) {
-        case '.js':
-            contentType = 'text/javascript';
-            break;
-        case '.css':
-            contentType = 'text/css';
-            break;
-        case '.json':
-            contentType = 'application/json';
-            break;
-        case '.png':
-            contentType = 'image/png';
-            break;
-        case '.jpg':
-            contentType = 'image/jpg';
-            break;
-        case '.wav':
-            contentType = 'audio/wav';
-            break;
-    }
-
-    fs.readFile(filePath, function (error, content) {
-        if (error) {
-            if (error.code == 'ENOENT') {
-                response.writeHead(404);
-                response.end(`File not found.\n`);
-                return response.end();
-            } else {
-                response.writeHead(500);
-                response.end(`Error while reading file: ${error.code}\n`);
-                return response.end();
-            }
-        } else {
-            response.writeHead(200, { 'Content-Type': contentType });
-            return response.end(content, 'utf-8');
-        }
-    });
-}
-
-
-const SERVER_OPTIONS = {
-    key: fs.readFileSync('./secrets/server.key'),
-    cert: fs.readFileSync('./secrets/server.crt'),
-    passphrase: require("./secrets/serverOptions.json").certPassphrase,
-    requestCert: false,
-    rejectUnauthorized: false
-};
 function startServer() {
-    const server = https.createServer(SERVER_OPTIONS, (request, response) => {
+    const server = http.createServer((request, response) => {
         response.setHeader('Access-Control-Allow-Origin', '*');
 
         if (request.method === "POST") {
             handlePostRequest(request, response);
-        } else if (request.method === "GET") {
-            handleGetRequest(request, response);
         } else {
             response.writeHead(405, 'Method Not Supported', { 'Content-Type': 'text/html' });
             response.end('<!doctype html><html><head><title>405</title></head><body>405: Method Not Supported</body></html>');
@@ -292,7 +238,7 @@ function startServer() {
     const HOSTNAME = 'localhost';
     const PORT = 3004;
     server.listen(PORT, HOSTNAME, () => {
-        console.log(`Notify App Server running at https://${HOSTNAME}:${PORT}/`);
+        console.log(`Notify App Server running at http://${HOSTNAME}:${PORT}/`);
     });
 }
 
@@ -321,13 +267,16 @@ function connectToDB() {
 function maybeCreateTables() {
     var query = `CREATE TABLE IF NOT EXISTS \`subscriptions\` (
         username VARCHAR(100) PRIMARY KEY,
-        subscription VARCHAR(750)
+        subscription VARCHAR(500)
     )`;
 
     connection.query(query, function (error, results, fields) {
         if (error) {
             throw error;
         }
+        connection.end();
+
+        connectToDB();
     });
 }
 
@@ -342,28 +291,24 @@ function maybeCreateDB() {
     var query = `CREATE DATABASE IF NOT EXISTS ${dbInfo.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
     connection.query(query, function (error) {
         if (error) {
+            connection.end();
             throw error;
         }
+
+        connection = mysql.createConnection({
+            host: dbInfo.mySQLHost,
+            user: dbInfo.mySQLUsername,
+            password: dbInfo.mySQLPassword,
+            database: dbInfo.databaseName
+        });
+    
+        maybeCreateTables();
     });
-
-    connection.end();
-
-    connection = mysql.createConnection({
-        host: dbInfo.mySQLHost,
-        user: dbInfo.mySQLUsername,
-        password: dbInfo.mySQLPassword,
-        database: dbInfo.databaseName
-    });
-
-    maybeCreateTables();
-
-    connection.end();
 }
 
 
 function startup() {
     maybeCreateDB();
-    connectToDB();
 }
 
 

@@ -1,0 +1,19 @@
+{
+  "name": "notify-server",
+  "version": "1.0.0",
+  "description": "An HTTPS server as part of the Notify app for High Fidelity",
+  "main": "notifyServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zach Fox",
+  "license": "ISC",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "http": "0.0.0",
+    "mysql": "^2.16.0",
+    "path": "^0.12.7",
+    "querystring": "^0.2.0",
+    "web-push": "^3.3.3"
+  }
+}
