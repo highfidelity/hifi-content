@@ -249,18 +249,13 @@
             }
 
             var roundPrizes = [];
-            function maybePushRandomPrize(prizeString) {
-                if (roundPrizes.indexOf(prizeString) === -1) {
-                    roundPrizes.push(prizeString);
-                }
-            }
 
             var possiblePrizes = Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).possiblePrizes;
             var possiblePrizesEmailRequired =
                 Script.require(Script.resolvePath('../../config/config.json?' + Date.now())).possiblePrizesEmailRequired;
             possiblePrizes = possiblePrizes.concat(possiblePrizesEmailRequired);
             while (roundPrizes.length < 3) {
-                maybePushRandomPrize(possiblePrizes[Math.floor(Math.random() * possiblePrizes.length)]);
+                roundPrizes.push(possiblePrizes[Math.floor(Math.random() * possiblePrizes.length)]);
             }
 
             Entities.editEntity(BINGO_PRIZE_DOOR_1_TEXT, {text: roundPrizes[0]});
