@@ -305,14 +305,12 @@
                     .addClass('ChatLogLineDisplayName')
                     .text(displayName + ': ')
                     .on('mouseenter', function(event) {
-                        identifyAvatar(avatarID);
                         $logLineDisplayName.css({
                             color: '#00ff00',
                             'text-decoration': 'underline'
                         });
                     })
                     .on('mouseleave', function(event) {
-                        unidentifyAvatar(avatarID);
                         //event.cancelBubble();
                         $logLineDisplayName.css({
                             color: 'white',
@@ -392,24 +390,6 @@
             EventBridge.emitWebEvent(
                 JSON.stringify({
                     type: "ClearChatLog"
-                }));
-        }
-
-        // Identify an avatar.
-        function identifyAvatar(avatarID) {
-            EventBridge.emitWebEvent(
-                JSON.stringify({
-                    type: "IdentifyAvatar",
-                    avatarID: avatarID
-                }));
-        }
-
-        // Stop identifying an avatar.
-        function unidentifyAvatar(avatarID) {
-            EventBridge.emitWebEvent(
-                JSON.stringify({
-                    type: "UnidentifyAvatar",
-                    avatarID: avatarID
                 }));
         }
 
