@@ -47,7 +47,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## Webapp v3.1 | Content 2019-03-27_10-43-00 | [commit e741bf6](https://github.com/highfidelity/hifi-content/commits/e741bf6)
+## Webapp v3.1 | Content 2019-03-27_10-43-00 | [commit a2254f9](https://github.com/highfidelity/hifi-content/commits/a2254f9)
 - Allow multiple Bingo prize doors to contain the same prize
 
 ## v3.1 | 2019-03-18_17-00-00 | [commit 04d3f7a](https://github.com/highfidelity/hifi-content/commits/04d3f7a)
