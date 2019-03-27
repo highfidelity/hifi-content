@@ -21,10 +21,51 @@
     // Get a random location based on the user's desired min and max range.   
     function getRandomLocation(locationObject) {
         return { 
-            x: randFloat(locationObject.min_x, locationObject.max_x), 
-            y: randFloat(locationObject.min_y, locationObject.max_y), 
-            z: randFloat(locationObject.min_z, locationObject.max_z) 
+            x: randFloat(locationObject[0][X], locationObject[1][X]), 
+            y: randFloat(locationObject[0][Y], locationObject[1][Y]), 
+            z: randFloat(locationObject[0][Z], locationObject[1][Z]) 
         };
+    }
+
+    // The following borrowed from Zach's push preventer script
+
+    // A utility function used to ensure that all of the values in "box corner 1" are less than
+    // those in "box corner 2"
+    function maybeSwapCorners(dimension) {
+        var temp;
+        if (contentBoundaryCorners[0][dimension] > contentBoundaryCorners[1][dimension]) {
+            temp = contentBoundaryCorners[0][dimension];
+            contentBoundaryCorners[0][dimension] = contentBoundaryCorners[1][dimension];
+            contentBoundaryCorners[1][dimension] = temp;
+        }
+    }
+
+    // Ensures that all of the values in "box corner 1" are less than those in "box corner 2".
+    function fixupContentBoundaryCorners() {
+        maybeSwapCorners(X);
+        maybeSwapCorners(Y);
+        maybeSwapCorners(Z);
+    }
+
+    // Make a unique copy of a data object
+    function copy(data){
+        return JSON.parse(JSON.stringify(data));
+    }
+
+    function getPreviousData(){
+        return {
+            totalNumberOfBots: totalNumberOfBots, 
+            contentBoundaryCorners: copy(contentBoundaryCorners),
+
+        }
+    }
+
+
+    // Stop all the bots currently playing
+    function stopAllBots(){
+        availableAssignmentClientPlayers.forEach(function(ac){
+            ac.stop();
+        });
     }
 
 
@@ -44,20 +85,15 @@
     console.log("bots:", JSON.stringify(BOTS))
     // The Assignment Client channel
     var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
-
+    var ASSIGNMENT_CLIENT_MESSANGER_CHANNEL = "ASSIGNMENT_CLIENT_MESSANGER_CHANNEL";
     // Array of the assignment client players and their assignment client player object
     var availableAssignmentClientPlayers = [];
-
-    // Range to pull the random location from
-    // #FEATURE Maybe make sure that the locations are unique in case it messed up any needed testing if they are too close together.
-    var locationRange = { 
-        min_x: -3, max_x: 3, 
-        min_y: 1, max_y: 2,
-        min_z: -2, max_z: 2
-    };
+    var X = 0;
+    var Y = 1;
+    var Z = 2;
 
     // Total number of bots needed
-    var totalNumberOfBots = 30;
+    var totalNumberOfBotsNeeded = 30;
 
     // Check timer reference
     // var checkTimer;
@@ -66,11 +102,45 @@
     // Current assignment count we are at
     var botCount = 0;
 
+    // Range to pull the random location from    
+    var contentBoundaryCorners = [[0,0,0], [0,0,0]];
+
+    var previousSettings = {
+        botCount: botCount,
+        contentBoundaryCorners: copy(contentBoundaryCorners)
+    };
+
+    // Check for if currently running
+    var currentlyRunningBots = false;
+
+    // #FEATURE
+    // Add volume control
 
     // #endregion
     // *************************************
     // END CONSTS_AND_VARS
     // *************************************
+
+
+    // *************************************
+    // START DYNAMIC_MESSAGES
+    // *************************************
+    // #region DYNAMIC_MESSAGES
+    
+    
+    // CHANGE LOCATION
+    // CHANGE AVATAR RECORDINGS
+    // CHANGE NUMBER OF AVATARS
+    // STOP AVATARS
+    // PLAY AVATARS
+
+    
+    
+    // #endregion
+    // *************************************
+    // END DYNAMIC_MESSAGES
+    // *************************************
+
 
     // *************************************
     // START ASSIGNMENT_CLIENT_PLAYER
@@ -130,6 +200,7 @@
 
 
     Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
+    Messages.subscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
     // #TODO subscribe to tablet
 
     // Handle Messages received
@@ -149,9 +220,9 @@
 
         switch (message.action) {
             case "REGISTER_ME":
-                var fileName = findValue(botCount, BOTS, 35);
+                var fileName = findValue(botCount, BOTS);
                 console.log("fileName", fileName)
-                var position = getRandomLocation(locationRange);
+                var position = getRandomLocation(contentBoundaryCorners);
                 console.log("position", position)
                 availableAssignmentClientPlayers.push( 
                     new AssignmentClientPlayerObject(message.uuid, fileName, position));
@@ -168,8 +239,62 @@
         }
     }
 
-    function onTabletChannelMessageReceived(){
 
+    function onTabletChannelMessageReceived(channel, message, sender){
+        try {
+            message = JSON.parse(message);
+        } catch (error) {
+            console.log("invalid object");
+            return;
+        }
+
+        if (channel !== ASSIGNMENT_CLIENT_MESSANGER_CHANNEL || sender === Agent.sessionUUID) {
+            return;
+        }
+
+        console.log("MESSAGE IN MANAGER FROM TABLET", JSON.stringify(message));
+
+        switch (message.action) {
+            case "REFRESH_SETTINGS":
+                if (currentlyRunningBots) {
+                    stopAllBots()
+                    currentlyRunningBots = false;
+                }   
+
+                if (JSON.stringify(contentBoundaryCorners) !== 
+                    JSON.stringify(message.contentBoundaryCorners)) {
+                    contentBoundaryCorners = message.contentBoundaryCorners;
+                    fixupContentBoundaryCorners();
+                    availableAssignmentClientPlayers.forEach(function(ac){
+                        ac.position = getRandomLocation(contentBoundaryCorners);
+                    });
+                    // All the players need the new boundries
+                    updateCurrentPositions();
+                }
+
+                if (totalNumberOfBotsNeeded !== message.totalNumberOfBots) {
+                    totalNumberOfBotsNeeded = message.totalNumberOfBots;
+                    
+                }
+
+
+                break;
+            case "PLAY":
+                if (currentlyRunningBots) {
+                    return;
+                }
+                currentlyRunningBots = true;
+                startSequence();
+                break;
+            case "STOP":
+                if (currentlyRunningBots) {
+                    stopAllBots();
+                }
+                break;
+            default:
+                console.log("unrecongized action in assignmentClientManger.js");
+                break;
+        }
     }
 
 
@@ -211,10 +336,10 @@
     function startSequence(){
         console.log("in start sequence")
         console.log("botCount", botCount)
-        console.log("totalNumberOfBots", totalNumberOfBots)
+        console.log("totalNumberOfBots", totalNumberOfBotsNeeded)
 
         // Check to see how many bots are needed
-        if (botCount >= totalNumberOfBots) {
+        if (botCount >= totalNumberOfBotsNeeded) {
             return;
         }
 
@@ -223,7 +348,7 @@
             player.playClip();
             botCount++;
 
-            if (botCount >= totalNumberOfBots) {
+            if (botCount >= totalNumberOfBotsNeeded) {
                 return;
             }
         }
@@ -235,15 +360,8 @@
 
     function startUp(){
         Messages.messageReceived.connect(onMangerChannelMessageReceived);
+        Messages.messageReceived.connect(onTabletChannelMessageReceived);
         Script.scriptEnding.connect(onEnding);
-
-        // For Testing
-        startSequence();
-
-        Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
-            action: "REGISTER_MANAGER"
-        }));
-        
     }    
     
     startUp();
@@ -261,6 +379,8 @@
 
     
     function onEnding(){
+        Messages.messageReceived.disconnect(onMangerChannelMessageReceived);
+        Messages.messageReceived.disconnect(onTabletChannelMessageReceived);
         // if (checkTimer){
         //     Script.clearInterval(checkTimer);
         // }
@@ -273,3 +393,4 @@
     // *************************************
 
 })();
+
