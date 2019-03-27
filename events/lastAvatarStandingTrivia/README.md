@@ -1,19 +1,21 @@
 # Last Avatar Standing Trivia Game
 
 ### Release Notes:
+**March 26, 2019**
+[87bda02](https://github.com/highfidelity/hifi-content/pull/318/commits/87bda02358402ae217bc1e9a780ecf1ec2786d24)
+- Edits made supporting the Multi-con domain implementation.
+- Updated answer cache to remain indexible after shuffling for easier answer checking
+
 **February 26, 2019**
 [c2be06d](https://github.com/highfidelity/hifi-content/pull/303/commits/c2be06dfb25fe91238895d953e00b65134f6aac5)
-Version 1.1.2
 - Fixed bug with eventbridge connection between the client script and html for the host app.
 
 **February 15, 2019**
 [4eb6328](https://github.com/highfidelity/hifi-content/pull/296/commits/4eb63286b45020a20371acfd6145dd7043604d2b)
-Version 1.1.1
 - Fixed bug with triviaURL string for Google databases having "category=" tacked onto the end of it and invalidating the URL when "Get Question" is pressed.
 
 **February 5, 2019**
 [f3f05c0](https://github.com/highfidelity/hifi-content/pull/279/commits/f3f05c0cd3eabd8d65a1c20175069b1d33b5a688)
-Version 1.1:
 - Bug fixes 
 - Tablet App style and functionality updates.
 - Support for switching between custom databases.

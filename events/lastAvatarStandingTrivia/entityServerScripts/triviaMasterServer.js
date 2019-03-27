@@ -17,6 +17,7 @@
         POT_INCREASE_SFX,
         POT_DECREASE_SFX,
         WINNER_MUSIC,
+        BOARD_CORNERS,
         RANGE = 100000;
 
     var AUDIO_VOLUME = 0.1;
@@ -25,9 +26,7 @@
         entityProperties,
         injector,
         gameZone,
-        confetti,
-        coin,
-        boardCorners;
+        confetti;
 
     this.remotelyCallable = [
         "lightsOn",
@@ -39,9 +38,7 @@
         "rezValidator",
         "deleteValidator",
         "checkAnswer",
-        "loseCoins",
         "stopSound",
-        "winCoins",
         "halfHFC",
         "plusHFC",
         "startConfetti",
@@ -52,16 +49,13 @@
         _entityID = entityID;
         entityProperties = Entities.getEntityProperties(_entityID, ['position', 'name', 'type']);
         gameZone = Entities.getEntityProperties(
-            Entities.findEntitiesByName("Trivia Player Game Zone", entityProperties.position, RANGE)[0], ['position']);
-        coin = Entities.getEntityProperties(
-            Entities.findEntitiesByName("Trivia Coin Model", gameZone.position, RANGE)[0], ['position']);
-        boardCorners = [
-            Vec3.sum(gameZone.position, {x:  4.5, y: -2, z:  4.5}),
-            Vec3.sum(gameZone.position, {x: -4.5, y: -2, z: -4.5}),
-            Vec3.sum(gameZone.position, {x:  4.5, y: -2, z: -4.5}),
-            Vec3.sum(gameZone.position, {x: -4.5, y: -2, z:  4.5})
+            Entities.findEntitiesByName("Trivia Player Game Zone", entityProperties.position, RANGE)[0], ['position', 'rotation']);
+        BOARD_CORNERS = [
+            Vec3.sum(gameZone.position, Vec3.multiplyQbyV(gameZone.rotation, {x: -0.1,  y: -2, z:  5.5})),
+            Vec3.sum(gameZone.position, Vec3.multiplyQbyV(gameZone.rotation, {x:  0,    y: -2, z: -6})),
+            Vec3.sum(gameZone.position, Vec3.multiplyQbyV(gameZone.rotation, {x:  5.75, y: -2, z:  0})),
+            Vec3.sum(gameZone.position, Vec3.multiplyQbyV(gameZone.rotation, {x: -5.75, y: -2, z: -0.33}))
         ];   
-
         if (entityProperties.name === 'Trivia Player Game Zone') {
             NEXT_QUESTION_SFX = SoundCache.getSound(Script.resolvePath('../entities/sounds/new-question.wav'));
             TIMER_SOUND = SoundCache.getSound(Script.resolvePath('../entities/sounds/intense-countdown-10-sec.wav'));
@@ -95,7 +89,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  boardCorners[0],
+            position:  BOARD_CORNERS[0],
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -172,7 +166,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  boardCorners[1],
+            position:  BOARD_CORNERS[1],
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -249,7 +243,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  boardCorners[2],
+            position:  BOARD_CORNERS[2],
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -326,7 +320,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:  boardCorners[3],
+            position:  BOARD_CORNERS[3],
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -405,7 +399,7 @@
         });
     };
 
-    this.plusHFC = function(){      
+    this.plusHFC = function(){     
         Entities.addEntity({
             type: "ParticleEffect",
             name: "Trivia Pot Increase Particle",            
@@ -413,7 +407,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position:   Vec3.sum(coin.position, {x: -1, y: 3, z: -2}),
+            position: {x:-6.4341,y: -8.8567, z: 61.5412},
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -485,7 +479,7 @@
         });
     };
 
-    this.halfHFC = function(){        
+    this.halfHFC = function(){       
         Entities.addEntity({
             type: "ParticleEffect",
             name: "Trivia Pot Decrease Particle",            
@@ -493,7 +487,7 @@
             collidesWith: "",
             collisionMask: 0,
             collisionless: true,
-            position: Vec3.sum(coin.position, {x: -1, y: 3, z: -2}),
+            position: {x:-6.4341,y: -8.8567, z: 61.5412},
             dimensions: {
                 x: 0.15,
                 y: 0.15,
@@ -559,162 +553,6 @@
             alphaFinish: 0.75,
             rotateWithEntity: false
         }); 
-    };
-
-    this.loseCoins = function(){        
-        Entities.addEntity({
-            type: "ParticleEffect",
-            name: "Trivia Particle Coin Lose",            
-            lifetime: 4,
-            collidesWith: "",
-            collisionMask: 0,
-            collisionless: true,
-            position:  coin.position,
-            dimensions: {
-                x: 0.15,
-                y: 0.15,
-                z: 0.15
-            },
-            isEmitting: true,                           
-            userData: "{\"grabbableKey\":{\"grabbable\":false}}",          
-            lifespan: 2,
-            maxParticles: 200,
-            textures: Script.resolvePath("../entities/pictures/coin.png"),
-            emitRate: 5,
-            emitSpeed: 0,
-            speedSpread: 5,
-            emitDimensions: {
-                x: 0,
-                y: 0,
-                z: 0
-            },
-            emitOrientation: {
-                x: 0,
-                y: 0,
-                z: 0,
-                w: 1
-            },
-            emitterShouldTrail: true,
-            particleRadius: 1,
-            radiusSpread: 0,
-            radiusStart: 1.25,
-            radiusFinish: 0,
-            color:{
-                red:255,
-                blue:0,
-                green:0
-            },
-            colorSpread:{
-                red: 0,
-                blue: 255,
-                green: 0
-            },
-            colorStart:{
-                red:255,
-                blue:0,
-                green:0
-            },
-            colorFinish:{
-                red: 0,
-                blue: 0,
-                green: 0
-            },
-            emitAcceleration:{
-                x:0,
-                y:-2,
-                z:0
-            },
-            accelerationSpread:{
-                x:2,
-                y:0,
-                z:2
-            },
-            alpha: 1,
-            alphaSpread: 0,
-            alphaStart: 1,
-            alphaFinish: 0,
-            particleSpin: 5,
-            spinSpread: 0,
-            spinStart: 0,
-            spinFinish: 0,
-            rotateWithEntity: true
-        });
-    };
-
-    this.winCoins = function(){       
-        Entities.addEntity({
-            type: "ParticleEffect",
-            name: "Trivia Particle Coin Increase",            
-            lifetime: 4,
-            collidesWith: "",
-            collisionMask: 0,
-            collisionless: true,
-            position:  Vec3.sum(coin.position, { x: 0, y: 3, z: 0 }),
-            dimensions: {
-                x: 0.15,
-                y: 0.15,
-                z: 0.15
-            },
-            isEmitting: true,                           
-            userData: "{\"grabbableKey\":{\"grabbable\":false}}",          
-            lifespan: 0.5,
-            maxParticles: 5,
-            textures: Script.resolvePath("../entities/pictures/coin.png"),
-            emitRate: 5,
-            emitSpeed: 20,
-            speedSpread: 0,
-            emitDimensions: {
-                x: 0,
-                y: 1,
-                z: 0
-            },
-            emitOrientation: {
-                x: -0.707,
-                y: 0,
-                z: 0,
-                w: 0.707
-            },
-            emitterShouldTrail: false,
-            particleRadius: 1,
-            radiusSpread: 0,
-            radiusStart: 0,
-            radiusFinish: 0.75,
-            color:{
-                red:255,
-                blue:255,
-                green:255
-            },
-            colorSpread:{
-                red: 0,
-                blue: 0,
-                green: 0
-            },
-            colorStart:{
-                red:255,
-                blue:255,
-                green:255
-            },
-            colorFinish:{
-                red: 255,
-                blue: 255,
-                green: 255
-            },
-            emitAcceleration:{
-                x:0,
-                y:-100,
-                z:0
-            },
-            accelerationSpread:{
-                x:0,
-                y:0,
-                z:0
-            },
-            alpha: 1,
-            alphaSpread: 0,
-            alphaStart: 1,
-            alphaFinish: 1,
-            rotateWithEntity: true
-        });
     };
 
     this.deleteValidator = function(id, params){
