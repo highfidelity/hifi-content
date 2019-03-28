@@ -56,7 +56,8 @@
 
         orientation = orientation || Quat.IDENTITY;
         
-        Recording.loadRecording(fileToPlay, function (success) {
+        Recording.loadRecording(fileToPlay, function (success, url) {
+            console.log("url", url);
             console.log("IN LOAD RECORDING");
             if (success) {
                 console.log("IN LOAD RECORDING sUCCESS ");
@@ -96,7 +97,7 @@
             Agent.isAvatar = false;
         }
         this.isPlayingRecording = false;
-        this.recordingFilename = "";
+        // this.recordingFilename = "";
     }
 
 
@@ -152,7 +153,11 @@
                 }
                 break;
             case "STOP":
-                player.stop();
+                if (player.isPlaying()) {
+                    player.stop();
+                } else {
+                    // log("Didn't stop playing because we were not playing " + player.recording());
+                }
                 break;
             case "REGISTER_MANAGER": 
                 manager = true;

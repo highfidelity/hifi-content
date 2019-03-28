@@ -67,6 +67,8 @@
             ac.stop();
         });
         botCount = 0;
+        currentlyRunningBots = false;
+
     }
 
     function updateAllBotsPosition(){
@@ -105,8 +107,11 @@
     // var checkTimer;
     // var CHECK_TIMER_INTERVAL = 2500;
 
-    // Current assignment count we are at
+    // Current playing bot count we are at
     var botCount = 0;
+
+    // Current registered bount count
+    var botRegisterdCount = 0;
 
     // Range to pull the random location from    
     var contentBoundaryCorners = [[0,0,0], [0,0,0]];
@@ -234,7 +239,8 @@
 
         switch (message.action) {
             case "REGISTER_ME":
-                var fileName = findValue(botCount, BOTS);
+                var fileName = findValue(botRegisterdCount, BOTS);
+                botRegisterdCount++;
                 // console.log("fileName", fileName)
                 var position = getRandomLocation(contentBoundaryCorners);
                 // console.log("position", position)
