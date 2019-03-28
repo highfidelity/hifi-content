@@ -24,8 +24,11 @@ This app lets you send other users a browser push notification from within High 
 ```
 
 # Usage Instructions
+For the released application, go to highfidelity.co/hifiPing to get started!
 
 # Release Notes
 
-## 2019-xx-xx_xx-xx-xx | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+## Web App v1.0 | HiFi App v1.0 | [commit 0217de7](https://github.com/highfidelity/hifi-content/commits/0217de7)
 - Initial Release
+
+NOTE: The URL for the released version is static and will not change. This is to allow the website to always show the correct URL to the script.
