@@ -65,7 +65,7 @@
                         "method": "notificationStatus",
                         "data": {
                             "status": "error",
-
+                            "pingReceiverDisplayName": MyAvatar.displayName
                         }
                     };
 
@@ -85,8 +85,8 @@
                     app: APP_NAME,
                     method: "notificationStatus",
                     data: {
-                        status: parsedMessage.status,
-                        pingReceiverDisplayName: MyAvatar.displayName
+                        status: parsedMessage.data.status,
+                        pingReceiverDisplayName: parsedMessage.data.pingReceiverDisplayName
                     }
                 });
                 break;
@@ -289,7 +289,7 @@
     // Also hook up necessary signals and open the app's UI.
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('ui/ping_ui.html?0');
+    var appPage = Script.resolvePath('ui/ping_ui.html?1');
     var APP_NAME = "PING";
     var MESSAGE_CHANNEL_NAME = "com.highfidelity.ping";
     function startup() {
