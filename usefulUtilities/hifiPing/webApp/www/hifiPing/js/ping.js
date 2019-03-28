@@ -20,7 +20,20 @@ function registerServiceWorker() {
                     sendSubscriptionToServer(username.value, pushSubscription)
                         .then((response) => {
                             return response.json();
-                        });
+                        })
+                        .then((responseJson) => {
+                            var formContainer = document.getElementById("formContainer");
+                            if (responseJson.data && responseJson.data.success) {
+                                formContainer.innerHTML = `
+                                    <p>You're all set! You'll receive High Fidelity Ping
+                                    notifications on this device wherever you normally receive browser notifications.</p>
+                                `;
+                            } else {
+                                formContainer.innerHTML = `
+                                    <p>There was an error during registration. Please try again later.</p>
+                                `;
+                            }
+                        })
                 })
         })
         .catch(function (err) {
@@ -71,8 +84,8 @@ function registerWithPushManager(registration) {
 }
 
 
-// const SUBSCRIPTION_ENDPOINT = "http://localhost:3004/api/notify/subscription";
-const SUBSCRIPTION_ENDPOINT = "https://highfidelity.co/api/notify/subscription";
+// const SUBSCRIPTION_ENDPOINT = "http://localhost:3004/api/hifiPing/subscription";
+const SUBSCRIPTION_ENDPOINT = "https://highfidelity.co/api/hifiPing/subscription";
 function sendSubscriptionToServer(username, subscription) {
     var postBody = {
         "username": username,
@@ -91,9 +104,12 @@ function sendSubscriptionToServer(username, subscription) {
 
 function submitForm() {
     var username = document.getElementById("username");
-    if (username.value.length < 2) {
+    if (username.value.length === 0) {
         return;
     }
+    
+    var submitButton = document.getElementById("submitButton");
+    submitButton.disabled = true;
 
     askPermission()
         .then(() => {
@@ -102,14 +118,22 @@ function submitForm() {
 };
 
 
+function updateNotCompatible() {
+    var formContainer = document.getElementById("formContainer");
+    formContainer.innerHTML = `
+        <p>Your device does not support the technologies required for High Fidelity Ping. Please try a different browser.</p>
+    `;
+}
+
+
 document.addEventListener("DOMContentLoaded", function (event) {
     if (!('serviceWorker' in navigator)) {
-        // Service Worker isn't supported on this browser, disable or hide UI.
+        updateNotCompatible();
         return;
     }
 
     if (!('PushManager' in window)) {
-        // Push isn't supported on this browser, disable or hide UI.
+        updateNotCompatible();
         return;
     }
 

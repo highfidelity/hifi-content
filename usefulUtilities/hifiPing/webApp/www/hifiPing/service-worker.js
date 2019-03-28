@@ -15,14 +15,14 @@ self.addEventListener('push', (event) => {
     // the High Fidelity Metaverse API doesn't have CORS headers set, I can't request
     // data from https://metaverse.highfidelity.com/api/v1/places/* from highfidelity.co
     const options = {
-        "title": 'High Fidelity Ping!',
-        "body": `${eventData.senderDisplayName} in High Fidelity has requested your presence!`,
+        "title": 'High Fidelity Ping',
+        "body": `${eventData.senderDisplayName} in High Fidelity has requested your presence.`,
         "vibrate": [400, 400, 400, 400, 400],
         "tag": 'hifi-ping',
         "renotify": true,
         "requireInteraction": true,
-        "badge": "https://highfidelity.co/notify/images/hifi.png",
-        "icon": "https://highfidelity.co/notify/images/hifi.png",
+        "badge": "https://highfidelity.co/hifiPing/images/hifi.png",
+        "icon": "https://highfidelity.co/hifiPing/images/hifi.png",
         "actions": [{
             "action": "go",
             "title": "Go There Now"

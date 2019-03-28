@@ -199,9 +199,9 @@ function handlePostRequest(request, response) {
             }
         }
 
-        if (request.url === "/api/notify/subscription") {
+        if (request.url === "/api/hifiPing/subscription") {
             handleNewSubscription(body, response);
-        } else if (request.url === "/api/notify/push") {
+        } else if (request.url === "/api/hifiPing/push") {
             handlePushRequest(body, response);
         } else {
             var responseObject = {
@@ -236,7 +236,7 @@ function startServer() {
     const HOSTNAME = 'localhost';
     const PORT = 3004;
     server.listen(PORT, HOSTNAME, () => {
-        console.log(`Notify App Server running at http://${HOSTNAME}:${PORT}/`);
+        console.log(`Ping App Server running at http://${HOSTNAME}:${PORT}/`);
     });
 }
 

@@ -1,5 +1,5 @@
 //
-// notify_app.js
+// ping_app.js
 // Created by Zach Fox on 2019-03-26
 // Copyright High Fidelity 2019
 //
@@ -18,7 +18,8 @@
 
     function sendMessageToTarget(targetUUID) {
         var message = {
-            "targetUUID": targetUUID,
+            "method": "requestNotification",
+            "intendedRecipient": targetUUID,
             "senderDisplayName": MyAvatar.displayName,
             "senderHref": location.href
         };
@@ -28,7 +29,7 @@
 
     var request = Script.require("request").request;
     var REQUEST_URL = Script.require(Script.resolvePath("./config/config.json?" + Date.now())).pushApiEndpoint;
-    function onMessageReceived(channel, message) {
+    function onMessageReceived(channel, message, sender) {
         if (channel !== MESSAGE_CHANNEL_NAME) {
             return;
         }
@@ -41,24 +42,54 @@
             return;
         }
 
-        if (parsedMessage.targetUUID === MyAvatar.sessionUUID) {
-            var requestBody = {
-                "targetUsername": AccountServices.username,
-                "senderDisplayName": parsedMessage.senderDisplayName,
-                "senderHref": parsedMessage.senderHref
-            };
+        if (parsedMessage.intendedRecipient !== MyAvatar.sessionUUID) {
+            return;
+        }
 
-            request({
-                uri: REQUEST_URL,
-                json: true,
-                body: requestBody,
-                method: "POST"
-            }, function (error, response) {
-                if (error || !response || response.status !== "success") {
-                    print("ERROR when requesting push notification: ", error, JSON.stringify(response));
-                    return;
-                }
-            });
+        switch (parsedMessage.method) {
+            case "requestNotification":
+                var requestBody = {
+                    "targetUsername": AccountServices.username,
+                    "senderDisplayName": parsedMessage.senderDisplayName,
+                    "senderHref": parsedMessage.senderHref
+                };
+    
+                request({
+                    uri: REQUEST_URL,
+                    json: true,
+                    body: requestBody,
+                    method: "POST"
+                }, function (error, response) {
+                    var message = {
+                        "intendedRecipient": sender,
+                        "method": "notificationStatus",
+                        "data": {
+                            "status": "error",
+
+                        }
+                    };
+
+                    if (error || !response || response.status !== "success") {
+                        print("ERROR when requesting push notification: ", error, JSON.stringify(response));
+                    } else if (response.status === "success") {
+                        message.data.status = "success";
+                    }
+
+                    Messages.sendMessage(MESSAGE_CHANNEL_NAME, JSON.stringify(message));
+                });
+                break;
+            
+
+            case "notificationStatus":
+                ui.sendMessage({
+                    app: APP_NAME,
+                    method: "notificationStatus",
+                    data: {
+                        status: parsedMessage.status,
+                        pingReceiverDisplayName: MyAvatar.displayName
+                    }
+                });
+                break;
         }
     }
 
@@ -202,7 +233,7 @@
     }
 
 
-    var CONTROLLER_MAPPING_NAME = "notifyControllerMapping";
+    var CONTROLLER_MAPPING_NAME = "pingControllerMapping";
     var controllerMapping = false;
     function createControllerMapping() {
 
@@ -258,13 +289,15 @@
     // Also hook up necessary signals and open the app's UI.
     var ui;
     var AppUi = Script.require('appUi');
-    var appPage = Script.resolvePath('ui/notify_ui.html?0');
-    var APP_NAME = "NOTIFY";
-    var MESSAGE_CHANNEL_NAME = "com.highfidelity.notify";
+    var appPage = Script.resolvePath('ui/ping_ui.html?0');
+    var APP_NAME = "PING";
+    var MESSAGE_CHANNEL_NAME = "com.highfidelity.ping";
     function startup() {
         ui = new AppUi({
             buttonName: APP_NAME,
             home: appPage,
+            //Bell by Thomas Le Bas from the Noun Project
+            graphicsDirectory: Script.resolvePath("assets/icons/"),
             onMessage: onWebEventReceived,
             onOpened: onOpened,
             onClosed: onClosed

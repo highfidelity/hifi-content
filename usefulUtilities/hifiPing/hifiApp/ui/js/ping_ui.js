@@ -1,5 +1,5 @@
 //
-//  notify_ui.js
+//  ping_ui.js
 //
 //  Created by Zach Fox on 2019-03-26
 //  Copyright 2019 High Fidelity, Inc.
@@ -10,7 +10,7 @@
 /* globals document setTimeout clearTimeout */
 
 // Emit an event specific to the App JS over the EventBridge.
-var APP_NAME = "NOTIFY";
+var APP_NAME = "PING";
 function emitAppSpecificEvent(method, data) {
     var event = {
         app: APP_NAME,
@@ -22,6 +22,8 @@ function emitAppSpecificEvent(method, data) {
 
 
 function sendMessageToTarget() {
+    document.getElementById("loadingContainer").style.display = "block";
+
     var targetDisplayName = document.getElementById("targetDisplayName");
     var targetUUID = targetDisplayName.getAttribute("data-uuid");
 
@@ -40,6 +42,22 @@ function updateDisplayName(displayName, targetUUID) {
     var targetDisplayName = document.getElementById("targetDisplayName");
     targetDisplayName.innerHTML = displayName;
     targetDisplayName.setAttribute("data-uuid", targetUUID);
+    
+    var submitButton = document.getElementById("submitButton");
+    submitButton.value = `Send Ping to ${displayName}`;
+    submitButton.disabled = false;
+}
+
+
+function notificationStatusReceived(status, pingReceiverDisplayName) {
+    document.getElementById("loadingContainer").style.display = "none";
+
+    var sentStatus = document.getElementById("sentStatus");
+    if (status === "success") {
+        sentStatus.innerHTML = `${pingReceiverDisplayName} successfully received your ping!`;
+    } else {
+        sentStatus.innerHTML = `${pingReceiverDisplayName} couldn't receive your ping. Please try again later.`;
+    }
 }
 
 
@@ -64,6 +82,11 @@ function onScriptEventReceived(scriptEvent) {
 
         case "updateDisplayName":
             updateDisplayName(event.data.displayName, event.data.targetUUID);
+            break;
+
+
+        case "notificationStatus":
+            notificationStatusReceived(event.data.status, event.data.pingReceiverDisplayName);
             break;
 
 

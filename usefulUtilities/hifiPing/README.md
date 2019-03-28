@@ -1,15 +1,15 @@
-# Notify App
-This app lets you notify other users via a browser push notification.
+# High Fidelity Ping
+This app lets you send other users a browser push notification from within High Fidelity.
 
 # Setup Instructions
-1. Setup `<pushNotifications>/hifiApp/config/config.json` as per the instructions below.
-2. Change the definition of `SUBSCRIPTION_ENDPOINT` within `<pushNotifications>/webApp/www/notify/js/notif.js`
-3. Set up `<pushNotifications>/webApp/app/secrets/dbInfo.json` as per the instructions below.
+1. Setup `<hifiPing>/hifiApp/config/config.json` as per the instructions below.
+2. Change the definition of `SUBSCRIPTION_ENDPOINT` within `<hifiPing>/webApp/www/hifiPing/js/ping.js`
+3. Set up `<hifiPing>/webApp/app/secrets/dbInfo.json` as per the instructions below.
 
 ## `hifiApp/config/config.json` Setup
 ```
 {
-    "pushApiEndpoint": "<The URL of /api/notify/push>"
+    "pushApiEndpoint": "<The URL of /api/hifiPing/push>"
 }
 ```
 
