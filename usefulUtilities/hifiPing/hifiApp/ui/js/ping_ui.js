@@ -1,5 +1,3 @@
-import { Script } from "vm";
-
 //
 //  ping_ui.js
 //
@@ -27,6 +25,10 @@ function emitAppSpecificEvent(method, data) {
 // within a few seconds
 function messageTimedOut() {
     messageTimeout = false;
+    document.getElementById("loadingContainer").style.display = "none";
+
+    var sentStatus = document.getElementById("sentStatus");
+    sentStatus.innerHTML = `Your ping timed out! Maybe your recipient doesn't have the PING app?`;
 }
 
 
