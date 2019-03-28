@@ -7,6 +7,7 @@
 // See accompanying license file or http://apache.org/
 //
 
+// Handles push notification events!
 self.addEventListener('push', (event) => {
     var eventData = event.data.json();
 
@@ -35,6 +36,8 @@ self.addEventListener('push', (event) => {
     );
 });
 
+
+// Handles the case when the user clicks the notification
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
 

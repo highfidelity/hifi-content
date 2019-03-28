@@ -5,12 +5,14 @@ var webpush = require('web-push');
 var dbInfo = require('./secrets/dbInfo.json');
 var vapidKeysFile = require('./secrets/vapidKeys.json');
 
+// Sets the public/private keys used by webpush when sending encrypted push notifications to the browser
 webpush.setVapidDetails('mailto:admin@highfidelity.co',
     vapidKeysFile.publicKey,
     vapidKeysFile.privateKey
 );
 
 
+// Saves the user's push subscription information to the database
 function saveSubscriptionToDatabase(body, response) {
     var query = `REPLACE INTO \`subscriptions\` (username, subscription)
         VALUES ('${body.username}', '${JSON.stringify(body.subscription)}')`;
@@ -38,6 +40,7 @@ function saveSubscriptionToDatabase(body, response) {
 }
 
 
+// Does error checking on the data sent to the server before saving it to the DB.
 function handleNewSubscription(body, response) {
     if (!body.subscription || !body.subscription.endpoint) {
         var responseObject = {
@@ -55,6 +58,7 @@ function handleNewSubscription(body, response) {
 }
 
 
+// Deletes a user's subscription information from the database
 function deleteSubscriptionFromDatabase(username, response) {
     var query = `DELETE FROM \`subscriptions\` WHERE username="${username}"`;
 
@@ -81,6 +85,7 @@ function deleteSubscriptionFromDatabase(username, response) {
 }
 
 
+// Uses the web-push library to send an encrypted push notification to the user's browser
 function sendNotification(username, subscription, payloadText, response) {
     return webpush.sendNotification(subscription, payloadText)
         .then(() => {
@@ -110,6 +115,7 @@ function sendNotification(username, subscription, payloadText, response) {
 }
 
 
+// Gets a user's push notification subscription information from the database
 function getSubscriptionFromDatabase(targetUsername, senderDisplayName, senderHref, response) {
     var query = `SELECT * FROM \`subscriptions\` WHERE username='${targetUsername}'`;
 
@@ -170,6 +176,7 @@ function getSubscriptionFromDatabase(targetUsername, senderDisplayName, senderHr
 }
 
 
+// Handles a request made to the API to push a notification to a browser
 function handlePushRequest(body, response) {
     getSubscriptionFromDatabase(body.targetUsername, body.senderDisplayName, body.senderHref, response);
 }
@@ -216,6 +223,8 @@ function handlePostRequest(request, response) {
     })
 }
 
+
+// Starts the server and sets up request handlers
 function startServer() {
     const server = http.createServer((request, response) => {
         response.setHeader('Access-Control-Allow-Origin', '*');
@@ -241,7 +250,7 @@ function startServer() {
 }
 
 
-// Connects to the DB
+// Connects to the DB, then starts the server
 var mysql = require('mysql');
 var connection;
 function connectToDB() {
@@ -262,6 +271,7 @@ function connectToDB() {
 }
 
 
+// Creates the necessary DB tables if they don't exist
 function maybeCreateTables() {
     var query = `CREATE TABLE IF NOT EXISTS \`subscriptions\` (
         username VARCHAR(100) PRIMARY KEY,
@@ -279,6 +289,7 @@ function maybeCreateTables() {
 }
 
 
+// Creates the necessary DB if it doesn't exist.
 function maybeCreateDB() {
     connection = mysql.createConnection({
         host: dbInfo.mySQLHost,
@@ -305,6 +316,7 @@ function maybeCreateDB() {
 }
 
 
+// Called on startup.
 function startup() {
     maybeCreateDB();
 }

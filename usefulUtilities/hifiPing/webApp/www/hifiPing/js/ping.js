@@ -7,16 +7,19 @@
 // See accompanying license file or http://apache.org/
 //
 
+// Tons of logic in here!
+// 1. Registers the service worker JS with the browser's Navigator
+// 2. Registers that service worker information with the push manager
+// 3. Sends the subscription information to the server
+// 4. Updates the UI based on error/success
 function registerServiceWorker() {
     return navigator.serviceWorker.register('service-worker.js')
         .then(function () {
             return navigator.serviceWorker.ready;
         })
         .then(function (registration) {
-            console.log(`Service worker successfully registered with scope: ${registration.scope}`);
             registerWithPushManager(registration)
                 .then((pushSubscription) => {
-                    console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
                     sendSubscriptionToServer(username.value, pushSubscription)
                         .then((response) => {
                             return response.json();
@@ -41,6 +44,18 @@ function registerServiceWorker() {
         });
 }
 
+
+// Updates the UI to show that they need to enable notifications for this site
+function updateDisallowedPush() {
+    var formContainer = document.getElementById("formContainer");
+    formContainer.innerHTML = `
+        <p>Please allow notifications! If you don't, High Fidelity Ping won't work.</p>
+        <p>Refresh this page and try again, or use your browser's settings to enable notifications on this site.</p>
+    `;
+}
+
+
+// Asks permission to show notifications to the user via browser push notifications
 function askPermission() {
     return new Promise(function (resolve, reject) {
         const permissionResult = Notification.requestPermission(function (result) {
@@ -53,12 +68,16 @@ function askPermission() {
     })
         .then(function (permissionResult) {
             if (permissionResult !== 'granted') {
-                throw new Error('Permission denied!');
+                updateDisallowedPush();
+                return false;
             }
+            return true;
         });
 }
 
 
+// Needed to ensure that the public key associated with the push manager subscription
+// is sent in the right format
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
@@ -70,6 +89,7 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 
+// Registers the service worker registration information with the push manager (remote server)
 const PUSH_SERVER_PUBLIC_KEY = "BMfhiU0kwGPOkrgrmprsHCZILXnOjymrkb6Gfyg7b_Y0Z0EfWW0ztp_ctG9NQzctN6dTvPqEVgWNBvSg9fHVAYI";
 function registerWithPushManager(registration) {
     const subscribeOptions = {
@@ -84,6 +104,7 @@ function registerWithPushManager(registration) {
 }
 
 
+// Sends the subscription information to the server for storage
 // const SUBSCRIPTION_ENDPOINT = "http://localhost:3004/api/hifiPing/subscription";
 const SUBSCRIPTION_ENDPOINT = "https://highfidelity.co/api/hifiPing/subscription";
 function sendSubscriptionToServer(username, subscription) {
@@ -102,6 +123,7 @@ function sendSubscriptionToServer(username, subscription) {
 }
 
 
+// Does simple form validation, then kicks off the push notification subscription process!
 function submitForm() {
     var username = document.getElementById("username");
     if (username.value.length === 0) {
@@ -112,20 +134,26 @@ function submitForm() {
     submitButton.disabled = true;
 
     askPermission()
-        .then(() => {
-            registerServiceWorker();
+        .then((retval) => {
+            if (retval) {
+                registerServiceWorker();
+            }
         });
 };
 
 
+// Updates the UI to show that they can't use this browser for High Fidelity Ping
 function updateNotCompatible() {
     var formContainer = document.getElementById("formContainer");
     formContainer.innerHTML = `
         <p>Your device does not support the technologies required for High Fidelity Ping. Please try a different browser.</p>
+        <p>iOS does not currently support push notifications via a browser.</p>
     `;
 }
 
 
+// Kicks all of the logic off when the DOM loads.
+// The "SUBMIT" button starts off disabled.
 document.addEventListener("DOMContentLoaded", function (event) {
     if (!('serviceWorker' in navigator)) {
         updateNotCompatible();

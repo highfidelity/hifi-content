@@ -8,6 +8,7 @@
 //
 
 (function () {
+    // This is the message that's received from the UI JS that indicates that the UI is ready.
     function onEventBridgeReady() {
         ui.sendMessage({
             app: APP_NAME,
@@ -16,6 +17,7 @@
     }
 
 
+    // Sends a message over the Messages Mixer to request a browser notification from the Web App API
     function sendMessageToTarget(targetUUID) {
         var message = {
             "method": "requestNotification",
@@ -27,6 +29,10 @@
     }
 
 
+    // Handles messages that are received over the Messages Mixer:
+    // "requestNotification": Sends a message to the Web App, which will then send a Push Notification to the
+    //     registered browser.
+    // "notificationStatus": Sends a message to the App's UI JS, which will update the App's UI
     var request = Script.require("request").request;
     var REQUEST_URL = Script.require(Script.resolvePath("./config/config.json?" + Date.now())).pushApiEndpoint;
     function onMessageReceived(channel, message, sender) {
@@ -94,6 +100,7 @@
     }
 
 
+    // Handles the user using the mouse to click on another avatar.
     function onMousePressEvent(event) {
         if (!event.isLeftButton) {
             return;
@@ -207,7 +214,7 @@
     }
 
 
-    // Update displayName and targetUUID based on hand controller raypicks
+    // Handles the user using their VR hand controller lasers to pick another avatar.
     function handleControllerRaypick(hand) {
         hand = hand === Controller.Standard.LeftHand
             ? Controller.Standard.LeftHand
@@ -233,10 +240,10 @@
     }
 
 
+    // Creates the controller mapping necessary for handling VR hand controller raypicks
     var CONTROLLER_MAPPING_NAME = "pingControllerMapping";
     var controllerMapping = false;
     function createControllerMapping() {
-
         controllerMapping = Controller.newMapping(CONTROLLER_MAPPING_NAME);
 
         controllerMapping.from(Controller.Standard.LTClick).to(function (value) {
@@ -258,23 +265,26 @@
     }
 
 
+    // Connects the signals handlers that handle mouse presses and hand controller trigger presses
     var signalsWired = false;
     function onOpened() {
         if (!signalsWired) {
             Controller.mousePressEvent.connect(onMousePressEvent);
-            Controller.disableMapping(CONTROLLER_MAPPING_NAME);
+            Controller.enableMapping(CONTROLLER_MAPPING_NAME);
         }
     }
 
 
+    // Disconnects the signals handlers that handle mouse presses and hand controller trigger presses
     function onClosed() {
         if (signalsWired) {
-            Controller.enableMapping(CONTROLLER_MAPPING_NAME);
+            Controller.disableMapping(CONTROLLER_MAPPING_NAME);
             Controller.mousePressEvent.disconnect(onMousePressEvent);
         }
     }
 
 
+    // Called when the script is ending
     function onScriptEnding() {
         if (ui.isOpen) {
             onClosed();
@@ -285,8 +295,8 @@
     }
 
 
-    // When the script starts up, setup AppUI and call `cacheSounds()`.
-    // Also hook up necessary signals and open the app's UI.
+    // When the script starts up, setup AppUI.
+    // Also hook up necessary signals and create the hand controller mapping.
     var ui;
     var AppUi = Script.require('appUi');
     var appPage = Script.resolvePath('ui/ping_ui.html?1');

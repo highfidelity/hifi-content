@@ -1,3 +1,5 @@
+import { Script } from "vm";
+
 //
 //  ping_ui.js
 //
@@ -21,8 +23,28 @@ function emitAppSpecificEvent(method, data) {
 }
 
 
+// Updates the UI to show that the message to the other user didn't result in anything
+// within a few seconds
+function messageTimedOut() {
+    messageTimeout = false;
+}
+
+
+// Sends a message to the App JS which will instruct the App JS to send a message
+// over the Messages Mixer to request a browser notification from the Web App API
+// Times out after a few seconds.
+var MESSAGE_TIMEOUT_MS = 5000;
+var messageTimeout = false;
 function sendMessageToTarget() {
     document.getElementById("loadingContainer").style.display = "block";
+
+    if (messageTimeout) {
+        clearTimeout(messageTimeout);
+        messageTimeout = false;
+    }
+    messageTimeout = setTimeout(function() {
+        messageTimedOut();
+    }, MESSAGE_TIMEOUT_MS);
 
     var targetDisplayName = document.getElementById("targetDisplayName");
     var targetUUID = targetDisplayName.getAttribute("data-uuid");
@@ -33,11 +55,13 @@ function sendMessageToTarget() {
 }
 
 
+// Disables the loading spinner
 function initializeUI() {
     document.getElementById("loadingContainer").style.display = "none";
 }
 
 
+// Updates the UI to show the target's display name so the user knows who they're going to ping
 function updateDisplayName(displayName, targetUUID) {
     var targetDisplayName = document.getElementById("targetDisplayName");
     targetDisplayName.innerHTML = displayName;
@@ -49,8 +73,14 @@ function updateDisplayName(displayName, targetUUID) {
 }
 
 
+// Updates the "notification status" section of the App's UI with the ping's status
 function notificationStatusReceived(status, pingReceiverDisplayName) {
     document.getElementById("loadingContainer").style.display = "none";
+
+    if (messageTimeout) {
+        clearTimeout(messageTimeout);
+        messageTimeout = false;
+    }
 
     var sentStatus = document.getElementById("sentStatus");
     if (status === "success") {
