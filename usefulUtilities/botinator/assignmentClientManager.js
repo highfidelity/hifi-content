@@ -7,7 +7,7 @@
     // *************************************
     // #region UTILITY FUNCTIO   
     
-    console.log("\n\n\nC-v11\n\n\n");
+    console.log("\n\n MILAD-Control 3 \n\n!")
     // Use a ring to cycle through the list for as many unique recordings as are available
     function findValue(index, array, offset) {
         offset = offset || 0;
@@ -63,12 +63,12 @@
 
     // Stop all the bots currently playing
     function stopAllBots(){
+        console.log("STOP ALL BOTS")
         availableAssignmentClientPlayers.forEach(function(ac){
             ac.stop();
         });
         botCount = 0;
         currentlyRunningBots = false;
-
     }
 
     function updateAllBotsPosition(){
@@ -250,7 +250,8 @@
                 break;
             case "ARE_YOU_THERE_MANAGER":
                 Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
-                    action: "REGISTER_MANAGER"
+                    action: "REGISTER_MANAGER",
+                    uuid: sender
                 }));
                 break;
             default:

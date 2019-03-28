@@ -23,6 +23,7 @@
     // #region CONSTS_AND_VARS
     
     
+    console.log("\n\n MILAD-PLAYBACK 3 \n\n!")
     var APP_NAME = "PLAYBACK";
     var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
     var scriptUUID;
@@ -52,7 +53,7 @@
 
 
     function play(fileToPlay, position, orientation) {
-        console.log("play playing " + JSON.stringify(fileToPlay));
+        console.log("\n\nplay playing " + JSON.stringify(fileToPlay));
 
         orientation = orientation || Quat.IDENTITY;
         
@@ -77,6 +78,7 @@
 
                 Recording.setPlayerTime(0.0);
                 Recording.startPlaying();
+                this.isPlayingRecording = true;
 
             } else {
                 var errorMessage = "Could not load recording " + fileToPlay;
@@ -97,12 +99,13 @@
             Agent.isAvatar = false;
         }
         this.isPlayingRecording = false;
-        // this.recordingFilename = "";
+        this.recordingFilename = "";
     }
 
 
     function isPlaying() {
         console.log("isPlaying");
+        console.log("this.isPlayingRecording", this.isPlayingRecording)
         return this.isPlayingRecording;
     }
 
@@ -133,7 +136,10 @@
             console.log(e);
         }
         
-        if (channel !== ASSIGNMENT_MANAGER_CHANNEL || sender === scriptUUID || PLAYER_MESSAGES.indexOf(message.action) > -1) {
+        if (channel !== ASSIGNMENT_MANAGER_CHANNEL || 
+            sender === scriptUUID || 
+            message.uuid !== scriptUUID ||  
+            PLAYER_MESSAGES.indexOf(message.action) > -1) {
             return;
         }
 
@@ -142,18 +148,18 @@
 
         switch (message.action){
             case "PLAY":
-                if (message.uuid !== scriptUUID) {
-                    return;
-                }
-                
                 if (!player.isPlaying()) {
+                    console.log("\n\n SENDING TO PLAY \n\n")
                     player.play(message.fileToPlay, message.position, message.orientation);
                 } else {
                     log("Didn't start playing " + message.fileToPlay + " because already playing " + player.recording());
                 }
                 break;
             case "STOP":
+                console.log("ABOUT TO CHECK STOP")
+                console.log(JSON.stringify(player));
                 if (player.isPlaying()) {
+                    console.log("PLAYER IS PLAYING SO ABOUT TO STOP")
                     player.stop();
                 } else {
                     // log("Didn't stop playing because we were not playing " + player.recording());
