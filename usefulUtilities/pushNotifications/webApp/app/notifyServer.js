@@ -1,20 +1,13 @@
 // Setting up local https support
-var fs = require('fs');
 var http = require('http');
-var path = require('path');
 var parseQueryString = require('querystring');
 var webpush = require('web-push');
 var dbInfo = require('./secrets/dbInfo.json');
 var vapidKeysFile = require('./secrets/vapidKeys.json');
 
-const vapidKeys = {
-    publicKey: vapidKeysFile.publicKey,
-    privateKey: vapidKeysFile.privateKey
-};
-
 webpush.setVapidDetails('mailto:admin@highfidelity.co',
-    vapidKeys.publicKey,
-    vapidKeys.privateKey
+    vapidKeysFile.publicKey,
+    vapidKeysFile.privateKey
 );
 
 
@@ -76,19 +69,20 @@ function deleteSubscriptionFromDatabase(username, response) {
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
+        
+        var responseObject = {
+            status: "success"
+        };
 
         response.statusCode = 410;
         response.setHeader('Content-Type', 'application/json');
-        return response.end(JSON.stringify({
-            data: {
-                "success": true
-            }
-        }));
+        return response.end(JSON.stringify(responseObject));
     });
 }
 
 
 function sendNotification(username, subscription, payloadText, response) {
+    console.log(`subscription: ${JSON.stringify(subscription)}\npayloadText:${payloadText}`);
     return webpush.sendNotification(subscription, payloadText)
         .then(() => {
             var responseObject = {
@@ -117,8 +111,8 @@ function sendNotification(username, subscription, payloadText, response) {
 }
 
 
-function getSubscriptionFromDatabase(username, response) {
-    var query = `SELECT * FROM \`subscriptions\` WHERE username='${username}'`;
+function getSubscriptionFromDatabase(targetUsername, senderUsername, senderHref, response) {
+    var query = `SELECT * FROM \`subscriptions\` WHERE username='${targetUsername}'`;
 
     connection.query(query, function (error, results) {
         if (error) {
@@ -134,6 +128,7 @@ function getSubscriptionFromDatabase(username, response) {
 
         // We don't want anyone to know that the server doesn't have that username in the DB
         if (results.length === 0) {
+            console.log("User tried to send a notification to someone who isn't in the DB: " + targetUsername);
             var responseObject = {
                 status: "success"
             };
@@ -152,10 +147,7 @@ function getSubscriptionFromDatabase(username, response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        var payloadText = "yoooo";
-
         var subscription;
-
         try {
             subscription = JSON.parse(results[0].subscription);
         } catch (error) {
@@ -169,14 +161,19 @@ function getSubscriptionFromDatabase(username, response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        sendNotification(username, subscription, payloadText, response);
+        var payloadText = JSON.stringify({
+            "targetUsername": targetUsername,
+            "senderUsername": senderUsername,
+            "senderHref": senderHref
+        });
+        sendNotification(targetUsername, subscription, payloadText, response);
     });
 }
 
 
 function handlePushRequest(body, response) {
     console.log(JSON.stringify(body));
-    getSubscriptionFromDatabase(body.username, response);
+    getSubscriptionFromDatabase(body.targetUsername, body.senderUsername, body.senderHref, response);
 }
 
 
@@ -229,9 +226,14 @@ function startServer() {
 
         if (request.method === "POST") {
             handlePostRequest(request, response);
+        } else if (request.method === "OPTIONS") {
+            response.statusCode = 200;
+            response.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+            response.setHeader('Access-Control-Allow-Headers', 'content-type');
+            return response.end();
         } else {
             response.writeHead(405, 'Method Not Supported', { 'Content-Type': 'text/html' });
-            response.end('<!doctype html><html><head><title>405</title></head><body>405: Method Not Supported</body></html>');
+            return response.end('<!doctype html><html><head><title>405</title></head><body>405: Method Not Supported</body></html>');
         }
     })
 

@@ -18,7 +18,12 @@
         </div>
 
         <div id="formContainer">
-            <form id="form" action="javascript:void(0);" onsubmit="submitForm()">
+            <form id="form" action="javascript:void(0);" onsubmit="sendMessageToTarget()">
+                <div>
+                    <div id="targetDisplayNameLabel">Target Display Name:</div>
+                    <div id="targetDisplayName"><strong>Click on an avatar!</strong></div>
+                </div>
+
                 <div>
                     <label id="notificationBodyLabel" for="notificationBody">Notification Body Text</label>
                     <input type="text" id="notificationBody" placeholder="Body Text">

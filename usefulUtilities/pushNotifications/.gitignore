@@ -1,2 +1,3 @@
 webApp/app/secrets/*
 webApp/app/node_modules
+hifiApp/config/*

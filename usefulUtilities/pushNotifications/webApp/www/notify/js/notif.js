@@ -57,7 +57,8 @@ function registerWithPushManager(registration) {
 }
 
 
-const SUBSCRIPTION_ENDPOINT = "https://highfidelity.co/api/notify/subscription";
+const SUBSCRIPTION_ENDPOINT = "http://localhost:3004/api/notify/subscription";
+// const SUBSCRIPTION_ENDPOINT = "https://highfidelity.co/api/notify/subscription";
 function sendSubscriptionToServer(username, subscription) {
     var postBody = {
         "username": username,
@@ -70,18 +71,7 @@ function sendSubscriptionToServer(username, subscription) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(postBody)
-    })
-        .then((res) => {
-            if (!res.ok) {
-                throw new Error('An error occurred')
-            }
-            return res.json();
-        })
-        .then((resData) => {
-            if (!(resData.data && resData.data.success)) {
-                throw new Error('An error occurred');
-            }
-        })
+    });
 }
 
 
@@ -99,7 +89,10 @@ function submitForm() {
                     registerWithPushManager(registration)
                         .then((pushSubscription) => {
                             console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
-                            sendSubscriptionToServer(username.value, pushSubscription);
+                            sendSubscriptionToServer(username.value, pushSubscription)
+                                .then((response) => {
+                                    return response.json();
+                                });
                         })
                 })
         }, (err) => {

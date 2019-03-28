@@ -21,13 +21,25 @@ function emitAppSpecificEvent(method, data) {
 }
 
 
-function submitForm() {
-    
+function sendMessageToTarget() {
+    var targetDisplayName = document.getElementById("targetDisplayName");
+    var targetUUID = targetDisplayName.getAttribute("data-uuid");
+
+    emitAppSpecificEvent("sendMessageToTarget", {
+        "targetUUID": targetUUID
+    });
 }
 
 
 function initializeUI() {
     document.getElementById("loadingContainer").style.display = "none";
+}
+
+
+function updateDisplayName(displayName, targetUUID) {
+    var targetDisplayName = document.getElementById("targetDisplayName");
+    targetDisplayName.innerHTML = displayName;
+    targetDisplayName.setAttribute("data-uuid", targetUUID);
 }
 
 
@@ -47,6 +59,11 @@ function onScriptEventReceived(scriptEvent) {
     switch (event.method) {
         case "initializeUI":
             initializeUI();
+            break;
+
+
+        case "updateDisplayName":
+            updateDisplayName(event.data.displayName, event.data.targetUUID);
             break;
 
 
