@@ -77,6 +77,15 @@
         });
     }
 
+    function updateWithRandomOffset(){
+        var randomOffset = Math.floor(Math.random() * availableAssignmentClientPlayers.length + (Math.random() * 160));
+        availableAssignmentClientPlayers.forEach(function(ac){
+            console.log("before random offset", ac.fileToPlay)
+            ac.fileToPlay = findValue(botRegisterdCount, BOTS, randomOffset);
+            console.log("after random offset", ac.fileToPlay)
+        });
+    }
+
     // #endregion
     // *************************************
     // END UTILITY FUNCTIONS
@@ -197,8 +206,10 @@
             action: "STOP",
             uuid: this.uuid
         }));
-    }
 
+        updateWithRandomOffset();
+    }
+    
     AssignmentClientPlayerObject.prototype = {
         setPosition: setPosition,
         updateStatus: updateStatus, 
