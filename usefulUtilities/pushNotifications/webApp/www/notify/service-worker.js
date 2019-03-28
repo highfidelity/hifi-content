@@ -8,7 +8,7 @@
 //
 
 self.addEventListener('push', (event) => {
-    console.log('Received a push event with data:', JSON.stringify(event.data.json()));
+    var eventData = event.data.json();
 
     // I would love to have the "image" option show the hero image associated
     // with the domain you'd go to if you clicked the notification, but, because
@@ -16,13 +16,18 @@ self.addEventListener('push', (event) => {
     // data from https://metaverse.highfidelity.com/api/v1/places/* from highfidelity.co
     const options = {
         "title": 'High Fidelity Ping!',
-        "body": 'A user in High Fidelity has requested your presence!',
+        "body": `${eventData.senderDisplayName} in High Fidelity has requested your presence!`,
         "vibrate": [400, 400, 400, 400, 400],
         "tag": 'hifi-ping',
         "renotify": true,
         "requireInteraction": true,
         "badge": "https://highfidelity.co/notify/images/hifi.png",
-        "icon": "https://highfidelity.co/notify/images/hifi.png"
+        "icon": "https://highfidelity.co/notify/images/hifi.png",
+        "actions": [{
+            "action": "go",
+            "title": "Go There Now"
+        }],
+        "data": eventData.senderHref
     };
 
     event.waitUntil(
@@ -32,5 +37,8 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
-    return clients.openWindow('hifi://valefox');
+
+    if (event.action === "go") {
+        clients.openWindow(event.notification.data);
+    }
 });

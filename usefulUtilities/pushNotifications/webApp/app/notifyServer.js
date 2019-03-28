@@ -56,7 +56,7 @@ function handleNewSubscription(body, response) {
 
 
 function deleteSubscriptionFromDatabase(username, response) {
-    var query = `DELETE FROM \`subscriptions\` WHERE username=${username}`;
+    var query = `DELETE FROM \`subscriptions\` WHERE username="${username}"`;
 
     connection.query(query, function (error) {
         if (error) {
@@ -82,7 +82,6 @@ function deleteSubscriptionFromDatabase(username, response) {
 
 
 function sendNotification(username, subscription, payloadText, response) {
-    console.log(`subscription: ${JSON.stringify(subscription)}\npayloadText:${payloadText}`);
     return webpush.sendNotification(subscription, payloadText)
         .then(() => {
             var responseObject = {
@@ -111,7 +110,7 @@ function sendNotification(username, subscription, payloadText, response) {
 }
 
 
-function getSubscriptionFromDatabase(targetUsername, senderUsername, senderHref, response) {
+function getSubscriptionFromDatabase(targetUsername, senderDisplayName, senderHref, response) {
     var query = `SELECT * FROM \`subscriptions\` WHERE username='${targetUsername}'`;
 
     connection.query(query, function (error, results) {
@@ -163,7 +162,7 @@ function getSubscriptionFromDatabase(targetUsername, senderUsername, senderHref,
 
         var payloadText = JSON.stringify({
             "targetUsername": targetUsername,
-            "senderUsername": senderUsername,
+            "senderDisplayName": senderDisplayName,
             "senderHref": senderHref
         });
         sendNotification(targetUsername, subscription, payloadText, response);
@@ -172,15 +171,12 @@ function getSubscriptionFromDatabase(targetUsername, senderUsername, senderHref,
 
 
 function handlePushRequest(body, response) {
-    console.log(JSON.stringify(body));
-    getSubscriptionFromDatabase(body.targetUsername, body.senderUsername, body.senderHref, response);
+    getSubscriptionFromDatabase(body.targetUsername, body.senderDisplayName, body.senderHref, response);
 }
 
 
 // Handles all POST requests made to the server.
 function handlePostRequest(request, response) {
-    console.log(`Post request URL: ${request.url}`);
-
     let body = '';
     request.on('data', chunk => {
         body += chunk.toString();

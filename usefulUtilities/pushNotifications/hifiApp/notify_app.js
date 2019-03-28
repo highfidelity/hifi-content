@@ -19,7 +19,7 @@
     function sendMessageToTarget(targetUUID) {
         var message = {
             "targetUUID": targetUUID,
-            "senderUsername": AccountServices.username,
+            "senderDisplayName": MyAvatar.displayName,
             "senderHref": location.href
         };
         Messages.sendMessage(MESSAGE_CHANNEL_NAME, JSON.stringify(message));
@@ -44,7 +44,7 @@
         if (parsedMessage.targetUUID === MyAvatar.sessionUUID) {
             var requestBody = {
                 "targetUsername": AccountServices.username,
-                "senderUsername": parsedMessage.senderUsername,
+                "senderDisplayName": parsedMessage.senderDisplayName,
                 "senderHref": parsedMessage.senderHref
             };
 

@@ -8,7 +8,21 @@
 //
 
 function registerServiceWorker() {
-    return navigator.serviceWorker.register('./js/service-worker.js')
+    return navigator.serviceWorker.register('service-worker.js')
+        .then(function () {
+            return navigator.serviceWorker.ready;
+        })
+        .then(function (registration) {
+            console.log(`Service worker successfully registered with scope: ${registration.scope}`);
+            registerWithPushManager(registration)
+                .then((pushSubscription) => {
+                    console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
+                    sendSubscriptionToServer(username.value, pushSubscription)
+                        .then((response) => {
+                            return response.json();
+                        });
+                })
+        })
         .catch(function (err) {
             console.error('Unable to register service worker.', err);
         });
@@ -57,8 +71,8 @@ function registerWithPushManager(registration) {
 }
 
 
-const SUBSCRIPTION_ENDPOINT = "http://localhost:3004/api/notify/subscription";
-// const SUBSCRIPTION_ENDPOINT = "https://highfidelity.co/api/notify/subscription";
+// const SUBSCRIPTION_ENDPOINT = "http://localhost:3004/api/notify/subscription";
+const SUBSCRIPTION_ENDPOINT = "https://highfidelity.co/api/notify/subscription";
 function sendSubscriptionToServer(username, subscription) {
     var postBody = {
         "username": username,
@@ -83,22 +97,9 @@ function submitForm() {
 
     askPermission()
         .then(() => {
-            registerServiceWorker()
-                .then((registration) => {
-                    console.log(`Service worker successfully registered with scope: ${registration.scope}`);
-                    registerWithPushManager(registration)
-                        .then((pushSubscription) => {
-                            console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
-                            sendSubscriptionToServer(username.value, pushSubscription)
-                                .then((response) => {
-                                    return response.json();
-                                });
-                        })
-                })
-        }, (err) => {
-            console.log(`Service Worker registration failed: ${err}`)
+            registerServiceWorker();
         });
-}
+};
 
 
 document.addEventListener("DOMContentLoaded", function (event) {
