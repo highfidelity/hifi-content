@@ -1,4 +1,17 @@
-// Assignment client player
+//
+//
+//  Botinator
+//  assignmentClientPlayer.js
+//  Created by Milad Nazeri on 2019-03-28
+//  Copyright 2019 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//  assignmentClientPlayer
+//
+//
+
 
 (function () {
 
@@ -8,10 +21,28 @@
     // #region UTILITY FUNCTIONS
     
     
-    function log(message) {
-        print(APP_NAME + " " + scriptUUID + ": " + message);
+    // Keep trying to see if the manager is available before registering
+    var MANAGER_CHECK_RETRY_MS = 2000;
+    function searchForManager(){
+        if (manager) {
+            Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
+                action: "REGISTER_ME",
+                uuid: scriptUUID
+            }));
+
+            return;
+        } else {
+            Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
+                action: "ARE_YOU_THERE_MANAGER_ITS_ME_BOT"
+            }));
+        }
+
+        Script.setTimeout(function(){
+            searchForManager();
+        }, MANAGER_CHECK_RETRY_MS);
     }
-    
+
+
     // #endregion
     // *************************************
     // END UTILITY FUNCTIONS
@@ -23,13 +54,10 @@
     // #region CONSTS_AND_VARS
     
     
-    console.log("\n\n MILAD-PLAYBACK 3 \n\n!")
-    var APP_NAME = "PLAYBACK";
     var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
     var scriptUUID;
 
     var player; 
-
     var manager;
 
    
@@ -44,17 +72,16 @@
     // #region PLAYER
     
     
-    // Player for the hfr recordings
+    // Player Class for the hfr recordings
     function Player() {
         this.isPlayingRecording = false;
         this.recordingFilename = "";
     }
 
-
-    function play(fileToPlay, position, orientation) {
-        console.log("\n\nplay playing " + JSON.stringify(fileToPlay));
-        console.log(JSON.stringify(player));
-        this.recordingFilename = fileToPlay;
+    
+    // Play the bot
+    function play(fileToPlay, position, orientation, volume) {
+        console.log("play playing " + JSON.stringify(fileToPlay));
 
         orientation = orientation || Quat.IDENTITY;
         var _this = this;
@@ -80,11 +107,9 @@
 
                 Recording.setPlayerTime(0.0);
                 Recording.startPlaying();
-                _this.isPlayingRecording = true;
-                console.log(JSON.stringify(player));
+                Recording.setPlayerVolume(volume);
             } else {
-                var errorMessage = "Could not load recording " + fileToPlay;
-                log(errorMessage);
+                console.log("Could not load recording " + fileToPlay);
 
                 _this.isPlayingRecording = false;
                 _this.recordingFilename = "";
@@ -93,6 +118,8 @@
     }
 
 
+    // Stop the bot and remove 
+    // #NOTE:  Adding and removing the agent is currently causing issues.  Using a work around for the meantime
     function stop() {
         console.log("Stop playing " + this.recordingFilename);
         console.log(JSON.stringify(player));
@@ -102,11 +129,10 @@
             Agent.isAvatar = true;
         }
         this.isPlayingRecording = false;
-        this.recordingFilename = "";
-
     }
 
-
+    
+    // Check if the bot is playing
     function isPlaying() {
         console.log("isPlaying");
         console.log(JSON.stringify(player));
@@ -132,6 +158,8 @@
     // *************************************
     // #region MESSAGES
     
+
+    // Handle messages fromt he manager
     var PLAYER_MESSAGES = ["REGISTER_ME", "ARE_YOU_THERE_MANAGER"];
     function onMessageReceived(channel, message, sender) {
         try {
@@ -148,21 +176,19 @@
             return;
         }
 
+        if (message.uuid !== scriptUUID) {
+            return;
+        }
+
         console.log("sender:" + sender);
         console.log("MESSAGE IN PLAYER:" + scriptUUID, JSON.stringify(message));
 
         switch (message.action){
             case "PLAY":
-                if (message.uuid !== scriptUUID) {
-                    return;
-                }
-
                 if (!player.isPlaying()) {
-                    console.log("\n\n SENDING TO PLAY \n\n")
-                    player.play(message.fileToPlay, message.position, message.orientation);
-                    console.log(JSON.stringify(player));
+                    player.play(message.fileToPlay, message.position, message.orientation, message.volume);
                 } else {
-                    log("Didn't start playing " + message.fileToPlay + " because already playing " + player.recording());
+                    console.log("Didn't start playing " + message.fileToPlay + " because already playing ");
                 }
                 break;
             case "STOP":
@@ -171,16 +197,11 @@
                 if (player.isPlaying()) {
                     console.log("PLAYER IS PLAYING SO ABOUT TO STOP")
                     player.stop();
-                } else {
-                    // log("Didn't stop playing because we were not playing " + player.recording());
                 }
                 break;
             case "REGISTER_MANAGER": 
                 manager = true;
                 break;
-            case "UPDATE_LOCATION":
-                // #TODO
-                break; 
             default:
                 console.log("unrecongized action in assignmentClientPlayer.js");
                 break;
@@ -198,27 +219,8 @@
     // *************************************
     // #region MAIN
     
-    
-    var MANAGER_CHECK_RETRY_MS = 2000;
-    function searchForManager(){
-        if (manager) {
-            Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
-                action: "REGISTER_ME",
-                uuid: scriptUUID
-            }));
 
-            return;
-        } else {
-            Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
-                action: "ARE_YOU_THERE_MANAGER"
-            }));
-        }
-
-        Script.setTimeout(function(){
-            searchForManager();
-        }, MANAGER_CHECK_RETRY_MS);
-    }
-
+    // Main function to run when player comes online
     function startUp() {
         scriptUUID = Agent.sessionUUID;
         console.log("script UUID", scriptUUID);
@@ -233,7 +235,6 @@
         Script.scriptEnding.connect(onEnding);
     }
 
-    // Give a little time for the manager to become available
     startUp();
     
     
