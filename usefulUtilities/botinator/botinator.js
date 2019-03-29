@@ -25,7 +25,7 @@
 
     var volume = 1.0;
     var contentBoundaryCorners = [[0,0,0], [[1,1,1]]];
-    var totalNumberOfBotsNeeded = 5;
+    var totalNumberOfBotsNeeded = 0;
     var availableACs = 0;
     // var botType = "MARK";
 
@@ -56,9 +56,9 @@
     function scriptEnding() {
         Messages.messageReceived.disconnect(onTabletChannelMessageReceived);
         Messages.unsubscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
-        Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, {
+        Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
             action: "STOP"
-        });
+        }));
     }
 
     
@@ -93,7 +93,7 @@
 
     // Update the tablet app with the number of ACs currently online
     function updateAvailableACs(newAvailableACs){
-        console.log("IN UPDATE AVAILABLE AC")
+        console.log("IN UPDATE AVAILABLE AC");
         availableACs = newAvailableACs;
         ui.sendMessage({
             app: "botinator",
@@ -104,21 +104,21 @@
 
 
     // Request how many ACs are available
-    function getAvailableACs(){
+    function getManagerStatus(){
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
-            action: "GET_AVAILABLE_ACS"
+            action: "GET_MANAGER_STATUS"
         }));
     }
     
 
     // Send the new data to the messanger
     function sendData() {
-        Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, {
+        Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
             action: "SEND_DATA",
             contentBoundaryCorners: contentBoundaryCorners,
             volume: volume,
             totalNumberOfBotsNeeded: totalNumberOfBotsNeeded
-        });
+        }));
     }
 
 
@@ -130,6 +130,18 @@
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
             action: controlType
         }));
+    }
+
+
+    // Update the play state 
+    function updateCurrentServerPlayStatus(isPlaying) {
+        playState = isPlaying;
+        ui.sendMessage({
+            app: "botinator",
+            method: "UPDATE_CURRENT_SERVER_PLAY_STATUS",
+            availableACs: availableACs
+        });
+
     }
 
     
@@ -148,6 +160,7 @@
         try {
             message = JSON.parse(message);
         } catch (error) {
+            console.log("MESSAGE:", message);
             console.log("invalid object");
             return;
         }
@@ -163,6 +176,11 @@
                 console.log("in AC_AVAILABLE_UPDATE");
                 console.log("message.newAvailableACs", message.newAvailableACs);
                 updateAvailableACs(message.newAvailableACs);
+                break;
+            case "GET_MANAGER_STATUS":
+                console.log("in GET_MANAGER_STATUS");
+                updateAvailableACs(message.newAvailableACs);
+                updateCurrentServerPlayStatus(message.currentlyRunningBots);
                 break;
             default:
                 console.log("unrecongized action in assignmentClientManger.js");
@@ -260,7 +278,7 @@
         Messages.subscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
         Script.scriptEnding.connect(scriptEnding);
 
-        getAvailableACs();
+        getManagerStatus();
     }
 
 

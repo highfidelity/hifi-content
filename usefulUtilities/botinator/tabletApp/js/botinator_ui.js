@@ -128,6 +128,9 @@ function onScriptEventReceived(message) {
             document.getElementById("contentBoundaryCorners2Position").innerHTML = message.contentBoundaryCorners[1];
             updateContentBoundaryCornersUI(message.contentBoundaryCorners);
             break;
+        case "UPDATE_CURRENT_SERVER_PLAY_STATUS":
+            updatePlayStateLabels(message.playState);
+            break;
         default:
             console.log("Unknown message received from botinator.js! " + JSON.stringify(message));
             break;

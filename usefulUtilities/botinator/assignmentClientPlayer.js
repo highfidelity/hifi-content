@@ -91,6 +91,7 @@
             if (success) {
                 console.log("IN LOAD RECORDING sUCCESS ");
                 console.log(JSON.stringify(player));
+                _this.isPlayingRecording = true;
 
                 Users.disableIgnoreRadius();
 
@@ -166,6 +167,8 @@
             message = JSON.parse(message);
         } catch (e) {
             console.log("Can not parse message object");
+            console.log("MESSAGE:", message);
+
             console.log(e);
         }
         

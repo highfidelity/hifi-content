@@ -250,6 +250,8 @@
             message = JSON.parse(message);
         } catch (error) {
             console.log("invalid object");
+            console.log("MESSAGE:", message);
+
             return;
         }
 
@@ -288,6 +290,7 @@
         try {
             message = JSON.parse(message);
         } catch (error) {
+            console.log("MESSAGE:", message);
             console.log("invalid object");
             return;
         }
@@ -333,10 +336,11 @@
                     stopAllBots();
                 }
                 break;
-            case "GET_AVAILABLE_ACS":
+            case "GET_MANAGER_STATUS":
                 Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
-                    action: "AC_AVAILABLE_UPDATE",
-                    newAvailableACs: availableAssignmentClientPlayers.length
+                    action: "GET_MANAGER_STATUS",
+                    newAvailableACs: availableAssignmentClientPlayers.length,
+                    currentlyRunningBots: currentlyRunningBots
                 }));
                 break;
             default:
