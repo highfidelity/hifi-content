@@ -60,6 +60,7 @@ function updateTotalNumberOfBotsNeeded(input){
 
 // Update the current availabler ACs indicated
 function updateAvailableACsUI(availableACs){
+    console.log("availableAcs:" + availableACs)
     document.getElementById("availableACs").innerHTML = availableACs;
 }
 
@@ -84,7 +85,7 @@ function changePlayState(){
         method: "updatePlayState",
         playState: playState
     }));
-    updatePlayStateLabels(playState)
+    updatePlayStateLabels(playState);
 }
 
 // #endregion
@@ -106,6 +107,7 @@ function onScriptEventReceived(message) {
         return; 
     }
 
+    console.log(JSON.stringify(message));
     switch (message.method) {
         case "UPDATE_UI":
             document.getElementById("loadingContainer").style.display = "none";
@@ -118,6 +120,7 @@ function onScriptEventReceived(message) {
             // document.getElementById("botType").innerHTML = message.botType;
             break;
         case "UPDATE_AVAILABLE_ACS":
+            console.log("\n\nin update\n\n")
             updateAvailableACsUI(message.availableACs);
             break;
         case "UPDATE_CONTENT_BOUNDARY_CORNERS":

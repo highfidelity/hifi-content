@@ -57,7 +57,7 @@
         Messages.messageReceived.disconnect(onTabletChannelMessageReceived);
         Messages.unsubscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, {
-            type: "STOP"
+            action: "STOP"
         });
     }
 
@@ -93,6 +93,7 @@
 
     // Update the tablet app with the number of ACs currently online
     function updateAvailableACs(newAvailableACs){
+        console.log("IN UPDATE AVAILABLE AC")
         availableACs = newAvailableACs;
         ui.sendMessage({
             app: "botinator",
@@ -102,10 +103,18 @@
     }
 
 
+    // Request how many ACs are available
+    function getAvailableACs(){
+        Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
+            action: "GET_AVAILABLE_ACS"
+        }));
+    }
+    
+
     // Send the new data to the messanger
     function sendData() {
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, {
-            type: "SEND_DATA",
+            action: "SEND_DATA",
             contentBoundaryCorners: contentBoundaryCorners,
             volume: volume,
             totalNumberOfBotsNeeded: totalNumberOfBotsNeeded
@@ -119,7 +128,7 @@
         playState = isPlaying;
         var controlType = playState ? "PLAY" : "STOP";
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
-            type: controlType
+            action: controlType
         }));
     }
 
@@ -152,6 +161,7 @@
         switch (message.action) {
             case "AC_AVAILABLE_UPDATE":
                 console.log("in AC_AVAILABLE_UPDATE");
+                console.log("message.newAvailableACs", message.newAvailableACs);
                 updateAvailableACs(message.newAvailableACs);
                 break;
             default:
@@ -249,6 +259,8 @@
         Messages.messageReceived.connect(onTabletChannelMessageReceived);
         Messages.subscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
         Script.scriptEnding.connect(scriptEnding);
+
+        getAvailableACs();
     }
 
 

@@ -153,7 +153,7 @@
     var availableAssignmentClientPlayers = [];
 
     // Total number of bots needed
-    var totalNumberOfBotsNeeded = 30;
+    var totalNumberOfBotsNeeded = 0;
 
     // Current playing bot count we are at
     var botCount = 0;
@@ -332,6 +332,12 @@
                 if (currentlyRunningBots) {
                     stopAllBots();
                 }
+                break;
+            case "GET_AVAILABLE_ACS":
+                Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
+                    action: "AC_AVAILABLE_UPDATE",
+                    newAvailableACs: availableAssignmentClientPlayers.length
+                }));
                 break;
             default:
                 console.log("unrecongized action in assignmentClientManger.js");
