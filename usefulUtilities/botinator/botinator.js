@@ -54,11 +54,15 @@
 
     // Called when the script is closing
     function scriptEnding() {
+        ui.close();
+        console.log("\n\nscript ending");
         Messages.messageReceived.disconnect(onTabletChannelMessageReceived);
         Messages.unsubscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
             action: "STOP"
         }));
+
+        Window.domainChanged.disconnect(onDomainChanged);
     }
 
     
@@ -141,7 +145,16 @@
             method: "UPDATE_CURRENT_SERVER_PLAY_STATUS",
             availableACs: availableACs
         });
+    }
 
+
+    var TIME_TO_WAIT_BEFORE_REQUESTING_MANAGER_STATUS_MS = 5000;
+    function onDomainChanged(){
+        console.log("IN ON DOMAIN CHANGED");
+        updateAvailableACs(0);
+        Script.setTimeout(function(){
+            getManagerStatus();
+        }, TIME_TO_WAIT_BEFORE_REQUESTING_MANAGER_STATUS_MS)
     }
 
     
@@ -181,6 +194,9 @@
                 console.log("in GET_MANAGER_STATUS");
                 updateAvailableACs(message.newAvailableACs);
                 updateCurrentServerPlayStatus(message.currentlyRunningBots);
+                if (message.closeTablet) {
+                    ui.close();
+                }
                 break;
             default:
                 console.log("unrecongized action in assignmentClientManger.js");
@@ -276,6 +292,7 @@
         });
         Messages.messageReceived.connect(onTabletChannelMessageReceived);
         Messages.subscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
+        Window.domainChanged.connect(onDomainChanged);
         Script.scriptEnding.connect(scriptEnding);
 
         getManagerStatus();

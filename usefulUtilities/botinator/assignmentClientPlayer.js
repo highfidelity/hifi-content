@@ -127,7 +127,7 @@
 
         if (Recording.isPlaying()) {
             Recording.stopPlaying();
-            Agent.isAvatar = true;
+            Agent.isAvatar = false;
         }
         this.isPlayingRecording = false;
     }

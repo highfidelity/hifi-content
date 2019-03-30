@@ -21,7 +21,7 @@
     // #region UTILITY FUNCTIONS   
     
 
-    console.log("\n\n\nC-v12\n\n\n");
+    console.log("\n\n\nC-v13\n\n\n");
     // Use a ring to cycle through the list for as many unique recordings as are available
     function findValue(index, array, offset) {
         offset = offset || 0;
@@ -268,10 +268,12 @@
                 availableAssignmentClientPlayers.push( 
                     new AssignmentClientPlayerObject(message.uuid, fileName, position, volume));
                 botRegisterdCount++;
-                Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
+                var messageToSend = JSON.stringify({
                     action: "AC_AVAILABLE_UPDATE",
                     newAvailableACs: availableAssignmentClientPlayers.length
-                }));
+                });
+                console.log("message:", messageToSend);
+                Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
                 break;
             case "ARE_YOU_THERE_MANAGER_ITS_ME_BOT":
                 Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
@@ -337,11 +339,13 @@
                 }
                 break;
             case "GET_MANAGER_STATUS":
-                Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
+                var messageToSend = JSON.stringify({
                     action: "GET_MANAGER_STATUS",
                     newAvailableACs: availableAssignmentClientPlayers.length,
                     currentlyRunningBots: currentlyRunningBots
-                }));
+                });
+                console.log("message:", messageToSend);
+                Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
                 break;
             default:
                 console.log("unrecongized action in assignmentClientManger.js");
@@ -386,6 +390,14 @@
     function onEnding(){
         Messages.messageReceived.disconnect(onMangerChannelMessageReceived);
         Messages.messageReceived.disconnect(onTabletChannelMessageReceived);
+        var messageToSend = JSON.stringify({
+            action: "GET_MANAGER_STATUS",
+            newAvailableACs: 0,
+            currentlyRunningBots: false,
+            closeTablet: true
+        });
+        console.log("message:", messageToSend);
+        Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
     }
 
 

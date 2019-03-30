@@ -88,6 +88,14 @@ function changePlayState(){
     updatePlayStateLabels(playState);
 }
 
+function sendData(){
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "botinator",
+        method: "sendData"
+    }));
+}
+
+
 // #endregion
 // *************************************
 // END UTILITY_FUNCTIONS
@@ -97,6 +105,7 @@ function changePlayState(){
 // Handle incoming tablet messages
 function onScriptEventReceived(message) {
     try {
+        console.log("MESSAGE:" + message);
         message = JSON.parse(message);
     } catch (e) {
         console.log(e);

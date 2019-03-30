@@ -15,6 +15,7 @@ body {
     overflow: hidden;
     margin: 0;
     padding: 0;
+    font-size: 20px;
     background-color: rgba(0, 0, 0, 0.1);
     background-image: url('../images/Terminator-920x584.jpg');
     background-size: cover;
@@ -41,10 +42,8 @@ body {
 
 #titleBarContainer {
     display: flex;
-    height: 68px;
-    padding: 0 16px;
-    padding-top: 10px;
-    font-size: 24px;
+    padding: 20px 16px;
+    font-size: 20px;
     background-color: rgba(0, 0, 0, .7);
     color: #ffffff;
     justify-content: space-between;
@@ -52,7 +51,7 @@ body {
 
 #instructionsContainer {
     padding: 20px 16px 0px 16px;
-    font-size: 18px;
+    font-size: 20px;
     /* height: 50px; */
     color: white;
     background-color: rgba(0,0,20,0.5);
@@ -60,21 +59,22 @@ body {
 
 #optionsContainer {
     width: calc(100vw - 24px);
-    margin: 24px 12px 0 12px;
+    margin: 15px 24px 15px 24px;
     color: white;
     display: flex;
-    flex-direction: column;
-    /* flex-wrap: wrap; */
-    /* justify-content: space-between; */
+    flex-direction: row;
+    align-content: center;
+    font-size: 3.5vw;
+
 }
 
 /* #optionsContainer > div:nth-child(2) {
     padding-left: 50px;
 } */
 
-#optionsContainer > div {
-    padding-top: 15px;
-}
+/* #optionsContainer + div > div {
+    margin-top: 50px;
+} */
 
 #volumeSlider {
     position: relative;
@@ -87,12 +87,50 @@ body {
     overflow-wrap: break-word;
 }
 
+#instructions > div {
+    margin: 24px 0px;
+}
+
+#buttonContainer {
+    display: flex;
+    flex-direction: row;
+    padding-left: 20px;
+    /* justify-content: space-between; */
+}
+
+/* #buttonContainer > label:nth-child(2) {
+    padding-left: 10px;
+} */
+
+#buttonContainer > label{
+    padding-left: 20px;
+    /* margin-top: 40px; */
+}
+
+#controlsContainer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    padding: 15px 16px 15px 16px;
+    display: flex;
+    flex-direction: row;
+    background-color: rgba(255, 100, 100, 0.5);
+    justify-content: center;
+}
+
+#controlsContainer > label:nth-child(2) {
+    padding-left: 40px;
+}
+
+
 .button {
     border: 0;
     line-height: 1.0;
-    padding: 5.0px 20px;
-    margin: 4px 0px;
-    font-size: 1rem;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
+    font-size: 15px;
     text-align: center;
     color: #fff;
     text-shadow: 1px 1px 1px #000;
@@ -118,13 +156,13 @@ body {
 .buttonControls {
     border: 0;
     line-height: 1.0;
-    padding: 5.0px 20px;
-    margin: 4px 0px;
-    font-size: 1rem;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
     text-align: center;
     color: red;
-    min-width: 160px;
-    max-width: 160px;
+    min-width: 100%;
+    max-width: 100%;
     text-shadow: 1px 1px 1px #000;
     border-radius: 10px;
     background-color: black;
@@ -150,32 +188,3 @@ body {
 
 } */
   
-#instructions > div {
-    margin: 12px 0px;
-}
-
-#buttonContainer {
-    display: flex;
-    flex-direction: row;
-    /* justify-content: space-between; */
-}
-
-#buttonContainer > label:nth-child(2) {
-    padding-left: 40px;
-}
-
-#controlsContainer {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    padding: 15px 16px 15px 16px;
-    display: flex;
-    flex-direction: row;
-    background-color: rgba(255, 100, 100, 0.5);
-    justify-content: center;
-}
-
-#controlsContainer > label:nth-child(2) {
-    padding-left: 40px;
-}
