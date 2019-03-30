@@ -17,107 +17,8 @@ function heartbeat() {
 
 }
 
-// #region OLD
-
-// Gets all information associated with users participating in the Best Avatar Contest
-function getParticipants(voterUsername, response) {
-    var query = `SELECT * FROM \`multiConAvatarContestParticipants\``;
-    connection.query(query, function(error, results) {
-        if (error) {
-            var responseObject = {
-                status: "error",
-                text: "Error while getting all participants! " + JSON.stringify(error)
-            };
-
-            response.statusCode = 500;
-            response.setHeader('Content-Type', 'application/json');
-            return response.end(JSON.stringify(responseObject));
-        }
-        
-        var avatarInformation = results;
-
-        query = `SELECT votedFor FROM \`multiConAvatarContestVotes\` WHERE voterUsername = '${voterUsername}'`
-        
-        connection.query(query, function(error, results) {
-            if (error) {
-                var responseObject = {
-                    status: "error",
-                    text: "Error while getting previous vote information! " + JSON.stringify(error)
-                };
-    
-                response.statusCode = 500;
-                response.setHeader('Content-Type', 'application/json');
-                return response.end(JSON.stringify(responseObject));
-            }
-
-            if (results.length > 0) {
-                var avatarVotedFor = results[0].votedFor;
-
-                for (var i = 0; i < avatarInformation.length; i++) {
-                    if (avatarInformation[i].username === avatarVotedFor) {
-                        avatarInformation[i].votedFor = true;
-                        break;
-                    }
-                }
-            }
-
-            var responseObject = {
-                status: "success",
-                text: "Successfully recieved avatar information.",
-                data: avatarInformation
-            };
-    
-            response.statusCode = 200;
-            response.setHeader('Content-Type', 'application/json');
-            return response.end(JSON.stringify(responseObject));
-        });
-    });
-}
-
-
-// Saves voter information to the 'multiConAvatarContestVotes' table.
-function vote(votedUsername, votedFor, voterIPv4Address, voterUserAgent, response) {
-    if (voterUserAgent.indexOf("HighFidelityInterface") === -1) {
-        var responseObject = {
-            status: "error",
-            text: "Error while voting!"
-        };
-
-        response.statusCode = 500;
-        response.setHeader('Content-Type', 'application/json');
-        return response.end(JSON.stringify(responseObject));
-    }
-
-    var query = `REPLACE INTO \`multiConAvatarContestVotes\` (voterUsername, votedFor, voterIPv4Address)
-        VALUES ('${votedUsername}', '${votedFor}', '${voterIPv4Address}')`;
-
-    connection.query(query, function(error, results, fields) {
-        if (error) {
-            var responseObject = {
-                status: "error",
-                text: "Error while voting! " + JSON.stringify(error)
-            };
-
-            response.statusCode = 500;
-            response.setHeader('Content-Type', 'application/json');
-            return response.end(JSON.stringify(responseObject));
-        }
-        
-        var responseObject = {
-            status: "success",
-            text: "Successfully voted."
-        };
-
-        response.statusCode = 200;
-        response.setHeader('Content-Type', 'application/json');
-        return response.end(JSON.stringify(responseObject));
-    });
-}
-
-// #endregion OLD
-
 function updateEmployee(updates, response) {
-
+    // Create strings for query from the updates object
     var columnString = "";
     var valueString = "";
     for(var key in updates) {
@@ -129,8 +30,6 @@ function updateEmployee(updates, response) {
     }
     columnString = columnString.slice(0, -2); // slice off the last ", "
     valueString = valueString.slice(0, -2); // slice off the last ", "
-
-    console.log(columnString + " " + valueString);
 
     var query = `REPLACE INTO \`availabilityindicator\` (${columnString}) VALUES (${valueString})`;
 
@@ -156,7 +55,6 @@ function updateEmployee(updates, response) {
         return response.end(JSON.stringify(responseObject));
     });
 }
-
 
 function getAllEmployees(response) {
     var query = `SELECT * FROM availabilityindicator
@@ -238,32 +136,50 @@ function handleGetRequest(request, response) {
 
     // root/type=?alsjdf
     switch(type) {
-        case "updateStatus":
-            // {
-            //      status: ["available", "unavailable", "away"]
-            // }
-            var username = queryParamObject.username;
-            var status = queryParamObject.status;
-            updateEmployee({
-                username: queryParamObject.username,
-                status: queryParamObject.status
-            }, response);
-        break;
+        case "updateEmployee": {
+            var queryObject = {};
+            if (queryParamObject.username) {
+                queryObject.username = queryParamObject.username;
+                if (queryParamObject.status) {
+                    queryObject.status = queryParamObject.status;
+                }
+                if (queryParamObject.displayName) {
+                    queryObject.displayName = queryParamObject.displayName;
+                }
+                if (queryParamObject.teamName) {
+                    queryObject.teamName = queryParamObject.teamName;
+                }
+                updateEmployee(queryObject, response);
+            } else {
+                console.error("There was no username or primary key! Can't update or create employee!");
+            }
+        }
+        // case "updateStatus":
+        //     // {
+        //     //      status: ["available", "unavailable", "away"]
+        //     // }
+        //     var username = queryParamObject.username;
+        //     var status = queryParamObject.status;
+        //     updateEmployee({
+        //         username: queryParamObject.username,
+        //         status: queryParamObject.status
+        //     }, response);
+        // break;
 
-        case "updateDisplayName":
-            // {
-            //      displayName: "exampleDisplayName"
-            //      username: "exampleUsername"
-            // }
-            updateEmployee
-            var username = queryParamObject.username;
-            var displayName = queryParamObject.displayName;
-            // var voterUserAgent = request.headers['user-agent']; ?? What is
-            updateEmployee({
-                username: queryParamObject.username,
-                displayName: queryParamObject.displayName
-            }, response);
-        break;
+        // case "updateDisplayName":
+        //     // {
+        //     //      displayName: "exampleDisplayName"
+        //     //      username: "exampleUsername"
+        //     // }
+        //     updateEmployee
+        //     var username = queryParamObject.username;
+        //     var displayName = queryParamObject.displayName;
+        //     // var voterUserAgent = request.headers['user-agent']; ?? What is
+        //     updateEmployee({
+        //         username: queryParamObject.username,
+        //         displayName: queryParamObject.displayName
+        //     }, response);
+        // break;
 
         case "heartbeat":
             // {
@@ -274,32 +190,32 @@ function handleGetRequest(request, response) {
             heartbeatForUser(username, response);
         break;
 
-        case "updateTeamName":
-            // {
-            //      teamName: "exampleTeamName"
-            //      username: "exampleUsername"
-            // }
-            // var voterUserAgent = request.headers['user-agent']; ?? What is
-            updateEmployee({
-                username: queryParamObject.username,
-                teamName: queryParamObject.teamName
-            }, response);
-        break;
+        // case "updateTeamName":
+        //     // {
+        //     //      teamName: "exampleTeamName"
+        //     //      username: "exampleUsername"
+        //     // }
+        //     // var voterUserAgent = request.headers['user-agent']; ?? What is
+        //     updateEmployee({
+        //         username: queryParamObject.username,
+        //         teamName: queryParamObject.teamName
+        //     }, response);
+        // break;
 
-        case "createEmployee": // http://localhost:3305/?username=hello1&teamName=team1&status=available&displayName=Hello
-            // http://localhost:3305/?type=createEmployee&username=hello1&teamName=ttt&status=available&displayName=HELLO%2022222    
-            // {
-            //      username: "exampleTeamName"
-            //      displayName: "exampleUsername"
-            //      status: "exampleUsername"
-            // }
-            updateEmployee({
-                username: queryParamObject.username,
-                teamName: queryParamObject.teamName,
-                status: queryParamObject.status,
-                displayName: queryParamObject.displayName
-            }, response);
-        break;
+        // case "createEmployee": // http://localhost:3305/?username=hello1&teamName=team1&status=available&displayName=Hello
+        //     // http://localhost:3305/?type=createEmployee&username=hello1&teamName=ttt&status=available&displayName=HELLO%2022222    
+        //     // {
+        //     //      username: "exampleTeamName"
+        //     //      displayName: "exampleUsername"
+        //     //      status: "exampleUsername"
+        //     // }
+        //     updateEmployee({
+        //         username: queryParamObject.username,
+        //         teamName: queryParamObject.teamName,
+        //         status: queryParamObject.status,
+        //         displayName: queryParamObject.displayName
+        //     }, response);
+        // break;
 
         case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees
             getAllEmployees(response);
