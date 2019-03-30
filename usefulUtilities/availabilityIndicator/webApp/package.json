@@ -1,0 +1,10 @@
+{
+    "name": "AvailabilityIndicator",
+    "version": "1.0.0",
+    "description": "Availability Indicator WebApp",
+    "main": "availabilityIndicator.js",
+    "author": "Robin Wilson",
+    "dependencies": {
+        "mysql": "^2.16.0"
+    }
+}
