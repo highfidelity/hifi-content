@@ -13,7 +13,7 @@ Botinator helps with load testing domains.  It will handle some of the hassels o
 
 # Releases
 
-## 2019-03-30_21-56-20 :: [b564b47](https://github.com/highfidelity/hifi-content/commit/b564b47)
+## 2019-03-30_21-56-20 :: [4ff97f1](https://github.com/highfidelity/hifi-content/commit/4ff97f1)
 - Initial release
 
 # Known issues
