@@ -1,6 +1,6 @@
 /*
 
-    User Inspector
+    Botinator
     Created by Milad Nazeri on 2019-01-07
     Copyright 2019 High Fidelity, Inc.
 
@@ -13,13 +13,35 @@
 
 
 // *************************************
+// START VARS AND CONSTS
+// *************************************
+// #region VARS AND CONSTS
+
+
+var loadingContainer;
+var contentBoundaryCorners1Position;
+var contentBoundaryCorners2Position;
+var volumeSlider;
+var totalNumberOfBotsNeeded;
+var availableACs;
+var playStopButton; 
+var updateBotDataButton;
+var playButtonDisabled = true;
+
+
+// #endregion
+// *************************************
+// END VARS AND CONSTS
+// *************************************
+
+// *************************************
 // START UTILITY_FUNCTIONS
 // *************************************
 // #region UTILITY_FUNCTIONS
 
 
 // Handle the volume being changed
-function volumeChanged(slider) {
+function updateVolume(slider) {
     EventBridge.emitWebEvent(JSON.stringify({
         app: "botinator",
         method: "updateVolume",
@@ -45,8 +67,9 @@ function updateTotalNumberOfBotsNeeded(input){
         method: "updateTotalNumberOfBotsNeeded",
         totalNumberOfBotsNeeded: input.value
     }));
-    document.getElementById("totalNumberOfBotsNeeded").innerHTML = "Current Bots: " + input.value;
+    totalNumberOfBotsNeeded.innerHTML = "Current Bots: " + input.value;
 }
+
 
 // Update which kind of bot to use
 // function updateBotType(input){
@@ -59,34 +82,62 @@ function updateTotalNumberOfBotsNeeded(input){
 
 
 // Update the current availabler ACs indicated
-function updateAvailableACsUI(availableACs){
-    console.log("availableAcs:" + availableACs)
-    document.getElementById("availableACs").innerHTML = availableACs;
+function updateAvailableACsUI(currentAvailableACs){
+    console.log("availableAcs:" + currentAvailableACs);
+    availableACs.innerHTML = currentAvailableACs;
 }
 
 
 // Update the current availabler ACs indicated
 function updateContentBoundaryCornersUI(contentBoundaryCorners){
-    document.getElementById("contentBoundaryCorners1Position").innerHTML = contentBoundaryCorners[0];
-    document.getElementById("contentBoundaryCorners2Position").innerHTML = contentBoundaryCorners[1];
+    contentBoundaryCorners1Position.innerHTML = contentBoundaryCorners[0];
+    contentBoundaryCorners2Position.innerHTML = contentBoundaryCorners[1];
 }
 
-var playState = false;
-function updatePlayStateLabels(isPlaying){
-    playState = isPlaying;
-    var playLabel = playState ? "Stop" : "Play";
-    document.getElementById("playStopButton").value = playLabel;
+
+// Change the play/stop button label
+function updatePlayLabel(playState){
+    isPlaying = playState;
+    var playLabel = isPlaying ? "Stop" : "Play";
+    playStopButton.value = playLabel;
 }
 
-function changePlayState(){
-    playState = !playState;
+
+// Handle play state change
+var isPlaying = false;
+function updateIsPlaying(){
+    isPlaying = !isPlaying;
     EventBridge.emitWebEvent(JSON.stringify({
         app: "botinator",
-        method: "updatePlayState",
-        playState: playState
+        method: "updateIsPlaying",
+        isPlaying: isPlaying
     }));
-    updatePlayStateLabels(playState);
+    updatePlayLabel(isPlaying);
 }
+
+
+function maybeDisablePlayButton(acs){
+    if (acs > 0 && playButtonDisabled){
+        playStopButton.disabled = false;
+        updateBotDataButton.disabled = false;
+
+        playStopButton.classList.add("buttonControls");
+        playStopButton.classList.remove("buttonDisabled");
+        updateBotDataButton.classList.add("buttonControls");
+        updateBotDataButton.classList.remove("buttonDisabled");
+        return;
+    }
+    playButtonDisabled = true;
+
+    playStopButton.disabled = true;
+    updateBotDataButton.disabled = true;
+
+    playStopButton.classList.remove("buttonControls");
+    playStopButton.classList.add("buttonDisabled");
+    updateBotDataButton.classList.remove("buttonControls");
+    updateBotDataButton.classList.add("buttonDisabled");
+}
+
 
 function sendData(){
     EventBridge.emitWebEvent(JSON.stringify({
@@ -119,26 +170,29 @@ function onScriptEventReceived(message) {
     console.log(JSON.stringify(message));
     switch (message.method) {
         case "UPDATE_UI":
-            document.getElementById("loadingContainer").style.display = "none";
-            document.getElementById("contentBoundaryCorners1Position").innerHTML = message.contentBoundaryCorners[0];
-            document.getElementById("contentBoundaryCorners2Position").innerHTML = message.contentBoundaryCorners[1];
-            document.getElementById("volumeSlider").value = message.volume;         
-            document.getElementById("totalNumberOfBotsNeeded").innerHTML = "Current Bots: " + message.totalNumberOfBotsNeeded;
-            document.getElementById("availableACs").innerHTML = message.availableACs;
-            updatePlayStateLabels(message.playState);
-            // document.getElementById("botType").innerHTML = message.botType;
+            loadingContainer.style.display = "none";
+            contentBoundaryCorners1Position.innerHTML = message.contentBoundaryCorners[0];
+            contentBoundaryCorners2Position.innerHTML = message.contentBoundaryCorners[1];
+            volumeSlider.value = message.volume;         
+            totalNumberOfBotsNeeded.innerHTML = "Current Bots: " + message.totalNumberOfBotsNeeded;
+            availableACs.innerHTML = message.availableACs;
+            updatePlayLabel(message.playState);
+            maybeDisablePlayButton(message.availableACs);
             break;
         case "UPDATE_AVAILABLE_ACS":
-            console.log("\n\nin update\n\n")
+            console.log("\n\nin update\n\n");
             updateAvailableACsUI(message.availableACs);
+            maybeDisablePlayButton(message.availableACs);
             break;
         case "UPDATE_CONTENT_BOUNDARY_CORNERS":
-            document.getElementById("contentBoundaryCorners1Position").innerHTML = message.contentBoundaryCorners[0];
-            document.getElementById("contentBoundaryCorners2Position").innerHTML = message.contentBoundaryCorners[1];
+            contentBoundaryCorners1Position.innerHTML = message.contentBoundaryCorners[0];
+            contentBoundaryCorners2Position.innerHTML = message.contentBoundaryCorners[1];
             updateContentBoundaryCornersUI(message.contentBoundaryCorners);
             break;
         case "UPDATE_CURRENT_SERVER_PLAY_STATUS":
-            updatePlayStateLabels(message.playState);
+            updatePlayLabel(message.playState);
+            updateAvailableACsUI(message.availableACs);
+            maybeDisablePlayButton(message.availableACs);
             break;
         default:
             console.log("Unknown message received from botinator.js! " + JSON.stringify(message));
@@ -151,6 +205,15 @@ function onScriptEventReceived(message) {
 // Run when the JS is loaded and give enough time to for EventBridge to come back
 var EVENTBRIDGE_SETUP_DELAY = 500;
 function onLoad() {
+    loadingContainer = document.getElementById("loadingContainer");
+    contentBoundaryCorners1Position = document.getElementById("contentBoundaryCorners1Position");
+    contentBoundaryCorners2Position = document.getElementById("contentBoundaryCorners2Position");
+    volumeSlider = document.getElementById("volumeSlider");
+    totalNumberOfBotsNeeded = document.getElementById("totalNumberOfBotsNeeded");
+    availableACs = document.getElementById("availableACs");
+    playStopButton = document.getElementById("playStopButton");
+    updateBotDataButton = document.getElementById("updateBotDataButton");
+
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({

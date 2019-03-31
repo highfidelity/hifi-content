@@ -1,4 +1,5 @@
 //
+//
 //    Botinator
 //    Created by Milad Nazeri on 2019-02-16
 //    Copyright 2019 High Fidelity, Inc.
@@ -7,6 +8,8 @@
 //    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 //    Keeping the bot type plumbing commented out for the meantime
+//
+//
 
 
 (function () {
@@ -16,7 +19,7 @@
     // *************************************
     // #region CONSTS_AND_VARS
     
-    
+
     var ASSIGNMENT_CLIENT_MESSANGER_CHANNEL = "ASSIGNMENT_CLIENT_MESSANGER_CHANNEL";
 
     var X = 0;
@@ -27,6 +30,18 @@
     var contentBoundaryCorners = [[0,0,0], [[1,1,1]]];
     var totalNumberOfBotsNeeded = 0;
     var availableACs = 0;
+
+    // Clips for the start and stop feedback
+    var audioClips = Script.require("./wavs.js?" + Date.now());
+    var playClips = audioClips.play.map(function(sound){
+        var soundUrl = Script.resolvePath(sound);
+        return SoundCache.getSound(soundUrl);
+    });
+    var stopClips = audioClips.stop.map(function(sound){
+        return SoundCache.getSound(Script.resolvePath(sound));
+    });
+
+    // Leaving plumbing in for the bot type to give a second kind of bot recording
     // var botType = "MARK";
 
 
@@ -41,7 +56,8 @@
     // #region UTILITY
     
 
-    // Convert object to array to make sure we are compatable with the other function, also format it to 2 decimal places
+    // Convert object to array to make sure we are compatable with the other functions, 
+    // and to also format it for 2 decimal places
     var FIXED_DIGITS = 2;
     function convertPositionToArray(position){
         return [ 
@@ -55,7 +71,7 @@
     // Called when the script is closing
     function scriptEnding() {
         ui.close();
-        console.log("\n\nscript ending");
+
         Messages.messageReceived.disconnect(onTabletChannelMessageReceived);
         Messages.unsubscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
@@ -97,7 +113,6 @@
 
     // Update the tablet app with the number of ACs currently online
     function updateAvailableACs(newAvailableACs){
-        console.log("IN UPDATE AVAILABLE AC");
         availableACs = newAvailableACs;
         ui.sendMessage({
             app: "botinator",
@@ -107,7 +122,7 @@
     }
 
 
-    // Request how many ACs are available
+    // Request information about the player
     function getManagerStatus(){
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
             action: "GET_MANAGER_STATUS"
@@ -123,41 +138,85 @@
             volume: volume,
             totalNumberOfBotsNeeded: totalNumberOfBotsNeeded
         }));
+
+        if (isPlaying) {
+            isPlaying = !isPlaying;
+            ui.sendMessage({
+                app: "botinator",
+                method: "UPDATE_CURRENT_SERVER_PLAY_STATUS",
+                availableACs: availableACs,
+                isPlaying: isPlaying
+            });
+        }
     }
 
 
     // Update the play state 
-    var playState = false;
-    function updatePlayState(isPlaying) {
-        playState = isPlaying;
-        var controlType = playState ? "PLAY" : "STOP";
+    var isPlaying = false;
+    var PLAY_VOLUME = 0.01;
+    function updateIsPlaying(playState) {
+        isPlaying = playState;
+        var controlType = isPlaying ? "PLAY" : "STOP";
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
             action: controlType
         }));
+
+        if (controlType === "PLAY") {
+            var randomPlay = playClips[randIndex(0, playClips.length)];
+            playSound(randomPlay, PLAY_VOLUME, MyAvatar.position, false);
+        } else {
+            var randomStop = stopClips[randIndex(0, stopClips.length)];
+            playSound(randomStop, PLAY_VOLUME, MyAvatar.position, false);
+        }
     }
 
 
     // Update the play state 
-    function updateCurrentServerPlayStatus(isPlaying) {
-        playState = isPlaying;
+    function updateCurrentServerPlayStatus(playState) {
+        isPlaying = playState;
         ui.sendMessage({
             app: "botinator",
             method: "UPDATE_CURRENT_SERVER_PLAY_STATUS",
-            availableACs: availableACs
+            isPlaying: isPlaying
         });
     }
 
 
+    // Run when you are changing domains to make sure the tablet updates
     var TIME_TO_WAIT_BEFORE_REQUESTING_MANAGER_STATUS_MS = 5000;
     function onDomainChanged(){
-        console.log("IN ON DOMAIN CHANGED");
         updateAvailableACs(0);
         Script.setTimeout(function(){
             getManagerStatus();
-        }, TIME_TO_WAIT_BEFORE_REQUESTING_MANAGER_STATUS_MS)
+        }, TIME_TO_WAIT_BEFORE_REQUESTING_MANAGER_STATUS_MS);
     }
 
     
+    // Borrowed from bingo app:
+    // Plays the specified sound at the specified position, volume, and localOnly
+    // Only plays a sound if it is downloaded.
+    // Only plays one sound at a time.
+    var injector;
+    function playSound(sound, volume, position, localOnly){
+        if (sound.downloaded) {
+            if (injector) {
+                injector.stop();
+            }
+            injector = Audio.playSound(sound, {
+                position: position,
+                volume: volume,
+                localOnly: localOnly
+            });
+        }
+    }
+
+
+    // Get a random index with a low and high
+    function randIndex(low, high) {
+        return Math.floor(low + Math.random() * (high - low));
+    }
+
+
     // #endregion
     // *************************************
     // END UTILITY
@@ -173,8 +232,7 @@
         try {
             message = JSON.parse(message);
         } catch (error) {
-            console.log("MESSAGE:", message);
-            console.log("invalid object");
+            console.log("invalid object", error);
             return;
         }
 
@@ -186,14 +244,12 @@
 
         switch (message.action) {
             case "AC_AVAILABLE_UPDATE":
-                console.log("in AC_AVAILABLE_UPDATE");
                 console.log("message.newAvailableACs", message.newAvailableACs);
                 updateAvailableACs(message.newAvailableACs);
                 break;
             case "GET_MANAGER_STATUS":
-                console.log("in GET_MANAGER_STATUS");
                 updateAvailableACs(message.newAvailableACs);
-                updateCurrentServerPlayStatus(message.currentlyRunningBots);
+                updateCurrentServerPlayStatus(message.isPlaying);
                 if (message.closeTablet) {
                     ui.close();
                 }
@@ -216,11 +272,6 @@
     // #region TABLET
     
 
-    // Run when the tablet is opened
-    function onOpened() {
-    }
-
-
     function onMessage(message) {
         if (message.app !== "botinator") {
             return;
@@ -234,7 +285,7 @@
                     contentBoundaryCorners: contentBoundaryCorners,
                     totalNumberOfBotsNeeded: totalNumberOfBotsNeeded,
                     availableACs: availableACs,
-                    playState: playState
+                    isPlaying: isPlaying
                     // botType: botType,
                 });
                 break;
@@ -247,16 +298,16 @@
             case "updateTotalNumberOfBotsNeeded":
                 updateTotalNumberOfBotsNeeded(message.totalNumberOfBotsNeeded);
                 break;
-            case "updatePlayState":
-                console.log(message.playState);
-                updatePlayState(message.playState);
+            case "updateIsPlaying":
+                sendData();
+                updateIsPlaying(message.isPlaying);
+                break;
+            case "sendData":
+                sendData();
                 break;
             // case "updateBotType":
             //     updateBotType(message.botType);
             //     break;
-            case "sendData":
-                sendData();
-                break;
             default:
                 console.log("Unhandled message from userInspector_ui.js: " + JSON.stringify(message));
                 break;
@@ -285,9 +336,7 @@
         ui = new AppUI({
             buttonName: BUTTON_NAME,
             home: APP_UI_URL,
-            // User by Craig from the Noun Project
-            graphicsDirectory: Script.resolvePath("./resources/images/icons/"),
-            onOpened: onOpened,
+            graphicsDirectory: Script.resolvePath("./tabletApp/images/icons/"),
             onMessage: onMessage
         });
         Messages.messageReceived.connect(onTabletChannelMessageReceived);

@@ -80,13 +80,12 @@
 
     
     // Play the bot
-    function play(fileToPlay, position, orientation, volume) {
+    function play(fileToPlay, position, volume) {
         console.log("play playing " + JSON.stringify(fileToPlay));
-
-        orientation = orientation || Quat.IDENTITY;
+        this.recordingFilename = fileToPlay;
         var _this = this;
+        
         Recording.loadRecording(fileToPlay, function (success, url) {
-            console.log("url", url);
             console.log("IN LOAD RECORDING");
             if (success) {
                 console.log("IN LOAD RECORDING sUCCESS ");
@@ -97,7 +96,6 @@
 
                 Agent.isAvatar = true;
                 Avatar.position = position;
-                Avatar.orientation = orientation;
 
                 Recording.setPlayFromCurrentLocation(true);
                 Recording.setPlayerUseDisplayName(true);
@@ -105,10 +103,10 @@
                 Recording.setPlayerUseAttachments(true);
                 Recording.setPlayerLoop(true);
                 Recording.setPlayerUseSkeletonModel(true);
-
-                Recording.setPlayerTime(0.0);
-                Recording.startPlaying();
                 Recording.setPlayerVolume(volume);
+                Recording.setPlayerTime(0.0);
+                
+                Recording.startPlaying();
             } else {
                 console.log("Could not load recording " + fileToPlay);
 
@@ -123,11 +121,12 @@
     // #NOTE:  Adding and removing the agent is currently causing issues.  Using a work around for the meantime
     function stop() {
         console.log("Stop playing " + this.recordingFilename);
-        console.log(JSON.stringify(player));
 
         if (Recording.isPlaying()) {
             Recording.stopPlaying();
-            Agent.isAvatar = false;
+
+            // This looks like it's a platform bug that this can't be removed
+            // Agent.isAvatar = false;
         }
         this.isPlayingRecording = false;
     }
@@ -135,8 +134,6 @@
     
     // Check if the bot is playing
     function isPlaying() {
-        console.log("isPlaying");
-        console.log(JSON.stringify(player));
         console.log("this.isPlayingRecording", this.isPlayingRecording)
         return this.isPlayingRecording;
     }
@@ -167,14 +164,11 @@
             message = JSON.parse(message);
         } catch (e) {
             console.log("Can not parse message object");
-            console.log("MESSAGE:", message);
-
             console.log(e);
         }
         
         if (channel !== ASSIGNMENT_MANAGER_CHANNEL || 
             sender === scriptUUID || 
-            // message.uuid !== scriptUUID ||
             PLAYER_MESSAGES.indexOf(message.action) > -1) {
             return;
         }
@@ -189,16 +183,14 @@
         switch (message.action){
             case "PLAY":
                 if (!player.isPlaying()) {
-                    player.play(message.fileToPlay, message.position, message.orientation, message.volume);
+                    player.play(message.fileToPlay, message.position, +message.volume);
                 } else {
                     console.log("Didn't start playing " + message.fileToPlay + " because already playing ");
                 }
                 break;
             case "STOP":
-                console.log("ABOUT TO CHECK STOP")
                 console.log(JSON.stringify(player));
                 if (player.isPlaying()) {
-                    console.log("PLAYER IS PLAYING SO ABOUT TO STOP")
                     player.stop();
                 }
                 break;

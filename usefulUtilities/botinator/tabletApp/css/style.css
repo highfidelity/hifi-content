@@ -39,7 +39,6 @@ body {
     z-index: 999;
 }
 
-
 #titleBarContainer {
     display: flex;
     padding: 20px 16px;
@@ -65,16 +64,7 @@ body {
     flex-direction: row;
     align-content: center;
     font-size: 3.5vw;
-
 }
-
-/* #optionsContainer > div:nth-child(2) {
-    padding-left: 50px;
-} */
-
-/* #optionsContainer + div > div {
-    margin-top: 50px;
-} */
 
 #volumeSlider {
     position: relative;
@@ -98,12 +88,8 @@ body {
     /* justify-content: space-between; */
 }
 
-/* #buttonContainer > label:nth-child(2) {
-    padding-left: 10px;
-} */
-
 #buttonContainer > label{
-    padding-left: 20px;
+    margin-left: 8px;
     /* margin-top: 40px; */
 }
 
@@ -123,7 +109,6 @@ body {
     padding-left: 40px;
 }
 
-
 .button {
     border: 0;
     line-height: 1.0;
@@ -136,6 +121,26 @@ body {
     text-shadow: 1px 1px 1px #000;
     border-radius: 10px;
     background-color: rgba(220, 0, 0, 1);
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.buttonDisabled {
+    border: 0;
+    line-height: 1.0;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
+    font-size: 15px;
+    text-align: center;
+    color: rgba(100, 100, 100, 1);
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 10px;
+    background-color: rgba(200, 200, 200, 1);
     background-image: linear-gradient(to top left,
                                       rgba(0, 0, 0, .2),
                                       rgba(0, 0, 0, .2) 30%,
@@ -183,8 +188,4 @@ body {
     box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
-
-/* #instructions {
-
-} */
   

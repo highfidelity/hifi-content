@@ -21,7 +21,6 @@
     // #region UTILITY FUNCTIONS   
     
 
-    console.log("\n\n\nC-v13\n\n\n");
     // Use a ring to cycle through the list for as many unique recordings as are available
     function findValue(index, array, offset) {
         offset = offset || 0;
@@ -48,12 +47,11 @@
 
     // Stop all the bots currently playing
     function stopAllBots(){
-        console.log("STOP ALL BOTS")
         availableAssignmentClientPlayers.forEach(function(ac){
             ac.stop();
         });
         botCount = 0;
-        currentlyRunningBots = false;
+        isPlaying = false;
     }
 
 
@@ -165,7 +163,7 @@
     var contentBoundaryCorners = [[0,0,0], [0,0,0]];
 
     // Check for if currently running
-    var currentlyRunningBots = false;
+    var isPlaying = false;
 
     // Volume the bots should play at
     var volume = 1.0;
@@ -208,7 +206,8 @@
             action: "PLAY",
             fileToPlay: this.fileToPlay,
             position: this.position,
-            uuid: this.uuid
+            uuid: this.uuid,
+            volume: this.volume
         }));
     }
 
@@ -240,9 +239,6 @@
     // *************************************
     // #region MESSAGES
 
-
-    Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
-    Messages.subscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
 
     // Handle Messages received
     function onMangerChannelMessageReceived(channel, message, sender) {
@@ -292,8 +288,8 @@
         try {
             message = JSON.parse(message);
         } catch (error) {
-            console.log("MESSAGE:", message);
             console.log("invalid object");
+            console.log(error);
             return;
         }
 
@@ -306,9 +302,9 @@
         switch (message.action) {
             case "SEND_DATA":
                 console.log("in refresh settings");
-                if (currentlyRunningBots) {
+                if (isPlaying) {
                     stopAllBots();
-                    currentlyRunningBots = false;
+                    isPlaying = false;
                 }   
 
                 if (JSON.stringify(contentBoundaryCorners) !== 
@@ -318,7 +314,7 @@
                 }
 
                 if (volume !== message.volume) {
-                    volume = message.contentBoundaryCorners;
+                    volume = message.volume;
                     updateAllBotsVolume();
                 }
 
@@ -326,15 +322,15 @@
                 break;
             case "PLAY":
                 console.log("in play");
-                if (currentlyRunningBots) {
+                if (isPlaying) {
                     return;
                 }
-                currentlyRunningBots = true;
+                isPlaying = true;
                 startSequence();
                 break;
             case "STOP":
                 console.log("in stop");
-                if (currentlyRunningBots) {
+                if (isPlaying) {
                     stopAllBots();
                 }
                 break;
@@ -342,7 +338,7 @@
                 var messageToSend = JSON.stringify({
                     action: "GET_MANAGER_STATUS",
                     newAvailableACs: availableAssignmentClientPlayers.length,
-                    currentlyRunningBots: currentlyRunningBots
+                    isPlaying: isPlaying
                 });
                 console.log("message:", messageToSend);
                 Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
@@ -367,6 +363,8 @@
     
     // Startup for the manager when it comes online
     function startUp(){
+        Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
+        Messages.subscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
         Messages.messageReceived.connect(onMangerChannelMessageReceived);
         Messages.messageReceived.connect(onTabletChannelMessageReceived);
         Script.scriptEnding.connect(onEnding);
@@ -393,10 +391,9 @@
         var messageToSend = JSON.stringify({
             action: "GET_MANAGER_STATUS",
             newAvailableACs: 0,
-            currentlyRunningBots: false,
+            isPlaying: false,
             closeTablet: true
         });
-        console.log("message:", messageToSend);
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
     }
 

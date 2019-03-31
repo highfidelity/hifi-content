@@ -55,7 +55,7 @@
                     <div>
                         <label id="volumeLabel">
                             <b>Bot Volume</b><br/>
-                            <input id="volumeSlider" type="range" name="volume-slide" min="0.0" max="1.0" step="0.1" value="1.0" onchange="volumeChanged(this)">
+                            <input id="volumeSlider" type="range" name="volume-slide" min="0.0" max="1.0" step="0.1" value="1.0" onchange="updateVolume(this)">
                         </label>
                     </div>
                     <br/>
@@ -88,7 +88,7 @@
                     <input id="updateBotDataButton" class="buttonControls" type="button" value="Send Data" onclick="sendData()">
                 </label>
                 <label id="playStopControl">
-                    <input id="playStopButton" class="buttonControls" type="button" value="Play" onclick="changePlayState()">
+                    <input id="playStopButton" class="buttonControls" type="button" value="Play" onclick="updateIsPlaying()">
                 </label>
            </div>
        </div>
