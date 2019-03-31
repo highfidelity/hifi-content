@@ -71,19 +71,8 @@ function updateTotalNumberOfBotsNeeded(input){
 }
 
 
-// Update which kind of bot to use
-// function updateBotType(input){
-//     EventBridge.emitWebEvent(JSON.stringify({
-//         app: "botinator",
-//         method: "updateBotType",
-//         updateBotType: input.value
-//     }));
-// }
-
-
 // Update the current availabler ACs indicated
 function updateAvailableACsUI(currentAvailableACs){
-    console.log("availableAcs:" + currentAvailableACs);
     availableACs.innerHTML = currentAvailableACs;
 }
 
@@ -127,6 +116,7 @@ function maybeDisablePlayButton(acs){
         updateBotDataButton.classList.remove("buttonDisabled");
         return;
     }
+
     playButtonDisabled = true;
 
     playStopButton.disabled = true;
@@ -167,7 +157,6 @@ function onScriptEventReceived(message) {
         return; 
     }
 
-    console.log(JSON.stringify(message));
     switch (message.method) {
         case "UPDATE_UI":
             loadingContainer.style.display = "none";
@@ -180,7 +169,6 @@ function onScriptEventReceived(message) {
             maybeDisablePlayButton(message.availableACs);
             break;
         case "UPDATE_AVAILABLE_ACS":
-            console.log("\n\nin update\n\n");
             updateAvailableACsUI(message.availableACs);
             maybeDisablePlayButton(message.availableACs);
             break;

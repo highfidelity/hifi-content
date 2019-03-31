@@ -134,7 +134,6 @@
     
     // Check if the bot is playing
     function isPlaying() {
-        console.log("this.isPlayingRecording", this.isPlayingRecording)
         return this.isPlayingRecording;
     }
 
@@ -177,9 +176,6 @@
             return;
         }
 
-        console.log("sender:" + sender);
-        console.log("MESSAGE IN PLAYER:" + scriptUUID, JSON.stringify(message));
-
         switch (message.action){
             case "PLAY":
                 if (!player.isPlaying()) {
@@ -189,7 +185,6 @@
                 }
                 break;
             case "STOP":
-                console.log(JSON.stringify(player));
                 if (player.isPlaying()) {
                     player.stop();
                 }
@@ -218,7 +213,6 @@
     // Main function to run when player comes online
     function startUp() {
         scriptUUID = Agent.sessionUUID;
-        console.log("script UUID", scriptUUID);
         player = new Player();
 
         Messages.messageReceived.connect(onMessageReceived);

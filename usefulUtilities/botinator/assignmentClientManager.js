@@ -75,10 +75,6 @@
     // Start playing sequence to fill players with bots
     var AC_AVAILABILITY_CHECK_MS = 1000;
     function startSequence(){
-        console.log("in start sequence");
-        console.log("botCount", botCount);
-        console.log("totalNumberOfBots", totalNumberOfBotsNeeded);
-
         // Check to see how many bots are needed
         if (botCount >= totalNumberOfBotsNeeded) {
             return;
@@ -255,8 +251,6 @@
             return;
         }
 
-        console.log("MESSAGE IN MANAGER", JSON.stringify(message));
-
         switch (message.action) {
             case "REGISTER_ME":
                 var fileName = findValue(botRegisterdCount, BOTS);
@@ -268,7 +262,6 @@
                     action: "AC_AVAILABLE_UPDATE",
                     newAvailableACs: availableAssignmentClientPlayers.length
                 });
-                console.log("message:", messageToSend);
                 Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
                 break;
             case "ARE_YOU_THERE_MANAGER_ITS_ME_BOT":
@@ -297,11 +290,8 @@
             return;
         }
 
-        console.log("MESSAGE IN MANAGER FROM TABLET", JSON.stringify(message));
-
         switch (message.action) {
             case "SEND_DATA":
-                console.log("in refresh settings");
                 if (isPlaying) {
                     stopAllBots();
                     isPlaying = false;
@@ -321,7 +311,6 @@
                 totalNumberOfBotsNeeded = message.totalNumberOfBotsNeeded;
                 break;
             case "PLAY":
-                console.log("in play");
                 if (isPlaying) {
                     return;
                 }
@@ -329,7 +318,6 @@
                 startSequence();
                 break;
             case "STOP":
-                console.log("in stop");
                 if (isPlaying) {
                     stopAllBots();
                 }
@@ -340,7 +328,6 @@
                     newAvailableACs: availableAssignmentClientPlayers.length,
                     isPlaying: isPlaying
                 });
-                console.log("message:", messageToSend);
                 Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
                 break;
             default:

@@ -18,4 +18,7 @@ Botinator helps with load testing domains.  It will handle some of the hassels o
 
 # Known issues
 - Currently, we can not remove the avatars with Agent.isAvatar = false, or the next time a recording is loaded, it appears as a white sphere in the origin.
-- The setVolume for the Recording api also doesn't appear to be working properly.  
+- The setVolume for the Recording api also doesn't appear to be working properly. 
+
+# Trello Card
+https://trello.com/c/8SWztg7k/88-bot-tester-script-test-app-v1

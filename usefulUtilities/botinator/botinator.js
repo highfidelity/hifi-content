@@ -41,9 +41,6 @@
         return SoundCache.getSound(Script.resolvePath(sound));
     });
 
-    // Leaving plumbing in for the bot type to give a second kind of bot recording
-    // var botType = "MARK";
-
 
     // #endregion
     // *************************************
@@ -103,12 +100,6 @@
     function updateTotalNumberOfBotsNeeded(newTotalNumberOfBotsNeeded){
         totalNumberOfBotsNeeded = newTotalNumberOfBotsNeeded;
     }
-
-    
-    // Change which bot type you would like to use :: Currently Flow and Mark
-    // function updateBotType(newBotType){
-    //     botType = newBotType;
-    // }
 
 
     // Update the tablet app with the number of ACs currently online
@@ -240,11 +231,8 @@
             return;
         }
 
-        console.log("MESSAGE IN INTERFACE SCRIPT FROM TABLET", JSON.stringify(message));
-
         switch (message.action) {
             case "AC_AVAILABLE_UPDATE":
-                console.log("message.newAvailableACs", message.newAvailableACs);
                 updateAvailableACs(message.newAvailableACs);
                 break;
             case "GET_MANAGER_STATUS":
@@ -286,7 +274,6 @@
                     totalNumberOfBotsNeeded: totalNumberOfBotsNeeded,
                     availableACs: availableACs,
                     isPlaying: isPlaying
-                    // botType: botType,
                 });
                 break;
             case "updateVolume":
@@ -305,9 +292,6 @@
             case "sendData":
                 sendData();
                 break;
-            // case "updateBotType":
-            //     updateBotType(message.botType);
-            //     break;
             default:
                 console.log("Unhandled message from userInspector_ui.js: " + JSON.stringify(message));
                 break;
@@ -336,6 +320,7 @@
         ui = new AppUI({
             buttonName: BUTTON_NAME,
             home: APP_UI_URL,
+            // Robot by Oksana Latysheva from the Noun Project
             graphicsDirectory: Script.resolvePath("./tabletApp/images/icons/"),
             onMessage: onMessage
         });
