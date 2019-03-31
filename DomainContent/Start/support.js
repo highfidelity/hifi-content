@@ -31,7 +31,6 @@
     var tabletButtonSortOrder = 11; // The sort order of the button in the tablet
     var tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system"); // The awesome tablet.
     var chatLog = []; // Array of chat messages in the form of [avatarID, displayName, message, data].
-    var avatarIdentifiers = {}; // Map of avatar ids to dict of identifierParams.
     var speechBubbleShowing = false; // Is the speech bubble visible?
     var speechBubbleMessage = null; // The message shown in the speech bubble.
     var speechBubbleTextID = null; // The id of the speech bubble local text entity.
@@ -42,10 +41,6 @@
     var chatName = ''; // The user's name shown in chat.
     var chatLogMaxSize = 100; // The maximum number of chat messages we remember.
     var sendTyping = true; // Send typing begin and end notification.
-    var identifyAvatarDuration = 10; // How long to leave the avatar identity line up, in seconds.
-    var identifyAvatarLineColor = { red: 0, green: 255, blue: 0 }; // The color of the avatar identity line.
-    var identifyAvatarMyJointName = 'Head'; // My bone from which to draw the avatar identity line.
-    var identifyAvatarYourJointName = 'Head'; // Your bone to which to draw the avatar identity line.
     var speechBubbleDuration = 10; // How long to leave the speech bubble up, in seconds.
     var speechBubbleTextColor = { red: 255, green: 255, blue: 255 }; // The text color of the speech bubble.
     var speechBubbleBackgroundColor = { red: 0, green: 0, blue: 0 }; // The background color of the speech bubble.
@@ -61,10 +56,6 @@
         }
         chatLogMaxSize = Settings.getValue('Support_chatLogMaxSize', 100);
         sendTyping = Settings.getValue('Support_sendTyping', true);
-        identifyAvatarDuration = Settings.getValue('Support_identifyAvatarDuration', 10);
-        identifyAvatarLineColor = Settings.getValue('Support_identifyAvatarLineColor', { red: 0, green: 255, blue: 0 });
-        identifyAvatarMyJointName = Settings.getValue('Support_identifyAvatarMyJointName', 'Head');
-        identifyAvatarYourJointName = Settings.getValue('Support_identifyAvatarYourJointName', 'Head');
         speechBubbleDuration = Settings.getValue('Support_speechBubbleDuration', 10);
         speechBubbleTextColor = Settings.getValue('Support_speechBubbleTextColor', { red: 255, green: 255, blue: 255 });
         speechBubbleBackgroundColor = Settings.getValue('Support_speechBubbleBackgroundColor', { red: 0, green: 0, blue: 0 });
@@ -80,10 +71,6 @@
         Settings.setValue('Support_chatName', chatName);
         Settings.setValue('Support_chatLogMaxSize', chatLogMaxSize);
         Settings.setValue('Support_sendTyping', sendTyping);
-        Settings.setValue('Support_identifyAvatarDuration', identifyAvatarDuration);
-        Settings.setValue('Support_identifyAvatarLineColor', identifyAvatarLineColor);
-        Settings.setValue('Support_identifyAvatarMyJointName', identifyAvatarMyJointName);
-        Settings.setValue('Support_identifyAvatarYourJointName', identifyAvatarYourJointName);
         Settings.setValue('Support_speechBubbleDuration', speechBubbleDuration);
         Settings.setValue('Support_speechBubbleTextColor', speechBubbleTextColor);
         Settings.setValue('Support_speechBubbleBackgroundColor', speechBubbleBackgroundColor);
@@ -97,10 +84,6 @@
         Settings.setValue('Support_chatName', null);
         Settings.setValue('Support_chatLogMaxSize', null);
         Settings.setValue('Support_sendTyping', null);
-        Settings.setValue('Support_identifyAvatarDuration', null);
-        Settings.setValue('Support_identifyAvatarLineColor', null);
-        Settings.setValue('Support_identifyAvatarMyJointName', null);
-        Settings.setValue('Support_identifyAvatarYourJointName', null);
         Settings.setValue('Support_speechBubbleDuration', null);
         Settings.setValue('Support_speechBubbleTextColor', null);
         Settings.setValue('Support_speechBubbleBackgroundColor', null);
@@ -215,110 +198,6 @@
 
     // Notification that somebody stopped typing.
     function handleAvatarEndTyping(avatarID, displayName) {
-    }
-
-    // Identify an avatar by drawing a line from our head to their head.
-    // If the avatar is our own, then just draw a line up into the sky.
-    function identifyAvatar(yourAvatarID) {
-
-        unidentifyAvatars();
-
-        var myAvatarID = MyAvatar.sessionUUID;
-        var myJointIndex = MyAvatar.getJointIndex(identifyAvatarMyJointName);
-        var myJointPosition =
-            Vec3.sum(
-                MyAvatar.position,
-                Vec3.multiplyQbyV(
-                    MyAvatar.orientation,
-                    MyAvatar.getAbsoluteJointTranslationInObjectFrame(myJointIndex)));
-
-        var yourJointIndex = -1;
-        var yourJointPosition;
-
-        if (yourAvatarID === myAvatarID) {
-
-            // You pointed at your own name, so draw a line up from your head.
-
-            yourJointPosition = {
-                x: myJointPosition.x,
-                y: myJointPosition.y + 1000.0,
-                z: myJointPosition.z
-            };
-
-        } else {
-
-            // You pointed at somebody else's name, so draw a line from your head to their head.
-
-            var yourAvatar = AvatarList.getAvatar(yourAvatarID);
-            if (!yourAvatar) {
-                return;
-            }
-
-            yourJointIndex = yourAvatar.getJointIndex(identifyAvatarMyJointName);
-            yourJointPosition =
-                Vec3.sum(
-                    yourAvatar.position,
-                    Vec3.multiplyQbyV(
-                        yourAvatar.orientation,
-                        yourAvatar.getAbsoluteJointTranslationInObjectFrame(yourJointIndex)));
-
-        }
-
-        var identifierParams = {
-            parentID: myAvatarID,
-            parentJointIndex: myJointIndex,
-            lifetime: identifyAvatarDuration,
-            start: myJointPosition,
-            endParentID: yourAvatarID,
-            endParentJointIndex: yourJointIndex,
-            end: yourJointPosition,
-            color: identifyAvatarLineColor,
-            alpha: 1
-        };
-
-        avatarIdentifiers[yourAvatarID] = identifierParams;
-
-        identifierParams.lineID = Overlays.addOverlay("line3d", identifierParams);
-
-        identifierParams.timer =
-            Script.setTimeout(function () {
-                unidentifyAvatar(yourAvatarID);
-            }, identifyAvatarDuration * 1000);
-
-    }
-
-    // Stop identifying an avatar.
-    function unidentifyAvatar(yourAvatarID) {
-
-        var identifierParams = avatarIdentifiers[yourAvatarID];
-        if (!identifierParams) {
-            return;
-        }
-
-        if (identifierParams.timer) {
-            Script.clearTimeout(identifierParams.timer);
-        }
-
-        if (identifierParams.lineID) {
-            Overlays.deleteOverlay(identifierParams.lineID);
-        }
-
-        delete avatarIdentifiers[yourAvatarID];
-    }
-
-    // Stop identifying all avatars.
-    function unidentifyAvatars() {
-        var ids = [];
-
-        for (var avatarID in avatarIdentifiers) {
-            ids.push(avatarID);
-        }
-
-        for (var i = 0, n = ids.length; i < n; i++) {
-            var avatarIDToUnidentify = ids[i];
-            unidentifyAvatar(avatarIDToUnidentify);
-        }
-
     }
 
     // Turn to face another avatar.
@@ -546,6 +425,7 @@
 
     // Update the speech bubble. 
     // This is factored out so we can update an existing speech bubble if any settings change.
+    var WAIT_BEFORE_EDITING_MS = 500;
     function updateSpeechBubble() {
         if (!speechBubbleShowing) {
             return;
@@ -553,8 +433,8 @@
 
         var jointIndex = MyAvatar.getJointIndex(speechBubbleJointName);
         var dimensions = {
-            x: 100.0,
-            y: 100.0,
+            x: 0.1,
+            y: 0.1,
             z: 0.1
         };
 
@@ -575,28 +455,11 @@
             text: speechBubbleMessage,
             textColor: speechBubbleTextColor,
             color: speechBubbleTextColor,
-            backgroundColor: speechBubbleBackgroundColor
+            backgroundColor: speechBubbleBackgroundColor,
+            "grab": {
+                "grabbable": false
+            }
         };
-
-        // Only overlay text3d has a way to measure the text, not entities.
-        // So we make a temporary one just for measuring text, then delete it.
-        var speechBubbleTextOverlayID = Overlays.addOverlay("text3d", speechBubbleParams);
-        var textSize = Overlays.textSize(speechBubbleTextOverlayID, speechBubbleMessage);
-        try {
-            Overlays.deleteOverlay(speechBubbleTextOverlayID);
-        } catch (e) {
-            // catch
-        }
-
-        var fudge = 0.02;
-        var width = textSize.width + fudge;
-        var height = textSize.height + fudge;
-        dimensions = {
-            x: width,
-            y: height,
-            z: 0.1
-        };
-        speechBubbleParams.dimensions = dimensions;
 
         var headRotation =
             Quat.multiply(
@@ -621,6 +484,20 @@
         if (!speechBubbleTextID) {
             speechBubbleTextID =
                 Entities.addEntity(speechBubbleParams, true);
+
+            Script.setTimeout(function() {
+                var textSize = Entities.textSize(speechBubbleTextID, speechBubbleMessage);
+                var fudge = 0.02;
+                var width = textSize.width + fudge;
+                var height = textSize.height + fudge;
+                Entities.editEntity(speechBubbleTextID, {
+                    "dimensions": {
+                        "x": width,
+                        "y": height,
+                        "z": 0.1
+                    }
+                });
+            }, WAIT_BEFORE_EDITING_MS);
         } else {
             Entities.editEntity(speechBubbleTextID, speechBubbleParams);
         }
@@ -765,14 +642,6 @@
                 endTyping();
                 break;
 
-            case 'IdentifyAvatar':
-                identifyAvatar(eventData.avatarID);
-                break;
-
-            case 'UnidentifyAvatar':
-                unidentifyAvatar(eventData.avatarID);
-                break;
-
             case 'FaceAvatar':
                 faceAvatar(eventData.avatarID, eventData.displayName);
                 break;
@@ -907,7 +776,6 @@
     function shutDown() {
 
         popDownSpeechBubble();
-        unidentifyAvatars();
         disconnectWebHandler();
 
         if (onChatPage) {

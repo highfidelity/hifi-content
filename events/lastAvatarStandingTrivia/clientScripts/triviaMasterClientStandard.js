@@ -1,7 +1,9 @@
 //  triviaMasterClientStandard.js
 //
 //  Created by Rebecca Stankus on 06/11/18
-//  Copyright 2018 High Fidelity, Inc.
+//  Modified by Mark Brosche on 10/16/18
+//  Updated 3/26/19 by Mark Brosche
+//  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -18,14 +20,14 @@
         GOOGLE_URL = SECRETS.GOOGLE_URL,
         TABLET_BUTTON_IMAGE = Script.resolvePath('../entities/icons/questionMark-i.png'),
         TABLET_BUTTON_PRESSED = Script.resolvePath('../entities/icons/questionMark-a.png'),
-        SEARCH_RADIUS = 1000,
+        SEARCH_RADIUS_M = 1000,
         ONE_SECOND_MS = 1000;
-    var FIVE_SECONDS = 5 * ONE_SECOND_MS,
+    var FIVE_SECONDS_MS = 5 * ONE_SECOND_MS,
         TEN_SECONDS_MS = 10 * ONE_SECOND_MS,
         ZONE_COLOR_INDEX = 19,
         HALF_MULTIPLIER = 0.5,
-        FIRST_WAIT_TO_COUNT_AVATARS = 1000,
-        WAIT_TO_SHOW_QUESTION = 500,
+        FIRST_WAIT_TO_COUNT_AVATARS_MS = ONE_SECOND_MS,
+        WAIT_TO_SHOW_QUESTION_MS = 0.5 * ONE_SECOND_MS,
         MIN_PLAYERS = 3,
         HFC_INCREMENT = 100,
         HFC_HALVER = 0.5,
@@ -60,6 +62,7 @@
         gameZone,
         gameZoneProperties,
         avatarCounter,
+        formattedQuestion = null,
         intervalTimer,
         bubble,
         bubbleState = false,
@@ -69,7 +72,8 @@
         useGoogle = false,
         prizeMoney,
         winnerID = null,
-        correctColor = null;
+        correctColor = null,
+        formattedAnswer = null;
     
     // The following function from https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
     var htmlEnDeCode = (function() {
@@ -191,7 +195,7 @@
                     data.application = "trivia";
                     tablet.emitScriptEvent(JSON.stringify(data));
                 }
-            }, FIVE_SECONDS);
+            }, FIVE_SECONDS_MS);
         }
     }
 
@@ -233,7 +237,7 @@
     }
     
     function findTargets() {
-        Entities.findEntities(MyAvatar.position, SEARCH_RADIUS).forEach(function(element) {
+        Entities.findEntities(MyAvatar.position, SEARCH_RADIUS_M).forEach(function(element) {
             var name = Entities.getEntityProperties(element, ['name']).name;
             if (name.indexOf("Trivia") !== -1) {
                 var serverScriptURL = Entities.getEntityProperties(element, ['serverScripts']).serverScripts;
@@ -328,6 +332,10 @@
     }
 
     function getQuestion() {
+        if (intervalTimer) {
+            Script.clearInterval(intervalTimer);
+            intervalTimer = false;
+        }
         Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['NEXT_QUESTION_SFX']);
         if (useGoogle){
             try {
@@ -400,7 +408,7 @@
 
     function showQuestion() {
         clearBoard();
-        var formattedQuestion;
+        formattedQuestion = null;
         Script.setTimeout(function() {
             choiceTexts.forEach(function(choice) {
                 Entities.callEntityServerMethod(choice, "textUpdate", ["", true]);
@@ -414,7 +422,7 @@
             }
             Entities.callEntityServerMethod(questionText, "textUpdate", [formattedQuestion, true]);
             Entities.callEntityServerMethod(answerText, "textUpdate", ["", false]);
-        }, WAIT_TO_SHOW_QUESTION);
+        }, WAIT_TO_SHOW_QUESTION_MS);
     }
 
     function showAnswers() {
@@ -437,13 +445,13 @@
                 });
             } else {
                 currentChoices = [];
-                currentChoices.push(triviaData.correct_answer);
+                currentChoices.push({"text": triviaData.correct_answer, "correct": true});
                 triviaData.incorrect_answers.forEach(function(choice) {
-                    currentChoices.push(choice);
+                    currentChoices.push({"text": choice, "correct": false});
                 });
                 shuffle(currentChoices);
                 currentChoices.forEach(function(choice, index) {
-                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice, true]);
+                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice.text, true]);
                 });
             }        
         } else {
@@ -464,14 +472,17 @@
                     }
                 });
             } else {
+                // These next few lines ensure we can still index questions as the host even
+                // after shuffling the order they are displayed on the board.  This
+                // saves us from doing an unreliable string comparison.
                 currentChoices = [];
-                currentChoices.push(triviaData[0].correct_answer);
+                currentChoices.push({"text": triviaData[0].correct_answer, "correct": true});
                 triviaData[0].incorrect_answers.forEach(function(choice) {
-                    currentChoices.push(choice);
+                    currentChoices.push({"text": choice, "correct": false});
                 });
                 shuffle(currentChoices);
                 currentChoices.forEach(function(choice, index) {
-                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice, true]);
+                    Entities.callEntityServerMethod(choiceTexts[index], "textUpdate", [choice.text, true]);
                 });
             }        
         }
@@ -578,13 +589,11 @@
                     prizeMoney = MIN_PRIZE;
                 }
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_DECREASE_SFX']);
-                Entities.callEntityServerMethod(gameZoneProperties.id, "loseCoins");
                 Entities.callEntityServerMethod(gameZoneProperties.id, "halfHFC");
                 break;
             case "increase pot":
                 prizeMoney += HFC_INCREMENT;
                 Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['POT_INCREASE_SFX']);
-                Entities.callEntityServerMethod(gameZoneProperties.id, "winCoins");
                 Entities.callEntityServerMethod(gameZoneProperties.id, "plusHFC");
                 break;
             case "game over":
@@ -637,6 +646,10 @@
     }
 
     function clearBoard() {
+        if (intervalTimer) {
+            Script.clearInterval(intervalTimer);
+            intervalTimer = false;
+        }
         lights.forEach(function(light) {
             Entities.callEntityServerMethod(light,"lightsOn");
         });
@@ -653,15 +666,20 @@
     }
 
     function startTimer() {
+        if (intervalTimer) {
+            Script.clearInterval(intervalTimer);
+            intervalTimer = false;
+        }
         Entities.callEntityServerMethod(gameZoneProperties.id, "playSound", ['TIMER_SOUND']);
         var seconds = 10;
         Entities.callEntityServerMethod(timer, "textUpdate", [seconds, true]);
         intervalTimer = Script.setInterval(function() {
             seconds--;
             Entities.callEntityServerMethod(timer, "textUpdate", [seconds, true]);
-            if (seconds === 0) {
+            if (seconds <= 0) {
                 Script.clearInterval(intervalTimer);
                 intervalTimer = false;
+                seconds = 0;
             }
         }, ONE_SECOND_MS);
     }
@@ -671,16 +689,16 @@
         var correctZoneColorID = null;
         switch (correctColor){
             case "Red":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS)[0];
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Red", MyAvatar.position, SEARCH_RADIUS_M)[0];
                 break;
             case "Green":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS)[0];
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Green", MyAvatar.position, SEARCH_RADIUS_M)[0];
                 break;
             case "Yellow":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS)[0];
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Yellow", MyAvatar.position, SEARCH_RADIUS_M)[0];
                 break;
             case "Blue":
-                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS)[0];
+                correctZoneColorID = Entities.findEntitiesByName("Trivia Zone Blue", MyAvatar.position, SEARCH_RADIUS_M)[0];
                 break;
         }
         var correctColorZoneProperties = Entities.getEntityProperties(
@@ -702,15 +720,13 @@
 
     function showCorrect() {
         if (useGoogle){
-            var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData.correct_answer);
+            formattedAnswer = triviaData.correct_answer;
             correctColor = null;
-            choiceTexts.forEach(function(textEntity) {
-                var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
-                if (properties.text === htmlEnDeCode.htmlDecode(triviaData.correct_answer)) {
-                    var color = properties.name.substr(ZONE_COLOR_INDEX);
-                    correctColor = color;
-                }
-            });
+            var correctIndex = currentChoices[currentChoices.map(function(e) { 
+                return e.correct; 
+            }).indexOf(true)];
+            var properties = Entities.getEntityProperties(choiceTexts[currentChoices.indexOf(correctIndex)], ['name']);
+            correctColor = properties.name.substr(ZONE_COLOR_INDEX);
             lights.forEach(function(light) {
                 var lightName = Entities.getEntityProperties(light, 'name').name;
                 if (lightName.indexOf(correctColor) === -1) {
@@ -728,26 +744,24 @@
             if (anyCorrect === 0) {
                 Script.setTimeout(function() {
                     prizeCalculator("everyone wrong");
-                }, FIRST_WAIT_TO_COUNT_AVATARS);
+                }, FIRST_WAIT_TO_COUNT_AVATARS_MS);
             } else {
                 Script.setTimeout(function() {
                     Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
                     correctCount = isAnyAvatarCorrect(correctColor);
                     updateAvatarCounter(true);
-                }, FIRST_WAIT_TO_COUNT_AVATARS);
+                }, FIRST_WAIT_TO_COUNT_AVATARS_MS);
             }
 
             Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
         } else {
-            var formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
+            formattedAnswer = htmlEnDeCode.htmlDecode(triviaData[0].correct_answer);
             correctColor = null;
-            choiceTexts.forEach(function(textEntity) {
-                var properties = Entities.getEntityProperties(textEntity, ['name', 'text']);
-                if (properties.text === htmlEnDeCode.htmlDecode(triviaData[0].correct_answer)) {
-                    var color = properties.name.substr(ZONE_COLOR_INDEX);
-                    correctColor = color;
-                }
-            });
+            var correctIndex = currentChoices[currentChoices.map(function(e) { 
+                return e.correct; 
+            }).indexOf(true)];
+            var properties = Entities.getEntityProperties(choiceTexts[currentChoices.indexOf(correctIndex)], ['name']);
+            correctColor = properties.name.substr(ZONE_COLOR_INDEX);
             lights.forEach(function(light) {
                 var lightName = Entities.getEntityProperties(light, 'name').name;
                 if (lightName.indexOf(correctColor) === -1) {
@@ -765,14 +779,14 @@
             if (anyCorrect === 0) {
                 Script.setTimeout(function() {
                     prizeCalculator("everyone wrong");
-                }, FIRST_WAIT_TO_COUNT_AVATARS);
+                }, FIRST_WAIT_TO_COUNT_AVATARS_MS);
             } else {
                 Script.setTimeout(function() {
                     Entities.callEntityServerMethod(bubble, "checkAnswer", [correctColor]);
                     correctCount = isAnyAvatarCorrect(correctColor);
                     console.log("loading the check answer script for ", correctColor, "and how many are right: ", correctCount);
                     updateAvatarCounter(true);
-                }, FIRST_WAIT_TO_COUNT_AVATARS);
+                }, FIRST_WAIT_TO_COUNT_AVATARS_MS);
             }
     
             Entities.callEntityServerMethod(answerText, "textUpdate", [formattedAnswer, true]);
@@ -959,6 +973,7 @@
                         break;
                     case 'newQuestion':
                         getQuestion();
+
                         break;
                     case 'showQuestion':
                         showQuestion();
