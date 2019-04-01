@@ -86,10 +86,7 @@
         var _this = this;
         
         Recording.loadRecording(fileToPlay, function (success, url) {
-            console.log("IN LOAD RECORDING");
             if (success) {
-                console.log("IN LOAD RECORDING sUCCESS ");
-                console.log(JSON.stringify(player));
                 _this.isPlayingRecording = true;
 
                 Users.disableIgnoreRadius();
@@ -112,6 +109,8 @@
 
                 _this.isPlayingRecording = false;
                 _this.recordingFilename = "";
+                // This should remove the avatars however they are coming back in as white spheres at the origin
+                // Agent.isAvatar = false;
             }
         });
     }
@@ -199,7 +198,7 @@
                 manager = true;
                 break;
 
-                
+
             default:
                 console.log("unrecongized action in assignmentClientPlayer.js");
                 break;
