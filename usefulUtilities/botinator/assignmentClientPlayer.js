@@ -157,19 +157,19 @@
     
 
     // Handle messages fromt he manager
-    var PLAYER_MESSAGES = ["REGISTER_ME", "ARE_YOU_THERE_MANAGER"];
+    var IGNORE_PLAYER_MESSAGES = ["REGISTER_ME", "ARE_YOU_THERE_MANAGER"];
     function onMessageReceived(channel, message, sender) {
+        if (channel !== ASSIGNMENT_MANAGER_CHANNEL || 
+            sender === scriptUUID || 
+            IGNORE_PLAYER_MESSAGES.indexOf(message.action) > -1) {
+            return;
+        }
+
         try {
             message = JSON.parse(message);
         } catch (e) {
             console.log("Can not parse message object");
             console.log(e);
-        }
-        
-        if (channel !== ASSIGNMENT_MANAGER_CHANNEL || 
-            sender === scriptUUID || 
-            PLAYER_MESSAGES.indexOf(message.action) > -1) {
-            return;
         }
 
         if (message.uuid !== scriptUUID) {
@@ -177,6 +177,8 @@
         }
 
         switch (message.action){
+
+
             case "PLAY":
                 if (!player.isPlaying()) {
                     player.play(message.fileToPlay, message.position, +message.volume);
@@ -184,14 +186,20 @@
                     console.log("Didn't start playing " + message.fileToPlay + " because already playing ");
                 }
                 break;
+
+
             case "STOP":
                 if (player.isPlaying()) {
                     player.stop();
                 }
                 break;
+
+
             case "REGISTER_MANAGER": 
                 manager = true;
                 break;
+
+                
             default:
                 console.log("unrecongized action in assignmentClientPlayer.js");
                 break;

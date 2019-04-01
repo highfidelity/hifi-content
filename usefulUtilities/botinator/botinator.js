@@ -219,7 +219,14 @@
     // #region MESSAGES
     
     
+    var IGNORE_MANAGER_MESSAGES = ["REGISTER_ME", "ARE_YOU_THERE_MANAGER"];
     function onTabletChannelMessageReceived(channel, message, sender){
+        if (channel !== ASSIGNMENT_CLIENT_MESSANGER_CHANNEL || 
+            sender === MyAvatar.sessionUUID || 
+            IGNORE_MANAGER_MESSAGES.indexOf(message.action) > -1) {
+            return;
+        }
+
         try {
             message = JSON.parse(message);
         } catch (error) {
@@ -227,14 +234,14 @@
             return;
         }
 
-        if (channel !== ASSIGNMENT_CLIENT_MESSANGER_CHANNEL || sender === MyAvatar.sessionUUID) {
-            return;
-        }
-
         switch (message.action) {
+
+
             case "AC_AVAILABLE_UPDATE":
                 updateAvailableACs(message.newAvailableACs);
                 break;
+
+
             case "GET_MANAGER_STATUS":
                 updateAvailableACs(message.newAvailableACs);
                 updateCurrentServerPlayStatus(message.isPlaying);
@@ -242,6 +249,8 @@
                     ui.close();
                 }
                 break;
+
+
             default:
                 console.log("unrecongized action in assignmentClientManger.js");
                 break;
@@ -264,7 +273,9 @@
         if (message.app !== "botinator") {
             return;
         }
+
         switch (message.method) {
+
             case "eventBridgeReady":
                 ui.sendMessage({
                     app: "botinator",
@@ -276,22 +287,34 @@
                     isPlaying: isPlaying
                 });
                 break;
+
+
             case "updateVolume":
                 updateVolume(message.volume);
                 break;
+
+
             case "updateContentBoundaryCorners":
                 updateContentBoundaryCorners(message.cornerType);
                 break;
+
+
             case "updateTotalNumberOfBotsNeeded":
                 updateTotalNumberOfBotsNeeded(message.totalNumberOfBotsNeeded);
                 break;
+
+
             case "updateIsPlaying":
                 sendData();
                 updateIsPlaying(message.isPlaying);
                 break;
+
+
             case "sendData":
                 sendData();
                 break;
+
+                
             default:
                 console.log("Unhandled message from userInspector_ui.js: " + JSON.stringify(message));
                 break;

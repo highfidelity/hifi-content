@@ -57,8 +57,8 @@
 
     // Update all the current positions for the bots
     function updateAllBotsPosition(){
-        var position = getRandomLocation(contentBoundaryCorners);
         availableAssignmentClientPlayers.forEach(function(ac){
+            var position = getRandomLocation(contentBoundaryCorners);
             ac.setPosition(position);
         });
     }
@@ -238,6 +238,10 @@
 
     // Handle Messages received
     function onMangerChannelMessageReceived(channel, message, sender) {
+        if (channel !== ASSIGNMENT_MANAGER_CHANNEL || sender === Agent.sessionUUID) {
+            return;
+        }
+
         try {
             message = JSON.parse(message);
         } catch (error) {
@@ -247,11 +251,9 @@
             return;
         }
 
-        if (channel !== ASSIGNMENT_MANAGER_CHANNEL || sender === Agent.sessionUUID) {
-            return;
-        }
-
         switch (message.action) {
+
+
             case "REGISTER_ME":
                 var fileName = findValue(botRegisterdCount, BOTS);
                 var position = getRandomLocation(contentBoundaryCorners);
@@ -264,12 +266,16 @@
                 });
                 Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
                 break;
+
+
             case "ARE_YOU_THERE_MANAGER_ITS_ME_BOT":
                 Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
                     action: "REGISTER_MANAGER",
                     uuid: sender
                 }));
                 break;
+
+                
             default:
                 console.log("unrecongized action in assignmentClientManger.js");
                 break;
