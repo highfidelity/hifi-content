@@ -14,14 +14,12 @@ var localEntityProps = {
     dimensions: [1, 0.1, 0],
     type: "Text",
     lineHeight: 0.1,
-    // This will have to be changed in 81 until we bring unlit property to local text entities
     textColor: "#ffffff",
     textAlpha: 1.0,
     backgroundColor: "#2d2d2d",
     backgroundAlpha: 1,
     billboardMode: "full",
-    lifetime: 20,
-    // The following will be added back in 81
+    lifetime: 5,
     renderLayer: "front"
 };
 
