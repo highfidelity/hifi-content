@@ -110,9 +110,15 @@
                 if (response.data.users[i].username === targetUsername) {
                     if (!response.data.users[i].online) {
                         targetUserNotAvailable();
+                        return;
                     }
 
                     var targetLocation = response.data.users[i].location;
+                    if (!targetLocation || !targetLocation.root || !targetLocation.root.domain) {
+                        targetUserNotAvailable();
+                        return;
+                    }
+                    
                     var locationName = targetLocation.root.domain.default_place_name || targetLocation.root.name;
                     targetUserAvailable(locationName);
                     return;
