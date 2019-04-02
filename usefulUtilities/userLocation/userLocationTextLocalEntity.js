@@ -12,11 +12,7 @@
 
 (function () {
     this.mousePressOnEntity = function(entityID, event) {
-        if (!event.button === "Primary") {
-            return;
-        }
-
         var parentID = Entities.getEntityProperties(entityID, ["parentID"]).parentID;
-        Entities.callEntityMethod(parentID, "mousePressOnEntity", event);
+        Entities.callEntityMethod(parentID, "forwardMousePress", [JSON.stringify(event)]);
     };
 });

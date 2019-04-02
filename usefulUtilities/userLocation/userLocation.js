@@ -11,6 +11,11 @@
 
 
 (function () {
+    var request = Script.require("./modules/request.js").request;
+
+    var _this;
+    var REFRESH_LOCATION_INTERVAL_MS = 30000;
+    var USER_API_BASE_URL = Account.metaverseServerURL + "/api/v1/users?filter=connections&search=";
     var TEXT_LOCAL_ENTITY_PROPS = {
         "type": "Text",
         // eslint-disable-next-line no-magic-numbers
@@ -40,158 +45,164 @@
             }
         },
         "canCastShadow": false,
-        "script": Script.resolvePath("userLocationTextLocalEntity.js?2")
+        "script": Script.resolvePath("userLocationTextLocalEntity.js?6")
     };
-    var textLocalEntity = false;
-    function createTextLocalEntity() {
-        var props = TEXT_LOCAL_ENTITY_PROPS;
-        props.parentID = thisEntityID;
-        textLocalEntity = Entities.addEntity(props, "local");
-    }
 
+    var UserLocationBanner = function() {
+        _this = this;
+    };
 
-    function targetIsYou() {
-        canTeleportToTargetUser = false;
-
-        if (!textLocalEntity) {
-            createTextLocalEntity();
-        }
-
-        Entities.editEntity(textLocalEntity, {
-            "text": "Hello, " + targetDisplayName + "! Others will see your location here."
-        });
-    }
-
-
-    function targetUserAvailable(locationName) {
-        canTeleportToTargetUser = true;
-
-        if (!textLocalEntity) {
-            createTextLocalEntity();
-        }
-
-        Entities.editEntity(textLocalEntity, {
-            "text": targetDisplayName + " is in " + locationName + ".\nClick to teleport."
-        });
-    }
-
-
-    function targetUserNotAvailable() {
-        canTeleportToTargetUser = false;
-
-        if (!textLocalEntity) {
-            createTextLocalEntity();
-        }
-
-        Entities.editEntity(textLocalEntity, {
-            "text": targetDisplayName + " isn't available to you."
-        });
-    }
-
-
-    var request = Script.require("./modules/request.js").request;
-    var USER_API_BASE_URL = Account.metaverseServerURL + "/api/v1/users?filter=connections&search=";
-    function refreshLocation() {
-        if (Account.username === targetUsername) {
-            targetIsYou();
-            return;
-        }
-
-        request({
-            uri: USER_API_BASE_URL + targetUsername
-        }, function (error, response) {
-            if (error || !response || response.status !== "success") {
-                console.log("Error when getting user information!");
-                targetUserNotAvailable();
-                return;
+    UserLocationBanner.prototype = {
+        preload: function(entityID) {
+            _this.entityID = entityID;
+            _this.targetUsername = false;
+            _this.targetDisplayName = false;
+            _this.refreshLocationInterval = false;
+            _this.textLocalEntity = false;
+            _this.canTeleportToTargetUser = false;
+    
+            var properties = Entities.getEntityProperties(entityID, ["userData"]);
+            var userData;
+    
+            try {
+                userData = JSON.parse(properties.userData);
+            } catch (e) {
+                console.error("Error parsing userData: ", e);
             }
-
-            for (var i = 0; i < response.data.users.length; i++) {
-                if (response.data.users[i].username === targetUsername) {
-                    if (!response.data.users[i].online) {
-                        targetUserNotAvailable();
-                        return;
-                    }
-
-                    var targetLocation = response.data.users[i].location;
-                    if (!targetLocation || !targetLocation.root || !targetLocation.root.domain) {
-                        targetUserNotAvailable();
-                        return;
-                    }
-                    
-                    var locationName = targetLocation.root.domain.default_place_name || targetLocation.root.name;
-                    targetUserAvailable(locationName);
+    
+            if (userData) {
+                if (userData.targetUsername && userData.targetUsername.length > 0) {
+                    _this.targetUsername = userData.targetUsername;
+                } else {
+                    console.log("Please specify `targetUsername` inside this entity's `userData`!");
                     return;
                 }
-            }
-
-            targetUserNotAvailable();
-        });
-    }
-
-
-    var thisEntityID = false;
-    var refreshLocationInterval = false;
-    var targetUsername = false;
-    var REFRESH_LOCATION_INTERVAL_MS = 30000;
-    this.preload = function(entityID) {
-        thisEntityID = entityID;
-
-        var properties = Entities.getEntityProperties(entityID, ["userData"]);
-        var userData;
-
-        try {
-            userData = JSON.parse(properties.userData);
-        } catch (e) {
-            console.error("Error parsing userData: ", e);
-        }
-
-        if (userData) {
-            if (userData.targetUsername && userData.targetUsername.length > 0) {
-                targetUsername = userData.targetUsername;
+    
+                if (userData.targetDisplayName && userData.targetDisplayName.length > 0) {
+                    _this.targetDisplayName = userData.targetDisplayName;
+                } else {
+                    console.log("Please specify `targetDisplayName` inside this entity's `userData`!");
+                    return;
+                }
             } else {
-                console.log("Please specify `targetUsername` inside this entity's `userData`!");
+                console.log("Please specify this entity's `userData`! See README.md for instructions.");
+                return;
+            }
+    
+            _this.refreshLocationInterval = Script.setInterval(_this.refreshLocation, REFRESH_LOCATION_INTERVAL_MS);
+            _this.refreshLocation();
+        },
+
+
+        mousePressOnEntity: function(entityID, mouseEvent) {
+            if (mouseEvent.button !== "Primary" || !_this.canTeleportToTargetUser) {
                 return;
             }
 
-            if (userData.targetDisplayName && userData.targetDisplayName.length > 0) {
-                targetDisplayName = userData.targetDisplayName;
-            } else {
-                console.log("Please specify `targetDisplayName` inside this entity's `userData`!");
+            Window.location = "@" + _this.targetUsername;
+        },
+        
+
+        unload: function() {
+            if (_this.textLocalEntity) {
+                Entities.deleteEntity(_this.textLocalEntity);
+            }
+    
+            if (_this.refreshLocationInterval) {
+                Script.clearInterval(_this.refreshLocationInterval);
+                _this.refreshLocationInterval = false;
+            }
+        },
+
+
+        createTextLocalEntity: function() {
+            var props = TEXT_LOCAL_ENTITY_PROPS;
+            props.parentID = _this.entityID;
+            _this.textLocalEntity = Entities.addEntity(props, "local");
+        },
+        
+
+        refreshLocation: function() {
+            if (Account.username === _this.targetUsername) {
+                _this.targetIsYou();
                 return;
             }
-        } else {
-            console.log("Please specify this entity's `userData`! See README.md for instructions.");
-            return;
+
+            request({
+                uri: USER_API_BASE_URL + _this.targetUsername
+            }, function (error, response) {
+                if (error || !response || response.status !== "success") {
+                    console.log("Error when getting user information!");
+                    _this.targetUserNotAvailable();
+                    return;
+                }
+
+                for (var i = 0; i < response.data.users.length; i++) {
+                    if (response.data.users[i].username === _this.targetUsername) {
+                        if (!response.data.users[i].online) {
+                            _this.targetUserNotAvailable();
+                            return;
+                        }
+
+                        var targetLocation = response.data.users[i].location;
+                        if (!targetLocation || !targetLocation.root || !targetLocation.root.domain) {
+                            _this.targetUserNotAvailable();
+                            return;
+                        }
+
+                        var locationName = targetLocation.root.domain.default_place_name || targetLocation.root.name;
+                        _this.targetUserAvailable(locationName);
+                        return;
+                    }
+                }
+
+                _this.targetUserNotAvailable();
+            });
+        },
+
+
+        targetIsYou: function() {
+            _this.canTeleportToTargetUser = false;
+    
+            if (!_this.textLocalEntity) {
+                _this.createTextLocalEntity();
+            }
+    
+            Entities.editEntity(_this.textLocalEntity, {
+                "text": "Hello, " + _this.targetDisplayName + "! Others will see your location here."
+            });
+        },
+    
+    
+        targetUserAvailable: function(locationName) {
+            _this.canTeleportToTargetUser = true;
+    
+            if (!_this.textLocalEntity) {
+                _this.createTextLocalEntity();
+            }
+    
+            Entities.editEntity(_this.textLocalEntity, {
+                "text": _this.targetDisplayName + " is in " + locationName + ".\nClick to teleport."
+            });
+        },
+    
+    
+        targetUserNotAvailable: function() {
+            _this.canTeleportToTargetUser = false;
+    
+            if (!_this.textLocalEntity) {
+                _this.createTextLocalEntity();
+            }
+    
+            Entities.editEntity(_this.textLocalEntity, {
+                "text": _this.targetDisplayName + " isn't available to you."
+            });
+        },
+
+        forwardMousePress: function(thisID, args) {
+            _this.mousePressOnEntity(_this.entityID, JSON.parse(args[0]));
         }
-
-        refreshLocationInterval = Script.setInterval(refreshLocation, REFRESH_LOCATION_INTERVAL_MS);
-        refreshLocation();
-    }
-
-    function goToTargetAvatar() {
-        Window.location = "@" + targetUsername;
-    }
-
-    this.remotelyCallable = ["mousePressOnEntity"];
-
-    this.mousePressOnEntity = function(entityID, mouseEvent) {
-        if (!mouseEvent.button === "Primary" || !canTeleportToTargetUser) {
-            return;
-        }
-
-        goToTargetAvatar();
     };
 
-
-    this.unload = function() {
-        if (textLocalEntity) {
-            Entities.deleteEntity(textLocalEntity);
-        }
-
-        if (refreshLocationInterval) {
-            Script.clearInterval(refreshLocationInterval);
-            refreshLocationInterval = false;
-        }
-    }
+    return new UserLocationBanner();
 });
