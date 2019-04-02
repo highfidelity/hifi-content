@@ -8,22 +8,61 @@
 // See accompanying license file or http://apache.org/
 //
 
+// user status: <"available"/"busy"/"offline">
+
 var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
 
 
-function heartbeat() {
+var users = {}; // { username: { timer: <timer object>} }
+function heartbeat(queryParamObject, response) {
+    var username = queryParamObject.username;
+    // handle heartbeat
+    if (!users[username]) {
+        // new heartbeat for username
+        users[username] = {};
+    } else {
+        // stop the old heartbeat timer
+        clearTimeout(users[username].timer);
+    }
+    users[username].timer = startHeartbeatTimer(username, response);
 
+    if (username) {
+        updateEmployee(queryParamObject, response);
+    } else {
+        console.error("There was no username or primary key! Can't update or create employee!");
+        return;
+    }
+}
+
+// if timer runs out, will set user to offline
+var HEARTBEAT_INTERVAL_MS = 10000;
+function startHeartbeatTimer(username, response) {
+    var heartbeatTimer = setTimeout(function() { 
+        // user has stopped sending heartbeat()
+        // update user to offline
+        users[username].timer = null;
+        updateEmployee({
+            username: username,
+            status: "offline"
+        }, response);
+    }, HEARTBEAT_INTERVAL_MS);
+    return heartbeatTimer;
 }
 
 function updateEmployee(updates, response) {
     // Create strings for query from the updates object
     var columnString = "";
     var valueString = "";
-    for(var key in updates) {
+    var validUpdateParams = ["username", "displayName", "status", "teamName"];
+    for (var key in updates) {
+        if (validUpdateParams.indexOf(key) === -1) {
+            continue;
+        }
+
         columnString += key + ", ";
-        if(!updates[key]) {
+        if (!updates[key]) {
             updates[key] = "NULL";
         }
         valueString += "'" + updates[key] + "', ";
@@ -31,24 +70,36 @@ function updateEmployee(updates, response) {
     columnString = columnString.slice(0, -2); // slice off the last ", "
     valueString = valueString.slice(0, -2); // slice off the last ", "
 
+    // build query string
     var query = `REPLACE INTO \`availabilityindicator\` (${columnString}) VALUES (${valueString})`;
 
+    console.log(query);
+
     connection.query(query, function(error, results, fields) {
+        if (updates.status === "offline" && updates.username) {
+            delete users[updates.username];
+            return;
+        }
+        
         if (error) {
             var responseObject = {
                 status: "error",
                 text: "Error while updating employee! " + JSON.stringify(error)
             };
 
+            console.log("is ERROR robin");
+
             response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
         }
-        
+
         var responseObject = {
             status: "success",
             text: "Successfully updated employee."
         };
+
+        console.log("is SENDING robin");
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
@@ -72,18 +123,27 @@ function getAllEmployees(response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        var responseHTML = "<table><tr><th>Display Name</th><th>status</th><th>teamName</th></tr>";
+        if (results.length === 0) {
+            return;
+        }
+
+        console.log(JSON.stringify(results[0]));
+
+        var teamName = results[0].teamName;
+        var responseHTML = `<div class="team"><h2>${teamName}</h2><table>`;
         for (var i = 0; i < results.length; i++) {
+            if (teamName !== results[i].teamName) {
+                responseHTML += `</table></div><div class="team"><h2>${results[i].teamName}</h2><table>`
+                teamName = results[i].teamName;
+            }
             responseHTML += `
 <tr>
-    <td>${results[i].displayName}</td>
-    <td>${results[i].status}</td>
-    <td>${results[i].teamName}</td>
+    <td width="60%">${results[i].displayName}</td>
+    <td width="40%">${results[i].status}</td>
 </tr>
             `;
         }
-        
-        responseHTML += "</table>";
+        responseHTML += `</table></div>`
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html');
@@ -136,86 +196,13 @@ function handleGetRequest(request, response) {
 
     // root/type=?alsjdf
     switch(type) {
-        case "updateEmployee": {
-            var queryObject = {};
-            if (queryParamObject.username) {
-                queryObject.username = queryParamObject.username;
-                if (queryParamObject.status) {
-                    queryObject.status = queryParamObject.status;
-                }
-                if (queryParamObject.displayName) {
-                    queryObject.displayName = queryParamObject.displayName;
-                }
-                if (queryParamObject.teamName) {
-                    queryObject.teamName = queryParamObject.teamName;
-                }
-                updateEmployee(queryObject, response);
-            } else {
-                console.error("There was no username or primary key! Can't update or create employee!");
-            }
-        }
-        // case "updateStatus":
-        //     // {
-        //     //      status: ["available", "unavailable", "away"]
-        //     // }
-        //     var username = queryParamObject.username;
-        //     var status = queryParamObject.status;
-        //     updateEmployee({
-        //         username: queryParamObject.username,
-        //         status: queryParamObject.status
-        //     }, response);
-        // break;
-
-        // case "updateDisplayName":
-        //     // {
-        //     //      displayName: "exampleDisplayName"
-        //     //      username: "exampleUsername"
-        //     // }
-        //     updateEmployee
-        //     var username = queryParamObject.username;
-        //     var displayName = queryParamObject.displayName;
-        //     // var voterUserAgent = request.headers['user-agent']; ?? What is
-        //     updateEmployee({
-        //         username: queryParamObject.username,
-        //         displayName: queryParamObject.displayName
-        //     }, response);
-        // break;
-
         case "heartbeat":
             // {
             //      username: "exampleUsername"
             // }
             console.log("heartbeat");
-            var username = queryParamObject.username;
-            heartbeatForUser(username, response);
+            heartbeat(queryParamObject, response);
         break;
-
-        // case "updateTeamName":
-        //     // {
-        //     //      teamName: "exampleTeamName"
-        //     //      username: "exampleUsername"
-        //     // }
-        //     // var voterUserAgent = request.headers['user-agent']; ?? What is
-        //     updateEmployee({
-        //         username: queryParamObject.username,
-        //         teamName: queryParamObject.teamName
-        //     }, response);
-        // break;
-
-        // case "createEmployee": // http://localhost:3305/?username=hello1&teamName=team1&status=available&displayName=Hello
-        //     // http://localhost:3305/?type=createEmployee&username=hello1&teamName=ttt&status=available&displayName=HELLO%2022222    
-        //     // {
-        //     //      username: "exampleTeamName"
-        //     //      displayName: "exampleUsername"
-        //     //      status: "exampleUsername"
-        //     // }
-        //     updateEmployee({
-        //         username: queryParamObject.username,
-        //         teamName: queryParamObject.teamName,
-        //         status: queryParamObject.status,
-        //         displayName: queryParamObject.displayName
-        //     }, response);
-        // break;
 
         case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees
             getAllEmployees(response);
@@ -228,6 +215,15 @@ function handleGetRequest(request, response) {
             //      status: "exampleUsername"
             // }
             getTeamEmployees(queryParamObject.teamName, response);
+        break;
+
+        case "updateEmployeeTest": // http://localhost:3305/?type=updateEmployeeTest&username=test10&displayName=HELLOOOOO WORLD&teamName=Iwasonateam&status=waaat
+            // {
+            //      username: "exampleTeamName"
+            //      displayName: "exampleUsername"
+            //      status: "exampleUsername"
+            // }
+            updateEmployee(queryParamObject, response);
         break;
 
         default:
@@ -278,7 +274,7 @@ function connectToAvailabilityDB() {
 
 
 // Creates the necessary tables for the Multi-Con Vote app to work.
-function createNewTables(response) {
+function maybeCreateNewTables(response) {
     var query = `CREATE TABLE IF NOT EXISTS \`availabilityIndicator\` (
         username VARCHAR(100) PRIMARY KEY,
         displayName VARCHAR(100),
@@ -289,18 +285,19 @@ function createNewTables(response) {
         if (error) {
             throw error;
         }
+        
+        connectToAvailabilityDB();
     });
 }
 
 
 // Creates the correct database and tables
-function createAvailabilityDB() {
+function maybeCreateAvailabilityDB() {
     
     connection = mysql.createConnection({
         host: dbInfo.mySQLHost,
         user: dbInfo.mySQLUsername,
-        password: dbInfo.mySQLPassword,
-        port: dbInfo.mySQLPort
+        password: dbInfo.mySQLPassword
     });
 
     var query = `CREATE DATABASE IF NOT EXISTS ${dbInfo.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
@@ -309,26 +306,23 @@ function createAvailabilityDB() {
             console.log("error with connection");
             throw error;
         }
-    });
-
-    connection.end();
     
-    connection = mysql.createConnection({
-        host: dbInfo.mySQLHost,
-        user: dbInfo.mySQLUsername,
-        password: dbInfo.mySQLPassword,
-        database: dbInfo.databaseName
+        connection.end();
+    
+        connection = mysql.createConnection({
+            host: dbInfo.mySQLHost,
+            user: dbInfo.mySQLUsername,
+            password: dbInfo.mySQLPassword,
+            database: dbInfo.databaseName
+        });
+    
+        maybeCreateNewTables();
     });
-
-    createNewTables();
-
-    connection.end();
 }
 
 // Called on startup.
 function startup() {
-    // createAvailabilityDB();
-    connectToAvailabilityDB();
+    maybeCreateAvailabilityDB();
 }
 
 startup();

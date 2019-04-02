@@ -2,13 +2,16 @@
 
     var isAvailable = true;
 
+    var request = Script.require('request').request;
+    var REQUEST_URL = "http://localhost:3305/";
+
     // #region AVAILABILITY OVERLAY
 
     var desktopOverlay,
         rectangleOverlay,
         // desktop overlayOptions
         OVERLAY_AVAILABLE_TEXT = "     Available",
-        OVERLAY_NOT_AVAILABLE_TEXT = "     Unavailable",
+        OVERLAY_NOT_AVAILABLE_TEXT = "     Busy",
         OVERLAY_WINDOW_RIGHT_PADDING = 10,
         OVERLAY_WIDTH = 10,
         OVERLAY_FONT_SIZE = 20.0,
@@ -19,7 +22,7 @@
         OVERLAY_RECTANGLE_WIDTH_HEIGHT = 20,
         AVAILABLE_COLOR = { red: 0, green: 144, blue: 54 },
         NOT_AVAILABLE_COLOR = { red: 255, green: 0, blue: 26 };
-    function drawAvalabilityOverlays() {
+    function drawAvailabilityOverlays() {
         var windowWidth = Window.innerWidth;
 
         desktopOverlay = Overlays.addOverlay("text", {
@@ -39,7 +42,6 @@
         });
 
         rectangleOverlay = Overlays.addOverlay("rectangle", {
-            text: currentText,
             width: OVERLAY_RECTANGLE_WIDTH_HEIGHT,
             height: OVERLAY_RECTANGLE_WIDTH_HEIGHT,
             x: windowWidth - OVERLAY_WIDTH + OVERLAY_RECTANGLE_LEFT_PADDING - OVERLAY_WINDOW_RIGHT_PADDING,
@@ -59,6 +61,34 @@
         }
     }
 
+
+    var HEARTBEAT_INTERVAL_MS = 5000;
+    var heartbeatInterval;
+    function setupHeartbeat() {
+        if (!heartbeatInterval) {
+            heartbeatInterval = Script.setInterval(function() {
+                var queryParamString = "type=heartbeat";
+                    queryParamString += "&username=" + AccountServices.username;
+                    queryParamString += "&displayName=" + MyAvatar.displayName;
+                    queryParamString += "&status=";
+                    queryParamString += isAvailable ? "available" : "busy";
+                    queryParamString += "&teamName=" + "Experiences";
+
+                    console.log("HEARTBEAT");
+                    console.log(REQUEST_URL + queryParamString);
+
+                request({
+                    uri: REQUEST_URL + "?" + queryParamString
+                }, function (error, response) {
+                    if (error || !response || response.status !== "success") {
+                        console.error("Error with heartbeat: " + JSON.stringify(response));
+                        return;
+                    }
+                });
+            }, HEARTBEAT_INTERVAL_MS);
+        }
+    }
+
     
     function onMousePressEvent(event) {
         // is primary button
@@ -71,13 +101,36 @@
             edits[desktopOverlay] = { text: isAvailable ? OVERLAY_AVAILABLE_TEXT : OVERLAY_NOT_AVAILABLE_TEXT }
             Overlays.editOverlays(edits);
 
-            // TODO send request to server to change availability
+            // send user availability update to backend
+            // var myUsername = AccountServices.username;
+            // var queryParamString = "type=getParticipants";
+            // if (myUsername !== "Unknown user") {
+            //     queryParamString += "&voterUsername=" + myUsername;
+            // }
+
+            // request({
+            //     uri: REQUEST_URL + "?" + queryParamString
+            // }, function (error, response) {
+            //     if (error || !response || response.status !== "success") {
+            //         console.error("Error retrieving participants from server: " + JSON.stringify(response));
+            //         return;
+            //     }
+            //     if (response.status && response.status === "success") {
+            //         ui.sendMessage({
+            //             app: 'multiConVote',
+            //             method: "initializeUI",
+            //             myUsername: myUsername,
+            //             voteData: response.data,
+            //             activeTabName: Settings.getValue("multiCon/activeTabName", "info")
+            //         });
+            //     }
+            // });
         }
     }
 
     function onWindowResize() {
         deleteAvailabilityOverlays();
-        drawAvalabilityOverlays();
+        drawAvailabilityOverlays();
     }
 
     // #endregion AVAILABILITY OVERLAY
@@ -85,17 +138,22 @@
     // #region LIFETIME
 
     function startup() {
-        drawAvalabilityOverlays();
+        drawAvailabilityOverlays();
 
         Script.scriptEnding.connect(unload);
         Controller.mousePressEvent.connect(onMousePressEvent);
         Window.geometryChanged.connect(onWindowResize);
+        setupHeartbeat();
     }
     
     function unload() {
         deleteAvailabilityOverlays();
         Controller.mousePressEvent.disconnect(onMousePressEvent);
         Window.geometryChanged.disconnect(onWindowResize);
+        if (heartbeatInterval) {
+            Script.clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+        }
     }
 
     // #endregion LIFETIME

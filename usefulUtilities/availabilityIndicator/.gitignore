@@ -1,4 +1,4 @@
 /.vs/
 
-webApp/dbInfo.json
-webApp/node_modules/
+webApp/app/dbInfo.json
+webApp/app/node_modules/
