@@ -6,10 +6,10 @@ This script creates a clickable button in upper right hand corner of your screen
 A web app and database tracks these statuses. Using a web entity, you can display everyone's status in a table by going to:
 
 To see everyone's status:
-`https://<hostedname>/getAllEmployees`
+`https://<hostname>/getAllEmployees`
 
 To see a team's list status:
-`https://<hostedname>/statusIndicator/team?teamName=<team name>`
+`https://<hostname>/statusIndicator/team?teamName=<team name>`
 
 
 ## Setup
@@ -23,7 +23,7 @@ The code for this content is open source. You must set up some configuration fil
 
 ```
 {
-    "REQUEST_URL": "https://<hostedname>/" 
+    "REQUEST_URL": "https://<hostname>/" 
 }
 ```
 
@@ -31,7 +31,7 @@ The code for this content is open source. You must set up some configuration fil
 
 ## HTML Readouts Config
 
-In `allEmployees.html` and `teamPage.html`, you will need to replace `http://localhost:3305/` with `https://<hostedname>/ ` in the `fetch` function call.
+In `allEmployees.html` and `teamPage.html`, you will need to replace `http://localhost:3305/` with `https://<hostname>/ ` in the `fetch` function call.
 
 `allEmployees.html` and `teamPage.html` will display "Loading Data..." if the fetch fails or the teamName is incorrect.
 
