@@ -1,8 +1,8 @@
 {
-    "name": "AvailabilityIndicator",
+    "name": "StatusIndicator",
     "version": "1.0.0",
-    "description": "Availability Indicator WebApp",
-    "main": "availabilityIndicator.js",
+    "description": "Status Indicator WebApp",
+    "main": "statusIndicator_webApp.js",
     "author": "Robin Wilson",
     "dependencies": {
         "mysql": "^2.16.0"

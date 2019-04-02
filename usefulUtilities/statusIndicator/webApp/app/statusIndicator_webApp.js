@@ -1,20 +1,19 @@
 //
-// multiConVote.js
-// NodeJS Web App for Multi-Con Festival App
-// Created by Robin Wilson and Zach Fox on 2019-03-11
+// statusIndicator_webApp.js
+//
+// NodeJS Web App for Status Indicator App
+// Created by Robin Wilson on 2019-04-02
 // Copyright High Fidelity 2019
 //
 // Licensed under the Apache 2.0 License
 // See accompanying license file or http://apache.org/
-//
-
-// user status: <"available"/"busy"/"offline">
 
 var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
 
 
+// Heartbeat updates setTimeout and updates employee data in database
 var users = {}; // { username: { timer: <timer object>} }
 function heartbeat(queryParamObject, response) {
     var username = queryParamObject.username;
@@ -36,7 +35,8 @@ function heartbeat(queryParamObject, response) {
     }
 }
 
-// if timer runs out, will set user to offline
+
+// If timer runs out, will set user to offline
 var HEARTBEAT_INTERVAL_MS = 10000;
 function startHeartbeatTimer(username, response) {
     var heartbeatTimer = setTimeout(function() {
@@ -51,6 +51,8 @@ function startHeartbeatTimer(username, response) {
     return heartbeatTimer;
 }
 
+
+// Update employee status in database
 function updateEmployee(updates, response) {
     // Create strings for query from the updates object
     var columnString = ""; // (username, displayName, status)
@@ -76,9 +78,11 @@ function updateEmployee(updates, response) {
     updateString = updateString.slice(0, -2); // slice off the last ", "
 
     // build query string
-    var query = `INSERT INTO \`availabilityindicator\` (${columnString}) VALUES (${valueString}) ON DUPLICATE KEY UPDATE ${updateString}`;
+    var query = `INSERT INTO \`statusIndicator\` (${columnString}) VALUES (${valueString}) ON DUPLICATE KEY UPDATE ${updateString}`;
 
-    console.log(query);
+    if (DEBUG) {
+        console.log(query);
+    }
 
     connection.query(query, function(error, results, fields) {
         if (updates.status === "offline" && updates.username) {
@@ -94,7 +98,7 @@ function updateEmployee(updates, response) {
                 text: "Error while updating employee! " + JSON.stringify(error)
             };
 
-            console.log("is ERROR robin");
+            console.log("updateEmployee error");
 
             response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
@@ -112,8 +116,11 @@ function updateEmployee(updates, response) {
     });
 }
 
+
+// Get all employees
+// Return tables organized by Team names with all employee information
 function getAllEmployees(response) {
-    var query = `SELECT * FROM availabilityindicator
+    var query = `SELECT * FROM statusIndicator
         ORDER BY teamName, displayName`;
 
     connection.query(query, function(error, results, fields) {
@@ -131,8 +138,6 @@ function getAllEmployees(response) {
         if (results.length === 0) {
             return;
         }
-
-        console.log(JSON.stringify(results[0]));
 
         var teamName = results[0].teamName;
         var responseHTML = `<div class="team"><h2>${teamName}</h2><table>`;
@@ -156,8 +161,10 @@ function getAllEmployees(response) {
     });
 }
 
+
+// Get employees from team
 function getTeamEmployees(teamName, response) {
-    var query = `SELECT * FROM availabilityindicator
+    var query = `SELECT * FROM statusIndicator
         WHERE teamName = '${teamName}' ORDER BY displayName`;
 
     connection.query(query, function(error, results, fields) {
@@ -190,11 +197,12 @@ function getTeamEmployees(teamName, response) {
     });
 }
 
+
 // Handles any GET requests made to the server endpoint
 // The handled method types are:
-// "getParticipants"
-// "vote"
-// "getLeaderboard"
+// "heartbeat"
+// "getAllEmployees"
+// "getTeamEmployees"
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
     var type = queryParamObject.type;
@@ -202,10 +210,6 @@ function handleGetRequest(request, response) {
     // root/type=?alsjdf
     switch(type) {
         case "heartbeat":
-            // {
-            //      username: "exampleUsername"
-            // }
-            console.log("heartbeat");
             heartbeat(queryParamObject, response);
         break;
 
@@ -243,15 +247,15 @@ function startServer() {
     const HOSTNAME = 'localhost';
     const PORT = 3305;
     server.listen(PORT, HOSTNAME, () => {
-        console.log(`Availability App Server running at http://${HOSTNAME}:${PORT}/`);
+        console.log(`Status App Server running at http://${HOSTNAME}:${PORT}/`);
     });
 }
 
 
-// Connects to the Availability DB, then starts the HTTP server.
+// Connects to the Status DB, then starts the HTTP server.
 var mysql = require('mysql');
 var connection;
-function connectToAvailabilityDB() {
+function connectToStatusDB() {
     connection = mysql.createConnection({
         host: dbInfo.mySQLHost,
         user: dbInfo.mySQLUsername,
@@ -267,9 +271,9 @@ function connectToAvailabilityDB() {
 }
 
 
-// Creates the necessary tables for the Multi-Con Vote app to work.
+// Creates the necessary tables for the Status Indicator app to work.
 function maybeCreateNewTables(response) {
-    var query = `CREATE TABLE IF NOT EXISTS \`availabilityIndicator\` (
+    var query = `CREATE TABLE IF NOT EXISTS \`statusIndicator\` (
         username VARCHAR(100) PRIMARY KEY,
         displayName VARCHAR(100),
         status VARCHAR(45),
@@ -279,14 +283,13 @@ function maybeCreateNewTables(response) {
         if (error) {
             throw error;
         }
-        connectToAvailabilityDB();
+        connectToStatusDB();
     });
 }
 
 
-// Creates the correct database and tables
-function maybeCreateAvailabilityDB() {
-    
+// Creates the database and tables
+function maybeCreateStatusDB() {
     connection = mysql.createConnection({
         host: dbInfo.mySQLHost,
         user: dbInfo.mySQLUsername,
@@ -313,9 +316,10 @@ function maybeCreateAvailabilityDB() {
     });
 }
 
+
 // Called on startup.
 function startup() {
-    maybeCreateAvailabilityDB();
+    maybeCreateStatusDB();
 }
 
 startup();
