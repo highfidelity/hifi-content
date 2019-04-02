@@ -9,9 +9,11 @@
 //
 //  Helps manage the list of avatars added to the nametag list
 //
+var log = Script.require('https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/developerTools/sharedLibraries/easyLog/easyLog.js')
 
 var LocalEntity = Script.require('./entityMaker.js?' + Date.now());
 var entityProps = Script.require('./defaultLocalEntityProps.js?' + Date.now());
+var borderProps = Script.require('./borderProps.js?' + Date.now());
 var textHelper = new (Script.require('./textHelper.js?' + Date.now()));
 var request = Script.require('request').request;
 var X = 0;
@@ -83,7 +85,7 @@ function add(uuid, intersection){
     if (!_this.avatars[uuid]) {
         _this.avatars[uuid] = new NewAvatarProps(intersection); 
         getAvatarData(uuid);
-        getUN(uuid);
+        // getUN(uuid);
     } else {
         getAvatarData(uuid);
     }
@@ -95,14 +97,23 @@ function add(uuid, intersection){
     _this.selectedAvatars[uuid] = true;
 
     avatar.localEntityMain = new LocalEntity('local').add(entityProps);
+    avatar.localEntityMainTop = new LocalEntity('local').add(borderProps.scalableBox);
+    avatar.localEntityMainBottom = new LocalEntity('local').add(borderProps.scalableBox);
+    avatar.localEntityMainLeft = new LocalEntity('local').add(borderProps.scalableBox);
+    avatar.localEntityMainRight = new LocalEntity('local').add(borderProps.scalableBox);
+
     avatar.localEntitySub = new LocalEntity('local').add(entityProps);
+    avatar.localEntitySubTop = new LocalEntity('local').add(borderProps.scalableBox);
+    avatar.localEntitySubBottom = new LocalEntity('local').add(borderProps.scalableBox);
+    avatar.localEntitySubLeft = new LocalEntity('local').add(borderProps.scalableBox);
+    avatar.localEntitySubRight = new LocalEntity('local').add(borderProps.scalableBox);
 
     // When the user clicks someone, we create their nametag
     makeNameTag(uuid, "main");
     // Create the sub if they have it
-    if (avatarInfo.username){
-        makeNameTag(uuid, "sub");
-    }
+    // if (avatarInfo.username){
+    //     makeNameTag(uuid, "sub");
+    // }
 
     var deleteEnttyInMiliseconds = entityProps.lifetime * MILISECONDS_IN_SECOND;
     // Remove from list after lifetime is over
@@ -292,6 +303,8 @@ var LEFT_MARGIN_SCALER = 0.15;
 var RIGHT_MARGIN_SCALER = 0.10;
 var TOP_MARGIN_SCALER = 0.07;
 var BOTTOM_MARGIN_SCALER = 0.03;
+var TOP_BOTTOM_BORDER_SCALER = 0.15;
+var LEFT_RIGHT_BORDER_SCALER = 0.10;
 function makeNameTag(uuid, type) {
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -301,6 +314,10 @@ function makeNameTag(uuid, type) {
 
     var name = null;
     var localEntity = null;
+    var topBorder = null;
+    var bottomBorder = null;
+    var leftBorder = null;
+    var rightBorder = null;
     var calculatedProps = null;
     var position = null;
     var distance = null;
@@ -327,6 +344,10 @@ function makeNameTag(uuid, type) {
     // Initial values specific to which type
     if (type === "main") {
         localEntity = localEntityMain;
+        topBorder = avatar.localEntityMainTop;
+        bottomBorder = avatar.localEntityMainBottom;
+        leftBorder = avatar.localEntityMainLeft;
+        rightBorder = avatar.localEntityMainRight;
         // Capture the inital dimensions, distance, and displayName in case we need to redraw
         avatar.previousDisplayName = avatarInfo.displayName;
         avatar.mainInitialDimensions = scaledDimensions;
@@ -335,6 +356,10 @@ function makeNameTag(uuid, type) {
         parentID = uuid;
     } else {
         localEntity = localEntitySub;
+        topBorder = avatar.localEntitySubTop;
+        bottomBorder = avatar.localEntitySubBottom;
+        leftBorder = avatar.localEntitySubLeft;
+        rightBorder = avatar.localEntitySubRight;
         avatar.subInitialDimensions = scaledDimensions;
         name = avatarInfo.username;
         parentID = localEntityMain.id;
@@ -348,7 +373,13 @@ function makeNameTag(uuid, type) {
     // Add some room for the margin by using lineHeight as a reference
     scaledDimensions[X] += (lineHeight * LEFT_MARGIN_SCALER) + (lineHeight * RIGHT_MARGIN_SCALER);
     scaledDimensions[Y] += (lineHeight * TOP_MARGIN_SCALER) + (lineHeight * BOTTOM_MARGIN_SCALER);
-
+    
+    var topBottomBorderYHeight = scaledDimensions[Y] * TOP_BOTTOM_BORDER_SCALER;
+    var leftRightBorderXWidth = scaledDimensions[X] * LEFT_RIGHT_BORDER_SCALER;
+    var topBottomBorderDimenions = [scaledDimensions[X], topBottomBorderYHeight, scaledDimensions[Z]];
+    var leftRightBorderDimensions = [leftRightBorderXWidth, scaledDimensions[Y], scaledDimensions[Z]];
+    log("leftRightBorderDimensions", leftRightBorderDimensions)
+    log("scaledDimensions", scaledDimensions)
     localEntity
         .add("leftMargin", lineHeight * LEFT_MARGIN_SCALER)
         .add("rightMargin", lineHeight * RIGHT_MARGIN_SCALER)
@@ -356,9 +387,27 @@ function makeNameTag(uuid, type) {
         .add("bottomMargin", lineHeight * BOTTOM_MARGIN_SCALER)
         .add("lineHeight", lineHeight)
         .add("dimensions", scaledDimensions)
-        .add("parentID", parentID);
+        .add("parentID", parentID)
+        // .add("visible", true)
+    topBorder
+        .add("dimensions", topBottomBorderDimenions)
+        .add("registrationPoint", [0.5, 0.0, 0.5])        
+        .add("localPosition", [0, scaledDimensions[Y] * HALF, 0]);
+    bottomBorder
+        .add("dimensions", topBottomBorderDimenions)
+        .add("registrationPoint", [0.5, 1.0, 0.5])        
+        .add("localPosition", [0, -scaledDimensions[Y] * HALF, 0]);
+    leftBorder
+        .add("dimensions", leftRightBorderDimensions)
+        .add("registrationPoint", [0.5, 0.5, 0.5])      
+        .add("localPosition", [0, 0, (-scaledDimensions[X] * HALF) + (-leftRightBorderDimensions[X] * HALF)])
+        // .add("localPosition", [0, 0, 0])
 
-
+    // rightBorder
+    //     .add("dimensions", leftRightBorderDimensions)
+    //     .add("registrationPoint", [0.5, 0.5, 0.5])     
+    //     .add("localPosition", [0, 0, (scaledDimensions[X] * HALF) + (leftRightBorderDimensions[X] * HALF)])
+    
     // Final values specific to each type
 
     if (type === "main") {
@@ -381,6 +430,18 @@ function makeNameTag(uuid, type) {
 
     localEntity
         .create(CLEAR_ENTITY_EDIT_PROPS);
+    topBorder
+        .add("parentID", localEntity.id)
+        .create(CLEAR_ENTITY_EDIT_PROPS);
+    bottomBorder
+        .add("parentID", localEntity.id)
+        .create(CLEAR_ENTITY_EDIT_PROPS);
+    leftBorder
+        .add("parentID", localEntity.id)
+        .create(CLEAR_ENTITY_EDIT_PROPS);
+    // rightBorder
+    //     .add("parentID", localEntity.id)
+    //     .create(CLEAR_ENTITY_EDIT_PROPS);
 }
 
 
