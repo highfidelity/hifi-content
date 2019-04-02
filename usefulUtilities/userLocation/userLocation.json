@@ -1,0 +1,49 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "type": "Box",
+    "name": "User Location Banner",
+    "userData": "{\"targetUsername\":\"\",\"targetDisplayName\":\"\"}",
+    "dimensions": {
+        "x": 1.5,
+        "y": 0.2,
+        "z": 0.05
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/userLocation/2019-04-02_09-52-00/entityScripts/userLocation.js?16",
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{315b9ba9-181c-4f58-b4ee-9e7ebc69bd3e}",
+  "Version": 118
+}
