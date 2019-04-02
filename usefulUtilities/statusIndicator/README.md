@@ -23,7 +23,7 @@ The code for this content is open source. You must set up some configuration fil
 
 ```
 {
-    "REQUEST_URL": "https://<hostname>/" 
+    "REQUEST_URL": "https://<hostname>/api/statusIndicator/" 
 }
 ```
 
@@ -31,7 +31,7 @@ The code for this content is open source. You must set up some configuration fil
 
 ## HTML Readouts Config
 
-In `allEmployees.html` and `teamPage.html`, you will need to replace `http://localhost:3305/` with `https://<hostname>/ ` in the `fetch` function call.
+In `allEmployees.html` and `teamPage.html`, you will need to replace `http://localhost:3305/` with `https://<hostname>/api/statusIndicator/` in the `fetch` function call.
 
 `allEmployees.html` and `teamPage.html` will display "Loading Data..." if the fetch fails or the teamName is incorrect.
 
