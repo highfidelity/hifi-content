@@ -12,46 +12,32 @@
 
 (function(){
     
-    var buttonID = null;
     var textID = "";
     var textHelper = new (Script.require('./textHelper.js'));
     var lineHeight = 0.1;
-    var newStatus = "";
-    var buffer = 1.03;
-    var textName = "STATUS_UPDATE_TEXT";
-    var SEARCH_RADIUS = 2;
-    var username = "";
+    var textSizeBuffer = 1.03;
+    var newDate = Date.now();
+
+    var SECOND_MS = 1000;
+    var MINUTES_MS = SECOND_MS * 60;
+    var HOUR_MS = MINUTES_MS * 60;
+    var CALI_TIME = HOUR_MS * 7;
 
     function StatusUpdater(){
 
     }
 
+    var remotelyCallable = ["handleNewStatus"];
 
-    // Get the Button position and text entity ID
     function preload(id){
-        buttonID = id;
-        var buttonPosition = Entities.getEntityProperties(buttonID, "position").position;
-        textID = Entities.findEntitiesByName(textName, buttonPosition, SEARCH_RADIUS)[0];
-        console.log("textID", textID)
-        var userData = Entities.getEntityProperties(buttonID, "userData").userData;
-        try {
-            userData = JSON.parse(userData);
-            username = userData.username || "";
-        } catch (e) {
-            console.log("could not get username for status update", e);
-        }
-        
+        textID = id;
     }
 
 
     // Handle clicking on entity
-    function onClick(){
-        if (AccountServices.username.toLowerCase() !== username.toLowerCase() && username !== "") {
-            console.log("doesn't match can't update status");
-            return;
-        }
-
-        var newDate = new Date();
+    function handleNewStatus(id, params){
+        var newStatus = params[0];
+        newDate = new Date(newDate - CALI_TIME);
 
         var month = ("" + newDate.getMonth()).length === 1 ? 
             "0" + (+newDate.getMonth() + 1) : (+newDate.getMonth() + 1);
@@ -64,8 +50,6 @@
 
         var dateString = month + "-" + day + "_" + hour + ":" + minutes;
 
-        newStatus = Window.prompt("New status:", newStatus);
-
         var finalStatus = dateString + " :: " + newStatus;
 
         textHelper
@@ -73,7 +57,7 @@
             .setLineHeight(lineHeight);
         
         var textXDimension = textHelper.getTotalTextLength();
-        var newDimensions = [textXDimension * buffer, lineHeight, 0];
+        var newDimensions = [textXDimension * textSizeBuffer, lineHeight, 0];
 
         var props = { dimensions: newDimensions, text: finalStatus };
 
@@ -81,15 +65,10 @@
     }
 
 
-    // Handle mouse and trigger press
-    function mousePressOnEntity(){
-        onClick();
-    }
-
-
     StatusUpdater.prototype = {
+        remotelyCallable: remotelyCallable,
         preload: preload,
-        mousePressOnEntity: mousePressOnEntity
+        handleNewStatus: handleNewStatus
     };
 
     return new StatusUpdater();

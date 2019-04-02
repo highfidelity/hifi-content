@@ -5,7 +5,7 @@ Easy Status updater that lets you put a button on your desk to press and get a p
 
 # Instructions
 - Import this JSON:
-https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/ezStatusUpdate/2019-04-02_13-19-50/EZ_Status-Update.json
+https://hifi-content.s3.amazonaws.com/milad/ROLC/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/usefulUtilities/ezStatusUpdate/EZ_Status-Update_server_version.json
 
 - Go to create menu and find the button you just added by clicking on it (It will give you a prompt but just cancel).  
 
@@ -16,3 +16,6 @@ https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/ezSta
 # Release Log
 
 # 2019-04-02_13-19-50 | V.1 | [d8a2574]
+
+# Trello Card
+https://trello.com/c/shY8L7ch/161-desk-status-updater
