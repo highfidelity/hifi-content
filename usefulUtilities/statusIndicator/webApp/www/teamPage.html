@@ -29,39 +29,40 @@
         }
     </style>
     <script>
+        function getEmployeeData() {
+            var urlParams = getUrlVars();
+            console.log(urlParams);
+            if (urlParams.teamName) {
+                fetch(`http://localhost:3305/?type=getTeamEmployees&teamName=${urlParams.teamName}`)
+                    .then(function(response) { return response.text() })
+                    .then(function(data) {
+                        console.log(data); // Prints result from `response.json()` in getRequest
+                        document.getElementById("team").innerHTML = data;
+                        setTimeout(getEmployeeData, 10000);
+                    })
+                    .catch(function(error){ console.error(error) })
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', (event) => {
-            setTimeout(() => {
-                location.reload();
-            }, 10000);
+            getEmployeeData();
         });
+
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+
     </script>
 </head>
 
 <body>
     <div class="content">
-        <div class="team">
-            <h1>Team Name 1</h1>
-            <div style="padding-left: 40px">
-                <table>
-                    <tr>
-                        <td width="60%">Name 1</td>
-                        <td width="40%">Busy</td>
-                    </tr>
-                    <tr>
-                        <td>Name 1</td>
-                        <td>Busy</td>
-                    </tr>
-                    <tr>
-                        <td>Name 1</td>
-                        <td>Busy</td>
-                    </tr>
-                    <tr>
-                        <td>Name 1</td>
-                        <td>Busy</td>
-                    </tr>
-    
-                </table>
-            </div>
+        <div id="team">
+            <h1>Loading data...</h1>
         </div>
     </div>
 </body>

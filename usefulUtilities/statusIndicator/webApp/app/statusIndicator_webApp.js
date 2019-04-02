@@ -11,6 +11,7 @@
 var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
+var DEBUG = false;
 
 
 // Heartbeat updates setTimeout and updates employee data in database
@@ -56,8 +57,8 @@ function startHeartbeatTimer(username, response) {
 function updateEmployee(updates, response) {
     // Create strings for query from the updates object
     var columnString = ""; // (username, displayName, status)
-    var valueString = ""; // (username1, Display Name, busy)
-    var updateString = ""; // username=username1, displayName=Display Name, status=busy
+    var valueString = ""; // ('username1', 'Display Name', 'busy')
+    var updateString = ""; // username='username1', displayName='Display Name', status='busy'
     var validUpdateParams = ["username", "displayName", "status", "teamName"];
     for (var key in updates) {
         if (validUpdateParams.indexOf(key) === -1) {
@@ -153,7 +154,7 @@ function getAllEmployees(response) {
 </tr>
             `;
         }
-        responseHTML += `</table></div>`
+        responseHTML += `</table></div>`;
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html');
@@ -165,7 +166,7 @@ function getAllEmployees(response) {
 // Get employees from team
 function getTeamEmployees(teamName, response) {
     var query = `SELECT * FROM statusIndicator
-        WHERE teamName = '${teamName}' ORDER BY displayName`;
+        WHERE teamName='${teamName}' ORDER BY displayName`;
 
     connection.query(query, function(error, results, fields) {
         if (error) {
@@ -179,17 +180,20 @@ function getTeamEmployees(teamName, response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        var responseHTML = "<table><tr><th>Display Name</th><th>status</th></tr>";
+        if (results.length === 0) {
+            return;
+        }
+
+        var responseHTML = `<div style="padding-left: 40px"><h1>${results[0].teamName}</h1><table>`;
         for (var i = 0; i < results.length; i++) {
             responseHTML += `
 <tr>
-    <td>${results[i].displayName}</td>
-    <td>${results[i].status}</td>
+    <td width="60%">${results[i].displayName}</td>
+    <td width="40%">${results[i].status}</td>
 </tr>
             `;
         }
-        
-        responseHTML += "</table>";
+        responseHTML += `</table></div>`;
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html');

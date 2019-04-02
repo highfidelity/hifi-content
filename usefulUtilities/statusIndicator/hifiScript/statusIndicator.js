@@ -65,9 +65,11 @@
     function deleteStatusOverlays() {
         if (rectangleOverlay) {
             Overlays.deleteOverlay(rectangleOverlay);
+            rectangleOverlay = null;
         }
         if (desktopOverlay) {
             Overlays.deleteOverlay(desktopOverlay);
+            desktopOverlay = null;
         }
     }
 
@@ -78,14 +80,17 @@
 
     // Send heartbeat with updates to database
     // When this stops, the database will set status to Offline
-    var HEARTBEAT_INTERVAL_MS = 5000,
-        heartbeatInterval;
+    var HEARTBEAT_TIMEOUT_MS = 5000,
+        heartbeat;
     function setupHeartbeat() {
-        if (!heartbeatInterval) {
-            heartbeatInterval = Script.setInterval(function() {
-                sendStatusUpdate();
-            }, HEARTBEAT_INTERVAL_MS);
+        if (heartbeat) {
+            Script.clearTimeout(heartbeat);
+            heartbeat = false;
         }
+
+        heartbeat = Script.setTimeout(function() {
+            sendStatusUpdate(true);
+        }, HEARTBEAT_TIMEOUT_MS);
     }
 
     // #endregion HEARTBEAT
@@ -96,7 +101,7 @@
     // Sends status to database
     var request = Script.require('request').request,
         REQUEST_URL = Script.require(Script.resolvePath('./secrets.json')).REQUEST_URL;
-    function sendStatusUpdate() {
+    function sendStatusUpdate(isHeartbeat) {
         var queryParamString = "type=heartbeat";
         queryParamString += "&username=" + AccountServices.username;
         queryParamString += "&displayName=" + MyAvatar.displayName;
@@ -110,6 +115,8 @@
         request({
             uri: REQUEST_URL + "?" + queryParamString
         }, function (error, response) {
+            setupHeartbeat();
+
             if (error || !response || response.status !== "success") {
                 console.error("Error with sendStatusUpdate: " + JSON.stringify(response));
                 return;
@@ -136,13 +143,17 @@
                 console.log("onMousePressEvent status overlay has been clicked");
             }
             isAvailable = !isAvailable;
-            var edits = {};
-            edits[rectangleOverlay] = { color: isAvailable ? AVAILABLE_COLOR : NOT_AVAILABLE_COLOR }
-            edits[desktopOverlay] = { text: isAvailable ? OVERLAY_AVAILABLE_TEXT : OVERLAY_NOT_AVAILABLE_TEXT }
-            Overlays.editOverlays(edits);
-
-            sendStatusUpdate();
+            editStatusOverlaysAndSendUpdate();
         }
+    }
+
+    function editStatusOverlaysAndSendUpdate() {
+        var edits = {};
+        edits[rectangleOverlay] = { color: isAvailable ? AVAILABLE_COLOR : NOT_AVAILABLE_COLOR }
+        edits[desktopOverlay] = { text: isAvailable ? OVERLAY_AVAILABLE_TEXT : OVERLAY_NOT_AVAILABLE_TEXT }
+        Overlays.editOverlays(edits);
+
+        sendStatusUpdate();
     }
 
 
@@ -157,8 +168,7 @@
     // Set status back to previousStatus
     function onWentActive() {
         isAvailable = previousStatus;
-        onWindowResize();
-        sendStatusUpdate();
+        editStatusOverlaysAndSendUpdate();
     }
 
 
@@ -167,8 +177,7 @@
     function onWentAway() {
         previousStatus = isAvailable;
         isAvailable = false;
-        onWindowResize();
-        sendStatusUpdate();
+        editStatusOverlaysAndSendUpdate();
     }
 
     // #endregion SIGNALS
@@ -187,20 +196,21 @@
         MyAvatar.wentActive.connect(onWentActive);
         MyAvatar.displayNameChanged.connect(sendStatusUpdate);
 
-        setupHeartbeat();
+        sendStatusUpdate();
     }
 
 
-    // Cleans up intervals, signals, and overlays
+    // Cleans up timeouts, signals, and overlays
     function unload() {
         deleteStatusOverlays();
         Controller.mousePressEvent.disconnect(onMousePressEvent);
         Window.geometryChanged.disconnect(onWindowResize);
         MyAvatar.wentAway.disconnect(onWentAway);
         MyAvatar.wentActive.disconnect(onWentActive);
-        if (heartbeatInterval) {
-            Script.clearInterval(heartbeatInterval);
-            heartbeatInterval = null;
+        MyAvatar.displayNameChanged.disconnect(sendStatusUpdate);
+        if (heartbeat) {
+            Script.clearTimeout(heartbeat);
+            heartbeat = null;
         }
     }
 
