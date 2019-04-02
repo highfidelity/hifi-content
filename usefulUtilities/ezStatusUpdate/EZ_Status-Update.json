@@ -1,0 +1,173 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{7cba6fd5-513f-4945-bf4a-fc8b1a005361}",
+    "type": "Text",
+    "lastEdited": 1554231217451920,
+    "name": "STATUS_UPDATE_TEXT",
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0.7299990653991699
+    },
+    "dimensions": {
+        "x": 0.947700023651123,
+        "y": 0.10000000149011612,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": 0.0002288818359375,
+        "y": 0.7058670520782471,
+        "z": 0.0000762939453125,
+        "w": -0.7083696126937866
+    },
+    "created": 1553988152542110,
+    "lastEditedBy": "{9db58359-3a62-40ec-b40e-fc35852f0e45}",
+    "queryAACube": {
+        "x": -0.47650691866874695,
+        "y": -0.47650691866874695,
+        "z": 0.253492146730423,
+        "scale": 0.9530138373374939
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "text": "03-02_11:53 :: null",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{503c021e-68e9-45a6-b0b4-0a57d9892f36}",
+    "type": "Model",
+    "lastEdited": 1554231159294001,
+    "name": "Status Update Button",
+    "userData": "{\n  \"username\": \"\"\n}",
+    "position": {
+        "x": 0.5214004516601562,
+        "y": 0.1099853515625,
+        "z": 0.005595207214355469
+    },
+    "dimensions": {
+        "x": 0.09413302689790726,
+        "y": 0.1241363063454628,
+        "z": 0.12413697689771652
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000152587890625,
+        "z": 0.7070878744125366,
+        "w": 0.7070878744125366
+    },
+    "created": 1554227163505088,
+    "lastEditedBy": "{9db58359-3a62-40ec-b40e-fc35852f0e45}",
+    "queryAACube": {
+        "x": 0.4218001961708069,
+        "y": 0.010385103523731232,
+        "z": -0.0940050408244133,
+        "scale": 0.19920049607753754
+    },
+    "grab": {
+        "grabbable": false,
+        "triggerable": true,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/ezStatusUpdate/2019-04-02_13-19-50/ezStatusUpdate.js",
+    "scriptTimestamp": 1554231152579,
+    "modelURL": "https://hifi-content.s3.amazonaws.com/jimi/environment/201802_Shop/buttons/buttonGreen.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{7d8bab2b-11ce-482c-b729-003a98b86ca7}",
+    "type": "Text",
+    "lastEdited": 1554227199111674,
+    "position": {
+        "x": 0.43059539794921875,
+        "y": 0.0728759765625,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.34828266501426697,
+        "y": 0.0789981260895729,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": 0.5046921968460083,
+        "y": -0.497795045375824,
+        "z": -0.49968719482421875,
+        "w": -0.497856080532074
+    },
+    "created": 1554220930861131,
+    "lastEditedBy": "{9db58359-3a62-40ec-b40e-fc35852f0e45}",
+    "queryAACube": {
+        "x": 0.2519606351852417,
+        "y": -0.10575880110263824,
+        "z": -0.17863477766513824,
+        "scale": 0.3572695553302765
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "text": "Update Status",
+    "lineHeight": 0.05999999865889549,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{621face3-a964-4b90-8b35-982aa2e626c8}",
+  "Version": 118
+}
