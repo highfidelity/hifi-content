@@ -30,7 +30,7 @@
     "angularDamping": 0,
     "collisionless": true,
     "ignoreForCollisions": true,
-    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/userLocation/2019-04-02_09-52-00/entityScripts/userLocation.js?16",
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/userLocation/2019-04-02_09-52-00/userLocation.js?17",
     "color": {
         "red": 0,
         "green": 0,
