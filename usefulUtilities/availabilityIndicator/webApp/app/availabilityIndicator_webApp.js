@@ -39,7 +39,7 @@ function heartbeat(queryParamObject, response) {
 // if timer runs out, will set user to offline
 var HEARTBEAT_INTERVAL_MS = 10000;
 function startHeartbeatTimer(username, response) {
-    var heartbeatTimer = setTimeout(function() { 
+    var heartbeatTimer = setTimeout(function() {
         // user has stopped sending heartbeat()
         // update user to offline
         users[username].timer = null;
@@ -53,30 +53,37 @@ function startHeartbeatTimer(username, response) {
 
 function updateEmployee(updates, response) {
     // Create strings for query from the updates object
-    var columnString = "";
-    var valueString = "";
+    var columnString = ""; // (username, displayName, status)
+    var valueString = ""; // (username1, Display Name, busy)
+    var updateString = ""; // username=username1, displayName=Display Name, status=busy
     var validUpdateParams = ["username", "displayName", "status", "teamName"];
     for (var key in updates) {
         if (validUpdateParams.indexOf(key) === -1) {
             continue;
         }
 
+        updateString += key + "=";
         columnString += key + ", ";
+
         if (!updates[key]) {
             updates[key] = "NULL";
         }
         valueString += "'" + updates[key] + "', ";
+        updateString += "'" + updates[key] + "', ";
     }
     columnString = columnString.slice(0, -2); // slice off the last ", "
     valueString = valueString.slice(0, -2); // slice off the last ", "
+    updateString = updateString.slice(0, -2); // slice off the last ", "
 
     // build query string
-    var query = `REPLACE INTO \`availabilityindicator\` (${columnString}) VALUES (${valueString})`;
+    var query = `INSERT INTO \`availabilityindicator\` (${columnString}) VALUES (${valueString}) ON DUPLICATE KEY UPDATE ${updateString}`;
 
     console.log(query);
 
     connection.query(query, function(error, results, fields) {
         if (updates.status === "offline" && updates.username) {
+            // do not have a response to send
+            // client is disconnected
             delete users[updates.username];
             return;
         }
@@ -98,8 +105,6 @@ function updateEmployee(updates, response) {
             status: "success",
             text: "Successfully updated employee."
         };
-
-        console.log("is SENDING robin");
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
@@ -279,13 +284,12 @@ function maybeCreateNewTables(response) {
         username VARCHAR(100) PRIMARY KEY,
         displayName VARCHAR(100),
         status VARCHAR(45),
-        teamName VARCHAR(100)
+        teamName VARCHAR(100) DEFAULT 'TBD'
     )`;
     connection.query(query, function(error, results, fields) {
         if (error) {
             throw error;
         }
-        
         connectToAvailabilityDB();
     });
 }

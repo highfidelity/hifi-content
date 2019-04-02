@@ -1,9 +1,11 @@
-(function() {
+(function () {
 
     var isAvailable = true;
 
     var request = Script.require('request').request;
-    var REQUEST_URL = "http://localhost:3305/";
+    var REQUEST_URL = Script.require(Script.resolvePath('./secrets.json')).REQUEST_URL;
+
+    var DEBUG = true;
 
     // #region AVAILABILITY OVERLAY
 
@@ -61,39 +63,59 @@
         }
     }
 
+    // #endregion AVAILABILITY OVERLAY
 
-    var HEARTBEAT_INTERVAL_MS = 5000;
-    var heartbeatInterval;
+
+    // #region HEARTBEAT
+
+    var HEARTBEAT_INTERVAL_MS = 5000,
+        heartbeatInterval;
     function setupHeartbeat() {
         if (!heartbeatInterval) {
             heartbeatInterval = Script.setInterval(function() {
-                var queryParamString = "type=heartbeat";
-                    queryParamString += "&username=" + AccountServices.username;
-                    queryParamString += "&displayName=" + MyAvatar.displayName;
-                    queryParamString += "&status=";
-                    queryParamString += isAvailable ? "available" : "busy";
-                    queryParamString += "&teamName=" + "Experiences";
-
-                    console.log("HEARTBEAT");
-                    console.log(REQUEST_URL + queryParamString);
-
-                request({
-                    uri: REQUEST_URL + "?" + queryParamString
-                }, function (error, response) {
-                    if (error || !response || response.status !== "success") {
-                        console.error("Error with heartbeat: " + JSON.stringify(response));
-                        return;
-                    }
-                });
+                sendAvailabilityUpdate();
             }, HEARTBEAT_INTERVAL_MS);
         }
     }
 
-    
+    // #endregion HEARTBEAT
+
+
+    // #region SEND AVAILABILITY REQUEST
+
+    function sendAvailabilityUpdate() {
+        var queryParamString = "type=heartbeat";
+        queryParamString += "&username=" + AccountServices.username;
+        queryParamString += "&displayName=" + MyAvatar.displayName;
+        queryParamString += "&status=";
+        queryParamString += isAvailable ? "available" : "busy";
+
+        if (DEBUG) {
+            console.log("sendAvailabilityUpdate: " + REQUEST_URL + queryParamString);
+        }
+
+        request({
+            uri: REQUEST_URL + "?" + queryParamString
+        }, function (error, response) {
+            if (error || !response || response.status !== "success") {
+                console.error("Error with sendAvailabilityUpdate: " + JSON.stringify(response));
+                return;
+            }
+        });
+    }
+
+    // #endregion SEND AVAILABILITY REQUEST
+
+
+    // #region SIGNALS
+
     function onMousePressEvent(event) {
+        if (DEBUG) {
+            console.log("MOUSE press event" + event.isLeftButton);
+        }
         // is primary button
         var overlayID = Overlays.getOverlayAtPoint({ x: event.x, y: event.y });
-        if (event.isPrimaryButton && overlayID && (overlayID === rectangleOverlay || overlayID === desktopOverlay)) {
+        if (event.isLeftButton && overlayID && (overlayID === rectangleOverlay || overlayID === desktopOverlay)) {
             console.log("MY OVERLAY HAS BEEN CLICKED");
             isAvailable = !isAvailable;
             var edits = {};
@@ -101,30 +123,7 @@
             edits[desktopOverlay] = { text: isAvailable ? OVERLAY_AVAILABLE_TEXT : OVERLAY_NOT_AVAILABLE_TEXT }
             Overlays.editOverlays(edits);
 
-            // send user availability update to backend
-            // var myUsername = AccountServices.username;
-            // var queryParamString = "type=getParticipants";
-            // if (myUsername !== "Unknown user") {
-            //     queryParamString += "&voterUsername=" + myUsername;
-            // }
-
-            // request({
-            //     uri: REQUEST_URL + "?" + queryParamString
-            // }, function (error, response) {
-            //     if (error || !response || response.status !== "success") {
-            //         console.error("Error retrieving participants from server: " + JSON.stringify(response));
-            //         return;
-            //     }
-            //     if (response.status && response.status === "success") {
-            //         ui.sendMessage({
-            //             app: 'multiConVote',
-            //             method: "initializeUI",
-            //             myUsername: myUsername,
-            //             voteData: response.data,
-            //             activeTabName: Settings.getValue("multiCon/activeTabName", "info")
-            //         });
-            //     }
-            // });
+            sendAvailabilityUpdate();
         }
     }
 
@@ -133,9 +132,24 @@
         drawAvailabilityOverlays();
     }
 
-    // #endregion AVAILABILITY OVERLAY
+    function onWentActive() {
+        isAvailable = previousStatus;
+        onWindowResize();
+        sendAvailabilityUpdate();
+    }
 
-    // #region LIFETIME
+    var previousStatus;
+    function onWentAway() {
+        previousStatus = isAvailable;
+        isAvailable = false;
+        onWindowResize();
+        sendAvailabilityUpdate();
+    }
+
+    // #endregion SIGNALS
+
+
+    // #region APP LIFETIME
 
     function startup() {
         drawAvailabilityOverlays();
@@ -143,34 +157,26 @@
         Script.scriptEnding.connect(unload);
         Controller.mousePressEvent.connect(onMousePressEvent);
         Window.geometryChanged.connect(onWindowResize);
+        MyAvatar.wentAway.connect(onWentAway);
+        MyAvatar.wentActive.connect(onWentActive);
+        MyAvatar.displayNameChanged.connect(sendAvailabilityUpdate);
+
         setupHeartbeat();
     }
-    
+
     function unload() {
         deleteAvailabilityOverlays();
         Controller.mousePressEvent.disconnect(onMousePressEvent);
         Window.geometryChanged.disconnect(onWindowResize);
+        MyAvatar.wentAway.disconnect(onWentAway);
+        MyAvatar.wentActive.disconnect(onWentActive);
         if (heartbeatInterval) {
             Script.clearInterval(heartbeatInterval);
             heartbeatInterval = null;
         }
     }
 
-    // #endregion LIFETIME
-
-
-    //  Audio.mutedChanged.connect(onMuteStateChanged);
-    //
-    //  2. Create a new function to produce a text string, do not include new line returns.
-    //  example:
-    //  function onMuteStateChanged() {
-    //     var muteState,
-    //         muteString;
-    //
-    //     muteState = Audio.muted ? "muted" : "unmuted";
-    //     muteString = "Microphone is now " + muteState;
-    //     createNotification(muteString, NotificationType.MUTE_TOGGLE);
-    //  }
+    // #endregion APP LIFETIME
 
     startup();
 })();
