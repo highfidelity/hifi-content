@@ -215,20 +215,9 @@ function handleGetRequest(request, response) {
 
         case "getTeamEmployees": // http://localhost:3305/?type=getTeamEmployees&teamName=team1
             // {
-            //      username: "exampleTeamName"
-            //      displayName: "exampleUsername"
-            //      status: "exampleUsername"
+            //      teamName: "exampleTeamName"
             // }
             getTeamEmployees(queryParamObject.teamName, response);
-        break;
-
-        case "updateEmployeeTest": // http://localhost:3305/?type=updateEmployeeTest&username=test10&displayName=HELLOOOOO WORLD&teamName=Iwasonateam&status=waaat
-            // {
-            //      username: "exampleTeamName"
-            //      displayName: "exampleUsername"
-            //      status: "exampleUsername"
-            // }
-            updateEmployee(queryParamObject, response);
         break;
 
         default:
