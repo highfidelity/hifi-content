@@ -61,6 +61,6 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v1.0 | 2019-04-03_12-43-00 | [commit fdb2bda4](https://github.com/highfidelity/hifi-content/commits/fdb2bda4)
+## v1.0 | 2019-04-03_12-43-00 | [commit f7011c77](https://github.com/highfidelity/hifi-content/commits/f7011c77)
 
 - Initial Release.
