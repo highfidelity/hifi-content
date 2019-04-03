@@ -16,7 +16,6 @@
     var textHelper = new (Script.require('./textHelper.js'));
     var lineHeight = 0.1;
     var textSizeBuffer = 1.03;
-    var newDate = Date.now();
 
     var SECOND_MS = 1000;
     var MINUTES_MS = SECOND_MS * 60;
@@ -36,6 +35,7 @@
 
     // Handle clicking on entity
     function handleNewStatus(id, params){
+        var newDate = Date.now();
         var newStatus = params[0];
         newDate = new Date(newDate - CALI_TIME);
 
@@ -49,7 +49,7 @@
             "0" + newDate.getMinutes() : newDate.getMinutes();
 
         var dateString = month + "-" + day + "_" + hour + ":" + minutes;
-
+        
         var finalStatus = dateString + " :: " + newStatus;
 
         textHelper
