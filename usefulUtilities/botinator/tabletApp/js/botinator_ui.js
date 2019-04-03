@@ -26,7 +26,6 @@ var totalNumberOfBotsNeeded;
 var availableACs;
 var playStopButton; 
 var updateBotDataButton;
-var playButtonDisabled = true;
 
 
 // #endregion
@@ -51,7 +50,7 @@ function updateVolume(slider) {
 
 
 // Update the corner boundery location
-function updateCornerBoundery(cornerType){
+function updateCornerBoundery(cornerType) {
     EventBridge.emitWebEvent(JSON.stringify({
         app: "botinator",
         method: "updateContentBoundaryCorners",
@@ -61,7 +60,7 @@ function updateCornerBoundery(cornerType){
 
 
 // Update the total numberf of bots needed
-function updateTotalNumberOfBotsNeeded(input){
+function updateTotalNumberOfBotsNeeded(input) {
     EventBridge.emitWebEvent(JSON.stringify({
         app: "botinator",
         method: "updateTotalNumberOfBotsNeeded",
@@ -72,20 +71,20 @@ function updateTotalNumberOfBotsNeeded(input){
 
 
 // Update the current availabler ACs indicated
-function updateAvailableACsUI(currentAvailableACs){
+function updateAvailableACsUI(currentAvailableACs) {
     availableACs.innerHTML = currentAvailableACs;
 }
 
 
 // Update the current availabler ACs indicated
-function updateContentBoundaryCornersUI(contentBoundaryCorners){
-    contentBoundaryCorners1Position.innerHTML = contentBoundaryCorners[0];
-    contentBoundaryCorners2Position.innerHTML = contentBoundaryCorners[1];
+function updateContentBoundaryCornersUI(contentBoundaryCorners) {
+    contentBoundaryCorners1Position.innerHTML = convertPositionToArray(contentBoundaryCorners[0]);
+    contentBoundaryCorners2Position.innerHTML = convertPositionToArray(contentBoundaryCorners[1]);
 }
 
 
 // Change the play/stop button label
-function updatePlayLabel(playState){
+function updatePlayLabel(playState) {
     isPlaying = playState;
     var playLabel = isPlaying ? "Stop" : "Play";
     playStopButton.value = playLabel;
@@ -94,7 +93,7 @@ function updatePlayLabel(playState){
 
 // Handle play state change
 var isPlaying = false;
-function updateIsPlaying(){
+function updateIsPlaying() {
     isPlaying = !isPlaying;
     EventBridge.emitWebEvent(JSON.stringify({
         app: "botinator",
@@ -105,8 +104,8 @@ function updateIsPlaying(){
 }
 
 
-function maybeDisablePlayButton(acs){
-    if (acs > 0 && playButtonDisabled){
+function maybeDisablePlayButton(acs) {
+    if (acs > 0 && !playStopButton.disabled){
         playStopButton.disabled = false;
         updateBotDataButton.disabled = false;
 
@@ -116,9 +115,6 @@ function maybeDisablePlayButton(acs){
         updateBotDataButton.classList.remove("buttonDisabled");
         return;
     }
-
-    playButtonDisabled = true;
-
     playStopButton.disabled = true;
     updateBotDataButton.disabled = true;
 
@@ -129,7 +125,21 @@ function maybeDisablePlayButton(acs){
 }
 
 
-function sendData(){
+// Convert object to array to make it easier to read
+// and to also format it for 2 decimal places
+var FIXED_DIGITS = 2;
+function convertPositionToArray(position) {
+    var arrayToReturn = [
+        +position.x.toFixed(FIXED_DIGITS), 
+        +position.y.toFixed(FIXED_DIGITS), 
+        +position.z.toFixed(FIXED_DIGITS)
+    ];
+
+    return arrayToReturn;
+}
+
+
+function sendData() {
     EventBridge.emitWebEvent(JSON.stringify({
         app: "botinator",
         method: "sendData"
@@ -146,7 +156,6 @@ function sendData(){
 // Handle incoming tablet messages
 function onScriptEventReceived(message) {
     try {
-        console.log("MESSAGE:" + message);
         message = JSON.parse(message);
     } catch (e) {
         console.log(e);
@@ -160,11 +169,11 @@ function onScriptEventReceived(message) {
     switch (message.method) {
         case "UPDATE_UI":
             loadingContainer.style.display = "none";
-            contentBoundaryCorners1Position.innerHTML = message.contentBoundaryCorners[0];
-            contentBoundaryCorners2Position.innerHTML = message.contentBoundaryCorners[1];
-            volumeSlider.value = message.volume;         
+            // Saving for when volume gets fixed
+            // volumeSlider.value = message.volume;         
             totalNumberOfBotsNeeded.innerHTML = "Current Bots: " + message.totalNumberOfBotsNeeded;
             availableACs.innerHTML = message.availableACs;
+            updateContentBoundaryCornersUI(message.contentBoundaryCorners);
             updatePlayLabel(message.playState);
             maybeDisablePlayButton(message.availableACs);
             break;
@@ -173,8 +182,6 @@ function onScriptEventReceived(message) {
             maybeDisablePlayButton(message.availableACs);
             break;
         case "UPDATE_CONTENT_BOUNDARY_CORNERS":
-            contentBoundaryCorners1Position.innerHTML = message.contentBoundaryCorners[0];
-            contentBoundaryCorners2Position.innerHTML = message.contentBoundaryCorners[1];
             updateContentBoundaryCornersUI(message.contentBoundaryCorners);
             break;
         case "UPDATE_CURRENT_SERVER_PLAY_STATUS":

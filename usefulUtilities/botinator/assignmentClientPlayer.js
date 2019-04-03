@@ -13,7 +13,7 @@
 //
 
 
-(function () {
+(function() {
 
     // *************************************
     // START UTILITY FUNCTIONS
@@ -23,7 +23,7 @@
     
     // Keep trying to see if the manager is available before registering
     var MANAGER_CHECK_RETRY_MS = 2000;
-    function searchForManager(){
+    function searchForManager() {
         if (manager) {
             Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
                 action: "REGISTER_ME",
@@ -37,7 +37,7 @@
             }));
         }
 
-        Script.setTimeout(function(){
+        Script.setTimeout(function() {
             searchForManager();
         }, MANAGER_CHECK_RETRY_MS);
     }
@@ -85,7 +85,7 @@
         this.recordingFilename = fileToPlay;
         var _this = this;
         
-        Recording.loadRecording(fileToPlay, function (success, url) {
+        Recording.loadRecording(fileToPlay, function(success, url) {
             if (success) {
                 _this.isPlayingRecording = true;
 
@@ -169,6 +169,8 @@
         } catch (e) {
             console.log("Can not parse message object");
             console.log(e);
+
+            return;
         }
 
         if (message.uuid !== scriptUUID) {
@@ -176,8 +178,6 @@
         }
 
         switch (message.action){
-
-
             case "PLAY":
                 if (!player.isPlaying()) {
                     player.play(message.fileToPlay, message.position, +message.volume);
@@ -185,20 +185,14 @@
                     console.log("Didn't start playing " + message.fileToPlay + " because already playing ");
                 }
                 break;
-
-
             case "STOP":
                 if (player.isPlaying()) {
                     player.stop();
                 }
                 break;
-
-
             case "REGISTER_MANAGER": 
                 manager = true;
                 break;
-
-
             default:
                 console.log("unrecongized action in assignmentClientPlayer.js");
                 break;

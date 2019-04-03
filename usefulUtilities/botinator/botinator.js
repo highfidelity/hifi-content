@@ -12,7 +12,7 @@
 //
 
 
-(function () {
+(function() {
     
     // *************************************
     // START CONSTS_AND_VARS
@@ -27,17 +27,17 @@
     var Z = 2;
 
     var volume = 1.0;
-    var contentBoundaryCorners = [[0,0,0], [[1,1,1]]];
+    var contentBoundaryCorners = [{x: 0, y: 0, z: 0}, {x: 0, y: 0, z: 0}];
     var totalNumberOfBotsNeeded = 0;
     var availableACs = 0;
 
     // Clips for the start and stop feedback
     var audioClips = Script.require("./wavs.js?" + Date.now());
-    var playClips = audioClips.play.map(function(sound){
+    var playClips = audioClips.play.map(function(sound) {
         var soundUrl = Script.resolvePath(sound);
         return SoundCache.getSound(soundUrl);
     });
-    var stopClips = audioClips.stop.map(function(sound){
+    var stopClips = audioClips.stop.map(function(sound) {
         return SoundCache.getSound(Script.resolvePath(sound));
     });
 
@@ -52,18 +52,6 @@
     // *************************************
     // #region UTILITY
     
-
-    // Convert object to array to make sure we are compatable with the other functions, 
-    // and to also format it for 2 decimal places
-    var FIXED_DIGITS = 2;
-    function convertPositionToArray(position){
-        return [ 
-            +position.x.toFixed(FIXED_DIGITS), 
-            +position.y.toFixed(FIXED_DIGITS), 
-            +position.z.toFixed(FIXED_DIGITS)
-        ];
-    }
-
 
     // Called when the script is closing
     function scriptEnding() {
@@ -80,14 +68,14 @@
 
     
     // Updates the bot player volume
-    function updateVolume(newVolume){
+    function updateVolume(newVolume) {
         volume = newVolume;
     }
 
 
     // Update the content boundry to be used for the random location
-    function updateContentBoundaryCorners(cornerType){
-        contentBoundaryCorners[cornerType] = convertPositionToArray(MyAvatar.position);
+    function updateContentBoundaryCorners(cornerType) {
+        contentBoundaryCorners[cornerType] = MyAvatar.position;
         ui.sendMessage({
             app: "botinator",
             method: "UPDATE_CONTENT_BOUNDARY_CORNERS",
@@ -97,13 +85,13 @@
 
 
     // Update the total number of bots needed for the test
-    function updateTotalNumberOfBotsNeeded(newTotalNumberOfBotsNeeded){
+    function updateTotalNumberOfBotsNeeded(newTotalNumberOfBotsNeeded) {
         totalNumberOfBotsNeeded = newTotalNumberOfBotsNeeded;
     }
 
 
     // Update the tablet app with the number of ACs currently online
-    function updateAvailableACs(newAvailableACs){
+    function updateAvailableACs(newAvailableACs) {
         availableACs = newAvailableACs;
         ui.sendMessage({
             app: "botinator",
@@ -114,7 +102,7 @@
 
 
     // Request information about the player
-    function getManagerStatus(){
+    function getManagerStatus() {
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, JSON.stringify({
             action: "GET_MANAGER_STATUS"
         }));
@@ -175,9 +163,9 @@
 
     // Run when you are changing domains to make sure the tablet updates
     var TIME_TO_WAIT_BEFORE_REQUESTING_MANAGER_STATUS_MS = 5000;
-    function onDomainChanged(){
+    function onDomainChanged() {
         updateAvailableACs(0);
-        Script.setTimeout(function(){
+        Script.setTimeout(function() {
             getManagerStatus();
         }, TIME_TO_WAIT_BEFORE_REQUESTING_MANAGER_STATUS_MS);
     }
@@ -188,7 +176,7 @@
     // Only plays a sound if it is downloaded.
     // Only plays one sound at a time.
     var injector;
-    function playSound(sound, volume, position, localOnly){
+    function playSound(sound, volume, position, localOnly) {
         if (sound.downloaded) {
             if (injector) {
                 injector.stop();
@@ -220,7 +208,7 @@
     
     
     var IGNORE_MANAGER_MESSAGES = ["REGISTER_ME", "ARE_YOU_THERE_MANAGER"];
-    function onTabletChannelMessageReceived(channel, message, sender){
+    function onTabletChannelMessageReceived(channel, message, sender) {
         if (channel !== ASSIGNMENT_CLIENT_MESSANGER_CHANNEL || 
             sender === MyAvatar.sessionUUID || 
             IGNORE_MANAGER_MESSAGES.indexOf(message.action) > -1) {
@@ -231,17 +219,14 @@
             message = JSON.parse(message);
         } catch (error) {
             console.log("invalid object", error);
+
             return;
         }
 
         switch (message.action) {
-
-
             case "AC_AVAILABLE_UPDATE":
                 updateAvailableACs(message.newAvailableACs);
                 break;
-
-
             case "GET_MANAGER_STATUS":
                 updateAvailableACs(message.newAvailableACs);
                 updateCurrentServerPlayStatus(message.isPlaying);
@@ -249,8 +234,6 @@
                     ui.close();
                 }
                 break;
-
-
             default:
                 console.log("unrecongized action in assignmentClientManger.js");
                 break;
@@ -275,7 +258,6 @@
         }
 
         switch (message.method) {
-
             case "eventBridgeReady":
                 ui.sendMessage({
                     app: "botinator",
@@ -287,34 +269,22 @@
                     isPlaying: isPlaying
                 });
                 break;
-
-
             case "updateVolume":
                 updateVolume(message.volume);
                 break;
-
-
             case "updateContentBoundaryCorners":
                 updateContentBoundaryCorners(message.cornerType);
                 break;
-
-
             case "updateTotalNumberOfBotsNeeded":
                 updateTotalNumberOfBotsNeeded(message.totalNumberOfBotsNeeded);
                 break;
-
-
             case "updateIsPlaying":
                 sendData();
                 updateIsPlaying(message.isPlaying);
                 break;
-
-
             case "sendData":
                 sendData();
                 break;
-
-                
             default:
                 console.log("Unhandled message from userInspector_ui.js: " + JSON.stringify(message));
                 break;

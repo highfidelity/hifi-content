@@ -13,7 +13,7 @@
 //
 
 
-(function () {
+(function() {
 
     // *************************************
     // START UTILITY FUNCTIONS
@@ -37,17 +37,17 @@
     // Get a random location based on the user's desired min and max range.   
     function getRandomLocation(contentBoundaryCorners) {
         contentBoundaryCorners = fixupContentBoundaryCorners(contentBoundaryCorners);
-        return { 
-            x: randFloat(contentBoundaryCorners[0][X], contentBoundaryCorners[1][X]), 
-            y: randFloat(contentBoundaryCorners[0][Y], contentBoundaryCorners[1][Y]), 
-            z: randFloat(contentBoundaryCorners[0][Z], contentBoundaryCorners[1][Z]) 
+        return {
+            x: randFloat(contentBoundaryCorners[0].x, contentBoundaryCorners[1].x), 
+            y: randFloat(contentBoundaryCorners[0].y, contentBoundaryCorners[1].y), 
+            z: randFloat(contentBoundaryCorners[0].z, contentBoundaryCorners[1].z) 
         };
     }
 
 
     // Stop all the bots currently playing
-    function stopAllBots(){
-        availableAssignmentClientPlayers.forEach(function(ac){
+    function stopAllBots() {
+        availableAssignmentClientPlayers.forEach(function(ac) {
             ac.stop();
         });
         botCount = 0;
@@ -56,8 +56,8 @@
 
 
     // Update all the current positions for the bots
-    function updateAllBotsPosition(){
-        availableAssignmentClientPlayers.forEach(function(ac){
+    function updateAllBotsPosition() {
+        availableAssignmentClientPlayers.forEach(function(ac) {
             var position = getRandomLocation(contentBoundaryCorners);
             ac.setPosition(position);
         });
@@ -65,8 +65,8 @@
 
     
     // Update all the current volumes for the bots
-    function updateAllBotsVolume(){
-        availableAssignmentClientPlayers.forEach(function(ac){
+    function updateAllBotsVolume() {
+        availableAssignmentClientPlayers.forEach(function(ac) {
             ac.setVolume(volume);
         });
     }
@@ -74,7 +74,7 @@
 
     // Start playing sequence to fill players with bots
     var AC_AVAILABILITY_CHECK_MS = 1000;
-    function startSequence(){
+    function startSequence() {
         // Check to see how many bots are needed
         if (botCount >= totalNumberOfBotsNeeded) {
             return;
@@ -90,7 +90,7 @@
             }
         }
 
-        Script.setTimeout(function(){
+        Script.setTimeout(function() {
             startSequence();
         }, AC_AVAILABILITY_CHECK_MS);
     }
@@ -112,12 +112,12 @@
 
     // Ensures that all of the values in "box corner 1" are less than those in "box corner 2".
     function fixupContentBoundaryCorners(contentBoundaryCorners) {
-        var x = maybeSwapCorners(contentBoundaryCorners, X);
-        var y = maybeSwapCorners(contentBoundaryCorners, Y);
-        var z = maybeSwapCorners(contentBoundaryCorners, Z);
+        var x = maybeSwapCorners(contentBoundaryCorners, "x");
+        var y = maybeSwapCorners(contentBoundaryCorners, "y");
+        var z = maybeSwapCorners(contentBoundaryCorners, "z");
         return [
-            [x[0], y[0], z[0]],
-            [x[1], y[1], z[1]]
+            {x: x[0], y: y[0], z: z[0]},
+            {x: x[1], y: y[1], z: z[1]}
         ];
     }
 
@@ -156,7 +156,7 @@
     var botRegisterdCount = 0;
 
     // Range to pull the random location from    
-    var contentBoundaryCorners = [[0,0,0], [0,0,0]];
+    var contentBoundaryCorners = [{x: 0, y: 0, z: 0}, {x: 0, y: 0, z: 0}];
 
     // Check for if currently running
     var isPlaying = false;
@@ -190,6 +190,7 @@
         this.position = position;
     }
 
+
     // Sets the volume to play this bot at
     function setVolume(volume) {
         this.volume = volume;
@@ -197,7 +198,7 @@
 
 
     // Play the current clip
-    function play(){
+    function play() {
         Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
             action: "PLAY",
             fileToPlay: this.fileToPlay,
@@ -209,7 +210,7 @@
 
 
     // Stop the current clip
-    function stop(){
+    function stop() {
         Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
             action: "STOP",
             uuid: this.uuid
@@ -252,8 +253,6 @@
         }
 
         switch (message.action) {
-
-
             case "REGISTER_ME":
                 var fileName = findValue(botRegisterdCount, BOTS);
                 var position = getRandomLocation(contentBoundaryCorners);
@@ -266,16 +265,12 @@
                 });
                 Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
                 break;
-
-
             case "ARE_YOU_THERE_MANAGER_ITS_ME_BOT":
                 Messages.sendMessage(ASSIGNMENT_MANAGER_CHANNEL, JSON.stringify({
                     action: "REGISTER_MANAGER",
                     uuid: sender
                 }));
                 break;
-
-                
             default:
                 console.log("unrecongized action in assignmentClientManger.js");
                 break;
@@ -283,12 +278,13 @@
     }
 
 
-    function onTabletChannelMessageReceived(channel, message, sender){
+    function onTabletChannelMessageReceived(channel, message, sender) {
         try {
             message = JSON.parse(message);
         } catch (error) {
             console.log("invalid object");
             console.log(error);
+
             return;
         }
 
@@ -355,7 +351,7 @@
     
     
     // Startup for the manager when it comes online
-    function startUp(){
+    function startUp() {
         Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
         Messages.subscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
         Messages.messageReceived.connect(onMangerChannelMessageReceived);
@@ -378,7 +374,7 @@
 
     
     // Cleanup the manager and it's messages
-    function onEnding(){
+    function onEnding() {
         Messages.messageReceived.disconnect(onMangerChannelMessageReceived);
         Messages.messageReceived.disconnect(onTabletChannelMessageReceived);
         var messageToSend = JSON.stringify({
@@ -388,6 +384,8 @@
             closeTablet: true
         });
         Messages.sendMessage(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL, messageToSend);
+        Messages.unsubscribe(ASSIGNMENT_MANAGER_CHANNEL);
+        Messages.unsubscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
     }
 
 

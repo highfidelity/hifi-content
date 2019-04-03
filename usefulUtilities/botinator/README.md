@@ -1,5 +1,5 @@
 # Botinator
-Botinator helps with load testing domains.  It will handle some of the hassels of setting positions and the number of bots playing at one time. 
+Botinator helps with load testing domains.  It will handle some of the hassles of setting positions and the number of bots playing at one time. 
 
 ## Setup
 1. There are 2 scripts that are given in the app to place in the domain server. 
