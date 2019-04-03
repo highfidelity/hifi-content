@@ -198,7 +198,7 @@
 
     // Creates the app button and sets up signals and hearbeat
     function startup() {
-        if (HMD.active) {
+        if (!HMD.active) {
             drawStatusOverlays();
         }
 
