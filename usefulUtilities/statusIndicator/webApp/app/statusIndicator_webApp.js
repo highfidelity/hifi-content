@@ -136,16 +136,22 @@ function getAllEmployees(response) {
             return response.end(JSON.stringify(responseObject));
         }
 
+        var teamName = ""; 
+        var responseHTML = "";
+
         if (results.length === 0) {
-            return;
+            responseHTML = `<h2>There are no employees!</h2>`;
         }
 
-        var teamName = results[0].teamName;
-        var responseHTML = `<div class="team"><h2>${teamName}</h2><table>`;
         for (var i = 0; i < results.length; i++) {
             if (teamName !== results[i].teamName) {
-                responseHTML += `</table></div><div class="team"><h2>${results[i].teamName}</h2><table>`
+                // different team name
+                if (i > 0) {
+                    // if not the first entry, close the last team
+                    responseHTML += `</table></div>`;
+                }
                 teamName = results[i].teamName;
+                responseHTML += `<div class="team"><h2>${results[i].teamName}</h2><table>`;
             }
             responseHTML += `
 <tr>
@@ -180,12 +186,18 @@ function getTeamEmployees(teamName, response) {
             return response.end(JSON.stringify(responseObject));
         }
 
+        var responseHTML = "";
+
         if (results.length === 0) {
-            return;
+            // no employees
+            responseHTML = `<h2>There are no employees for ${teamName}!</h2>`;
         }
 
-        var responseHTML = `<div style="padding-left: 40px"><h1>${results[0].teamName}</h1><table>`;
         for (var i = 0; i < results.length; i++) {
+            if (i === 0) {
+                // first entry
+                var responseHTML = `<div style="padding-left: 40px"><h1>${teamName}</h1><table>`;
+            }
             responseHTML += `
 <tr>
     <td width="60%">${results[i].displayName}</td>
