@@ -23,12 +23,14 @@
     var MAX_MIRROR_RESOLUTION_SIDE_PX = 960;        // The max pixel resolution of the long side of the mirror
     var ZERO_ROT = { w: 1, x: 0, y: 0, z: 0 };   // Constant quaternion for a rotation of 0
     var FAR_CLIP_DISTANCE = 16;     // The far clip distance for the spectator camera when the mirror is on
-    var mirrorOverlayID;            // The entity ID of the overlay that displays the mirror reflection
-    var mirrorOverlayRunning;       // True if mirror overlay is reflecting, false otherwise
-    var mirrorOverlayOffset = 0.01; // The distance between the center of the mirror and the mirror overlay
+    var mirrorLocalEntityID;            // The entity ID of the local entity that displays the mirror reflection
+    var mirrorLocalEntityRunning;       // True if mirror local entity is reflecting, false otherwise
+    var mirrorLocalEntityOffset = 0.01; // The distance between the center of the mirror and the mirror local entity
     var spectatorCameraConfig = Render.getConfig("SecondaryCamera");    // Render configuration for the spectator camera
     var lastDimensions = { x: 0, y: 0 };        // The previous dimensions of the mirror
     var previousFarClipDistance;    // Store the specator camera's previous far clip distance that we override for the mirror
+    var updateInterval = false;
+    var UPDATE_INTERVAL_MS = 500;
 
     // LOCAL FUNCTIONS    
     function isPositionInsideBox(position, boxProperties) {
@@ -44,15 +46,15 @@
     }
     
     // When x or y dimensions of the mirror change - reset the resolution of the 
-    // spectator camera and edit the mirror overlay to adjust for the new dimensions
+    // spectator camera and edit the mirror local entity to adjust for the new dimensions
     function updateMirrorDimensions(forceUpdate) {
-        if (mirrorOverlayRunning) {
+        if (mirrorLocalEntityRunning) {
             var newDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
 
             if (forceUpdate === true || (newDimensions.x != lastDimensions.x || newDimensions.y != lastDimensions.y)) {
-                var mirrorResolution = _this.calculateMirrorResolution(newDimensions);
+                var mirrorResolution = calculateMirrorResolution(newDimensions);
                 spectatorCameraConfig.resetSizeSpectatorCamera(mirrorResolution.x, mirrorResolution.y);
-                Overlays.editOverlay(mirrorOverlayID, {
+                Entities.editEntity(mirrorLocalEntityID, {
                     dimensions: {
                         x: -(newDimensions.y > newDimensions.x ? newDimensions.y : newDimensions.x),
                         y: -(newDimensions.y > newDimensions.x ? newDimensions.y : newDimensions.x),
@@ -65,17 +67,14 @@
     }
 
     // Takes in an mirror scaler number which is used for the index of "halfDimSigns" that is needed to adjust the mirror 
-    // overlay's position. Deletes and re-adds the mirror overlay so the url and position is updated.
-    function updateMirrorOverlay() {
-        if (mirrorOverlayRunning) {
-            var mirrorProps = Entities.getEntityProperties(_this.entityID, ["rotation", "dimensions", "position"]);
-            var dimX = mirrorProps.dimensions.x;
-            var dimY = mirrorProps.dimensions.y;
-            
-            Overlays.deleteOverlay(mirrorOverlayID);
-            mirrorOverlayID = Overlays.addOverlay("image3d", {
-                name: "mirrorOverlay",
-                url: "resource://spectatorCameraFrame",
+    // local entity's position. Deletes and re-adds the mirror local entity so the url and position is updated.
+    function updateMirrorLocalEntity() {
+        if (mirrorLocalEntityRunning) {            
+            Entities.deleteEntity(mirrorLocalEntityID);
+            mirrorLocalEntityID = Entities.addEntity({
+                type: "Image",
+                name: "mirrorLocalEntity",
+                imageURL: "resource://spectatorCameraFrame",
                 emissive: true,
                 parentID: _this.entityID,
                 alpha: 1,
@@ -83,14 +82,14 @@
                 localPosition: { 
                     x: 0,
                     y: 0,
-                    z: mirrorOverlayOffset
+                    z: mirrorLocalEntityOffset
                 }
-            });
+            }, "local");
             updateMirrorDimensions(true);
         }
     }
 
-    _this.calculateMirrorResolution = function(entityDimensions) {
+    calculateMirrorResolution = function(entityDimensions) {
         var mirrorResolutionX, mirrorResolutionY;
         if (entityDimensions.x > entityDimensions.y) {
             mirrorResolutionX = MAX_MIRROR_RESOLUTION_SIDE_PX;
@@ -108,47 +107,54 @@
         return resolution;
     };
     
-    // Sets up spectator camera to render the mirror, calls 'updateMirrorOverlay' once to set up
-    // mirror overlay, then connects 'updateMirrorDimensions' to update dimension changes
-    _this.mirrorOverlayOn = function(onPreload) {
-        if (!mirrorOverlayRunning) {
+    // Sets up spectator camera to render the mirror, calls 'updateMirrorLocalEntity' once to set up
+    // mirror local entity, then starts 'updateInterval' to update mirror based on dimension changes
+    _this.mirrorLocalEntityOn = function(onPreload) {
+        if (!mirrorLocalEntityRunning) {
             if (!spectatorCameraConfig.attachedEntityId) {
-                mirrorOverlayRunning = true;
+                mirrorLocalEntityRunning = true;
                 spectatorCameraConfig.mirrorProjection = true;
                 spectatorCameraConfig.attachedEntityId = _this.entityID;
                 previousFarClipDistance = spectatorCameraConfig.farClipPlaneDistance;
                 spectatorCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
                 Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 0;
                 var mirrorEntityDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
-                var initialResolution = _this.calculateMirrorResolution(mirrorEntityDimensions);
+                var initialResolution = calculateMirrorResolution(mirrorEntityDimensions);
                 spectatorCameraConfig.resetSizeSpectatorCamera(initialResolution.x, initialResolution.y);
                 spectatorCameraConfig.enableSecondaryCameraRenderConfigs(true);
-                updateMirrorOverlay();
-                Script.update.connect(updateMirrorDimensions);
+                updateMirrorLocalEntity();
+                updateInterval = Script.setInterval(updateMirrorDimensions, UPDATE_INTERVAL_MS);
             } else {
                 print("Cannot turn on mirror if spectator camera is already in use");
             }
         }
     };
+
+    _this.maybeStopUpdateInterval = function() {
+        if (updateInterval) {
+            Script.clearInterval(updateInterval);
+            updateInterval = false;
+        }
+    },
     
-    // Resets spectator camera, deletes the mirror overlay, and disconnects 'updateMirrorDimensions' 
-    _this.mirrorOverlayOff = function() {
-        if (mirrorOverlayRunning) {
+    // Resets spectator camera, deletes the mirror local entity, and stops 'updateInterval' 
+    _this.mirrorLocalEntityOff = function() {
+        if (mirrorLocalEntityRunning) {
             spectatorCameraConfig.enableSecondaryCameraRenderConfigs(false);
             spectatorCameraConfig.mirrorProjection = false;
             spectatorCameraConfig.attachedEntityId = null;
             spectatorCameraConfig.farClipPlaneDistance = previousFarClipDistance;
             Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
-            Overlays.deleteOverlay(mirrorOverlayID);
-            Script.update.disconnect(updateMirrorDimensions);
-            mirrorOverlayRunning = false;
+            Entities.deleteEntity(mirrorLocalEntityID);
+            _this.maybeStopUpdateInterval();
+            mirrorLocalEntityRunning = false;
         }
     };
     
     // ENTITY FUNCTIONS
     _this.preload = function(entityID) {
         _this.entityID = entityID;
-        mirrorOverlayRunning = false;
+        mirrorLocalEntityRunning = false;
     
         // If avatar is already inside the mirror zone at the time preload is called then turn on the mirror
         var children = Entities.getChildrenIDs(_this.entityID);
@@ -158,12 +164,12 @@
                 rotation: childZero.rotation, 
                 dimensions: childZero.dimensions
             })) {
-            _this.mirrorOverlayOn(true);
+            _this.mirrorLocalEntityOn(true);
         }
     };
     
     // Turn off mirror on unload
     _this.unload = function(entityID) {
-        _this.mirrorOverlayOff();
+        _this.mirrorLocalEntityOff();
     };
 });

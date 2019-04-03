@@ -22,11 +22,11 @@
 
     // when avatar enters reflection area, begin reflecting
     this.enterEntity = function(entityID){
-        Entities.callEntityMethod(mirrorID, 'mirrorOverlayOn');
+        Entities.callEntityMethod(mirrorID, 'mirrorLocalEntityOn');
     };
 
     // when avatar leaves reflection area, stop reflecting
     this.leaveEntity = function (entityID) {
-        Entities.callEntityMethod(mirrorID, 'mirrorOverlayOff');
+        Entities.callEntityMethod(mirrorID, 'mirrorLocalEntityOff');
     };
 });
