@@ -1,0 +1,190 @@
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    background-color: rgba(0, 0, 0, 0.1);
+    background-image: url('../images/Terminator-920x584.jpg');
+    background-size: cover;
+}
+
+#mainContainer {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#loadingContainer {
+    background-color: rgba(0, 0, 0, 0.8);
+    background-image: url('../images/loadingSpinner.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 999;
+}
+
+#titleBarContainer {
+    display: flex;
+    padding: 20px 16px;
+    font-size: 20px;
+    background-color: rgba(0, 0, 0, .7);
+    color: #ffffff;
+    justify-content: space-between;
+}
+
+#instructionsContainer {
+    padding: 20px 16px 0px 16px;
+    font-size: 20px;
+    /* height: 50px; */
+    color: white;
+    background-color: rgba(0,0,20,0.5);
+}
+
+#optionsContainer {
+    width: calc(100vw - 24px);
+    margin: 15px 24px 15px 24px;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    font-size: 3.5vw;
+}
+
+#volumeSlider {
+    position: relative;
+    top: 6px;
+    left: 5px;
+}
+
+.link {
+    font-size: 3vw;
+    overflow-wrap: break-word;
+}
+
+#instructions > div {
+    margin: 24px 0px;
+}
+
+#buttonContainer {
+    display: flex;
+    flex-direction: row;
+    padding-left: 20px;
+    /* justify-content: space-between; */
+}
+
+#buttonContainer > label{
+    margin-left: 8px;
+}
+
+#controlsContainer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    padding: 15px 16px 15px 16px;
+    display: flex;
+    flex-direction: row;
+    background-color: rgba(255, 100, 100, 0.5);
+    justify-content: center;
+}
+
+#controlsContainer > label:nth-child(2) {
+    padding-left: 40px;
+}
+
+.button {
+    border: 0;
+    line-height: 1.0;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
+    font-size: 15px;
+    text-align: center;
+    color: #fff;
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 10px;
+    background-color: rgba(220, 0, 0, 1);
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.buttonDisabled {
+    border: 0;
+    line-height: 1.0;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
+    font-size: 15px;
+    text-align: center;
+    color: rgba(100, 100, 100, 1);
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 10px;
+    background-color: rgba(200, 200, 200, 1);
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.button:hover {
+    background-color: rgba(255, 0, 0, 1);
+}
+
+.button:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+
+.buttonControls {
+    border: 0;
+    line-height: 1.0;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
+    text-align: center;
+    color: red;
+    min-width: 100%;
+    max-width: 100%;
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 10px;
+    background-color: black;
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.buttonControls:hover {
+    background-color: rgba(255, 0, 0, 1);
+    color: white;
+}
+
+.buttonControls:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+  
