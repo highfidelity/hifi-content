@@ -138,7 +138,7 @@ function pickRayTypeHandler(pickRay){
     // Each different ray pick type needs a different findRayIntersection function
     switch (_this.rayType) {
         case 'avatar':
-            var avatarIntersection = AvatarList.findRayIntersection(pickRay, [], [MyAvatar.sessionUUID]);
+            var avatarIntersection = AvatarList.findRayIntersection(pickRay, [], [MyAvatar.sessionUUID, false]);
             _this.intersection = avatarIntersection;
             handleUUID(avatarIntersection.avatarID);
             break;
