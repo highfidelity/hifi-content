@@ -92,20 +92,6 @@ function add(uuid, intersection){
     var avatarInfo = avatar.avatarInfo;
 
     avatar.intersection = intersection.intersection;
-    // Almost all of this is removed in RC81 when render in front is fixed
-    var vectorBetweenIntersectionAndCamera = 
-        Vec3.subtract(avatar.intersection, Camera.position);
-
-    var normalizedVectorBetweenIntersectionAndCamera = 
-        Vec3.normalize(vectorBetweenIntersectionAndCamera);
-
-    var scaledNormalizedVectorBetweenIntersectionAndCamera = 
-        Vec3.multiply(normalizedVectorBetweenIntersectionAndCamera, DISTANCE_AMOUNT);
-
-    var finalPosition = 
-        Vec3.subtract(avatar.intersection, scaledNormalizedVectorBetweenIntersectionAndCamera);
-
-    avatar.finalNameTagPosition = finalPosition;
     _this.selectedAvatars[uuid] = true;
 
     avatar.localEntityMain = new LocalEntity('local').add(entityProps);
@@ -187,9 +173,10 @@ function handleUserName(uuid, username) {
 
 
 // Update the look of the nametags if the user is your friend.
-var FRIEND_TEXT = "#FFFFFF";
-var FRIEND_MAIN_BACKGROUND = "#3D3D3D";
-var FRIEND_SUB_BACKGROUND = "#111111";
+var FRIEND_TEXT = "#000000";
+var FRIEND_SUB_TEXT = "#efefef";
+var FRIEND_MAIN_BACKGROUND = "#d1d1d1";
+var FRIEND_SUB_BACKGROUND = "#2d2d2d";
 function handleFriend(uuid, username) {
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
@@ -205,7 +192,7 @@ function handleFriend(uuid, username) {
 
     if (localEntitySub.id) {
         localEntitySub
-            .edit("textColor", FRIEND_TEXT)
+            .edit("textColor", FRIEND_SUB_TEXT)
             .edit("backgroundColor", FRIEND_SUB_BACKGROUND);
     } else {
         // You aren't an admin so this is the first time we are making a sub nametag
@@ -299,8 +286,8 @@ function calculateInitialProperties(uuid, type) {
 
 
 // Create or make visible either the sub or the main tag.
-var SUB_BACKGROUND = "#1A1A1A";
-var SUB_TEXTCOLOR = "#868481";
+var SUB_BACKGROUND = "#515151";
+var SUB_TEXTCOLOR = "#c6c6c6";
 var LEFT_MARGIN_SCALER = 0.15;
 var RIGHT_MARGIN_SCALER = 0.10;
 var TOP_MARGIN_SCALER = 0.07;
@@ -326,7 +313,7 @@ function makeNameTag(uuid, type) {
     if (type === "main") {
         avatarInfo.displayName = avatarInfo.displayName === "" ? "anonymous" : avatarInfo.displayName.trim();
         avatar.previousName = avatarInfo.displayName;
-        position = avatar.finalNameTagPosition;
+        position = avatar.intersection;
     }
 
     // Common values needed by both
