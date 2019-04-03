@@ -41,7 +41,6 @@
             fetch('http://localhost:3305/?type=getAllEmployees')
                 .then(function(response) { return response.text() })
                 .then(function(data) {
-                    console.log(data); // Prints result from `response.json()` in getRequest
                     document.getElementById("employeeTables").innerHTML = data;
                     setTimeout(getEmployeeData, 10000);
                 })

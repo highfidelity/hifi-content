@@ -180,6 +180,9 @@
         editStatusOverlaysAndSendUpdate();
     }
 
+
+    // Delete overlays when display mode changes to HMD mode
+    // Draw overlays when mode is in desktop
     function onDisplayModeChanged(isHMDMode) {
         if (isHMDMode) {
             deleteStatusOverlays();
@@ -195,7 +198,9 @@
 
     // Creates the app button and sets up signals and hearbeat
     function startup() {
-        drawStatusOverlays();
+        if (HMD.active) {
+            drawStatusOverlays();
+        }
 
         Script.scriptEnding.connect(unload);
         Controller.mousePressEvent.connect(onMousePressEvent);
