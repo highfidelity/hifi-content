@@ -24,6 +24,3 @@ With User Inspector, you can click anywhere on an avatar and get a quick view of
 
 ## Project Links
 [Trello Card](https://trello.com/c/9BVI2fyL/71-combined-name-tag-app)
-
-## Known issues
-- V1.0 is a stop-gap version.  Created in RC79, but RC79.1 broke some local text entity properties this relied upon. They will be fixed in RC81.  The current rendering issues weren't worth fixing for one release.  In that release, the render layer will be in front, and you will always be able to see the name tags without being culled.
