@@ -180,6 +180,14 @@
         editStatusOverlaysAndSendUpdate();
     }
 
+    function onDisplayModeChanged(isHMDMode) {
+        if (isHMDMode) {
+            deleteStatusOverlays();
+        } else {
+            drawStatusOverlays();
+        }
+    }
+
     // #endregion SIGNALS
 
 
@@ -195,6 +203,7 @@
         MyAvatar.wentAway.connect(onWentAway);
         MyAvatar.wentActive.connect(onWentActive);
         MyAvatar.displayNameChanged.connect(sendStatusUpdate);
+        HMD.displayModeChanged.connect(onDisplayModeChanged);
 
         sendStatusUpdate();
     }
@@ -208,6 +217,7 @@
         MyAvatar.wentAway.disconnect(onWentAway);
         MyAvatar.wentActive.disconnect(onWentActive);
         MyAvatar.displayNameChanged.disconnect(sendStatusUpdate);
+        HMD.displayModeChanged.disconnect(onDisplayModeChanged);
         if (heartbeat) {
             Script.clearTimeout(heartbeat);
             heartbeat = null;
