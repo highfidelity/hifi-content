@@ -60,7 +60,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v1.1 | 2019-04-03_17-02-00 | [commit 7a55088](https://github.com/highfidelity/hifi-content/commits/7a55088)
+## v1.1 | 2019-04-03_17-02-00 | [commit 9df7b8d](https://github.com/highfidelity/hifi-content/commits/9df7b8d)
 - Added the ability to get a specific user's status from the database
 - Added the ability to set custom statuses via an API call (no frontend yet)
 
