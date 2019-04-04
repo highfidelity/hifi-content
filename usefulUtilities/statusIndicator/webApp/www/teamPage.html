@@ -31,7 +31,6 @@
     <script>
         function getEmployeeData() {
             var urlParams = getUrlVars();
-            console.log(urlParams);
             if (urlParams.teamName) {
                 fetch(`http://localhost:3305/?type=getTeamEmployees&teamName=${urlParams.teamName}`)
                     .then(function(response) { return response.text() })

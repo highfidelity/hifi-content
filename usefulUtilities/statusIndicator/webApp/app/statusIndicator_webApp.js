@@ -13,6 +13,55 @@ var url = require('url');
 var dbInfo = require('./dbInfo.json');
 var DEBUG = false;
 
+// Returns the user's current status from the DB
+function getStatus(queryParamObject, response) {
+    var username = queryParamObject.username;
+    if (!username) {
+        var responseObject = {
+            status: "error",
+            text: "No username supplied!"
+        };
+
+        response.statusCode = 400;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
+    // build query string
+    var query = `SELECT * FROM \`statusIndicator\` WHERE username='${username}'`;
+
+    connection.query(query, function(error, results, fields) {
+        if (error) {
+            var responseObject = {
+                status: "error",
+                text: "Error while retrieving user status! " + JSON.stringify(error)
+            };
+
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'application/json');
+            return response.end(JSON.stringify(responseObject));
+        }
+
+        // Default status is "available"
+        var userStatus = "available";
+
+        if (results.length > 0) {
+            userStatus = results[0].status;
+        }
+
+        var responseObject = {
+            "status": "success",
+            "data": {
+                "userStatus": userStatus
+            }
+        };
+
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    });
+}
+
 
 // Heartbeat updates setTimeout and updates employee data in database
 var users = {}; // { username: { timer: <timer object>} }
@@ -71,8 +120,8 @@ function updateEmployee(updates, response) {
         if (!updates[key]) {
             updates[key] = "NULL";
         }
-        valueString += "'" + updates[key] + "', ";
-        updateString += "'" + updates[key] + "', ";
+        valueString += connection.escape(updates[key]) + ", ";
+        updateString += connection.escape(updates[key]) + ", ";
     }
     columnString = columnString.slice(0, -2); // slice off the last ", "
     valueString = valueString.slice(0, -2); // slice off the last ", "
@@ -99,7 +148,7 @@ function updateEmployee(updates, response) {
                 text: "Error while updating employee! " + JSON.stringify(error)
             };
 
-            console.log("updateEmployee error");
+            console.log("updateEmployee error:" + JSON.stringify(error));
 
             response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
@@ -216,6 +265,7 @@ function getTeamEmployees(teamName, response) {
 
 // Handles any GET requests made to the server endpoint
 // The handled method types are:
+// "getStatus"
 // "heartbeat"
 // "getAllEmployees"
 // "getTeamEmployees"
@@ -225,6 +275,10 @@ function handleGetRequest(request, response) {
 
     // root/type=?alsjdf
     switch(type) {
+        case "getStatus":
+            getStatus(queryParamObject, response);
+        break;
+
         case "heartbeat":
             heartbeat(queryParamObject, response);
         break;
@@ -292,7 +346,7 @@ function maybeCreateNewTables(response) {
     var query = `CREATE TABLE IF NOT EXISTS \`statusIndicator\` (
         username VARCHAR(100) PRIMARY KEY,
         displayName VARCHAR(100),
-        status VARCHAR(45),
+        status VARCHAR(150),
         teamName VARCHAR(100) DEFAULT 'TBD'
     )`;
     connection.query(query, function(error, results, fields) {
