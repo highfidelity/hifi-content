@@ -33,18 +33,15 @@
             }
 
             if (userData) {
-                if (userData.squareType && userData.squareType.length > 0) {
-                    _this.squareType = userData.squareType;
-                } else {
-                    console.log("Please specify `squareType` inside this entity's `userData`!");
-                    return;
-                }
-
                 if (userData.usernameWhitelist && userData.usernameWhitelist.length > 0) {
                     _this.usernameWhitelist = userData.usernameWhitelist;
                 } else {
                     console.log("Please specify `usernameWhitelist` inside this entity's `userData`!");
                     return;
+                }
+
+                if (userData.squareType && userData.squareType.length > 0) {
+                    _this.squareType = userData.squareType;
                 }
             } else {
                 console.log("Please specify this entity's `userData`! See README.md for instructions.");
@@ -56,7 +53,7 @@
         },
 
         enterEntity: function(entityID) {
-            if (!_this.squareType || _this.usernameWhitelist.length === 0) {
+            if (_this.usernameWhitelist.length === 0) {
                 return;
             }
 
