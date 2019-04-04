@@ -1,0 +1,5 @@
+/.vs/
+
+webApp/app/dbInfo.json
+hifiScript/secrets.json
+webApp/app/node_modules/
