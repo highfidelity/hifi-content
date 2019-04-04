@@ -120,8 +120,8 @@ function updateEmployee(updates, response) {
         if (!updates[key]) {
             updates[key] = "NULL";
         }
-        valueString += "'" + updates[key] + "', ";
-        updateString += "'" + updates[key] + "', ";
+        valueString += connection.escape(updates[key]) + ", ";
+        updateString += connection.escape(updates[key]) + ", ";
     }
     columnString = columnString.slice(0, -2); // slice off the last ", "
     valueString = valueString.slice(0, -2); // slice off the last ", "
@@ -148,7 +148,7 @@ function updateEmployee(updates, response) {
                 text: "Error while updating employee! " + JSON.stringify(error)
             };
 
-            console.log("updateEmployee error");
+            console.log("updateEmployee error:" + JSON.stringify(error));
 
             response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
