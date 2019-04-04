@@ -18,8 +18,6 @@
     var desktopOverlay,
         rectangleOverlay,
         // desktop overlayOptions
-        OVERLAY_AVAILABLE_TEXT = "     Available",
-        OVERLAY_NOT_AVAILABLE_TEXT = "     Busy",
         OVERLAY_WINDOW_RIGHT_PADDING = 10,
         OVERLAY_WIDTH = 10,
         OVERLAY_FONT_SIZE = 20.0,
@@ -29,35 +27,46 @@
         OVERLAY_RECTANGLE_TOP_PADDING = 12,
         OVERLAY_RECTANGLE_WIDTH_HEIGHT = 20,
         AVAILABLE_COLOR = { red: 0, green: 144, blue: 54 },
-        NOT_AVAILABLE_COLOR = { red: 255, green: 0, blue: 26 };
-    function drawStatusOverlays() {
-        var windowWidth = Window.innerWidth;
-
-        desktopOverlay = Overlays.addOverlay("text", {
-            text: isAvailable ? OVERLAY_AVAILABLE_TEXT : OVERLAY_NOT_AVAILABLE_TEXT,
+        NOT_AVAILABLE_COLOR = { red: 255, green: 0, blue: 26 },
+        OTHER_COLOR = { red: 255, green: 237, blue: 0 },
+        TEXT_OVERLAY_PROPS = {
+            width: OVERLAY_RECTANGLE_WIDTH_HEIGHT,
+            height: OVERLAY_RECTANGLE_WIDTH_HEIGHT,
+            y: OVERLAY_FONT_SIZE + OVERLAY_RECTANGLE_TOP_PADDING,
+            color: { red: 255, green: 255, blue: 255 },
+            alpha: 1.0,
+            visible: true
+        },
+        RECTANGLE_OVERLAY_PROPS = {
             width: OVERLAY_WIDTH,
             height: OVERLAY_FONT_SIZE * 2.2,
-            x: windowWidth - OVERLAY_WIDTH - OVERLAY_WINDOW_RIGHT_PADDING,
             y: OVERLAY_FONT_SIZE,
             lineHeight: OVERLAY_FONT_SIZE,
             margin: OVERLAY_FONT_SIZE / 2,
             font: { size: OVERLAY_FONT_SIZE },
-            color: { red: 255, green: 255, blue: 255 },
             backgroundColor: { red: 17, green: 17, blue: 17 },
             alpha: 1.0,
             backgroundAlpha: 0.7,
             visible: true
-        });
+        };
+        
+    function drawStatusOverlays() {
+        var windowWidth = Window.innerWidth;
 
-        rectangleOverlay = Overlays.addOverlay("rectangle", {
-            width: OVERLAY_RECTANGLE_WIDTH_HEIGHT,
-            height: OVERLAY_RECTANGLE_WIDTH_HEIGHT,
-            x: windowWidth - OVERLAY_WIDTH + OVERLAY_RECTANGLE_LEFT_PADDING - OVERLAY_WINDOW_RIGHT_PADDING,
-            y: OVERLAY_FONT_SIZE + OVERLAY_RECTANGLE_TOP_PADDING,
-            color: isAvailable ? AVAILABLE_COLOR : NOT_AVAILABLE_COLOR,
-            alpha: 1.0,
-            visible: true
-        });
+        var desktopOverlayProps = RECTANGLE_OVERLAY_PROPS;
+        desktopOverlayProps.x = windowWidth - OVERLAY_WIDTH - OVERLAY_WINDOW_RIGHT_PADDING;
+        desktopOverlay = Overlays.addOverlay("text", desktopOverlayProps);
+
+        var rectangleOverlayProps = TEXT_OVERLAY_PROPS;
+        rectangleOverlayProps.x = windowWidth - OVERLAY_WIDTH + OVERLAY_RECTANGLE_LEFT_PADDING - OVERLAY_WINDOW_RIGHT_PADDING;
+        if (currentStatus === "available") {
+            rectangleOverlayProps.color = AVAILABLE_COLOR;
+        } else if (currentStatus === "busy") {
+            rectangleOverlayProps.color = NOT_AVAILABLE_COLOR;
+        } else {
+            rectangleOverlayProps.color = OTHER_COLOR;
+        }
+        rectangleOverlay = Overlays.addOverlay("rectangle", rectangleOverlayProps);
     }
 
 
@@ -82,56 +91,101 @@
     // When this stops, the database will set status to Offline
     var HEARTBEAT_TIMEOUT_MS = 5000,
         heartbeat;
-    function setupHeartbeat() {
+    function startHeartbeatTimer() {
         if (heartbeat) {
             Script.clearTimeout(heartbeat);
             heartbeat = false;
         }
 
         heartbeat = Script.setTimeout(function() {
-            sendStatusUpdate(true);
+            heartbeat = false;
+            updateStatus();
         }, HEARTBEAT_TIMEOUT_MS);
     }
 
     // #endregion HEARTBEAT
 
 
-    // #region SEND STATUS REQUEST
+    // #region SEND/GET STATUS REQUEST
 
-    // Sends status to database
-    var request = Script.require('request').request,
-        REQUEST_URL = Script.require(Script.resolvePath('./secrets.json')).REQUEST_URL;
-    function sendStatusUpdate(isHeartbeat) {
+    function sendStatusUpdate() {
         var queryParamString = "type=heartbeat";
         queryParamString += "&username=" + AccountServices.username;
         queryParamString += "&displayName=" + MyAvatar.displayName;
         queryParamString += "&status=";
-        queryParamString += isAvailable ? "available" : "busy";
+        queryParamString += currentStatus;
+
+        var uri = REQUEST_URL + "?" + queryParamString;
 
         if (DEBUG) {
-            console.log("sendStatusUpdate: " + REQUEST_URL + queryParamString);
+            console.log("sendStatusUpdate: " + uri);
         }
 
         request({
-            uri: REQUEST_URL + "?" + queryParamString
+            uri: uri
         }, function (error, response) {
-            setupHeartbeat();
+            startHeartbeatTimer();
 
             if (error || !response || response.status !== "success") {
-                console.error("Error with sendStatusUpdate: " + JSON.stringify(response));
+                console.error("Error with updateStatus: " + JSON.stringify(response));
                 return;
             }
         });
     }
 
-    // #endregion SEND STATUS REQUEST
+
+    function getStatusUpdate(callback) {
+        var queryParamString = "type=getStatus";
+        queryParamString += "&username=" + AccountServices.username;
+
+        var uri = REQUEST_URL + "?" + queryParamString;
+
+        if (DEBUG) {
+            console.log("getStatusUpdate: " + uri);
+        }
+
+        request({
+            uri: uri
+        }, function (error, response) {
+            if (error || !response || response.status !== "success") {
+                console.error("Error with getStatus: " + JSON.stringify(response));
+            } else {
+                currentStatus = response.data.userStatus;
+                editStatusOverlays();
+            }
+            
+            callback();
+        });
+    }
+
+
+    // Sends status to database
+    var request = Script.require('request').request,
+        REQUEST_URL = Script.require(Script.resolvePath('./secrets.json')).REQUEST_URL;
+    function updateStatus(forceUpdateOnly) {
+        if (heartbeat) {
+            Script.clearTimeout(heartbeat);
+            heartbeat = false;
+        }
+
+        if (forceUpdateOnly) {
+            sendStatusUpdate();
+        } else {
+            getStatusUpdate(sendStatusUpdate);
+        }
+    }
+
+    // Get status from database
+    
+
+    // #endregion SEND/GET STATUS REQUEST
 
 
     // #region SIGNALS
 
     // On mouse press, check if the status overlay on desktop was clicked
     // If yes, change status to the opposite and send status update
-    var isAvailable = true; // Default is available
+    var currentStatus = "available"; // Default is available
     function onMousePressEvent(event) {
         if (DEBUG) {
             console.log("onMousePressEvent isLeftButton: " + event.isLeftButton);
@@ -142,18 +196,46 @@
             if (DEBUG) {
                 console.log("onMousePressEvent status overlay has been clicked");
             }
-            isAvailable = !isAvailable;
+            if (currentStatus === "available") {
+                currentStatus = "busy";
+            } else if (currentStatus === "busy") {
+                currentStatus = "available";
+            } else {
+                currentStatus = "busy";
+            }
             editStatusOverlaysAndSendUpdate();
         }
     }
 
-    function editStatusOverlaysAndSendUpdate() {
-        var edits = {};
-        edits[rectangleOverlay] = { color: isAvailable ? AVAILABLE_COLOR : NOT_AVAILABLE_COLOR }
-        edits[desktopOverlay] = { text: isAvailable ? OVERLAY_AVAILABLE_TEXT : OVERLAY_NOT_AVAILABLE_TEXT }
-        Overlays.editOverlays(edits);
 
-        sendStatusUpdate();
+    var MAX_STATUS_LENGTH_CHARS = 9;
+    function editStatusOverlays() {
+        var edits = {};
+
+        var rectangleColor;
+        if (currentStatus === "available") {
+            rectangleColor = AVAILABLE_COLOR;
+        } else if (currentStatus === "busy") {
+            rectangleColor = NOT_AVAILABLE_COLOR;
+        } else {
+            rectangleColor = OTHER_COLOR;
+        }
+        edits[rectangleOverlay] = { "color": rectangleColor }
+
+        var statusText = currentStatus;
+        if (statusText.length > MAX_STATUS_LENGTH_CHARS) {
+            statusText = currentStatus.substring(0, 9) + "...";
+        }
+
+        edits[desktopOverlay] = { "text": ("     " + statusText) }
+
+        Overlays.editOverlays(edits);
+    }
+
+
+    function editStatusOverlaysAndSendUpdate() {
+        editStatusOverlays();
+        updateStatus(true);
     }
 
 
@@ -167,7 +249,7 @@
     // When avatar becomes active from being away
     // Set status back to previousStatus
     function onWentActive() {
-        isAvailable = previousStatus;
+        currentStatus = previousStatus;
         editStatusOverlaysAndSendUpdate();
     }
 
@@ -175,8 +257,8 @@
     // When avatar goes away, set status to busy
     var previousStatus;
     function onWentAway() {
-        previousStatus = isAvailable;
-        isAvailable = false;
+        previousStatus = currentStatus;
+        currentStatus = false;
         editStatusOverlaysAndSendUpdate();
     }
 
@@ -207,10 +289,10 @@
         Window.geometryChanged.connect(onWindowResize);
         MyAvatar.wentAway.connect(onWentAway);
         MyAvatar.wentActive.connect(onWentActive);
-        MyAvatar.displayNameChanged.connect(sendStatusUpdate);
+        MyAvatar.displayNameChanged.connect(updateStatus);
         HMD.displayModeChanged.connect(onDisplayModeChanged);
 
-        sendStatusUpdate();
+        updateStatus();
     }
 
 
@@ -221,11 +303,11 @@
         Window.geometryChanged.disconnect(onWindowResize);
         MyAvatar.wentAway.disconnect(onWentAway);
         MyAvatar.wentActive.disconnect(onWentActive);
-        MyAvatar.displayNameChanged.disconnect(sendStatusUpdate);
+        MyAvatar.displayNameChanged.disconnect(updateStatus);
         HMD.displayModeChanged.disconnect(onDisplayModeChanged);
         if (heartbeat) {
             Script.clearTimeout(heartbeat);
-            heartbeat = null;
+            heartbeat = false;
         }
     }
 

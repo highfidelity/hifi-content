@@ -39,7 +39,6 @@ In `allEmployees.html` and `teamPage.html`, you will need to replace `http://loc
 
 The code for this content is open source. You must set up some configuration files for this content to work:
 1. A `dbInfo.json` file in `<statusIndicator root>/webApp/dbInfo.json` that contains the data below.
-2. A `config.json` file in `<statusIndicator root>/config/config.json` that contains the data below.
 
 ### `dbInfo.json`
 Here's what your `dbInfo.json` file should look like:
@@ -60,6 +59,10 @@ You can perform a local 1-person test of this new code by doing the following:
     - Run `node statusIndicator_webApp.js` from the `webApp/app` directory
 
 # Release Notes
+
+## v1.1 | 2019-04-03_17-02-00 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+- Added the ability to get a specific user's status from the database
+- Added the ability to set custom statuses via an API call (no frontend yet)
 
 ## v1.0 | 2019-04-03_12-43-00 | [commit f7011c77](https://github.com/highfidelity/hifi-content/commits/f7011c77)
 
