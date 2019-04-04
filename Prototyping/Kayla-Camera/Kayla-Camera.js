@@ -13,6 +13,19 @@
 
     // Polyfills
     Script.require(Script.resolvePath('./Polyfills.js'));
+    var require = Script.require("request").request;
+    var config = Script.require("./config.json?" + Date.now());
+    console.log("config", JSON.stringify(config))
+    var settingsURL = config.settingsURL;
+    var allCurrentConfigs = [];
+
+    require(settingsURL, function(error, response){
+        console.log(JSON.stringify(response));
+        response.data.forEach(function(setting){
+            console.log(setting.config_name)
+        });
+    });
+
 
     // Init
     var isAppActive = false,
@@ -47,6 +60,7 @@
     // Collections
     var defaultSettings = {
         configName: "Rename config",
+        settingsURL: settingsURL,
         mapping: {},
         listener: {
             isCustomListening: false,
@@ -66,13 +80,13 @@
     };
 
     var settings;
-    var oldSettings = Settings.getValue(SETTINGS_STRING);
-    if (oldSettings === "") {
-        settings = defaultSettings;
-        Settings.setValue(SETTINGS_STRING, settings);
-    } else {
-        settings = oldSettings;
-    }
+    // var oldSettings = Settings.getValue(SETTINGS_STRING);
+    // if (oldSettings === "") {
+    settings = defaultSettings;
+        // Settings.setValue(SETTINGS_STRING, settings);
+    // } else {
+        // settings = oldSettings;
+    // }
 
     var DEFAULT = "default";
     var BRAKE = "brake";
