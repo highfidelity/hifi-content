@@ -6,7 +6,6 @@ This project folder contains a number of entity scripts that attach to an Office
 - When you step onto a green Office Mat Square, a script will update your status on the High Fidelity Status Indicator database to "available". Alternatively, if configured, the script will update your status to some custom text.
 
 # Office Mat Setup - The Easy Way
-## The Easy Way
 1. Ensure that you're running the latest version of the `statusIndicator.js` script.
 2. In Interface, go to `Edit -> Import JSON from URL`. Paste this link and press enter: `https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/officeMat/v1.0/officeMat.json`
 3. Using Create, modify the text entities as you see fit. Your status will display what these text entities show when you walk into their associated square, so be creative!
@@ -53,5 +52,5 @@ You're done! If you step on any of your new Office Mat Squares, your status will
 
 # Release Notes
 
-## v1.0 | [commit 71ae13d](https://github.com/highfidelity/hifi-content/commits/71ae13d)
+## v1.0 | [commit b6a9f65](https://github.com/highfidelity/hifi-content/commits/b6a9f65)
 - Initial Release
