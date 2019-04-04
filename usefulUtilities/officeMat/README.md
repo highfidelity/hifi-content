@@ -17,6 +17,9 @@ This project folder contains a number of entity scripts that attach to an Office
 8. Clone this Mat Square, Zone entity, and Text entity as many times as you want.
     - I use four Office Mat Squares.
 9. Position your Office Mat Squares on top of your Office Mat, then parent the Squares to the Mat.
+10. Ensure that you're running the latest version of the `statusIndicator.js` script.
+
+You're done! If you step on any of your new Office Mat Squares, your status will automatically update.
 
 ## `config.json`
 ```
@@ -28,12 +31,12 @@ This project folder contains a number of entity scripts that attach to an Office
 ## Zone User Data
 ```
 {
-    "usernameWhitelist": ["<The username of a user for whom the script will work. At least one username is required to be present in this array.>"],
+    "usernameWhitelist": ["<The username of a user for whom the script will work. Usually your username. At least one username is required to be present in this array.>"],
     "squareType": <Optional if text entities are present. Can be one of: "red|yellow|green|grey". "red"/"yellow"/"grey" square types indicate "busy"; "green" indicates "available">
 }
 ```
 
 # Release Notes
 
-## v1.0 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+## v1.0 | [commit 71ae13d](https://github.com/highfidelity/hifi-content/commits/71ae13d)
 - Initial Release
