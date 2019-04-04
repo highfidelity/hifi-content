@@ -14,15 +14,13 @@ var localEntityProps = {
     dimensions: [1, 0.1, 0],
     type: "Text",
     lineHeight: 0.1,
-    // This will have to be changed in 81 until we bring unlit property to local text entities
-    textColor: "#EEEEEE",
+    textColor: "#ffffff",
     textAlpha: 1.0,
-    backgroundColor: "#2D2D2D",
+    backgroundColor: "#2d2d2d",
     backgroundAlpha: 1,
     billboardMode: "full",
-    lifetime: 5
-    // The following will be added back in 81
-    // renderLayer: "front",
+    lifetime: 8,
+    renderLayer: "front"
 };
 
 module.exports = localEntityProps;
