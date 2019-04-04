@@ -74,11 +74,11 @@
     function deleteStatusOverlays() {
         if (rectangleOverlay) {
             Overlays.deleteOverlay(rectangleOverlay);
-            rectangleOverlay = null;
+            rectangleOverlay = false;
         }
         if (desktopOverlay) {
             Overlays.deleteOverlay(desktopOverlay);
-            desktopOverlay = null;
+            desktopOverlay = false;
         }
     }
 
@@ -258,7 +258,7 @@
     var previousStatus;
     function onWentAway() {
         previousStatus = currentStatus;
-        currentStatus = false;
+        currentStatus = "busy";
         editStatusOverlaysAndSendUpdate();
     }
 
