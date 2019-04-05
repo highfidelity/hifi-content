@@ -169,9 +169,7 @@
             EventBridge.emitWebEvent(JSON.stringify({
               type: "SEND_SCHEDULE",
               room: calendar.id,
-              summary: 'No upcoming events found.', 
-              start: 0,
-              end: 0
+              summary: 'No upcoming events found.'
             }));
           }
           });

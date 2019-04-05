@@ -8,20 +8,36 @@
 
 (function() {
 
+    function targetIDDiscriminator(targetEntityID) {
+        var tempData;
+        targetEntityID.forEach(function(entityID) {
+            tempData = Entities.getEntityProperties(entityID, ['id','type']);
+            if (tempData.type === "Text") {
+                return tempData.id;
+            }
+        });
+        return tempData.id;
+    }
+    
+    
     // This function decides how to handle web events from the tablet UI.
     // used by 'ui' in startup()
+    var ORIGIN = {};
+    var RADIUS = 50;
+    var targetEntityID;
     function onWebMessage(data) {
         // EventBridge message from HTML script.
         switch (data.type) {
             case "EVENT_BRIDGE_OPEN_MESSAGE":
                 break;
             case "SEND_SCHEDULE":
-                Messages.sendMessage("HiFi.GoogleCalendar", JSON.stringify({
-                    type: data.room,
-                    summary: data.summary, 
-                    start: data.start,
-                    end: data.end
-                }));
+                targetEntityID = Entities.findEntitiesByName(data.room, ORIGIN, RADIUS);
+                targetEntityID = targetIDDiscriminator(targetEntityID);
+                if (!data.start) {
+                    Entities.callEntityServerMethod(targetEntityID, "addEvent", ['No Events on Calendar', false]);
+                } else {
+                    Entities.callEntityServerMethod(targetEntityID, "addEvent", [data.summary, data.start, data.end]);
+                }
                 break;
         }
     }
@@ -49,7 +65,7 @@
             lastRequestTime = now;
         }
     };
-    
+
 
     // This function loads appui and connects to the needed signals
     var AppUi = Script.require('appUi');
