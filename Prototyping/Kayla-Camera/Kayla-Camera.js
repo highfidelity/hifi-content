@@ -12,10 +12,9 @@
 (function () {
 
     // Polyfills
-    Script.require(Script.resolvePath('./Polyfills.js'));
+    Script.require('./Polyfills.js')();
     var require = Script.require("request").request;
     var config = Script.require("./config.json?" + Date.now());
-    console.log("config", JSON.stringify(config))
     var settingsURL = config.settingsURL;
     var configs = [];
 
@@ -41,6 +40,7 @@
         CHANGE_AVATAR_TO_CAMERA = "changeAvatarToCamera",
         CHANGE_AVATAR_TO_INVISIBLE = "changeAvatarToInvisible",
         TOGGLE_AVATAR_COLLISIONS = "toggleAvatarCollisions",
+        DELETE_CONFIG = "deleteConfig",
         UPDATE_CONFIG = "updateConfig",
         UPDATE_CONFIG_LIST = "UPDATE_CONFIG_LIST",
         EDIT_DEFAULT = "editDefault",
@@ -75,13 +75,7 @@
     };
 
     var settings;
-    // var oldSettings = Settings.getValue(SETTINGS_STRING);
-    // if (oldSettings === "") {
     settings = defaultSettings;
-        // Settings.setValue(SETTINGS_STRING, settings);
-    // } else {
-        // settings = oldSettings;
-    // }
 
     var DEFAULT = "default";
     var BRAKE = "brake";
@@ -492,19 +486,44 @@
 
     function getConfigs(){
         require(settingsURL, function(error, response){
-            console.log(JSON.stringify(response));
             if (error || !response) {
+                console.log("error");
                 return;
             }
     
             if (response.status && response.status === "success") {
-                configs = response.data;
-                response.data.forEach(function(setting){
-                    console.log(setting.config_name);
-                });
+                console.log("success");
+                try {
+                    settings.configs = response.data.map(function(config){
+                        return { "config_name": config.config_name, "settings": JSON.parse(config.settings)};
+                    });
+                    doUIUpdate();                    
+                } catch (e) {
+                    console.log("trouble parsing response object");
+                }
             }
         });
-        doUIUpdate();
+    }
+
+    function deleteConfig(config, index){
+        require({
+            uri: settingsURL + "/" + config,
+            method: "DELETE",
+            json: true
+        }, function(error, response){
+            if (error || !response) {
+                console.log("error");
+                return;
+            }
+
+            if (response.status && response.status === "success") {
+                console.log("Successfully deleted");              
+            }
+            settings.configs.splice(index,1);
+            settings = Object.assign({}, defaultSettings, {configs: settings.configs});
+
+            doUIUpdate();
+        });
     }
 
     function setup() {
@@ -592,7 +611,7 @@
     }
 
     function updateConfig(config){
-        settings = Object.assign({}, config, {configs: configs});
+        settings = Object.assign({}, config, {configs: settings.configs});
         doUIUpdate();
     }
 
@@ -695,8 +714,11 @@
             case CLOSE_DIALOG_MESSAGE:
                 tablet.gotoHomeScreen();
                 break;
+            case DELETE_CONFIG:
+                deleteConfig(message.value);
+                break;
             case UPDATE_CONFIG: 
-                updateConfig(message.value);
+                updateConfig(message.value, message.index);
                 break;
         }
     }

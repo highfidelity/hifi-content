@@ -17,6 +17,7 @@
         CHANGE_AVATAR_TO_CAMERA = "changeAvatarToCamera",
         CHANGE_AVATAR_TO_INVISIBLE = "changeAvatarToInvisible",
         TOGGLE_AVATAR_COLLISIONS = "toggleAvatarCollisions",
+        DELETE_CONFIG = "deleteConfig",
         EDIT_DEFAULT = "editDefault",
         EDIT_BRAKE = "editBrake",
         EVENTBRIDGE_SETUP_DELAY = 100;
@@ -29,7 +30,8 @@
                 JSONURL: "Replace with the JSON URL",
                 editing: false,
                 editingConfigs: false,
-                showConfigs: false
+                showConfigs: false,
+                inSavedConfigs: false
             }
         },
         methods: {
@@ -71,18 +73,27 @@
             toggleConfigs(){
                 this.showConfigs = !this.showConfigs;
             },
-            sendDevice(device){
+            sendConfig(config){
                 this.toggleConfigs();
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: UPDATE_CONFIG,
-                    value: config
+                    value: config.settings
+                }));
+            },
+            deleteConfig(config, index){
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: DELETE_CONFIG,
+                    value: this.config_name,
+                    index: index
                 }));
             }
         },
         template:`
             <div class="card">
                 <div class="card-header">
-                <strong>Config Name: {{config_name}}</strong> <button class="btn-sm btn-primary mt-1 mr-1 float-right" v-if="!editing" v-on:click="editName()">Edit Name</button> 
+                <strong>Config Name: {{config_name}}</strong></br>
+                <button class="btn-sm btn-primary mt-1 mr-1 float-left" v-if="!editing" v-on:click="editName()">Edit Name</button> 
+                <button class="btn-sm btn-warning mt-1 mr-1 float-right" v-if="!editing" v-on:click="deleteConfig()">Delete Config</button> 
                     <div v-if="editing">
                         <input id="new-name" type="text" class="form-control" v-model="newName">
                         <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="updateName(newName)">Update Name</button>
@@ -95,14 +106,12 @@
                     </div>
                     <div v-if="editingConfigs">
                         <div class="dropdown">
-                            <input type="button" id="selectedType" v-on:click="toggleConfigs()" class="gray mt-3" value="Available Configs">
+                            <button class="btn-sm btn-primary mt-1 mr-1" id="selectedType" v-on:click="toggleConfigs()">Configs</button>
                             <ul class="dropdown-type">
                                 <div id="typeDropdown" class="dropdown-items" :class="{ show: showConfigs }">
-                                    <li v-for="config in configs" v-on:click="sendConfig(config)">{{ config }}</li>
+                                    <li v-for="(config, index) in configs" v-on:click="sendConfig(config, index)">{{ config.config_name }}</li>
                                 </div>
                             </ul>
-                        </div>
-                        <div>
                             <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="goBack()">Go Back</button>
                         </div>
                     </div>
@@ -412,7 +421,6 @@
         methods: {
             saveConfigs(){
                 var removedConfigSettings = Object.assign({}, app.settings, {configs: []});
-
                 fetch(app.settings.settingsURL, {
                     method: "POST",
                     headers: {
@@ -421,7 +429,6 @@
                     body: JSON.stringify(removedConfigSettings), // body data type must match "Content-Type" header
                 })
                 .then(data => {
-                    console.log("made it data")
                     EventBridge.emitWebEvent(JSON.stringify({
                         type: UPDATE_CONFIG_LIST
                     }));
@@ -453,49 +460,6 @@
             console.log(e)
             return;
         }
-    }
-    var map = {
-        configName: "string",
-        name: "string",
-        key: "string",
-        mapping: "object",
-        position: "object",
-        x: "number",
-        y: "number",
-        z: "number",
-        w: "number",
-        orientation: "object",
-        listener: "object",
-        isCustomListening: "boolean",
-        customPosition: "object",
-        customOrientation: "object"
-    }
-    
-    function convert(string, value) {
-        switch(string){
-            case "string":
-                return value;
-                break;
-            case "number":
-                return Number(value);
-                break;
-            case "boolean":
-                return Boolean(value);
-                break;
-        }
-    };
-
-    function convertBadJSON(obj){
-        var newObj = {};
-        for (var key in obj) {
-            if (typeof obj[key] === "object") {
-                newObj[key] = convertBadJSON(obj[key]);
-            }
-            else {
-                newObj[key] = convert(map[key], obj[key])
-            }
-        }
-        return newObj;
     }
 
     function onLoad() {
