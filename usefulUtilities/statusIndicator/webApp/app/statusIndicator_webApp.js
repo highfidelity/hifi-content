@@ -11,7 +11,7 @@
 var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
-var DEBUG = false;
+var DEBUG = true;
 
 // Returns the user's current status from the DB
 function getStatus(queryParamObject, response) {
@@ -30,7 +30,7 @@ function getStatus(queryParamObject, response) {
     // build query string
     var query = `SELECT * FROM \`statusIndicator\` WHERE username='${username}'`;
 
-    connection.query(query, function(error, results, fields) {
+    connection.query(query, function (error, results, fields) {
         if (error) {
             var responseObject = {
                 status: "error",
@@ -89,13 +89,20 @@ function heartbeat(queryParamObject, response) {
 // If timer runs out, will set user to offline
 var HEARTBEAT_INTERVAL_MS = 10000;
 function startHeartbeatTimer(username, response) {
-    var heartbeatTimer = setTimeout(function() {
+    if (heartbeatTimer) {
+        heartbeatTimer
+    }
+    var heartbeatTimer = setTimeout(function () {
         // user has stopped sending heartbeat()
         // update user to offline
-        users[username].timer = null;
+        if (users[username] && users[username].timer) {
+            clearTimeout(users[username].timer)
+            users[username].timer = null;
+        }
         updateEmployee({
             username: username,
-            status: "offline"
+            status: "offline",
+            location: "offline"
         }, response);
     }, HEARTBEAT_INTERVAL_MS);
     return heartbeatTimer;
@@ -108,7 +115,7 @@ function updateEmployee(updates, response) {
     var columnString = ""; // (username, displayName, status)
     var valueString = ""; // ('username1', 'Display Name', 'busy')
     var updateString = ""; // username='username1', displayName='Display Name', status='busy'
-    var validUpdateParams = ["username", "displayName", "status", "teamName"];
+    var validUpdateParams = ["username", "displayName", "status", "teamName", "location"];
     for (var key in updates) {
         if (validUpdateParams.indexOf(key) === -1) {
             continue;
@@ -134,14 +141,14 @@ function updateEmployee(updates, response) {
         console.log(query);
     }
 
-    connection.query(query, function(error, results, fields) {
+    connection.query(query, function (error, results, fields) {
         if (updates.status === "offline" && updates.username) {
             // do not have a response to send
             // client is disconnected
             delete users[updates.username];
             return;
         }
-        
+
         if (error) {
             var responseObject = {
                 status: "error",
@@ -173,7 +180,7 @@ function getAllEmployees(response) {
     var query = `SELECT * FROM statusIndicator
         ORDER BY teamName, displayName`;
 
-    connection.query(query, function(error, results, fields) {
+    connection.query(query, function (error, results, fields) {
         if (error) {
             var responseObject = {
                 status: "error",
@@ -185,7 +192,7 @@ function getAllEmployees(response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        var teamName = ""; 
+        var teamName = "";
         var responseHTML = "";
 
         if (results.length === 0) {
@@ -202,10 +209,18 @@ function getAllEmployees(response) {
                 teamName = results[i].teamName;
                 responseHTML += `<div class="team"><h2>${results[i].teamName}</h2><table>`;
             }
+
+            var location = results[i].location ? results[i].location : "Unknown";
+
+            if (results[i].status === "busy") {
+                location = "** busy **";
+            }
+
             responseHTML += `
 <tr>
-    <td width="60%">${results[i].displayName}</td>
+    <td width="40%">${results[i].displayName}</td>
     <td width="40%">${results[i].status}</td>
+    <td width="20%">${location}</td>
 </tr>
             `;
         }
@@ -223,7 +238,7 @@ function getTeamEmployees(teamName, response) {
     var query = `SELECT * FROM statusIndicator
         WHERE teamName='${teamName}' ORDER BY displayName`;
 
-    connection.query(query, function(error, results, fields) {
+    connection.query(query, function (error, results, fields) {
         if (error) {
             var responseObject = {
                 status: "error",
@@ -247,10 +262,18 @@ function getTeamEmployees(teamName, response) {
                 // first entry
                 var responseHTML = `<div style="padding-left: 40px"><h1>${teamName}</h1><table>`;
             }
+
+            var location = results[i].location ? results[i].location : "Unknown";
+
+            if (results[i].status === "busy") {
+                location = "** busy **";
+            }
+
             responseHTML += `
 <tr>
-    <td width="60%">${results[i].displayName}</td>
+    <td width="40%">${results[i].displayName}</td>
     <td width="40%">${results[i].status}</td>
+    <td width="20%">${location}</td>
 </tr>
             `;
         }
@@ -274,25 +297,33 @@ function handleGetRequest(request, response) {
     var type = queryParamObject.type;
 
     // root/type=?alsjdf
-    switch(type) {
+    switch (type) {
         case "getStatus":
             getStatus(queryParamObject, response);
-        break;
+            break;
 
         case "heartbeat":
             heartbeat(queryParamObject, response);
-        break;
+            break;
 
         case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees
             getAllEmployees(response);
-        break;
+            break;
 
         case "getTeamEmployees": // http://localhost:3305/?type=getTeamEmployees&teamName=team1
             // {
             //      teamName: "exampleTeamName"
             // }
             getTeamEmployees(queryParamObject.teamName, response);
-        break;
+            break;
+
+        case "setUserLocation": // http://localhost:3305/?type=setUserLocation&username=Firebird25&location=helloworld
+            // {
+            //      username: "exampleUsername"
+            //      location: "exampleLocation"
+            // }
+            updateEmployee(queryParamObject, response);
+            break;
 
         default:
             response.statusCode = 501;
@@ -309,11 +340,11 @@ function startServer() {
         if (request.method === "GET") {
             handleGetRequest(request, response);
         } else {
-            response.writeHead(405, 'Method Not Supported', {'Content-Type': 'text/html'});
+            response.writeHead(405, 'Method Not Supported', { 'Content-Type': 'text/html' });
             response.end('<!doctype html><html><head><title>405</title></head><body>405: Method Not Supported</body></html>');
         }
     });
-    
+
     const HOSTNAME = 'localhost';
     const PORT = 3305;
     server.listen(PORT, HOSTNAME, () => {
@@ -332,7 +363,7 @@ function connectToStatusDB() {
         password: dbInfo.mySQLPassword,
         database: dbInfo.databaseName
     });
-    connection.connect(function(error) {
+    connection.connect(function (error) {
         if (error) {
             throw error;
         }
@@ -347,9 +378,10 @@ function maybeCreateNewTables(response) {
         username VARCHAR(100) PRIMARY KEY,
         displayName VARCHAR(100),
         status VARCHAR(150),
-        teamName VARCHAR(100) DEFAULT 'TBD'
+        teamName VARCHAR(100) DEFAULT 'TBD',
+        location VARCHAR(100)
     )`;
-    connection.query(query, function(error, results, fields) {
+    connection.query(query, function (error, results, fields) {
         if (error) {
             throw error;
         }
@@ -367,21 +399,21 @@ function maybeCreateStatusDB() {
     });
 
     var query = `CREATE DATABASE IF NOT EXISTS ${dbInfo.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
-    connection.query(query, function(error, results, fields) {
+    connection.query(query, function (error, results, fields) {
         if (error) {
             console.log("error with connection");
             throw error;
         }
-    
+
         connection.end();
-    
+
         connection = mysql.createConnection({
             host: dbInfo.mySQLHost,
             user: dbInfo.mySQLUsername,
             password: dbInfo.mySQLPassword,
             database: dbInfo.databaseName
         });
-    
+
         maybeCreateNewTables();
     });
 }

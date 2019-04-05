@@ -16,6 +16,10 @@ To see a team's list status:
 
 Run `<statusIndicator root>/hifiScript/statusIndicator.js` in High Fidelity's Running scripts.
 
+## locationZoneClient.js Config
+
+Update REQUEST_URL variable to `https://<hostname>/api/statusIndicator/`
+
 ## Hifi App Script Config
 
 The code for this content is open source. You must set up some configuration files for this content to work:
@@ -59,6 +63,10 @@ You can perform a local 1-person test of this new code by doing the following:
     - Run `node statusIndicator_webApp.js` from the `webApp/app` directory
 
 # Release Notes
+
+## v1.2 | 2019-04-04_17-13-00 | [commit 9159ae0](https://github.com/highfidelity/hifi-content/commits/9159ae0)
+- Added set location functionality with a function call 
+- Added zone client script where user enters the zone, and the zone updates user location to the name of the zone
 
 ## v1.1 | 2019-04-03_17-02-00 | [commit 9159ae0](https://github.com/highfidelity/hifi-content/commits/9159ae0)
 - Added the ability to get a specific user's status from the database

@@ -273,6 +273,33 @@
         }
     }
 
+
+    // Domain changed update avatar location
+    function onDomainChanged(domainName) {
+        var queryParamString = "type=setUserLocation";
+        queryParamString += "&username=" + AccountServices.username;
+        queryParamString += "&location=" + domainName;
+
+        var uri = REQUEST_URL + "?" + queryParamString;
+
+        if (DEBUG) {
+            console.log("statusIndicator onDomainChanged: " + uri);
+        }
+
+        request({
+            uri: uri
+        }, function (error, response) {
+            if (error || !response || response.status !== "success") {
+                console.error("Error with onDomainChanged: " + JSON.stringify(response));
+            } else {
+                // successfully sent updateLocation
+                if (DEBUG) {
+                    console.log("Entered onDomainChanged called: " + zoneName);
+                }
+            }
+        });
+    }
+
     // #endregion SIGNALS
 
 
@@ -291,6 +318,7 @@
         MyAvatar.wentActive.connect(onWentActive);
         MyAvatar.displayNameChanged.connect(updateStatus);
         HMD.displayModeChanged.connect(onDisplayModeChanged);
+        Window.domainChanged.connect(onDomainChanged);
 
         updateStatus();
     }
@@ -305,6 +333,7 @@
         MyAvatar.wentActive.disconnect(onWentActive);
         MyAvatar.displayNameChanged.disconnect(updateStatus);
         HMD.displayModeChanged.disconnect(onDisplayModeChanged);
+        Window.domainChanged.disconnect(onDomainChanged);
         if (heartbeat) {
             Script.clearTimeout(heartbeat);
             heartbeat = false;
