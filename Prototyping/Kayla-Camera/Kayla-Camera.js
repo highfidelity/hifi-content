@@ -17,14 +17,7 @@
     var config = Script.require("./config.json?" + Date.now());
     console.log("config", JSON.stringify(config))
     var settingsURL = config.settingsURL;
-    var allCurrentConfigs = [];
-
-    require(settingsURL, function(error, response){
-        console.log(JSON.stringify(response));
-        response.data.forEach(function(setting){
-            console.log(setting.config_name)
-        });
-    });
+    var configs = [];
 
 
     // Init
@@ -48,6 +41,8 @@
         CHANGE_AVATAR_TO_CAMERA = "changeAvatarToCamera",
         CHANGE_AVATAR_TO_INVISIBLE = "changeAvatarToInvisible",
         TOGGLE_AVATAR_COLLISIONS = "toggleAvatarCollisions",
+        UPDATE_CONFIG = "updateConfig",
+        UPDATE_CONFIG_LIST = "UPDATE_CONFIG_LIST",
         EDIT_DEFAULT = "editDefault",
         EDIT_BRAKE = "editBrake",
         UPDATE_UI = "update_ui",
@@ -495,6 +490,23 @@
         Settings.setValue(SETTINGS_STRING, settings);
     }
 
+    function getConfigs(){
+        require(settingsURL, function(error, response){
+            console.log(JSON.stringify(response));
+            if (error || !response) {
+                return;
+            }
+    
+            if (response.status && response.status === "success") {
+                configs = response.data;
+                response.data.forEach(function(setting){
+                    console.log(setting.config_name);
+                });
+            }
+        });
+        doUIUpdate();
+    }
+
     function setup() {
         tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
         tabletButton = tablet.addButton({
@@ -514,6 +526,7 @@
         tablet.screenChanged.connect(onTabletScreenChanged);
 
         Controller.keyPressEvent.connect(keyPressHandler);
+        getConfigs();
     }
 
     function editDefault(newDefault) {
@@ -578,6 +591,11 @@
         }
     }
 
+    function updateConfig(config){
+        settings = Object.assign({}, config, {configs: configs});
+        doUIUpdate();
+    }
+
     function onTabletWebEventReceived(data) {
         // EventBridge message from HTML script.
         var message;
@@ -607,6 +625,9 @@
                 loadJSON(settings);
                 updateSettings();
                 doUIUpdate();
+                break;
+            case UPDATE_CONFIG_LIST:
+                getConfigs();
                 break;
             case UPDATE_CONFIG_NAME:
                 name = message.value;
@@ -673,6 +694,9 @@
                 break;
             case CLOSE_DIALOG_MESSAGE:
                 tablet.gotoHomeScreen();
+                break;
+            case UPDATE_CONFIG: 
+                updateConfig(message.value);
                 break;
         }
     }

@@ -11,7 +11,7 @@
 
     <body>
         <div class="container" id="app">
-            <config class="m-3" v-bind:config_name="settings.configName"></config>
+            <config class="m-3" v-bind:config_name="settings.configName" v-bind:configs="settings.configs"></config>
             <listener class="m-3" 
                 v-bind:is_enabled="settings.listener.isCustomListening" 
                 v-bind:position="settings.listener.customPosition"
