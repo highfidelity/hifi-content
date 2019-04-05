@@ -133,7 +133,7 @@
         });
     }
 
-
+    // Get status from database
     function getStatusUpdate(callback) {
         var queryParamString = "type=getStatus";
         queryParamString += "&username=" + AccountServices.username;
@@ -149,7 +149,7 @@
         }, function (error, response) {
             if (error || !response || response.status !== "success") {
                 console.error("Error with getStatus: " + JSON.stringify(response));
-            } else {
+            } else if (response.data.userStatus.toLowerCase() !== "offline") {
                 currentStatus = response.data.userStatus;
                 editStatusOverlays();
             }
@@ -175,8 +175,6 @@
         }
     }
 
-    // Get status from database
-    
 
     // #endregion SEND/GET STATUS REQUEST
 
@@ -222,11 +220,13 @@
         }
         edits[rectangleOverlay] = { "color": rectangleColor }
 
+        // For long statuses cut and append "..."
         var statusText = currentStatus;
         if (statusText.length > MAX_STATUS_LENGTH_CHARS) {
             statusText = currentStatus.substring(0, 9) + "...";
         }
 
+        // Allow space for the rectangle color
         edits[desktopOverlay] = { "text": ("     " + statusText) }
 
         Overlays.editOverlays(edits);
