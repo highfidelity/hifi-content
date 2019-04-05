@@ -8,22 +8,26 @@
 
 (function() {
 
-    function targetIDDiscriminator(targetEntityID) {
-        var tempData;
+    function targetIDDiscriminator(targetEntityID, data) {
+        var tempData={};
         targetEntityID.forEach(function(entityID) {
             tempData = Entities.getEntityProperties(entityID, ['id','type']);
             if (tempData.type === "Text") {
-                return tempData.id;
+                console.log("found the right entity", tempData.name, tempData.id, data.room);
+                if (!data.start) {
+                    Entities.callEntityServerMethod( tempData.id, "addEvent");
+                } else {
+                    Entities.callEntityServerMethod( tempData.id, "addEvent", [data.summary, data.start, data.end]);
+                }
             }
         });
-        return tempData.id;
     }
     
     
     // This function decides how to handle web events from the tablet UI.
     // used by 'ui' in startup()
-    var ORIGIN = {};
-    var RADIUS = 50;
+    var ORIGIN = {x:3.16949,y:893.52,z:18.6618};
+    var RADIUS = 500;
     var targetEntityID;
     function onWebMessage(data) {
         // EventBridge message from HTML script.
@@ -32,12 +36,7 @@
                 break;
             case "SEND_SCHEDULE":
                 targetEntityID = Entities.findEntitiesByName(data.room, ORIGIN, RADIUS);
-                targetEntityID = targetIDDiscriminator(targetEntityID);
-                if (!data.start) {
-                    Entities.callEntityServerMethod(targetEntityID, "addEvent", ['No Events on Calendar', false]);
-                } else {
-                    Entities.callEntityServerMethod(targetEntityID, "addEvent", [data.summary, data.start, data.end]);
-                }
+                targetEntityID = targetIDDiscriminator(targetEntityID, data);
                 break;
         }
     }

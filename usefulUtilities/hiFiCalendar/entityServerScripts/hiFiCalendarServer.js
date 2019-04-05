@@ -19,11 +19,13 @@
 
     this.remotelyCallable = [
         "updateTextEntity",
+        "updateSignColor",
         "addEvent"
     ];
 
 
     this.preload = function(entityID) {
+        console.log("preload");
         _entityID = entityID;
         entityProperties = Entities.getEntityProperties(_entityID, ['id', 'name', 'type', 'parentID']);
         if (entityProperties.name.indexOf("_SCHEDULE") === -1 && 
@@ -44,18 +46,23 @@
                 type: "schedule request"
             }));   
         }, FIVE_MINUTES_MS);
+        console.log(JSON.stringify(room));
     };
 
 
     this.addEvent = function(id, params) {
+        console.log("add event", params);
         if (id === _entityID) {
-            var startTime = that.googleDateToUTCDate(params[1]);
-            var endTime = that.googleDateToUTCDate(params[2]);
-            var tempEvent = {summary: params[0], start: startTime, end: endTime};
-            var index = 0;
-            if (room.eventList.indexOf(tempEvent) > -1) {
+            if (!params) {
+                startTime = undefined;
+                endTime = undefined;
+                Entities.editEntity(room.scheduleEntityID, {text: "No events scheduled for this room"});
                 return;
             } else {
+                var startTime = that.googleDateToUTCDate(params[1]);
+                var endTime = that.googleDateToUTCDate(params[2]);
+                var tempEvent = {summary: params[0], start: startTime, end: endTime};
+                var index = 0;
                 room.eventList.forEach(function(event) {
                     if (new Date(startTime) - new Date(event.start) === 0 && room.eventList.length > 0) {
                         index = -1;
@@ -88,6 +95,7 @@
 
 
     this.updateCalendar = function() { 
+        console.log("update");
         var now = (new Date()).toUTCString();
         room.eventList.forEach(function(event) {
             if (now - event.end >= 0) {
@@ -95,19 +103,20 @@
             }
         });
         var printedSchedule = '';
-        if (room.eventList.length === 0) {
+        console.log(room.eventList[0].start);
+        if (room.eventList[0].start === "Invalid Date") {
             Entities.editEntity(room.scheduleEntityID, {text: "No events scheduled for this room"});
         } else {
             room.eventList.forEach(function(event) {
-                printedSchedule = event.summary + 
+                printedSchedule = printedSchedule + 
+                event.summary + 
                 ': (' + 
                 new Date(event.start).toLocaleDateString() +
                 '   ' +
                 new Date(event.start).toLocaleTimeString() + 
                 ' - ' + 
                 new Date(event.end).toLocaleTimeString() +
-                ') \n\n' + 
-                printedSchedule ;                
+                ') \n\n';                
             });            
             Entities.editEntity(room.scheduleEntityID, {text: printedSchedule});
         }
@@ -116,6 +125,7 @@
 
 
     this.getBusy = function() {
+        console.log("busy");
         var now = (new Date()).toUTCString();
         if (typeof room.eventList[0] === "object") {
             if (now - room.eventList[0].end < 0 && now - room.eventList[0].start >= 0) {
