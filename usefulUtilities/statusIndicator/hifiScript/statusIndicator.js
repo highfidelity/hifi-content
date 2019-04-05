@@ -275,10 +275,10 @@
 
 
     // Domain changed update avatar location
-    function onDomainChanged(domainName) {
+    function onDomainChanged() {
         var queryParamString = "type=setUserLocation";
         queryParamString += "&username=" + AccountServices.username;
-        queryParamString += "&location=" + "Location Unknown";
+        queryParamString += "&location=Unknown";
 
         var uri = REQUEST_URL + "?" + queryParamString;
 
