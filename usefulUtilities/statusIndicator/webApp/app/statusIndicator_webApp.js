@@ -260,7 +260,7 @@ function getTeamEmployees(teamName, response) {
         for (var i = 0; i < results.length; i++) {
             if (i === 0) {
                 // first entry
-                var responseHTML = `<div style="padding-left: 40px"><h1>${teamName}</h1><table>`;
+                var responseHTML = `<div><h1>${teamName}</h1><table>`;
             }
 
             var location = results[i].location ? results[i].location : "Unknown";
