@@ -426,7 +426,7 @@
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(removedConfigSettings), // body data type must match "Content-Type" header
+                    body: JSON.stringify(removedConfigSettings),
                 })
                 .then(data => {
                     EventBridge.emitWebEvent(JSON.stringify({
