@@ -296,15 +296,20 @@ function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
     var type = queryParamObject.type;
 
-    // root/type=?alsjdf
     switch (type) {
         case "getStatus":
             getStatus(queryParamObject, response);
-            break;
+        break;
 
+        // Used when user's hifi client updates status
         case "heartbeat":
             heartbeat(queryParamObject, response);
-            break;
+        break;
+
+        // Used when other entities such as zones or entities update status or location
+        case "updateEmployee":
+            updateEmployee(queryParamObject, response);
+        break;
 
         case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees
             getAllEmployees(response);
@@ -315,14 +320,6 @@ function handleGetRequest(request, response) {
             //      teamName: "exampleTeamName"
             // }
             getTeamEmployees(queryParamObject.teamName, response);
-            break;
-
-        case "setUserLocation": // http://localhost:3305/?type=setUserLocation&username=Firebird25&location=helloworld
-            // {
-            //      username: "exampleUsername"
-            //      location: "exampleLocation"
-            // }
-            updateEmployee(queryParamObject, response);
             break;
 
         default:

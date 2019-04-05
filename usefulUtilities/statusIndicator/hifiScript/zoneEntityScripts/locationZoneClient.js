@@ -14,12 +14,11 @@
 
 
     // Called when user enters entity, will send request to server to update user location
-    function onEnterEntity() {
-        setZoneName();
+    function setUserLocation(newLocation) {
 
-        var queryParamString = "type=setUserLocation";
+        var queryParamString = "type=updateEmployee";
         queryParamString += "&username=" + AccountServices.username;
-        queryParamString += "&location=" + zoneName;
+        queryParamString += "&location=" + newLocation;
 
         var uri = REQUEST_URL + "?" + queryParamString;
 
@@ -33,9 +32,9 @@
             if (error || !response || response.status !== "success") {
                 console.error("Error with onEnterEntity: " + JSON.stringify(response));
             } else {
-                // successfully sent updateLocation
+                // successfully sent updateEmployee
                 if (DEBUG) {
-                    console.log("Entered statusIndicatorZone called: " + zoneName);
+                    console.log("Entered statusIndicatorZone called: " + newLocation);
                 }
             }
         });
@@ -103,7 +102,7 @@
         }
     }
 
-
+    
     // Updates the name of the zone
     function setZoneName() {
         zoneName = Entities.getEntityProperties(entityID, ["name"]).name;
@@ -124,9 +123,15 @@
             setZoneName();
             avatarLoadedInsideZoneCheck();
         },
-        enterEntity: onEnterEntity,
+        enterEntity: function () {
+            setZoneName();
+            setUserLocation(zoneName);
+        },
+        leaveEntity: function () {
+            setUserLocation("Unknown");
+        },
         unload: function() {
-
+            // blank
         }
     };
 

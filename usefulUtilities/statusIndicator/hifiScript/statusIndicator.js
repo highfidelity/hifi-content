@@ -278,7 +278,7 @@
     function onDomainChanged(domainName) {
         var queryParamString = "type=setUserLocation";
         queryParamString += "&username=" + AccountServices.username;
-        queryParamString += "&location=" + domainName;
+        queryParamString += "&location=" + "Location Unknown";
 
         var uri = REQUEST_URL + "?" + queryParamString;
 

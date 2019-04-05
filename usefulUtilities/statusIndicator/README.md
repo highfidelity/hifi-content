@@ -18,7 +18,9 @@ Run `<statusIndicator root>/hifiScript/statusIndicator.js` in High Fidelity's Ru
 
 ## locationZoneClient.js Config
 
-Update REQUEST_URL variable to `https://<hostname>/api/statusIndicator/`
+Update REQUEST_URL variable to `https://<hostname>/api/statusIndicator/`.
+
+Add `locationZoneClient.js` as a client script to a zone entity. When a user enters the zone entity, the zone will update the user's location to the zone's name.
 
 ## Hifi App Script Config
 
