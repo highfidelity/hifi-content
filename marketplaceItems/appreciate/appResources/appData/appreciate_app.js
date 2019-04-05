@@ -22,9 +22,20 @@
         if (!leftHandPosition) {
             leftHandPosition = MyAvatar.getJointPosition("LeftHand");
         }
+        if (!leftHandPosition) {
+            leftHandPosition = MyAvatar.getJointPosition("LeftArm");
+        }
+
         var rightHandPosition = MyAvatar.getJointPosition("RightHandMiddle2");
         if (!rightHandPosition) {
             rightHandPosition = MyAvatar.getJointPosition("RightHand");
+        }
+        if (!rightHandPosition) {
+            rightHandPosition = MyAvatar.getJointPosition("RightArm");
+        }
+
+        if (!(leftHandPosition && rightHandPosition)) {
+            return MyAvatar.position;
         }
 
         var centerPosition = Vec3.sum(leftHandPosition, rightHandPosition);
