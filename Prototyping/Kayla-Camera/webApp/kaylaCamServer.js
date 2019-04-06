@@ -37,7 +37,7 @@ app.use(logger);
 // Use the routes
 app.use('/kaylacam/api', API_ROUTER);
 
-// Starts the server and sets up request handlers
+// Starts the server and sets up requests
 const startServer = () => {
     app.listen(PORT, () => console.log(`listening on port ${PORT}`));
 }
