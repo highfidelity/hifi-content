@@ -213,7 +213,7 @@ function getAllEmployees(response) {
             var location = results[i].location ? results[i].location : "Unknown";
 
             if (results[i].status === "busy") {
-                location = "** busy **";
+                location = "**busy**";
             }
 
             responseHTML += `
@@ -266,7 +266,7 @@ function getTeamEmployees(teamName, response) {
             var location = results[i].location ? results[i].location : "Unknown";
 
             if (results[i].status === "busy") {
-                location = "** busy **";
+                location = "**busy**";
             }
 
             responseHTML += `

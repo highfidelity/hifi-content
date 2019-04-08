@@ -8,9 +8,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    var request = Script.require('request').request,
-        REQUEST_URL = "http://localhost:3305/",
-        DEBUG = false;
+    var request = Script.require(Script.resolvePath('./modules/request.js')).request,
+        REQUEST_URL = "https://highfidelity.co/api/statusIndicator/",
+        DEBUG = true;
 
 
     // Called when user enters entity, will send request to server to update user location
@@ -34,7 +34,7 @@
             } else {
                 // successfully sent updateEmployee
                 if (DEBUG) {
-                    console.log("Entered statusIndicatorZone called: " + newLocation);
+                    console.log("Sent request successfully and entered statusIndicatorZone called: " + newLocation);
                 }
             }
         });
@@ -125,9 +125,15 @@
         },
         enterEntity: function () {
             setZoneName();
+            if (DEBUG) {
+                console.log(AccountServices.username + " entered the zone " + zoneName);
+            }
             setUserLocation(zoneName);
         },
         leaveEntity: function () {
+            if (DEBUG) {
+                console.log("Left statusIndicatorZone called: " + newLocation);
+            }
             setUserLocation("Unknown");
         },
         unload: function() {

@@ -31,7 +31,7 @@
         function getEmployeeData() {
             var urlParams = getUrlVars();
             if (urlParams.teamName) {
-                fetch(`http://localhost:3305/?type=getTeamEmployees&teamName=${urlParams.teamName}`)
+                fetch(`https://highfidelity.co/api/statusIndicator/?type=getTeamEmployees&teamName=${urlParams.teamName}`)
                     .then(function(response) { return response.text() })
                     .then(function(data) {
                         document.getElementById("team").innerHTML = data;
