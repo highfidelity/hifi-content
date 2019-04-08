@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    var request = Script.require(Script.resolvePath('./modules/request.js')).request,
+    var request = Script.require(Script.resolvePath('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js')).request,
         REQUEST_URL = "https://highfidelity.co/api/statusIndicator/",
         DEBUG = false;
 
