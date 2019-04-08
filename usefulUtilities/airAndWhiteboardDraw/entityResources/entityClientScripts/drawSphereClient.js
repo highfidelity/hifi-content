@@ -1,15 +1,9 @@
 //
-//  markerTipEntityScript.js
+//  drawSphereClient.js
 //
-//  Created by Eric Levin on 2/17/15.
-//  Additions by James B. Pollack @imgntn 6/9/2016
-//  Modifications by Thijs Wenker @thoys 1/19/2017
-//  Modified by Daniela Fontes (Mimicry) 2/9/2018
-// Modified by Rebecca Stankus 3/28/2019
-//  Copyright 2018 High Fidelity, Inc.
+//  Created by Rebecca Stankus 3/28/2019
+//  Copyright 2019 High Fidelity, Inc.
 //
-//  This script provides the logic for an object to draw marker strokes on its associated whiteboard
-
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
@@ -102,7 +96,7 @@
     var throttleTimeoutMS = 16.6;
     var hapticTimeoutMS = 140;
     var controllerMapping;
-    var distanceCheckInterval = null;
+    var drawInterval = null;
     var deletingInterval;
     var activeTriggerPress = false;
     var activeGripPress = false;
@@ -193,8 +187,7 @@
                 if (properties.name && properties.name === "Whiteboard") {
                     if (whiteboard) {
                         if (Vec3.distance(properties.position, MyAvatar.position) <
-                            Vec3.distance(Entities.getEntityProperties(whiteboard, "position").position, MyAvatar.position)
-                        ) {
+                            Vec3.distance(Entities.getEntityProperties(whiteboard, "position").position, MyAvatar.position)) {
                             whiteboard = entity;
                         }
                     } else {
@@ -341,7 +334,8 @@
                 var distanceToBoard = Vec3.distance(whiteBoardIntersectionData.intersection, MyAvatar.position);
                 var paintSphereDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
                 previousStrokeWidth = paintSphereDimensions.x;
-                if (whiteBoardIntersectionData.intersects && distanceToBoard <= DRAW_ON_BOARD_DISTANCE_DESKTOP_M) { // draw on board
+                if (whiteBoardIntersectionData.intersects && distanceToBoard <= DRAW_ON_BOARD_DISTANCE_DESKTOP_M) {
+                    // draw on board
                     var currentWhiteboard = whiteBoardIntersectionData.entityID;
                     var whiteboardProperties = Entities.getEntityProperties(currentWhiteboard, ['position', 'rotation']);
                     previousNormal = Vec3.multiply(-1, Quat.getFront(whiteboardProperties.rotation));
@@ -384,7 +378,8 @@
                     }
                 }
                 var distanceToBoard = Vec3.distance(whiteBoardIntersectionData.intersection, MyAvatar.position);
-                if (whiteBoardIntersectionData.intersects && distanceToBoard <= DRAW_ON_BOARD_DISTANCE_DESKTOP_M) { // draw on board
+                if (whiteBoardIntersectionData.intersects && distanceToBoard <= DRAW_ON_BOARD_DISTANCE_DESKTOP_M) {
+                    // draw on board
                     currentLinePoint = whiteBoardIntersectionData.intersection;
                     var currentWhiteboard = whiteBoardIntersectionData.entityID;
                     var whiteboardProperties = Entities.getEntityProperties(currentWhiteboard, ['position', 'rotation']);
@@ -463,7 +458,7 @@
                     return;
                 }
             }
-            distanceCheckInterval = Script.setInterval(function() {
+            drawInterval = Script.setInterval(function() {
                 sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
                 sphereFront = Quat.getFront(sphereProperties.rotation);
                 howFarBack = sphereProperties.dimensions.z * HALF;
@@ -563,9 +558,9 @@
         triggerReleased: function() {
             if (activeTriggerPress) {
                 activeTriggerPress = false;
-                if (distanceCheckInterval) {
-                    Script.clearInterval(distanceCheckInterval);
-                    distanceCheckInterval = null;
+                if (drawInterval) {
+                    Script.clearInterval(drawInterval);
+                    drawInterval = null;
                 }
                 _this.stopDrawing();
             }
@@ -805,9 +800,9 @@ sphere tip and erases it */
             if (animationHandlerID) {
                 animationHandlerID = MyAvatar.removeAnimationStateHandler(animationHandlerID);
             }
-            if (distanceCheckInterval) {
-                Script.clearInterval(distanceCheckInterval);
-                distanceCheckInterval = null;
+            if (drawInterval) {
+                Script.clearInterval(drawInterval);
+                drawInterval = null;
             }
             if (deletingInterval) {
                 Script.clearInterval(deletingInterval);

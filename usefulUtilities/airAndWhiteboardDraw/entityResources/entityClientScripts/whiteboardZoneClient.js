@@ -17,11 +17,11 @@
     var injector;
     var whiteboard;
 
-    var PaintSphereRemover = function() {
+    var WhiteboardZone = function() {
         _this = this;
     };
 
-    PaintSphereRemover.prototype = {
+    WhiteboardZone.prototype = {
 
         /* ON PRELOAD: Save a reference to this */
         preload: function(entityID) {
@@ -92,5 +92,5 @@
             _this.removePaintSpheres();
         }
     };
-    return new PaintSphereRemover();
+    return new WhiteboardZone();
 });
