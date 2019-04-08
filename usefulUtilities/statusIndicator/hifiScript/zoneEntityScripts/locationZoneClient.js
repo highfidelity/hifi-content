@@ -10,7 +10,7 @@
 (function() {
     var request = Script.require(Script.resolvePath('./modules/request.js')).request,
         REQUEST_URL = "https://highfidelity.co/api/statusIndicator/",
-        DEBUG = true;
+        DEBUG = false;
 
 
     // Called when user enters entity, will send request to server to update user location
