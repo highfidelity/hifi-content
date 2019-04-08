@@ -133,7 +133,7 @@
         });
     }
 
-
+    // Get status from database
     function getStatusUpdate(callback) {
         var queryParamString = "type=getStatus";
         queryParamString += "&username=" + AccountServices.username;
@@ -149,7 +149,7 @@
         }, function (error, response) {
             if (error || !response || response.status !== "success") {
                 console.error("Error with getStatus: " + JSON.stringify(response));
-            } else {
+            } else if (response.data.userStatus.toLowerCase() !== "offline") {
                 currentStatus = response.data.userStatus;
                 editStatusOverlays();
             }
@@ -175,8 +175,6 @@
         }
     }
 
-    // Get status from database
-    
 
     // #endregion SEND/GET STATUS REQUEST
 
@@ -222,11 +220,13 @@
         }
         edits[rectangleOverlay] = { "color": rectangleColor }
 
+        // For long statuses cut and append "..."
         var statusText = currentStatus;
         if (statusText.length > MAX_STATUS_LENGTH_CHARS) {
             statusText = currentStatus.substring(0, 9) + "...";
         }
 
+        // Allow space for the rectangle color
         edits[desktopOverlay] = { "text": ("     " + statusText) }
 
         Overlays.editOverlays(edits);
@@ -273,6 +273,33 @@
         }
     }
 
+
+    // Domain changed update avatar location
+    function onDomainChanged() {
+        var queryParamString = "type=setUserLocation";
+        queryParamString += "&username=" + AccountServices.username;
+        queryParamString += "&location=Unknown";
+
+        var uri = REQUEST_URL + "?" + queryParamString;
+
+        if (DEBUG) {
+            console.log("statusIndicator onDomainChanged: " + uri);
+        }
+
+        request({
+            uri: uri
+        }, function (error, response) {
+            if (error || !response || response.status !== "success") {
+                console.error("Error with onDomainChanged: " + JSON.stringify(response));
+            } else {
+                // successfully sent updateLocation
+                if (DEBUG) {
+                    console.log("Entered onDomainChanged called: " + zoneName);
+                }
+            }
+        });
+    }
+
     // #endregion SIGNALS
 
 
@@ -291,6 +318,7 @@
         MyAvatar.wentActive.connect(onWentActive);
         MyAvatar.displayNameChanged.connect(updateStatus);
         HMD.displayModeChanged.connect(onDisplayModeChanged);
+        Window.domainChanged.connect(onDomainChanged);
 
         updateStatus();
     }
@@ -305,6 +333,7 @@
         MyAvatar.wentActive.disconnect(onWentActive);
         MyAvatar.displayNameChanged.disconnect(updateStatus);
         HMD.displayModeChanged.disconnect(onDisplayModeChanged);
+        Window.domainChanged.disconnect(onDomainChanged);
         if (heartbeat) {
             Script.clearTimeout(heartbeat);
             heartbeat = false;
