@@ -1,0 +1,65 @@
+<html>
+
+<head>
+    <title>All Employees</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700|Cairo" rel="stylesheet">
+    <style>
+        body {
+            padding: 40px;
+        }
+
+        td {
+            font-size: 20px;
+        }
+
+        table {
+            padding-left: 20px;
+            width: 500px;
+        }
+
+        h2 {
+            text-transform: capitalize;
+        }
+
+        .team {
+            padding: 0 40px;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            max-width: 520px;
+            height: 100vh;
+        }
+    </style>
+    <script>
+        function getEmployeeData() {
+            fetch('http://localhost:3305/?type=getAllEmployees')
+                .then(function(response) { return response.text() })
+                .then(function(data) {
+                    document.getElementById("employeeTables").innerHTML = data;
+                    setTimeout(getEmployeeData, 10000);
+                })
+                .catch(function(error){ console.error(error) })
+        }
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            getEmployeeData();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="content">
+        <div id="employeeTables">
+            <h1>Loading Data...</h1>
+        </div>
+
+    </div>
+</body>
+
+</html>
