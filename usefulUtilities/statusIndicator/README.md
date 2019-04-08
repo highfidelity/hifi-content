@@ -66,7 +66,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v2.0 | 2019-04-08_09-11-00 | [commit 292bb085](https://github.com/highfidelity/hifi-content/commits/292bb085)
+## v2.0 | 2019-04-08_09-11-00 | [commit 2ab4badf](https://github.com/highfidelity/hifi-content/commits/2ab4badf)
 - Added set location functionality with a function call 
 - Added zone client script where user enters the zone, and the zone updates user location to the name of the zone
 

@@ -88,7 +88,7 @@
     // #region HEARTBEAT
 
     // Send heartbeat with updates to database
-    // When this stops, the database will set status to Offline
+    // When this stops, the database will set status to offline
     var HEARTBEAT_TIMEOUT_MS = 5000,
         heartbeat;
     function startHeartbeatTimer() {
