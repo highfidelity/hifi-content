@@ -113,9 +113,10 @@
 
     // Taken from https://stackoverflow.com/a/11318669
     // Example date format: 2019-04-08T13:00:00-07:00
+    // This function takes the Google API version of dateTime objects 
+    // and converts it to a javascript date object
     var googleDate = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}):(\d{2})$/;
     var MINS_PER_HOUR = 60;
-
     function googleDateToUTCDate(d) {
       var m = googleDate.exec(d);
       var year = +m[1];
@@ -134,11 +135,10 @@
 
 
     /**
-     * Print the summary and start datetime/date of the next ten events in
+     * Print the summary and start datetime/date of the next 4 events for today of
      * the authorized user's calendar. If no events are found an
      * appropriate message is printed.
      */
-
     var atlantisId = '';
     var capitolId = '';
     var fantasiaId = '';
@@ -164,7 +164,6 @@
     }, {
       "id": pandoraId
     }];
-
     function listUpcomingEvents() {
       hifiCalendars.forEach(function (cal) {
         var calendar = {};
@@ -185,10 +184,8 @@
         } else if (cal.id === pandoraId) {
           calendar.id = "PANDORA"
         }
-
         var tomorrowMidnight = new Date();
         tomorrowMidnight.setHours(24, 0, 0, 0);
-
         gapi.client.calendar.events.list({
           'calendarId': cal.id,
           'timeMin': (new Date()).toISOString(),
@@ -247,6 +244,9 @@
       });
     }
 
+
+    // This function receives and attempts to parse data from 
+    // High Fidelity scripts.
     function onScriptEventReceived(data) {
       var data = JSON.parse(data);
       switch (data.type) {
@@ -256,8 +256,10 @@
       }
     }
 
-    var EVENT_BRIDGE_SETUP_DELAY = 100;
 
+    // This function sets up the communication channel between
+    // this HTML and High Fidelity scripts that message it.
+    var EVENT_BRIDGE_SETUP_DELAY = 100;
     function onLoad() {
       setTimeout(() => {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
