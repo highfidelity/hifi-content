@@ -161,7 +161,7 @@
 
     // Sends status to database
     var request = Script.require('request').request,
-        REQUEST_URL = Script.require(Script.resolvePath('./secrets.json' + Date.now())).REQUEST_URL;
+        REQUEST_URL = Script.require(Script.resolvePath('./secrets.json?' + Date.now())).REQUEST_URL;
     function updateStatus(forceUpdateOnly) {
         if (heartbeat) {
             Script.clearTimeout(heartbeat);
