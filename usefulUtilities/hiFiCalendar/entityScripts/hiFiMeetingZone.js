@@ -12,8 +12,6 @@
     
     var _this;
     var roomName;
-    var occupants = [0];
-    var occupantString;
     var occupantTextEntityId;
 
     var MeetingZone = function() {
@@ -28,23 +26,11 @@
         },
 
         enterEntity: function() {
-            occupants.push(MyAvatar.sessionDisplayName);
-            occupants[0] = occupants.length - 1;
-            occupantString = '';
-            occupants.forEach(function(index) {
-                occupantString = occupantString + index + '\n';
-            });
-            Entities.callEntityServerMethod(occupantTextEntityId, "updateTextEntity", [occupantString]);
+            Entities.callEntityServerMethod(occupantTextEntityId, "enteredMeetingZone", [MyAvatar.sessionDisplayName]);
         },
 
         leaveEntity: function() {
-            occupants.splice(occupants.indexOf(MyAvatar.sessionDisplayName),1)[0];
-            occupants[0] = occupants.length - 1;
-            occupantString = '';
-            occupants.forEach(function(index) {
-                occupantString = occupantString + index + '\n';
-            });
-            Entities.callEntityServerMethod(occupantTextEntityId, "updateTextEntity", [occupantString]);
+            Entities.callEntityServerMethod(occupantTextEntityId, "leftMeetingZone", [MyAvatar.sessionDisplayName]);
         }
     };
     return new MeetingZone;

@@ -7,63 +7,77 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-
-    function targetIDDiscriminator(targetEntityID, data) {
-        var tempData={};
-        targetEntityID.forEach(function(entityID) {
-            tempData = Entities.getEntityProperties(entityID, ['id','type']);
-            if (tempData.type === "Text") {
-                console.log("found the right entity", tempData.name, tempData.id, data.room);
-                if (!data.start) {
-                    Entities.callEntityServerMethod( tempData.id, "addEvent");
-                } else {
-                    Entities.callEntityServerMethod( tempData.id, "addEvent", [data.summary, data.start, data.end]);
-                }
-            }
-        });
-    }
-    
-    
     // This function decides how to handle web events from the tablet UI.
     // used by 'ui' in startup()
-    var ORIGIN = {x:3.16949,y:893.52,z:18.6618};
-    var RADIUS = 500;
-    var targetEntityID;
+    var ATLANTIS_LABEL_ID = "{298237cd-57ae-427c-98b6-52d30fa342ea}";
+    var JAKKU_LABEL_ID = "{931a0267-45c4-4791-ba0a-54cd7bebd7fb}";
+    var CAPITOL_LABEL_ID = "{79f5718e-1520-4515-a131-9424939e95ce}";
+    var FANTASIA_LABEL_ID = "{b7cca77b-77fb-484e-b098-9f1fb2d8729a}";
+    var OZ_LABEL_ID = "{83a72d97-8952-425c-b07d-f9cba4b38ebd}";
+    var NARNIA_LABEL_ID = "{8a568c27-519f-48d2-b361-9a08468cdc17}";
+    var calendarLabelIDs = [
+        ATLANTIS_LABEL_ID,
+        JAKKU_LABEL_ID,
+        CAPITOL_LABEL_ID,
+        FANTASIA_LABEL_ID,
+        OZ_LABEL_ID,
+        NARNIA_LABEL_ID
+    ];
     function onWebMessage(data) {
         // EventBridge message from HTML script.
         switch (data.type) {
             case "EVENT_BRIDGE_OPEN_MESSAGE":
                 break;
             case "SEND_SCHEDULE":
-                targetEntityID = Entities.findEntitiesByName(data.room, ORIGIN, RADIUS);
-                targetEntityID = targetIDDiscriminator(targetEntityID, data);
+                var targetEntityID;
+                switch (data.room) {
+                    case "ATLANTIS":
+                        targetEntityID = calendarLabelIDs[0];
+                        break;
+                    case "JAKKU":
+                        targetEntityID = calendarLabelIDs[1];
+                        break;
+                    case "CAPITOL":
+                        targetEntityID = calendarLabelIDs[2];
+                        break;
+                    case "FANTASIA":
+                        targetEntityID = calendarLabelIDs[3];
+                        break;
+                    case "OZ":
+                        targetEntityID = calendarLabelIDs[4];
+                        break;
+                    case "NARNIA":
+                        targetEntityID = calendarLabelIDs[5];
+                        break;
+                }
+                if (data.summary) {
+                    Entities.callEntityServerMethod(targetEntityID, "addEvent",
+                        [data.summary, data.startTimestamp, data.formattedStartTimeString, data.endTimestamp, data.formattedEndTimeString]);
+                } else {
+                    Entities.callEntityServerMethod(targetEntityID, "showNoScheduledEvents");
+                }
                 break;
         }
     }
 
 
-    var FIVE_SEC_MS = 1000;
-    var lastRequestTime = new Date();
-    var messageHandler = function (channel, message, senderUUID, localOnly) {
-        if (channel !== "HiFi.GoogleCalendar") {
-            return;
-        } else {
-            try {
-                message = JSON.parse(message);
-            } catch (e) {
-                console.log(e, "failed parsing message");
-                return;
-            }
-        }
-        // Notify the chosen recipient
-        var now = new Date();
-        if (message.type === 'schedule request' && now - lastRequestTime > FIVE_SEC_MS) { 
-            ui.sendToHtml({
-                type: "UPDATE_SCHEDULE"
-            });
-            lastRequestTime = now;
-        }
-    };
+    function getAllCalendarData() {
+        for (var i = 0; i < calendarLabelIDs.length; i++) {
+            Entities.callEntityServerMethod(calendarLabelIDs[i], "clearEventList");
+        }        
+        ui.sendToHtml({
+            type: "UPDATE_SCHEDULE"
+        });
+    }
+
+
+    var getDataInterval = false;
+    var GET_DATA_INTERVAL_MS = 120000;
+    function setupGetDataInterval() {
+        getDataInterval = Script.setInterval(function() {
+            getAllCalendarData();
+        }, GET_DATA_INTERVAL_MS);
+    }
 
 
     // This function loads appui and connects to the needed signals
@@ -71,20 +85,22 @@
     var ui;
     function startup() {
         ui = new AppUi({
-            home: "http://localhost/hiFiCalendar.html?v32",
+            home: "http://localhost/hiFiCalendar.html?v45",
             buttonName: "GCAL", // The name of your app
-            graphicsDirectory: Script.resolvePath("./resources/images/"), // Where your button icons are located
+            graphicsDirectory: Script.resolvePath("../resources/images/"), // Where your button icons are located
             onMessage: onWebMessage
         });       
         Script.scriptEnding.connect(scriptEnding);
-        Messages.subscribe("HiFi.GoogleCalendar");
-        Messages.messageReceived.connect(messageHandler);
+
+        setupGetDataInterval();
     }
     startup();
 
 
     function scriptEnding() {
-        Messages.unsubscribe("HiFi.GoogleCalendar");
-        Messages.messageReceived.disconnect(messageHandler);
+        if (getDataInterval) {
+            Script.clearInterval(getDataInterval);
+            getDataInterval = false;
+        }
     }
 })();    

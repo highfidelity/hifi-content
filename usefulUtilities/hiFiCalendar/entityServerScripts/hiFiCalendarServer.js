@@ -8,142 +8,136 @@
 
 
 (function() {
-
-    var FIVE_MINUTES_MS = 300000;
-
-    var _entityID;
-    var entityProperties;
-    var that = this;
-    var room;
-    var intervalSchedule = false;
+    var that;
 
     this.remotelyCallable = [
-        "updateTextEntity",
+        "enteredMeetingZone",
+        "leftMeetingZone",
         "updateSignColor",
-        "addEvent"
+        "showNoScheduledEvents",
+        "addEvent",
+        "clearEventList"
     ];
 
 
     this.preload = function(entityID) {
-        console.log("preload");
-        _entityID = entityID;
-        entityProperties = Entities.getEntityProperties(_entityID, ['id', 'name', 'type', 'parentID']);
-        if (entityProperties.name.indexOf("_SCHEDULE") === -1 && 
-            entityProperties.name.indexOf("_OCCUPANTS") === -1 && 
-            entityProperties.type === "Text") {
-            room = {
-                "id": entityProperties.id, 
-                "name": entityProperties.name,
+        that = this;
+        that.entityID = entityID;
+        that.entityProperties = Entities.getEntityProperties(that.entityID, ['id', 'name', 'type', 'parentID']);
+        that.room = {};
+        if (that.entityProperties.name.indexOf("_SCHEDULE") === -1 && 
+            that.entityProperties.name.indexOf("_OCCUPANTS") === -1 && 
+            that.entityProperties.type === "Text") {
+            that.room = {
+                "id": that.entityProperties.id, 
+                "name": that.entityProperties.name,
                 "eventList": [],
-                "scheduleEntityID": entityProperties.parentID
+                "scheduleEntityID": that.entityProperties.parentID
             };
+            Entities.editEntity(that.room.scheduleEntityID, {text: ""});
+            that.updateSignColor(that.room.id, [that.room.name, "GREEN"]);
         } else {
+            that.room = {
+                "id": that.entityProperties.id, 
+                "occupants": []
+            };
             return;
         }
-        intervalSchedule = Script.setInterval(function(){
-            that.updateCalendar();
-            Messages.sendMessage("HiFi.GoogleCalendar", JSON.stringify({
-                type: "schedule request"
-            }));   
-        }, FIVE_MINUTES_MS);
-        console.log(JSON.stringify(room));
+    };
+
+
+    this.showNoScheduledEvents = function(id, params) {
+        if (id === that.entityID) {
+            Entities.editEntity(that.room.scheduleEntityID, {text: "No events scheduled for this room"});
+        }
     };
 
 
     this.addEvent = function(id, params) {
-        console.log("add event", params);
-        if (id === _entityID) {
-            if (!params) {
-                startTime = undefined;
-                endTime = undefined;
-                Entities.editEntity(room.scheduleEntityID, {text: "No events scheduled for this room"});
-                return;
-            } else {
-                var startTime = that.googleDateToUTCDate(params[1]);
-                var endTime = that.googleDateToUTCDate(params[2]);
-                var tempEvent = {summary: params[0], start: startTime, end: endTime};
-                var index = 0;
-                room.eventList.forEach(function(event) {
-                    if (new Date(startTime) - new Date(event.start) === 0 && room.eventList.length > 0) {
-                        index = -1;
-                        return;
-                    } else if (new Date(startTime) - new Date(event.start) > 0) {
-                        index++;
-                    }
-                });
-                if (index > -1) {
-                    room.eventList.splice(index, 0, tempEvent);
-                }
-            }
-            this.updateCalendar();
-        }
-    };
+        if (id === that.entityID) {
+            var startTimestamp = params[1];
+            var formattedStartTimeString = params[2];
+            var endTimestamp = params[3];
+            var formattedEndTimeString = params[4];
 
+            var tempEvent = {
+                summary: params[0],
+                startTimestamp: startTimestamp,
+                formattedStartTimeString: formattedStartTimeString,
+                endTimestamp: endTimestamp,
+                formattedEndTimeString: formattedEndTimeString
+            };
 
-    this.removeEvent = function(event) {
-        if (room.indexOf(event) > -1) {
-            room.eventList.splice(event, 1)[0];
-        }
-    };
+            that.room.eventList.push(tempEvent);
 
-
-    this.googleDateToUTCDate = function(s) {
-        s = s + '';
-        var b = s.split(/\D+/);
-        return new Date(Date.UTC(b[0], --b[1], b[2], b[3], b[4], b[5], b[6])).toUTCString();
-    };
-
-
-    this.updateCalendar = function() { 
-        console.log("update");
-        var now = (new Date()).toUTCString();
-        room.eventList.forEach(function(event) {
-            if (now - event.end >= 0) {
-                that.removeEvent(event);
-            }
-        });
-        var printedSchedule = '';
-        console.log(room.eventList[0].start);
-        if (room.eventList[0].start === "Invalid Date") {
-            Entities.editEntity(room.scheduleEntityID, {text: "No events scheduled for this room"});
-        } else {
-            room.eventList.forEach(function(event) {
+            var printedSchedule = "Today's Meetings:\n";
+            that.room.eventList.forEach(function(event) {
                 printedSchedule = printedSchedule + 
-                event.summary + 
-                ': (' + 
-                new Date(event.start).toLocaleDateString() +
-                '   ' +
-                new Date(event.start).toLocaleTimeString() + 
+                event.summary +
+                "\n" +
+                event.formattedStartTimeString + 
                 ' - ' + 
-                new Date(event.end).toLocaleTimeString() +
-                ') \n\n';                
+                event.formattedEndTimeString +
+                '\n\n';                
             });            
-            Entities.editEntity(room.scheduleEntityID, {text: printedSchedule});
+            Entities.editEntity(that.room.scheduleEntityID, {text: printedSchedule});
+            that.setBusyLight();
         }
-        that.getBusy();
     };
 
 
-    this.getBusy = function() {
-        console.log("busy");
-        var now = (new Date()).toUTCString();
-        if (typeof room.eventList[0] === "object") {
-            if (now - room.eventList[0].end < 0 && now - room.eventList[0].start >= 0) {
-                that.updateSignColor(room.id, [room.name, "RED"]);
+    this.clearEventList = function(id, params) {
+        if (id === that.entityID) {
+            that.room.eventList = [];
+
+            Entities.editEntity(that.room.scheduleEntityID, {text: ""});
+        }
+    };
+
+
+    this.setBusyLight = function() {
+        var now = new Date().valueOf();
+        if (typeof that.room.eventList[0] === "object") {
+            var endValue = that.room.eventList[0].endTimestamp.valueOf();
+            var startValue = that.room.eventList[0].startTimestamp.valueOf();
+            if (now <= endValue && now >= startValue) {
+                that.updateSignColor(that.room.id, [that.room.name, "RED"]);
             } else {
-                that.updateSignColor(room.id, [room.name, "GREEN"]);
+                that.updateSignColor(that.room.id, [that.room.name, "GREEN"]);
             }
         } else {
-            Entities.editEntity(room.scheduleEntityID, {text: "No events scheduled for this room"});
-            that.updateSignColor(room.id, [room.name, "GREEN"]);
+            that.updateSignColor(that.room.id, [that.room.name, "GREEN"]);
         }
     };
 
 
-    this.updateTextEntity = function(id, params) {
-        if (_entityID === id) {    
+    this.enteredMeetingZone = function(id, params) {
+        if (that.entityID === id) {    
+            var displayName = params[0];
+
+            if (that.room.occupants.indexOf(displayName) === -1) {
+                that.room.occupants.push(displayName);
+            }
+
             Entities.editEntity(id, {
-                "text": params[0], 
+                "text": (that.room.occupants).join("\n"), 
+                "textColor": [255, 255, 255]
+            });
+        }
+    };  
+
+
+    this.leftMeetingZone = function(id, params) {
+        if (that.entityID === id) {    
+            var displayName = params[0];
+
+            var index = that.room.occupants.indexOf(displayName);
+            if (index > -1) {
+                that.room.occupants.splice(index, 1);
+            }
+
+            Entities.editEntity(id, {
+                "text": (that.room.occupants).join("\n"), 
                 "textColor": [255, 255, 255]
             });
         }
@@ -151,7 +145,7 @@
     
     
     this.updateSignColor = function(id, params) {
-        if (_entityID === id) {    
+        if (that.entityID === id) {    
             if (params[1] === "GREEN") {
                 Entities.editEntity(id, {
                     "text": params[0], 
@@ -169,12 +163,4 @@
             }
         }
     };      
-
-
-    this.unload = function() {
-        if (intervalSchedule) {
-            Script.clearInterval(intervalSchedule);
-            intervalSchedule = false;
-        }
-    };
 });
