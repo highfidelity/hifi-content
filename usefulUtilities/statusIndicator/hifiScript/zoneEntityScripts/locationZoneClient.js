@@ -9,7 +9,7 @@
 
 (function() {
     var request = Script.require(Script.resolvePath('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js')).request,
-        REQUEST_URL = "https://highfidelity.co/api/statusIndicator/",
+        REQUEST_URL = "http://localhost:3305/",
         DEBUG = false;
 
 
@@ -134,7 +134,7 @@
             if (DEBUG) {
                 console.log("Left statusIndicatorZone called: " + newLocation);
             }
-            setUserLocation("Unknown");
+            setUserLocation("unknown");
         },
         unload: function() {
             // blank
