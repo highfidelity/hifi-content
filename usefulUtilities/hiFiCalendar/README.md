@@ -1,0 +1,25 @@
+# High Fidelity Calendar
+This app lets you integrate with the Google Calendar API to query meeting room schedules.
+
+# Setup Instructions
+1. Setup `hiFiCalendar.html` by copying it to the top level of your C:/ drive and opening a powershell window. Type the following command and press enter, `http-server -p 80` (You must have Node.js installed).
+2. In [Google's console API](https://console.developers.google.com/projectselector2/apis/credentials?supportedpurview=project), setup credentials to get an API Key, Client ID, and Client Secret to paste in `hiFiCalendar.html` (WARNING: DO NOT SHARE THESE OR POST THEM IN A PUBLIC PLACE).  Define your permitted access locations to include http://localhost under Domain Verification.
+
+        // Client ID and API key from the Developer Console
+        var CLIENT_ID = '';
+        var CLIENT_SECRET = '';
+        var API_KEY = '';
+
+3. Copy the calendar IDs into the html file from your Google Calendar, they'll look something like this:
+
+        YourGoogleDomain123456789@resource.calendar.google.com
+
+4. In Interface, create a "Text" entity with the same name you've given your calendar. Paste the server script URL into the `serverScript` field in Entity Properties.
+5. Drag and drop the `hiFiCalendar_app.js` onto your interface window to run it. Open the app and authorize it with your Google Account information.  
+6.  Currently, you must leave the app window open to keep the calendar entities up to date.
+
+
+# Release Notes
+
+## Web App v1.0 | HiFi App v1.0 | [commit e7e2a3e](https://github.com/highfidelity/hifi-content/pull/345/commits/e7e2a3e3e05ccae5838b81b1159979614ec26294)
+- Initial Release
