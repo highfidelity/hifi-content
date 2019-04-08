@@ -16,29 +16,33 @@
     var CM_PER_M = 100;
     var HALF = 0.5;
 
+
+    // Returns the first valid joint position from the list of supplied test joint positions.
+    // If none are valid, returns MyAvatar.position.
+    function getValidJointPosition(jointsToTest) {
+        var currentJointIndex;
+
+        for (var i = 0; i < jointsToTest.length; i++) {
+            currentJointIndex = MyAvatar.getJointIndex(jointsToTest[i]);
+
+            if (currentJointIndex > -1) {
+                return MyAvatar.getJointPosition(jointsToTest[i]);
+            }
+        }
+
+        return MyAvatar.position;
+    } 
+
+
     // Returns the world position halfway between the user's hands
-    function halfwayBetweenHands() {
-        var leftHandPosition = MyAvatar.getJointPosition("LeftHandMiddle2");
-        if (!leftHandPosition) {
-            leftHandPosition = MyAvatar.getJointPosition("LeftHand");
-        }
-        if (!leftHandPosition) {
-            leftHandPosition = MyAvatar.getJointPosition("LeftArm");
-        }
+    function getAppreciationPosition() {
+        var validLeftJoints = ["LeftHandMiddle2", "LeftHand", "LeftArm"];
+        var leftPosition = getValidJointPosition(validLeftJoints);
 
-        var rightHandPosition = MyAvatar.getJointPosition("RightHandMiddle2");
-        if (!rightHandPosition) {
-            rightHandPosition = MyAvatar.getJointPosition("RightHand");
-        }
-        if (!rightHandPosition) {
-            rightHandPosition = MyAvatar.getJointPosition("RightArm");
-        }
+        var validRightJoints = ["RightHandMiddle2", "RightHand", "RightArm"];;
+        var rightPosition = getValidJointPosition(validRightJoints);
 
-        if (!(leftHandPosition && rightHandPosition)) {
-            return MyAvatar.position;
-        }
-
-        var centerPosition = Vec3.sum(leftHandPosition, rightHandPosition);
+        var centerPosition = Vec3.sum(leftPosition, rightPosition);
         centerPosition = Vec3.multiply(centerPosition, HALF);
 
         return centerPosition;
@@ -253,7 +257,7 @@
                 var color = linearScaleColor(currentIntensity, intensityEntityColorMin, intensityEntityColorMax);
 
                 var propsToUpdate = {
-                    position: halfwayBetweenHands()
+                    position: getAppreciationPosition()
                 };
 
                 var currentDimensions = Vec3.multiply(INTENSITY_ENTITY_MAX_DIMENSIONS, currentIntensity);
@@ -278,7 +282,7 @@
                 Entities.editEntity(intensityEntity, propsToUpdate);
             } else {
                 var props = INTENSITY_ENTITY_PROPERTIES;
-                props.position = halfwayBetweenHands();
+                props.position = getAppreciationPosition();
 
                 currentInitialAngularVelocity.x =
                     randomFloat(INTENSITY_ENTITY_MIN_ANGULAR_VELOCITY.x, INTENSITY_ENTITY_MAX_ANGULAR_VELOCITY.x);
@@ -436,7 +440,7 @@
         }
 
         var injectorOptions = {
-            position: halfwayBetweenHands(),
+            position: getAppreciationPosition(),
             volume: calculateInjectorVolume()
         };
 
@@ -463,7 +467,7 @@
         }
 
         soundInjector = Audio.playSound(sound, {
-            position: halfwayBetweenHands(),
+            position: getAppreciationPosition(),
             volume: calculateInjectorVolume(),
             pitch: randomFloat(MINIMUM_PITCH, MAXIMUM_PITCH)
         });
