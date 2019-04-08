@@ -6,7 +6,7 @@ Show someone else that you like what they're doing. Open the app to see usage in
 
 ## Releases
 
-### v1.5 | [93bf464](https://github.com/highfidelity/hifi-content/commit/93bf464)
+### v1.5 | [48d8247](https://github.com/highfidelity/hifi-content/commit/48d8247)
 
 - Fixed an issue where Appreciate app users wearing avatars without a specific joint wouldn't hear the Appreciate sound or see the Appreciation Dodecahedron
 
