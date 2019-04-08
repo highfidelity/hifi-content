@@ -10,7 +10,7 @@
 
 (function () {
     var _this;
-    var request = Script.require("../../modules/request.js").request;
+    var request = Script.require("https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js").request;
     var REQUEST_URL = Script.require("../../config/config.json").requestURL;
 
     var SquareZone = function() {
@@ -18,6 +18,7 @@
     };
 
     SquareZone.prototype = {
+        // Called when the script starts up. Pulls data from user data and does some error handling.
         preload: function (entityID) {
             _this.entityID = entityID;
             _this.squareType = false;
@@ -49,9 +50,11 @@
             }
         },
 
-        unload: function() {
-        },
 
+        // Called when a user enters the bounding box of the entity.
+        // 1. Does nothing if the user isn't on the username whitelist
+        // 2. Sends a status update to the backend depending on which 
+        //     Mat Square Zone the user stepped into.
         enterEntity: function(entityID) {
             if (_this.usernameWhitelist.length === 0) {
                 return;
@@ -63,7 +66,7 @@
                 return;
             }
 
-            var queryParamString = "type=heartbeat";
+            var queryParamString = "type=updateEmployee";
             queryParamString += "&username=" + myUsername;
             queryParamString += "&displayName=" + MyAvatar.displayName;
             queryParamString += "&status=";
@@ -103,10 +106,6 @@
                     return;
                 }
             });
-        },
-
-        leaveEntity: function(entityID) {
-
         }
     };
 
