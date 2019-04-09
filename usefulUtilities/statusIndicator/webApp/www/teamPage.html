@@ -5,36 +5,61 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700|Cairo" rel="stylesheet">
-    <style>
-        tr {
-            font-size: 20px;
-            background-color: #111;
-            color: #fff;
-        }
-        td {
-            border: none;
-            padding: 5px;
-            border-width: 10px 0;
-            border-color: #fff;
-            border-style: solid;
-        }
-        table {
-            width: 500px;
-            border-collapse: collapse;
-            border-top: 10px;
-        }
-        .content {
-            padding: 10vh 10vw 10vh 10vw;
-        }
-    </style>
+    <link href="./css/index.css" rel="stylesheet">
     <script>
         function getEmployeeData() {
             var urlParams = getUrlVars();
             if (urlParams.teamName) {
                 fetch(`http://localhost:3305/?type=getTeamEmployees&teamName=${urlParams.teamName}`)
-                    .then(function(response) { return response.text() })
+                    .then(function(response) { return response.json() })
                     .then(function(data) {
-                        document.getElementById("team").innerHTML = data;
+                        var generatedContainerDiv = document.createElement("div");
+
+                        for (var i = 0; i < data.teams.length; i++) {
+                            var teamContainer = document.createElement("div");
+
+                            var h2 = document.createElement("h2");
+                            h2.innerHTML = data.teams[i].name;
+                            teamContainer.appendChild(h2);
+
+                            var teamTable = document.createElement("table");
+                            
+                            var tbody = document.createElement('tbody');
+                            var tr = document.createElement('tr');
+                            var th = document.createElement('th');
+                            th.appendChild(document.createTextNode("Display Name"));
+                            tr.appendChild(th);
+                            th = document.createElement('th');
+                            th.appendChild(document.createTextNode("Status"));
+                            tr.appendChild(th);
+                            th = document.createElement('th');
+                            th.appendChild(document.createTextNode("Location"));
+                            tr.appendChild(th);
+                            tbody.appendChild(tr);
+                            for (var j = 0; j < data.teams[i].members.length; j++) {
+                                tr = document.createElement('tr');
+
+                                var td = document.createElement('td');
+                                td.appendChild(document.createTextNode(data.teams[i].members[j].displayName));
+                                tr.appendChild(td);
+
+                                td = document.createElement('td');
+                                td.appendChild(document.createTextNode(data.teams[i].members[j].status));
+                                tr.appendChild(td);
+
+                                td = document.createElement('td');
+                                td.appendChild(document.createTextNode(data.teams[i].members[j].location));
+                                tr.appendChild(td);
+
+                                tbody.appendChild(tr);
+                            }
+                            teamTable.appendChild(tbody);
+                            teamContainer.appendChild(teamTable);
+
+                            generatedContainerDiv.appendChild(teamContainer);
+                        }
+
+                        document.getElementById("content").innerHTML = generatedContainerDiv.innerHTML;
                         setTimeout(getEmployeeData, 10000);
                     })
                     .catch(function(error){ console.error(error) })
@@ -57,10 +82,8 @@
 </head>
 
 <body>
-    <div class="content">
-        <div id="team">
-            <h1>Loading data...</h1>
-        </div>
+    <div id="content">
+        <h1>Loading Data...</h1>
     </div>
 </body>
 

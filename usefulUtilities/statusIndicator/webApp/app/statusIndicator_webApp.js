@@ -174,6 +174,25 @@ function updateEmployee(updates, response) {
 }
 
 
+function formatMemberData(singleResultObject) {
+    var location;
+    if (singleResultObject.status === "busy") {
+        location = "hidden";
+    } else {
+        location = singleResultObject.location || "unknown";
+    }
+
+    var displayName = singleResultObject.displayName;
+    var status = singleResultObject.status;
+
+    return {
+        "displayName": displayName,
+        "status": status,
+        "location": location
+    };
+}
+
+
 // Get all employees
 // Return tables organized by Team names with all employee information
 function getAllEmployees(response) {
@@ -192,43 +211,35 @@ function getAllEmployees(response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        var teamName = "";
-        var responseHTML = "";
+        var responseObject = {
+            "status": "success",
+            "teams": []
+        };
 
-        if (results.length === 0) {
-            responseHTML = `<h2>There are no employees!</h2>`;
-        }
-
+        var currentTeamObject = {};
+        var currentTeamName = false;
         for (var i = 0; i < results.length; i++) {
-            if (teamName !== results[i].teamName) {
-                // different team name
+            if (currentTeamName !== results[i].teamName) {
+                currentTeamName = results[i].teamName;
+
                 if (i > 0) {
-                    // if not the first entry, close the last team
-                    responseHTML += `</table></div>`;
+                    responseObject.teams.push(currentTeamObject);
                 }
-                teamName = results[i].teamName;
-                responseHTML += `<div class="team"><h2>${results[i].teamName}</h2><table>`;
+
+                currentTeamObject = {
+                    "name": currentTeamName,
+                    "members": []
+                };
             }
 
-            var location = results[i].location || "unknown";
-
-            if (results[i].status === "busy") {
-                location = "Hidden";
-            }
-
-            responseHTML += `
-<tr>
-    <td width="40%">${results[i].displayName}</td>
-    <td width="40%">${results[i].status}</td>
-    <td width="20%">${location}</td>
-</tr>
-            `;
+            currentTeamObject.members.push(formatMemberData(results[i]));
         }
-        responseHTML += `</table></div>`;
+        // Push the last one.
+        responseObject.teams.push(currentTeamObject);
 
         response.statusCode = 200;
-        response.setHeader('Content-Type', 'text/html');
-        return response.end(responseHTML);
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
     });
 }
 
@@ -248,40 +259,26 @@ function getTeamEmployees(teamName, response) {
             response.statusCode = 500;
             response.setHeader('Content-Type', 'application/json');
             return response.end(JSON.stringify(responseObject));
-        }
+        }        
 
-        var responseHTML = "";
-
-        if (results.length === 0) {
-            // no employees
-            responseHTML = `<h2>There are no employees for ${teamName}!</h2>`;
-        }
-
+        var responseObject = {
+            "status": "success",
+            "teams": []
+        };
+        var currentTeamObject = {
+            "name": teamName,
+            "members": []
+        };
+        
         for (var i = 0; i < results.length; i++) {
-            if (i === 0) {
-                // first entry
-                var responseHTML = `<div><h1>${teamName}</h1><table>`;
-            }
-
-            var location = results[i].location ? results[i].location : "unknown";
-
-            if (results[i].status === "busy") {
-                location = "Hidden";
-            }
-
-            responseHTML += `
-<tr>
-    <td width="40%">${results[i].displayName}</td>
-    <td width="40%">${results[i].status}</td>
-    <td width="20%">${location}</td>
-</tr>
-            `;
+            currentTeamObject.members.push(formatMemberData(results[i]));
         }
-        responseHTML += `</table></div>`;
+
+        responseObject.teams.push(currentTeamObject);
 
         response.statusCode = 200;
-        response.setHeader('Content-Type', 'text/html');
-        return response.end(responseHTML);
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
     });
 }
 
