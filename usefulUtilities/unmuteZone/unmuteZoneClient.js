@@ -1,9 +1,6 @@
 //
 //  unmuteZoneClient.js
 //
-//  Add this script to a zone entity as a client script.
-//  Users that enter the zone will be unmuted.
-//
 //  Created by Robin Wilson on 2019-04-08
 //  Copyright 2019 High Fidelity, Inc.
 //
@@ -24,36 +21,41 @@
     }
 
 
-    var previousMuteSetting,
-        usePreviousMuteSetting,
-        isConnected;
+    var previousMuteSetting = false,
+        usePreviousMuteSetting = true,
+        isMutedSignalConnected = false;
     UnmuteZoneClient.prototype = {
         preload: function(id) {
             
         },
         enterEntity: function() {
+            // save previous muted setting
             previousMuteSetting = Audio.muted;
             Audio.muted = false;
             
             usePreviousMuteSetting = true;
+
             Audio.mutedChanged.connect(onMuteSettingChanged);
-            isConnected = true;
+            isMutedSignalConnected = true;
         },
         leaveEntity: function() {
             if (usePreviousMuteSetting) {
+                // did not change muted status while inside the zone
+                // apply previous setting
                 Audio.muted = previousMuteSetting;
             }
-            if (isConnected) {
+
+            if (isMutedSignalConnected) {
                 // only disconnect once
                 Audio.mutedChanged.disconnect(onMuteSettingChanged);
-                isConnected = false;
+                isMutedSignalConnected = false;
             }
         },
         unload: function() {
-            if (isConnected) {
+            if (isMutedSignalConnected) {
                 // only disconnect once
                 Audio.mutedChanged.disconnect(onMuteSettingChanged);
-                isConnected = false;
+                isMutedSignalConnected = false;
             }
         }
     };
