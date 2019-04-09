@@ -26,7 +26,7 @@
         isMutedSignalConnected = false;
     UnmuteZoneClient.prototype = {
         preload: function(id) {
-            
+            // blank
         },
         enterEntity: function() {
             // save previous muted setting
