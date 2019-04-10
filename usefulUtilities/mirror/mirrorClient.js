@@ -21,9 +21,8 @@
     /* globals utils, Render */
     var _this = this;
     var MAX_MIRROR_RESOLUTION_SIDE_PX = 960;        // The max pixel resolution of the long side of the mirror
-    var ZERO_ROT = { w: 1, x: 0, y: 0, z: 0 };   // Constant quaternion for a rotation of 0
     var FAR_CLIP_DISTANCE = 16;     // The far clip distance for the spectator camera when the mirror is on
-    var mirrorLocalEntityID;            // The entity ID of the local entity that displays the mirror reflection
+    var mirrorLocalEntityID = false;            // The entity ID of the local entity that displays the mirror reflection
     var mirrorLocalEntityRunning;       // True if mirror local entity is reflecting, false otherwise
     var mirrorLocalEntityOffset = 0.01; // The distance between the center of the mirror and the mirror local entity
     var spectatorCameraConfig = Render.getConfig("SecondaryCamera");    // Render configuration for the spectator camera
@@ -35,7 +34,7 @@
     // LOCAL FUNCTIONS    
     function isPositionInsideBox(position, boxProperties) {
         var localPosition = Vec3.multiplyQbyV(Quat.inverse(boxProperties.rotation), 
-                                              Vec3.subtract(MyAvatar.position, boxProperties.position));
+                                              Vec3.subtract(position, boxProperties.position));
         var halfDimensions = Vec3.multiply(boxProperties.dimensions, 0.5);
         return -halfDimensions.x <= localPosition.x &&
                 halfDimensions.x >= localPosition.x &&
@@ -48,6 +47,10 @@
     // When x or y dimensions of the mirror change - reset the resolution of the 
     // spectator camera and edit the mirror local entity to adjust for the new dimensions
     function updateMirrorDimensions(forceUpdate) {
+        if (!mirrorLocalEntityID) {
+            return;
+        }
+
         if (mirrorLocalEntityRunning) {
             var newDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
 
@@ -56,8 +59,8 @@
                 spectatorCameraConfig.resetSizeSpectatorCamera(mirrorResolution.x, mirrorResolution.y);
                 Entities.editEntity(mirrorLocalEntityID, {
                     dimensions: {
-                        x: -(newDimensions.y > newDimensions.x ? newDimensions.y : newDimensions.x),
-                        y: -(newDimensions.y > newDimensions.x ? newDimensions.y : newDimensions.x),
+                        x: (Math.max(newDimensions.x, newDimensions.y)),
+                        y: (Math.max(newDimensions.x, newDimensions.y)),
                         z: 0
                     }
                 });
@@ -68,9 +71,13 @@
 
     // Takes in an mirror scaler number which is used for the index of "halfDimSigns" that is needed to adjust the mirror 
     // local entity's position. Deletes and re-adds the mirror local entity so the url and position is updated.
-    function updateMirrorLocalEntity() {
-        if (mirrorLocalEntityRunning) {            
+    function createMirrorLocalEntity() {
+        if (mirrorLocalEntityID) {
             Entities.deleteEntity(mirrorLocalEntityID);
+            mirrorLocalEntityID = false;
+        }
+
+        if (mirrorLocalEntityRunning) {            
             mirrorLocalEntityID = Entities.addEntity({
                 type: "Image",
                 name: "mirrorLocalEntity",
@@ -78,7 +85,6 @@
                 emissive: true,
                 parentID: _this.entityID,
                 alpha: 1,
-                localRotation: ZERO_ROT,
                 localPosition: { 
                     x: 0,
                     y: 0,
@@ -107,9 +113,9 @@
         return resolution;
     };
     
-    // Sets up spectator camera to render the mirror, calls 'updateMirrorLocalEntity' once to set up
+    // Sets up spectator camera to render the mirror, calls 'createMirrorLocalEntity' once to set up
     // mirror local entity, then starts 'updateInterval' to update mirror based on dimension changes
-    _this.mirrorLocalEntityOn = function(onPreload) {
+    _this.mirrorLocalEntityOn = function() {
         if (!mirrorLocalEntityRunning) {
             if (!spectatorCameraConfig.attachedEntityId) {
                 mirrorLocalEntityRunning = true;
@@ -122,7 +128,7 @@
                 var initialResolution = calculateMirrorResolution(mirrorEntityDimensions);
                 spectatorCameraConfig.resetSizeSpectatorCamera(initialResolution.x, initialResolution.y);
                 spectatorCameraConfig.enableSecondaryCameraRenderConfigs(true);
-                updateMirrorLocalEntity();
+                createMirrorLocalEntity();
                 updateInterval = Script.setInterval(updateMirrorDimensions, UPDATE_INTERVAL_MS);
             } else {
                 print("Cannot turn on mirror if spectator camera is already in use");
@@ -145,7 +151,10 @@
             spectatorCameraConfig.attachedEntityId = null;
             spectatorCameraConfig.farClipPlaneDistance = previousFarClipDistance;
             Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
-            Entities.deleteEntity(mirrorLocalEntityID);
+            if (mirrorLocalEntityID) {
+                Entities.deleteEntity(mirrorLocalEntityID);
+                mirrorLocalEntityID = false;
+            }
             _this.maybeStopUpdateInterval();
             mirrorLocalEntityRunning = false;
         }
@@ -164,7 +173,7 @@
                 rotation: childZero.rotation, 
                 dimensions: childZero.dimensions
             })) {
-            _this.mirrorLocalEntityOn(true);
+            _this.mirrorLocalEntityOn();
         }
     };
     
