@@ -52,5 +52,5 @@ You're done! If you step on any of your new Office Mat Squares, your status will
 
 # Release Notes
 
-## v1.0 | [commit 3acba72](https://github.com/highfidelity/hifi-content/commits/3acba72)
+## v1.0 | [commit c326fcc](https://github.com/highfidelity/hifi-content/commits/c326fcc)
 - Initial Release
