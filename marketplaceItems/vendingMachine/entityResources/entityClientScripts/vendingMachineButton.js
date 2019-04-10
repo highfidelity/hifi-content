@@ -63,6 +63,7 @@
 
     // If this script is attached to an image entity, update the image URL of that entity
     // to the thumbnail associated with the relevant marketplace item
+    var AFTER_UNLOCK_TIMEOUT_MS = 600;
     function updateImageEntity() {        
         if (!that.marketplaceID) {
             return;
@@ -70,12 +71,19 @@
 
         var props = Entities.getEntityProperties(that.entityID, ["type"]);
         if (props.type === "Image") {
-            var imageURL = "https://hifi-metaverse.s3-us-west-1.amazonaws.com/marketplace/previews/" +
-                that.marketplaceID + "/large/hifi-mp-" + that.marketplaceID + ".jpg";
             Entities.editEntity(that.entityID, {
-                "imageURL": imageURL,
-                emissive: true
+                "locked": false
             });
+
+            Script.setTimeout(function() {
+                var imageURL = "https://hifi-metaverse.s3-us-west-1.amazonaws.com/marketplace/previews/" +
+                    that.marketplaceID + "/large/hifi-mp-" + that.marketplaceID + ".jpg";
+                Entities.editEntity(that.entityID, {
+                    "imageURL": imageURL,
+                    "emissive": true,
+                    "locked": true
+                });
+            }, AFTER_UNLOCK_TIMEOUT_MS);
         }
     }
     
