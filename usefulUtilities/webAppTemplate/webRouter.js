@@ -12,9 +12,22 @@ const connectionConfig = {
     database: dbConfig.databaseName,
 } 
 
+
+// Use this if you need to handle a preflight request, if not, you can remove
+router.all("*", (req,res, next) => {
+    if (req.method === "OPTIONS") {
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+        res.statusCode = 200;
+        return res.end();
+    }
+    next();
+})
+
+
 // Adding vars for the below examples
-var TABLE_NAME = "TABLE_NAME"
-var PATH = "/path/";
+const TABLE_NAME = "TABLE_NAME"
+const PATH = "/path/";
 
 router.get("/", (req, res) => {
     res.send("TEST")
@@ -154,8 +167,6 @@ router.put(`${PATH}:id`, (req, res) => {
         }))
 })
 
-
-// Options
 
 module.exports = router;
 

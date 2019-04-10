@@ -16,13 +16,6 @@ app.use(bodyParser.json());
 // Handle CORS
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    if (req.method === "OPTIONS") {
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
-        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-        res.statusCode = 200;
-        return res.end();
-    }
-
     res.header('Access-Control-Allow-Origin', '*');
     next();
 });
