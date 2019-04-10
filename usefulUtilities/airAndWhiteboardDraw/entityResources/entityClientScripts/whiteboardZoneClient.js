@@ -67,7 +67,6 @@
 
         /* Create black paint sphere on user's hand */
         enterEntity: function() {
-            print("ENTER");
             var paletteSquares = [];
             Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
                 var name = Entities.getEntityProperties(whiteboardPiece, 'name').name;
@@ -77,13 +76,11 @@
             });
             var numberPaletteSquares = paletteSquares.length;
             var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);
-            print("CALLING MOUSE PRESS ON ", paletteSquares[randomPaletteSquareIndex]);
             Entities.callEntityMethod(paletteSquares[randomPaletteSquareIndex],'createPaintSphere');
         },
 
         /* when clicked or triggered, calculate position of avatar's hand and create a paint sphere */
         leaveEntity: function( entityID, event ) {
-            print("LEAVE");
             _this.removePaintSpheres();
         },
 

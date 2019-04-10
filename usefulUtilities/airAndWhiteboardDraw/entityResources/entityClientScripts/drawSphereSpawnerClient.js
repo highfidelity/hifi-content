@@ -83,7 +83,7 @@
                 parentID: MyAvatar.sessionUUID,
                 parentJointIndex: parentJointIndex,
                 localPosition: { x: 0, y: 0, z: 0 },
-                localRotation: Quat.fromVec3Degrees({x: 0, y: 0, z: 0 }),
+                localRotation: {"x":-0.7694056630134583,"y":0.20292973518371582,"z":0.06913864612579346,"w":-0.6017395257949829},
                 localDimensions: { x: 0.015, y: 0.015, z: 0.015 },
                 script: Script.resolvePath("drawSphereClient.js?" + Date.now()),
                 grab: { grabbable: false },
@@ -112,8 +112,6 @@
 
         /* when clicked or triggered, calculate position of avatar's hand and create a paint sphere */
         mousePressOnEntity: function( entityID, event ) {
-            print("EVENT: ", JSON.stringify(event));
-            print("MOUSE PRESS");
             if (event.isLeftButton) {
                 _this.removePaintSpheres();
                 _this.createPaintSphere();
