@@ -35,7 +35,9 @@
 
             if (userData) {
                 if (userData.usernameWhitelist && userData.usernameWhitelist.length > 0) {
-                    _this.usernameWhitelist = userData.usernameWhitelist;
+                    for (var i = 0; i < userData.usernameWhitelist.length; i++) {
+                        _this.usernameWhitelist.push(userData.usernameWhitelist[i].toLowerCase());
+                    }
                 } else {
                     console.log("Please specify `usernameWhitelist` inside this entity's `userData`!");
                     return;
@@ -62,7 +64,7 @@
 
             var myUsername = AccountServices.username;
 
-            if (_this.usernameWhitelist.indexOf(myUsername) === -1) {
+            if (_this.usernameWhitelist.indexOf(myUsername.toLowerCase()) === -1) {
                 return;
             }
 
