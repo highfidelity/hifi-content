@@ -4,6 +4,10 @@ Open the app to view usage instructions and some app options, including an optio
 
 **Changelog:**
 
+v1.5 (2019-04)
+
+- Fixed an issue where Appreciate app users wearing avatars without a specific joint wouldn't hear the Appreciate sound or see the Appreciation Dodecahedron
+
 v1.4 (2019-03)
 
 - Fixed an issue where a user could press the "Z" key to appreciate while the Appreciate UI was focused even if the Appreciate switch was turned off

@@ -11,7 +11,7 @@
 var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
-var DEBUG = true;
+var DEBUG = false;
 
 // Returns the user's current status from the DB
 function getStatus(queryParamObject, response) {
@@ -42,8 +42,8 @@ function getStatus(queryParamObject, response) {
             return response.end(JSON.stringify(responseObject));
         }
 
-        // Default status is "available"
-        var userStatus = "available";
+        // Default status is "Offline"
+        var userStatus = "offline";
 
         if (results.length > 0) {
             userStatus = results[0].status;
@@ -102,7 +102,7 @@ function startHeartbeatTimer(username, response) {
         updateEmployee({
             username: username,
             status: "offline",
-            location: "offline"
+            location: "unknown"
         }, response);
     }, HEARTBEAT_INTERVAL_MS);
     return heartbeatTimer;
@@ -210,10 +210,10 @@ function getAllEmployees(response) {
                 responseHTML += `<div class="team"><h2>${results[i].teamName}</h2><table>`;
             }
 
-            var location = results[i].location ? results[i].location : "Unknown";
+            var location = results[i].location || "unknown";
 
             if (results[i].status === "busy") {
-                location = "** busy **";
+                location = "Hidden";
             }
 
             responseHTML += `
@@ -263,10 +263,10 @@ function getTeamEmployees(teamName, response) {
                 var responseHTML = `<div><h1>${teamName}</h1><table>`;
             }
 
-            var location = results[i].location ? results[i].location : "Unknown";
+            var location = results[i].location ? results[i].location : "unknown";
 
             if (results[i].status === "busy") {
-                location = "** busy **";
+                location = "Hidden";
             }
 
             responseHTML += `
@@ -374,9 +374,9 @@ function maybeCreateNewTables(response) {
     var query = `CREATE TABLE IF NOT EXISTS \`statusIndicator\` (
         username VARCHAR(100) PRIMARY KEY,
         displayName VARCHAR(100),
-        status VARCHAR(150),
+        status VARCHAR(150) DEFAULT 'busy',
         teamName VARCHAR(100) DEFAULT 'TBD',
-        location VARCHAR(100)
+        location VARCHAR(100) DEFAULT 'unknown'
     )`;
     connection.query(query, function (error, results, fields) {
         if (error) {

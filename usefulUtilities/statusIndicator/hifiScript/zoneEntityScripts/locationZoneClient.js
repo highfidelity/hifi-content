@@ -8,7 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    var request = Script.require('request').request,
+    var request = Script.require(Script.resolvePath('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js')).request,
         REQUEST_URL = "http://localhost:3305/",
         DEBUG = false;
 
@@ -34,7 +34,7 @@
             } else {
                 // successfully sent updateEmployee
                 if (DEBUG) {
-                    console.log("Entered statusIndicatorZone called: " + newLocation);
+                    console.log("Sent request successfully and entered statusIndicatorZone called: " + newLocation);
                 }
             }
         });
@@ -125,10 +125,16 @@
         },
         enterEntity: function () {
             setZoneName();
+            if (DEBUG) {
+                console.log(AccountServices.username + " entered the zone " + zoneName);
+            }
             setUserLocation(zoneName);
         },
         leaveEntity: function () {
-            setUserLocation("Unknown");
+            if (DEBUG) {
+                console.log("Left statusIndicatorZone called: " + newLocation);
+            }
+            setUserLocation("unknown");
         },
         unload: function() {
             // blank

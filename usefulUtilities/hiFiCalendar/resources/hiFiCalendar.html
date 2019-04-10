@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Google Calendar API Quickstart</title>
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <p>Google Calendar API Quickstart</p>
+
+  <!--Add buttons to initiate auth sequence and sign out-->
+  <button id="authorize_button" style="display: none;">Authorize</button>
+  <button id="signout_button" style="display: none;">Sign Out</button>
+
+  <pre id="content" style="white-space: pre-wrap;"></pre>
+
+  <script type="text/javascript">
+    // Client ID and API key from the Developer Console
+    var CLIENT_ID = '';
+    var CLIENT_SECRET = '';
+    var API_KEY = '';
+
+
+
+    // Array of API discovery doc URLs for APIs used by the quickstart
+    var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+
+    // Authorization scopes required by the API; multiple scopes can be
+    // included, separated by spaces.
+    var SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+
+    var authorizeButton = document.getElementById('authorize_button');
+    var signoutButton = document.getElementById('signout_button');
+
+
+    /**
+     *  On load, called to load the auth2 library and API client library.
+     */
+    function handleClientLoad() {
+      gapi.load('client:auth2', initClient);
+    }
+
+
+    /**
+     *  Initializes the API client library and sets up sign-in state
+     *  listeners.
+     */
+    function initClient() {
+      gapi.client.init({
+        apiKey: API_KEY,
+        clientId: CLIENT_ID,
+        discoveryDocs: DISCOVERY_DOCS,
+        scope: SCOPES
+      }).then(function () {
+        // Listen for sign-in state changes.
+        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+        // Handle the initial sign-in state.
+        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        authorizeButton.onclick = handleAuthClick;
+        signoutButton.onclick = handleSignoutClick;
+      }, function (error) {
+        appendPre(JSON.stringify(error, null, 2));
+      });
+    }
+
+
+    /**
+     *  Called when the signed in status changes, to update the UI
+     *  appropriately. After a sign-in, the API is called.
+     */
+    function updateSigninStatus(isSignedIn) {
+      if (isSignedIn) {
+        authorizeButton.style.display = 'none';
+        signoutButton.style.display = 'block';
+        listUpcomingEvents();
+      } else {
+        authorizeButton.style.display = 'block';
+        signoutButton.style.display = 'none';
+      }
+    }
+
+
+    /**
+     *  Sign in the user upon button click.
+     */
+    function handleAuthClick(event) {
+      gapi.auth2.getAuthInstance().signIn();
+    }
+
+
+    /**
+     *  Sign out the user upon button click.
+     */
+    function handleSignoutClick(event) {
+      gapi.auth2.getAuthInstance().signOut();
+    }
+
+
+    /**
+     * Append a pre element to the body containing the given message
+     * as its text node. Used to display the results of the API call.
+     *
+     * @param {string} message Text to be placed in pre element.
+     */
+    function appendPre(message) {
+      var pre = document.getElementById('content');
+      var textContent = document.createTextNode(message + '\n');
+      pre.appendChild(textContent);
+    }
+
+
+    // Taken from https://stackoverflow.com/a/11318669
+    // Example date format: 2019-04-08T13:00:00-07:00
+    // This function takes the Google API version of dateTime objects 
+    // and converts it to a javascript date object
+    var googleDate = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}):(\d{2})$/;
+    var MINS_PER_HOUR = 60;
+    function googleDateToUTCDate(d) {
+      var m = googleDate.exec(d);
+      var year = +m[1];
+      var month = +m[2];
+      var day = +m[3];
+      var hour = +m[4];
+      var minute = +m[5];
+      var second = +m[6];
+      var msec = 0;
+      var tzHour = +m[7];
+      var tzMin = +m[8];
+      var tzOffset = new Date().getTimezoneOffset() + tzHour * MINS_PER_HOUR + tzMin;
+
+      return new Date(year, month - 1, day, hour, minute - tzOffset, second, msec);
+    };
+
+
+    /**
+     * Print the summary and start datetime/date of the next 4 events for today of
+     * the authorized user's calendar. If no events are found an
+     * appropriate message is printed.
+     */
+    var atlantisId = '';
+    var capitolId = '';
+    var fantasiaId = '';
+    var gothamId = '';
+    var jakkuId = '';
+    var narniaId = '';
+    var ozId = '';
+    var pandoraId = '';
+    var hifiCalendars = [{
+      "id": atlantisId
+    }, {
+      "id": capitolId
+    }, {
+      "id": fantasiaId
+    }, {
+      "id": gothamId
+    }, {
+      "id": jakkuId
+    }, {
+      "id": narniaId
+    }, {
+      "id": ozId
+    }, {
+      "id": pandoraId
+    }];
+    function listUpcomingEvents() {
+      hifiCalendars.forEach(function (cal) {
+        var calendar = {};
+        if (cal.id === atlantisId) {
+          calendar.id = "ATLANTIS"
+        } else if (cal.id === capitolId) {
+          calendar.id = "CAPITOL"
+        } else if (cal.id === fantasiaId) {
+          calendar.id = "FANTASIA"
+        } else if (cal.id === gothamId) {
+          calendar.id = "GOTHAM"
+        } else if (cal.id === jakkuId) {
+          calendar.id = "JAKKU"
+        } else if (cal.id === narniaId) {
+          calendar.id = "NARNIA"
+        } else if (cal.id === ozId) {
+          calendar.id = "OZ"
+        } else if (cal.id === pandoraId) {
+          calendar.id = "PANDORA"
+        }
+        var tomorrowMidnight = new Date();
+        tomorrowMidnight.setHours(24, 0, 0, 0);
+        gapi.client.calendar.events.list({
+          'calendarId': cal.id,
+          'timeMin': (new Date()).toISOString(),
+          'timeMax': tomorrowMidnight.toISOString(),
+          'showDeleted': false,
+          'singleEvents': true,
+          'maxResults': 4,
+          'orderBy': 'startTime'
+        }).then(function (response) {
+          var events = response.result.items;
+          appendPre('Upcoming events:');
+          if (events.length > 0) {
+            for (i = 0; i < events.length; i++) {
+              var event = events[i];
+              var start = event.start.dateTime;
+              appendPre(JSON.stringify(event.start))
+              var end = event.end.dateTime;
+              var summary = event.summary;
+              if (!start) {
+                start = event.start.date;
+              }
+              appendPre(summary + ' (' + start + ')' + ' (' + end + ')');
+
+              var startTimestamp = googleDateToUTCDate(start);
+              var endTimestamp = googleDateToUTCDate(end);
+
+              var formattedStartTimeString =
+                startTimestamp.toLocaleTimeString('en-us', {
+                  timeZone: "America/Los_Angeles",
+                  hour12: true
+                });
+              var formattedEndTimeString =
+                endTimestamp.toLocaleTimeString('en-us', {
+                  timeZone: "America/Los_Angeles",
+                  hour12: true
+                });
+
+              EventBridge.emitWebEvent(JSON.stringify({
+                type: "SEND_SCHEDULE",
+                room: calendar.id,
+                summary: summary,
+                startTimestamp: startTimestamp.valueOf(),
+                formattedStartTimeString: formattedStartTimeString,
+                endTimestamp: endTimestamp.valueOf(),
+                formattedEndTimeString: formattedEndTimeString
+              }));
+            }
+          } else {
+            appendPre('No upcoming events found.');
+            EventBridge.emitWebEvent(JSON.stringify({
+              type: "SEND_SCHEDULE",
+              room: calendar.id
+            }));
+          }
+        });
+      });
+    }
+
+
+    // This function receives and attempts to parse data from 
+    // High Fidelity scripts.
+    function onScriptEventReceived(data) {
+      var data = JSON.parse(data);
+      switch (data.type) {
+        case "UPDATE_SCHEDULE":
+          listUpcomingEvents();
+          break;
+      }
+    }
+
+
+    // This function sets up the communication channel between
+    // this HTML and High Fidelity scripts that message it.
+    var EVENT_BRIDGE_SETUP_DELAY = 100;
+    function onLoad() {
+      setTimeout(() => {
+        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+        EventBridge.emitWebEvent(JSON.stringify({
+          type: "EVENT_BRIDGE_OPEN_MESSAGE"
+        }));
+      }, EVENT_BRIDGE_SETUP_DELAY);
+    }
+    onLoad();
+  </script>
+
+  <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()"
+    onreadystatechange="if (this.readyState === 'complete') this.onload()">
+  </script>
+</body>
+
+</html>
