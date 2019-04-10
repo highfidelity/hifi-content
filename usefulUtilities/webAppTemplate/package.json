@@ -1,8 +1,8 @@
 {
-  "name": "kayla camera",
+  "name": "hifi-content-web-express-app",
   "version": "1.0.0",
-  "description": "Web server for kayla camera to save settings",
-  "main": "kaylaCamServer.js",
+  "description": "example hifi web server template",
+  "main": "webServer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
