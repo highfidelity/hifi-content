@@ -47,4 +47,4 @@ Examples of how to use it are included for get/post/delete methods.
 
 # Change Log
 
-## V1.0 | Initial Version | 870ae2b
+## V1.0 | Initial Version | 22f83a8
