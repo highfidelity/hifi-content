@@ -145,7 +145,7 @@ router.put(`${PATH}:id`, (req, res) => {
             console.log("e", e)
             let responseObject = {
                 status: "error",
-                text: "Error Deleting"
+                text: "Error Updating"
             };
 
             res.statusCode = 500;
