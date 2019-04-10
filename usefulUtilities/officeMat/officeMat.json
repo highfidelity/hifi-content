@@ -1,0 +1,994 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{8edfe6bb-cebc-4a08-939c-1302a1ae49c2}",
+    "type": "Text",
+    "lastEdited": 1554411898485151,
+    "parentID": "{b463cc7d-c15b-4c29-b1d6-a5b34af9cd81}",
+    "name": "Office Mat Square Text - Grey",
+    "position": {
+        "x": 0.5,
+        "y": 0.10000000149011612,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.6499999761581421,
+        "y": 0.30000001192092896,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.2723582983016968,
+        "y": 0.6530404090881348,
+        "z": 0.2700694799423218,
+        "w": 0.6530098915100098
+    },
+    "created": 1554411466926356,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -194.67648315429688,
+        "y": 914.7174072265625,
+        "z": 64.47551727294922,
+        "scale": 0.7159608602523804
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "text": "Use Create to replace this text with a custom status message.",
+    "lineHeight": 0.05999999865889549,
+    "leftMargin": 0.029999999329447746,
+    "rightMargin": 0.029999999329447746,
+    "topMargin": 0.029999999329447746,
+    "bottomMargin": 0.029999999329447746,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{22979c2c-b865-4c72-995d-35734014a31f}",
+    "type": "Text",
+    "lastEdited": 1554411686328662,
+    "parentID": "{96ccafed-b3b7-4f02-8ce2-15a5f3adc372}",
+    "name": "Office Mat Square Text - Yellow",
+    "position": {
+        "x": 0.5,
+        "y": 0.10000000149011612,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.6499999761581421,
+        "y": 0.30000001192092896,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.2723582983016968,
+        "y": 0.6530404090881348,
+        "z": 0.2700694799423218,
+        "w": 0.6530098915100098
+    },
+    "created": 1554411466926580,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -194.67648315429688,
+        "y": 914.7174072265625,
+        "z": 66.47551727294922,
+        "scale": 0.7159608602523804
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "text": "Be right back!",
+    "lineHeight": 0.05999999865889549,
+    "leftMargin": 0.029999999329447746,
+    "rightMargin": 0.029999999329447746,
+    "topMargin": 0.029999999329447746,
+    "bottomMargin": 0.029999999329447746,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{1461c3d0-acf7-4c6e-b90b-29714c6d0330}",
+    "type": "Text",
+    "lastEdited": 1554411682408851,
+    "parentID": "{39ec2223-76c2-47cb-8270-5ec76d652ace}",
+    "name": "Office Mat Square Text - Green",
+    "position": {
+        "x": 0.5,
+        "y": 0.10000000149011612,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.6499999761581421,
+        "y": 0.30000001192092896,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.2723582983016968,
+        "y": 0.6530404090881348,
+        "z": 0.2700694799423218,
+        "w": 0.6530098915100098
+    },
+    "created": 1554411466926903,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -194.67648315429688,
+        "y": 914.71728515625,
+        "z": 65.47551727294922,
+        "scale": 0.7159608602523804
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "text": "I'm available!",
+    "lineHeight": 0.05999999865889549,
+    "leftMargin": 0.029999999329447746,
+    "rightMargin": 0.029999999329447746,
+    "topMargin": 0.029999999329447746,
+    "bottomMargin": 0.029999999329447746,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{4aa65f61-8a78-4cd3-b250-e6cbc8c45dbe}",
+    "type": "Text",
+    "lastEdited": 1554411514449679,
+    "parentID": "{42f63eae-76b0-49bd-a658-66d935693c54}",
+    "name": "Office Mat Label",
+    "position": {
+        "x": -1.4737999439239502,
+        "y": 0.20000000298023224,
+        "z": -0.04910000041127205
+    },
+    "dimensions": {
+        "x": 2.750999927520752,
+        "y": 0.30000001192092896,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": 0.0001068115234375,
+        "y": 0.7008926868438721,
+        "z": -0.0000762939453125,
+        "w": 0.7132219076156616
+    },
+    "created": 1554411466922218,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -198.2455596923828,
+        "y": 913.7523193359375,
+        "z": 64.89781188964844,
+        "scale": 2.767327308654785
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "text": "Office Mat",
+    "lineHeight": 0.23499999940395355,
+    "backgroundColor": {
+        "red": 209,
+        "green": 44,
+        "blue": 44
+    },
+    "backgroundAlpha": 0.949999988079071,
+    "leftMargin": 0.8399999737739563,
+    "topMargin": 0.03999999910593033,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{f5d9a305-78a5-436a-838e-ad57a9e99cfb}",
+    "type": "Zone",
+    "lastEdited": 1554411913486008,
+    "parentID": "{39ec2223-76c2-47cb-8270-5ec76d652ace}",
+    "name": "Office Mat Square Zone - Green",
+    "userData": "{\"usernameWhitelist\":[\"replaceMe\"],\"squareType\":\"green\"}",
+    "position": {
+        "x": 0,
+        "y": 1.5,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.75,
+        "y": 3,
+        "z": 0.75
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466923439,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -196.40939331054688,
+        "y": 914.88427734375,
+        "z": 64.24239349365234,
+        "scale": 3.1820068359375
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/officeMat/v1.0/entityScripts/zones/squareZone.js",
+    "shapeType": "box",
+    "keyLight": {
+        "direction": {
+            "x": 0,
+            "y": -0.7071067690849304,
+            "z": 0.7071067690849304
+        },
+        "castShadows": true
+    },
+    "haze": {
+        "hazeRange": 500,
+        "hazeColor": {
+            "red": 0,
+            "green": 255,
+            "blue": 0
+        },
+        "hazeAltitudeEffect": true,
+        "hazeCeiling": 550
+    },
+    "hazeMode": "enabled",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{4f6d3ddc-4bf8-403b-8ec4-7ffb14778953}",
+    "type": "Zone",
+    "lastEdited": 1554411867173522,
+    "parentID": "{098b8495-fb19-4b30-85be-68bfc5c0b30b}",
+    "name": "Office Mat Square Zone - Red",
+    "userData": "{\n    \"usernameWhitelist\": [\"replaceMe\"],\n    \"squareType\": \"red\"\n}",
+    "position": {
+        "x": -0.00009999999747378752,
+        "y": 1.5,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.75,
+        "y": 3,
+        "z": 0.75
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466923917,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -196.4095001220703,
+        "y": 914.88427734375,
+        "z": 66.24239349365234,
+        "scale": 3.1820068359375
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/officeMat/v1.0/entityScripts/zones/squareZone.js",
+    "shapeType": "box",
+    "keyLight": {
+        "direction": {
+            "x": 0,
+            "y": -0.7071067690849304,
+            "z": 0.7071067690849304
+        },
+        "castShadows": true
+    },
+    "haze": {
+        "hazeRange": 500,
+        "hazeColor": {
+            "red": 255,
+            "green": 0,
+            "blue": 0
+        },
+        "hazeAltitudeEffect": true,
+        "hazeCeiling": 550
+    },
+    "hazeMode": "enabled",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{39ec2223-76c2-47cb-8270-5ec76d652ace}",
+    "type": "Box",
+    "lastEdited": 1554411541873735,
+    "parentID": "{42f63eae-76b0-49bd-a658-66d935693c54}",
+    "name": "Office Mat Square - Green",
+    "position": {
+        "x": 0.5695877075195312,
+        "y": 0.0394287109375,
+        "z": -0.49717265367507935
+    },
+    "dimensions": {
+        "x": 0.75,
+        "y": 0.05000000074505806,
+        "z": 0.75
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466925645,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -196.40939331054688,
+        "y": 914.4443359375,
+        "z": 64.24239349365234,
+        "scale": 3.6219482421875
+    },
+    "grab": {
+        "grabbable": false,
+        "grabFollowsController": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "color": {
+        "red": 0,
+        "green": 255,
+        "blue": 0
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{f21da23b-5aaf-4adf-b283-5e1690991223}",
+    "type": "Zone",
+    "lastEdited": 1554411910640786,
+    "parentID": "{96ccafed-b3b7-4f02-8ce2-15a5f3adc372}",
+    "name": "Office Mat Square Zone - Yellow",
+    "userData": "{\"usernameWhitelist\":[\"replaceMe\"],\"squareType\":\"yellow\"}",
+    "position": {
+        "x": 0,
+        "y": 1.499899983406067,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.75,
+        "y": 3,
+        "z": 0.75
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466923248,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -196.40939331054688,
+        "y": 914.88427734375,
+        "z": 65.24239349365234,
+        "scale": 3.1820068359375
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/officeMat/v1.0/entityScripts/zones/squareZone.js",
+    "shapeType": "box",
+    "keyLight": {
+        "direction": {
+            "x": 0,
+            "y": -0.7071067690849304,
+            "z": 0.7071067690849304
+        },
+        "castShadows": true
+    },
+    "haze": {
+        "hazeRange": 500,
+        "hazeColor": {
+            "red": 255,
+            "green": 255,
+            "blue": 0
+        },
+        "hazeAltitudeEffect": true,
+        "hazeCeiling": 550
+    },
+    "hazeMode": "enabled",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{96ccafed-b3b7-4f02-8ce2-15a5f3adc372}",
+    "type": "Box",
+    "lastEdited": 1554411554858357,
+    "parentID": "{42f63eae-76b0-49bd-a658-66d935693c54}",
+    "name": "Office Mat Square - Yellow",
+    "position": {
+        "x": 0.5696182250976562,
+        "y": 0.03948974609375,
+        "z": 0.5028273463249207
+    },
+    "dimensions": {
+        "x": 0.75,
+        "y": 0.05000000074505806,
+        "z": 0.75
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466924768,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -196.40939331054688,
+        "y": 914.4444580078125,
+        "z": 65.24239349365234,
+        "scale": 3.621826171875
+    },
+    "grab": {
+        "grabbable": false,
+        "grabFollowsController": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "color": {
+        "red": 255,
+        "green": 255,
+        "blue": 0
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{098b8495-fb19-4b30-85be-68bfc5c0b30b}",
+    "type": "Box",
+    "lastEdited": 1554411537527153,
+    "parentID": "{42f63eae-76b0-49bd-a658-66d935693c54}",
+    "name": "Office Mat Square - Red",
+    "position": {
+        "x": 0.5696487426757812,
+        "y": 0.03936767578125,
+        "z": 1.5028274059295654
+    },
+    "dimensions": {
+        "x": 0.75,
+        "y": 0.05000000074505806,
+        "z": 0.75
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466923625,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -196.4095001220703,
+        "y": 914.4443359375,
+        "z": 66.24239349365234,
+        "scale": 3.6219482421875
+    },
+    "grab": {
+        "grabbable": false,
+        "grabFollowsController": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "color": {
+        "red": 255,
+        "green": 0,
+        "blue": 0
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{c8aaad4c-0213-489c-abb8-f381f04e639c}",
+    "type": "Text",
+    "lastEdited": 1554411688732791,
+    "parentID": "{098b8495-fb19-4b30-85be-68bfc5c0b30b}",
+    "name": "Office Mat Square Text - Red",
+    "position": {
+        "x": 0.5,
+        "y": 0.10000000149011612,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.6499999761581421,
+        "y": 0.30000001192092896,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.2723582983016968,
+        "y": 0.6530404090881348,
+        "z": 0.2700694799423218,
+        "w": 0.6530098915100098
+    },
+    "created": 1554411466924526,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -194.67648315429688,
+        "y": 914.71728515625,
+        "z": 67.47551727294922,
+        "scale": 0.7159608602523804
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "text": "My headphones are off & I am working. Ping me!",
+    "lineHeight": 0.05999999865889549,
+    "leftMargin": 0.029999999329447746,
+    "rightMargin": 0.029999999329447746,
+    "topMargin": 0.029999999329447746,
+    "bottomMargin": 0.029999999329447746,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{b463cc7d-c15b-4c29-b1d6-a5b34af9cd81}",
+    "type": "Box",
+    "lastEdited": 1554411559622471,
+    "parentID": "{42f63eae-76b0-49bd-a658-66d935693c54}",
+    "name": "Office Mat Square - Grey",
+    "position": {
+        "x": 0.5695571899414062,
+        "y": 0.03955078125,
+        "z": -1.4971725940704346
+    },
+    "dimensions": {
+        "x": 0.75,
+        "y": 0.05000000074505806,
+        "z": 0.75
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466922752,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -196.40939331054688,
+        "y": 914.4444580078125,
+        "z": 63.24238967895508,
+        "scale": 3.6219482421875
+    },
+    "grab": {
+        "grabbable": false,
+        "grabFollowsController": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "color": {
+        "red": 143,
+        "green": 143,
+        "blue": 143
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{d54d9ac8-fbd3-4448-aa12-1855d4b642b8}",
+    "type": "Zone",
+    "lastEdited": 1554411964872197,
+    "parentID": "{42f63eae-76b0-49bd-a658-66d935693c54}",
+    "name": "Office Mat Zone",
+    "position": {
+        "x": 0,
+        "y": 1.25,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 2.5,
+        "y": 2.5,
+        "z": 4.199999809265137
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466922491,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -198.133056640625,
+        "y": 913.44091796875,
+        "z": 63.585594177246094,
+        "scale": 5.489990711212158
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "shapeType": "box",
+    "keyLight": {
+        "direction": {
+            "x": 0.3535533845424652,
+            "y": -0.70710688829422,
+            "z": -0.6123723387718201
+        },
+        "castShadows": true
+    },
+    "ambientLight": {
+        "ambientURL": "https://hifi-content.s3.amazonaws.com/zfox/skyboxes/mirrors_edge_01.jpg"
+    },
+    "skybox": {
+        "color": {
+            "red": 255,
+            "green": 255,
+            "blue": 255
+        },
+        "url": "https://hifi-content.s3.amazonaws.com/zfox/skyboxes/mirrors_edge_01.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{155163ba-1ae4-4714-85af-e93f311e2753}",
+    "type": "Zone",
+    "lastEdited": 1554411949213760,
+    "parentID": "{b463cc7d-c15b-4c29-b1d6-a5b34af9cd81}",
+    "name": "Office Mat Square Zone - Grey",
+    "userData": "{\"usernameWhitelist\":[\"replaceMe\"],\"squareType\":\"grey\"}",
+    "position": {
+        "x": 0,
+        "y": 1.5,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.75,
+        "y": 3,
+        "z": 0.75
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466922999,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -196.40939331054688,
+        "y": 914.8843994140625,
+        "z": 63.24238967895508,
+        "scale": 3.1820068359375
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/officeMat/v1.0/entityScripts/zones/squareZone.js",
+    "scriptTimestamp": 1554411921144,
+    "shapeType": "box",
+    "keyLight": {
+        "direction": {
+            "x": 0,
+            "y": -0.7071067690849304,
+            "z": 0.7071067690849304
+        },
+        "castShadows": true
+    },
+    "haze": {
+        "hazeRange": 500,
+        "hazeColor": {
+            "red": 135,
+            "green": 135,
+            "blue": 135
+        },
+        "hazeAltitudeEffect": true,
+        "hazeCeiling": 550
+    },
+    "hazeMode": "enabled",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{42f63eae-76b0-49bd-a658-66d935693c54}",
+    "type": "Box",
+    "lastEdited": 1554411550045786,
+    "name": "Office Mat",
+    "dimensions": {
+        "x": 2.5082333087921143,
+        "y": 0.06040000170469284,
+        "z": 4.205220699310303
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1554411466921964,
+    "lastEditedBy": "{71746b1e-ce92-4a6b-b8cb-61974e57616f}",
+    "queryAACube": {
+        "x": -2.4484057426452637,
+        "y": -2.4484057426452637,
+        "z": -2.4484057426452637,
+        "scale": 4.896811485290527
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "color": {
+        "red": 194,
+        "green": 50,
+        "blue": 50
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{e7007a37-4189-40e5-9368-ec73e5d66bbb}",
+  "Version": 118
+}

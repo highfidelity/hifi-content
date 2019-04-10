@@ -1,0 +1,43 @@
+body {
+    padding: 6px;
+}
+
+h2 {
+    text-transform: capitalize;
+    margin: 16px 0 8px 0;
+}
+
+table,
+tbody {
+    max-height: 500px;
+}
+
+tr {
+    margin: 2px 0;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+tr:nth-child(odd) {
+    background-color: #fafafa;
+}
+
+td {
+    font-size: 20px;
+    margin: 0 4px;
+    padding: 4px 8px;
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    height: 100vh;
+}
+
+#content > div {
+    margin: 0 8px;
+}

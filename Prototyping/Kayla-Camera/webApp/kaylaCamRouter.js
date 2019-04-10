@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Database = require('./dbClass.js');
 const dbConfig = require("./dbInfo.json").config;
+const mysql = require('mysql');
 
 const connectionConfig = {
     host: dbConfig.mySQLHost,
@@ -49,7 +50,7 @@ router.get('/settings', (req, res) => {
 router.post('/settings', (req, res) => {
     let query = `
         INSERT INTO \`settings\` (config_name, settings)
-        VALUES ('${req.body.configName}', '${JSON.stringify(req.body)}')`
+        VALUES ('${mysql.escape(req.body.configName)}', '${mysql.escape(req.body)}')`
 
     Database.execute(connectionConfig, 
         database => database.query(query)
@@ -79,7 +80,7 @@ router.post('/settings', (req, res) => {
 router.delete('/settings/:config_name', (req, res) => {
     let config_name = req.params.config_name;
 
-    let query = `DELETE FROM \`settings\` WHERE config_name = '${config_name}'`;
+    let query = `DELETE FROM \`settings\` WHERE config_name = '${mysql.escape(config_name)}'`;
 
     Database.execute(connectionConfig, 
         database => database.query(query)

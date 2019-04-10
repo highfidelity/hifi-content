@@ -63,7 +63,9 @@
     "avatarEntity": false,
     "localEntity": false,
     "faceCamera": false,
-    "isFacingAvatar": false
+    "isFacingAvatar": false,
+    "userData": "{\"marketplaceID\":\"39ce1de8-f740-4fd4-aefd-021184707834\"}",
+    "locked": true
 },
     {
     "id": "{7a989fb7-25ce-401b-950f-a5f752a41aca}",
@@ -120,7 +122,9 @@
     "avatarEntity": false,
     "localEntity": false,
     "faceCamera": false,
-    "isFacingAvatar": false
+    "isFacingAvatar": false,
+    "userData": "{\"marketplaceID\":\"1456c6f8-525a-430b-9217-5d6b39a8a874\"}",
+    "locked": true
 },
     {
     "id": "{0645031c-5c3a-4796-9b88-5dc4e539ec1c}",
@@ -177,7 +181,9 @@
     "avatarEntity": false,
     "localEntity": false,
     "faceCamera": false,
-    "isFacingAvatar": false
+    "isFacingAvatar": false,
+    "userData": "{\"marketplaceID\":\"39ce1de8-f740-4fd4-aefd-021184707834\"}",
+    "locked": true
 },
     {
     "id": "{93f180be-1adc-4e99-a4e6-680094d2c59b}",
@@ -241,7 +247,9 @@
     "avatarEntity": false,
     "localEntity": false,
     "faceCamera": false,
-    "isFacingAvatar": false
+    "isFacingAvatar": false,
+    "userData": "{\"marketplaceID\":\"77f0eb70-beba-49df-9e26-da1740bf6c9a\"}",
+    "locked": true
 },
     {
     "id": "{9fdf1692-2494-44a2-b12d-26e7cd8f222a}",
@@ -305,7 +313,9 @@
     "avatarEntity": false,
     "localEntity": false,
     "faceCamera": false,
-    "isFacingAvatar": false
+    "isFacingAvatar": false,
+    "userData": "{\"marketplaceID\":\"658b506f-ff80-4f66-8dc3-578aa9bc1671\"}",
+    "locked": true
 },
     {
     "id": "{46fc2aa7-f88e-41b5-a1cc-d10d220477aa}",
@@ -369,7 +379,9 @@
     "avatarEntity": false,
     "localEntity": false,
     "faceCamera": false,
-    "isFacingAvatar": false
+    "isFacingAvatar": false,
+    "userData": "{\"marketplaceID\":\"1456c6f8-525a-430b-9217-5d6b39a8a874\"}",
+    "locked": true
 },
     {
     "id": "{6c26d25b-1509-449f-82d7-beea5fb5818f}",
@@ -426,7 +438,9 @@
     "avatarEntity": false,
     "localEntity": false,
     "faceCamera": false,
-    "isFacingAvatar": false
+    "isFacingAvatar": false,
+    "userData": "{\"marketplaceID\":\"77f0eb70-beba-49df-9e26-da1740bf6c9a\"}",
+    "locked": true
 },
     {
     "id": "{23d6440a-7330-4a94-ba44-02596a4422fe}",
@@ -483,7 +497,9 @@
     "avatarEntity": false,
     "localEntity": false,
     "faceCamera": false,
-    "isFacingAvatar": false
+    "isFacingAvatar": false,
+    "userData": "{\"marketplaceID\":\"658b506f-ff80-4f66-8dc3-578aa9bc1671\"}",
+    "locked": true
 },
     {
     "id": "{7875c45f-4de6-421e-9ba4-24d8eea6c91e}",
