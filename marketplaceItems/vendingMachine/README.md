@@ -23,7 +23,7 @@ To set the items you want your vending machine to sell:
 
 
 ## Releases
-### v2.0 | [commit f497a99](https://github.com/highfidelity/hifi-content/commits/f497a99)
+### v2.0 | [commit 1e80698](https://github.com/highfidelity/hifi-content/commits/1e80698)
 - The Vending Machine now sources its button data from the button entity's `userData` rather than a JSON URL! This means you can more easily update the Marketplace Items served by the Vending Machine.
 
 
