@@ -4,21 +4,24 @@ An express template for web apps.
 
 # Instructions
 
+```
 You will create two config files.  A config JSON for the server with the following fields:
 {
-    "PORT": 3002,
-    "API_ROUTER": "./pathToYourRoutingFile.js",
-    "API_PATH": "/endpointAPI/path
+    "PORT": <Port Number>,
+    "API_ROUTER": "<./pathToYourRoutingFile.j>",
+    "API_PATH": "</endpointAPI/path>"
 }
+```
 
 as well as a path for your database setup
+```
 {
     "config": {
-        "mySQLHost": "dbHostName",
-        "mySQLUsername": "dbUserName",
-        "mySQLPassword": "dbPassword",
-        "databaseName": "dbName",
-        "multipleStatements": true/false depending on if you have multiple tables below to setup
+        "mySQLHost": "<Hostname of the MySQL server>",
+        "mySQLUsername": "<Username you'll use to connect to the MySQL server>",
+        "mySQLPassword": "<Password you'll use to connect to the MySQL server>",
+        "databaseName": "<Name of the DB you'll use for this webapp>"
+        "multipleStatements": <true/false depending on if you have multiple tables below to setup>
     },
     "tables": [
         {
@@ -37,10 +40,11 @@ as well as a path for your database setup
         }
     ]
 }
+```
 
 Customize the files to fit your needs, but generally should only have to work in the router file. 
 Examples of how to use it are included for get/post/delete methods. 
 
 # Change Log
 
-## V1.0 | Initial Version | 
+## V1.0 | Initial Version | 870ae2b
