@@ -5,6 +5,7 @@ const serverConfig = require('./config.json');
 const dbMaker = new (require('./dbMaker'));
 
 // Load in our routes and port from the config
+const API_PATH = require(serverConfig.API_PATH)
 const API_ROUTER = require(serverConfig.API_ROUTER);
 const PORT = serverConfig.PORT;
 
@@ -35,7 +36,7 @@ const logger = (req, res, next) => {
 app.use(logger);
 
 // Use the routes
-app.use('/kaylacam/api', API_ROUTER);
+app.use(API_PATH, API_ROUTER);
 
 // Starts the server and sets up requests
 const startServer = () => {

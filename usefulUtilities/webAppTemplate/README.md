@@ -1,0 +1,46 @@
+# Description
+
+An express template for web apps.  
+
+# Instructions
+
+You will create two config files.  A config JSON for the server with the following fields:
+{
+    "PORT": 3002,
+    "API_ROUTER": "./pathToYourRoutingFile.js",
+    "API_PATH": "/endpointAPI/path
+}
+
+as well as a path for your database setup
+{
+    "config": {
+        "mySQLHost": "dbHostName",
+        "mySQLUsername": "dbUserName",
+        "mySQLPassword": "dbPassword",
+        "databaseName": "dbName",
+        "multipleStatements": true/false depending on if you have multiple tables below to setup
+    },
+    "tables": [
+        {
+            "tableName": "table1",
+            "schema": {
+                "field1": "VARCHAR(100) PRIMARY KEY",
+                "field2": "VARCHAR(100)"
+            }
+        },
+        {
+            "tableName": "table2",
+            "schema": {
+                "field1": "VARCHAR(100) PRIMARY KEY",
+                "field2": "VARCHAR(100)"
+            }
+        }
+    ]
+}
+
+Customize the files to fit your needs, but generally should only have to work in the router file. 
+Examples of how to use it are included for get/post/delete methods. 
+
+# Change Log
+
+## V1.0 | Initial Version | 
