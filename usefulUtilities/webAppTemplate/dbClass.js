@@ -7,7 +7,7 @@ class Database {
         this.connection = mysql.createConnection(dbConfig);
     }
     query(sql) {
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this.connection.query(sql, (err,rows) => {
                 if (err){
                     console.log('err', err)
@@ -18,10 +18,10 @@ class Database {
         });
     }
     close() {
-        return new Promise( ( resolve, reject ) => {
-            this.connection.end( err => {
-                if ( err )
-                    return reject( err );
+        return new Promise((resolve, reject) => {
+            this.connection.end(err => {
+                if (err)
+                    return reject(err);
                 resolve();
             } );
         } );
@@ -31,8 +31,8 @@ class Database {
 Database.execute = (config, callback) => {
     const database = new Database(config);
     return callback(database).then(
-        result => database.close().then( () => result ),
-        err => database.close().then( () => { throw err; } )
+        result => database.close().then(() => result ),
+        err => database.close().then(() => { throw err; } )
     );
 };
 

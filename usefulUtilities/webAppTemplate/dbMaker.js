@@ -8,10 +8,10 @@ const baseConfig = {
 
 // Grab the tables from the config file and dynamically make the query
 let convertTables = (tables) => {
-    return tables.map( (table, index) => {
+    return tables.map((table, index) => {
         return `CREATE TABLE IF NOT EXISTS \`${table.tableName}\` (
             ${
-                Object.entries(table.schema).map( (field) => {
+                Object.entries(table.schema).map((field) => {
                     return `${field[0]} ${field[1]}`
                 }).join(",")
             }
@@ -41,16 +41,16 @@ class DbMaker {
             database => database.query(this.createTableQuery));
     }
     maybeCreateDbAndTables() {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             this.maybeCreateDB()
-            .then( () => {
+            .then(() => {
                 return this.maybeCreateTables()
             })
-            .then( () => {
+            .then(() => {
                 return resolve();
             })
-            .catch( (error ) => {
-                return reject( error );
+            .catch((error) => {
+                return reject(error);
             })
         });
     }

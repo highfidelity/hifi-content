@@ -12,28 +12,32 @@ const connectionConfig = {
     database: dbConfig.databaseName,
 } 
 
+// Adding vars for the below examples
+var TABLE_NAME = "TABLE_NAME"
+var PATH = "/path/";
 
 router.get("/", (req, res) => {
     res.send("TEST")
 })
 
 
-router.get('/settings', (req, res) => {
-    let query = 'SELECT * FROM \`settings\`'
+// GET: Request a record
+router.get(PATH, (req, res) => {
+    let query = `SELECT * FROM \`${TABLE_NAME}\``
 
     Database.execute(connectionConfig, 
         database => database.query(query)
-        .then( (results) => {
+        .then((results) => {
             let responseObject = {
                 status: "success",
                 data: results
             };
-            console.log("Got the settings, sending over!");
+            console.log(`Got the ${TABLE_NAME}, sending over!`);
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(responseObject));
         })
-        .catch( e => {
+        .catch(e => {
             console.log("e", e)
             let responseObject = {
                 status: "error",
@@ -47,24 +51,26 @@ router.get('/settings', (req, res) => {
 })
 
 
-router.post('/settings', (req, res) => {
+// POST: Create a record through a request body
+router.post(PATH, (req, res) => {
     // Escape the body in case there are any invalid characters in the string
+    // Example below puts a JSON object into a record
     let query = `
-        INSERT INTO \`settings\` (config_name, settings)
-        VALUES ('${req.body.configName}', '${mysql.escape(req.body)}')`
+        INSERT INTO \`${TABLE_NAME}\` (json_name, json)
+        VALUES ('${req.body.id}', '${mysql.escape(req.body)}')`
 
     Database.execute(connectionConfig, 
         database => database.query(query)
-        .then( () => {
+        .then(() => {
             let responseObject = {
                 status: "success"
             };
-            console.log("Saved the settings!");
+            console.log("Saved!");
             res.statusCode = 201;
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(responseObject));
         })
-        .catch( e => {
+        .catch(e => {
             console.log("e", e)
             let responseObject = {
                 status: "error",
@@ -78,20 +84,23 @@ router.post('/settings', (req, res) => {
 })
 
 
-router.delete('/settings/:config_name', (req, res) => {
-    let config_name = req.params.config_name;
+// DELETE: Delete a record
+// You can use the path to get a variable like: /settings/:name.  Then you can get that name using req.params.name
+// You can also supply a query string like ?settings=name and then req.query.settings
+router.delete(`${PATH}:id`, (req, res) => {
+    let id = req.params.id;
 
-    let query = `DELETE FROM \`settings\` WHERE config_name = '${config_name}'`;
+    let query = `DELETE FROM \`${TABLE_NAME}\` WHERE id = '${id}'`;
 
     Database.execute(connectionConfig, 
         database => database.query(query)
-        .then( (results) => {
+        .then((results) => {
             let responseObject = {
                 status: "success",
                 data: results
             };
-            console.log("Deleted the settings!");
-            res.statusCode = 202;
+            console.log("Deleted!");
+            res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(responseObject));
         })
@@ -99,7 +108,7 @@ router.delete('/settings/:config_name', (req, res) => {
             console.log("e", e)
             let responseObject = {
                 status: "error",
-                text: "Error Deleting config"
+                text: "Error Deleting"
             };
 
             res.statusCode = 500;
@@ -108,6 +117,45 @@ router.delete('/settings/:config_name', (req, res) => {
         }))
 })
 
+
+// PUT: Update a record by replacing it completly
+router.put(`${PATH}:id`, (req, res) => {
+    let id = req.params.id;
+    let value1 = req.body.value1;
+    let value2 = req.body.value2;
+
+    let query = `
+        UPDATE \`${TABLE_NAME}\`
+        SET column1 = value1, column2 = value2
+        WHERE value = '${id}'`;
+
+    Database.execute(connectionConfig, 
+        database => database.query(query)
+        .then((results) => {
+            let responseObject = {
+                status: "success",
+                data: results
+            };
+            console.log("Updated!");
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(responseObject));
+        })
+        .catch( e => {
+            console.log("e", e)
+            let responseObject = {
+                status: "error",
+                text: "Error Deleting"
+            };
+
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify(responseObject));
+        }))
+})
+
+
+// Options
 
 module.exports = router;
 

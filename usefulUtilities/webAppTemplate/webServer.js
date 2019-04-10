@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Handle CORS
-app.use( (req, res, next) => {
+app.use((req, res, next) => {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     if (req.method === "OPTIONS") {
         res.header('Access-Control-Allow-Origin', req.headers.origin);
@@ -46,10 +46,10 @@ const startServer = () => {
 // Called on startup.
 const startup = () => {
     dbMaker.maybeCreateDbAndTables()
-        .then( () => {
+        .then(() => {
             startServer();
         })
-        .catch( e => {
+        .catch(e => {
             console.log("trouble connecting to the db:", e)
         })
 };

@@ -14,6 +14,8 @@ You will create two config files.  A config JSON for the server with the followi
 ```
 
 as well as a path for your database setup
+Note: Make sure to set multipleStatements to true if you have more than one table you are making.
+ 
 ```
 {
     "config": {
