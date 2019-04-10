@@ -5,6 +5,9 @@ A text local entity will appear near the entity that will display the user's cur
 
 # Release Notes
 
+## v2.1 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/8946251)
+- Made the Local Text Entity that display flying status not grabbable
+
 ## 2019-03-21_12-02-00 | [commit 8946251](https://github.com/highfidelity/hifi-content/commits/8946251)
 - Moved from Overlays to Local Entities
 - Modified position of Local Text Entity to be correct for content in The Spot
