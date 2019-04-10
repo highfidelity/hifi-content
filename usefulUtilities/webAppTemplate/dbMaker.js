@@ -7,7 +7,7 @@ const baseConfig = {
 };
 
 // Grab the tables from the config file and dynamically make the query
-let convertTables = (tables) => {
+let createTables = (tables) => {
     return tables.map((table, index) => {
         return `CREATE TABLE IF NOT EXISTS \`${table.tableName}\` (
             ${
@@ -21,7 +21,7 @@ let convertTables = (tables) => {
 
 class DbMaker {
     constructor(){
-        this.createTableQuery = convertTables(dbInfo.tables);
+        this.createTableQuery = createTables(dbInfo.tables);
         this.createDBQuery = `
             CREATE DATABASE IF NOT EXISTS 
             ${dbInfo.config.databaseName} 
