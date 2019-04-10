@@ -1,8 +1,8 @@
 {
-  "name": "miladmessage",
+  "name": "kayla camera",
   "version": "1.0.0",
-  "description": "leave message for milad prototype",
-  "main": "index.js",
+  "description": "Web server for kayla camera to save settings",
+  "main": "kaylaCamServer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
