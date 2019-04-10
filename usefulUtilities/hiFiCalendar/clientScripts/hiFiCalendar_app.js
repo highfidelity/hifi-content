@@ -9,11 +9,11 @@
 (function() {
     // This function decides how to handle web events from the tablet UI.
     // used by 'ui' in startup()
-    var ATLANTIS_LABEL_ID = "{298237cd-57ae-427c-98b6-52d30fa342ea}";
-    var JAKKU_LABEL_ID = "{931a0267-45c4-4791-ba0a-54cd7bebd7fb}";
-    var CAPITOL_LABEL_ID = "{79f5718e-1520-4515-a131-9424939e95ce}";
-    var FANTASIA_LABEL_ID = "{b7cca77b-77fb-484e-b098-9f1fb2d8729a}";
-    var OZ_LABEL_ID = "{83a72d97-8952-425c-b07d-f9cba4b38ebd}";
+    var ATLANTIS_LABEL_ID = "{3cedc32a-025b-43b4-8160-17aac6e9e562}";
+    var JAKKU_LABEL_ID = "{990c5409-dedf-438f-b0f8-7eb0d6740b60}";
+    var CAPITOL_LABEL_ID = "{ea7a6b67-332e-4d8c-ba88-b5e96ff17cfc}";
+    var FANTASIA_LABEL_ID = "{1cad2f9e-26d5-4ac3-b8d1-ebc4cc6e68df}";
+    var OZ_LABEL_ID = "{1d064179-f32d-49bd-a6f4-77a1a18c46e0}";
     var NARNIA_LABEL_ID = "{8a568c27-519f-48d2-b361-9a08468cdc17}";
     var calendarLabelIDs = [
         ATLANTIS_LABEL_ID,
@@ -23,60 +23,25 @@
         OZ_LABEL_ID,
         NARNIA_LABEL_ID
     ];
+    var MS_TO_S = 1000;
+    var expirationTimeValue;
     function onWebMessage(data) {
         // EventBridge message from HTML script.
         switch (data.type) {
             case "EVENT_BRIDGE_OPEN_MESSAGE":
                 break;
-            case "SEND_SCHEDULE":
-                var targetEntityID;
-                switch (data.room) {
-                    case "ATLANTIS":
-                        targetEntityID = calendarLabelIDs[0];
-                        break;
-                    case "JAKKU":
-                        targetEntityID = calendarLabelIDs[1];
-                        break;
-                    case "CAPITOL":
-                        targetEntityID = calendarLabelIDs[2];
-                        break;
-                    case "FANTASIA":
-                        targetEntityID = calendarLabelIDs[3];
-                        break;
-                    case "OZ":
-                        targetEntityID = calendarLabelIDs[4];
-                        break;
-                    case "NARNIA":
-                        targetEntityID = calendarLabelIDs[5];
-                        break;
-                }
-                if (data.summary) {
-                    Entities.callEntityServerMethod(targetEntityID, "addEvent",
-                        [data.summary, data.startTimestamp, data.formattedStartTimeString, data.endTimestamp, data.formattedEndTimeString]);
-                } else {
-                    Entities.callEntityServerMethod(targetEntityID, "showNoScheduledEvents");
-                }
+            case "TOKEN":
+                // calendarLabelIDs.forEach(function(id) {
+                //     Entities.callEntityServerMethod(id, "updateToken", [data.token, data.expires_at]);
+                // });
+                // expirationTimeValue = (data.expires_in * MS_TO_S) - MS_TO_S;
+                // Script.setTimeout(function() {
+                //     ui.sendToHtml({
+                //         type: "RENEW_TOKEN"
+                //     });
+                // }, expirationTimeValue);
                 break;
         }
-    }
-
-
-    function getAllCalendarData() {
-        for (var i = 0; i < calendarLabelIDs.length; i++) {
-            Entities.callEntityServerMethod(calendarLabelIDs[i], "clearEventList");
-        }        
-        ui.sendToHtml({
-            type: "UPDATE_SCHEDULE"
-        });
-    }
-
-
-    var getDataInterval = false;
-    var GET_DATA_INTERVAL_MS = 120000;
-    function setupGetDataInterval() {
-        getDataInterval = Script.setInterval(function() {
-            getAllCalendarData();
-        }, GET_DATA_INTERVAL_MS);
     }
 
 
@@ -85,22 +50,16 @@
     var ui;
     function startup() {
         ui = new AppUi({
-            home: "http://localhost/hiFiCalendar.html?v45",
+            home: "http://localhost/test.html",
             buttonName: "GCAL", // The name of your app
             graphicsDirectory: Script.resolvePath("../resources/images/"), // Where your button icons are located
             onMessage: onWebMessage
         });       
         Script.scriptEnding.connect(scriptEnding);
-
-        setupGetDataInterval();
     }
     startup();
 
 
     function scriptEnding() {
-        if (getDataInterval) {
-            Script.clearInterval(getDataInterval);
-            getDataInterval = false;
-        }
     }
 })();    
