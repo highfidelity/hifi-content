@@ -66,7 +66,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v2.2 | 2019-04-11_07-27-00 | [commit 0429529](https://github.com/highfidelity/hifi-content/commits/0429529)
+## v2.2 | 2019-04-08_09-11-00 | [commit 0429529](https://github.com/highfidelity/hifi-content/commits/0429529)
 - Fixed onEnterEntity bug inside locationZoneClient.js
 
 ## v2.1 | 2019-04-08_09-11-00 | [commit 009d7aa](https://github.com/highfidelity/hifi-content/commits/009d7aa)
