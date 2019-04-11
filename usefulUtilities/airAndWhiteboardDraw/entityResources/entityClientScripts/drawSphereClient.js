@@ -53,7 +53,7 @@
     var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
     var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
     var DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M = 1.5;
-    var DRAW_ON_BOARD_DISTANCE_HMD_M = 0.1;
+    var DRAW_ON_BOARD_DISTANCE_HMD_M = 2;
     var DRAW_ON_BOARD_DISTANCE_DESKTOP_M = 3;
     var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/open.mp3'));
     var OPEN_SOUND_VOLUME = 0.02;
@@ -72,6 +72,7 @@
         grab: { grabbable: false }
     };
     var HALF = 0.5;
+    var LASER_LIFETIME_S = 1;
 
     var isPainting = false;
     var readyToDraw = false;
@@ -128,7 +129,8 @@
     var whiteBoardIntersectionData;
     var drawingInDesktop;
     var displacementFromStart;
-    var laser;
+    var laser = null;
+    var laserEndDisplacement;
 
     var PaintSphere = function() {
         _this = this;
@@ -210,26 +212,25 @@
         },
 
         draw: function(onBoard) {
-            print("DRAW");
             if (!readyToDraw) {
-                print("NOT READY TO DRAW");
+                // print("NOT READY TO DRAW");
                 return;
             }
             if (Vec3.distance(previousLinePoint, currentLinePoint) < MINIMUM_MOVEMENT_TO_DRAW_M ||
             Vec3.distance(previousLinePoint, currentLinePoint) > MAXIMUM_MOVEMENT_TO_DRAW_M) {
-                print("CANNOT DRAW DUE TO DISTANCE FROM LAST POINT");
+                // print("CANNOT DRAW DUE TO DISTANCE FROM LAST POINT");
                 return;
             }
             if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
-                print("CANNOT DRAW DUE TO TOGGLE BETWEEN AINR AND BOARD");
+                // print("CANNOT DRAW DUE TO TOGGLE BETWEEN AIR AND BOARD");
                 _this.stopDrawing();
                 return;
             }
             wasLastPointOnBoard = onBoard;
             var newLine = !polyLine;
-            if (newLine) { 
-                print("BEGINNING NEW LINE______________");
-            }
+            // if (newLine) { 
+            //     print("BEGINNING NEW LINE______________");
+            // }
             var lineProperties = DEFAULT_LINE_PROPERTIES;
             var linePointsCount;
             if (!newLine) { // maybe editing existing line
@@ -239,15 +240,8 @@
                 if (linePointsCount > MAX_LINE_POINTS) { // too many line points, start new line connected to previous point
                     // print("CONTINUING LINE ************************");
                     newLine = true;
-                    if (onBoard) {
-                        lineStartPosition = Vec3.subtract(previousLinePoint, Vec3.multiply(previousNormal, 
-                            STROKE_FORWARD_OFFSET_M));
-                    } else {
-                        lineStartPosition = previousLinePoint;
-                    }
+                    lineStartPosition = previousLinePoint;
                     displacementFromStart = Vec3.subtract(currentLinePoint, lineStartPosition);
-                    displacementFromStart = Vec3.subtract(displacementFromStart, Vec3.multiply(currentNormal, 
-                        STROKE_FORWARD_OFFSET_M));
                     // print("DISPLACEMENT FROM NEW START ", JSON.stringify(displacementFromStart));
                 } else { // actually editing the previous line
                     if (injector) {
@@ -403,8 +397,6 @@
                     // draw on board
                     _this.projectPointOntoBoard();
                     displacementFromStart = Vec3.subtract(currentLinePoint, lineStartPosition);
-                    displacementFromStart = Vec3.subtract(displacementFromStart, Vec3.multiply(currentNormal, 
-                        STROKE_FORWARD_OFFSET_M));
                 } else { // draw in air
                     onBoard = false;
                     currentLinePoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, 
@@ -436,77 +428,102 @@
             var distanceWhiteboardPlane = Vec3.dot(currentNormal, whiteboardProperties.position);
             var distanceLocal = Vec3.dot(currentNormal, currentLinePoint) - distanceWhiteboardPlane;
             currentLinePoint = Vec3.subtract(currentLinePoint, Vec3.multiply(distanceLocal, currentNormal));
+            currentLinePoint = Vec3.subtract(currentLinePoint, Vec3.multiply(currentNormal, STROKE_FORWARD_OFFSET_M));
+        },
+
+        /* */
+        beginLaser:function() {
+            print("BEGIN LASER");
+            laserEndDisplacement = Vec3.subtract(whiteBoardIntersectionData.intersection, 
+                sphereProperties.position);
+            laser = Entities.addEntity({
+                type: 'PolyLine',
+                isUVModeStretch: true,
+                lifetime: LASER_LIFETIME_S,
+                collisionless: true,
+                grab: { grabbable: false },
+                position: sphereProperties.position,
+                linePoints: [{x: 0, y: 0, z: 0}, laserEndDisplacement],
+                normals: [DEFAULT_NORMAL, DEFAULT_NORMAL],
+                strokeWidths: [0.005, 0.005],
+                color: _this.color,
+                textures: _this.texture,
+                name: "Whiteboard HMD Beam",
+                faceCamera: true
+            }, 'avatar');
+        },
+
+        /* */
+        updateLaser: function() {
+            laserEndDisplacement = Vec3.subtract(whiteBoardIntersectionData.intersection, sphereProperties.position);
+            var currentAge = Entities.getEntityProperties(laser, 'age').age;
+            Entities.editEntity(laser, {
+                lifetime: currentAge + LASER_LIFETIME_S,
+                position: sphereProperties.position,
+                linePoints: [{x: 0, y: 0, z: 0}, laserEndDisplacement]
+            });
         },
 
         /* */
         getHMDLinePointData: function(force) {
             if (!initialLineStartDataReady && !force) {
-                print("CANNOT RUN getHMDLinePointData");
+                // print("CANNOT RUN getHMDLinePointData");
                 return -1;
             }
-            if (initialLineStartDataReady) {
-                print("SETTING LINE START DATA AS PREVIOUS");
-                previousLinePoint = currentLinePoint;
-                previousNormal = currentNormal;
-                previousStrokeWidth = currentStrokeWidth;
-            }
+            previousLinePoint = currentLinePoint;
+            previousNormal = currentNormal;
+            previousStrokeWidth = currentStrokeWidth;
             sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
+            currentStrokeWidth = sphereProperties.dimensions.x;
             currentLinePoint = sphereProperties.position;
-            var sphereFront = Quat.getFront(sphereProperties.rotation);
-            var howFarBack = sphereProperties.dimensions.z * HALF;
-            var pulledBack = Vec3.multiply(sphereFront, -howFarBack);
-            var backedOrigin = Vec3.sum(sphereProperties.position, pulledBack);
+            // var sphereFront = Quat.getFront(sphereProperties.rotation);
+            // var howFarBack = sphereProperties.dimensions.z * HALF;
+            // var pulledBack = Vec3.multiply(sphereFront, -howFarBack);
+            // var backedOrigin = Vec3.sum(sphereProperties.position, pulledBack);
             var pickRay = {
-                origin: backedOrigin,
-                direction: Quat.getFront(sphereProperties.rotation)
+                origin: sphereProperties.position,
+                direction: Vec3.multiplyQbyV(Quat.multiply(MyAvatar.orientation, 
+                    MyAvatar.getAbsoluteJointRotationInObjectFrame(parentJointIndex)), [0, 1, 0])
             };
             whiteBoardIntersectionData = Entities.findRayIntersection(pickRay, true, whiteboardParts);
-
-            // REMOVE THIS
-            if (!initialLineStartDataReady) {
-                var laserDistance = whiteBoardIntersectionData.entityID ? Vec3.distance(whiteBoardIntersectionData.intersection, sphereProperties.position) : 1;
-                laser = Entities.addEntity({
-                    type: 'Model',
-                    modelURL: "http://mpassets.highfidelity.com/3d0dd29f-dbe7-4f49-8fef-d95619a4b891-v1/models/laser-beam-red.fbx",
-                    name: "WHITEBOARD HMD Beam",
-                    parentID: _this.entityID,
-                    registrationPoint: {x: 0.5, y: 0.5, z: 1.0},
-                    localPosition: {x: 0, y: 0, z: 0},
-                    localRotation: Quat.normalize({}),
-                    dimensions: {x: 0.01, y: 0.01, z: laserDistance},
-                    userData: "{\"grabbableKey\":{\"grabbable\":false}}"
-                }, 'avatar');
-            }
-            // END REMOVE THIS
-            
-            if (whiteBoardIntersectionData.intersects) {
-                var intersectedWhiteboardPartName = Entities.getEntityProperties(whiteBoardIntersectionData.entityID, 
-                    'name').name;
-                if (intersectedWhiteboardPartName !== "Whiteboard") {
-                    if (!initialLineStartDataReady) {
-                        _this.stopDrawing();
-                    }
-                    return -1; // line has moved off board onto selection square
-                }
-            }
             var status;
             var distanceSphereToBoard = Vec3.distance(whiteBoardIntersectionData.intersection, sphereProperties.position);
-            previousStrokeWidth = sphereProperties.dimensions.x;
             if (whiteBoardIntersectionData.intersects && distanceSphereToBoard <= DRAW_ON_BOARD_DISTANCE_HMD_M) {
+                var intersectedWhiteboardPartName = Entities.getEntityProperties(whiteBoardIntersectionData.entityID, 
+                    'name').name;
+                if (!laser) {
+                    _this.beginLaser();
+                } else {
+                    _this.updateLaser();
+                }
+                if (intersectedWhiteboardPartName !== "Whiteboard") {
+                    if (initialLineStartDataReady) { // line has moved off board onto selection square
+                        _this.stopDrawing();
+                    }
+                    // } else {
+                    //     if (intersectedWhiteboardPartName === "Whiteboard Reset") {
+                    //         print("CALLING RESET");
+                    //         Entities.callEntityMethod(whiteBoardIntersectionData.entityID, 'resetWhiteboard');
+                    //     } else {
+                    //         print("CALLING CREATE SPHERE");
+                    //         Entities.callEntityMethod(whiteBoardIntersectionData.entityID, 'createPaintSphere');
+                    //     }
+                    // }
+                    return -1;
+                }
                 _this.projectPointOntoBoard();
                 displacementFromStart = Vec3.subtract(currentLinePoint, lineStartPosition);
-                displacementFromStart = Vec3.subtract(displacementFromStart, Vec3.multiply(currentNormal, 
-                    STROKE_FORWARD_OFFSET_M));
                 status = 1; // draw  on board
             } else {
-                lineStartPosition = sphereProperties.position;
-                previousNormal = DEFAULT_NORMAL;
+                currentNormal = DEFAULT_NORMAL;
+                displacementFromStart = Vec3.subtract(currentLinePoint, lineStartPosition);
                 status = 2; // draw in air
             }
             if (!initialLineStartDataReady) {
-                print("INITIAL DATA SET UP");
+                lineStartPosition = currentLinePoint;
+                initialLineStartDataReady = true;
+                // print("INITIAL DATA SET UP");
             }
-            initialLineStartDataReady = true;
             return status;
         },
 
@@ -519,7 +536,7 @@
             }
             var onBoard;
             var status = _this.getHMDLinePointData(true);
-            print("INITIAL STATUS: ", status);
+            // print("INITIAL STATUS: ", status);
             if (status > 0) {
                 onBoard = status === 1 ? true : false;
                 wasLastPointOnBoard = onBoard;
@@ -538,26 +555,19 @@
                     return;
                 }
                 status = null;
-                var force = previousLinePoint;
                 _this.draw(onBoard);
             }, REPEAT_DISTANCE_CHECK_MS);
         },
 
         /* ON TRIGGER RELEASE DRAW: Stop checking distance hand has moved */
         triggerReleased: function() {
-            if (activeTriggerPress) {
-                if (drawInterval) {
-                    print("CLEAR TRIGGER INTERVAL");
-                    Script.clearInterval(drawInterval);
-                    drawInterval = null;
-                }
+            if (activeTriggerPress || polyLine) {
                 _this.stopDrawing();
             }
-            // REMOVE THIS
             if (laser) {
                 Entities.deleteEntity(laser);
+                laser = null;
             }
-            // END REMOVE THIS
         },
 
         /* ON GRIP PRESS ERASE: Set an interval that finds the nearest line within a maximum distance to paint 
@@ -566,18 +576,36 @@ sphere tip and erases it */
             if (tablet.tabletShown || activeTriggerPress) {
                 return;
             }
+            // CAN THIS USE DELETEONBOARD FN?
             deletingInterval = Script.setInterval(function() {
-                var fingerTipPosition = MyAvatar.getJointPosition(parentJointIndex);
+                sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
+                var deletePosition = sphereProperties.position;
+                var pickRay = {
+                    origin: sphereProperties.position,
+                    direction: Vec3.multiplyQbyV(Quat.multiply(MyAvatar.orientation, 
+                        MyAvatar.getAbsoluteJointRotationInObjectFrame(parentJointIndex)), [0, 1, 0])
+                };
+                whiteBoardIntersectionData = Entities.findRayIntersection(pickRay, true, whiteboardParts);
+                var distanceSphereToBoard = Vec3.distance(whiteBoardIntersectionData.intersection, sphereProperties.position);
+                if (whiteBoardIntersectionData.intersects && distanceSphereToBoard <= DRAW_ON_BOARD_DISTANCE_HMD_M) {
+                    // delete on board
+                    if (!laser) {
+                        _this.beginLaser();
+                    } else {
+                        _this.updateLaser();
+                    }
+                    deletePosition = whiteBoardIntersectionData.intersection;
+                }
                 var foundANearbyLine = false;
                 var lineToDelete;
-                Entities.findEntitiesByName("Draw App Polyline", fingerTipPosition, MAXIMUM_DISTANCE_TO_SEARCH_M)
+                Entities.findEntitiesByName("Whiteboard Polyline", deletePosition, MAXIMUM_DISTANCE_TO_SEARCH_M)
                     .forEach(function(nearbyDrawAppLine) {
                         var lineProperties = Entities.getEntityProperties(nearbyDrawAppLine, ['position', 'linePoints']);
                         var lineBoundingBoxCenter = lineProperties.position;
                         var numberLinePoints = lineProperties.linePoints.length;
                         var shortestDistance = MAXIMUM_DISTANCE_TO_DELETE_M;
                         for (var i = 0; i < numberLinePoints; i++) {
-                            var distanceFromMarkerTip = Vec3.distance(fingerTipPosition,
+                            var distanceFromMarkerTip = Vec3.distance(deletePosition,
                                 Vec3.sum(lineBoundingBoxCenter, lineProperties.linePoints[i]));
                             if (distanceFromMarkerTip <= shortestDistance) {
                                 foundANearbyLine = true;
@@ -612,7 +640,15 @@ sphere tip and erases it */
             if (!polyLine) {
                 return;
             }
-            print("STOPPING THAT LINE______________");
+            if (laser) {
+                Entities.deleteEntity(laser);
+            }
+            if (drawInterval) {
+                // print("CLEAR TRIGGER INTERVAL");
+                Script.clearInterval(drawInterval);
+                drawInterval = null;
+            }
+            // print("STOPPING THAT LINE______________");
             initialLineStartDataReady = false;
             activeTriggerPress = false;
             polyLine = null;

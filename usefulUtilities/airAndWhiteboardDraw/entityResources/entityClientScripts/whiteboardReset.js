@@ -23,6 +23,7 @@
     };
 
     WhiteboardReset.prototype = {
+        remotelyCallable: ['mousePressOnEntity'],
 
         /* ON PRELOAD: Save a reference to this */
         preload: function(entityID) {
@@ -45,19 +46,22 @@
                 });
             }
         },
+        resetWhiteboard: function() {
+            var position = Entities.getEntityProperties(_this.entityID, 'position').position;
+            _this.playSound(RESET_SOUND, RESET_SOUND_VOLUME, MyAvatar.position, true, false);
+            Entities.findEntitiesByName("Whiteboard Polyline", position, SEARCH_RADIUS_M).
+                forEach(function(whiteboardPiece) {
+                    var name = Entities.getEntityProperties(whiteboardPiece, 'name').name;
+                    if (name && name === "Whiteboard Polyline") {
+                        Entities.deleteEntity(whiteboardPiece);
+                    }
+                });
+        },
 
         /* When clicked or triggered, find all nearby whiteboard lines and delete them */
         mousePressOnEntity: function( entityID, event ) {
             if (event.isLeftButton) {
-                var position = Entities.getEntityProperties(_this.entityID, 'position').position;
-                _this.playSound(RESET_SOUND, RESET_SOUND_VOLUME, MyAvatar.position, true, false);
-                Entities.findEntitiesByName("Whiteboard Polyline", position, SEARCH_RADIUS_M).
-                    forEach(function(whiteboardPiece) {
-                        var name = Entities.getEntityProperties(whiteboardPiece, 'name').name;
-                        if (name && name === "Whiteboard Polyline") {
-                            Entities.deleteEntity(whiteboardPiece);
-                        }
-                    });
+                _this.resetWhiteboard();
             }
         }
     };

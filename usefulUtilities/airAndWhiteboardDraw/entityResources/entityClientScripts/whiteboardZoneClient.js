@@ -27,10 +27,6 @@
         preload: function(entityID) {
             _this.entityID = entityID;
             whiteboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
-            MyAvatar.disableHandTouchForID(whiteboard);
-            Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
-                MyAvatar.disableHandTouchForID(whiteboardPiece);
-            });
         },
 
         /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
@@ -67,6 +63,10 @@
 
         /* Create black paint sphere on user's hand */
         enterEntity: function() {
+            MyAvatar.disableHandTouchForID(whiteboard);
+            Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
+                MyAvatar.disableHandTouchForID(whiteboardPiece);
+            });
             var paletteSquares = [];
             Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
                 var name = Entities.getEntityProperties(whiteboardPiece, 'name').name;
