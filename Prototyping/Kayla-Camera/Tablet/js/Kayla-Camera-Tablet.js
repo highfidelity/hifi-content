@@ -4,8 +4,9 @@
     
     var EVENT_BRIDGE_OPEN_MESSAGE = "eventBridgeOpen",
         UPDATE_UI = "update_ui",
-        LOAD_JSON = "loadJSON",
         UPDATE_CONFIG_NAME = "updateConfigName",
+        UPDATE_CONFIG = "updateConfig",
+        UPDATE_CONFIG_LIST = "UPDATE_CONFIG_LIST",
         ENABLE_CUSTOM_LISTENER = "enableCustomListener",
         DISABLE_CUSTOM_LISTENER = "disableCustomListener",
         UPDATE_CUSTOM_LISTENER = "updateCustomListener",
@@ -16,35 +17,35 @@
         CHANGE_AVATAR_TO_CAMERA = "changeAvatarToCamera",
         CHANGE_AVATAR_TO_INVISIBLE = "changeAvatarToInvisible",
         TOGGLE_AVATAR_COLLISIONS = "toggleAvatarCollisions",
+        DELETE_CONFIG = "deleteConfig",
         EDIT_DEFAULT = "editDefault",
         EDIT_BRAKE = "editBrake",
-        EVENTBRIDGE_SETUP_DELAY = 50;
+        EVENTBRIDGE_SETUP_DELAY = 100;
 
     Vue.component('config', {
-        props: ["config_name"],
+        props: ["config_name", "configs"],
         data: function(){
             return {
                 newName: "",
                 JSONURL: "Replace with the JSON URL",
                 editing: false,
-                editingJSONURL: false,
+                editingConfigs: false,
+                showConfigs: false,
+                inSavedConfigs: false
             }
         },
         methods: {
-            saveJSON(){
-                this.$parent.saveJSON();
+            saveConfigs(){
+                this.$parent.saveConfigs();
             },
-            loadJSON(url){
-                this.$parent.loadJSON(url);
-            },
-            selectURL(){
-                this.editingJSONURL = true;
+            selectConfigs(){
+                this.editingConfigs = true;
             },
             editName(name){
                 this.editing = true;
             },
             goBack(){
-                this.editingJSONURL = false;
+                this.editingConfigs = false;
             },
             updateName(name){
                 this.editing = false;
@@ -68,27 +69,51 @@
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: TOGGLE_AVATAR_COLLISIONS
                 }));
+            },
+            toggleConfigs(){
+                this.showConfigs = !this.showConfigs;
+            },
+            sendConfig(config){
+                this.toggleConfigs();
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: UPDATE_CONFIG,
+                    value: config.settings
+                }));
+            },
+            deleteConfig(config, index){
+                EventBridge.emitWebEvent(JSON.stringify({
+                    type: DELETE_CONFIG,
+                    value: this.config_name,
+                    index: index
+                }));
             }
         },
         template:`
             <div class="card">
                 <div class="card-header">
-                <strong>Config Name: {{config_name}}</strong> <button class="btn-sm btn-primary mt-1 mr-1 float-right" v-if="!editing" v-on:click="editName()">Edit Name</button> 
+                <strong>Config Name: {{config_name}}</strong></br>
+                <button class="btn-sm btn-primary mt-1 mr-1 float-left" v-if="!editing" v-on:click="editName()">Edit Name</button> 
+                <button class="btn-sm btn-warning mt-1 mr-1 float-right" v-if="!editing" v-on:click="deleteConfig()">Delete Config</button> 
                     <div v-if="editing">
                         <input id="new-name" type="text" class="form-control" v-model="newName">
                         <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="updateName(newName)">Update Name</button>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div v-if="!editingJSONURL">
-                        <button v-if="" class="btn-sm btn-primary mt-1 mr-1" v-on:click="selectURL()">Load JSON Config</button>
-                        <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="saveJSON()">Save JSON Config</button>
+                    <div v-if="!editingConfigs">
+                        <button v-if="" class="btn-sm btn-primary mt-1 mr-1" v-on:click="selectConfigs()">Load JSON Config</button>
+                        <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="saveConfigs()">Save Configuration</button>
                     </div>
-                    <div v-if="editingJSONURL">
-                        Go to https://kayla-camera.glitch.me/ to get the links for your saved JSONs
-                        <input id="load-json" type="text" class="form-control" v-model="JSONURL">
-                        <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="loadJSON(JSONURL)">Load JSON URL</button>
-                        <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="goBack()">Go Back</button>
+                    <div v-if="editingConfigs">
+                        <div class="dropdown">
+                            <button class="btn-sm btn-primary mt-1 mr-1" id="selectedType" v-on:click="toggleConfigs()">Configs</button>
+                            <ul class="dropdown-type">
+                                <div id="typeDropdown" class="dropdown-items" :class="{ show: showConfigs }">
+                                    <li v-for="(config, index) in configs" v-on:click="sendConfig(config, index)">{{ config.config_name }}</li>
+                                </div>
+                            </ul>
+                            <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="goBack()">Go Back</button>
+                        </div>
                     </div>
                     <div>
                         <button class="btn-sm btn-primary mt-1 mr-1" v-on:click="changeAvatarToCamera()">Use Camera Avatar</button>
@@ -394,20 +419,21 @@
             }
         },
         methods: {
-            saveJSON(){
-                var url = 'https://kayla-camera.glitch.me/json';
-                $.post(url, app.settings);
-            },
-            loadJSON(link){
-                $.get(link, function(data){
-                    var newObj = convertBadJSON(data);
+            saveConfigs(){
+                var removedConfigSettings = Object.assign({}, app.settings, {configs: []});
+                fetch(app.settings.settingsURL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(removedConfigSettings),
+                })
+                .then(data => {
                     EventBridge.emitWebEvent(JSON.stringify({
-                        type: LOAD_JSON,
-                        value: newObj
+                        type: UPDATE_CONFIG_LIST
                     }));
                 })
-                    
-                
+                .catch(error => console.error(error));
             },
             createPosition(){
                 EventBridge.emitWebEvent(JSON.stringify({
@@ -434,49 +460,6 @@
             console.log(e)
             return;
         }
-    }
-    var map = {
-        configName: "string",
-        name: "string",
-        key: "string",
-        mapping: "object",
-        position: "object",
-        x: "number",
-        y: "number",
-        z: "number",
-        w: "number",
-        orientation: "object",
-        listener: "object",
-        isCustomListening: "boolean",
-        customPosition: "object",
-        customOrientation: "object"
-    }
-    
-    function convert(string, value) {
-        switch(string){
-            case "string":
-                return value;
-                break;
-            case "number":
-                return Number(value);
-                break;
-            case "boolean":
-                return Boolean(value);
-                break;
-        }
-    };
-
-    function convertBadJSON(obj){
-        var newObj = {};
-        for (var key in obj) {
-            if (typeof obj[key] === "object") {
-                newObj[key] = convertBadJSON(obj[key]);
-            }
-            else {
-                newObj[key] = convert(map[key], obj[key])
-            }
-        }
-        return newObj;
     }
 
     function onLoad() {

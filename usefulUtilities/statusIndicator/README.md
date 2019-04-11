@@ -66,7 +66,14 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v1.2 | 2019-04-05_14-42-00 | [commit 4ef111ef](https://github.com/highfidelity/hifi-content/commits/4ef111ef)
+## v2.2 | 2019-04-08_09-11-00 | [commit 0429529](https://github.com/highfidelity/hifi-content/commits/0429529)
+- Fixed onEnterEntity bug inside locationZoneClient.js
+
+## v2.1 | 2019-04-08_09-11-00 | [commit 009d7aa](https://github.com/highfidelity/hifi-content/commits/009d7aa)
+- Changed the "GET DATA" API to return JSON instead of HTML
+- Updated styling of HTML
+
+## v2.0 | 2019-04-08_09-11-00 | [commit 2ab4badf](https://github.com/highfidelity/hifi-content/commits/2ab4badf)
 - Added set location functionality with a function call 
 - Added zone client script where user enters the zone, and the zone updates user location to the name of the zone
 

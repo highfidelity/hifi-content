@@ -6,6 +6,10 @@ Show someone else that you like what they're doing. Open the app to see usage in
 
 ## Releases
 
+### v1.5 | [48d8247](https://github.com/highfidelity/hifi-content/commit/48d8247)
+
+- Fixed an issue where Appreciate app users wearing avatars without a specific joint wouldn't hear the Appreciate sound or see the Appreciation Dodecahedron
+
 ### 2019-03-08_11-37-00 | Marketplace v1.4 | [93bf464](https://github.com/highfidelity/hifi-content/commit/93bf464)
 
 - Fixed an issue where a user could press the "Z" key to appreciate while the Appreciate UI was focused even if the Appreciate switch was turned off

@@ -12,7 +12,12 @@
 (function () {
 
     // Polyfills
-    Script.require(Script.resolvePath('./Polyfills.js'));
+    Script.require('./Polyfills.js')();
+    var require = Script.require("request").request;
+    var config = Script.require("./config.json?" + Date.now());
+    var settingsURL = config.settingsURL;
+    var configs = [];
+
 
     // Init
     var isAppActive = false,
@@ -35,6 +40,9 @@
         CHANGE_AVATAR_TO_CAMERA = "changeAvatarToCamera",
         CHANGE_AVATAR_TO_INVISIBLE = "changeAvatarToInvisible",
         TOGGLE_AVATAR_COLLISIONS = "toggleAvatarCollisions",
+        DELETE_CONFIG = "deleteConfig",
+        UPDATE_CONFIG = "updateConfig",
+        UPDATE_CONFIG_LIST = "UPDATE_CONFIG_LIST",
         EDIT_DEFAULT = "editDefault",
         EDIT_BRAKE = "editBrake",
         UPDATE_UI = "update_ui",
@@ -47,6 +55,7 @@
     // Collections
     var defaultSettings = {
         configName: "Rename config",
+        settingsURL: settingsURL,
         mapping: {},
         listener: {
             isCustomListening: false,
@@ -66,13 +75,7 @@
     };
 
     var settings;
-    var oldSettings = Settings.getValue(SETTINGS_STRING);
-    if (oldSettings === "") {
-        settings = defaultSettings;
-        Settings.setValue(SETTINGS_STRING, settings);
-    } else {
-        settings = oldSettings;
-    }
+    settings = defaultSettings;
 
     var DEFAULT = "default";
     var BRAKE = "brake";
@@ -481,6 +484,48 @@
         Settings.setValue(SETTINGS_STRING, settings);
     }
 
+    function getConfigs(){
+        require(settingsURL, function(error, response){
+            if (error || !response) {
+                console.log("error");
+                return;
+            }
+    
+            if (response.status && response.status === "success") {
+                console.log("success");
+                try {
+                    settings.configs = response.data.map(function(config){
+                        return { "config_name": config.config_name, "settings": JSON.parse(config.settings)};
+                    });
+                    doUIUpdate();                    
+                } catch (e) {
+                    console.log("trouble parsing response object");
+                }
+            }
+        });
+    }
+
+    function deleteConfig(config, index){
+        require({
+            uri: settingsURL + "/" + config,
+            method: "DELETE",
+            json: true
+        }, function(error, response){
+            if (error || !response) {
+                console.log("error");
+                return;
+            }
+
+            if (response.status && response.status === "success") {
+                console.log("Successfully deleted");              
+            }
+            settings.configs.splice(index,1);
+            settings = Object.assign({}, defaultSettings, {configs: settings.configs});
+
+            doUIUpdate();
+        });
+    }
+
     function setup() {
         tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
         tabletButton = tablet.addButton({
@@ -500,6 +545,7 @@
         tablet.screenChanged.connect(onTabletScreenChanged);
 
         Controller.keyPressEvent.connect(keyPressHandler);
+        getConfigs();
     }
 
     function editDefault(newDefault) {
@@ -564,6 +610,11 @@
         }
     }
 
+    function updateConfig(config){
+        settings = Object.assign({}, config, {configs: settings.configs});
+        doUIUpdate();
+    }
+
     function onTabletWebEventReceived(data) {
         // EventBridge message from HTML script.
         var message;
@@ -593,6 +644,9 @@
                 loadJSON(settings);
                 updateSettings();
                 doUIUpdate();
+                break;
+            case UPDATE_CONFIG_LIST:
+                getConfigs();
                 break;
             case UPDATE_CONFIG_NAME:
                 name = message.value;
@@ -659,6 +713,12 @@
                 break;
             case CLOSE_DIALOG_MESSAGE:
                 tablet.gotoHomeScreen();
+                break;
+            case DELETE_CONFIG:
+                deleteConfig(message.value);
+                break;
+            case UPDATE_CONFIG: 
+                updateConfig(message.value, message.index);
                 break;
         }
     }

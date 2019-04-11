@@ -88,7 +88,7 @@
     // #region HEARTBEAT
 
     // Send heartbeat with updates to database
-    // When this stops, the database will set status to Offline
+    // When this stops, the database will set status to offline
     var HEARTBEAT_TIMEOUT_MS = 5000,
         heartbeat;
     function startHeartbeatTimer() {
@@ -161,7 +161,7 @@
 
     // Sends status to database
     var request = Script.require('request').request,
-        REQUEST_URL = Script.require(Script.resolvePath('./secrets.json')).REQUEST_URL;
+        REQUEST_URL = Script.require(Script.resolvePath('./secrets.json?' + Date.now())).REQUEST_URL;
     function updateStatus(forceUpdateOnly) {
         if (heartbeat) {
             Script.clearTimeout(heartbeat);
@@ -278,7 +278,7 @@
     function onDomainChanged() {
         var queryParamString = "type=setUserLocation";
         queryParamString += "&username=" + AccountServices.username;
-        queryParamString += "&location=Unknown";
+        queryParamString += "&location=unknown";
 
         var uri = REQUEST_URL + "?" + queryParamString;
 

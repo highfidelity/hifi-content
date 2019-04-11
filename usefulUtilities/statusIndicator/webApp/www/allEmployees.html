@@ -5,43 +5,48 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700|Cairo" rel="stylesheet">
-    <style>
-        body {
-            padding: 40px;
-        }
-
-        td {
-            font-size: 20px;
-        }
-
-        table {
-            padding-left: 40px;
-            width: 400px;
-        }
-
-        h2 {
-            text-transform: capitalize;
-        }
-
-        .team {
-            padding: 0 40px;
-        }
-
-        .content {
-            display: flex;
-            flex-direction: column;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            max-width: 400px;
-            height: 100vh;
-        }
-    </style>
+    <link href="./css/index.css" rel="stylesheet">
     <script>
         function getEmployeeData() {
             fetch('http://localhost:3305/?type=getAllEmployees')
-                .then(function(response) { return response.text() })
+                .then(function(response) { return response.json() })
                 .then(function(data) {
-                    document.getElementById("employeeTables").innerHTML = data;
+                    var generatedContainerDiv = document.createElement("div");
+
+                    for (var i = 0; i < data.teams.length; i++) {
+                        var teamContainer = document.createElement("div");
+
+                        var h2 = document.createElement("h2");
+                        h2.innerHTML = data.teams[i].name;
+                        teamContainer.appendChild(h2);
+
+                        var teamTable = document.createElement("table");
+                        
+                        var tbody = document.createElement('tbody');
+                        for (var j = 0; j < data.teams[i].members.length; j++) {
+                            var tr = document.createElement('tr');
+
+                            var td = document.createElement('td');
+                            td.appendChild(document.createTextNode(data.teams[i].members[j].displayName));
+                            tr.appendChild(td);
+
+                            td = document.createElement('td');
+                            td.appendChild(document.createTextNode(data.teams[i].members[j].status));
+                            tr.appendChild(td);
+
+                            td = document.createElement('td');
+                            td.appendChild(document.createTextNode(data.teams[i].members[j].location));
+                            tr.appendChild(td);
+
+                            tbody.appendChild(tr);
+                        }
+                        teamTable.appendChild(tbody);
+                        teamContainer.appendChild(teamTable);
+
+                        generatedContainerDiv.appendChild(teamContainer);
+                    }
+
+                    document.getElementById("content").innerHTML = generatedContainerDiv.innerHTML;
                     setTimeout(getEmployeeData, 10000);
                 })
                 .catch(function(error){ console.error(error) })
@@ -54,11 +59,8 @@
 </head>
 
 <body>
-    <div class="content">
-        <div id="employeeTables">
-            <h1>Loading Data...</h1>
-        </div>
-
+    <div id="content">
+        <h1>Loading Data...</h1>
     </div>
 </body>
 
