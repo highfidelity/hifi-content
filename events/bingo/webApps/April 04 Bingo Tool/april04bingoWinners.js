@@ -18,6 +18,7 @@ function checkRow(userNumbers2D, calledNumbers, rowIndex) {
     return true;
 }
 
+
 function checkColumn(userNumbers2D, calledNumbers, columnIndex) {
     for (var rowIterator = 0; rowIterator < NUM_ROWS_COLS; rowIterator++) {
         if (calledNumbers.indexOf(userNumbers2D[columnIndex][rowIterator]) === -1) {
@@ -27,6 +28,7 @@ function checkColumn(userNumbers2D, calledNumbers, columnIndex) {
 
     return true;
 }
+
 
 function checkDiagonalTopLeftToBottomRight(userNumbers2D, calledNumbers) {
     for (var rowIterator = 0; rowIterator < NUM_ROWS_COLS; rowIterator++) {
@@ -38,6 +40,7 @@ function checkDiagonalTopLeftToBottomRight(userNumbers2D, calledNumbers) {
     return true;
 }
 
+
 function checkDiagonalTopRightToBottomLeft(userNumbers2D, calledNumbers) {
     for (var rowIterator = 0; rowIterator < NUM_ROWS_COLS; rowIterator++) {
         // eslint-disable-next-line no-magic-numbers
@@ -48,6 +51,7 @@ function checkDiagonalTopRightToBottomLeft(userNumbers2D, calledNumbers) {
 
     return true;
 }
+
 
 var NUM_ROWS_COLS = 5;
 var CENTER_ROW_COL_IDX = 2;
@@ -195,6 +199,7 @@ function parseData(data) {
     }
     console.log("END USEFUL DATA");
 }
+
 
 // Connects to the Bingo DB
 var mysql = require('mysql');
