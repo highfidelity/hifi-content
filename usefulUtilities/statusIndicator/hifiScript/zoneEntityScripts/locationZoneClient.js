@@ -102,6 +102,16 @@
         }
     }
 
+
+    // Sets user's location to zone name
+    function onEnterEntity() {
+        setZoneName();
+        if (DEBUG) {
+            console.log(AccountServices.username + " entered the zone " + zoneName);
+        }
+        setUserLocation(zoneName);
+    }
+
     
     // Updates the name of the zone
     function setZoneName() {
@@ -124,11 +134,7 @@
             avatarLoadedInsideZoneCheck();
         },
         enterEntity: function () {
-            setZoneName();
-            if (DEBUG) {
-                console.log(AccountServices.username + " entered the zone " + zoneName);
-            }
-            setUserLocation(zoneName);
+            onEnterEntity();
         },
         leaveEntity: function () {
             if (DEBUG) {
