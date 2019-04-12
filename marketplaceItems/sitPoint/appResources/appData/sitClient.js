@@ -78,7 +78,9 @@
 
         sittableID = Entities.addEntity({
             type: "Image",
-            grabbable: false,
+            grab: {
+                grabbable: false,
+            },
             dynamic: false,
             position: sittablePosition,
             rotation: Quat.multiply(chairProperties.rotation, Quat.fromVec3Degrees({ x: -90, y: 180, z: 0 })),
