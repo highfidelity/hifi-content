@@ -7,30 +7,36 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    var ORIGIN = {x:0, y:0, z: 0};
-    var RADIUS = 100000;
     
     var _this;
-    var roomName;
-    var occupantTextEntityId;
 
-    var MeetingZone = function() {
-        _this = this;        
+    var MeetingZone = function() {  
+        _this = this;     
     };
 
     MeetingZone.prototype = {
-        preload: function(entityId) {
-            _this.entityId = entityId;
-            roomName = Entities.getEntityProperties(_this.entityId, ['name']).name;
-            occupantTextEntityId = Entities.findEntitiesByName(roomName + '_OCCUPANTS', ORIGIN, RADIUS)[0];
+        preload: function(entityID) {
+            _this.entityID = entityID;
+            _this.userData = Entities.getEntityProperties(_this.entityID, ['userData']).userData;
+            if (_this.userData.length !== 0) {
+                try {
+                    _this.userData = JSON.parse(_this.userData);
+                } catch (e) {
+                    console.log(e, "Could not parse userData");
+                    return;
+                }
+                _this.occupantsListID = _this.userData.occupantsListID;
+            } else {
+                console.log("No userData found");
+            }
         },
 
         enterEntity: function() {
-            Entities.callEntityServerMethod(occupantTextEntityId, "enteredMeetingZone", [MyAvatar.sessionDisplayName]);
+            Entities.callEntityServerMethod(_this.occupantsListID, "enteredMeetingZone", [MyAvatar.sessionDisplayName]);
         },
 
         leaveEntity: function() {
-            Entities.callEntityServerMethod(occupantTextEntityId, "leftMeetingZone", [MyAvatar.sessionDisplayName]);
+            Entities.callEntityServerMethod(_this.occupantsListID, "leftMeetingZone", [MyAvatar.sessionDisplayName]);
         }
     };
     return new MeetingZone;
