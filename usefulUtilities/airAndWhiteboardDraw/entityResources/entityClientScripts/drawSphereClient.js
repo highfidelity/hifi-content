@@ -10,57 +10,34 @@
 (function() {
     var _this;
 
-    var EQUIP_MINIMUM_TIME = 1000;
-    var CURSOR_TEXTURE_URL = Script.resolvePath("cursor.png");
-    var BEGIN_STROKE_SOUND = SoundCache.getSound(Script.resolvePath('sfx/markerBeginStroke.wav'));
-    var EQUIP_SOUND = SoundCache.getSound(Script.resolvePath('sfx/equip_marker.wav'));
-    var UNEQUIP_SOUND = SoundCache.getSound(Script.resolvePath('sfx/unequip_marker.wav'));
-    var STROKEL1_SOUND = SoundCache.getSound(Script.resolvePath('sfx/strokeL1.wav'));
-    var STROKER1_SOUND = SoundCache.getSound(Script.resolvePath('sfx/strokeR1.wav'));
-    var STROKER2_SOUND = SoundCache.getSound(Script.resolvePath('sfx/strokeR2.wav'));
-    var STROKER3_SOUND = SoundCache.getSound(Script.resolvePath('sfx/strokeR3.wav'));  
-    var STROKE_SOUND_ARRAY = [STROKEL1_SOUND, STROKER1_SOUND, STROKER2_SOUND, STROKER3_SOUND];
-    var SOUND_TIMESTAMP_LIMIT = {
-        min: 100,
-        max: 300
-    };
-    var SOUND_TIMESTAMP = 220;
-    var STROKE_SOUND_VOLUME = {
-        min: 0.4,
-        max: 0.6
-    };
-    var HAPTIC_PARAMETERS = {
-        strength: 1,
-        duration: 50,
-        hand: 2
-    };
-    var STROKE_SOUND_THRESHOLD_DIRECTION = 0.85;
     var WHITEBOARD_SEARCH_RADIUS_M = 5;
-    var SHORT_TOOL_LIFETIME = 3600;
-    var MARKER_TOOL_LIFETIME = 90;
     var WAIT_TO_CLEAN_UP_MS = 2000;
-    var WAIT_TO_REOPEN_APP_MS = 500;
-    var MINIMUM_TRIGGER_PRESS_VALUE = 0.97;
+    var MINIMUM_TRIGGER_PRESS_TO_LASER_VALUE = 0.1;
+    var MINIMUM_TRIGGER_PRESS_TO_DRAW_VALUE = 0.97;
     var REPEAT_DISTANCE_CHECK_MS = 60;
     var MINIMUM_MOVEMENT_TO_DRAW_M = 0.0005;
     var MAXIMUM_MOVEMENT_TO_DRAW_M = 0.1;
     var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
     var DECAY_TIME_S = 60;
     var MAX_LINE_POINTS = 100;
+
     var DRAW_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/draw.mp3'));
+    var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/open.mp3'));
+    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/close.mp3'));
     var DRAW_SOUND_VOLUME = 0.08;
+    var OPEN_SOUND_VOLUME = 0.02;
+    var CLOSE_SOUND_VOLUME = 0.02;
+
     var DELETE_AGAIN_MS = 100;
     var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
     var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
     var DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M = 1.5;
     var DRAW_ON_BOARD_DISTANCE_HMD_M = 2;
     var DRAW_ON_BOARD_DISTANCE_DESKTOP_M = 3;
-    var OPEN_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/open.mp3'));
-    var OPEN_SOUND_VOLUME = 0.02;
-    var CLOSE_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/close.mp3'));
-    var CLOSE_SOUND_VOLUME = 0.02;
-    var WAIT_TO_CLEAN_UP_MS = 2000;
-    var WAIT_TO_REOPEN_APP_MS = 500;
+    
+    
+    
+    
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 300;
     var STROKE_FORWARD_OFFSET_M = 0.01;
     var DEFAULT_LINE_PROPERTIES = {
@@ -71,45 +48,25 @@
         collisionless: true,
         grab: { grabbable: false }
     };
-    var HALF = 0.5;
     var LASER_LIFETIME_S = 1;
 
-    var isPainting = false;
     var readyToDraw = false;
-    var isMouseDown = false;
-    var isStartingStroke = false;
-    var lastIntersectionPoint = undefined;
-    var lineResolution = 0.01;
-    var timestamp = null;
-    var strokeSoundTimestamp0 = null, strokeSoundTimestamp1 = null;
-    var cursorID = undefined;
-    var mouseMoveTimestamp = Date.now();
-    var hmdMoveTimestamp = Date.now();
-    var hapticPulseTimestamp = Date.now();
-    var equipTimestamp = undefined;
     var dominantHandJoint;
     var dominantHand;
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
     var whiteboard = null;
-    // Performance Debug
-    // 2 / 60.0 *1000
-    // 1/ 60.0*1000
-    var throttleTimeoutMS = 16.6;
-    var hapticTimeoutMS = 140;
     var controllerMapping;
-    var drawInterval = null;
-    var deletingInterval;
+    var triggerInterval = null;
+    var gripInterval;
     var activeTriggerPress = false;
+    var activeTriggerDraw;
     var activeGripPress = false;
+    var activeGripDelete;
     var controllerMappingName = 'Hifi-DrawApp';
     var animationData = {};
     var animationHandlerID;
     var injector;
     var mouseEventsConnected = false;
-    var paintSphereDimensions;
-    var linePoints = [{x: 0, y: 0, z: 0 }];
-    var lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-    var lineStrokeWidths = [];
     var lineStartPosition;
     var pickRay;
     var desktopActionInProgress = false;
@@ -130,10 +87,9 @@
     var drawingInDesktop;
     var displacementFromStart;
     var laser = null;
-    var laserEndDisplacement;
 
     var PaintSphere = function() {
-        _this = this;
+        _this = this;   
     };
 
     PaintSphere.prototype = {
@@ -142,7 +98,9 @@
             Script.setTimeout(function() {
                 var properties = Entities.getEntityProperties(_this.entityID, ['userData','color']);
                 _this.color = properties.color;
+                print(_this.color);
                 _this.texture = JSON.parse(properties.userData).textureURL;
+                // print(_this.texture);
                 _this.findWhiteboard();
                 readyToDraw = true;
             }, WAIT_FOR_ENTITIES_TO_LOAD_MS);
@@ -264,6 +222,8 @@
                         faceCamera: !onBoard
                     });
                 }
+            } else {
+                _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
             }
             // new line due to just beginning to draw or starting new to continue line with too many points. 
             // All lines have some previous data saved from the initial point, actual new lines have no line points yet
@@ -371,7 +331,6 @@
                     wasLastPointOnBoard = false;
                 }
                 currentStrokeWidth = _this.getCurrentStrokeWidth();
-                _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, currentLinePoint, true, true);
                 lineStartPosition = currentLinePoint;
             } else if (event.isMiddleButton) {
                 _this.deleteOnBoard();
@@ -434,52 +393,46 @@
         /* */
         beginLaser:function() {
             print("BEGIN LASER");
-            laserEndDisplacement = Vec3.subtract(whiteBoardIntersectionData.intersection, 
-                sphereProperties.position);
+            print("CREATING LASER IN COLOR: ", _this.color);
             laser = Entities.addEntity({
-                type: 'PolyLine',
-                isUVModeStretch: true,
+                type: "Shape",
+                shape: "Cylinder",
+                registrationPoint: {x: 0.5, y: 0, z: 0.5 },
+                dimensions: {x: 0.01, y: whiteBoardIntersectionData.distance, z: 0.01 },
                 lifetime: LASER_LIFETIME_S,
                 collisionless: true,
                 grab: { grabbable: false },
-                position: sphereProperties.position,
-                linePoints: [{x: 0, y: 0, z: 0}, laserEndDisplacement],
-                normals: [DEFAULT_NORMAL, DEFAULT_NORMAL],
-                strokeWidths: [0.005, 0.005],
+                localPosition: {x: 0, y: 0, z: 0 },
                 color: _this.color,
-                textures: _this.texture,
                 name: "Whiteboard HMD Beam",
-                faceCamera: true
+                parentID: _this.entityID
             }, 'avatar');
         },
 
         /* */
         updateLaser: function() {
-            laserEndDisplacement = Vec3.subtract(whiteBoardIntersectionData.intersection, sphereProperties.position);
             var currentAge = Entities.getEntityProperties(laser, 'age').age;
             Entities.editEntity(laser, {
                 lifetime: currentAge + LASER_LIFETIME_S,
-                position: sphereProperties.position,
-                linePoints: [{x: 0, y: 0, z: 0}, laserEndDisplacement]
+                dimensions: {x: 0.005, y: whiteBoardIntersectionData.distance, z: 0.005 }
             });
         },
 
         /* */
         getHMDLinePointData: function(force) {
+            print("GET HMD DATA");
             if (!initialLineStartDataReady && !force) {
-                // print("CANNOT RUN getHMDLinePointData");
+                print("CANNOT RUN getHMDLinePointData");
                 return -1;
             }
-            previousLinePoint = currentLinePoint;
-            previousNormal = currentNormal;
-            previousStrokeWidth = currentStrokeWidth;
             sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
-            currentStrokeWidth = sphereProperties.dimensions.x;
-            currentLinePoint = sphereProperties.position;
-            // var sphereFront = Quat.getFront(sphereProperties.rotation);
-            // var howFarBack = sphereProperties.dimensions.z * HALF;
-            // var pulledBack = Vec3.multiply(sphereFront, -howFarBack);
-            // var backedOrigin = Vec3.sum(sphereProperties.position, pulledBack);
+            if (activeTriggerDraw) {
+                previousLinePoint = currentLinePoint;
+                previousNormal = currentNormal;
+                previousStrokeWidth = currentStrokeWidth;
+                currentStrokeWidth = sphereProperties.dimensions.x;
+                currentLinePoint = sphereProperties.position;
+            }
             var pickRay = {
                 origin: sphereProperties.position,
                 direction: Vec3.multiplyQbyV(Quat.multiply(MyAvatar.orientation, 
@@ -488,7 +441,9 @@
             whiteBoardIntersectionData = Entities.findRayIntersection(pickRay, true, whiteboardParts);
             var status;
             var distanceSphereToBoard = Vec3.distance(whiteBoardIntersectionData.intersection, sphereProperties.position);
+            print("INTERSECTS: ", whiteBoardIntersectionData.intersects); // WHY IS THIS NOT HAPENING WHEN HALF LASERING!?!?
             if (whiteBoardIntersectionData.intersects && distanceSphereToBoard <= DRAW_ON_BOARD_DISTANCE_HMD_M) {
+                // draw on board
                 var intersectedWhiteboardPartName = Entities.getEntityProperties(whiteBoardIntersectionData.entityID, 
                     'name').name;
                 if (!laser) {
@@ -496,19 +451,13 @@
                 } else {
                     _this.updateLaser();
                 }
+                if (!activeTriggerDraw) {
+                    return 0;
+                }
                 if (intersectedWhiteboardPartName !== "Whiteboard") {
                     if (initialLineStartDataReady) { // line has moved off board onto selection square
                         _this.stopDrawing();
                     }
-                    // } else {
-                    //     if (intersectedWhiteboardPartName === "Whiteboard Reset") {
-                    //         print("CALLING RESET");
-                    //         Entities.callEntityMethod(whiteBoardIntersectionData.entityID, 'resetWhiteboard');
-                    //     } else {
-                    //         print("CALLING CREATE SPHERE");
-                    //         Entities.callEntityMethod(whiteBoardIntersectionData.entityID, 'createPaintSphere');
-                    //     }
-                    // }
                     return -1;
                 }
                 _this.projectPointOntoBoard();
@@ -537,32 +486,34 @@
             var onBoard;
             var status = _this.getHMDLinePointData(true);
             // print("INITIAL STATUS: ", status);
-            if (status > 0) {
+            if (status > 0) { // this is drawing
                 onBoard = status === 1 ? true : false;
                 wasLastPointOnBoard = onBoard;
-            } else {
+            } else if (status < 0) { // this is a selection
                 return;
             }
-            activeTriggerPress = true;
-            status = null;
-            _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
-            drawInterval = Script.setInterval(function() { // for trigger presses, check the position on an interval to draw
-                status = _this.getHMDLinePointData(false);
-                // print("INTERVAL STATUS : ", status);
-                if (status > 0) {
-                    onBoard = status === 1 ? true : false;
+            triggerInterval = Script.setInterval(function() { // for trigger presses, check the position on an interval to draw
+                if (!activeTriggerDraw) {
+                    status = _this.getHMDLinePointData(false);
                 } else {
+                    status = _this.getHMDLinePointData(false);
+                }
+                // print("INTERVAL STATUS : ", status);
+                if (status > 0 && activeTriggerDraw) {
+                    onBoard = status === 1 ? true : false;
+                    _this.draw(onBoard);
+                } else if (status < 0) { // this is a selection
                     return;
                 }
-                status = null;
-                _this.draw(onBoard);
             }, REPEAT_DISTANCE_CHECK_MS);
         },
 
         /* ON TRIGGER RELEASE DRAW: Stop checking distance hand has moved */
         triggerReleased: function() {
-            if (activeTriggerPress || polyLine) {
-                _this.stopDrawing();
+            if (triggerInterval) {
+                // print("CLEAR TRIGGER INTERVAL");
+                Script.clearInterval(triggerInterval);
+                triggerInterval = null;
             }
             if (laser) {
                 Entities.deleteEntity(laser);
@@ -577,7 +528,7 @@ sphere tip and erases it */
                 return;
             }
             // CAN THIS USE DELETEONBOARD FN?
-            deletingInterval = Script.setInterval(function() {
+            gripInterval = Script.setInterval(function() {
                 sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
                 var deletePosition = sphereProperties.position;
                 var pickRay = {
@@ -596,6 +547,7 @@ sphere tip and erases it */
                     }
                     deletePosition = whiteBoardIntersectionData.intersection;
                 }
+
                 var foundANearbyLine = false;
                 var lineToDelete;
                 Entities.findEntitiesByName("Whiteboard Polyline", deletePosition, MAXIMUM_DISTANCE_TO_SEARCH_M)
@@ -624,9 +576,9 @@ sphere tip and erases it */
         gripReleased: function() {
             if (activeGripPress) {
                 activeGripPress = false;
-                if (deletingInterval) {
-                    Script.clearInterval(deletingInterval);
-                    deletingInterval = null;
+                if (gripInterval) {
+                    Script.clearInterval(gripInterval);
+                    gripInterval = null;
                 }
             }
         },
@@ -640,23 +592,11 @@ sphere tip and erases it */
             if (!polyLine) {
                 return;
             }
-            if (laser) {
-                Entities.deleteEntity(laser);
-            }
-            if (drawInterval) {
-                // print("CLEAR TRIGGER INTERVAL");
-                Script.clearInterval(drawInterval);
-                drawInterval = null;
-            }
             // print("STOPPING THAT LINE______________");
             initialLineStartDataReady = false;
-            activeTriggerPress = false;
             polyLine = null;
             currentLinePoint = null;
             previousLinePoint = null;
-            linePoints = [{x: 0, y: 0, z: 0 }];
-            lineNormals = [DEFAULT_NORMAL, DEFAULT_NORMAL];
-            lineStrokeWidths = [];
             desktopActionInProgress = false;
         },
 
@@ -724,40 +664,71 @@ sphere tip and erases it */
             controllerMapping = Controller.newMapping(controllerMappingName);
             controllerMapping.from(Controller.Standard.RT).to(function (value) {
                 if (dominantHand === "right") {
-                    if (value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress) {
+                    if (value >= MINIMUM_TRIGGER_PRESS_TO_LASER_VALUE && !activeTriggerPress) {
                         activeTriggerPress = true;
                         _this.triggerPressed();
-                    } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
+                    } else if (value >= MINIMUM_TRIGGER_PRESS_TO_DRAW_VALUE && !activeTriggerDraw) {
+                        activeTriggerDraw = true;
+                    } else if (value <= MINIMUM_TRIGGER_PRESS_TO_DRAW_VALUE && activeTriggerDraw) {
+                        if (activeTriggerDraw) {
+                            _this.stopDrawing();
+                        }
+                        activeTriggerDraw = false;
+                    } else if (value <= MINIMUM_TRIGGER_PRESS_TO_LASER_VALUE && activeTriggerPress) {
+                        activeTriggerPress = false;
                         _this.triggerReleased();
                     }
                 }
             });
             controllerMapping.from(Controller.Standard.RightGrip).to(function (value) {
                 if (dominantHand === "right") {
-                    if (value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeGripPress) {
+                    if (value >= MINIMUM_TRIGGER_PRESS_TO_LASER_VALUE && !activeGripPress) {
                         activeGripPress = true;
                         _this.gripPressed();
-                    } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeGripPress) {
+                    } else if (value >= MINIMUM_TRIGGER_PRESS_TO_DRAW_VALUE && !activeGripDelete) {
+                        activeGripDelete = true;
+                    } else if (value <= MINIMUM_TRIGGER_PRESS_TO_DRAW_VALUE && activeGripDelete) {
+                        activeGripDelete = false;
+                    } else if (value <= MINIMUM_TRIGGER_PRESS_TO_LASER_VALUE && activeGripPress) {
+                        activeGripPress = false;
                         _this.gripReleased();
                     }
                 }
             });
             controllerMapping.from(Controller.Standard.LT).to(function (value) {
                 if (dominantHand === "left") {
-                    if (value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeTriggerPress ) {
+                    if (value >= MINIMUM_TRIGGER_PRESS_TO_LASER_VALUE && !activeTriggerPress) {
                         activeTriggerPress = true;
                         _this.triggerPressed();
-                    } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeTriggerPress) {
+                    } else if (value >= MINIMUM_TRIGGER_PRESS_TO_DRAW_VALUE && !activeTriggerDraw) {
+                        activeTriggerDraw = true;
+                        _this.triggerDraw();
+                    } else if (value <= MINIMUM_TRIGGER_PRESS_TO_DRAW_VALUE && activeTriggerDraw) {
+                        if (activeTriggerDraw) {
+                            _this.stopDrawing();
+                        }
+                        activeTriggerDraw = false;
+                    } else if (value <= MINIMUM_TRIGGER_PRESS_TO_LASER_VALUE && activeTriggerPress) {
+                        activeTriggerPress = false;
                         _this.triggerReleased();
                     }
                 }
             });
             controllerMapping.from(Controller.Standard.LeftGrip).to(function (value) {
                 if (dominantHand === "left") {
-                    if (value >= MINIMUM_TRIGGER_PRESS_VALUE && !activeGripPress) {
+                    if (value >= MINIMUM_TRIGGER_PRESS_TO_LASER_VALUE && !activeGripPress) {
                         activeGripPress = true;
                         _this.gripPressed();
-                    } else if (value <= MINIMUM_TRIGGER_PRESS_VALUE && activeGripPress) {
+                    } else if (value >= MINIMUM_TRIGGER_PRESS_TO_DRAW_VALUE && !activeGripDelete) {
+                        activeGripDelete = true;
+                        _this.gripDelete();
+                    } else if (value <= MINIMUM_TRIGGER_PRESS_TO_DRAW_VALUE && activeGripDelete) {
+                        if (activeGripDelete || polyLine) {
+                            _this.stopDeleting();
+                        }
+                        activeGripDelete = false;
+                    } else if (value <= MINIMUM_TRIGGER_PRESS_TO_LASER_VALUE && activeGripPress) {
+                        activeGripPress = false;
                         _this.gripReleased();
                     }
                 }
@@ -832,13 +803,13 @@ sphere tip and erases it */
             if (animationHandlerID) {
                 animationHandlerID = MyAvatar.removeAnimationStateHandler(animationHandlerID);
             }
-            if (drawInterval) {
-                Script.clearInterval(drawInterval);
-                drawInterval = null;
+            if (triggerInterval) {
+                Script.clearInterval(triggerInterval);
+                triggerInterval = null;
             }
-            if (deletingInterval) {
-                Script.clearInterval(deletingInterval);
-                deletingInterval = null;
+            if (gripInterval) {
+                Script.clearInterval(gripInterval);
+                gripInterval = null;
             }
             tablet.tabletShownChanged.disconnect(_this.tabletShownChanged);
             MyAvatar.dominantHandChanged.disconnect(_this.handChanged);
