@@ -122,18 +122,18 @@
                     console.log("SENDING HTTP REQUEST");
                     var options = {};
                     options.method = "POST";
-                    var urlSuffix = 'client_id=<' + clientID + 
-                        '>&client_secret=<' + secret + 
-                        '>&refresh_token=<'+ refreshToken + 
-                        '>&grant_type=refresh_token';
+                    options.body = 'client_id=' + clientID + 
+                        '&client_secret=' + secret + 
+                        '&refresh_token='+ refreshToken + 
+                        '&grant_type=refresh_token';
                     options.headers = [];
-                    options.headers['Content-Type'] = "application/json";
-                    options.uri = "https://www.googleapis.com/oauth2/v4/token" + urlSuffix;
-                    options.headers['Content-Length'] = options.uri.length;
+                    options.headers['Content-Type'] = "application/x-www-form-urlencoded";
+                    options.uri = "https://www.googleapis.com/oauth2/v4/token";
+                    options.headers['Content-Length'] = options.body.length;
 
                     request(options, function(error, response) {
                         if (error) {
-                            console.log("could not complete request", error, response);
+                            console.log("could not complete request", error, JSON.stringify(response));
                             return;
                         } else {
                             console.log("RESPONSE: ", error, response);
