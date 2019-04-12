@@ -175,7 +175,6 @@
     var overlayPreSitTextLoaded = null;
     var intervalUpdatePreSitImage = null;
     var preSitLoadIndex = 0;
-
     // Prefetch all presit overlay images into user's client
     function prefetchPresitOverlayImages() {
         var str;
@@ -434,8 +433,8 @@
         );
     }
 
-
     // #endregion UTILS 
+
 
     // #region SIT ACTIONS 
 
