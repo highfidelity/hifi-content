@@ -11,11 +11,11 @@
     <script type="text/javascript">
         // Load the API's client and auth2 modules.
         // Call the initClient function after the modules load.
-        var API_KEY = '';
-        var CLIENT_ID = '';
-        var CLIENT_SECRET = '';
+        var API_KEY = 'AIzaSyCu8nILlmjRhMMwtIKkV15BBrks-QXjFtk';
+        var CLIENT_ID = '813544734011-7b3uig9o47b15bmh7bbc2jq93k291lkf.apps.googleusercontent.com';
+        var CLIENT_SECRET = 'WFEX3xCgxkUlNjiwt6WjJaKY';
         var SCOPE = 'https://www.googleapis.com/auth/calendar.events.readonly';
-        var refreshToken;
+        var authCode = false;
         var GoogleAuth;
         function handleClientLoad() {
             gapi.load('client:auth2', initClient);
@@ -34,9 +34,14 @@
                 // Listen for sign-in state changes.
                 GoogleAuth.isSignedIn.listen(updateSigninStatus);
                 GoogleAuth.grantOfflineAccess().then(function (response) {
+                    authCode = response.code;
+                    var zone = new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2];
                     EventBridge.emitWebEvent(JSON.stringify({
-                        type: "REFRESH",
-                        refreshToken: response.code
+                        type: "AUTHCODE",
+                        authCode: authCode,
+                        clientID: CLIENT_ID,
+                        secret: CLIENT_SECRET,
+                        timezone: zone
                     }));
                 });
                 // Handle initial sign-in state. (Determine if user is already signed in.)
@@ -75,13 +80,12 @@
         function setSigninStatus(isSignedIn) {
             var user = GoogleAuth.currentUser.get();
             var isAuthorized = user.hasGrantedScopes(SCOPE);
-            var zone = new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2];
+
             if (isAuthorized) {
                 $('#sign-in-or-out-button').html('Sign out');
                 $('#revoke-access-button').css('display', 'inline-block');
                 $('#auth-status').html('You are currently signed in and have granted ' +
                     'access to this app.');
-                var response = user.getAuthResponse(true);
                 EventBridge.emitWebEvent(JSON.stringify({
                     type: "TOKEN",
                     token: response.access_token,

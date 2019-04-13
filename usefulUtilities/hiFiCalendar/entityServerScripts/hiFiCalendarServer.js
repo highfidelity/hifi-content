@@ -9,7 +9,7 @@
 
 (function() {
     var INTERVAL_FREQUENCY_MS = 60000;
-    var EXPIRY_BUFFER = 30000;
+    var EXPIRY_BUFFER = 300000;
     var HOURS_PER_DAY = 24;
     var HALF_DAY_HR = 12;
     var CHANNEL = "HiFi.Google.Calendar";
@@ -47,6 +47,7 @@
         }
 
         if (that.entityID === that.roomScheduleID) {
+            that.sentAlready = false;
             that.token = that.userData.token;
             that.expireTime = that.userData.expireTime;
             that.timezoneOffset = that.userData.timezoneOffset;
@@ -83,8 +84,10 @@
 
 
     this.refreshToken = function(id) {
+        console.log("REFRESHING TOKEN");
         if (that.entityID === id) {
             if (that.interval) {
+                console.log("CLEARING INTERVAL");
                 Script.clearInterval(that.interval);
                 that.interval = false;
             }
@@ -98,7 +101,8 @@
                 }
                 that.token = that.userData.token;
                 that.expireTime = that.userData.expireTime;
-                that.googleRequest(that.userData.token);
+                that.sentAlready = false;
+                that.googleRequest(that.token);
             }
         }
     };
@@ -117,47 +121,104 @@
             "&maxResults=2" +
             "&orderBy=startTime" +
             "&access_token=" + token;
-        that.interval = Script.setInterval(function() {
-            console.log("STARTING INTERVAL");
-            if ((new Date()).valueOf() > (that.expireTime - EXPIRY_BUFFER)) {
-                console.log("EXCEEDED EXPIRATION OF TOKEN");
-                Entities.editEntity(that.entityID, {text: 'Attempting to refresh authorization, please wait a moment.'});
-                Messages.sendMessage(CHANNEL, JSON.stringify({
-                    type: "REFRESH TOKEN",
-                    token: that.token
-                }));
-                Script.clearInterval(that.interval);
-                that.interval = false;
-                return;
-            }
-            that.request(that.scheduleURL, function (error, response) {
-                if (error) {
-                    console.log("could not complete request", error);
+        if (!that.interval) {
+            that.interval = Script.setInterval(function() {
+                console.log("STARTING INTERVAL");
+                if ((new Date()).valueOf() > (that.expireTime - EXPIRY_BUFFER) && !that.sentAlready) {
+                    that.sentAlready = true;
+                    console.log("SENDING MESSAGE FOR NEW TOKEN");
+                    Messages.sendMessage(CHANNEL, JSON.stringify({
+                        type: "REFRESH TOKEN",
+                        token: that.token,
+                        uuid: that.roomScheduleID
+                    }));
+                } else if ((new Date()).valueOf() > (that.expireTime)) {
+                    console.log("EXCEEDED EXPIRATION OF TOKEN");
+                    Entities.editEntity(that.entityID, {text: "Couldn't refresh authorization, please notify Mark B."});
+                    Script.clearInterval(that.interval);
+                    that.interval = false;
                     return;
-                } else {
-                    that.clearEventList(that.entityID);
-                    console.log(JSON.stringify(response));
-                    var events = response.items;
-                    if (events.length > 0) {
-                        for (var i = 0; i < events.length; i++) {
-                            var event = events[i];
-                            var start = event.start.dateTime;
-                            var end = event.end.dateTime;
-                            var summary = event.summary;
-                            if (!start) {
-                                start = event.start.date;
-                            }        
-                            var startTimestamp = that.googleDateToUTCDate(start);
-                            var endTimestamp = that.googleDateToUTCDate(end);
-              
-                            that.addEvent(that.entityID, [summary, startTimestamp, endTimestamp]);
-                        }
+                }
+                that.request(that.scheduleURL, function (error, response) {
+                    if (error) {
+                        console.log("could not complete request", error);
+                        Script.clearInterval(that.interval);
+                        that.interval = false;
+                        return;
                     } else {
-                        that.showNoScheduledEvents(that.entityID);
-                    }
-                } 
-            });
-        }, INTERVAL_FREQUENCY_MS);
+                        that.clearEventList(that.entityID);
+                        console.log(JSON.stringify(response));
+                        var events = response.items;
+                        if (events.length > 0) {
+                            for (var i = 0; i < events.length; i++) {
+                                var event = events[i];
+                                var start = event.start.dateTime;
+                                var end = event.end.dateTime;
+                                var summary = event.summary;
+                                if (!start) {
+                                    start = event.start.date;
+                                }        
+                                var startTimestamp = that.googleDateToUTCDate(start);
+                                var endTimestamp = that.googleDateToUTCDate(end);
+                  
+                                that.addEvent(that.entityID, [summary, startTimestamp, endTimestamp]);
+                            }
+                        } else {
+                            that.showNoScheduledEvents(that.entityID);
+                        }
+                    } 
+                });
+            }, INTERVAL_FREQUENCY_MS);
+        } else {
+            Script.clearInterval(that.interval);
+            that.interval = Script.setInterval(function() {
+                console.log("STARTING INTERVAL");
+                if ((new Date()).valueOf() > (that.expireTime - EXPIRY_BUFFER) && !that.sentAlready) {
+                    that.sentAlready = true;
+                    console.log("SENDING MESSAGE FOR NEW TOKEN");
+                    Messages.sendMessage(CHANNEL, JSON.stringify({
+                        type: "REFRESH TOKEN",
+                        token: that.token,
+                        uuid: that.roomScheduleID
+                    }));
+                } else if ((new Date()).valueOf() > (that.expireTime)) {
+                    console.log("EXCEEDED EXPIRATION OF TOKEN");
+                    Entities.editEntity(that.entityID, {text: "Couldn't refresh authorization, please notify Mark B."});
+                    Script.clearInterval(that.interval);
+                    that.interval = false;
+                    return;
+                }
+                that.request(that.scheduleURL, function (error, response) {
+                    if (error) {
+                        console.log("could not complete request", error);
+                        Script.clearInterval(that.interval);
+                        that.interval = false;
+                        return;
+                    } else {
+                        that.clearEventList(that.entityID);
+                        console.log(JSON.stringify(response));
+                        var events = response.items;
+                        if (events.length > 0) {
+                            for (var i = 0; i < events.length; i++) {
+                                var event = events[i];
+                                var start = event.start.dateTime;
+                                var end = event.end.dateTime;
+                                var summary = event.summary;
+                                if (!start) {
+                                    start = event.start.date;
+                                }        
+                                var startTimestamp = that.googleDateToUTCDate(start);
+                                var endTimestamp = that.googleDateToUTCDate(end);
+                  
+                                that.addEvent(that.entityID, [summary, startTimestamp, endTimestamp]);
+                            }
+                        } else {
+                            that.showNoScheduledEvents(that.entityID);
+                        }
+                    } 
+                });
+            }, INTERVAL_FREQUENCY_MS);
+        }
     };
 
 
@@ -182,9 +243,9 @@
 
 
     this.showNoScheduledEvents = function(id) {
-        console.log("SHOW NO SCHEDULED EVENTS");
+        console.log("SHOW NO SCHEDULED EVENTS", id);
         if (id === that.entityID) {
-            Entities.editEntity(that.room.scheduleEntityID, {text: "No events scheduled for this room"});
+            Entities.editEntity(id, {text: "No events scheduled for this room"});
         }
     };
 
@@ -224,6 +285,23 @@
                 } else {
                     endHours = event.endTimestamp.getHours() - that.timezoneOffset - HALF_DAY_HR;
                 }
+                
+                var startAmPm;
+                var endAmPm;
+                if (event.startTimestamp.getHours() - that.timezoneOffset < 0) {
+                    startAmPm = "pm";
+                } else if (event.startTimestamp.getHours() - that.timezoneOffset < (HALF_DAY_HR)) {
+                    startAmPm = "am";
+                } else {
+                    startAmPm = "pm";
+                }
+                if (event.endTimestamp.getHours() - that.timezoneOffset < 0) {
+                    endAmPm = "pm";
+                } else if (event.endTimestamp.getHours() - that.timezoneOffset < (HALF_DAY_HR)) {
+                    endAmPm = "am";            
+                } else {
+                    endAmPm = "pm";
+                }
                 printedSchedule = printedSchedule + 
                 event.summary +
                 "\n" +
@@ -232,18 +310,16 @@
                 (JSON.stringify(event.startTimestamp.getMinutes()).length > 1 ? 
                     event.startTimestamp.getMinutes() :
                     event.startTimestamp.getMinutes() + "0") + 
-                ' ' + ((event.startTimestamp.getHours() - that.timezoneOffset < HALF_DAY_HR) ? 
-                    ("am") : 
-                    ("pm")) + 
-                    ' - ' + 
+                ' ' + 
+                startAmPm +
+                ' - ' + 
                 endHours + 
                 ':' + 
                 (JSON.stringify(event.startTimestamp.getMinutes()).length > 1 ? 
                     event.startTimestamp.getMinutes() :
                     event.startTimestamp.getMinutes() + "0") + 
-                ' ' + ((event.endTimestamp.getHours() - that.timezoneOffset < HALF_DAY_HR) ? 
-                    ("am") :   
-                    ("pm")) +
+                ' ' + 
+                endAmPm +
                 ' ' + that.timezoneName + '\n\n';                
             });            
             Entities.editEntity(id, {text: printedSchedule});
@@ -286,14 +362,13 @@
 
     this.enteredMeetingZone = function(id, params) {
         if (that.entityID === id) {    
-            var displayName = params[0];
+            var uuid = params[0];
+            var displayName = params[1];
 
-            if (that.room.occupants.indexOf(displayName) === -1) {
-                that.room.occupants.push(displayName);
-            }
+            that.room.occupants[uuid] = displayName;
 
             Entities.editEntity(id, {
-                "text": (that.room.occupants).join("\n"), 
+                "text": (Object.values(that.room.occupants)).join("\n"), 
                 "textColor": [255, 255, 255]
             });
         }
@@ -302,15 +377,15 @@
 
     this.leftMeetingZone = function(id, params) {
         if (that.entityID === id) {    
-            var displayName = params[0];
 
-            var index = that.room.occupants.indexOf(displayName);
-            if (index > -1) {
-                that.room.occupants.splice(index, 1);
+            var uuid = params[0];
+
+            if (uuid in that.room.occupants) {
+                delete that.room.occupants[uuid];
             }
 
             Entities.editEntity(id, {
-                "text": (that.room.occupants).join("\n"), 
+                "text": (Object.values(that.room.occupants)).join("\n"), 
                 "textColor": [255, 255, 255]
             });
         }

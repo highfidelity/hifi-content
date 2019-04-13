@@ -18,6 +18,7 @@
         preload: function(entityID) {
             _this.entityID = entityID;
             _this.userData = Entities.getEntityProperties(_this.entityID, ['userData']).userData;
+            AvatarManager.avatarRemovedEvent.connect(_this.leaveDomain);
             if (_this.userData.length !== 0) {
                 try {
                     _this.userData = JSON.parse(_this.userData);
@@ -32,11 +33,19 @@
         },
 
         enterEntity: function() {
-            Entities.callEntityServerMethod(_this.occupantsListID, "enteredMeetingZone", [MyAvatar.sessionDisplayName]);
+            Entities.callEntityServerMethod(_this.occupantsListID, "enteredMeetingZone", [MyAvatar.sessionUUID, MyAvatar.sessionDisplayName]);
         },
 
         leaveEntity: function() {
-            Entities.callEntityServerMethod(_this.occupantsListID, "leftMeetingZone", [MyAvatar.sessionDisplayName]);
+            Entities.callEntityServerMethod(_this.occupantsListID, "leftMeetingZone", [MyAvatar.sessionUUID]);
+        },
+
+        leaveDomain: function(uuid) {
+            Entities.callEntityServerMethod(_this.occupantsListID, "leftMeetingZone", [uuid]);
+        },
+
+        unload: function() {
+            AvatarManager.avatarRemovedEvent.disconnect(_this.leaveDomain);
         }
     };
     return new MeetingZone;
