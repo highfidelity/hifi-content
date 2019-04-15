@@ -48,8 +48,8 @@
         //         Use: startNearTrigger + startFarTrigger + clickReleaseOnEntity
 
         // MOUSECLICK METHODS - not triggered by controller
-        // params are: entityID, event PointerEvent (https://docs.highfidelity.com/api-reference/globals#PointerEvent)
-        // https://docs.highfidelity.com/api-reference/namespaces/entities#.clickDownOnEntity
+        // params are: entityID, event PointerEvent (https://apidocs.highfidelity.com/global.html#PointerEvent)
+        // https://apidocs.highfidelity.com/Entities.html#.clickDownOnEntity
         clickReleaseOnEntity: function(entityID, pointerEvent) {
             if (pointerEvent.isPrimaryButton) {} // will only work on left mouse click release event (see PointerEvent)
         },
@@ -66,16 +66,16 @@
         hoverOverEntity: function(entityID, pointerEvent) {},
 
         // triggered when a script in a Web entity's web page script sends and event over hte script's eventbridge
-        webEventReceived: function(entityID, message) {}, // https://docs.highfidelity.com/api-reference/namespaces/entities#.webEventReceived
+        webEventReceived: function(entityID, message) {}, // https://apidocs.highfidelity.com/Entities.html#.webEventReceived
 
         // COLLISION METHODS
         // Avatar collision with this entity
         leaveEntity: function(userID) {},
-        enterEntity: function(userID) {}, // https://docs.highfidelity.com/api-reference/namespaces/entities#.enterEntity
+        enterEntity: function(userID) {}, // https://apidocs.highfidelity.com/Entities.html#.enterEntity
 
         // Entity (idB) collision with this entity (idA)
-        // Collision properties https://docs.highfidelity.com/api-reference/globals#Collision
-        collisionWithEntity: function(idA, idB, collision) {}, // https://docs.highfidelity.com/api-reference/namespaces/entities#.collisionWithEntity
+        // Collision properties https://apidocs.highfidelity.com/global.html#Collision
+        collisionWithEntity: function(idA, idB, collision) {}, // https://apidocs.highfidelity.com/Entities.html#.collisionWithEntity
 
         // DELETE
         // triggered when entity is deleted
@@ -83,7 +83,7 @@
 
         // CONTROLLER METHODS
         // params are: entityID, string "<"left" || "right">,<MyAvatar.UUID>" ex "left,userID"
-        // https://docs.highfidelity.com/api-reference/namespaces/controller
+        // https://apidocs.highfidelity.com/Controller.html
 
         // Far Trigger Entity methods
         startFarTrigger: function(entityID, handUserID) {},
