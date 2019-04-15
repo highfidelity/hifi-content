@@ -35,13 +35,18 @@ Here's what I'd expect here:
     var MS_TO_SEC = 1000;
     var MIN_PER_HR = 60;
     var ATLANTIS_LABEL_ID = "{24b7b274-25a2-4dde-a241-f90da21de4c8}";
-    var JAKKU_LABEL_ID = "{990c5409-dedf-438f-b0f8-7eb0d6740b60}";
-    var CAPITOL_LABEL_ID = "{ea7a6b67-332e-4d8c-ba88-b5e96ff17cfc}";
-    var FANTASIA_LABEL_ID = "{1cad2f9e-26d5-4ac3-b8d1-ebc4cc6e68df}";
-    var OZ_LABEL_ID = "{1d064179-f32d-49bd-a6f4-77a1a18c46e0}";
-    var NARNIA_LABEL_ID = "{8a568c27-519f-48d2-b361-9a08468cdc17}";
+    var JAKKU_LABEL_ID = "{c3f87945-e372-4f85-bde2-9d99d3633125}";
+    var CAPITOL_LABEL_ID = "{010134dd-8608-4eef-b0a8-8316dcb982d8}";
+    var FANTASIA_LABEL_ID = "{3aa8bb2e-b008-4d87-9fff-f0a4fda0c9d2}";
+    var OZ_LABEL_ID = "{3aa8bb2e-b008-4d87-9fff-f0a4fda0c9d2}";
+    var NARNIA_LABEL_ID = "{cb0571ff-21f9-4d60-8d43-ebc5e80704a3}";
     var calendarScheduleIDs = [
-        ATLANTIS_LABEL_ID
+        ATLANTIS_LABEL_ID,
+        JAKKU_LABEL_ID,
+        CAPITOL_LABEL_ID,
+        FANTASIA_LABEL_ID,
+        OZ_LABEL_ID,
+        NARNIA_LABEL_ID
     ];
 
     var request = Script.require('request').request;
@@ -85,15 +90,11 @@ Here's what I'd expect here:
                         console.log("SUCCESS!!!!: ", error, JSON.stringify(response));
                         token = response.access_token;
                         refreshToken = response.refresh_token;
-                        tokenLifetime = response.expires_in;
-                        expireTime = new Date().valueOf() + tokenLifetime * MS_TO_SEC;
+                        tokenLifetime = response.expires_in * MS_TO_SEC;
+                        expireTime = new Date().valueOf() + tokenLifetime;
 
                         calendarScheduleIDs.forEach(function(entityID) {
-                            sendToken(entityID, {
-                                'token': token,
-                                'expires_at': expireTime,
-                                'timezone': timezone
-                            });
+                            sendToken(entityID);
                         }); 
                     }
                 });
@@ -101,7 +102,7 @@ Here's what I'd expect here:
         }
     }
 
-    function sendToken(entityID, data) {
+    function sendToken(entityID) {
         console.log("SENDING TOKEN");
         var userData = Entities.getEntityProperties(entityID, ['userData']).userData;
         if (userData) {
@@ -111,19 +112,14 @@ Here's what I'd expect here:
                 console.log(e, "Could not parse userData");
                 return;
             }
-            userData.token = data.token;
-            userData.expireTime = data.expires_at;
-            userData.timezoneOffset = (new Date().getTimezoneOffset()/MIN_PER_HR),
-            userData.timezoneName = data.timezone;
         } else {
-            console.log("No userData found");
-            userData = {
-                token: data.token,
-                expireTime: data.expires_at,
-                timezoneOffset: (new Date().getTimezoneOffset()/MIN_PER_HR),
-                timezoneName: data.timezone
-            };
+            console.log("No userData found, didn't send anything");
+            return;
         }
+        userData.token = token;
+        userData.expireTime = expireTime;
+        userData.timezoneOffset = (new Date().getTimezoneOffset()/MIN_PER_HR),
+        userData.timezoneName = timezone;
         console.log("SENDING USER DATA: ", JSON.stringify(userData), " TO ", entityID);
         Entities.editEntity(entityID, {
             userData: JSON.stringify(userData)
@@ -148,6 +144,7 @@ Here's what I'd expect here:
                 newMessageArrivalTime = Date.now();
                 if (newMessageArrivalTime - lastMessageArrivalTime > (120 * MS_TO_SEC)) {
                     tokenCheck(message);
+                    lastMessageArrivalTime = newMessageArrivalTime;
                 }
             }
         }
@@ -174,24 +171,17 @@ Here's what I'd expect here:
                     return;
                 } else {
                     console.log("REFRESH SUCCESS!!!!   ", error, JSON.stringify(response));
-                    token = response.acces_token;
-                    expireTime = response.expires_at;
+                    token = response.access_token;
+                    tokenLifetime = response.expires_in * MS_TO_SEC;
+                    expireTime = new Date().valueOf() + tokenLifetime;
                     calendarScheduleIDs.forEach(function(entityID) {
-                        sendToken(entityID, {
-                            'token': token,
-                            'expires_at': expireTime,
-                            'timezone': timezone
-                        });
+                        sendToken(entityID);
                     }); 
                 }
             });
         } else {
             console.log("SENDING CURRENT TOKEN");
-            sendToken(returnUUID, {
-                'token': token,
-                'expires_at': expireTime,
-                'timezone': timezone
-            });
+            sendToken(returnUUID);
         }
     }
 

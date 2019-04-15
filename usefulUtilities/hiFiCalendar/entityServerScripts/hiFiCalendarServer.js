@@ -11,7 +11,7 @@
     var INTERVAL_FREQUENCY_MS = 60000;
     var EXPIRY_BUFFER = 300000;
     var HOURS_PER_DAY = 24;
-    var HALF_DAY_HR = 12;
+    var NOON = 12;
     var CHANNEL = "HiFi.Google.Calendar";
     var GREEN_TEXT = [168, 255, 168];
     var RED_TEXT = [255, 168, 168];
@@ -28,7 +28,6 @@
 
 
     this.preload = function(entityID) {
-        console.log("PRELOADING");
         that = this;
         that.entityID = entityID;
         that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData']);
@@ -71,7 +70,6 @@
             that.updateSignColor(that.roomEntityIDs[2], ["GREEN"]);
             that.googleRequest(that.token);
         } else if (that.entityID === that.roomOccupantListID) {
-            console.log("PRELOADING OCCUPANTS");
             that.room = {};
             that.room = {
                 "occupants": []
@@ -84,7 +82,6 @@
 
 
     this.refreshToken = function(id) {
-        console.log("REFRESHING TOKEN");
         if (that.entityID === id) {
             if (that.interval) {
                 console.log("CLEARING INTERVAL");
@@ -109,7 +106,6 @@
 
 
     this.googleRequest = function(token) {
-        console.log("REQUESTING DATA FROM GOOGLE");
         var tomorrowMidnight = new Date();
         tomorrowMidnight.setHours(HOURS_PER_DAY, 0, 0, 0);
         that.scheduleURL = "https://www.googleapis.com/calendar/v3/calendars/" + 
@@ -123,7 +119,6 @@
             "&access_token=" + token;
         if (!that.interval) {
             that.interval = Script.setInterval(function() {
-                console.log("STARTING INTERVAL");
                 if ((new Date()).valueOf() > (that.expireTime - EXPIRY_BUFFER) && !that.sentAlready) {
                     that.sentAlready = true;
                     console.log("SENDING MESSAGE FOR NEW TOKEN");
@@ -134,7 +129,6 @@
                     }));
                 } else if ((new Date()).valueOf() > (that.expireTime)) {
                     console.log("EXCEEDED EXPIRATION OF TOKEN");
-                    Entities.editEntity(that.entityID, {text: "Couldn't refresh authorization, please notify Mark B."});
                     Script.clearInterval(that.interval);
                     that.interval = false;
                     return;
@@ -161,7 +155,7 @@
                                 var startTimestamp = that.googleDateToUTCDate(start);
                                 var endTimestamp = that.googleDateToUTCDate(end);
                   
-                                that.addEvent(that.entityID, [summary, startTimestamp, endTimestamp]);
+                                that.postEvents(that.entityID, [summary, startTimestamp, endTimestamp]);
                             }
                         } else {
                             that.showNoScheduledEvents(that.entityID);
@@ -172,7 +166,6 @@
         } else {
             Script.clearInterval(that.interval);
             that.interval = Script.setInterval(function() {
-                console.log("STARTING INTERVAL");
                 if ((new Date()).valueOf() > (that.expireTime - EXPIRY_BUFFER) && !that.sentAlready) {
                     that.sentAlready = true;
                     console.log("SENDING MESSAGE FOR NEW TOKEN");
@@ -183,7 +176,6 @@
                     }));
                 } else if ((new Date()).valueOf() > (that.expireTime)) {
                     console.log("EXCEEDED EXPIRATION OF TOKEN");
-                    Entities.editEntity(that.entityID, {text: "Couldn't refresh authorization, please notify Mark B."});
                     Script.clearInterval(that.interval);
                     that.interval = false;
                     return;
@@ -210,7 +202,7 @@
                                 var startTimestamp = that.googleDateToUTCDate(start);
                                 var endTimestamp = that.googleDateToUTCDate(end);
                   
-                                that.addEvent(that.entityID, [summary, startTimestamp, endTimestamp]);
+                                that.postEvents(that.entityID, [summary, startTimestamp, endTimestamp]);
                             }
                         } else {
                             that.showNoScheduledEvents(that.entityID);
@@ -225,7 +217,6 @@
     var googleDate = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}):(\d{2})$/;
     var MINS_PER_HOUR = 60;
     this.googleDateToUTCDate = function(d) {
-        console.log("transitioning date formats");
         var m = googleDate.exec(d);
         var year = +m[1];
         var month = +m[2];
@@ -243,21 +234,16 @@
 
 
     this.showNoScheduledEvents = function(id) {
-        console.log("SHOW NO SCHEDULED EVENTS", id);
         if (id === that.entityID) {
-            Entities.editEntity(id, {text: "No events scheduled for this room"});
+            Entities.editEntity(id, {text: "Nothing on the schedule for this room today."});
         }
     };
 
 
-    this.addEvent = function(id, params) {
-        console.log("ADDING EVENT");
+    this.postEvents = function(id, params) {
         if (id === that.entityID) {
             var startTimestamp = params[1];
             var endTimestamp = params[2];
-
-            console.log("add start: ", startTimestamp);
-            console.log("add end: ", endTimestamp);
 
             var tempEvent = {
                 summary: params[0],
@@ -272,32 +258,32 @@
                 var startHours;
                 var endHours;
                 if (event.startTimestamp.getHours() - that.timezoneOffset <= 0) {
-                    startHours = event.startTimestamp.getHours() - that.timezoneOffset + HALF_DAY_HR;
-                } else if (event.startTimestamp.getHours() - that.timezoneOffset <= (HALF_DAY_HR + 1)) {
+                    startHours = event.startTimestamp.getHours() - that.timezoneOffset + NOON;
+                } else if (event.startTimestamp.getHours() - that.timezoneOffset <= (NOON)) {
                     startHours = event.startTimestamp.getHours() - that.timezoneOffset;
                 } else {
-                    startHours = event.startTimestamp.getHours() - that.timezoneOffset - HALF_DAY_HR;
+                    startHours = event.startTimestamp.getHours() - that.timezoneOffset - NOON;
                 }
                 if (event.endTimestamp.getHours() - that.timezoneOffset <= 0) {
-                    endHours = event.endTimestamp.getHours() - that.timezoneOffset + HALF_DAY_HR;
-                } else if (event.endTimestamp.getHours() - that.timezoneOffset <= (HALF_DAY_HR + 1)) {
+                    endHours = event.endTimestamp.getHours() - that.timezoneOffset + NOON;
+                } else if (event.endTimestamp.getHours() - that.timezoneOffset <= (NOON)) {
                     endHours = event.endTimestamp.getHours() - that.timezoneOffset;                    
                 } else {
-                    endHours = event.endTimestamp.getHours() - that.timezoneOffset - HALF_DAY_HR;
+                    endHours = event.endTimestamp.getHours() - that.timezoneOffset - NOON;
                 }
                 
                 var startAmPm;
                 var endAmPm;
                 if (event.startTimestamp.getHours() - that.timezoneOffset < 0) {
                     startAmPm = "pm";
-                } else if (event.startTimestamp.getHours() - that.timezoneOffset < (HALF_DAY_HR)) {
+                } else if (event.startTimestamp.getHours() - that.timezoneOffset < (NOON)) {
                     startAmPm = "am";
                 } else {
                     startAmPm = "pm";
                 }
                 if (event.endTimestamp.getHours() - that.timezoneOffset < 0) {
                     endAmPm = "pm";
-                } else if (event.endTimestamp.getHours() - that.timezoneOffset < (HALF_DAY_HR)) {
+                } else if (event.endTimestamp.getHours() - that.timezoneOffset < (NOON)) {
                     endAmPm = "am";            
                 } else {
                     endAmPm = "pm";
@@ -315,9 +301,9 @@
                 ' - ' + 
                 endHours + 
                 ':' + 
-                (JSON.stringify(event.startTimestamp.getMinutes()).length > 1 ? 
-                    event.startTimestamp.getMinutes() :
-                    event.startTimestamp.getMinutes() + "0") + 
+                (JSON.stringify(event.endTimestamp.getMinutes()).length > 1 ? 
+                    event.endTimestamp.getMinutes() :
+                    event.endTimestamp.getMinutes() + "0") + 
                 ' ' + 
                 endAmPm +
                 ' ' + that.timezoneName + '\n\n';                
@@ -329,31 +315,24 @@
 
 
     this.clearEventList = function(id) {
-        console.log("CLEAR LIST");
         that.room.eventList = [];
         Entities.editEntity(id, {text: ""});
     };
 
 
     this.setBusyLight = function() {
-        console.log("SET BUSY LIGHT");
         var now = new Date();
-        console.log("Now: ", now);
         if (typeof that.room.eventList[0] === "object") {
             var endValue = that.room.eventList[0].endTimestamp;
             var startValue = that.room.eventList[0].startTimestamp;
-            console.log("Start: ", startValue, " End: ",endValue);
             if (now <= endValue && now >= startValue) {
-                console.log("IN USE");
                 that.updateSignColor(that.roomEntityIDs[1], ["RED"]);
                 that.updateSignColor(that.roomEntityIDs[2], ["RED"]);
             } else {
-                console.log("AVAILABLE");
                 that.updateSignColor(that.roomEntityIDs[1], ["GREEN"]);
                 that.updateSignColor(that.roomEntityIDs[2], ["GREEN"]);
             }
         } else {
-            console.log("AVAILABLE, EVENTLIST NOT AN OBJECT");
             that.updateSignColor(that.roomEntityIDs[1], ["GREEN"]);
             that.updateSignColor(that.roomEntityIDs[2], ["GREEN"]);
         }
@@ -366,9 +345,11 @@
             var displayName = params[1];
 
             that.room.occupants[uuid] = displayName;
-
+            var text = Object.keys(that.room.occupants).map(function(key) {
+                return that.room.occupants[key];
+            });
             Entities.editEntity(id, {
-                "text": (Object.values(that.room.occupants)).join("\n"), 
+                "text": text.join("\n"), 
                 "textColor": [255, 255, 255]
             });
         }
@@ -383,9 +364,11 @@
             if (uuid in that.room.occupants) {
                 delete that.room.occupants[uuid];
             }
-
+            var text = Object.keys(that.room.occupants).map(function(key) {
+                return that.room.occupants[key];
+            });
             Entities.editEntity(id, {
-                "text": (Object.values(that.room.occupants)).join("\n"), 
+                "text": text.join("\n"), 
                 "textColor": [255, 255, 255]
             });
         }
@@ -393,7 +376,6 @@
     
     
     this.updateSignColor = function(id, params) {
-        console.log("UPDATE SIGN COLOR");
         if (id === that.roomEntityIDs[1]) {    
             if (params[0] === "GREEN") {
                 Entities.editEntity(id, {
