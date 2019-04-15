@@ -85,6 +85,7 @@
                 parentJointIndex: parentJointIndex,
                 localPosition: { x: 0, y: 0, z: 0 },
                 localRotation: Quat.fromVec3Degrees({x:0,y:0,z:0}),
+                color: properties.color,
                 localDimensions: { x: 0.015, y: 0.015, z: 0.015 },
                 script: Script.resolvePath("drawSphereClient.js?" + Date.now()),
                 grab: { grabbable: false },
