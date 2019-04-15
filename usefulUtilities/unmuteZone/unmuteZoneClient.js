@@ -37,8 +37,7 @@
 
             // save previous muted setting
             previousMuteSetting = Audio.muted;
-            Audio.muted = false;
-            
+            Audio.muted = false;            
             usePreviousMuteSetting = true;
 
             Audio.mutedChanged.connect(onMuteSettingChanged);
