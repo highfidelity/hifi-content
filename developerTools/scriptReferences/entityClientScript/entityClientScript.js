@@ -22,11 +22,11 @@
     var _this = null;
     var _entityID = null;
 
-    function Entity() {
+    function EntityClientScript() {
         _this = this;
     }
 
-    Entity.prototype = {
+    EntityClientScript.prototype = {
         // REQUIRED FUNCTIONS
         preload: function(entityID) {
             // runs when this script is refreshed or a
@@ -112,5 +112,5 @@
         releaseEquip: function(entityID, handUserID) {},
     }
 
-    return new Entity();
+    return new EntityClientScript();
 });
