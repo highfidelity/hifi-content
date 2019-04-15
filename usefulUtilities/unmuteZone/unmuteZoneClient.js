@@ -29,6 +29,12 @@
             // blank
         },
         enterEntity: function() {
+            // if push to talk is enabled
+            // exit
+            if (Audio.pushToTalk) {
+                return;
+            }
+
             // save previous muted setting
             previousMuteSetting = Audio.muted;
             Audio.muted = false;

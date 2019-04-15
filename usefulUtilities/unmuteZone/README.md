@@ -11,6 +11,9 @@ When added to a zone entity, this script will automatically unmute a user when t
 2. Select the zone entity with the Create Tool
 3. Add `unmuteZoneClient.js` to the "Script" section
 
+## Exclusions
+- Push-to-talk is unaffected in the zone
+
 # Releases
 
 ## 2019-04-09_7-00-00 :: [df7677bc](https://github.com/highfidelity/hifi-content/commit/df7677bc)
