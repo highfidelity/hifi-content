@@ -1,0 +1,92 @@
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    background-color: #393939;
+    color: #afafaf;
+    margin: 0;
+    padding: 0;
+    font-size: 1.5em;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+#mainContainer {
+  width: 100vw;
+  height: 100vh;
+}
+
+.grid {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+}
+
+.grid-item {
+    height: 550px;
+    flex-basis: 20%;
+    -ms-flex: auto;
+    width: 259px;
+    position: relative;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+.emoji {
+    height: 1.5em;
+    width: 1.5em;
+    margin: 0.15em 0.15em 0.15em 0.15em;
+    vertical-align: -0.1em;
+}
+
+#searchContainer {
+    margin: 1em 1em 1em 1em
+}
+
+#emojiContainer {
+    margin: 1em 1em 1em 1em
+}
+
+#emojiSequenceContainer {
+    margin: 1em 1em 1em 1em
+}
+
+.emojiSequence {
+    height: 1.3em;
+    width: 1.3em;
+    margin: 0.15em 0.15em 0.15em 0.15em;
+    vertical-align: -0.1em;
+}
+
+#selectedContainer {
+    display: flex;
+    margin: 1em 1em 1em 1em;
+    width: 100vw;
+}
+
+#selectedEmoji {
+    align-self: center;
+    /* justify-self: center; */
+
+}
+
+#selectedText {
+    align-self: center;
+    /* justify-self: center; */
+
+}
+
+
+.centerItem {
+    align-self: center;
+}
