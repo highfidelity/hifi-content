@@ -1,7 +1,7 @@
 (function(){
 
     var avimojiHTML = Script.resolvePath('./avimoji_ui.html');
-    // var entityMaker = Script.require("./entityMaker.js");
+    var entityMaker = Script.require("./entityMaker.js");
 
     var aviWindowRaised = false;
     var aviWindow = new OverlayWebWindow({
@@ -18,27 +18,21 @@
         if (event.key === 16777220 && event.isControl) {
             console.log("keypressmade")
             if (aviWindowRaised) {
-                aviWindow.setVisible(false);
-                aviWindowRaised = false;
+                ui.close();
             } else {
-                aviWindow.raise();
-                aviWindow.setVisible(true);
-                aviWindowRaised = true;
+                ui.open();
             }
         }
     }
     
 
-    function emojiSelected()
-    var selectedEmoji = null;
-    function handleOverlayEvent(message) {
-        try {
-            message = JSON.parse(message);
-        } catch (e) {
-            console.log("couldn't parse anvimoji message")
-            return;
-        }
+    function emojiSelected(emoji){
+        console.log(JSON.stringify(emoji));
+    }
 
+
+    var selectedEmoji = null;
+    function onMessage(message) {
         if (message.app !== "avimoji") {
             return;
         }
@@ -59,15 +53,29 @@
                 break;
         }
     }
-
-    aviWindow.webEventReceived.connect(handleOverlayEvent)
-    Controller.keyPressEvent.connect(keyPress);
-
-    Script.scriptEnding.connect(function(){
-        aviWindow.close();
+    
+    function scriptEnding(){
         Controller.keyPressEvent.disconnect(keyPress);
-    })
+    }
 
+    var BUTTON_NAME = "AVIMOJI";
+    var APP_UI_URL = Script.resolvePath('avimoji_ui.html');
+    var AppUI = Script.require('appUi');
+    var ui;
+    function startup() {
+        ui = new AppUI({
+            buttonName: BUTTON_NAME,
+            home: APP_UI_URL,
+            onMessage: onMessage
+        });
+
+        Controller.keyPressEvent.connect(keyPress);
+        Script.scriptEnding.connect(scriptEnding);
+    }
+
+
+  
+    startup();
 
 })();
 
@@ -79,7 +87,7 @@ function addEmojiToUser(emoji) {
     var overlayPosition = Vec3.sum(neckPosition, [0, avatarScale * ABOVE_NECK, 0]); 
     var IMAGE_SIZE = avatarScale * 0.3;
 
-    var overlayProperties = {
+    var imageProperties = {
         position: overlayPosition,
         dimensions: {x: IMAGE_SIZE, y: IMAGE_SIZE, z: IMAGE_SIZE},
         alpha: 1.0,

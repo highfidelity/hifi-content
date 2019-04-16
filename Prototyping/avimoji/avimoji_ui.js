@@ -49,9 +49,9 @@ function renderEmojiList(list){
     }
 }
 
-function renderSelected(number){
+function renderSelected(emoji){
+    console.log("emoji:" + emoji)
     selectedContainer.innerHTML = "";
-    var emoji = emojiList[number-1];
     emojiSequence.push(emoji);
     let div = document.createElement('div');
     div.innerHTML = `
@@ -92,9 +92,23 @@ function renderEmojiSequence(){
 function clickEmoji(event){
     let number = +event.target.getAttribute('data-number');
     if (number > 0) {
-        renderSelected(number);
+        console.log(number)
+        var emoji = emojiList[number-1];
+        console.log(JSON.stringify(emoji))
+        renderSelected(emoji);
         renderEmojiSequence();
+        EventBridge.emitWebEvent(JSON.stringify({
+            app: "avimoji",
+            method: "emojiSelected",
+            emoji: emoji
+        }))
     }
+
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "emojiSelected",
+
+    }))
 }
 
 function clickSequenceEmoji(event){
