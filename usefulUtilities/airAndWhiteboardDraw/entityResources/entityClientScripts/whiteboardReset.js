@@ -15,8 +15,10 @@
     var RESET_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/resetWhiteboard.mp3'));
     var RESET_SOUND_VOLUME = 0.05;
     var SEARCH_RADIUS_M = 6;
+    var HALF = 0.5;
 
     var injector;
+    var whiteboardZone = null;
 
     var WhiteboardReset = function() {
         _this = this;
@@ -28,6 +30,35 @@
         /* ON PRELOAD: Save a reference to this */
         preload: function(entityID) {
             _this.entityID = entityID;
+            _this.getWhiteboardZone();
+            print("WHITEBOARD ZONE: ", whiteboardZone);
+        },
+
+        getWhiteboardZone: function() {
+            var whiteboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
+            Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardChild) {
+                var name = Entities.getEntityProperties(whiteboardChild, 'name').name;
+                if (name === "Whiteboard Zone") {
+                    whiteboardZone = whiteboardChild;
+                }
+            });
+            return whiteboardZone;
+        },
+
+        isUserInZone: function(zoneID) {
+            var zoneProperties = Entities.getEntityProperties(zoneID, ['position', 'rotation', 'dimensions']);
+            print("ZONE PROPERTIES: ", JSON.stringify(zoneProperties.position), JSON.stringify(zoneProperties.rotation), JSON.stringify(zoneProperties.dimensions));
+            var localPosition = Vec3.multiplyQbyV(Quat.inverse(zoneProperties.rotation),
+                Vec3.subtract(MyAvatar.position, zoneProperties.position));
+            var halfDimensions = Vec3.multiply(zoneProperties.dimensions, HALF);
+            var inZone = -halfDimensions.x <= localPosition.x &&
+                    halfDimensions.x >= localPosition.x &&
+                   -halfDimensions.y <= localPosition.y &&
+                    halfDimensions.y >= localPosition.y &&
+                   -halfDimensions.z <= localPosition.z &&
+                    halfDimensions.z >= localPosition.z;
+            print("USER IS IN ZONE: ", inZone);
+            return inZone;
         },
 
         /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
@@ -46,7 +77,15 @@
                 });
             }
         },
+
         resetWhiteboard: function() {
+            if (!whiteboardZone && !_this.getWhiteboardZone()) {
+                return;
+            }
+            if (!_this.isUserInZone(whiteboardZone)) {
+                print("USER IS NOT IN ZONE");
+                return;
+            }
             var position = Entities.getEntityProperties(_this.entityID, 'position').position;
             _this.playSound(RESET_SOUND, RESET_SOUND_VOLUME, MyAvatar.position, true, false);
             Entities.findEntitiesByName("Whiteboard Polyline", position, SEARCH_RADIUS_M).

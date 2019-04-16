@@ -10,14 +10,14 @@
 (function() {
     var _this;
 
-    var WHITEBOARD_SEARCH_RADIUS_M = 5;
+    var WHITEBOARD_ZONE_SEARCH_RADIUS_M = 100;
     var MINIMUM_MOVEMENT_TO_DRAW_M = 0.0005;
     var MAXIMUM_MOVEMENT_TO_DRAW_M = 0.1;
     var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
     var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
     var DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M = 1.5;
-    var DRAW_ON_BOARD_DISTANCE_HMD_M = 2;
-    var DRAW_ON_BOARD_DISTANCE_DESKTOP_M = 3;
+    var DRAW_ON_BOARD_DISTANCE_HMD_M = 4;
+    var DRAW_ON_BOARD_DISTANCE_DESKTOP_M = 5;
     var STROKE_FORWARD_OFFSET_M = 0.01;
 
     var WAIT_TO_CLEAN_UP_MS = 2000;
@@ -35,6 +35,9 @@
     var CLOSE_SOUND_VOLUME = 0.02;
     
     var MINIMUM_TRIGGER_PRESS_VALUE = 0.97;
+
+    var HALF = 0.5;
+
     var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
     var MAX_LINE_POINTS = 100;
     var DEFAULT_LINE_PROPERTIES = {
@@ -53,6 +56,7 @@
     var parentJointIndex;
 
     var whiteboard = null;
+    var whiteboardZone = null;
     var whiteboardParts = [];
     var whiteboardProperties;
 
@@ -146,23 +150,35 @@
             }
         },
 
+        isUserInZone: function(zoneID) {
+            var zoneProperties = Entities.getEntityProperties(zoneID, ['position', 'rotation', 'dimensions']);
+            var localPosition = Vec3.multiplyQbyV(Quat.inverse(zoneProperties.rotation),
+                Vec3.subtract(MyAvatar.position, zoneProperties.position));
+            var halfDimensions = Vec3.multiply(zoneProperties.dimensions, HALF);
+            return -halfDimensions.x <= localPosition.x &&
+                    halfDimensions.x >= localPosition.x &&
+                   -halfDimensions.y <= localPosition.y &&
+                    halfDimensions.y >= localPosition.y &&
+                   -halfDimensions.z <= localPosition.z &&
+                    halfDimensions.z >= localPosition.z;
+        },
+
         findWhiteboard: function() {
-            Entities.findEntities(MyAvatar.position, WHITEBOARD_SEARCH_RADIUS_M).forEach(function(entity) {
-                var properties = Entities.getEntityProperties(entity, ['position', "name"]);
-                if (properties.name && properties.name === "Whiteboard") {
-                    if (whiteboard) {
-                        if (Vec3.distance(properties.position, MyAvatar.position) <
-                            Vec3.distance(Entities.getEntityProperties(whiteboard, "position").position, MyAvatar.position)) {
-                            whiteboard = entity;
-                        }
-                    } else {
-                        whiteboard = entity;
+            print("FIND WHITEBOARD");
+            Entities.findEntitiesByName("Whiteboard Zone", MyAvatar.position, WHITEBOARD_ZONE_SEARCH_RADIUS_M).
+                forEach(function(foundWhiteboardZone) {
+                    print("CHECKING WHITEBOARD: ", foundWhiteboardZone);
+                    if (_this.isUserInZone(foundWhiteboardZone)) {
+                        print("FOUND WHITEBOARD!");
+                        whiteboardZone = foundWhiteboardZone;
+                        whiteboard = Entities.getEntityProperties(whiteboardZone, 'parentID').parentID;
                     }
-                }
-            });
+                });
             if (whiteboard) {
                 whiteboardParts = Entities.getChildrenIDs(whiteboard);
                 whiteboardParts.push(whiteboard);
+            } else {
+                Entities.deleteEntity(_this.entityID);
             }
         },
 
@@ -297,6 +313,13 @@
 
         /* ON MOUSE PRESS: Store the initial point to start line. */
         mousePressed: function(event) {
+            if (!whiteboardZone) {
+                return;
+            }
+            print("MOUSE PRESSED");
+            if (!_this.isUserInZone(whiteboardZone)) {
+                Entities.deleteEntity(_this.entityID);
+            }
             if (Settings.getValue("io.highfidelity.isEditing", false) || tablet.tabletShown) {
                 return;
             }
@@ -360,18 +383,13 @@
         maybeProjectPointOntoBoard: function(whiteBoardIntersectionData, desktop) {
             if (whiteBoardIntersectionData.intersects) {
                 currentPoint = whiteBoardIntersectionData.intersection;
-                var currentWhiteboard = whiteBoardIntersectionData.entityID;
-                whiteboardProperties = Entities.getEntityProperties(currentWhiteboard, ['position', 'rotation']);
-                var distanceToBoard = Vec3.distance(whiteboardProperties.position, MyAvatar.position);
-                var minimumDistance = desktop ? DRAW_ON_BOARD_DISTANCE_DESKTOP_M : DRAW_ON_BOARD_DISTANCE_HMD_M;
-                if (distanceToBoard <= minimumDistance) {
-                    var isCurrentPointOnBoard = true;
-                    currentNormal = Vec3.multiply(-1, Quat.getFront(whiteboardProperties.rotation));
-                    var distanceWhiteboardPlane = Vec3.dot(currentNormal, whiteboardProperties.position);
-                    var distanceLocal = Vec3.dot(currentNormal, currentPoint) - distanceWhiteboardPlane;
-                    currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(distanceLocal, currentNormal));
-                    currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(currentNormal, STROKE_FORWARD_OFFSET_M));
-                }
+                whiteboardProperties = Entities.getEntityProperties(whiteboard, ['position', 'rotation']);
+                var isCurrentPointOnBoard = true;
+                currentNormal = Vec3.multiply(-1, Quat.getFront(whiteboardProperties.rotation));
+                var distanceWhiteboardPlane = Vec3.dot(currentNormal, whiteboardProperties.position);
+                var distanceLocal = Vec3.dot(currentNormal, currentPoint) - distanceWhiteboardPlane;
+                currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(distanceLocal, currentNormal));
+                currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(currentNormal, STROKE_FORWARD_OFFSET_M));
             } else {
                 isCurrentPointOnBoard = false;
             }
@@ -465,6 +483,12 @@
     has moved more than minimum distance, draw a polyline entity with a lifetime of 1 minute and continue checking 
     hand distance. Every time hand moves more than the minumum, update the polyline with another node. */
         triggerPressed: function() {
+            if (!readyToDraw) {
+                return;
+            }
+            if (!_this.isUserInZone(whiteboardZone)) {
+                Entities.deleteEntity(_this.entityID);
+            }
             if (tablet.tabletShown || activeGripPress) {
                 return;
             }
@@ -486,6 +510,9 @@
 
         /* ON TRIGGER RELEASE DRAW: Stop checking distance hand has moved */
         triggerReleased: function() {
+            if (!_this.isUserInZone(whiteboardZone)) {
+                Entities.deleteEntity(_this.entityID);
+            }
             _this.stopDrawing();
             if (laser) {
                 Entities.deleteEntity(laser);
@@ -500,6 +527,9 @@
         /* ON GRIP PRESS ERASE: Set an interval that finds the nearest line within a maximum distance to paint 
 sphere tip and erases it */
         gripPressed: function() {
+            if (!_this.isUserInZone(whiteboardZone)) {
+                Entities.deleteEntity(_this.entityID);
+            }
             if (tablet.tabletShown || activeTriggerPress) {
                 return;
             }
@@ -522,6 +552,9 @@ sphere tip and erases it */
 
         /* ON GRIP RELEASE ERASE: Stop the interval that is searching for lines to delete */
         gripReleased: function() {
+            if (!_this.isUserInZone(whiteboardZone)) {
+                Entities.deleteEntity(_this.entityID);
+            }
             if (deletingInterval) {
                 Script.clearInterval(deletingInterval);
                 deletingInterval = null;
