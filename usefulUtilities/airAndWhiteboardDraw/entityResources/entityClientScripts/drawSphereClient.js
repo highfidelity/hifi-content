@@ -111,19 +111,17 @@
 
             parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint + "Index4");
             if (parentJointIndex === -1) {
-                MyAvatar.getJointIndex(dominantHandJoint + "Index3");
+                parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint + "Index3");
             }
             if (parentJointIndex === -1) {
-                MyAvatar.getJointIndex(dominantHandJoint);
+                parentJointIndex =MyAvatar.getJointIndex(dominantHandJoint);
                 print("ERROR: Falling back to dominant hand joint as index finger tip could not be found");
             }
             tablet.tabletShownChanged.connect(_this.tabletShownChanged);
             HMD.displayModeChanged.connect(_this.displayModeChanged);
             Window.domainChanged.connect(_this.domainChanged);
-
             _this.registerControllerMapping();
             if (HMD.active) {
-                HMD.closeTablet();
                 _this.setUpHMDMode();
             } else {
                 _this.setUpDesktopMode();
@@ -161,11 +159,11 @@
                         whiteboard = entity;
                     }
                 }
-                if (whiteboard) {
-                    whiteboardParts = Entities.getChildrenIDs(whiteboard);
-                    whiteboardParts.push(whiteboard);
-                }
             });
+            if (whiteboard) {
+                whiteboardParts = Entities.getChildrenIDs(whiteboard);
+                whiteboardParts.push(whiteboard);
+            }
         },
 
         draw: function(onBoard) {
@@ -178,6 +176,7 @@
             }
             if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
                 _this.stopDrawing();
+                wasLastPointOnBoard = null;
                 return;
             }
             wasLastPointOnBoard = onBoard;
@@ -187,6 +186,11 @@
             if (!newLine) { // maybe editing existing line
                 var previousLineProperties = Entities.getEntityProperties(polyLine, ['linePoints', 'normals', 
                     'strokeWidths', 'age']);
+                if (!(previousLineProperties.linePoints && previousLineProperties.normals && 
+                    previousLineProperties.strokeWidths && previousLineProperties.age)) {
+                    _this.stopDrawing();
+                    return;
+                }
                 linePointsCount = previousLineProperties.linePoints.length;
                 if (linePointsCount > MAX_LINE_POINTS) { // too many line points, start new line connected to previous point
                     newLine = true;
@@ -237,13 +241,15 @@
         find one with closest point to the intersection, then delete that line */
         deleteFromPoint: function(point) {
         // search because poly lines don't intersect
-            var foundANearbyLine = false;
-            var lineToDelete;
+            var lineToDelete = null;
             Entities.findEntitiesByName("Whiteboard Polyline", point, 
                 MAXIMUM_DISTANCE_TO_SEARCH_M).forEach(function(nearbyWhiteboardLine) {
                 try {
                     var lineProperties = Entities.getEntityProperties(nearbyWhiteboardLine, 
                         ['position', 'linePoints']);
+                    if (!(lineProperties.linePoints && lineProperties.position)) {
+                        return;
+                    }
                     var lineBoundingBoxCenter = lineProperties.position;
                     var numberLinePoints = lineProperties.linePoints.length;
                     var shortestDistance = MAXIMUM_DISTANCE_TO_DELETE_M;
@@ -251,18 +257,17 @@
                         var distanceFromPoint = Vec3.distance(point,
                             Vec3.sum(lineBoundingBoxCenter, lineProperties.linePoints[i]));
                         if (distanceFromPoint <= shortestDistance) {
-                            foundANearbyLine = true;
                             lineToDelete = nearbyWhiteboardLine;
-                            shortestDistance = DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M;
+                            shortestDistance = distanceFromPoint;
                         }
                     }
                 } catch (err) {
                     // this line has already been deleted (race condition) due to not being deleting on a longer 
                     // interval. Currently deleting search happens every mousePressContinue so we can use the event
-                    // Ideally it only needs to happen every 200(?) seconds
+                    // Ideally it only needs to happen every 200(?) ms
                 }
             });
-            if (foundANearbyLine) {
+            if (lineToDelete) {
                 Entities.deleteEntity(lineToDelete);
             }
         },
@@ -353,18 +358,20 @@
 
         /* */
         maybeProjectPointOntoBoard: function(whiteBoardIntersectionData, desktop) {
-            var distanceToBoard = Vec3.distance(whiteBoardIntersectionData.intersection, MyAvatar.position);
-            var minimumDistance = desktop? DRAW_ON_BOARD_DISTANCE_DESKTOP_M : DRAW_ON_BOARD_DISTANCE_HMD_M;
-            if (whiteBoardIntersectionData.intersects && distanceToBoard <= minimumDistance) {
-                var isCurrentPointOnBoard = true;
+            if (whiteBoardIntersectionData.intersects) {
                 currentPoint = whiteBoardIntersectionData.intersection;
                 var currentWhiteboard = whiteBoardIntersectionData.entityID;
                 whiteboardProperties = Entities.getEntityProperties(currentWhiteboard, ['position', 'rotation']);
-                currentNormal = Vec3.multiply(-1, Quat.getFront(whiteboardProperties.rotation));
-                var distanceWhiteboardPlane = Vec3.dot(currentNormal, whiteboardProperties.position);
-                var distanceLocal = Vec3.dot(currentNormal, currentPoint) - distanceWhiteboardPlane;
-                currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(distanceLocal, currentNormal));
-                currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(currentNormal, STROKE_FORWARD_OFFSET_M));
+                var distanceToBoard = Vec3.distance(whiteboardProperties.position, MyAvatar.position);
+                var minimumDistance = desktop ? DRAW_ON_BOARD_DISTANCE_DESKTOP_M : DRAW_ON_BOARD_DISTANCE_HMD_M;
+                if (distanceToBoard <= minimumDistance) {
+                    var isCurrentPointOnBoard = true;
+                    currentNormal = Vec3.multiply(-1, Quat.getFront(whiteboardProperties.rotation));
+                    var distanceWhiteboardPlane = Vec3.dot(currentNormal, whiteboardProperties.position);
+                    var distanceLocal = Vec3.dot(currentNormal, currentPoint) - distanceWhiteboardPlane;
+                    currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(distanceLocal, currentNormal));
+                    currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(currentNormal, STROKE_FORWARD_OFFSET_M));
+                }
             } else {
                 isCurrentPointOnBoard = false;
             }
@@ -372,7 +379,7 @@
         },
 
         /* */
-        beginLaser:function() {
+        beginLaser: function() {
             laser = Entities.addEntity({
                 type: "Shape",
                 shape: "Cylinder",
@@ -414,7 +421,7 @@
             if (whiteBoardIntersectionData === -1) {
                 return;
             }
-            var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, true);
+            var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, false);
             displacementFromStart = Vec3.subtract(currentPoint, lineStartPosition);
             if (!isCurrentPointOnBoard) {
                 currentNormal = DEFAULT_NORMAL;
@@ -500,7 +507,7 @@ sphere tip and erases it */
                 var sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
                 currentPoint = sphereProperties.position;
                 var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint);
-                var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, true);
+                var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, false);
                 if (isCurrentPointOnBoard) {
                     // delete on board
                     if (!laser) {
@@ -656,7 +663,6 @@ sphere tip and erases it */
         },
 
         /* WHEN USER CHANGES DOMINANT HAND: Switch default hand to place paint sphere in */
-    
         handChanged: function() {
             Entities.deleteEntity(_this.entityID);
         },
@@ -728,14 +734,6 @@ sphere tip and erases it */
             MyAvatar.dominantHandChanged.disconnect(_this.handChanged);
             HMD.displayModeChanged.disconnect(_this.displayModeChanged);
             Window.domainChanged.disconnect(_this.domainChanged);
-
-            
-            // Controller.mousePressEvent.disconnect(_this.mousePressEvent);
-            // Controller.mouseMoveEvent.disconnect(_this.mouseMoveEvent);
-            // Controller.mouseReleaseEvent.disconnect(_this.mouseReleaseEvent);
-            // if (cursorID !== undefined) {
-            //     Overlays.deleteOverlay(cursorID);
-            // }
         }
     };
 
