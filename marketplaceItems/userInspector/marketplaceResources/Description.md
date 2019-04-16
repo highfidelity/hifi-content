@@ -9,6 +9,9 @@ With User Inspector, you can click anywhere on an avatar and get a quick view of
 
 **Changelog:**
 
+v2.1 (2019-04)
+- Updated pickray module to fix error in Avatar.findRayIntersection
+
 V2.0 (2019-04)
 - Fixed culling by using the render layer in front
 - Updated colors to make them easier to read
@@ -16,6 +19,3 @@ V2.0 (2019-04)
 v1.0 (2019-03)
 
 - Initial Release
-
-Known Issues:
-- V1.0 is a stop-gap version.  Created in RC79, but RC79.1 broke some local text entity properties this relied upon. They will be fixed in RC81.  The current rendering issues weren't worth fixing for one release.  In that release, the render layer will be in front, and you will always be able to see the name tags without being culled. 
