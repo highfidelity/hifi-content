@@ -22,8 +22,9 @@ With User Inspector, you can click anywhere on an avatar and get a quick view of
 - Updated text colors
 - Fixed culling to now use renderLayer: "front"
 
-### 2019-04-16_14-02-22 | Marketplace V2.1 | [3720efb5]
+### 2019-04-16_14-02-22 | Marketplace V2.1 | [c636b61f]
 - Updated pickray module to fix error in Avatar.findRayIntersection call
+- Fixed friend colors after the first click
 
 ## Project Links
 [Trello Card](https://trello.com/c/9BVI2fyL/71-combined-name-tag-app)
