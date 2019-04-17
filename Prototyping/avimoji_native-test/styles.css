@@ -1,0 +1,162 @@
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    background-color: #393939;
+    color: #afafaf;
+    margin: 0;
+    padding: 0;
+    font-size: 1.5m;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+#mainContainer {
+  width: 100vw;
+  height: 100vh;
+}
+
+.grid {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+}
+
+.grid-item {
+    height: 550px;
+    flex-basis: 20%;
+    -ms-flex: auto;
+    width: 259px;
+    position: relative;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+#filter_emojis {
+    width: 100vw;
+    height: 50px;
+    padding: 8px 15px;
+    font-size: 2em;
+}
+
+.emoji {
+    font-size: 30px;
+    vertical-align: middle;
+    line-height: 2;
+    /* height: 2.8em;
+    width: 2.8em;
+    margin: 0.15em 0.15em 0.15em 0.15em;
+    vertical-align: -0.1em; */
+}
+
+#emojiScaler {
+    width: 5em;
+}
+
+#currentSwitchIntervalInput {
+    width: 5em;
+}
+
+.emoji:hover {
+    outline: 3px solid white;
+}
+
+#searchContainer {
+    margin: 1em 1em 1em 1em
+}
+
+#emojiContainer {
+    margin: 1em 1em 1em 1em
+}
+
+#emojiSequenceContainer {
+    margin: 1em 1em 1em 1em
+}
+
+.emojiSequence:hover {
+    outline: 3px solid white;
+}
+
+.emojiSequence {
+    font-size: 30px;
+    vertical-align: middle;
+    line-height: 2;
+
+    /* height: 1.3em;
+    width: 1.3em;
+    margin: 0.15em 0.15em 0.15em 0.15em;
+    vertical-align: -0.1em; */
+}
+
+#selectedContainer {
+    display: flex;
+    margin: 1em 1em 1em 1em;
+    width: 100vw;
+}
+
+#selectedEmoji {
+    align-self: center;
+    font-size: 60px;
+    vertical-align: middle;
+    line-height: 2;
+    /* justify-self: center; */
+
+}
+
+#selectedText {
+    align-self: center;
+    font-size: 2em;
+    /* justify-self: center; */
+
+}
+
+
+.centerItem {
+    align-self: center;
+}
+
+
+
+.buttonControls {
+    border: 0;
+    line-height: 1.0;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
+    text-align: center;
+    color: red;
+    width: 20%;
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 10px;
+    background-color: black;
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.buttonControls:hover {
+    background-color: rgba(255, 0, 0, 1);
+    color: white;
+}
+
+.buttonControls:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+  
+.fixed {
+    position: sticky;
+}

@@ -22,8 +22,18 @@ body {
 }
 
 #mainContainer {
+overflow-y: scroll;
+scrollbar-width: none; /* Firefox */
+-ms-overflow-style: none;  /* IE 10+ */
   width: 100vw;
   height: 100vh;
+}
+
+#mainContainer::-webkit-scrollbar { 
+    /* width: 0;
+    height: 0;
+    display: none; */
+    width: 0 !important;
 }
 
 .grid {
@@ -50,10 +60,13 @@ body {
 }
 
 .emoji {
-    height: 1.8em;
-    width: 1.8em;
+    font-size: 30px;
+    vertical-align: middle;
+    line-height: 2;
+    /* height: 2.8em;
+    width: 2.8em;
     margin: 0.15em 0.15em 0.15em 0.15em;
-    vertical-align: -0.1em;
+    vertical-align: -0.1em; */
 }
 
 #emojiScaler {
@@ -65,7 +78,7 @@ body {
 }
 
 .emoji:hover {
-    border: dashed white;
+    outline: 3px solid white;
 }
 
 #searchContainer {
@@ -81,14 +94,18 @@ body {
 }
 
 .emojiSequence:hover {
-    border: dashed white;
+    outline: 3px solid white;
 }
 
 .emojiSequence {
-    height: 1.3em;
+    font-size: 30px;
+    vertical-align: middle;
+    line-height: 2;
+
+    /* height: 1.3em;
     width: 1.3em;
     margin: 0.15em 0.15em 0.15em 0.15em;
-    vertical-align: -0.1em;
+    vertical-align: -0.1em; */
 }
 
 #selectedContainer {
@@ -99,6 +116,9 @@ body {
 
 #selectedEmoji {
     align-self: center;
+    font-size: 60px;
+    vertical-align: middle;
+    line-height: 2;
     /* justify-self: center; */
 
 }

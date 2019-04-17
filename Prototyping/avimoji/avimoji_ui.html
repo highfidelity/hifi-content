@@ -7,11 +7,18 @@
     </head>
     <body>
         <div id="mainContainer">
-            <div id="fixed">
-                <input type="text" placeholder="Search Emojis" id="filter_emojis"/>
+                <div id="formContainer" style="display:none;">
+                    <form action="javascript:void(0);">
+                        <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
+                        <!-- <input type="email" id="email" autofocus required> -->
+                        <!-- <input type="submit" value="SUBMIT"> -->
+                    </form>
+                </div>
+            <!-- <div id="fixed"> -->
+                <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
                 <div id="selectedContainer">
                 </div>
-            </div>
+            <!-- </div> -->
 
 
             <div id="emojiSequenceContainer">

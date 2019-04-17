@@ -22,7 +22,8 @@ function renderEmojiList(list){
         let div = document.createElement('div');
         if (renderJustEmojis){
             div.innerHTML = `
-            <img class="emoji" draggable="false" data-number="${emoji.number}" src="${baseURL}${emoji.code[0]}.png">
+            <span class="emoji" draggable="false" data-number="${emoji.number}">&#x${emoji.code[0]};</span>
+            <!-- <img class="emoji" draggable="false" data-number="${emoji.number}" src="${baseURL}${emoji.code[0]}.png"> -->
         `
         } else {
             div.innerHTML = `
@@ -42,6 +43,7 @@ function renderEmojiList(list){
     if (renderJustEmojis) {
         emojiContainer.classList.add('grid')
     }
+    input.focus();   
 }
 
 
@@ -49,7 +51,8 @@ function renderSelected(emoji){
     selectedContainer.innerHTML = "";
     let div = document.createElement('div');
     div.innerHTML = `
-        <img draggable="false" id="selectedEmoji" src="${baseURL}${emoji.code[0]}.png">
+        <span draggable="false" id="selectedEmoji">&#x${emoji.code[0]};</span>
+        <!-- <img draggable="false" id="selectedEmoji" src="${baseURL}${emoji.code[0]}.png"> -->
         <div id="selectedText">
             ${emoji.shortName}
         </div>
@@ -83,7 +86,8 @@ function renderEmojiSequence(emojiSequence){
     let div = document.createElement('div');
     let imageString = "";
     emojiSequence.forEach((emoji, index) => {
-        imageString += `<img draggable="false" class="emojiSequence" data-index="${index}" src="${baseURL}${emoji.code[0]}.png">`
+        imageString += `<span draggable="false" class="emojiSequence" data-index="${index}">&#x${emoji.code[0]};</span>`
+        // imageString += `<img draggable="false" class="emojiSequence" data-index="${index}" src="${baseURL}${emoji.code[0]}.png">`
     })
     imageString += `
     <div>
@@ -266,14 +270,30 @@ function onScriptEventReceived(message) {
 // Run when the JS is loaded and give enough time to for EventBridge to come back
 var EVENTBRIDGE_SETUP_DELAY = 500;
 function onLoad() {
+
+
+    
+}
+
+// Emit an event specific to the `multiConApp` over the EventBridge.
+var APP_NAME = "avimoji";
+function emitAppSpecificEvent(method, data) {
+    var event = {
+        app: APP_NAME,
+        method: method,
+        data: data
+    };
+    EventBridge.emitWebEvent(JSON.stringify(event));
+}
+
+// This delay is necessary to allow for the JS EventBridge to become active.
+// The delay is still necessary for HTML apps in RC78+.
+var EVENTBRIDGE_SETUP_DELAY = 150;
+function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
-        EventBridge.emitWebEvent(JSON.stringify({
-            app: "avimoji",
-            method: "eventBridgeReady"
-        }));
+        emitAppSpecificEvent("eventBridgeReady");
     }, EVENTBRIDGE_SETUP_DELAY);
-
     input.addEventListener('keyup', filterEmojis);
     emojiContainer.addEventListener('click', clickEmoji);
     emojiContainer.addEventListener('mouseover', hoverEmoji);
@@ -281,8 +301,13 @@ function onLoad() {
     emojiSequenceContainer.addEventListener('click', clickSequenceEmoji)
     emojiSequenceContainer.addEventListener('mouseover', hoverEmojiSequence);
     emojiSequenceContainer.addEventListener('mouseout', hoverEmojiSequence);
-    
 }
+
+
+// Call onLoad() once the DOM is ready
+document.addEventListener("DOMContentLoaded", function(event) {
+    onLoad();
+});
 
 onLoad();
 
