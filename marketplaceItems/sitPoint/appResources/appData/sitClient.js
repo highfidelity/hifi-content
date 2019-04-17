@@ -53,7 +53,7 @@
     var SITTABLE_MIN_END_ALPHA = 0.075; // fades to this alpha value
     var SITTABLE_IMAGE_URL_HMD = Script.resolvePath("./resources/images/triggerToSit.png");
     var SITTABLE_IMAGE_URL_DESKTOP = Script.resolvePath("./resources/images/clickToSit.png");
-    var sittable_y_offset = 0.01; // default 0.01
+    var SITTABLE_Y_OFFSET  = 0.01; // default 0.01
     function sittableCreate() {
         if (UI_DEBUG) {
             print("SittableCreate");
@@ -68,7 +68,7 @@
 
         var localOffset = {
             x: 0,
-            y: sittable_y_offset,
+            y: SITTABLE_Y_OFFSET,
             z: 0
         };
         var worldOffset = Vec3.multiplyQbyV(that.chairProperties.rotation, localOffset);
@@ -649,7 +649,7 @@
     var driveKeyPressedStart = null;
     var deviationTimeStart = null;
     var headToHipsDistance = null;
-    function update() {
+    function update () {
         var hasAvatarSpineError = false;
         var hasHeldDriveKey = false;
         var hasAvatarMovedTooFar = false;
