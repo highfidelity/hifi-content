@@ -11,7 +11,7 @@ Either import Sit Point from the marketplace to put on entities for one or more 
 2019-01-17_14-57-17 :: [sitScriptUpdate ded8ecbc78a44c3c830e1f42fed6dd8e9277a4c1]
 - During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
 
-2019-04-17_13-05-00 :: [sitScriptUpdate ded8ecbc78a44c3c830e1f42fed6dd8e9277a4c1]
+2019-04-17_13-05-00 :: [sitScriptUpdate 99c1e875]
 - Sittable overlay converted to local entity
 - Draws sittable overlay in terms of local coordinates of the cube
 
