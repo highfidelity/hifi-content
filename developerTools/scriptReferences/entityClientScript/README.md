@@ -24,5 +24,5 @@ At this point, `Value X` is 5, and `Value Y` is 0. This is because each client h
 
 ## Releases 
 
-## 2019-04-15_13-00-00 :: [061e5a1e](https://github.com/highfidelity/hifi-content/commit/061e5a1e)
+## 2019-04-15_13-00-00 :: [d11be5bd](https://github.com/highfidelity/hifi-content/commit/d11be5bd)
 - Initial release
