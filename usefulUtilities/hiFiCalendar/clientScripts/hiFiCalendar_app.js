@@ -5,29 +5,7 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-/*
-Here's what I'd expect here:
-1. The very first time your HTML UI is open, OR whenever you need to manually kickoff the token process,
-    you'll get here (the HTML UI's JS will send the "TOKEN" message to the app JS). Included in that message data is:
-        - The token itself
-        - The expiration time of the token, and the time until that token will expire
-    You will need this client script to keep track of the tokens it has sent during the session.
-2. Send that data to each of the calendar label entities. You could store the data in userData, OR you could store the
-    data in the RAM of the ESS (which would be safer, but slightly more error-prone - your call)
-3. Tell each calendar label entity to immediately refresh the calendar data (you can do that with Entities.callEntityServerMethod()
-    after defining some remotelyCallable method on the server script). When this call is received, the server
-    script will also cancel any "auto-refresh-calendar-events" timer that's currently active.
-4. Also tell each calendar label entity to kick off a timer that will expire N seconds before the OAuth token expires. When
-    that timer expires, the server script will send a message (over the messages mixer, probably) to all clients able
-    to accept that method, which will hopefully only be you. The message data will contain the OAuth token that the server script
-    is currently using.
-5. When your client script receives this message, it will check to see if it's already tried to refresh that token (see the last
-    sentence in (1)). If it hasn't, it should use the request module to submit a POST request to `https://www.googleapis.com/oauth2/v4/token`
-    to renew that token. Once the response from Google is received, it'll send a message to the calendars that requested that THAT
-    specific token be refreshed. (So, this script will have to keep track of the old version and refreshed version of each token).
-6.  When this call is received, the server script will immediately refresh calendar data.
-    It'll also cancel any "auto-refresh-calendar-events" timer that's currently active.
-*/
+
 (function() {
     // This function decides how to handle web events from the tablet UI.
     // used by 'ui' in startup()
@@ -38,7 +16,7 @@ Here's what I'd expect here:
     var JAKKU_LABEL_ID = "{c3f87945-e372-4f85-bde2-9d99d3633125}";
     var CAPITOL_LABEL_ID = "{010134dd-8608-4eef-b0a8-8316dcb982d8}";
     var FANTASIA_LABEL_ID = "{3aa8bb2e-b008-4d87-9fff-f0a4fda0c9d2}";
-    var OZ_LABEL_ID = "{3aa8bb2e-b008-4d87-9fff-f0a4fda0c9d2}";
+    var OZ_LABEL_ID = "{5e98c3b0-4924-4e01-b400-7298d4ddecff}";
     var NARNIA_LABEL_ID = "{cb0571ff-21f9-4d60-8d43-ebc5e80704a3}";
     var calendarScheduleIDs = [
         ATLANTIS_LABEL_ID,
@@ -49,7 +27,7 @@ Here's what I'd expect here:
         NARNIA_LABEL_ID
     ];
 
-    var request = Script.require('request').request;
+    var request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
     var authCode;
     var token;
     var tokenLifetime;
@@ -59,12 +37,10 @@ Here's what I'd expect here:
     var timezone;
     var secret;
     function onWebMessage(data) {
-        // EventBridge message from HTML script.
         switch (data.type) {
             case "EVENT_BRIDGE_OPEN_MESSAGE":
                 break;          
             case "AUTHCODE":
-                console.log(JSON.stringify(data));
                 authCode = data.authCode;
                 clientID = data.clientID;
                 secret = data.secret;
@@ -81,20 +57,13 @@ Here's what I'd expect here:
                     'Content-Length': options.body.length
                 };
                 options.uri = "https://www.googleapis.com/oauth2/v4/token";
-                console.log(JSON.stringify(options));
                 request(options, function(error, response) {
                     if (error) {
-                        console.log("FAILED REQUEST:   ", error, JSON.stringify(response));
+                        Window.alert("Error: " + error + " " + JSON.stringify(response) + " Could not refresh token.");
                         return;
                     } else {
-                        console.log("SUCCESS!!!!: ", error, JSON.stringify(response));
-                        token = response.access_token;
-                        refreshToken = response.refresh_token;
-                        tokenLifetime = response.expires_in * MS_TO_SEC;
-                        expireTime = new Date().valueOf() + tokenLifetime;
-
                         calendarScheduleIDs.forEach(function(entityID) {
-                            sendToken(entityID);
+                            sendToken(entityID, response);
                         }); 
                     }
                 });
@@ -102,32 +71,21 @@ Here's what I'd expect here:
         }
     }
 
-    function sendToken(entityID) {
-        console.log("SENDING TOKEN");
-        var userData = Entities.getEntityProperties(entityID, ['userData']).userData;
-        if (userData) {
-            try {
-                userData = JSON.parse(userData);
-            } catch (e) {
-                console.log(e, "Could not parse userData");
-                return;
-            }
-        } else {
-            console.log("No userData found, didn't send anything");
-            return;
+
+    // This function sends token information to the server script to keep the calendars up to date.
+    function sendToken(entityID, response) {
+        if (response) {
+            token = response.access_token;
+            refreshToken = response.refresh_token;
+            tokenLifetime = response.expires_in * MS_TO_SEC;
+            expireTime = new Date().valueOf() + tokenLifetime;
         }
-        userData.token = token;
-        userData.expireTime = expireTime;
-        userData.timezoneOffset = (new Date().getTimezoneOffset()/MIN_PER_HR),
-        userData.timezoneName = timezone;
-        console.log("SENDING USER DATA: ", JSON.stringify(userData), " TO ", entityID);
-        Entities.editEntity(entityID, {
-            userData: JSON.stringify(userData)
-        });
-        Entities.callEntityServerMethod(entityID, "refreshToken");
+        var timezoneOffset = (new Date().getTimezoneOffset()/MIN_PER_HR);
+        Entities.callEntityServerMethod(entityID, "refreshToken", [token, expireTime, timezoneOffset, timezone]);
     }
 
 
+    // This function is the listener for messages on the message mixer related to this app.
     var newMessageArrivalTime;
     var lastMessageArrivalTime = 0;
     var messageHandler = function(channel, message, senderUUID, localOnly) {
@@ -143,17 +101,19 @@ Here's what I'd expect here:
             if (message.type === "REFRESH TOKEN") {
                 newMessageArrivalTime = Date.now();
                 if (newMessageArrivalTime - lastMessageArrivalTime > (120 * MS_TO_SEC)) {
-                    tokenCheck(message);
                     lastMessageArrivalTime = newMessageArrivalTime;
+                    tokenCheck(message);
                 }
             }
         }
     };
 
+
+    // This function checks to see if the token needs refreshing based on the token sent in the message
+    // If token sent is the same as the stored token, make a request to Google to refresh it.
     function tokenCheck(message) {
         var returnUUID = message.uuid;
         if (message.token === token) {
-            console.log("SENDING HTTP REQUEST");
             var options = {};
             options.method = "POST";
             options.body = 'client_id=' + clientID + 
@@ -167,20 +127,15 @@ Here's what I'd expect here:
             options.uri = "https://www.googleapis.com/oauth2/v4/token";
             request(options, function(error, response) {
                 if (error) {
-                    console.log("FAILED REFRESH REQUEST:   ", error, JSON.stringify(response));
+                    Window.alert("Error: " + error + " " + JSON.stringify(response) + " Could not refresh token.");
                     return;
                 } else {
-                    console.log("REFRESH SUCCESS!!!!   ", error, JSON.stringify(response));
-                    token = response.access_token;
-                    tokenLifetime = response.expires_in * MS_TO_SEC;
-                    expireTime = new Date().valueOf() + tokenLifetime;
                     calendarScheduleIDs.forEach(function(entityID) {
-                        sendToken(entityID);
+                        sendToken(entityID, response);
                     }); 
                 }
             });
         } else {
-            console.log("SENDING CURRENT TOKEN");
             sendToken(returnUUID);
         }
     }
@@ -191,7 +146,7 @@ Here's what I'd expect here:
     var ui;
     function startup() {
         ui = new AppUi({
-            home: "http://localhost/test.html?v6",
+            home: "http://localhost/hiFiCalendar.html",
             buttonName: "GCAL", // The name of your app
             graphicsDirectory: Script.resolvePath("../resources/images/"), // Where your button icons are located
             onMessage: onWebMessage

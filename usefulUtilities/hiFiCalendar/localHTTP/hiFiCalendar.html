@@ -2,18 +2,17 @@
 <html>
 
 <head>
-  <title>Google OAuth API Quickstart</title>
+  <title>High Fidelity Google Calendar Authorization</title>
   <meta charset="utf-8" />
 </head>
 <body>
-    <p>Google OAuth API Quickstart</p>
     <pre id="content" style="white-space: pre-wrap;"></pre>
     <script type="text/javascript">
         // Load the API's client and auth2 modules.
         // Call the initClient function after the modules load.
-        var API_KEY = 'AIzaSyCu8nILlmjRhMMwtIKkV15BBrks-QXjFtk';
-        var CLIENT_ID = '813544734011-7b3uig9o47b15bmh7bbc2jq93k291lkf.apps.googleusercontent.com';
-        var CLIENT_SECRET = 'WFEX3xCgxkUlNjiwt6WjJaKY';
+        var API_KEY = '';
+        var CLIENT_ID = '';
+        var CLIENT_SECRET = '';
         var SCOPE = 'https://www.googleapis.com/auth/calendar.events.readonly';
         var authCode = false;
         var GoogleAuth;
@@ -45,17 +44,15 @@
                     }));
                 });
                 // Handle initial sign-in state. (Determine if user is already signed in.)
-                updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-                var user = GoogleAuth.currentUser.get();
-                setSigninStatus();
+                setSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
         
                 // Call handleAuthClick function when user clicks on
                 //      "Sign In/Authorize" button.
                 $('#sign-in-or-out-button').click(function() {
-                handleAuthClick();
+                    handleAuthClick();
                 }); 
                 $('#revoke-access-button').click(function() {
-                revokeAccess();
+                    revokeAccess();
                 }); 
             });
         }
@@ -85,39 +82,12 @@
                 $('#sign-in-or-out-button').html('Sign out');
                 $('#revoke-access-button').css('display', 'inline-block');
                 $('#auth-status').html('You are currently signed in and have granted ' +
-                    'access to this app.');
-                EventBridge.emitWebEvent(JSON.stringify({
-                    type: "TOKEN",
-                    token: response.access_token,
-                    expires_at: response.expires_at,
-                    expires_in: response.expires_in,
-                    clientID: CLIENT_ID,
-                    secret: CLIENT_SECRET,
-                    timezone: zone
-                }));
-                
+                    'access to this app.');                
             } else {
                 $('#sign-in-or-out-button').html('Sign In/Authorize');
                 $('#revoke-access-button').css('display', 'none');
                 $('#auth-status').html('You have not authorized this app or you are ' +
                     'signed out.');
-            }
-        }
-    
-
-        function updateSigninStatus(isSignedIn) {
-            setSigninStatus();
-        }
-
-
-        // This function receives and attempts to parse data from 
-        // High Fidelity scripts.
-        function onScriptEventReceived(data) {
-            var data = JSON.parse(data);
-            switch (data.type) {
-                case "RENEW_TOKEN":
-                updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-                break;
             }
         }
 
