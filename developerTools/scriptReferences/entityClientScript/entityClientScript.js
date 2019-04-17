@@ -36,76 +36,78 @@
         },
 
         // EVENT LISTENERS FOR THE ENTITY
-
-        // Entity Event Listener Notes: 
-        //     For mouse/trigger click on an entity to do an action
-        //         Use: startNearTrigger + startFarTrigger + clickReleaseOnEntity
-
-        // MOUSECLICK METHODS - not triggered by controller
+        
+        // Triggered by mouse only
         // params are: entityID, event PointerEvent (https://apidocs.highfidelity.com/global.html#PointerEvent)
         // https://apidocs.highfidelity.com/Entities.html#.clickDownOnEntity
         clickReleaseOnEntity: function(entityID, pointerEvent) {
-            if (pointerEvent.isPrimaryButton) {
+            if (pointerEvent.isPrimaryButton) { // will only work on left mouse click release event (see PointerEvent)
                 console.log("EntityClientScript: clickReleaseOnEntity");
-            } // will only work on left mouse click release event (see PointerEvent)
+            } 
         },
-        clickDownOnEntity: function(entityID, pointerEvent) {console.log("EntityClientScript: clickDownOnEntity");},
-        holdingClickOnEntity: function(entityID, pointerEvent) {console.log("EntityClientScript: holdingClickOnEntity");},
+        clickDownOnEntity: function(entityID, pointerEvent) { console.log("EntityClientScript: clickDownOnEntity"); },
+        holdingClickOnEntity: function(entityID, pointerEvent) { console.log("EntityClientScript: holdingClickOnEntity"); },
         
-        mouseMoveOnEntity: function(entityID, pointerEvent) {console.log("EntityClientScript: mouseMoveOnEntity");},
-        mousePressOnEntity: function(entityID, event) {console.log("EntityClientScript: mousePressOnEntity");},
-        mouseReleaseOnEntity: function(entityID, event) {console.log("EntityClientScript: mouseReleaseOnEntity");},
-        mouseDoublePressOffEntity: function(pointerEvent) {console.log("EntityClientScript: mouseDoublePressOffEntity");},
+        // Triggered by mouse and controllers
+        mouseMoveOnEntity: function(entityID, pointerEvent) { console.log("EntityClientScript: mouseMoveOnEntity"); },
+        mousePressOnEntity: function(entityID, event) { console.log("EntityClientScript: mousePressOnEntity"); },
+        mouseReleaseOnEntity: function(entityID, event) { console.log("EntityClientScript: mouseReleaseOnEntity"); },
+        
+        mouseDoublePressOffEntity: function(pointerEvent) { console.log("EntityClientScript: mouseDoublePressOffEntity"); },
 
-        hoverEnterEntity: function(entityID, pointerEvent) {console.log("EntityClientScript: hoverEnterEntity");},
-        hoverLeaveEntity: function(entityID, pointerEvent) {console.log("EntityClientScript: hoverLeaveEntity");},
-        hoverOverEntity: function(entityID, pointerEvent) {console.log("EntityClientScript: hoverOverEntity");},
+        // Triggered by mouse and controllers
+        hoverEnterEntity: function(entityID, pointerEvent) { console.log("EntityClientScript: hoverEnterEntity"); },
+        hoverLeaveEntity: function(entityID, pointerEvent) { console.log("EntityClientScript: hoverLeaveEntity"); },
+        hoverOverEntity: function(entityID, pointerEvent) { console.log("EntityClientScript: hoverOverEntity"); },
 
-        // triggered when a script in a Web entity's web page script sends and event over the script's eventbridge
-        webEventReceived: function(entityID, message) {console.log("EntityClientScript: webEventReceived");}, // https://apidocs.highfidelity.com/Entities.html#.webEventReceived
+        // Triggered when a script in a Web entity's web page script sends and event over the script's eventbridge
+        webEventReceived: function(entityID, message) { console.log("EntityClientScript: webEventReceived"); }, // https://apidocs.highfidelity.com/Entities.html#.webEventReceived
 
         // COLLISION METHODS
         // Avatar collision with this entity
-        leaveEntity: function(userID) {console.log("EntityClientScript: leaveEntity");},
-        enterEntity: function(userID) {console.log("EntityClientScript: enterEntity");}, // https://apidocs.highfidelity.com/Entities.html#.enterEntity
+        leaveEntity: function(userID) { console.log("EntityClientScript: leaveEntity"); },
+        enterEntity: function(userID) { console.log("EntityClientScript: enterEntity"); }, // https://apidocs.highfidelity.com/Entities.html#.enterEntity
 
         // Entity (idB) collision with this entity (idA)
         // Collision properties https://apidocs.highfidelity.com/global.html#Collision
-        collisionWithEntity: function(idA, idB, collision) {console.log("EntityClientScript: collisionWithEntity");}, // https://apidocs.highfidelity.com/Entities.html#.collisionWithEntity
+        collisionWithEntity: function(idA, idB, collision) { console.log("EntityClientScript: collisionWithEntity"); }, // https://apidocs.highfidelity.com/Entities.html#.collisionWithEntity
 
         // DELETE
         // triggered when entity is deleted
-        deletingEntity: function(entityID) {console.log("EntityClientScript: deletingEntity");},
+        deletingEntity: function(entityID) { console.log("EntityClientScript: deletingEntity"); },
 
         // CONTROLLER METHODS
         // params are: entityID, string "<"left" || "right">,<MyAvatar.UUID>" ex "left,userID"
         // https://apidocs.highfidelity.com/Controller.html
 
-        // Far Trigger Entity methods
-        startFarTrigger: function(entityID, handUserID) {console.log("EntityClientScript: startFarTrigger");},
-        continueFarTrigger: function(entityID, handUserID) {console.log("EntityClientScript: continueFarTrigger");},
-        stopFarTrigger: function(entityID, handUserID) {console.log("EntityClientScript: stopFarTrigger");},
+        // Far trigger Entity methods
+        // Triggered by controllers only
+        startFarTrigger: function(entityID, handUserID) { console.log("EntityClientScript: startFarTrigger"); },
+        continueFarTrigger: function(entityID, handUserID) { console.log("EntityClientScript: continueFarTrigger"); },
+        stopFarTrigger: function(entityID, handUserID) { console.log("EntityClientScript: stopFarTrigger"); },
 
         // Near trigger Entity methods
-        startNearTrigger: function(entityID, handUserID) {console.log("EntityClientScript: startNearTrigger");},
-        continueNearTrigger: function(entityID, handUserID) {console.log("EntityClientScript: continueNearTrigger");},
-        stopNearTrigger: function(entityID, handUserID) {console.log("EntityClientScript: stopNearTrigger");},
+        // Triggered by controllers only
+        startNearTrigger: function(entityID, handUserID) { console.log("EntityClientScript: startNearTrigger"); },
+        continueNearTrigger: function(entityID, handUserID) { console.log("EntityClientScript: continueNearTrigger"); },
+        stopNearTrigger: function(entityID, handUserID) { console.log("EntityClientScript: stopNearTrigger"); },
+        
+        // NearGrab
+        // Triggered by controllers only
+        startNearGrab: function(entityID, handUserID) { console.log("EntityClientScript: startNearGrab"); },
+        continueNearGrab: function(entityID, handUserID) { console.log("EntityClientScript: continueNearGrab"); },
+        continueDistanceGrab: function(entityID, handUserID) { console.log("EntityClientScript: continueDistanceGrab"); },
+        
+        // Triggered by mouse only
+        startDistanceGrab: function(entityID, handUserID) { console.log("EntityClientScript: startDistanceGrab"); },
 
-        // distanceGrab
-        startDistanceGrab: function(entityID, handUserID) {console.log("EntityClientScript: startDistanceGrab");},
-        continueDistanceGrab: function(entityID, handUserID) {console.log("EntityClientScript: continueDistanceGrab");},
-
-        // distanceGrab
-        startNearGrab: function(entityID, handUserID) {console.log("EntityClientScript: startNearGrab");},
-        continueNearGrab: function(entityID, handUserID) {console.log("EntityClientScript: continueNearGrab");},
-
-        // releases the trigger
-        releaseGrab: function(entityID, handUserID) {console.log("EntityClientScript: releaseGrab");},
+        // Triggered by mouse and controllers
+        releaseGrab: function(entityID, handUserID) { console.log("EntityClientScript: releaseGrab"); },
 
         // Equip
-        startEquip: function(entityID, handUserID) {console.log("EntityClientScript: startEquip");},
-        continueEquip: function(entityID, handUserID) {console.log("EntityClientScript: continueEquip");},
-        releaseEquip: function(entityID, handUserID) {console.log("EntityClientScript: releaseEquip");},
+        startEquip: function(entityID, handUserID) { console.log("EntityClientScript: startEquip"); },
+        continueEquip: function(entityID, handUserID) { console.log("EntityClientScript: continueEquip"); },
+        releaseEquip: function(entityID, handUserID) { console.log("EntityClientScript: releaseEquip"); },
     }
 
     return new EntityClientScript();
