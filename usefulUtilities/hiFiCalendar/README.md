@@ -27,7 +27,7 @@ This app lets you integrate with the Google Calendar API to query meeting room s
 
 # Release Notes
 
-## HiFi App v2.0 | [commit 7d29bd4](https://github.com/highfidelity/hifi-content/pull/361/commits/7d29bd44427876ae8c6a2e8a1fd5ba707ed12425)
+## HiFi App v2.0 | [commit 3600128](https://github.com/highfidelity/hifi-content/pull/361/commits/3600128f898ee7738ca8ff834e25d65b121fda34)
 - Authorization fixes, client app no longer needs to stay open.
 - Clock script added
 - Time display logic implemented for easier reading.
@@ -49,4 +49,3 @@ You will need the client script to keep track of the tokens it has sent during t
 4. Also tell each calendar schedule entity to kick off a timer that will expire N seconds before the OAuth token expires. When that timer expires, the server script will send a message (over the messages mixer, probably) to all clients able to accept that method, which will hopefully only be you. The message data will contain the OAuth token that the server script is currently using.
 5. When your client script receives this message, it will check to see if it's already tried to refresh that token (see the last sentence in (1)). If it hasn't, it should use the request module to submit a POST request to `https://www.googleapis.com/oauth2/v4/token` to renew that token. Once the response from Google is received, it'll send a message to the calendars that requested that THAT specific token be refreshed. (So, this script will have to keep track of the old version and refreshed version of each token).
 6.  When this call is received, the server script will immediately refresh calendar data. It'll also cancel any "auto-refresh-calendar-events" timer that's currently active.
-*/
