@@ -7,7 +7,9 @@ let selectedContainer = document.getElementById("selectedContainer");
 let emojiSequenceContainer = document.getElementById("emojiSequenceContainer");
 let input = document.getElementById('filter_emojis');
 let wearAsMask = document.getElementById('wearAsMask');
-let currentSwitchIntervalTime = document.getElementById('currentSwitchIntervalTime');
+let currentSwitchIntervalInput = document.getElementById('currentSwitchIntervalInput');
+let oneShotMode = document.getElementById('oneShotMode');
+
 
 let baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/mnt/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/Prototyping/avimoji/images/emojis/"
 
@@ -112,7 +114,6 @@ function updateSwitchIntervalTimeInput(input) {
         method: "updateSwitchIntervalTime",
         switchIntervalTime: input.value
     }));
-    currentSwitchIntervalTime.innerHTML = "Current Interval: " + input.value;
 }
 
 function clickEmoji(event){
@@ -134,6 +135,16 @@ function handleWearAsMask(checkbox){
         app: "avimoji",
         method: "handleShouldWearMask",
         shouldWearMask: shouldWearMask
+    }))
+}
+
+function handleOneShotMode(checkbox){
+    let oneShotMode = checkbox.checked;
+    console.log("oneShotMode:" + oneShotMode)
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "handleOneShotMode",
+        oneShotMode: oneShotMode
     }))
 }
 
@@ -216,7 +227,6 @@ function onScriptEventReceived(message) {
             // document.getElementById("nameTagSwitch").checked = message.nameTagEnabled;
             // document.getElementById("sizeSlider").value = message.currentUserScaler;            
             // document.getElementById("loadingContainer").style.display = "none";
-            currentSwitchIntervalTime.innerHTML = "Current Interval: " + message.emojiSwitch_ms;
             emojiList = message.emojiList;
             console.log("sequenceLength: " + message.emojiSequence.length)
             isPlaying = message.isPlaying
@@ -231,8 +241,10 @@ function onScriptEventReceived(message) {
                 currentSelectedEmoji = message.selectedEmoji;
             }
             wearAsMask.value = message.shouldWearMask;
+            oneShotMode.value = message.oneShotMode;
             input.focus();   
             document.getElementById("emojiScaler").value = message.emojiScaler;
+            currentSwitchIntervalInput.value = message.emojiSwitch_ms;
             break;
         case "updateEmojiPicks":
             renderSelected(message.selectedEmoji);

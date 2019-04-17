@@ -23,7 +23,7 @@
         });
     log("filteredEmojiList", filteredEmojiList.length)
 
-    var currentEmoji = new entityMaker('local');
+    var currentEmoji = new entityMaker('avatar');
 
     var emojiSequence = [];
     var selectedEmoji = null;
@@ -44,24 +44,25 @@
     }
 
     var shouldWearMask = false;
-    var emojiScaler = 0.30;
+    var emojiScaler = 0.27;
+    var ALPHA_TIMEOUT_MS = 40;
     function addEmojiToUser(emoji) {
         if (currentEmoji && currentEmoji.id){
             currentEmoji.destroy();
-            currentEmoji = new entityMaker('local');
+            currentEmoji = new entityMaker('avatar');
         }
         if (shouldWearMask){
             currentEmoji.add("parentJointIndex", MyAvatar.getJointIndex("Head"));
             // var neckPosition = Vec3.subtract(MyAvatar.getNeckPosition(), MyAvatar.position);
             var neckPosition = [0, 0, 0.24]
             var avatarScale = MyAvatar.scale;
-            var ABOVE_NECK = 0.1;
+            var ABOVE_NECK = 0.13;
             var emojiPosition = Vec3.sum(neckPosition, [0, avatarScale * ABOVE_NECK, 0]); 
         } else {
             var neckPosition = Vec3.subtract(MyAvatar.getNeckPosition(), MyAvatar.position);
             var avatarScale = MyAvatar.scale;
-            var ABOVE_NECK = 0.62;
-            var emojiPosition = Vec3.sum(neckPosition, [0, avatarScale * ABOVE_NECK, 0]); 
+            var ABOVE_NECK = 0.7;
+            var emojiPosition = Vec3.sum(neckPosition, [0, avatarScale * ABOVE_NECK * (1 + emojiScaler * 0.27), 0]); 
         }
 
         var IMAGE_SIZE = avatarScale * emojiScaler;
@@ -74,9 +75,16 @@
             .add('name', 'milad emoji')
             .add('localPosition', emojiPosition)
             .add('dimensions', dimensions) 
-            .add('parentID', parentID) 
+            .add('parentID', parentID)
+            .add('emissive', true)
             .add('imageURL', imageURL)
+            .add('alpha', 0)
+            .add('userData', "{ \"grabbableKey\": { \"grabbable\": true, \"kinematic\": false } }")
             .create();
+        
+        Script.setTimeout(function(){
+            currentEmoji.edit('alpha', 1.0);
+        }, ALPHA_TIMEOUT_MS)
     }
     
     function keyPress(event) {
@@ -90,8 +98,20 @@
         }
     }
     
+    oneShotModeMS = 4000;
     function emojiSelected(emoji){
         console.log("selected", JSON.stringify(emoji));
+        if (oneShotMode){
+            addEmojiToUser(emoji);
+            Script.setTimeout(function(){
+                if (currentEmoji && currentEmoji.id){
+                    currentEmoji.destroy();
+                    currentEmoji = new entityMaker('avatar');
+                }
+            }, oneShotModeMS)
+            return;
+        }
+
         selectedEmoji = emoji;
         emojiSequence.push(emoji);
         
@@ -142,7 +162,7 @@
         }
     }
 
-    var emojiSwitch_ms = 600;
+    var emojiSwitch_ms = 1200;
     function playEmojiSequence(){
         console.log("about to play at the following ms:", emojiSwitch_ms)
         playEmojiInterval = Script.setInterval(onPlayEmojiInterval, emojiSwitch_ms)
@@ -179,6 +199,10 @@
 
 
     function resetList(){
+        if (currentEmoji && currentEmoji.id){
+            currentEmoji.destroy();
+            currentEmoji = new entityMaker('avatar');
+        }
         stopEmojiSequence();
         emojiSequence = [];
         ui.sendMessage({
@@ -189,6 +213,10 @@
         });
     }
     
+    var oneShotMode = false;
+    function handleOneShotMode(newOneShot){
+        oneShotMode = newOneShot;
+    }
 
     function onMessage(message) {
         if (message.app !== "avimoji") {
@@ -204,6 +232,7 @@
                     selectedEmoji: selectedEmoji,
                     emojiSequence: emojiSequence,
                     shouldWearMask: shouldWearMask,
+                    oneShotMode: oneShotMode,
                     emojiSwitch_ms: emojiSwitch_ms,
                     isPlaying: isPlaying,
                     emojiScaler: emojiScaler
@@ -217,6 +246,11 @@
             case "handleShouldWearMask":
                 console.log("message.shouldWearMask", message.shouldWearMask)
                 handleShouldWearMask(message.shouldWearMask)
+                break;
+
+            case "handleOneShotMode":
+                console.log("message.oneShotMode", message.oneShotMode)
+                handleOneShotMode(message.oneShotMode);
                 break;
 
             case "updateIsPlaying":
