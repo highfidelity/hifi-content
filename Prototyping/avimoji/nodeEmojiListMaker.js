@@ -25,7 +25,8 @@ function splitTr(row){
         .filter(item => !!item);
 
     row[1] = row[1]
-        .split(" ");
+        .split(" ")
+        .map(item => item.toLowerCase());
 
     row[3] = row[3]
         .split("|")
@@ -43,8 +44,8 @@ const file = JSON.stringify(
         .slice(1, -1) // remove what is before the first and after the last rows
         .filter(item => !!item) // remove empty indexes
         .map(row => splitTr(row)) // map the rows to convert them to emoji objects 
-)
+, null, 4)
 
-let finalString = `var emojiList = ${file};`
+let finalString = `module.exports = ${file};`
 
 fs.writeFileSync(output, finalString);

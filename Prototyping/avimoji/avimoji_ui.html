@@ -7,22 +7,31 @@
     </head>
     <body>
         <div id="mainContainer">
-            <div id="searchContainer">
+            <div id="fixed">
                 <input type="text" placeholder="Search Emojis" id="filter_emojis"/>
-    
+                <div id="selectedContainer">
+                </div>
             </div>
+
+
             <div id="emojiSequenceContainer">
 
             </div>
-            <div id="selectedContainer">
-
+            <div id="searchContainer">
+                
+                    <div style="margin: 15px 0 0 0px;">
+                        <input type="checkbox" name="mask" id="wearAsMask" onclick="handleWearAsMask(this)">
+                        <label>Wear as Mask</label>
+                        <span style="margin: 0 0 0 15px;">Change emoji size</span>
+                        <input id="emojiScaler" type="range" name="size-slide" min="0.09" max="2.2" step="0.01" value="1.0" onchange="userSliderChanged(this)">
+                    </div>
+                    <div id="currentSwitchIntervalTime" style="margin: 20px 0 2px 0;"></div>
+                    <input id="currentSwitchIntervalInput" type="number" onblur="updateSwitchIntervalTimeInput(this)">
             </div>
-
             <div id="emojiContainer">
 
             </div>
         </div>
-        <script src="./emojiList.js"></script>
         <script src="./avimoji_ui.js"></script>
     </body>
 </html>

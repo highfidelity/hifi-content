@@ -16,7 +16,7 @@ body {
     color: #afafaf;
     margin: 0;
     padding: 0;
-    font-size: 1.5em;
+    font-size: 1.5m;
     overflow-x: hidden;
     overflow-y: scroll;
 }
@@ -42,11 +42,22 @@ body {
     box-sizing: border-box;
   }
 
+#filter_emojis {
+    width: 100vw;
+    height: 50px;
+    padding: 8px 15px;
+    font-size: 2em;
+}
+
 .emoji {
-    height: 1.5em;
-    width: 1.5em;
+    height: 1.8em;
+    width: 1.8em;
     margin: 0.15em 0.15em 0.15em 0.15em;
     vertical-align: -0.1em;
+}
+
+.emoji:hover {
+    border: dashed white;
 }
 
 #searchContainer {
@@ -59,6 +70,10 @@ body {
 
 #emojiSequenceContainer {
     margin: 1em 1em 1em 1em
+}
+
+.emojiSequence:hover {
+    border: dashed white;
 }
 
 .emojiSequence {
@@ -82,6 +97,7 @@ body {
 
 #selectedText {
     align-self: center;
+    font-size: 2em;
     /* justify-self: center; */
 
 }
@@ -89,4 +105,40 @@ body {
 
 .centerItem {
     align-self: center;
+}
+
+
+
+.buttonControls {
+    border: 0;
+    line-height: 1.0;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
+    text-align: center;
+    color: red;
+    width: 20%;
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 10px;
+    background-color: black;
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.buttonControls:hover {
+    background-color: rgba(255, 0, 0, 1);
+    color: white;
+}
+
+.buttonControls:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+  
+.fixed {
+    position: sticky;
 }

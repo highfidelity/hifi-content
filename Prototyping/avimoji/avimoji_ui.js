@@ -1,24 +1,18 @@
-const MAX_EMOJIS = 4000;
-const smallEmojiList = emojiList
-    .slice(0, MAX_EMOJIS)
-    .filter(emoji => {
-        if (emoji.code[0].slice(0,2) === "00") {
-            return false;
-        }
+let renderJustEmojis = true;
+let emojiList;
 
-        if (emoji.shortName.slice(0,4) === "flag") {
-            return false;
-        }
-
-        return true;
-    });
 let emojiContainer = document.getElementById("emojiContainer");
 let searchContainer = document.getElementById("searchContainer");
 let selectedContainer = document.getElementById("selectedContainer");
 let emojiSequenceContainer = document.getElementById("emojiSequenceContainer");
-let renderJustEmojis = true;
+let input = document.getElementById('filter_emojis');
+let wearAsMask = document.getElementById('wearAsMask');
+let currentSwitchIntervalTime = document.getElementById('currentSwitchIntervalTime');
 
-let emojiSequence = [];
+let baseURL = "https://hifi-content.s3.amazonaws.com/milad/ROLC/mnt/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/Prototyping/avimoji/images/emojis/"
+
+let currentSelectedEmoji = null;
+let currentEmojiSequence = null;
 
 function renderEmojiList(list){
     emojiContainer.innerHTML = ""
@@ -26,15 +20,14 @@ function renderEmojiList(list){
         let div = document.createElement('div');
         if (renderJustEmojis){
             div.innerHTML = `
-            <img class="emoji" data-number="${emoji.number}" src="./images/emojis/${emoji.code[0]}.png">
+            <img class="emoji" draggable="false" data-number="${emoji.number}" src="${baseURL}${emoji.code[0]}.png">
         `
         } else {
             div.innerHTML = `
             <p>
-                <img class="emoji" src="./images/emojis/${emoji.code[0]}.png">
+                <img draggable="false" class="emoji" src="${baseURL}${emoji.code[0]}.png">
                 ${emoji.number} : ${emoji.shortName} : ${emoji.keywords} : ${emoji.code}
             </p>
-            
         `
         }
 
@@ -44,18 +37,17 @@ function renderEmojiList(list){
     listDivMap.forEach(div => {
         emojiContainer.appendChild(div);
     })
-    if (renderEmojiList) {
+    if (renderJustEmojis) {
         emojiContainer.classList.add('grid')
     }
 }
 
+
 function renderSelected(emoji){
-    console.log("emoji:" + emoji)
     selectedContainer.innerHTML = "";
-    emojiSequence.push(emoji);
     let div = document.createElement('div');
     div.innerHTML = `
-        <img id="selectedEmoji" src="./images/emojis/${emoji.code[0]}.png">
+        <img draggable="false" id="selectedEmoji" src="${baseURL}${emoji.code[0]}.png">
         <div id="selectedText">
             ${emoji.shortName}
         </div>
@@ -63,66 +55,224 @@ function renderSelected(emoji){
     selectedContainer.appendChild(div);
 }
 
-renderEmojiList(smallEmojiList);
+// Change the play/stop button label
+function updatePlayLabel(playState) {
+    let playStopButton = document.getElementById("playStopButton");
+    isPlaying = playState;
+    var playLabel = isPlaying ? "Stop" : "Play";
+    playStopButton.value = playLabel;
+}
 
-input = document.getElementById('filter_emojis');
+// Handle play state change
+var isPlaying = false;
+function updateIsPlaying() {
+    isPlaying = !isPlaying;
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "updateIsPlaying",
+        isPlaying: isPlaying
+    }));
+    updatePlayLabel(isPlaying);
+}
+
+
+function renderEmojiSequence(emojiSequence){
+    emojiSequenceContainer.innerHTML = "";
+    let div = document.createElement('div');
+    let imageString = "";
+    emojiSequence.forEach((emoji, index) => {
+        imageString += `<img draggable="false" class="emojiSequence" data-index="${index}" src="${baseURL}${emoji.code[0]}.png">`
+    })
+    imageString += `
+    <div>
+        <input id="playStopButton" class="buttonControls" type="button" value="Play" onclick="updateIsPlaying()">
+        <input id="resetButton" class="buttonControls" type="button" value="Reset" onclick="resetList()">
+    </div>
+    `
+    div.innerHTML = imageString;
+    emojiSequenceContainer.appendChild(div);
+    updatePlayLabel(isPlaying);
+
+}
+
 
 function filterEmojis(event){
   let keyword = input.value.toLowerCase();
-  filteredEmojiList = smallEmojiList.filter(emoji => {
+  filteredEmojiList = emojiList.filter(emoji => {
        return emoji.keywords.join(" ").indexOf(keyword) > -1; 
   });
   
   renderEmojiList(filteredEmojiList);
 }
 
-input.addEventListener('keyup', filterEmojis);
-
-function renderEmojiSequence(){
-    emojiSequenceContainer.innerHTML = "";
-    let div = document.createElement('div');
-    let imageString = "";
-    emojiSequence.forEach((emoji, index) => {
-        imageString += `<img class="emojiSequence" data-index="${index}" src="./images/emojis/${emoji.code[0]}.png">`
-    })
-    div.innerHTML = imageString;
-    emojiSequenceContainer.appendChild(div);
+// Update the emoji switch interval
+function updateSwitchIntervalTimeInput(input) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "updateSwitchIntervalTime",
+        switchIntervalTime: input.value
+    }));
+    currentSwitchIntervalTime.innerHTML = "Current Interval: " + input.value;
 }
 
 function clickEmoji(event){
     let number = +event.target.getAttribute('data-number');
-    if (number > 0) {
-        console.log(number)
-        var emoji = emojiList[number-1];
-        console.log(JSON.stringify(emoji))
-        renderSelected(emoji);
-        renderEmojiSequence();
+    if (number > 0) {``
+       var emoji = emojiList[number-1];
         EventBridge.emitWebEvent(JSON.stringify({
             app: "avimoji",
             method: "emojiSelected",
             emoji: emoji
         }))
     }
+}
 
+function handleWearAsMask(checkbox){
+    let shouldWearMask = checkbox.checked;
+    console.log("shouldWearMask:" + shouldWearMask)
     EventBridge.emitWebEvent(JSON.stringify({
         app: "avimoji",
-        method: "emojiSelected",
+        method: "handleShouldWearMask",
+        shouldWearMask: shouldWearMask
+    }))
+}
 
+function resetList(){
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "resetList"
     }))
 }
 
 function clickSequenceEmoji(event){
     if (event.target.getAttribute('data-index')){
         let index = +event.target.getAttribute('data-index');
-        emojiSequence.splice(index, 1);
-        renderEmojiSequence();
+        EventBridge.emitWebEvent(JSON.stringify({
+            app: "avimoji",
+            method: "deleteEmojiInSequence",
+            index: index
+        }))
+    }
+}
+function str(el) {
+    if (!el) return "null"
+    return el.className || el.tagName;
+}
+
+function hoverEmoji(event){
+    if (str(event.target) === "DIV") {
+        if (currentSelectedEmoji) {
+            renderSelected(currentSelectedEmoji)
+        }
+    } else {
+        let number = +event.target.getAttribute('data-number');
+        if (number > 0) {``
+            var emoji = emojiList[number-1];
+            renderSelected(emoji)
+        }
     }
 }
 
-emojiContainer.addEventListener('click', clickEmoji);
+function hoverEmojiSequence(event){
+    if (str(event.target) === "DIV") {
+        if (currentSelectedEmoji) {
+            renderSelected(currentSelectedEmoji)
+        }
+    } else {
+        if (event.target.getAttribute('data-index')){
+            let index = +event.target.getAttribute('data-index');
+            var emoji = currentEmojiSequence[index];
+            renderSelected(emoji)
+        }
+    }
+}
 
-emojiSequenceContainer.addEventListener('click', clickSequenceEmoji)
-/*
-            ${emoji.number}:${emoji.shortName}:${emoji.code}:${emoji.keywords}
+// Handle the slider being changed
+function userSliderChanged(slider) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "updateEmojiScaler",
+        emojiScaler: slider.value
+    }));
+}
 
-*/
+// Handle incoming tablet messages
+function onScriptEventReceived(message) {
+    try {
+        message = JSON.parse(message);
+    } catch (e) {
+        console.log(e);
+        return;
+    }
+
+    if (message.app !== "avimoji") {
+        return; 
+    }
+
+    console.log(message.method)
+    switch (message.method) {
+        case "updateUI":
+            console.log("in update ui")
+            // document.getElementById("nameTagSwitch").checked = message.nameTagEnabled;
+            // document.getElementById("sizeSlider").value = message.currentUserScaler;            
+            // document.getElementById("loadingContainer").style.display = "none";
+            currentSwitchIntervalTime.innerHTML = "Current Interval: " + message.emojiSwitch_ms;
+            emojiList = message.emojiList;
+            console.log("sequenceLength: " + message.emojiSequence.length)
+            isPlaying = message.isPlaying
+            console.log("isPlaying:" + isPlaying)        
+            renderEmojiList(emojiList);
+            if (message.emojiSequence.length > 0){
+                currentEmojiSequence = message.emojiSequence;
+                renderEmojiSequence(message.emojiSequence);
+            }
+            if (message.selectedEmoji){
+                renderSelected(message.selectedEmoji);
+                currentSelectedEmoji = message.selectedEmoji;
+            }
+            wearAsMask.value = message.shouldWearMask;
+            input.focus();   
+            document.getElementById("emojiScaler").value = message.emojiScaler;
+            break;
+        case "updateEmojiPicks":
+            renderSelected(message.selectedEmoji);
+            currentSelectedEmoji = message.selectedEmoji;
+            renderEmojiSequence(message.emojiSequence);
+            break;
+        case "updateCurrentEmoji":
+            renderSelected(message.selectedEmoji);
+            currentSelectedEmoji = message.selectedEmoji;
+            break;
+        default:
+            console.log("Unknown message received from avimoji.js! " + JSON.stringify(message));
+            break;
+    }
+}
+
+
+// This is how much time to give the Eventbridge to wake up.  This won't be needed in RC78 and will be removed.
+// Run when the JS is loaded and give enough time to for EventBridge to come back
+var EVENTBRIDGE_SETUP_DELAY = 500;
+function onLoad() {
+    setTimeout(function() {
+        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+        EventBridge.emitWebEvent(JSON.stringify({
+            app: "avimoji",
+            method: "eventBridgeReady"
+        }));
+    }, EVENTBRIDGE_SETUP_DELAY);
+
+    input.addEventListener('keyup', filterEmojis);
+    emojiContainer.addEventListener('click', clickEmoji);
+    emojiContainer.addEventListener('mouseover', hoverEmoji);
+    emojiContainer.addEventListener('mouseout', hoverEmoji);
+    emojiSequenceContainer.addEventListener('click', clickSequenceEmoji)
+    emojiSequenceContainer.addEventListener('mouseover', hoverEmojiSequence);
+    emojiSequenceContainer.addEventListener('mouseout', hoverEmojiSequence);
+    
+}
+
+onLoad();
+
+
+
