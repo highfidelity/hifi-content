@@ -443,9 +443,6 @@
     // User can click on overlay to sit down
     function mouseReleaseOnSittableLocalEntity(overlayID, pointerEvent) {
         if (overlayID === that.sittableID && pointerEvent.isLeftButton) {
-
-            console.log("Sit cube click to sit clicked");
-
             // Server checks if seat is occupied
             // if not occupied will call startSitDown()
             Entities.callEntityServerMethod(
@@ -500,9 +497,6 @@
             MyAvatar.onLoadComplete.connect(standUp);
             location.hostChanged.connect(standUp);
             Script.scriptEnding.connect(standUp);
-
-            console.log("sit cube sit and pin avatar end");
-
         }, SIT_DELAY_MS);
     }
 
@@ -542,7 +536,6 @@
                 }, OVERLAY_PRESIT_FRAME_DURATION * overlayPreSitLoaded.length);
             } else {
             // No presit overlay in desktop mode
-                console.log("sit cube sit and pin avatar start");
                 sitAndPinAvatar();
             }
         }, SIT_DELAY_MS);
@@ -772,7 +765,6 @@
         ],
 
         preload: function (id) {
-            console.log("Sit cube preload, " + id);
             that.entityID = id;
 
             AnimationCache.prefetch(ANIMATION_URL);
@@ -804,7 +796,6 @@
         // Called by entity server script
         // To ensure only 1 avatar sits in chair at a time
         startSitDown: function (id, param) {
-            console.log("Sit cube start sit down, returned from server script");
             sitDown();
         },
 
