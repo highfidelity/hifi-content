@@ -29,7 +29,7 @@
             whiteboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
         },
 
-        /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
+        /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
         mode requested. */
         playSound: function(sound, volume, position, localOnly, loop){
             if (sound.downloaded) {
@@ -51,7 +51,7 @@
             return (rgbColorValue/RGB_MAX_VALUE).toFixed(DECIMAL_PLACES);
         },
         
-        /* Check for existing paint sphere and delete if found */
+        /* Check for existing paint sphere and delete if found  */
         removePaintSpheres: function() {
             MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
                 var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
@@ -61,7 +61,7 @@
             });
         },
 
-        /* Create black paint sphere on user's hand */
+        /* Create a paint sphere with a random color on user's hand */
         enterEntity: function() {
             MyAvatar.disableHandTouchForID(whiteboard);
             Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
@@ -79,12 +79,12 @@
             Entities.callEntityMethod(paletteSquares[randomPaletteSquareIndex],'createPaintSphere');
         },
 
-        /* when clicked or triggered, calculate position of avatar's hand and create a paint sphere */
+        /* when clicked or triggered, remove paint spheres */
         leaveEntity: function( entityID, event ) {
             _this.removePaintSpheres();
         },
 
-        /* ON UNLOADING THE SCRIPT: Make sure the avatar leaves the zone so extra entities are deleted and intervals ended */
+        /* ON UNLOADING THE SCRIPT: remove all paint spheres */
         unload: function(){
             _this.removePaintSpheres();
         }

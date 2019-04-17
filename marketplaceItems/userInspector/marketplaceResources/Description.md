@@ -11,6 +11,7 @@ With User Inspector, you can click anywhere on an avatar and get a quick view of
 
 v2.1 (2019-04)
 - Updated pickray module to fix error in Avatar.findRayIntersection
+- Fixed friend colors after the first click
 
 V2.0 (2019-04)
 - Fixed culling by using the render layer in front

@@ -30,7 +30,7 @@
             _this.entityID = entityID;
         },
 
-        /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
+        /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
         mode requested. */
         playSound: function(sound, volume, position, localOnly, loop){
             if (sound.downloaded) {
@@ -62,7 +62,9 @@
             });
         },
 
-        /* */
+        /* Remove any existing paint spheres. Get user's dominant hand and find most appropriate joint available to 
+        attach paint sphere to. Create a paint sphere using the color of this square that was clicked. Attach a material 
+        to the sphere using a texture found inthe userData of this square. */
         createPaintSphere: function() {
             _this.removePaintSpheres();
             dominantHand = MyAvatar.getDominantHand();
@@ -112,7 +114,7 @@
             }, 'avatar');
         },
 
-        /* when clicked or triggered, calculate position of avatar's hand and create a paint sphere */
+        /* Create a paint sphere on hand. */
         mousePressOnEntity: function( entityID, event ) {
             if (event.isLeftButton) {
                 _this.createPaintSphere();

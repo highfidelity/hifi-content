@@ -2,96 +2,35 @@
   "DataVersion": 0,
   "Entities": [
     {
-    "id": "{4d202310-282f-43b7-bb4c-e57d2cd2e46e}",
-    "type": "Text",
-    "lastEdited": 1555007902289146,
-    "parentID": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
-    "name": "Whiteboard Reset",
-    "locked": true,
-    "position": {
-        "x": 0.5075650215148926,
-        "y": -0.591064453125,
-        "z": -0.00726318359375
-    },
-    "dimensions": {
-        "x": 0.13745681941509247,
-        "y": 0.06351786851882935,
-        "z": 0.009999999776482582
-    },
-    "rotation": {
-        "x": -0.0000152587890625,
-        "y": 1,
-        "z": -0.0000457763671875,
-        "w": 0.0000762939453125
-    },
-    "created": 1554422118124390,
-    "lastEditedBy": "{6cb93832-459d-4e8c-a721-c02d692279f9}",
-    "queryAACube": {
-        "x": -71.7729721069336,
-        "y": 890.8225708007812,
-        "z": -7.1639909744262695,
-        "scale": 0.1517527550458908
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 7,
-    "collidesWith": "static,dynamic,kinematic,",
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/entityClientScripts/whiteboardReset.js",
-    "scriptTimestamp": 1554489729490,
-    "text": "Reset",
-    "lineHeight": 0.05999999865889549,
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{7535a63a-1d80-47b5-844a-4d11514326a9}",
-    "type": "Box",
-    "lastEdited": 1554923712547407,
-    "parentID": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
+    "id": "{a0dced26-9d96-40db-b597-a115478a6561}",
+    "type": "Shape",
+    "lastEdited": 1555433193772322,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
     "name": "Whiteboard Palette Square",
-    "locked": true,
-    "userData": "{\"textureURL\":\"http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/resources/textures/cyan.png\"}",
+    "userData": "{\"textureURL\":\"../resources/textures/yellow.png\"}",
     "position": {
-        "x": 0.7458062171936035,
-        "y": -0.5976181030273438,
-        "z": -0.0008983612060546875
+        "x": -0.08388011157512665,
+        "y": 0.99993896484375,
+        "z": -0.046478271484375
     },
     "dimensions": {
-        "x": 0.05000000074505806,
-        "y": 0.05000000074505806,
-        "z": 0.0010000000474974513
+        "x": 0.15000000596046448,
+        "y": 0.019999999552965164,
+        "z": 0.15000000596046448
     },
     "rotation": {
-        "x": -0.0003204345703125,
-        "y": 0.0000152587890625,
-        "z": -0.0001678466796875,
-        "w": -1
+        "x": -0.7069657444953918,
+        "y": 0.0185091495513916,
+        "z": 0.0184481143951416,
+        "w": 0.7067825794219971
     },
-    "created": 1554419713257669,
-    "lastEditedBy": "{9e99801d-9ccb-4f48-9f2d-54abf0130e7d}",
+    "created": 1555353776079216,
+    "lastEditedBy": "{4692ce77-d300-4c33-813e-d6fac10cbc17}",
     "queryAACube": {
-        "x": -71.73727416992188,
-        "y": 890.8565673828125,
-        "z": -6.885195255279541,
-        "scale": 0.07071775197982788
+        "x": -64.57659149169922,
+        "y": 892.3155517578125,
+        "z": -3.342637538909912,
+        "scale": 0.2130727618932724
     },
     "grab": {
         "grabbable": false,
@@ -112,209 +51,14 @@
     "angularDamping": 0,
     "collisionMask": 7,
     "collidesWith": "static,dynamic,kinematic,",
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/entityClientScripts/drawSphereSpawnerClient.js",
-    "scriptTimestamp": 1553806847340,
-    "color": {
-        "red": 0,
-        "green": 158,
-        "blue": 224
-    },
-    "shape": "Cube",
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{bbe05f91-7d18-4f57-9eef-2c1ea716675b}",
-    "type": "Box",
-    "lastEdited": 1554923712547590,
-    "parentID": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
-    "name": "Whiteboard Palette Square",
-    "locked": true,
-    "userData": "{\"textureURL\":\"http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/resources/textures/green.png\"}",
-    "position": {
-        "x": 0.690658688545227,
-        "y": -0.5976371765136719,
-        "z": -0.0008993148803710938
-    },
-    "dimensions": {
-        "x": 0.05000000074505806,
-        "y": 0.05000000074505806,
-        "z": 0.0010000000474974513
-    },
-    "rotation": {
-        "x": -0.0003204345703125,
-        "y": 0.0000152587890625,
-        "z": -0.0001678466796875,
-        "w": -1
-    },
-    "created": 1554419713258739,
-    "lastEditedBy": "{9e99801d-9ccb-4f48-9f2d-54abf0130e7d}",
-    "queryAACube": {
-        "x": -71.73763275146484,
-        "y": 890.8565063476562,
-        "z": -6.940341472625732,
-        "scale": 0.07071775197982788
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 7,
-    "collidesWith": "static,dynamic,kinematic,",
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/entityClientScripts/drawSphereSpawnerClient.js",
-    "scriptTimestamp": 1553806847340,
-    "color": {
-        "red": 0,
-        "green": 144,
-        "blue": 54
-    },
-    "shape": "Cube",
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{6474104f-bfaf-470a-9b9c-8b22e89e4575}",
-    "type": "Box",
-    "lastEdited": 1554923712547759,
-    "parentID": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
-    "name": "Whiteboard Palette Square",
-    "locked": true,
-    "userData": "{\"textureURL\":\"http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/resources/textures/blue.png\"}",
-    "position": {
-        "x": 0.8005569577217102,
-        "y": -0.5975990295410156,
-        "z": -0.0008974075317382812
-    },
-    "dimensions": {
-        "x": 0.05000000074505806,
-        "y": 0.05000000074505806,
-        "z": 0.0010000000474974513
-    },
-    "rotation": {
-        "x": -0.0003204345703125,
-        "y": 0.0000152587890625,
-        "z": -0.0001678466796875,
-        "w": -1
-    },
-    "created": 1554419713258204,
-    "lastEditedBy": "{9e99801d-9ccb-4f48-9f2d-54abf0130e7d}",
-    "queryAACube": {
-        "x": -71.7369155883789,
-        "y": 890.8565673828125,
-        "z": -6.830445766448975,
-        "scale": 0.07071775197982788
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 7,
-    "collidesWith": "static,dynamic,kinematic,",
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/entityClientScripts/drawSphereSpawnerClient.js",
-    "scriptTimestamp": 1553806847340,
-    "color": {
-        "red": 23,
-        "green": 41,
-        "blue": 131
-    },
-    "shape": "Cube",
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{934aae34-d51c-43b9-808e-9f5ca0ea24a4}",
-    "type": "Box",
-    "lastEdited": 1554923712547932,
-    "parentID": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
-    "name": "Whiteboard Palette Square",
-    "locked": true,
-    "userData": "{\"textureURL\":\"http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/resources/textures/yellow.png\"}",
-    "position": {
-        "x": 0.6349599361419678,
-        "y": -0.5976581573486328,
-        "z": -0.0008988380432128906
-    },
-    "dimensions": {
-        "x": 0.05000000074505806,
-        "y": 0.05000000074505806,
-        "z": 0.0010000000474974513
-    },
-    "rotation": {
-        "x": -0.0003204345703125,
-        "y": 0.0000152587890625,
-        "z": -0.0001678466796875,
-        "w": -1
-    },
-    "created": 1554419713258558,
-    "lastEditedBy": "{9e99801d-9ccb-4f48-9f2d-54abf0130e7d}",
-    "queryAACube": {
-        "x": -71.73799896240234,
-        "y": 890.8565063476562,
-        "z": -6.996039390563965,
-        "scale": 0.07071775197982788
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 7,
-    "collidesWith": "static,dynamic,kinematic,",
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/entityClientScripts/drawSphereSpawnerClient.js",
+    "script": "../entityClientScripts/drawSphereSpawnerClient.js",
     "scriptTimestamp": 1553876735507,
     "color": {
         "red": 255,
         "green": 237,
         "blue": 0
     },
-    "shape": "Cube",
+    "shape": "Cylinder",
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -322,36 +66,35 @@
     "isFacingAvatar": false
 },
     {
-    "id": "{b8c2eaff-a108-4477-aa8f-266b7d417079}",
-    "type": "Box",
-    "lastEdited": 1554923712548100,
-    "parentID": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
+    "id": "{277499bc-52bd-4053-922d-7203166ac141}",
+    "type": "Shape",
+    "lastEdited": 1555433676520537,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
     "name": "Whiteboard Palette Square",
-    "locked": true,
-    "userData": "{\"textureURL\":\"http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/resources/textures/red.png\"}",
+    "userData": "{\"textureURL\":\"../resources/textures/magenta.png\"}",
     "position": {
-        "x": 0.9142947793006897,
-        "y": -0.5975570678710938,
-        "z": -0.0008969306945800781
+        "x": 0.07782323658466339,
+        "y": 0.999755859375,
+        "z": -0.05089569091796875
     },
     "dimensions": {
-        "x": 0.05000000074505806,
-        "y": 0.05000000074505806,
-        "z": 0.0010000000474974513
+        "x": 0.15000000596046448,
+        "y": 0.019999999552965164,
+        "z": 0.15000000596046448
     },
     "rotation": {
-        "x": -0.0003204345703125,
-        "y": 0.0000152587890625,
-        "z": -0.0001678466796875,
-        "w": -1
+        "x": 0.7070573568344116,
+        "y": 0.006149411201477051,
+        "z": -0.006240963935852051,
+        "w": 0.7070573568344116
     },
-    "created": 1554419713257483,
-    "lastEditedBy": "{9e99801d-9ccb-4f48-9f2d-54abf0130e7d}",
+    "created": 1555353776079845,
+    "lastEditedBy": "{52001bf7-8b71-47f6-a82c-576a747f9ecb}",
     "queryAACube": {
-        "x": -71.73617553710938,
-        "y": 890.8566284179688,
-        "z": -6.716710567474365,
-        "scale": 0.07071775197982788
+        "x": -64.58100128173828,
+        "y": 892.3153686523438,
+        "z": -3.5043323040008545,
+        "scale": 0.2130727618932724
     },
     "grab": {
         "grabbable": false,
@@ -372,14 +115,206 @@
     "angularDamping": 0,
     "collisionMask": 7,
     "collidesWith": "static,dynamic,kinematic,",
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/entityClientScripts/drawSphereSpawnerClient.js",
+    "script": "../entityClientScripts/drawSphereSpawnerClient.js",
+    "scriptTimestamp": 1553806847340,
+    "color": {
+        "red": 255,
+        "green": 66,
+        "blue": 167
+    },
+    "shape": "Cylinder",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{81d7f0ff-17c6-432c-86de-a1e980259940}",
+    "type": "Shape",
+    "lastEdited": 1555433473638900,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
+    "name": "Whiteboard Palette Square",
+    "userData": "{\"textureURL\":\"../resources/textures/black.png\"}",
+    "position": {
+        "x": -0.886026918888092,
+        "y": 1,
+        "z": -0.049072265625
+    },
+    "dimensions": {
+        "x": 0.15000000596046448,
+        "y": 0.019999999552965164,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.7073014378547668,
+        "y": 0.0184175968170166,
+        "z": 0.0184481143951416,
+        "w": 0.7064468860626221
+    },
+    "created": 1555353776078688,
+    "lastEditedBy": "{4692ce77-d300-4c33-813e-d6fac10cbc17}",
+    "queryAACube": {
+        "x": -64.57923126220703,
+        "y": 892.3156127929688,
+        "z": -2.5405335426330566,
+        "scale": 0.2130727618932724
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "script": "../entityClientScripts/drawSphereSpawnerClient.js",
+    "scriptTimestamp": 1553806847340,
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "shape": "Cylinder",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{9eafa3f2-8b93-408c-a842-41d1a9f8f9f6}",
+    "type": "Shape",
+    "lastEdited": 1555433591292030,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
+    "name": "Whiteboard Palette Square",
+    "userData": "{\"textureURL\":\"../resources/textures/blue.png\"}",
+    "position": {
+        "x": -0.5632861852645874,
+        "y": 1,
+        "z": -0.04937744140625
+    },
+    "dimensions": {
+        "x": 0.15000000596046448,
+        "y": 0.019999999552965164,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.7070267796516418,
+        "y": 0.0184481143951416,
+        "z": 0.0184481143951416,
+        "w": 0.7067215442657471
+    },
+    "created": 1555353776079401,
+    "lastEditedBy": "{4692ce77-d300-4c33-813e-d6fac10cbc17}",
+    "queryAACube": {
+        "x": -64.57952117919922,
+        "y": 892.3156127929688,
+        "z": -2.8632571697235107,
+        "scale": 0.2130727618932724
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "script": "../entityClientScripts/drawSphereSpawnerClient.js",
+    "scriptTimestamp": 1553806847340,
+    "color": {
+        "red": 23,
+        "green": 41,
+        "blue": 131
+    },
+    "shape": "Cylinder",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{b7bc2615-373f-4461-af42-5238e1b17ba1}",
+    "type": "Shape",
+    "lastEdited": 1555433193770214,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
+    "name": "Whiteboard Palette Square",
+    "userData": "{\"textureURL\":\"../resources/textures/red.png\"}",
+    "position": {
+        "x": -0.7231253385543823,
+        "y": 1,
+        "z": -0.0504150390625
+    },
+    "dimensions": {
+        "x": 0.15000000596046448,
+        "y": 0.019999999552965164,
+        "z": 0.1599999964237213
+    },
+    "rotation": {
+        "x": -0.7069962620735168,
+        "y": 0.0184481143951416,
+        "z": 0.0184481143951416,
+        "w": 0.7067520618438721
+    },
+    "created": 1555353776079610,
+    "lastEditedBy": "{4692ce77-d300-4c33-813e-d6fac10cbc17}",
+    "queryAACube": {
+        "x": -64.58414459228516,
+        "y": 892.31201171875,
+        "z": -2.7070038318634033,
+        "scale": 0.22022715210914612
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "script": "../entityClientScripts/drawSphereSpawnerClient.js",
     "scriptTimestamp": 1553806847340,
     "color": {
         "red": 255,
         "green": 0,
         "blue": 26
     },
-    "shape": "Cube",
+    "shape": "Cylinder",
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -387,36 +322,35 @@
     "isFacingAvatar": false
 },
     {
-    "id": "{c14ff2f8-bdeb-4ecc-961d-53d0b60822f2}",
-    "type": "Box",
-    "lastEdited": 1554923712548285,
-    "parentID": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
+    "id": "{d1e93614-64cf-4991-8b4f-2c917edb676d}",
+    "type": "Shape",
+    "lastEdited": 1555433193771710,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
     "name": "Whiteboard Palette Square",
-    "locked": true,
-    "userData": "{\n  \"textureURL\": \"http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/resources/textures/black.png\"\n}",
+    "userData": "{\"textureURL\":\"../resources/textures/green.png\"}",
     "position": {
-        "x": 0.9703806638717651,
-        "y": -0.5975379943847656,
-        "z": -0.0008940696716308594
+        "x": -0.2437136024236679,
+        "y": 1,
+        "z": -0.0474090576171875
     },
     "dimensions": {
-        "x": 0.05000000074505806,
-        "y": 0.05000000074505806,
-        "z": 0.0010000000474974513
+        "x": 0.15000000596046448,
+        "y": 0.019999999552965164,
+        "z": 0.15000000596046448
     },
     "rotation": {
-        "x": -0.0003204345703125,
-        "y": 0.0000152587890625,
-        "z": -0.0001678466796875,
-        "w": -1
+        "x": -0.7069657444953918,
+        "y": 0.0183565616607666,
+        "z": 0.0183565616607666,
+        "w": 0.7067825794219971
     },
-    "created": 1554419713258383,
-    "lastEditedBy": "{9e99801d-9ccb-4f48-9f2d-54abf0130e7d}",
+    "created": 1555353776079009,
+    "lastEditedBy": "{4692ce77-d300-4c33-813e-d6fac10cbc17}",
     "queryAACube": {
-        "x": -71.7358169555664,
-        "y": 890.8566284179688,
-        "z": -6.660625457763672,
-        "scale": 0.07071775197982788
+        "x": -64.57752990722656,
+        "y": 892.3156127929688,
+        "z": -3.182812452316284,
+        "scale": 0.2130727618932724
     },
     "grab": {
         "grabbable": false,
@@ -437,8 +371,191 @@
     "angularDamping": 0,
     "collisionMask": 7,
     "collidesWith": "static,dynamic,kinematic,",
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/entityClientScripts/drawSphereSpawnerClient.js",
+    "script": "../entityClientScripts/drawSphereSpawnerClient.js",
     "scriptTimestamp": 1553806847340,
+    "color": {
+        "red": 0,
+        "green": 144,
+        "blue": 54
+    },
+    "shape": "Cylinder",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{91cabb7c-8cc8-4058-a5e6-e409218a21f8}",
+    "type": "Shape",
+    "lastEdited": 1555433193771477,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
+    "name": "Whiteboard Palette Square",
+    "userData": "{\"textureURL\":\"../resources/textures/cyan.png\"}",
+    "position": {
+        "x": -0.4034476578235626,
+        "y": 1,
+        "z": -0.04833984375
+    },
+    "dimensions": {
+        "x": 0.15000000596046448,
+        "y": 0.019999999552965164,
+        "z": 0.15000000596046448
+    },
+    "rotation": {
+        "x": -0.7069657444953918,
+        "y": 0.0183565616607666,
+        "z": 0.0183565616607666,
+        "w": 0.7067825794219971
+    },
+    "created": 1555353776078846,
+    "lastEditedBy": "{4692ce77-d300-4c33-813e-d6fac10cbc17}",
+    "queryAACube": {
+        "x": -64.5784683227539,
+        "y": 892.3156127929688,
+        "z": -3.0230870246887207,
+        "scale": 0.2130727618932724
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "script": "../entityClientScripts/drawSphereSpawnerClient.js",
+    "scriptTimestamp": 1553806847340,
+    "color": {
+        "red": 0,
+        "green": 158,
+        "blue": 224
+    },
+    "shape": "Cylinder",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{2331da43-7c0d-40f1-b8ef-a86b4f9d477c}",
+    "type": "Text",
+    "lastEdited": 1555433458199809,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
+    "name": "Whiteboard Reset",
+    "position": {
+        "x": 0.5500677824020386,
+        "y": 1.00762939453125,
+        "z": -0.01241302490234375
+    },
+    "dimensions": {
+        "x": 0.3607602119445801,
+        "y": 0.11757420003414154,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -1,
+        "z": 0.0000152587890625,
+        "w": 0.0000152587890625
+    },
+    "created": 1555353776078530,
+    "lastEditedBy": "{4692ce77-d300-4c33-813e-d6fac10cbc17}",
+    "queryAACube": {
+        "x": -64.62574005126953,
+        "y": 892.239990234375,
+        "z": -4.059797286987305,
+        "scale": 0.3795676827430725
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "script": "../entityClientScripts/whiteboardReset.js",
+    "scriptTimestamp": 1554489729490,
+    "text": "RESET",
+    "leftMargin": 0.05000000074505806,
+    "topMargin": 0.009999999776482582,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{7562c700-ab91-44f3-bcdd-088866dea045}",
+    "type": "Box",
+    "lastEdited": 1555433650068992,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
+    "name": "Whiteboard Bezel",
+    "position": {
+        "x": -0.001328974962234497,
+        "y": 0.97088623046875,
+        "z": 0.008514404296875
+    },
+    "dimensions": {
+        "x": 0.03856167942285538,
+        "y": 0.0436001718044281,
+        "z": 3.0623931884765625
+    },
+    "rotation": {
+        "x": 0.0001068115234375,
+        "y": -0.7094072103500366,
+        "z": -0.0001068115234375,
+        "w": 0.7048294544219971
+    },
+    "created": 1555433372142767,
+    "lastEditedBy": "{52001bf7-8b71-47f6-a82c-576a747f9ecb}",
+    "queryAACube": {
+        "x": -65.94652557373047,
+        "y": 890.8615112304688,
+        "z": -4.850116729736328,
+        "scale": 3.062946319580078
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
     "color": {
         "red": 0,
         "green": 0,
@@ -452,77 +569,11 @@
     "isFacingAvatar": false
 },
     {
-    "id": "{a9fddfb4-0b81-4cc9-b9c9-6ede302dc052}",
-    "type": "Box",
-    "lastEdited": 1555001231531887,
-    "parentID": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
-    "name": "Whiteboard Palette Square",
-    "locked": true,
-    "userData": "{\"textureURL\":\"http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/resources/textures/magenta.png\"}",
-    "position": {
-        "x": 0.8578562140464783,
-        "y": -0.59698486328125,
-        "z": -0.00095367431640625
-    },
-    "dimensions": {
-        "x": 0.05000000074505806,
-        "y": 0.05000000074505806,
-        "z": 0.0010000000474974513
-    },
-    "rotation": {
-        "x": -0.0003204345703125,
-        "y": 0.0000152587890625,
-        "z": -0.0001678466796875,
-        "w": -1
-    },
-    "created": 1554419713257845,
-    "lastEditedBy": "{c4213d40-8ae1-45f5-8c4a-3b0870346ec4}",
-    "queryAACube": {
-        "x": -71.73648834228516,
-        "y": 890.857177734375,
-        "z": -6.773148059844971,
-        "scale": 0.07071775197982788
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 7,
-    "collidesWith": "static,dynamic,kinematic,",
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/entityClientScripts/drawSphereSpawnerClient.js",
-    "scriptTimestamp": 1553806847340,
-    "color": {
-        "red": 255,
-        "green": 66,
-        "blue": 167
-    },
-    "shape": "Cube",
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{67a00144-bf79-4f11-8d3f-ae47dc18c3b1}",
+    "id": "{f1dddfba-4dbb-46c5-bde3-ceef5acf8e8c}",
     "type": "Zone",
-    "lastEdited": 1554923712556053,
-    "parentID": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
+    "lastEdited": 1555433127160508,
+    "parentID": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
     "name": "Whiteboard Zone",
-    "locked": true,
     "position": {
         "x": -0.0962119996547699,
         "y": 0.08551025390625,
@@ -539,12 +590,12 @@
         "z": -0.0000152587890625,
         "w": 1
     },
-    "created": 1554501010551651,
-    "lastEditedBy": "{9e99801d-9ccb-4f48-9f2d-54abf0130e7d}",
+    "created": 1555353776078369,
+    "lastEditedBy": "{4692ce77-d300-4c33-813e-d6fac10cbc17}",
     "queryAACube": {
-        "x": -72.58130645751953,
-        "y": 889.0397338867188,
-        "z": -10.237594604492188,
+        "x": -68.61988067626953,
+        "y": 888.9723510742188,
+        "z": -5.758691787719727,
         "scale": 5.06976318359375
     },
     "grab": {
@@ -564,7 +615,7 @@
     },
     "damping": 0,
     "angularDamping": 0,
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/airAndWhiteboardDraw/entityResources/entityClientScripts/whiteboardZoneClient.js",
+    "script": "../entityClientScripts/whiteboardZoneClient.js",
     "scriptTimestamp": 1554501630673,
     "shapeType": "box",
     "keyLight": {
@@ -582,29 +633,28 @@
     "isFacingAvatar": false
 },
     {
-    "id": "{f8b95e5a-a886-4606-b023-82e0e026d33f}",
+    "id": "{b6524615-e4ba-4fe9-a2c4-ec5062044014}",
     "type": "Box",
-    "lastEdited": 1554923712556247,
+    "lastEdited": 1555433127160508,
     "name": "Whiteboard",
-    "locked": true,
     "dimensions": {
-        "x": 2,
-        "y": 1.25,
-        "z": 0.0010000000474974513
+        "x": 3.065221071243286,
+        "y": 1.9157631397247314,
+        "z": 0.0015326107386499643
     },
     "rotation": {
         "x": -0.0001068115234375,
-        "y": -0.7047989368438721,
-        "z": -0.0000457763671875,
-        "w": 0.7094072103500366
+        "y": 0.7070878744125366,
+        "z": 0.0000762939453125,
+        "w": 0.7070878744125366
     },
-    "created": 1554419713260054,
-    "lastEditedBy": "{9e99801d-9ccb-4f48-9f2d-54abf0130e7d}",
+    "created": 1555353776078162,
+    "lastEditedBy": "{4692ce77-d300-4c33-813e-d6fac10cbc17}",
     "queryAACube": {
-        "x": -1.1792477369308472,
-        "y": -1.1792477369308472,
-        "z": -1.1792477369308472,
-        "scale": 2.3584954738616943
+        "x": -1.8073275089263916,
+        "y": -1.8073275089263916,
+        "z": -1.8073275089263916,
+        "scale": 3.614655017852783
     },
     "grab": {
         "grabbable": false,
@@ -633,6 +683,6 @@
     "isFacingAvatar": false
 }
     ],
-  "Id": "{cb527331-9542-4b1a-ba3e-585a310b304b}",
+  "Id": "{cfd41182-331f-47fa-a55e-57396175e91e}",
   "Version": 118
 }

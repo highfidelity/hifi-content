@@ -41,7 +41,8 @@ function NewAvatarProps(intersection) {
         previousName: null,
         localPositionOfIntersection: null,
         subInitialLocalPositionOffset: null,
-        timeoutStarted: true
+        timeoutStarted: true,
+        friend: false
     };
 }
 
@@ -180,6 +181,8 @@ var FRIEND_SUB_BACKGROUND = "#2d2d2d";
 function handleFriend(uuid, username) {
     var avatar = _this.avatars[uuid];
     var avatarInfo = avatar.avatarInfo;
+
+    avatar.friend = true;
 
     var localEntityMain = avatar.localEntityMain;
     var localEntitySub = avatar.localEntitySub;
@@ -364,6 +367,11 @@ function makeNameTag(uuid, type) {
     if (type === "main") {
         localEntity
             .add("position", position);
+        if (avatar.friend) {
+            localEntity
+                .add("textColor", FRIEND_TEXT)
+                .add("backgroundColor", FRIEND_MAIN_BACKGROUND);
+        }
     } else {
         // Get the localPosition offset
         var localEntityMainDimensions = avatar.localEntityMain.get('dimensions', SHOULD_QUERY_ENTITY);
@@ -375,8 +383,17 @@ function makeNameTag(uuid, type) {
 
         localEntity
             .add("localPosition", localPositionOffset)
-            .add("backgroundColor", SUB_BACKGROUND)
-            .add("textColor", SUB_TEXTCOLOR);
+
+        if (avatar.friend) {
+            localEntity
+                .add("textColor", FRIEND_SUB_TEXT)
+                .add("backgroundColor", FRIEND_SUB_BACKGROUND);
+        } else {
+            localEntity
+                .add("backgroundColor", SUB_BACKGROUND)
+                .add("textColor", SUB_TEXTCOLOR);
+        }
+
     }
 
     localEntity

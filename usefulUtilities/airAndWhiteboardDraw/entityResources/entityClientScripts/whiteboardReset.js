@@ -31,9 +31,9 @@
         preload: function(entityID) {
             _this.entityID = entityID;
             _this.getWhiteboardZone();
-            print("WHITEBOARD ZONE: ", whiteboardZone);
         },
 
+        /* Search children of whiteboard to get zone. */
         getWhiteboardZone: function() {
             var whiteboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
             Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardChild) {
@@ -45,9 +45,9 @@
             return whiteboardZone;
         },
 
+        /* Check if user is inside zone */
         isUserInZone: function(zoneID) {
             var zoneProperties = Entities.getEntityProperties(zoneID, ['position', 'rotation', 'dimensions']);
-            print("ZONE PROPERTIES: ", JSON.stringify(zoneProperties.position), JSON.stringify(zoneProperties.rotation), JSON.stringify(zoneProperties.dimensions));
             var localPosition = Vec3.multiplyQbyV(Quat.inverse(zoneProperties.rotation),
                 Vec3.subtract(MyAvatar.position, zoneProperties.position));
             var halfDimensions = Vec3.multiply(zoneProperties.dimensions, HALF);
@@ -57,11 +57,10 @@
                     halfDimensions.y >= localPosition.y &&
                    -halfDimensions.z <= localPosition.z &&
                     halfDimensions.z >= localPosition.z;
-            print("USER IS IN ZONE: ", inZone);
             return inZone;
         },
 
-        /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
+        /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
         mode requested. */
         playSound: function(sound, volume, position, localOnly, loop){
             if (sound.downloaded) {
@@ -78,12 +77,12 @@
             }
         },
 
+        /* Find all nearby whiteboard lines and delete them if you are in the whiteboard zone */
         resetWhiteboard: function() {
             if (!whiteboardZone && !_this.getWhiteboardZone()) {
                 return;
             }
             if (!_this.isUserInZone(whiteboardZone)) {
-                print("USER IS NOT IN ZONE");
                 return;
             }
             var position = Entities.getEntityProperties(_this.entityID, 'position').position;
@@ -97,7 +96,7 @@
                 });
         },
 
-        /* When clicked or triggered, find all nearby whiteboard lines and delete them */
+        /* When clicked or triggered, reset board. */
         mousePressOnEntity: function( entityID, event ) {
             if (event.isLeftButton) {
                 _this.resetWhiteboard();

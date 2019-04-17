@@ -16,8 +16,6 @@
     var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
     var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
     var DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M = 1.5;
-    var DRAW_ON_BOARD_DISTANCE_HMD_M = 4;
-    var DRAW_ON_BOARD_DISTANCE_DESKTOP_M = 5;
     var STROKE_FORWARD_OFFSET_M = 0.01;
 
     var WAIT_TO_CLEAN_UP_MS = 2000;
@@ -99,6 +97,9 @@
         _this = this;
     };
 
+    /* When a paint sphere is created, collect data for later use. Find the correct joint to use parent the sphere 
+    to and connect signals. Set up mapping, and enter enter correct view mode. Play a sound to signal getting a new 
+    paint sphere. */
     PaintSphere.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
@@ -133,7 +134,7 @@
             _this.playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true, false);
         },
 
-        /* PLAY A SOUND: Plays the specified sound at the position of the user's Avatar using the volume and playback 
+        /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
         mode requested. */
         playSound: function(sound, volume, position, localOnly, loop){
             if (sound.downloaded) {
@@ -150,6 +151,7 @@
             }
         },
 
+        /* Determine is my avatar is inside the boundaries of a zone */
         isUserInZone: function(zoneID) {
             var zoneProperties = Entities.getEntityProperties(zoneID, ['position', 'rotation', 'dimensions']);
             var localPosition = Vec3.multiplyQbyV(Quat.inverse(zoneProperties.rotation),
@@ -163,13 +165,12 @@
                     halfDimensions.z >= localPosition.z;
         },
 
+        /* Scroll through whiteboard zones to find the one whose zone you are in. If not found, delete this sphere, 
+        ending this script */
         findWhiteboard: function() {
-            print("FIND WHITEBOARD");
             Entities.findEntitiesByName("Whiteboard Zone", MyAvatar.position, WHITEBOARD_ZONE_SEARCH_RADIUS_M).
                 forEach(function(foundWhiteboardZone) {
-                    print("CHECKING WHITEBOARD: ", foundWhiteboardZone);
                     if (_this.isUserInZone(foundWhiteboardZone)) {
-                        print("FOUND WHITEBOARD!");
                         whiteboardZone = foundWhiteboardZone;
                         whiteboard = Entities.getEntityProperties(whiteboardZone, 'parentID').parentID;
                     }
@@ -182,6 +183,10 @@
             }
         },
 
+        /* If current point is in range, and on same surface as last point, get ready to draw. If this is not a new 
+        line, check that the current line has room to add more points and start a new line if necessary. Otherwise, 
+        update the position of the draw sound and edit the current line to add the current point. If not editing the 
+        current line, draw a new one. */
         draw: function(onBoard) {
             if (!readyToDraw) {
                 return;
@@ -253,34 +258,27 @@
             }
         },
 
-        /* Since polylines don't intersect, find mouse cursor intersection and then cycle through nearby lines to 
-        find one with closest point to the intersection, then delete that line */
+        /* Since polylines don't intersect, we delete by finding the line with a point closest to the current 
+        position where we want to delete. */
         deleteFromPoint: function(point) {
-        // search because poly lines don't intersect
             var lineToDelete = null;
             Entities.findEntitiesByName("Whiteboard Polyline", point, 
                 MAXIMUM_DISTANCE_TO_SEARCH_M).forEach(function(nearbyWhiteboardLine) {
-                try {
-                    var lineProperties = Entities.getEntityProperties(nearbyWhiteboardLine, 
-                        ['position', 'linePoints']);
-                    if (!(lineProperties.linePoints && lineProperties.position)) {
-                        return;
+                var lineProperties = Entities.getEntityProperties(nearbyWhiteboardLine, 
+                    ['position', 'linePoints']);
+                if (!(lineProperties.linePoints && lineProperties.position)) {
+                    return;
+                }
+                var lineBoundingBoxCenter = lineProperties.position;
+                var numberLinePoints = lineProperties.linePoints.length;
+                var shortestDistance = MAXIMUM_DISTANCE_TO_DELETE_M;
+                for (var i = 0; i < numberLinePoints; i++) {
+                    var distanceFromPoint = Vec3.distance(point,
+                        Vec3.sum(lineBoundingBoxCenter, lineProperties.linePoints[i]));
+                    if (distanceFromPoint <= shortestDistance) {
+                        lineToDelete = nearbyWhiteboardLine;
+                        shortestDistance = distanceFromPoint;
                     }
-                    var lineBoundingBoxCenter = lineProperties.position;
-                    var numberLinePoints = lineProperties.linePoints.length;
-                    var shortestDistance = MAXIMUM_DISTANCE_TO_DELETE_M;
-                    for (var i = 0; i < numberLinePoints; i++) {
-                        var distanceFromPoint = Vec3.distance(point,
-                            Vec3.sum(lineBoundingBoxCenter, lineProperties.linePoints[i]));
-                        if (distanceFromPoint <= shortestDistance) {
-                            lineToDelete = nearbyWhiteboardLine;
-                            shortestDistance = distanceFromPoint;
-                        }
-                    }
-                } catch (err) {
-                    // this line has already been deleted (race condition) due to not being deleting on a longer 
-                    // interval. Currently deleting search happens every mousePressContinue so we can use the event
-                    // Ideally it only needs to happen every 200(?) ms
                 }
             });
             if (lineToDelete) {
@@ -288,13 +286,14 @@
             }
         },
 
-        /* */
+        /* Use the dimensions of the paint sphere inorder to handle avtar resizing */
         getCurrentStrokeWidth: function() {
             var paintSphereDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
             return paintSphereDimensions.x;
         },
 
-        /* */
+        /* Create a ray from the mouse position to the white board to get intersection data. If it intersects 
+        a selection button, we are not drawing */
         getDesktopIntersectionData: function(event) {
             pickRay = Camera.computePickRay(event.x, event.y);
             var whiteBoardIntersectionData = Entities.findRayIntersection(pickRay, true, whiteboardParts);
@@ -311,12 +310,13 @@
             return whiteBoardIntersectionData;
         },
 
-        /* ON MOUSE PRESS: Store the initial point to start line. */
+        /* On mouse press, if user is not in the whiteboard zone, or is using tablet or create, ignore. Check for 
+        an intersection, and project point onto board if necessary. If drawing in air, project point forward 1M in 
+        front of camera. Begin drawing sound and store initial data. If deleting, beginat current point. */
         mousePressed: function(event) {
             if (!whiteboardZone) {
                 return;
             }
-            print("MOUSE PRESSED");
             if (!_this.isUserInZone(whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
             }
@@ -344,8 +344,8 @@
             }
         }, 
 
-        /* ON MOUSE MOVE: Calculate the next line point and add it to the entity. If there are too many line points, 
-    begin a new line. */
+        /* While holding mouse button, continue getting new intersection data, and updating line data to draw 
+        or delete with. */
         mouseContinueLine: function(event) {
             var whiteBoardIntersectionData = _this.getDesktopIntersectionData(event);
             if (whiteBoardIntersectionData === -1) {
@@ -369,7 +369,7 @@
             }
         },
 
-        /* ON MOUSE RELEASE: Stop checking distance cursor has moved */
+        /* On mouse release stop drawing if necessary */
         mouseReleased: function(event) {
             if (event.isLeftButton) {
                 if (drawingInDesktop) {
@@ -379,7 +379,8 @@
             }
         },
 
-        /* */
+        /* If there is an intersection with the whiteboard, project the point onto the surface, set it's normals to match, 
+        and then move it slightly in front of the board. */
         maybeProjectPointOntoBoard: function(whiteBoardIntersectionData, desktop) {
             if (whiteBoardIntersectionData.intersects) {
                 currentPoint = whiteBoardIntersectionData.intersection;
@@ -396,7 +397,7 @@
             return isCurrentPointOnBoard;
         },
 
-        /* */
+        /* Create a laser to show where the user is drawing or deleting */
         beginLaser: function() {
             laser = Entities.addEntity({
                 type: "Shape",
@@ -413,7 +414,7 @@
             }, 'avatar');
         },
 
-        /* */
+        /* Set the length of the laser to match the distance from the user's paint sphere to the whiteboard intersection */
         updateLaser: function(whiteBoardIntersectionData) {
             var currentAge = Entities.getEntityProperties(laser, 'age').age;
             Entities.editEntity(laser, {
@@ -422,8 +423,11 @@
             });
         },
 
-        /* */
+        /* Save previous point data, get intersection data, and project point if necessary. Calculate displacement 
+        of point from line start and if the point is in air, set the normal to default. If collecting initial line data, 
+        set start position. Store and return onBoard data for comparison with next point. */
         getHMDLinePointData: function(force) {
+            // forced on initial run through to collect line start data
             if (!initialLineStartDataReady && !force) {
                 isCurrentPointOnBoard = -1;
             }
@@ -443,7 +447,6 @@
             displacementFromStart = Vec3.subtract(currentPoint, lineStartPosition);
             if (!isCurrentPointOnBoard) {
                 currentNormal = DEFAULT_NORMAL;
-                displacementFromStart = Vec3.subtract(currentPoint, lineStartPosition);
             }
             if (!initialLineStartDataReady) {
                 lineStartPosition = currentPoint;
@@ -453,7 +456,8 @@
             return isCurrentPointOnBoard;
         },
 
-        /* */
+        /* Create ray from paint sphere away from hand along outstretched finger. If it intersects the whiteboard, 
+        check if this is only a selection and returnif so. Draw laser if none exists yet. */
         getHMDIntersectionData: function(origin) {
             var pickRay = {
                 origin: origin,
@@ -479,9 +483,9 @@
             return whiteBoardIntersectionData;
         },
 
-        /* ON TRIGGER PRESS DRAW: Store the initial point and begin checking distance hand has moved on an interval. If hand 
-    has moved more than minimum distance, draw a polyline entity with a lifetime of 1 minute and continue checking 
-    hand distance. Every time hand moves more than the minumum, update the polyline with another node. */
+        /* On trigger press, if user is not in whiteboard zone, delete this sphere. If user is using tablet or grip 
+        button, ignore. Get line point data and begin draw sound then start an interval to continue collecting data 
+        and drawing */
         triggerPressed: function() {
             if (!readyToDraw) {
                 return;
@@ -508,7 +512,8 @@
             }, REPEAT_DISTANCE_CHECK_MS);
         },
 
-        /* ON TRIGGER RELEASE DRAW: Stop checking distance hand has moved */
+        /* On releasing trigger, if user is not in whiteboard zone, delete this sphere. If laser or drawing interval 
+        exists, delete it.*/
         triggerReleased: function() {
             if (!_this.isUserInZone(whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
@@ -524,8 +529,9 @@
             }
         },
 
-        /* ON GRIP PRESS ERASE: Set an interval that finds the nearest line within a maximum distance to paint 
-sphere tip and erases it */
+        /* On grip press, if user is not in whiteboard zone, delete this sphere. If user is using tablet or trigger 
+        button, ignore. Begin a deleting interval that gets intersection data, updates laser, and deletes from the 
+        current point. */
         gripPressed: function() {
             if (!_this.isUserInZone(whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
@@ -550,7 +556,7 @@ sphere tip and erases it */
             }, DELETE_AGAIN_MS);
         },
 
-        /* ON GRIP RELEASE ERASE: Stop the interval that is searching for lines to delete */
+        /* On releasing grip, stop the interval that is searching for lines to delete */
         gripReleased: function() {
             if (!_this.isUserInZone(whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
@@ -565,7 +571,7 @@ sphere tip and erases it */
             }
         },
 
-        /* STOP DRAWING THE CURRENT LINE: stop sound, reset current line variables */
+        /* Stop drawing sound, reset line data */
         stopDrawing: function() {
             if (injector) {
                 injector.stop();
@@ -580,7 +586,7 @@ sphere tip and erases it */
             previousLinePoint = null;
         },
 
-        /* GET ANIMATION DATA: Get correct overrides depending on dominant hand */  
+        /* Get correct animation overrides depending on dominant hand */  
         getAnimationData: function() {
             if (dominantHand === "right") {
                 animationData.rightHandType = 0;
@@ -598,7 +604,7 @@ sphere tip and erases it */
             return animationData;
         },
 
-        /* SET UP HMD MODE: create controller mapping to listen for trigger presses */
+        /* Create controller mapping to listen for trigger presses */
         setUpHMDMode: function() {
             if (controllerMapping) {
                 controllerMapping.enable();
@@ -607,7 +613,7 @@ sphere tip and erases it */
             Messages.sendLocalMessage("Hifi-Hand-Disabler", dominantHand);
         },
 
-        /* SET UP DESKTOP MODE: Listen for mouse presses */
+        /* Listen for mouse presses */
         setUpDesktopMode: function() {
             if (!mouseEventsConnected) {
                 mouseEventsConnected = true;
@@ -617,7 +623,7 @@ sphere tip and erases it */
             }
         },
 
-        /* CLOSE HMD MODE: Remove controller mapping */
+        /* Remove controller mapping */
         closeHMDMode: function() {
             if (controllerMapping) {
                 controllerMapping.disable();
@@ -628,7 +634,7 @@ sphere tip and erases it */
             }
         },
 
-        /* CLOSE DESKTOP MODE: Stop listening for mouse presses */
+        /* Stop listening for mouse presses */
         closeDesktopMode: function() {
             if (mouseEventsConnected) {
                 mouseEventsConnected = false;
@@ -638,8 +644,8 @@ sphere tip and erases it */
             }
         },
 
-        /* REGISTER CONTROLLER MAPPING: Listen for controller trigger movements and act when the trigger is pressed or 
-    released */
+        /* Listen for controller trigger movements and act when the trigger is pressed or 
+        released */
         registerControllerMapping: function() {
             controllerMapping = Controller.newMapping(controllerMappingName);
             controllerMapping.from(Controller.Standard.RT).to(function (value) {
@@ -688,20 +694,19 @@ sphere tip and erases it */
             });
         },
 
-        /* WHEN USER DOMAIN CHANGES: Close app to remove paint sphere in hand when leaving the domain */
+        /* Delete paint sphere in hand when leaving the domain */
         domainChanged: function() {
             Script.setTimeout(function() {
                 Entities.deleteEntity(_this.entityID);
             }, WAIT_TO_CLEAN_UP_MS);
         },
 
-        /* WHEN USER CHANGES DOMINANT HAND: Switch default hand to place paint sphere in */
+        /* Delete paint sphere in hand when switching dominant hand */
         handChanged: function() {
             Entities.deleteEntity(_this.entityID);
         },
 
-        /* TABLET SHOWN CHANGED: If draw app is open and tablet is shown, disable it. When the tablet closes while draw
-        app is open, reenable it */
+        /* If opening tablet, stop action and close drawing view mode. When the tablet closes, set up correct drawing mode. */
         tabletShownChanged: function() {
             if (tablet.tabletShown) {
                 if (HMD.active) {
@@ -724,7 +729,7 @@ sphere tip and erases it */
             }
         },
 
-        /* WHEN TOGGLING DISPLAY MODE: Set variable to track which method to use to draw lines */
+        /* Set variable to track which mode to use to draw lines */
         displayModeChanged: function() {
             if (HMD.active) {
                 _this.closeDesktopMode();
@@ -735,8 +740,8 @@ sphere tip and erases it */
             }
         },
 
-        /* ON STOPPING THE SCRIPT: Make sure the paint sphere gets deleted and its variable set back to null 
-    if applicable. Search for any unreferenced paint spheres and delete if found. */
+        /* Close drawing view mode, stop injector, play closing sound, disable hand mapping and overrides. Remove 
+        animation handlers, delete all intervals, and disconnect signals. */
         unload: function() {
             if (HMD.active) {
                 _this.closeHMDMode();
