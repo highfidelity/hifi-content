@@ -1,4 +1,4 @@
-//  clock.js
+//  clockServer.js
 //
 //  Updated by Mark Brosche on 4/16/2019
 //  Created by Rebecca Stankus on 07/02/18
@@ -6,7 +6,8 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-
+//  This script displays the time in 12 hour format and for the timezone stored in its entity userData
+//  Other scripts may call the refreshTimezone() method to change the timezone displayed on the clock.
 
 (function () {
     var _this;
@@ -52,6 +53,7 @@
         },
 
 
+        // This function updates the timezone information needed to display the desired time
         refreshTimezone: function(id, params) {
             var userData = {};
             userData.timezoneName = params[0];
@@ -62,6 +64,7 @@
         },
 
 
+        // This function updates the clock display with the current time.
         synchronize: function() {
             var date = new Date();
             var period = "am " + _this.timezoneName;
