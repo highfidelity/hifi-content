@@ -20,7 +20,7 @@
     var that = null;
     function SitServer() {
         that = this;
-        this.isOccupied;
+        this.isOccupied = null;
         this.entityID = null;
         this.currentClientSessionID = null;
         this.resolved = false;
