@@ -6,6 +6,7 @@ Make any entity sittable whether it's a chair, bench, couch, log, or even a tree
 
 Either import Sit Point from the marketplace to put on entities for one or more seats per entity or make a sittable entity yourself with one seat! See **Setup** > **Add scripts to your entity**
 
+
 ## Releases
 
 2019-01-17_14-57-17 :: [sitScriptUpdate ded8ecbc78a44c3c830e1f42fed6dd8e9277a4c1]
@@ -15,7 +16,12 @@ Either import Sit Point from the marketplace to put on entities for one or more 
 - Sittable overlay converted to local entity
 - Draws sittable overlay in terms of local coordinates of the cube
 
+
 ## Known issues
+
+### Solution to other entities taking the "Click to Sit" click events
+
+Collisions with other entity's invisible collision hulls sometimes make it difficult to sit. Ensure entities near sit cubes have the property `ignorePickIntersection: true`.
 
 ### Avatar is tilted after standing up when Sit Point is tilted
 
@@ -24,6 +30,16 @@ When a sit point is at an angle other than horizontal to the floor, on standup t
 ### Sit animation does not apply to an avatar using a different default animation
 
 Animation that is applied before sitting is applied while in the chair and continues after standup. 
+
+
+## Known issues
+
+### Future features
+
+Configurable variables:
+- Custom animations specified via userData
+- All configurable variables specified via userData
+
 
 ## Setup
 
@@ -45,6 +61,7 @@ Animation that is applied before sitting is applied while in the chair and conti
 6. Paste the hosted sitServer.js script url into the entity server script link
 7. Ensure both are running
 8. Sit!
+
 
 ## Configurations
 
