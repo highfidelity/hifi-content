@@ -27,7 +27,7 @@ This app lets you integrate with the Google Calendar API to query meeting room s
 
 # Release Notes
 
-## HiFi App v2.0 | [commit 3600128](https://github.com/highfidelity/hifi-content/pull/361/commits/3600128f898ee7738ca8ff834e25d65b121fda34)
+## HiFi App v2.0 | [commit cb8991d](https://github.com/highfidelity/hifi-content/pull/361/commits/cb8991d98223a7ad14dca809b8ba507bef9336cb)
 - Authorization fixes, client app no longer needs to stay open.
 - Clock script added
 - Time display logic implemented for easier reading.
