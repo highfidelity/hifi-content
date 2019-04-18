@@ -1,7 +1,7 @@
 # Whiteboard and Air Draw
 
 ## Description
-This utility combines the best features of the whiteboard and the draw app. Any user can draw in the air and users with rez rights can draw on the board in HMD and desktop. In desktop, draw with your left mouse button and erase with your middle mouse button. In HMD, draw with your trigger button and erase with the grip.
+This utility combines the best features of the whiteboard and the draw app. Any user can draw in the air and users with rez-temp rights can draw on the board in HMD and desktop. In desktop, draw with your left mouse button and erase with your middle mouse button. In HMD, draw with your trigger button and erase with the grip.
 
 ## File List
 ### Client Side
@@ -12,8 +12,8 @@ This utility combines the best features of the whiteboard and the draw app. Any 
 
 ## Releases
 ### Version 1
-SHA [](https://github.com/highfidelity/hifi-content/pull/311/commits/)
-April , 2019
+SHA [80bcc13](https://github.com/highfidelity/hifi-content/pull/353/commits/80bcc1338d81903c0fa84af9adcaa857948bc674)
+April 18, 2019
 - Initial Release
 
 
