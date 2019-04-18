@@ -22,18 +22,8 @@ body {
 }
 
 #mainContainer {
-overflow-y: scroll;
-scrollbar-width: none; /* Firefox */
--ms-overflow-style: none;  /* IE 10+ */
   width: 100vw;
   height: 100vh;
-}
-
-#mainContainer::-webkit-scrollbar { 
-    /* width: 0;
-    height: 0;
-    display: none; */
-    width: 0 !important;
 }
 
 
