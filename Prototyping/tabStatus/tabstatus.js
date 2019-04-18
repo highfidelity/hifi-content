@@ -1,27 +1,43 @@
 (function(){
+    var username = AccountServices.username;
+    var displayName = MyAvatar.displayName;
+    var teamname = Settings.getValue("tabStatus/teamname", "");
+    var currentSearch = Settings.getValue("tabStatus/currentSearch", "");
+    function onChange(newName){
+        teamname = newName;
+        Settings.setValue("tabStatus/teamname", newName);
+        var teamnameTest = Settings.getValue("tabStatus/teamname", "");
+    }
+
+    function onSearchChange(newSearch){
+        currentSearch = newSearch;
+        Settings.setValue("tabStatus/currentSearch", newSearch);
+    }
+
     function onMessage(message) {
-        if (message.app !== "tabstatus") {
+        if (message.app !== "tabStatus") {
             return;
         }
 
         switch (message.method) {
             case "eventBridgeReady":
                 ui.sendMessage({
-                    app: "tabstatus",
+                    app: "tabStatus",
                     method: "updateUI",
-                    emojiList: filteredEmojiList,
-                    selectedEmoji: selectedEmoji,
-                    emojiSequence: emojiSequence,
-                    shouldWearMask: shouldWearMask,
-                    oneShotMode: oneShotMode,
-                    emojiSwitch_ms: emojiSwitch_ms,
-                    isPlaying: isPlaying,
-                    emojiScaler: emojiScaler
+                    username: username,
+                    displayName: displayName,
+                    teamname: teamname,
+                    currentSearch: currentSearch
                 });
                 break;
-
+            case "onChange":
+                onChange(message.data.teamname);
+                break;
+            case "onSearchChange":
+                onSearchChange(message.data.currentSearch);
+                break;
             default:
-                console.log("Unhandled message from tabstatus.js: " + JSON.stringify(message));
+                console.log("Unhandled message from tabStatus.js: " + JSON.stringify(message));
                 break;
         }
     }
@@ -29,8 +45,8 @@
     function scriptEnding(){
     }
 
-    var BUTTON_NAME = "tabstatus";
-    var APP_UI_URL = Script.resolvePath('./tabstatus.html');
+    var BUTTON_NAME = "TAB STATUS";
+    var APP_UI_URL = Script.resolvePath('./tabStatus.html');
     var AppUI = Script.require('appUi');
     var ui;
     function startup() {

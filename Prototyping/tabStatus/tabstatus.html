@@ -10,6 +10,15 @@
     <body>
         <div id="mainContainer">
             <input type="text" autofocus placeholder="Search Members" id="filter_members"/>
+            <div id="formContainer" style="display:none;">
+                <form id="statusForm" name="statusForm" onsubmit="handleFormSubmit()">
+                    <input type="text" name="status" id="status" autofocus required placeholder="New Status" />
+                    <input type="text" onkeyup="handleTeamChange(this)" name="teamname" id="teamname" required placeholder="teamname" >
+                    <input type="submit" value="SUBMIT">
+                    <button onclick="goback()">Go back</button>
+                </form>
+                
+            </div>
             <div id="teamContainer">
 
             </div>

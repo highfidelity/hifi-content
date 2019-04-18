@@ -69,3 +69,10 @@ table th {
     padding: 8px 15px;
     font-size: 2em;
 }
+
+#status {
+    width: 100vw;
+    height: 50px;
+    padding: 8px 15px;
+    font-size: 2em;
+}
