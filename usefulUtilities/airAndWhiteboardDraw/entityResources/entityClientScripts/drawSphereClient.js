@@ -286,7 +286,7 @@
             }
         },
 
-        /* Use the dimensions of the paint sphere inorder to handle avtar resizing */
+        /* Use the dimensions of the paint sphere in order to handle avatar resizing */
         getCurrentStrokeWidth: function() {
             var paintSphereDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
             return paintSphereDimensions.x;
@@ -310,9 +310,9 @@
             return whiteBoardIntersectionData;
         },
 
-        /* On mouse press, if user is not in the whiteboard zone, or is using tablet or create, ignore. Check for 
+        /* On mouse press, if the user is not in the whiteboard zone or is using tablet or create, ignore. Check for 
         an intersection, and project point onto board if necessary. If drawing in air, project point forward 1M in 
-        front of camera. Begin drawing sound and store initial data. If deleting, beginat current point. */
+        front of camera. Begin drawing sound and store initial data. If deleting, begin at current point. */
         mousePressed: function(event) {
             if (!whiteboardZone) {
                 return;
@@ -379,7 +379,7 @@
             }
         },
 
-        /* If there is an intersection with the whiteboard, project the point onto the surface, set it's normals to match, 
+        /* If there is an intersection with the whiteboard, project the point onto the surface, set its normals to match, 
         and then move it slightly in front of the board. */
         maybeProjectPointOntoBoard: function(whiteBoardIntersectionData, desktop) {
             if (whiteBoardIntersectionData.intersects) {
@@ -457,7 +457,7 @@
         },
 
         /* Create ray from paint sphere away from hand along outstretched finger. If it intersects the whiteboard, 
-        check if this is only a selection and returnif so. Draw laser if none exists yet. */
+        check if this is only a selection and return if so. Draw laser if none exists yet. */
         getHMDIntersectionData: function(origin) {
             var pickRay = {
                 origin: origin,
@@ -483,7 +483,7 @@
             return whiteBoardIntersectionData;
         },
 
-        /* On trigger press, if user is not in whiteboard zone, delete this sphere. If user is using tablet or grip 
+        /* On trigger press, if the user is not in whiteboard zone, delete this sphere. If the user is using tablet or grip 
         button, ignore. Get line point data and begin draw sound then start an interval to continue collecting data 
         and drawing */
         triggerPressed: function() {
@@ -512,7 +512,7 @@
             }, REPEAT_DISTANCE_CHECK_MS);
         },
 
-        /* On releasing trigger, if user is not in whiteboard zone, delete this sphere. If laser or drawing interval 
+        /* On releasing trigger, if the user is not in whiteboard zone, delete this sphere. If laser or drawing interval 
         exists, delete it.*/
         triggerReleased: function() {
             if (!_this.isUserInZone(whiteboardZone)) {
@@ -529,7 +529,7 @@
             }
         },
 
-        /* On grip press, if user is not in whiteboard zone, delete this sphere. If user is using tablet or trigger 
+        /* On grip press, if the user is not in whiteboard zone, delete this sphere. If the user is using tablet or trigger 
         button, ignore. Begin a deleting interval that gets intersection data, updates laser, and deletes from the 
         current point. */
         gripPressed: function() {
