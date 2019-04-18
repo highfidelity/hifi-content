@@ -12,7 +12,7 @@ This utility combines the best features of the whiteboard and the draw app. Any 
 
 ## Releases
 ### Version 1
-SHA [80bcc13](https://github.com/highfidelity/hifi-content/pull/353/commits/80bcc1338d81903c0fa84af9adcaa857948bc674)
+SHA [80bcc13](https://github.com/highfidelity/hifi-content/commits/80bcc1338d81903c0fa84af9adcaa857948bc674)
 April 18, 2019
 - Initial Release
 
