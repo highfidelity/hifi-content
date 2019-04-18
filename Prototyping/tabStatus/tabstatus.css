@@ -1,0 +1,81 @@
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    background-color: #393939;
+    color: #afafaf;
+    margin: 0;
+    padding: 0;
+    font-size: 1.5m;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+#mainContainer {
+overflow-y: scroll;
+scrollbar-width: none; /* Firefox */
+-ms-overflow-style: none;  /* IE 10+ */
+  width: 100vw;
+  height: 100vh;
+}
+
+#mainContainer::-webkit-scrollbar { 
+    /* width: 0;
+    height: 0;
+    display: none; */
+    width: 0 !important;
+}
+
+
+.buttonControls {
+    border: 0;
+    line-height: 1.0;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
+    text-align: center;
+    color: red;
+    width: 20%;
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 10px;
+    background-color: black;
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.buttonControls:hover {
+    background-color: rgba(255, 0, 0, 1);
+    color: white;
+}
+
+.buttonControls:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+  
+table th {
+    text-align: left;
+    background-color: black;
+    color: white;
+}
+
+#filter_members {
+    width: 100vw;
+    height: 50px;
+    padding: 8px 15px;
+    font-size: 2em;
+}
