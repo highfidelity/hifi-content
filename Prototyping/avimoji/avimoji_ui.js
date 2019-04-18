@@ -1,4 +1,4 @@
-let renderJustEmojis = true;
+let renderJustEmojis = false;
 let emojiList;
 
 let emojiContainer = document.getElementById("emojiContainer");
@@ -19,6 +19,9 @@ let currentEmojiSequence = null;
 function renderEmojiList(list){
     emojiContainer.innerHTML = ""
     let listDivMap = list.map( emoji => {
+        if (emoji.filter){
+            return false;
+        }
         let div = document.createElement('div');
         if (renderJustEmojis){
             div.innerHTML = `
@@ -28,7 +31,11 @@ function renderEmojiList(list){
         } else {
             div.innerHTML = `
             <p>
-                <img draggable="false" class="emoji" src="${baseURL}${emoji.code[0]}.png">
+                <img draggable="false" class="emoji" data-number="${emoji.number}" src="${baseURL}${emoji.code[0]}.png">
+                <span class="emoji" draggable="false" data-number="${emoji.number}">&#x${emoji.code[0]};</span>
+                <span class="emoji" draggable="false" style="font-family: OpenSansEmoji;" data-number="${emoji.number}">&#x${emoji.code[0]};</span>
+
+                /*  */
                 ${emoji.number} : ${emoji.shortName} : ${emoji.keywords} : ${emoji.code}
             </p>
         `
@@ -38,7 +45,9 @@ function renderEmojiList(list){
     })
 
     listDivMap.forEach(div => {
-        emojiContainer.appendChild(div);
+        if (div){
+            emojiContainer.appendChild(div);
+        }
     })
     if (renderJustEmojis) {
         emojiContainer.classList.add('grid')
@@ -122,8 +131,10 @@ function updateSwitchIntervalTimeInput(input) {
 
 function clickEmoji(event){
     let number = +event.target.getAttribute('data-number');
-    if (number > 0) {``
+    if (number > 0) {
+        console.log("number:" + number)
        var emoji = emojiList[number-1];
+       console.log("emoji: " + JSON.stringify(emoji));
         EventBridge.emitWebEvent(JSON.stringify({
             app: "avimoji",
             method: "emojiSelected",
@@ -224,17 +235,17 @@ function onScriptEventReceived(message) {
         return; 
     }
 
-    console.log(message.method)
+    // console.log(message.method)
     switch (message.method) {
         case "updateUI":
-            console.log("in update ui")
+            // console.log("in update ui")
             // document.getElementById("nameTagSwitch").checked = message.nameTagEnabled;
             // document.getElementById("sizeSlider").value = message.currentUserScaler;            
             // document.getElementById("loadingContainer").style.display = "none";
             emojiList = message.emojiList;
-            console.log("sequenceLength: " + message.emojiSequence.length)
+            // console.log("sequenceLength: " + message.emojiSequence.length)
             isPlaying = message.isPlaying
-            console.log("isPlaying:" + isPlaying)        
+            // console.log("isPlaying:" + isPlaying)        
             renderEmojiList(emojiList);
             if (message.emojiSequence.length > 0){
                 currentEmojiSequence = message.emojiSequence;

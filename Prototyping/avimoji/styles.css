@@ -4,6 +4,11 @@
     box-sizing: inherit;
 }
 
+@font-face {
+    font-family:"OpenSansEmoji";
+    src: url("./OpenSansEmoji.ttf") format("truetype");
+}
+
 html {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -22,9 +27,9 @@ body {
 }
 
 #mainContainer {
-overflow-y: scroll;
-scrollbar-width: none; /* Firefox */
--ms-overflow-style: none;  /* IE 10+ */
+/* overflow-y: scroll;
+scrollbar-width: none; 
+-ms-overflow-style: none;   */
   width: 100vw;
   height: 100vh;
 }
@@ -33,7 +38,7 @@ scrollbar-width: none; /* Firefox */
     /* width: 0;
     height: 0;
     display: none; */
-    width: 0 !important;
+    /* width: 0 !important; */
 }
 
 .grid {
@@ -86,7 +91,8 @@ scrollbar-width: none; /* Firefox */
 }
 
 #emojiContainer {
-    margin: 1em 1em 1em 1em
+    /* margin: 1em 1em 1em 1em */
+    /* font-family: OpenSansEmoji; */
 }
 
 #emojiSequenceContainer {

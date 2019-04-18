@@ -10,16 +10,17 @@
 
     var filteredEmojiList = emojiList
         .slice(0, MAX_EMOJIS)
-        .filter(function(emoji){
+        .map(function(emoji){
             if (emoji.code[0].slice(0,2) === "00") {
-                return false;
+                emoji.filter = true;
+                // return false;
             }
 
             if (emoji.shortName.slice(0,4) === "flag") {
-                return false;
+                emoji.filter = true;
+                // return false;
             }
-
-            return true;
+            return emoji;
         });
     log("filteredEmojiList", filteredEmojiList.length)
 
