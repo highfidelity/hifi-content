@@ -8,5 +8,5 @@ When you rez `spinnableWheel.json` in world, you'll see a...spinnable wheel. Cli
 4. Click the wheel to spin it!
 
 # Release Notes
-## v1.0 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+## v1.0 | [commit 2a325b6](https://github.com/highfidelity/hifi-content/commits/2a325b6)
 - Initial Release
