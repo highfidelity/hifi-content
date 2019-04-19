@@ -8,6 +8,7 @@
 
 (function() {
     var HALF = 0.5;
+    var CHANNEL = "HiFi.Meeting.Occupants";
 
     var _this;
 
@@ -17,18 +18,22 @@
 
 
     MeetingZone.prototype = {
+
         preload: function(entityID) {
             _this.entityID = entityID;
-            _this.userData = Entities.getEntityProperties(_this.entityID, ['userData']).userData;
+            var entityProperties = Entities.getEntityProperties(_this.entityID, ['userData']);
+            Messages.subscribe(_this.channel);
+            Messages.messageReceived.connect(_this.messageListener);
+            var userData = entityProperties.userData;
             AvatarManager.avatarRemovedEvent.connect(_this.leaveDomain);
-            if (_this.userData.length !== 0) {
+            if (entityProperties.userData.length !== 0) {
                 try {
-                    _this.userData = JSON.parse(_this.userData);
+                    userData = JSON.parse(userData);
                 } catch (e) {
                     console.log(e, "Could not parse userData");
                     return;
                 }
-                _this.occupantsListID = _this.userData.occupantsListID;
+                _this.occupantsListID = userData.occupantsListID;
             } else {
                 console.log("No userData found");
                 return;
@@ -37,7 +42,32 @@
                 _this.enterEntity();
             }
         },
+
+
+        messageListener: function(channel, message, senderUUID, localOnly) {
+            if (channel !== CHANNEL) {
+                return;
+            } else {
+                try {
+                    message = JSON.parse(message);
+                } catch (e) {
+                    console.log(e, "Could not parse message");
+                    return;
+                }
+                if (message.type === "REFRESH OCCUPANTS" && message.id === _this.entityID) {
+                    _this.refreshOccupants();
+                }
+            }
+        },
+
+
+        refreshOccupants: function() {
+            if (_this.positionIsInsideEntityBounds(_this.entityID, MyAvatar.position)) {
+                _this.enterEntity();
+            }
+        },
         
+
         positionIsInsideEntityBounds: function(entityID, targetPosition) {
             targetPosition = targetPosition || MyAvatar.position;
     
@@ -60,6 +90,7 @@
                 && targetPosition.y >= minY && targetPosition.y <= maxY
                 && targetPosition.z >= minZ && targetPosition.z <= maxZ);
         },
+
 
         enterEntity: function() {
             if (_this.occupantsListID) {

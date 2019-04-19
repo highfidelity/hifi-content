@@ -21,9 +21,7 @@
     var that;
 
     this.remotelyCallable = [
-        "refreshToken",
-        "enteredMeetingZone",
-        "leftMeetingZone"
+        "refreshToken"
     ];
 
 
@@ -140,6 +138,40 @@
 
 
     this.requestScheduleData = function(scheduleURL) {
+        that.request(scheduleURL, function (error, response) {
+            if (error) {
+                console.log("Error: ", error," could not complete request for ", that.entityProperties.name);
+                Script.clearInterval(that.interval);
+                that.interval = false;
+                Messages.sendMessage(CHANNEL, JSON.stringify({
+                    type: "REFRESH TOKEN",
+                    token: that.token,
+                    uuid: that.roomScheduleID
+                }));
+                return;
+            } else {
+                that.clearEventList(that.entityID);
+                var events = response.items;
+                if (events.length > 0) {
+                    for (var i = 0; i < events.length; i++) {
+                        var event = events[i];
+                        var start = event.start.dateTime;
+                        var end = event.end.dateTime;
+                        var summary = event.summary;
+                        if (!(start && end)) {
+                            console.log("Event received without a start and end dateTime!");
+                            continue;
+                        }        
+                        var startTimestamp = that.googleDateToUTCDate(start);
+                        var endTimestamp = that.googleDateToUTCDate(end);
+          
+                        that.postEvents(that.entityID, summary, startTimestamp, endTimestamp);
+                    }
+                } else {
+                    Entities.editEntity(that.entityID, {text: "Nothing on the schedule for this room today."});
+                }
+            } 
+        });
         that.interval = Script.setInterval(function() {
             if ((new Date()).valueOf() > (that.expireTime - EXPIRY_BUFFER_MS) && !that.sentAlready) {
                 that.sentAlready = true;
@@ -310,42 +342,6 @@
         that.updateSignColor(that.roomEntityIDs[2], [isAvailable]);
     };
 
-
-    this.enteredMeetingZone = function(id, params) {
-        if (that.entityID === id) {    
-            var uuid = params[0];
-            var displayName = params[1];
-
-            that.room.occupants[uuid] = displayName;
-            var text = Object.keys(that.room.occupants).map(function(key) {
-                return that.room.occupants[key];
-            });
-            Entities.editEntity(id, {
-                "text": text.join("\n"), 
-                "textColor": [255, 255, 255]
-            });
-        }
-    };  
-
-
-    this.leftMeetingZone = function(id, params) {
-        if (that.entityID === id) {    
-
-            var uuid = params[0];
-
-            if (uuid in that.room.occupants) {
-                delete that.room.occupants[uuid];
-            }
-            var text = Object.keys(that.room.occupants).map(function(key) {
-                return that.room.occupants[key];
-            });
-            Entities.editEntity(id, {
-                "text": text.join("\n"), 
-                "textColor": [255, 255, 255]
-            });
-        }
-    };  
-    
     
     this.updateSignColor = function(id, params) {
         if (id === that.roomEntityIDs[1]) {    
