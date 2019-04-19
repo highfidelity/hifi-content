@@ -18,6 +18,9 @@
     var MIN_ANGULAR_VELOCITY_RAD_PER_SEC = 40;
     var MAX_ANGULAR_VELOCITY_RAD_PER_SEC = 100;
 
+    // Called upon a timer callback. Checks if the wheel is spinning slowly enough to set
+    // the `wheelIsSpinning` flag back to `false`. If it's not spinning slowly enough,
+    // restarts the timeout that'll call this function upon expiry.
     function checkSpinning() {
         var props = Entities.getEntityProperties(that.entityID, ["angularVelocity"]);
         if (Math.abs(props.angularVelocity.z) < SMALL_Z_ANGULAR_VELOCITY_RAD_PER_SEC) {
@@ -33,6 +36,8 @@
     }
 
 
+    // Populates the spinnable wheel with some text entities and separators according to the attached
+    // entity's User Data.
     var TEXT_ENTITY_STATIC_PROPS = {
         "type": "Text",
         "dimensions": {
@@ -106,6 +111,7 @@
     }
 
 
+    // It's a constructor for Spinnable Wheel Server.
     var SpinnableWheelServer = function() {
         that = this;
         that.entityID = false;
@@ -114,12 +120,14 @@
         that.rezzedEntities = [];
     };
 
+
     SpinnableWheelServer.prototype = {
         remotelyCallable: ['spinWheel'],
 
         
-        // On script preload, save a reference to this entity ID and wait 1 second before getting 
-        // relevant entity IDs and starting a new round.
+        // On script preload, save a reference to this entity ID and initialize some variables.
+        // Also, populate the spinnable wheel with some text entities and separators if the
+        // user data is valid.
         preload: function(entityID) {
             that.entityID = entityID;
             that.wheelIsSpinning = false;
@@ -149,6 +157,8 @@
         },
 
 
+        // On script unload, clear the timeout (if one exists), and delete all entities that we've rezzed.
+        // Also make the wheel stop.
         unload: function() {
             if (that.checkSpinningTimeout) {
                 Script.clearTimeout(that.checkSpinningTimeout);
@@ -165,6 +175,8 @@
         },
 
 
+        // Spin the wheel if it isn't already spinning! Wheeee!
+        // Also start the timer used to determine when the wheel has stopped spinning.
         spinWheel: function(thisID, params) {
             if (!that.wheelIsSpinning) {
                 that.wheelIsSpinning = true;
@@ -178,6 +190,7 @@
             }
         }
     };
+
     
     return new SpinnableWheelServer();
 });

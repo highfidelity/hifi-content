@@ -17,13 +17,13 @@
     };
 
     SpinnableWheel.prototype = {
-        /* ON LOADING THE APP: Save a reference to this entity ID */
+        // When the entity client script loads, store a reference to the attached entity's ID.
         preload: function(entityID) {
             that.entityID = entityID;
         },
 
-        // When left-clicking/triggering on the wheel, tell the server script on the wheel
-        // to spin the wheel
+        // When a user clicks on the entity, send a message to the entity's server script to
+        // spin the wheel.
         mousePressOnEntity: function(entityID, mouseEvent) {
             if (mouseEvent.button !== "Primary") {
                 return;

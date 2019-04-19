@@ -1,5 +1,5 @@
 # Spinnable Wheel
-When you rez `spinnableWheel.json` in world, you'll see a...spinnable wheel. Click or user your hand controller laser on the wheel to spin it. Modify the User Data of the wheel and reload the Wheel's server script to update the options that appear on the wheel.
+When you rez `spinnableWheel.json` in world, you'll see a...spinnable wheel. Click or use your hand controller laser on the wheel to spin it. Modify the User Data of the wheel and reload the Wheel's server script to update the options that appear on the wheel.
 
 # Setup Instructions
 1. Rez `spinnableWheel.json`.

@@ -153,8 +153,8 @@
         }
     },
     "angularDamping": 0.8999999761581421,
-    "script": "./spinnableWheelClient.js",
-    "serverScripts": "./spinnableWheelServer.js",
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/spinnableWheel/v1.0/spinnableWheelClient.js",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/spinnableWheel/v1.0/spinnableWheelServer.js",
     "color": {
         "red": 168,
         "green": 99,
