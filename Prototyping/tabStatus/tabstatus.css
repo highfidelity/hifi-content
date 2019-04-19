@@ -63,6 +63,14 @@ table th {
     color: white;
 }
 
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:nth-child(odd) {
+    background-color: #fafafa;
+}
+
 #filter_members {
     width: 100vw;
     height: 50px;

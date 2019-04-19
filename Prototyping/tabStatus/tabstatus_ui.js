@@ -1,15 +1,17 @@
-var allPeople = [];
-let input = document.getElementById('filter_members');
-let currentlySearching = false;
-let currentlySorted = false;
-let sortType = null;
-let previousSortType = null;
-var username = "";
-var displayName = "";
-var teamname = "";
-var status = "";
-var previousSearch =""
 
+let username = "";
+let displayName = "";
+let teamname = "";
+let status = "";
+let previousSearch =""
+
+// *************************************
+// START UTILITY
+// *************************************
+// #region UTILITY
+
+
+// logging function for the browser
 function l(label, data, i){
     data = JSON.stringify(data) + " " || "";
     if (typeof(i) === "number"){
@@ -20,12 +22,13 @@ function l(label, data, i){
     console.log("\n" + label + ": " + data + i +"\n");
 }
 
-let statusURL = "https://highfidelity.co/api/statusIndicator?type=heartbeat&username=<username>&displayName=<display name>&status=<status, 150 char max>&teamName=<team name>"
-replaceUserName = "<username>";
-replaceDisplayName = "<display name>";
-replaceStatus = "<status, 150 char max>";
-replaceTeamName = "<team name>";
 
+// replace the api call with the new information
+let statusURL = "https://highfidelity.co/api/statusIndicator?type=heartbeat&username=<username>&displayName=<display name>&status=<status, 150 char max>&teamName=<team name>"
+let replaceUserName = "<username>";
+let replaceDisplayName = "<display name>";
+let replaceStatus = "<status, 150 char max>";
+let replaceTeamName = "<team name>";
 function replaceURL(status, teamName){
     statusURL = statusURL.replace(replaceUserName, username)
     statusURL = statusURL.replace(replaceDisplayName, displayName)
@@ -34,57 +37,102 @@ function replaceURL(status, teamName){
     return statusURL;
 }
 
-function makeUppercase(text){
-    text = text.toLowerCase()
-        .split(' ')
-        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-        .join(' ');
-    return text;
+
+// Helper function to see which index has a certain phrase
+function hasInArray(array, string){
+    for (i = 0; i < array.length; i++){
+        if (array[i].indexOf(string) > -1) {
+            return i;
+        }
+    }
+    return -1
 }
 
-var text = "foo bar loo zoo moo";
+
+// Gets items in an array of objects and turns them into an array of strings
+function objectToStringArrayMap(list){
+    list.map(item => {
+        let fullString = "";
+        for (let key in item){
+            fullString += " " + item[key].toLowerCase();
+        }
+        return fullString;
+    })
+    return list
+}
 
 
+// #endregion
+// *************************************
+// END UTILITY
+// *************************************
+
+
+// *************************************
+// START handlers
+// *************************************
+// #region handlers
+
+
+// handle the user submiting a status update
 function handleFormSubmit() {
     let statusForm = document.getElementById('statusForm');
     let formContainer = document.getElementById('formContainer');
+    let status = document.getElementById('status');
+    let input = document.getElementById('filter_members');
+
     let formData = new FormData(statusForm);
+
+    // return to previous ui state
     formContainer.style.display = "none";
-    input.style.display = "block";
     teamContainer.style.display = "block";
+    input.style.display = "block";
     input.value = "";
-    var formObject = {};
-    for (var pair of formData.entries()) {
+    status.value = "";
+   
+    let formObject = {};
+    for (let pair of formData.entries()) {
         formObject[pair[0]] = pair[1];
     }
-    let url = replaceURL(formObject.status, formObject.teamname);
-    // l("url", url);
-    // l("formObject", formObject);// Display the key/value pairs
 
+    let url = replaceURL(formObject.status, formObject.teamname);
     fetch(url)
         .catch(error => {
             console.log(error)
         });
-    let status = document.getElementById('status');
-    status.value = "";
-    renderTypes();
-}
 
-function goback(){
-    formContainer.style.display = "none";
-    input.style.display = "block";
-    teamContainer.style.display = "block";
-    input.value = previousSearch;
-    status.value = "";
+    renderUI();
 }
 
 
+// handle the user submitting a go back request
+function handleGoBack(){
+    showList();
+}
+
+
+// handle the user changing the team name 
 function handleTeamChange(input){
+    let input = document.getElementById('filter_members');
+    // make sure the team name is capitalized
     input.value = teamname = makeUppercase(input.value);
     emitAppSpecificEvent("onChange", {
         teamname: teamname
     })
 }
+
+
+// #endregion
+// *************************************
+// END handlers
+// *************************************
+// handle the form submit for the status input
+
+
+// *************************************
+// START date-transfers
+// *************************************
+// #region date-transfers
 
 
 // Emit an event specific to the `multiConApp` over the EventBridge.
@@ -98,60 +146,97 @@ function emitAppSpecificEvent(method, data) {
     EventBridge.emitWebEvent(JSON.stringify(event));
 }
 
-function renderTypes(){
+
+// send sort related details to save state
+let currentlySearching = false;
+let currentlySorted = false;
+let sortType = null;
+let previousSortType = null;
+function sendSortState(){
+    emitAppSpecificEvent(onSortSettingsChange, {
+        sortType: sortType,
+        currentlySorted: currentlySorted,
+        currentlySearching: currentlySearching,
+        previousSortType: previousSortType
+    })    
+}
+
+
+// Get the actual employee data
+let allPeople = [];
+const REFRESH_TIME_MS = 10000;
+function getEmployeeData(){
+    fetch('https://highfidelity.co/api/statusIndicator/?type=getAllEmployees')
+    .then(response => { 
+        return response.json() 
+    })
+    .then(data => {
+        allPeople = [];
+        data.teams.forEach(team => {
+            team.members.forEach(member =>{
+                allPeople.push(
+                    new WorkerMaker(
+                        member.displayName, 
+                        member.status, 
+                        member.location,
+                        team.name
+                    )
+                )
+            })
+        })
+        setTimeout(getEmployeeData, REFRESH_TIME_MS);
+        renderUI();
+    })
+    .catch(error => { console.error(error) })
+}
+
+
+// #endregion
+// *************************************
+// END date-transfers
+// *************************************
+
+
+// *************************************
+// START render
+// *************************************
+// #region render
+
+
+// handles rendering differnt ui states
+function renderUI(){
     if (currentlySorted){
         // handles making sure the sort order is the correct direction
         if (previousSortType === sortType){
             previousSortType = null;
+            sendSortState();
             sortArray();
         } else {
             sortArray();
         }
     }
+
     // if you are in the middle of the search then keep your filter going
     if (currentlySearching) {
         filterMembers();
     }
-    // first time
+    
+    // clean render
     if (!currentlySorted && !currentlySearching){
         renderTeam(allPeople)
     }
 }
 
-function getEmployeeData(){
-    fetch('https://highfidelity.co/api/statusIndicator/?type=getAllEmployees')
-    .then(function(response) { 
-        return response.json() })
-    .then(function(data){
-        allPeople = [];
-        data.teams.forEach(function(team){
-            team.members.forEach(function(member){
-                allPeople.push(
-                    new WorkerMaker(member.displayName, member.status, member.location, team.name)
-                )
-            })
-        })
-        // setTimeout(getEmployeeData, 10000);
-        renderTypes();
-    })
-    .catch(function(error){ console.error(error) })
-}
 
-
-function WorkerMaker(displayName, status, location, team) {
-    this.displayName = displayName;
-    this.status = status;
-    this.location = location;
-    this.team = team;
-}
-
-
+// render the actual team table 
 function renderTeam(list){
     let teamContainer = document.getElementById('teamContainer');
+    let input = document.getElementById('filter_members');
+
     teamContainer.innerHTML = "";
     let teamMembers = "";
 
-    list.forEach(function(member){
+    list.forEach(member => {
         teamMembers += `
             <tr>
                 <td>${member.displayName}</td>
@@ -161,6 +246,7 @@ function renderTeam(list){
             </tr>
         `
     })
+
     let div = document.createElement('div');
     div.innerHTML = `
         <table style="width:100%">
@@ -178,94 +264,79 @@ function renderTeam(list){
 }
 
 
-// Helper function to see which index has a certain phrase
-function hasInArray(array, string){
-    for (i = 0; i < array.length; i++){
-        if (array[i].indexOf(string) > -1) {
-            return i;
-        }
-    }
-    return -1
+// show the status state
+function showStatus(){
+    let formContainer = document.getElementById('formContainer');
+    let teamContainer = document.getElementById('teamContainer');
+    let status = document.getElementById('status');
+    let input = document.getElementById('filter_members');
+
+    formContainer.style.display = "block";
+    teamContainer.style.display = "none";
+    input.style.display = "none";
+
+    status.focus();
 }
 
-// Helper function to see which index has a certain phrase
-function hasReg(array, string){
-    for (i = 0; i < array.length; i++){
-        if (array[i].indexOf(string) > -1) {
-            return i;
-        }
-    }
-    return -1
+
+// show the table list state
+function showList(){
+    let input = document.getElementById('filter_members');
+    let formContainer = document.getElementById('formContainer');
+    let teamContainer = document.getElementById('teamContainer');
+    let status = document.getElementById('status');
+    let input = document.getElementById('filter_members');
+
+    formContainer.style.display = "none";
+    teamContainer.style.display = "block";
+    input.style.display = "block";
+
+    input.value = previousSearch;
+    status.value = "";
 }
 
-var statusObject = {
-    "s": true,
-    "st": true,
-    "sta": true,
-    "stat": true,
-    "statu": true,
-    "status": true
+
+
+// #endregion
+// *************************************
+// END render
+// *************************************
+
+
+// *************************************
+// START constructors
+// *************************************
+// #region constructors
+
+
+// Worker Maker to help sort employees 
+function WorkerMaker(displayName, status, location, team) {
+    this.displayName = displayName;
+    this.status = status;
+    this.location = location;
+    this.team = team;
 }
 
-function filterMembers(event){
-    let keyword = input.value.toLowerCase();
-    if (keyword.length !== 0){
-        let testKeyword = keyword.split(" ")[0]
-        if (testKeyword.length > 6) {
-            previousSearch = keyword;
-            emitAppSpecificEvent("onSearchChange", {
-                currentSearch: previousSearch
-            })
-        } else {
-            for (var i = 0; i < testKeyword.length; i++){
-                if (statusObject[testKeyword.substring(0, i+1)]){
-                    // l("statusObject[testKeyword.substring(0, i+1)]", statusObject[testKeyword.substring(0, i+1)])
-                    break;
-                } else {
-                    previousSearch = keyword;
-                    emitAppSpecificEvent("onSearchChange", {
-                        currentSearch: previousSearch
-                    })
-                }
-            }
-        }
 
-        
-    }
-    let regex = false;
-    // there isn't anything in the search so render everything again
-    if (keyword.length === 0) {
-        currentlySearching = false
-        return renderTeam(allPeople);
-    }
+// #endregion
+// *************************************
+// END constructors
+// *************************************
 
-    if (keyword[0] === "/" && keyword[keyword.length-1] === "/"){
-        regex = true
-    }
-    // l("regex true", regex);
-    currentlySearching = true;
 
-    if (keyword === "status") {
-        let formContainer = document.getElementById('formContainer');
-        let teamContainer = document.getElementById('teamContainer');
-        let status = document.getElementById('status');
 
-        formContainer.style.display = "block";
-        status.focus();
-        input.style.display = "none";
-        teamContainer.style.display = "none";
-
-        return;
-    }
-    // Split up the search for different terms
+// Check to see if we need to combine terms when we split the keyword up
+// This is only used if you want to exclude a term like Client and Engine. 
+// You have to use !(Client and engine)
+// this finds the first index of ( and the index with) and combines them together
+function handleKeywordArraySplit(keyword){
     let keywordArray = keyword.split(" ");
 
-    // This is only used if you want to exclude a term like Client and Engine.  You have to use !(Client and engine)
-    // this finds the first index of ( and the index with) and combines them together
     let firstPar = hasInArray(keywordArray, "(");
     let secondPar = hasInArray(keywordArray, ")");
     if (firstPar > -1) {
         let combined = keywordArray.slice(firstPar, secondPar+1).join(" ");
+
         keywordArray = [
             ...keywordArray.slice(0, firstPar),
             combined,
@@ -273,18 +344,79 @@ function filterMembers(event){
         ]
     }
 
-    // Turn all the people into one simple lower case string
-    let concatMemberInfo = allPeople.map(member => {
-        let memberInfo = "";
-        for (var key in member){
-            memberInfo += " " + member[key].toLowerCase();
-        }
-        return memberInfo;
+    return keywordArray;
+}
+
+// O(1) check to see if the status keyword is being typed
+const statusObject = {
+    "s": true,
+    "st": true,
+    "sta": true,
+    "stat": true,
+    "statu": true,
+    "status": true
+}
+function statusCheckerForSearchStateSave(testKeyword){
+    // The keyword is greater than status so save and move on
+    if (testKeyword.length > 6) {
+        previousSearch = keyword;
+        emitAppSpecificEvent("onSearchChange", {
+            currentSearch: previousSearch
+        })
+        return;
+    }
+
+    // We might be writing status so don't save yet
+    if (statusObject[testKeyword]){
+        return;
+    }
+
+    // We aren't writing status
+    previousSearch = keyword;
+    emitAppSpecificEvent("onSearchChange", {
+        currentSearch: previousSearch
     })
+}
+
+
+
+function filterMembers(event){
+    let input = document.getElementById('filter_members');
+    let keyword = input.value.toLowerCase();
+
+    // Handle Commands
+    if (keyword.length !== 0){
+        if (keyword === "status") {
+            showStatus();
+            return;
+        }
+        statusCheckerForSearchStateSave(keyword.split(" ")[0])
+    }
+
+    // there isn't anything in the search so render everything again
+    if (keyword.length === 0) {
+        currentlySearching = false
+        sendSortState();
+        renderUI()
+        return;
+    }
+    currentlySearching = true;
+    sendSortState();
+
+    // Split up the search for different terms
+    let keywordArray = handleKeywordArraySplit(keyword);
+
+    // Turn all the people into one simple lower case string
+    let concatMemberInfo = objectToStringArrayMap(allPeople);
+
+    // Check if we got a regex search
+    let regex = false    
+    if (keyword[0] === "/" && keyword[keyword.length-1] === "/"){
+        regex = true
+    }
 
     // the actual filter
     let filteredMemberList = allPeople.filter((member, index) => {
-        // if (index > 1) return;
         // we want to return the right person in all people
         // but we wanted the string version to compare with
         member = concatMemberInfo[index];
@@ -325,7 +457,7 @@ function filterMembers(event){
 
 function sortArray(){
     currentlySorted = true;
-
+    sendSortState();
     if (previousSortType === sortType){
         allPeople.reverse();
     } else {
@@ -353,6 +485,7 @@ function tableClick(event){
         sortArray();
         filterMembers();
         previousSortType = sortType;
+        sendSortState();
     }
 }
 
@@ -374,10 +507,13 @@ function onScriptEventReceived(message) {
             teamname = message.teamname;
             displayName = message.displayName;
             username = message.username;
-            
             document.getElementById('teamname').value = teamname;
             document.getElementById('filter_members').value = message.currentSearch;
             filterMembers();
+            currentlySearching = message.sortSettings.currentlySearching;
+            currentlySorted = message.sortSettings.currentlySorted;
+            sortType = message.sortSettings.sortType;
+            previousSortType = message.sortSettings.previousSortType;
             break;
         default:
             console.log("Unknown message received from tabStatus.js! " + JSON.stringify(message));
@@ -393,6 +529,9 @@ function onLoad() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         emitAppSpecificEvent("eventBridgeReady");
     }, EVENTBRIDGE_SETUP_DELAY);
+    let input = document.getElementById('filter_members');
+    let teamContainer = document.getElementById('teamContainer');
+
     input.addEventListener('keyup', filterMembers);
     teamContainer.addEventListener('click', tableClick);
     getEmployeeData();

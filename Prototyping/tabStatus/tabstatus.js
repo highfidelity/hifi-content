@@ -3,6 +3,7 @@
     var displayName = MyAvatar.displayName;
     var teamname = Settings.getValue("tabStatus/teamname", "");
     var currentSearch = Settings.getValue("tabStatus/currentSearch", "");
+    var sortSettings = Settings.getValue("tabStatus/sortSettings", {});
     function onChange(newName){
         teamname = newName;
         Settings.setValue("tabStatus/teamname", newName);
@@ -13,6 +14,12 @@
         currentSearch = newSearch;
         Settings.setValue("tabStatus/currentSearch", newSearch);
     }
+
+    function onSortSettingsChange(newSortSettings){
+        sortSettings = newSortSettings;
+        Settings.setValue("tabStatus/sortSettings", {});
+    }
+
 
     function onMessage(message) {
         if (message.app !== "tabStatus") {
@@ -27,7 +34,8 @@
                     username: username,
                     displayName: displayName,
                     teamname: teamname,
-                    currentSearch: currentSearch
+                    currentSearch: currentSearch,
+                    sortSettings: sortSettings
                 });
                 break;
             case "onChange":
@@ -35,6 +43,9 @@
                 break;
             case "onSearchChange":
                 onSearchChange(message.data.currentSearch);
+                break;
+            case "onSortSettingsChange":
+                onSortSettingsChange(message.data.sortSettings);
                 break;
             default:
                 console.log("Unhandled message from tabStatus.js: " + JSON.stringify(message));
