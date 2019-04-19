@@ -14,38 +14,36 @@
 /* globals Entities Script */
 
 (function() {
-
-    var isOccupied;
-    var entityID = null;
-    var currentClientSessionID = null;
-
     var HEARTBEAT_INTERVAL_TIME_MS = 10000; // ms
     var RESOLVED_TIMEOUT_TIME_MS = 1000; // ms
     
-    var resolved = false;
-    var heartbeatInterval = null;
-
+    var that = null;
     function SitServer() {
-
+        that = this;
+        this.isOccupied = null;
+        this.entityID = null;
+        this.currentClientSessionID = null;
+        this.resolved = false;
+        this.heartbeatInterval = null;
     }
 
     function checkClient() {
         Entities.callEntityClientMethod(
-            currentClientSessionID, 
-            entityID, 
+            that.currentClientSessionID, 
+            that.entityID, 
             "check"
         );
 
         // If the check call to the client script does not return checkResolved
         // Will open the chair to other avatars to sit
-        Script.setTimeout(function (){
-            if (resolved === true){
+        Script.setTimeout(function () {
+            if (that.resolved === true){
                 // Seat is occupied
-                resolved = false;
+                that.resolved = false;
             } else {
                 // Seat is not occupied
-                isOccupied = false;
-                currentClientSessionID = null;
+                that.isOccupied = false;
+                that.currentClientSessionID = null;
             }
         }, RESOLVED_TIMEOUT_TIME_MS);
     }
@@ -59,13 +57,13 @@
         ],
 
         preload: function (id) {
-            entityID = id;
-            isOccupied = false;
-            resolved = false;
+            that.entityID = id;
+            that.isOccupied = false;
+            that.resolved = false;
 
             // Every 10 seconds will check the client that was sitting in the chair
-            heartbeatInterval = Script.setInterval(function () {
-                if (isOccupied) {
+            that.heartbeatInterval = Script.setInterval(function () {
+                if (that.isOccupied) {
                     checkClient();
                 }
             }, HEARTBEAT_INTERVAL_TIME_MS);
@@ -74,22 +72,19 @@
         checkResolved: function () {
             // Called by remote client script
             // indicating avatar is still sitting in chair
-            resolved = true;
+            that.resolved = true;
         },
 
         // Called from client to check if chair is occupied
         // If seat is not occupied, server script calls the client method that begins the sit down process
         onSitDown: function (id, param) {
-            var clientSessionID = param[0];
-
-            if (isOccupied === false){
-
-                currentClientSessionID = clientSessionID;
-                isOccupied = true;
+            if (that.isOccupied === false){
+                that.currentClientSessionID = param[0];
+                that.isOccupied = true;
 
                 Entities.callEntityClientMethod(
-                    clientSessionID, 
-                    entityID, 
+                    param[0], 
+                    that.entityID, 
                     "startSitDown"
                 );
             }
@@ -97,12 +92,12 @@
 
         // Called from client to open the chair to other avatars
         onStandUp: function () {
-            isOccupied = false;
+            that.isOccupied = false;
         },
 
         unload: function () {
-            isOccupied = false;
-            Script.clearInterval(heartbeatInterval);
+            that.isOccupied = false;
+            Script.clearInterval(that.heartbeatInterval);
         }
     };
 
