@@ -13,7 +13,7 @@
         var API_KEY = '';
         var CLIENT_ID = '';
         var CLIENT_SECRET = '';
-        var SCOPE = 'https://www.googleapis.com/auth/calendar.events.readonly';
+        var SCOPE = 'https://www.googleapis.com/auth/calendar.events.readonly'; //need more of these
         var authCode = false;
         var GoogleAuth;
         function handleClientLoad() {
@@ -21,10 +21,11 @@
         }
     
         function initClient() {
-            var discoveryUrl = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+            var discoveryUrlCalendar = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+            var discoveryUrlDrive = 'https://www.googleapis.com/discovery/v1/apis/drive/v2/rest'; //check if this is right
             gapi.client.init({
                 'apiKey': API_KEY,
-                'discoveryDocs': [discoveryUrl],
+                'discoveryDocs': [discoveryUrlCalendar, discoveryUrlDrive],
                 'clientId': CLIENT_ID,
                 'scope': SCOPE
             }).then(function () {
@@ -40,11 +41,17 @@
                         authCode: authCode,
                         clientID: CLIENT_ID,
                         secret: CLIENT_SECRET,
-                        timezone: zone
+                        timezone: zone,
+                        calendars: JSON.stringify({
+                            calendarId: id,
+                            roomID: uuid // clearly not finished!
+                        })
                     }));
                 });
                 // Handle initial sign-in state. (Determine if user is already signed in.)
-                setSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                var user = GoogleAuth.currentUser.get();
+                setSigninStatus();
         
                 // Call handleAuthClick function when user clicks on
                 //      "Sign In/Authorize" button.
@@ -74,7 +81,7 @@
         }
     
 
-        function setSigninStatus(isSignedIn) {
+        function setSigninStatus() {
             var user = GoogleAuth.currentUser.get();
             var isAuthorized = user.hasGrantedScopes(SCOPE);
 
@@ -88,6 +95,38 @@
                 $('#revoke-access-button').css('display', 'none');
                 $('#auth-status').html('You have not authorized this app or you are ' +
                     'signed out.');
+            }
+        }
+
+        function updateSigninStatus(isSignedIn) {
+            if (isSignedIn) {
+                authorizeButton.style.display = 'none';
+                signoutButton.style.display = 'block';
+            } else {
+                authorizeButton.style.display = 'block';
+                signoutButton.style.display = 'none';
+            }
+        }
+
+
+        function onScriptEventReceived(data) {
+            var data = JSON.parse(data);
+            switch (data.type) {
+                case "SIGN IN":                
+                    break;
+                case "SIGN OUT":
+                    break;
+                case "SETUP MEETING ROOM":
+                    gapi.client.calendar.events.list({
+                        'calendarId': cal.id,
+                        'timeMin': (new Date()).toISOString(),
+                        'timeMax': tomorrowMidnight.toISOString(),
+                        'showDeleted': false,
+                        'singleEvents': true,
+                        'maxResults': 4,
+                        'orderBy': 'startTime'
+                        }).then(function (response) {});
+                    break;
             }
         }
 
