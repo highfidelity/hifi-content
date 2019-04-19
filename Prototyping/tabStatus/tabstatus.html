@@ -1,9 +1,8 @@
 
-<!-- saved from url=(0063)https://www.highfidelity.co/statusIndicator/allEmployees.html?1 -->
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>All Employees</title>
+        <title>tabStatus</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="./tabstatus.css" rel="stylesheet">
     </head>
@@ -14,8 +13,8 @@
                 <form id="statusForm" name="statusForm" onsubmit="handleFormSubmit()">
                     <input type="text" name="status" id="status" autofocus required placeholder="New Status" />
                     <input type="text" onkeyup="handleTeamChange(this)" name="teamname" id="teamname" required placeholder="teamname" >
-                    <input type="submit" value="SUBMIT">
-                    <button onclick="handleGoBack()">Go back</button>
+                    <input class="button" type="submit" value="SUBMIT">
+                    <button class="button" onclick="handleGoBack()">Go back</button>
                 </form>
                 
             </div>

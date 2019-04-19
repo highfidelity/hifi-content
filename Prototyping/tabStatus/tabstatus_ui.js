@@ -1,9 +1,15 @@
+/*
 
-let username = "";
-let displayName = "";
-let teamname = "";
-let status = "";
-let previousSearch =""
+    tab status
+    tabstatus_ui.js
+    Created by Milad Nazeri on 2019-04-19
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+*/
+
 
 // *************************************
 // START UTILITY
@@ -51,14 +57,15 @@ function hasInArray(array, string){
 
 // Gets items in an array of objects and turns them into an array of strings
 function objectToStringArrayMap(list){
-    list.map(item => {
+    let stringList = list.map(item => {
+        // l("item", item)
         let fullString = "";
         for (let key in item){
-            fullString += " " + item[key].toLowerCase();
+            fullString += " " + String(item[key]).toLowerCase();
         }
         return fullString;
     })
-    return list
+    return stringList
 }
 
 
@@ -83,24 +90,14 @@ function handleFormSubmit() {
 
     let formData = new FormData(statusForm);
 
-    // return to previous ui state
-    formContainer.style.display = "none";
-    teamContainer.style.display = "block";
-    input.style.display = "block";
-    input.value = "";
-    status.value = "";
-   
-    let formObject = {};
-    for (let pair of formData.entries()) {
-        formObject[pair[0]] = pair[1];
-    }
-
     let url = replaceURL(formObject.status, formObject.teamname);
     fetch(url)
         .catch(error => {
             console.log(error)
         });
 
+
+    showList()    
     renderUI();
 }
 
@@ -119,6 +116,23 @@ function handleTeamChange(input){
     emitAppSpecificEvent("onChange", {
         teamname: teamname
     })
+}
+
+
+// Handle if someone clicked on the headers to sort
+function handleTableClick(event){
+    let type;
+    if (event.target.tagName === "TH") {
+        type = event.target.innerHTML;
+        if (previousSortType) {
+            previousSortType = sortType;
+        }
+        sortType = type;
+        sortArray();
+        filterMembers();
+        previousSortType = sortType;
+        sendSortState();
+    }
 }
 
 
@@ -153,7 +167,7 @@ let currentlySorted = false;
 let sortType = null;
 let previousSortType = null;
 function sendSortState(){
-    emitAppSpecificEvent(onSortSettingsChange, {
+    emitAppSpecificEvent("onSortSettingsChange", {
         sortType: sortType,
         currentlySorted: currentlySorted,
         currentlySearching: currentlySearching,
@@ -285,7 +299,6 @@ function showList(){
     let formContainer = document.getElementById('formContainer');
     let teamContainer = document.getElementById('teamContainer');
     let status = document.getElementById('status');
-    let input = document.getElementById('filter_members');
 
     formContainer.style.display = "none";
     teamContainer.style.display = "block";
@@ -325,6 +338,12 @@ function WorkerMaker(displayName, status, location, team) {
 
 
 
+// *************************************
+// START filter-sort
+// *************************************
+// #region filter-sort
+
+
 // Check to see if we need to combine terms when we split the keyword up
 // This is only used if you want to exclude a term like Client and Engine. 
 // You have to use !(Client and engine)
@@ -356,7 +375,8 @@ const statusObject = {
     "statu": true,
     "status": true
 }
-function statusCheckerForSearchStateSave(testKeyword){
+function statusCheckerForSearchStateSave(keyword){
+    let testKeyword = keyword.split(" ")[0]
     // The keyword is greater than status so save and move on
     if (testKeyword.length > 6) {
         previousSearch = keyword;
@@ -379,18 +399,18 @@ function statusCheckerForSearchStateSave(testKeyword){
 }
 
 
-
+// Main filter function
 function filterMembers(event){
     let input = document.getElementById('filter_members');
     let keyword = input.value.toLowerCase();
-
+    l("length", keyword.length)
     // Handle Commands
     if (keyword.length !== 0){
         if (keyword === "status") {
             showStatus();
             return;
         }
-        statusCheckerForSearchStateSave(keyword.split(" ")[0])
+            statusCheckerForSearchStateSave(keyword)
     }
 
     // there isn't anything in the search so render everything again
@@ -417,44 +437,48 @@ function filterMembers(event){
 
     // the actual filter
     let filteredMemberList = allPeople.filter((member, index) => {
+        // if (index > 1) return;
         // we want to return the right person in all people
         // but we wanted the string version to compare with
         member = concatMemberInfo[index];
+        // check the member for the regex if povided
+        if (regex){
+            let reg = RegExp(keyword.slice(1,-1));
+            let doesMemberMatch = reg.test(member);
+            if (doesMemberMatch) {
+                return true;
+            }
+            return false;
+        }
+
         for (var i = 0; i < keywordArray.length; i++){
-            if (regex){
-                let reg = RegExp(keyword.slice(1,-1));
-                reg = reg.test(member);
-                if (!reg) {
+            let word = keywordArray[i]
+            // check to see if the search term is a negation
+            if (word[0] === "!"){
+                
+                // check to see if this negation is a multi-word 
+                if (word[1] === "("){
+                    if (member.indexOf(word.slice(2, -1)) > -1){
+                        return false;
+                    }
+                }
+
+                if (member.indexOf(word.slice(1)) > -1){
                     return false;
                 }
             } else {
-                let word = keywordArray[i]
-                // check to see if the search term is a negation
-                if (word[0] === "!"){
-                    // check to see if this negation is a multi-word 
-                    if (word[1] === "("){
-                        if (member.indexOf(word.slice(2, -1)) > -1){
-                            return false;
-                        }
-                    }
-                    if (member.indexOf(word.slice(1)) > -1){
-                        return false;
-                    }
-                } else {
-                    if (member.indexOf(word) === -1){
-                        return false;
-                    }
+                if (member.indexOf(word) === -1){
+                    return false;
                 }
             }
-            
         }
         return true;
-    });
-    
+    });    
     renderTeam(filteredMemberList);
 }
 
 
+// Either sort by the type or reverse if same type clicked again
 function sortArray(){
     currentlySorted = true;
     sendSortState();
@@ -462,10 +486,10 @@ function sortArray(){
         allPeople.reverse();
     } else {
         allPeople.sort((a, b) => {
-            if (a[sortType].toUpperCase().trim() > b[sortType].toUpperCase().trim()){
+            if (String(a[sortType]).toUpperCase().trim() > String(b[sortType]).toUpperCase().trim()){
                 return 1;
             }
-            if (a[sortType].toUpperCase().trim() < b[sortType].toUpperCase().trim()){
+            if (String(a[sortType]).toUpperCase().trim() < String(b[sortType]).toUpperCase().trim()){
                 return -1;
             }
             return 0;
@@ -474,22 +498,23 @@ function sortArray(){
 }
 
 
-function tableClick(event){
-    let type;
-    if (event.target.tagName === "TH") {
-        type = event.target.innerHTML;
-        if (previousSortType) {
-            previousSortType = sortType;
-        }
-        sortType = type;
-        sortArray();
-        filterMembers();
-        previousSortType = sortType;
-        sendSortState();
-    }
-}
+// #endregion
+// *************************************
+// END filter-sort
+// *************************************
 
-// Handle EventBridge messages from *_app.js.
+
+// *************************************
+// START event-bridge
+// *************************************
+// #region event-bridge
+
+
+
+let username = "";
+let displayName = "";
+let teamname = "";
+let previousSearch ="";
 function onScriptEventReceived(message) {
     try {
         message = JSON.parse(message);
@@ -504,22 +529,26 @@ function onScriptEventReceived(message) {
 
     switch (message.method) {
         case "updateUI":
+            l("message", message)
             teamname = message.teamname;
             displayName = message.displayName;
             username = message.username;
+            currentlySearching = message.sortSettings.currentlySearching || false;
+            currentlySorted = message.sortSettings.currentlySorted || false;
+            sortType = message.sortSettings.sortType || null;
+            previousSortType = message.sortSettings.previousSortType || null;
+
             document.getElementById('teamname').value = teamname;
             document.getElementById('filter_members').value = message.currentSearch;
-            filterMembers();
-            currentlySearching = message.sortSettings.currentlySearching;
-            currentlySorted = message.sortSettings.currentlySorted;
-            sortType = message.sortSettings.sortType;
-            previousSortType = message.sortSettings.previousSortType;
+            renderUI();
             break;
+            
         default:
             console.log("Unknown message received from tabStatus.js! " + JSON.stringify(message));
             break;
     }
 }
+
 
 // This delay is necessary to allow for the JS EventBridge to become active.
 // The delay is still necessary for HTML apps in RC78+.
@@ -533,7 +562,7 @@ function onLoad() {
     let teamContainer = document.getElementById('teamContainer');
 
     input.addEventListener('keyup', filterMembers);
-    teamContainer.addEventListener('click', tableClick);
+    teamContainer.addEventListener('click', handleTableClick);
     getEmployeeData();
 }
 
@@ -544,3 +573,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 onLoad();
+
+
+// #endregion
+// *************************************
+// END event-bridge
+// *************************************

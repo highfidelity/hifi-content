@@ -27,7 +27,7 @@ body {
 }
 
 
-.buttonControls {
+.button {
     border: 0;
     line-height: 1.0;
     padding: 10px 15px;
@@ -47,12 +47,12 @@ body {
                 inset -2px -2px 3px rgba(0, 0, 0, .6);
 }
 
-.buttonControls:hover {
+.button:hover {
     background-color: rgba(255, 0, 0, 1);
     color: white;
 }
 
-.buttonControls:active {
+.button:active {
     box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
@@ -63,13 +63,18 @@ table th {
     color: white;
 }
 
-tr:nth-child(even) {
-    background-color: #f2f2f2;
+table td {
+    color: #000
 }
 
-tr:nth-child(odd) {
-    background-color: #fafafa;
+
+tr:nth-child(even) {
+    background-color: #A2A2A2;
 }
+tr:nth-child(odd) {
+    background-color: #DaDaDa;
+}
+
 
 #filter_members {
     width: 100vw;
@@ -79,6 +84,13 @@ tr:nth-child(odd) {
 }
 
 #status {
+    width: 100vw;
+    height: 50px;
+    padding: 8px 15px;
+    font-size: 2em;
+}
+
+#teamname {
     width: 100vw;
     height: 50px;
     padding: 8px 15px;

@@ -1,9 +1,29 @@
+/*
+
+    tab status
+    tabstatus.js
+    Created by Milad Nazeri on 2019-04-19
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+*/
+
+
 (function(){
+    
     var username = AccountServices.username;
     var displayName = MyAvatar.displayName;
     var teamname = Settings.getValue("tabStatus/teamname", "");
     var currentSearch = Settings.getValue("tabStatus/currentSearch", "");
-    var sortSettings = Settings.getValue("tabStatus/sortSettings", {});
+    var sortSettings = Settings.getValue("tabStatus/sortSettings", {
+        currentlySearching: false,
+        currentlySorted: false,
+        sortType: null,
+        previousSortType: null
+    });
+
     function onChange(newName){
         teamname = newName;
         Settings.setValue("tabStatus/teamname", newName);
@@ -69,8 +89,6 @@
 
         Script.scriptEnding.connect(scriptEnding);
     }
-
-
   
     startup();
 
