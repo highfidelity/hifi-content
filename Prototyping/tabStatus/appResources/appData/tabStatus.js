@@ -13,6 +13,62 @@
 
 (function(){
     
+
+    // *************************************
+    // START utility
+    // *************************************
+    // #region utility
+    
+
+    var APP_NAME = "tabStatus";
+    function signal(method, data){
+        ui.sendMessage({
+            app: APP_NAME,
+            method: method,
+            data: data
+        })
+    }
+    
+    
+    // #endregion
+    // *************************************
+    // END utility
+    // *************************************
+
+    // *************************************
+    // START handlers
+    // *************************************
+    // #region handlers
+    
+    
+    function onChange(newName){
+        teamname = newName;
+        Settings.setValue("tabStatus/teamname", newName);
+    }
+
+
+    // Handle someone updating the search term
+    function onSearchChange(newSearch){
+        currentSearch = newSearch;
+        Settings.setValue("tabStatus/currentSearch", newSearch);
+    }
+
+
+    // Handle any changes in the sorting
+    function onSortSettingsChange(newSortSettings){
+        sortSettings = newSortSettings;
+        Settings.setValue("tabStatus/sortSettings", sortSettings);
+    }    
+    
+    
+    // #endregion
+    // *************************************
+    // END handlers
+    // *************************************
+    // Handle someone changing the team name
+
+
+    // Update the UI
     var username = AccountServices.username;
     var displayName = MyAvatar.displayName;
     var teamname = Settings.getValue("tabStatus/teamname", "");
@@ -23,24 +79,6 @@
         sortType: null,
         previousSortType: null
     });
-
-    function onChange(newName){
-        teamname = newName;
-        Settings.setValue("tabStatus/teamname", newName);
-        var teamnameTest = Settings.getValue("tabStatus/teamname", "");
-    }
-
-    function onSearchChange(newSearch){
-        currentSearch = newSearch;
-        Settings.setValue("tabStatus/currentSearch", newSearch);
-    }
-
-    function onSortSettingsChange(newSortSettings){
-        sortSettings = newSortSettings;
-        Settings.setValue("tabStatus/sortSettings", {});
-    }
-
-
     function onMessage(message) {
         if (message.app !== "tabStatus") {
             return;
@@ -55,29 +93,42 @@
                     displayName: displayName,
                     teamname: teamname,
                     currentSearch: currentSearch,
-                    sortSettings: sortSettings
+                    sortSettings: sortSettings,
+                    isFirstRun: Settings.getValue("tabStatus/firstRun", true),
                 });
                 break;
+
             case "onChange":
                 onChange(message.data.teamname);
                 break;
+
             case "onSearchChange":
                 onSearchChange(message.data.currentSearch);
                 break;
+
             case "onSortSettingsChange":
-                onSortSettingsChange(message.data.sortSettings);
+                console.log(JSON.stringify(message));
+                onSortSettingsChange(message.data);
                 break;
+            
+            case "onGotItClicked":
+                Settings.setValue("tabStatus/firstRun", false);
+                signal("gotItClicked");
+                break;
+    
             default:
                 console.log("Unhandled message from tabStatus.js: " + JSON.stringify(message));
                 break;
         }
     }
     
+
+    //main
     function scriptEnding(){
     }
 
     var BUTTON_NAME = "TAB STATUS";
-    var APP_UI_URL = Script.resolvePath('./tabStatus.html');
+    var APP_UI_URL = Script.resolvePath('./resources/tabStatus.html');
     var AppUI = Script.require('appUi');
     var ui;
     function startup() {

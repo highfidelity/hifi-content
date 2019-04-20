@@ -29,6 +29,16 @@ function l(label, data, i){
 }
 
 
+// turn the first letter of each word into uppercase
+function makeUpperCase(text){
+    text = text.toLowerCase()
+        .split(' ')
+        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+        .join(' ');
+    return text;
+}
+
+
 // replace the api call with the new information
 let statusURL = "https://highfidelity.co/api/statusIndicator?type=heartbeat&username=<username>&displayName=<display name>&status=<status, 150 char max>&teamName=<team name>"
 let replaceUserName = "<username>";
@@ -74,7 +84,6 @@ function objectToStringArrayMap(list){
 // END UTILITY
 // *************************************
 
-
 // *************************************
 // START handlers
 // *************************************
@@ -84,12 +93,15 @@ function objectToStringArrayMap(list){
 // handle the user submiting a status update
 function handleFormSubmit() {
     let statusForm = document.getElementById('statusForm');
-    let formContainer = document.getElementById('formContainer');
     let status = document.getElementById('status');
     let input = document.getElementById('filter_members');
 
     let formData = new FormData(statusForm);
-
+    var formObject = {};
+    for (var pair of formData.entries()) {
+        formObject[pair[0]] = pair[1];
+    }
+    
     let url = replaceURL(formObject.status, formObject.teamname);
     fetch(url)
         .catch(error => {
@@ -110,9 +122,8 @@ function handleGoBack(){
 
 // handle the user changing the team name 
 function handleTeamChange(input){
-    let input = document.getElementById('filter_members');
     // make sure the team name is capitalized
-    input.value = teamname = makeUppercase(input.value);
+    input.value = teamname = makeUpperCase(input.value);
     emitAppSpecificEvent("onChange", {
         teamname: teamname
     })
@@ -136,12 +147,15 @@ function handleTableClick(event){
 }
 
 
+// Get out of tutorial mode
+function handleGotIt(){
+    emitAppSpecificEvent("onGotItClicked")
+}
+
 // #endregion
 // *************************************
 // END handlers
 // *************************************
-// handle the form submit for the status input
-
 
 // *************************************
 // START date-transfers
@@ -210,7 +224,6 @@ function getEmployeeData(){
 // END date-transfers
 // *************************************
 
-
 // *************************************
 // START render
 // *************************************
@@ -233,12 +246,21 @@ function renderUI(){
     // if you are in the middle of the search then keep your filter going
     if (currentlySearching) {
         filterMembers();
+        return;
+    }
+
+    if (!currentlySearching){
+        renderTeam(allPeople)
+        return;
     }
     
     // clean render
     if (!currentlySorted && !currentlySearching){
         renderTeam(allPeople)
+        return;
     }
+
+
 }
 
 
@@ -284,7 +306,7 @@ function showStatus(){
     let teamContainer = document.getElementById('teamContainer');
     let status = document.getElementById('status');
     let input = document.getElementById('filter_members');
-
+    
     formContainer.style.display = "block";
     teamContainer.style.display = "none";
     input.style.display = "none";
@@ -306,6 +328,7 @@ function showList(){
 
     input.value = previousSearch;
     status.value = "";
+    renderUI();
 }
 
 
@@ -314,7 +337,6 @@ function showList(){
 // *************************************
 // END render
 // *************************************
-
 
 // *************************************
 // START constructors
@@ -335,8 +357,6 @@ function WorkerMaker(displayName, status, location, team) {
 // *************************************
 // END constructors
 // *************************************
-
-
 
 // *************************************
 // START filter-sort
@@ -403,7 +423,7 @@ function statusCheckerForSearchStateSave(keyword){
 function filterMembers(event){
     let input = document.getElementById('filter_members');
     let keyword = input.value.toLowerCase();
-    l("length", keyword.length)
+    // l("length", keyword.length)
     // Handle Commands
     if (keyword.length !== 0){
         if (keyword === "status") {
@@ -503,7 +523,6 @@ function sortArray(){
 // END filter-sort
 // *************************************
 
-
 // *************************************
 // START event-bridge
 // *************************************
@@ -527,22 +546,35 @@ function onScriptEventReceived(message) {
         return;
     }
 
+    // l("message", message)
     switch (message.method) {
         case "updateUI":
-            l("message", message)
+            // l("message", message)
+            if (message.isFirstRun) {
+                document.getElementById("firstRun").style.display = "block";
+            }
             teamname = message.teamname;
             displayName = message.displayName;
             username = message.username;
+            message.sortSettings = 
+                message.sortSettings 
+                ? message.sortSettings
+                : { currentlySearching: false, currentlySorted: false, sortType: null, previousSortType: null} 
             currentlySearching = message.sortSettings.currentlySearching || false;
             currentlySorted = message.sortSettings.currentlySorted || false;
             sortType = message.sortSettings.sortType || null;
             previousSortType = message.sortSettings.previousSortType || null;
+            document.getElementById("loadingContainer").style.display = "none";
 
             document.getElementById('teamname').value = teamname;
             document.getElementById('filter_members').value = message.currentSearch;
             renderUI();
             break;
             
+        case "gotItClicked":
+            document.getElementById("firstRun").style.display = "none"; 
+            break;
+
         default:
             console.log("Unknown message received from tabStatus.js! " + JSON.stringify(message));
             break;
@@ -560,7 +592,7 @@ function onLoad() {
     }, EVENTBRIDGE_SETUP_DELAY);
     let input = document.getElementById('filter_members');
     let teamContainer = document.getElementById('teamContainer');
-
+    
     input.addEventListener('keyup', filterMembers);
     teamContainer.addEventListener('click', handleTableClick);
     getEmployeeData();
