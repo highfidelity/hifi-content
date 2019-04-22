@@ -26,7 +26,7 @@
             app: APP_NAME,
             method: method,
             data: data
-        })
+        });
     }
     
     
@@ -107,7 +107,6 @@
                 break;
 
             case "onSortSettingsChange":
-                console.log(JSON.stringify(message));
                 onSortSettingsChange(message.data);
                 break;
             
@@ -123,11 +122,11 @@
     }
     
 
-    //main
+    // main
     function scriptEnding(){
     }
 
-    var BUTTON_NAME = "TAB STATUS";
+    var BUTTON_NAME = "TAB-STATUS";
     var APP_UI_URL = Script.resolvePath('./resources/tabStatus.html');
     var AppUI = Script.require('appUi');
     var ui;
@@ -135,7 +134,8 @@
         ui = new AppUI({
             buttonName: BUTTON_NAME,
             home: APP_UI_URL,
-            onMessage: onMessage
+            onMessage: onMessage,
+            graphicsDirectory: Script.resolvePath("./resources/images/icons/")
         });
 
         Script.scriptEnding.connect(scriptEnding);
@@ -144,7 +144,3 @@
     startup();
 
 })();
-
-
-
-

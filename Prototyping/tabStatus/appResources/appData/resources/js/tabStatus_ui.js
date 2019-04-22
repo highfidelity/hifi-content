@@ -33,7 +33,7 @@ function l(label, data, i){
 function makeUpperCase(text){
     text = text.toLowerCase()
         .split(' ')
-        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+        .map((word) => word.charAt(0).toUpperCase() + word.substring(1))
         .join(' ');
     return text;
 }
@@ -68,7 +68,6 @@ function hasInArray(array, string){
 // Gets items in an array of objects and turns them into an array of strings
 function objectToStringArrayMap(list){
     let stringList = list.map(item => {
-        // l("item", item)
         let fullString = "";
         for (let key in item){
             fullString += " " + String(item[key]).toLowerCase();
@@ -109,8 +108,7 @@ function handleFormSubmit() {
         });
 
 
-    showList()    
-    renderUI();
+    showList();
 }
 
 
@@ -141,7 +139,7 @@ function handleTableClick(event){
         sortType = type;
         sortArray();
         filterMembers();
-        previousSortType = sortType;
+        previousSortType = sortType; 
         sendSortState();
     }
 }
@@ -212,7 +210,7 @@ function getEmployeeData(){
                 )
             })
         })
-        setTimeout(getEmployeeData, REFRESH_TIME_MS);
+        // setTimeout(getEmployeeData, REFRESH_TIME_MS);
         renderUI();
     })
     .catch(error => { console.error(error) })
@@ -418,83 +416,83 @@ function statusCheckerForSearchStateSave(keyword){
     })
 }
 
+function filterCallback(member, index){
+    // we want to return the right person in all people
+    // but we wanted the string version to compare with
+    member = concatMemberInfo[index];
+    // check the member for the regex if povided
+    if (regex){
+        let reg = RegExp(keyword.slice(1,-1));
+        let doesMemberMatch = reg.test(member);
+        if (doesMemberMatch) {
+            return true;
+        }
+        return false;
+    }
+
+    for (var i = 0; i < keywordArray.length; i++){
+        let word = keywordArray[i]
+        // check to see if the search term is a negation
+        if (word[0] === "!"){
+            
+            // check to see if this negation is a multi-word 
+            if (word[1] === "("){
+                if (member.indexOf(word.slice(2, -1)) > -1){
+                    return false;
+                }
+            }
+
+            if (member.indexOf(word.slice(1)) > -1){
+                return false;
+            }
+        } else {
+            if (member.indexOf(word) === -1){
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 // Main filter function
+let keywordArray =[];
+let concatMemberInfo = [];
+let regex = false;
 function filterMembers(event){
     let input = document.getElementById('filter_members');
     let keyword = input.value.toLowerCase();
-    // l("length", keyword.length)
     // Handle Commands
     if (keyword.length !== 0){
         if (keyword === "status") {
             showStatus();
             return;
         }
-            statusCheckerForSearchStateSave(keyword)
-    }
+        statusCheckerForSearchStateSave(keyword)
+        currentlySearching = true;
+        sendSortState();
 
-    // there isn't anything in the search so render everything again
-    if (keyword.length === 0) {
+        // Split up the search for different terms
+        keywordArray = handleKeywordArraySplit(keyword);
+
+        // Turn all the people into one simple lower case string
+        concatMemberInfo = objectToStringArrayMap(allPeople);
+
+        // Check if we got a regex search  
+        if (keyword[0] === "/" && keyword[keyword.length-1] === "/"){
+            regex = true
+        } else {
+            regex = false;
+        }
+
+        // the actual filter
+        let filteredMemberList = allPeople.filter(filterCallback);
+        renderTeam(filteredMemberList);
+    } else {
         currentlySearching = false
         sendSortState();
-        renderUI()
-        return;
-    }
-    currentlySearching = true;
-    sendSortState();
-
-    // Split up the search for different terms
-    let keywordArray = handleKeywordArraySplit(keyword);
-
-    // Turn all the people into one simple lower case string
-    let concatMemberInfo = objectToStringArrayMap(allPeople);
-
-    // Check if we got a regex search
-    let regex = false    
-    if (keyword[0] === "/" && keyword[keyword.length-1] === "/"){
-        regex = true
+        renderTeam(allPeople);
     }
 
-    // the actual filter
-    let filteredMemberList = allPeople.filter((member, index) => {
-        // if (index > 1) return;
-        // we want to return the right person in all people
-        // but we wanted the string version to compare with
-        member = concatMemberInfo[index];
-        // check the member for the regex if povided
-        if (regex){
-            let reg = RegExp(keyword.slice(1,-1));
-            let doesMemberMatch = reg.test(member);
-            if (doesMemberMatch) {
-                return true;
-            }
-            return false;
-        }
-
-        for (var i = 0; i < keywordArray.length; i++){
-            let word = keywordArray[i]
-            // check to see if the search term is a negation
-            if (word[0] === "!"){
-                
-                // check to see if this negation is a multi-word 
-                if (word[1] === "("){
-                    if (member.indexOf(word.slice(2, -1)) > -1){
-                        return false;
-                    }
-                }
-
-                if (member.indexOf(word.slice(1)) > -1){
-                    return false;
-                }
-            } else {
-                if (member.indexOf(word) === -1){
-                    return false;
-                }
-            }
-        }
-        return true;
-    });    
-    renderTeam(filteredMemberList);
 }
 
 
@@ -546,10 +544,8 @@ function onScriptEventReceived(message) {
         return;
     }
 
-    // l("message", message)
     switch (message.method) {
         case "updateUI":
-            // l("message", message)
             if (message.isFirstRun) {
                 document.getElementById("firstRun").style.display = "block";
             }
@@ -559,16 +555,16 @@ function onScriptEventReceived(message) {
             message.sortSettings = 
                 message.sortSettings 
                 ? message.sortSettings
-                : { currentlySearching: false, currentlySorted: false, sortType: null, previousSortType: null} 
+                : { currentlySearching: false, currentlySorted: false, sortType: null, previousSortType: null}
             currentlySearching = message.sortSettings.currentlySearching || false;
             currentlySorted = message.sortSettings.currentlySorted || false;
             sortType = message.sortSettings.sortType || null;
             previousSortType = message.sortSettings.previousSortType || null;
+            currentSearch = currentlySearching ? message.currentSearch : "";
             document.getElementById("loadingContainer").style.display = "none";
-
             document.getElementById('teamname').value = teamname;
-            document.getElementById('filter_members').value = message.currentSearch;
-            renderUI();
+            document.getElementById('filter_members').value = currentSearch;
+            getEmployeeData();
             break;
             
         case "gotItClicked":
@@ -595,7 +591,7 @@ function onLoad() {
     
     input.addEventListener('keyup', filterMembers);
     teamContainer.addEventListener('click', handleTableClick);
-    getEmployeeData();
+
 }
 
 
@@ -603,9 +599,6 @@ function onLoad() {
 document.addEventListener("DOMContentLoaded", function(event) {
     onLoad();
 });
-
-onLoad();
-
 
 // #endregion
 // *************************************
