@@ -1,0 +1,125 @@
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+html {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    background-color: #393939;
+    color: #afafaf;
+    margin: 0;
+    padding: 0;
+    font-size: 1.5m;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+
+#mainContainer {
+  width: 100vw;
+  height: 100vh;
+}
+
+#loadingContainer {
+    background-color: rgba(0, 0, 0, 0.8);
+    background-image: url('../images/loadingSpinner.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 999;
+}
+
+#firstRun {
+    background-color: rgba(20, 100, 100, 1);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* width: 100vw;
+    height: 100vw; */
+    /* height: calc(100vh - 60px); */
+    position: fixed;
+    z-index: 998;
+    padding: 10px 20px 10px 20px;
+    font-size: 20px;
+    /* text-align: right; */
+  }
+
+#filter_members {
+    width: 100vw;
+    height: 50px;
+    padding: 8px 15px;
+    font-size: 2em;
+}
+
+#status {
+    width: 100vw;
+    height: 50px;
+    padding: 8px 15px;
+    font-size: 2em;
+}
+
+#teamname {
+    width: 100vw;
+    height: 50px;
+    padding: 8px 15px;
+    font-size: 2em;
+}
+
+
+.button {
+    border: 0;
+    line-height: 1.0;
+    padding: 10px 15px;
+    margin: 6px 0px;
+    font-size: 3.5vw;
+    text-align: center;
+    color:  rgba(50, 50, 50, 1);
+    width: 20%;
+    /* text-shadow: 1px 1px 1px #000; */
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 1);
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.button:hover {
+    background-color: rgba(200, 20, 200, 1); 
+    color:  rgba(255, 255, 255, 1);
+}
+
+.button:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+  
+
+table th {
+    text-align: left;
+    background-color: black;
+    color: white;
+}
+
+table td {
+    color: #000
+}
+
+tr:nth-child(even) {
+    background-color: #A2A2A2;
+}
+tr:nth-child(odd) {
+    background-color: #DaDaDa;
+}

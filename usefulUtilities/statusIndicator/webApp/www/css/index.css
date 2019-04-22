@@ -50,8 +50,12 @@ tr {
     border-width: 1px 0 0 0;
     height: 30px;
 }
-tr:last-child {
-    border-width: 1px 0;
+
+tr:nth-child(even) {
+    background-color: #020202;
+}
+tr:nth-child(odd) {
+    background-color: #5a5a5a;
 }
 
 td {
