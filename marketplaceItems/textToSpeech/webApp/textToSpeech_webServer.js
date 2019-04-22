@@ -10,7 +10,8 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-
+const fs = require('fs');
+const path = require('path');
 
 
 // Setup body parser middleware to handle post requests
@@ -39,8 +40,29 @@ const startServer = () => {
 }
 
 
+var GENERATED_SPEECH_DIR = "./mp3s/generated";
+const deleteGeneratedSpeech = () => {
+    fs.readdir(GENERATED_SPEECH_DIR, (err, files) => {
+        if (err) {
+            throw err;
+        }
+
+        for (const file of files) {
+            if (path.extname(file).toLowerCase() === "mp3") {
+                fs.unlink(path.join(GENERATED_SPEECH_DIR, file), err => {
+                    if (err) {
+                        throw err;
+                    }
+                });
+            }
+        }
+    });
+}
+
+
 // Called on startup.
 const startup = () => {
+    deleteGeneratedSpeech();
     startServer();
 };
 

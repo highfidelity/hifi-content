@@ -11,11 +11,11 @@ The Text to Speech app allows you to communicate in High Fidelity using Text-to-
 
 ## `webApp/secrets.json` Config
 
-Here's what your `webApp/secrets.json` config file should look like:
+Here's what your `webApp/config.json` config file should look like:
 
 ```
 {
-    "GOOGLE_API_KEY": "<Your Google API key, used by the Web App to contact Google's TTS services>"
+    "MP3_HOST_ROOT": "<A link to where `<textToSpeech root>/webApp/mp3s/` is publicly hosted. No trailing slash.>"
 }
 ```
 

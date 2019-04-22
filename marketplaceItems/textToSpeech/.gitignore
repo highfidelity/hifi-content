@@ -1,3 +1,4 @@
-webApp/secrets.json
+webApp/config.json
+webApp/googleKeyfile.json
 webApp/node_modules/
-webApp/mp3s/*.mp3
+webApp/mp3s/generated/*.mp3
