@@ -66,6 +66,11 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
+## v2.2 | 2019-04-08_09-11-00 | [commit ac1fbb0](https://github.com/highfidelity/hifi-content/commits/ac1fbb0)
+NO VERSION BUMPS - Web App Frontend Change Only!
+- Added an "online" count to the Directory page per-team
+- Improved the look of custom statuses on the Directory
+
 ## v2.2 | 2019-04-08_09-11-00 | [commit d161426](https://github.com/highfidelity/hifi-content/commits/d161426)
 NO VERSION BUMPS - Web App Frontend Change Only!
 - Gave the Directory pages fresh new looks!
