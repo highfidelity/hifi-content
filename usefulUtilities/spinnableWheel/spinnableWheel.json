@@ -1,0 +1,173 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{af5db01e-7e2b-4a9c-9265-a026d97219aa}",
+    "type": "Shape",
+    "parentID": "{b6134496-ef76-4ed5-8a69-ec22ea798605}",
+    "name": "Spinnable Wheel Arrow",
+    "position": {
+        "x": 1.261688232421875,
+        "y": 0.0010066032409667969,
+        "z": 0.0003927946090698242
+    },
+    "dimensions": {
+        "x": 0.4000000059604645,
+        "y": 0.4073719084262848,
+        "z": 0.4000000059604645
+    },
+    "rotation": {
+        "x": -0.0002899169921875,
+        "y": 0.7069046497344971,
+        "z": 0.7072709798812866,
+        "w": -0.0000762939453125
+    },
+    "queryAACube": {
+        "x": 411.4401550292969,
+        "y": 0.9393711090087891,
+        "z": 295.56231689453125,
+        "scale": 0.6971024870872498
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "shape": "Triangle",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{b6134496-ef76-4ed5-8a69-ec22ea798605}",
+    "type": "Box",
+    "name": "Spinnable Wheel Center",
+    "position": {
+        "x": 0.000030517578125,
+        "y": 0.00017821788787841797,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.05000000074505806,
+        "y": 0.05000000074505806,
+        "z": 0.05000000074505806
+    },
+    "rotation": {
+        "x": -0.0003204345703125,
+        "y": 0.0001373291015625,
+        "z": -0.0002899169921875,
+        "w": 0.999969482421875
+    },
+    "queryAACube": {
+        "x": -0.04327075183391571,
+        "y": -0.04312305152416229,
+        "z": -0.04330126941204071,
+        "scale": 0.08660253882408142
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{4472b1d2-45a8-4f9d-9959-de1058ca4431}",
+    "type": "Shape",
+    "name": "Spinnable Wheel",
+    "userData": "{\"wheelText\":[\"Option 1\",\"Some other option\",\"Option 3\"]}",
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0.00006103515625
+    },
+    "dimensions": {
+        "x": 2.5,
+        "y": 0.051500000059604645,
+        "z": 2.5
+    },
+    "rotation": {
+        "x": 0.7070878744125366,
+        "y": -0.0000457763671875,
+        "z": -0.0000457763671875,
+        "w": 0.7070878744125366
+    },
+    "queryAACube": {
+        "x": -1.7679544687271118,
+        "y": -1.7679544687271118,
+        "z": -1.7678934335708618,
+        "scale": 3.5359089374542236
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "angularDamping": 0.8999999761581421,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/spinnableWheel/v1.0/spinnableWheelClient.js",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/spinnableWheel/v1.0/spinnableWheelServer.js",
+    "color": {
+        "red": 168,
+        "green": 99,
+        "blue": 168
+    },
+    "shape": "Cylinder",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{83b4c36a-a6cf-410f-963a-3387ed6d6762}",
+  "Version": 118
+}
