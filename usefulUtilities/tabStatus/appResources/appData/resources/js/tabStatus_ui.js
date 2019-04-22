@@ -90,7 +90,8 @@ function objectToStringArrayMap(list){
 
 
 // handle the user submiting a status update
-function handleFormSubmit() {
+function handleFormSubmit(this) {
+    this.preventDefault();
     let statusForm = document.getElementById('statusForm');
     let status = document.getElementById('status');
     let input = document.getElementById('filter_members');
@@ -325,6 +326,7 @@ function showList(){
     input.style.display = "block";
 
     input.value = previousSearch;
+    l("previousSearch", previousSearch)
     status.value = "";
     renderUI();
 }

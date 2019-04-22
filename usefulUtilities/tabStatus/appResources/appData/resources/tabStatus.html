@@ -48,7 +48,7 @@
             <div id="contentContainer"  style="display:block;">
                 <input type="text" autofocus placeholder="Search Members" id="filter_members"/>
                 <div id="formContainer" style="display:none;">
-                    <form id="statusForm" name="statusForm" onsubmit="handleFormSubmit()">
+                    <form id="statusForm" action="javascript:void(0);" name="statusForm" onsubmit="handleFormSubmit(this)">
                         <input type="text" name="status" id="status" required placeholder="New Status" />
                         <input type="text" onkeyup="handleTeamChange(this)" name="teamname" id="teamname" required placeholder="teamname" >
                         <input class="button" type="submit" value="SUBMIT">
