@@ -210,7 +210,7 @@ function getEmployeeData(){
                 )
             })
         })
-        // setTimeout(getEmployeeData, REFRESH_TIME_MS);
+        setTimeout(getEmployeeData, REFRESH_TIME_MS);
         renderUI();
     })
     .catch(error => { console.error(error) })
