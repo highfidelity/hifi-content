@@ -147,7 +147,7 @@
     function startup() {
         ui = new AppUi({
             home: "http://localhost/hiFiCalendar.html",
-            buttonName: "GCAL", // The name of your app
+            buttonName: "CALENDAR", // The name of your app
             graphicsDirectory: Script.resolvePath("../resources/images/"), // Where your button icons are located
             onMessage: onWebMessage
         });       
