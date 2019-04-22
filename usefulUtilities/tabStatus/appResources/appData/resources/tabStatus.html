@@ -1,0 +1,65 @@
+
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>tabStatus</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="./css/tabStatus.css" rel="stylesheet">
+    </head>
+    <body>
+        <div id="loadingContainer">
+        </div>      
+        <div id="firstRun" style="display:none;">
+                <p>This app will give you access to the team status board in your app.</p>
+                <ul>
+                    <li>
+                        You can search by anything including name, location, status, team   
+                    </li>
+                    <li>
+                        You can use more than one search term like "experiences available"        
+                    </li>
+                    <li>
+                        You can negate search terms like "!experiences available"
+                    </li>
+                    <li>
+                        If you would like to negate a combined term, you can with () such as 
+                        !(core engine).  Right now you can only do one of those
+                    </li>
+                    <li>
+                        You can enter in regex if you would like        
+                    </li>
+                    <li>
+                        If you type in status, you switch to the update status prompt
+                        It will save your team name after the first time.
+                        If you had a search term before you typed status, when you click submit
+                        you will get that filter again        
+                    </li>
+                    <li>
+                        The app will poll every 10 seconds to auto update even if you are currently
+                in a filter
+                    </li>
+                    <li>
+                        Your current search term is saved between sessions        
+                    </li>
+                </ul>
+                <button class="button" onclick="handleGotIt()">Got it!</button>                
+        </div>
+        <div id="mainContainer">
+            <div id="contentContainer"  style="display:block;">
+                <input type="text" autofocus placeholder="Search Members" id="filter_members"/>
+                <div id="formContainer" style="display:none;">
+                    <form id="statusForm" name="statusForm" onsubmit="handleFormSubmit()">
+                        <input type="text" name="status" id="status" required placeholder="New Status" />
+                        <input type="text" onkeyup="handleTeamChange(this)" name="teamname" id="teamname" required placeholder="teamname" >
+                        <input class="button" type="submit" value="SUBMIT">
+                        <button class="button" onclick="handleGoBack()">Go back</button>
+                    </form>
+                </div>
+            </div>
+            <div id="teamContainer">
+
+            </div>
+        </div>
+        <script src="./js/tabStatus_ui.js"></script>
+    </body>
+</html>
