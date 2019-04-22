@@ -50,6 +50,9 @@ tr {
     border-width: 1px 0 0 0;
     height: 30px;
 }
+.statusRow {
+    border-top-width: 0 !important;
+}
 tr:last-child {
     border-width: 1px 0;
 }
@@ -76,10 +79,18 @@ td:nth-child(3),
 td:nth-child(4) {
     width: 190px;
 }
+.statusRow > td {
+    font-family: "Graphik Regular", sans-serif;
+    padding-top: 0 !important;
+    text-overflow: initial;
+    overflow: initial;
+    white-space: normal;
+}
 
 .offlineIndicatorOuter,
 .busyIndicatorOuter,
-.availableIndicatorOuter {
+.availableIndicatorOuter,
+.customIndicatorOuter {
     width: 8px;
     height: 8px;
     border-style: solid;
@@ -91,7 +102,8 @@ td:nth-child(4) {
 
 .offlineIndicator,
 .busyIndicator,
-.availableIndicator {
+.availableIndicator,
+.customIndicator {
     position: relative;
     top: 1px;
     left: 1px;
@@ -100,22 +112,28 @@ td:nth-child(4) {
     border-radius: 50%;
 }
 .offlineIndicatorOuter {
-    border-color: grey;
+    border-color: #7e8c81;
 }
 .offlineIndicator {
-    background-color: grey !important;
+    background-color: #7e8c81 !important;
 }
 .busyIndicatorOuter {
-    border-color: red;
+    border-color: #ff001a;
 }
 .busyIndicator {
-    background-color: red !important;
+    background-color: #ff001a !important;
 }
 .availableIndicatorOuter {
-    border-color: green;
+    border-color: #009036;
 }
 .availableIndicator {
-    background-color: green !important;
+    background-color: #009036 !important;
+}
+.customIndicatorOuter {
+    border-color: #ffed00;
+}
+.customIndicator {
+    background-color: #ffed00 !important;
 }
 
 .offlineDisplayNameText,

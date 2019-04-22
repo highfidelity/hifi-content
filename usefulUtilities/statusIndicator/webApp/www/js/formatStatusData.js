@@ -14,14 +14,12 @@ function formatStatusData(data) {
 
         var teamContainer = document.createElement("div");
 
-        var h2 = document.createElement("h2");
-        h2.innerHTML = currentTeamName;
-        teamContainer.appendChild(h2);
-
         var teamTable = document.createElement("table");
 
         var tbody = document.createElement('tbody');
-        for (var j = 0; j < data.teams[i].members.length; j++) {
+        var onlineCount = 0;
+        var totalCount = data.teams[i].members.length;
+        for (var j = 0; j < totalCount; j++) {
             var tr = document.createElement('tr');
 
             var currentDisplayName = data.teams[i].members[j].displayName;
@@ -37,9 +35,12 @@ function formatStatusData(data) {
             } else if (currentStatus === "busy") {
                 inner.classList.add("busyIndicator");
                 outer.classList.add("busyIndicatorOuter");
-            } else {
+            } else if (currentStatus === "available") {
                 inner.classList.add("availableIndicator");
                 outer.classList.add("availableIndicatorOuter");
+            } else {
+                inner.classList.add("customIndicator");
+                outer.classList.add("customIndicatorOuter");
             }
             outer.appendChild(inner);
             td.appendChild(outer);
@@ -66,14 +67,33 @@ function formatStatusData(data) {
             }
             tr.appendChild(td);
 
+            tbody.appendChild(tr);
+
             if (!(currentStatus === "offline" || currentStatus === "busy" || currentStatus === "available")) {
+                tr = document.createElement('tr');
+                tr.classList.add("statusRow");
+
                 td = document.createElement('td');
+                td.appendChild(document.createTextNode(""));
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.setAttribute("colspan", 2);
                 td.appendChild(document.createTextNode(currentStatus));
                 tr.appendChild(td);
+
+                tbody.appendChild(tr);
             }
 
-            tbody.appendChild(tr);
+            if (currentStatus !== "offline") {
+                onlineCount++;
+            }
         }
+
+        var h2 = document.createElement("h2");
+        h2.innerHTML = `${currentTeamName} (${onlineCount}/${totalCount})`;
+        teamContainer.appendChild(h2);
+
         teamTable.appendChild(tbody);
         teamContainer.appendChild(teamTable);
 
