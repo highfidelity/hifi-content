@@ -23,9 +23,30 @@
     }
 
 
+    function getVoices() {
+        request({
+            uri: config.REQUEST_URL + "/getVoices",
+            method: "POST",
+            json: true,
+            body: {
+                languageCodes: ["en-US", "es-ES", "de-DE", "zh-CN", "fr-FR", "ru-RU"]
+            }
+        }, function (error, response) {
+            if (error || response.status !== "success") {
+                console.log("ERROR during call to /getVoices: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
+                return;
+            }
+
+            emitAppSpecificEvent("initializeUI", {
+                "voices": response.voices
+            });
+        });
+    }
+
+
     // This is the message that's received from the UI JS that indicates that the UI is ready.
     function onEventBridgeReady() {
-        emitAppSpecificEvent("initializeUI");
+        getVoices();
     }
 
 
@@ -53,7 +74,7 @@
     var injector;
     var updatePositionInterval = false;
     var UPDATE_POSITION_INTERVAL_MS = 50;
-    function playSound(sound, volume) {
+    function playSound(sound, volume, localOnly) {
         if (injector) {
             injector.stop();
         }
@@ -61,62 +82,23 @@
         injector = Audio.playSound(sound, {
             position: MyAvatar.position,
             volume: volume,
-            localOnly: false
+            localOnly: localOnly || false
         });
         injector.finished.connect(injectorFinished);
         updatePositionInterval = Script.setInterval(updateInjectorPosition, UPDATE_POSITION_INTERVAL_MS);
     }
 
 
-    function speechSoundReady() {
-        playSound(lastSpeechSound, lastVolume);
-    }
-
-
-    var lastSpeechSound = false;
-    var lastVolume = 1.0;
-    function speakText(speechURL, volume) {
-        lastSpeechSound = SoundCache.getSound(speechURL);
-        lastVolume = volume;
+    function speakText(speechURL, volume, localOnly) {
+        var lastSpeechSound = SoundCache.getSound(speechURL);
+        volume = volume || 0.5;
         if (lastSpeechSound.downloaded) {
-            playSound(lastSpeechSound, lastVolume);
+            playSound(lastSpeechSound, volume, localOnly);
         } else {
-            lastSpeechSound.ready.connect(speechSoundReady);
+            lastSpeechSound.ready.connect(function() {
+                playSound(lastSpeechSound, volume, localOnly);   
+            });
         }
-    }
-
-
-    var request = Script.require("https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js").request;
-    var config = Script.require("./config.json");
-    function submitButtonClicked(data) {
-        var textToSpeak = data.textToSpeak;
-        if (!textToSpeak || textToSpeak.length === 0) {
-            console.log("User tried to speak some text, but they didn't specify any text.");
-            emitAppSpecificEvent("ttsResponseReceived");
-            return;
-        }
-
-        var voiceName = data.voiceName;
-        var volume = data.volume;
-
-        request({
-            uri: config.REQUEST_URL + "/generateSpeech",
-            method: "POST",
-            json: true,
-            body: {
-                text: textToSpeak,
-                voiceName: voiceName
-            }
-        }, function (error, response) {
-            if (error || response.status !== "success") {
-                console.log("ERROR during call to /generateSpeech: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
-                return;
-            }
-
-            emitAppSpecificEvent("ttsResponseReceived");
-
-            speakText(response.speechURL, volume || 0.5);
-        })
     }
 
 
@@ -127,6 +109,8 @@
             emitAppSpecificEvent("ttsResponseReceived");
             return;
         }
+        
+        var volume = data.volume;
 
         request({
             uri: config.REQUEST_URL + "/getSample",
@@ -143,8 +127,80 @@
 
             emitAppSpecificEvent("ttsResponseReceived");
 
-            speakText(response.speechURL, 0.5);
+            speakText(response.speechURL, volume, true);
         })
+    }
+
+
+    var request = Script.require("https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js").request;
+    var config = Script.require("./config.json");
+    function generateSpeech(data) {
+        var textToSpeak = data.textToSpeak;
+        if (!textToSpeak || textToSpeak.length === 0) {
+            console.log("User tried to speak some text, but they didn't specify any text.");
+            emitAppSpecificEvent("ttsResponseReceived");
+            return;
+        }
+
+        var voiceName = data.voiceName;
+        var languageCode = data.languageCode;
+        var volume = data.volume;
+
+        request({
+            uri: config.REQUEST_URL + "/generateSpeech",
+            method: "POST",
+            json: true,
+            body: {
+                text: textToSpeak,
+                voiceName: voiceName,
+                languageCode: languageCode || "en-US"
+            }
+        }, function (error, response) {
+            if (error || response.status !== "success") {
+                console.log("ERROR during call to /generateSpeech: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
+                return;
+            }
+
+            emitAppSpecificEvent("ttsResponseReceived");
+
+            speakText(response.speechURL, volume, false);
+        });
+    }
+    
+
+    function autoTranslateButtonClicked(data) {
+        var textToSpeak = data.textToSpeak;
+        if (!textToSpeak || textToSpeak.length === 0) {
+            console.log("User tried to auto-translate some text, but they didn't specify any text.");
+            emitAppSpecificEvent("ttsResponseReceived");
+            return;
+        }
+
+        var voiceName = data.voiceName;
+        var targetLanguageCode = data.targetLanguageCode;
+        var volume = data.volume;
+
+        request({
+            uri: config.REQUEST_URL + "/translateText",
+            method: "POST",
+            json: true,
+            body: {
+                text: textToSpeak,
+                targetLanguageCode: targetLanguageCode
+            }
+        }, function (error, response) {
+            if (error || response.status !== "success") {
+                console.log("ERROR during call to /generateSpeech: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
+                return;
+            }
+
+            generateSpeech({
+                textToSpeak: response.translation,
+                languageCode: targetLanguageCode,
+                voiceName: voiceName,
+                volume: volume
+            });
+        });
     }
 
 
@@ -160,13 +216,18 @@
                 break;
 
 
-            case "submitButtonClicked":
-                submitButtonClicked(event.data);
+            case "sampleButtonClicked":
+                sampleButtonClicked(event.data);
                 break;
 
 
-            case "sampleButtonClicked":
-                sampleButtonClicked(event.data);
+            case "generateSpeech":
+                generateSpeech(event.data);
+                break;
+
+
+            case "autoTranslateButtonClicked":
+                autoTranslateButtonClicked(event.data);
                 break;
 
 

@@ -10,11 +10,15 @@
 const express = require('express');
 const router = express.Router();
 const textToSpeech = require('@google-cloud/text-to-speech');
+const {Translate} = require('@google-cloud/translate');
 const fs = require('fs');
 const MP3_HOST_ROOT = require('./config.json').MP3_HOST_ROOT;
 
+const translateClient = new Translate({
+    "keyFilename": "./googleKeyfile.json"
+});
 
-const client = new textToSpeech.TextToSpeechClient({
+const ttsClient = new textToSpeech.TextToSpeechClient({
     "keyFilename": "./googleKeyfile.json"
 });
 
@@ -38,11 +42,12 @@ async function sendTTSRequest(res, text, voiceName, languageCode, gender) {
     }
 
     // Performs the Text-to-Speech request
-    client.synthesizeSpeech(request, (err, response) => {
+    ttsClient.synthesizeSpeech(request, (err, response) => {
         if (err) {
+            let errorText = `Error when calling synthesizeSpeech: ${err}`;
             let responseObject = {
                 status: "error",
-                errorText: `Error when calling synthesizeSpeech: ${err}`
+                errorText: errorText
             };
             res.statusCode = 500;
             res.setHeader('Content-Type', 'application/json');
@@ -89,8 +94,8 @@ router.post("/generateSpeech/", (req, res) => {
 });
 
 
-async function getVoices(res) {
-    client.listVoices({}, (err, response) => {
+async function getVoices(res, languageCodes) {
+    ttsClient.listVoices({}, (err, response) => {
         if (err) {
             let responseObject = {
                 status: "error",
@@ -103,14 +108,18 @@ async function getVoices(res) {
 
         let voices = response.voices;
         var returnVoices = [];
+        languageCodes = languageCodes || ["en-US"];
 
         voices.forEach(voice => {
-            if (voice.languageCodes.indexOf("en-US") > -1) {
-                returnVoices.push({
-                    "voiceName": voice.name,
-                    "voiceGender": voice.ssmlGender
-                });
-            }
+            languageCodes.forEach(code => {
+                if (voice.languageCodes.indexOf(code) > -1) {
+                    returnVoices.push({
+                        "voiceName": voice.name,
+                        "voiceGender": voice.ssmlGender,
+                        "languageCode": code
+                    });
+                }
+            });
         });
 
         let responseObject = {
@@ -126,7 +135,7 @@ async function getVoices(res) {
 
 // Handle "/getVoices/" POST requests.
 router.post("/getVoices/", (req, res) => {
-    getVoices(res);
+    getVoices(res, req.body.languageCodes);
 });
 
 
@@ -170,6 +179,36 @@ async function getSample(res, voiceName) {
 // Handle "/getSample/" POST requests.
 router.post("/getSample/", (req, res) => {
     getSample(res, req.body.voiceName);
+});
+
+
+async function translateText(res, text, targetLanguageCode) {
+    translateClient.translate(text, targetLanguageCode, (err, translation) => {
+        if (err) {
+            let responseObject = {
+                status: "error",
+                errorText: `Error while translating text: ${err}`
+            };
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify(responseObject));
+        }
+
+        let responseObject = {
+            status: "success",
+            translation: translation
+        };
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        return res.end(JSON.stringify(responseObject));
+    });
+}
+
+
+// Handle "/translateText/" POST requests.
+router.post("/translateText/", (req, res) => {
+    var targetLanguageCode = req.body.targetLanguageCode.split("-")[0].toLowerCase();
+    translateText(res, req.body.text, targetLanguageCode);
 });
 
 

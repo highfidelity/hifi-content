@@ -8,6 +8,7 @@
     "repository": "github:highfidelity/hifi-content",
     "dependencies": {
         "@google-cloud/text-to-speech": "^0.5.1",
+        "@google-cloud/translate": "^3.0.1",
         "body-parser": "^1.18.3",
         "express": "^4.16.4"
     }

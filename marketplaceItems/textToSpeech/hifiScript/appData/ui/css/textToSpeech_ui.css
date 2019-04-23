@@ -28,6 +28,19 @@ body {
     justify-content: space-between;
 }
 
+#inputText {
+    width: calc(100% - 16px);
+    margin: 8px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 18px;
+}
+
+#sampleButtonContainer,
+#submitButtonContainer,
+#translateButtonContainer {
+    margin: 12px 0;
+}
+
 input[type=button] {
     font-family: 'Raleway';
     font-weight: bold;

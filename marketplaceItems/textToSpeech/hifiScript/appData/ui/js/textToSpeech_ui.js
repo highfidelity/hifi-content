@@ -21,19 +21,6 @@ function emitAppSpecificEvent(method, data) {
 }
 
 
-function submitButtonClicked(voiceName) {
-    document.getElementById("loadingContainer").style.display = "block";
-
-    var inputText = document.getElementById("inputText");
-
-    
-    emitAppSpecificEvent("submitButtonClicked", {
-        textToSpeak: inputText.value,
-        voiceName: voiceName
-    });
-}
-
-
 function sampleButtonClicked(voiceName) {
     document.getElementById("loadingContainer").style.display = "block";
     
@@ -43,8 +30,105 @@ function sampleButtonClicked(voiceName) {
 }
 
 
+function generateSpeech(voiceName) {
+    document.getElementById("loadingContainer").style.display = "block";
+
+    var inputText = document.getElementById("inputText");
+    
+    emitAppSpecificEvent("generateSpeech", {
+        textToSpeak: inputText.value,
+        voiceName: voiceName
+    });
+}
+
+
+function autoTranslateButtonClicked(voiceName, targetLanguageCode) {
+    document.getElementById("loadingContainer").style.display = "block";
+
+    var inputText = document.getElementById("inputText");
+    
+    emitAppSpecificEvent("autoTranslateButtonClicked", {
+        textToSpeak: inputText.value,
+        voiceName: voiceName,
+        targetLanguageCode: targetLanguageCode
+    });
+}
+
+function fillSampleButtonContainer(voices) {
+    var sampleButtonContainer = document.getElementById("sampleButtonContainer");
+    for (var i = 0; i < voices.length; i++) {
+        if (voices[i].languageCode !== "en-US") {
+            continue;
+        }
+
+        var input = document.createElement("input");
+        input.id = `sampleButton${i}`;
+        input.setAttribute("type", "button");
+        input.setAttribute("data-voiceName", voices[i].voiceName);
+        input.value = `Voice ${i}`;
+        input.addEventListener("click", function(event) {
+            sampleButtonClicked(event.target.getAttribute("data-voiceName"));
+        });
+        
+        sampleButtonContainer.appendChild(input);
+    }
+}
+
+
+function fillSubmitButtonContainer(voices) {
+    var submitButtonContainer = document.getElementById("submitButtonContainer");
+    for (var i = 0; i < voices.length; i++) {
+        if (voices[i].languageCode !== "en-US") {
+            continue;
+        }
+
+        var input = document.createElement("input");
+        input.id = `submitButton${i}`;
+        input.setAttribute("type", "button");
+        input.setAttribute("data-voiceName", voices[i].voiceName);
+        input.value = `Voice ${i}`;
+        input.addEventListener("click", function(event) {
+            generateSpeech(event.target.getAttribute("data-voiceName"));
+        });
+        
+        submitButtonContainer.appendChild(input);
+    }
+}
+
+
+function fillTranslateButtonContainer(voices) {
+    var translateButtonContainer = document.getElementById("translateButtonContainer");
+    var alreadyAddedLanguageCodes = [];
+    for (var i = 0; i < voices.length; i++) {
+        if (alreadyAddedLanguageCodes.indexOf(voices[i].languageCode) > -1) {
+            continue;
+        } else {
+            alreadyAddedLanguageCodes.push(voices[i].languageCode);
+        }
+
+        var input = document.createElement("input");
+        input.id = `sampleButton${i}`;
+        input.setAttribute("type", "button");
+        input.setAttribute("data-voiceName", voices[i].voiceName);
+        input.setAttribute("data-targetLanguageCode", voices[i].languageCode);
+        input.value = `${voices[i].languageCode}`;
+        input.addEventListener("click", function(event) {
+            autoTranslateButtonClicked(event.target.getAttribute("data-voiceName"), event.target.getAttribute("data-targetLanguageCode"));
+        });
+        
+        translateButtonContainer.appendChild(input);
+    }
+}
+
+
 // Disables the loading spinner
 function initializeUI(data) {
+    var voices = data.voices;
+
+    fillSampleButtonContainer(voices);
+    fillSubmitButtonContainer(voices);
+    fillTranslateButtonContainer(voices);
+
     document.getElementById("loadingContainer").style.display = "none";
 }
 
