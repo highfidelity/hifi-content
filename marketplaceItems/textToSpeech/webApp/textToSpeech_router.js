@@ -49,9 +49,10 @@ async function sendTTSRequest(res, text, voiceName, languageCode, gender) {
             return res.end(JSON.stringify(responseObject));
         }
 
-        var filename = `mp3s/generated/${Date.now()}.mp3`;
+        var filename = `${Date.now()}.mp3`;
+        var filepath = `mp3s/generated/${filename}`;
 
-        fs.writeFile(filename, response.audioContent, 'binary', (err) => {
+        fs.writeFile(filepath, response.audioContent, 'binary', (err) => {
             if (err) {
                 let responseObject = {
                     status: "error",
@@ -68,10 +69,11 @@ async function sendTTSRequest(res, text, voiceName, languageCode, gender) {
                         throw err;
                     }
                 });
-            }, WAIT_BEFORE_DELETE_MS, filename);
+            }, WAIT_BEFORE_DELETE_MS, filepath);
 
             let responseObject = {
-                status: "success"
+                status: "success",
+                speechURL: `${MP3_HOST_ROOT}/generated/${filename}`
             };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -156,7 +158,7 @@ async function getSample(res, voiceName) {
 
         let responseObject = {
             status: "success",
-            sampleURL: `${MP3_HOST_ROOT}/samples/${voiceName}/${items[randomIdx]}`
+            speechURL: `${MP3_HOST_ROOT}/samples/${voiceName}/${items[randomIdx]}`
         };
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');

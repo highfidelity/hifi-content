@@ -1,0 +1,49 @@
+<html>
+
+<head>
+    <title>Text to Speech</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="css/textToSpeech_ui.css?0">
+    <script type="text/javascript" src="js/textToSpeech_ui.js?0"></script>
+</head>
+
+<body>
+    <div id="loadingContainer">
+    </div>
+
+    <div id="modalContainer" style="display:none;"></div>
+
+    <div id="titleBarContainer">
+        <div id="titleText" style="font-weight:bold;">
+            Text to Speech v2.0
+        </div>
+    </div>
+
+    <div id="contentContainer">
+        <textarea id="inputText" rows="5" cols="50" name="TTS Text"></textarea>
+    </div>
+
+    <div id="submitButtonContainer">
+        Speak:
+        <input id="submit" type="button" value="voice A" onclick='submitButtonClicked("en-US-Wavenet-A");'>
+        <input id="submit" type="button" value="voice B" onclick='submitButtonClicked("en-US-Wavenet-B");'>
+        <input id="submit" type="button" value="voice C" onclick='submitButtonClicked("en-US-Wavenet-C");'>
+        <input id="submit" type="button" value="voice D" onclick='submitButtonClicked("en-US-Wavenet-D");'>
+        <input id="submit" type="button" value="voice E" onclick='submitButtonClicked("en-US-Wavenet-E");'>
+        <input id="submit" type="button" value="voice F" onclick='submitButtonClicked("en-US-Wavenet-F");'>
+    </div>
+
+    <div id="sampleButtonContainer">
+        Samples:
+        <input id="submit" type="button" value="voice A" onclick='sampleButtonClicked("en-US-Wavenet-A");'>
+        <input id="submit" type="button" value="voice B" onclick='sampleButtonClicked("en-US-Wavenet-B");'>
+        <input id="submit" type="button" value="voice C" onclick='sampleButtonClicked("en-US-Wavenet-C");'>
+        <input id="submit" type="button" value="voice D" onclick='sampleButtonClicked("en-US-Wavenet-D");'>
+        <input id="submit" type="button" value="voice E" onclick='sampleButtonClicked("en-US-Wavenet-E");'>
+        <input id="submit" type="button" value="voice F" onclick='sampleButtonClicked("en-US-Wavenet-F");'>
+    </div>
+</body>
+
+</html>

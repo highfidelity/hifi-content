@@ -21,11 +21,11 @@ Here's what your `webApp/config.json` config file should look like:
 
 ## `hifiScript/secrets.json` Config
 
-Here's what your `hifiScript/secrets.json` config file should look like:
+Here's what your `hifiScript/config.json` config file should look like:
 
 ```
 {
-    "REQUEST_URL": "<A hostname and path to your deployed Web App>" 
+    "REQUEST_URL": "<A hostname and path to your deployed Web App. No trailing slash.>" 
 }
 ```
 

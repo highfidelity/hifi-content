@@ -48,7 +48,7 @@ const deleteGeneratedSpeech = () => {
         }
 
         for (const file of files) {
-            if (path.extname(file).toLowerCase() === "mp3") {
+            if (path.extname(file).toLowerCase() === ".mp3") {
                 fs.unlink(path.join(GENERATED_SPEECH_DIR, file), err => {
                     if (err) {
                         throw err;
