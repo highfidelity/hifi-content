@@ -26,6 +26,40 @@ body {
     background-color: #121212;
     color: #ffffff;
     justify-content: space-between;
+    align-items: center;
+}
+
+#infoButton {
+    width: 30px;
+}
+
+h2 {
+    margin: 0 0 8px 0;
+    font-size: 22px;
+}
+
+#popupContainer {
+    z-index: 999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8); 
+}
+
+#popupContentContainer {
+    position: absolute;
+    top: calc(50% - 240px - 12px);
+    left: calc(50% - 190px - 12px);
+    width: 380px;
+    height: 480px;
+    margin: 0;
+    background: #121212;
+    color: #FFF;
+    font-size: 18px;
+    padding: 12px;
+    overflow-y: auto;
 }
 
 #inputText {

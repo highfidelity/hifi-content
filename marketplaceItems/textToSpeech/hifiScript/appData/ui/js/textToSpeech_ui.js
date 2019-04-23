@@ -21,6 +21,38 @@ function emitAppSpecificEvent(method, data) {
 }
 
 
+function openInfoPopup(event) {
+    event.stopPropagation();
+
+    var popupContainer = document.getElementById("popupContainer");
+    var popupContentContainer = document.getElementById("popupContentContainer");
+
+    popupContentContainer.innerHTML = `
+        <p>High Fidelity's Text to Speech app relies on Google's Text to Speech and Translate APIs.</p>
+        <h2>Google Translate API: Data Usage</h2>
+        <p>When you use the Text to Speech app to automatically translate text, you are sending a copy of 
+        your input text to Google's servers. According to Google's Data Usage FAQ on the Translate API support page, 
+        that text is stored on Google servers for a maximum of 14 days.</p>
+        <h2>Google Text to Speech API: Data Usage</h2>
+        <p>When you use the Text to Speech app to speak input text (whether or not it is automatically translated), you are sending a copy of 
+        your input text to Google's servers. Google does not publish a Data Usage FAQ associated with the Text to Speech API.</p>
+        <h2>High Fidelity APIs</h2>
+        <p>When you use the Text to Speech app to speak or translate input text, you are sending a copy of your input text to High Fidelity's
+        servers. High Fidelity does not store a copy of this text for any reason. High Fidelity does briefly store a copy of the speech audio file associated
+        with your input text so that High Fidelity Interface may play back that speech audio file. That file is deleted 60 seconds after it is generated.</p>
+    `;
+    popupContainer.style.display = "block";
+}
+
+
+function closePopup(event) {
+    event.stopPropagation();
+    
+    var popupContainer = document.getElementById("popupContainer");
+    popupContainer.style.display = "none";
+}
+
+
 function sampleButtonClicked(voiceName) {
     document.getElementById("loadingContainer").style.display = "block";
     

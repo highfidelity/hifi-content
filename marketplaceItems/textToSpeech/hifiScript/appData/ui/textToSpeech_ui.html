@@ -13,11 +13,17 @@
     <div id="loadingContainer">
     </div>
 
-    <div id="modalContainer" style="display:none;"></div>
+    <div id="popupContainer" style="display:none;" onclick="closePopup(event);">
+        <div id="popupContentContainer" onclick="event.stopPropagation();">
+        </div>
+    </div>
 
     <div id="titleBarContainer">
         <div id="titleText" style="font-weight:bold;">
             Text to Speech v2.0
+        </div>
+        <div id="infoButton" onclick="openInfoPopup(event);">
+            ?
         </div>
     </div>
 
