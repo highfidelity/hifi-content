@@ -31,11 +31,12 @@ function openInfoPopup(event) {
         <p>High Fidelity's Text to Speech app relies on Google's Text to Speech and Translate APIs.</p>
         <h2>Google Translate API: Data Usage</h2>
         <p>When you use the Text to Speech app to automatically translate text, you are sending a copy of 
-        your input text to Google's servers. According to Google's Data Usage FAQ on the Translate API support page, 
+        your input text to Google's servers. According to <a href="https://cloud.google.com/translate/data-usage" target="_blank">Google's Data Usage FAQ on the Translate API support page</a>, 
         that text is stored on Google servers for a maximum of 14 days.</p>
         <h2>Google Text to Speech API: Data Usage</h2>
         <p>When you use the Text to Speech app to speak input text (whether or not it is automatically translated), you are sending a copy of 
-        your input text to Google's servers. Google does not publish a Data Usage FAQ associated with the Text to Speech API.</p>
+        your input text to Google's servers. Google does not publish a Data Usage FAQ associated with the Text to Speech API. 
+        <a href="https://cloud.google.com/security/privacy/" target="_blank">Here's a link to Google's Cloud Data privacy policy.</a></p>
         <h2>High Fidelity APIs</h2>
         <p>When you use the Text to Speech app to speak or translate input text, you are sending a copy of your input text to High Fidelity's
         servers. High Fidelity does not store a copy of this text for any reason. High Fidelity does briefly store a copy of the speech audio file associated

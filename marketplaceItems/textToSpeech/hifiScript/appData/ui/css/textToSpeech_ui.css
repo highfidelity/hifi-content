@@ -38,6 +38,14 @@ h2 {
     font-size: 22px;
 }
 
+a {
+    color: #009ee0;
+}
+
+a:visited {
+    color: #009ee0;
+}
+
 #popupContainer {
     z-index: 999;
     position: fixed;
