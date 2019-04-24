@@ -100,8 +100,6 @@ function fillSampleButtonContainer(voices) {
         input.setAttribute("type", "button");
         input.setAttribute("data-voiceName", voices[i].voiceName);
         var voiceName = voices[i].voiceName;
-        console.log(voices[i].voiceName);
-        console.log(voices[i].languageCode);
         voiceName = voiceName.replace(voices[i].languageCode + "-", "");
         input.value = `${voices[i].languageCode} ${voiceName}`;
         input.addEventListener("click", function(event) {
@@ -170,11 +168,20 @@ function initializeUI(data) {
     fillTranslateButtonContainer(voices);
 
     document.getElementById("loadingContainer").style.display = "none";
+    
+    // This won't do anything unless the DOM has focus, which means it likely won't do anything
+    // most of the time in HiFi.
+    var inputText = document.getElementById("inputText");
+    inputText.focus();
 }
 
 
 function ttsResponseReceived() {
     document.getElementById("loadingContainer").style.display = "none";
+
+    var inputText = document.getElementById("inputText");
+    inputText.focus();
+    inputText.setSelectionRange(0, inputText.value.length);
 }
 
 
