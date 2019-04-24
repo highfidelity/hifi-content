@@ -86,10 +86,11 @@ function autoTranslateButtonClicked(voiceName, targetLanguageCode) {
     });
 }
 
+
 function fillSampleButtonContainer(voices) {
     var sampleButtonContainer = document.getElementById("sampleButtonContainer");
     for (var i = 0; i < voices.length; i++) {
-        if (voices[i].languageCode !== "en-US") {
+        if (voices[i].languageCode.indexOf("en") === -1) {
             continue;
         }
 
@@ -97,7 +98,11 @@ function fillSampleButtonContainer(voices) {
         input.id = `sampleButton${i}`;
         input.setAttribute("type", "button");
         input.setAttribute("data-voiceName", voices[i].voiceName);
-        input.value = `Voice ${i}`;
+        var voiceName = voices[i].voiceName;
+        console.log(voices[i].voiceName);
+        console.log(voices[i].languageCode);
+        voiceName = voiceName.replace(voices[i].languageCode + "-", "");
+        input.value = `${voices[i].languageCode} ${voiceName}`;
         input.addEventListener("click", function(event) {
             sampleButtonClicked(event.target.getAttribute("data-voiceName"));
         });
@@ -110,7 +115,7 @@ function fillSampleButtonContainer(voices) {
 function fillSubmitButtonContainer(voices) {
     var submitButtonContainer = document.getElementById("submitButtonContainer");
     for (var i = 0; i < voices.length; i++) {
-        if (voices[i].languageCode !== "en-US") {
+        if (voices[i].languageCode.indexOf("en") === -1) {
             continue;
         }
 
@@ -118,7 +123,9 @@ function fillSubmitButtonContainer(voices) {
         input.id = `submitButton${i}`;
         input.setAttribute("type", "button");
         input.setAttribute("data-voiceName", voices[i].voiceName);
-        input.value = `Voice ${i}`;
+        var voiceName = voices[i].voiceName;
+        voiceName = voiceName.replace(voices[i].languageCode + "-", "");
+        input.value = `${voices[i].languageCode} ${voiceName}`;
         input.addEventListener("click", function(event) {
             generateSpeech(event.target.getAttribute("data-voiceName"));
         });
