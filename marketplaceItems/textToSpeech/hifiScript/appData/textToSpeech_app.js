@@ -29,7 +29,7 @@
             method: "POST",
             json: true,
             body: {
-                languageCodes: ["en-US", "en-GB", "en-AU", "es-ES", "de-DE", "zh-CN", "fr-FR", "ru-RU", "it-IT", "ja-JP", "ko-KR", "pl-PL", "tr-TR"]
+                languageCodes: ["en-US", "en-GB", "en-AU", "es-ES", "de-DE", "zh-CN", "fr-FR", "ru-RU", "it-IT", "ja-JP", "ko-KR", "pl-PL", "tr-TR", "nl-NL"]
             }
         }, function (error, response) {
             if (error || response.status !== "success") {
@@ -186,7 +186,7 @@
 
     var request = Script.require("https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js").request;
     var config = Script.require("./config.json");
-    var selectedVoice = Settings.getValue("tts/voice", "en-US-Wavenet-A");
+    var selectedVoice = Settings.getValue("tts/voice", "en-US-Wavenet-C");
     var targetLanguageCode = Settings.getValue("tts/targetLanguageCode", "en-US");
     function translateTextThenSpeak(data) {
         var textToSpeak = data.textToSpeak;

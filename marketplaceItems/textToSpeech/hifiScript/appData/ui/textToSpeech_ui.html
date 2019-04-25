@@ -4,7 +4,6 @@
     <title>Text to Speech</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
     <link rel="stylesheet" href="css/textToSpeech_ui.css?0">
     <script type="text/javascript" src="js/textToSpeech_ui.js?0"></script>
 </head>
@@ -55,6 +54,8 @@
                     </div>
                     <div id="voiceButtonsContainer">
                     </div>
+
+                    <input type="button" class="closeButton" value="CLOSE" onclick="closePopup(event);">
                 </div>
             </div>
         </div>
@@ -71,7 +72,7 @@
     </div>
 
     <div id="contentContainer">
-        <textarea id="inputText" rows="5" cols="50" name="TTS Text" maxlength="4000"></textarea>
+        <textarea id="inputText" rows="5" cols="50" name="TTS Text" maxlength="4000" onkeypress="onKeyPress();"></textarea>
 
         <div id="bottomContainer">
             <div id="changeVoiceContainer">

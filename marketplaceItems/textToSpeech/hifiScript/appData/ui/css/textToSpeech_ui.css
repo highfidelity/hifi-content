@@ -1,7 +1,22 @@
+@font-face {
+    font-family: "Graphik Regular";
+    src: url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Regular.eot");
+    src: url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Regular.woff") format("woff"),
+    url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Regular.otf") format("opentype"),
+    url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Regular.svg") format("svg")
+}
+@font-face {
+    font-family: "Graphik Semibold";
+    src: url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Semibold.eot");
+    src: url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Semibold.woff") format("woff"),
+    url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Semibold.otf") format("opentype"),
+    url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Semibold.svg") format("svg")
+}
+
 body {
     margin: 0;
     width: 100%;
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Graphik Regular', sans-serif;
     color: #cccbcb;
     background: linear-gradient(#2b2b2b, #303030);
 }
@@ -62,17 +77,17 @@ a:visited {
 }
 
 #popupTitleBar {
-    height: 40px;
+    height: 50px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 #popupXButton {
-    height: 40px;
-    width: 40px;
+    height: 50px;
+    width: 50px;
     text-align: center;
-    line-height: 40px;
+    line-height: 50px;
 }
 
 #popupContainer {
@@ -89,7 +104,7 @@ a:visited {
 }
 
 #popupContentContainer {
-    height: calc(86vh - 40px);
+    height: calc(86vh - 50px);
     overflow-y: auto;
 }
 
@@ -99,11 +114,13 @@ a:visited {
 
 #inputText {
     width: 100%;
-    height: 450px;
+    height: 480px;
     margin: 16px 0;
-    font-family: 'Raleway', sans-serif;
-    font-size: 18px;
+    font-family: 'Graphik Regular', sans-serif;
+    font-size: 26px;
     resize: none;
+    padding: 16px;
+    line-height: 32px;
 }
 
 #bottomContainer {
@@ -115,8 +132,21 @@ a:visited {
     align-items: flex-start;
 }
 
-#voiceGender {
-    text-transform: capitalize;
+.changeVoiceButtonContainer {
+    height: 130px;
+    display: flex;
+    align-items: flex-end;
+    /* play by Saifurrijal from the Noun Project */
+    background-image: url('../images/play-inactive.svg');
+    background-repeat: no-repeat;
+    background-position: 50% 4px;
+    background-size: 75px;
+}
+
+#changeVoiceContainer > p {
+    font-family: 'Graphik Semibold';
+    margin: 0 0 8px 0;
+    font-size: 18px;
 }
 
 #changeVoiceButton {
@@ -126,10 +156,42 @@ a:visited {
 #sayItButton {
     width: 150px;
     height: 70px;
+    font-size: 26px;
+}
+
+#voiceGender,
+.genderButton {
+    text-transform: capitalize;
+}
+
+#languageButtonsContainer,
+#genderButtonsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+#languageButtonsContainer {
+    margin: 0 0 16px 0;
+}
+
+#genderButtonsContainer {
+    margin: 0 0 16px 0;
+}
+
+#voiceButtonsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+#languageButtonsContainer > input[type=button],
+#genderButtonsContainer > input[type=button] {
+    width: 40%;
 }
 
 input[type=button] {
-    font-family: 'Raleway';
+    font-family: 'Graphik Semibold';
     font-weight: bold;
     font-size: 20px;
     vertical-align: top;
@@ -143,8 +205,20 @@ input[type=button] {
     background: linear-gradient(#2e3e8f 20%, #172983 100%);
     cursor: pointer;
 }
-.selected {
+.selectedButton {
     background: linear-gradient(#009ee0 20%, #009ee0 100%) !important;
+}
+.selectedVoice {
+    background-image: url('../images/play-active.svg') !important;
+}
+.closeButton {
+    background: transparent !important;
+    border-radius: 5px !important;
+    border: 2px white solid !important;
+    width: calc(100% - 36px);
+    position: absolute;
+    bottom: 6px;
+    left: 12px;
 }
 input[type=button]:enabled:hover {
     background: linear-gradient(#009ee0 20%, #006e9c 100%);
