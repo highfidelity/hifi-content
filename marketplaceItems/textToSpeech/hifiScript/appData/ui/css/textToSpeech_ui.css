@@ -115,6 +115,10 @@ a:visited {
     align-items: flex-start;
 }
 
+#voiceGender {
+    text-transform: capitalize;
+}
+
 #changeVoiceButton {
     margin: 0;
 }
@@ -122,13 +126,6 @@ a:visited {
 #sayItButton {
     width: 150px;
     height: 70px;
-}
-
-
-
-#sampleButtonContainer,
-#translateButtonContainer {
-    margin: 12px 0;
 }
 
 input[type=button] {
@@ -145,6 +142,9 @@ input[type=button] {
     background-color: #000;
     background: linear-gradient(#2e3e8f 20%, #172983 100%);
     cursor: pointer;
+}
+.selected {
+    background: linear-gradient(#009ee0 20%, #009ee0 100%) !important;
 }
 input[type=button]:enabled:hover {
     background: linear-gradient(#009ee0 20%, #006e9c 100%);

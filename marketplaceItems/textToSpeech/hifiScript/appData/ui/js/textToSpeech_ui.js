@@ -57,7 +57,14 @@ function closePopup(event) {
 
 
 function changeVoiceButtonClicked(voiceName, targetLanguageCode, gender) {
-    document.getElementById("loadingContainer").style.display = "block";
+    var changeVoiceButtons = document.getElementsByClassName("changeVoiceButton");
+    for (var i = 0; i < changeVoiceButtons.length; i++) {
+        changeVoiceButtons[i].classList.remove("selected");
+
+        if (changeVoiceButtons[i].getAttribute("data-voiceName") === voiceName) {
+            changeVoiceButtons[i].classList.add("selected");
+        }
+    }
 
     fillCurrentVoiceData(voiceName, targetLanguageCode, gender);
 
@@ -79,33 +86,146 @@ function translateTextThenSpeak() {
 }
 
 
-function fillChangeVoiceContentContainer(voices) {
-    var changeVoiceContentContainer = document.getElementById("changeVoiceContentContainer");
-    var currentVoiceGender;
-    var currentLanguageCode;
-    var currentVoiceName;
-    for (var i = 0; i < voices.length; i++) {
+function getReadableVoiceName(voiceName) {    
+    var suffix = voiceName.split("-");
+    suffix = suffix[(suffix.length - 1)];
+
+    var readableVoiceName = `Voice ${suffix}`;
+
+    return readableVoiceName;
+}
+
+
+function genderButtonClicked(gender) {
+    var genderButtons = document.getElementsByClassName("genderButton");
+    for (var i = 0; i < genderButtons.length; i++) {
+        genderButtons[i].classList.remove("selected");
+
+        if (genderButtons[i].getAttribute("data-gender") === gender) {
+            genderButtons[i].classList.add("selected");
+        }
+    }
+
+    var voiceButtonsContainer = document.getElementById("voiceButtonsContainer");
+    voiceButtonsContainer.innerHTML = "";
+
+    var selectedLanguage;
+    var languageButtons = document.getElementsByClassName("languageButton");
+    for (var i = 0; i < languageButtons.length; i++) {
+        if (languageButtons[i].classList.contains("selected")) {
+            selectedLanguage = languageButtons[i].getAttribute("data-language");
+            break;
+        }
+    }
+
+    if (!selectedLanguage) {
+        console.error("Could not find selected language in the DOM!");
+        return;
+    }
+
+    var possibleVoices = voicesObject[selectedLanguage][gender];
+    for (var i = 0; i < possibleVoices.length; i++) {
         var input = document.createElement("input");
         input.id = `changeVoiceButton${i}`;
+        input.classList.add("changeVoiceButton");
         input.setAttribute("type", "button");
 
-        currentVoiceName = voices[i].voiceName;
+        currentVoiceName = possibleVoices[i];
         input.setAttribute("data-voiceName", currentVoiceName);
+        
+        input.setAttribute("data-targetLanguageCode", selectedLanguage);
 
-        currentLanguageCode = voices[i].languageCode;
-        input.setAttribute("data-targetLanguageCode", currentLanguageCode);
+        input.setAttribute("data-voiceGender", gender);
 
-        currentVoiceGender = voices[i].voiceGender;
-        input.setAttribute("data-voiceGender", currentVoiceGender);
-
-        currentVoiceName = currentVoiceName.replace(voices[i].languageCode + "-", "");
-        input.value = `${voices[i].languageCode} ${currentVoiceName}`;
+        input.value = getReadableVoiceName(currentVoiceName);
 
         input.addEventListener("click", function (event) {
             changeVoiceButtonClicked(event.target.getAttribute("data-voiceName"), event.target.getAttribute("data-targetLanguageCode"), event.target.getAttribute("data-voiceGender"));
         });
 
-        changeVoiceContentContainer.appendChild(input);
+        voiceButtonsContainer.appendChild(input);
+    }
+}
+
+
+function languageButtonClicked(selectedLanguage) {
+    var genderButtonsContainer = document.getElementById("genderButtonsContainer");
+    genderButtonsContainer.innerHTML = "";
+
+    var voiceButtonsContainer = document.getElementById("voiceButtonsContainer");
+    voiceButtonsContainer.innerHTML = "";
+
+    var languageButtons = document.getElementsByClassName("languageButton");
+    for (var i = 0; i < languageButtons.length; i++) {
+        languageButtons[i].classList.remove("selected");
+        
+        if (languageButtons[i].getAttribute("data-language") === selectedLanguage) {
+            languageButtons[i].classList.add("selected");
+        }
+    }
+
+    var possibleGenders = Object.keys(voicesObject[selectedLanguage]);
+    for (var i = 0; i < possibleGenders.length; i++) {
+        var input = document.createElement("input");
+        input.id = `genderButton${i}`;
+        input.setAttribute("type", "button");
+        input.classList.add("genderButton");
+        var gender = possibleGenders[i];
+        input.setAttribute("data-gender", gender);
+        input.value = gender;
+        input.addEventListener("click", function (event) {
+            genderButtonClicked(event.target.getAttribute("data-gender"));
+        });
+        genderButtonsContainer.appendChild(input);
+    }
+}
+
+
+var voicesObject = {};
+function fillChangeVoiceContentContainer(voices) {
+    var languageButtonsContainer = document.getElementById("languageButtonsContainer");
+    var genderButtonsContainer = document.getElementById("genderButtonsContainer");
+    var voiceButtonsContainer = document.getElementById("voiceButtonsContainer");
+
+    languageButtonsContainer.innerHTML = "";
+    genderButtonsContainer.innerHTML = "";
+    voiceButtonsContainer.innerHTML = "";
+    
+    voicesObject = {};
+
+    var currentVoiceResultObject;
+    var currentVoiceGender;
+    var currentLanguageCode;
+    var currentVoiceName;
+    for (var i = 0; i < voices.length; i++) {
+        currentVoiceResultObject = voices[i];
+
+        currentLanguageCode = currentVoiceResultObject.languageCode;
+        if (!voicesObject[currentLanguageCode]) {
+            voicesObject[currentLanguageCode] = {};
+        }
+
+        currentVoiceGender = currentVoiceResultObject.voiceGender;
+        if (!voicesObject[currentLanguageCode][currentVoiceGender]) {
+            voicesObject[currentLanguageCode][currentVoiceGender] = [];
+        }
+
+        currentVoiceName = currentVoiceResultObject.voiceName;
+        voicesObject[currentLanguageCode][currentVoiceGender].push(currentVoiceName);
+    }
+
+    var possibleLanguages = Object.keys(voicesObject);
+    for (var i = 0; i < possibleLanguages.length; i++) {
+        var input = document.createElement("input");
+        input.id = `languageButton${i}`;
+        input.setAttribute("type", "button");
+        input.classList.add("languageButton");
+        input.value = possibleLanguages[i];
+        input.setAttribute("data-language", possibleLanguages[i]);
+        input.addEventListener("click", function (event) {
+            languageButtonClicked(event.target.getAttribute("data-language"));
+        });
+        languageButtonsContainer.appendChild(input);
     }
 }
 
@@ -164,7 +284,7 @@ function fillCurrentVoiceData(selectedVoiceName, selectedVoiceLanguageCode, sele
     voiceName.innerHTML = selectedVoiceName;
 
     var voiceGender = document.getElementById("voiceGender");
-    voiceGender.innerHTML = selectedVoiceGender;
+    voiceGender.innerHTML = selectedVoiceGender.toLowerCase();
 }
 
 
@@ -173,13 +293,31 @@ function initializeUI(data) {
     var voices = data.voices;
 
     for (var i = 0; i < voices.length; i++) {
-        if (voices[i].voiceName === data.selectedVoice) {
-            fillCurrentVoiceData(voices[i].voiceName, voices[i].languageCode, voices[i].voiceGender);
-            break;
+        if (voices[i].voiceName.indexOf("Wavenet") === -1) {
+            voices.splice(i, 1);
+            i--;
         }
     }
 
     fillChangeVoiceContentContainer(voices);
+
+    for (var i = 0; i < voices.length; i++) {
+        if (voices[i].voiceName === data.selectedVoice) {
+            fillCurrentVoiceData(voices[i].voiceName, voices[i].languageCode, voices[i].voiceGender);
+            languageButtonClicked(voices[i].languageCode);
+            genderButtonClicked(voices[i].voiceGender);
+
+            var changeVoiceButtons = document.getElementsByClassName("changeVoiceButton");
+            for (var j = 0; j < changeVoiceButtons.length; j++) {
+                changeVoiceButtons[j].classList.remove("selected");
+        
+                if (changeVoiceButtons[j].getAttribute("data-voiceName") === data.selectedVoice) {
+                    changeVoiceButtons[j].classList.add("selected");
+                }
+            }
+            break;
+        }
+    }
 
     var firstRun = data.firstRun;
 
