@@ -1,4 +1,4 @@
-// hiFiCalendar_app.js
+// meetingRoomSetup_app.js
 //
 //  Created by Mark Brosche on 4-2-2019
 //  Copyright 2019 High Fidelity, Inc.

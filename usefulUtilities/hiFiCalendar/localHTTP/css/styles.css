@@ -27,33 +27,6 @@ h1 {
   color: #FFFFFF;
 }
 
-#headingTopRight {  
-  position: absolute;
-  width: 43px;
-  height: 39px;
-  left: 472px;
-  top: 0px;
-  background: url(../../resources/images/TopRightCorner_Shard.png);
-}
-
-#headingBottomLeft {
-  position: absolute;
-  width: 93px;
-  height: 175px;
-  left: 0px;
-  top: 145px;
-  background: url(../../resources/images/BottomLeftCorner_Shard.png);
-}
-
-#headingBg {
-  position: absolute;
-  width: 515px;
-  height: 320px;
-  left: 0px;
-  top: 0px;
-  background: #000000;
-}
-
 h2 {
   position: absolute;
   width: 470px;
@@ -69,52 +42,83 @@ h2 {
   color: #FFFFFF;
 }
 
-input[type=button].login:disabled {
-  border: none;
+#h1TopRight {  
   position: absolute;
-  width: 371px;
-  height: 80px;
-  left: 72px;
-  top: 480px;  
-  background: url(../../resources/images/btn_google_signin_dark_disabled_web@2x.png);
-  background-repeat: no-repeat;
-  background-size: 371px 80px;
+  width: 43px;
+  height: 39px;
+  left: 472px;
+  top: 0px;
+  background: url(../../resources/images/TopRightCorner_Shard.png);
 }
 
-input[type=button].login:active {
-  width: 371px;
-  height: 80px;
-  border: none;
+#h1BottomLeft {
   position: absolute;
-  left: 72px;
+  width: 93px;
+  height: 175px;
+  left: 0px;
+  top: 145px;
+  background: url(../../resources/images/BottomLeftCorner_Shard.png);
+}
+
+#h1background {
+  position: absolute;
+  width: 515px;
+  height: 320px;
+  left: 0px;
+  top: 0px;
+  background: #000000;
+}
+
+input[type=button]:enabled {
+  border: none;
+  position: relative;
+  width: 60%;
+  margin-left: 20%;
+  margin-right: 20%;
+  height: 80px;
   top: 480px;  
   background: url(../../resources/images/btn_google_signin_dark_normal_web@2x.png);
   background-repeat: no-repeat;
-  background-size: 371px 80px;
+  background-size: contain;
 }
 
-input[type=button].login:enabled:hover {
+input[type=button]:enabled:hover {
   border: none;
-  position: absolute;
-  width: 371px;
+  position: relative;
+  width: 60%;
+  margin-left: 20%;
+  margin-right: 20%;
   height: 80px;
-  left: 72px;
   top: 480px;  
   background: url(../../resources/images/btn_google_signin_dark_focus_web@2x.png);
   background-repeat: no-repeat;
-  background-size: 371px 80px;
+  background-size: contain;
 }
 
-input[type=button].login[pressed=pressed] {
+input[type=button]:enabled:active {
   border: none;
-  position: absolute;
-  width: 371px;
+  position: relative;
+  width: 60%;
+  margin-left: 20%;
+  margin-right: 20%;
   height: 80px;
-  left: 72px;
   top: 480px;  
   background: url(../../resources/images/btn_google_signin_dark_pressed_web@2x.png);
   background-repeat: no-repeat;
-  background-size: 371px 80px;
+  background-size: contain;
+}
+
+input[type=button]:disabled {
+  border: none;
+  position: relative;
+  width: 60%;
+  margin-left: 20%;
+  margin-right: 20%;
+  height: 80px;
+  top: 480px;  
+  background: url(../../resources/images/btn_google_signin_dark_disabled_web@2x.png);
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 
 #privacy {
@@ -148,13 +152,17 @@ input[type=button].login[pressed=pressed] {
 
 a:link {
   color: #828282;
+  text-decoration: none;
 } 
 a:visited {
-  color: #000000;
+  color: #828282;
+  text-decoration: none;
 } 
 a:hover {
   color: #86edff;
+  text-decoration: underline;
 } 
 a:active {
-  color: #828282;
+  color: #000000;
+  text-decoration: underline;
 } 

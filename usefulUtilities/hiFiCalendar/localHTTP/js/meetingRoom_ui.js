@@ -1,11 +1,13 @@
-
-// Send an event to the app script to 
-// toggle it on/off when the button is clicked
-var signInOutButton = document.getElementById("login");
-signInOutButton.addEventListener("click", getCalendars);
+// meetingRoom_ui.js
+//
+//  Created by Mark Brosche on 4-24-2019
+//  Copyright 2019 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 var YOUR_CLIENT_ID = '813544734011-9jocg5lgsttogf5gnr45pb4kgpie3brg.apps.googleusercontent.com';
-var YOUR_REDIRECT_URI = 'http://localhost/calendar_ui.html';
+var YOUR_REDIRECT_URI = 'http://localhost/meetingRoom_ui.html';
 var SCOPES = [
     'https://www.googleapis.com/auth/calendar.events.readonly',
     'https://www.googleapis.com/auth/drive.file'
@@ -200,18 +202,21 @@ function onScriptEventReceived(data) {
     }
 }
 
-
+// Send an event to the app script to 
+// toggle it on/off when the button is clicked
+var signInOutButton = document.getElementById("login");
+signInOutButton.addEventListener("click", getCalendars);
 // Set the text of the button to either On or Off 
 // when opening the tablet app, based on the app script status.
 // The delay shouldn't be necessary in RC78. this is currently necessary because of this bug:
 // https://highfidelity.manuscript.com/f/cases/20253/screenChanged-signal-is-emitted-before-the-screen-has-actually-changed
 // var EVENT_BRIDGE_SETUP_DELAY = 100; 
-function onLoad(){
-    // setTimeout(() => {
-    EventBridge.scriptEventReceived.connect(onScriptEventReceived);    
-    EventBridge.emitWebEvent(JSON.stringify({
-        type: "EVENT_BRIDGE_OPEN_MESSAGE"
-    }));   
-    // }, EVENT_BRIDGE_SETUP_DELAY);
-}
-onLoad();
+// function onLoad(){
+//     // setTimeout(() => {
+//     EventBridge.scriptEventReceived.connect(onScriptEventReceived);    
+//     EventBridge.emitWebEvent(JSON.stringify({
+//         type: "EVENT_BRIDGE_OPEN_MESSAGE"
+//     }));   
+//     // }, EVENT_BRIDGE_SETUP_DELAY);
+// }
+// onLoad();
