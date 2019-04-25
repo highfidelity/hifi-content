@@ -10,25 +10,28 @@
     // This function decides how to handle web events from the tablet UI.
     // used by 'ui' in startup()
     var CHANNEL = "HiFi.Google.Calendar";
+    var DOMAIN = "hq";
     var MS_TO_SEC = 1000;
     var MIN_PER_HR = 60;
-    var ATLANTIS_LABEL_ID = "{24b7b274-25a2-4dde-a241-f90da21de4c8}";
-    var JAKKU_LABEL_ID = "{c3f87945-e372-4f85-bde2-9d99d3633125}";
-    var CAPITOL_LABEL_ID = "{010134dd-8608-4eef-b0a8-8316dcb982d8}";
-    var FANTASIA_LABEL_ID = "{3aa8bb2e-b008-4d87-9fff-f0a4fda0c9d2}";
-    var OZ_LABEL_ID = "{5e98c3b0-4924-4e01-b400-7298d4ddecff}";
-    var NARNIA_LABEL_ID = "{cb0571ff-21f9-4d60-8d43-ebc5e80704a3}";
-    var calendarScheduleIDs = [
-        ATLANTIS_LABEL_ID,
-        JAKKU_LABEL_ID,
-        CAPITOL_LABEL_ID,
-        FANTASIA_LABEL_ID,
-        OZ_LABEL_ID,
-        NARNIA_LABEL_ID
+    var TOKEN_SERVER_ID = "";
+    var ROOM_1_SCHEDULE_ID = "{24b7b274-25a2-4dde-a241-f90da21de4c8}";
+    var ROOM_2_SCHEDULE_ID = "{c3f87945-e372-4f85-bde2-9d99d3633125}";
+    var ROOM_3_SCHEDULE_ID = "{010134dd-8608-4eef-b0a8-8316dcb982d8}";
+    var ROOM_4_SCHEDULE_ID = "{3aa8bb2e-b008-4d87-9fff-f0a4fda0c9d2}";
+    var ROOM_5_SCHEDULE_ID = "{5e98c3b0-4924-4e01-b400-7298d4ddecff}";
+    var ROOM_6_SCHEDULE_ID = "{cb0571ff-21f9-4d60-8d43-ebc5e80704a3}";
+    var roomScheduleIDs = [
+        ROOM_1_SCHEDULE_ID,
+        ROOM_2_SCHEDULE_ID,
+        ROOM_3_SCHEDULE_ID,
+        ROOM_4_SCHEDULE_ID,
+        ROOM_5_SCHEDULE_ID,
+        ROOM_6_SCHEDULE_ID
     ];
 
     var request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
     var authCode;
+    var roomConfig = false;
     var token;
     var tokenLifetime;
     var expireTime;
@@ -39,6 +42,17 @@
     function onWebMessage(data) {
         switch (data.type) {
             case "EVENT_BRIDGE_OPEN_MESSAGE":
+                if (!roomConfig) {
+                    ui.sendToHTML({
+                        type:'SEND_ROOMS',
+                        value: roomScheduleIDs
+                    });
+                } else {
+                    ui.sendToHTML({
+                        type:'SEND_ROOMS',
+                        value: roomConfig
+                    });
+                }
                 break;          
             case "AUTHCODE":
                 authCode = data.authCode;
@@ -50,7 +64,7 @@
                 options.body = 'code=' + authCode + 
                     '&client_id=' + clientID + 
                     '&client_secret=' + secret + 
-                    '&redirect_uri=http://localhost' + 
+                    '&redirect_uri=http://localhost.hiFiCalendar.html' + 
                     '&grant_type=authorization_code';
                 options.headers = {
                     'Content-Type': "application/x-www-form-urlencoded",
@@ -62,32 +76,48 @@
                         Window.alert("Error: " + error + " " + JSON.stringify(response) + " Could not refresh token.");
                         return;
                     } else {
-                        calendarScheduleIDs.forEach(function(entityID) {
-                            sendToken(entityID, response);
-                        }); 
+                        initializeTokenServer(TOKEN_SERVER_ID, response);
                     }
                 });
+                break;
+            case "SETUP_COMPLETE":
+                ui.sendToHTML({
+                    type: 'setup',
+                    value: "IDK"
+                });
+                break;
+            case "GET_ROOMS":
+                if (!roomConfig) {
+                    ui.sendToHTML({
+                        type:'SEND_ROOMS',
+                        value: roomScheduleIDs
+                    });
+                } else {
+                    ui.sendToHTML({
+                        type:'SEND_ROOMS',
+                        value: roomConfig
+                    });
+                }
                 break;
         }
     }
 
 
     // This function sends token information to the server script to keep the calendars up to date.
-    function sendToken(entityID, response) {
+    function initializeTokenServer(entityID, response) {
         if (response) {
             token = response.access_token;
             refreshToken = response.refresh_token;
             tokenLifetime = response.expires_in * MS_TO_SEC;
             expireTime = new Date().valueOf() + tokenLifetime;
+            roomConfig = response.roomConfig;
         }
         var timezoneOffset = (new Date().getTimezoneOffset()/MIN_PER_HR);
-        Entities.callEntityServerMethod(entityID, "refreshToken", [token, expireTime, timezoneOffset, timezone]);
+        Entities.callEntityServerMethod(entityID, "refreshToken", [token, expireTime, timezoneOffset, timezone, refreshToken, roomConfig]);
     }
 
 
     // This function is the listener for messages on the message mixer related to this app.
-    var newMessageArrivalTime;
-    var lastMessageArrivalTime = 0;
     var messageHandler = function(channel, message, senderUUID, localOnly) {
         if (channel !== CHANNEL) {
             return;
@@ -98,45 +128,30 @@
                 console.log(e, "Could not parse message");
                 return;
             }
-            if (message.type === "REFRESH TOKEN") {
-                newMessageArrivalTime = Date.now();
-                if (newMessageArrivalTime - lastMessageArrivalTime > (120 * MS_TO_SEC)) {
-                    lastMessageArrivalTime = newMessageArrivalTime;
-                    tokenCheck(message);
+            if (message.type === "TOKEN EXPIRED") {
+                Window.alert("The authorization token for your Google Calendar could not be refreshed.\n" + 
+                "Please open your calendar app and reauthorize to continue displaying calendar schedules.");
+                roomConfig = message.roomConfig;
+            } else if (message.type === "STATUS UPDATE") {
+                if (message.tokenStatus) {
+                    Window.announcement("Acces tokens are valid. No action required");
+                    roomConfig = message.roomConfig;
+                } else if (!message.tokenStatus && !message.roomConfig) {
+                    Window.announcement("You have not set up any room schedules for this domain.");
                 }
             }
         }
     };
 
 
-    // This function checks to see if the token needs refreshing based on the token sent in the message
-    // If token sent is the same as the stored token, make a request to Google to refresh it.
-    function tokenCheck(message) {
-        var returnUUID = message.uuid;
-        if (message.token === token) {
-            var options = {};
-            options.method = "POST";
-            options.body = 'client_id=' + clientID + 
-                '&client_secret=' + secret + 
-                '&refresh_token='+ refreshToken + 
-                '&grant_type=refresh_token';
-            options.headers = {
-                'Content-Type': "application/x-www-form-urlencoded",
-                'Content-Length': options.body.length
-            };
-            options.uri = "https://www.googleapis.com/oauth2/v4/token";
-            request(options, function(error, response) {
-                if (error) {
-                    Window.alert("Error: " + error + " " + JSON.stringify(response) + " Could not refresh token.");
-                    return;
-                } else {
-                    calendarScheduleIDs.forEach(function(entityID) {
-                        sendToken(entityID, response);
-                    }); 
-                }
-            });
-        } else {
-            sendToken(returnUUID);
+    // This function keeps the app running even if you change domains.
+    var DOMAIN_DELAY = 100;
+    function onDomainChange(){
+        // Do not change app status on domain change
+        if (location.hostname === DOMAIN) {
+            Script.setTimeout(function(){
+                Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain", AccountServices.username);
+            }, DOMAIN_DELAY);
         }
     }
 
@@ -152,13 +167,20 @@
             onMessage: onWebMessage
         });       
         Script.scriptEnding.connect(scriptEnding);
+        Window.domainChanged.connect(onDomainChange);
         Messages.subscribe(CHANNEL);
         Messages.messageReceived.connect(messageHandler);
+        if (Settings.getValue("calendar/roomsConfigured", false)) {
+            Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain", AccountServices.username);
+        }
     }
     startup();
 
 
     function scriptEnding() {
+        if (location.hostname === DOMAIN) {
+            Entities.callEntityServerMethod(TOKEN_SERVER_ID, "leftDomain", AccountServices.username);
+        }
         Messages.unsubscribe(CHANNEL);
         Messages.messageReceived.disconnect(messageHandler);
     }
