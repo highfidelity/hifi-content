@@ -29,7 +29,7 @@
             method: "POST",
             json: true,
             body: {
-                languageCodes: ["en-US", "en-GB", "en-AU", "es-ES", "de-DE", "zh-CN", "fr-FR", "ru-RU", "it-IT", "ja-JP", "ko-KR", "pl-PL", "tr-TR", "nl-NL"]
+                languageCodes: ["en-US", "en-GB", "en-AU", "es-ES", "de-DE", "zh-CN", "fr-FR", "ru-RU", "it-IT", "ja-JP", "ko-KR", "pl-PL", "tr-TR", "nl-NL", "pt-BR"]
             }
         }, function (error, response) {
             if (error || response.status !== "success") {

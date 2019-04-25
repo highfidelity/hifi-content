@@ -328,7 +328,7 @@ function initializeUI(data) {
     var voices = data.voices;
 
     for (var i = 0; i < voices.length; i++) {
-        if (voices[i].voiceName.indexOf("Wavenet") === -1) {
+        if (voices[i].voiceName.indexOf("Wavenet") === -1 && voices[i].languageCode !== "es-ES") {
             voices.splice(i, 1);
             i--;
         }

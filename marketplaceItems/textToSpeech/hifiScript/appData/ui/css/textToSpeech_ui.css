@@ -164,6 +164,10 @@ a:visited {
     text-transform: capitalize;
 }
 
+#languageButtonsContainer > input[type=button] {
+    min-height: 30px;
+}
+
 #languageButtonsContainer,
 #genderButtonsContainer {
     display: flex;
