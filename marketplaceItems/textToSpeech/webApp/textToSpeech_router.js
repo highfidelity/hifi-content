@@ -212,4 +212,116 @@ router.post("/translateText/", (req, res) => {
 });
 
 
+const sampleTextArray = [
+    "Here's an example of the way this voice sounds.",
+    "There are many voices to choose from. How about this one?",
+    "She sells seashells by the seashore."
+];
+async function generateAllSamples(res, languageCodes) {
+    ttsClient.listVoices({}, (err, response) => {
+        if (err) {
+            let responseObject = {
+                status: "error",
+                errorText: `Error while listing voices: ${err}`
+            };
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify(responseObject));
+        }
+
+        let voices = response.voices;
+        var supportedVoices = [];
+        languageCodes = languageCodes || ["en-AU"];
+
+        voices.forEach(voice => {
+            languageCodes.forEach(code => {
+                if (voice.languageCodes.indexOf(code) > -1) {
+                    supportedVoices.push({
+                        "voiceName": voice.name,
+                        "voiceGender": voice.ssmlGender,
+                        "languageCode": code
+                    });
+                }
+            });
+        });
+
+        for (var i = 0; i < supportedVoices.length; i++) {
+            if (fs.existsSync(`mp3s/samples/${supportedVoices[i].voiceName}`)) {
+                supportedVoices.splice(i, 1);
+                i--;
+            }
+        }
+
+        if (supportedVoices.length === 0) {
+            let responseObject = {
+                status: "success",
+                details: "You've already generated samples for all requested voices. No new samples were generated."
+            };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify(responseObject));
+        }
+
+        supportedVoices.forEach(voice => {
+            sampleTextArray.forEach(sampleText => {
+                translateClient.translate(sampleText, voice.languageCode.split("-")[0], (err, translation) => {
+                    if (err) {
+                        console.error(`Error while translating text: ${err}`);
+                        return;
+                    }
+                    
+                    var request = {
+                        input: { text: translation },
+                        // Select the language and SSML Voice Gender (optional)
+                        voice: {
+                            name: voice.voiceName,
+                            languageCode: voice.languageCode
+                        },
+                        // Select the type of audio encoding
+                        audioConfig: { audioEncoding: 'MP3' },
+                    };
+
+                    console.log(`Requesting to synthesize speech.\nText: ${translation}\nVoice: ${voice.voiceName}\nLanguage Code: ${voice.languageCode}\n\n`);
+                    
+                    ttsClient.synthesizeSpeech(request, (err, response) => {
+                        if (err) {
+                            console.error(`Error while calling synthesizeSpeech: ${err}`);
+                            return;
+                        }
+
+                        var filename = `${Date.now()}.mp3`;
+
+                        if (!fs.existsSync(`mp3s/samples/${voice.voiceName}`)){
+                            fs.mkdirSync(`mp3s/samples/${voice.voiceName}`);
+                        }
+
+                        var filepath = `mp3s/samples/${voice.voiceName}/${filename}`;
+
+                        fs.writeFile(filepath, response.audioContent, 'binary', (err) => {
+                            if (err) {
+                                console.error(`Error while calling writeFile: ${err}`);
+                                return;
+                            }
+                        });
+                    });
+                });
+            })
+        });
+
+
+        let responseObject = {
+            status: "success"
+        };
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        return res.end(JSON.stringify(responseObject));
+    });
+}
+
+
+router.post("/generateAllSamples/", (req, res) => {
+    generateAllSamples(res, req.body.languageCodes);
+});
+
+
 module.exports = router;

@@ -24,138 +24,147 @@ function emitAppSpecificEvent(method, data) {
 function openInfoPopup(event) {
     event.stopPropagation();
 
-    var popupContainer = document.getElementById("popupContainer");
-    var popupContentContainer = document.getElementById("popupContentContainer");
+    var popupBackground = document.getElementById("popupBackground");
+    var infoContentContainer = document.getElementById("infoContentContainer");
+    document.getElementById("popupTitleText").innerHTML = "Data Privacy";
 
-    popupContentContainer.innerHTML = `
-        <p>High Fidelity's Text to Speech app relies on Google's Text to Speech and Translate APIs.</p>
-        <h2>Google Translate API: Data Usage</h2>
-        <p>When you use the Text to Speech app to automatically translate text, you are sending a copy of 
-        your input text to Google's servers. According to <a href="https://cloud.google.com/translate/data-usage" target="_blank">Google's Data Usage FAQ on the Translate API support page</a>, 
-        that text is stored on Google servers for a maximum of 14 days.</p>
-        <h2>Google Text to Speech API: Data Usage</h2>
-        <p>When you use the Text to Speech app to speak input text (whether or not it is automatically translated), you are sending a copy of 
-        your input text to Google's servers. Google does not publish a Data Usage FAQ associated with the Text to Speech API. 
-        <a href="https://cloud.google.com/security/privacy/" target="_blank">Here's a link to Google's Cloud Data privacy policy.</a></p>
-        <h2>High Fidelity APIs</h2>
-        <p>When you use the Text to Speech app to speak or translate input text, you are sending a copy of your input text to High Fidelity's
-        servers. High Fidelity does not store a copy of this text for any reason. High Fidelity does briefly store a copy of the speech audio file associated
-        with your input text so that High Fidelity Interface may play back that speech audio file. That file is deleted 60 seconds after it is generated.</p>
-    `;
-    popupContainer.style.display = "block";
+    infoContentContainer.style.display = "block";
+    popupBackground.style.display = "block";
+}
+
+
+function openChangeVoicePopup(event) {
+    event.stopPropagation();
+
+    var popupBackground = document.getElementById("popupBackground");
+    var changeVoiceContentContainer = document.getElementById("changeVoiceContentContainer");
+    document.getElementById("popupTitleText").innerHTML = "Change Voice:";
+
+    changeVoiceContentContainer.style.display = "block";
+    popupBackground.style.display = "block";
 }
 
 
 function closePopup(event) {
     event.stopPropagation();
-    
-    var popupContainer = document.getElementById("popupContainer");
-    popupContainer.style.display = "none";
+
+    document.getElementById("infoContentContainer").style.display = "none";
+    document.getElementById("changeVoiceContentContainer").style.display = "none";
+
+    var popupBackground = document.getElementById("popupBackground");
+    popupBackground.style.display = "none";
 }
 
 
-function sampleButtonClicked(voiceName) {
-    document.getElementById("loadingContainer").style.display = "block";
-    
-    emitAppSpecificEvent("sampleButtonClicked", {
-        voiceName: voiceName
-    });
-}
-
-
-function generateSpeech(voiceName) {
+function changeVoiceButtonClicked(voiceName, targetLanguageCode, gender) {
     document.getElementById("loadingContainer").style.display = "block";
 
-    var inputText = document.getElementById("inputText");
-    
-    emitAppSpecificEvent("generateSpeech", {
-        textToSpeak: inputText.value,
-        voiceName: voiceName
-    });
-}
+    fillCurrentVoiceData(voiceName, targetLanguageCode, gender);
 
-
-function autoTranslateButtonClicked(voiceName, targetLanguageCode) {
-    document.getElementById("loadingContainer").style.display = "block";
-
-    var inputText = document.getElementById("inputText");
-    
-    emitAppSpecificEvent("autoTranslateButtonClicked", {
-        textToSpeak: inputText.value,
+    emitAppSpecificEvent("changeVoiceButtonClicked", {
         voiceName: voiceName,
         targetLanguageCode: targetLanguageCode
     });
 }
 
 
-function fillSampleButtonContainer(voices) {
-    var sampleButtonContainer = document.getElementById("sampleButtonContainer");
-    for (var i = 0; i < voices.length; i++) {
-        if (voices[i].languageCode.indexOf("en") === -1) {
-            continue;
-        }
+function translateTextThenSpeak() {
+    document.getElementById("loadingContainer").style.display = "block";
 
+    var inputText = document.getElementById("inputText");
+
+    emitAppSpecificEvent("translateTextThenSpeak", {
+        textToSpeak: inputText.value
+    });
+}
+
+
+function fillChangeVoiceContentContainer(voices) {
+    var changeVoiceContentContainer = document.getElementById("changeVoiceContentContainer");
+    var currentVoiceGender;
+    var currentLanguageCode;
+    var currentVoiceName;
+    for (var i = 0; i < voices.length; i++) {
         var input = document.createElement("input");
-        input.id = `sampleButton${i}`;
+        input.id = `changeVoiceButton${i}`;
         input.setAttribute("type", "button");
-        input.setAttribute("data-voiceName", voices[i].voiceName);
-        var voiceName = voices[i].voiceName;
-        voiceName = voiceName.replace(voices[i].languageCode + "-", "");
-        input.value = `${voices[i].languageCode} ${voiceName}`;
-        input.addEventListener("click", function(event) {
-            sampleButtonClicked(event.target.getAttribute("data-voiceName"));
+
+        currentVoiceName = voices[i].voiceName;
+        input.setAttribute("data-voiceName", currentVoiceName);
+
+        currentLanguageCode = voices[i].languageCode;
+        input.setAttribute("data-targetLanguageCode", currentLanguageCode);
+
+        currentVoiceGender = voices[i].voiceGender;
+        input.setAttribute("data-voiceGender", currentVoiceGender);
+
+        currentVoiceName = currentVoiceName.replace(voices[i].languageCode + "-", "");
+        input.value = `${voices[i].languageCode} ${currentVoiceName}`;
+
+        input.addEventListener("click", function (event) {
+            changeVoiceButtonClicked(event.target.getAttribute("data-voiceName"), event.target.getAttribute("data-targetLanguageCode"), event.target.getAttribute("data-voiceGender"));
         });
-        
-        sampleButtonContainer.appendChild(input);
+
+        changeVoiceContentContainer.appendChild(input);
     }
 }
 
 
-function fillSubmitButtonContainer(voices) {
-    var submitButtonContainer = document.getElementById("submitButtonContainer");
-    for (var i = 0; i < voices.length; i++) {
-        if (voices[i].languageCode.indexOf("en") === -1) {
-            continue;
-        }
+function setupFirstRun() {
+    var inputText = document.getElementById("inputText");
 
-        var input = document.createElement("input");
-        input.id = `submitButton${i}`;
-        input.setAttribute("type", "button");
-        input.setAttribute("data-voiceName", voices[i].voiceName);
-        var voiceName = voices[i].voiceName;
-        voiceName = voiceName.replace(voices[i].languageCode + "-", "");
-        input.value = `${voices[i].languageCode} ${voiceName}`;
-        input.addEventListener("click", function(event) {
-            generateSpeech(event.target.getAttribute("data-voiceName"));
-        });
-        
-        submitButtonContainer.appendChild(input);
+    inputText.value = `Hi there! Welcome to Text to Speech. Just type what you want me to say and then click "Say It".`;
+
+    emitAppSpecificEvent("translateTextThenSpeak", {
+        textToSpeak: inputText.value,
+        forceLocalOnly: true
+    });
+}
+
+
+function getLanguageTextFromLanguageCode(targetLanguageCode) {
+    switch (targetLanguageCode) {
+        case "en-US":
+            return "English (US)";
+        case "en-GB":
+            return "English (GB)";
+        case "en-AU":
+            return "English (AU)";
+        case "es-ES":
+            return "Spanish (ES)";
+        case "de-DE":
+            return "German (DE)";
+        case "zh-CN":
+            return "Chinese (CN)";
+        case "fr-FR":
+            return "French (FR)";
+        case "ru-RU":
+            return "Russian (RU)";
+        case "it-IT":
+            return "Italian (IT)";
+        case "ja-JP":
+            return "Japanese (JP)";
+        case "ko-KR":
+            return "Korean (KR)";
+        case "pl-PL":
+            return "Polish (PL)";
+        case "tr-TR":
+            return "Turkish (TR)";
+        default:
+            return "Unknown Language";
     }
 }
 
 
-function fillTranslateButtonContainer(voices) {
-    var translateButtonContainer = document.getElementById("translateButtonContainer");
-    var alreadyAddedLanguageCodes = [];
-    for (var i = 0; i < voices.length; i++) {
-        if (alreadyAddedLanguageCodes.indexOf(voices[i].languageCode) > -1) {
-            continue;
-        } else {
-            alreadyAddedLanguageCodes.push(voices[i].languageCode);
-        }
+function fillCurrentVoiceData(selectedVoiceName, selectedVoiceLanguageCode, selectedVoiceGender) {
+    var voiceLanguageText = document.getElementById("voiceLanguageText");
+    voiceLanguageText.innerHTML = getLanguageTextFromLanguageCode(selectedVoiceLanguageCode);
 
-        var input = document.createElement("input");
-        input.id = `sampleButton${i}`;
-        input.setAttribute("type", "button");
-        input.setAttribute("data-voiceName", voices[i].voiceName);
-        input.setAttribute("data-targetLanguageCode", voices[i].languageCode);
-        input.value = `${voices[i].languageCode}`;
-        input.addEventListener("click", function(event) {
-            autoTranslateButtonClicked(event.target.getAttribute("data-voiceName"), event.target.getAttribute("data-targetLanguageCode"));
-        });
-        
-        translateButtonContainer.appendChild(input);
-    }
+    var voiceName = document.getElementById("voiceName");
+    voiceName.innerHTML = selectedVoiceName;
+
+    var voiceGender = document.getElementById("voiceGender");
+    voiceGender.innerHTML = selectedVoiceGender;
 }
 
 
@@ -163,16 +172,26 @@ function fillTranslateButtonContainer(voices) {
 function initializeUI(data) {
     var voices = data.voices;
 
-    fillSampleButtonContainer(voices);
-    fillSubmitButtonContainer(voices);
-    fillTranslateButtonContainer(voices);
+    for (var i = 0; i < voices.length; i++) {
+        if (voices[i].voiceName === data.selectedVoice) {
+            fillCurrentVoiceData(voices[i].voiceName, voices[i].languageCode, voices[i].voiceGender);
+            break;
+        }
+    }
 
-    document.getElementById("loadingContainer").style.display = "none";
-    
-    // This won't do anything unless the DOM has focus, which means it likely won't do anything
-    // most of the time in HiFi.
-    var inputText = document.getElementById("inputText");
-    inputText.focus();
+    fillChangeVoiceContentContainer(voices);
+
+    var firstRun = data.firstRun;
+
+    if (firstRun) {
+        setupFirstRun();
+    } else {
+        document.getElementById("loadingContainer").style.display = "none";
+        // This won't do anything unless the DOM has focus, which means it likely won't do anything
+        // most of the time in HiFi.
+        var inputText = document.getElementById("inputText");
+        inputText.focus();
+    }
 }
 
 
@@ -182,6 +201,14 @@ function ttsResponseReceived() {
     var inputText = document.getElementById("inputText");
     inputText.focus();
     inputText.setSelectionRange(0, inputText.value.length);
+}
+
+
+function textTranslated(data) {
+    var translation = data.translation;
+
+    var inputText = document.getElementById("inputText");
+    inputText.value = translation;
 }
 
 
@@ -206,6 +233,11 @@ function onScriptEventReceived(scriptEvent) {
 
         case "ttsResponseReceived":
             ttsResponseReceived();
+            break;
+
+
+        case "textTranslated":
+            textTranslated(event.data);
             break;
 
 

@@ -37,8 +37,16 @@
                 return;
             }
 
+            var firstRun = Settings.getValue("tts/firstRun", true);
+
+            if (firstRun) {
+                Settings.setValue("tts/firstRun", false);
+            }
+
             emitAppSpecificEvent("initializeUI", {
-                "voices": response.voices
+                "voices": response.voices,
+                "selectedVoice": selectedVoice,
+                "firstRun": firstRun
             });
         });
     }
@@ -102,13 +110,25 @@
     }
 
 
-    function sampleButtonClicked(data) {
-        var voiceName = data.voiceName;
-        if (!voiceName) {
-            console.log("User tried to get a voice sample, but they didn't specify a voice name.");
+    function changeVoiceButtonClicked(data) {
+        var newVoiceName = data.voiceName;
+        var newLanguageCode = data.targetLanguageCode;
+        if (!newVoiceName) {
+            console.log("User tried to change the TTS voice, but they didn't specify a voice name.");
             emitAppSpecificEvent("ttsResponseReceived");
             return;
         }
+        if (!newLanguageCode) {
+            console.log("User tried to change the TTS voice, but they didn't specify a target language code.");
+            emitAppSpecificEvent("ttsResponseReceived");
+            return;
+        }
+
+        selectedVoice = newVoiceName;
+        targetLanguageCode = newLanguageCode;
+
+        Settings.setValue("tts/voice", newVoiceName);
+        Settings.setValue("tts/targetLanguageCode", newLanguageCode);
         
         var volume = data.volume;
 
@@ -117,7 +137,7 @@
             method: "POST",
             json: true,
             body: {
-                voiceName: voiceName
+                voiceName: newVoiceName
             }
         }, function (error, response) {
             if (error || response.status !== "success") {
@@ -132,9 +152,7 @@
     }
 
 
-    var request = Script.require("https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js").request;
-    var config = Script.require("./config.json");
-    function generateSpeech(data) {
+    function generateSpeech(data, forceLocalOnly) {
         var textToSpeak = data.textToSpeak;
         if (!textToSpeak || textToSpeak.length === 0) {
             console.log("User tried to speak some text, but they didn't specify any text.");
@@ -142,8 +160,6 @@
             return;
         }
 
-        var voiceName = data.voiceName;
-        var languageCode = data.languageCode;
         var volume = data.volume;
 
         request({
@@ -152,8 +168,8 @@
             json: true,
             body: {
                 text: textToSpeak,
-                voiceName: voiceName,
-                languageCode: languageCode || "en-US"
+                voiceName: selectedVoice,
+                languageCode: targetLanguageCode
             }
         }, function (error, response) {
             if (error || response.status !== "success") {
@@ -163,21 +179,22 @@
 
             emitAppSpecificEvent("ttsResponseReceived");
 
-            speakText(response.speechURL, volume, false);
+            speakText(response.speechURL, volume, forceLocalOnly || false);
         });
     }
     
 
-    function autoTranslateButtonClicked(data) {
+    var request = Script.require("https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js").request;
+    var config = Script.require("./config.json");
+    var selectedVoice = Settings.getValue("tts/voice", "en-US-Wavenet-A");
+    var targetLanguageCode = Settings.getValue("tts/targetLanguageCode", "en-US");
+    function translateTextThenSpeak(data) {
         var textToSpeak = data.textToSpeak;
         if (!textToSpeak || textToSpeak.length === 0) {
             console.log("User tried to auto-translate some text, but they didn't specify any text.");
             emitAppSpecificEvent("ttsResponseReceived");
             return;
         }
-
-        var voiceName = data.voiceName;
-        var targetLanguageCode = data.targetLanguageCode;
         var volume = data.volume;
 
         request({
@@ -190,16 +207,18 @@
             }
         }, function (error, response) {
             if (error || response.status !== "success") {
-                console.log("ERROR during call to /generateSpeech: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
+                console.log("ERROR during call to /translateText: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
                 return;
             }
 
+            emitAppSpecificEvent("textTranslated", {
+                translation: response.translation
+            });
+
             generateSpeech({
                 textToSpeak: response.translation,
-                languageCode: targetLanguageCode,
-                voiceName: voiceName,
                 volume: volume
-            });
+            }, data.forceLocalOnly);
         });
     }
 
@@ -216,18 +235,13 @@
                 break;
 
 
-            case "sampleButtonClicked":
-                sampleButtonClicked(event.data);
+            case "changeVoiceButtonClicked":
+                changeVoiceButtonClicked(event.data);
                 break;
 
 
-            case "generateSpeech":
-                generateSpeech(event.data);
-                break;
-
-
-            case "autoTranslateButtonClicked":
-                autoTranslateButtonClicked(event.data);
+            case "translateTextThenSpeak":
+                translateTextThenSpeak(event.data);
                 break;
 
 
