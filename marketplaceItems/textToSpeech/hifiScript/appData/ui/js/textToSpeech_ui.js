@@ -56,6 +56,14 @@ function closePopup(event) {
 }
 
 
+function previewVoiceButtonClicked(voiceName, targetLanguageCode) {
+    emitAppSpecificEvent("previewVoiceButtonClicked", {
+        voiceName: voiceName,
+        targetLanguageCode: targetLanguageCode
+    });
+}
+
+
 function changeVoiceButtonClicked(voiceName, targetLanguageCode, gender) {
     var changeVoiceButtons = document.getElementsByClassName("changeVoiceButton");
     for (var i = 0; i < changeVoiceButtons.length; i++) {
@@ -102,6 +110,11 @@ function translateTextThenSpeak() {
 }
 
 
+function stopSpeech() {
+    emitAppSpecificEvent("stopSpeech");
+}
+
+
 function getReadableVoiceName(voiceName, index) {
     var suffix = voiceName.split("-");
     suffix = suffix[(suffix.length - 1)];
@@ -144,7 +157,7 @@ function genderButtonClicked(gender) {
         var div = document.createElement("div");
         div.classList.add("changeVoiceButtonContainer");
         div.addEventListener("click", function (event) {
-            changeVoiceButtonClicked(event.target.childNodes[0].getAttribute("data-voiceName"), event.target.childNodes[0].getAttribute("data-targetLanguageCode"), event.target.childNodes[0].getAttribute("data-voiceGender"));
+            previewVoiceButtonClicked(event.target.childNodes[0].getAttribute("data-voiceName"), event.target.childNodes[0].getAttribute("data-targetLanguageCode"), event.target.childNodes[0].getAttribute("data-voiceGender"));
         });
 
         var input = document.createElement("input");
@@ -168,6 +181,8 @@ function genderButtonClicked(gender) {
         div.append(input);
         voiceButtonsContainer.appendChild(div);
     }
+
+    changeVoiceButtonClicked(possibleVoices[0], selectedLanguage, gender);
 }
 
 
@@ -201,6 +216,8 @@ function languageButtonClicked(selectedLanguage) {
         });
         genderButtonsContainer.appendChild(input);
     }
+
+    genderButtonClicked(possibleGenders[0]);
 }
 
 
@@ -305,6 +322,8 @@ function getLanguageTextFromLanguageCode(targetLanguageCode) {
             return "Turkish (TR)";
         case "nl-NL":
             return "Dutch (NL)";
+        case "pt-BR":
+            return "Portuguese (BR)";
         default:
             return "Unknown Language";
     }
@@ -328,7 +347,7 @@ function initializeUI(data) {
     var voices = data.voices;
 
     for (var i = 0; i < voices.length; i++) {
-        if (voices[i].voiceName.indexOf("Wavenet") === -1 && voices[i].languageCode !== "es-ES") {
+        if (voices[i].voiceName.indexOf("Wavenet") === -1 && voices[i].languageCode !== "es-ES" && voices[i].languageCode !== "zh-CN") {
             voices.splice(i, 1);
             i--;
         }

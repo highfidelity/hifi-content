@@ -132,6 +132,13 @@ a:visited {
     align-items: flex-start;
 }
 
+#bottomRightContainer {
+    display: flex;
+    flex-wrap: wrap;
+    width: 150px;
+    justify-content: flex-end;
+}
+
 .changeVoiceButtonContainer {
     height: 130px;
     display: flex;
@@ -191,7 +198,7 @@ a:visited {
 
 #languageButtonsContainer > input[type=button],
 #genderButtonsContainer > input[type=button] {
-    width: 40%;
+    width: 45%;
 }
 
 input[type=button] {

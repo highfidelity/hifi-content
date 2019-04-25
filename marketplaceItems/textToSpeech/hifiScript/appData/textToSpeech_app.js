@@ -110,6 +110,33 @@
     }
 
 
+    function previewVoiceButtonClicked(data) {
+        var sampleVoiceName = data.voiceName;
+        if (!sampleVoiceName) {
+            console.log("User tried to sample a TTS voice, but they didn't specify a voice name.");
+            return;
+        }
+
+        var volume = data.volume;
+
+        request({
+            uri: config.REQUEST_URL + "/getSample",
+            method: "POST",
+            json: true,
+            body: {
+                voiceName: sampleVoiceName
+            }
+        }, function (error, response) {
+            if (error || response.status !== "success") {
+                console.log("ERROR during call to /getSample: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
+                return;
+            }
+
+            speakText(response.speechURL, volume, true);
+        });
+    }
+
+
     function changeVoiceButtonClicked(data) {
         var newVoiceName = data.voiceName;
         var newLanguageCode = data.targetLanguageCode;
@@ -129,26 +156,6 @@
 
         Settings.setValue("tts/voice", newVoiceName);
         Settings.setValue("tts/targetLanguageCode", newLanguageCode);
-        
-        var volume = data.volume;
-
-        request({
-            uri: config.REQUEST_URL + "/getSample",
-            method: "POST",
-            json: true,
-            body: {
-                voiceName: newVoiceName
-            }
-        }, function (error, response) {
-            if (error || response.status !== "success") {
-                console.log("ERROR during call to /getSample: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
-                return;
-            }
-
-            emitAppSpecificEvent("ttsResponseReceived");
-
-            speakText(response.speechURL, volume, true);
-        })
     }
 
 
@@ -223,6 +230,13 @@
     }
 
 
+    function stopSpeech() {
+        if (injector && injector.isPlaying()) {
+            injector.stop();
+        }
+    }
+
+
     // Handle EventBridge messages from UI JavaScript.
     function onWebEventReceived(event) {
         if (event.app !== APP_NAME) {
@@ -235,6 +249,11 @@
                 break;
 
 
+            case "previewVoiceButtonClicked":
+                previewVoiceButtonClicked(event.data);
+                break;
+
+
             case "changeVoiceButtonClicked":
                 changeVoiceButtonClicked(event.data);
                 break;
@@ -242,6 +261,11 @@
 
             case "translateTextThenSpeak":
                 translateTextThenSpeak(event.data);
+                break;
+
+
+            case "stopSpeech":
+                stopSpeech();
                 break;
 
 

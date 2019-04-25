@@ -82,7 +82,10 @@
                 <input id="changeVoiceButton" type="button" value="Change Voice" onclick="openChangeVoicePopup(event);">
             </div>
 
-            <input id="sayItButton" type="button" value="Say It" onclick="translateTextThenSpeak();">
+            <div id="bottomRightContainer">
+                <input id="sayItButton" type="button" value="Say It" onclick="translateTextThenSpeak();">
+                <input id="stopSpeechButton" type="button" value="Stop" onclick="stopSpeech();">
+            </div>
         </div>
     </div>
 </body>
