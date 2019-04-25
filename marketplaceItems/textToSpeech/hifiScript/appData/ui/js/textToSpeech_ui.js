@@ -125,7 +125,7 @@ function getReadableVoiceName(voiceName, index) {
 }
 
 
-function genderButtonClicked(gender) {
+function genderButtonClicked(gender, isStartingUp) {
     var genderButtons = document.getElementsByClassName("genderButton");
     for (var i = 0; i < genderButtons.length; i++) {
         genderButtons[i].classList.remove("selectedButton");
@@ -182,11 +182,13 @@ function genderButtonClicked(gender) {
         voiceButtonsContainer.appendChild(div);
     }
 
-    changeVoiceButtonClicked(possibleVoices[0], selectedLanguage, gender);
+    if (!isStartingUp) {
+        changeVoiceButtonClicked(possibleVoices[0], selectedLanguage, gender);
+    }
 }
 
 
-function languageButtonClicked(selectedLanguage) {
+function languageButtonClicked(selectedLanguage, isStartingUp) {
     var genderButtonsContainer = document.getElementById("genderButtonsContainer");
     genderButtonsContainer.innerHTML = "";
 
@@ -217,7 +219,9 @@ function languageButtonClicked(selectedLanguage) {
         genderButtonsContainer.appendChild(input);
     }
 
-    genderButtonClicked(possibleGenders[0]);
+    if (!isStartingUp) {
+        genderButtonClicked(possibleGenders[0]);
+    }
 }
 
 
@@ -358,12 +362,13 @@ function initializeUI(data) {
     for (var i = 0; i < voices.length; i++) {
         if (voices[i].voiceName === data.selectedVoice) {
             fillCurrentVoiceData(voices[i].voiceName, voices[i].languageCode, voices[i].voiceGender);
-            languageButtonClicked(voices[i].languageCode);
-            genderButtonClicked(voices[i].voiceGender);
+            languageButtonClicked(voices[i].languageCode, true);
+            genderButtonClicked(voices[i].voiceGender, true);
 
             var changeVoiceButtons = document.getElementsByClassName("changeVoiceButton");
             for (var j = 0; j < changeVoiceButtons.length; j++) {
                 changeVoiceButtons[j].classList.remove("selectedButton");
+                changeVoiceButtons[j].parentElement.classList.remove("selectedVoice");
         
                 if (changeVoiceButtons[j].getAttribute("data-voiceName") === data.selectedVoice) {
                     changeVoiceButtons[j].classList.add("selectedButton");
