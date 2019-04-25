@@ -6,38 +6,48 @@
         <link rel="stylesheet" href="./styles.css">
     </head>
     <body>
+        <div id="loadingContainer">
+        </div>
         <div id="mainContainer">
-                <div id="formContainer" style="display:none;">
-                    <form action="javascript:void(0);">
-                        <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
-                        <!-- <input type="email" id="email" autofocus required> -->
-                        <!-- <input type="submit" value="SUBMIT"> -->
-                    </form>
+            <div id="stickyContainer">
+                <div id="searchContainer">
+                    <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
                 </div>
-            <!-- <div id="fixed"> -->
-                <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
-                <div id="selectedContainer">
+                <div id="optionsContainer" style="display: hidden">
+                    <div id="simpleContainer" class="gridRow" >
+                        <span style="margin: 5px 0 0 0px">
+                            <input style="vertical-align: middle;" type="checkbox" name="mask" id="advancedMode" onclick="handleAdvancedModeChange(this)">
+                            <label class="mainTextColor" style="vertical-align: middle;">Advanced Mode</label>
+                        </span>
+                        <span style="margin: 5px 0 0 0px">
+                            <input style="vertical-align: middle;" type="checkbox" name="mask" id="wearAsMask" onclick="handleWearAsMask(this)">
+                            <label class="mainTextColor" style="margin: 0 0 0 0;vertical-align: middle;">Mask</label>
+                        </span>
+                        <span style="margin: 5px 0 0 5px">
+                            <input style="vertical-align: middle;" id="emojiScaler" type="range" name="size-slide" min="0.2" max="1.0" step="0.01" value="1.0" onchange="emojiScalerChanged(this)">
+                            <label class="mainTextColor" style="vertical-align: middle;">Size</label>
+                        </span>
+                    </div>
+                    <div id="advancedContainer">
+                        <div id="emojiSequenceContainer">
+                        </div>
+                        <!-- <input style="margin: 0 0 0 0;vertical-align: middle;" type="checkbox" name="onShot" id="oneShotMode" onclick="handleOneShotMode(this)">
+                        <label style="margin: 0 0 0 0;vertical-align: middle;">1Shot</label>
+                        <span id="currentSwitchIntervalTime" style="margin: 0 0 0 15px;">MS Switch</span>
+                        <input id="currentSwitchIntervalInput" type="number" onblur="updateSwitchIntervalTimeInput(this)"> -->
+                    </div>
+                </div>     
+                <div id="selectedContainer" style="display: hidden">
                 </div>
-            <!-- </div> -->
-
-
-            <div id="emojiSequenceContainer">
-
+                <div id="emojiFavoritesContainer" style="display: hidden">
+                    <div>
+                        <span id="favoriteEmojiText">Favorite emojis</span>
+                    </div>
+                    <div id="emojiFavoriteList"> 
+                    </div>
+                </div>
             </div>
-            <div id="searchContainer">
-                <div style="margin: 15px 0 0 0px;">
-                    <input style="margin: 0 0 0 0;vertical-align: middle;" type="checkbox" name="onShot" id="oneShotMode" onclick="handleOneShotMode(this)">
-                    <label style="margin: 0 0 0 0;vertical-align: middle;">1Shot</label>
-                    <input style="margin: 0 0 0 15px;vertical-align: middle;" type="checkbox" name="mask" id="wearAsMask" onclick="handleWearAsMask(this)">
-                    <label style="margin: 0 0 0 0;vertical-align: middle;">Mask</label>
-                    <span style="margin: 0 0 0 15px;vertical-align: middle;">size</span>
-                    <input style="vertical-align: middle;" id="emojiScaler" type="range" name="size-slide" min="0.2" max="1.75" step="0.01" value="1.0" onchange="userSliderChanged(this)">
-                    <span id="currentSwitchIntervalTime" style="margin: 0 0 0 15px;">MS Switch</span>
-                    <input id="currentSwitchIntervalInput" type="number" onblur="updateSwitchIntervalTimeInput(this)">
-                </div>
-            </div>            
             <div id="emojiContainer">
-
             </div>
         </div>
         <script src="./avimoji_ui.js"></script>
