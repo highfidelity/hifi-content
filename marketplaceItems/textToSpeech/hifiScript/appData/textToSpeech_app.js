@@ -283,7 +283,8 @@
         ui = new AppUi({
             buttonName: APP_NAME,
             home: Script.resolvePath("./ui/textToSpeech_ui.html"),
-            onMessage: onWebEventReceived
+            onMessage: onWebEventReceived,
+            graphicsDirectory: Script.resolvePath("./appIcons/")
         });
     }
     startup();
