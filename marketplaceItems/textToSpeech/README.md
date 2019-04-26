@@ -37,7 +37,7 @@ Here's what your `hifiScript/config.json` config file should look like:
 
 # Release Notes
 
-## Web App v2.0 | HiFi Script v2.0 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+## Web App v2.0 | HiFi Script v2.0 | [commit 734e2b6](https://github.com/highfidelity/hifi-content/commits/734e2b6)
 
 This is the initial release of Text to Speech as developed by the High Fidelity Experiences Team.
 
