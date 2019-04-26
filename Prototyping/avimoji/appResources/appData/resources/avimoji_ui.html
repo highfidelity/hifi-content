@@ -1,0 +1,81 @@
+<!--
+
+    Avimoji
+    avimoji_ui.html
+    Created by Milad Nazeri on 2019-04-25
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf8">
+        <title>avimoji app</title>
+        <link rel="stylesheet" href="./css/styles.css">
+    </head>
+    <body>
+        <div id="loadingContainer">
+        </div>
+        <div id="mainContainer">
+            <div id="stickyContainer">
+                <div id="searchContainer">
+                    <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
+                </div>
+                <div id="optionsContainer">
+                    <div id="simpleContainer" class="gridRow">
+                        <span style="margin: 5px 0 0 0px">
+                            <label class="mainTextColor" for="advancedMode">Advanced Mode</label>
+                            <input id="advancedMode" type="checkbox" onclick="handleAdvancedModeChange(this)">
+                        </span>
+                        <span style="margin: 5px 0 0 0px">
+                            <label class="mainTextColor" for="wearAsMask">Mask</label>
+                            <input id="wearAsMask" type="checkbox" onclick="handleWearAsMask(this)">
+                        </span>
+                        <span style="margin: 5px 0 0 5px">
+                            <label class="mainTextColor" for="emojiScaler">Size</label>
+                            <input id="emojiScaler" type="range" onchange="handleEmojiScalerChanged(this)" min="0.2" max="1.0" step="0.01" value="1.0">
+                        </span>
+                    </div>
+                    <div id="advancedContainer" style="display: none">
+                        <div id="advancedOptionsContainer" class="gridRow" style="margin: 0px 0 20px 0px">
+                            <span>
+                                <label class="mainTextColor" for="local">Local</label>
+                                <input id="local" type="checkbox" onclick="handleLocalChange(this)">
+                            </span>
+                            <span>
+                                <label class="mainTextColor" for="allEmojis">All Emojis</label>
+                                <input id="allEmojis" type="checkbox" onclick="handleAllEmojis(this)">
+                            </span>
+                            <span>
+                                <label class="mainTextColor" for="sequenceMode">Sequence</label>
+                                <input id="sequenceMode" type="checkbox" onclick="handleSequenceModeChange(this)">
+                            </span>
+                        </div>
+                        <div id="emojiSequenceContainer">
+                        </div>
+                    </div>
+                </div>     
+                <div id="selectedContainer" style="display: hidden">
+                </div>
+                <div id="emojiFavoritesContainer" style="display: hidden">
+                    <div>
+                        <span id="favoriteEmojiText">Favorite emojis</span>
+                    </div>
+                    <div id="emojiFavoriteList"> 
+                    </div>
+                </div>
+            </div>
+            <div id="emojiContainer">
+            </div>
+        </div>
+        <script src="./js/avimoji_ui.js"></script>
+    </body>
+</html>
+
+<!-- <span id="currentSwitchIntervalTime" style="margin: 0 0 0 15px;">MS Switch</span> --> -->
+<!-- <input id="currentSwitchIntervalInput" type="number" onblur="updateSwitchIntervalTimeInput(this)"> -->
+<!-- vertical-align: middle; -->
