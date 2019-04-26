@@ -76,7 +76,7 @@ function changeVoiceButtonClicked(voiceName, targetLanguageCode, gender) {
         }
     }
 
-    fillCurrentVoiceData(voiceName, targetLanguageCode, gender);
+    fillCurrentVoiceData(getReadableVoiceName(voiceName), targetLanguageCode, gender);
 
     emitAppSpecificEvent("changeVoiceButtonClicked", {
         voiceName: voiceName,
@@ -115,11 +115,11 @@ function stopSpeech() {
 }
 
 
-function getReadableVoiceName(voiceName, index) {
+function getReadableVoiceName(voiceName) {
     var suffix = voiceName.split("-");
     suffix = suffix[(suffix.length - 1)];
 
-    var readableVoiceName = `Voice ${(index + 1)}`;
+    var readableVoiceName = `Voice ${suffix}`;
 
     return readableVoiceName;
 }
@@ -152,7 +152,7 @@ function genderButtonClicked(gender, isStartingUp) {
         return;
     }
 
-    var possibleVoices = voicesObject[selectedLanguage][gender];
+    var possibleVoices = voicesObject[selectedLanguage][gender].sort();
     for (var i = 0; i < possibleVoices.length; i++) {
         var div = document.createElement("div");
         div.classList.add("changeVoiceButtonContainer");
@@ -172,7 +172,7 @@ function genderButtonClicked(gender, isStartingUp) {
 
         input.setAttribute("data-voiceGender", gender);
 
-        input.value = getReadableVoiceName(currentVoiceName, i);
+        input.value = getReadableVoiceName(currentVoiceName);
 
         input.addEventListener("click", function (event) {
             changeVoiceButtonClicked(event.target.getAttribute("data-voiceName"), event.target.getAttribute("data-targetLanguageCode"), event.target.getAttribute("data-voiceGender"));
@@ -361,7 +361,7 @@ function initializeUI(data) {
 
     for (var i = 0; i < voices.length; i++) {
         if (voices[i].voiceName === data.selectedVoice) {
-            fillCurrentVoiceData(voices[i].voiceName, voices[i].languageCode, voices[i].voiceGender);
+            fillCurrentVoiceData(getReadableVoiceName(voices[i].voiceName), voices[i].languageCode, voices[i].voiceGender);
             languageButtonClicked(voices[i].languageCode, true);
             genderButtonClicked(voices[i].voiceGender, true);
 
