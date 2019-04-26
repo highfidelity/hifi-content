@@ -13,6 +13,7 @@
 //
 
 (function () { // BEGIN LOCAL_SCOPE
+    // A wrapper function to easily send Event Bridge messages associated with this and only this app.
     function emitAppSpecificEvent(method, data) {
         var event = {
             app: APP_NAME,
@@ -23,17 +24,24 @@
     }
 
 
+    // 1. Requests voices from the remote TTS API associated with a list of language codes we want to support.
+    // 2. Upon successful response, gets/sets the `firstRun` setting using the Settings API.
+    // 3. Sends a message to the UI JS to initialize the UI with API voice data, the user's selected voice (from Settings),
+    //     and the `firstRun` flag.
+    var SUPPORTED_LANGUAGE_CODES = ["en-US", "en-GB", "en-AU",
+        "es-ES", "de-DE", "zh-CN", "fr-FR", "ru-RU", "it-IT", "ja-JP", "ko-KR", "pl-PL", "tr-TR", "nl-NL", "pt-BR"];
     function getVoices() {
         request({
             uri: config.REQUEST_URL + "/getVoices",
             method: "POST",
             json: true,
             body: {
-                languageCodes: ["en-US", "en-GB", "en-AU", "es-ES", "de-DE", "zh-CN", "fr-FR", "ru-RU", "it-IT", "ja-JP", "ko-KR", "pl-PL", "tr-TR", "nl-NL", "pt-BR"]
+                languageCodes: SUPPORTED_LANGUAGE_CODES
             }
         }, function (error, response) {
             if (error || response.status !== "success") {
-                console.log("ERROR during call to /getVoices: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
+                console.log("ERROR during call to /getVoices: " +
+                    JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
                 return;
             }
 
@@ -58,6 +66,7 @@
     }
 
 
+    // If `updatePositionInterval` is truthy, clear the `updatePositionInterval` interval.
     function maybeClearUpdatePositionInterval() {
         if (updatePositionInterval) {
             Script.clearTimeout(updatePositionInterval);
@@ -66,12 +75,15 @@
     }
 
 
+    // This signal handler is called when the TTS speech sample is finished playing.
     function injectorFinished() {
         maybeClearUpdatePositionInterval();
         injector.finished.disconnect(injectorFinished);
     }
 
 
+    // Called on an interval. Updates the position of the TTS speech sample injector to be
+    // my avatar's location.
     function updateInjectorPosition() {
         injector.setOptions({
             position: MyAvatar.position
@@ -79,6 +91,12 @@
     }
 
 
+    // 1. Stops the existing TTS injector if one is playing.
+    // 2. Calls `maybeClearUpdatePositionInterval()`
+    // 3. Plays the specified sound at my avatar's position at the specified volume.
+    //     The `localOnly` property defaults to false but can be overridden.
+    // 4. Connects the "finished" signal to the newly-playing injector.
+    // 5. Sets up an interval to update the position of the injector.
     var injector;
     var updatePositionInterval = false;
     var UPDATE_POSITION_INTERVAL_MS = 50;
@@ -97,9 +115,20 @@
     }
 
 
+    // If a TTS audio injector is playing speech, stop it.
+    function stopSpeech() {
+        if (injector && injector.isPlaying()) {
+            injector.stop();
+        }
+    }
+
+
+    // Called after a speech sample file is generated, either when the user clicks the "preview voice"
+    // button, or when the user is generating arbitrary speech from text input.
+    var DEFAULT_VOLUME = 0.5;
     function speakText(speechURL, volume, localOnly) {
         var lastSpeechSound = SoundCache.getSound(speechURL);
-        volume = volume || 0.5;
+        volume = volume || DEFAULT_VOLUME;
         if (lastSpeechSound.downloaded) {
             playSound(lastSpeechSound, volume, localOnly);
         } else {
@@ -110,6 +139,7 @@
     }
 
 
+    // Calls the `getSample` remote API to get a sample of a specified voice, then speaks the returned sample.
     function previewVoiceButtonClicked(data) {
         var sampleVoiceName = data.voiceName;
         if (!sampleVoiceName) {
@@ -128,7 +158,8 @@
             }
         }, function (error, response) {
             if (error || response.status !== "success") {
-                console.log("ERROR during call to /getSample: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
+                console.log("ERROR during call to /getSample: " +
+                    JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
                 return;
             }
 
@@ -137,6 +168,8 @@
     }
 
 
+    // Sets the user's preferred TTS voice using the Settings API. That voice is then used for
+    // future speech samples.
     function changeVoiceButtonClicked(data) {
         var newVoiceName = data.voiceName;
         var newLanguageCode = data.targetLanguageCode;
@@ -159,6 +192,10 @@
     }
 
 
+    // Calls the remote `generateSpeech` API with specified data. The API will return a URL
+    // to the speech sample MP3, which will then be played.
+    // The caller can specify options to this function - `forceLocalOnly` will force the speech to be
+    // played locally only. `ssmlInput` means the remote API will parse the input text as SSML.
     function generateSpeech(data, options) {
         var forceLocalOnly = options.forceLocalOnly;
         var ssmlInput = options.ssmlInput;
@@ -184,7 +221,8 @@
             }
         }, function (error, response) {
             if (error || response.status !== "success") {
-                console.log("ERROR during call to /generateSpeech: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
+                console.log("ERROR during call to /generateSpeech: " +
+                    JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
                 return;
             }
 
@@ -195,6 +233,10 @@
     }
     
 
+    // Calls the remote `translateText` API, then calls `generateSpeech()` to generate a speech sample associated with that
+    // translated text.
+    // When the translated text comes back, this script will send an Event Bridge message to update the
+    // text in the user's input text field with the translated text.
     var request = Script.require("https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js").request;
     var config = Script.require("./config.json");
     var selectedVoice = Settings.getValue("tts/voice", "en-US-Wavenet-C");
@@ -218,7 +260,8 @@
             }
         }, function (error, response) {
             if (error || response.status !== "success") {
-                console.log("ERROR during call to /translateText: " + JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
+                console.log("ERROR during call to /translateText: " +
+                    JSON.stringify(error) + "\nFull response: " + JSON.stringify(response));
                 return;
             }
 
@@ -237,14 +280,7 @@
     }
 
 
-    function stopSpeech() {
-        if (injector && injector.isPlaying()) {
-            injector.stop();
-        }
-    }
-
-
-    // Handle EventBridge messages from UI JavaScript.
+    // Handle EventBridge messages from the UI JavaScript.
     function onWebEventReceived(event) {
         if (event.app !== APP_NAME) {
             return;
@@ -288,6 +324,7 @@
     }
 
 
+    // Called on startup. Sets up the app's UI.
     var AppUi = Script.require('./modules/appUi.js');
     var APP_NAME = "TTS";
     var ui;
@@ -301,6 +338,8 @@
     }
     startup();
 
+    
+    // Called on shutdown.
     function shutdown() {
         if (ui.isOpen) {
             ui.onClosed();

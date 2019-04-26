@@ -23,6 +23,9 @@ const ttsClient = new textToSpeech.TextToSpeechClient({
 });
 
 
+// Sends a request to the Google TTS API with specified data. Writes the response data
+// to an MP3 file, then sends a link to that MP3 file in the HTTP response.
+// Sets up a timer to delete that MP3 file after `WAIT_BEFORE_DELETE_MS` seconds.
 const WAIT_BEFORE_DELETE_MS = 60000;
 async function sendTTSRequest(res, text, voiceName, languageCode, gender, ssmlInput) {
     // Construct the request
@@ -100,6 +103,8 @@ router.post("/generateSpeech/", (req, res) => {
 });
 
 
+// Gets all supported voices from the Google TTS API, then pares those results down
+// according to specified data.
 async function getVoices(res, languageCodes) {
     ttsClient.listVoices({}, (err, response) => {
         if (err) {
@@ -145,6 +150,8 @@ router.post("/getVoices/", (req, res) => {
 });
 
 
+// HTTP-returns a voice sample MP3 URL associated with a specified voice name.
+// Requires that the samples have been previously generated - see `generateAllSamples()`
 async function getSample(res, voiceName) {
     if (!voiceName) {
         let responseObject = {
@@ -188,6 +195,7 @@ router.post("/getSample/", (req, res) => {
 });
 
 
+// Uses the Google Translate API to translate input text to a specified language.
 async function translateText(res, text, targetLanguageCode) {
     translateClient.translate(text, targetLanguageCode, (err, translation) => {
         if (err) {
@@ -218,6 +226,7 @@ router.post("/translateText/", (req, res) => {
 });
 
 
+// Generates sample MP3s for all specified voices and stores them in the correct directory.
 const sampleTextArray = [
     "Here's an example of the way this voice sounds.",
     "There are many voices to choose from. How about this one?",
@@ -325,6 +334,7 @@ async function generateAllSamples(res, languageCodes) {
 }
 
 
+// Handle "/generateAllSamples/" POST requests.
 router.post("/generateAllSamples/", (req, res) => {
     generateAllSamples(res, req.body.languageCodes);
 });

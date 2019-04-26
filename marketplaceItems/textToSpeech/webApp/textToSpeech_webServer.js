@@ -40,6 +40,8 @@ const startServer = () => {
 }
 
 
+// Called on startup. Deletes all generated MP3 files from the `/mp3s/generated` directory
+// for privacy. Necessary in case the server goes down before the files are deleted on the timer.
 var GENERATED_SPEECH_DIR = "./mp3s/generated";
 const deleteGeneratedSpeech = () => {
     fs.readdir(GENERATED_SPEECH_DIR, (err, files) => {

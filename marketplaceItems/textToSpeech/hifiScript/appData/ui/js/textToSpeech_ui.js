@@ -21,6 +21,7 @@ function emitAppSpecificEvent(method, data) {
 }
 
 
+// Opens the "Data Privacy" info popup
 function openInfoPopup(event) {
     event.stopPropagation();
 
@@ -33,6 +34,7 @@ function openInfoPopup(event) {
 }
 
 
+// Opens the "Change Voice" popup
 function openChangeVoicePopup(event) {
     event.stopPropagation();
 
@@ -45,6 +47,7 @@ function openChangeVoicePopup(event) {
 }
 
 
+// Closes the popup (data privacy, change voice, etc)
 function closePopup(event) {
     event.stopPropagation();
 
@@ -56,6 +59,7 @@ function closePopup(event) {
 }
 
 
+// Called when the user clicks on the "play" button to preview a voice.
 function previewVoiceButtonClicked(voiceName, targetLanguageCode) {
     emitAppSpecificEvent("previewVoiceButtonClicked", {
         voiceName: voiceName,
@@ -64,6 +68,11 @@ function previewVoiceButtonClicked(voiceName, targetLanguageCode) {
 }
 
 
+// Called when the user clicks on the button to change their preferred voice:
+// 1. Removes the "selectedVoice" button class from all voice choice buttons.
+// 2. Adds the "selectedVoice" button class to the selected voice.
+// 3. Fills the "current voice data" in the bottom left of the main UI.
+// 4. Sends a message to the App JS to change the user's preferred voice.
 function changeVoiceButtonClicked(voiceName, targetLanguageCode, gender) {
     var changeVoiceButtons = document.getElementsByClassName("changeVoiceButton");
     for (var i = 0; i < changeVoiceButtons.length; i++) {
@@ -85,12 +94,13 @@ function changeVoiceButtonClicked(voiceName, targetLanguageCode, gender) {
 }
 
 
+// Called when the user presses a key on their keyboard when the input text field is focused.
 function onKeyDown(event) {
     var key = event.keyCode;
 
     // If the user has pressed enter
     if (key === 13) {
-        // Hidden feature! Speak SSML text!
+        // Speak SSML text if the user is pressing CTRL+ENTER
         if (event.ctrlKey) {
             speakSSMLText();
         } else {
@@ -104,6 +114,8 @@ function onKeyDown(event) {
 }
 
 
+// 1. Show the loading spinner.
+// 2. Send a message to the App JS to tell it to speak SSML text.
 function speakSSMLText() {
     document.getElementById("loadingContainer").style.display = "block";
 
@@ -115,6 +127,8 @@ function speakSSMLText() {
 }
 
 
+// 1. Show the loading spinner.
+// 2. Send a message to the App JS to tell it to translate input text, then speak it.
 function translateTextThenSpeak() {
     document.getElementById("loadingContainer").style.display = "block";
 
@@ -126,11 +140,13 @@ function translateTextThenSpeak() {
 }
 
 
+// Sends a message to the App JS to tell it to stop any active TTS speech.
 function stopSpeech() {
     emitAppSpecificEvent("stopSpeech");
 }
 
 
+// Translates a Google TTS API Voice name (i.e. "en-US-Wavenet-A") to something more readable
 function getReadableVoiceName(voiceName) {
     var suffix = voiceName.split("-");
     suffix = suffix[(suffix.length - 1)];
@@ -141,6 +157,16 @@ function getReadableVoiceName(voiceName) {
 }
 
 
+// Called when a user clicks on a button to select a voice gender (after selecting a language):
+// 1. Removes the "selectedButton" button class from all gender choice buttons.
+// 2. Adds the "selectedButton" button class to the selected gender.
+// 3. Clears all buttons from the `voiceButtonsContainer` (which holds all voice choices for this combination
+//     of language and gender).
+// 4. Determines the user's selected language in the UI.
+// 5. Sorts the pre-filled `voicesObject` by all possible voices (for this combination of language and gender).
+// 6. For each voice in (5), creates a clickable button for that voice choice.
+// 7 (optional). If the caller sets `isStartingUp = true`, then this code won't call `changeVoiceButtonClicked()`.
+//     Otherwise, that'll happen, and the user will be forced to choose the default voice associated with that gender.
 function genderButtonClicked(gender, isStartingUp) {
     var genderButtons = document.getElementsByClassName("genderButton");
     for (var i = 0; i < genderButtons.length; i++) {
@@ -204,6 +230,15 @@ function genderButtonClicked(gender, isStartingUp) {
 }
 
 
+// Called when a user clicks on a button to select a voice language:
+// 1. Clears all buttons from the `genderButtonsContainer` (which holds all gender choices for this language).
+// 2. Clears all buttons from the `voiceButtonsContainer` (which holds all voice choices for a combination
+//     of language and gender).
+// 3. Adds the "selectedButton" button class to the selected language.
+// 4. Sorts the pre-filled `voicesObject` by all possible genders (for this language).
+// 5. For each gender in (4), creates a clickable button for that gender choice.
+// 6 (optional). If the caller sets `isStartingUp = true`, then this code won't call `genderButtonClicked()`.
+//     Otherwise, that'll happen, and the user will be forced to choose the default voice associated with that language.
 function languageButtonClicked(selectedLanguage, isStartingUp) {
     var genderButtonsContainer = document.getElementById("genderButtonsContainer");
     genderButtonsContainer.innerHTML = "";
@@ -241,6 +276,7 @@ function languageButtonClicked(selectedLanguage, isStartingUp) {
 }
 
 
+// Fills the `voicesObject` object using data from the passed `voices` object.
 var voicesObject = {};
 function fillChangeVoiceContentContainer(voices) {
     var languageButtonsContainer = document.getElementById("languageButtonsContainer");
@@ -300,6 +336,7 @@ function fillChangeVoiceContentContainer(voices) {
 }
 
 
+// Introduces the user to the TTS app if it's their first time using it.
 function setupFirstRun() {
     var inputText = document.getElementById("inputText");
 
@@ -312,6 +349,7 @@ function setupFirstRun() {
 }
 
 
+// Translates a language code into a human-readable language choice.
 function getLanguageTextFromLanguageCode(targetLanguageCode) {
     switch (targetLanguageCode) {
         case "en-US":
@@ -350,6 +388,7 @@ function getLanguageTextFromLanguageCode(targetLanguageCode) {
 }
 
 
+// Fills the UI element in the bottom right of the app with current voice choice data.
 function fillCurrentVoiceData(selectedVoiceName, selectedVoiceLanguageCode, selectedVoiceGender) {
     var voiceLanguageText = document.getElementById("voiceLanguageText");
     voiceLanguageText.innerHTML = getLanguageTextFromLanguageCode(selectedVoiceLanguageCode);
@@ -362,7 +401,10 @@ function fillCurrentVoiceData(selectedVoiceName, selectedVoiceLanguageCode, sele
 }
 
 
-// Disables the loading spinner
+// 1. Passes valid voices to `fillChangeVoiceContentContainer()`.
+// 2. Sets up the selected button in the "Choose Voice" popup.
+// 3a. If this is the first time the user has used the app, calls `setupFirstRun()`
+// 3b. Otherwise, clears the loading spinner.
 function initializeUI(data) {
     var voices = data.voices;
 
@@ -409,6 +451,7 @@ function initializeUI(data) {
 }
 
 
+// Clears the loading spinner and focuses all of the input text.
 function ttsResponseReceived() {
     document.getElementById("loadingContainer").style.display = "none";
 
@@ -418,6 +461,8 @@ function ttsResponseReceived() {
 }
 
 
+// Called when the remote API returns translated text. Sets the input textbox
+// to show the translated text.
 function textTranslated(data) {
     var translation = data.translation;
 
