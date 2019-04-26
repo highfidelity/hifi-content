@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'Graphik-Regular';
   src: url(../../resources/fonts/Graphik-Regular.woff) format('woff');
-  font-weight: normal;
+  font-weight: lighter;
   font-style: normal;
 }
 
@@ -32,10 +32,10 @@ h2 {
   width: 470px;
   height: 84px;
   left: 23px;
-  top: 175px;
+  top: 185px;
   
   font-family: 'Graphik-Regular';
-  font-size: 24px;
+  font-size: 20px;
   line-height: normal;
   text-align: center;
   
@@ -60,7 +60,7 @@ h2 {
   background: url(../../resources/images/BottomLeftCorner_Shard.png);
 }
 
-#h1background {
+#background1 {
   position: absolute;
   width: 515px;
   height: 320px;
@@ -69,12 +69,77 @@ h2 {
   background: #000000;
 }
 
-input[type=button]:enabled {
+#background2 {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  background: #000000;
+  font-family: 'Graphik-Regular';
+  font-size: 20px;
+  line-height: normal;
+  text-align: center;
+  
+  color: #FFFFFF;
+}
+
+#loginPage {
+  display: initial;
+}
+#connectorPage {
+  display: none;
+}
+
+#linkSuccessPage {
+  display: none;
+}
+
+#allLinksPage {
+  display: none;
+}
+#errorPage {
+  display: none;
+}
+
+.dropDownInstruction {
+  font-family: 'Graphik-Regular';
+  font-size: 16px;
+  line-height: 18px;
+  text-align: left;  
+  color: #939393;
+}
+
+#calendarInstr {
+  position: absolute;
+  width: 470px;
+  height: 24px;
+  left: 23px;
+  top: 315px;
+}
+
+#roomInstr {
+  position: absolute;
+  width: 470px;
+  height: 24px;
+  left: 23px;
+  top: 490px;
+}
+
+input[type=button] {
+  border: 2px solid white;
+  position: relative;
+  color: white;
+  background-color: black;
+  font-family: 'Graphik-Regular';
+}
+
+input[type=button].login {
   border: none;
   position: relative;
-  width: 60%;
-  margin-left: 20%;
-  margin-right: 20%;
+  width: 70%;
+  margin-left: 15%;
+  margin-right: 15%;
   height: 80px;
   top: 480px;  
   background: url(../../resources/images/btn_google_signin_dark_normal_web@2x.png);
@@ -82,46 +147,89 @@ input[type=button]:enabled {
   background-size: contain;
 }
 
-input[type=button]:enabled:hover {
+input[type=button].login:enabled {
   border: none;
   position: relative;
-  width: 60%;
-  margin-left: 20%;
-  margin-right: 20%;
-  height: 80px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 65%;
+  top: 480px;  
+  background: url(../../resources/images/btn_google_signin_dark_normal_web@2x.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+input[type=button].login:enabled:hover { 
+  border: none;
+  outline: none;
+  position: relative;
+  border-radius: 5px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 65%;
   top: 480px;  
   background: url(../../resources/images/btn_google_signin_dark_focus_web@2x.png);
   background-repeat: no-repeat;
   background-size: contain;
 }
 
-input[type=button]:enabled:active {
+input[type=button].login:enabled:active {
   border: none;
+  outline: none;
   position: relative;
-  width: 60%;
-  margin-left: 20%;
-  margin-right: 20%;
-  height: 80px;
+  border-radius: 5px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 65%;
   top: 480px;  
   background: url(../../resources/images/btn_google_signin_dark_pressed_web@2x.png);
   background-repeat: no-repeat;
   background-size: contain;
 }
 
-input[type=button]:disabled {
+input[type=button].login:disabled {
   border: none;
   position: relative;
-  width: 60%;
-  margin-left: 20%;
-  margin-right: 20%;
-  height: 80px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 65%;
   top: 480px;  
   background: url(../../resources/images/btn_google_signin_dark_disabled_web@2x.png);
   background-repeat: no-repeat;
   background-size: contain;
 }
 
-#privacy {
+input[type=button].ui:enabled {
+  text-align: center;
+  border: 2px solid white;
+  position: relative;
+  width: 50%;
+  margin-left: 25%;
+  margin-right: auto;
+  height: 50px;
+  top: 525px;  
+  color: white;
+  background-color: black;
+  font-family: 'Graphik-Semibold';
+  font-size: 22px;
+}
+
+input[type=button].ui:enabled:hover {
+  border: 2px solid #009ee0;
+  color: #009ee0;
+}
+
+input[type=button].ui:enabled:active {
+  border: 2px solid #ff42a7;
+  color: #ff42a7;
+  outline: none;
+}
+
+#bttmright {
   position: absolute;
   width: 200px;
   height: 16px;
@@ -136,7 +244,7 @@ input[type=button]:disabled {
   color: #828282;
 }
 
-#tos {
+#bttmleft {
   position: absolute;
   width: 200px;
   height: 16px;
@@ -150,6 +258,56 @@ input[type=button]:disabled {
   color: #828282;
 } 
 
+input[type=button].grayLinkText:enabled {
+  position: absolute;
+  width: 200px;
+  height: 18px;
+  left: 18px;
+  top: 720px;
+  border: none;
+  outline: none;
+  text-align: left;
+  font-family: 'Graphik-Regular';
+  font-size: 14px;
+  line-height: normal;  
+  color: #828282;
+} 
+input[type=button].grayLinkText:enabled:hover {
+  color: #86edff;
+  border: none;
+  outline: none;
+}
+input[type=button].grayLinkText:enabled:active {
+  color: #ff42a7;
+  border: none;
+  outline: none;
+}
+
+input[type=button].blueLinkText:enabled {
+  position: absolute;
+  width: 470px;
+  height: 38px;
+  left: 22px;
+  top: 422px;
+  text-align: left;
+  font-family: 'Graphik-Regular';
+  font-size: 18px;
+  line-height: 20px;
+  border: none;
+  outline: none;
+  color: #009ee0;
+} 
+input[type=button].blueLinkText:enabled:hover {
+  color: #86edff;
+  border: none;
+  outline: none;
+}
+input[type=button].blueLinkText:enabled:active {
+  color: #ff42a7;
+  border: none;
+  outline: none;
+}
+
 a:link {
   color: #828282;
   text-decoration: none;
@@ -159,10 +317,133 @@ a:visited {
   text-decoration: none;
 } 
 a:hover {
-  color: #86edff;
+  color: #172983;
   text-decoration: underline;
 } 
 a:active {
   color: #000000;
   text-decoration: underline;
 } 
+
+.dropdown {
+  font-family: 'Graphik-Regular';
+  outline: none;
+  font-size: 24px;
+  border: 2px solid white;
+  box-sizing: border-box;
+}
+
+.dropdown:focus {
+  border: 2px solid white;
+  width: 515px;
+  height: 750px;
+  outline: none;
+}
+
+.dropdown li {
+  list-style-type: none;
+  padding: 3px 0 1px 12px;
+  width: 80%;
+  height: auto;
+  font-size: 20px;
+  color: #404040;
+  background-color: #d4d4d4;
+  z-index: 999;
+}
+
+.dropdown li:hover {
+  background-color: #e6eaeb;
+}
+
+.styled-select { 
+  height: 50px;
+  overflow: hidden;
+  width: 290px;
+}
+
+.dropdown-items {
+  display: none;
+  position: absolute;
+  background-color: #dddcdc;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+#selectedCalendar {
+  text-indent: 20px;
+  position: absolute;
+  text-align: left;
+  width: 470px;
+  height: 80px;
+  left: 23px;
+  top: 339px;
+  font-family: 'Graphik-Regular';
+  font-size: 24px;
+  line-height: 26px;
+}
+#selectedRoom {
+  text-indent: 20px;
+  position: absolute;
+  text-align: left;
+  width: 470px;
+  height: 80px;
+  left: 23px;
+  top: 514px;
+  font-family: 'Graphik-Regular';
+  font-size: 24px;
+  line-height: 26px;
+}
+#calendardropdown {
+  position: absolute;
+  width: 470px;
+  height: 80px;
+  left: 23px;
+  top: 339px;
+}
+#roomdropdown {
+  position: absolute;
+  width: 470px;
+  height: 80px;
+  left: 23px;
+  top: 514px;
+}
+
+.dropdown-items a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-items a:hover {
+  background-color: #f1f1f1
+}
+
+.dropdown-calendar {
+  position: absolute;
+  width: 470px;
+  height: 80px;
+  left: 23px;
+  top: 339px;
+}
+.dropdown-room {
+  position: absolute;
+  width: 470px;
+  height: 80px;
+  left: 23px;
+  top: 514px;
+}
+
+.dropdown ul {
+  display: inline;
+}
+
+#calendardropdown li{
+  width: 100%
+}
+#roomdropdown li{
+  width: 100%
+}
+
+.show {
+  display:block;
+}

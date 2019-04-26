@@ -7,9 +7,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 var YOUR_CLIENT_ID = '813544734011-9jocg5lgsttogf5gnr45pb4kgpie3brg.apps.googleusercontent.com';
-var YOUR_REDIRECT_URI = 'http://localhost/meetingRoom_ui.html';
+var YOUR_REDIRECT_URI = 'http://127.0.0.1:90/localHTTP/meetingRoom_ui.html';
 var SCOPES = [
-    'https://www.googleapis.com/auth/calendar.events.readonly',
+    'https://www.googleapis.com/auth/calendar.readonly',
     'https://www.googleapis.com/auth/drive.file'
 ];
 var fragmentString = location.hash.substring(1);
@@ -22,9 +22,7 @@ while (m = regex.exec(fragmentString)) {
 }
 if (Object.keys(params).length > 0) {
     localStorage.setItem('oauth2-test-params', JSON.stringify(params) );
-    if (params['state'] && params['state'] == 'try_sample_request') {
-        getCalendars();
-    }
+    getCalendars();
 }
 
 // If there's an access token, try an API request.
@@ -35,11 +33,12 @@ function getCalendars() {
     if (params && params['access_token']) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET',
-            'https://www.googleapis.com/calendar/v3/users/me/calendarList' +
+            'https://www.googleapis.com/calendar/v3/users/me/calendarList?' +
             'access_token=' + params['access_token']);
         xhr.onreadystatechange = function (e) {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                calendarList = xhr.response.items;
+                calendarList = xhr.response;
+                console.log(calendarList);
             } else if (xhr.readyState === 4 && xhr.status === 401) {
             // Token invalid, so prompt for user permission.
                 oauth2SignIn();
@@ -49,6 +48,24 @@ function getCalendars() {
     } else {
         oauth2SignIn();
     }
+    connectorPage();
+}
+
+function connectorPage() {
+    document.getElementById("loginPage").style.display = 'none';
+    document.getElementById("connectorPage").style.display = 'initial';
+}
+
+function connectionSuccess() {
+
+}
+
+function viewLinkedSpaces() {
+
+}
+
+function errorPage() {
+    
 }
 
 /*
@@ -67,7 +84,7 @@ function oauth2SignIn() {
     var params = {
         'client_id': YOUR_CLIENT_ID,
         'redirect_uri': YOUR_REDIRECT_URI,
-        'scope': SCOPES.join(' '),
+        'scope': 'https://www.googleapis.com/auth/calendar.readonly',
         'state': 'try_sample_request',
         'include_granted_scopes': 'true',
         'response_type': 'token'
@@ -87,6 +104,28 @@ function oauth2SignIn() {
     form.submit();
 }
 
+function revokeAccess(accessToken) {
+    // Google's OAuth 2.0 endpoint for revoking access tokens.
+    var revokeTokenEndpoint = 'https://accounts.google.com/o/oauth2/revoke';
+  
+    // Create <form> element to use to POST data to the OAuth 2.0 endpoint.
+    var form = document.createElement('form');
+    form.setAttribute('method', 'post');
+    form.setAttribute('action', revokeTokenEndpoint);
+  
+    // Add access token to the form so it is set as value of 'token' parameter.
+    // This corresponds to the sample curl request, where the URL is:
+    //      https://accounts.google.com/o/oauth2/revoke?token={token}
+    var tokenField = document.createElement('input');
+    tokenField.setAttribute('type', 'hidden');
+    tokenField.setAttribute('name', 'token');
+    tokenField.setAttribute('value', accessToken);
+    form.appendChild(tokenField);
+  
+    // Add form to page and submit it to actually revoke the token.
+    document.body.appendChild(form);
+    form.submit();
+}
 /*
 // Load the API's client and auth2 modules.
 // Call the initClient function after the modules load.
@@ -195,21 +234,40 @@ function onScriptEventReceived(data) {
     data = JSON.parse(data);
     switch (data.type) {
         case "buttonStatus":
-            signInOutButton.checked = data.value;
+            loginButton.checked = data.value;
             break;
         case "SETUP MEETING ROOM":
             break;
     }
 }
 
-// Send an event to the app script to 
-// toggle it on/off when the button is clicked
-var signInOutButton = document.getElementById("login");
-signInOutButton.addEventListener("click", getCalendars);
+// Buttons by Page
+// Login Page
+var loginButton = document.getElementById("login");
+loginButton.addEventListener("click", getCalendars);
+// Connector Page
+var calendarDropdownButton = document.getElementById('selectedCalendar');
+var helpButton = document.getElementById('help');
+var roomDropdownButton = document.getElementById('selectedRoom');
+var revokeButton = document.getElementById('revoke');
+var linkerButton = document.getElementById('linker');
+calendarDropdownButton.addEventListener('click');
+helpButton.addEventListener('click');
+roomDropdownButton.addEventListener('click');
+revokeButton.addEventListener('click', revokeAccess);
+linkerButton.addEventListener('click');
+// Connection Successful Page
+var viewAllButton = document.getElementById('viewAll');
+var connectAgainButton = document.getElementById('connector');
+viewAllButton.addEventListener('click');
+connectAgainButton.addEventListener('click');
+// View Links Page
+
+// Error Page
+
+
 // Set the text of the button to either On or Off 
 // when opening the tablet app, based on the app script status.
-// The delay shouldn't be necessary in RC78. this is currently necessary because of this bug:
-// https://highfidelity.manuscript.com/f/cases/20253/screenChanged-signal-is-emitted-before-the-screen-has-actually-changed
 // var EVENT_BRIDGE_SETUP_DELAY = 100; 
 // function onLoad(){
 //     // setTimeout(() => {

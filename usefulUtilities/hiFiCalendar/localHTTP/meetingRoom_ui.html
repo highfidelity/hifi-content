@@ -2,23 +2,100 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" type="text/css" href="./css/styles.css?v3">
+        <link rel="stylesheet" type="text/css" href="./css/styles.css?v51">
     </head>
     <body>
-        <div id="h1background">
-            <h1>Meeting Room Connector</h1>            
-            <p><h2>Connect your virtual meeting rooms to your Google Calendar for easy space management.</h2>
+        <div id="loginPage">
+            <div id="background1">
+                <h1 id='title'>Meeting Room Connector</h1>         
+                <p><h2 id='subheading'>Connect your virtual meeting rooms to your Google Calendar for easy space management.</h2>
+            </div>
+            <div id="h1TopRight"></div>
+            <div id="h1BottomLeft"></div>
+    
+            <input type="button" class="login" id="login">
+    
+            <div id="bttmleft">
+                    <a href="https://www.highfidelity.com/termsofservice">Terms of Service</a>
+            </div>
+            <div id='bttmright'>
+                    <a href="https://www.highfidelity.com/privacy">Privacy Policy</a>
+            </div>
         </div>
-        <div id="h1TopRight"></div>
-        <div id="h1BottomLeft"></div>
 
-        <input type="button" class="login" id="login">
+        <div id='connectorPage'>
+            <div id="background2">
+                <h1 id='title'>Let's Connect Your Spaces</h1>            
+                <p><h2 id='subheading'>Start by selecting a room resource from your Google Calendar. Then select a High Fidelity meeting room and click to link them.</h2>
+            </div>
+            <div id="h1TopRight"></div>
+            <br>
+            <br>
+            <div id="calendarInstr" class="dropDownInstruction">YOUR CALENDAR RESOURCES</div>
+            <br>
+            <input type="button" id="selectedCalendar" class="ui" disabled=false value="Room Calendar                                 &#9660;">
+            <ul class="dropdown-calendar">
+                <div id="calendarDropdown" class="dropdown-items">
+                    <li>Atlantis</li>
+                    <li>Capitol</li>
+                    <li>Fantasia</li>
+                </div>
+            </ul>
+            <br>
+            <input type="button" class="blueLinkText" id="help" value="Don't see the calendar you need?">
+            <br>
+            <br>
+            <div id="roomInstr" class="dropDownInstruction">HIFI MEETING ROOMS</div>
+            <input type="button" id="selectedRoom" class="ui" disabled=false value="Meeting Room                                   &#9660;">
+            <ul class="dropdown-room">
+                <div id="roomDropdown" class="dropdown-items">
+                    <li>Atlantis</li>
+                    <li>Capitol</li>
+                    <li>Fantasia</li>
+                </div>
+            </ul>
+            <input type="button" class="ui" id="linker" value="Link these spaces">
+            <input type="button" class="grayLinkText" id="revoke" value="Revoke Access">
+        </div>
 
-        <div id="tos">
+        <div id='linkSuccessPage'>
+            <div id="background2">
+                <h1 id='title'>Your space is connected!</h1>      
+                <br><br><br><br>
+                <p>You've linked [Space 1 Calendar] to [Meeting Room 01]</p>      
+            </div>
+            <div id="h1TopRight"></div>
+            <input type="button" class="blueLinkText" id="viewAll" value="View all linked spaces">
+            <input type="button" class="ui" id="connector" value="Link another space">
+            <input type="button" class="grayLinkText" id="revoke" value="Revoke Access">
+        </div>
+
+        <div id='allLinksPage'>
+            <div id="background2">
+                <h1 id='title'>Your linked spaces</h1>      
+                <br>
+                <p>You can add, edit, or delete your linked spaces from this list</p>      
+            </div>
+            <div id="h1TopRight"></div>
+            <input type="button" class="ui" id="connector" value="Link another space">
+            <input type="button" class="grayLinkText" id="revoke" value="Revoke Access">
+        </div>
+
+        <div id='errorPage'>
+            <div id="background2">
+                <h1 id='title'>Meeting Room Connector</h1>      
+                <br><br><br>
+                <p>We don't see any Space Calendars. You'll need to create a new calendar resource for each bookable space.</p>      
+            </div>
+            <div id="h1TopRight"></div>
+            <input type="button" class="blueLinkText" id="learn" value="Learn How">
+            <div id="bttmleft">
                 <a href="https://www.highfidelity.com/termsofservice">Terms of Service</a>
+            </div>
+            <div id='bttmright'>
+                    <a href="https://www.highfidelity.com/privacy">Privacy Policy</a>
+            </div>
         </div>
-        <div id='privacy'>
-                <a href="https://www.highfidelity.com/privacy">Privacy Policy</a>
-        </div>
-        <script src="./js/meetingRoom_ui.js"></script>
+
+        <script src="./js/meetingRoom_ui.js?v26"></script>
     </body>
