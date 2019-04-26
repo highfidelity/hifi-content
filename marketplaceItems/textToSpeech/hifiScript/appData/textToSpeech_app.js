@@ -159,7 +159,10 @@
     }
 
 
-    function generateSpeech(data, forceLocalOnly) {
+    function generateSpeech(data, options) {
+        var forceLocalOnly = options.forceLocalOnly;
+        var ssmlInput = options.ssmlInput;
+
         var textToSpeak = data.textToSpeak;
         if (!textToSpeak || textToSpeak.length === 0) {
             console.log("User tried to speak some text, but they didn't specify any text.");
@@ -176,7 +179,8 @@
             body: {
                 text: textToSpeak,
                 voiceName: selectedVoice,
-                languageCode: targetLanguageCode
+                languageCode: targetLanguageCode,
+                ssmlInput: ssmlInput
             }
         }, function (error, response) {
             if (error || response.status !== "success") {
@@ -225,7 +229,10 @@
             generateSpeech({
                 textToSpeak: response.translation,
                 volume: volume
-            }, data.forceLocalOnly);
+            }, {
+                forceLocalOnly: data.forceLocalOnly,
+                ssmlInput: false
+            });
         });
     }
 
@@ -261,6 +268,11 @@
 
             case "translateTextThenSpeak":
                 translateTextThenSpeak(event.data);
+                break;
+
+
+            case "speakSSMLText":
+                generateSpeech(event.data, {ssmlInput: true});
                 break;
 
 

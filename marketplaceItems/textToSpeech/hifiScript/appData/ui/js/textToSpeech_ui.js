@@ -85,17 +85,33 @@ function changeVoiceButtonClicked(voiceName, targetLanguageCode, gender) {
 }
 
 
-function onKeyPress() {
-    var key = window.event.keyCode;
+function onKeyDown(event) {
+    var key = event.keyCode;
 
     // If the user has pressed enter
     if (key === 13) {
-        translateTextThenSpeak();
+        // Hidden feature! Speak SSML text!
+        if (event.ctrlKey) {
+            speakSSMLText();
+        } else {
+            translateTextThenSpeak();
+        }
         return false;
     }
     else {
         return true;
     }
+}
+
+
+function speakSSMLText() {
+    document.getElementById("loadingContainer").style.display = "block";
+
+    var inputText = document.getElementById("inputText");
+
+    emitAppSpecificEvent("speakSSMLText", {
+        textToSpeak: inputText.value
+    });
 }
 
 

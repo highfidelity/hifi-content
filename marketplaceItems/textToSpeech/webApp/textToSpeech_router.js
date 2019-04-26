@@ -24,7 +24,7 @@ const ttsClient = new textToSpeech.TextToSpeechClient({
 
 
 const WAIT_BEFORE_DELETE_MS = 60000;
-async function sendTTSRequest(res, text, voiceName, languageCode, gender) {
+async function sendTTSRequest(res, text, voiceName, languageCode, gender, ssmlInput) {
     // Construct the request
     var request = {
         input: { text: text },
@@ -36,6 +36,12 @@ async function sendTTSRequest(res, text, voiceName, languageCode, gender) {
         // Select the type of audio encoding
         audioConfig: { audioEncoding: 'MP3' },
     };
+
+    if (ssmlInput) {
+        request.input = {
+            ssml: text
+        };
+    }
 
     if (gender) {
         request.voice.gender = gender;
@@ -90,7 +96,7 @@ async function sendTTSRequest(res, text, voiceName, languageCode, gender) {
 
 // Handle "/generateSpeech/" POST requests.
 router.post("/generateSpeech/", (req, res) => {
-    sendTTSRequest(res, req.body.text, req.body.voiceName, req.body.languageCode, req.body.gender);
+    sendTTSRequest(res, req.body.text, req.body.voiceName, req.body.languageCode, req.body.gender, req.body.ssmlInput);
 });
 
 
