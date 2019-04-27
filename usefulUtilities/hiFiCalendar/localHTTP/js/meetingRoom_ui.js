@@ -21,13 +21,14 @@ while (m = regex.exec(fragmentString)) {
     params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
 }
 if (Object.keys(params).length > 0) {
-    localStorage.setItem('oauth2-test-params', JSON.stringify(params) );
+    localStorage.setItem('oauth2-test-params', JSON.stringify(params));
     getCalendars();
 }
 
 // If there's an access token, try an API request.
 // Otherwise, start OAuth 2.0 flow.
 var calendarList;
+var resources = [];
 function getCalendars() {
     var params = JSON.parse(localStorage.getItem('oauth2-test-params'));
     if (params && params['access_token']) {
@@ -37,8 +38,19 @@ function getCalendars() {
             'access_token=' + params['access_token']);
         xhr.onreadystatechange = function (e) {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                calendarList = xhr.response;
-                console.log(calendarList);
+                try {
+                    calendarList = JSON.parse(xhr.response);
+                    for (var i = 0; i < calendarList.items.length; i++) {
+                        resources.push({
+                            "address": calendarList.items[i].id,
+                            "name": calendarList.items[i].summary
+                        });                    
+                    }
+                    localStorage.setItem('resources', JSON.stringify(resources));
+                    connectorPage();
+                } catch (e) {
+                    console.log(e, " FAILED PARSING");
+                }
             } else if (xhr.readyState === 4 && xhr.status === 401) {
             // Token invalid, so prompt for user permission.
                 oauth2SignIn();
@@ -48,29 +60,114 @@ function getCalendars() {
     } else {
         oauth2SignIn();
     }
-    connectorPage();
+}
+var LOGIN_PAGE = document.getElementById("loginPage");
+var CONNECTOR_PAGE = document.getElementById("connectorPage");
+var SUCCESS_PAGE = document.getElementById('linkSuccessPage');
+var VIEW_ALL_PAGE = document.getElementById('allLinksPage');
+var ERROR_PAGE = document.getElementById('errorPage');
+var pages = [
+    LOGIN_PAGE,
+    CONNECTOR_PAGE,
+    SUCCESS_PAGE,
+    VIEW_ALL_PAGE,
+    ERROR_PAGE
+];
+
+function showHidePages(arg) {
+    for (var i = 0; i < pages.length; i++) {
+        if (i === arg) {
+            pages[i].style.display = 'initial';
+        } else {
+            pages[i].style.display = 'none';
+        }
+    }
 }
 
+var roomInfo = [
+    {
+        name: "ATLANTIS",
+        id: "{11141-123412-1234123-314123}"
+    },
+    {
+        name: "FANTASIA",
+        id: "{55541-123412-1234123-314123}"
+    },
+    {
+        name: "CAPITOL",
+        id: "{88841-123412-1234123-314123}"
+    },
+    {
+        name: "JAKKU",
+        id: "{33341-123412-1234123-314123}"
+    }
+];
 function connectorPage() {
-    document.getElementById("loginPage").style.display = 'none';
-    document.getElementById("connectorPage").style.display = 'initial';
+    var calendarInfo = JSON.parse(localStorage.getItem('resources'));
+    if (calendarInfo.length <= 0) {
+        errorPage();
+        return;
+    }
+    if (roomInfo.length <= 0) {
+        viewLinkedSpaces();
+        return;
+    }
+    for (var i = 0; i < selectedCalendarButton.length; i++) {
+        selectedCalendarButton.options[i] = null;    
+    }
+    for (i = 0; i < calendarInfo.length; i++) {
+        selectedCalendarButton.options[i] = new Option(calendarInfo[i].name, calendarInfo[i].address);
+    }
+    for (i = 0; i < selectedRoomButton.length; i++) {
+        selectedRoomButton.options[i] = null;    
+    }
+    for (i = 0; i < roomInfo.length; i++) {
+        selectedRoomButton.options[i] = new Option(roomInfo[i].name, roomInfo[i].id);
+    }
+    showHidePages(1);
 }
 
+var completedConnections = [];
 function connectionSuccess() {
-
+    completedConnections.push({
+        "address": selectedCalendarButton.value,
+        "UUID": selectedRoomButton.value,
+        "name": selectedCalendarButton.options[selectedCalendarButton.selectedIndex].textContent
+    });
+    console.log(JSON.stringify(completedConnections));
+    var resources = JSON.parse(localStorage.getItem('resources'));
+    for (var i=0; i < resources.length; i++) {
+        var str = JSON.stringify(resources[i]);
+        if (str.indexOf(selectedCalendarButton.value) > -1) {
+            console.log("SPLICING ", str);
+            resources.splice(i,1);
+            i--;
+        }
+    }
+    for (i=0; i < roomInfo.length; i++) {
+        str = JSON.stringify(roomInfo[i]);
+        if (str.indexOf(selectedRoomButton.value) > -1) {
+            console.log("SPLICING", str);
+            roomInfo.splice(i,1);
+            i--;
+        }
+    }
+    console.log(resources.length);
+    localStorage.setItem('resources', JSON.stringify(resources));
+    document.getElementById('cal').innerHTML = selectedCalendarButton[selectedCalendarButton.selectedIndex].textContent;
+    document.getElementById('room').innerHTML = selectedRoomButton[selectedRoomButton.selectedIndex].textContent;
+    showHidePages(2);
 }
 
 function viewLinkedSpaces() {
-
+    showHidePages(3);
 }
 
 function errorPage() {
-    
+    showHidePages(4);
 }
 
-/*
- * Create form to request access token from Google's OAuth 2.0 server.
- */
+
 function oauth2SignIn() {
     // Google's OAuth 2.0 endpoint for requesting an access token
     var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -104,6 +201,7 @@ function oauth2SignIn() {
     form.submit();
 }
 
+
 function revokeAccess(accessToken) {
     // Google's OAuth 2.0 endpoint for revoking access tokens.
     var revokeTokenEndpoint = 'https://accounts.google.com/o/oauth2/revoke';
@@ -125,7 +223,9 @@ function revokeAccess(accessToken) {
     // Add form to page and submit it to actually revoke the token.
     document.body.appendChild(form);
     form.submit();
+    showHidePages(0);
 }
+
 /*
 // Load the API's client and auth2 modules.
 // Call the initClient function after the modules load.
@@ -233,38 +333,38 @@ function updateSigninStatus(isSignedIn) {
 function onScriptEventReceived(data) {
     data = JSON.parse(data);
     switch (data.type) {
-        case "buttonStatus":
-            loginButton.checked = data.value;
+        case "AVAILABLE ROOMS":
+            roomInfo = data.roomInfo;
             break;
         case "SETUP MEETING ROOM":
             break;
     }
 }
 
+
 // Buttons by Page
 // Login Page
 var loginButton = document.getElementById("login");
-loginButton.addEventListener("click", getCalendars);
+loginButton.addEventListener('click', getCalendars);
 // Connector Page
-var calendarDropdownButton = document.getElementById('selectedCalendar');
 var helpButton = document.getElementById('help');
-var roomDropdownButton = document.getElementById('selectedRoom');
 var revokeButton = document.getElementById('revoke');
 var linkerButton = document.getElementById('linker');
-calendarDropdownButton.addEventListener('click');
-helpButton.addEventListener('click');
-roomDropdownButton.addEventListener('click');
+var selectedCalendarButton = document.getElementById('selectedCalendar');
+var selectedRoomButton = document.getElementById('selectedRoom');
+helpButton.addEventListener('click', errorPage);
 revokeButton.addEventListener('click', revokeAccess);
-linkerButton.addEventListener('click');
+linkerButton.addEventListener('click', connectionSuccess);
 // Connection Successful Page
 var viewAllButton = document.getElementById('viewAll');
 var connectAgainButton = document.getElementById('connector');
-viewAllButton.addEventListener('click');
-connectAgainButton.addEventListener('click');
+viewAllButton.addEventListener('click', viewLinkedSpaces);
+connectAgainButton.addEventListener('click', connectorPage);
 // View Links Page
 
 // Error Page
-
+var backButton = document.getElementById('tryAgain');
+backButton.addEventListener('click', getCalendars);
 
 // Set the text of the button to either On or Off 
 // when opening the tablet app, based on the app script status.

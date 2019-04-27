@@ -1,3 +1,4 @@
+/*** FONTS ***/
 @font-face {
   font-family: 'Graphik-Regular';
   src: url(../../resources/fonts/Graphik-Regular.woff) format('woff');
@@ -12,6 +13,7 @@
   font-style: normal;
 }
 
+/*** HEADERS, FOOTERS AND BACKGROUNDS ***/
 h1 {
   position: absolute;
   width: 470px;
@@ -73,6 +75,9 @@ h2 {
   position: absolute;
   width: 100%;
   height: 100%;
+  padding-right: 10%;
+  padding-left: 10%;
+  box-sizing: border-box;
   left: 0px;
   top: 0px;
   background: #000000;
@@ -84,9 +89,40 @@ h2 {
   color: #FFFFFF;
 }
 
+#bttmright {
+  position: absolute;
+  width: 200px;
+  height: 16px;
+  left: 300px;
+  top: 723px;
+
+  font-family: 'Graphik-Regular';
+  font-size: 14px;
+  line-height: normal;
+  text-align: right;
+
+  color: #828282;
+}
+
+#bttmleft {
+  position: absolute;
+  width: 200px;
+  height: 16px;
+  left: 18px;
+  top: 723px;
+  
+  font-family: 'Graphik-Regular';
+  font-size: 14px;
+  line-height: normal;
+  
+  color: #828282;
+} 
+
+/*** PAGES ***/
 #loginPage {
   display: initial;
 }
+
 #connectorPage {
   display: none;
 }
@@ -98,34 +134,12 @@ h2 {
 #allLinksPage {
   display: none;
 }
+
 #errorPage {
   display: none;
 }
 
-.dropDownInstruction {
-  font-family: 'Graphik-Regular';
-  font-size: 16px;
-  line-height: 18px;
-  text-align: left;  
-  color: #939393;
-}
-
-#calendarInstr {
-  position: absolute;
-  width: 470px;
-  height: 24px;
-  left: 23px;
-  top: 315px;
-}
-
-#roomInstr {
-  position: absolute;
-  width: 470px;
-  height: 24px;
-  left: 23px;
-  top: 490px;
-}
-
+/*** BUTTONS ***/
 input[type=button] {
   border: 2px solid white;
   position: relative;
@@ -206,21 +220,23 @@ input[type=button].login:disabled {
 input[type=button].ui:enabled {
   text-align: center;
   border: 2px solid white;
-  position: relative;
+  position: absolute;
   width: 50%;
   margin-left: 25%;
   margin-right: auto;
   height: 50px;
-  top: 525px;  
+  top: 650px;  
   color: white;
   background-color: black;
   font-family: 'Graphik-Semibold';
   font-size: 22px;
+  outline: none;
 }
 
 input[type=button].ui:enabled:hover {
-  border: 2px solid #009ee0;
-  color: #009ee0;
+  border: 2px solid #009036;
+  color: #009036;
+  outline: none;
 }
 
 input[type=button].ui:enabled:active {
@@ -229,38 +245,9 @@ input[type=button].ui:enabled:active {
   outline: none;
 }
 
-#bttmright {
-  position: absolute;
-  width: 200px;
-  height: 16px;
-  left: 300px;
-  top: 723px;
-
-  font-family: 'Graphik-Regular';
-  font-size: 14px;
-  line-height: normal;
-  text-align: right;
-
-  color: #828282;
-}
-
-#bttmleft {
-  position: absolute;
-  width: 200px;
-  height: 16px;
-  left: 18px;
-  top: 723px;
-  
-  font-family: 'Graphik-Regular';
-  font-size: 14px;
-  line-height: normal;
-  
-  color: #828282;
-} 
-
 input[type=button].grayLinkText:enabled {
   position: absolute;
-  width: 200px;
+  width: 110px;
   height: 18px;
   left: 18px;
   top: 720px;
@@ -272,11 +259,13 @@ input[type=button].grayLinkText:enabled {
   line-height: normal;  
   color: #828282;
 } 
+
 input[type=button].grayLinkText:enabled:hover {
-  color: #86edff;
+  color: #ffed00;
   border: none;
   outline: none;
 }
+
 input[type=button].grayLinkText:enabled:active {
   color: #ff42a7;
   border: none;
@@ -297,17 +286,69 @@ input[type=button].blueLinkText:enabled {
   outline: none;
   color: #009ee0;
 } 
+
 input[type=button].blueLinkText:enabled:hover {
   color: #86edff;
   border: none;
   outline: none;
 }
+
 input[type=button].blueLinkText:enabled:active {
   color: #ff42a7;
   border: none;
   outline: none;
 }
 
+input[type=button].trash {
+  background: url('../../resources/images/trash.png?v2') no-repeat; 
+  background-position: center;  
+  cursor: pointer;
+  background-size: contain;
+  min-height: 10%;
+  border: none;
+  outline:none;
+}
+
+input[type=button].edit {
+  background: url('../../resources/images/edit.png?v2') no-repeat; 
+  background-position: center;  
+  cursor: pointer;
+  background-size: contain;
+  min-height: 10%;
+  border: none;
+  outline:none;
+}
+
+#learn {
+  width:  30%;
+  margin-left:30%;
+  margin-right:auto;
+  height: 80px;
+  text-align: center;
+  font-size: 24px;
+  line-height: 26px;
+  font-family: 'Graphik-Semibold';
+}
+
+#tryAgain {
+  width: 20%;
+  margin-left:35%;
+  margin-right:auto;
+  position: relative;
+  height: 120px;
+  font-size: 24px;
+  line-height: 26px;
+  top: 500px;
+  text-align: center;
+  font-family: 'Graphik-Semibold';
+}
+
+#viewAll {
+  text-align: center;
+  font-family: 'Graphik-Semibold';
+}
+
+/*** LINKS ***/
 a:link {
   color: #828282;
   text-decoration: none;
@@ -325,125 +366,111 @@ a:active {
   text-decoration: underline;
 } 
 
+/*** DROPDOWNS ***/
+.dropDownInstruction {
+  font-family: 'Graphik-Regular';
+  font-size: 16px;
+  line-height: 18px;
+  text-align: left;  
+  color: #939393;
+}
+
+#calendarInstr {
+  position: absolute;
+  width: 470px;
+  height: 24px;
+  left: 23px;
+  top: 315px;
+}
+
+#roomInstr {
+  position: absolute;
+  width: 470px;
+  height: 24px;
+  left: 23px;
+  top: 490px;
+}
+
 .dropdown {
+  text-indent: 20px;
+  text-align: left;
+  width: 470px;
+  height: 80px;
   font-family: 'Graphik-Regular';
   outline: none;
+  padding-right: 20%;
   font-size: 24px;
   border: 2px solid white;
   box-sizing: border-box;
+  color: #FFFFFF;
+  background-color: #000;
+  -webkit-appearance: none; 
+  background: url('../../resources/images/arrow.png?v5') no-repeat; 
+  background-position: 95%;  
+  cursor: pointer;
+  background-size: contain;
 }
 
-.dropdown:focus {
-  border: 2px solid white;
-  width: 515px;
-  height: 750px;
-  outline: none;
-}
-
-.dropdown li {
-  list-style-type: none;
-  padding: 3px 0 1px 12px;
-  width: 80%;
-  height: auto;
-  font-size: 20px;
-  color: #404040;
-  background-color: #d4d4d4;
-  z-index: 999;
-}
-
-.dropdown li:hover {
-  background-color: #e6eaeb;
-}
-
-.styled-select { 
-  height: 50px;
-  overflow: hidden;
-  width: 290px;
-}
-
-.dropdown-items {
+.dropdown-content {
   display: none;
   position: absolute;
-  background-color: #dddcdc;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  color: #FFFFFF;
+  background-color: rgb(32, 32, 32);
+  box-shadow: 0px 8px 16px 0px rgba(94, 94, 94, 0.2);
+  min-width: 160px;
+  padding: 12px 16px;
   z-index: 1;
 }
-#selectedCalendar {
-  text-indent: 20px;
-  position: absolute;
-  text-align: left;
-  width: 470px;
-  height: 80px;
-  left: 23px;
-  top: 339px;
-  font-family: 'Graphik-Regular';
-  font-size: 24px;
-  line-height: 26px;
-}
-#selectedRoom {
-  text-indent: 20px;
-  position: absolute;
-  text-align: left;
-  width: 470px;
-  height: 80px;
-  left: 23px;
-  top: 514px;
-  font-family: 'Graphik-Regular';
-  font-size: 24px;
-  line-height: 26px;
-}
-#calendardropdown {
-  position: absolute;
-  width: 470px;
-  height: 80px;
-  left: 23px;
-  top: 339px;
-}
-#roomdropdown {
-  position: absolute;
-  width: 470px;
-  height: 80px;
-  left: 23px;
-  top: 514px;
+
+.dropdown-content:hover {
+  color: #000000;
+  background-color: rgb(151, 151, 151)
 }
 
-.dropdown-items a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
+.dropdown:hover {
   display: block;
+  color: white;
+  background-color: rgb(80, 80, 80);
 }
 
-.dropdown-items a:hover {
-  background-color: #f1f1f1
-}
-
-.dropdown-calendar {
+#selectedCalendar {
   position: absolute;
-  width: 470px;
-  height: 80px;
   left: 23px;
   top: 339px;
 }
-.dropdown-room {
+
+#selectedRoom {
   position: absolute;
-  width: 470px;
-  height: 80px;
   left: 23px;
   top: 514px;
 }
 
-.dropdown ul {
-  display: inline;
+/*** TABLES ***/
+#completed {
+  font-family: 'Graphik-Regular';
+  position: absolute;
+  top: 300px;
+  font-size: 18px;
+  line-height: 22px;
+  text-align: left;  
+  color: white;
+  background-color: black;
+  overflow: hidden;
+  border-collapse: collapse;
+  padding-right: 15%;
+  min-height: 10%;
+  min-width: 80%;
+  margin-left:auto;
+  margin-right:auto;
+  border: none;
+  outline:none;
 }
 
-#calendardropdown li{
-  width: 100%
-}
-#roomdropdown li{
-  width: 100%
+#completed td {
+  border: 1px solid black;
+  padding: 8px;
+  min-height: 10%;
+  border: none;
+  outline:none;
 }
 
-.show {
-  display:block;
-}
