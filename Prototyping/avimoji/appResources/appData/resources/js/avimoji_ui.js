@@ -10,29 +10,8 @@
 
 */
 
-// *************************************
-// START vars
-// *************************************
-// #region vars
-
-let emojiList = [];
-let emojiMap = {};
-let favoritesArray = []
-let shortnameMap = {};
-let advancedModeOn = false;
-let emojiSequence = [];
-let firstOpened = true;
-
-let currentSelectedEmoji = null;
-let lastHoveredEmoji = null;
-let currentEmojiSequence = null;
-let isHovering = null;
-
-// #endregion
-// *************************************
-// END vars
-// *************************************
-
+var OFF = "off";
+var ON = "on";
 // *************************************
 // START html
 // *************************************
@@ -54,8 +33,8 @@ let sequenceMode = document.getElementById('sequenceMode');
 let allEmojis = document.getElementById('allEmojis');
 
 let advancedMode = document.getElementById('advancedMode');
+let shouldTimeoutDelete = document.getElementById('shouldTimeoutDelete');
 let currentSwitchIntervalInput = document.getElementById('currentSwitchIntervalInput');
-let oneShotMode = document.getElementById('oneShotMode');
 
 
 // #endregion
@@ -69,15 +48,13 @@ let oneShotMode = document.getElementById('oneShotMode');
 // #region utiltiy
 
 
-// logging function for the browser
-let PREPEND = "\n!!Logger:Avimoji:Web::\n";
-let DEBUG = false;
-function l(label, data, overrideDebug){
+var PREPEND = "\n##Logger:Avimoji:Web::\n";
+var DEBUG = false;
+function log(label, data, overrideDebug){
     if (!DEBUG) {
-        if (overrideDebug === "temp" || overrideDebug =="off") {
-            return;
+        return;
     } else {
-        if (overrideDebug =="off") {
+        if (overrideDebug === "off") {
             return;
         }
     }
@@ -85,7 +62,7 @@ function l(label, data, overrideDebug){
     data = typeof data === "undefined" ? "" : data;
     data = typeof data === "string" ? data :  (JSON.stringify(data, null, 4) || "");
     data = data + " " || "";
-    console.log(PREPEND + label + ": " + data + "\n");
+    console.log(PREPEND + label + ": " + data +"\n");
 }
 
 
@@ -103,7 +80,7 @@ function l(label, data, overrideDebug){
 const EMOJIS_PER_ROW = 20;
 const RENDER_JUST_EMOJIS = true;
 function renderEmojiList(list, isChunk){
-    l("in render", null, "off");
+    // log("in render", null, "off");
     if (!isChunk){
         emojiContainer.innerHTML = ""
     }
@@ -113,7 +90,7 @@ function renderEmojiList(list, isChunk){
         let emojiStyle = ` width: ${emojiLength}px; height: ${emojiLength}px; 
         background-size: ${emoji.small.sourceDimensions.x}px ${emoji.small.sourceDimensions.y}px; 
         background-position: -${emoji.small.frame.x}px -${emoji.small.frame.y}px;
-        background-image: url('./images/emojis2/${emoji.small.source}');
+        background-image: url('./images/emojis/${emoji.small.source}');
         transform: scale(1);`
         if(RENDER_JUST_EMOJIS){
             div = `
@@ -125,7 +102,8 @@ function renderEmojiList(list, isChunk){
                 style="${emojiStyle}" 
                 data-number="${emoji.number}" 
                 data-shortName="${emoji.shortName}" 
-                data-code=${emoji.code[0]}>
+                data-code="${emoji.code[0]}"
+            >
             </div>
         `
         } else {
@@ -133,7 +111,7 @@ function renderEmojiList(list, isChunk){
             div.innerHTML = `
                 <p>
                     <div draggable="false" class="normal emoji" style="width: ${emojiLength}px; height: ${emojiLength}px;
-                    background-image: url('./images/emojis2/${emoji.normal.source}');
+                    background-image: url('./images/emojis/${emoji.normal.source}');
                     background-position: -${emoji.normal.frame.x}px -${emoji.normal.frame.y}px; transform: scale(1); display: inline-block;
                     background-size: ${emoji.normal.sourceDimensions.x}px ${emoji.normal.sourceDimensions.y}px;"></div>
                     ${emoji.number} : ${emoji.shortName} : ${emoji.keywords} : ${emoji.code}
@@ -167,19 +145,25 @@ function renderEmojiList(list, isChunk){
 
 
 function renderSelected(emoji){
+    // log("== in render selected ==", null, OFF)
+    // log("allChunksReceived", allChunksReceived, OFF)
+    // log("emoji", emoji, OFF)
+    if (!allChunksReceived || !emoji) {
+        selectedContainer.style.display = "none";
+        return;
+    }
+    selectedContainer.style.display = "block";
     selectedContainer.innerHTML = "";
     let div = document.createElement('div');
     let emojiLength = 144;
     div.setAttribute("style","display: flex; flex-direction: column; justify-content: center; align-items: center;")
     div.draggable = false;
-    l("render emoji", emoji, "off")
-    if (currentSelectedEmoji) {
-        div.innerHTML += `
+    // log("render emoji", emoji, "off")
+    let buttonHTML = `
         <div>
-            <input id="removeEmoji" class="buttonControls" style="width: 90px" type="button" value="Remove" onclick="handleDeleteSelected()">
+            <input id="removeEmoji" class="buttonControls" style="width: 50px; margin-top: 0px;" type="button" value="Remove" onclick="handleDeleteSelected()">
         </div>
-        `
-    }
+    `
     div.innerHTML += `
         <div draggable="false"
             onclick="clickEmoji(this)"
@@ -188,9 +172,10 @@ function renderSelected(emoji){
             data-code=${emoji.code[0]}
             style="width: ${emojiLength}px; height: ${emojiLength}px; align-self: center;
             background-position: -${emoji.massive.frame.x}px -${emoji.massive.frame.y}px; 
-            background-image: url('./images/emojis2/${emoji.massive.source}');
+            background-image: url('./images/emojis/${emoji.massive.source}');
             margin-bottom: 20px;">
         </div>
+        ${currentSelectedEmoji && !isSequenceMode ? buttonHTML : ""}
         <div id="selectedText">
             ${emoji.shortName.toUpperCase()}
         </div>
@@ -202,169 +187,303 @@ function renderSelected(emoji){
 }
 
 
-function renderEmojiSequence(emojiSequence){
-    emojiSequenceContainer.innerHTML = "";
-    let div = document.createElement('div');
+function renderEmojiSequence(){
+    var elem = document.getElementById('emojiSequenceContent')
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
+    if (currentEmojiSequence.length === 0 || !isSequenceMode) {
+        return;
+    }
+
+
     let imageString = "";
     let emojiLength = 18;
-    emojiSequence.forEach((emoji, index) => {
+    currentEmojiSequence.forEach((emoji, index) => {
         imageString += `
+        <div style="width: calc(1/20*100% - (1 - 1/20)*1px); display: inline-block;">
             <span 
+                style="
+                    width: ${emojiLength}px; height: ${emojiLength}px;
+                    background-position: -${emoji.small.frame.x}px -${emoji.small.frame.y}px; 
+                    background-image: url('./images/emojis/${emoji.small.source}');"
                 data-index="${index}" 
                 data-code="${emoji.code[0]}" 
                 draggable="false" 
                 class="emoji" 
-                style="width: ${emojiLength}px; height: ${emojiLength}px;
-                background-position: -${emoji.small.frame.x}px -${emoji.small.frame.y}px; 
-                background-image: url('./images/emojis2/${emoji.small.source}');
                 onmouseover="hoverEmoji(this, true)"
                 onmouseout="hoverEmoji(this)"
+                onclick="clickEmoji(this, true)"
             >
-            </span>`
+            </span>
+        </div>`
     })
-    imageString += `
-        <div>
-            <input id="playStopButton" class="buttonControls" type="button" value="Play" onclick="handleUpdateIsPlaying()">
-            <input id="resetButton" class="buttonControls" type="button" value="Reset" onclick="handleResetList()">
+
+    let div = document.createElement('div');
+    div.innerHTML = `
+        <div id="emojiSequenceContent">
+            <div style="margin-bottom: 2px;">
+                <span class="mainTextColor" style="font-size: 10px;" id="emojiSequenceText">
+                    Emoji Sequence
+                </span>
+            </div>
+            <div id="emojiSequence" class ="gridRowLeftJustify">
+                ${imageString}
+            </div>
+            <div class="gridRowCenter">
+                <input id="playStopButton" style="width: 90px; margin: 0px 5px" class="buttonControls" type="button" value="Play" onclick="handleUpdateIsPlaying()">
+                <input id="resetButton" style="width: 90px; margin: 0px 5px" class="buttonControls" type="button" value="Reset" onclick="handleResetList()">
+            </div>
         </div>
     `
-    div.innerHTML = imageString;
     emojiSequenceContainer.appendChild(div);
     updatePlayLabel(isPlaying);
 }
 
 
-function renderFavorites(list){
-    emojiFavoriteList.innerHTML = "";
-    let div = document.createElement('div');
-    div.classList.add("gridRowLeftJustify")
+function renderFavorites(){
+    // log("in render favorites");
+    var elem = document.getElementById('emojiFavoriteContent')
+    if (elem){
+        elem.parentNode.removeChild(elem);
+    }
+
+    if (favoritesArray.length === 0) {
+        // log("render favorites length is 0", null, OFF)
+        return;
+    }
+
+
     let imageString = "";
-    list.forEach((emoji, index) => {
-        l("emoji in code", emoji.code, "off"),
-        emoji = emojiMap[emoji.code]
-        let emojiLength = 36;
-        let emojiStyle = ` width: ${emojiLength}px; height: ${emojiLength}px; 
-        background-size: ${emoji.normal.sourceDimensions.x}px ${emoji.normal.sourceDimensions.y}px; 
-        background-position: -${emoji.normal.frame.x}px -${emoji.normal.frame.y}px;
-        background-image: url('./images/emojis2/${emoji.normal.source}');
-        transform: scale(1);`
-        imageString += `
-        <span>
-            <div
-                onclick="clickEmoji(this)"
-                onmouseover="hoverEmoji(this, true)"
-                onmouseout="hoverEmoji(this)"
-                draggable="false" 
-                style="${emojiStyle}" 
-                data-number="${emoji.number}" 
-                data-shortName="${emoji.shortName}" 
-                data-code=${emoji.code[0]}>
-            </div>
-        </span>`
+    favoritesArray.forEach((emoji, index) => {
+        if (emoji && emojiMap[emoji.code]){
+            emoji = emojiMap[emoji.code]
+            let emojiLength = 36;
+            let emojiStyle = ` 
+                width: ${emojiLength}px; height: ${emojiLength}px; 
+                background-size: ${emoji.normal.sourceDimensions.x}px ${emoji.normal.sourceDimensions.y}px; 
+                background-position: -${emoji.normal.frame.x}px -${emoji.normal.frame.y}px;
+                background-image: url('./images/emojis/${emoji.normal.source}');
+                pointer-events: auto;
+                transform: scale(1);`
+            imageString += `
+            <span style="width: calc(1/10*100% - (1 - 1/10)*1px)">
+                <div
+                    onclick="clickEmoji(this)"
+                    class="favoriteEmojis"
+                    onmouseover="hoverEmoji(this, true)"
+                    onmouseout="hoverEmoji(this)"
+                    draggable="false" 
+                    style="${emojiStyle}" 
+                    data-number="${emoji.number}" 
+                    data-shortName="${emoji.shortName}" 
+                    data-code=${emoji.code[0]}>
+                </div>
+            </span>`
+        }
     })
-    div.innerHTML = imageString;
-    emojiFavoriteList.appendChild(div);
+
+    let div = document.createElement('div');
+    div.innerHTML = `
+        <div id="emojiFavoriteContent">
+            <div>
+                <span class="mainTextColor" id="favoriteEmojiText">Favorite Emojis</span>
+            </div>
+            <div id="emojiFavoriteList" class ="gridRowLeftJustify">
+                ${imageString}
+            </div>
+            <div class="gridRowCenter">
+                <input id="resetFavorites" 
+                    style="width: 50px;margin: 0px 0px; position: relative; bottom: 70px; right: 80px" class="buttonControls" type="button" value="Reset" onclick="handleResetFavorites()">
+            </div>
+        </div>
+
+    `
+    
+    emojiFavoritesContainer.appendChild(div);
 }
 
 
-const STICKY_MENU_NOSELECT_ADVANCED_HEIGHT = "250px";
-const EMOJI_LIST_NOSELECT_ADVANCED_MARGIN_TOP = "250px";
+function getNumberFromString(string, suffix){
+    return +string.split(suffix)[0];
+}
 
-const STICKY_MENU_WITH_REMOVE_ADVANCED_HEIGHT = "500px";
-const EMOJI_LIST_WITH_REMOVE_ADVANCED_MARGIN_TOP = "500px";
+function addToHeightAndMarginString(baseString, addString){
+    baseString = getNumberFromString(baseString, "px");
+    addString = getNumberFromString(addString, "px");
+    let sum = baseString + addString;
+    let finalHeightString = sum + "px";
+    return finalHeightString;
+}
 
-const STICKY_MENU_ADVANCED_HEIGHT = "520px";
-const EMOJI_LIST_ADVANCED_MARGIN_TOP = "521px";
+const LOG_STATES = ON;
+const NOSELECT_SEQUENCE_ADVANCED = "250px"
+const NOSELECT_NOSEQUENCE_HOVER_ADVANCED = "430px";
+const NOSELECT_HOVER_SEQUENCE_ADVANCED = "470px";
+const SEQUENCE_MODE_PLAYING_ADVANCED = "500px";
+const WITH_REMOVE_ADVANCED = "455px";
+const NOSELECT_HOVER_ADVANCED = "430px";
+const NOSELECT_ADVANCED = "200px";
+const ADVANCED = "520px";
 
-const STICKY_MENU_NOSELECT_SIMPLE_HEIGHT = "200px";
-const EMOJI_LIST_NOSELECT_SIMPLE_MARGIN_TOP = "200px";
+const NOSELECT_SIMPLE = "130px";
+const WITH_REMOVE_SIMPLE = "370px";
+const HOVER_SIMPLE= "345px";
+const SIMPLE = "430px";
 
-const STICKY_MENU_SIMPLE_HEIGHT = "430px";
-const EMOJI_LIST_SIMPLE_MARGIN_TOP = "430px";
-
-const STICKY_MENU_WITH_REMOVE_SIMPLE_HEIGHT = "430px";
-const EMOJI_LIST_WITH_REMOVE_SIMPLE_MARGIN_TOP = "430px";
-
+let heightAndMarginString = "";
+let EMOJI_FAVORITES_CONTAINER_HEIGHT = "50px";
+let SEQUENCE_ROW_HEIGHT = "22px";
+let EMOJI_LIST_MARGIN_BUFFER = "10px";
 function renderUI(){
+    heightAndMarginString = "";
+    if (favoritesArray) {
+        // log("rendering favorites", favoritesArray.length, OFF)
+        if (favoritesArray.length > 0) {
+            // log("adding favorites height to base", null, OFF)
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, EMOJI_FAVORITES_CONTAINER_HEIGHT);
+        }
+    }
+
+    if (isSequenceMode) {
+        var rows = Math.ceil(currentEmojiSequence.length / EMOJIS_PER_ROW);
+        var rowHeight = getNumberFromString(SEQUENCE_ROW_HEIGHT, "px") * rows + "px";
+        // log("rowheight", rowHeight, OFF)
+        heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, rowHeight);
+    }
+
     if (advancedModeOn){
         advancedContainer.style.display = "block"
-        l("currentSelectedEmoji", currentSelectedEmoji, "off")
 
-        if (isSequenceMode){
-            l('advanced - Sequence Mode')
-            renderEmojiSequence(currentEmojiSequence);
-        } else {
-            emojiSequenceContainer.innerHTML = "";
+        if (isSequenceMode && currentEmojiSequence && currentEmojiSequence.length > 0 && !isHovering && !currentSelectedEmoji && !lastHoveredEmoji) {
+            // log("UI State: 1 in sequence mode: NOSELECT_SEQUENCE_ADVANCED", null, LOG_STATES)
+            let addToString = NOSELECT_SEQUENCE_ADVANCED;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
+            return
         }
 
-        if (isHovering){
-            l('advanced - emojiHovered || !firstOpen')
-            selectedContainer.innerHTML = "";
-            stickyContainer.style.height = STICKY_MENU_ADVANCED_HEIGHT;
-            emojiContainer.style.marginTop = EMOJI_LIST_ADVANCED_MARGIN_TOP;
+        if (isSequenceMode && currentEmojiSequence && currentEmojiSequence.length === 0 && (isHovering || lastHoveredEmoji)){
+            // log('UI State: 2 advanced - Sequence Mode: NOSELECT_NOSEQUENCE_HOVER_ADVANCED', null, LOG_STATES)
+            let addToString = NOSELECT_NOSEQUENCE_HOVER_ADVANCED;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
             renderSelected(lastHoveredEmoji);
-            return;
+            return
+        } 
+
+        if (isSequenceMode && currentEmojiSequence && currentEmojiSequence.length === 0 && lastHoveredEmoji){
+            // log('UI State: 3 advanced - Sequence Mode: NOSELECT_NOSEQUENCE_HOVER_ADVANCED', null, LOG_STATES)
+            let addToString = NOSELECT_NOSEQUENCE_HOVER_ADVANCED;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
+            renderSelected(lastHoveredEmoji);
+            return
+        } 
+
+        if (isSequenceMode && isPlaying){
+            // log('UI State: 6 advanced - Sequence Mode: WITH_REMOVE_ADVANCED', null, LOG_STATES)
+            let addToString = SEQUENCE_MODE_PLAYING_ADVANCED;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
+            renderSelected(currentSelectedEmoji);
+            return
+        }
+
+        if (isSequenceMode && currentEmojiSequence && currentEmojiSequence.length > 0 && (isHovering || lastHoveredEmoji)){
+            // log('UI State: 4 advanced - Sequence Mode: NOSELECT_HOVER_ADVANCED', null, LOG_STATES)
+            // log("currentSelectedEmoji", currentSelectedEmoji, OFF)
+            // log("isHovering", isHovering, OFF)
+            let addToString = NOSELECT_HOVER_SEQUENCE_ADVANCED;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
+            renderSelected(lastHoveredEmoji);
+            return
+        } 
+        
+        if (isSequenceMode && currentSelectedEmoji){
+            // log('UI State: 5 advanced - Sequence Mode: WITH_REMOVE_ADVANCED', null, LOG_STATES)
+            let addToString = WITH_REMOVE_ADVANCED;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
+            renderSelected(currentSelectedEmoji);
+            return
         }
 
         if (currentSelectedEmoji){
-            l('advanced - currently selected')
-            stickyContainer.style.height = STICKY_MENU_WITH_REMOVE_ADVANCED_HEIGHT;
-            emojiContainer.style.marginTop = EMOJI_LIST_WITH_REMOVE_ADVANCED_MARGIN_TOP;
+            // log('UI State: 7 advanced - currently selected: WITH_REMOVE_ADVANCED', null, LOG_STATES)
+            let addToString = WITH_REMOVE_ADVANCED;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
             renderSelected(currentSelectedEmoji);
             return;
         }
 
-        if (lastHoveredEmoji){
-            l('advanced - currently selected')
-            stickyContainer.style.height = STICKY_MENU_WITH_REMOVE_ADVANCED_HEIGHT;
-            emojiContainer.style.marginTop = EMOJI_LIST_WITH_REMOVE_ADVANCED_MARGIN_TOP;
+        if ((isHovering || lastHoveredEmoji)){
+            // log('UI State: 8 advanced - emojiHovered: NOSELECT_HOVER_ADVANCED', null, LOG_STATES)
+            let addToString = NOSELECT_HOVER_ADVANCED;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
             renderSelected(lastHoveredEmoji);
             return;
         }
 
-        l('advanced - not selected')
+        // log('UI State: 9 advanced - not selected: NOSELECT_ADVANCED', null, LOG_STATES)
+        let addToString = NOSELECT_ADVANCED;
+        heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
         selectedContainer.innerHTML = "";
-        stickyContainer.style.height = STICKY_MENU_NOSELECT_ADVANCED_HEIGHT;
-        emojiContainer.style.marginTop = EMOJI_LIST_NOSELECT_ADVANCED_MARGIN_TOP;
+        stickyContainer.style.height = heightAndMarginString;
+        emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
         
     } else {
-        
         advancedContainer.style.display = "none"
-        emojiSequenceContainer.innerHTML = "";
-
-        if (isHovering) {
-            l('simple - hovered or not first opened')
-            stickyContainer.style.height = STICKY_MENU_WITH_REMOVE_SIMPLE_HEIGHT;
-            emojiContainer.style.marginTop = EMOJI_LIST_WITH_REMOVE_SIMPLE_MARGIN_TOP;
-            renderSelected(lastHoveredEmoji);
-            return;
-        }
-
         if (currentSelectedEmoji){
-            l('simple - currently selected')
-            stickyContainer.style.height = STICKY_MENU_WITH_REMOVE_SIMPLE_HEIGHT;
-            emojiContainer.style.marginTop = EMOJI_LIST_WITH_REMOVE_SIMPLE_MARGIN_TOP;
+            // log('UI State: 10 simple - currently selected: WITH_REMOVE_SIMPLE', null, LOG_STATES)
+            let addToString = WITH_REMOVE_SIMPLE;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
             renderSelected(currentSelectedEmoji);
             return;
         }
 
-        if (lastHoveredEmoji){
-            l('simple - last hovered')
-            stickyContainer.style.height = STICKY_MENU_WITH_REMOVE_SIMPLE_HEIGHT;
-            emojiContainer.style.marginTop = EMOJI_LIST_WITH_REMOVE_SIMPLE_MARGIN_TOP;
+        if (isHovering) {
+            // log('UI State: 11 simple - hovered: HOVER_SIMPLE', null, LOG_STATES)
+            let addToString = HOVER_SIMPLE;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
             renderSelected(lastHoveredEmoji);
             return;
         }
 
 
-        l('simple - nothing')
+        if (lastHoveredEmoji){
+            // log("UI State: 12 simple - last hovered: WITH_REMOVE_SIMPLE", LOG_STATES)
+            let addToString = HOVER_SIMPLE;
+            heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
+            stickyContainer.style.height = heightAndMarginString;
+            emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
+            renderSelected(lastHoveredEmoji);
+            return;
+        }
+
+
+        // log('UI State: 13 simple - nothing: NOSELECT_SIMPLE', null, LOG_STATES)
+        let addToString = NOSELECT_SIMPLE;
+        heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
         selectedContainer.innerHTML = "";
-        stickyContainer.style.height = STICKY_MENU_NOSELECT_SIMPLE_HEIGHT;
-        emojiContainer.style.marginTop = EMOJI_LIST_NOSELECT_SIMPLE_MARGIN_TOP;
+        stickyContainer.style.height = heightAndMarginString;
+        emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_MARGIN_BUFFER);
     
-    }
-    if (firstOpened) {
-        firstOpened = false;
     }
 }
 
@@ -422,13 +541,30 @@ function handleDeleteSelected(){
 
 function handleWearAsMask(checkbox){
     let shouldWearMask = checkbox.checked;
-    l("shouldWearMask",shouldWearMask)
+    // log("shouldWearMask",shouldWearMask, OFF)
     EventBridge.emitWebEvent(JSON.stringify({
         app: "avimoji",
         method: "handleShouldWearMask",
         shouldWearMask: shouldWearMask
     }))
 }
+
+
+let hasFavorites = false;
+function handleResetFavorites(){
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "handleResetFavorites",
+    }))
+    var elem = document.getElementById('emojiFavoriteContent')
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
+    hasFavorites = false;
+    favoritesArray = [];
+    renderUI();
+}
+
 
 function handleLocalChange(checkbox){
     let isLocal = checkbox.checked;
@@ -437,6 +573,7 @@ function handleLocalChange(checkbox){
         method: "handleLocalChange",
         isLocal: isLocal
     }))
+
 }
 
 
@@ -459,19 +596,15 @@ function handleSequenceModeChange(checkbox){
         method: "handleSequenceModeChange",
         isSequenceMode: isSequenceMode
     }))
-    renderUI();
-}
-
-
-
-function handleOneShotMode(checkbox){
-    let oneShotMode = checkbox.checked;
-    l("oneShotMode", oneShotMode)
-    EventBridge.emitWebEvent(JSON.stringify({
-        app: "avimoji",
-        method: "handleOneShotMode",
-        oneShotMode: oneShotMode
-    }))
+    renderEmojiSequence();
+    // if(isSequenceMode) {
+    //     var elem = document.getElementById('emojiSequenceContent')
+    //     if (elem) {
+    //         elem.parentNode.removeChild(elem);
+    //     }
+    //     renderUI();
+    // }
+    
 }
 
 
@@ -481,6 +614,27 @@ function handleAdvancedModeChange(checkbox){
         app: "avimoji",
         method: "handleAdvancedMode",
         newAdvancedModeState: advancedModeOn
+    }))
+    if (isSequenceMode) {
+        isSequenceMode = false;
+        EventBridge.emitWebEvent(JSON.stringify({
+            app: "avimoji",
+            method: "handleSequenceModeChange",
+            isSequenceMode: isSequenceMode
+        }))
+        document.getElementById("sequenceMode").checked = false;
+    }
+
+    renderUI();
+}
+
+
+function handleShouldTimeoutDelete(checkbox){
+    let shouldTimeoutDelete = checkbox.checked;
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "handleShouldTimeoutDelete",
+        newTimeoutDeleteState: shouldTimeoutDelete
     }))
     renderUI();
 }
@@ -492,6 +646,24 @@ function handleEmojiScalerChanged(slider) {
         app: "avimoji",
         method: "handleUpdateEmojiScaler",
         emojiScaler: slider.value
+    }));
+}
+
+// Handle the slider being changed
+function handleAnimationDistance(slider) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "handleAnimationDistance",
+        animationDistance: slider.value
+    }));
+}
+
+// Handle the slider being changed
+function handleAnimationSpeed(slider) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "avimoji",
+        method: "handleAnimationSpeed",
+        animationSpeed: slider.value
     }));
 }
 
@@ -512,15 +684,17 @@ function filterEmojis(event){
     if (event.keyCode === 13) {
         event.preventDefault();
         if(shortnameMap[keyword.toLowerCase()]){
-            let emoji = emojiMap[shortnameMap[keyword.toLowerCase()]];
-            EventBridge.emitWebEvent(JSON.stringify({
-                app: "avimoji",
-                method: "emojiSelected",
-                emoji: emoji
-            }))
-            input.value = "";
-            renderEmojiList(emojiList);
-            return;
+            if (emojiMap[shortnameMap[keyword.toLowerCase()]]){
+                let emoji = emoji && emojiMap[shortnameMap[keyword.toLowerCase()]];
+                EventBridge.emitWebEvent(JSON.stringify({
+                    app: "avimoji",
+                    method: "handleEmojiSelected",
+                    emoji: emoji
+                }))
+                input.value = "";
+                renderEmojiList(emojiList);
+                return;
+            }
         }
     }
     let filteredEmojiList = emojiList.filter((emoji, index) => {
@@ -531,33 +705,42 @@ function filterEmojis(event){
 }
 
 
-function clickEmoji(clickedEmoji){
-    let code = clickedEmoji.getAttribute('data-code');
-    if (code && code.length > 0) {
-        let emoji = emojiMap[code];
-        EventBridge.emitWebEvent(JSON.stringify({
-            app: "avimoji",
-            method: "emojiSelected",
-            emoji: emoji
-        }))
+function clickEmoji(clickedEmoji, isSequenceDelete){
+    if (isSequenceDelete){
+        clickSequenceEmoji(clickedEmoji);
+    } else {
+        let code = clickedEmoji.getAttribute('data-code');
+        // log("in clickEmoji", code);
+        if (code && code.length > 0) {
+            if (emojiMap[code]) {
+                let emoji = emojiMap[code];
+                EventBridge.emitWebEvent(JSON.stringify({
+                    app: "avimoji",
+                    method: "handleEmojiSelected",
+                    emoji: emoji
+                }))
+            }
+        }
     }
+  
 }
 
 
-function resetList(){
+function handleResetList(){
+    // log("in handle reset ", null, OFF)
     EventBridge.emitWebEvent(JSON.stringify({
         app: "avimoji",
-        method: "resetList"
+        method: "handleResetList"
     }))
     updatePlayLabel();
 }
 
 
-function clickSequenceEmoji(event){
-    l("in clickSequence");
-    if (event.target.getAttribute('data-index')){
+function clickSequenceEmoji(emoji){
+    // log("in clickSequence");
+    if (emoji.getAttribute('data-index')){
         let index = +event.target.getAttribute('data-index');
-        l("index", index);
+        // log("index", index);
         EventBridge.emitWebEvent(JSON.stringify({
             app: "avimoji",
             method: "deleteEmojiInSequence",
@@ -567,17 +750,23 @@ function clickSequenceEmoji(event){
 }
 
 
+let lastHoveredEmoji = null;
+let isHovering = null;
 function hoverEmoji(emoji, onHover){
     if (onHover) {
+        emoji.style.outline = "3px solid white";
         isHovering = true;
         let code = emoji.getAttribute('data-code');
-        if (code && code.length > 0 && allChunksReceived) {
-            let emoji = emojiMap[code];
-            lastHoveredEmoji = emoji;
-            renderUI();
+        if (code && code.length > 0) {
+            if (emoji && emojiMap[code]) {
+                let emoji = emojiMap[code];
+                lastHoveredEmoji = emoji;
+                renderUI();
+            }
         }
     } else {
         isHovering = false;
+        emoji.style.outline = "";
         if (currentSelectedEmoji) {
             renderUI();
         }
@@ -595,14 +784,21 @@ function hoverEmoji(emoji, onHover){
 // *************************************
 // #region tablet
 
-
+let emojiMap = {};
+let emojiList = [];
 let allChunksReceived = false;
+let favoritesArray = []
+let shortnameMap = {};
+let advancedModeOn = false;
+let emojiSequence = [];
+let currentSelectedEmoji = null;
+let currentEmojiSequence = null;
 // Handle incoming tablet messages
 function onScriptEventReceived(message) {
     try {
         message = JSON.parse(message);
     } catch (e) {
-        l("error in script", e);
+        log("error in script", e);
         return;
     }
 
@@ -610,60 +806,76 @@ function onScriptEventReceived(message) {
         return; 
     }
 
-    l("message", message, "off")
+    // log("message", message, "off")
 
     switch (message.method) {
         case "updateUI":
-            l("in update ui")
+            // log("in update ui", null, OFF)
             document.getElementById("loadingContainer").style.display = "none";
             advancedMode.checked = advancedModeOn = message.advancedModeOn || false;
             wearAsMask.checked = message.shouldWearMask || false;
             local.checked = message.isLocal || false;
             allEmojis.checked = isAllEmojis = message.isLocal || false;
+            shouldTimeoutDelete.checked = message.shouldTimeoutDelete || false;
             sequenceMode.checked = isSequenceMode = message.isSequenceMode || false;
             document.getElementById("emojiScaler").value = message.emojiScaler;
+            document.getElementById("animationDistance").value = message.animationDistance;
+            document.getElementById("animationSpeed").value = message.animationSpeed;
             isPlaying = message.isPlaying
             currentSelectedEmoji = message.selectedEmoji || null;
+            currentEmojiSequence = message.emojiSequence || [];
+            favoritesArray = message.favorites || [];
 
-            if (message.emojiSequence.length > 0){
-                currentEmojiSequence = message.emojiSequence || [];
-            }
-            if (message.favorites){
-                favoritesArray = message.favorites;
-            }
-
-            l("RENDER UI -> updateUI");
+            // log("emoji sequence length", message.emojiSequence.length);
+            // log("RENDER UI -> updateUI", null, OFF);
             renderUI()
 
             input.focus();   
             break;
+
         case "sendChunk":
             emojiList = emojiList.concat(message.chunk);
             emojiMap = Object.assign({}, emojiMap, ...message.chunk.map(emoji => ({[emoji.code[0]]: emoji})))
             shortnameMap = Object.assign({}, shortnameMap, ...message.chunk.map(emoji => ({[emoji.shortName]: emoji.code[0]})))
             renderEmojiList(message.chunk, true);
+            renderEmojiSequence();
+            renderFavorites();
             if (message.chunkNumber >= message.totalChunks -1){
-                l("about to make favorites now that chunks are good")
+                // log("about to make favorites now that chunks are good", null, OFF)
                 allChunksReceived = true;
-                renderFavorites(favoritesArray);
+                renderUI();
+                renderEmojiSequence();
+                renderFavorites();
             }
             break;
+
         case "updateEmojiPicks":
             currentSelectedEmoji = message.selectedEmoji;
             currentEmojiSequence = message.emojiSequence || [];
-            l("RENDER UI -> updateEmojiPicks");
+            // log("RENDER UI -> updateEmojiPicks", null, OFF);
             renderUI();
+            renderEmojiSequence();
+            renderFavorites();
             break;
+
         case "updateCurrentEmoji":
             currentSelectedEmoji = message.selectedEmoji;
-            l("RENDER UI -> updateCurrentEmoji");
+            // log("RENDER UI -> updateCurrentEmoji", null, OFF);
             renderUI();
             break;
+
         case "updateFavorites":
+            // log("IN update favorites", null, OFF)
             favoritesArray = message.favorites;
+            renderFavorites();
             break;
+
+        case "reRenderUI":
+            renderUI();
+            break;
+
         default:
-            l("Unknown message received from avimoji.js!", JSON.stringify(message));
+            log("Unknown message received from avimoji.js!", JSON.stringify(message));
             break;
     }
 }
@@ -684,9 +896,9 @@ function emitAppSpecificEvent(method, data) {
 // The delay is still necessary for HTML apps in RC78+.
 let EVENTBRIDGE_SETUP_DELAY = 110;
 function onLoad() {
-    l("in onload")
+    // log("in onload", null, OFF)
     setTimeout(function() {
-        l("emiting event")
+        // log("emiting event", null, OFF)
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         emitAppSpecificEvent("eventBridgeReady");
     }, EVENTBRIDGE_SETUP_DELAY);

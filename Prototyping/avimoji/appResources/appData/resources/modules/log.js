@@ -2,16 +2,15 @@
 var PREPEND = "\n##Logger:Avimoji:App::\n";
 var DEBUG = false;
 function log(label, data, overrideDebug){
-    if (!DEBUG) {
-        if (overrideDebug === "temp" || overrideDebug =="off") {
-            return;
+    if (!DEBUG && overrideDebug !== "PRINT") {
+        return;
     } else {
-        if (overrideDebug =="off") {
+        if (overrideDebug === "off") {
             return;
         }
     }
 
-    data = typeof data === "undefined" ? "" : data;
+    data = typeof data === "undefined" || data === null ? "" : data;
     data = typeof data === "string" ? data :  (JSON.stringify(data, null, 4) || "");
     data = data + " " || "";
     console.log(PREPEND + label + ": " + data +"\n");
