@@ -47,7 +47,7 @@ function getCalendars() {
                         });                    
                     }
                     localStorage.setItem('resources', JSON.stringify(resources));
-                    connectorPage();
+                    connectorPage("LOGIN");
                 } catch (e) {
                     console.log(e, " FAILED PARSING");
                 }
@@ -73,6 +73,74 @@ var pages = [
     VIEW_ALL_PAGE,
     ERROR_PAGE
 ];
+
+function changePages(currentPage, newPage) {
+    switch (currentPage) {
+        case "LOGIN":
+            console.log("login");
+            loginButton.removeEventListener('click', getCalendars);
+            break;
+        case "CONNECT":
+            console.log("connect");
+            helpButton.removeEventListener('click', errorPage);
+            revokeButton.removeEventListener('click', revokeAccess);
+            logoutButton.removeEventListener('click', signOut);
+            linkerButton.removeEventListener('click', connectionSuccess);
+            break;
+        case "SUCCESS":
+            viewAllButton.removeEventListener('click', viewLinkedSpaces);
+            connectAgainButton.removeEventListener('click', connectorPage);
+            revokeButton2.removeEventListener('click', revokeAccess);
+            logoutButton2.removeEventListener('click', signOut);
+            break;
+        case "VIEW":
+            connectAgainButton2.removeEventListener('click', connectorPage);
+            revokeButton3.removeEventListener('click', revokeAccess);
+            logoutButton3.removeEventListener('click', signOut);
+            for (var i = 0; i < trashButtons.length; i++) {
+                trashButtons[i].removeEventListener('click', deleteTableRow);
+                editButtons[i].removeEventListener('click', editTableRow);
+            }
+            trashButtons = [];
+            editButtons = [];
+            break;
+        case "ERROR":
+            backButton.removeEventListener('click', getCalendars);
+            break;  
+    }
+    switch (newPage) {
+        case "LOGIN":
+            console.log("login");
+            showHidePages(0);
+            loginButton.addEventListener('click', getCalendars);
+            break;
+        case "CONNECT":
+            console.log("connect");
+            showHidePages(1);
+            helpButton.addEventListener('click', errorPage);
+            revokeButton.addEventListener('click', revokeAccess);
+            logoutButton.addEventListener('click', signOut);
+            linkerButton.addEventListener('click', connectionSuccess);
+            break;
+        case "SUCCESS":
+            showHidePages(2);
+            viewAllButton.addEventListener('click', viewLinkedSpaces);
+            connectAgainButton.addEventListener('click', connectorPage);
+            revokeButton2.addEventListener('click', revokeAccess);
+            logoutButton2.addEventListener('click', signOut);
+            break;
+        case "VIEW":
+            showHidePages(3);
+            connectAgainButton2.addEventListener('click', connectorPage);
+            revokeButton3.addEventListener('click', revokeAccess);
+            logoutButton3.addEventListener('click', signOut);
+            break;
+        case "ERROR":
+            showHidePages(4);
+            backButton.addEventListener('click', getCalendars);
+            break; 
+    }
+}
 
 function showHidePages(arg) {
     for (var i = 0; i < pages.length; i++) {
@@ -102,14 +170,15 @@ var roomInfo = [
         id: "{33341-123412-1234123-314123}"
     }
 ];
-function connectorPage() {
+function connectorPage(lastPage) {
+    console.log("connector page from ", lastPage);
     var calendarInfo = JSON.parse(localStorage.getItem('resources'));
-    if (calendarInfo.length <= 0) {
-        errorPage();
+    if (calendarInfo.length < 1) {
+        errorPage("CONNECT");
         return;
     }
-    if (roomInfo.length <= 0) {
-        viewLinkedSpaces();
+    if (roomInfo.length < 1) {
+        viewLinkedSpaces("CONNECT");
         return;
     }
     for (var i = 0; i < selectedCalendarButton.length; i++) {
@@ -124,15 +193,16 @@ function connectorPage() {
     for (i = 0; i < roomInfo.length; i++) {
         selectedRoomButton.options[i] = new Option(roomInfo[i].name, roomInfo[i].id);
     }
-    showHidePages(1);
+    changePages(lastPage, "CONNECT");
 }
 
 var completedConnections = [];
-function connectionSuccess() {
+function connectionSuccess(lastPage) {
     completedConnections.push({
         "address": selectedCalendarButton.value,
-        "UUID": selectedRoomButton.value,
-        "name": selectedCalendarButton.options[selectedCalendarButton.selectedIndex].textContent
+        "uuid": selectedRoomButton.value,
+        "name": selectedCalendarButton.options[selectedCalendarButton.selectedIndex].textContent,
+        "hifiName": selectedRoomButton.options[selectedRoomButton.selectedIndex].textContent
     });
     console.log(JSON.stringify(completedConnections));
     var resources = JSON.parse(localStorage.getItem('resources'));
@@ -152,21 +222,101 @@ function connectionSuccess() {
             i--;
         }
     }
+    if (roomInfo.length < 1 && completedConnections.length > 0) {
+        connectAgainButton2.removeEventListener('click', connectorPage("SUCCESS"));
+        connectAgainButton2.disabled = true;
+    }
     console.log(resources.length);
     localStorage.setItem('resources', JSON.stringify(resources));
     document.getElementById('cal').innerHTML = selectedCalendarButton[selectedCalendarButton.selectedIndex].textContent;
     document.getElementById('room').innerHTML = selectedRoomButton[selectedRoomButton.selectedIndex].textContent;
-    showHidePages(2);
+    changePages(lastPage, "SUCCESS");
 }
 
-function viewLinkedSpaces() {
-    showHidePages(3);
+
+function addTableRow(row, object) {
+    var table = document.getElementById("completed");
+    var newRow = table.insertRow(row);
+    var cell1 = newRow.insertCell(0);
+    var cell2 = newRow.insertCell(1);
+    var cell3 = newRow.insertCell(2);
+    cell1.innerHTML = object[row].name;
+    cell2.innerHTML = '<input type="button" class="trash">';
+    cell3.innerHTML = '<input type="button" class="edit">';
+    trashButtons.push(document.getElementById("completed").rows[row].cells[1]);
+    document.getElementById("completed").rows[row].cells[1].addEventListener('click', deleteTableRow);
+    editButtons.push(document.getElementById("completed").rows[row].cells[1]);
+    document.getElementById("completed").rows[row].cells[2].addEventListener('click', editTableRow);
 }
 
-function errorPage() {
-    showHidePages(4);
+
+function deleteTableRow(row) {
+    if (trashButtons.length > 0) {
+        for (var i = 0; i < trashButtons.length; i++) {
+            trashButtons[i].removeEventListener('click', deleteTableRow);
+            editButtons[i].removeEventListener('click', editTableRow);
+        }
+        trashButtons = [];
+        editButtons = [];
+    }
+    var resources = JSON.parse(localStorage.getItem('resources'));
+    var tempObj = completedConnections.splice(row, 1);
+    resources.push({
+        address: tempObj.address,
+        name: tempObj.name
+    });
+    localStorage.setItem('resources', JSON.stringify(resources));
+    roomInfo.push({
+        name: tempObj.hifiName,
+        id: tempObj.uuid
+    });
+    viewLinkedSpaces("VIEW");
 }
 
+
+function editTableRow(row) {
+    for (var i = 0; i < trashButtons.length; i++) {
+        trashButtons[i].removeEventListener('click', deleteTableRow(row));
+        editButtons[i].removeEventListener('click', editTableRow(row));
+    }
+    trashButtons = [];
+    editButtons = [];
+    var resources = JSON.parse(localStorage.getItem('resources'));
+    var tempObj = completedConnections.splice(row, 1);
+    resources.push({
+        address: tempObj.address,
+        name: tempObj.name
+    });
+    localStorage.setItem('resources', JSON.stringify(resources));
+    roomInfo.push({
+        name: tempObj.hifiName,
+        id: tempObj.uuid
+    });
+    connectorPage("VIEW");
+}
+
+
+function viewLinkedSpaces(lastPage) {
+    var table = document.getElementById("completed");
+    table.innerHTML = '';
+    for (var i = 0; i < completedConnections.length; i++) {
+        addTableRow(i, completedConnections);
+    }
+    if (roomInfo.length < 1) {
+        connectAgainButton2.innerHTML = "Confirm these spaces.";
+        connectAgainButton2.disabled = true;
+    }
+    changePages(lastPage, "VIEW");
+}
+
+function errorPage(lastPage) {
+    changePages(lastPage, "ERROR");
+}
+
+function confirmConnections() {
+    // write completedConnections to Drive JSON.
+    // close tablet
+}
 
 function oauth2SignIn() {
     // Google's OAuth 2.0 endpoint for requesting an access token
@@ -223,9 +373,13 @@ function revokeAccess(accessToken) {
     // Add form to page and submit it to actually revoke the token.
     document.body.appendChild(form);
     form.submit();
-    showHidePages(0);
+    location.reload();
 }
 
+function signOut() {
+    // do things
+    location.reload();
+}
 /*
 // Load the API's client and auth2 modules.
 // Call the initClient function after the modules load.
@@ -348,23 +502,28 @@ var loginButton = document.getElementById("login");
 loginButton.addEventListener('click', getCalendars);
 // Connector Page
 var helpButton = document.getElementById('help');
-var revokeButton = document.getElementById('revoke');
+var revokeButton = document.getElementById('revoke1');
+var logoutButton = document.getElementById('logout1');
 var linkerButton = document.getElementById('linker');
 var selectedCalendarButton = document.getElementById('selectedCalendar');
 var selectedRoomButton = document.getElementById('selectedRoom');
-helpButton.addEventListener('click', errorPage);
-revokeButton.addEventListener('click', revokeAccess);
-linkerButton.addEventListener('click', connectionSuccess);
+
 // Connection Successful Page
 var viewAllButton = document.getElementById('viewAll');
 var connectAgainButton = document.getElementById('connector');
-viewAllButton.addEventListener('click', viewLinkedSpaces);
-connectAgainButton.addEventListener('click', connectorPage);
+var revokeButton2 = document.getElementById('revoke2');
+var logoutButton2 = document.getElementById('logout2');
+
 // View Links Page
+var trashButtons = [];
+var editButtons = [];
+var connectAgainButton2 = document.getElementById('connector2');
+var revokeButton3 = document.getElementById('revoke3');
+var logoutButton3 = document.getElementById('logout3');
 
 // Error Page
 var backButton = document.getElementById('tryAgain');
-backButton.addEventListener('click', getCalendars);
+
 
 // Set the text of the button to either On or Off 
 // when opening the tablet app, based on the app script status.

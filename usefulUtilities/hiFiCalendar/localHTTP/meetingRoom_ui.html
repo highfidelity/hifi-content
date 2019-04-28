@@ -2,7 +2,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" type="text/css" href="./css/styles.css?v87">
+        <link rel="stylesheet" type="text/css" href="./css/styles.css?v91">
     </head>
     <body>
         
@@ -16,10 +16,10 @@
     
             <input type="button" class="login" id="login">
     
-            <div id="bttmleft">
+            <div class="bttmleft">
                     <a href="https://www.highfidelity.com/termsofservice">Terms of Service</a>
             </div>
-            <div id='bttmright'>
+            <div class='bttmright'>
                     <a href="https://www.highfidelity.com/privacy">Privacy Policy</a>
             </div>
         </div>
@@ -45,7 +45,8 @@
             </select>
             <br>
             <input type="button" class="ui" id="linker" value="Link these spaces">
-            <input type="button" class="grayLinkText" id="revoke" value="Revoke Access">
+            <input type="button" class="bttmleft" id="revoke1" value="Revoke Access">
+            <input type="button" class="bttmright" id="logout1" value="Log Out">
         </div>
 
         <div id='linkSuccessPage'>
@@ -60,7 +61,8 @@
             <div id="h1TopRight"></div>
             <input type="button" class="blueLinkText" id="viewAll" value="View all linked spaces">
             <input type="button" class="ui" id="connector" value="Link another space">
-            <input type="button" class="grayLinkText" id="revoke" value="Revoke Access">
+            <input type="button" class="bttmleft" id="revoke2" value="Revoke Access">
+            <input type="button" class="bttmright" id="logout2" value="Log Out">
         </div>
 
         <div id='allLinksPage'>
@@ -73,13 +75,14 @@
             <div id="h1TopRight"></div>
             <table id="completed">
                 <tr>
-                    <td>Atlantis ISNT HERER RGIHT N ERIGFANEaS</td>
+                    <td>Atlantis</td>
                     <td><input type="button" class="trash"></td>
                     <td><input type="button" class="edit"></td>
                 </tr>
             </table>
-            <input type="button" class="ui" id="connector" value="Link another space">
-            <input type="button" class="grayLinkText" id="revoke" value="Revoke Access">
+            <input type="button" class="ui" id="connector2" value="Link another space">
+            <input type="button" class="bttmleft" id="revoke3" value="Revoke Access">
+            <input type="button" class="bttmright" id="logout3" value="Log Out">
         </div>
 
         <div id='errorPage'>
@@ -88,18 +91,18 @@
                 <br><br><br>
                 <br><br><br>
                 <br><br><br>
-                <p id="message">You've run out of calendars to book. You'll need to create a new calendar resource for each bookable space.</p>      
+                <p id="message">We couldn't find any calendars to connect. You'll need to create a new calendar resource for each bookable space.</p>      
             </div>
             <div id="h1TopRight"></div>
             <input type="button" class="blueLinkText" id="learn" value="Learn How">
             <input type="button" class="grayLinkText" id="tryAgain" value="Go Back">
-            <div id="bttmleft">
+            <div class="bttmleft">
                 <a href="https://www.highfidelity.com/termsofservice">Terms of Service</a>
             </div>
-            <div id='bttmright'>
+            <div class='bttmright'>
                     <a href="https://www.highfidelity.com/privacy">Privacy Policy</a>
             </div>
         </div>
-        <script src="./js/meetingRoom_ui.js?v68"></script>
+        <script src="./js/meetingRoom_ui.js?v76"></script>
         
     </body>

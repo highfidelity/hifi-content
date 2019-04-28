@@ -89,7 +89,7 @@ h2 {
   color: #FFFFFF;
 }
 
-#bttmright {
+.bttmright {
   position: absolute;
   width: 200px;
   height: 16px;
@@ -104,7 +104,7 @@ h2 {
   color: #828282;
 }
 
-#bttmleft {
+.bttmleft {
   position: absolute;
   width: 200px;
   height: 16px;
@@ -304,7 +304,8 @@ input[type=button].trash {
   background-position: center;  
   cursor: pointer;
   background-size: contain;
-  min-height: 10%;
+  box-sizing: border-box;
+  min-height: 50%;
   border: none;
   outline:none;
 }
@@ -314,7 +315,8 @@ input[type=button].edit {
   background-position: center;  
   cursor: pointer;
   background-size: contain;
-  min-height: 10%;
+  box-sizing: border-box;
+  min-height: 50%;
   border: none;
   outline:none;
 }
@@ -449,27 +451,25 @@ a:active {
 #completed {
   font-family: 'Graphik-Regular';
   position: absolute;
-  top: 300px;
+  top: 250px;
   font-size: 18px;
-  line-height: 22px;
+  line-height: 24px;
   text-align: left;  
   color: white;
   background-color: black;
   overflow: hidden;
   border-collapse: collapse;
-  padding-right: 15%;
-  min-height: 10%;
+  min-height: 20%;
   min-width: 80%;
-  margin-left:auto;
+  margin-left: 10%;
   margin-right:auto;
   border: none;
   outline:none;
 }
 
 #completed td {
-  border: 1px solid black;
-  padding: 8px;
-  min-height: 10%;
+  border: 1px solid rgb(255, 255, 255);
+  min-height: 20%;
   border: none;
   outline:none;
 }
