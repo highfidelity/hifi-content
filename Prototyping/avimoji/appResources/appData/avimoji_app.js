@@ -28,7 +28,6 @@
             return previous;
         }
     }, {});
-    // log("emojiCodeMap", emojiCodeMap, "PRINT")
     var CONFIG = Script.require("./resources/config.json?" + Date.now());
     var imageURLBase = CONFIG.baseImagesURL;
 
@@ -47,6 +46,7 @@
     var currentEmoji = new EntityMaker(entityType);
 
     var selectedEmoji = null;
+
 
     // #endregion
     // *************************************
@@ -78,7 +78,6 @@
     var injector;
     var DEFAULT_VOLUME = 0.0003;
     function playSound(sound, volume, position, localOnly) {
-        // log("is in play sound", null, "off");
         sound = sound || popSound;
         volume = volume || DEFAULT_VOLUME;
         position = position || MyAvatar.position;
@@ -110,7 +109,6 @@
     // Open up on ctrl + enter
     function keyPress(event) {
         if (event.key === 16777220 && event.isControl) {
-            // log("keypressmade");
             if (ui.isOpen) {
                 ui.close();
             } else {
@@ -122,7 +120,6 @@
 
     var MAX_FAVORITES = 10;
     function makeFavoritesArray() {
-        // log("in favorites array", null, "off")
         var i = 0, favoritesArray = [];
         for (var ob in favorites) {
             favoritesArray[i++] = favorites[ob];
@@ -152,9 +149,7 @@
 
     function pruneOldAvimojis() {
         MyAvatar.getAvatarEntitiesVariant().forEach(function (avatarEntity) {
-            // log("avatarEntity length", avatarEntity.length);
             if (avatarEntity && avatarEntity.properties.name.toLowerCase().indexOf("avimoji") > -1) {
-                // log("FOUND SOME OLD AVIMOJIS!!! \N\N DELETING!!! \N\N")
                 Entities.deleteEntity(avatarEntity.id);
             }
         });
@@ -164,7 +159,6 @@
     var INTERVAL = 200;
     var currentChunk = 0;
     function sendEmojiChunks() {
-        // log('sending chunk', null, "off");
         if (currentChunk >= emojiChunks.length) {
             currentChunk = 0;
             return;
@@ -232,12 +226,6 @@
         maybeRedrawAnimation();
     }
 
-    // var editMode = Settings.getValue("avimoji/editMode", false);
-    // function handleEditMode(newEditMode) {
-    //     editMode = newEditMode;
-    //     Settings.setValue("avimoji/editMode", editMode);
-    // }
-
 
     var showEasyFavorite = Settings.getValue("avimoji/showEasyFavorite", false);
     function handleEasyFavorites(newEasyFavorite) {
@@ -271,7 +259,6 @@
             app: "avimoji",
             method: "reRenderUI"
         });
-
     }
 
 
@@ -286,17 +273,13 @@
             } else {
                 emojiSequence.push(emoji);
                 Settings.setValue("avimoji/emojiSequence", emojiSequence);
-                // log("Adding to seqeuence", emojiSequence.length);
             }
         } else {
-            // log("in simple mode", null, "on");
             if (selectedEmoji && selectedEmoji.code[0] === emoji.code[0]) {
-                // log("same emoji picked, removing")
                 maybePlayPop("off");
                 selectedEmoji = null;
                 return;
             } else {
-                // log("sending to add emoji to user")
                 selectedEmoji = emoji;
                 maybeClearTimeoutDelete();
                 addEmojiToUser(selectedEmoji);
@@ -355,7 +338,6 @@
 
 
     function deleteEmojiInSequence(index) {
-        // log("in deleteEmoji")
         emojiSequence.splice(index, 1);
         ui.sendMessage({
             app: "avimoji",
@@ -371,7 +353,6 @@
 
     var emojiSwitchMS = 2500
     function updateSwitchIntervalTime(newSwitchIntervalTime) {
-        // log("in updateSwitchIntervalTime", newSwitchIntervalTime);
         emojiSwitchMS = newSwitchIntervalTime;
         if (isPlaying) {
             maybeClearPlayEmojiInterval();
@@ -417,7 +398,6 @@
 
 
     function handleResetFavorites() {
-        // log("in handleResetFavorites")
         favorites = {};
         Settings.setValue("avimoji/favorites", {});
         ui.sendMessage({
@@ -498,10 +478,7 @@
 
     var previousTopTenEmojis = null;
     function favoritesOverlayTimerHandler() {
-        log("previousTopTenEmojis", previousTopTenEmojis, "");
-        log("topTenEmojis", topTenEmojis, "");
         if (JSON.stringify(previousTopTenEmojis) === JSON.stringify(topTenEmojis)) {
-            log("Redraw favorite overlays", null, "")
             topTenEmojis = makeFavoritesArray();
             return;
         } else {
@@ -513,7 +490,6 @@
 
     // Draw the emoji overlay so you know if you see it
     var FAVORITE_OVERLAY_TIMER_INTERVAL_MS = 5000;
-    var favoriteOverlays = null;
     function drawFavoriteOverlays(width, height, imageURL, emoji, x, y) {
         width = width || lastOverlayWidth;
         height = height || lastOverlayHeight;
@@ -534,7 +510,6 @@
             imageURL: imageURL,
             alpha: 0.0
         };
-        log("overlayprops", overlayProps, "")
         var favoriteEmojiOverlay = Overlays.addOverlay("image", overlayProps);
         Script.setTimeout(function () {
             Overlays.editOverlay(favoriteEmojiOverlay, { alpha: 1.0 });
@@ -555,17 +530,16 @@
         }
     }
 
+
     function deleteFavoritesOverlays(){
-        console.log("IN DELELTE FAVORITES")
-        log("favoriteOverlays", favoriteOverlays.length, "")
         if (favoriteOverlays && favoriteOverlays.length > 0){
             favoriteOverlays.forEach(function(overlay){
-                log("OVERLAY in 542", overlay, "");
                 Overlays.deleteOverlay(overlay.favoriteOverlay);
             });
         }
         favoriteOverlays = [];
     }
+
 
     // When window resizes, redraw overKKays
     function onWindowResize() {
@@ -603,7 +577,6 @@
         maybeClearFavoriteTimer();
         maybeClearPlayEmojiInterval();
         maybeClearPop();
-        // do something
     }
 
 
@@ -647,10 +620,8 @@
     }
 
     var TOP_MARGIN = 80;
-    var BETWEEN_FAVORITES = 2;
     var TOTAL_FAVORITES = 10;
-    var favoriteOverlays = [];
-    var MARGIN = 0.2
+    var favoriteOverlays = null;
     var OVERLAY_SIZE_SCALER = 0.30;
     var topTenEmojis = [];
     var favoritesTimer = null;
@@ -707,7 +678,6 @@
     var EMOJI_CONST_SCALER = 0.27;
     var MASK_DISTANCE_IN_FRONT_OF_AVATAR = 0.24;
     function createEmoji(emoji) {
-        log("in create emoji", null, "");
         var neckPosition, avatarScale, aboveNeck, emojiPosition;
         avatarScale = MyAvatar.scale;
         if (shouldWearMask) {
@@ -820,7 +790,6 @@
 
     var DURATION = POP_ANIMATION_DURATION_MS + 100;
     function maybePlayPop(type) {
-        // log("type 0>", type);
         maybeClearPop();
         switch (type) {
             case "on":
@@ -831,12 +800,11 @@
                 playPopInterval = Script.setInterval(playPopAnimationOut, POP_DURATION_PER_STEP);
                 break;
             case "offThenOn":
-                // log(" *** IN OFF THEN ON ***")
                 maybeClearTimeoutDelete();
                 playPopInterval = Script.setInterval(playPopAnimationInAndOut, POP_DURATION_PER_STEP);
                 break;
             default:
-            // log("type unrecognized in maybe play pop");
+                log("type unrecognized in maybe play pop");
         }
     }
 
@@ -856,7 +824,6 @@
         }
 
         maybeClearPlayEmojiInterval();
-        // log("playing emoji sequence", null, "off");
 
         if (shouldWearMask) {
             setupShouldWearMaskAnimationProperties();
@@ -984,7 +951,6 @@
                 method: "updateCurrentEmoji",
                 selectedEmoji: emoji
             });
-            // log("hold1", null, "PRINT")
         }
 
         if (currentStep === ANIMATION_STEPS) {
@@ -1007,7 +973,6 @@
                 method: "updateCurrentEmoji",
                 selectedEmoji: emoji
             });
-            // log("hold2", null, "PRINT")
         }
 
         if (currentStep > HALF_POINT) {
@@ -1098,9 +1063,7 @@
 
 
     function maybeClearPop() {
-        // log("in maybe clear pop")
         if (playPopInterval) {
-            // log("Found interval, clearing")
             Script.clearTimeout(playPopInterval);
             playPopInterval = null;
             currentPopScale = null;
@@ -1199,10 +1162,6 @@
         }
     }
 
-    // if (popType === "offThenOn") {
-    //     log("now about to do createEmoji")
-    //     createEmoji(selectedEmoji);
-    // }
 
     function maybeRedrawAnimation() {
         log("in redraw Animation", isPlaying);
@@ -1236,8 +1195,6 @@
         if (message.app !== "avimoji") {
             return;
         }
-
-        // log("message from UI", message, "off");
 
         switch (message.method) {
             case "eventBridgeReady":
@@ -1337,10 +1294,6 @@
             case "handleShouldTimeoutDelete":
                 handleShouldTimeoutDelete(message.newTimeoutDeleteState);
                 break;
-
-            // case "handleEditMode":
-            //     handleEditMode(message.shouldShowEditMode);
-            //     break;
 
             default:
                 // log("Unhandled message from avimoji_ui.js", message);

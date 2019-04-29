@@ -121,19 +121,8 @@ function Emoji_Object(number, code, shortName, keywords, mainCateogry, subCatego
     this.subCategory = subCategory;
 }
 
-// <tr>
-// <th colspan="5" class="mediumhead"><a href="http://unicode.org/emoji/charts/emoji-list.html#face-affection" name="face-affection">face-affection</a></th>
-// </tr>
-// Break apart each row and make the actual emoji object
 
-// <tr>
-// <th colspan="5" class="bighead"><a href="http://unicode.org/emoji/charts/emoji-list.html#component" name="component">Component</a></th>
-// </tr>
-// <tr>
-// <th colspan="5" class="mediumhead"><a href="http://unicode.org/emoji/charts/emoji-list.html#hair-style" name="hair-style">hair-style</a></th>
-// </tr>
 const rowReplaceRegex = /<\/td>|class=".*?>|<\/a>|<a.*?">|<span |<\/span>|U\+|⊛ /g;
-// const headerRegex = /class="bighead"|class="mediumhead"/g;
 const headerRegex = /colspan/;
 const headreg = /hair-style/g;
 const replaceHeader = /<th colspan="5" class=".*?">|<a.*?>|<\/a><\/th>/g
@@ -196,7 +185,6 @@ function finalFilter(emoji, index, array){
     }
 
     if (emoji.code[0].slice(0, 2) === "00") {
-        // console.log("in 00:", emoji.shortName)
         filteredIDS.add(emoji.code[0]);
         count00++;
         return false;
@@ -234,8 +222,6 @@ function finalFilter(emoji, index, array){
 
 
 const replaceRegex = /(<img .*?>)|(<th class.*?\/th>)|<th>.*?<\/th>|<\/tr>|\n/g
-// const replaceRegex = /(<img .*?>)|(<th.*?\/th>)|<\/tr>|\n/g
-// const replaceRegex = /(<img .*?>)|\n/g
 let file =
     fs
         .readFileSync(input, 'utf8') // read the file
