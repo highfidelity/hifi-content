@@ -127,9 +127,9 @@ function renderEditMode(list){
     let editContainerContent = document.getElementById("editContainerContent");
     editContainerContent.innerHTML = "";
     // categoriesContainer.innerHTML = "";
-    var elem = document.getElementById('categoriesContent')
-    if (elem) {
-        elem.parentNode.removeChild(elem);
+    var categoriesContent = document.getElementById('categoriesContent')
+    if (categoriesContent) {
+        categoriesContent.parentNode.removeChild(categoriesContent);
     }
     let emojiRow = "";
     let emojiLength = 18;
@@ -279,6 +279,14 @@ function renderSelected(emoji){
             <input id="removeEmoji" class="buttonControls" style="width: 50px; margin-top: 0px;" type="button" value="Remove" onclick="handleDeleteSelected()">
         </div>
     `
+    let keywordHTML = `
+        <div id="selectedTextKeywords">
+            ${emoji.mainCategory.toUpperCase() + " | " + emoji.subCategory + " | " + emoji.keywords
+                .join(" | ")
+                .replace(" | " + 
+                emoji.shortName, "")}
+        </div>
+    `
     div.innerHTML += `
         <div draggable="false"
             onclick="clickEmoji(this)"
@@ -289,17 +297,13 @@ function renderSelected(emoji){
             background-position: -${emoji.massive.frame.x}px -${emoji.massive.frame.y}px; 
             background-image: url('./images/emojis/${emoji.massive.source}');
             margin-bottom: 20px;">
-        </div>
-        ${currentSelectedEmoji && !isSequenceMode ? buttonHTML : ""}
+        </div>        
         <div id="selectedText">
             ${emoji.shortName.toUpperCase()}
         </div>
-        <div id="selectedTextKeywords">
-            ${emoji.mainCategory.toUpperCase() + " | " + emoji.subCategory + " | " + emoji.keywords
-                .join(" | ")
-                .replace(" | " + 
-                emoji.shortName, "")}
-        </div>
+        ${currentSelectedEmoji && !isSequenceMode ? buttonHTML : keywordHTML}
+
+
     `
     selectedContainer.appendChild(div);
 }
@@ -365,12 +369,14 @@ function renderEmojiSequence(){
 
 function renderFavorites(){
     // log("in render favorites");
-    var elem = document.getElementById('emojiFavoriteContent')
-    if (elem){
-        elem.parentNode.removeChild(elem);
+    var emojiFavoriteContent = document.getElementById('emojiFavoriteContent')
+    if (emojiFavoriteContent){
+        emojiFavoriteContent.parentNode.removeChild(emojiFavoriteContent);
+        emojiFavoritesContainer.style.display = "none";
     }
 
     if (favoritesArray.length === 0) {
+        emojiFavoritesContainer.style.display = "none";
         // log("render favorites length is 0", null, OFF)
         return;
     }
@@ -416,13 +422,14 @@ function renderFavorites(){
             </div>
             <div class="gridRowCenter">
                 <input id="resetFavorites" 
-                    style="width: 50px; margin: 0px 0px; position: relative; bottom: 74px; right: 80px" class="buttonControls" type="button" value="Reset" onclick="handleResetFavorites()">
+                    style="width: 50px; margin: 0px 0px; position: relative; bottom: 65px; right: 80px" class="buttonControls" type="button" value="Reset" onclick="handleResetFavorites()">
             </div>
         </div>
 
     `
-    
+
     emojiFavoritesContainer.appendChild(div);
+    emojiFavoritesContainer.style.display = "block";
 }
 
 
@@ -440,23 +447,24 @@ function addToHeightAndMarginString(baseString, addString){
 
 const LOG_STATES = "PRINT";
 const NOSELECT_SEQUENCE_ADVANCED = "250px"
-const NOSELECT_NOSEQUENCE_HOVER_ADVANCED = "430px";
-const NOSELECT_HOVER_SEQUENCE_ADVANCED = "470px";
+const NOSELECT_NOSEQUENCE_HOVER_ADVANCED = "375px";
+const NOSELECT_HOVER_SEQUENCE_ADVANCED = "450px";
 const SEQUENCE_MODE_PLAYING_ADVANCED = "500px";
-const WITH_REMOVE_ADVANCED = "455px";
-const NOSELECT_HOVER_ADVANCED = "430px";
+const WITH_REMOVE_ADVANCED = "375px";
+const NOSELECT_HOVER_ADVANCED = "375px";
 const NOSELECT_ADVANCED = "200px";
 const ADVANCED = "520px";
 
-const NOSELECT_SIMPLE = "80px";
-const WITH_REMOVE_SIMPLE = "330px";
-const HOVER_SIMPLE= "310px";
+// const NOSELECT_SIMPLE = "100px";
+const NOSELECT_SIMPLE = "120px";
+const WITH_REMOVE_SIMPLE = "312px";
+const HOVER_SIMPLE= "312px";
 const SIMPLE = "430px";
 
 let heightAndMarginString = "";
-let EMOJI_FAVORITES_CONTAINER_HEIGHT = "50px";
+let EMOJI_FAVORITES_CONTAINER_HEIGHT = "70px";
 let SEQUENCE_ROW_HEIGHT = "22px";
-let EMOJI_LIST_TOP_MARGIN_BUFFER = "50px";
+let EMOJI_LIST_TOP_MARGIN_BUFFER = "0px";
 function renderUI(){
     heightAndMarginString = "";
     if (favoritesArray) {
@@ -481,7 +489,7 @@ function renderUI(){
             log("UI State: 1 in sequence mode: NOSELECT_SEQUENCE_ADVANCED", null, LOG_STATES)
             let addToString = NOSELECT_SEQUENCE_ADVANCED;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             return
         }
@@ -490,7 +498,7 @@ function renderUI(){
             log('UI State: 2 advanced - Sequence Mode: NOSELECT_NOSEQUENCE_HOVER_ADVANCED', null, LOG_STATES)
             let addToString = NOSELECT_NOSEQUENCE_HOVER_ADVANCED;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(lastHoveredEmoji);
             return
@@ -500,7 +508,7 @@ function renderUI(){
             log('UI State: 3 advanced - Sequence Mode: NOSELECT_NOSEQUENCE_HOVER_ADVANCED', null, LOG_STATES)
             let addToString = NOSELECT_NOSEQUENCE_HOVER_ADVANCED;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(lastHoveredEmoji);
             return
@@ -510,7 +518,7 @@ function renderUI(){
             log('UI State: 4 advanced - Sequence Mode: WITH_REMOVE_ADVANCED', null, LOG_STATES)
             let addToString = SEQUENCE_MODE_PLAYING_ADVANCED;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(currentSelectedEmoji);
             return
@@ -530,7 +538,7 @@ function renderUI(){
             log('UI State: 6 advanced - Sequence Mode: WITH_REMOVE_ADVANCED', null, LOG_STATES)
             let addToString = WITH_REMOVE_ADVANCED;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(currentSelectedEmoji);
             return
@@ -540,7 +548,7 @@ function renderUI(){
             log('UI State: 7 advanced - currently selected: WITH_REMOVE_ADVANCED', null, LOG_STATES)
             let addToString = WITH_REMOVE_ADVANCED;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(currentSelectedEmoji);
             return;
@@ -560,7 +568,7 @@ function renderUI(){
         let addToString = NOSELECT_ADVANCED;
         heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
         selectedContainer.innerHTML = "";
-        stickyContainer.style.height = heightAndMarginString;
+        // stickyContainer.style.height = heightAndMarginString;
         emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
         
     } else {
@@ -569,7 +577,7 @@ function renderUI(){
             log('UI State: 10 simple - currently selected: WITH_REMOVE_SIMPLE', null, LOG_STATES)
             let addToString = WITH_REMOVE_SIMPLE;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(currentSelectedEmoji);
             return;
@@ -579,7 +587,7 @@ function renderUI(){
             log('UI State: 11 simple - hovered: HOVER_SIMPLE', null, LOG_STATES)
             let addToString = HOVER_SIMPLE;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(lastHoveredEmoji);
             return;
@@ -590,7 +598,7 @@ function renderUI(){
             log("UI State: 12 simple - last hovered: WITH_REMOVE_SIMPLE", LOG_STATES)
             let addToString = HOVER_SIMPLE;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(lastHoveredEmoji);
             return;
@@ -601,7 +609,7 @@ function renderUI(){
         let addToString = NOSELECT_SIMPLE;
         heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
         selectedContainer.innerHTML = "";
-        stickyContainer.style.height = heightAndMarginString;
+        // stickyContainer.style.height = heightAndMarginString;
         emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
     
     }
@@ -686,17 +694,18 @@ function handleWearAsMask(checkbox){
 
 let hasFavorites = false;
 function handleResetFavorites(){
+    var emojiFavoriteContent = document.getElementById('emojiFavoriteContent')
+    if (emojiFavoriteContent) {
+        emojiFavoriteContent.parentNode.removeChild(emojiFavoriteContent);
+    }
+    hasFavorites = false;
+    favoritesArray = [];
+    renderFavorites();
+    renderUI();
     EventBridge.emitWebEvent(JSON.stringify({
         app: "avimoji",
         method: "handleResetFavorites",
     }))
-    var elem = document.getElementById('emojiFavoriteContent')
-    if (elem) {
-        elem.parentNode.removeChild(elem);
-    }
-    hasFavorites = false;
-    favoritesArray = [];
-    renderUI();
 }
 
 
@@ -844,9 +853,13 @@ function filterEmojis(event){
     let keyword = input.value.toLowerCase();
     if (event.keyCode === 13) {
         event.preventDefault();
+        log("shortnameMap[keyword.toLowerCase()]", shortnameMap[keyword.toLowerCase()], "PRINT")
         if(shortnameMap[keyword.toLowerCase()]){
             if (emojiMap[shortnameMap[keyword.toLowerCase()]]){
-                let emoji = emoji && emojiMap[shortnameMap[keyword.toLowerCase()]];
+                // log("emojiMap[shortnameMap[keyword.toLowerCase()", emojiMap[shortnameMap[keyword.toLowerCase(), "PRINT")
+                // log("emojiMap[shortnameMap[keyword.toLowerCase()", emojiMap[shortnameMap[keyword.toLowerCase(), "PRINT")
+
+                let emoji = emojiMap[shortnameMap[keyword.toLowerCase()]];
                 EventBridge.emitWebEvent(JSON.stringify({
                     app: "avimoji",
                     method: "handleEmojiSelected",
@@ -897,6 +910,8 @@ function handleResetList(){
         app: "avimoji",
         method: "handleResetList"
     }))
+    renderEmojiSequence();
+    renderUI();
     updatePlayLabel();
 }
 
@@ -1031,9 +1046,9 @@ function onScriptEventReceived(message) {
             currentSelectedEmoji = message.selectedEmoji;
             currentEmojiSequence = message.emojiSequence || [];
             // log("RENDER UI -> updateEmojiPicks", null, OFF);
-            renderUI();
             renderEmojiSequence();
             renderFavorites();
+            renderUI();
             break;
 
         case "updateCurrentEmoji":
@@ -1046,6 +1061,7 @@ function onScriptEventReceived(message) {
             // log("IN update favorites", null, OFF)
             favoritesArray = message.favorites;
             renderFavorites();
+            renderUI();
             break;
 
         case "reRenderUI":

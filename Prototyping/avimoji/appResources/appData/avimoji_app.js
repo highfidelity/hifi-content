@@ -243,11 +243,12 @@
     function handleEasyFavorites(newEasyFavorite) {
         showEasyFavorite = newEasyFavorite;
         Settings.setValue("avimoji/showEasyFavorite", showEasyFavorite);
-        log("SHOW EASY FAVORITE", showEasyFavorite, "PRINT");
+        log("SHOW EASY FAVORITE", showEasyFavorite, "");
         if (showEasyFavorite) {
             renderFavoriteOverlays();   
         } else {
             deleteFavoritesOverlays();
+            maybeClearFavoriteTimer();
         }    
     }
 
@@ -276,7 +277,7 @@
 
     var emojiSequence = Settings.getValue("avimoji/emojiSequence", []);
     function handleEmojiSelected(emoji) {
-        log("in handle emoji selected", null, "PRINT");
+        log("in handle emoji selected", null, "");
         if (advancedModeOn) {
             if (!isSequenceMode) {
                 selectedEmoji = emoji;
@@ -497,17 +498,22 @@
 
     var previousTopTenEmojis = null;
     function favoritesOverlayTimerHandler() {
-        if (!previousTopTenEmojis === topTenEmojis) {
-            renderFavoriteOverlays();
+        log("previousTopTenEmojis", previousTopTenEmojis, "");
+        log("topTenEmojis", topTenEmojis, "");
+        if (JSON.stringify(previousTopTenEmojis) === JSON.stringify(topTenEmojis)) {
+            log("Redraw favorite overlays", null, "")
+            topTenEmojis = makeFavoritesArray();
+            return;
+        } else {
+            maybeRedrawFavoriteOverlays();
             previousTopTenEmojis = topTenEmojis; 
         }
     }
 
 
     // Draw the emoji overlay so you know if you see it
-    var FAVORITE_OVERLAY_TIMER_INTERVAL_MS = 3000;
+    var FAVORITE_OVERLAY_TIMER_INTERVAL_MS = 5000;
     var favoriteOverlays = null;
-    favoriteOverlays = Script.setInterval(favoritesOverlayTimerHandler, FAVORITE_OVERLAY_TIMER_INTERVAL_MS);
     function drawFavoriteOverlays(width, height, imageURL, emoji, x, y) {
         width = width || lastOverlayWidth;
         height = height || lastOverlayHeight;
@@ -528,9 +534,11 @@
             imageURL: imageURL,
             alpha: 0.0
         };
-        log("overlayprops", overlayProps, "PRINT")
+        log("overlayprops", overlayProps, "")
         var favoriteEmojiOverlay = Overlays.addOverlay("image", overlayProps);
-
+        Script.setTimeout(function () {
+            Overlays.editOverlay(favoriteEmojiOverlay, { alpha: 1.0 });
+        }, ALPHA_OVERLAY_TIMEOUT_MS);
         return {
             favoriteOverlay: favoriteEmojiOverlay,
             code: emoji.code       
@@ -549,10 +557,10 @@
 
     function deleteFavoritesOverlays(){
         console.log("IN DELELTE FAVORITES")
-        log("favoriteOverlays", favoriteOverlays.length, "PRINT")
+        log("favoriteOverlays", favoriteOverlays.length, "")
         if (favoriteOverlays && favoriteOverlays.length > 0){
             favoriteOverlays.forEach(function(overlay){
-                log("OVERLAY in 542", overlay, "PRINT");
+                log("OVERLAY in 542", overlay, "");
                 Overlays.deleteOverlay(overlay.favoriteOverlay);
             });
         }
@@ -592,6 +600,7 @@
 
     function onDomainChanged() {
         maybeClearOverlayTimer();
+        maybeClearFavoriteTimer();
         maybeClearPlayEmojiInterval();
         maybeClearPop();
         // do something
@@ -617,11 +626,11 @@
         }
     }
 
-    var overlayTimer = null;
+
     function maybeClearFavoriteTimer() {
         if (favoritesTimer) {
-            Script.clearInterval(overlayTimer);
-            overlayTimer = null;
+            Script.clearInterval(favoritesTimer);
+            favoritesTimer = null;
         }
     }
 
@@ -644,6 +653,7 @@
     var MARGIN = 0.2
     var OVERLAY_SIZE_SCALER = 0.30;
     var topTenEmojis = [];
+    var favoritesTimer = null;
     function renderFavoriteOverlays() {
         topTenEmojis = makeFavoritesArray(favorites);
         favoriteOverlays = topTenEmojis.map(function(emoji, index){
@@ -660,6 +670,7 @@
                 return overlay;
             } 
         });
+        favoritesTimer = Script.setInterval(favoritesOverlayTimerHandler, FAVORITE_OVERLAY_TIMER_INTERVAL_MS);
     }
 
     function maybeRedrawFavoriteOverlays(){
@@ -696,7 +707,7 @@
     var EMOJI_CONST_SCALER = 0.27;
     var MASK_DISTANCE_IN_FRONT_OF_AVATAR = 0.24;
     function createEmoji(emoji) {
-        log("in create emoji", null, "PRINT");
+        log("in create emoji", null, "");
         var neckPosition, avatarScale, aboveNeck, emojiPosition;
         avatarScale = MyAvatar.scale;
         if (shouldWearMask) {
@@ -833,7 +844,7 @@
     var animationEmoji1 = new EntityMaker(entityType);
     var animationEmoji2 = new EntityMaker(entityType);
     var animationInitialDimensions = null;
-    function playEmojiSequence()!   {
+    function playEmojiSequence(){
         setupAnimationVariables();
         if (animationEmoji1 && animationEmoji1.id) {
             animationEmoji1.destroy();
@@ -1307,7 +1318,7 @@
                 break;
 
             case "handleEasyFavorites":
-                log("go to handle easy favorites", null, "PRINT")
+                log("go to handle easy favorites", null, "")
                 handleEasyFavorites(message.showEasyFavorite);
                 break;
 
@@ -1411,6 +1422,7 @@
             animationEmoji2.destroy();
         }
         maybeClearOverlayTimer();
+        maybeClearFavoriteTimer();
         maybeClearPlayEmojiInterval();
         maybeClearPop();
         pruneOldAvimojis();

@@ -53,7 +53,8 @@ body {
     position: fixed;
     top: 0;
     z-index: 999;
-    height: 412px;
+    max-height: 300px;
+    min-height: 300px;
 }
 
 #searchContainer input{
@@ -64,8 +65,11 @@ body {
 }
 
 #selectedContainer {
-    margin-top: 15px;
-    margin-bottom: 5px;
+    max-height: 222px;
+    min-height: 222px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    height: 100%;
 }
 
 #emojiSequenceContainer {
@@ -73,11 +77,10 @@ body {
 }
 
 #emojiFavoritesContainer {
-    margin-top: 0px;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     margin-left: 20px;
     width: calc(100vw - 40px);
-    height: 50px;
+    height: 65px;
 }
 
 #optionsContainer {
@@ -99,10 +102,10 @@ body {
     flex-direction: column;
     justify-content: center;
     align-content: center;
-    margin: auto;
-    margin-top: 414px;
+    margin: 0 auto;
     height: 100%;
     z-index: 999;
+    padding-top: 10px;
 }
 
 #editContainer {
@@ -129,9 +132,9 @@ body {
 /* #selectedEmoji {
 } */
 
-#emojiFavoriteList {
+/* #emojiFavoriteList {
     margin-top: 8px;
-}
+} */
 
 #selectedText {
     font-size: 25px;
