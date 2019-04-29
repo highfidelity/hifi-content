@@ -6,7 +6,7 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-var YOUR_CLIENT_ID = '813544734011-9jocg5lgsttogf5gnr45pb4kgpie3brg.apps.googleusercontent.com';
+var YOUR_CLIENT_ID = '';
 var YOUR_REDIRECT_URI = 'http://127.0.0.1:90/localHTTP/meetingRoom_ui.html';
 var SCOPES = [
     'https://www.googleapis.com/auth/calendar.readonly',
