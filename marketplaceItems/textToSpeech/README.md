@@ -4,7 +4,7 @@ The Text to Speech app allows you to communicate in High Fidelity using Text-to-
 ## Features
 - TTS now uses Google's TTS API for speech synthesis instead of relying on Windows' TTS engine. This means TTS is now available for non-Windows users.
 - You can now select a preferred synthesized voice from a number of high-quality options.
-- TTS is now multilingual! Choose a language from a number of languages. Your input text will be automatically translated to the target language before being spoken no matter what language you use for the input text.
+- TTS is now multilingual! Choose a language from several languages. Your input text will be automatically translated to the target language before being spoken no matter what language you use for the input text.
 - TTS v2.0 supports [SSML](https://cloud.google.com/text-to-speech/docs/ssml) text input! **Press `CTRL + Enter` to send your text input as SSML text** - there is no UI element to send your text input as SSML text.
 
 # Setup

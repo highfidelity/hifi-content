@@ -199,7 +199,8 @@ function genderButtonClicked(gender, isStartingUp) {
         var div = document.createElement("div");
         div.classList.add("changeVoiceButtonContainer");
         div.addEventListener("click", function (event) {
-            previewVoiceButtonClicked(event.target.childNodes[0].getAttribute("data-voiceName"), event.target.childNodes[0].getAttribute("data-targetLanguageCode"), event.target.childNodes[0].getAttribute("data-voiceGender"));
+            let voiceButton = event.target.childNodes[0]
+            previewVoiceButtonClicked(voiceButton.getAttribute("data-voiceName"), voiceButton.getAttribute("data-targetLanguageCode"), voiceButton.getAttribute("data-voiceGender"));
         });
 
         var input = document.createElement("input");
