@@ -324,7 +324,7 @@ function renderFavorites(){
     emojiFavoritesContainer.style.display = "block";
 }
 
-const LOG_STATES = "";
+const LOG_STATES = "PRINT";
 const NOSELECT_SEQUENCE_ADVANCED = "250px"
 const NOSELECT_NOSEQUENCE_HOVER_ADVANCED = "375px";
 const NOSELECT_HOVER_SEQUENCE_ADVANCED = "450px";
@@ -342,7 +342,7 @@ const SIMPLE = "430px";
 let heightAndMarginString = "";
 let EMOJI_FAVORITES_CONTAINER_HEIGHT = "70px";
 let SEQUENCE_ROW_HEIGHT = "22px";
-let EMOJI_LIST_TOP_MARGIN_BUFFER = "0px";
+let EMOJI_LIST_TOP_MARGIN_BUFFER = "10px";
 function renderUI(){
     stickyContainer.style.minHeight = "300px";
     stickyContainer.style.maxHeight = "300px";
@@ -765,6 +765,7 @@ function hoverEmoji(emoji, onHover){
             if (emoji && emojiMap[code]) {
                 let emoji = emojiMap[code];
                 lastHoveredEmoji = emoji;
+                renderSelected(lastHoveredEmoji);
                 renderUI();
             }
         }
@@ -772,6 +773,7 @@ function hoverEmoji(emoji, onHover){
         isHovering = false;
         emoji.style.outline = "";
         if (currentSelectedEmoji) {
+            renderSelected(currentSelectedEmoji);
             renderUI();
         }
     }
