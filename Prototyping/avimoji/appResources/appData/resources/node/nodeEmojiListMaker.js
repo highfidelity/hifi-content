@@ -4,15 +4,22 @@ const sizeOf = require("image-size");
 
 const input = "./emojiList.html";
 const output = "./emojiList.json";
-const sourceSVG = path.join(__dirname, "images/emojis2/svg");
+
+// The source file directory for the svgs(later turned to pngs for the in-world imags)
+const sourceSVG = path.join(__dirname, "../images/emojis/svg-original");
+// The directory to copy the filtered svgs to
+// The reason for this is that making the spritesheets can be difficult and to help
+// in the creation process, we are making a pre-filter so that we can just drop in a directory
+// and remove any svgs we don't like already
 const filterdSVGPath = path.join(__dirname, "images/emojis2/svgFiltered");
-const filterdIDListOutput = "./filterdIDList.json";
-const inDIR = path.join(__dirname, "images/emojis2");
-console.log("indir", inDIR);
 
+// The main directory for the sprite sheets
+const inDIR = path.join(__dirname, "../images/emojis");
+
+// if we have already made a filtered list, then grab it
 let originalFilteredIDS = fs.readFileSync(path.join(__dirname, "filterdIDList.json"), "utf-8");
-// console.log("filteredIDS", originalFilteredIDS);
 
+// Check to see
 const SHOULD_CHECK_FOR_COMBINED = true;
 const SHOULD_UPDATE_SVG_FILES = false;
 
@@ -26,6 +33,9 @@ function JSONConstructor(file, number, type){
     this.source = file.replace(".json", ".png");
 }
 
+
+// there isn't a way to delete a folder with files in Node, so delete all files
+// then delete the directory
 function deleteFolderRecursive(path) {
     if (fs.existsSync(path)) {
         fs.readdirSync(path).forEach(function(file, index){
@@ -40,8 +50,10 @@ function deleteFolderRecursive(path) {
     }
 }
 
+
+// if this flag is set to true, then we copy over the svg files
+// that aren't filtered
 if (SHOULD_UPDATE_SVG_FILES) {
-    let copyCount = 0;
     if (fs.existsSync(filterdSVGPath)){
         console.log("deleting");
         deleteFolderRecursive(filterdSVGPath)
@@ -54,13 +66,15 @@ if (SHOULD_UPDATE_SVG_FILES) {
             let filePath = path.join(sourceSVG, file);
             let toPath = path.join(filterdSVGPath, file);
             fs.copyFileSync(filePath, toPath);
-            copyCount++;
         }
     })
 }
 
-if (SHOULD_CHECK_FOR_COMBINED) {
 
+// if this is true, mainly because we have rendered new sprite sheets, then we are go back through the sprite sheets
+// and make a combined map of all of them.
+if (SHOULD_CHECK_FOR_COMBINED) {
+    // Look in the emojis directory and get all the svg jsons
     fs.readdirSync(inDIR).forEach(file => {
         if (path.extname(file) === ".json" && file.substring(0, 3) === "svg"){
             filteredJSONS.push(file);
@@ -70,7 +84,6 @@ if (SHOULD_CHECK_FOR_COMBINED) {
     
     filteredJSONS = filteredJSONS.map(file => {
         let split = file.split("-");
-        // console.log("split", split)
         return new JSONConstructor(file, split[1], split[2].split(".")[0]);
     })
     
@@ -95,21 +108,63 @@ if (SHOULD_CHECK_FOR_COMBINED) {
             combinedSprite[emojiKey][type].frame = file.frames[emojiKey].frame;
         }
     })
-    // console.log("combinedSprite", combinedSprite);
 }
 
+
 // Make the actual emoji object
-function Emoji_Object(number, code, shortName, keywords){
+function Emoji_Object(number, code, shortName, keywords, mainCateogry, subCategory){
     this.number = number;
     this.code = code;
     this.shortName = shortName;
     this.keywords = keywords;
+    this.mainCategory = mainCateogry;
+    this.subCategory = subCategory;
 }
 
-
+// <tr>
+// <th colspan="5" class="mediumhead"><a href="http://unicode.org/emoji/charts/emoji-list.html#face-affection" name="face-affection">face-affection</a></th>
+// </tr>
 // Break apart each row and make the actual emoji object
-const rowReplaceRegex = /<\/td>|class=".*?>|<\/a>|<a.*?">|class=".*?>|<span |<\/span>|U\+|⊛ /g;
-function splitTr(row){
+
+// <tr>
+// <th colspan="5" class="bighead"><a href="http://unicode.org/emoji/charts/emoji-list.html#component" name="component">Component</a></th>
+// </tr>
+// <tr>
+// <th colspan="5" class="mediumhead"><a href="http://unicode.org/emoji/charts/emoji-list.html#hair-style" name="hair-style">hair-style</a></th>
+// </tr>
+const rowReplaceRegex = /<\/td>|class=".*?>|<\/a>|<a.*?">|<span |<\/span>|U\+|⊛ /g;
+// const headerRegex = /class="bighead"|class="mediumhead"/g;
+const headerRegex = /colspan/;
+const headreg = /hair-style/g;
+const replaceHeader = /<th colspan="5" class=".*?">|<a.*?>|<\/a><\/th>/g
+let mainCategory = "";
+let subCategory = ""
+let lastIndexHeader = null;
+let tempHeader1 = 0;
+
+let count = 0;
+function splitTr(row, index){
+    
+    if (headerRegex.test(row)) {
+        count++;
+        row = row
+            .replace(replaceHeader, "")
+            .replace("&amp;", "&");
+        if (lastIndexHeader === null){
+            lastIndexHeader = index;
+        } else {
+            if (index !== lastIndexHeader + 1) {
+                subCategory = row;
+            } else {
+                mainCategory = tempHeader1;
+                subCategory = row;
+            }
+            lastIndexHeader = index;
+        }
+        tempHeader1 = row;
+        return
+    }
+
     row = row
         .replace(rowReplaceRegex, "")
         .split("<td ")
@@ -123,8 +178,9 @@ function splitTr(row){
         .split("|")
         .map(item => item.trim());
 
-    return new Emoji_Object(row[0], row[1], row[2], row[3]);
+    return new Emoji_Object(row[0], row[1], row[2], row[3], mainCategory, subCategory);
 }
+
 
 
 var filterRegex = /(m[ae]n )|(wom[ae]n )/;
@@ -133,9 +189,12 @@ var count00 = 0;
 var countflag = 0;
 var countRegex = 0;
 var countNotInCombined = 0;
+function finalFilter(emoji, index, array){
+    if (!emoji) {
+        count++;
+        return false;
+    }
 
-function finalFilter(emoji, index){
-    // if (index > 1) return;
     if (emoji.code[0].slice(0, 2) === "00") {
         // console.log("in 00:", emoji.shortName)
         filteredIDS.add(emoji.code[0]);
@@ -174,7 +233,9 @@ function finalFilter(emoji, index){
 }
 
 
-const replaceRegex = /(<img .*?>)|(<th.*?\/th>)|<\/tr>|\n/g
+const replaceRegex = /(<img .*?>)|(<th class.*?\/th>)|<th>.*?<\/th>|<\/tr>|\n/g
+// const replaceRegex = /(<img .*?>)|(<th.*?\/th>)|<\/tr>|\n/g
+// const replaceRegex = /(<img .*?>)|\n/g
 let file =
     fs
         .readFileSync(input, 'utf8') // read the file
@@ -182,9 +243,9 @@ let file =
         .split('<tr>') // split on each row
         .slice(1, -1) // remove what is before the first and after the last rows
         .filter(item => !!item) // remove empty indexes
-        .map(row => splitTr(row)) // map the rows to convert them to emoji objects
+        .map((row, index) => splitTr(row, index)) // map the rows to convert them to emoji objects
         .filter(finalFilter);
-
+console.log("count", count);
 file = JSON.stringify(file, null, 4)
 
 function difference(setA, setB) {
