@@ -25,8 +25,8 @@ let emojiFavoriteList = document.getElementById("emojiFavoriteList");
 let advancedContainer = document.getElementById("advancedContainer");
 let stickyContainer = document.getElementById("stickyContainer");
 let emojiContainer = document.getElementById("emojiContainer");
-let editContainer = document.getElementById("editContainer");
-let editContainerContent = document.getElementById("editContainerContent");
+// let editContainer = document.getElementById("editContainer");
+// let editContainerContent = document.getElementById("editContainerContent");
 let mainContainer = document.getElementById("mainContainer");
 let categoriesContainer = document.getElementById("categoriesContainer");
 
@@ -36,8 +36,8 @@ let local = document.getElementById('local');
 let sequenceMode = document.getElementById('sequenceMode');
 let allEmojis = document.getElementById('allEmojis');
 let easyFavorite = document.getElementById('easyFavorite');
-let editMode = document.getElementById('editMode');
-let inEditModCheckBox = document.getElementById('inEditModCheckBox');
+// let editMode = document.getElementById('editMode');
+// let inEditModCheckBox = document.getElementById('inEditModCheckBox');
 
 let advancedMode = document.getElementById('advancedMode');
 let shouldTimeoutDelete = document.getElementById('shouldTimeoutDelete');
@@ -90,133 +90,144 @@ var subCategoryMap = {};
 
 
 // handle showing and hiding the edit mode
-function showEditMode(shouldShow){
-    log("shouldShow", shouldShow, "")
-    if (shouldShow){
-        editContainer.style.display = "block";
-        mainContainer.style.display = "none"
-        inEditModCheckBox.checked = true;
-        makeEditList();
-    } else {
-        editContainer.style.display = "none";
-        mainContainer.style.display = "block"
-        editMode.checked = false;
-    }
-}
+// function showEditMode(shouldShow){
+//     log("shouldShow", shouldShow, "")
+//     if (shouldShow){
+//         editContainer.style.display = "block";
+//         mainContainer.style.display = "none"
+//         inEditModCheckBox.checked = true;
+//         makeEditList();
+//     } else {
+//         editContainer.style.display = "none";
+//         mainContainer.style.display = "block"
+//         editMode.checked = false;
+//     }
+// }
 
-function handleShowInEdit(checkbox, category){
-    log("in handle show edit", null, "");
-    log("category", category, "");
-    log("checkbox.checked", checkbox.checked, "");
-    mainCategoryMap[category].show = checkbox.checked;
-    log("mainCategoryMap[category].show", mainCategoryMap[category].show, "");
-    makeEditList();
-}
+// function handleShowInEdit(checkbox, category){
+//     log("in handle show edit", null, "");
+//     log("category", category, "");
+//     log("checkbox.checked", checkbox.checked, "");
+//     mainCategoryMap[category].show = checkbox.checked;
+//     log("mainCategoryMap[category].show", mainCategoryMap[category].show, "");
+//     makeEditList();
+// }
 
 // render the emoji edit mode
-function makeEditList(){
-    let filterEmojiEdit = emojiList.filter( emoji => {
-        let mainCategory = emoji.mainCategory;
-        return mainCategoryMap[mainCategory].show;
-    })
-    renderEditMode(filterEmojiEdit);
-}
+// function makeEditList(){
+//     let filterEmojiEdit = emojiList.filter( emoji => {
+//         let mainCategory = emoji.mainCategory;
+//         return mainCategoryMap[mainCategory].show;
+//     })
+//     renderEditMode(filterEmojiEdit);
+// }
 
-function renderEditMode(list){
-    log("list length", list.length, "");
-    let editContainerContent = document.getElementById("editContainerContent");
-    editContainerContent.innerHTML = "";
-    // categoriesContainer.innerHTML = "";
-    var categoriesContent = document.getElementById('categoriesContent')
-    if (categoriesContent) {
-        categoriesContent.parentNode.removeChild(categoriesContent);
-    }
-    let emojiRow = "";
-    let emojiLength = 18;
-    list.forEach((emoji, index) => {
-        emojiRow += `
-            <tr>
-                <td style="min-width: 20px; max-width: 20px; text-align: center;">            
-                    <span 
-                        draggable="false" class="normal emoji" 
-                        style="width: ${emojiLength}px; height: ${emojiLength}px;
+// function renderEditMode(list){
+//     log("list length", list.length, "");
+//     let editContainerContent = document.getElementById("editContainerContent");
+//     editContainerContent.innerHTML = "";
+//     var categoriesContent = document.getElementById('categoriesContent')
+//     if (categoriesContent) {
+//         categoriesContent.parentNode.removeChild(categoriesContent);
+//     }
+//     let emojiRow = "";
+//     let emojiLength = 18;
+//     list.forEach((emoji, index) => {
+//         emojiRow += `
+//             <tr>
+//                 <td style="min-width: 20px; max-width: 20px; text-align: center;">            
+//                     <span 
+//                         draggable="false" class="normal emoji" 
+//                         style="width: ${emojiLength}px; height: ${emojiLength}px;
                         
-                        background-image: url('./images/emojis/${emoji.small.source}');
-                        background-position: -${emoji.small.frame.x}px -${emoji.small.frame.y}px; 
-                        background-size: ${emoji.small.sourceDimensions.x}px ${emoji.small.sourceDimensions.y}px;">
-                    </span>
-                </td>
-                <td style="min-width: 60px; max-width: 60px;">
-                    ${emoji.shortName}
-                </td> 
-                <td style="text-align: center; min-width: 15px; max-width: 15px;">
-                    <span style="position: relative; top: 1px">
-                        <input id="addToList" type="checkbox" onclick="addToList(this, '${emoji.code}', 'basic')">
-                    </span>
-                </td>
-                <td style="text-align: center; min-width: 15px; max-width: 15px;">
-                    <span style="position: relative; top: 1px">
-                        <input id="addToList" type="checkbox" onclick="addToList(this, '${emoji.code}', 'all')">
-                    </span>
-                </td>
-                <td style="text-align: center; min-width: 15px; max-width: 15px;">
-                    <span style="position: relative; top: 1px">
-                        <input id="addToList" type="checkbox" onclick="addToList(this, '${emoji.code}', 'fav')">
-                    </span>
-                </td>
-                <td style="min-width: 70px; max-width: 70px;">
-                    ${emoji.keywords
-                        .join(" | ")
-                        .replace(" | " + emoji.shortName, "")
-                    }
-                </td>
-            </tr>
-        `
-    })
+//                         background-image: url('./images/emojis/${emoji.small.source}');
+//                         background-position: -${emoji.small.frame.x}px -${emoji.small.frame.y}px; 
+//                         background-size: ${emoji.small.sourceDimensions.x}px ${emoji.small.sourceDimensions.y}px;">
+//                     </span>
+//                 </td>
+//                 <td style="min-width: 60px; max-width: 60px;">
+//                     ${emoji.shortName}
+//                 </td> 
+//                 <td style="text-align: center; min-width: 15px; max-width: 15px;">
+//                     <span style="position: relative; top: 1px">
+//                         <input id="addToList" type="checkbox" onclick="addToList(this, '${emoji.code}', 'basic')">
+//                     </span>
+//                 </td>
+//                 <td style="text-align: center; min-width: 15px; max-width: 15px;">
+//                     <span style="position: relative; top: 1px">
+//                         <input id="addToList" type="checkbox" onclick="addToList(this, '${emoji.code}', 'all')">
+//                     </span>
+//                 </td>
+//                 <td style="text-align: center; min-width: 15px; max-width: 15px;">
+//                     <span style="position: relative; top: 1px">
+//                         <input id="addToList" type="checkbox" onclick="addToList(this, '${emoji.code}', 'fav')">
+//                     </span>
+//                 </td>
+//                 <td style="min-width: 70px; max-width: 70px;">
+//                     ${emoji.keywords
+//                         .join(" | ")
+//                         .replace(" | " + emoji.shortName, "")
+//                     }
+//                 </td>
+//             </tr>
+//         `
+//     })
 
-    let div = document.createElement('div');
-    div.innerHTML = `
-        <table style="width:100%; height: 50px">
-            ${emojiRow}
-        </table>
-    `
-    let categoryItems = "";
+//     let div = document.createElement('div');
+//     div.innerHTML = `
+//         <table style="width:100%; height: 50px">
+//             ${emojiRow}
+//         </table>
+//     `
+//     let categoryItems = "";
 
-    for (var key in mainCategoryMap){
-        log("mainCategoryMap[key].show", mainCategoryMap[key].show, "");
-        categoryItems += `
-        <span style="margin: 5px 10px 5px 0px;">
-            <label class="mainTextColor" for="local">${key}</label>
-            <input 
-                id="local" type="checkbox" 
-                style="vertical-align: middle;" 
-                ${mainCategoryMap[key].show === true ? "checked" : ""} 
-                onclick="handleShowInEdit(this, '${key}')">
-        </span>`
-    }
+//     for (var key in mainCategoryMap){
+//         log("mainCategoryMap[key].show", mainCategoryMap[key].show, "");
+//         categoryItems += `
+//         <span style="margin: 5px 10px 5px 0px;">
+//             <label class="mainTextColor" for="local">${key}</label>
+//             <input 
+//                 id="local" type="checkbox" 
+//                 style="vertical-align: middle;" 
+//                 ${mainCategoryMap[key].show === true ? "checked" : ""} 
+//                 onclick="handleShowInEdit(this, '${key}')">
+//         </span>`
+//     }
 
-    let categoriesDiv = document.createElement('div');
-    categoriesDiv.id = "categoriesContent";
-    categoriesDiv.innerHTML = `
-        <div style="margin: 0px 20px; display: flex; flex-wrap: wrap; justify-content: flex-start; align-content: flex-start; font-size: 10px;">
-            ${categoryItems}
-        </div>`
+//     let categoriesDiv = document.createElement('div');
+//     categoriesDiv.id = "categoriesContent";
+//     categoriesDiv.innerHTML = `
+//         <div style="margin: 0px 20px; display: flex; flex-wrap: wrap; justify-content: flex-start; align-content: flex-start; font-size: 10px;">
+//             ${categoryItems}
+//         </div>`
 
-    categoriesContainer.appendChild(categoriesDiv);
-    editContainerContent.appendChild(div);
-}
+//     categoriesContainer.appendChild(categoriesDiv);
+//     editContainerContent.appendChild(div);
+// }
 
-function showInEdit(checkMark){
+// function showInEdit(checkMark){
 
-}
+// }
 
+const BASIC_EMOJIS = ["Smileys & Emotion", "People & Body"];
 const EMOJIS_PER_ROW = 20;
 const RENDER_JUST_EMOJIS = true;
 function renderEmojiList(list, isChunk){
     if (!isChunk){
         emojiContainer.innerHTML = ""
     }
-    let listDivMap = list.map( (emoji, index) => {
+
+    let listDivMap = list;
+    
+    if (!isAllEmojis){
+        listDivMap = list.filter( emoji => {
+            return emoji.mainCategory === "Smileys & Emotion" || 
+            emoji.mainCategory === "People & Body" ||
+            emoji.mainCategory === "Animals & Nature" ||
+            emoji.mainCategory === "Food & Drink";
+        })
+    };
+    listDivMap = listDivMap.map( (emoji, index) => {
         let div;
         let emojiLength = 18;
         let emojiStyle = ` width: ${emojiLength}px; height: ${emojiLength}px; 
@@ -239,7 +250,7 @@ function renderEmojiList(list, isChunk){
         `
         return div;
     })
-
+    
     let gridDivItems = [];
     let totalRows = Math.ceil(list.length / EMOJIS_PER_ROW);
     let currentRow = 0;
@@ -314,12 +325,15 @@ function renderEmojiSequence(){
     if (emojiSequenceContent) {
         emojiSequenceContent.parentNode.removeChild(emojiSequenceContent);
     }
-
-    if (currentEmojiSequence.length === 0 || !isSequenceMode) {
+    log("isSequenceMode", isSequenceMode, "");
+    log("currentEmojiSequence.length === 0 ", currentEmojiSequence.length === 0 , "");
+    if (currentEmojiSequence.length === 0 || !isSequenceMode) { 
+        log("currentEmojiSequence.length === 0 || !isSequenceMode", null, "");
         document.getElementById('animationDistanceContainer').style.display = "none";
         document.getElementById('animationSpeedContainer').style.display = "none";
         return;
     }
+    log("Going to block", null, "");
     document.getElementById('animationDistanceContainer').style.display = "block";
     document.getElementById('animationSpeedContainer').style.display = "block";
 
@@ -417,12 +431,12 @@ function renderFavorites(){
             <div>
                 <span class="mainTextColor" id="favoriteEmojiText">Favorite Emojis</span>
             </div>
-            <div id="emojiFavoriteList" class ="gridRowLeftJustify">
+            <div id="emojiFavoriteList" class ="gridRowLeftJustify" style="margin-top: 10px;">
                 ${imageString}
             </div>
             <div class="gridRowCenter">
                 <input id="resetFavorites" 
-                    style="width: 50px; margin: 0px 0px; position: relative; bottom: 65px; right: 80px" class="buttonControls" type="button" value="Reset" onclick="handleResetFavorites()">
+                    style="width: 50px; margin: 0px 0px; position: relative; bottom: 75px; right: 80px" class="buttonControls" type="button" value="Reset" onclick="handleResetFavorites()">
             </div>
         </div>
 
@@ -445,7 +459,7 @@ function addToHeightAndMarginString(baseString, addString){
     return finalHeightString;
 }
 
-const LOG_STATES = "PRINT";
+const LOG_STATES = "";
 const NOSELECT_SEQUENCE_ADVANCED = "250px"
 const NOSELECT_NOSEQUENCE_HOVER_ADVANCED = "375px";
 const NOSELECT_HOVER_SEQUENCE_ADVANCED = "450px";
@@ -466,11 +480,11 @@ let EMOJI_FAVORITES_CONTAINER_HEIGHT = "70px";
 let SEQUENCE_ROW_HEIGHT = "22px";
 let EMOJI_LIST_TOP_MARGIN_BUFFER = "0px";
 function renderUI(){
+    stickyContainer.style.minHeight = "300px";
+    stickyContainer.style.maxHeight = "300px";
     heightAndMarginString = "";
     if (favoritesArray) {
-        // log("rendering favorites", favoritesArray.length, OFF)
         if (favoritesArray.length > 0) {
-            // log("adding favorites height to base", null, OFF)
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, EMOJI_FAVORITES_CONTAINER_HEIGHT);
         }
     }
@@ -478,7 +492,6 @@ function renderUI(){
     if (isSequenceMode) {
         var rows = Math.ceil(currentEmojiSequence.length / EMOJIS_PER_ROW);
         var rowHeight = getNumberFromString(SEQUENCE_ROW_HEIGHT, "px") * rows + "px";
-        // log("rowheight", rowHeight, OFF)
         heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, rowHeight);
     }
 
@@ -528,7 +541,7 @@ function renderUI(){
             log('UI State: 5 advanced - Sequence Mode: NOSELECT_HOVER_ADVANCED', null, LOG_STATES)
             let addToString = NOSELECT_HOVER_SEQUENCE_ADVANCED;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(lastHoveredEmoji);
             return
@@ -558,7 +571,7 @@ function renderUI(){
             log('UI State: 8 advanced - emojiHovered: NOSELECT_HOVER_ADVANCED', null, LOG_STATES)
             let addToString = NOSELECT_HOVER_ADVANCED;
             heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
-            stickyContainer.style.height = heightAndMarginString;
+            // stickyContainer.style.height = heightAndMarginString;
             emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
             renderSelected(lastHoveredEmoji);
             return;
@@ -569,6 +582,8 @@ function renderUI(){
         heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
         selectedContainer.innerHTML = "";
         // stickyContainer.style.height = heightAndMarginString;
+        stickyContainer.style.minHeight = "130px";
+        stickyContainer.style.maxHeight = "130px";
         emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
         
     } else {
@@ -609,9 +624,10 @@ function renderUI(){
         let addToString = NOSELECT_SIMPLE;
         heightAndMarginString = addToHeightAndMarginString(heightAndMarginString, addToString);
         selectedContainer.innerHTML = "";
-        // stickyContainer.style.height = heightAndMarginString;
+        stickyContainer.style.height = heightAndMarginString;
         emojiContainer.style.marginTop = addToHeightAndMarginString(heightAndMarginString, EMOJI_LIST_TOP_MARGIN_BUFFER);
-    
+        stickyContainer.style.minHeight = "130px";
+        stickyContainer.style.maxHeight = "130px";
     }
 }
 
@@ -647,17 +663,17 @@ function updatePlayLabel(playState) {
 
 
 
-// Handle custom edit list
-function CustomEditHandler(code, simple, all, filter, favorite, keyword){
+// // Handle custom edit list
+// function CustomEditHandler(code, simple, all, filter, favorite, keyword){
 
-}
+// }
 
-let customEditList = {
+// let customEditList = {
 
-}
-function handleAddToList(){
+// }
+// function handleAddToList(){
     
-}
+// }
 
 
 // Handle play state change
@@ -732,35 +748,37 @@ function handleEasyFavorites(checkbox){
 
 
 
-function handleTurnOnEditMode(checkbox){
-    let shouldShowEditMode = checkbox.checked;
-    EventBridge.emitWebEvent(JSON.stringify({
-        app: "avimoji",
-        method: "editMode",
-        shouldShowEditMode: shouldShowEditMode
-    }))
-    showEditMode(shouldShowEditMode);
-}
+// function handleTurnOnEditMode(checkbox){
+//     let shouldShowEditMode = checkbox.checked;
+//     EventBridge.emitWebEvent(JSON.stringify({
+//         app: "avimoji",
+//         method: "editMode",
+//         shouldShowEditMode: shouldShowEditMode
+//     }))
+//     showEditMode(shouldShowEditMode);
+// }
 
 
-function handleTurnOffEditMode(checkbox){
-    let shouldShowEditMode = checkbox.checked;
-    EventBridge.emitWebEvent(JSON.stringify({
-        app: "avimoji",
-        method: "editMode",
-        shouldShowEditMode: shouldShowEditMode
-    }))
-    showEditMode(shouldShowEditMode);
-}
+// function handleTurnOffEditMode(checkbox){
+//     let shouldShowEditMode = checkbox.checked;
+//     EventBridge.emitWebEvent(JSON.stringify({
+//         app: "avimoji",
+//         method: "editMode",
+//         shouldShowEditMode: shouldShowEditMode
+//     }))
+//     showEditMode(shouldShowEditMode);
+// }
 
 let isAllEmojis = true;
 function handleAllEmojis(checkbox){
+    log("in handle all emojis", null, "PRINT");
     isAllEmojis = checkbox.checked;
     EventBridge.emitWebEvent(JSON.stringify({
         app: "avimoji",
         method: "handleAllEmojis",
         isAllEmojis: isAllEmojis
     }))
+    renderEmojiList(emojiList);
 }
 
 
@@ -996,7 +1014,7 @@ function onScriptEventReceived(message) {
             wearAsMask.checked = message.shouldWearMask || false;
             local.checked = message.isLocal || false;
             easyFavorite.checked = message.showEasyFavorite || false;
-            allEmojis.checked = isAllEmojis = message.isLocal || false;
+            allEmojis.checked = isAllEmojis = message.isAllEmojis || false;
             shouldTimeoutDelete.checked = message.shouldTimeoutDelete || false;
             sequenceMode.checked = isSequenceMode = message.isSequenceMode || false;
             document.getElementById("emojiScaler").value = message.emojiScaler;
@@ -1019,7 +1037,7 @@ function onScriptEventReceived(message) {
             emojiMap = Object.assign({}, emojiMap, ...message.chunk.map(emoji => ({[emoji.code[0]]: emoji})))
             shortnameMap = Object.assign({}, shortnameMap, ...message.chunk.map(emoji => ({[emoji.shortName]: emoji.code[0]})))
             renderEmojiList(message.chunk, true);
-            renderEmojiSequence();
+            // renderEmojiSequence();
             renderFavorites();
             if (message.chunkNumber >= message.totalChunks -1){
                 // log("about to make favorites now that chunks are good", null, OFF)
@@ -1030,15 +1048,16 @@ function onScriptEventReceived(message) {
                 renderEmojiList(emojiList);
                 emojiList.forEach(function(emoji){
                     if (!mainCategoryMap[emoji.mainCategory]){
-                        mainCategoryMap[emoji.mainCategory] = {};
+                        mainCategoryMap[emoji.mainCategory] = true;
                     }
-                    mainCategoryMap[emoji.mainCategory].show = true;
-                    mainCategoryMap[emoji.mainCategory][emoji.code[0]] = true;
-                    if (!subCategoryMap[emoji.subCategory]){
-                        subCategoryMap[emoji.subCategory] = {};
-                    }
-                    subCategoryMap[emoji.subCategory][emoji.code[0]] = true;
+                    // mainCategoryMap[emoji.mainCategory].show = true;
+                    // mainCategoryMap[emoji.mainCategory][emoji.code[0]] = true;
+                    // if (!subCategoryMap[emoji.subCategory]){
+                    //     subCategoryMap[emoji.subCategory] = {};
+                    // }
+                    // subCategoryMap[emoji.subCategory][emoji.code[0]] = true;
                 });
+                log("mainCategoryMap", Object.keys(mainCategoryMap), "");
             }
             break;
 

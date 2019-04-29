@@ -232,11 +232,11 @@
         maybeRedrawAnimation();
     }
 
-    var editMode = Settings.getValue("avimoji/editMode", false);
-    function handleEditMode(newEditMode) {
-        editMode = newEditMode;
-        Settings.setValue("avimoji/editMode", editMode);
-    }
+    // var editMode = Settings.getValue("avimoji/editMode", false);
+    // function handleEditMode(newEditMode) {
+    //     editMode = newEditMode;
+    //     Settings.setValue("avimoji/editMode", editMode);
+    // }
 
 
     var showEasyFavorite = Settings.getValue("avimoji/showEasyFavorite", false);
@@ -1338,9 +1338,9 @@
                 handleShouldTimeoutDelete(message.newTimeoutDeleteState);
                 break;
 
-            case "handleEditMode":
-                handleEditMode(message.shouldShowEditMode);
-                break;
+            // case "handleEditMode":
+            //     handleEditMode(message.shouldShowEditMode);
+            //     break;
 
             default:
                 // log("Unhandled message from avimoji_ui.js", message);

@@ -59,26 +59,27 @@
                                     <label class="mainTextColor" for="shouldTimeoutDelete">Timeout Delete</label>
                                     <input id="shouldTimeoutDelete" style="vertical-align: middle;" type="checkbox" onclick="handleShouldTimeoutDelete(this)">
                                 </span>
-                                <span style="position: relative; top: 1px">
-                                    <label class="mainTextColor" for="customFavoriteMode">Custom Fav</label>
-                                    <input id="customFavoriteMode" type="checkbox" style="vertical-align: middle;" onclick="handleCustomFavorites(this)">
-                                </span>
-                            </div>
-                            <div class="gridRowLeftJustify">
-                                <span style="position: relative; top: 1px">
-                                    <label class="mainTextColor" for="editMode">Edit</label>
-                                    <input id="editMode" type="checkbox" style="vertical-align: middle;" onclick="handleTurnOnEditMode(this)">
-                                </span>
                                 <span>
                                     <label class="mainTextColor" for="sequenceMode">Sequence</label>
                                     <input id="sequenceMode" type="checkbox" style="vertical-align: middle;" onclick="handleSequenceModeChange(this)">
                                 </span>
-                                <span id="animationDistanceContainer">
+                                <!-- <span style="position: relative; top: 1px">
+                                    <label class="mainTextColor" for="customFavoriteMode">Custom Fav</label>
+                                    <input id="customFavoriteMode" type="checkbox" style="vertical-align: middle;" onclick="handleCustomFavorites(this)">
+                                </span> -->
+                            </div>
+                            <div class="gridRowLeftJustify">
+                                <!-- <span style="position: relative; top: 1px">
+                                    <label class="mainTextColor" for="editMode">Edit</label>
+                                    <input id="editMode" type="checkbox" style="vertical-align: middle;" onclick="handleTurnOnEditMode(this)">
+                                </span> -->
+
+                                <span id="animationDistanceContainer" style="display: none;">
                                     <label class="mainTextColor" style="position: relative; bottom: 2px;" for="animationDistance">Spread</label>
                                     <input style="width: 50px; vertical-align: middle;" id="animationDistance" type="range" onchange="handleAnimationDistance(this)" min="0.01" max="0.8" step="0.1" value="1.0">
                                 </span>
-                                <span id="animationSpeedContainer">
-                                    <label class="mainTextColor" style="position: relative; bottom: 2px; " for="animationSpeed">Duration</label>
+                                <span id="animationSpeedContainer"  style="display: none;">
+                                    <label class="mainTextColor" style="position: relative; bottom: 2px;" for="animationSpeed">Duration</label>
                                     <input style="width: 50px; vertical-align: middle;" id="animationSpeed" type="range" onchange="handleAnimationSpeed(this)" min=".80" max="1.45" step="0.1" value="1.0">
                                 </span>
                             </div>
