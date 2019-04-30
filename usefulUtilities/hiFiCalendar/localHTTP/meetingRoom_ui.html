@@ -2,42 +2,41 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" type="text/css" href="./css/styles.css?v91">
+        <link rel="stylesheet" type="text/css" href="./css/styles.css?v131">
     </head>
     <body>
-        
+        <pre id="content" style="white-space: pre-wrap;"></pre>
         <div id="loginPage">
             <div id="background1">
-                <h1 id='title'>Meeting Room Connector</h1>         
-                <p><h2 id='subheading'>Connect your virtual meeting rooms to your Google Calendar for easy space management.</h2>
+                <h1>Meeting Room Connector</h1>         
+                <p><h2>Connect your virtual meeting rooms to your Google Calendar for easy space management.</h2>
             </div>
             <div id="h1TopRight"></div>
             <div id="h1BottomLeft"></div>
     
-            <input type="button" class="login" id="login">
+            <input type="button" class="login" id="login" disabled="true">
     
-            <div class="bttmleft">
-                    <a href="https://www.highfidelity.com/termsofservice">Terms of Service</a>
+            <div >
+                    <footer class="bttmleft"><a href="https://www.highfidelity.com/termsofservice">Terms of Service</a></footer>
             </div>
-            <div class='bttmright'>
-                    <a href="https://www.highfidelity.com/privacy">Privacy Policy</a>
+            <div>
+                    <footer class="bttmright"><a href="https://www.highfidelity.com/privacy">Privacy Policy</a></footer>
             </div>
         </div>
 
         <div id='connectorPage'>
             <div id="background2">
-                <h1 id='title'>Let's Connect Your Spaces</h1>            
-                <p><h2 id='subheading'>Start by selecting a room resource from your Google Calendar. Then select a High Fidelity meeting room and click to link them.</h2>
+                <h1>Let's Connect Your Spaces</h1>            
+                <h2>Start by selecting a room resource from your Google Calendar. Then select a High Fidelity meeting room and click to link them.</h2>
             </div>
             <div id="h1TopRight"></div>
-            <br><br>
             <div id="calendarInstr" class="dropDownInstruction">YOUR CALENDAR RESOURCES</div>
             <br>
             <select class="dropdown" id="selectedCalendar">
                 <option value="" class="dropdown-content">NO SELECTION</option>
              </select>
             <br>
-            <input type="button" class="blueLinkText" id="help" value="Don't see the calendar you need?">
+            <input type="button" class="blueLinkText" id="help" value="Don't see the calendar you need?"></button>
             <br><br>
             <div id="roomInstr" class="dropDownInstruction">HIFI MEETING ROOMS</div>
             <select class="dropdown" id="selectedRoom">
@@ -45,29 +44,36 @@
             </select>
             <br>
             <input type="button" class="ui" id="linker" value="Link these spaces">
-            <input type="button" class="bttmleft" id="revoke1" value="Revoke Access">
-            <input type="button" class="bttmright" id="logout1" value="Log Out">
+            <input type="button" class="blueLinkText" id="finished1" value="I'm finished linking spaces.">
+            <footer>
+                <input type="button" class="bttmleft" id="revoke1" value="Revoke Access">
+                <input type="button" class="bttmright" id="logout1" value="Log Out">
+            </footer>
+            <div id="success">
+                <div class="popup">
+                    <span class="popuptext" id="myPopup"><br><br><br>Spaces Linked!</span>
+                </div>
+            </div>
         </div>
 
         <div id='linkSuccessPage'>
             <div id="background2">
-                <h1 id='title'>Your space is connected!</h1>      
-                <br><br><br>
-                <br><br><br>
-                <br><br><br>
-                <p>You've linked <div id=cal>Atlantis</div> to <div id=room>Atlantis</div>
-                </p>      
+                <h1>Connected Spaces</h1>      
+                <br><br><br>  
+
             </div>
+            <ul id="linkedspaces">
+            </ul>
             <div id="h1TopRight"></div>
-            <input type="button" class="blueLinkText" id="viewAll" value="View all linked spaces">
-            <input type="button" class="ui" id="connector" value="Link another space">
+            <input type="button" class="ui" id="viewAll" value="Edit Links">
+            <input type="button" class="ui" id="connector" value="I'm finished">
             <input type="button" class="bttmleft" id="revoke2" value="Revoke Access">
             <input type="button" class="bttmright" id="logout2" value="Log Out">
         </div>
 
         <div id='allLinksPage'>
             <div id="background2">
-                <h1 id='title'>Your linked spaces</h1>      
+                <h1>Your linked spaces</h1>      
                 <br><br><br>
                 <br><br><br>
                 <p>You can add, edit, or delete your linked spaces from this list</p>      
@@ -87,7 +93,7 @@
 
         <div id='errorPage'>
             <div id="background2">
-                <h1 id='title'>Meeting Room Connector</h1>      
+                <h1>Meeting Room Connector</h1>      
                 <br><br><br>
                 <br><br><br>
                 <br><br><br>
@@ -103,6 +109,10 @@
                     <a href="https://www.highfidelity.com/privacy">Privacy Policy</a>
             </div>
         </div>
-        <script src="./js/meetingRoom_ui.js?v76"></script>
-        
+
+        <script src="./js/meetingRoom_ui.js?v98"
+            onload="this.onload=function(){};document.getElementById('login').disabled = false;" 
+            onreadystatechange="if (this.readyState === 'complete') this.onload()">
+        </script>
+                
     </body>

@@ -34,23 +34,25 @@ h2 {
   width: 470px;
   height: 84px;
   left: 23px;
-  top: 185px;
+  top: 175px;
   
   font-family: 'Graphik-Regular';
-  font-size: 20px;
+  font-style: normal;
+  font-size: 14px;
   line-height: normal;
   text-align: center;
-  
+  padding: 0px 10%;
+  box-sizing: border-box;
   color: #FFFFFF;
 }
 
 #h1TopRight {  
   position: absolute;
   width: 43px;
-  height: 39px;
+  height: 65px;
   left: 472px;
   top: 0px;
-  background: url(../../resources/images/TopRightCorner_Shard.png);
+  background: url(../../resources/images/TopRightCorner_Shard.png) no-repeat;
 }
 
 #h1BottomLeft {
@@ -89,34 +91,72 @@ h2 {
   color: #FFFFFF;
 }
 
-.bttmright {
+footer {
   position: absolute;
   width: 200px;
-  height: 16px;
-  left: 300px;
+  height: 20px;
   top: 723px;
 
   font-family: 'Graphik-Regular';
   font-size: 14px;
-  line-height: normal;
-  text-align: right;
-
+  line-height: 16px;
+  border: none;
+  outline:none;
   color: #828282;
 }
 
+.bttmright {
+  text-align: right;
+  left: 300px;
+}
+
 .bttmleft {
-  position: absolute;
-  width: 200px;
-  height: 16px;
   left: 18px;
-  top: 723px;
-  
-  font-family: 'Graphik-Regular';
-  font-size: 14px;
-  line-height: normal;
-  
-  color: #828282;
+  text-align: left;
 } 
+
+/*** POPUPS ***/
+.popup {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+}
+
+.popup .popuptext {
+  top: 100px;
+  left: 0px;
+  position: relative;
+  display: block;
+  width: 100vw;
+  height: 600px;
+  background: rgba(0, 0, 0, 0.9);
+  font-family: 'Graphik-Semibold';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 44px;
+  align-items: center;
+  visibility: hidden;
+  text-align: center;
+  color: #fff;
+  z-index: 1;
+}
+
+.popup .popuptext::after {
+  content: "";
+  position: absolute;
+}
+
+.popup .show {
+  visibility: visible;
+  animation: fadeIn 1s;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity:1 ;}
+}
 
 /*** PAGES ***/
 #loginPage {
@@ -141,11 +181,11 @@ h2 {
 
 /*** BUTTONS ***/
 input[type=button] {
-  border: 2px solid white;
-  position: relative;
+  border: none;
   color: white;
   background-color: black;
   font-family: 'Graphik-Regular';
+  cursor: pointer;
 }
 
 input[type=button].login {
@@ -225,17 +265,47 @@ input[type=button].ui:enabled {
   margin-left: 25%;
   margin-right: auto;
   height: 50px;
-  top: 650px;  
+  top: 590px;  
   color: white;
   background-color: black;
   font-family: 'Graphik-Semibold';
   font-size: 22px;
   outline: none;
+  transition: all 0.5s;
+}
+
+input[type=button].ui span {
+  cursor: pointer;
+  position: relative;
+  transition: 0.5s;
+  padding: 20px;
+}
+
+input[type=button].ui span:after {
+
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: 0px;
+  transition: 0.5s;
+  padding: 20px;
+}
+
+input[type=button].ui:hover span {
+  background-color:#009ee0;
+  padding-right: 50%;
+  padding-left: 50%;
+}
+
+input[type=button].ui:hover span:after {
+  opacity: 1;
+  right: 0;
+  padding-right: -25%;
+  padding-left: -25%;
 }
 
 input[type=button].ui:enabled:hover {
-  border: 2px solid #009036;
-  color: #009036;
+  background-color: #009ee0;
   outline: none;
 }
 
@@ -277,7 +347,7 @@ input[type=button].blueLinkText:enabled {
   width: 470px;
   height: 38px;
   left: 22px;
-  top: 422px;
+  top: 370px;
   text-align: left;
   font-family: 'Graphik-Regular';
   font-size: 18px;
@@ -350,6 +420,12 @@ input[type=button].edit {
   font-family: 'Graphik-Semibold';
 }
 
+#finished1 {
+  top: 685px;
+  text-align: center;
+  font-family: 'Graphik-Regular';
+}
+
 /*** LINKS ***/
 a:link {
   color: #828282;
@@ -382,7 +458,7 @@ a:active {
   width: 470px;
   height: 24px;
   left: 23px;
-  top: 315px;
+  top: 280px;
 }
 
 #roomInstr {
@@ -390,14 +466,14 @@ a:active {
   width: 470px;
   height: 24px;
   left: 23px;
-  top: 490px;
+  top: 450px;
 }
 
 .dropdown {
   text-indent: 20px;
   text-align: left;
   width: 470px;
-  height: 80px;
+  height: 70px;
   font-family: 'Graphik-Regular';
   outline: none;
   padding-right: 20%;
@@ -417,8 +493,8 @@ a:active {
   display: none;
   position: absolute;
   color: #FFFFFF;
-  background-color: rgb(32, 32, 32);
-  box-shadow: 0px 8px 16px 0px rgba(94, 94, 94, 0.2);
+  background-color: rgb(48, 48, 48);
+  box-shadow: 0px 8px 16px 0px rgba(131, 131, 131, 0.2);
   min-width: 160px;
   padding: 12px 16px;
   z-index: 1;
@@ -426,25 +502,25 @@ a:active {
 
 .dropdown-content:hover {
   color: #000000;
-  background-color: rgb(151, 151, 151)
+  background-color: rgb(255, 255, 255)
 }
 
 .dropdown:hover {
   display: block;
   color: white;
-  background-color: rgb(80, 80, 80);
+  background-color: rgb(46, 46, 46);
 }
 
 #selectedCalendar {
   position: absolute;
   left: 23px;
-  top: 339px;
+  top: 300px;
 }
 
 #selectedRoom {
   position: absolute;
   left: 23px;
-  top: 514px;
+  top: 470px;
 }
 
 /*** TABLES ***/
@@ -473,4 +549,3 @@ a:active {
   border: none;
   outline:none;
 }
-
