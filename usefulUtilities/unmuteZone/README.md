@@ -16,5 +16,8 @@ When added to a zone entity, this script will automatically unmute a user when t
 
 # Releases
 
+## v1.1 :: [2627d1e](https://github.com/highfidelity/hifi-content/commit/2627d1e)
+- Added a missing variable to the source code to prevent console errors.
+
 ## 2019-04-15_13-00-00 :: [d8a4e4d1](https://github.com/highfidelity/hifi-content/commit/d8a4e4d1)
 - Initial release

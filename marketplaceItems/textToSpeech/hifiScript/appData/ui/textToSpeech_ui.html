@@ -1,0 +1,93 @@
+<html>
+
+<head>
+    <title>Text to Speech</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/textToSpeech_ui.css?0">
+    <script type="text/javascript" src="js/textToSpeech_ui.js?0"></script>
+</head>
+
+<body>
+    <div id="loadingContainer">
+    </div>
+
+    <div id="popupBackground" style="display:none;" onclick="closePopup(event);">
+        <div id="popupContainer" onclick="event.stopPropagation();">
+            <div id="popupTitleBar">
+                <h1 id="popupTitleText">
+
+                </h1>
+                <div id="popupXButton" onclick="closePopup(event);">X</div>
+            </div>
+
+            <div id="popupContentContainer">
+                <div id="infoContentContainer" style="display:none;">
+                    <p>High Fidelity's Text to Speech app relies on Google's Text to Speech and Translate APIs.</p>
+                    <h2>Google Translate API: Data Usage</h2>
+                    <p>When you use the Text to Speech app to automatically translate text, you are sending a copy of
+                        your input text to Google's servers. According to <a
+                            href="https://cloud.google.com/translate/data-usage" target="_blank">Google's Data Usage FAQ on
+                            the Translate API support page</a>,
+                        that text is stored on Google servers for a maximum of 14 days.</p>
+                    <h2>Google Text to Speech API: Data Usage</h2>
+                    <p>When you use the Text to Speech app to speak input text (whether or not it is automatically
+                        translated), you are sending a copy of
+                        your input text to Google's servers. Google does not publish a Data Usage FAQ associated with the
+                        Text to Speech API.
+                        <a href="https://cloud.google.com/security/privacy/" target="_blank">Here's a link to Google's Cloud
+                            Data privacy policy.</a></p>
+                    <h2>High Fidelity APIs</h2>
+                    <p>When you use the Text to Speech app to speak or translate input text, you are sending a copy of your
+                        input text to High Fidelity's
+                        servers. High Fidelity does not store a copy of this text for any reason. High Fidelity does briefly
+                        store a copy of the speech audio file associated
+                        with your input text so that High Fidelity Interface may play back that speech audio file. That file
+                        is deleted 60 seconds after it is generated.</p>
+                </div>
+
+
+                <div id="changeVoiceContentContainer" style="display:none;">
+                    <div id="languageButtonsContainer">
+                    </div>
+                    <div id="genderButtonsContainer">
+                    </div>
+                    <div id="voiceButtonsContainer">
+                    </div>
+
+                    <input type="button" class="closeButton" value="CLOSE" onclick="closePopup(event);">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="titleBarContainer">
+        <div id="titleText" style="font-weight:bold;">
+            Text to Speech v2.0
+        </div>
+        <div id="infoButton" onclick="openInfoPopup(event);">
+            ?
+        </div>
+    </div>
+
+    <div id="contentContainer">
+        <textarea id="inputText" rows="5" cols="50" name="TTS Text" maxlength="4000" onkeydown="onKeyDown(event);"></textarea>
+
+        <div id="bottomContainer">
+            <div id="changeVoiceContainer">
+                <p id="voiceLanguageText">Language</p>
+                <p id="voiceName">Voice</p>
+                <p id="voiceGender">Gender</p>
+                <input id="changeVoiceButton" type="button" value="Change Voice" onclick="openChangeVoicePopup(event);">
+            </div>
+
+            <div id="bottomRightContainer">
+                <input id="sayItButton" type="button" value="Say It" onclick="translateTextThenSpeak();">
+                <input id="stopSpeechButton" type="button" value="Stop" onclick="stopSpeech();">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
