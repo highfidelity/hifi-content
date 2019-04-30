@@ -7,7 +7,7 @@
     "lastEdited": 1556301580729918,
     "parentID": "{3929e833-9927-4645-88a1-ad1fc2976cd5}",
     "name": "Pod Mod Timezone",
-    "position": {
+    "localPosition": {
         "x": -2.158367156982422,
         "y": 0.0662841796875,
         "z": -0.6715229153633118
@@ -69,7 +69,7 @@
     "parentID": "{3929e833-9927-4645-88a1-ad1fc2976cd5}",
     "name": "Pod Mod Clock",
     "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
-    "position": {
+    "localPosition": {
         "x": -2.1704750061035156,
         "y": 0.267578125,
         "z": -0.6789287328720093
@@ -134,7 +134,7 @@
     "lastEdited": 1556301580729918,
     "parentID": "{3929e833-9927-4645-88a1-ad1fc2976cd5}",
     "name": "Pod Mod Chair",
-    "position": {
+    "localPosition": {
         "x": 1.1380424499511719,
         "y": -0.68212890625,
         "z": -0.795466959476471
@@ -191,7 +191,7 @@
     "lastEdited": 1556301580729918,
     "parentID": "{3929e833-9927-4645-88a1-ad1fc2976cd5}",
     "name": "Pod Mod Desk-Web",
-    "position": {
+    "localPosition": {
         "x": -1.3748397827148438,
         "y": -0.28924560546875,
         "z": 1.0215864181518555
@@ -248,7 +248,7 @@
     "lastEdited": 1556301580729918,
     "parentID": "{3929e833-9927-4645-88a1-ad1fc2976cd5}",
     "name": "Pod Mod Chair",
-    "position": {
+    "localPosition": {
         "x": 0.9923095703125,
         "y": -0.682373046875,
         "z": 1.4078093767166138
@@ -305,7 +305,7 @@
     "lastEdited": 1556301580729918,
     "parentID": "{3929e833-9927-4645-88a1-ad1fc2976cd5}",
     "name": "Pod Mod Desk",
-    "position": {
+    "localPosition": {
         "x": -1.423614501953125,
         "y": -0.7591552734375,
         "z": 1.0284059047698975
@@ -362,7 +362,7 @@
     "lastEdited": 1556301580729918,
     "parentID": "{3929e833-9927-4645-88a1-ad1fc2976cd5}",
     "name": "Pod Mod Stool",
-    "position": {
+    "localPosition": {
         "x": -0.52825927734375,
         "y": -1.18023681640625,
         "z": 1.0015151500701904
@@ -419,7 +419,7 @@
     "lastEdited": 1556301580729918,
     "parentID": "{3929e833-9927-4645-88a1-ad1fc2976cd5}",
     "name": "Pod Mod",
-    "position": {
+    "localPosition": {
         "x": -0.00754547119140625,
         "y": -0.1207275390625,
         "z": -0.41818174719810486
@@ -478,7 +478,7 @@
     "lastEdited": 1556301580729918,
     "parentID": "{3929e833-9927-4645-88a1-ad1fc2976cd5}",
     "name": "Pod Mod Light",
-    "position": {
+    "localPosition": {
         "x": -0.3392066955566406,
         "y": -0.39404296875,
         "z": -0.5113577842712402
@@ -539,11 +539,6 @@
     "type": "Zone",
     "lastEdited": 1556301580729918,
     "name": "Pod Zone",
-    "position": {
-        "x": 25.71506118774414,
-        "y": 0,
-        "z": 42.29521560668945
-    },
     "dimensions": {
         "x": 4.849651336669922,
         "y": 2.9042000770568848,

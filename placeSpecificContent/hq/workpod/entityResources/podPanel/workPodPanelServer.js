@@ -12,11 +12,6 @@
 
     var _this;
 
-    var WAIT_FOR_ENTITIES_TO_LOAD_MS = 500;
-    var NEGATIVE = -1;
-    var GREEN = {red:0,green:255,blue:0};
-    var YELLOW = {red:255,green:255,blue:0};
-    var RED = {red:255,green:0,blue:0};
     var TWO_HOURS_MS = 7200000;
     var MOD_POD_ENTITIES = Script.require("../resources/JSONs/podMod.json? + Date.now()");
     var SURF_SHACK_ENTITIES = Script.require("../resources/JSONs/podSurf.json? + Date.now()");
@@ -61,10 +56,8 @@
                 if (name === "Pod Zone") {
                     delete presetEntity.id;
                     presetEntity.parentID = _this.entityID;
-                    presetEntity.position = { x: 1.8786, y: -0.0005, z: 2.3164 };
                     presetEntity.localPosition = { x: 1.8786, y: -0.0005, z: 2.3164 };
                     currentZoneID = Entities.addEntity(presetEntity);
-                    print("....................CURRENT ZONE: ", currentZoneID);
                 }
             });
             

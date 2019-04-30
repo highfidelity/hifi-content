@@ -8,7 +8,7 @@
     "parentID": "{64975bf8-48e2-4a51-bc21-883e6a76ade1}",
     "name": "Pod Surf Clock",
     "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
-    "position": {
+    "localPosition": {
         "x": -1.2097892761230469,
         "y": 0.7528076171875,
         "z": -0.45489242672920227
@@ -73,7 +73,7 @@
     "lastEdited": 1556302504565807,
     "parentID": "{64975bf8-48e2-4a51-bc21-883e6a76ade1}",
     "name": "Pod Surf Chair",
-    "position": {
+    "localPosition": {
         "x": 1.140380859375,
         "y": -1.078125,
         "z": -0.6789863109588623
@@ -130,7 +130,7 @@
     "lastEdited": 1556302504565807,
     "parentID": "{64975bf8-48e2-4a51-bc21-883e6a76ade1}",
     "name": "Pod Surf Desk-Web",
-    "position": {
+    "localPosition": {
         "x": -1.3673744201660156,
         "y": -0.685546875,
         "z": 1.1451727151870728
@@ -187,7 +187,7 @@
     "lastEdited": 1556302504565807,
     "parentID": "{64975bf8-48e2-4a51-bc21-883e6a76ade1}",
     "name": "Pod Surf Chair",
-    "position": {
+    "localPosition": {
         "x": 1.0008811950683594,
         "y": -1.07843017578125,
         "z": 1.524693489074707
@@ -244,7 +244,7 @@
     "lastEdited": 1556302504565807,
     "parentID": "{64975bf8-48e2-4a51-bc21-883e6a76ade1}",
     "name": "Pod Surf Stool",
-    "position": {
+    "localPosition": {
         "x": -0.5207939147949219,
         "y": -1.5765380859375,
         "z": 1.122657060623169
@@ -301,7 +301,7 @@
     "lastEdited": 1556302504565807,
     "parentID": "{64975bf8-48e2-4a51-bc21-883e6a76ade1}",
     "name": "Pod Surf Desk",
-    "position": {
+    "localPosition": {
         "x": -1.4161033630371094,
         "y": -1.15545654296875,
         "z": 1.1521061658859253
@@ -358,7 +358,7 @@
     "lastEdited": 1556302504565807,
     "parentID": "{64975bf8-48e2-4a51-bc21-883e6a76ade1}",
     "name": "Pod Surf",
-    "position": {
+    "localPosition": {
         "x": -0.01792144775390625,
         "y": -0.28717041015625,
         "z": 0.148453950881958
@@ -416,7 +416,7 @@
     "lastEdited": 1556302504565807,
     "parentID": "{64975bf8-48e2-4a51-bc21-883e6a76ade1}",
     "name": "Pod Surf Light",
-    "position": {
+    "localPosition": {
         "x": 0.034637451171875,
         "y": -0.39422607421875,
         "z": 0.16280335187911987
@@ -477,11 +477,6 @@
     "type": "Zone",
     "lastEdited": 1556302504565807,
     "name": "Pod Zone",
-    "position": {
-        "x": 25.927570343017578,
-        "y": 0,
-        "z": 42.41158676147461
-    },
     "dimensions": {
         "x": 4.849699974060059,
         "y": 2.9042000770568848,
