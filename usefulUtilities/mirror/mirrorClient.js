@@ -89,7 +89,8 @@
                     x: 0,
                     y: 0,
                     z: mirrorLocalEntityOffset
-                }
+                },
+                isVisibleInSecondaryCamera: false
             }, "local");
             updateMirrorDimensions(true);
         }
