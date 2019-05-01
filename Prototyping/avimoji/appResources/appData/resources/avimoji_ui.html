@@ -3,6 +3,7 @@
     Avimoji
     avimoji_ui.html
     Created by Milad Nazeri on 2019-04-25
+    Additional Code by Zach Fox
     Copyright 2019 High Fidelity, Inc.
 
     Distributed under the Apache License, Version 2.0.
@@ -18,80 +19,387 @@
         <link rel="stylesheet" href="./css/styles.css">
     </head>
     <body>
-        <div id="loadingContainer">
-        </div>
-        <div id="mainContainer">
-            <div id="stickyContainer">
-                <div id="searchContainer">
-                    <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
+        <!-- <div id="loadingContainer">
+        </div> -->
+        <!-- <div id="firstRunContainer" style="display:block;">
+            <div id="firstRunContent">
+                <div id="firstRunTitleText">
+                    <h1>
+                        <span>AVI</span><span>MOJI!</span>
+                    </h1>
                 </div>
-                <div id="optionsContainer" >
-                    <div id="simpleContainer" class="gridRow">
-                        <span>
-                            <label class="mainTextColor" for="wearAsMask">Mask</label>
-                            <input id="wearAsMask" type="checkbox" onclick="handleWearAsMask(this)">
-                        </span>
-                        <span>
-                            <label class="mainTextColor" for="easyFavorite">EZ Favorites</label>
-                            <input id="easyFavorite" type="checkbox" onclick="handleEasyFavorites(this)">
-                        </span>
-                        <span>
-                            <label class="mainTextColor" for="advancedMode">Advanced</label>
-                            <input id="advancedMode" type="checkbox" onclick="handleAdvancedModeChange(this)">
-                        </span>
-                        <span>
-                            <label class="mainTextColor" style="position: relative; bottom: 2px;" for="emojiScaler">Size</label>
-                            <input id="emojiScaler" type="range" onchange="handleEmojiScalerChanged(this)" min="0.2" max="1.0" step="0.01" value="1.0">
-                        </span>
-                    </div>
-                    <div id="advancedContainer" style="display: none">
-                        <div id="advancedOptionsContainer" >
-                            <div class="gridRow" style="margin: 0px 0px 13px 0px">
-                                <span>
-                                    <label class="mainTextColor" for="local">Local</label>
-                                    <input id="local" type="checkbox" style="vertical-align: middle;" onclick="handleLocalChange(this)">
-                                </span>
-                                <span>
-                                    <label class="mainTextColor" for="allEmojis">All Emojis</label>
-                                    <input id="allEmojis" type="checkbox" style="vertical-align: middle;" onclick="handleAllEmojis(this)">
-                                </span>
-                                <span>
-                                    <label class="mainTextColor" for="shouldTimeoutDelete">Timeout Delete</label>
-                                    <input id="shouldTimeoutDelete" style="vertical-align: middle;" type="checkbox" onclick="handleShouldTimeoutDelete(this)">
-                                </span>
-                                <span>
-                                    <label class="mainTextColor" for="sequenceMode">Sequence</label>
-                                    <input id="sequenceMode" type="checkbox" style="vertical-align: middle;" onclick="handleSequenceModeChange(this)">
-                                </span>
-
-                            </div>
-                            <div class="gridRowLeftJustify">
-                                <span id="animationDistanceContainer" style="display: none;">
-                                    <label class="mainTextColor" style="position: relative; bottom: 2px;" for="animationDistance">Spread</label>
-                                    <input style="width: 50px; vertical-align: middle;" id="animationDistance" type="range" onchange="handleAnimationDistance(this)" min="0.01" max="0.8" step="0.1" value="1.0">
-                                </span>
-                                <span id="animationSpeedContainer"  style="display: none;">
-                                    <label class="mainTextColor" style="position: relative; bottom: 2px;" for="animationSpeed">Duration</label>
-                                    <input style="width: 50px; vertical-align: middle;" id="animationSpeed" type="range" onchange="handleAnimationSpeed(this)" min=".80" max="1.45" step="0.1" value="1.0">
-                                </span>
-                            </div>
-                        </div>
-                        <div id="emojiSequenceContainer">
-                            <div id="emojiSequenceContent">
-                            </div>
-                        </div>
-                    </div>
-                </div>     
-                <div id="selectedContainer" style="display: none;">
+                <div id="firstRunPictureContent">
+                    <div id="firstRunPictureContent2" draggable="false" onclick="handleGotIt(this)">
+                    </div>  
                 </div>
-                <div id="emojiFavoritesContainer" style=" display: none;">
-                    <div id="emojiFavoriteContent">
+            </div>
+        </div> -->
+        <div id="popupBackground" onclick="handleClosePopup(event);" style="display: none;">
+            <div id="popupContainer" onclick="event.stopPropagation();">
+                <div id="popupTitleBar">
+                    <h1 id="popupTitleText">
+                        AVIMOJI help
+                    </h1>
+                    <div id="popupXButton" onclick="handleClosePopup(event);">X</div>
+                </div>
+                <div id="popupContentContainer">
+                    <div id="infoContent" style="display:block;">
+                        <p>
+                            <strong>Express yourself with Avimojis!</strong>
+                        </p>
+                        <p>
+                            Open the app by either clicking the Avimoji button or by pressing Ctrl + Enter to bring up the Avimoji Window
+                        </p>
+                        <p>
+                            There are two modes.  Simple and Advanced.  In simple mode you just click an emoji and you can choose to have it pop over your head,
+                            or wear it as a mask with the "Mask" option.  The emoji will play for a short time period before it deletes itself.
+                        </p>
+                        <p>
+                            You can search for emojis by typing in the tool bar above.  If you know the name of an emoji, then you can also enter it in the search bar and push enter to have it pop over you head directly.  
+                        </p>
+                        <p>
+                            As you use the app, your top 10 most frequently used emojis will start appearing.  You can also access these by clicking EZ favorites to have them appear in your interface window.  If you are in first person mode, you will get an emoji in the your lower right hand corner that will let you see which emoji you are currently using.
+                        </p>
+                        <p>
+                            If you would like to have more control, chose the advanced mode.  Here you can play an emoji sequence, choose to have your emoji only appear in local mode if you would like to experiment with the look before others can see them, remove the timeout delete that is on by default, and choose to show even more emojis in the standard Unicode set by checking all emojis.  
+                        </p>
+                        <p>
+                            Have a fun time expressing yourself!
+                        </p>
+                        <p>
+                            Big thank you to Twitter for their open source emoji set at https://github.com/twitter/twemoji
+                        </p>
                     </div>
                 </div>
             </div>
-            <div id="emojiContainer">
+        </div>
+        <div id="mainContainer" style="display: block;">
+            <div id="searchContainer">
+                <div id="searchContentContainer">
+        
+                    <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
+                    <span id="infoButton" onclick="handleOpenPopup(event);">
+                        ?
+                    </span>
+
+                </div>
+            </div>
+            <div id="simpleOptionsContainer" >
+                <div id="simpleOptionsContentContainer" class="mainTextColor">
+
+                    <label for="wearAsMask">
+                        Mask
+                        <input id="wearAsMask" type="checkbox" onclick="handleWearAsMask(this)">
+                    </label>
+                    <label for="easyFavorites">
+                        EZ Favorites
+                        <input id="easyFavorites" type="checkbox" onclick="handleEasyFavorites(this)">
+                    </label>
+                    <label for="advanced">
+                        Advanced
+                        <input id="advanced" type="checkbox" onclick="handleAdvanced(this)">
+                    </label>
+                    <label for="emojiSize">
+                        Size
+                        <input id="emojiSize" type="range" onchange="handleEmojiSize(this)" min="0.2" max="1.0" step="0.01" value="1.0">
+                    </label>
+
+                </div>
+            </div>
+            <div id="advancedOptionsContainer">
+                <div id="advancedOptionsRow1ContentContainer" class="mainTextColor">
+
+                    <label for="local">
+                        Local
+                        <input id="local" type="checkbox" onclick="handleLocalChange(this)">
+                    </label>
+                    <label for="allEmojis">
+                        All Emojis
+                        <input id="allEmojis" type="checkbox" onclick="handleAllEmojis(this)">
+                    </label>
+                    <label for="shouldTimeoutDelete">
+                        Timeout Delete
+                        <input id="shouldTimeoutDelete" type="checkbox" onclick="handleShouldTimeoutDelete(this)">
+                    </label>
+                    <label for="sequenceMode">
+                        Sequence
+                        <input id="sequenceMode" type="checkbox" onclick="handleSequenceModeChange(this)">
+                    </label>
+
+                </div>
+                <div id="advancedOptionsRow2ContentContainer" class="mainTextColor">
+
+                    <label for="animationSpread">
+                        Animation Spread
+                        <input id="animationSpread" type="range" onchange="handleAnimationSpread(this)" min="0.01" max="0.8" step="0.1" value="1.0">
+                    </label>
+                    <label for="animationSpread">
+                        Animation Spread
+                        <input id="animationSpread" type="range" onchange="handleAnimationSpread(this)" min="0.8" max="1.45" step="0.1" value="1.0">
+                    </label>
+
+                </div>
+                <div id="emojiSequenceContainer">
+                    <div>
+                        <div id="emojiSequenceContentContainer" class="mainTextColor">
+
+                            <div id="emojiSequenceDisable" style="display: block;"> 
+                            </div>
+                            <label id="emojiSequenceText">
+                                Emoji Sequence
+                            </label>
+                            <div id="emojiSequenceListContentContainer">
+    
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+    
+                            </div>
+                            <div id="emojiSequenceListButtonContentContainer">
+                                <input id="playStopButton" type="button" class="buttonControls" value="Play" onclick="handlePlayStopButton()">
+                                <input id="handleResetListButton"type="button" class="buttonControls" value="Reset" onclick="handleResetListButton()">
+                            </div>
+                        </div>
+                    </div>
+  
+                </div>
+            </div>
+            <div id="selectedContainer" style="display: block;">
+                <div id="selectedContentContainer">
+
+                    <div
+                        onclick="clickEmoji(this)"
+                        data-number="${emoji.number}" 
+                        data-shortName="${emoji.shortName}" 
+                        data-index="0" 
+                        data-code="1f600"
+                        draggable="false">
+                    </div>
+                    <div id="selectedShortname">
+                        GRINNING FACE WITH SMILING EYES
+                    </div>
+                    <div id="selectedKeywords">
+                        SMILEYS & EMOTION | face-smiling | eye | face | mouth | open | smile
+                    </div>
+                    <div id="selectedRemoveButtonContainer">
+                        <input id="selectedRemoveButton" class="buttonControls" type="button" value="Remove" onclick="handleSelectedRemoveButton()">
+                    </div>
+
+                </div>
+            </div>
+            <div id="emojiFavoritesContainer">
+                <div id="emojiFavoritesContentContainer">
+                    <div id="emojiFavoritesText">
+                        <label for="emojiFavoritesListButton">
+                            Emoji Favorites
+                        </label>
+                        <span id="emojiFavoritesListButton" onclick="handleResetListButton(event)">
+                            X
+                        </span>
+                    </div>
+                    <div id="emojiFavoritesListContentContainer">
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+                        <div
+                            data-index="0" 
+                            data-code="1f600"
+                            draggable="false">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+             <div id="emojisContainer">
+                <div id="emojisContent">
+                </div>
             </div>
         </div>
         <script src="./js/avimoji_ui.js"></script>
     </body>
 </html>
+
+
+                            <!-- <span
+                                class="emojiSequence"
+                                data-index="0" 
+                                data-code="1f600"
+                                draggable="false">
+                            </span> -->
+                            <!-- onmouseover="hoverEmoji(this, true)"
+                            onmouseout="hoverEmoji(this)"
+                            onclick="clickEmoji(this, true)" -->

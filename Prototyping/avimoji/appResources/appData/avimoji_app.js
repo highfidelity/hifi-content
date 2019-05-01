@@ -206,7 +206,7 @@
     }
 
 
-    var isLocal = Settings.getValue("avimoji/isLocal", false);
+    var isLocal = false;
     function handleLocalChange(newLocal) {
         isLocal = newLocal;
         Settings.setValue("avimoji/isLocal", isLocal);
@@ -233,6 +233,7 @@
         Settings.setValue("avimoji/showEasyFavorite", showEasyFavorite);
         log("SHOW EASY FAVORITE", showEasyFavorite, "");
         if (showEasyFavorite) {
+            maybeClearFavoriteTimer();
             renderFavoriteOverlays();   
         } else {
             deleteFavoritesOverlays();
@@ -396,9 +397,10 @@
         });
     }
 
-
+    var favoritesReset = false;
     function handleResetFavorites() {
         favorites = {};
+
         Settings.setValue("avimoji/favorites", {});
         ui.sendMessage({
             app: "avimoji",
@@ -406,6 +408,7 @@
             favorites: makeFavoritesArray(favorites)
         });
         deleteFavoritesOverlays();
+        favoritesReset = true;
     }
 
 
@@ -427,7 +430,7 @@
     // #region Overlays
 
 
-    var DISTANCE_CHECK = 2.5;
+    var DISTANCE_CHECK = 1.0;
     function shouldDrawOverlay() {
         var myAvatarHeadPosition = MyAvatar.getHeadPosition();
         var cameraPosition = Camera.position;
@@ -442,7 +445,7 @@
     // Draw the emoji overlay so you know if you see it
     var emojiOverlay;
     var OVERLAY_PADDING_SCALER = 0.65;
-    var ALPHA_OVERLAY_TIMEOUT_MS = 100;
+    var ALPHA_OVERLAY_TIMEOUT_MS = 350;
     var lastOverlayWidth = 0;
     var lastOverlayHeight = 0;
     var lastOverlayImageURL = 0;
@@ -489,7 +492,7 @@
 
 
     // Draw the emoji overlay so you know if you see it
-    var FAVORITE_OVERLAY_TIMER_INTERVAL_MS = 5000;
+    var FAVORITE_OVERLAY_TIMER_INTERVAL_MS = 15000;
     function drawFavoriteOverlays(width, height, imageURL, emoji, x, y) {
         width = width || lastOverlayWidth;
         height = height || lastOverlayHeight;
@@ -538,6 +541,7 @@
             });
         }
         favoriteOverlays = [];
+        maybeClearFavoriteTimer();
     }
 
 
@@ -622,19 +626,23 @@
     var TOP_MARGIN = 80;
     var TOTAL_FAVORITES = 10;
     var favoriteOverlays = null;
-    var OVERLAY_SIZE_SCALER = 0.30;
+    var OVERLAY_SIZE_SCALER = 0.15;
     var topTenEmojis = [];
     var favoritesTimer = null;
+    var WIDTH_BETWEEN_SCALER = 0.0055;
+    var WIDTH_TOTAL_SCALER = 0.30;
+    var LENGTH_OF_SEGMENT = Window.innerWidth / TOTAL_FAVORITES;
+    var OFFSET = -Window.innerWidth * 0.67 + LENGTH_OF_SEGMENT * TOTAL_FAVORITES;
     function renderFavoriteOverlays() {
         topTenEmojis = makeFavoritesArray(favorites);
         favoriteOverlays = topTenEmojis.map(function(emoji, index){
             if (emoji && emojiCodeMap && emojiCodeMap[emoji.code]){
                 var favoriteEmoji = emojiList[emojiCodeMap[emoji.code]];
                 var imageURL = imageURLBase + favoriteEmoji.code[0] + ".png";
-                var lengthOfSegment = Window.innerWidth / TOTAL_FAVORITES;
-                var segmentStart = lengthOfSegment * index; 
                 
-                var x = segmentStart + (Window.innerWidth * 0.055 * 0.5);
+                var segmentStart = LENGTH_OF_SEGMENT * index * WIDTH_TOTAL_SCALER; 
+                
+                var x = OFFSET + segmentStart + (Window.innerWidth * WIDTH_TOTAL_SCALER * WIDTH_BETWEEN_SCALER);
 
                 var y = TOP_MARGIN;
                 var overlay = drawFavoriteOverlays(favoriteEmoji.massive.frame.w * OVERLAY_SIZE_SCALER, favoriteEmoji.massive.frame.h * OVERLAY_SIZE_SCALER, imageURL, favoriteEmoji,x, y * OVERLAY_SIZE_SCALER);
@@ -732,12 +740,19 @@
         } else {
             favorites[emoji.code[0]].count++;
         }
+        var newFavoritesArray = makeFavoritesArray(favorites);
         Settings.setValue("avimoji/favorites", favorites);
         ui.sendMessage({
             app: "avimoji",
             method: "updateFavorites",
-            favorites: makeFavoritesArray(favorites)
+            favorites: newFavoritesArray
         });
+        if (favoritesReset && newFavoritesArray.length === 1 && showEasyFavorite) {
+            handleEasyFavorites(true);
+            favoritesReset = false;
+            drawFavoriteOverlays();
+        }
+
     }
 
 
@@ -1216,7 +1231,8 @@
                     isSequenceMode: isSequenceMode,
                     isAllEmojis: isAllEmojis,
                     shouldTimeoutDelete: shouldTimeoutDelete,
-                    showEasyFavorite: showEasyFavorite
+                    showEasyFavorite: showEasyFavorite,
+                    isFirstRun: Settings.getValue("avimoji/firstRun", true)
                 });
                 sendEmojiChunks();
                 break;
@@ -1293,6 +1309,14 @@
 
             case "handleShouldTimeoutDelete":
                 handleShouldTimeoutDelete(message.newTimeoutDeleteState);
+                break;
+            
+            case "onGotItClicked":
+                Settings.setValue("avimoji/firstRun", false);
+                ui.sendMessage({
+                    app: "avimoji",
+                    method: "gotItClicked"
+                });
                 break;
 
             default:

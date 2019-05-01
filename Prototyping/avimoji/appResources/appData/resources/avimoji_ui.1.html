@@ -1,0 +1,135 @@
+<!--
+
+    Avimoji
+    avimoji_ui.html
+    Created by Milad Nazeri on 2019-04-25
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf8">
+        <title>avimoji app</title>
+        <link rel="stylesheet" href="./css/styles.css">
+    </head>
+    <body>
+        <div id="loadingContainer">
+        </div>
+        <div id="firstRun" style="display:none;">
+                <p style="font-size: 20px; text-align: center;"><strong>Express yourself with Avimojis!</strong></p>
+                <ul>
+                    <li>
+                        Open the app by either clicking the Avimoji button or by pressing Ctrl + Enter to bring up the Avimoji Window
+                    </li>
+                    <br>
+                    <li>
+                        There are two modes.  Simple and Advanced.  In simple mode you just click an emoji and you can choose to have it pop over your head,
+                        or wear it as a mask with the "Mask" option.  The emoji will play for a short time period before it deletes itself.
+                    </li>
+                    <br>
+                    <li>
+                        You can search for emojis by typing in the tool bar above.  If you know the name of an emoji, then you can also enter it in the search bar and push enter
+                        to have it pop over you head directly.  
+                    </li>
+                    <br>
+                    <li>
+                        As you use the app, your top 10 most frequently used emojis will start appearing.  You can also access these by clicking EZ favorites to have them appear in your interface window.  If you are in first person mode, you will get an emoji in the your lower right hand corner that will let you see which emoji you are currently using.
+                    </li>
+                    <br>
+                    <li>
+                        If you would like to have more control, chose the advanced mode.  Here you can play an emoji sequence, choose to have your emoji only appear in local mode if you would like to experiment with the look before others can see them, remove the timeout delete that is on by default, and choose to show even more emojis in the standard Unicode set by checking all emojis.  
+                    </li>
+                    <br>
+                    <li>
+                        Have a fun time expressing yourself!
+                    </li>
+                    <br>
+                    <li>
+                        Big thank you to Twitter for their open source emoji set at https://github.com/twitter/twemoji
+                    </li>
+                    <br>
+                </ul>
+                <div style="width: 100%; display: flex; align-content: center;">
+                    <button class="buttonControls" style="width: 75px; font-size: 20px; margin: 0px auto; text-align: center; padding: 7px;" onclick="handleGotIt()">Got it!</button>                
+                </div>
+        </div>
+        <div id="mainContainer" style="display: none;">
+            <div id="stickyContainer">
+                <div id="searchContainer">
+                    <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
+                </div>
+                <div id="optionsContainer" >
+                    <div id="simpleContainer" class="gridRow">
+                        <span>
+                            <label class="mainTextColor" for="wearAsMask">Mask</label>
+                            <input id="wearAsMask" type="checkbox" onclick="handleWearAsMask(this)">
+                        </span>
+                        <span>
+                            <label class="mainTextColor" for="easyFavorite">EZ Favorites</label>
+                            <input id="easyFavorite" type="checkbox" onclick="handleEasyFavorites(this)">
+                        </span>
+                        <span>
+                            <label class="mainTextColor" for="advancedMode">Advanced</label>
+                            <input id="advancedMode" type="checkbox" onclick="handleAdvancedModeChange(this)">
+                        </span>
+                        <span>
+                            <label class="mainTextColor" style="position: relative; bottom: 2px;" for="emojiScaler">Size</label>
+                            <input id="emojiScaler" type="range" onchange="handleEmojiScalerChanged(this)" min="0.2" max="1.0" step="0.01" value="1.0">
+                        </span>
+                    </div>
+                    <div id="advancedContainer" style="display: none">
+                        <div id="advancedOptionsContainer" >
+                            <div class="gridRow" style="margin: 0px 0px 13px 0px">
+                                <span>
+                                    <label class="mainTextColor" for="local">Local</label>
+                                    <input id="local" type="checkbox" style="vertical-align: middle;" onclick="handleLocalChange(this)">
+                                </span>
+                                <span>
+                                    <label class="mainTextColor" for="allEmojis">All Emojis</label>
+                                    <input id="allEmojis" type="checkbox" style="vertical-align: middle;" onclick="handleAllEmojis(this)">
+                                </span>
+                                <span>
+                                    <label class="mainTextColor" for="shouldTimeoutDelete">Timeout Delete</label>
+                                    <input id="shouldTimeoutDelete" style="vertical-align: middle;" type="checkbox" onclick="handleShouldTimeoutDelete(this)">
+                                </span>
+                                <span>
+                                    <label class="mainTextColor" for="sequenceMode">Sequence</label>
+                                    <input id="sequenceMode" type="checkbox" style="vertical-align: middle;" onclick="handleSequenceModeChange(this)">
+                                </span>
+
+                            </div>
+                            <div class="gridRowLeftJustify">
+                                <span id="animationDistanceContainer" style="display: none;">
+                                    <label class="mainTextColor" style="position: relative; bottom: 2px;" for="animationDistance">Spread</label>
+                                    <input style="width: 50px; vertical-align: middle;" id="animationDistance" type="range" onchange="handleAnimationDistance(this)" min="0.01" max="0.8" step="0.1" value="1.0">
+                                </span>
+                                <span id="animationSpeedContainer"  style="display: none;">
+                                    <label class="mainTextColor" style="position: relative; bottom: 2px;" for="animationSpeed">Duration</label>
+                                    <input style="width: 50px; vertical-align: middle;" id="animationSpeed" type="range" onchange="handleAnimationSpeed(this)" min=".80" max="1.45" step="0.1" value="1.0">
+                                </span>
+                            </div>
+                        </div>
+                        <div id="emojiSequenceContainer">
+                            <div id="emojiSequenceContent">
+                            </div>
+                        </div>
+                    </div>
+                </div>     
+                <div id="selectedContainer" style="display: none;">
+                </div>
+                <div id="emojiFavoritesContainer" style=" display: none;">
+                    <div id="emojiFavoriteContent">
+                    </div>
+                </div>
+            </div>
+            <div id="emojiContainer">
+            </div>
+        </div>
+        <script src="./js/avimoji_ui.js"></script>
+    </body>
+</html>
