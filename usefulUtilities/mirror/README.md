@@ -5,6 +5,8 @@
 The maximum pixel resolution of the mirror is 960px on the mirror's long side. The pixel resolution of the short side of the mirror is based on the aspect ratio of the mirror to ensure square pixels, and will always be smaller than 960px.
 
 # Release Notes
-## Version 2019-01-14_09_40_00
-commit 38a75210f31c46b4b23b285859d2f33159fce163
-- Initial release
+## v1.1 | [commit 228ba06](https://github.com/highfidelity/hifi-content/commits/228ba06)
+- Switched Mirror to use Local Entities instead of Overlays, fixing some bugs in the process
+
+## 2019-01-14_09_40_00 | [commit 38a7521](https://github.com/highfidelity/hifi-content/commits/38a7521)
+- Initial Release
