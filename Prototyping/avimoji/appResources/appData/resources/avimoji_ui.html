@@ -19,21 +19,19 @@
         <link rel="stylesheet" href="./css/styles.css">
     </head>
     <body>
-        <!-- <div id="loadingContainer">
-        </div> -->
-        <!-- <div id="firstRunContainer" style="display:block;">
-            <div id="firstRunContent">
+        <div id="loadingContainer">
+        </div>
+        <div id="firstRunContainer" style="display:none;">
+            <div id="firstRunContentContainer">
                 <div id="firstRunTitleText">
                     <h1>
                         <span>AVI</span><span>MOJI!</span>
                     </h1>
                 </div>
-                <div id="firstRunPictureContent">
-                    <div id="firstRunPictureContent2" draggable="false" onclick="handleGotIt(this)">
-                    </div>  
-                </div>
+                <div id="firstRunPicture" draggable="false" onclick="closeIntroScreen(this)">
+                </div>  
             </div>
-        </div> -->
+        </div>
         <div id="popupBackground" onclick="handleClosePopup(event);" style="display: none;">
             <div id="popupContainer" onclick="event.stopPropagation();">
                 <div id="popupTitleBar">
@@ -73,11 +71,11 @@
                 </div>
             </div>
         </div>
-        <div id="mainContainer" style="display: block;">
+        <div id="mainContainer" style="display: none;">
             <div id="searchContainer">
                 <div id="searchContentContainer">
         
-                    <input type="text" autofocus placeholder="Search Emojis" id="filter_emojis"/>
+                    <input id="filter_emojis" type="text" autofocus placeholder="Search Emojis"/>
                     <span id="infoButton" onclick="handleOpenPopup(event);">
                         ?
                     </span>
@@ -87,13 +85,13 @@
             <div id="simpleOptionsContainer" >
                 <div id="simpleOptionsContentContainer" class="mainTextColor">
 
-                    <label for="wearAsMask">
+                    <label for="mask">
                         Mask
-                        <input id="wearAsMask" type="checkbox" onclick="handleWearAsMask(this)">
+                        <input id="mask" type="checkbox" onclick="handleMask(this)">
                     </label>
-                    <label for="easyFavorites">
+                    <label for="ezFavorites">
                         EZ Favorites
-                        <input id="easyFavorites" type="checkbox" onclick="handleEasyFavorites(this)">
+                        <input id="ezFavorites" type="checkbox" onclick="handleEZFavorites(this)">
                     </label>
                     <label for="advanced">
                         Advanced
@@ -109,9 +107,9 @@
             <div id="advancedOptionsContainer">
                 <div id="advancedOptionsRow1ContentContainer" class="mainTextColor">
 
-                    <label for="local">
+                    <label for="local"> 
                         Local
-                        <input id="local" type="checkbox" onclick="handleLocalChange(this)">
+                        <input id="local" type="checkbox" onclick="handleLocal(this)">
                     </label>
                     <label for="allEmojis">
                         All Emojis
@@ -123,19 +121,19 @@
                     </label>
                     <label for="sequenceMode">
                         Sequence
-                        <input id="sequenceMode" type="checkbox" onclick="handleSequenceModeChange(this)">
+                        <input id="sequenceMode" type="checkbox" onclick="handleSequenceMode(this)">
                     </label>
 
                 </div>
                 <div id="advancedOptionsRow2ContentContainer" class="mainTextColor">
 
-                    <label for="animationSpread">
-                        Animation Spread
-                        <input id="animationSpread" type="range" onchange="handleAnimationSpread(this)" min="0.01" max="0.8" step="0.1" value="1.0">
+                    <label for="animationDistance">
+                        Animation Distance
+                        <input id="animationDistance" type="range" onchange="handleAnimationDistance(this)" min="0.01" max="0.8" step="0.1" value="1.0">
                     </label>
-                    <label for="animationSpread">
-                        Animation Spread
-                        <input id="animationSpread" type="range" onchange="handleAnimationSpread(this)" min="0.8" max="1.45" step="0.1" value="1.0">
+                    <label for="animationSpeed">
+                        Animation Speed
+                        <input id="animationSpeed" type="range" onchange="handleAnimationSpeed(this)" min="0.8" max="1.45" step="0.1" value="1.0">
                     </label>
 
                 </div>
@@ -149,143 +147,246 @@
                                 Emoji Sequence
                             </label>
                             <div id="emojiSequenceListContentContainer">
-    
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
                                 <div
+                                    class="emojiSequence"
                                     data-index="0" 
                                     data-code="1f600"
                                     draggable="false">
                                 </div>
-    
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>
+                                <div
+                                    class="emojiSequence"
+                                    data-index="0" 
+                                    data-code="1f600"
+                                    draggable="false">
+                                </div>                             
                             </div>
                             <div id="emojiSequenceListButtonContentContainer">
                                 <input id="playStopButton" type="button" class="buttonControls" value="Play" onclick="handlePlayStopButton()">
@@ -299,7 +400,8 @@
             <div id="selectedContainer" style="display: block;">
                 <div id="selectedContentContainer">
 
-                    <div
+                    <div 
+                        id="selectedEmojiPicture"
                         onclick="clickEmoji(this)"
                         data-number="${emoji.number}" 
                         data-shortName="${emoji.shortName}" 
@@ -313,8 +415,8 @@
                     <div id="selectedKeywords">
                         SMILEYS & EMOTION | face-smiling | eye | face | mouth | open | smile
                     </div>
-                    <div id="selectedRemoveButtonContainer">
-                        <input id="selectedRemoveButton" class="buttonControls" type="button" value="Remove" onclick="handleSelectedRemoveButton()">
+                    <div id="selectedRemoveButtonContainer" style="display: none">
+                        <input id="selectedRemoveButton" class="buttonControls" type="button" value="Remove" onclick="handleSelectedRemoved()">
                     </div>
 
                 </div>
@@ -325,61 +427,11 @@
                         <label for="emojiFavoritesListButton">
                             Emoji Favorites
                         </label>
-                        <span id="emojiFavoritesListButton" onclick="handleResetListButton(event)">
+                        <span id="emojiFavoritesListButton" class="buttonControls" onclick="handleResetFavoritesList(event)">
                             X
                         </span>
                     </div>
                     <div id="emojiFavoritesListContentContainer">
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
-                        <div
-                            data-index="0" 
-                            data-code="1f600"
-                            draggable="false">
-                        </div>
 
                     </div>
                 </div>
@@ -394,12 +446,7 @@
 </html>
 
 
-                            <!-- <span
-                                class="emojiSequence"
-                                data-index="0" 
-                                data-code="1f600"
-                                draggable="false">
-                            </span> -->
+
                             <!-- onmouseover="hoverEmoji(this, true)"
                             onmouseout="hoverEmoji(this)"
-                            onclick="clickEmoji(this, true)" -->
+                            onclick="clickEmoji(this, true)"

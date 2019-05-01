@@ -42,9 +42,6 @@
     // #region variables
 
 
-    var entityType = Settings.getValue("avimoji/entityType", "avatar");
-    var currentEmoji = new EntityMaker(entityType);
-
     var selectedEmoji = null;
 
 
@@ -81,7 +78,7 @@
         sound = sound || popSound;
         volume = volume || DEFAULT_VOLUME;
         position = position || MyAvatar.position;
-        localOnly = localOnly || isLocal;
+        localOnly = localOnly || local;
         if (sound.downloaded) {
             if (injector) {
                 injector.stop();
@@ -95,7 +92,6 @@
     }
 
 
-    var shouldTimeoutDelete = Settings.getValue("avimoji/shouldTimeoutDelete", true);
     var DEFAULT_TIMEOUT_MS = 7000;
     var defaultTimeout = null;
     function startTimeoutDelete() {
@@ -121,8 +117,8 @@
     var MAX_FAVORITES = 10;
     function makeFavoritesArray() {
         var i = 0, favoritesArray = [];
-        for (var ob in favorites) {
-            favoritesArray[i++] = favorites[ob];
+        for (var emoji in favorites ) {
+            favoritesArray[i++] = favorites[emoji];
         }
 
         favoritesArray.sort(function (a, b) {
@@ -190,28 +186,29 @@
     // #region ui_handlers
 
 
-    var shouldWearMask = Settings.getValue("avimoji/shouldWearMask", false);
-    function handleShouldWearMask(newShouldWearMask) {
-        shouldWearMask = newShouldWearMask;
+    var mask = Settings.getValue("avimoji/mask", false);
+    function handleMask(data) {
+        mask = data.mask;
         if (currentEmoji && currentEmoji.id) {
             addEmojiToUser(selectedEmoji);
         }
-        if (shouldWearMask) {
+        if (mask) {
             shouldTimeoutDelete = false;
         } else {
             shouldTimeoutDelete = true;
         }
-        Settings.setValue("avimoji/shouldWearMask", shouldWearMask);
+        Settings.setValue("avimoji/mask", mask);
         Settings.setValue("avimoji/shouldDefaultDelete", shouldTimeoutDelete);
     }
 
 
-    var isLocal = false;
-    function handleLocalChange(newLocal) {
-        isLocal = newLocal;
-        Settings.setValue("avimoji/isLocal", isLocal);
+    var local = Settings.getValue("avimoji/local", false);
+    var entityType = Settings.getValue("avimoji/entityType", "avatar");
+    function handleLocal(data) {
+        local = data.local;
+        Settings.setValue("avimoji/local", local);
 
-        if (isLocal) {
+        if (local) {
             entityType = "local";
             Settings.setValue("avimoji/entityType", "local");
         } else {
@@ -219,7 +216,7 @@
             Settings.setValue("avimoji/entityType", "avatar");
         }
 
-        if (!advancedModeOn && currentEmoji && currentEmoji.id) {
+        if (!advanced && currentEmoji && currentEmoji.id) {
             addEmojiToUser(selectedEmoji);
         }
 
@@ -227,34 +224,34 @@
     }
 
 
-    var showEasyFavorite = Settings.getValue("avimoji/showEasyFavorite", false);
-    function handleEasyFavorites(newEasyFavorite) {
-        showEasyFavorite = newEasyFavorite;
-        Settings.setValue("avimoji/showEasyFavorite", showEasyFavorite);
-        log("SHOW EASY FAVORITE", showEasyFavorite, "");
-        if (showEasyFavorite) {
-            maybeClearFavoriteTimer();
-            renderFavoriteOverlays();   
+    // show the favorite emojis as overlays
+    var ezFavorites = Settings.getValue("avimoji/ezFavorites", false);
+    function handleEZFavorites(data) {
+        ezFavorites = data.ezFavorites;
+        Settings.setValue("avimoji/ezFavorites", ezFavorites);
+        if (ezFavorites) {
+            maybeClearEZFavoritesTimer();
+            renderEZFavoritesOverlays();   
         } else {
-            deleteFavoritesOverlays();
-            maybeClearFavoriteTimer();
+            deleteEZFavoritesOverlays();
+            maybeClearEZFavoritesTimer();
         }    
     }
 
 
-    var isAllEmojis = Settings.getValue("avimoji/isAllEmojis", false);
+    var allEmojis = Settings.getValue("avimoji/allEmojis", false);
     function handleAllEmojis(newAllEmojis) {
-        isAllEmojis = newAllEmojis;
-        Settings.setValue("avimoji/isAllEmojis", isAllEmojis);
+        allEmojis = newAllEmojis;
+        Settings.setValue("avimoji/allEmojis", allEmojis);
     }
 
 
-    var isSequenceMode = Settings.getValue("avimoji/sequenceMode", false);
-    function handleSequenceModeChange(newIsSequenceMode) {
-        isSequenceMode = newIsSequenceMode;
-        Settings.setValue("avimoji/sequenceMode", isSequenceMode);
-        if (!isSequenceMode) {
-            maybeClearPlayEmojiInterval();
+    var sequenceMode = Settings.getValue("avimoji/sequenceMode", false);
+    function handleSequenceMode(data) {
+        sequenceMode = data.sequenceMode;
+        Settings.setValue("avimoji/sequenceMode", sequenceMode);
+        if (!sequenceMode) {
+            maybeClearPlayEmojiSequenceInterval();
         }
         ui.sendMessage({
             app: "avimoji",
@@ -264,10 +261,11 @@
 
 
     var emojiSequence = Settings.getValue("avimoji/emojiSequence", []);
-    function handleEmojiSelected(emoji) {
+    function handleSelectedEmoji(data) {
+        var emoji = data.emoji;
         log("in handle emoji selected", null, "");
-        if (advancedModeOn) {
-            if (!isSequenceMode) {
+        if (advanced) {
+            if (!sequenceMode) {
                 selectedEmoji = emoji;
                 maybeClearTimeoutDelete();
                 addEmojiToUser(selectedEmoji);
@@ -296,17 +294,21 @@
     }
 
 
-    var DEFAULT_EMOJI_SCALER = 0.27;
-    var emojiScaler = Settings.getValue("avimoji/emojiScaler", DEFAULT_EMOJI_SCALER);
-    function handleUpdateEmojiScaler(newScaler) {
-        emojiScaler = newScaler;
+    // dynamically update the emoji size
+    var DEFAULT_EMOJI_SIZE = 0.27;
+    var emojiSize = Settings.getValue("avimoji/emojiSize", DEFAULT_EMOJI_SIZE);
+    function handleEmojiSize(data) {
+        emojiSize = data.emojiSize;
         if (currentEmoji && currentEmoji.id) {
             addEmojiToUser(selectedEmoji);
         }
-        Settings.setValue("avimoji/emojiScaler", emojiScaler);
+        Settings.setValue("avimoji/emojiSize", emojiSize);
+        maybeRedrawAnimation();
+
     }
 
 
+    // handle a user changing the start and end distance of an emoji animation
     var DEFAULT_ANIMATION_DISTANCE = 0.5;
     var animationDistance = Settings.getValue("avimoji/animationDistance", DEFAULT_ANIMATION_DISTANCE);
     function handleAnimationDistance(newDistance) {
@@ -316,6 +318,7 @@
     }
 
 
+    // handle a user changing the speed of the emoji sequence animation
     var DEFAULT_ANIMATION_SPEED = 1.2;
     var animationSpeed = Settings.getValue("avimoji/animationSpeed", DEFAULT_ANIMATION_SPEED);
     function handleAnimationSpeed(newSpeed) {
@@ -328,9 +331,9 @@
 
     // Update the play state 
     var isPlaying = false;
-    function handleUpdateIsPlaying(playState) {
-        isPlaying = playState;
-        if (playState) {
+    function handleUpdateIsPlaying(data) {
+        isPlaying = isPlaying;
+        if (isPlaying) {
             playEmojiSequence();
         } else {
             stopEmojiSequence();
@@ -338,8 +341,9 @@
     }
 
 
-    function deleteEmojiInSequence(index) {
-        emojiSequence.splice(index, 1);
+    // remove an emoji from the sequence
+    function deleteSequenceEmoji(data) {
+        emojiSequence.splice(data.index, 1);
         ui.sendMessage({
             app: "avimoji",
             method: "updateEmojiPicks",
@@ -347,33 +351,23 @@
             emojiSequence: emojiSequence
         });
         if (emojiSequence.length === 0) {
-            maybeClearPlayEmojiInterval();
+            maybeClearPlayEmojiSequenceInterval();
         }
     }
 
 
-    var emojiSwitchMS = 2500
-    function updateSwitchIntervalTime(newSwitchIntervalTime) {
-        emojiSwitchMS = newSwitchIntervalTime;
+    var advanced = Settings.getValue("avimoji/advanced", false);
+    function handleAdvanced(data) {
+        advanced = data.advanced;
+        Settings.setValue("avimoji/advanced", advanced);
         if (isPlaying) {
-            maybeClearPlayEmojiInterval();
-            playEmojiSequence();
-        }
-    }
-
-
-    var advancedModeOn = Settings.getValue("avimoji/advancedModeOn", false);
-    function handleAdvancedMode(newAdvancedModeState) {
-        advancedModeOn = newAdvancedModeState;
-        Settings.setValue("avimoji/advancedModeOn", advancedModeOn);
-        if (isPlaying) {
-            maybeClearPlayEmojiInterval();
+            maybeClearPlayEmojiSequenceInterval();
             isPlaying = false;
         }
     }
 
 
-    function handleDeleteSelected() {
+    function handleSelectedRemoved() {
         maybePlayPop("off");
         selectedEmoji = null;
         ui.sendMessage({
@@ -386,7 +380,7 @@
 
 
     function handleResetList() {
-        maybeClearPlayEmojiInterval();
+        maybeClearPlayEmojiSequenceInterval();
         emojiSequence = [];
         Settings.setValue("avimoji/emojiSequence", emojiSequence);
         ui.sendMessage({
@@ -397,24 +391,29 @@
         });
     }
 
-    var favoritesReset = false;
-    function handleResetFavorites() {
+
+    // empty out the favorites object to start tracking them again
+    var resetFavorites = false;
+    function handleResetFavoritesList() {
         favorites = {};
 
         Settings.setValue("avimoji/favorites", {});
+        
         ui.sendMessage({
             app: "avimoji",
             method: "updateFavorites",
             favorites: makeFavoritesArray(favorites)
         });
-        deleteFavoritesOverlays();
-        favoritesReset = true;
+        deleteEZFavoritesOverlays();
+        resetFavorites = true;
     }
 
 
-    function handleShouldTimeoutDelete(newShouldTimeoutDelete) {
-        shouldTimeoutDelete = newShouldTimeoutDelete;
-        Settings.setValue("avimoji/shouldTimeoutDelete", newShouldTimeoutDelete);
+    // toggles the emoji deleting by default
+    var shouldTimeoutDelete = Settings.getValue("avimoji/shouldTimeoutDelete", true);
+    function handleShouldTimeoutDelete(data) {
+        shouldTimeoutDelete = data.shouldTimeoutDelete;
+        Settings.setValue("avimoji/shouldTimeoutDelete", shouldTimeoutDelete);
         maybeClearTimeoutDelete();
     }
 
@@ -430,8 +429,9 @@
     // #region Overlays
 
 
+    // Check to se if you are close up to know if you should draw the preview overlay
     var DISTANCE_CHECK = 1.0;
-    function shouldDrawOverlay() {
+    function shouldDrawPreviewOverlay() {
         var myAvatarHeadPosition = MyAvatar.getHeadPosition();
         var cameraPosition = Camera.position;
         var distance = Vec3.distance(myAvatarHeadPosition, cameraPosition);
@@ -442,8 +442,8 @@
     }
 
 
-    // Draw the emoji overlay so you know if you see it
-    var emojiOverlay;
+    // Draw the emoji preview overlay
+    var emojiPreviewOverlay;
     var OVERLAY_PADDING_SCALER = 0.65;
     var ALPHA_OVERLAY_TIMEOUT_MS = 350;
     var lastOverlayWidth = 0;
@@ -451,7 +451,7 @@
     var lastOverlayImageURL = 0;
     var OVERLAY_SCALE_MULTIPLIER = 1.1;
     var OVERLAY_SIZE = 144;
-    function drawEmojiOverlay(width, height, imageURL) {
+    function drawEmojiPreviewOverlay(width, height, imageURL) {
         width = width || lastOverlayWidth;
         height = height || lastOverlayHeight;
         imageURL = imageURL || lastOverlayImageURL;
@@ -470,30 +470,30 @@
             imageURL: imageURL,
             alpha: 0.0
         };
-        emojiOverlay = Overlays.addOverlay("image", overlayProps);
-        if (shouldDrawOverlay()) {
+        emojiPreviewOverlay = Overlays.addOverlay("image", overlayProps);
+        if (shouldDrawPreviewOverlay()) {
             Script.setTimeout(function () {
-                Overlays.editOverlay(emojiOverlay, { alpha: 1.0 });
+                Overlays.editOverlay(emojiPreviewOverlay, { alpha: 1.0 });
             }, ALPHA_OVERLAY_TIMEOUT_MS);
         }
-        overlayTimer = Script.setInterval(overlayTimerHandler, OVERLAY_TIMER_INTERVAL_MS);
+        previewOverlayTimer = Script.setInterval(previewOverlayTimerHandler, PREVIEW_OVERLAY_TIMER_INTERVAL_MS);
     }
 
+    // Check to see if our top ten favorites has changed to know if we should redraw
     var previousTopTenEmojis = null;
-    function favoritesOverlayTimerHandler() {
+    function ezFavoritesOverlayTimerHandler() {
         if (JSON.stringify(previousTopTenEmojis) === JSON.stringify(topTenEmojis)) {
             topTenEmojis = makeFavoritesArray();
             return;
         } else {
-            maybeRedrawFavoriteOverlays();
+            maybeRedrawEZFavoritesOverlays();
             previousTopTenEmojis = topTenEmojis; 
         }
     }
 
 
     // Draw the emoji overlay so you know if you see it
-    var FAVORITE_OVERLAY_TIMER_INTERVAL_MS = 15000;
-    function drawFavoriteOverlays(width, height, imageURL, emoji, x, y) {
+    function drawEZfavoritesOverlays(width, height, imageURL, emoji, x, y) {
         width = width || lastOverlayWidth;
         height = height || lastOverlayHeight;
         imageURL = imageURL || lastOverlayImageURL;
@@ -513,42 +513,45 @@
             imageURL: imageURL,
             alpha: 0.0
         };
-        var favoriteEmojiOverlay = Overlays.addOverlay("image", overlayProps);
+        var ezFavoriteOverlay = Overlays.addOverlay("image", overlayProps);
         Script.setTimeout(function () {
-            Overlays.editOverlay(favoriteEmojiOverlay, { alpha: 1.0 });
+            Overlays.editOverlay(ezFavoriteOverlay, { alpha: 1.0 });
         }, ALPHA_OVERLAY_TIMEOUT_MS);
         return {
-            favoriteOverlay: favoriteEmojiOverlay,
+            ezFavoriteOverlay: ezFavoriteOverlay,
             code: emoji.code       
         };
     }
         
 
     // Delete clickable status overlay on desktop
-    function deleteEmojiOverlay() {
-        if (emojiOverlay) {
-            Overlays.deleteOverlay(emojiOverlay);
-            emojiOverlay = false;
-            maybeClearOverlayTimer();
+    function deleteEmojiPreviewOverlay() {
+        if (emojiPreviewOverlay) {
+            Overlays.deleteOverlay(emojiPreviewOverlay);
+            emojiPreviewOverlay = false;
+            maybeClearPreviewOverlayTimer();
         }
     }
 
 
-    function deleteFavoritesOverlays(){
-        if (favoriteOverlays && favoriteOverlays.length > 0){
-            favoriteOverlays.forEach(function(overlay){
-                Overlays.deleteOverlay(overlay.favoriteOverlay);
+    function deleteEZFavoritesOverlays(){
+        if (ezFavoritesOverlays && ezFavoritesOverlays.length > 0){
+            ezFavoritesOverlays.forEach(function(overlay){
+                Overlays.deleteOverlay(overlay.ezFavoriteOverlay);
             });
         }
-        favoriteOverlays = [];
-        maybeClearFavoriteTimer();
+        ezFavoritesOverlays = [];
+        maybeClearEZFavoritesTimer();
     }
 
 
     // When window resizes, redraw overKKays
     function onWindowResize() {
-        deleteEmojiOverlay();
-        drawEmojiOverlay();
+        deleteEmojiPreviewOverlay();
+        drawEmojiPreviewOverlay();
+        if (ezFavorites) {
+            renderEZFavoritesOverlays();
+        }
     }
 
 
@@ -557,18 +560,18 @@
             var overlayID = Overlays.getOverlayAtPoint({ x: event.x, y: event.y });
 
             // is primary button
-            if (overlayID && (overlayID === emojiOverlay)) {
-                deleteEmojiOverlay();
+            if (overlayID && (overlayID === emojiPreviewOverlay)) {
+                deleteEmojiPreviewOverlay();
                 if (currentEmoji && currentEmoji.id) {
                     currentEmoji.destroy();
                     currentEmoji = new EntityMaker(entityType);
                 }
             } 
 
-            for (var i = 0; i < favoriteOverlays.length; i++){
-                if (overlayID === favoriteOverlays[i].favoriteOverlay){
-                    var emoji = emojiList[emojiCodeMap[favoriteOverlays[i].code]];
-                    handleEmojiSelected(emoji);
+            for (var i = 0; i < ezFavoritesOverlays.length; i++){
+                if (overlayID === ezFavoritesOverlays[i].ezFavoriteOverlay){
+                    var emoji = emojiList[emojiCodeMap[ezFavoritesOverlays[i].code]];
+                    handleSelectedEmoji(emoji);
                     break;
                 }    
             }
@@ -577,9 +580,9 @@
 
 
     function onDomainChanged() {
-        maybeClearOverlayTimer();
-        maybeClearFavoriteTimer();
-        maybeClearPlayEmojiInterval();
+        maybeClearPreviewOverlayTimer();
+        maybeClearEZFavoritesTimer();
+        maybeClearPlayEmojiSequenceInterval();
         maybeClearPop();
     }
 
@@ -588,54 +591,61 @@
     // Draw overlays when mode is in desktop
     function onDisplayModeChanged(isHMDMode) {
         if (isHMDMode) {
-            deleteEmojiOverlay();
+            deleteEmojiPreviewOverlay();
+            deleteEZFavoritesOverlays();
         } else {
-            drawEmojiOverlay();
+            drawEmojiPreviewOverlay();
+            drawEZFavoritesOverlay();
         }
     }
 
 
-    var overlayTimer = null;
-    function maybeClearOverlayTimer() {
-        if (overlayTimer) {
-            Script.clearInterval(overlayTimer);
-            overlayTimer = null;
+    var previewOverlayTimer = null;
+    function maybeClearPreviewOverlayTimer() {
+        if (previewOverlayTimer) {
+            Script.clearInterval(previewOverlayTimer);
+            previewOverlayTimer = null;
         }
     }
 
 
-    function maybeClearFavoriteTimer() {
-        if (favoritesTimer) {
-            Script.clearInterval(favoritesTimer);
-            favoritesTimer = null;
+    function maybeClearEZFavoritesTimer() {
+        if (ezFavoritesTimer) {
+            Script.clearInterval(ezFavoritesTimer);
+            ezFavoritesTimer = null;
         }
     }
 
 
-    var OVERLAY_TIMER_INTERVAL_MS = 500;
-    function overlayTimerHandler() {
-        if (emojiOverlay) {
-            if (shouldDrawOverlay()) {
-                Overlays.editOverlay(emojiOverlay, { alpha: 1.0 });
+    // edit the alpha to help avoid the black box effect
+    var PREVIEW_OVERLAY_TIMER_INTERVAL_MS = 500;
+    function previewOverlayTimerHandler() {
+        if (emojiPreviewOverlay) {
+            if (shouldDrawPreviewOverlay()) {
+                Overlays.editOverlay(emojiPreviewOverlay, { alpha: 1.0 });
             } else {
-                Overlays.editOverlay(emojiOverlay, { alpha: 0.0 });
+                Overlays.editOverlay(emojiPreviewOverlay, { alpha: 0.0 });
             }
         }
     }
 
+
+    // handle rendering the interface ez overlays
     var TOP_MARGIN = 80;
     var TOTAL_FAVORITES = 10;
-    var favoriteOverlays = null;
     var OVERLAY_SIZE_SCALER = 0.15;
-    var topTenEmojis = [];
-    var favoritesTimer = null;
     var WIDTH_BETWEEN_SCALER = 0.0055;
     var WIDTH_TOTAL_SCALER = 0.30;
     var LENGTH_OF_SEGMENT = Window.innerWidth / TOTAL_FAVORITES;
-    var OFFSET = -Window.innerWidth * 0.67 + LENGTH_OF_SEGMENT * TOTAL_FAVORITES;
-    function renderFavoriteOverlays() {
+    var WINDOW_WIDTH_SCALER = 0.67;
+    var OFFSET = -Window.innerWidth * WINDOW_WIDTH_SCALER + LENGTH_OF_SEGMENT * TOTAL_FAVORITES;
+    var EZFAVORITES_OVERLAY_TIMER_INTERVAL_MS = 15000;    
+    var ezFavoritesOverlays = null;
+    var ezFavoritesTimer = null;
+    var topTenEmojis = [];
+    function renderEZFavoritesOverlays() {
         topTenEmojis = makeFavoritesArray(favorites);
-        favoriteOverlays = topTenEmojis.map(function(emoji, index){
+        ezFavoritesOverlays = topTenEmojis.map(function(emoji, index){
             if (emoji && emojiCodeMap && emojiCodeMap[emoji.code]){
                 var favoriteEmoji = emojiList[emojiCodeMap[emoji.code]];
                 var imageURL = imageURLBase + favoriteEmoji.code[0] + ".png";
@@ -645,17 +655,17 @@
                 var x = OFFSET + segmentStart + (Window.innerWidth * WIDTH_TOTAL_SCALER * WIDTH_BETWEEN_SCALER);
 
                 var y = TOP_MARGIN;
-                var overlay = drawFavoriteOverlays(favoriteEmoji.massive.frame.w * OVERLAY_SIZE_SCALER, favoriteEmoji.massive.frame.h * OVERLAY_SIZE_SCALER, imageURL, favoriteEmoji,x, y * OVERLAY_SIZE_SCALER);
+                var overlay = drawEZFavoritesOverlay(favoriteEmoji.massive.frame.w * OVERLAY_SIZE_SCALER, favoriteEmoji.massive.frame.h * OVERLAY_SIZE_SCALER, imageURL, favoriteEmoji,x, y * OVERLAY_SIZE_SCALER);
                 return overlay;
             } 
         });
-        favoritesTimer = Script.setInterval(favoritesOverlayTimerHandler, FAVORITE_OVERLAY_TIMER_INTERVAL_MS);
+        ezFavoritesTimer = Script.setInterval(ezFavoritesOverlayTimerHandler, EZFAVORITES_OVERLAY_TIMER_INTERVAL_MS);
     }
 
-    function maybeRedrawFavoriteOverlays(){
-        if (favoriteOverlays.length > 0){
-            deleteFavoritesOverlays();
-            renderFavoriteOverlays();
+    function maybeRedrawEZFavoritesOverlays(){
+        if (ezFavoritesOverlays.length > 0){
+            deleteEZFavoritesOverlays();
+            renderEZFavoritesOverlays();
         }
     }
 
@@ -685,10 +695,11 @@
     var ABOVE_HEAD = 0.60;
     var EMOJI_CONST_SCALER = 0.27;
     var MASK_DISTANCE_IN_FRONT_OF_AVATAR = 0.24;
+    var currentEmoji = new EntityMaker(entityType);
     function createEmoji(emoji) {
         var neckPosition, avatarScale, aboveNeck, emojiPosition;
         avatarScale = MyAvatar.scale;
-        if (shouldWearMask) {
+        if (mask) {
             billboardMode = "none";
             currentEmoji.add("parentJointIndex", MyAvatar.getJointIndex("Head"));
             neckPosition = [0, 0, MASK_DISTANCE_IN_FRONT_OF_AVATAR];
@@ -698,9 +709,9 @@
             billboardMode = "full";
             aboveNeck = ABOVE_HEAD;
             neckPosition = Vec3.subtract(MyAvatar.getNeckPosition(), MyAvatar.position);
-            emojiPosition = Vec3.sum(neckPosition, [0, avatarScale * aboveNeck * (1 + emojiScaler * EMOJI_CONST_SCALER), 0]);
+            emojiPosition = Vec3.sum(neckPosition, [0, avatarScale * aboveNeck * (1 + emojiSize * EMOJI_CONST_SCALER), 0]);
         }
-        var IMAGE_SIZE = avatarScale * emojiScaler;
+        var IMAGE_SIZE = avatarScale * emojiSize;
         var dimensions = { x: IMAGE_SIZE, y: IMAGE_SIZE, z: IMAGE_SIZE };
         currentSelectedDimensions = dimensions;
 
@@ -720,7 +731,7 @@
             .add('alpha', 1)
             .add('userData', "{ \"grabbableKey\": { \"grabbable\": true, \"kinematic\": false } }")
             .create();
-        drawEmojiOverlay(OVERLAY_SIZE, OVERLAY_SIZE, imageURL);
+        drawEmojiPreviewOverlay(OVERLAY_SIZE, OVERLAY_SIZE, imageURL);
         maybePlayPop("on");
     }
 
@@ -733,7 +744,8 @@
     }
 
 
-    var favorites = Settings.getValue("avimoji/favorites", {});
+    // #TODO CHECK WITH ORIGINAL CODE ON THIS FUNCTION
+    var favorites  = Settings.getValue("avimoji/favorites", {});
     function addToFavorites(emoji) {
         if (!favorites[emoji.code[0]]) {
             favorites[emoji.code[0]] = { count: 1, code: emoji.code[0] };
@@ -747,10 +759,10 @@
             method: "updateFavorites",
             favorites: newFavoritesArray
         });
-        if (favoritesReset && newFavoritesArray.length === 1 && showEasyFavorite) {
-            handleEasyFavorites(true);
-            favoritesReset = false;
-            drawFavoriteOverlays();
+        if (resetFavorites && newFavoritesArray.length === 1 && ezFavorites) {
+            handleEZFavorites(true);
+            resetFavorites = false;
+            drawEZfavoritesOverlays();
         }
 
     }
@@ -769,7 +781,7 @@
     var nextPostionXOffset = 0;
     var nextPostionYOffset = 0;
     var nextPostionZOffset = 0;
-    function setupShouldWearMaskAnimationProperties() {
+    function setupMaskAnimationProperties() {
         billboardMode = "none";
         setupNeckPosition = Vec3.sum(
             [neckPositionX, neckPositionY, neckPositionZ],
@@ -785,9 +797,9 @@
     function setupAboveHeadAnimationProperties() {
         billboardMode = "full";
         setupNeckPosition = Vec3.subtract(MyAvatar.getNeckPosition(), MyAvatar.position);
-        setupEmojiPosition1 = Vec3.sum(setupNeckPosition, [(END_X + START_X) / 2, setupAvatarScale * setupAboveNeck * (1 + emojiScaler * EMOJI_CONST_SCALER), 0])
+        setupEmojiPosition1 = Vec3.sum(setupNeckPosition, [(END_X + START_X) / 2, setupAvatarScale * setupAboveNeck * (1 + emojiSize * EMOJI_CONST_SCALER), 0])
         setupEmojiPosition1 = Vec3.sum(setupEmojiPosition1, [nextPostionXOffset, nextPostionYOffset, nextPostionZOffset]);
-        setupEmojiPosition2 = Vec3.sum(setupNeckPosition, [START_X, setupAvatarScale * setupAboveNeck * (1 + emojiScaler * EMOJI_CONST_SCALER), 0]);
+        setupEmojiPosition2 = Vec3.sum(setupNeckPosition, [START_X, setupAvatarScale * setupAboveNeck * (1 + emojiSize * EMOJI_CONST_SCALER), 0]);
         setupEmojiPosition2 = Vec3.sum(setupEmojiPosition2, [nextPostionXOffset, nextPostionYOffset, nextPostionZOffset]);
     }
 
@@ -838,16 +850,16 @@
             animationEmoji2 = new EntityMaker(entityType);
         }
 
-        maybeClearPlayEmojiInterval();
+        maybeClearPlayEmojiSequenceInterval();
 
-        if (shouldWearMask) {
-            setupShouldWearMaskAnimationProperties();
+        if (mask) {
+            setupMaskAnimationProperties();
         } else {
             setupAboveHeadAnimationProperties();
         }
         animationEmoji1.add("parentJointIndex", MyAvatar.getJointIndex("Head"));
         animationEmoji2.add("parentJointIndex", MyAvatar.getJointIndex("Head"));
-        var IMAGE_SIZE = setupAvatarScale * emojiScaler;
+        var IMAGE_SIZE = setupAvatarScale * emojiSize;
         var dimensions = { x: IMAGE_SIZE, y: IMAGE_SIZE, z: IMAGE_SIZE };
         animationInitialDimensions = dimensions;
 
@@ -1056,7 +1068,7 @@
     }
 
 
-    function maybeClearPlayEmojiInterval() {
+    function maybeClearPlayEmojiSequenceInterval() {
         if (animationEmoji1 && animationEmoji1.id) {
             animationEmoji1.destroy();
         }
@@ -1066,7 +1078,7 @@
         if (currentEmoji && currentEmoji.id) {
             currentEmoji.destroy();
             currentEmoji = new EntityMaker(entityType);
-            deleteEmojiOverlay();
+            deleteEmojiPreviewOverlay();
         }
         if (playEmojiInterval) {
             Script.clearInterval(playEmojiInterval);
@@ -1138,7 +1150,7 @@
             if (currentEmoji && currentEmoji.id) {
                 currentEmoji.destroy();
                 currentEmoji = new EntityMaker(entityType);
-                deleteEmojiOverlay();
+                deleteEmojiPreviewOverlay();
                 selectedEmoji = null;
                 ui.sendMessage({
                     app: "avimoji",
@@ -1168,7 +1180,7 @@
             if (currentEmoji && currentEmoji.id) {
                 currentEmoji.destroy();
                 currentEmoji = new EntityMaker(entityType);
-                deleteEmojiOverlay();
+                deleteEmojiPreviewOverlay();
             }
             maybeClearPop();
             Script.setTimeout(function () {
@@ -1182,14 +1194,14 @@
         log("in redraw Animation", isPlaying);
         if (isPlaying) {
             setupAnimationVariables();
-            maybeClearPlayEmojiInterval();
+            maybeClearPlayEmojiSequenceInterval();
             playEmojiSequence();
         }
     }
 
 
     function stopEmojiSequence() {
-        maybeClearPlayEmojiInterval();
+        maybeClearPlayEmojiSequenceInterval();
         isPlaying = false;
         currentIndex = 0;
     }
@@ -1219,104 +1231,90 @@
                     method: "updateUI",
                     selectedEmoji: selectedEmoji,
                     emojiSequence: emojiSequence,
-                    shouldWearMask: shouldWearMask,
-                    emojiSwitchMS: emojiSwitchMS,
+                    mask: mask,
                     isPlaying: isPlaying,
-                    emojiScaler: emojiScaler,
+                    emojiSize: emojiSize,
                     animationDistance: animationDistance,
                     animationSpeed: animationSpeed,
                     favorites: makeFavoritesArray(favorites),
-                    advancedModeOn: advancedModeOn,
-                    isLocal: isLocal,
-                    isSequenceMode: isSequenceMode,
-                    isAllEmojis: isAllEmojis,
+                    advanced: advanced,
+                    local: local,
+                    sequenceMode: sequenceMode,
+                    allEmojis: allEmojis,
                     shouldTimeoutDelete: shouldTimeoutDelete,
-                    showEasyFavorite: showEasyFavorite,
+                    ezFavorites: ezFavorites,
                     isFirstRun: Settings.getValue("avimoji/firstRun", true)
                 });
                 sendEmojiChunks();
                 break;
 
-            case "handleEmojiSelected":
+            case "handleSelectedEmoji":
                 // log("got handle emoji selected");
-                handleEmojiSelected(message.emoji);
+                handleSelectedEmoji(message.data);
                 break;
 
-            case "handleShouldWearMask":
-                // log("message.shouldWearMask", message.shouldWearMask);
-                handleShouldWearMask(message.shouldWearMask);
+            case "handleMask":
+                handleMask(message.data);
                 maybeRedrawAnimation();
                 break;
 
             case "handleUpdateIsPlaying":
                 // log("received is playing");
-                handleUpdateIsPlaying(message.isPlaying);
+                handleUpdateIsPlaying(message.data);
                 break;
 
-            case "deleteEmojiInSequence":
-                deleteEmojiInSequence(message.index);
-                break;
-
-            case "updateSwitchIntervalTime":
-                updateSwitchIntervalTime(message.switchIntervalTime);
+            case "deleteSequenceEmoji":
+                deleteSequenceEmoji(message.data);
                 break;
 
             case "handleResetList":
                 handleResetList();
                 break;
 
-            case "handleResetFavorites":
-                handleResetFavorites();
+            case "handleResetFavoritesList":
+                handleResetFavoritesList();
                 break;
 
-            case "handleDeleteSelected":
-                handleDeleteSelected();
+            case "handleSelectedRemoved":
+                handleSelectedRemoved();
                 break;
 
-            case "handleUpdateEmojiScaler":
-                handleUpdateEmojiScaler(message.emojiScaler);
-                maybeRedrawAnimation();
+            case "handleEmojiSize":
+                handleEmojiSize(message.data);
                 break;
 
             case "handleAnimationDistance":
-                handleAnimationDistance(message.animationDistance);
-                // maybeRedrawAnimation();
+                handleAnimationDistance(message.data);
                 break;
             case "handleAnimationSpeed":
-                handleAnimationSpeed(message.animationSpeed);
-                // maybeRedrawAnimation();
+                handleAnimationSpeed(message.data);
                 break;
-            case "handleLocalChange":
-                handleLocalChange(message.isLocal);
-                break;
-
-            case "handleEasyFavorites":
-                log("go to handle easy favorites", null, "")
-                handleEasyFavorites(message.showEasyFavorite);
+            case "handleLocal":
+                handleLocal(message.data);
                 break;
 
-            case "handleSequenceModeChange":
-                handleSequenceModeChange(message.isSequenceMode);
+            case "handleEZFavorites":
+                handleEZFavorites(message.data);
+                break;
+
+            case "handleSequenceMode":
+                handleSequenceMode(message.data);
                 break;
 
             case "handleAllEmojis":
-                handleAllEmojis(message.isAllEmojis);
+                handleAllEmojis(message.data);
                 break;
 
-            case "handleAdvancedMode":
-                handleAdvancedMode(message.newAdvancedModeState);
+            case "handleAdvanced":
+                handleAdvanced(message.data);
                 break;
 
             case "handleShouldTimeoutDelete":
-                handleShouldTimeoutDelete(message.newTimeoutDeleteState);
+                handleShouldTimeoutDelete(message.data);
                 break;
             
-            case "onGotItClicked":
+            case "closeIntroScreen":
                 Settings.setValue("avimoji/firstRun", false);
-                ui.sendMessage({
-                    app: "avimoji",
-                    method: "gotItClicked"
-                });
                 break;
 
             default:
@@ -1352,8 +1350,8 @@
         pruneOldAvimojis();
         makeEmojiChunks();
 
-        if (showEasyFavorite) {
-            renderFavoriteOverlays();
+        if (ezFavorites) {
+            renderEZFavoritesOverlays();
         }
 
         Controller.keyPressEvent.connect(keyPress);
@@ -1381,9 +1379,8 @@
 
 
     function scriptEnding() {
-        deleteEmojiOverlay();
-        console.log("CALLING DELETE FAVORITES")
-        deleteFavoritesOverlays();
+        deleteEmojiPreviewOverlay();
+        deleteEZFavoritesOverlays();
         Controller.mousePressEvent.disconnect(onMousePressEvent);
         Window.geometryChanged.disconnect(onWindowResize);
         Controller.keyPressEvent.disconnect(keyPress);
@@ -1398,9 +1395,9 @@
         if (animationEmoji2 && animationEmoji2.id) {
             animationEmoji2.destroy();
         }
-        maybeClearOverlayTimer();
-        maybeClearFavoriteTimer();
-        maybeClearPlayEmojiInterval();
+        maybeClearPreviewOverlayTimer();
+        maybeClearEZFavoritesTimer();
+        maybeClearPlayEmojiSequenceInterval();
         maybeClearPop();
         pruneOldAvimojis();
     }
@@ -1412,3 +1409,14 @@
     // *************************************
 
 })();
+
+
+/*
+
+
+case "updateSwitchIntervalTime":
+    updateSwitchIntervalTime(message.data);
+    break;
+
+
+*/
