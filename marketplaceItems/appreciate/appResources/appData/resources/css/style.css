@@ -181,10 +181,6 @@ input:checked + .slider:before {
   position: absolute;
 }
 
-#simpleContainer {
-  color: white;
-}
-
 #colorPickerContainer {
   margin: 8px 0 0 0;
   visibility: hidden;
