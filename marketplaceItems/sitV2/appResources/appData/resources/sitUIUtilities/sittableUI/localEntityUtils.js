@@ -10,9 +10,9 @@ function getEntityPropertiesForImageInFrontOfCamera(positionInFront, dimensions,
         rotation: Camera.rotation,
         parentID: MyAvatar.sessionUUID,
         ignoreRayIntersection: false,
-        drawInFront: true,
         visible: true,
-        emissive: true
+        emissive: true,
+        renderLayer: "front"
     }
 }
 

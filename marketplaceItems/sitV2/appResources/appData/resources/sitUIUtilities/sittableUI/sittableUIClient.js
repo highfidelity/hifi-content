@@ -13,11 +13,8 @@
         }
 
         var currentAlpha = SITTABLE_START_ALPHA;
-        console.log("STARTTTTTT LERP ALPHA");
         // Update the alpha value on the sittable overlay
         var intervalLerpTransparencyID = Script.setInterval(function () {
-
-            console.log("fading alpha lerp transparency");
 
             currentAlpha = currentAlpha - SITTABLE_ALPHA_DELTA;
             Entities.editEntity(sittableID, { alpha: currentAlpha });
