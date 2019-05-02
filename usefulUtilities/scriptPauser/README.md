@@ -22,17 +22,22 @@ NOTE: when Script Pauser restores a Paused script that is a certified script, th
         - For example, to pause the Appreciation App, you might use: `"fuzzyScriptNames": ["ApPrEcIaTe"]`
     2. Fill in the `exactScriptNames` array in the `userData` by adding exact names of scripts that you want to pause.
         - For example, to pause the Appreciation App, you might use: `"fuzzyScriptNames": ["appreciate_app.js"]`
+    3. Fill in the `usernameWhitelist` array in the `userData` by adding usernames of users for whom you never want scripts to be paused.
 3. Add the `scriptPauser.js` script to the entity
 
 Here's the object to add to the entity's `userData`:
 ```
 {
     "fuzzyScriptNames": [],
-    "exactScriptNames": []
+    "exactScriptNames": [],
+    "usernameWhitelist": []
 }
 ```
 
 # Releases
+
+## v1.1 :: [5d396c5](https://github.com/highfidelity/hifi-content/commit/5d396c5)
+- Added Username Whitelist feature
 
 ## 2019-02-26_17-00-00 :: [5d396c5](https://github.com/highfidelity/hifi-content/commit/5d396c5)
 - Initial release
