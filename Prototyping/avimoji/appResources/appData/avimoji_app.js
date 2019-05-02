@@ -17,7 +17,6 @@
     // *************************************
     // #region dependencies
 
-    var log = Script.require("./resources/modules/log.js?" + Date.now());
     var EntityMaker = Script.require("./resources/modules/entityMaker.js?" + Date.now());
     var EasingFunctions = Script.require("./resources/modules/easing.js");
 
@@ -37,24 +36,33 @@
     // *************************************
 
     // *************************************
-    // START variables
-    // *************************************
-    // #region variables
-
-
-    var selectedEmoji = null;
-
-
-    // #endregion
-    // *************************************
-    // END variables
-    // *************************************
-
-    // *************************************
     // START utility
     // *************************************
     // #region utility
 
+
+    // custom logging function
+    var PREPEND = "\n##Logger:Avimoji:Web::\n";
+    var DEBUG = false;
+    var OFF = "off";
+    var ON = "on";
+    var PRINT = "PRINT";
+    function log(label, data, overrideDebug){
+        if (!DEBUG) {
+            if (overrideDebug !== "PRINT") {
+                return;
+            }
+        } else {
+            if (overrideDebug === "off") {
+                return;
+            }
+        }
+
+        data = typeof data === "undefined" ? "" : data;
+        data = typeof data === "string" ? data : (JSON.stringify(data, null, 4) || "");
+        data = data + " " || "";
+        console.log(PREPEND + label + ": " + data +"\n");
+    }
 
     // Make the emoji groups
     var MAX_PER_GROUP = 250;
@@ -102,8 +110,8 @@
     }
 
 
-    var SEMI_COLON_KEY = 59;
     // Open up on ctrl + enter
+    var SEMI_COLON_KEY = 59;
     function keyPress(event) {
         if (event.key === 16777220 && event.isControl) {
             if (ui.isOpen) {
@@ -114,8 +122,6 @@
         } if (event.key === SEMI_COLON_KEY) {
             playEmojiAgain();
         }
-        
-
     }
 
 
@@ -191,6 +197,7 @@
     // #region ui_handlers
 
 
+    // choose to wear a mask or above their head
     var mask = Settings.getValue("avimoji/mask", false);
     function handleMask(data) {
         mask = data.mask;
@@ -207,6 +214,7 @@
     }
 
 
+    // don't render the emojis for anyone else
     var local = Settings.getValue("avimoji/local", false);
     var entityType = Settings.getValue("avimoji/entityType", "avatar");
     function handleLocal(data) {
@@ -244,6 +252,7 @@
     }
 
 
+    // show all of the emojis instead of just the basic set
     var allEmojis = Settings.getValue("avimoji/allEmojis", false);
     function handleAllEmojis(data) {
         allEmojis = data.allEmojis;
@@ -266,8 +275,10 @@
         });
     }
 
+
     var MAX_EMOJI_SEQUENCE = 40;
     var emojiSequence = Settings.getValue("avimoji/emojiSequence", []);
+    var selectedEmoji = null;
     function handleSelectedEmoji(data) {
         var emoji = data.emoji;
         log("in handle emoji selected", null, "");
@@ -278,7 +289,7 @@
                 maybeClearTimeoutDelete();
                 addEmojiToUser(selectedEmoji);
             } else {
-                emojiSequence.push(emoji)
+                emojiSequence.push(emoji);
                 emojiSequence = emojiSequence.slice(0, MAX_EMOJI_SEQUENCE);
 
                 Settings.setValue("avimoji/emojiSequence", emojiSequence);
@@ -315,7 +326,6 @@
         }
         Settings.setValue("avimoji/emojiSize", emojiSize);
         maybeRedrawAnimation();
-
     }
 
 
@@ -336,7 +346,6 @@
         animationSpeed = data.animationSpeed;
         Settings.setValue("avimoji/animationDistance", animationSpeed);
         maybeRedrawAnimation();
-
     }
 
 
@@ -504,6 +513,7 @@
         previewOverlayTimer = Script.setInterval(previewOverlayTimerHandler, PREVIEW_OVERLAY_TIMER_INTERVAL_MS);
     }
 
+
     // Check to see if our top ten favorites has changed to know if we should redraw
     var previousTopTenEmojis = null;
     function ezFavoritesOverlayTimerHandler() {
@@ -549,6 +559,7 @@
         };
     }
 
+    
     // Delete clickable status overlay on desktop
     function deleteEmojiPreviewOverlay() {
         if (emojiPreviewOverlay) {
@@ -813,7 +824,6 @@
             resetFavorites = false;
             renderEZFavoritesOverlays();
         }
-
     }
 
 
@@ -1302,7 +1312,6 @@
                 break;
 
             case "handleSelectedEmoji":
-                // log("got handle emoji selected");
                 handleSelectedEmoji(message.data);
                 break;
 
@@ -1312,7 +1321,6 @@
                 break;
 
             case "handleUpdateIsPlaying":
-                // log("received is playing");
                 handleUpdateIsPlaying(message.data);
                 break;
 
@@ -1462,14 +1470,3 @@
     // *************************************
 
 })();
-
-
-/*
-
-
-case "updateSwitchIntervalTime":
-    updateSwitchIntervalTime(message.data);
-    break;
-
-
-*/

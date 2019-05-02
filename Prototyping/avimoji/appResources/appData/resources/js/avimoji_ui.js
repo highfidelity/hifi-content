@@ -10,18 +10,6 @@
 
 */
 
-
-// *************************************
-// START html
-// *************************************
-// #region html
-
-
-// #endregion
-// *************************************
-// END html
-// *************************************
-
 // *************************************
 // START utiltiy
 // *************************************
@@ -311,7 +299,12 @@ function renderFavorites(){
     })
 
     emojiFavoritesListContentContainer.innerHTML = imageString;
-    document.getElementById("emojiFavoritesListButton").style.display = "block";
+    if (favoritesArray.length === 0) {
+        changeEmojiState(HIDE_FAVORITES_BUTTON);
+    } else {
+        changeEmojiState(SHOW_FAVORITES_BUTTON);
+
+    }
 }
 
 // render the current emoji sequence. 40 is the max.
@@ -402,7 +395,7 @@ function handleMask(checkbox){
 }
 
 
-// #TODO RESET STATE
+// start over with a fresh favorites array
 function handleResetFavoritesList(){
     favoritesArray = [];
     emitAppSpecificEvent("handleResetFavoritesList")
@@ -459,7 +452,6 @@ function handleAdvanced(checkbox){
     emitAppSpecificEvent("handleAdvanced", {
         advanced: advanced
     })
-    // #TODO: UPDATE THE NAMES
     if (sequenceMode) {
         sequenceMode = false;
         emitAppSpecificEvent("handleSequenceMode", {
@@ -472,7 +464,6 @@ function handleAdvanced(checkbox){
 }
 
 
-// #TODO Check the state
 // toggles the emoji deleting by default
 function handleShouldTimeoutDelete(checkbox){
     let shouldTimeoutDelete = checkbox.checked;
@@ -539,7 +530,6 @@ function handleEmojiClicked(clickedEmoji, sequenceEmoji){
         if (code && code.length > 0) {
             if (emojiMap[code]) {
                 let emoji = emojiMap[code];
-                log("Emmoji in handle select", emoji, "PRINT")
                 emitAppSpecificEvent("handleSelectedEmoji", {
                     emoji: emoji
                 })
@@ -549,7 +539,6 @@ function handleEmojiClicked(clickedEmoji, sequenceEmoji){
 }
 
 
-// #TODO FIX TEH RENDER STATE ON THIS
 // clear the favorites object so that the top 10 favorites array is empty
 function handleResetSequenceList(){
     emitAppSpecificEvent("handleResetSequenceList");
@@ -563,8 +552,8 @@ function handleSelectedRemoved(){
 }
 
 
-let filteredEmojiList = null;
 // Filter out the emoji list for the search
+let filteredEmojiList = null;
 function filterEmojis(event){
     let input = document.getElementById("filter_emojis");
     let keyword = input.value.toLowerCase();
@@ -594,13 +583,10 @@ function filterEmojis(event){
             " " + emoji.mainCategory.toLowerCase() +
             " " + emoji.subCategory.toLowerCase() + 
             " " + emoji.shortName.toLowerCase();
-            // log("joingKeyords", joinedKeywords, "PRINT")
-            // log("keyword", keyword, "PRINT")
         return joinedKeywords.indexOf(keyword) > -1; 
     });
     changeEmojiState(SHOW_EMOJI_LIST);
 }
-
 
 
 // Remove an emoji in the sequence
@@ -614,11 +600,10 @@ function deleteSequenceEmoji(emoji){
 }
 
 
-// #TODO update state machine
 let lastHoveredEmoji = null;
 let isHovering = null;
 function hoverEmoji(emoji, onHover){
-    log("emoji", emoji, "PRINT")
+    log("emoji", emoji, OFF)
     if (onHover) {
         isHovering = true;
         // grab the utf code which is also the name of the picture and hashmap keys
@@ -627,11 +612,10 @@ function hoverEmoji(emoji, onHover){
             if (emoji && emojiMap[code]) {
                 let emoji = emojiMap[code];
                 lastHoveredEmoji = emoji;
-                // # TODO - Fix this for the state machine
                 if(allChunksReceived){
                     changeEmojiState(SHOW_NEW_HERO_EMOJI);
+                    changeEmojiState(HIDE_REMOVE_BUTTON);
                 }
-                // renderUI();
             }
         }
     } else {
@@ -639,6 +623,9 @@ function hoverEmoji(emoji, onHover){
         isHovering = false;
         if(allChunksReceived){
             changeEmojiState(SHOW_NEW_HERO_EMOJI);
+            if (selectedEmoji) {
+                changeEmojiState(SHOW_REMOVE_BUTTON);
+            }
         }
     }
 }
@@ -649,16 +636,13 @@ function hoverEmoji(emoji, onHover){
 // END event_handlers
 // *************************************
 
-
 // *************************************
 // START state_machine
 // *************************************
 // #region state_machine
 
 
-
-// const UI_LOG_STATE = OFF;
-const UI_LOG_STATE = PRINT;
+const UI_LOG_STATE = OFF;
 const CLOSE_LOADING = "CLOSE_LOADING";
 const ALL_CHUNKS_RECEIVED = "ALL_CHUNKS_RECEIVED";
 
@@ -678,6 +662,7 @@ const SHOW_REMOVE_BUTTON = "SHOW_REMOVE_BUTTON";
 
 const SHOW_FAVORITES = "SHOW_FAVORITES";
 const HIDE_FAVORITES_BUTTON = "HIDE_FAVORITES_BUTTON";
+const SHOW_FAVORITES_BUTTON = "SHOW_FAVORITES_BUTTON";
 
 const ENABLE_SEQUENCE_MODE = "ENABLE_SEQUENCE_MODE";
 const DISABLE_SEQUENCE_MODE = "DISABLE_SEQUENCE_MODE";
@@ -705,8 +690,8 @@ function changeEmojiState(state){
             break;
 
         case CLOSE_FIRST_RUN:
-            const FADE_OUT_TIMEOUT_MS = 1500;
             log("UI STATE: SHOW_FIRST_RUN", SHOW_FIRST_RUN, UI_LOG_STATE);
+            const FADE_OUT_TIMEOUT_MS = 1500;
             let firstRunContainer = document.getElementById("firstRunContainer");
             firstRunContainer.classList.add("fadeOut");
             document.getElementById("mainContainer").classList.add("fadeIn")
@@ -740,7 +725,6 @@ function changeEmojiState(state){
 
             changeEmojiState(SHOW_FAVORITES);
             changeEmojiState(SHOW_EMOJI_LIST);
-
             break;
 
         case ALL_CHUNKS_RECEIVED:
@@ -788,7 +772,6 @@ function changeEmojiState(state){
         case SHOW_ADVANCED_MODE:
             log("UI STATE: SHOW_ADVANCED_MODE", null, UI_LOG_STATE);
 
-            // height: calc(100% - 450px);
             document.getElementById("advancedOptionsContainer").style.display = "block";
             document.getElementById("emojisContainer").style.height = "calc(100% - 540px)";
 
@@ -797,7 +780,6 @@ function changeEmojiState(state){
             } else {
                 changeEmojiState(HIDE_EMOJI_SEQUENCE);
             }
-            
             break;
 
         case SHOW_NEW_HERO_EMOJI:
@@ -805,10 +787,20 @@ function changeEmojiState(state){
             break;
 
         case SHOW_FAVORITES:
+            if (favoritesArray.length === 0) {
+                changeEmojiState(HIDE_FAVORITES_BUTTON);
+            } else {
+                changeEmojiState(SHOW_FAVORITES_BUTTON);
+            }
+
             renderFavorites();
             break;
         
         case HIDE_FAVORITES_BUTTON:
+            document.getElementById("emojiFavoritesListButton").style.display = "none";
+            break;
+
+        case SHOW_FAVORITES_BUTTON:
             document.getElementById("emojiFavoritesListButton").style.display = "block";
             break;
 
@@ -827,7 +819,6 @@ function changeEmojiState(state){
                 changeEmojiState(SHOW_BASIC_MODE);
             }
             if (filteredEmojiList) {
-                log("filteredEmojiList", filteredEmojiList.length);
                 renderEmojiList(filteredEmojiList);
             } else {
                 renderEmojiList(emojiList);
@@ -854,6 +845,7 @@ function changeEmojiState(state){
 // *************************************
 // END state_machine
 // *************************************
+
 // *************************************
 // START tablet
 // *************************************
@@ -884,7 +876,6 @@ function onScriptEventReceived(message) {
     }
     switch (message.method) {
         case "updateUI":
-            log("message:", message, OFF);
 
             document.getElementById("mask").checked = message.mask || false;
             document.getElementById("ezFavorites").checked = message.ezFavorites || false;
@@ -906,16 +897,12 @@ function onScriptEventReceived(message) {
 
             changeEmojiState(CLOSE_LOADING);
 
-            log('first run', message.firstRun);
             if (message.firstRun) {
-                log('in first run');
                 showingFirstRun = true;
                 changeEmojiState(SHOW_FIRST_RUN);
             } else {
-                log('in show main container');
                 changeEmojiState(SHOW_MAIN_CONTAINER);
             }
-
             break;
 
         case "sendChunk":
@@ -951,24 +938,15 @@ function onScriptEventReceived(message) {
                 changeEmojiState(HIDE_EMOJI_SEQUENCE);
                 updatePlayLabel(isplaying);
             }
-
             break;
 
         case "updateCurrentEmoji":
-        // %#Todo
             selectedEmoji = message.selectedEmoji;
-            // renderUI();
             break;
 
         case "updateFavorites":
             favoritesArray = message.favorites;
             changeEmojiState(SHOW_FAVORITES);
-            // renderFavorites();
-            // renderUI();
-            break;
-
-        case "reRenderUI":
-            // renderUI();
             break;
         
         case "updatePlay":
@@ -976,14 +954,13 @@ function onScriptEventReceived(message) {
 
             updatePlayLabel(isplaying);
             break;
+
         default:
             log("Unknown message received from avimoji.js!", JSON.stringify(message));
             break;
     }
 }
 
-
-// Emit an event specific to the `multiConApp` over the EventBridge.
 let APP_NAME = "avimoji";
 function emitAppSpecificEvent(method, data) {
     let event = {
