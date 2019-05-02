@@ -349,6 +349,11 @@
         } else {
             stopEmojiSequence();
         }
+        ui.sendMessage({
+            app: "avimoji",
+            method: "updatePlay",
+            isPlaying: isPlaying
+        });
     }
 
 
@@ -399,6 +404,11 @@
             method: "updateEmojiPicks",
             selectedEmoji: selectedEmoji,
             emojiSequence: emojiSequence
+        });
+        ui.sendMessage({
+            app: "avimoji",
+            method: "updatePlay",
+            isPlaying: isPlaying
         });
     }
 
@@ -598,10 +608,17 @@
 
 
     function onDomainChanged() {
+        deleteEmojiPreviewOverlay();
         maybeClearPreviewOverlayTimer();
         maybeClearEZFavoritesTimer();
         maybeClearPlayEmojiSequenceInterval();
         maybeClearPop();
+        if (currentEmoji && currentEmoji.id) {
+            currentEmoji.destroy();
+            selectedEmoji = null;
+        }
+        maybeClearPop();
+        ui.close();
     }
 
 

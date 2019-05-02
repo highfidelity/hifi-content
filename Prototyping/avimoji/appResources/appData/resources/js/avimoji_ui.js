@@ -539,7 +539,7 @@ function handleEmojiClicked(clickedEmoji, sequenceEmoji){
         if (code && code.length > 0) {
             if (emojiMap[code]) {
                 let emoji = emojiMap[code];
-
+                log("Emmoji in handle select", emoji, "PRINT")
                 emitAppSpecificEvent("handleSelectedEmoji", {
                     emoji: emoji
                 })
@@ -942,11 +942,14 @@ function onScriptEventReceived(message) {
                 isSelected = true;
                 changeEmojiState(SHOW_REMOVE_BUTTON);
                 changeEmojiState(SHOW_NEW_HERO_EMOJI);
+            } else {
+                changeEmojiState(HIDE_REMOVE_BUTTON);
             }
             if (advanced && emojiSequence.length >= 1) {
                 changeEmojiState(SHOW_EMOJI_SEQUENCE);
             } else {
                 changeEmojiState(HIDE_EMOJI_SEQUENCE);
+                updatePlayLabel(isplaying);
             }
 
             break;
@@ -967,7 +970,12 @@ function onScriptEventReceived(message) {
         case "reRenderUI":
             // renderUI();
             break;
+        
+        case "updatePlay":
+            isplaying = message.isPlaying;
 
+            updatePlayLabel(isplaying);
+            break;
         default:
             log("Unknown message received from avimoji.js!", JSON.stringify(message));
             break;
