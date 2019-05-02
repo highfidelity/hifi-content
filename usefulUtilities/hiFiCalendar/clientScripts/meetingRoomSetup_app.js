@@ -30,7 +30,6 @@
     ];
 
     var request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
-    var authCode;
     var roomConfig = false;
     var token;
     var tokenLifetime;
@@ -54,32 +53,6 @@
                     });
                 }
                 break;          
-            case "AUTHCODE":
-                authCode = data.authCode;
-                clientID = data.clientID;
-                secret = data.secret;
-                timezone = data.timezone;
-                var options = {};
-                options.method = "POST";
-                options.body = 'code=' + authCode + 
-                    '&client_id=' + clientID + 
-                    '&client_secret=' + secret + 
-                    '&redirect_uri=http://localhost.hiFiCalendar.html' + 
-                    '&grant_type=authorization_code';
-                options.headers = {
-                    'Content-Type': "application/x-www-form-urlencoded",
-                    'Content-Length': options.body.length
-                };
-                options.uri = "https://www.googleapis.com/oauth2/v4/token";
-                request(options, function(error, response) {
-                    if (error) {
-                        Window.alert("Error: " + error + " " + JSON.stringify(response) + " Could not refresh token.");
-                        return;
-                    } else {
-                        initializeTokenServer(TOKEN_SERVER_ID, response);
-                    }
-                });
-                break;
             case "SETUP_COMPLETE":
                 ui.sendToHTML({
                     type: 'setup',

@@ -8,16 +8,10 @@
 // Load the API's client and auth2 modules.
 // Call the initClient function after the modules load.
 
-var YOUR_CLIENT_ID = '';
-var YOUR_SECRET = '';
+
 var YOUR_REDIRECT_URI = 'http://127.0.0.1:90/localHTTP/meetingRoom_ui.html';
-var SCOPES = [
-    'https://www.googleapis.com/auth/calendar.readonly',
-    'https://www.googleapis.com/auth/drive.file'
-];
-
+var SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 var fragmentString = location.search;
-
 // Parse query string to see if page request is coming from OAuth 2.0 server.
 var params = {};
 var regex = /([^&=]+)=([^&]*)/g, m;
@@ -43,7 +37,7 @@ function oauth2SignIn() {
     var params = {
         'client_id': YOUR_CLIENT_ID,
         'redirect_uri': YOUR_REDIRECT_URI,
-        'scope': SCOPES.join(' '),
+        'scope': SCOPES,
         'state': 'try_sample_request',
         'include_granted_scopes': 'true',
         'response_type': 'code',
@@ -82,6 +76,7 @@ function exchangeCode(params) {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 try {
                     var response = JSON.parse(xhr.response);
+                    response.valid_since = Date.now();
                     localStorage.setItem('response', JSON.stringify(response));
                     getCalendars();
                 } catch (e) {
@@ -167,6 +162,7 @@ function getCalendars() {
     } else {
         oauth2SignIn();
     }
+    document.getElementById('linkedspaces').innerHTML = '';
 }
 
 
@@ -196,7 +192,7 @@ function changePages(currentPage, newPage) {
             linkerButton.removeEventListener('click', connectionSuccess);
             break;
         case "SUCCESS":
-            viewAllButton.removeEventListener('click', viewLinkedSpaces);
+            viewAllButton.removeEventListener('click', editSpaces);
             connectAgainButton.removeEventListener('click', connectorPage);
             revokeButton2.removeEventListener('click', revokeAccess);
             logoutButton2.removeEventListener('click', signOut);
@@ -229,18 +225,18 @@ function changePages(currentPage, newPage) {
             revokeButton.addEventListener('click', revokeAccess);
             logoutButton.addEventListener('click', signOut);
             linkerButton.addEventListener('click', connectionSuccess);
-            finishButton.addEventListener('click', viewLinkedSpaces);
+            finishButton.addEventListener('click', editSpaces);
             break;
         case "SUCCESS":
             showHidePages(2);
-            viewAllButton.addEventListener('click', viewLinkedSpaces);
-            connectAgainButton.addEventListener('click', connectorPage);
+            viewAllButton.addEventListener('click', editSpaces);
+            connectAgainButton.addEventListener('click', getCalendars);
             revokeButton2.addEventListener('click', revokeAccess);
             logoutButton2.addEventListener('click', signOut);
             break;
         case "VIEW":
             showHidePages(3);
-            connectAgainButton2.addEventListener('click', connectorPage);
+            connectAgainButton2.addEventListener('click', getCalendars);
             revokeButton3.addEventListener('click', revokeAccess);
             logoutButton3.addEventListener('click', signOut);
             break;
@@ -261,6 +257,7 @@ function showHidePages(arg) {
         }
     }
 }
+
 
 // from https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
 function compare(a, b) {
@@ -293,7 +290,23 @@ var roomInfo = [
     },
     {
         name: "JAKKU",
-        id: "{33341-123412-1234123-314123}"
+        id: "{33341-123412-16789123-314123}"
+    },
+    {
+        name: "NARNIA",
+        id: "{323241-678982-1234123-314123}"
+    },
+    {
+        name: "OZ",
+        id: "{39941-123412-123678923-314123}"
+    },
+    {
+        name: "PANDORA",
+        id: "{38841-1789612-1234123-314123}"
+    },
+    {
+        name: "GOTHAM",
+        id: "{77741-123412-1234123-777123}"
     }
 ];
 function connectorPage(lastPage) {
@@ -304,7 +317,8 @@ function connectorPage(lastPage) {
         return;
     }
     if (roomInfo.length < 1) {
-        viewLinkedSpaces("CONNECT");
+        console.log("roomInfo: ", roomInfo.length);
+        editSpaces("CONNECT");
         return;
     }
     for (var i = 0; i < selectedCalendarButton.length; i++) {
@@ -325,11 +339,11 @@ function connectorPage(lastPage) {
 }
 
 
-var DELAY_MS = 2000;
+var DELAY_MS = 100;
 var completedConnections = [];
 function connectionSuccess(lastPage) {
-    var ul = document.getElementById('linkedspaces');
-    ul.innerHTML = '';
+    var dl = document.getElementById('linkedspaces');
+    dl.innerHTML = '';
     completedConnections.push({
         "address": selectedCalendarButton.value,
         "uuid": selectedRoomButton.value,
@@ -352,16 +366,17 @@ function connectionSuccess(lastPage) {
             i--;
         }
     }
-    if (roomInfo.length < 1 && completedConnections.length > 0) {
-        connectAgainButton2.removeEventListener('click', connectorPage("SUCCESS"));
-        connectAgainButton2.disabled = true;
-    }
     localStorage.setItem('resources', JSON.stringify(resources));
     if (resources.length === 0 || roomInfo.length === 0) {
         for (i = 0; i < completedConnections.length; i++) {
-            var li=document.createElement('li');
-            li.innerHTML=completedConnections[i].hifiName + '<br>' + completedConnections[i].name;
-            ul.appendChild(li);
+            var dt = document.createElement('dt');
+            dt.innerHTML = completedConnections[i].hifiName; 
+            dl.appendChild(dt);
+            var dd = document.createElement('dd');
+            dd.innerHTML = completedConnections[i].name;
+            dd.style.color = '#009ee0';
+            dl.appendChild(dd);
+            dl.style.overflow = "auto";
         }
         changePages(lastPage, "SUCCESS");
     } else {
@@ -381,7 +396,7 @@ function addTableRow(row, object) {
     var cell1 = newRow.insertCell(0);
     var cell2 = newRow.insertCell(1);
     var cell3 = newRow.insertCell(2);
-    cell1.innerHTML = object[row].name;
+    cell1.innerHTML = object[row].hifiName + '<br>' + object[row].name + '    <br>';
     cell2.innerHTML = '<input type="button" class="trash">';
     cell3.innerHTML = '<input type="button" class="edit">';
     trashButtons.push(document.getElementById("completed").rows[row].cells[1]);
@@ -411,7 +426,7 @@ function deleteTableRow(row) {
         name: tempObj.hifiName,
         id: tempObj.uuid
     });
-    viewLinkedSpaces("VIEW");
+    editSpaces("VIEW");
 }
 
 
@@ -437,16 +452,13 @@ function editTableRow(row) {
 }
 
 
-function viewLinkedSpaces(lastPage) {
+function editSpaces(lastPage) {
     var table = document.getElementById("completed");
     table.innerHTML = '';
     for (var i = 0; i < completedConnections.length; i++) {
         addTableRow(i, completedConnections);
     }
-    if (roomInfo.length < 1) {
-        connectAgainButton2.innerHTML = "Confirm these spaces.";
-        connectAgainButton2.disabled = true;
-    }
+    confirmConnections();
     changePages(lastPage, "VIEW");
 }
 
@@ -458,37 +470,14 @@ function errorPage(lastPage) {
 
 function confirmConnections() {
     var response = JSON.parse(localStorage.getItem('response'));
-    var resources = JSON.parse(localStorage.getItem('resources'));
-    EventBridge.emitWebEvent({
-
-    });
-    var xhr = new XMLHttpRequest();
-    var data= 'code=' + params['code'] + 
-        '&client_id=' + YOUR_CLIENT_ID + 
-        '&client_secret=' + YOUR_SECRET + 
-        '&redirect_uri=' + YOUR_REDIRECT_URI +
-        '&grant_type=authorization_code';
-    xhr.open('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=media', true);
-    xhr.setRequestHeader(
-        'Content-Type', "application/json",
-        'Content-Length', data.length,
-        'Authorization', 'Bearer' 
-    );
-    xhr.onreadystatechange = function (e) {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            try {
-                var response = JSON.parse(xhr.response);
-                localStorage.setItem('response', JSON.stringify(response));
-                getCalendars();
-            } catch (e) {
-                console.log(e, " FAILED PARSING");
-            }
-        } else if (xhr.readyState === 4 && xhr.status === 401) {
-        // Token invalid, so prompt for user permission.
-            oauth2SignIn();
-        }
-    };
-    xhr.send(data);
+    console.log(JSON.stringify({
+        type: "SETUP COMPLETE",
+        access_token: response.access_token,
+        refresh_token: response.refresh_token,
+        expireTime: response.expires_in,
+        validSince: response.valid_since,
+        connectionData: completedConnections
+    }));
 }
 
 
