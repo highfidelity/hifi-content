@@ -241,6 +241,7 @@
     var ezFavorites = Settings.getValue("avimoji/ezFavorites", false);
     function handleEZFavorites(data) {
         ezFavorites = data.ezFavorites;
+        log("EZ FAVORITES", ezFavorites, PRINT);
         Settings.setValue("avimoji/ezFavorites", ezFavorites);
         if (ezFavorites) {
             maybeClearEZFavoritesTimer();
@@ -427,11 +428,10 @@
 
 
     // empty out the favorites object to start tracking them again
-    var resetFavorites = false;
     function handleResetFavoritesList() {
         favorites = {};
 
-        Settings.setValue("avimoji/favorites", {});
+        Settings.setValue("avimoji/favorites", favorites);
         
         ui.sendMessage({
             app: "avimoji",
@@ -439,7 +439,6 @@
             favorites: makeFavoritesArray(favorites)
         });
         deleteEZFavoritesOverlays();
-        resetFavorites = true;
     }
 
 
@@ -483,7 +482,7 @@
     // Draw the emoji preview overlay
     var emojiPreviewOverlay;
     var OVERLAY_PADDING_SCALER = 0.65;
-    var ALPHA_OVERLAY_TIMEOUT_MS = 350;
+    var ALPHA_OVERLAY_TIMEOUT_MS = 600;
     var lastOverlayWidth = 0;
     var lastOverlayHeight = 0;
     var lastOverlayImageURL = 0;
@@ -554,6 +553,7 @@
             alpha: 0.0
         };
         var ezFavoriteOverlay = Overlays.addOverlay("image", overlayProps);
+        log("ezFavoriteOverlay", ezFavoriteOverlay, "PRINT")
         Script.setTimeout(function () {
             Overlays.editOverlay(ezFavoriteOverlay, { alpha: 1.0 });
         }, ALPHA_OVERLAY_TIMEOUT_MS);
@@ -575,8 +575,10 @@
 
 
     function deleteEZFavoritesOverlays(){
+        log("ezFavoritesOverlays && ezFavoritesOverlays.length > 0", ezFavoritesOverlays && ezFavoritesOverlays.length > 0, "PRINT");
         if (ezFavoritesOverlays && ezFavoritesOverlays.length > 0){
             ezFavoritesOverlays.forEach(function(overlay){
+                log("overlay && overlay.ezFavoriteOverlay", overlay && overlay.ezFavoriteOverlay, "PRINT")
                 if (overlay && overlay.ezFavoriteOverlay) {
                     Overlays.deleteOverlay(overlay.ezFavoriteOverlay);
                 }
@@ -695,12 +697,13 @@
     var LENGTH_OF_SEGMENT = Window.innerWidth / TOTAL_FAVORITES;
     var WINDOW_WIDTH_SCALER = 0.67;
     var OFFSET = -Window.innerWidth * WINDOW_WIDTH_SCALER + LENGTH_OF_SEGMENT * TOTAL_FAVORITES;
-    var EZFAVORITES_OVERLAY_TIMER_INTERVAL_MS = 10000;    
+    var EZFAVORITES_OVERLAY_TIMER_INTERVAL_MS = 7500;
     var ezFavoritesOverlays = null;
     var ezFavoritesTimer = null;
     var topTenEmojis = [];
 
     function renderEZFavoritesOverlays() {
+        log("ez favorite overlay", null, "PRINT");
         topTenEmojis = makeFavoritesArray(favorites);
         ezFavoritesOverlays = topTenEmojis.map(function(emoji, index){
             if (emoji && emojiCodeMap && typeof emojiCodeMap[emoji.code] === "number"){
@@ -839,11 +842,10 @@
             method: "updateFavorites",
             favorites: newFavoritesArray
         });
-        if (resetFavorites && newFavoritesArray.length === 1 && ezFavorites) {
+        if (newFavoritesArray.length === 1 && ezFavorites) {
             var data = {ezFavorites: ezFavorites};
             handleEZFavorites(data);
-            resetFavorites = false;
-            renderEZFavoritesOverlays();
+            // renderEZFavoritesOverlays();
         }
     }
 
@@ -1456,6 +1458,7 @@
         makeEmojiChunks();
         setupAnimationVariables();
 
+        log("startup ezFavorites", ezFavorites, PRINT);
         if (ezFavorites) {
             renderEZFavoritesOverlays();
         }
