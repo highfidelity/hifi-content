@@ -1,0 +1,233 @@
+<!--
+
+    Avimoji
+    avimoji_ui.html
+    Created by Milad Nazeri on 2019-04-25
+    Additional Code by Zach Fox
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf8">
+        <title>AVIMOJI</title>
+        <link rel="stylesheet" href="./css/styles.css">
+    </head>
+    <body>
+        <div id="loadingContainer">
+        </div>
+        <div id="firstRunContainer" style="display:none;">
+            <div id="firstRunContentContainer">
+                <div id="firstRunTitleText">
+                    <h1>
+                        <span>AVI</span><span>MOJI!</span>
+                    </h1>
+                </div>
+                <div id="firstRunPicture" draggable="false" onclick="closeIntroScreen(this)">
+                </div>  
+            </div>
+        </div>
+        <div id="popupBackground" onclick="handleClosePopup(event);" style="display: none;">
+            <div id="popupContainer" onclick="event.stopPropagation();">
+                <div id="popupTitleBar">
+                    <h1 id="popupTitleText">
+                        AVIMOJI help
+                    </h1>
+                    <div id="popupXButton" onclick="handleClosePopup(event);">X</div>
+                </div>
+                <div id="popupContentContainer">
+                    <div id="infoContent" style="display:block;">
+                        <p>
+                            <strong>Express yourself with Avimojis!</strong>
+                        </p>
+
+                        <h2 id="popupTitleText">
+                                How to use
+                        </h2>
+                        <p>
+                            Open the app by either clicking the Avimoji button in your toolbar or by pressing {Ctrl} & {Enter} to bring up the Avimoji Window.
+                        </p>
+                        <h2 id="popupTitleText">
+                                Simple Mode
+                        </h2>
+                        <p>
+                            In simple mode, you click an emoji and choose to have it pop over your head,
+                            or wear it as a mask with the "Mask" option.  The emoji will play for a short time period before it deletes itself.
+                        </p>
+                        <p>
+                            You can search for emojis by typing in the tool bar above.  If you know the name of an emoji, then you can search for it and push enter to have it pop up directly. 
+                        </p>
+                        <h2 id="popupTitleText">
+                                Advanced Mode
+                        </h2>
+                        <p>
+                            If you would like to have more control, chose the advanced mode.  Here you can play an emoji sequence, have your emoji only show up for you in local mode if you would like to experiment with the look before others can see, remove the timeout delete that is on by default, and choose to show even more emojis in the standard Unicode set by checking all emojis.  
+                        </p>
+                        <h2 id="popupTitleText">
+                                Emoji Sequences
+                        </h2>
+                        <p>
+                            In advanced mode, you can create an emoji sequence that will play one right after the other.  You also have options to change your animation speed, and how far the emoji travels before it gets to the middle.
+                        </p>
+                        <h2 id="popupTitleText">
+                                Favorites
+                        </h2>
+                        <p>
+                            Avimoji will track your top 10 most used emojis in the favorites bar.  You can reset it any time.  If you would like easy access to it, you can choose the EZ favorites option to have it appear in the interface window at the top.
+                        </p>
+                        <h2 id="popupTitleText">
+                                Additional Info
+                        </h2>
+                        <p>
+                            If you are in first person view, you will see a preview in the bottom right hand corner so that you know which emoji you have on.  
+                            <br>One last tip is if you press the semi-colon { ; } key, then you will replay the last emoji you picked.  
+                        </p>
+                        <p>
+                            Have a fun time expressing yourself!
+                        </p>
+                        <p>
+                            Big thank you to Twitter for their open source emoji set at https://github.com/twitter/twemoji
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="mainContainer" style="display: none;">
+            <div id="searchContainer">
+                <div id="searchContentContainer">
+        
+                    <input id="filter_emojis" type="text" autofocus placeholder="Search Emojis"/>
+                    <span id="infoButton" onclick="handleOpenPopup(event);">
+                        ?
+                    </span>
+
+                </div>
+            </div>
+            <div id="simpleOptionsContainer" >
+                <div id="simpleOptionsContentContainer" class="mainTextColor">
+
+                    <label for="mask">
+                        Mask
+                        <input id="mask" type="checkbox" onclick="handleMask(this)">
+                    </label>
+                    <label for="ezFavorites">
+                        EZ Favorites
+                        <input id="ezFavorites" type="checkbox" onclick="handleEZFavorites(this)">
+                    </label>
+                    <label for="advanced">
+                        Advanced
+                        <input id="advanced" type="checkbox" onclick="handleAdvanced(this)">
+                    </label>
+                    <label for="emojiSize">
+                        Size
+                        <input id="emojiSize" type="range" onchange="handleEmojiSize(this)" min="0.2" max="1.0" step="0.01" value="1.0">
+                    </label>
+
+                </div>
+            </div>
+            <div id="advancedOptionsContainer">
+                <div id="advancedOptionsRow1ContentContainer" class="mainTextColor">
+
+                    <label for="local"> 
+                        Local
+                        <input id="local" type="checkbox" onclick="handleLocal(this)">
+                    </label>
+                    <label for="allEmojis">
+                        All Emojis
+                        <input id="allEmojis" type="checkbox" onclick="handleAllEmojis(this)">
+                    </label>
+                    <label for="shouldTimeoutDelete">
+                        Timeout Delete
+                        <input id="shouldTimeoutDelete" type="checkbox" onclick="handleShouldTimeoutDelete(this)">
+                    </label>
+                    <label for="sequenceMode">
+                        Sequence
+                        <input id="sequenceMode" type="checkbox" onclick="handleSequenceMode(this)">
+                    </label>
+
+                </div>
+                <div id="advancedOptionsRow2ContentContainer" class="mainTextColor">
+
+                    <label for="animationDistance">
+                        Animation Distance
+                        <input id="animationDistance" type="range" onchange="handleAnimationDistance(this)" min="0.01" max="0.8" step="0.1" value="1.0">
+                    </label>
+                    <label for="animationSpeed">
+                        Animation Speed
+                        <input id="animationSpeed" type="range" onchange="handleAnimationSpeed(this)" min="0.8" max="1.45" step="0.1" value="1.0">
+                    </label>
+
+                </div>
+                <div id="emojiSequenceContainer">
+                    <div>
+                        <div id="emojiSequenceContentContainer" class="mainTextColor">
+
+                            <div id="emojiSequenceDisable" style="display: block;"> 
+                            </div>
+                            <label id="emojiSequenceText">
+                                Emoji Sequence
+                            </label>
+                            <div id="emojiSequenceListContentContainer">
+                                
+                            </div>
+                            <div id="emojiSequenceListButtonContentContainer">
+                                <input id="playStopButton" type="button" class="buttonControls" value="Play" onclick="handleUpdateIsPlaying(this)">
+                                <input id="handleResetListButton"type="button" class="buttonControls" value="Reset" onclick="handleResetSequenceList()">
+                            </div>
+                        </div>
+                    </div>
+  
+                </div>
+            </div>
+            <div id="selectedContainer" style="display: block;">
+                <div id="selectedContentContainer">
+
+                    <div 
+                        id="selectedEmojiPicture"
+                        onclick="clickEmoji(this)"
+                        data-number="${emoji.number}" 
+                        data-shortName="${emoji.shortName}" 
+                        data-index="0" 
+                        data-code="1f600"
+                        draggable="false">
+                    </div>
+  
+                    <div id="selectedShortname">
+                    </div>
+                    <div id="selectedKeywords">
+                    </div>
+                    <div id="selectedRemoveButtonContainer" style="display: none;">
+                        <div id="selectedRemoveButton" onclick="handleSelectedRemoved()">X</div>
+                    </div>
+
+                </div>
+            </div>
+            <div id="emojiFavoritesContainer">
+                <div id="emojiFavoritesContentContainer">
+
+                    <div id="emojiFavoritesText">
+                        <span id="emojiFavoritesListButtonspan">
+                            Emoji Favorites
+                        </span>
+                        <span id="emojiFavoritesListButton" class="buttonControls" onclick="handleResetFavoritesList(event)" style="display: none;">
+                            X
+                        </span>
+                    </div>
+                    <div id="emojiFavoritesListContentContainer">
+                    </div>
+
+                </div>
+            </div>
+             <div id="emojisContainer">
+                <div id="emojisContent">
+                </div>
+            </div>
+        </div>
+        <script src="./js/avimoji_ui.js"></script>
+    </body>
+</html>
