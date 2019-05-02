@@ -28,23 +28,26 @@
 
     // Called from entity server script to begin sitting down sequence
     function sitDown() {
-        this.previousAvatarOrientation = MyAvatar.orientation;
-        this.previousAvatarPosition = MyAvatar.position;
+        _this.previousAvatarOrientation = MyAvatar.orientation;
+        _this.previousAvatarPosition = MyAvatar.position;
 
     }
 
     function whileSittingUpdate() {
         // listen for drive button press
-
-    }
-
-    function mousePressOnEntity() {
-        
+        // listen for head to be too far away
+        // listen for avatar position to be too far away
     }
 
     function unload() {
-        sittableUISpawner.deleteSittableUI(_this.sittableUIID);
-        canSitZoneSpawner.deleteZone(_this.canSitZoneID);
+        if (_this.sittableUIID) {
+            sittableUISpawner.deleteSittableUI(_this.sittableUIID);
+            _this.sittableUIID = false;
+        }
+        if (_this.canSitZoneID) {
+            canSitZoneSpawner.deleteZone(_this.canSitZoneID);
+            _this.canSitZoneID = false;
+        }
     }
 
     function setCanSitZoneID(argList) {
@@ -54,18 +57,23 @@
     function onEnterCanSitZone() {
         console.log("onEnterCanSitZone");
         var entityProperties = Entities.getEntityProperties(_this.entityID);
-        this.sittableUIID = sittableUISpawner.createSittableUI(entityProperties.position, entityProperties.rotations, _this.entityID);
+        if (!_this.sittableUIID) {
+            _this.sittableUIID = sittableUISpawner.createSittableUI(entityProperties.position, entityProperties.rotations, _this.entityID);
+        }
     }
 
     function onLeaveCanSitZone() {
         console.log("onLeaveCanSitZone");
-        sittableUISpawner.deleteSittableUI(_this.sittableUIID);
+        if (_this.sittableUIID) {
+            sittableUISpawner.deleteSittableUI(_this.sittableUIID);
+            _this.sittableUIID = false;
+        }
     }
 
     function SitClient() {
         _this = this;
-        this.sittableUIID = null;
-        this.canSitZoneID = null;
+        this.sittableUIID = false;
+        this.canSitZoneID = false;
     }
 
     SitClient.prototype = {
@@ -84,7 +92,9 @@
             this.entityID = id;
 
             var entityProperties = Entities.getEntityProperties(id);
-            this.canSitZoneID = canSitZoneSpawner.createZone(entityProperties.position, id);
+            if (!_this.canSitZoneID) {
+                _this.canSitZoneID = canSitZoneSpawner.createZone(entityProperties.position, id);
+            }
 
             // download sit animation
         },
