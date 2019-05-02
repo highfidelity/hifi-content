@@ -539,27 +539,6 @@
         };
     }
 
-    var rectangleOverlay = null;
-    function drawRectangleOverlay(){
-        var width = 144 * 10 * 0.40;
-        var height = 50;
-        var windowWidth = Window.innerWidth;
-        var x = windowWidth / 2 * 0.65;
-        var rectangleOverlayProps = {
-            x: x,
-            width: width,
-            height: height,
-            y: 0,
-            color: { red: 30, green: 30, blue: 30 },
-            alpha: 0.2,
-            visible: true
-        };
-
-        
-        return Overlays.addOverlay("rectangle", rectangleOverlayProps);
-    }
-        
-
     // Delete clickable status overlay on desktop
     function deleteEmojiPreviewOverlay() {
         if (emojiPreviewOverlay) {
@@ -577,7 +556,6 @@
                 Overlays.deleteOverlay(overlay.ezFavoriteOverlay);
             });
         }
-        Overlays.deleteOverlay(rectangleOverlay);
         
         ezFavoritesOverlays = [];
         maybeClearEZFavoritesTimer();
@@ -610,7 +588,8 @@
             for (var i = 0; i < ezFavoritesOverlays.length; i++){
                 if (overlayID === ezFavoritesOverlays[i].ezFavoriteOverlay){
                     var emoji = emojiList[emojiCodeMap[ezFavoritesOverlays[i].code]];
-                    handleSelectedEmoji(emoji);
+                    var data = {emoji: emoji};
+                    handleSelectedEmoji(data);
                     break;
                 }    
             }
@@ -682,7 +661,6 @@
     var ezFavoritesOverlays = null;
     var ezFavoritesTimer = null;
     var topTenEmojis = [];
-    var rectangleOverlay = null;
     function renderEZFavoritesOverlays() {
         topTenEmojis = makeFavoritesArray(favorites);
         ezFavoritesOverlays = topTenEmojis.map(function(emoji, index){
@@ -703,14 +681,7 @@
             } 
         });
         ezFavoritesTimer = Script.setInterval(ezFavoritesOverlayTimerHandler, EZFAVORITES_OVERLAY_TIMER_INTERVAL_MS);
-        var numberOfEmojis = topTenEmojis.length;
-        var width = 144 * OVERLAY_SIZE_SCALER * numberOfEmojis;
-        var height = rectangley;
-        var newSegmentStart = LENGTH_OF_SEGMENT * numberOfEmojis * WIDTH_TOTAL_SCALER; 
-        var rectangleX = OFFSET + newSegmentStart + (Window.innerWidth * WIDTH_TOTAL_SCALER * WIDTH_BETWEEN_SCALER);
-        var rectangley = TOP_MARGIN;
 
-        rectangleOverlay = drawRectangleOverlay(width, height, height * 0.5, rectangleX, rectangley);
     }
 
     function maybeRedrawEZFavoritesOverlays(){
