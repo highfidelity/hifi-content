@@ -65,12 +65,6 @@ function createPresit(presitEndUpdateIntervalCallback) {
     return [presitAnimationImageID, presitTextImageID, presitAnimationIntervalID];
 }
 
-// function preSitEndUpdateInterval(presitAnimationIntervalID) {
-//     if (presitAnimationIntervalID) {
-//         Script.clearInterval(presitAnimationIntervalID);
-//     }
-// }
-
 function deletePresit(presitAnimationImageID, presitTextImageID, presitEndUpdateIntervalCallback) {
     if (presitAnimationImageID) {
         presitEndUpdateIntervalCallback();
@@ -84,17 +78,6 @@ function deletePresit(presitAnimationImageID, presitTextImageID, presitEndUpdate
 function getPresitDuration() {
     return PRESIT_FRAME_DURATION * PRESIT_URL_NUM;
 }
-
-// // Remove sittable local entity if it exists
-// function deletePresit(sittableID) {
-//     if (UI_DEBUG) {
-//         print("deletePresit");
-//     }
-
-//     if (sittableID) {
-//         Entities.deleteEntity(sittableID);
-//     }
-// }
 
 module.exports = {
     createPresit: createPresit,

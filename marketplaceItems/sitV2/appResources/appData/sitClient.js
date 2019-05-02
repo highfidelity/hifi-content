@@ -6,9 +6,12 @@
 
     // createZone, deleteZone
     var canSitZoneSpawner = Script.require("https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/canSitZoneSpawner.js?" + Math.random()); // ?" + Math.random()))
+    
     // createSittableUI, deleteSittableUI
     var sittableUISpawner = Script.require("https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/sittableUISpawner.js?" + Math.random()); // ?" + Math.random()))
-
+    
+    // createPresit, deletePresit, prefetchPresitOverlayImages, getPresitDuration
+    var presitSpawner = Script.require("https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/presitSpawner.js?" + Math.random()); // ?" + Math.random()))
 
     function rolesToOverride() {
         // Get all animation roles that sit will override
@@ -24,6 +27,25 @@
     function startSitDown() {
         console.log("startSitDown");
 
+        var presitIDList = presitSpawner.createPresit(presitEndUpdateIntervalCallback);
+        _this.presitAnimationImageID = presitIDList[0];
+        _this.presitTextID = presitIDList[1];
+        _this.presitIntervalID = presitIDList[2];
+    }
+
+    function presitEndUpdateIntervalCallback() {
+        if (_this.presitAnimationImageID) {
+            Entities.deleteEntity(_this.presitAnimationImageID);
+            _this.presitAnimationImageID = false;
+        }
+        if (_this.presitTextID) {
+            Entities.deleteEntity(_this.presitTextID);
+            _this.presitTextID = false;
+        }
+        if (_this.presitIntervalID) {
+            Script.clearInterval(_this.presitIntervalID);
+            _this.presitIntervalID = false;
+        }
     }
 
     // Called from entity server script to begin sitting down sequence
@@ -48,6 +70,7 @@
             canSitZoneSpawner.deleteZone(_this.canSitZoneID);
             _this.canSitZoneID = false;
         }
+        presitEndUpdateIntervalCallback();
     }
 
     function setCanSitZoneID(argList) {
@@ -74,6 +97,10 @@
         _this = this;
         this.sittableUIID = false;
         this.canSitZoneID = false;
+
+        this.presitIntervalID = false;
+        this.presitTextID = false;
+        this.presitAnimationImageID = false;
     }
 
     SitClient.prototype = {
