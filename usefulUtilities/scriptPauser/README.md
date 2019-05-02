@@ -3,11 +3,12 @@ When this script is attached to an entity as an entity script, the entity serves
 
 ## Features
 - Script Pauser will stop a client script that a user is running if it meets one of the following criteria:
+    1. The user is NOT on the `usernameWhitelist`
     1. The user-defined "fuzzy match" array contains a string that is within any script name that is currently running
         - CAUTION: Fuzzy matching script names comes with risks of accidentally stopping the wrong client script, resulting in more user frustration!
     2. The user-defined "exact match" array contains a string that exactly matches the script name that is currently running
-- Any scripts that Script Pauser stops will be automatically restarted when Script Pauser is unloaded (i.e. the user goes to a different domain)
-- Script Pauser will check for blacklisted scripts every 10 seconds.
+- Any scripts that Script Pauser stops will be automatically restarted when Script Pauser is unloaded (i.e. the user goes to a different domain) OR if a user whose scripts were previously paused is added to the whitelist
+- Script Pauser will check for blacklisted scripts and new whitelisted usernames every 10 seconds.
 - When Script Pauser stops a blacklisted script, it notifies the user that it has done so via a text banner notification.
 
 NOTE: when Script Pauser restores a Paused script that is a certified script, the "Installed" state of that script will be lost; when Script Pauser restores a previously-installed certified app, the Inventory app will not show that app as "Installed", even though its associated script is running.
@@ -36,7 +37,7 @@ Here's the object to add to the entity's `userData`:
 
 # Releases
 
-## v1.1 :: [5d396c5](https://github.com/highfidelity/hifi-content/commit/5d396c5)
+## v1.1 :: [89c7cd5](https://github.com/highfidelity/hifi-content/commit/89c7cd5)
 - Added Username Whitelist feature
 
 ## 2019-02-26_17-00-00 :: [5d396c5](https://github.com/highfidelity/hifi-content/commit/5d396c5)
