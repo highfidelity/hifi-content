@@ -19,7 +19,7 @@ while (m = regex.exec(fragmentString)) {
     params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
 }
 if (Object.keys(params).length > 0) {
-    localStorage.setItem('oauth2-params', JSON.stringify(params));
+    sessionStorage.setItem('oauth2-params', JSON.stringify(params));
     exchangeCode(params);
 }
 
@@ -77,7 +77,7 @@ function exchangeCode(params) {
                 try {
                     var response = JSON.parse(xhr.response);
                     response.valid_since = Date.now();
-                    localStorage.setItem('response', JSON.stringify(response));
+                    sessionStorage.setItem('response', JSON.stringify(response));
                     getCalendars();
                 } catch (e) {
                     console.log(e, " FAILED PARSING");
@@ -117,7 +117,7 @@ function revokeAccess(accessToken) {
     document.body.appendChild(form);
     form.submit();
     location.assign(YOUR_REDIRECT_URI);
-    localStorage.clear();
+    sessionStorage.clear();
 }
 
 
@@ -132,7 +132,12 @@ function signOut() {
 var calendarList;
 var resources = [];
 function getCalendars() {
-    var params = JSON.parse(localStorage.getItem('response'));
+    var params = JSON.parse(sessionStorage.getItem('response'));
+    sessionStorage.removeItem('resources');
+    console.log(sessionStorage.getItem('resources'));
+    completedConnections = [];
+    calendarList = [];
+    resources = [];
     if (params && params['access_token']) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET',
@@ -148,7 +153,7 @@ function getCalendars() {
                             "name": calendarList.items[i].summary
                         });                    
                     }
-                    localStorage.setItem('resources', JSON.stringify(resources));
+                    sessionStorage.setItem('resources', JSON.stringify(resources));
                     connectorPage("LOGIN");
                 } catch (e) {
                     console.log(e, " FAILED PARSING");
@@ -178,48 +183,50 @@ var pages = [
     VIEW_ALL_PAGE,
     ERROR_PAGE
 ];
-function changePages(currentPage, newPage) {
-    switch (currentPage) {
+function changePages(origin, destination) {
+    switch (origin) {
         case "LOGIN":
             console.log("login");
             loginButton.removeEventListener('click', getCalendars);
             break;
-        case "CONNECT":
-            console.log("connect");
+        case "SEE AVAILABLE":
+            console.log("SEE AVAILABLE");
             helpButton.removeEventListener('click', errorPage);
             revokeButton.removeEventListener('click', revokeAccess);
             logoutButton.removeEventListener('click', signOut);
             linkerButton.removeEventListener('click', connectionSuccess);
             break;
-        case "SUCCESS":
-            viewAllButton.removeEventListener('click', editSpaces);
-            connectAgainButton.removeEventListener('click', connectorPage);
+        case "FINALIZE CHOICES":
+            finalizeButton.removeEventListener('click', editSpaces);
+            resetRoomsButton.onclick = null;
             revokeButton2.removeEventListener('click', revokeAccess);
             logoutButton2.removeEventListener('click', signOut);
             break;
-        case "VIEW":
-            connectAgainButton2.removeEventListener('click', connectorPage);
+        case "EDIT":
+            resetRoomsButton2.onclick = null;
             revokeButton3.removeEventListener('click', revokeAccess);
             logoutButton3.removeEventListener('click', signOut);
             for (var i = 0; i < trashButtons.length; i++) {
-                trashButtons[i].removeEventListener('click', deleteTableRow);
-                editButtons[i].removeEventListener('click', editTableRow);
+                trashButtons[i].onclick = null;
+                editButtons[i].onclick = null;
             }
             trashButtons = [];
             editButtons = [];
             break;
         case "ERROR":
             backButton.removeEventListener('click', getCalendars);
+            revokeButton4.removeEventListener('click', revokeAccess);
+            logoutButton4.removeEventListener('click', signOut);
             break;  
     }
-    switch (newPage) {
+    switch (destination) {
         case "LOGIN":
             console.log("login");
             showHidePages(0);
             loginButton.addEventListener('click', getCalendars);
             break;
-        case "CONNECT":
-            console.log("connect");
+        case "SEE AVAILABLE":
+            console.log("SEE AVAILABLE");
             showHidePages(1);
             helpButton.addEventListener('click', errorPage);
             revokeButton.addEventListener('click', revokeAccess);
@@ -227,22 +234,44 @@ function changePages(currentPage, newPage) {
             linkerButton.addEventListener('click', connectionSuccess);
             finishButton.addEventListener('click', editSpaces);
             break;
-        case "SUCCESS":
+        case "FINALIZE CHOICES":
             showHidePages(2);
-            viewAllButton.addEventListener('click', editSpaces);
-            connectAgainButton.addEventListener('click', getCalendars);
+            finalizeButton.addEventListener('click', editSpaces);
+            resetRoomsButton.onclick = (function (x) {
+                return function(e) {
+                    for (var i = 0; i < x.length; i++) {
+                        roomInfo.push({
+                            name: x[i].hifiName,
+                            id: x[i].uuid
+                        })
+                    }
+                    getCalendars();
+                };
+            })(completedConnections);
             revokeButton2.addEventListener('click', revokeAccess);
             logoutButton2.addEventListener('click', signOut);
             break;
-        case "VIEW":
+        case "EDIT":
             showHidePages(3);
-            connectAgainButton2.addEventListener('click', getCalendars);
+            resetRoomsButton2.onclick = (function (x) {
+                return function(e) {
+                    for (var i = 0; i < x.length; i++) {
+                        roomInfo.push({
+                            name: x[i].hifiName,
+                            id: x[i].uuid
+                        })
+                    }
+                    getCalendars();
+                };
+            })(completedConnections);
             revokeButton3.addEventListener('click', revokeAccess);
             logoutButton3.addEventListener('click', signOut);
             break;
         case "ERROR":
             showHidePages(4);
             backButton.addEventListener('click', getCalendars);
+            revokeButton4.addEventListener('click', revokeAccess);
+            logoutButton4.addEventListener('click', signOut);
             break; 
     }
 }
@@ -309,64 +338,66 @@ var roomInfo = [
         id: "{77741-123412-1234123-777123}"
     }
 ];
-function connectorPage(lastPage) {
-    console.log("connector page from ", lastPage);
-    var calendarInfo = JSON.parse(localStorage.getItem('resources'));
+function connectorPage(lastPage, edit) {
+    var calendarInfo = JSON.parse(sessionStorage.getItem('resources'));
     if (calendarInfo.length < 1) {
-        errorPage("CONNECT");
+        errorPage("SEE AVAILABLE");
         return;
     }
     if (roomInfo.length < 1) {
-        console.log("roomInfo: ", roomInfo.length);
-        editSpaces("CONNECT");
+        editSpaces("SEE AVAILABLE");
         return;
     }
-    for (var i = 0; i < selectedCalendarButton.length; i++) {
-        selectedCalendarButton.options[i] = null;    
+    for (var i = 0; i < calendarDropDown.length; i++) {
+        calendarDropDown.options[i] = null;    
     }
     calendarInfo.sort(compare);
     roomInfo.sort(compare);
     for (i = 0; i < calendarInfo.length; i++) {
-        selectedCalendarButton.options[i] = new Option(calendarInfo[i].name, calendarInfo[i].address);
+        calendarDropDown.options[i] = new Option(calendarInfo[i].name, calendarInfo[i].address);
     }
-    for (i = 0; i < selectedRoomButton.length; i++) {
-        selectedRoomButton.options[i] = null;    
+    for (i = 0; i < roomDropDown.length; i++) {
+        roomDropDown.options[i] = null;    
     }
     for (i = 0; i < roomInfo.length; i++) {
-        selectedRoomButton.options[i] = new Option(roomInfo[i].name, roomInfo[i].id);
+        roomDropDown.options[i] = new Option(roomInfo[i].name, roomInfo[i].id);
     }
-    changePages(lastPage, "CONNECT");
+    if (edit) {
+        calendarDropDown.selectedIndex = edit.name;
+        roomDropDown.selectedIndex = edit.hifiName;
+    }
+    changePages(lastPage, "SEE AVAILABLE");
 }
 
 
-var DELAY_MS = 100;
+var DELAY_MS = 500;
 var completedConnections = [];
 function connectionSuccess(lastPage) {
     var dl = document.getElementById('linkedspaces');
     dl.innerHTML = '';
     completedConnections.push({
-        "address": selectedCalendarButton.value,
-        "uuid": selectedRoomButton.value,
-        "name": selectedCalendarButton.options[selectedCalendarButton.selectedIndex].textContent,
-        "hifiName": selectedRoomButton.options[selectedRoomButton.selectedIndex].textContent
+        "address": calendarDropDown.value,
+        "uuid": roomDropDown.value,
+        "name": calendarDropDown.options[calendarDropDown.selectedIndex].textContent,
+        "hifiName": roomDropDown.options[roomDropDown.selectedIndex].textContent
     });
     console.log(JSON.stringify(completedConnections));
-    var resources = JSON.parse(localStorage.getItem('resources'));
+    var resources = JSON.parse(sessionStorage.getItem('resources'));
     for (var i=0; i < resources.length; i++) {
         var str = JSON.stringify(resources[i]);
-        if (str.indexOf(selectedCalendarButton.value) > -1) {
+        if (str.indexOf(calendarDropDown.value) > -1) {
             resources.splice(i,1);
             i--;
         }
     }
     for (i=0; i < roomInfo.length; i++) {
         str = JSON.stringify(roomInfo[i]);
-        if (str.indexOf(selectedRoomButton.value) > -1) {
+        if (str.indexOf(roomDropDown.value) > -1) {
             roomInfo.splice(i,1);
             i--;
         }
     }
-    localStorage.setItem('resources', JSON.stringify(resources));
+    sessionStorage.setItem('resources', JSON.stringify(resources));
     if (resources.length === 0 || roomInfo.length === 0) {
         for (i = 0; i < completedConnections.length; i++) {
             var dt = document.createElement('dt');
@@ -378,13 +409,13 @@ function connectionSuccess(lastPage) {
             dl.appendChild(dd);
             dl.style.overflow = "auto";
         }
-        changePages(lastPage, "SUCCESS");
+        changePages(lastPage, "FINALIZE CHOICES");
     } else {
         var popup = document.getElementById("myPopup");
         popup.classList.toggle("show");
         setTimeout(() => {
             popup.classList.toggle("show");
-            connectorPage("SUCCESS");
+            connectorPage("FINALIZE CHOICES");
         }, DELAY_MS);
     }
 }
@@ -400,55 +431,65 @@ function addTableRow(row, object) {
     cell2.innerHTML = '<input type="button" class="trash">';
     cell3.innerHTML = '<input type="button" class="edit">';
     trashButtons.push(document.getElementById("completed").rows[row].cells[1]);
-    document.getElementById("completed").rows[row].cells[1].addEventListener('click', deleteTableRow);
+    document.getElementById("completed").rows[row].cells[1].onclick = (function (x) {
+        return function(e) {
+            deleteTableRow(x, e);
+        };
+    })(row);
     editButtons.push(document.getElementById("completed").rows[row].cells[1]);
-    document.getElementById("completed").rows[row].cells[2].addEventListener('click', editTableRow);
+    document.getElementById("completed").rows[row].cells[2].onclick = (function (x) {
+        return function(e) {
+            editTableRow(x, e);
+        };
+    })(row);
 }
 
 
 function deleteTableRow(row) {
     if (trashButtons.length > 0) {
         for (var i = 0; i < trashButtons.length; i++) {
-            trashButtons[i].removeEventListener('click', deleteTableRow);
-            editButtons[i].removeEventListener('click', editTableRow);
+            trashButtons[i].onclick = null;
+            editButtons[i].onclick = null;
         }
         trashButtons = [];
         editButtons = [];
     }
-    var resources = JSON.parse(localStorage.getItem('resources'));
-    var tempObj = completedConnections.splice(row, 1);
+    var resources = JSON.parse(sessionStorage.getItem('resources'));
+    sessionStorage.removeItem('resources');
+    var tempObj = completedConnections.splice(row, 1)[0];
     resources.push({
         address: tempObj.address,
         name: tempObj.name
     });
-    localStorage.setItem('resources', JSON.stringify(resources));
+    sessionStorage.setItem('resources', JSON.stringify(resources));
     roomInfo.push({
         name: tempObj.hifiName,
         id: tempObj.uuid
     });
-    editSpaces("VIEW");
+    editSpaces("EDIT");
 }
 
 
 function editTableRow(row) {
     for (var i = 0; i < trashButtons.length; i++) {
-        trashButtons[i].removeEventListener('click', deleteTableRow(row));
-        editButtons[i].removeEventListener('click', editTableRow(row));
+        trashButtons[i].removeEventListener('click', deleteTableRow);
+        editButtons[i].removeEventListener('click', editTableRow);
     }
     trashButtons = [];
     editButtons = [];
-    var resources = JSON.parse(localStorage.getItem('resources'));
-    var tempObj = completedConnections.splice(row, 1);
+    var resources = JSON.parse(sessionStorage.getItem('resources'));
+    sessionStorage.removeItem('resources');
+    var tempObj = completedConnections.splice(row, 1)[0];
     resources.push({
         address: tempObj.address,
         name: tempObj.name
     });
-    localStorage.setItem('resources', JSON.stringify(resources));
+    sessionStorage.setItem('resources', JSON.stringify(resources));
     roomInfo.push({
         name: tempObj.hifiName,
         id: tempObj.uuid
     });
-    connectorPage("VIEW");
+    connectorPage("EDIT", tempObj);
 }
 
 
@@ -459,7 +500,7 @@ function editSpaces(lastPage) {
         addTableRow(i, completedConnections);
     }
     confirmConnections();
-    changePages(lastPage, "VIEW");
+    changePages(lastPage, "EDIT");
 }
 
 
@@ -469,7 +510,7 @@ function errorPage(lastPage) {
 
 
 function confirmConnections() {
-    var response = JSON.parse(localStorage.getItem('response'));
+    var response = JSON.parse(sessionStorage.getItem('response'));
     console.log(JSON.stringify({
         type: "SETUP COMPLETE",
         access_token: response.access_token,
@@ -502,24 +543,26 @@ var helpButton = document.getElementById('help');
 var revokeButton = document.getElementById('revoke1');
 var logoutButton = document.getElementById('logout1');
 var linkerButton = document.getElementById('linker');
-var selectedCalendarButton = document.getElementById('selectedCalendar');
-var selectedRoomButton = document.getElementById('selectedRoom');
+var calendarDropDown = document.getElementById('selectedCalendar');
+var roomDropDown = document.getElementById('selectedRoom');
 var finishButton = document.getElementById('finished1');
 // Connection Successful Page
-var viewAllButton = document.getElementById('viewAll');
-var connectAgainButton = document.getElementById('connector');
+var finalizeButton = document.getElementById('viewAll');
+var resetRoomsButton = document.getElementById('reset1');
 var revokeButton2 = document.getElementById('revoke2');
 var logoutButton2 = document.getElementById('logout2');
 
 // View Links Page
 var trashButtons = [];
 var editButtons = [];
-var connectAgainButton2 = document.getElementById('connector2');
+var resetRoomsButton2 = document.getElementById('reset2');
 var revokeButton3 = document.getElementById('revoke3');
 var logoutButton3 = document.getElementById('logout3');
 
 // Error Page
 var backButton = document.getElementById('tryAgain');
+var revokeButton4 = document.getElementById('revoke4');
+var logoutButton4 = document.getElementById('logout4');
 
 
 // Set the text of the button to either On or Off 

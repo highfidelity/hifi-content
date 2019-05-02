@@ -513,7 +513,7 @@ a:active {
 .dropdown:hover {
   display: block;
   color: white;
-  background-color: rgb(46, 46, 46);
+  background-color: rgb(19, 19, 19);
 }
 
 #selectedCalendar {
@@ -557,6 +557,7 @@ a:active {
 
 #completed td {
   width: 320px;
+  vertical-align: top;
 }
 
 #completed td+td {
