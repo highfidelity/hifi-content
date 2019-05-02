@@ -44,16 +44,17 @@
     /* Components */
         .buttonControls {
             border: 1px;
-            padding: 2px 0px;
-            margin: 6px 0px;
-            font-size: 2.0vw;
+            padding: 0px 0px;
+            margin: 0px 0px;
+            font-size: 11px;
+            line-height: 11px;
             font-weight: bold;
             text-align: center;
             color: var(--color5);
             width: 2px;
             border-radius: 9px;
             background-color: var(--color3);
-            vertical-align: auto;
+            vertical-align: middle;
         }
 
         .buttonControls:hover {
@@ -358,9 +359,9 @@
     /* Advanced Options */
         /* Containers */
             #advancedOptionsContainer {
-                /* background-color: green; */
+                /* background-color: lightcoral; */
                 width: 100%;
-                height: calc(100% - 525px)
+                height: calc(100% - 560px)
             }
 
             #advancedOptionsRow1ContentContainer {
@@ -388,13 +389,13 @@
                 width: 70px;
             }        
 
-    /* Emoji Sequences */
+    /* Emoji Sequence */
         /* Containers */
             #emojiSequenceContainer {
-                padding-top: 10px;
+                padding-top: 0px;
                 /* background-color: orange; */
                 width: 100%;
-                height: calc(100% - 70px);
+                height: calc(100% - 50px);
             }
 
             #emojiSequenceContentContainer {
@@ -408,13 +409,12 @@
             }
 
             #emojiSequenceListButtonContentContainer {
-                height: 30px;
+                height: 15px;
                 width: 100%;
                 display: flex;
                 justify-content: center;
                 align-content: center;
                 /* background-color: pink; */
-                padding: 5px;
             }
 
         /* Content */
@@ -422,11 +422,11 @@
             #emojiSequenceDisable {
                 position: absolute;
                 width: 100vw;
-                height: 105px;
-                padding: -15px 0px;
+                height: 89px;
+                padding: 0px 0px;
                 left: 0;
                 right: 0;
-                top: 152px;
+                top: 146px;
                 background: repeating-linear-gradient(
                     45deg,
                     rgba(116,140,171, 0.4) 10px,
@@ -442,7 +442,7 @@
                 color: var(--color5);
                 display: block;
                 font-size: 12px;
-                padding: 5px 0px;
+                margin-bottom: 4px;
             }
 
             #emojiSequenceListContentContainer > div {
@@ -476,53 +476,61 @@
             #emojiSequenceListButtonContentContainer input {
                 width: 70px;
                 height: 100%;
-                align-self: center;
-                margin: 0px 5px;
-                padding: 5px;
+                /* align-self: center; */
+                margin: 3px 5px;
+                padding: 1px;
             }
     
     /* Selected */
    
         /* Containers */
             #selectedContainer {
-                height: calc(100% - 450px);
+                /* height: 100%; */
+                height: calc(100% - 480px);
                 width: 100%;
                 /* background-color: magenta; */
+                /* display:  flex;
+                justify-content:  center; */
             }
 
             #selectedContentContainer {
                 /* background-color: green; */
                 width: 100%;
-                height: 100%;
+                height: calc(100% - 5px);
                 display: flex;
                 flex-direction: column;
-                justify-content: center;;
+                justify-content: flex-start;
+                align-content:  center;
             }
 
             #selectedRemoveButtonContainer {
-                height: 25px;
+                height: 20px;
                 width: 100%;
                 display: flex;
+                flex-direction: row;
                 justify-content: center;
+                align-content: center;
+                /* align-content:  center; */
                 /* background-color: pink; */
-                margin-top: 10px;
-                padding: 5px;
+                margin-top: 20px;
+                /* padding: 5px; */
             }
 
         /* Content */
             #selectedEmojiPicture {
                 /* background-color: orange; */
-                align-items: center;
-                align-self: center;
+                align-items: start;
+                align-self: flex-start;
                 width: 144px; 
                 height: 144px;
-                margin: 0px auto 5px auto;
+                margin: 10px auto 10px auto;
                 background-position: -432px -1008px;
                 background-image: url('../images/emojis/svg_filter-4-massive.png');
                 transform: scale(1.0);
+                padding: 10px;
             }
 
-            #selectedEmoji:hover {       
+            #selectedEmojiPicture:hover {       
                 transform: scale(1.0);
                 animation-name: emojiSelectedScale;
                 animation-duration: 325ms;;
@@ -541,12 +549,14 @@
             #selectedKeywords {
                 /* background-color: blue; */
                 color: var(--color5);
+                width: 100%;
                 text-align: center;
                 font-size: 2.35vw;
                 font-weight: bold;
                 letter-spacing: 0.25px;
-                margin: 5px 20px 20px 20px;
+                margin: 5px 0px 0px 0px;
                 height: 2vw;
+                align-self: flex-end;
                 
                 /* font-size: 12px; */
 
@@ -554,22 +564,24 @@
             }
 
             #selectedRemoveButton {
+                display: block;
                 width: 70px;
                 height: 20px;
-                padding: 5px;
+                padding: 0px;
                 text-align:  center;
-                /* align-self: center;
-                align-items: center; */
-                vertical-align: middle;
+                margin: 0px auto 0 auto;
+                /* align-items: center;
+                align-self: center; */
+                /* vertical-align: middle; */
             }
 
             @keyframes emojiSelectedScale {
                 from {
-                    transform: scale(0.80, 0.80);
+                    transform: scale(0.80, 0.80) rotate(0deg);
                 }
                 
                 to {
-                    transform: scale(1.1, 1.1);
+                    transform: scale(1.1, 1.1) rotate(360deg);
                 }
             }
 
@@ -577,45 +589,37 @@
         /* Containers */
             #emojiFavoritesContainer {
                 width: 100%;
-                height: calc(100% - 630px);
+                height: calc(100% - 645px);
                 padding: 0px 20px 0px 20px;
-                /* background-color: red; */
+                background-color: var(--color4);
             }
 
             #emojiFavoritesContentContainer {
-                /* background-color: lightgreen; */
                 width: 100%;
                 height: 100%;
-                display: flex;
-                flex-direction: column;
+                margin-left: 6px;
             }
 
             #emojiFavoritesListContentContainer {
                 width: 100%;
                 height: 50px;
-                /* background-color: magenta; */
                 display: flex;
-                justify-content: space-evenly;
-                align-content: center;
+                justify-content: flex-start;
             }
 
         
         /* Content */
             #emojiFavoritesText {
-                /* margin-top: 8px;
-                margin-bottom: 8px; */
-                /* align-self: center; */
-                /* align-items: center; */
                 font-size: 12px;
                 color: var(--color5);
-                display: block;
+                display: inline-block;
             }
 
             #emojiFavoritesListContentContainer > div {
-                margin-right: 6px;
-                display: inline-block;
-                /* align-self: center;
-                align-items: center; */
+                align-content: flex-start;
+                margin-top: 5px;
+                margin-right: 8px;
+                display: block;
                 width: 36px; 
                 height: 36px;
                 background-position: -360px -900px;
@@ -627,12 +631,12 @@
                 transform: scale(1.08);
                 filter: brightness(1.1);
                 
-                animation-name: emojiFavoritesScale;
+                animation-name: emojiScaler;
                 animation-duration: 200ms;
                 animation-timing-function: ease-in-out;
             }
 
-            @keyframes emojiFavoritesScale {
+            @keyframes emojiScaler {
                 from {
                     transform: scale(1, 1);
                     filter: brightness(1);
@@ -645,20 +649,29 @@
                 }
             }
 
-            #emojiFavoritesListButton  {
-                display: block;
-                width: 30px;
-                height: 12px;
-                align-self: center;
-                margin: 0px 10px 10px 0px;
+            #emojiFavoritesListButtonspan  {
+                display: -ms-inline-flexbox;
+                width: 100px;
+                margin: 0px 0px 0px 0px;
                 color: var(--color5);
-                font-size: 8px;
-                /* line-height: 5px; */
                 font-weight: bold;
                 text-align:  center;
-                /* padding: 5px; */
-                /* vertical-align: middle; */
-                float: right;
+                vertical-align:  middle;
+                float: left;
+            }
+
+            #emojiFavoritesListButton  {
+                display: -ms-inline-flexbox;
+                width: 30px;
+                height: 12px;
+                line-height: 12px;
+                margin: 0px 0px 0px 0px;
+                color: var(--color5);
+                font-size: 8px;
+                font-weight: bold;
+                text-align:  center;
+                float: left;
+                vertical-align:  middle;
             }
 
             #emojiFavoritesListButton:hover  {
@@ -672,13 +685,15 @@
                 display: block;
                 margin: 0 auto;
                 /* height: 100%; */
-                height: calc(100% - 550px);
+                /* height: calc(100% - 880px); */
                 overflow-y: auto;
+                /* background-color: orange; */
             }
         /* Content */
             #emojisContent {
                 /* background-color: orange; */
                 width: calc(100% - 7px);
+                /* height: 100%; */
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -686,9 +701,20 @@
                 margin-top: calc(1% - 2px);
                 margin-left: auto;
                 margin-right: auto;
-                z-index: 999;
+                /* z-index: 999; */
                 padding: 10px 20px 10px 20px;
+                /* background-color: pink; */
             }
+
+            #emojisContent > div > div:hover {
+                transform: scale(1.08);
+                filter: brightness(1.1);
+                
+                animation-name: emojiScaler;
+                animation-duration: 200ms;
+                animation-timing-function: ease-in-out;
+            }
+
             
 /* ---------------------------------------------- */
 /* Archives */

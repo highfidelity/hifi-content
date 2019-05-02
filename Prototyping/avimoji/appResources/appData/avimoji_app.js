@@ -102,6 +102,7 @@
     }
 
 
+    var SEMI_COLON_KEY = 59;
     // Open up on ctrl + enter
     function keyPress(event) {
         if (event.key === 16777220 && event.isControl) {
@@ -110,7 +111,11 @@
             } else {
                 ui.open();
             }
+        } if (event.key === SEMI_COLON_KEY) {
+            playEmojiAgain();
         }
+        
+
     }
 
 
@@ -123,7 +128,7 @@
 
         favoritesArray.sort(function (a, b) {
             if (a.count > b.count) {
-                return -1
+                return -1;
             }
 
             if (a.count < b.count) {
@@ -240,8 +245,8 @@
 
 
     var allEmojis = Settings.getValue("avimoji/allEmojis", false);
-    function handleAllEmojis(newAllEmojis) {
-        allEmojis = newAllEmojis;
+    function handleAllEmojis(data) {
+        allEmojis = data.allEmojis;
         Settings.setValue("avimoji/allEmojis", allEmojis);
     }
 
@@ -255,11 +260,13 @@
         }
         ui.sendMessage({
             app: "avimoji",
-            method: "reRenderUI"
+            method: "updateEmojiPicks",
+            selectedEmoji: selectedEmoji,
+            emojiSequence: emojiSequence
         });
     }
 
-
+    var MAX_EMOJI_SEQUENCE = 40;
     var emojiSequence = Settings.getValue("avimoji/emojiSequence", []);
     function handleSelectedEmoji(data) {
         var emoji = data.emoji;
@@ -267,10 +274,13 @@
         if (advanced) {
             if (!sequenceMode) {
                 selectedEmoji = emoji;
+                lastEmoji = emoji;
                 maybeClearTimeoutDelete();
                 addEmojiToUser(selectedEmoji);
             } else {
-                emojiSequence.push(emoji);
+                emojiSequence.push(emoji)
+                emojiSequence = emojiSequence.slice(0, MAX_EMOJI_SEQUENCE);
+
                 Settings.setValue("avimoji/emojiSequence", emojiSequence);
             }
         } else {
@@ -280,6 +290,7 @@
                 return;
             } else {
                 selectedEmoji = emoji;
+                lastEmoji = emoji;
                 maybeClearTimeoutDelete();
                 addEmojiToUser(selectedEmoji);
             }
@@ -311,8 +322,8 @@
     // handle a user changing the start and end distance of an emoji animation
     var DEFAULT_ANIMATION_DISTANCE = 0.5;
     var animationDistance = Settings.getValue("avimoji/animationDistance", DEFAULT_ANIMATION_DISTANCE);
-    function handleAnimationDistance(newDistance) {
-        animationDistance = newDistance;
+    function handleAnimationDistance(data) {
+        animationDistance = data.animationDistance;
         Settings.setValue("avimoji/animationDistance", animationDistance);
         maybeRedrawAnimation();
     }
@@ -321,8 +332,8 @@
     // handle a user changing the speed of the emoji sequence animation
     var DEFAULT_ANIMATION_SPEED = 1.2;
     var animationSpeed = Settings.getValue("avimoji/animationSpeed", DEFAULT_ANIMATION_SPEED);
-    function handleAnimationSpeed(newSpeed) {
-        animationSpeed = newSpeed;
+    function handleAnimationSpeed(data) {
+        animationSpeed = data.animationSpeed;
         Settings.setValue("avimoji/animationDistance", animationSpeed);
         maybeRedrawAnimation();
 
@@ -332,7 +343,7 @@
     // Update the play state 
     var isPlaying = false;
     function handleUpdateIsPlaying(data) {
-        isPlaying = isPlaying;
+        isPlaying = data.isPlaying;
         if (isPlaying) {
             playEmojiSequence();
         } else {
@@ -379,7 +390,7 @@
     }
 
 
-    function handleResetList() {
+    function handleResetSequenceList() {
         maybeClearPlayEmojiSequenceInterval();
         emojiSequence = [];
         Settings.setValue("avimoji/emojiSequence", emojiSequence);
@@ -414,7 +425,11 @@
     function handleShouldTimeoutDelete(data) {
         shouldTimeoutDelete = data.shouldTimeoutDelete;
         Settings.setValue("avimoji/shouldTimeoutDelete", shouldTimeoutDelete);
-        maybeClearTimeoutDelete();
+        if (shouldTimeoutDelete && currentEmoji) {
+            startTimeoutDelete();
+        } else {
+            maybeClearTimeoutDelete();
+        }
     }
 
 
@@ -511,6 +526,7 @@
             width: width * OVERLAY_SCALE_MULTIPLIER,
             height: height * OVERLAY_SCALE_MULTIPLIER,
             imageURL: imageURL,
+            renderLayer: "front",
             alpha: 0.0
         };
         var ezFavoriteOverlay = Overlays.addOverlay("image", overlayProps);
@@ -521,6 +537,26 @@
             ezFavoriteOverlay: ezFavoriteOverlay,
             code: emoji.code       
         };
+    }
+
+    var rectangleOverlay = null;
+    function drawRectangleOverlay(){
+        var width = 144 * 10 * 0.40;
+        var height = 50;
+        var windowWidth = Window.innerWidth;
+        var x = windowWidth / 2 * 0.65;
+        var rectangleOverlayProps = {
+            x: x,
+            width: width,
+            height: height,
+            y: 0,
+            color: { red: 30, green: 30, blue: 30 },
+            alpha: 0.2,
+            visible: true
+        };
+
+        
+        return Overlays.addOverlay("rectangle", rectangleOverlayProps);
     }
         
 
@@ -535,11 +571,14 @@
 
 
     function deleteEZFavoritesOverlays(){
+        log("ezFavoritesOverlays", ezFavoritesOverlays, "PRINT")
         if (ezFavoritesOverlays && ezFavoritesOverlays.length > 0){
             ezFavoritesOverlays.forEach(function(overlay){
                 Overlays.deleteOverlay(overlay.ezFavoriteOverlay);
             });
         }
+        Overlays.deleteOverlay(rectangleOverlay);
+        
         ezFavoritesOverlays = [];
         maybeClearEZFavoritesTimer();
     }
@@ -595,7 +634,7 @@
             deleteEZFavoritesOverlays();
         } else {
             drawEmojiPreviewOverlay();
-            drawEZFavoritesOverlay();
+            drawEZfavoritesOverlays();
         }
     }
 
@@ -639,10 +678,11 @@
     var LENGTH_OF_SEGMENT = Window.innerWidth / TOTAL_FAVORITES;
     var WINDOW_WIDTH_SCALER = 0.67;
     var OFFSET = -Window.innerWidth * WINDOW_WIDTH_SCALER + LENGTH_OF_SEGMENT * TOTAL_FAVORITES;
-    var EZFAVORITES_OVERLAY_TIMER_INTERVAL_MS = 15000;    
+    var EZFAVORITES_OVERLAY_TIMER_INTERVAL_MS = 10000;    
     var ezFavoritesOverlays = null;
     var ezFavoritesTimer = null;
     var topTenEmojis = [];
+    var rectangleOverlay = null;
     function renderEZFavoritesOverlays() {
         topTenEmojis = makeFavoritesArray(favorites);
         ezFavoritesOverlays = topTenEmojis.map(function(emoji, index){
@@ -655,11 +695,22 @@
                 var x = OFFSET + segmentStart + (Window.innerWidth * WIDTH_TOTAL_SCALER * WIDTH_BETWEEN_SCALER);
 
                 var y = TOP_MARGIN;
-                var overlay = drawEZFavoritesOverlay(favoriteEmoji.massive.frame.w * OVERLAY_SIZE_SCALER, favoriteEmoji.massive.frame.h * OVERLAY_SIZE_SCALER, imageURL, favoriteEmoji,x, y * OVERLAY_SIZE_SCALER);
+                var overlay = drawEZfavoritesOverlays(
+                    favoriteEmoji.massive.frame.w * OVERLAY_SIZE_SCALER, 
+                    favoriteEmoji.massive.frame.h * OVERLAY_SIZE_SCALER, 
+                    imageURL, favoriteEmoji,x, y * OVERLAY_SIZE_SCALER);
                 return overlay;
             } 
         });
         ezFavoritesTimer = Script.setInterval(ezFavoritesOverlayTimerHandler, EZFAVORITES_OVERLAY_TIMER_INTERVAL_MS);
+        var numberOfEmojis = topTenEmojis.length;
+        var width = 144 * OVERLAY_SIZE_SCALER * numberOfEmojis;
+        var height = rectangley;
+        var newSegmentStart = LENGTH_OF_SEGMENT * numberOfEmojis * WIDTH_TOTAL_SCALER; 
+        var rectangleX = OFFSET + newSegmentStart + (Window.innerWidth * WIDTH_TOTAL_SCALER * WIDTH_BETWEEN_SCALER);
+        var rectangley = TOP_MARGIN;
+
+        rectangleOverlay = drawRectangleOverlay(width, height, height * 0.5, rectangleX, rectangley);
     }
 
     function maybeRedrawEZFavoritesOverlays(){
@@ -679,6 +730,16 @@
     // START avimoji
     // *************************************
     // #region avimoji
+
+
+    var lastEmoji = null;
+    function playEmojiAgain(){
+        if (currentEmoji && currentEmoji.id) {
+            maybePlayPop("offThenOn");
+        } else {
+            createEmoji(lastEmoji);
+        }
+    }
 
 
     var billboardMode = "none";
@@ -745,7 +806,7 @@
 
 
     // #TODO CHECK WITH ORIGINAL CODE ON THIS FUNCTION
-    var favorites  = Settings.getValue("avimoji/favorites", {});
+    var favorites = Settings.getValue("avimoji/favorites", {});
     function addToFavorites(emoji) {
         if (!favorites[emoji.code[0]]) {
             favorites[emoji.code[0]] = { count: 1, code: emoji.code[0] };
@@ -762,7 +823,7 @@
         if (resetFavorites && newFavoritesArray.length === 1 && ezFavorites) {
             handleEZFavorites(true);
             resetFavorites = false;
-            drawEZfavoritesOverlays();
+            renderEZFavoritesOverlays();
         }
 
     }
@@ -797,9 +858,13 @@
     function setupAboveHeadAnimationProperties() {
         billboardMode = "full";
         setupNeckPosition = Vec3.subtract(MyAvatar.getNeckPosition(), MyAvatar.position);
-        setupEmojiPosition1 = Vec3.sum(setupNeckPosition, [(END_X + START_X) / 2, setupAvatarScale * setupAboveNeck * (1 + emojiSize * EMOJI_CONST_SCALER), 0])
+        setupEmojiPosition1 = 
+            Vec3.sum(setupNeckPosition, [(END_X + START_X) / 2,
+            setupAvatarScale * setupAboveNeck * (1 + emojiSize * EMOJI_CONST_SCALER), 0]);
         setupEmojiPosition1 = Vec3.sum(setupEmojiPosition1, [nextPostionXOffset, nextPostionYOffset, nextPostionZOffset]);
-        setupEmojiPosition2 = Vec3.sum(setupNeckPosition, [START_X, setupAvatarScale * setupAboveNeck * (1 + emojiSize * EMOJI_CONST_SCALER), 0]);
+        setupEmojiPosition2 = 
+        Vec3.sum(setupNeckPosition, 
+            [START_X, setupAvatarScale * setupAboveNeck * (1 + emojiSize * EMOJI_CONST_SCALER), 0]);
         setupEmojiPosition2 = Vec3.sum(setupEmojiPosition2, [nextPostionXOffset, nextPostionYOffset, nextPostionZOffset]);
     }
 
@@ -899,7 +964,7 @@
 
 
     function setupAnimationVariables() {
-        ANIMATION_DURATION = DEFAULT_ANIMATION_SPEED * animationSpeed;
+        ANIMATION_DURATION = DEFAULT_ANIMATION_DURATION * animationSpeed;
         DURATION_PER_STEP = ANIMATION_DURATION / (ANIMATION_STEPS + HOLD_STEPS * 2);
         START_X = -1 * animationDistance;
         END_X = 1 * animationDistance;
@@ -908,8 +973,8 @@
         currentPosition1 = START_X;
         currentPosition2 = (END_X + START_X) / 2;
     }
-    var DEFAULT_ANIMATION_SPEED = 1750;
-    var ANIMATION_DURATION = DEFAULT_ANIMATION_SPEED * animationSpeed;
+    var DEFAULT_ANIMATION_DURATION = 1750;
+    var ANIMATION_DURATION = DEFAULT_ANIMATION_DURATION * animationSpeed;
     var HOLD_STEPS = 40;
     var ANIMATION_STEPS = 60;
     var DURATION_PER_STEP = ANIMATION_DURATION / (ANIMATION_STEPS + HOLD_STEPS * 2);
@@ -1243,7 +1308,7 @@
                     allEmojis: allEmojis,
                     shouldTimeoutDelete: shouldTimeoutDelete,
                     ezFavorites: ezFavorites,
-                    isFirstRun: Settings.getValue("avimoji/firstRun", true)
+                    firstRun: Settings.getValue("avimoji/firstRun", true)
                 });
                 sendEmojiChunks();
                 break;
@@ -1267,8 +1332,8 @@
                 deleteSequenceEmoji(message.data);
                 break;
 
-            case "handleResetList":
-                handleResetList();
+            case "handleResetSequenceList":
+                handleResetSequenceList();
                 break;
 
             case "handleResetFavoritesList":
