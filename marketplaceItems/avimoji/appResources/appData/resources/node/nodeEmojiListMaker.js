@@ -26,6 +26,18 @@ const SHOULD_UPDATE_SVG_FILES = false;
 let filteredJSONS = [];
 let combinedSprite = {};
 
+
+// check to see if there is a difference between emoji sets
+function difference(setA, setB) {
+    let _difference = new Set(setA);
+    for (let elem of setB) {
+        _difference.delete(elem);
+    }
+    return _difference;
+}
+
+
+// create an object to handle the sprite sheets
 function JSONConstructor(file, number, type){
     this.file = file;
     this.number = number;
@@ -39,7 +51,7 @@ function JSONConstructor(file, number, type){
 function deleteFolderRecursive(path) {
     if (fs.existsSync(path)) {
         fs.readdirSync(path).forEach(function(file, index){
-        var curPath = path + "/" + file;
+        let curPath = path + "/" + file;
         if (fs.lstatSync(curPath).isDirectory()) { // recurse
             deleteFolderRecursive(curPath);
         } else { // delete file
@@ -93,7 +105,7 @@ if (SHOULD_CHECK_FOR_COMBINED) {
         let number = json.number;
         let type = json.type;
         let source = json.source;
-        for (var emojiKey in file.frames) {
+        for (let emojiKey in file.frames) {
             if (!combinedSprite[emojiKey]) {
                 combinedSprite[emojiKey] = {};
             }
@@ -111,7 +123,7 @@ if (SHOULD_CHECK_FOR_COMBINED) {
 }
 
 
-// Make the actual emoji object
+// make the actual emoji object
 function Emoji_Object(number, code, shortName, keywords, mainCateogry, subCategory){
     this.number = number;
     this.code = code;
@@ -122,20 +134,17 @@ function Emoji_Object(number, code, shortName, keywords, mainCateogry, subCatego
 }
 
 
+// split the table rows
 const rowReplaceRegex = /<\/td>|class=".*?>|<\/a>|<a.*?">|<span |<\/span>|U\+|⊛ /g;
 const headerRegex = /colspan/;
-const headreg = /hair-style/g;
 const replaceHeader = /<th colspan="5" class=".*?">|<a.*?>|<\/a><\/th>/g
 let mainCategory = "";
 let subCategory = ""
 let lastIndexHeader = null;
 let tempHeader1 = 0;
-
-let count = 0;
 function splitTr(row, index){
     
     if (headerRegex.test(row)) {
-        count++;
         row = row
             .replace(replaceHeader, "")
             .replace("&amp;", "&");
@@ -171,34 +180,26 @@ function splitTr(row, index){
 }
 
 
-
-var filterRegex = /(m[ae]n )|(wom[ae]n )/;
+// handle giving a final filter after removing general junk
+let filterRegex = /(m[ae]n )|(wom[ae]n )/;
 let filteredIDS = new Set();
-var count00 = 0;
-var countflag = 0;
-var countRegex = 0;
-var countNotInCombined = 0;
 function finalFilter(emoji, index, array){
     if (!emoji) {
-        count++;
         return false;
     }
 
     if (emoji.code[0].slice(0, 2) === "00") {
         filteredIDS.add(emoji.code[0]);
-        count00++;
         return false;
     }
 
     if (emoji.shortName.slice(0, 4) === "flag") {
         filteredIDS.add(emoji.code[0]);
-        countflag++
         return false;
     }
 
     if (filterRegex.test(emoji.shortName)) {
         filteredIDS.add(emoji.code[0]);
-        countRegex++;
         return false;
     }
 
@@ -212,7 +213,6 @@ function finalFilter(emoji, index, array){
             emoji.biggest = combinedSprite[emoji.code[0]].biggest;
         } else {
             filteredIDS.add(emoji.code[0]);
-            countNotInCombined++
             return false;
         }
     }
@@ -221,6 +221,7 @@ function finalFilter(emoji, index, array){
 }
 
 
+// write the actual files
 const replaceRegex = /(<img .*?>)|(<th class.*?\/th>)|<th>.*?<\/th>|<\/tr>|\n/g
 let file =
     fs
@@ -231,17 +232,7 @@ let file =
         .filter(item => !!item) // remove empty indexes
         .map((row, index) => splitTr(row, index)) // map the rows to convert them to emoji objects
         .filter(finalFilter);
-console.log("count", count);
 file = JSON.stringify(file, null, 4)
-
-function difference(setA, setB) {
-    var _difference = new Set(setA);
-    for (var elem of setB) {
-        _difference.delete(elem);
-    }
-    return _difference;
-}
-
 fs.writeFileSync(output, file);
 if (SHOULD_CHECK_FOR_COMBINED){
     originalFilteredIDSSet = new Set(JSON.parse(originalFilteredIDS));

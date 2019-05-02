@@ -21,12 +21,6 @@
     var EasingFunctions = Script.require("./resources/modules/easing.js");
 
     var emojiList = Script.require("./resources/node/emojiList.json?" + Date.now());
-    var emojiCodeMap = emojiList.reduce(function(previous, current, index){
-        if (current && current.code && current.code.length > 0 && current.code[0]) {
-            previous[current.code[0]] = index;
-            return previous;
-        }
-    }, {});
     var CONFIG = Script.require("./resources/config.json?" + Date.now());
     var imageURLBase = CONFIG.baseImagesURL;
 
@@ -63,6 +57,7 @@
         data = data + " " || "";
         console.log(PREPEND + label + ": " + data +"\n");
     }
+
 
     // Make the emoji groups
     var MAX_PER_GROUP = 250;
@@ -111,9 +106,10 @@
 
 
     // Open up on ctrl + enter
+    var ENTER_KEY = 16777220;
     var SEMI_COLON_KEY = 59;
     function keyPress(event) {
-        if (event.key === 16777220 && event.isControl) {
+        if (event.key === ENTER_KEY && event.isControl) {
             if (ui.isOpen) {
                 ui.close();
             } else {
@@ -125,6 +121,7 @@
     }
 
 
+    // turn the ffavorites objext into an array of top 10 favorites
     var MAX_FAVORITES = 10;
     function makeFavoritesArray() {
         var i = 0, favoritesArray = [];
@@ -148,12 +145,14 @@
     }
 
 
+    // grab an emoji in a looping ring
     function findValue(index, array, offset) {
         offset = offset || 0;
         return array[(index + offset) % array.length];
     }
 
 
+    // prune old emojis on you
     function pruneOldAvimojis() {
         MyAvatar.getAvatarEntitiesVariant().forEach(function (avatarEntity) {
             if (avatarEntity && avatarEntity.properties.name.toLowerCase().indexOf("avimoji") > -1) {
@@ -163,6 +162,7 @@
     }
 
 
+    // help send an emoji chunk to load up faster in the tablet
     var INTERVAL = 200;
     var currentChunk = 0;
     function sendEmojiChunks() {
@@ -260,6 +260,7 @@
     }
 
 
+    // handle moving to sequence mode
     var sequenceMode = Settings.getValue("avimoji/sequenceMode", false);
     function handleSequenceMode(data) {
         sequenceMode = data.sequenceMode;
@@ -276,12 +277,12 @@
     }
 
 
+    // what to do when someone selects an emoji in the tablet
     var MAX_EMOJI_SEQUENCE = 40;
     var emojiSequence = Settings.getValue("avimoji/emojiSequence", []);
     var selectedEmoji = null;
     function handleSelectedEmoji(data) {
         var emoji = data.emoji;
-        log("in handle emoji selected", null, "");
         if (advanced) {
             if (!sequenceMode) {
                 selectedEmoji = emoji;
@@ -381,6 +382,7 @@
     }
 
 
+    // handle if you change to move to advanced mode
     var advanced = Settings.getValue("avimoji/advanced", false);
     function handleAdvanced(data) {
         advanced = data.advanced;
@@ -392,6 +394,7 @@
     }
 
 
+    // handle what happens when unselect an emoji
     function handleSelectedRemoved() {
         maybePlayPop("off");
         selectedEmoji = null;
@@ -404,6 +407,7 @@
     }
 
 
+    // reset the current emoji sequence to build a new one
     function handleResetSequenceList() {
         maybeClearPlayEmojiSequenceInterval();
         emojiSequence = [];
@@ -571,7 +575,6 @@
 
 
     function deleteEZFavoritesOverlays(){
-        log("ezFavoritesOverlays", ezFavoritesOverlays, "PRINT")
         if (ezFavoritesOverlays && ezFavoritesOverlays.length > 0){
             ezFavoritesOverlays.forEach(function(overlay){
                 Overlays.deleteOverlay(overlay.ezFavoriteOverlay);
@@ -646,6 +649,7 @@
     }
 
 
+    // see if we need to clear the bottom right preview overlay
     var previewOverlayTimer = null;
     function maybeClearPreviewOverlayTimer() {
         if (previewOverlayTimer) {
@@ -655,6 +659,7 @@
     }
 
 
+    // see if we need to clear the current favorites timer
     function maybeClearEZFavoritesTimer() {
         if (ezFavoritesTimer) {
             Script.clearInterval(ezFavoritesTimer);
@@ -712,6 +717,8 @@
 
     }
 
+
+    // check to see if we should redrw the favorites overlay
     function maybeRedrawEZFavoritesOverlays(){
         if (ezFavoritesOverlays.length > 0){
             deleteEZFavoritesOverlays();
@@ -731,6 +738,7 @@
     // #region avimoji
 
 
+    // play the emoji again when we hit the ";" key
     var lastEmoji = null;
     function playEmojiAgain(){
         if (currentEmoji && currentEmoji.id) {
@@ -741,6 +749,7 @@
     }
 
 
+    // what happens when we need to add an emoji over a user
     var billboardMode = "none";
     var currentSelectedDimensions = null;
     function addEmojiToUser(emoji) {
@@ -751,6 +760,8 @@
         }
     }
 
+
+    // creating the actual emoji that isn't an animation
     var MASK_ABOVE_NECK = 0.13;
     var ABOVE_HEAD = 0.60;
     var EMOJI_CONST_SCALER = 0.27;
@@ -796,6 +807,7 @@
     }
 
 
+    // see if we need to clear the timeout delete that is currently there
     function maybeClearTimeoutDelete() {
         if (defaultTimeout) {
             Script.clearTimeout(defaultTimeout);
@@ -804,7 +816,7 @@
     }
 
 
-    // #TODO CHECK WITH ORIGINAL CODE ON THIS FUNCTION
+    // add a new emoji to your favorites list
     var favorites = Settings.getValue("avimoji/favorites", {});
     function addToFavorites(emoji) {
         if (!favorites[emoji.code[0]]) {
@@ -827,6 +839,7 @@
     }
 
 
+    // dynamically create mask animation properties in case it gets resized
     var MASK_NECK_POSITION_X_DEFAULT = 0;
     var MASK_NECK_POSITION_Y_DEFAULT = 0;
     var MASK_NECK_POSITION_Z_DEFAULT = 0.24;
@@ -850,6 +863,7 @@
     }
 
 
+    // dynammically create the above the head properties in case of resize
     var ABOVE_NECK_DEFAULT = 0.2;
     var setupAboveNeck = ABOVE_NECK_DEFAULT;
     setupAvatarScale = MyAvatar.scale;
@@ -877,7 +891,8 @@
     // *************************************
     // #region animation
 
-
+    
+    // see what we need to do when an emoji gets clicked
     var DURATION = POP_ANIMATION_DURATION_MS + 100;
     function maybePlayPop(type) {
         maybeClearPop();
@@ -899,6 +914,7 @@
     }
 
 
+    // play the actual emoji sequence
     var animationEmoji1 = new EntityMaker(entityType);
     var animationEmoji2 = new EntityMaker(entityType);
     var animationInitialDimensions = null;
@@ -961,16 +977,7 @@
     }
 
 
-    function setupAnimationVariables() {
-        ANIMATION_DURATION = DEFAULT_ANIMATION_DURATION * animationSpeed;
-        DURATION_PER_STEP = ANIMATION_DURATION / (ANIMATION_STEPS + HOLD_STEPS * 2);
-        START_X = -1 * animationDistance;
-        END_X = 1 * animationDistance;
-        POSITION_DISTANCE = END_X - START_X;
-        POSITION_PER_STEP = POSITION_DISTANCE / ANIMATION_STEPS;
-        currentPosition1 = START_X;
-        currentPosition2 = (END_X + START_X) / 2;
-    }
+    // dynamicly setup the animation properties
     var DEFAULT_ANIMATION_DURATION = 1750;
     var ANIMATION_DURATION = DEFAULT_ANIMATION_DURATION * animationSpeed;
     var HOLD_STEPS = 40;
@@ -997,7 +1004,19 @@
     var lastHOLD = 0;
     var SCALE_INCREASE_PER_STEP = SCALE_DISTANCE / HALF_POINT;
     var ALPHA_PER_STEP = ALPHA_DISTANCE / HALF_POINT;
+    function setupAnimationVariables() {
+        ANIMATION_DURATION = DEFAULT_ANIMATION_DURATION * animationSpeed;
+        DURATION_PER_STEP = ANIMATION_DURATION / (ANIMATION_STEPS + HOLD_STEPS * 2);
+        START_X = -1 * animationDistance;
+        END_X = 1 * animationDistance;
+        POSITION_DISTANCE = END_X - START_X;
+        POSITION_PER_STEP = POSITION_DISTANCE / ANIMATION_STEPS;
+        currentPosition1 = START_X;
+        currentPosition2 = (END_X + START_X) / 2;
+    }
 
+    
+    // interval for playing an emoji animation
     var START_X = -0.25 * animationDistance;
     var END_X = 0.25 * animationDistance;
     var POSITION_DISTANCE = END_X - START_X;
@@ -1006,7 +1025,6 @@
     var currentPosition2 = (END_X + START_X) / 2;
     var lastCurrent1Before0 = 0;
     var lastCurrent2Before0 = 0;
-    setupAnimationVariables();
     function onPlayEmojiInterval() {
         var emoji, imageURL;
         if (currentStep === 1) {
@@ -1131,6 +1149,7 @@
     }
 
 
+    // check to see if we need to clear the emoji interval
     function maybeClearPlayEmojiSequenceInterval() {
         if (animationEmoji1 && animationEmoji1.id) {
             animationEmoji1.destroy();
@@ -1152,6 +1171,7 @@
     }
 
 
+    // maybe clear a pop up animation not in animation mode
     function maybeClearPop() {
         if (playPopInterval) {
             Script.clearTimeout(playPopInterval);
@@ -1164,6 +1184,7 @@
     }
 
 
+    // play an animation pop in
     var currentPopStep = 1;
     var playPopInterval = null;
     var POP_ANIMATION_DURATION_MS = 170;
@@ -1197,6 +1218,8 @@
         }
     }
 
+
+    // play an animation pop out
     function playPopAnimationOut() {
         var dimensions;
         if (currentPopStep === 1) {
@@ -1226,6 +1249,8 @@
         }
     }
 
+    
+    // play an animatino coming in and then going out
     function playPopAnimationInAndOut() {
         var dimensions;
         if (currentPopStep === 1) {
@@ -1253,8 +1278,8 @@
     }
 
 
+    // check to see if we need to redraw an animation
     function maybeRedrawAnimation() {
-        log("in redraw Animation", isPlaying);
         if (isPlaying) {
             setupAnimationVariables();
             maybeClearPlayEmojiSequenceInterval();
@@ -1263,6 +1288,7 @@
     }
 
 
+    // stop playing the emoji sequence
     function stopEmojiSequence() {
         maybeClearPlayEmojiSequenceInterval();
         isPlaying = false;
@@ -1281,6 +1307,7 @@
     // #region messages
 
 
+    // handle getting a message from the tablet
     function onMessage(message) {
         if (message.app !== "avimoji") {
             return;
@@ -1288,7 +1315,6 @@
 
         switch (message.method) {
             case "eventBridgeReady":
-                // log("in eventbrdige ready");
                 ui.sendMessage({
                     app: "avimoji",
                     method: "updateUI",
@@ -1379,7 +1405,7 @@
                 break;
 
             default:
-                // log("Unhandled message from avimoji_ui.js", message);
+                log("Unhandled message from avimoji_ui.js", message);
                 break;
         }
     }
@@ -1396,10 +1422,12 @@
     // #region main
 
 
+    // startup the app
     var BUTTON_NAME = "AVIMOJI";
     var APP_UI_URL = Script.resolvePath('./resources/avimoji_ui.html');
     var AppUI = Script.require('appUi');
     var ui;
+    var emojiCodeMap;
     function startup() {
         ui = new AppUI({
             buttonName: BUTTON_NAME,
@@ -1410,10 +1438,19 @@
 
         pruneOldAvimojis();
         makeEmojiChunks();
+        setupAnimationVariables();
 
         if (ezFavorites) {
             renderEZFavoritesOverlays();
         }
+
+        // make a map of just the utf codes to help with accesing
+        emojiCodeMap = emojiList.reduce(function(previous, current, index){
+            if (current && current.code && current.code.length > 0 && current.code[0]) {
+                previous[current.code[0]] = index;
+                return previous;
+            }
+        }, {});
 
         Controller.keyPressEvent.connect(keyPress);
         Script.scriptEnding.connect(scriptEnding);

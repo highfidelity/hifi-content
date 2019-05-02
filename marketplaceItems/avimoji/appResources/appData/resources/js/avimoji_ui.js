@@ -103,7 +103,6 @@ function updatePlayLabel(playState) {
 }
 
 
-
 // #endregion
 // *************************************
 // END utiltiy
@@ -115,7 +114,6 @@ function updatePlayLabel(playState) {
 // #region render
 
 
-// #TODO:  Where does this get called?  Make sure this is only being called in the state machine
 // render the main emojis group.  Could be a chunk, a basic set, or all the emojis
 const EMOJIS_PER_ROW = 10;
 function renderEmojiList(list, isChunk){
@@ -356,19 +354,6 @@ function renderEmojiSequence(){
 // *************************************
 
 // *************************************
-// START dom_manipulations
-// *************************************
-// #region dom_manipulations
-
-
-
-
-// #endregion
-// *************************************
-// END dom_manipulations
-// *************************************
-
-// *************************************
 // START event_handlers
 // *************************************
 // #region handlers
@@ -411,7 +396,7 @@ function handleLocal(checkbox){
 }
 
 
-// Show the emoji overlays at the top
+// show the emoji overlays at the top
 function handleEZFavorites(checkbox){
     let ezFavorites = checkbox.checked;
     emitAppSpecificEvent("handleEZFavorites", {
@@ -446,7 +431,7 @@ function handleSequenceMode(checkbox){
 }
 
 
-// Switch mode to advanced for more options
+// switch mode to advanced for more options
 function handleAdvanced(checkbox){
     advanced = checkbox.checked;
     emitAppSpecificEvent("handleAdvanced", {
@@ -470,11 +455,10 @@ function handleShouldTimeoutDelete(checkbox){
     emitAppSpecificEvent("handleShouldTimeoutDelete", {
         shouldTimeoutDelete: shouldTimeoutDelete
     })
-    // renderUI();
 }
 
 
-// Handle the slider being changed
+// handle the slider being changed
 function handleEmojiSize(slider) {
     emitAppSpecificEvent("handleEmojiSize", {
         emojiSize: slider.value
@@ -482,7 +466,7 @@ function handleEmojiSize(slider) {
 }
 
 
-// Handle the slider being changed
+// handle the slider being changed
 function handleAnimationDistance(slider) {
     emitAppSpecificEvent("handleAnimationDistance", {
         animationDistance: slider.value
@@ -490,7 +474,7 @@ function handleAnimationDistance(slider) {
 }
 
 
-// Handle the slider being changed
+// handle the slider being changed
 function handleAnimationSpeed(slider) {
     emitAppSpecificEvent("handleAnimationSpeed", {
         animationSpeed: slider.value
@@ -552,7 +536,7 @@ function handleSelectedRemoved(){
 }
 
 
-// Filter out the emoji list for the search
+// filter out the emoji list for the search
 let filteredEmojiList = null;
 function filterEmojis(event){
     let input = document.getElementById("filter_emojis");
@@ -589,7 +573,7 @@ function filterEmojis(event){
 }
 
 
-// Remove an emoji in the sequence
+// remove an emoji in the sequence
 function deleteSequenceEmoji(emoji){
     if (emoji.getAttribute('data-index')){
         let emojiSequenceIndex = +event.target.getAttribute('data-index');
@@ -600,6 +584,8 @@ function deleteSequenceEmoji(emoji){
 }
 
 
+// what to do when you are hovering over an emoji
+// switch back to the selected emoji on the way out
 let lastHoveredEmoji = null;
 let isHovering = null;
 function hoverEmoji(emoji, onHover){
@@ -993,4 +979,3 @@ document.addEventListener("DOMContentLoaded", function(event) {
 // *************************************
 // END tablet
 // *************************************
-

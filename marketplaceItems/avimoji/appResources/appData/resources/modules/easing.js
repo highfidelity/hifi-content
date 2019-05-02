@@ -1,3 +1,16 @@
+/*
+
+    Easing Animation Module
+    easing.js
+    Created by Milad Nazeri on 2019-05-02
+    Copyright 2019 High Fidelity, Inc.
+
+    Distributed under the Apache License, Version 2.0.
+    See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
+*/
+
+
 // https://gist.github.com/gre/1650294
 var EasingFunctions = {
     easeInOutQuad: function (t) { return t<.5 ? 2*t*t : -1+(4-2*t)*t },
