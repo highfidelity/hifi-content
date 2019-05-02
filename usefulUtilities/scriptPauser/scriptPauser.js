@@ -21,6 +21,8 @@
     // This is a list of apps that this entity script explicitly stopped.
     // The scripts in this list will be restarted once this entity script is unloaded.
     var pausedAppList = [];
+    // This is a list of usernames whose scripts will never be paused.
+    var usernameWhitelist = [];
 
 
     // This function will put up a text banner notification informing the user that one
@@ -38,8 +40,6 @@
     function pauseScripts() {
         var properties = Entities.getEntityProperties(_this.entityID, ["userData"]);
         var userData;
-        scriptsToStopFuzzyMatch = [];
-        scriptsToStopExactMatch = [];
 
         try {
             userData = JSON.parse(properties.userData);
@@ -47,6 +47,10 @@
             console.error("Error parsing userData: ", e);
             return;
         }
+
+        scriptsToStopFuzzyMatch = [];
+        scriptsToStopExactMatch = [];
+        usernameWhitelist = [];
 
         if (userData) {
             if (userData.fuzzyScriptNames) {
@@ -68,6 +72,17 @@
                     });
                 }
             }
+
+            if (userData.usernameWhitelist) {
+                if (Array.isArray(userData.usernameWhitelist)) {
+                    usernameWhitelist = userData.usernameWhitelist;
+                }
+            }
+        }
+
+        if (usernameWhitelist.indexOf(AccountServices.username) > -1) {
+            restoreScripts();
+            return;
         }
                     
         var currentlyRunningScripts = ScriptDiscoveryService.getRunning();
@@ -103,6 +118,15 @@
         }
     }
 
+
+    function restoreScripts() {
+        pausedAppList.forEach(function(url) {
+            ScriptDiscoveryService.loadScript(url);
+        });
+
+        pausedAppList = [];
+    }
+
     
     var _this;
     var ScriptPauser = function() {
@@ -125,9 +149,7 @@
                 scriptPauserInterval = false;
             }
 
-            pausedAppList.forEach(function(url) {
-                ScriptDiscoveryService.loadScript(url);
-            });
+            restoreScripts();
         }
     };
 

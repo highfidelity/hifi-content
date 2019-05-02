@@ -1,0 +1,4 @@
+{
+    "scriptURL": "./appData/tabletCam.js",
+    "homeURL": "./appData/ui/TabletCam.qml"
+}

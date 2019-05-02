@@ -1,0 +1,4 @@
+{
+    "scriptURL": "./appData/textToSpeech_app.js",
+    "homeURL": "./appData/ui/textToSpeech_ui.html"
+}
