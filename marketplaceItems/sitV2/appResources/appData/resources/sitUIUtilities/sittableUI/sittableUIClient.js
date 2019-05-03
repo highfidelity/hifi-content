@@ -67,8 +67,7 @@
         mouseReleaseOnEntity: function (entityID, event) {
             console.log("sit ui mouse release on entity");
             if (event.isPrimaryButton) {
-                console.log("isPrimaryButton");
-                Entities.callEntityMethod(_this.sitEntityID, "startSitDown", [MyAvatar.sessionUUID]);
+                Entities.callEntityServerMethod(_this.sitEntityID, "onSitDown", [MyAvatar.sessionUUID]);
             }
         },
         unload: function () {

@@ -4,8 +4,26 @@
 
     var DEBUG = true;
 
-    var localEntityUtils = Script.require("https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/localEntityUtils.js?" + Math.random());
 
+    //#region UTILITIES
+
+    function getEntityPropertiesForImageInFrontOfCamera(positionInFront, dimensions, url) {
+        return {
+            type: "Image",
+            grab: { grabbable: false },
+            dynamic: false,
+            parentJointIndex: MyAvatar.getJointIndex("_CAMERA_MATRIX"),
+            imageURL: url,
+            position: Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, positionInFront)),
+            dimensions: dimensions,
+            rotation: Camera.rotation,
+            parentID: MyAvatar.sessionUUID,
+            ignoreRayIntersection: false,
+            visible: true,
+            emissive: true,
+            renderLayer: "front"
+        }
+    }
 
     // String utility
     function startsWith(str, searchString, position) {
@@ -19,6 +37,8 @@
             return !(startsWith(role, "right") || startsWith(role, "left"));
         });
     }
+
+    //#endregion UTILITIES
 
     var STANDUP_DISTANCE_M = 0.5; // m 
     var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair 
@@ -57,7 +77,7 @@
         _this.isSittingDown = false;
         deleteStandUp();
 
-        // Entities.callEntityServerMethod(_this.entityID, "onStandUp");
+        Entities.callEntityServerMethod(_this.entityID, "onStandUp");
 
         if (Settings.getValue(SETTING_KEY_AVATAR_SITTING) === _this.entityID) {
             // Check if avatar is getting out of this chair
@@ -79,6 +99,12 @@
 
             Script.setTimeout(function () {
                 MyAvatar.centerBody();
+
+                Entities.callEntityServerMethod(
+                    _this.entityID,
+                    "addAllOtherSittableOverlays",
+                    AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
+                );
             }, STANDUP_DELAY_MS);
 
         } else {
@@ -93,6 +119,8 @@
         Script.scriptEnding.disconnect(_this.standUp);
         MyAvatar.skeletonModelURLChanged.disconnect(_this.standUp);
         MyAvatar.wentAway.disconnect(_this.standUp);
+
+        Entities.callEntityMethod(_this.zoneID, "checkIfAvatarIsInsideZone");
     }
 
     // Checks for Avatar Spine Error
@@ -121,21 +149,30 @@
         _this.seatCenterPosition.y = properties.position.y + yOffset;
     }
 
-    // function sendRequestToServerScriptToStartSitDown() {
-    //     Entities.callEntityServerMethod(
-    //         _this.entityID,
-    //         "onSitDown",
-    //         [MyAvatar.sessionUUID]
-    //     );
-    // }
+    function sendRequestToServerScriptToStartSitDown() {
+        Entities.callEntityServerMethod(
+            _this.entityID,
+            "onSitDown",
+            [MyAvatar.sessionUUID]
+        );
+    }
 
     // Called from entity server script to begin sitting down sequence
     var SETTING_KEY_AVATAR_SITTING = "com.highfidelity.avatar.isSitting";
     var SIT_SETTLE_TIME_MS = 350; // Do not pop avatar out of chair immediates if there's an issue
     var STANDUP_DELAY_MS = 25; // ms for timeout in standup
     var SIT_DELAY_MS = 50; // ms for timeouts in sit
+    var CAN_SIT_M = 5; // zone radius
     function startSitDown() {
-        console.log("startSitDown");
+        if (DEBUG) {
+            console.log("startSitDown");
+        }
+
+        Entities.callEntityServerMethod(
+            _this.entityID,
+            "removeAllOtherSittableOverlays",
+            AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
+        );
 
         _this.previousAvatarOrientation = MyAvatar.orientation;
         _this.previousAvatarPosition = MyAvatar.position;
@@ -311,30 +348,19 @@
                 _this.deviationTimeStart = false;
             }
         }
-        // if (SITTING_DEBUG) {
-        //     print("update standup conditionals: ", hasAvatarSpineError, hasHeldDriveKey, hasAvatarMovedTooFar);
-        // }
-
-        // if (hasAvatarSpineError || hasHeldDriveKey || hasAvatarMovedTooFar) {
-        //     standUp();
-        // }
     }
 
-    function unload() {
-        deleteSittableUI();
-        deleteCanSitZone();
-        deletePresit();
-    }
-
-    function onEnterCanSitZone() {
-        console.log("onEnterCanSitZone");
-        if (!_this.sittableUIID) {
+    var AVATAR_SITTING_IN_CHAIR_RANGE = 0.01;
+    function onEnterCanSitZone(id, params) {
+        _this.zoneID = params[0];
+        calculateSeatCenterPositionForPinningAvatarHips();
+        var isSittingInChair = AvatarList.isAvatarInRange(_this.seatCenterPosition, AVATAR_SITTING_IN_CHAIR_RANGE);
+        if (!_this.sittableUIID && !isSittingInChair) {
             createSittableUI();
         }
     }
 
     function onLeaveCanSitZone() {
-        console.log("onLeaveCanSitZone");
         deleteSittableUI();
     }
 
@@ -364,7 +390,7 @@
     function createPresit() {
         var currentPresitAnimationFrame = 0;
         _this.presitAnimationImageID = Entities.addEntity(
-            localEntityUtils.getEntityPropertiesForImageInFrontOfCamera(
+            getEntityPropertiesForImageInFrontOfCamera(
                 SIT_ANIMATION_POSITION_IN_FRONT,
                 SIT_ANIMATION_DIMENSIONS,
                 _this.preSitLoadedImages[currentPresitAnimationFrame].url
@@ -373,7 +399,7 @@
         );
 
         _this.presitTextID = Entities.addEntity(
-            localEntityUtils.getEntityPropertiesForImageInFrontOfCamera(
+            getEntityPropertiesForImageInFrontOfCamera(
                 PLEASE_FACE_FORWARD_POSITION_IN_FRONT,
                 PLEASE_FACE_FORWARD_DIMENSIONS,
                 _this.preSitTextLoadedImage.url
@@ -421,7 +447,7 @@
         }
 
         _this.standUpID = Entities.addEntity(
-            localEntityUtils.getEntityPropertiesForImageInFrontOfCamera(
+            getEntityPropertiesForImageInFrontOfCamera(
                 STAND_UP_POSITION_IN_FRONT,
                 STAND_UP_DIMENSIONS,
                 OVERLAY_URL_STANDUP
@@ -503,45 +529,21 @@
 
     //#endregion SITTABLE
 
-    //#region CAN SIT ZONE
-    var CAN_SIT_M = 5;
-    function createCanSitZone() {
-        var properties = Entities.getEntityProperties(_this.entityID);
-        _this.canSitZoneID = Entities.addEntity({
-            name: "canSitZone-" + _this.entityID,
-            type: "Zone",
-            shapeType: "sphere",
-            position: properties.position,
-            parentID: _this.entityID,
-            script: "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/canSitZoneClient.js?" + Math.random(),
-            locked: false,
-            dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
-            keyLightMode: "enabled",
-            keyLight: {
-                "color": { "red": 255, "green": 0, "blue": 0 },
-                "direction": { "x": 1, "y": 0, "z": 0 }
-            }
-        });
-    }
-
-    function deleteCanSitZone() {
-        if (_this.canSitZoneID) {
-            Entities.deleteEntity(_this.canSitZoneID);
-            _this.canSitZoneID = null;
-        }
-    }
-    //#endregion CAN SIT ZONE
-
     function preload(id) {
         _this.entityID = id;
-
-        if (!_this.canSitZoneID) {
-            createCanSitZone();
-        }
         prefetchPresitImages();
-
         // download sit animation
         AnimationCache.prefetch(ANIMATION_URL);
+    }
+
+    function unload() {
+        deleteSittableUI();
+        deletePresit();
+    }
+
+    // Called by server script in heartbeat
+    function check() {
+        Entities.callEntityServerMethod(_this.entityID, "checkResolved");
     }
 
     function SitClient() {
@@ -572,13 +574,16 @@
         this.driveKeyPressedStart = false;
 
         this.deviationTimeStart = false;
+        this.zoneID = false;
     }
 
     SitClient.prototype = {
         remotelyCallable: [
             "onEnterCanSitZone",
             "onLeaveCanSitZone",
-            "startSitDown"
+            "startSitDown",
+            "sendRequestToServerScriptToStartSitDown",
+            "check"
         ],
         // Zone methods
         onEnterCanSitZone: onEnterCanSitZone,
@@ -587,9 +592,11 @@
         preload: preload,
         unload: unload,
         // Sitting lifetime methods
-        standUp: standUp,
+        sendRequestToServerScriptToStartSitDown: sendRequestToServerScriptToStartSitDown,
         startSitDown: startSitDown,
-        whileSittingUpdate: whileSittingUpdate
+        whileSittingUpdate: whileSittingUpdate,
+        check: check,
+        standUp: standUp
     }
 
     return new SitClient();

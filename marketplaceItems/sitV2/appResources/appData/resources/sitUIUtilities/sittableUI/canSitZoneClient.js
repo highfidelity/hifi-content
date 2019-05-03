@@ -43,21 +43,24 @@
     }
 
     CanSitZone.prototype = {
+        remotelyCallable: [
+            "checkIfAvatarIsInsideZone"
+        ],
         preload: function (zoneID) {
             var properties = Entities.getEntityProperties(zoneID);
             this.entityID = zoneID;
 
             this.sitEntityID = properties.parentID;
-
-            // Entities.callEntityMethod(this.sitEntityID, "setCanSitZoneID", [zoneID]);
-            if (avatarIsInsideZone(zoneID)) {
+        },
+        checkIfAvatarIsInsideZone: function () {
+            if (avatarIsInsideZone(this.entityID)) {
                 this.enterEntity();
             }
         },
         enterEntity: function () {
             console.log("zone enterEntity");
             console.log("zone calls onEnterCanSitZone");
-            Entities.callEntityMethod(this.sitEntityID, "onEnterCanSitZone")
+            Entities.callEntityMethod(this.sitEntityID, "onEnterCanSitZone", [this.entityID])
         },
         leaveEntity: function () {
             Entities.callEntityMethod(this.sitEntityID, "onLeaveCanSitZone")
