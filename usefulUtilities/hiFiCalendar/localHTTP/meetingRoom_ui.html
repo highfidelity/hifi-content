@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" type="text/css" href="./css/styles.css?v195">
+        <link rel="stylesheet" type="text/css" href="./css/styles.css?v278">
     </head>
     <body>
         <pre id="content" style="white-space: pre-wrap;"></pre>
@@ -13,9 +14,7 @@
             </div>
             <div id="h1TopRight"></div>
             <div id="h1BottomLeft"></div>
-    
-            <input type="button" class="login" id="login" disabled="true">
-    
+            <button class="login" id="login"></button>
             <div >
                     <footer class="bttmleft"><a href="https://www.highfidelity.com/termsofservice">Terms of Service</a></footer>
             </div>
@@ -28,29 +27,29 @@
             <div id="background2">
                 <h1>Let's Connect Your Spaces</h1> 
                 <br><br><br><br>          
-                <h2>Start by selecting a room resource from your Google Calendar. Then select a High Fidelity meeting room and click to link them.</h2>
+                <h3>Start by selecting a room resource from your Google Calendar. Then select a High Fidelity meeting room and click to link them.</h3>
             </div>
             <div id="h1TopRight"></div>
             <div id="calendarInstr" class="dropDownInstruction">YOUR CALENDAR RESOURCES</div>
             <br>
             <select class="dropdown" id="selectedCalendar">
                 <option value="" class="dropdown-content">NO SELECTION</option>
-             </select>
+            </select>
             <br>
-            <input type="button" class="blueLinkText" id="help" value="Don't see the calendar you need?"></button>
+            <button class="blueLinkText" id="help">Don't see the calendar you need?</button>
             <br><br>
             <div id="roomInstr" class="dropDownInstruction">HIFI MEETING ROOMS</div>
             <select class="dropdown" id="selectedRoom">
                 <option value="" class="dropdown-content">NO SELECTION</option>
             </select>
             <br>
-            <input type="button" class="ui" id="linker" value="Link these spaces">
-            <input type="button" class="blueLinkText" id="finished1" value="I'm finished linking spaces.">
+            <button class="ui" id="linker">Link these spaces</button>
+            <button class="blueLinkText" id="finished1">I'm finished linking spaces.</button>
             <div >
-                <footer class="bttmleft"><input type="button" class="bttmleft" id="revoke1" value="Revoke Access"></footer>
+                <footer class="bttmleft"><button class="bttmleft" id="revoke1">Revoke Access</button></footer>
             </div>
             <div>
-                <footer class="bttmright"><input type="button" class="bttmright" id="logout1" value="Log Out"></footer>
+                <footer class="bttmright"><button class="bttmright" id="logout1">Log Out</button></footer>
             </div>
             <div id="success">
                 <div class="popup">
@@ -68,13 +67,13 @@
                 </dl>
             </div>
             <div id="h1TopRight"></div>
-            <input type="button" class="ui" id="reset1" value="Reset Links">
-            <input type="button" class="ui" id="viewAll" value="I'm finished">
+            <button class="ui" id="reset1" >Reset Links</button>
+            <button class="ui" id="viewAll" >I'm finished</button>
             <div >
-                <footer class="bttmleft"><input type="button" class="bttmleft" id="revoke2" value="Revoke Access"></footer>
+                <footer class="bttmleft"><button class="bttmleft" id="revoke2">Revoke Access</button></footer>
             </div>
             <div>
-                <footer class="bttmright"><input type="button" class="bttmright" id="logout2" value="Log Out"></footer>
+                <footer class="bttmright"><button class="bttmright" id="logout2">Log Out</button></footer>
             </div>
         </div>
 
@@ -83,10 +82,10 @@
                 <h1>Your linked spaces</h1>      
                 <br><br><br>
                 <br><br><br>
-                <h2>
+                <h3>
                     Your spaces are setup! You can safely close this app.
                     <br>If you need, you can add, edit, or delete your linked spaces from this list:
-                </h2>
+                </h3>
             </div>
             <div id="h1TopRight"></div>
             <table id="completed">
@@ -96,7 +95,7 @@
                     <td><input type="button" class="edit"></td>
                 </tr>
             </table>
-            <input type="button" class="ui" id="reset2" value="Reset all links">
+            <button class="ui" id="reset2">Reset all links</button>
             <div >
                 <footer class="bttmleft"><input type="button" class="bttmleft" id="revoke3" value="Revoke Access"></footer>
             </div>
@@ -114,17 +113,17 @@
                 <p id="message">We couldn't find any calendars to connect. You'll need to create a new calendar resource for each bookable space.</p>      
             </div>
             <div id="h1TopRight"></div>
-            <input type="button" class="blueLinkText" id="learn" value="Learn How">
-            <input type="button" class="grayLinkText" id="tryAgain" value="Go Back">
+            <button class="blueLinkText" id="learn">Learn How</button>
+            <button class="grayLinkText" id="tryAgain">Go Back</button>
             <div >
-                <footer class="bttmleft"><input type="button" class="bttmleft" id="revoke4" value="Revoke Access"></footer>
+                <footer class="bttmleft"><button class="bttmleft" id="revoke4" >Revoke Access</button></footer>
             </div>
             <div>
-                <footer class="bttmright"><input type="button" class="bttmright" id="logout4" value="Log Out"></footer>
+                <footer class="bttmright"><button class="bttmright" id="logout4" >Log Out</button></footer>
             </div>
         </div>
 
-        <script src="./js/meetingRoom_ui.js?v128"
+        <script src="./js/meetingRoom_ui.js?v131"
             onload="this.onload=function(){};document.getElementById('login').disabled=false;" 
             onreadystatechange="if (this.readyState === 'complete') this.onload()">
         </script>

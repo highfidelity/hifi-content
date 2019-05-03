@@ -25,7 +25,7 @@ h1 {
   font-size: 64px;
   line-height: 70px;
   text-align: center;
-  
+  background: transparent;
   color: #FFFFFF;
 }
 
@@ -35,7 +35,26 @@ h2 {
   height: 84px;
   left: 23px;
   top: 175px;
-  
+  background: transparent;
+  font-family: 'Graphik-Regular';
+  font-style: normal;
+  font-size: 20px;
+  line-height: normal;
+  text-align: center;
+  padding: 0px 10%;
+  box-sizing: border-box;
+  color: #FFFFFF;
+}
+body {
+  overflow: hidden;
+}
+h3 {
+  position: absolute;
+  width: 470px;
+  height: 84px;
+  left: 23px;
+  top: 175px;
+  background: transparent;
   font-family: 'Graphik-Regular';
   font-style: normal;
   font-size: 14px;
@@ -70,24 +89,30 @@ h2 {
   height: 320px;
   left: 0px;
   top: 0px;
+  padding-left: 30px;
+  padding-right: 30px;
   background: #000000;
+  z-index: -2;
 }
 
 #background2 {
   position: absolute;
-  width: 100%;
+  width: 515px;
   height: 100%;
-  padding-right: 10%;
-  padding-left: 10%;
+  padding-left: 30px;
+  padding-right: 30px;
   box-sizing: border-box;
   left: 0px;
   top: 0px;
   background: #000000;
+  background-size: cover;
   font-family: 'Graphik-Regular';
   font-size: 20px;
   line-height: normal;
   text-align: center;
   color: #FFFFFF;
+  z-index: -2;
+  overflow: hidden;
 }
 
 #linkedspaces {
@@ -99,27 +124,35 @@ h2 {
 
 footer {
   position: absolute;
-  width: 200px;
-  height: 20px;
-  top: 723px;
+  width: 90%;
 
+  height: 20px;
+  top: 710px;
+}
+
+.bttmright {
+  text-align: right;
+  align-items: right;
+  right: 18px;
   font-family: 'Graphik-Regular';
   font-size: 14px;
   line-height: 16px;
   border: none;
   outline:none;
   color: #828282;
-}
-
-.bttmright {
-  text-align: right;
-  align-items: right;
-  left: 300;
+  background: #00000000;
 }
 
 .bttmleft {
   left: 18px;
   text-align: left;
+  font-family: 'Graphik-Regular';
+  font-size: 14px;
+  line-height: 16px;
+  border: none;
+  outline:none;
+  color: #828282;
+  background: #00000000;
 } 
 
 /*** POPUPS ***/
@@ -132,12 +165,12 @@ footer {
 
 .popup .popuptext {
   visibility: hidden;
-  top: 90px;
-  left: 0px;
   position: absolute;
+  top: 70px;
+  left: 0px;
   width: 100vw;
-  height: 600px;
-  background: rgba(0, 0, 0, 0.9);
+  height: 650px;
+  background: rgba(0, 0, 0, 0.98);
   font-family: 'Graphik-Semibold';
   font-weight: 600;
   font-size: 40px;
@@ -155,7 +188,7 @@ footer {
 
 .popup .show {
   visibility: visible;
-  animation: fadeIn 1s;
+  animation: fadeIn .2s;
 }
 
 @keyframes fadeIn {
@@ -166,10 +199,12 @@ footer {
 /*** PAGES ***/
 #loginPage {
   display: initial;
+  overflow: hidden;
 }
 
 #connectorPage {
   display: none;
+  overflow: hidden;
 }
 
 #linkSuccessPage {
@@ -178,22 +213,18 @@ footer {
 
 #allLinksPage {
   display: none;
+  overflow: hidden;
 }
 
 #errorPage {
   display: none;
+  overflow: hidden;
 }
 
 /*** BUTTONS ***/
-input[type=button] {
-  border: none;
-  color: white;
-  background-color: black;
-  font-family: 'Graphik-Regular';
-  cursor: pointer;
-}
 
-input[type=button].login {
+
+.login {
   border: none;
   position: relative;
   width: 70%;
@@ -206,7 +237,7 @@ input[type=button].login {
   background-size: contain;
 }
 
-input[type=button].login:enabled {
+.login:enabled {
   border: none;
   position: relative;
   display: block;
@@ -219,7 +250,7 @@ input[type=button].login:enabled {
   background-size: contain;
 }
 
-input[type=button].login:enabled:hover { 
+.login:enabled:hover { 
   border: none;
   outline: none;
   position: relative;
@@ -234,7 +265,7 @@ input[type=button].login:enabled:hover {
   background-size: contain;
 }
 
-input[type=button].login:enabled:active {
+.login:enabled:active {
   border: none;
   outline: none;
   position: relative;
@@ -249,7 +280,7 @@ input[type=button].login:enabled:active {
   background-size: contain;
 }
 
-input[type=button].login:disabled {
+.login:disabled {
   border: none;
   position: relative;
   display: block;
@@ -262,70 +293,81 @@ input[type=button].login:disabled {
   background-size: contain;
 }
 
-input[type=button].ui:enabled {
-  text-align: center;
-  border: 2px solid white;
-  position: absolute;
+.ui {
+  display: inline-block;
   width: 50%;
-  margin-left: 25%;
-  margin-right: auto;
+  left: 25%;
   height: 50px;
   top: 590px;  
-  color: white;
-  background-color: black;
+  text-align: center;
   font-family: 'Graphik-Semibold';
   font-size: 22px;
-  outline: none;
-  transition: all 0.5s;
-}
-
-input[type=button].ui span {
-  cursor: pointer;
-  position: relative;
-  transition: 0.5s;
-  padding: 20px;
-}
-
-input[type=button].ui span:after {
-
+  border: 2px solid #fff !important;
+  color: #fff !important;
   position: absolute;
-  opacity: 0;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  transition: background-size .2s,color .2s;
+  overflow: hidden;
+  outline: none;
+  cursor: pointer;
+}
+.ui:after {
+  content: "";
+  background: #009ee0;
+  position: absolute;
   top: 0;
-  right: 0px;
-  transition: 0.5s;
-  padding: 20px;
-}
-
-input[type=button].ui:hover span {
-  background-color:#009ee0;
-  padding-right: 50%;
-  padding-left: 50%;
-}
-
-input[type=button].ui:hover span:after {
-  opacity: 1;
+  bottom: 0;
+  left: 0;
   right: 0;
-  padding-right: -25%;
-  padding-left: -25%;
+  width: 0;
+  z-index: -1;
+  outline: none;
+  margin: 0 auto;
+          transform: skew(45deg);
+  transition: all 0.2s ease;
 }
 
-input[type=button].ui:enabled:hover {
-  background-color: #009ee0;
+
+.ui:hover:after {
+  width: 90%;
   outline: none;
 }
 
-input[type=button].ui:enabled:active {
-  border: 2px solid #ff42a7;
-  color: #ff42a7;
+.ui:active:after {
+  width: 200%;
+  left: -100px;
   outline: none;
 }
+.ui:visited {
+  display: inline-block;
+  width: 50%;
+  margin-left: 25%;
+  height: 50px;
+  outline: none;
+  top: 590px;  
+  text-align: center;
+  font-family: 'Graphik-Semibold';
+  font-size: 22px;
+  border: 2px solid #fff !important;
+  color: #fff !important;
+  position: absolute;
+  z-index: 2;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  transition: background-size .2s,color .2s;
+  overflow: hidden;
+  cursor: pointer;
+}
 
-input[type=button].grayLinkText:enabled {
+.grayLinkText:enabled {
   position: absolute;
   width: 110px;
   height: 18px;
   left: 18px;
   top: 720px;
+  background-color: transparent;
+  cursor: pointer;
   border: none;
   outline: none;
   text-align: left;
@@ -335,22 +377,22 @@ input[type=button].grayLinkText:enabled {
   color: #828282;
 } 
 
-input[type=button].grayLinkText:enabled:hover {
+.grayLinkText:enabled:hover {
   color: #ffed00;
   border: none;
   outline: none;
 }
 
-input[type=button].grayLinkText:enabled:active {
+.grayLinkText:enabled:active {
   color: #ff42a7;
   border: none;
   outline: none;
 }
 
-input[type=button].blueLinkText:enabled {
+.blueLinkText:enabled {
   position: absolute;
-  width: 470px;
-  height: 38px;
+  width: 60%;
+  height: 24px;
   left: 22px;
   top: 370px;
   text-align: left;
@@ -358,23 +400,24 @@ input[type=button].blueLinkText:enabled {
   font-size: 18px;
   line-height: 20px;
   border: none;
+  background-color: transparent;
   outline: none;
   color: #009ee0;
 } 
 
-input[type=button].blueLinkText:enabled:hover {
+.blueLinkText:enabled:hover {
   color: #86edff;
   border: none;
   outline: none;
 }
 
-input[type=button].blueLinkText:enabled:active {
+.blueLinkText:enabled:active {
   color: #ff42a7;
   border: none;
   outline: none;
 }
 
-input[type=button].trash {
+.trash {
   background: url('../../resources/images/trash.png?v2') no-repeat; 
   background-position: center;  
   cursor: pointer;
@@ -385,7 +428,7 @@ input[type=button].trash {
   outline:none;
 }
 
-input[type=button].edit {
+.edit {
   background: url('../../resources/images/edit.png?v2') no-repeat; 
   background-position: center;  
   cursor: pointer;
@@ -397,25 +440,25 @@ input[type=button].edit {
 }
 
 #learn {
-  width:  30%;
+  width:  300px;
   margin-left:30%;
-  margin-right:auto;
+  position: absolute;
   height: 80px;
   text-align: center;
-  font-size: 24px;
+  vertical-align: center;
+  font-size: 20px;
   top: 400px;
-  line-height: 26px;
+  line-height: 24px;
   font-family: 'Graphik-Semibold';
 }
 
 #tryAgain {
-  width: 20%;
-  margin-left:35%;
-  margin-right:auto;
+  width: 40%;
+  margin-left:30%;
   position: relative;
-  height: 120px;
-  font-size: 24px;
-  line-height: 26px;
+  height: 80px;
+  font-size: 20px;
+  line-height: 24px;
   top: 450px;
   text-align: center;
   font-family: 'Graphik-Semibold';
@@ -424,11 +467,15 @@ input[type=button].edit {
 #viewAll {
   top: 520;
 }
-
+#reset1 {
+  top: 500px;
+}
 #finished1 {
-  top: 685px;
+  top: 665px;
   text-align: center;
-  font-family: 'Graphik-Regular';
+  width: 50%;
+  left: 25%;
+  vertical-align: center;
 }
 
 /*** LINKS ***/
@@ -476,8 +523,10 @@ a:active {
 
 .dropdown {
   text-indent: 20px;
+  position: relative;
   text-align: left;
-  width: 470px;
+  left: 30px;
+  width: 90%;
   height: 70px;
   font-family: 'Graphik-Regular';
   outline: none;
@@ -498,7 +547,7 @@ a:active {
   display: none;
   position: absolute;
   color: #FFFFFF;
-  background-color: rgb(48, 48, 48);
+  background-color: rgb(0, 0, 0);
   box-shadow: 0px 8px 16px 0px rgba(131, 131, 131, 0.2);
   min-width: 160px;
   padding: 12px 16px;
@@ -553,7 +602,9 @@ a:active {
   height: 70px;
 }
 
-#completed tr:hover {background-color: #1d1d1d;}
+#completed tr:hover {
+  background-color: #1d1d1d;
+}
 
 #completed td {
   width: 320px;
@@ -581,34 +632,3 @@ a:active {
 ::-webkit-scrollbar-thumb:hover {
   background: #009ee0; 
 }
-
-a.btn.btn-outline-white, .btn-wrapper a.btn-outline-white.cta_button, .form-btn-outline-white .hs-form input[type="submit"], .btn-wrapper.btn-outline-white-wrapper .cta_button {
-  border: 2px solid #fff !important;
-  color: #fff !important;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  transition: background-size .2s,color .2s;
-  position: relative;
-  overflow: hidden; }
-
-.btn-wrapper.btn-outline-white-wrapper .cta_button:after, a.btn.btn-outline-white:after, .btn-wrapper a.btn-outline-white.cta_button:after, .form-btn-outline-white .hs-form input[type="submit"]:after {
-  content: "";
-  background: #009ee0;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: -1;
-  width: 0;
-  margin: 0 auto;
-  -webkit-transform: skew(45deg);
-          transform: skew(45deg);
-  transition: all 0.2s ease; }
-
-a.btn.btn-outline-white:hover:after, .btn-wrapper a.btn-outline-white.cta_button:hover:after, .form-btn-outline-white .hs-form input[type="submit"]:hover:after, .btn-wrapper.btn-outline-white-wrapper .cta_button:hover:after {
-  width: 90%; }
-
-a.btn.btn-outline-white:focus:after, .btn-wrapper a.btn-outline-white.cta_button:focus:after, .form-btn-outline-white .hs-form input[type="submit"]:focus:after, .btn-wrapper.btn-outline-white-wrapper .cta_button:focus:after {
-  width: 150%;
-  left: -50px; }

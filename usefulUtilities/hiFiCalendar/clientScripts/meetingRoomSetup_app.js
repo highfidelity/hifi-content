@@ -14,21 +14,20 @@
     var MS_TO_SEC = 1000;
     var MIN_PER_HR = 60;
     var TOKEN_SERVER_ID = "";
-    var ROOM_1_SCHEDULE_ID = "{24b7b274-25a2-4dde-a241-f90da21de4c8}";
-    var ROOM_2_SCHEDULE_ID = "{c3f87945-e372-4f85-bde2-9d99d3633125}";
-    var ROOM_3_SCHEDULE_ID = "{010134dd-8608-4eef-b0a8-8316dcb982d8}";
-    var ROOM_4_SCHEDULE_ID = "{3aa8bb2e-b008-4d87-9fff-f0a4fda0c9d2}";
-    var ROOM_5_SCHEDULE_ID = "{5e98c3b0-4924-4e01-b400-7298d4ddecff}";
-    var ROOM_6_SCHEDULE_ID = "{cb0571ff-21f9-4d60-8d43-ebc5e80704a3}";
+    var MEETING_ROOM_1 = ['{4b6f47fe-646f-4b2c-9a7b-c74f3c47a105}', '{52a01b43-0200-45d1-bd58-aab0e658bdb3}'];
+    var MEETING_ROOM_2 = ['{2cfe3b74-e70c-44f6-bbfc-c74813acf0fd}', '{3ff72a7e-20cd-4c24-8c13-0ca85f9432ba}'];
+    var MEETING_ROOM_3 = ['{784c8c54-b11e-471c-9ba7-96f2bb347e98}', '{4623f8d6-4283-4192-a25c-461c3e0f72cf}'];
+    var MEETING_ROOM_4 = ['{a79ac99b-62f6-4e58-b04c-5735c2337fcf}', '{244aff65-f4c3-4609-92e5-211b9537cbe7}'];
+    var MEETING_ROOM_5 = ['{5d662a66-a250-4f18-ad1f-9cd21cd8380d}', '{235eaa39-d3af-4b8c-8f9c-29b79bb832af}'];
+    var MEETING_ROOM_6 = ['{1a92909e-52f9-4099-932a-4d2d43144791}', '{9bf4542e-24c6-4356-9394-68c025b5a29e}'];
     var roomScheduleIDs = [
-        ROOM_1_SCHEDULE_ID,
-        ROOM_2_SCHEDULE_ID,
-        ROOM_3_SCHEDULE_ID,
-        ROOM_4_SCHEDULE_ID,
-        ROOM_5_SCHEDULE_ID,
-        ROOM_6_SCHEDULE_ID
+        MEETING_ROOM_1,
+        MEETING_ROOM_2,
+        MEETING_ROOM_3,
+        MEETING_ROOM_4,
+        MEETING_ROOM_5,
+        MEETING_ROOM_6
     ];
-
     var request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
     var roomConfig = false;
     var token;
@@ -38,17 +37,27 @@
     var refreshToken;
     var timezone;
     var secret;
+    var pageReady = false;
     function onWebMessage(data) {
         switch (data.type) {
             case "EVENT_BRIDGE_OPEN_MESSAGE":
+                pageReady = true;
                 if (!roomConfig) {
+                    roomConfig = [];
+                    roomScheduleIDs.forEach(function(room) {
+                        var name = Entities.getEntityProperties(room[0], ['name']).name;
+                        roomConfig.push({
+                            name: name,
+                            id: room[0]
+                        });
+                    });
                     ui.sendToHTML({
                         type:'SEND_ROOMS',
                         value: roomScheduleIDs
                     });
                 } else {
                     ui.sendToHTML({
-                        type:'SEND_ROOMS',
+                        type:'AVAILABLE ROOMS',
                         value: roomConfig
                     });
                 }
@@ -112,6 +121,11 @@
                 } else if (!message.tokenStatus && !message.roomConfig) {
                     Window.announcement("You have not set up any room schedules for this domain.");
                 }
+            } else if (message.type === "ROOM CONFIG" && pageReady) {
+                ui.sendToHTML({
+                    type: "ALREADY SET",
+                    data: message.roomConfig
+                });
             }
         }
     };
@@ -143,7 +157,7 @@
         Window.domainChanged.connect(onDomainChange);
         Messages.subscribe(CHANNEL);
         Messages.messageReceived.connect(messageHandler);
-        if (Settings.getValue("calendar/roomsConfigured", false)) {
+        if (Settings.getValue("roomConfig", false)) {
             Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain", AccountServices.username);
         }
     }
