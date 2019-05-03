@@ -23,11 +23,13 @@
         _this.resolved = false;
 
         // Every 10 seconds will check the client that was sitting in the chair
-        _this.heartbeatInterval = Script.setInterval(function () {
+        _this.heartbeatInterval = Script.setInterval(function() {
             if (_this.isOccupied) {
                 checkClient();
             }
         }, HEARTBEAT_INTERVAL_TIME_MS);
+
+        createCanSitZone();
     }
 
     function checkResolved() {
@@ -37,15 +39,15 @@
     }
 
     // Called from client to check if chair is occupied
-    // If seat is not occupied, server script calls the client method _this begins the sit down process
+    // If seat is not occupied, server script calls the client method that begins the sit down process
     function onSitDown(id, param) {
-        if (_this.isOccupied === false){
+        if (_this.isOccupied === false) {
             _this.currentClientSessionID = param[0];
             _this.isOccupied = true;
 
             Entities.callEntityClientMethod(
                 param[0], 
-                _this.entityID, 
+                _this.currentClientSessionID, 
                 "startSitDown"
             );
         }
@@ -58,18 +60,13 @@
 
     function unload() {
         _this.isOccupied = false;
-        Script.clearInterval(_this.heartbeatInterval);
-    }
+        
+        if (_this.heartbeatInterval) {
+            Script.clearInterval(_this.heartbeatInterval);
+            _this.heartbeatInterval = false;
+        }
 
-
-    var _this = null;
-    function SitServer() {
-        _this = this;
-        this.isOccupied = null;
-        this.entityID = null;
-        this.currentClientSessionID = null;
-        this.resolved = false;
-        this.heartbeatInterval = null;
+        deleteCanSitZone()
     }
 
     function checkClient() {
@@ -91,6 +88,48 @@
                 _this.currentClientSessionID = null;
             }
         }, RESOLVED_TIMEOUT_TIME_MS);
+    }
+
+    
+    //#region CAN SIT ZONE
+    var CAN_SIT_M = 5;
+    function createCanSitZone() {
+        var properties = Entities.getEntityProperties(_this.entityID);
+        _this.canSitZoneID = Entities.addEntity({
+            name: "canSitZone-" + _this.entityID,
+            type: "Zone",
+            shapeType: "sphere",
+            position: properties.position,
+            parentID: _this.entityID,
+            script: "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/canSitZoneClient.js?" + Math.random(),
+            locked: false,
+            dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
+            keyLightMode: "enabled",
+            keyLight: {
+                "color": { "red": 255, "green": 0, "blue": 0 },
+                "direction": { "x": 1, "y": 0, "z": 0 }
+            }
+        });
+    }
+
+    function deleteCanSitZone() {
+        if (_this.canSitZoneID) {
+            Entities.deleteEntity(_this.canSitZoneID);
+            _this.canSitZoneID = false;
+        }
+    }
+    //#endregion CAN SIT ZONE
+
+
+    var _this = null;
+    function SitServer() {
+        _this = this;
+        this.isOccupied = null;
+        this.entityID = null;
+        this.currentClientSessionID = null;
+        this.resolved = false;
+        this.heartbeatInterval = null;
+        this.canSitZoneID = false;
     }
 
     SitServer.prototype = {

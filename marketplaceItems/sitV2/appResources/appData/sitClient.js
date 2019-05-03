@@ -6,6 +6,13 @@
 
     var localEntityUtils = Script.require("https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/localEntityUtils.js?" + Math.random());
 
+
+    // String utility
+    function startsWith(str, searchString, position) {
+        position = position || 0;
+        return str.substr(position, searchString.length) === searchString;
+    }
+
     function rolesToOverride() {
         // Get all animation roles that sit will override
         return MyAvatar.getAnimationRoles().filter(function (role) {
@@ -13,25 +20,304 @@
         });
     }
 
+    var STANDUP_DISTANCE_M = 0.5; // m 
+    var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair 
+    var STANDUP_DELAY_MS = 25; // ms for timeout in standup
     function standUp() {
+        if (DEBUG) {
+            console.log("standup");
+        }
 
+        var avatarDistance = Vec3.distance(MyAvatar.position, _this.seatCenterPosition);
+        var properties = Entities.getEntityProperties(_this.entityID);
+        MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
+        if (avatarDistance < STANDUP_DISTANCE_M) {
+            // Avatar did not teleport far away from chair
+            // Therefore apply previous position OR the default dismount position and orientation
+            if (_this.previousAvatarOrientation && _this.previousAvatarPosition) {
+                MyAvatar.position = _this.previousAvatarPosition;
+                MyAvatar.orientation = _this.previousAvatarOrientation;
+            } else {
+                var offset = {
+                    x: 0,
+                    y: 1.0,
+                    z: CHAIR_DISMOUNT_OFFSET_M - properties.dimensions.z * properties.registrationPoint.z
+                };
+                var position = Vec3.sum(properties.position, Vec3.multiplyQbyV(properties.rotation, offset));
+                MyAvatar.position = position;
+            }
+        }
+
+        if (!_this.locked) {
+            Entities.editEntity(_this.entityID, { locked: false });
+        }
+
+        _this.driveKeyPressedStart = false;
+        _this.sitDownSettlePeriod = false;
+        _this.isSittingDown = false;
+        deleteStandUp();
+
+        // Entities.callEntityServerMethod(_this.entityID, "onStandUp");
+
+        if (Settings.getValue(SETTING_KEY_AVATAR_SITTING) === _this.entityID) {
+            // Check if avatar is getting out of this chair
+
+            Settings.setValue(SETTING_KEY_AVATAR_SITTING, "");
+
+            // enable drive keys
+            for (var i in OVERRIDDEN_DRIVE_KEYS) {
+                MyAvatar.enableDriveKey(OVERRIDDEN_DRIVE_KEYS[i]);
+            }
+
+            // enable roles
+            var roles = rolesToOverride();
+            for (var j in roles) {
+                MyAvatar.restoreRoleAnimation(roles[j]);
+            }
+            MyAvatar.collisionsEnabled = true;
+            MyAvatar.hmdLeanRecenterEnabled = true;
+
+            Script.setTimeout(function () {
+                MyAvatar.centerBody();
+            }, STANDUP_DELAY_MS);
+
+        } else {
+            // Avatar switched to another chair, do not reapply the animation roles
+        }
+
+        stopUpdateInterval();
+
+        MyAvatar.scaleChanged.disconnect(_this.standUp);
+        MyAvatar.onLoadComplete.disconnect(_this.standUp);
+        location.hostChanged.disconnect(_this.standUp);
+        Script.scriptEnding.disconnect(_this.standUp);
+        MyAvatar.skeletonModelURLChanged.disconnect(_this.standUp);
+        MyAvatar.wentAway.disconnect(_this.standUp);
     }
 
-    function startSitDown() {
-        console.log("startSitDown");
-        createPresit();
+    // Checks for Avatar Spine Error
+    var NEG_ONE = -1;
+    function setHeadToHipsDistance() {
+        // get hips world pos while sitting
+        if (MyAvatar.getJointIndex("Head") === NEG_ONE) {
+            // this can probably be adjusted to be more accurate
+            _this.headToHipsDistance = MyAvatar.getHeight() * HALF;
+        } else {
+            var headTranslation = MyAvatar.getAbsoluteDefaultJointTranslationInObjectFrame(MyAvatar.getJointIndex("Head"));
+            var hipsTranslation = MyAvatar.getAbsoluteDefaultJointTranslationInObjectFrame(MyAvatar.getJointIndex("Hips"));
+            _this.headToHipsDistance = Math.abs(headTranslation.y - hipsTranslation.y);
+        }
     }
+
+    // Calculates where the avatar's hips will seat 
+    // Used to calculate pin hip position. Adds CHAIR_OFFSET_RATIO * chair's y dimension to the y center of the seat.
+    // Avatar sit position y = CHAIR_OFFSET_RATIO * height of chair
+    var CHAIR_OFFSET_RATIO = 0.1;
+    function calculateSeatCenterPositionForPinningAvatarHips() {
+        var properties = Entities.getEntityProperties(_this.entityID);
+
+        var yOffset = properties.dimensions.y * CHAIR_OFFSET_RATIO;
+        _this.seatCenterPosition = properties.position;
+        _this.seatCenterPosition.y = properties.position.y + yOffset;
+    }
+
+    // function sendRequestToServerScriptToStartSitDown() {
+    //     Entities.callEntityServerMethod(
+    //         _this.entityID,
+    //         "onSitDown",
+    //         [MyAvatar.sessionUUID]
+    //     );
+    // }
 
     // Called from entity server script to begin sitting down sequence
-    function sitDown() {
+    var SETTING_KEY_AVATAR_SITTING = "com.highfidelity.avatar.isSitting";
+    var SIT_SETTLE_TIME_MS = 350; // Do not pop avatar out of chair immediates if there's an issue
+    var STANDUP_DELAY_MS = 25; // ms for timeout in standup
+    var SIT_DELAY_MS = 50; // ms for timeouts in sit
+    function startSitDown() {
+        console.log("startSitDown");
+
         _this.previousAvatarOrientation = MyAvatar.orientation;
         _this.previousAvatarPosition = MyAvatar.position;
+
+        createPresit();
+        deleteSittableUI();
+
+        Script.setTimeout(function () {
+            // Set the value of head to hips distance
+            // If avatar deviates outside of the minimum and maximum, the avatar will pop out of the chair
+            setHeadToHipsDistance();
+
+            // Set isSitting value in Settings
+            Settings.setValue(SETTING_KEY_AVATAR_SITTING, _this.entityID);
+
+            // Lock chair and save old setting
+            this.locked = Entities.getEntityProperties(_this.entityID, 'locked').locked;
+            Entities.editEntity(_this.entityID, { locked: true });
+
+            calculateSeatCenterPositionForPinningAvatarHips();
+
+            sitDownAndPinAvatar();
+        }, PRESIT_FRAME_DURATION * _this.preSitLoadedImages.length);
     }
 
+    var ANIMATION_URL = "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/animations/sittingIdle.fbx"; // Script.resolvePath("./resources/animations/sittingIdle.fbx");
+    var ANIMATION_FPS = 30;
+    var ANIMATION_FIRST_FRAME = 1;
+    var ANIMATION_LAST_FRAME = 350;
+    var UPDATE_INTERVAL_MS = 50;
+    var OVERRIDDEN_DRIVE_KEYS = [
+        DriveKeys.TRANSLATE_X,
+        DriveKeys.TRANSLATE_Y,
+        DriveKeys.TRANSLATE_Z,
+        DriveKeys.STEP_TRANSLATE_X,
+        DriveKeys.STEP_TRANSLATE_Y,
+        DriveKeys.STEP_TRANSLATE_Z
+    ];
+    function sitDownAndPinAvatar() {
+        MyAvatar.collisionsEnabled = false;
+        MyAvatar.hmdLeanRecenterEnabled = false;
+
+        var roles = rolesToOverride();
+        for (var i in roles) { // restore roles to prevent overlap
+            MyAvatar.restoreRoleAnimation(roles[i]);
+            MyAvatar.overrideRoleAnimation(roles[i], ANIMATION_URL, ANIMATION_FPS, true,
+                ANIMATION_FIRST_FRAME, ANIMATION_LAST_FRAME);
+        }
+        for (var j in OVERRIDDEN_DRIVE_KEYS) {
+            MyAvatar.disableDriveKey(OVERRIDDEN_DRIVE_KEYS[j]);
+        }
+
+        MyAvatar.centerBody();
+        var hipIndex = MyAvatar.getJointIndex("Hips");
+
+        var properties = Entities.getEntityProperties(_this.entityID);
+
+        Script.setTimeout(function () {
+
+            // if (HMD.active && SHOW_PRESIT_IMAGE_IN_HMD) {
+            //     preSitRemove();
+            // }
+
+            _this.isSittingDown = true;
+            _this.sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME_MS;
+
+            MyAvatar.pinJoint(hipIndex, _this.seatCenterPosition, properties.rotation);
+
+            stopUpdateInterval();
+
+            _this.whileSittingUpdateIntervalID = Script.setInterval(_this.whileSittingUpdate, UPDATE_INTERVAL_MS);
+
+            deleteSittableUI();
+
+            MyAvatar.scaleChanged.connect(_this.standUp);
+            MyAvatar.onLoadComplete.connect(_this.standUp);
+            location.hostChanged.connect(_this.standUp);
+            Script.scriptEnding.connect(_this.standUp);
+            MyAvatar.skeletonModelURLChanged.connect(_this.standUp);
+            MyAvatar.wentAway.connect(_this.standUp);
+        }, SIT_DELAY_MS);
+    }
+
+    function stopUpdateInterval() {
+        if (_this.whileSittingUpdateIntervalID) {
+            Script.clearInterval(_this.whileSittingUpdateIntervalID);
+            _this.whileSittingUpdateIntervalID = false;
+        }
+    }
+
+    var AVATAR_MOVED_TOO_FAR_DISTANCE_M = 0.5;
+    var MAX_HEAD_DEVIATION_RATIO = 1.2;
+    var MIN_HEAD_DEVIATION_RATIO = 0.8;
+    var DRIVE_KEY_RELEASE_TIME_MS = 800; // ms
+    var HEAD_DEVIATION_MAX_TIME_TO_STAND_MS = 1000;
     function whileSittingUpdate() {
-        // listen for drive button press
-        // listen for head to be too far away
-        // listen for avatar position to be too far away
+        var now = Date.now();
+
+        // ACTIVE DRIVE KEY
+        // Check if a drive key is pressed
+        var hasActiveDriveKey = false;
+        for (var i in OVERRIDDEN_DRIVE_KEYS) {
+            if (MyAvatar.getRawDriveKey(OVERRIDDEN_DRIVE_KEYS[i]) !== 0.0) {
+                hasActiveDriveKey = true;
+                if (!_this.driveKeyPressedStart) {
+                    _this.driveKeyPressedStart = now;
+                }
+                if (!_this.standUpID) {
+                    createStandUp();
+                    if (DEBUG) {
+                        console.log("active drive key pressed once");
+                    }
+                }
+                break;
+            }
+        }
+
+        // Only standup if user has been pushing a drive key for DRIVE_KEY_RELEASE_TIME_MS
+        if (hasActiveDriveKey) {
+            if (_this.driveKeyPressedStart && (now - _this.driveKeyPressedStart) > DRIVE_KEY_RELEASE_TIME_MS) {
+                _this.standUp();
+                if (DEBUG) {
+                    console.log("active drive key pressed caused standup");
+                }
+
+            }
+        } else {
+            if (_this.standUpID) {
+                _this.driveKeyPressedStart = false;
+                deleteStandUp();
+            }
+        }
+
+        if (_this.sitDownSettlePeriod && now < _this.sitDownSettlePeriod) {
+            // below considerations only apply if sit down settle period has passed
+            return;
+        } else {
+            _this.sitDownSettlePeriod = false;
+        }
+
+        // AVATAR DISTANCE
+        if (Vec3.distance(MyAvatar.position, _this.seatCenterPosition) > AVATAR_MOVED_TOO_FAR_DISTANCE_M) {
+            _this.standUp();
+            if (DEBUG) {
+                console.log("avatar distance caused standup");
+            }
+            return;
+        }
+
+        // AVATAR SPINE ERROR
+        if (HMD.active) {
+            // If head is more than certain distance from hips or less than certain distance, stand up
+            var headPoseValue = Controller.getPoseValue(Controller.Standard.Head);
+            var headWorldPosition = Vec3.sum(
+                Vec3.multiplyQbyV(MyAvatar.orientation, headPoseValue.translation),
+                MyAvatar.position
+            );
+            var headDeviation = Vec3.distance(headWorldPosition, _this.seatCenterPosition);
+            var headDeviationRatio = headDeviation / headToHipsDistance;
+
+            if (headDeviationRatio < MIN_HEAD_DEVIATION_RATIO || headDeviationRatio > MAX_HEAD_DEVIATION_RATIO) {
+                if (!_this.deviationTimeStart) {
+                    _this.deviationTimeStart = now;
+                }
+                if (now - _this.deviationTimeStart > HEAD_DEVIATION_MAX_TIME_TO_STAND_MS) {
+                    _this.deviationTimeStart = false;
+                    _this.standUp();
+                    if (DEBUG) {
+                        console.log("avatar spine error caused standup");
+                    }
+                }
+            } else {
+                _this.deviationTimeStart = false;
+            }
+        }
+        // if (SITTING_DEBUG) {
+        //     print("update standup conditionals: ", hasAvatarSpineError, hasHeldDriveKey, hasAvatarMovedTooFar);
+        // }
+
+        // if (hasAvatarSpineError || hasHeldDriveKey || hasAvatarMovedTooFar) {
+        //     standUp();
+        // }
     }
 
     function unload() {
@@ -98,15 +384,15 @@
         // Flash through the presit animation images via overlay for a smooth avatar sitting animation
         _this.presitIntervalID = Script.setInterval(function () {
             if (_this.presitAnimationImageID) {
+                currentPresitAnimationFrame = currentPresitAnimationFrame + 1;
                 if (currentPresitAnimationFrame >= _this.preSitLoadedImages.length - 1) {
                     deletePresit();
                 }
-                currentPresitAnimationFrame = currentPresitAnimationFrame + 1;
                 Entities.editEntity(_this.presitAnimationImageID, { imageURL: _this.preSitLoadedImages[currentPresitAnimationFrame].url });
             }
         }, PRESIT_FRAME_DURATION);
     }
-    
+
     function deletePresit() {
         if (_this.presitAnimationImageID) {
             Entities.deleteEntity(_this.presitAnimationImageID);
@@ -122,8 +408,36 @@
         }
     }
 
-
     //#endregion PRESIT
+
+    //#region HOLD TO STANDUP
+
+    var OVERLAY_URL_STANDUP = "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/images/holdToStandUp.png";// Script.resolvePath("./resources/images/holdToStandUp.png");
+    var STAND_UP_POSITION_IN_FRONT = { x: 0, y: 0, z: -1 };
+    var STAND_UP_DIMENSIONS = { x: 0.2, y: 0.2 };
+    function createStandUp() {
+        if (DEBUG) {
+            console.log("creating standup")
+        }
+
+        _this.standUpID = Entities.addEntity(
+            localEntityUtils.getEntityPropertiesForImageInFrontOfCamera(
+                STAND_UP_POSITION_IN_FRONT,
+                STAND_UP_DIMENSIONS,
+                OVERLAY_URL_STANDUP
+            ),
+            "local"
+        );
+    }
+
+    function deleteStandUp() {
+        if (_this.standUpID) {
+            Entities.deleteEntity(_this.standUpID);
+            _this.standUpID = false;
+        }
+    }
+
+    //#endregion HOLD TO STANDUP
 
     //#region SITTABLE 
 
@@ -200,7 +514,7 @@
             position: properties.position,
             parentID: _this.entityID,
             script: "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/canSitZoneClient.js?" + Math.random(),
-            locked: true,
+            locked: false,
             dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
             keyLightMode: "enabled",
             keyLight: {
@@ -218,6 +532,18 @@
     }
     //#endregion CAN SIT ZONE
 
+    function preload(id) {
+        _this.entityID = id;
+
+        if (!_this.canSitZoneID) {
+            createCanSitZone();
+        }
+        prefetchPresitImages();
+
+        // download sit animation
+        AnimationCache.prefetch(ANIMATION_URL);
+    }
+
     function SitClient() {
         _this = this;
         this.sittableUIID = false;
@@ -231,6 +557,21 @@
         // for prefetch on presit
         this.preSitLoadedImages = [];
         this.preSitTextLoadedImage = null;
+
+        this.locked = null;
+
+        this.seatCenterPosition = null;
+        this.headToHipsDistance = null;
+        this.isSittingDown = false;
+        this.sitDownSettlePeriod = false;
+
+        this.whileSittingUpdateIntervalID = false;
+
+        this.standUpID = false;
+
+        this.driveKeyPressedStart = false;
+
+        this.deviationTimeStart = false;
     }
 
     SitClient.prototype = {
@@ -242,28 +583,13 @@
         // Zone methods
         onEnterCanSitZone: onEnterCanSitZone,
         onLeaveCanSitZone: onLeaveCanSitZone,
-
-        preload: function (id) {
-            this.entityID = id;
-
-            if (!_this.canSitZoneID) {
-                createCanSitZone();
-            }
-            prefetchPresitImages();
-
-            // download sit animation
-        },
-        standUp: function () {
-
-        },
+        // Entity liftime methods
+        preload: preload,
+        unload: unload,
+        // Sitting lifetime methods
+        standUp: standUp,
         startSitDown: startSitDown,
-        sitDown: function () {
-
-        },
-        whileSittingUpdate: function () {
-
-        },
-        unload: unload
+        whileSittingUpdate: whileSittingUpdate
     }
 
     return new SitClient();
