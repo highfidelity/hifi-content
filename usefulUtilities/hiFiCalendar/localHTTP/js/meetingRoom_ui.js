@@ -344,12 +344,14 @@ function connectorPage(lastPage, edit) {
     roomInfo.sort(compare);
     for (i = 0; i < calendarInfo.length; i++) {
         calendarDropDown.options[i] = new Option(calendarInfo[i].name, calendarInfo[i].address);
+        calendarDropDown.options[i].classList.add("dropdown-content");
     }
     for (i = 0; i < roomDropDown.length; i++) {
         roomDropDown.options[i] = null;    
     }
     for (i = 0; i < roomInfo.length; i++) {
         roomDropDown.options[i] = new Option(roomInfo[i].name, roomInfo[i].id);
+        roomDropDown.options[i].classList.add("dropdown-content");
     }
     if (edit) {
         calendarDropDown.selectedIndex = edit.name;
@@ -487,6 +489,7 @@ function errorPage(lastPage) {
 
 function confirmConnections() {
     var response = JSON.parse(sessionStorage.getItem('response'));
+    var zone = new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2];
     EventBridge.emitWebEvent(JSON.stringify({
         type: "SETUP COMPLETE",
         access_token: response.access_token,
@@ -495,6 +498,7 @@ function confirmConnections() {
         secret: YOUR_SECRET,
         expireTime: response.expires_in,
         validSince: response.valid_since,
+        timeZoneName: zone,
         connectionData: completedConnections
     }));
 }
@@ -507,10 +511,11 @@ function onScriptEventReceived(data) {
             errorPage("LOGIN");
         case "AVAILABLE ROOMS":
             roomInfo = data.roomInfo;
+            getCalendars();
             break;
         case "ALREADY SET":
             completedConnections = data.completedConnections;
-            access_token = data.access_token;
+            editSpaces("LOGIN");
             break;
     }
 }

@@ -13,6 +13,7 @@
     var HOURS_PER_DAY = 24;
     var NOON_HR = 12;
     var CHANNEL = "HiFi.Google.Calendar";
+    var TOKEN_SERVER_ID = '{18c54d17-95c4-4765-9a19-7a0803bceab8}';
     var SIGN_TEXT_COLOR_AVAILABLE = [168, 255, 168];
     var SIGN_TEXT_COLOR_INUSE = [255, 168, 168];
     var SIGN_BACKGROUND_COLOR_AVAILABLE = [125, 255, 125];
@@ -101,6 +102,7 @@
                 userData.expireTime = params[1];
                 userData.timezoneOffset = params[2];
                 userData.timezoneName = params[3];
+                userData.calendarID = params[4];
                 Entities.editEntity(that.entityID, {
                     userData: JSON.stringify(userData)
                 });
@@ -108,7 +110,9 @@
                 that.expireTime = params[1];
                 that.timezoneOffset = params[2];
                 that.timezoneName = params[3];
+                that.calendarID = params[4];
                 that.sentAlready = false;
+                Entities.callEntityMethod(userData.secondScheduleID, "refreshToken", params);
                 Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
                 that.googleRequest(that.token);
             }
@@ -143,11 +147,7 @@
                 console.log("Error: ", error," could not complete request for ", that.entityProperties.name);
                 Script.clearInterval(that.interval);
                 that.interval = false;
-                Messages.sendMessage(CHANNEL, JSON.stringify({
-                    type: "REFRESH TOKEN",
-                    token: that.token,
-                    uuid: that.roomScheduleID
-                }));
+                Entities.callEntityMethod(TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
                 return;
             } else {
                 that.clearEventList(that.entityID);

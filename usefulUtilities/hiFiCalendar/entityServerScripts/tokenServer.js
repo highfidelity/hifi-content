@@ -8,18 +8,16 @@
 
 
 (function() {
-    var INTERVAL_FREQUENCY_MS = 60000;
     var MS_TO_SEC = 1000;
     var MIN_PER_HR = 60;
-    var EXPIRY_BUFFER_MS = 300000;
-    var HOURS_PER_DAY = 24;
+    var SEC_PER_MIN = 60;
     var CHANNEL = "HiFi.Google.Calendar";
-    var ATLANTIS_LABEL_ID = "{24b7b274-25a2-4dde-a241-f90da21de4c8}";
-    var JAKKU_LABEL_ID = "{c3f87945-e372-4f85-bde2-9d99d3633125}";
-    var CAPITOL_LABEL_ID = "{010134dd-8608-4eef-b0a8-8316dcb982d8}";
-    var FANTASIA_LABEL_ID = "{3aa8bb2e-b008-4d87-9fff-f0a4fda0c9d2}";
-    var OZ_LABEL_ID = "{5e98c3b0-4924-4e01-b400-7298d4ddecff}";
-    var NARNIA_LABEL_ID = "{cb0571ff-21f9-4d60-8d43-ebc5e80704a3}";
+    var ATLANTIS_LABEL_ID = "{4b6f47fe-646f-4b2c-9a7b-c74f3c47a105}";
+    var JAKKU_LABEL_ID = "{2cfe3b74-e70c-44f6-bbfc-c74813acf0fd}";
+    var CAPITOL_LABEL_ID = "{784c8c54-b11e-471c-9ba7-96f2bb347e98}";
+    var FANTASIA_LABEL_ID = "{a79ac99b-62f6-4e58-b04c-5735c2337fcf}";
+    var OZ_LABEL_ID = "{5d662a66-a250-4f18-ad1f-9cd21cd8380d}";
+    var NARNIA_LABEL_ID = "{1a92909e-52f9-4099-932a-4d2d43144791}";
     var calendarScheduleIDs = [
         ATLANTIS_LABEL_ID,
         JAKKU_LABEL_ID,
@@ -31,18 +29,30 @@
     var that;
 
     this.remotelyCallable = [
-        "refreshToken"
+        "initializeRooms",
+        "enteredDomain",
+        "tokenCheck"
     ];
 
     
     this.preload = function(entityID) {
         that = this;
         that.entityID = entityID;
+        that.trustedUser = "markb";
+        that.tokenStatus = false;
+        that.refreshCount = 0;
+        that.roomConfigured = false;
+
         that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData', 'name']);
-        var userData;
         if (that.entityProperties.userData.length !== 0) {
             try {
-                userData = JSON.parse(that.entityProperties.userData);
+                that.userData = JSON.parse(that.entityProperties.userData);
+                if (that.userData.roomConfigured) {
+                    that.roomConfigured = that.userData.roomConfigured;
+                }
+                if ((new Date().valueOf() + that.userData.timezoneOffset * MS_TO_SEC * SEC_PER_MIN * MIN_PER_HR) > that.userData.expireTime) {
+                    that.tokenCheck(that.entityID, [that.token]);
+                }
             } catch (e) {
                 console.log(e, "Could not parse userData");
                 return;
@@ -52,7 +62,55 @@
             return;
         }        
         that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
-        Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
+    };
+
+
+    this.enteredDomain = function(id, params) {
+        if (that.entityID === id && params[0] === that.trustedUser) {
+            if ((new Date().valueOf() + that.userData.timezoneOffset * MS_TO_SEC * MIN_PER_HR * MIN_PER_HR) < that.userData.expireTime) {
+                Messages.sendMessage(CHANNEL, JSON.stringify({
+                    type: "STATUS UPDATE",
+                    tokenStatus: true,
+                    roomConfigured: true,
+                    roomConfig: that.roomConfig
+                }));
+            } else if (!that.roomConfigured) {
+                Messages.sendMessage(CHANNEL, JSON.stringify({
+                    type: "STATUS UPDATE",
+                    tokenStatus: false,
+                    roomConfigured: false,
+                    roomConfig: that.roomConfig
+                }));
+            } else if (!that.tokenStatus) {
+                Messages.sendMessage(CHANNEL, JSON.stringify({
+                    type: "TOKEN EXPIRED",
+                    roomConfig: that.roomConfig
+                }));
+            }
+            Messages.sendMessage(CHANNEL, JSON.stringify({
+                type: "ROOM DATA",
+                message: that.roomConfig
+            }));
+        }
+    };
+
+
+    this.initializeRooms = function(id, params) {
+        if (that.entityID === id) {
+            var userData = {};
+            userData.token = params[0];
+            userData.refreshToken = params[1];
+            userData.expireTime = params[2]; 
+            userData.timezone = params[3];
+            userData.timezoneOffset = params[4]; 
+            userData.clientID = params[5];
+            userData.secret = params[6];
+            userData.roomConfig = params[7];
+            that.userData = userData;
+            Entities.editEntity(that.entityID, {
+                userData: JSON.stringify(userData)
+            });
+        }
     };
 
 
@@ -66,14 +124,13 @@
             that.expireTime = date + that.tokenLifetime;
         }
         var timezoneOffset = (new Date().getTimezoneOffset()/MIN_PER_HR);
-        Entities.callEntityServerMethod(entityID, "refreshToken", [that.token, that.expireTime, timezoneOffset, that.timezone]);
+        Entities.callEntityMethod(entityID, "refreshToken", [that.token, that.expireTime, timezoneOffset, that.timezone]);
     };
 
 
     // This function checks to see if the token needs refreshing based on the token sent in the message
     // If token sent is the same as the stored token, make a request to Google to refresh it.
     this.tokenCheck = function(id, params) {
-        var returnUUID = params[1];
         if (params[0] === that.token) {
             var options = {};
             options.method = "POST";
@@ -92,23 +149,21 @@
                         type: "CALENDAR ERROR",
                         message: "Error: " + error + " " + JSON.stringify(response) + " Could not refresh token."
                     }));
+                    that.tokenStatus = false;
                     return;
                 } else {
-                    that.calendarScheduleIDs.forEach(function(entityID) {
+                    calendarScheduleIDs.forEach(function(entityID) {
                         that.sendToken(entityID, response);
                     }); 
                 }
             });
         } else {
-            that.sendToken(returnUUID);
+            that.sendToken(params[1]);
         }
     };
 
 
     this.unload = function() {
-        if (that.interval) {
-            Script.clearInterval(that.interval);
-            that.interval = false;
-        }
+
     };
 });

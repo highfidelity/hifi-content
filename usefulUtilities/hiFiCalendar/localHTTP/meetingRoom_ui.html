@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" type="text/css" href="./css/styles.css?v278">
+        <link rel="stylesheet" type="text/css" href="./css/styles.css?v280">
     </head>
     <body>
         <pre id="content" style="white-space: pre-wrap;"></pre>
@@ -33,16 +33,19 @@
             <div id="calendarInstr" class="dropDownInstruction">YOUR CALENDAR RESOURCES</div>
             <br>
             <select class="dropdown" id="selectedCalendar">
-                <option value="" class="dropdown-content">NO SELECTION</option>
-            </select>
+                <div class="selectContainer">
+                    <option value="" class="dropdown-content">NO SELECTION</option>
+                </div>
+                </select>
             <br>
             <button class="blueLinkText" id="help">Don't see the calendar you need?</button>
-            <br><br>
+            <br>
             <div id="roomInstr" class="dropDownInstruction">HIFI MEETING ROOMS</div>
             <select class="dropdown" id="selectedRoom">
-                <option value="" class="dropdown-content">NO SELECTION</option>
-            </select>
-            <br>
+            <div class="selectContainer">
+                    <option value="" class="dropdown-content">NO SELECTION</option>
+                </div>
+                </select>
             <button class="ui" id="linker">Link these spaces</button>
             <button class="blueLinkText" id="finished1">I'm finished linking spaces.</button>
             <div >
@@ -96,7 +99,7 @@
                 </tr>
             </table>
             <button class="ui" id="reset2">Reset all links</button>
-            <div >
+            <div>
                 <footer class="bttmleft"><input type="button" class="bttmleft" id="revoke3" value="Revoke Access"></footer>
             </div>
             <div>
@@ -123,7 +126,7 @@
             </div>
         </div>
 
-        <script src="./js/meetingRoom_ui.js?v131"
+        <script src="./js/meetingRoom_ui.js?v133"
             onload="this.onload=function(){};document.getElementById('login').disabled=false;" 
             onreadystatechange="if (this.readyState === 'complete') this.onload()">
         </script>
