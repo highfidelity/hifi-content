@@ -100,11 +100,16 @@
             Script.setTimeout(function () {
                 MyAvatar.centerBody();
 
-                Entities.callEntityServerMethod(
-                    _this.entityID,
-                    "addAllOtherSittableOverlays",
-                    AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
-                );
+                console.log("calling entity server method addAllOtherSittableOverlays");
+
+                Script.setTimeout(function () {
+                    // wait til avatar is out of range of the chair
+                    Entities.callEntityServerMethod(
+                        _this.entityID,
+                        "addAllOtherSittableOverlays",
+                        AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
+                    );
+                }, 100);
             }, STANDUP_DELAY_MS);
 
         } else {
@@ -355,6 +360,7 @@
         _this.zoneID = params[0];
         calculateSeatCenterPositionForPinningAvatarHips();
         var isSittingInChair = AvatarList.isAvatarInRange(_this.seatCenterPosition, AVATAR_SITTING_IN_CHAIR_RANGE);
+        console.log("onEnterCanSitZone" + !_this.sittableUIID + !isSittingInChair);
         if (!_this.sittableUIID && !isSittingInChair) {
             createSittableUI();
         }

@@ -56,6 +56,7 @@
             if (avatarIsInsideZone(this.entityID)) {
                 this.enterEntity();
             }
+            var 
         },
         enterEntity: function () {
             console.log("zone enterEntity");

@@ -105,7 +105,9 @@
     }
 
     function addAllOtherSittableOverlays(id, params) {
+        console.log("ADD ALL OTHER SITTABLE OVERLAYS")
         for(var i = 0; i < params.length; i++) {
+            console.log("avatar1");
             Entities.callEntityClientMethod(
                 params[i],
                 _this.entityID,
