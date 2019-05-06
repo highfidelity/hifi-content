@@ -99,17 +99,6 @@
 
             Script.setTimeout(function () {
                 MyAvatar.centerBody();
-
-                console.log("calling entity server method addAllOtherSittableOverlays");
-
-                Script.setTimeout(function () {
-                    // wait til avatar is out of range of the chair
-                    Entities.callEntityServerMethod(
-                        _this.entityID,
-                        "addAllOtherSittableOverlays",
-                        AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
-                    );
-                }, 100);
             }, STANDUP_DELAY_MS);
 
         } else {
@@ -125,7 +114,18 @@
         MyAvatar.skeletonModelURLChanged.disconnect(_this.standUp);
         MyAvatar.wentAway.disconnect(_this.standUp);
 
-        Entities.callEntityMethod(_this.zoneID, "checkIfAvatarIsInsideZone");
+        console.log("calling entity server method addAllOtherSittableOverlays");
+
+        Script.setTimeout(function () {
+            // wait til avatar is out of range of the chair
+            Entities.callEntityServerMethod(
+                _this.entityID,
+                "addAllOtherSittableOverlays",
+                AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
+            );
+        }, 500 + STANDUP_DELAY_MS);
+
+        // Entities.callEntityMethod(_this.zoneID, "checkIfAvatarIsInsideZone");
     }
 
     // Checks for Avatar Spine Error
@@ -203,7 +203,7 @@
         }, PRESIT_FRAME_DURATION * _this.preSitLoadedImages.length);
     }
 
-    var ANIMATION_URL = "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/animations/sittingIdle.fbx"; // Script.resolvePath("./resources/animations/sittingIdle.fbx");
+    var ANIMATION_URL = Script.resolvePath("./resources/animations/sittingIdle.fbx");
     var ANIMATION_FPS = 30;
     var ANIMATION_FIRST_FRAME = 1;
     var ANIMATION_LAST_FRAME = 350;
@@ -357,7 +357,9 @@
 
     var AVATAR_SITTING_IN_CHAIR_RANGE = 0.01;
     function onEnterCanSitZone(id, params) {
-        _this.zoneID = params[0];
+        if (params && params.length > 0) {
+            _this.zoneID = params[0];
+        }
         calculateSeatCenterPositionForPinningAvatarHips();
         var isSittingInChair = AvatarList.isAvatarInRange(_this.seatCenterPosition, AVATAR_SITTING_IN_CHAIR_RANGE);
         console.log("onEnterCanSitZone" + !_this.sittableUIID + !isSittingInChair);
@@ -374,10 +376,10 @@
     // Has the sitting animation and "Please Face Forward"
 
     var PRESIT_FRAME_DURATION = 160; // ms time duration for HMD presit overlay
-    var PRESIT_URL_ROOT = "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/images/presit/sitConfirm"// "./images/presit/sitConfirm"; 
+    var PRESIT_URL_ROOT = Script.resolvePath("./resources/images/presit/sitConfirm"); 
     var PRESIT_URL_POSTFIX = ".png";
     var PRESIT_URL_NUM = 12;
-    var PRESIT_URL_TEXT = "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/images/presit/pleaseFaceForward.png"; // Script.resolvePath("./images/presit/pleaseFaceForward.png");
+    var PRESIT_URL_TEXT = Script.resolvePath("./resources/images/presit/pleaseFaceForward.png");
     // Prefetch all presit overlay images into user's client
     function prefetchPresitImages() {
         var str;
@@ -444,7 +446,7 @@
 
     //#region HOLD TO STANDUP
 
-    var OVERLAY_URL_STANDUP = "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/images/holdToStandUp.png";// Script.resolvePath("./resources/images/holdToStandUp.png");
+    var OVERLAY_URL_STANDUP = Script.resolvePath("./resources/images/holdToStandUp.png");
     var STAND_UP_POSITION_IN_FRONT = { x: 0, y: 0, z: -1 };
     var STAND_UP_DIMENSIONS = { x: 0.2, y: 0.2 };
     function createStandUp() {
@@ -477,8 +479,8 @@
 
     var SITTABLE_START_ALPHA = 0.7;
     var SITTABLE_DIMENSIONS = { x: 0.3, y: 0.3 };
-    var SITTABLE_IMAGE_URL_HMD = "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/images/triggerToSit.png"; // Script.resolvePath("./images/triggerToSit.png");
-    var SITTABLE_IMAGE_URL_DESKTOP = "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/images/clickToSit.png"; // Script.resolvePath("./images/clickToSit.png");
+    var SITTABLE_IMAGE_URL_HMD = Script.resolvePath("./resources/images/triggerToSit.png");
+    var SITTABLE_IMAGE_URL_DESKTOP = Script.resolvePath("./resources/images/clickToSit.png");
     var SITTABLE_Y_OFFSET = 0.01;
     function createSittableUI() {
         if (_this.sittableID) {
@@ -512,7 +514,7 @@
             imageURL: HMD.active ? SITTABLE_IMAGE_URL_HMD : SITTABLE_IMAGE_URL_DESKTOP,
             ignoreRayIntersection: false,
             alpha: SITTABLE_START_ALPHA,
-            script: Script.resolvePath("https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/sittableUIClient.js?" + Math.random()),
+            script: Script.resolvePath("./resources/sittableUIClient.js") + "?" + Math.random(),
             visible: true,
             emissive: true
         },

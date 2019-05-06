@@ -105,14 +105,16 @@
     }
 
     function addAllOtherSittableOverlays(id, params) {
-        console.log("ADD ALL OTHER SITTABLE OVERLAYS")
-        for(var i = 0; i < params.length; i++) {
-            console.log("avatar1");
-            Entities.callEntityClientMethod(
-                params[i],
-                _this.entityID,
-                "onEnterCanSitZone"
-            );
+        console.log("ADD ALL OTHER SITTABLE OVERLAYS");
+        if (_this.isOccupied === false) {
+            for(var i = 0; i < params.length; i++) {
+                console.log("avatar1");
+                Entities.callEntityClientMethod(
+                    params[i],
+                    _this.entityID,
+                    "onEnterCanSitZone"
+                );
+            }
         }
     }
 
@@ -126,7 +128,7 @@
             shapeType: "sphere",
             position: properties.position,
             parentID: _this.entityID,
-            script: "https://hifi-content.s3.amazonaws.com/robin/dev/marketplaceItems/sitv2/v1/canSitZoneClient.js?" + Math.random(),
+            script: Script.resolvePath("./resources/canSitZoneClient.js") + "?" + Math.random(),
             locked: false,
             dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
             keyLightMode: "enabled",
