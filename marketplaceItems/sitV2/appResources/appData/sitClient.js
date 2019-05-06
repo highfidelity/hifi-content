@@ -48,25 +48,68 @@
             console.log("standup");
         }
 
-        var avatarDistance = Vec3.distance(MyAvatar.position, _this.seatCenterPosition);
-        var properties = Entities.getEntityProperties(_this.entityID);
+        // get the entityID, previous position and orientation 
+        var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
+        var settingsEntityID = sitCurrentSettings[0];
+        var settingsPreviousPosition = sitCurrentSettings[1];
+        var settingsPreviousOrientation = sitCurrentSettings[2];
+
         MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
-        if (avatarDistance < STANDUP_DISTANCE_M) {
-            // Avatar did not teleport far away from chair
-            // Therefore apply previous position OR the default dismount position and orientation
-            if (_this.previousAvatarOrientation && _this.previousAvatarPosition) {
-                MyAvatar.position = _this.previousAvatarPosition;
-                MyAvatar.orientation = _this.previousAvatarOrientation;
-            } else {
-                var offset = {
-                    x: 0,
-                    y: 1.0,
-                    z: CHAIR_DISMOUNT_OFFSET_M - properties.dimensions.z * properties.registrationPoint.z
-                };
-                var position = Vec3.sum(properties.position, Vec3.multiplyQbyV(properties.rotation, offset));
-                MyAvatar.position = position;
+
+        // STANDING FROM THIS CHAIR
+        if (settingsEntityID === _this.entityID) {
+            // standing up from this chair
+            // Need to enable roles and drive keys and reposition avatar 
+
+            // ENABLE DRIVE KEYS
+            for (var i in OVERRIDDEN_DRIVE_KEYS) {
+                MyAvatar.enableDriveKey(OVERRIDDEN_DRIVE_KEYS[i]);
+            }
+
+            // RESTORE ANIMATION ROLES
+            var roles = rolesToOverride();
+            for (var j in roles) {
+                MyAvatar.restoreRoleAnimation(roles[j]);
+            }
+
+            // If changed seat do not do this
+            MyAvatar.collisionsEnabled = true;
+            MyAvatar.hmdLeanRecenterEnabled = true;
+            Script.setTimeout(function () {
+                MyAvatar.centerBody();
+            }, STANDUP_DELAY_MS);
+
+            // SET AVATAR POSITION AND ORIENTATION TO PREVIOUS VALUES
+            var avatarDistance = Vec3.distance(MyAvatar.position, _this.seatCenterPosition);
+            var properties = Entities.getEntityProperties(_this.entityID);
+            if (avatarDistance < STANDUP_DISTANCE_M) { // might need to 
+                // Avatar did not teleport far away from chair
+                // Therefore apply previous position OR the default dismount position and orientation
+                if (settingsPreviousPosition && settingsPreviousOrientation) {
+                    // Apply previous position and orientation because they exist
+                    MyAvatar.position = settingsPreviousPosition;
+                    MyAvatar.orientation = settingsPreviousOrientation;
+                } else {
+                    // Calculate chair default dismount position in front of chair
+                    var offset = {
+                        x: 0,
+                        y: 1.0,
+                        z: CHAIR_DISMOUNT_OFFSET_M - properties.dimensions.z * properties.registrationPoint.z
+                    };
+                    var position = Vec3.sum(properties.position, Vec3.multiplyQbyV(properties.rotation, offset));
+                    MyAvatar.position = position;
+                }
             }
         }
+
+        // if avatar changed chairs
+            // remove update interval from avatar
+            // redraw click to sit for all avatars
+            // disconnect signals
+            // reset values for this chair
+        // if avatar is standing up
+            // if avatar teleported, do not apply previous position and orientation
+            // reapply position and orientation and restore roles
 
         if (!_this.locked) {
             Entities.editEntity(_this.entityID, { locked: false });
@@ -78,32 +121,6 @@
         deleteStandUp();
 
         Entities.callEntityServerMethod(_this.entityID, "onStandUp");
-
-        if (Settings.getValue(SETTING_KEY_AVATAR_SITTING) === _this.entityID) {
-            // Check if avatar is getting out of this chair
-
-            Settings.setValue(SETTING_KEY_AVATAR_SITTING, "");
-
-            // enable drive keys
-            for (var i in OVERRIDDEN_DRIVE_KEYS) {
-                MyAvatar.enableDriveKey(OVERRIDDEN_DRIVE_KEYS[i]);
-            }
-
-            // enable roles
-            var roles = rolesToOverride();
-            for (var j in roles) {
-                MyAvatar.restoreRoleAnimation(roles[j]);
-            }
-            MyAvatar.collisionsEnabled = true;
-            MyAvatar.hmdLeanRecenterEnabled = true;
-
-            Script.setTimeout(function () {
-                MyAvatar.centerBody();
-            }, STANDUP_DELAY_MS);
-
-        } else {
-            // Avatar switched to another chair, do not reapply the animation roles
-        }
 
         stopUpdateInterval();
 
@@ -124,7 +141,6 @@
                 AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
             );
         }, 500 + STANDUP_DELAY_MS);
-
         // Entities.callEntityMethod(_this.zoneID, "checkIfAvatarIsInsideZone");
     }
 
@@ -179,8 +195,8 @@
             AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
         );
 
-        _this.previousAvatarOrientation = MyAvatar.orientation;
-        _this.previousAvatarPosition = MyAvatar.position;
+        // _this.previousAvatarPosition = MyAvatar.position;xxx
+        // _this.previousAvatarOrientation = MyAvatar.orientation;
 
         createPresit();
         deleteSittableUI();
@@ -191,7 +207,14 @@
             setHeadToHipsDistance();
 
             // Set isSitting value in Settings
-            Settings.setValue(SETTING_KEY_AVATAR_SITTING, _this.entityID);
+            var sitPreviousSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
+            var sitNewSettings = [_this.entityID, MyAvatar.position, MyAvatar.orientation]; // ***
+            if (sitPreviousSettings && sitPreviousSettings.length === 3) {
+                // changed chair, only change entityID, keep old values for previousAvatarPosition and previousAvatarOrientation
+                sitNewSettings[1] = sitPreviousSettings[1];
+                sitNewSettings[2] = sitPreviousSettings[2];
+            }
+            Settings.setValue(SETTING_KEY_AVATAR_SITTING, sitNewSettings);
 
             // Lock chair and save old setting
             this.locked = Entities.getEntityProperties(_this.entityID, 'locked').locked;
