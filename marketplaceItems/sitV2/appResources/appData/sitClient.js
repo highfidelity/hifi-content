@@ -100,6 +100,8 @@
                     MyAvatar.position = position;
                 }
             }
+
+            Settings.setValue(SETTING_KEY_AVATAR_SITTING, "");
         }
 
         // if avatar changed chairs
@@ -124,12 +126,15 @@
 
         stopUpdateInterval();
 
-        MyAvatar.scaleChanged.disconnect(_this.standUp);
-        MyAvatar.onLoadComplete.disconnect(_this.standUp);
-        location.hostChanged.disconnect(_this.standUp);
-        Script.scriptEnding.disconnect(_this.standUp);
-        MyAvatar.skeletonModelURLChanged.disconnect(_this.standUp);
-        MyAvatar.wentAway.disconnect(_this.standUp);
+        if (_this.connectedSignals) {
+            MyAvatar.scaleChanged.disconnect(_this.standUp);
+            MyAvatar.onLoadComplete.disconnect(_this.standUp);
+            location.hostChanged.disconnect(_this.standUp);
+            Script.scriptEnding.disconnect(_this.standUp);
+            MyAvatar.skeletonModelURLChanged.disconnect(_this.standUp);
+            MyAvatar.wentAway.disconnect(_this.standUp);
+            _this.connectedSignals = false;
+        }
 
         console.log("calling entity server method addAllOtherSittableOverlays");
 
@@ -195,35 +200,40 @@
             AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
         );
 
-        // _this.previousAvatarPosition = MyAvatar.position;xxx
-        // _this.previousAvatarOrientation = MyAvatar.orientation;
-
-        createPresit();
         deleteSittableUI();
 
-        Script.setTimeout(function () {
+        // Set isSitting value in Settings
+        var sitPreviousSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
+        var sitNewSettings = [_this.entityID, MyAvatar.position, MyAvatar.orientation]; // ***
+        if (sitPreviousSettings && sitPreviousSettings.length === 3) {
+            // changed chair, only change entityID, keep old values for previousAvatarPosition and previousAvatarOrientation
+            sitNewSettings[1] = sitPreviousSettings[1];
+            sitNewSettings[2] = sitPreviousSettings[2];
+        }
+        Settings.setValue(SETTING_KEY_AVATAR_SITTING, sitNewSettings);
+
+        if (HMD.active) {
+            createPresit();
+            Script.setTimeout(function () {
+                beforeSitDown();
+            }, PRESIT_FRAME_DURATION * _this.preSitLoadedImages.length);
+        } else {
+            beforeSitDown();
+        }
+    }
+
+    function beforeSitDown() {
             // Set the value of head to hips distance
             // If avatar deviates outside of the minimum and maximum, the avatar will pop out of the chair
             setHeadToHipsDistance();
 
-            // Set isSitting value in Settings
-            var sitPreviousSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
-            var sitNewSettings = [_this.entityID, MyAvatar.position, MyAvatar.orientation]; // ***
-            if (sitPreviousSettings && sitPreviousSettings.length === 3) {
-                // changed chair, only change entityID, keep old values for previousAvatarPosition and previousAvatarOrientation
-                sitNewSettings[1] = sitPreviousSettings[1];
-                sitNewSettings[2] = sitPreviousSettings[2];
-            }
-            Settings.setValue(SETTING_KEY_AVATAR_SITTING, sitNewSettings);
-
             // Lock chair and save old setting
-            this.locked = Entities.getEntityProperties(_this.entityID, 'locked').locked;
+            _this.locked = Entities.getEntityProperties(_this.entityID, 'locked').locked;
             Entities.editEntity(_this.entityID, { locked: true });
 
             calculateSeatCenterPositionForPinningAvatarHips();
 
             sitDownAndPinAvatar();
-        }, PRESIT_FRAME_DURATION * _this.preSitLoadedImages.length);
     }
 
     var ANIMATION_URL = Script.resolvePath("./resources/animations/sittingIdle.fbx");
@@ -242,6 +252,10 @@
     function sitDownAndPinAvatar() {
         MyAvatar.collisionsEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
+
+        if(HMD.active) {
+            deletePresit();
+        }
 
         var roles = rolesToOverride();
         for (var i in roles) { // restore roles to prevent overlap
@@ -275,12 +289,15 @@
 
             deleteSittableUI();
 
-            MyAvatar.scaleChanged.connect(_this.standUp);
-            MyAvatar.onLoadComplete.connect(_this.standUp);
-            location.hostChanged.connect(_this.standUp);
-            Script.scriptEnding.connect(_this.standUp);
-            MyAvatar.skeletonModelURLChanged.connect(_this.standUp);
-            MyAvatar.wentAway.connect(_this.standUp);
+            if(!_this.connectedSignals) {
+                MyAvatar.scaleChanged.connect(_this.standUp);
+                MyAvatar.onLoadComplete.connect(_this.standUp);
+                location.hostChanged.connect(_this.standUp);
+                Script.scriptEnding.connect(_this.standUp);
+                MyAvatar.skeletonModelURLChanged.connect(_this.standUp);
+                MyAvatar.wentAway.connect(_this.standUp);
+                _this.connectedSignals = true;
+            }
         }, SIT_DELAY_MS);
     }
 
@@ -359,7 +376,7 @@
                 MyAvatar.position
             );
             var headDeviation = Vec3.distance(headWorldPosition, _this.seatCenterPosition);
-            var headDeviationRatio = headDeviation / headToHipsDistance;
+            var headDeviationRatio = headDeviation / _this.headToHipsDistance;
 
             if (headDeviationRatio < MIN_HEAD_DEVIATION_RATIO || headDeviationRatio > MAX_HEAD_DEVIATION_RATIO) {
                 if (!_this.deviationTimeStart) {
@@ -560,21 +577,59 @@
 
     //#endregion SITTABLE
 
+    function updateUserData() {
+        var properties = Entities.getEntityProperties(_this.entityID);
+        try {
+            _this.userData = JSON.parse(properties.userData);
+        } catch (e) {
+            console.log("Issue parsing userData" + e);
+        }
+
+        if (!_this.userData || _this.userData.clickOnChairToSit === undefined) {
+            Entities.editEntity(_this.entityID, { userData: JSON.stringify(DEFAULT_SIT_USER_DATA_WITH_CUSTOM_SETTINGS) });
+        }
+    }
+
+    var DEFAULT_SIT_USER_DATA_WITH_CUSTOM_SETTINGS = {
+        canClickOnModelToSit: false
+    };
     function preload(id) {
         _this.entityID = id;
         prefetchPresitImages();
         // download sit animation
         AnimationCache.prefetch(ANIMATION_URL);
+        updateUserData();
     }
 
     function unload() {
         deleteSittableUI();
         deletePresit();
+        deleteStandUp();
+        standUp();
+
+        if (_this.connectedSignals) {
+            MyAvatar.scaleChanged.disconnect(_this.standUp);
+            MyAvatar.onLoadComplete.disconnect(_this.standUp);
+            location.hostChanged.disconnect(_this.standUp);
+            Script.scriptEnding.disconnect(_this.standUp);
+            MyAvatar.skeletonModelURLChanged.disconnect(_this.standUp);
+            MyAvatar.wentAway.disconnect(_this.standUp);
+            _this.connectedSignals = false;
+        }
     }
 
     // Called by server script in heartbeat
     function check() {
         Entities.callEntityServerMethod(_this.entityID, "checkResolved");
+    }
+
+    function mouseReleaseOnEntity(id, event) {
+        if (event.isPrimaryButton) {
+            updateUserData();
+            if (_this.userData && _this.userData.clickOnChairToSit) {
+                Entities.callEntityServerMethod(_this.sitEntityID, "onSitDown", [MyAvatar.sessionUUID]);
+            }
+        }
     }
 
     function SitClient() {
@@ -606,6 +661,12 @@
 
         this.deviationTimeStart = false;
         this.zoneID = false;
+
+        this.connectedSignals = false;
+
+        // CUSTOMIZATIONS 
+        this.userData = {};
+        this.canClickOnModelToSit = false;
     }
 
     SitClient.prototype = {
@@ -624,11 +685,11 @@
         unload: unload,
         // Sitting lifetime methods
         sendRequestToServerScriptToStartSitDown: sendRequestToServerScriptToStartSitDown,
+        mouseReleaseOnEntity: mouseReleaseOnEntity,
         startSitDown: startSitDown,
         whileSittingUpdate: whileSittingUpdate,
         check: check,
         standUp: standUp
     }
-
     return new SitClient();
 });
