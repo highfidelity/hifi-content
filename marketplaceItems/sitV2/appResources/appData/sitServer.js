@@ -131,11 +131,7 @@
             script: Script.resolvePath("./resources/canSitZoneClient.js") + "?" + Math.random(),
             locked: false,
             dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
-            keyLightMode: "enabled",
-            keyLight: {
-                "color": { "red": 255, "green": 0, "blue": 0 },
-                "direction": { "x": 1, "y": 0, "z": 0 }
-            }
+            keyLightMode: "disabled"
         });
     }
 

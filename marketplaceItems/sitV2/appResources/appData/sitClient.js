@@ -4,6 +4,7 @@
 
     var DEBUG = true;
 
+    Script.include("/~/system/libraries/utils.js");
 
     //#region UTILITIES
 
@@ -39,6 +40,85 @@
     }
 
     //#endregion UTILITIES
+
+    // #region CREATE MODE OVERLAY
+
+    // alpha value change during edit mode
+    var MINIMUM_ALPHA = 0.3; // 50% alpha value
+    var OVERLAY_ALPHA = 0.1; // 10% alpha value for that.createModeOverlay
+    var CREATE_OVERLAY_DIMENSIONS_OFFSET = 0.02; // add 0.02 m to the sides of the cube to avoid z fighting
+
+    // Creates an overlay if the user is in create mode
+    // Enabled only if the chair alpha value is <= MINIMUM_ALPHA
+    function checkOrCreateCreateModeOverlay() {
+        console.log("check or create mode overlay");
+        if (!_this.checkAlpha) {
+            return;
+        }
+
+        // check Alpha is enabled
+        if (_this.checkAlpha) {
+
+            console.log("check alpha is true");
+            // is in Edit mode && alpha value has not changed
+            if (isInEditMode() && !_this.createModeOverlay) {
+
+                console.log("isInEditMode and no createmodeoverlay");
+
+                var properties = Entities.getEntityProperties(_this.entityID);
+
+                var position = properties.position;
+                var registrationPoint = properties.registrationPoint;
+                var dimensions = properties.dimensions;
+                var rotation = properties.rotation;
+
+                // Local position relative to cube
+                // And adjust for registrationPoint to match the cube exactly
+                var localOffset = {
+                    x: NEG_ONE * (registrationPoint.x - HALF) * dimensions.x,
+                    y: NEG_ONE * (registrationPoint.y - HALF) * dimensions.y,
+                    z: NEG_ONE * (registrationPoint.z - HALF) * dimensions.z
+                };
+
+                var worldOffset = Vec3.multiplyQbyV(rotation, localOffset);
+                var worldPosition = Vec3.sum(position, worldOffset);
+
+                // Create visible cube
+                _this.createModeOverlay = Overlays.addOverlay("cube", {
+                    position: {
+                        x: worldPosition.x,
+                        y: worldPosition.y,
+                        z: worldPosition.z
+                    },
+                    rotation: rotation,
+                    dimensions: {
+                        x: dimensions.x + CREATE_OVERLAY_DIMENSIONS_OFFSET,
+                        y: dimensions.y - CREATE_OVERLAY_DIMENSIONS_OFFSET * HALF, // Able to select from top in HMD create mode
+                        z: dimensions.z + CREATE_OVERLAY_DIMENSIONS_OFFSET
+                    },
+                    solid: true,
+                    alpha: OVERLAY_ALPHA,
+                    parentID: _this.entityID
+                });
+
+            }
+
+            // Is in Edit mode && alpha value has changed
+            if (!isInEditMode() && _this.createModeOverlay) {
+                console.log("not in edit mode and create mode overlay exists");
+                deleteCreateModeOverlay();
+            }
+        }
+    }
+
+    function deleteCreateModeOverlay() {
+        if (_this.createModeOverlay) {
+            Overlays.deleteOverlay(_this.createModeOverlay);
+            _this.createModeOverlay = false;
+        }
+    }
+
+    // #endregion CREATE MODE OVERLAY
 
     var STANDUP_DISTANCE_M = 0.5; // m 
     var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair 
@@ -400,11 +480,17 @@
         if (params && params.length > 0) {
             _this.zoneID = params[0];
         }
-        calculateSeatCenterPositionForPinningAvatarHips();
-        var isSittingInChair = AvatarList.isAvatarInRange(_this.seatCenterPosition, AVATAR_SITTING_IN_CHAIR_RANGE);
-        console.log("onEnterCanSitZone" + !_this.sittableUIID + !isSittingInChair);
-        if (!_this.sittableUIID && !isSittingInChair) {
-            createSittableUI();
+
+        if (!isInEditMode()) {
+            calculateSeatCenterPositionForPinningAvatarHips();
+            var isSittingInChair = AvatarList.isAvatarInRange(_this.seatCenterPosition, AVATAR_SITTING_IN_CHAIR_RANGE);
+            console.log("onEnterCanSitZone" + !_this.sittableUIID + !isSittingInChair);
+            if (!_this.sittableUIID && !isSittingInChair) {
+                createSittableUI();
+            }
+        } else {
+            // is editting chair do not create sittable
+            checkOrCreateCreateModeOverlay();
         }
     }
 
@@ -585,7 +671,7 @@
             console.log("Issue parsing userData" + e);
         }
 
-        if (!_this.userData || _this.userData.clickOnChairToSit === undefined) {
+        if (!_this.userData || _this.userData.canClickOnModelToSit === undefined) {
             Entities.editEntity(_this.entityID, { userData: JSON.stringify(DEFAULT_SIT_USER_DATA_WITH_CUSTOM_SETTINGS) });
         }
     }
@@ -593,19 +679,35 @@
     var DEFAULT_SIT_USER_DATA_WITH_CUSTOM_SETTINGS = {
         canClickOnModelToSit: false
     };
+
+    function onScreenChanged(type, url) {
+        console.log(JSON.stringify(type));
+        console.log(JSON.stringify(url));
+    }
+
+    var TABLET_NAME = "com.highfidelity.interface.tablet.system";
     function preload(id) {
         _this.entityID = id;
         prefetchPresitImages();
         // download sit animation
         AnimationCache.prefetch(ANIMATION_URL);
         updateUserData();
+
+        _this.tablet = Tablet.getTablet(TABLET_NAME);
+        _this.tablet.screenChanged.connect(onScreenChanged);
+
+        var properties = Entities.getEntityProperties(_this.entityID);
+        _this.checkAlpha = properties.alpha <= MINIMUM_ALPHA;
     }
 
     function unload() {
         deleteSittableUI();
         deletePresit();
         deleteStandUp();
+        deleteCreateModeOverlay();
         standUp();
+
+        _this.tablet.screenChanged.disconnect(onScreenChanged);
 
         if (_this.connectedSignals) {
             MyAvatar.scaleChanged.disconnect(_this.standUp);
@@ -624,10 +726,13 @@
     }
 
     function mouseReleaseOnEntity(id, event) {
-        if (event.isPrimaryButton) {
+        console.log("mouseReleaseOnEntity");
+        if (event.isPrimaryButton && !isInEditMode()) {
+            console.log("isPrimaryButton");
             updateUserData();
-            if (_this.userData && _this.userData.clickOnChairToSit) {
-                Entities.callEntityServerMethod(_this.sitEntityID, "onSitDown", [MyAvatar.sessionUUID]);
+            if (_this.userData && _this.userData.canClickOnModelToSit) {
+                console.log("sitTime");
+                Entities.callEntityServerMethod(_this.entityID, "onSitDown", [MyAvatar.sessionUUID]);
             }
         }
     }
@@ -667,6 +772,10 @@
         // CUSTOMIZATIONS 
         this.userData = {};
         this.canClickOnModelToSit = false;
+
+        this.checkAlpha = false;
+        this.createModeOverlay = false;
+        this.tablet = null;
     }
 
     SitClient.prototype = {

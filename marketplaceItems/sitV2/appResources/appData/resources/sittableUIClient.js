@@ -5,8 +5,9 @@
     // Fades the sittable local entity over time
     var SITTABLE_START_ALPHA = 0.7;
     var SITTABLE_END_ALPHA = 0.075; // fades to this alpha value
-    var SITTABLE_ALPHA_DELTA = 0.01;
-    var SITTABLE_FADE_MS = 50; // "Click/Trigger to Sit" local entity image fade after 50 ms
+    var SITTABLE_ALPHA_DELTA = 0.009;
+    var SITTABLE_FADE_MS = 40; // "Click/Trigger to Sit" local entity image fade after 50 ms
+    var TIMEOUT_BEFORE_FADE_MS = 1000;
     function startSittableLerpTransparency(sittableID, clearLerpIntervalCallback) {
         if (UI_DEBUG) {
             console.log("startSittableLerpTransparency");
@@ -46,7 +47,9 @@
             this.sitEntityID = properties.parentID;
 
             if (!_this.intervalLerpTransparencyID) {
-                _this.intervalLerpTransparencyID = startSittableLerpTransparency(id, _this.clearLerpInterval);
+                Script.setTimeout(function() {
+                    _this.intervalLerpTransparencyID = startSittableLerpTransparency(id, _this.clearLerpInterval);
+                }, TIMEOUT_BEFORE_FADE_MS);
             }
             this.displayModeChangedCallback = function () {
                 if (_this && _this.entityID) {
