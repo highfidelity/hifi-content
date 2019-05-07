@@ -1,6 +1,6 @@
 (function () {
 
-    var UI_DEBUG = true;
+    var DEBUG = false;
 
     // Fades the sittable local entity over time
     var SITTABLE_START_ALPHA = 0.7;
@@ -9,7 +9,7 @@
     var SITTABLE_FADE_MS = 40; // "Click/Trigger to Sit" local entity image fade after 50 ms
     var TIMEOUT_BEFORE_FADE_MS = 1000;
     function startSittableLerpTransparency(sittableID, clearLerpIntervalCallback) {
-        if (UI_DEBUG) {
+        if (DEBUG) {
             console.log("startSittableLerpTransparency");
         }
 
@@ -62,15 +62,21 @@
             HMD.displayModeChanged.connect(this.displayModeChangedCallback);
         },
         clearLerpInterval: function () {
-            console.log("CLEAR LERP ALPHA");
+            if (DEBUG) {
+                console.log("sit ui clear lerp interval called");
+            }
             if (_this.intervalLerpTransparencyID) {
-                console.log("CLEARING LERP ALPHA");
+                if (DEBUG) {
+                    console.log("sit ui clearing lerp interval");
+                }
                 Script.clearInterval(_this.intervalLerpTransparencyID);
                 _this.intervalLerpTransparencyID = false;
             }
         },
         mouseReleaseOnEntity: function (entityID, event) {
-            console.log("sit ui mouse release on entity");
+            if (DEBUG) {
+                console.log("sit ui mouse release on entity");
+            }
             if (event.isPrimaryButton) {
                 Entities.callEntityServerMethod(_this.sitEntityID, "onSitDown", [MyAvatar.sessionUUID]);
             }

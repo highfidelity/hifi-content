@@ -111,6 +111,7 @@
         }
     }
 
+    // Deletes create mode overlay
     function deleteCreateModeOverlay() {
         if (_this.createModeOverlay) {
             Overlays.deleteOverlay(_this.createModeOverlay);
@@ -120,9 +121,11 @@
 
     // #endregion CREATE MODE OVERLAY
 
+    // Standup called
     var STANDUP_DISTANCE_M = 0.5; // m 
     var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair 
     var STANDUP_DELAY_MS = 25; // ms for timeout in standup
+    var ADD_OVERLAYS_DELAY_MS = 525;
     function standUp() {
         if (DEBUG) {
             console.log("standup");
@@ -137,6 +140,7 @@
         MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
 
         // STANDING FROM THIS CHAIR
+        // Make avatar stand up
         if (settingsEntityID === _this.entityID) {
             // standing up from this chair
             // Need to enable roles and drive keys and reposition avatar 
@@ -180,19 +184,11 @@
                     MyAvatar.position = position;
                 }
             }
-
             Settings.setValue(SETTING_KEY_AVATAR_SITTING, "");
         }
 
-        // if avatar changed chairs
-            // remove update interval from avatar
-            // redraw click to sit for all avatars
-            // disconnect signals
-            // reset values for this chair
-        // if avatar is standing up
-            // if avatar teleported, do not apply previous position and orientation
-            // reapply position and orientation and restore roles
-
+        // RESET SETTINGS FOR THIS CHAIR
+        // Could have changed seats, keep avatar sitting if did not go through above procedure
         if (!_this.locked) {
             Entities.editEntity(_this.entityID, { locked: false });
         }
@@ -216,17 +212,15 @@
             _this.connectedSignals = false;
         }
 
-        console.log("calling entity server method addAllOtherSittableOverlays");
-
+        // RESET OVERLAYS FOR ALL AVATARS IN RANGE OF THE CHAIR
         Script.setTimeout(function () {
-            // wait til avatar is out of range of the chair
+            // wait till avatar is out of range of the chair
             Entities.callEntityServerMethod(
                 _this.entityID,
                 "addAllOtherSittableOverlays",
                 AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M) 
             );
-        }, 500 + STANDUP_DELAY_MS);
-        // Entities.callEntityMethod(_this.zoneID, "checkIfAvatarIsInsideZone");
+        }, ADD_OVERLAYS_DELAY_MS);
     }
 
     // Checks for Avatar Spine Error
@@ -489,6 +483,7 @@
                 createSittableUI();
             }
         } else {
+            console.log("entered zone and isInEditMode");
             // is editting chair do not create sittable
             checkOrCreateCreateModeOverlay();
         }
@@ -496,6 +491,7 @@
 
     function onLeaveCanSitZone() {
         deleteSittableUI();
+        deleteCreateModeOverlay();
     }
 
     //#region PRESIT - LOCAL ENTITY shown in HMD before sitting and after clicking sittable overlay

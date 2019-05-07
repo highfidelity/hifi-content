@@ -1,6 +1,6 @@
 (function () {
 
-    var DEBUG = true;
+    var DEBUG = false;
 
     var HALF = 0.5;
     function avatarIsInsideZone(entityID) {
@@ -58,8 +58,6 @@
             }
         },
         enterEntity: function () {
-            console.log("zone enterEntity");
-            console.log("zone calls onEnterCanSitZone");
             Entities.callEntityMethod(this.sitEntityID, "onEnterCanSitZone", [this.entityID])
         },
         leaveEntity: function () {
