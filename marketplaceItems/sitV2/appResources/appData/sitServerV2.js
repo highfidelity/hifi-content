@@ -9,35 +9,36 @@
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 // 
 // sitServer.js is the gate to allow an avatar to sit. Multiple avatars can not sit in the same chair.
+// Spawns the canSitZone per chair
 //
 
 /* globals Entities Script */
 
 (function () {
-    var HEARTBEAT_INTERVAL_TIME_MS = 10000; // ms
-    var RESOLVED_TIMEOUT_TIME_MS = 1000; // ms
 
-    function preload(id) {
-        _this.entityID = id;
-        _this.isOccupied = false;
-        _this.resolved = false;
+    var DEBUG = false;
 
-        createCanSitZone();
-    }
-
+    // Remotely callable
+    // Resolves heartbeat called from sitClient
     function checkResolved() {
-        console.log("server checkResolved");
         // Called by remote client script
         // indicating avatar is still sitting in chair
         _this.resolved = true;
     }
 
+    // Remotely callable
     // Called from client to check if chair is occupied
     // If seat is not occupied, server script calls the client method that begins the sit down process
+    var HEARTBEAT_INTERVAL_TIME_MS = 10000; // ms
+    var RESOLVED_TIMEOUT_TIME_MS = 1000; // ms
     function onSitDown(id, param) {
-        console.log("server onSitDown");
+        if (DEBUG) {
+            console.log("server onSitDown");
+        }
         if (_this.isOccupied === false) {
-            console.log("server isOccupied false");
+            if (DEBUG) {
+                console.log("server isOccupied false");
+            }
             _this.currentClientSessionID = param[0];
             _this.isOccupied = true;
 
@@ -49,9 +50,13 @@
 
             // Every 10 seconds will check the client that was sitting in the chair
             _this.heartbeatInterval = Script.setInterval(function () {
-                console.log("server heartbeat");
+                if (DEBUG) {
+                    console.log("server heartbeat");
+                }
                 if (_this.isOccupied) {
-                    console.log("server isOccupied");
+                    if (DEBUG) {
+                        console.log("server isOccupied");
+                    }
                     Entities.callEntityClientMethod(
                         _this.currentClientSessionID,
                         _this.entityID,
@@ -75,6 +80,8 @@
         }
     }
 
+
+    // Remotely callable
     // Called from client to open the chair to other avatars
     function onStandUp() {
         _this.isOccupied = false;
@@ -85,15 +92,9 @@
         }
     }
 
-    function unload() {
-        _this.isOccupied = false;
-        if (_this.heartbeatInterval) {
-            Script.clearInterval(_this.heartbeatInterval);
-            _this.heartbeatInterval = false;
-        }
-        deleteCanSitZone()
-    }
 
+    // Remotely callable
+    // Remove sittable local entities from every client in range passed in by sitClient
     function removeAllOtherSittableOverlays(id, params) {
         for(var i = 0; i < params.length; i++) {
             Entities.callEntityClientMethod(
@@ -104,11 +105,18 @@
         }
     }
 
+
+    // Remotely callable
+    // Add sittable local entities for this chair to every client in range passed in by sitClient
     function addAllOtherSittableOverlays(id, params) {
-        console.log("ADD ALL OTHER SITTABLE OVERLAYS");
+        if (DEBUG) {
+            console.log("ADD ALL OTHER SITTABLE OVERLAYS");
+        }
         if (_this.isOccupied === false) {
             for(var i = 0; i < params.length; i++) {
-                console.log("avatar1");
+                if (DEBUG) {
+                    console.log("avatar1");
+                }
                 Entities.callEntityClientMethod(
                     params[i],
                     _this.entityID,
@@ -119,6 +127,9 @@
     }
 
     //#region CAN SIT ZONE
+
+
+    // Create can sit zone
     var CAN_SIT_M = 5;
     function createCanSitZone() {
         var properties = Entities.getEntityProperties(_this.entityID);
@@ -135,15 +146,39 @@
         });
     }
 
+
+    // Delete zone
     function deleteCanSitZone() {
         if (_this.canSitZoneID) {
             Entities.deleteEntity(_this.canSitZoneID);
             _this.canSitZoneID = false;
         }
     }
+
     //#endregion CAN SIT ZONE
+    
+    // Preload entity lifetime method
+    function preload(id) {
+        _this.entityID = id;
+        _this.isOccupied = false;
+        _this.resolved = false;
+
+        createCanSitZone();
+    }
 
 
+    // Unload entity lifetime method
+    function unload() {
+        _this.isOccupied = false;
+        if (_this.heartbeatInterval) {
+            Script.clearInterval(_this.heartbeatInterval);
+            _this.heartbeatInterval = false;
+        }
+        deleteCanSitZone()
+    }
+
+
+    // Constructor
     var _this = null;
     function SitServer() {
         _this = this;
@@ -155,6 +190,8 @@
         this.canSitZoneID = false;
     }
 
+
+    // Entity methods
     SitServer.prototype = {
         remotelyCallable: [
             "onSitDown",

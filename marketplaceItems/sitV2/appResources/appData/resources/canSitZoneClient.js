@@ -1,7 +1,18 @@
+//
+// canSitZoneClient.js
+//
+// Created by Robin Wilson 5/7/2019
+//
+// Copyright 2019 High Fidelity, Inc.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
 (function () {
 
     var DEBUG = false;
 
+    // Returns boolean reflecting if avatar is inside zone
     var HALF = 0.5;
     function avatarIsInsideZone(entityID) {
         var properties = Entities.getEntityProperties(entityID, ["position", "dimensions", "rotation"]);
@@ -37,11 +48,15 @@
         }
     }
 
+    
+    // Constructor
     function CanSitZone() {
         this.entityID = null;
         this.sitEntityID = null;
     }
 
+
+    // Entity methods
     CanSitZone.prototype = {
         remotelyCallable: [
             "checkIfAvatarIsInsideZone"
@@ -65,5 +80,6 @@
         }
     }
 
+    
     return new CanSitZone();
 });

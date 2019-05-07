@@ -1,4 +1,14 @@
-(function () {
+//
+// sittableUIClient.js
+//
+// Created by Robin Wilson 5/7/2019
+//
+// Copyright 2019 High Fidelity, Inc.
+//
+// Distributed under the Apache License, Version 2.0.
+// See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+(function() {
 
     var DEBUG = false;
 
@@ -29,6 +39,7 @@
         return intervalLerpTransparencyID;
     }
 
+    // Constructor
     var _this = null;
     var SITTABLE_IMAGE_URL_HMD = Script.resolvePath("./resources/images/triggerToSit.png");
     var SITTABLE_IMAGE_URL_DESKTOP = Script.resolvePath("./resources/images/clickToSit.png");
@@ -39,6 +50,8 @@
         this.sitEntityID = null;
     }
 
+
+    // Entity methods
     SittableClickableUI.prototype = {
         preload: function (id) {
             _this.entityID = id;
@@ -87,5 +100,6 @@
         }
     }
 
+    
     return new SittableClickableUI();
 });
