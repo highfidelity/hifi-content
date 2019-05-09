@@ -51,7 +51,7 @@
             that.expireTime = userData.expireTime;
             that.timezoneOffset = userData.timezoneOffset;
             that.timezoneName = userData.timezoneName;
-            that.calendarID = userData.roomCalendarAddress;
+            that.calendarID = userData.address;
             that.roomColorID = userData.roomColorID;
             that.roomColorOccupantsID = userData.roomColorOccupantsID; 
             that.roomClockID = userData.roomClockID;
@@ -85,9 +85,12 @@
     this.refreshToken = function(id, params) {
         if (that.entityID === id) {
             if (that.interval) {
-                console.log("CLEARING INTERVAL");
+                console.log("CLEARING INTERVAL: ", that.entityProperties.name);
                 Script.clearInterval(that.interval);
                 that.interval = false;
+            }
+            if (params[5]) {
+                Entities.editEntity(that.entityID, {name: params[5]});
             }
             that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData', 'name']);
             var userData;
@@ -100,19 +103,27 @@
                 }
                 userData.token = params[0];
                 userData.expireTime = params[1];
-                userData.timezoneOffset = params[2];
-                userData.timezoneName = params[3];
-                userData.calendarID = params[4];
+                if (params[2]) {
+                    userData.timezoneOffset = params[2];
+                    that.timezoneOffset = params[2];
+                }
+                if (params[3]) {
+                    userData.timezoneName = params[3];
+                    that.timezoneName = params[3];
+                }
+                if (params[4]) {
+                    userData.address = params[4];
+                    that.calendarID = params[4];
+                }
                 Entities.editEntity(that.entityID, {
                     userData: JSON.stringify(userData)
                 });
                 that.token = params[0];
                 that.expireTime = params[1];
-                that.timezoneOffset = params[2];
-                that.timezoneName = params[3];
-                that.calendarID = params[4];
                 that.sentAlready = false;
-                Entities.callEntityMethod(userData.secondScheduleID, "refreshToken", params);
+                if (userData.secondScheduleID) {
+                    Entities.callEntityMethod(userData.secondScheduleID, "refreshToken", params);
+                }
                 Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
                 that.googleRequest(that.token);
             }
@@ -144,7 +155,12 @@
     this.requestScheduleData = function(scheduleURL) {
         that.request(scheduleURL, function (error, response) {
             if (error) {
-                console.log("Error: ", error," could not complete request for ", that.entityProperties.name);
+                Messages.sendMessage(CHANNEL, JSON.stringify({
+                    type: "ERROR",
+                    entityName: that.entityProperties.name,
+                    errorMessage: error,
+                    actionAttempted: "Requesting schedule from Google - Initial"
+                }));
                 Script.clearInterval(that.interval);
                 that.interval = false;
                 Entities.callEntityMethod(TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
@@ -175,14 +191,15 @@
         that.interval = Script.setInterval(function() {
             if ((new Date()).valueOf() > (that.expireTime - EXPIRY_BUFFER_MS) && !that.sentAlready) {
                 that.sentAlready = true;
-                console.log("SENDING MESSAGE FOR NEW TOKEN", that.entityProperties.name);
-                Messages.sendMessage(CHANNEL, JSON.stringify({
-                    type: "REFRESH TOKEN",
-                    token: that.token,
-                    uuid: that.roomScheduleID
-                }));
+                console.log("CALLING FOR NEW TOKEN", that.entityProperties.name);
+                Entities.callEntityMethod(TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
             } else if ((new Date()).valueOf() > (that.expireTime)) {
-                console.log("EXCEEDED EXPIRATION OF TOKEN");
+                Messages.sendMessage(CHANNEL, JSON.stringify({
+                    type: "ERROR",
+                    entityName: that.entityProperties.name,
+                    errorMessage: "Token expired without refreshing",
+                    actionAttempted: "Requesting refresh token from Token Server"
+                }));
                 Script.clearInterval(that.interval);
                 that.interval = false;
                 return;
@@ -193,9 +210,10 @@
                     Script.clearInterval(that.interval);
                     that.interval = false;
                     Messages.sendMessage(CHANNEL, JSON.stringify({
-                        type: "REFRESH TOKEN",
-                        token: that.token,
-                        uuid: that.roomScheduleID
+                        type: "ERROR",
+                        entityName: that.entityProperties.name,
+                        errorMessage: error,
+                        actionAttempted: "Requesting schedule from Google - Loop"
                     }));
                     return;
                 } else {

@@ -97,6 +97,14 @@
 
     this.initializeRooms = function(id, params) {
         if (that.entityID === id) {
+            that.token = params[0];
+            that.refreshToken = params[1];
+            that.expireTime = params[2]; 
+            that.timezone = params[3];
+            that.timezoneOffset = params[4]; 
+            that.clientID = params[5];
+            that.secret = params[6];
+            that.roomConfig = params[7];
             var userData = {};
             userData.token = params[0];
             userData.refreshToken = params[1];
@@ -110,21 +118,26 @@
             Entities.editEntity(that.entityID, {
                 userData: JSON.stringify(userData)
             });
+            calendarScheduleIDs.foreach(function(entity) {
+                var calendarAddress;
+                var calendarName;
+                userData.roomConfig.foreach(function(room) {
+                    if (room.uuid === entity) {
+                        calendarAddress = room.address;
+                        calendarName = room.name;
+                    }
+                });
+                console.log("calendar address is ", calendarAddress);
+                Entities.callEntityMethod(entity, "refreshToken", [
+                    params[0], 
+                    params[2], 
+                    params[4], 
+                    params[3],
+                    calendarAddress,
+                    calendarName
+                ]);
+            });
         }
-    };
-
-
-    this.sendToken = function(entityID, response) {
-        if (response) {
-            that.token = response.access_token;
-            that.refreshToken = response.refresh_token;
-            that.tokenLifetime = response.expires_in * MS_TO_SEC;
-            var UTCdate = new Date();
-            var date = UTCdate.setHours(UTCdate.getHours() - that.timezoneOffset);
-            that.expireTime = date + that.tokenLifetime;
-        }
-        var timezoneOffset = (new Date().getTimezoneOffset()/MIN_PER_HR);
-        Entities.callEntityMethod(entityID, "refreshToken", [that.token, that.expireTime, timezoneOffset, that.timezone]);
     };
 
 
@@ -146,19 +159,35 @@
             that.request(options, function(error, response) {
                 if (error) {
                     Messages.sendMessage(CHANNEL, JSON.stringify({
-                        type: "CALENDAR ERROR",
-                        message: "Error: " + error + " " + JSON.stringify(response) + " Could not refresh token."
+                        type: "ERROR",
+                        entityName: that.entityProperties.name,
+                        errorMessage: error,
+                        actionAttempted: "Refreshing Oauth Token with Google"
                     }));
                     that.tokenStatus = false;
                     return;
                 } else {
-                    calendarScheduleIDs.forEach(function(entityID) {
-                        that.sendToken(entityID, response);
+                    that.expireTime = new Date().valueOf() + response.expires_in * MS_TO_SEC + that.userData.timezoneOffset * MS_TO_SEC * MIN_PER_HR * MIN_PER_HR;
+                    that.token = response.access_token;
+                    that.refreshCount++;
+                    Messages.sendMessage(CHANNEL, JSON.stringify({
+                        type: "REFRESH SUCCESS",
+                        entityName: that.entityProperties.name,
+                        count: that.refreshCount
+                    }));
+                    calendarScheduleIDs.forEach(function(entity) {
+                        Entities.callEntityMethod(entity, "refreshToken", [
+                            that.token, 
+                            that.expireTime
+                        ]);
                     }); 
                 }
             });
         } else {
-            that.sendToken(params[1]);
+            Entities.callEntityMethod(params[1], "refreshToken", [
+                that.token, 
+                that.expireTime
+            ]);
         }
     };
 

@@ -8,7 +8,8 @@
 // Load the API's client and auth2 modules.
 // Call the initClient function after the modules load.
 
-
+var YOUR_SECRET = 'QowY-iVRTn-lJzKcCD9PwlIZ';
+var YOUR_CLIENT_ID = '813544734011-8eo219koe6a7r35uk3hjv8e44d2d0a6c.apps.googleusercontent.com';
 var YOUR_REDIRECT_URI = 'http://127.0.0.1:90/localHTTP/meetingRoom_ui.html';
 var SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 var fragmentString = location.search;
