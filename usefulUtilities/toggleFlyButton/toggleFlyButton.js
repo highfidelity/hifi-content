@@ -70,7 +70,10 @@
                 "topMargin": 0,
                 "rightMargin": 0,
                 "bottomMargin": 0,
-                "leftMargin": 0
+                "leftMargin": 0,
+                "grab": {
+                    "grabbable": false
+                }
             }, "local");
             _this.updateStatusText();
         },

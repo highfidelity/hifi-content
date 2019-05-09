@@ -1,10 +1,41 @@
+@font-face {
+    font-family: "Graphik Regular";
+    src: url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Regular.eot");
+    src: url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Regular.woff") format("woff"),
+    url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Regular.otf") format("opentype"),
+    url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Regular.svg") format("svg")
+}
+@font-face {
+    font-family: "Graphik Semibold";
+    src: url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Semibold.eot");
+    src: url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Semibold.woff") format("woff"),
+    url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Semibold.otf") format("opentype"),
+    url("https://cdn2.hubspot.net/hubfs/5066246/sr-assets/font/Graphik-Semibold.svg") format("svg")
+}
+
 body {
-    padding: 6px;
+    font-family: "Graphik Regular", sans-serif;
+    padding: 8px 32px;
+    background-color: #4b504f;
+    color: #fff;
+}
+
+#content > div {
+    margin: 0 16px 32px 16px;
 }
 
 h2 {
-    text-transform: capitalize;
-    margin: 16px 0 8px 0;
+    font-family: "Graphik Semibold", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #ccc;
+    margin: 0 0 12px 0;
+}
+
+table {
+    border-collapse: collapse;
 }
 
 table,
@@ -14,19 +45,104 @@ tbody {
 
 tr {
     margin: 2px 0;
+    border-style: solid;
+    border-color: #686868;
+    border-width: 1px 0 0 0;
+    height: 30px;
 }
-
-tr:nth-child(even) {
-    background-color: #f2f2f2;
+.statusRow {
+    border-top-width: 0 !important;
 }
-tr:nth-child(odd) {
-    background-color: #fafafa;
+tr:last-child {
+    border-width: 1px 0;
 }
 
 td {
-    font-size: 20px;
+    font-family: "Graphik Regular", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
     margin: 0 4px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 190px;
     padding: 4px 8px;
+}
+td:first-child {
+    padding: 4px 4px 4px 8px;
+}
+td:nth-child(2) {
+    font-family: "Graphik Semibold", sans-serif;
+    width: 190px;
+}
+td:nth-child(3),
+td:nth-child(4) {
+    width: 190px;
+}
+.statusRow > td {
+    font-family: "Graphik Regular", sans-serif;
+    padding-top: 0 !important;
+    text-overflow: initial;
+    overflow: initial;
+    white-space: normal;
+}
+
+.offlineIndicatorOuter,
+.busyIndicatorOuter,
+.availableIndicatorOuter,
+.customIndicatorOuter {
+    width: 8px;
+    height: 8px;
+    border-style: solid;
+    border-radius: 50%;
+    border-width: 2px;
+    background-color: rgba(0, 0, 0, 0);
+    display: inline-block;
+}
+
+.offlineIndicator,
+.busyIndicator,
+.availableIndicator,
+.customIndicator {
+    position: relative;
+    top: 1px;
+    left: 1px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+.offlineIndicatorOuter {
+    border-color: #7e8c81;
+}
+.offlineIndicator {
+    background-color: #7e8c81 !important;
+}
+.busyIndicatorOuter {
+    border-color: #ff001a;
+}
+.busyIndicator {
+    background-color: #ff001a !important;
+}
+.availableIndicatorOuter {
+    border-color: #009036;
+}
+.availableIndicator {
+    background-color: #009036 !important;
+}
+.customIndicatorOuter {
+    border-color: #ffed00;
+}
+.customIndicator {
+    background-color: #ffed00 !important;
+}
+
+.offlineDisplayNameText,
+.offlineStatusText {
+    color: #888;
+}
+.unknownDisplayNameText,
+.offlineStatusText {
+    font-style: italic;
 }
 
 #content {
@@ -36,8 +152,4 @@ td {
     justify-content: flex-start;
     align-content: flex-start;
     height: 100vh;
-}
-
-#content > div {
-    margin: 0 8px;
 }
