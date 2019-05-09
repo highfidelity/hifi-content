@@ -41,7 +41,7 @@
                 return;
             }
             Entities.callEntityServerMethod(panel, 'setOwnerInfo', [MyAvatar.sessionUUID, username, 
-                MyAvatar.sessionDisplayName]);
+                MyAvatar.sessionDisplayName, false, JSON.stringify(Settings.getValue("workSpace"))]);
         },
 
         /* If this is a left mouse button release on the entity, the button has been pressed */

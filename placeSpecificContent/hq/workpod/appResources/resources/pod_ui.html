@@ -2,13 +2,14 @@
     <head>
         <title>Workspace</title>
         <meta charset="utf-8">
-        <link rel="stylesheet" type="text/css" href="css/pod_ui.css?8">
+        <link rel="stylesheet" type="text/css" href="css/pod_ui.css">
         <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
         <script type="text/javascript" src="js/jscolor.js"></script>
     </head>
 
     <body>
-            <!–– put loading back -->
+        <div id="loadingContainer">
+        </div>
 
         <div id="mainContainer">
             <div id="titleBarContainer">
@@ -19,36 +20,33 @@
             <div id="optionsContainer">
                 <label id="imageSelectionContainer">
                     <h4>Desk Picture URL</h4>
-                    <input id="deskImageURL" type="text" placeholder="http://">
-                    <img src="./images/podAppThumbPortrait.png" alt="Thumb Portrait" height="80" width="76" class="thumb">
+                    <input id="deskImageURL" type="url" onkeypress="javascript: if(event.keyCode == 13) sendDeskImageURL(this.value);" placeholder="http://">
+                    <img src="./images/podAppThumbPortrait.png" id="deskThumb" alt="Thumb Portrait" height="80" width="76" class="thumb">
                 </label>
 
                 <label id="imageSelectionContainer">
                         <h4>Wall Picture URL</h4>
-                        <input id="wallImageURL" type="text" placeholder="http://">
-                        <img src="./images/podAppThumbLandscape.png" alt="Thumb Landscape" height="64" width="90" class="thumb">
+                        <input id="wallImageURL" type="url" onkeypress="javascript: if(event.keyCode == 13) sendWallImageURL(this.value);" placeholder="http://">
+                        <img src="./images/podAppThumbLandscape.png" id="wallThumb" alt="Thumb Landscape" height="64" width="90" class="thumb">
                 </label>
 
                 <div id="colorPickerContainer">
                     <h4>Room Accent Color</h4>
-                    <input type="button" id="colorPicker" class="jscolor"
-                        onchange="setRoomColor(this.jscolor)">
-                    </input>
+                    <input type="button" id="colorPickerRoom" class="jscolor room" onchange="setRoomAccentColor(this.jscolor)">
                     <h4>Light Color</h4>
-                    <input type="button" id="colorPicker" class="jscolor"
-                        onchange="setLightColor(this.jscolor)">
+                    <input type="button" id="colorPickerLight" class="jscolor light" onchange="setLightColor(this.jscolor)">
                     </input>
                 </div>
 
                 <h4>Tint Windows</h4>
                 <label class="switch">
-                    <input id="windowTintSwitch" type="checkbox" onclick="appreciateSwitchClicked(this)">
+                    <input id="windowTintSwitch" type="checkbox" onclick="windowTintToggle(this)">
                     <span class="slider round"></span>
                 </label>
             </div>
         </div>
         
         <!--Include this script here so it only executes once the DOM is ready.-->
-        <script type="text/javascript" src="js/pod_ui.js?0"></script>
+        <script type="text/javascript" src="js/pod_ui.js"></script>
     </body>
 </html>

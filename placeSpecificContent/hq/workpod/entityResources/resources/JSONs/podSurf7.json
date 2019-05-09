@@ -1,0 +1,972 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{b78922d4-0ddc-4402-ab8c-0b20e3e9232a}",
+    "type": "Web",
+    "lastEdited": 1556916592742588,
+    "parentID": "{873b0589-81e7-40b5-8d38-46e3f9e18575}",
+    "name": "Pod Surf Desk-Web",
+    "localPosition": {
+        "x": -0.01637411117553711,
+        "y": 0.4578580856323242,
+        "z": 0.11391766369342804
+    },
+    "dimensions": {
+        "x": 0.7381293177604675,
+        "y": 0.46663516759872437,
+        "z": 0.009999999776482582
+    },
+    "localRotation": {
+        "x": 0.5581291913986206,
+        "y": 0.0001678466796875,
+        "z": -0.0011138916015625,
+        "w": -0.8297398090362549
+    },
+    "created": 1556916150318902,
+    "lastEditedBy": "{c55bf983-f798-421c-b23e-0d442282ef1b}",
+    "queryAACube": {
+        "x": 6.886185169219971,
+        "y": -9.504657745361328,
+        "z": 2.1454896926879883,
+        "scale": 0.8733174204826355
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "sourceUrl": "https://highfidelity.com/",
+    "dpi": 45,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{45789edd-2b42-4fe0-b492-7649918fc506}",
+    "type": "Box",
+    "lastEdited": 1556920478202387,
+    "parentID": "{c7501a27-0122-42fc-bccc-cd2aba92373c}",
+    "visible": false,
+    "name": "Pod Surf SitCube 3",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "localPosition": {
+        "x": -2.0256265997886658e-8,
+        "y": 0.6943998336791992,
+        "z": 0.0000019073486328125
+    },
+    "dimensions": {
+        "x": 0.20000000298023224,
+        "y": 0.20000000298023224,
+        "z": 0.20000000298023224
+    },
+    "localRotation": {
+        "x": -0.0000152587890625,
+        "y": -0.7071793675422668,
+        "z": -0.0000152587890625,
+        "w": 0.7070573568344116
+    },
+    "registrationPoint": {
+        "x": 0.5,
+        "y": 1,
+        "z": 0.5
+    },
+    "created": 1556920248296507,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 7.451918125152588,
+        "y": -9.3865385055542,
+        "z": 3.1575441360473633,
+        "scale": 0.527226448059082
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitClient.js",
+    "scriptTimestamp": 1553708732946,
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitServer.js",
+    "color": {
+        "red": 234,
+        "green": 0,
+        "blue": 255
+    },
+    "alpha": 0,
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{ee3cbe8a-da2a-4cd6-b240-636c77539d74}",
+    "type": "Image",
+    "lastEdited": 1556920224363123,
+    "parentID": "{873b0589-81e7-40b5-8d38-46e3f9e18575}",
+    "name": "Pod Surf Desk Image",
+    "localPosition": {
+        "x": -0.6684112548828125,
+        "y": 0.5607566833496094,
+        "z": -0.22727972269058228
+    },
+    "dimensions": {
+        "x": 0.30000001192092896,
+        "y": 0.4000000059604645,
+        "z": 0.009999999776482582
+    },
+    "localRotation": {
+        "x": -0.2208133339881897,
+        "y": 0.29646754264831543,
+        "z": 0.047440290451049805,
+        "w": 0.927916407585144
+    },
+    "created": 1556920083783815,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 6.418644905090332,
+        "y": -9.21513843536377,
+        "z": 1.9949711561203003,
+        "scale": 0.5000999569892883
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "imageURL": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/appResources/resources/images/podAppThumbPortrait.png",
+    "keepAspectRatio": false,
+    "textures": {
+        "tex.picture": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/appResources/resources/images/podAppThumbPortrait.png"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{5f3ae0f8-ca6f-4a1f-857f-f05429de6620}",
+    "type": "Box",
+    "lastEdited": 1556920418754860,
+    "parentID": "{754db554-084d-45ef-8263-11fe1e5940d9}",
+    "visible": false,
+    "name": "Pod Surf SitCube 1",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "localPosition": {
+        "x": 0,
+        "y": 0.2025003433227539,
+        "z": 0.1693415641784668
+    },
+    "dimensions": {
+        "x": 0.20000000298023224,
+        "y": 0.20000000298023224,
+        "z": 0.20000000298023224
+    },
+    "localRotation": {
+        "x": 0,
+        "y": 1,
+        "z": 0,
+        "w": -4.371138828673793e-8
+    },
+    "registrationPoint": {
+        "x": 0.5,
+        "y": 1,
+        "z": 0.5
+    },
+    "created": 1556920248334127,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 5.996157169342041,
+        "y": -9.502219200134277,
+        "z": 4.176267623901367,
+        "scale": 0.5272274017333984
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitClient.js",
+    "scriptTimestamp": 1553708732946,
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitServer.js",
+    "color": {
+        "red": 234,
+        "green": 0,
+        "blue": 255
+    },
+    "alpha": 0,
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{754db554-084d-45ef-8263-11fe1e5940d9}",
+    "type": "Model",
+    "lastEdited": 1556920339423028,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Surf Chair 1",
+    "localPosition": {
+        "x": -0.8939167261123657,
+        "y": -0.7478208541870117,
+        "z": -1.1187992095947266
+    },
+    "dimensions": {
+        "x": 0.8894738554954529,
+        "y": 0.8753615021705627,
+        "z": 0.9862046837806702
+    },
+    "localRotation": {
+        "x": 0.0000152587890625,
+        "y": 0.3331502676010132,
+        "z": -0.0001068115234375,
+        "w": 0.9428702592849731
+    },
+    "created": 1556916150320205,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 5.637577056884766,
+        "y": -10.217650413513184,
+        "z": 4.1332879066467285,
+        "scale": 1.5906040668487549
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "modelURL": "https://cdn.highfidelity.com/DomainContent/production/Island-Office-Template-v1-baked/Chair-Varieta-White-Leather/baked/Chair-Varieta-White-Leather.baked.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{e184b8ac-af0a-4bd3-97d5-24d568c40637}",
+    "type": "Text",
+    "lastEdited": 1556920766812975,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Surf Clock",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "localPosition": {
+        "x": -0.9678,
+        "y": 0.4306,
+        "z": 2.0007
+    },
+    "dimensions": {
+        "x": 0.8880290389060974,
+        "y": 0.2879684567451477,
+        "z": 0.009999999776482582
+    },
+    "localRotation": {
+        "x": 0,
+        "y": 1,
+        "z": 0,
+        "w": -4.371138828673793e-8
+    },
+    "created": 1556916150319685,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 7.065169811248779,
+        "y": -9.20378589630127,
+        "z": 3.5683605670928955,
+        "scale": 0.9336066842079163
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/LoadTest/clockPST.js",
+    "text": "02:59pm",
+    "lineHeight": 0.20000000298023224,
+    "textColor": {
+        "red": 92,
+        "green": 92,
+        "blue": 92
+    },
+    "backgroundColor": {
+        "red": 64,
+        "green": 64,
+        "blue": 64
+    },
+    "backgroundAlpha": 0,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{c0c23e41-7016-4e13-bc18-d4e79fb3955e}",
+    "type": "Model",
+    "lastEdited": 1556920347584353,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Surf Chair 2",
+    "localPosition": {
+        "x": -0.12544333934783936,
+        "y": -0.7568159103393555,
+        "z": 1.4811091423034668
+    },
+    "dimensions": {
+        "x": 0.8894738554954529,
+        "y": 0.8753615021705627,
+        "z": 0.9862046837806702
+    },
+    "localRotation": {
+        "x": -0.0001678466796875,
+        "y": -1,
+        "z": -0.0000457763671875,
+        "w": 0.004837155342102051
+    },
+    "created": 1556916150320673,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 8.237881660461426,
+        "y": -10.226200103759766,
+        "z": 3.3658394813537598,
+        "scale": 1.5906040668487549
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "modelURL": "https://cdn.highfidelity.com/DomainContent/production/Island-Office-Template-v1-baked/Chair-Varieta-White-Leather/baked/Chair-Varieta-White-Leather.baked.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{d8c6fdb2-ccf3-4e28-9cd9-9de032aca72f}",
+    "type": "Box",
+    "lastEdited": 1556920442699773,
+    "parentID": "{c0c23e41-7016-4e13-bc18-d4e79fb3955e}",
+    "visible": false,
+    "name": "Pod Surf SitCube 2",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+    "localPosition": {
+        "x": 0.0000031515955924987793,
+        "y": 0.2025003433227539,
+        "z": 0.16937637329101562
+    },
+    "dimensions": {
+        "x": 0.20000000298023224,
+        "y": 0.20000000298023224,
+        "z": 0.20000000298023224
+    },
+    "localRotation": {
+        "x": 0.0002899169921875,
+        "y": -1,
+        "z": 0.0000457763671875,
+        "w": -0.0000152587890625
+    },
+    "registrationPoint": {
+        "x": 0.5,
+        "y": 1,
+        "z": 0.5
+    },
+    "created": 1556920248298404,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 8.61884593963623,
+        "y": -9.510684967041016,
+        "z": 3.9177026748657227,
+        "scale": 0.5272274017333984
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitClient.js",
+    "scriptTimestamp": 1553708732946,
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitServer.js",
+    "color": {
+        "red": 234,
+        "green": 0,
+        "blue": 255
+    },
+    "alpha": 0,
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{913659ee-69ca-4acf-809f-91af7ee2c667}",
+    "type": "Zone",
+    "lastEdited": 1556916417116696,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Zone",
+    "localPosition": {
+        "x": -0.000008246395736932755,
+        "y": -0.0626993179321289,
+        "z": -0.0200042724609375
+    },
+    "dimensions": {
+        "x": 4.849699974060059,
+        "y": 2.9042000770568848,
+        "z": 4.293000221252441
+    },
+    "localRotation": {
+        "x": 0.0000152587890625,
+        "y": 0.7071794271469116,
+        "z": 0.0000152587890625,
+        "w": 0.7069962024688721
+    },
+    "created": 1556916150317607,
+    "lastEditedBy": "{c55bf983-f798-421c-b23e-0d442282ef1b}",
+    "queryAACube": {
+        "x": 3.9828953742980957,
+        "y": -12.286060333251953,
+        "z": 0.4860858917236328,
+        "scale": 7.098155975341797
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/entityResources/podZone/workPodZoneClient.js",
+    "scriptTimestamp": 1556138697889,
+    "shapeType": "box",
+    "keyLight": {
+        "direction": {
+            "x": 0,
+            "y": -0.7071067690849304,
+            "z": 0.7071067690849304
+        },
+        "castShadows": true
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{873b0589-81e7-40b5-8d38-46e3f9e18575}",
+    "type": "Model",
+    "lastEdited": 1556920126002004,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Surf Desk",
+    "localPosition": {
+        "x": 1.5668821334838867,
+        "y": -0.8516845703125,
+        "z": -0.21418142318725586
+    },
+    "dimensions": {
+        "x": 1.7764029502868652,
+        "y": 0.7369513511657715,
+        "z": 0.8750088214874268
+    },
+    "localRotation": {
+        "x": -0.0000457763671875,
+        "y": 0.7047379016876221,
+        "z": 0.0000152587890625,
+        "w": -0.7094377279281616
+    },
+    "created": 1556916150318058,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 6.28208589553833,
+        "y": -10.582289695739746,
+        "z": 1.411616325378418,
+        "scale": 2.1128997802734375
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "modelURL": "https://cdn.highfidelity.com/DomainContent/production/Island-Office-Template-v1-baked/desk_small/baked/desk_small.baked.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{145c946e-d09a-4eba-9fcf-15cd44030776}",
+    "type": "Image",
+    "lastEdited": 1556920592004964,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Surf Wall Image",
+    "localPosition": {
+        "x": -1.7783558368682861,
+        "y": 0.2072134017944336,
+        "z": -1.0682649612426758
+    },
+    "dimensions": {
+        "x": 0.800000011920929,
+        "y": 0.6000000238418579,
+        "z": 0.009999999776482582
+    },
+    "localRotation": {
+        "x": -0.0000152587890625,
+        "y": 0.7070573568344116,
+        "z": -0.0000457763671875,
+        "w": 0.7071183919906616
+    },
+    "created": 1556920493782640,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 5.98289680480957,
+        "y": -8.967419624328613,
+        "z": 5.31314754486084,
+        "scale": 1.0000499486923218
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "imageURL": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/appResources/resources/images/podAppThumbLandscape.png",
+    "keepAspectRatio": false,
+    "textures": {
+        "tex.picture": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/appResources/resources/images/podAppThumbLandscape.png"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{c7501a27-0122-42fc-bccc-cd2aba92373c}",
+    "type": "Model",
+    "lastEdited": 1556920360498770,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Surf Chair 3",
+    "localPosition": {
+        "x": 0.6326509714126587,
+        "y": -1.1244630813598633,
+        "z": 0.14459514617919922
+    },
+    "dimensions": {
+        "x": 0.4948486387729645,
+        "y": 0.9184007048606873,
+        "z": 0.49485206604003906
+    },
+    "localRotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1556916150321336,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 7.119660377502441,
+        "y": -10.375984191894531,
+        "z": 2.8251214027404785,
+        "scale": 1.516672134399414
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "modelURL": "https://cdn.highfidelity.com/DomainContent/production/Island-Office-Template-v1-baked/Stool-Gold-white/baked/Stool-Gold-white.baked.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{5e36a25b-96f3-4d29-86ac-80742588fd6f}",
+    "type": "Material",
+    "lastEdited": 1556920713154207,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Surf Window Tint Material",
+    "localPosition": {
+        "x": -2.8250372409820557,
+        "y": -0.1287689208984375,
+        "z": 2.7290029525756836
+    },
+    "localRotation": {
+        "x": -0.0000152587890625,
+        "y": 0.7131608724594116,
+        "z": 0.0001983642578125,
+        "w": -0.7009842395782471
+    },
+    "created": 1556920598635987,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 6.222322463989258,
+        "y": -12.929362297058105,
+        "z": 6.77460241317749,
+        "scale": 11.11273193359375
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "materialURL": "materialData",
+    "priority": 1,
+    "parentMaterialName": "",
+    "materialData": "{\"materialVersion\":1,\"materials\":{\"opacity\":0.9,\"albedo\":{\"red\":0,\"green\":0,\"blue\":0}}}",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{47c50a8d-fccd-4228-be1f-6f875841314f}",
+    "type": "Light",
+    "lastEdited": 1556916716626294,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Surf Light",
+    "localPosition": {
+        "x": -0.000008246395736932755,
+        "y": -0.0626993179321289,
+        "z": -0.0200042724609375
+    },
+    "dimensions": {
+        "x": 15.905147552490234,
+        "y": 15.905147552490234,
+        "z": 15.905147552490234
+    },
+    "localRotation": {
+        "x": 0.0000762939453125,
+        "y": 0.7085527181625366,
+        "z": 0.0000152587890625,
+        "w": 0.7056229114532471
+    },
+    "created": 1556916150319228,
+    "lastEditedBy": "{c55bf983-f798-421c-b23e-0d442282ef1b}",
+    "queryAACube": {
+        "x": -6.242288112640381,
+        "y": -22.51124382019043,
+        "z": -9.739097595214844,
+        "scale": 27.54852294921875
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "color": {
+        "red": 255,
+        "green": 157,
+        "blue": 87
+    },
+    "intensity": 5,
+    "exponent": 1,
+    "cutoff": 75,
+    "falloffRadius": 1,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{15d0b3c8-f279-487d-8984-9e55f76d3afa}",
+    "type": "Material",
+    "lastEdited": 1556920725153956,
+    "parentID": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "name": "Pod Surf Accent Material",
+    "parentMaterialName": "[mat::Material.001]",
+    "localPosition": {
+        "x": 0.4278542399406433,
+        "y": -0.12839794158935547,
+        "z": -1.2807855606079102
+    },
+    "localRotation": {
+        "x": -0.0000152587890625,
+        "y": 0.7131608724594116,
+        "z": 0.0001983642578125,
+        "w": -0.7009842395782471
+    },
+    "created": 1556916748022505,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": 3.0555167198181152,
+        "y": -13.170732498168945,
+        "z": -0.46128273010253906,
+        "scale": 8.992905616760254
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "materialURL": "materialData",
+    "priority": 1,
+    "materialData": "{\"materialVersion\":1,\"materials\":{\"roughness\":0.5,\"albedo\":{\"red\": 0.54,\"green\": 0.78,\"blue\": 0.45}}}",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{934fe0ad-3a2a-4c37-86d2-cbbaa8110f5a}",
+    "type": "Model",
+    "lastEdited": 1556920636295920,
+    "parentID": "{e32cf8ec-b145-436a-98d6-9e6c5c012381}",
+    "name": "Pod",
+    "localPosition": {
+        "x": 1.9088096618652344,
+        "y": 0.2747020721435547,
+        "z": 1.931876301765442
+    },
+    "dimensions": {
+        "x": 5.788700103759766,
+        "y": 3.8306000232696533,
+        "z": 5.71750020980835
+    },
+    "localRotation": {
+        "x": -0.0001068115234375,
+        "y": -0.7072404026985168,
+        "z": -0.0000152587890625,
+        "w": 0.7069962024688721
+    },
+    "created": 1556916150318505,
+    "lastEditedBy": "{ebdc2dc4-5004-4790-b48c-193ced49f2e7}",
+    "queryAACube": {
+        "x": -6.2422871589660645,
+        "y": -22.51124382019043,
+        "z": -9.739097595214844,
+        "scale": 27.626432418823242
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "shapeType": "static-mesh",
+    "modelURL": "https://hifi-content.s3.amazonaws.com/alan/dev/Chatterbox-v3-test.fbx?001",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{89a1411d-215c-486a-b9f5-373bb2f3f33e}",
+  "Version": 120
+}

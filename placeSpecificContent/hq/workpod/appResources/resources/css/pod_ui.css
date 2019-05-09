@@ -12,8 +12,8 @@ html {
 
 body {
   font-family: 'Raleway', sans-serif;
-  background-color: #f1f3ee;
-  background-image: url("../images/podAppBackground.png?0");
+  background-color: #d8e1d9;
+  background-image: url("../images/podAppBackground.png?2");
   background-repeat: no-repeat;
   background-size: cover;
   color: #7e8c81;
@@ -22,15 +22,20 @@ body {
   padding: 0;
 }
 
-input[type="text"], textarea {
-  background-color : #d8e1d9;
+input[type="url"], textarea {
+  background-color : #b7c8b9;
   border: none;
   height: 30px;
-  width: 280px;
+  width: 300px;
   padding-left: 10px;
   font-size: 15px;
   font-style: italic;
 }
+
+  /* On mouse-over, add a grey background color */
+  input[type="url"]:hover {
+    background-color: #f1f3ee;
+  }
 
 #mainContainer {
 width: 100vw;
@@ -67,7 +72,7 @@ padding: 45px;
   font-size: 18px;
 }
   
-#colorPicker {
+#colorPickerRoom, #colorPickerLight {
     background-color: #000000;
     border: 6px double #f1f3ee;
     color: #d8e1d9;
@@ -85,11 +90,6 @@ padding: 45px;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
-
-  /* On mouse-over, add a grey background color */
-#imageSelectionContainer:hover input {
-  background-color: #ffffff;
 }
 
 /* The switch - the box around the slider */
@@ -142,6 +142,7 @@ input:checked + .slider:before {
   -webkit-transform: translateX(35px);
   -ms-transform: translateX(35px);
   transform: translateX(35px);
+  background-color: #7e8c81;
 }
 
 /* Rounded sliders */
@@ -149,7 +150,7 @@ input:checked + .slider:before {
 border-radius: 35px;
 }
 
-.slider.round:before {
+.slider.round::before {
 border-radius: 35px;
 }
 /* END SWITCH CSS */

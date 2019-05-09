@@ -1,6 +1,6 @@
 /*
-    Appreciate
-    Created by Zach Fox on 2019-01-30
+    pod_ui.js
+    Edited by Rebecca Stankus on 2019-04-28 from appreciate_ui.js by Zach Fox
     Copyright 2019 High Fidelity, Inc.
 
     Distributed under the Apache License, Version 2.0.
@@ -8,53 +8,6 @@
 */
 
 /* globals document EventBridge setTimeout */
-
-
-// Called when the user checks/unchecks the Never Whistle checkbox.
-// Adds the crosshatch div to the UI and sends an event to the App JS.
-// function neverWhistleCheckboxClicked(checkbox) {
-//     var crosshatch = document.getElementById("crosshatch");
-//     if (checkbox.checked) {
-//         crosshatch.style.display = "inline-block";
-//     } else {
-//         crosshatch.style.display = "none";
-//     }
-
-//     EventBridge.emitWebEvent(JSON.stringify({
-//         app: "appreciate",
-//         method: "neverWhistleCheckboxClicked",
-//         neverWhistle: checkbox.checked
-//     }));
-// }
-
-// Called when the user changes the entity's color using the jscolor picker.
-// Modifies the color of the Intensity Meter gradient and sends a message to the App JS.
-// var START_COLOR_MULTIPLIER = 0.2;
-// function setEntityColor(jscolor) {
-//     var newEntityColor = {
-//         "red": jscolor.rgb[0],
-//         "green": jscolor.rgb[1],
-//         "blue": jscolor.rgb[2]
-//     };
-
-//     var startColor = {
-//         "red": Math.floor(newEntityColor.red * START_COLOR_MULTIPLIER),
-//         "green": Math.floor(newEntityColor.green * START_COLOR_MULTIPLIER),
-//         "blue": Math.floor(newEntityColor.blue * START_COLOR_MULTIPLIER)
-//     };
-
-//     var currentIntensityDisplayWidth = document.getElementById("currentIntensityDisplay").offsetWidth;
-//     var bgString = "linear-gradient(to right, rgb(" + startColor.red + ", " +
-//         startColor.green + ", " + startColor.blue + ") 0, " +
-//         jscolor.toHEXString() + " " + currentIntensityDisplayWidth + "px)";
-//     document.getElementById("currentIntensity").style.backgroundImage = bgString;
-
-//     EventBridge.emitWebEvent(JSON.stringify({
-//         app: "appreciate",
-//         method: "setEntityColor",
-//         entityColor: newEntityColor
-//     }));
-// }
 
 // Handle EventBridge messages from *_app.js.
 function onScriptEventReceived(message) {
@@ -64,58 +17,114 @@ function onScriptEventReceived(message) {
         console.log("Couldn't parse script event message: " + error);
         return;
     }
-
-    // This message gets sent by `entityList.js` when it shouldn't!
-    if (message.type === "removeEntities") {
+    if (message.app !== "workspace") {
         return;
     }
-
     switch (message.method) {
         case "updateUI":
-
-
-            if (message.neverWhistleEnabled) {
-                var crosshatch = document.getElementById("crosshatch");
-                crosshatch.style.display = "inline-block";
-            }
-
             document.getElementById("loadingContainer").style.display = "none";
-
-            var color = document.getElementById("colorPicker").jscolor;
-            color.fromRGB(message.entityColor.red, message.entityColor.green, message.entityColor.blue);
-
+            var personalPodSettings = message.personalPodSettings;
+            var roomAccentColor = message.personalPodSettings.roomAccentColor;
+            var lightColor = message.personalPodSettings.lightColor;
+            document.getElementById("deskImageURL").value = personalPodSettings.deskImageURL;
+            document.getElementById("deskThumb").src = personalPodSettings.deskImageURL;
+            document.getElementById("wallImageURL").value = personalPodSettings.wallImageURL;
+            document.getElementById("wallThumb").src = personalPodSettings.wallImageURL;
+            document.getElementById("colorPickerRoom").style.backgroundColor = 
+                "rgb(" + roomAccentColor.red + "," + roomAccentColor.green + "," + roomAccentColor.blue + ")";
+            document.getElementById("colorPickerLight").style.backgroundColor = 
+            "rgb(" + lightColor.red + "," + lightColor.green + "," + lightColor.blue + ")";
+            document.getElementById("windowTintSwitch").checked = personalPodSettings.windowTint;
             break;
-
         default:
             console.log("Unknown message received from appreciate_app.js! " + JSON.stringify(message));
             break;
     }
 }
 
-// This function detects a keydown on the document, which enables the app
-// to forward these keypress events to the app JS.
-// function onKeyDown(e) {
-//     var key = e.key.toUpperCase();
-//     if (key === "Z") {
-//         EventBridge.emitWebEvent(JSON.stringify({
-//             app: "appreciate",
-//             method: "zKeyDown",
-//             repeat: e.repeat
-//         }));
-//     }
-// }
+/* change the image on the desk of the pod */
+function sendDeskImageURL(url) {
+    // var charsInFileType = 4;
+    // var fileType = url.substr(url.length - charsInFileType);
+    // if (!(fileType === ".png" || fileType === ".jpg")) {
+    //     // show error message about file type
+    //     return;
+    // }
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "workspace",
+        method: "deskImageSwap",
+        imageURL: url
+    }));
+    if (url === "") {
+        document.getElementById("deskThumb").style.display = "none";
+        document.getElementById("deskThumb").src= "";
+        document.getElementById("deskThumb").alt= "";
+    } else {
+        document.getElementById("deskThumb").style.display = "inline";
+        document.getElementById("deskThumb").src= url;
+        document.getElementById("deskThumb").alt= "User image";
+    }
+}
 
-// This function detects a keyup on the document, which enables the app
-// to forward these keypress events to the app JS.
-// function onKeyUp(e) {
-//     var key = e.key.toUpperCase();
-//     if (key === "Z") {
-//         EventBridge.emitWebEvent(JSON.stringify({
-//             app: "appreciate",
-//             method: "zKeyUp"
-//         }));
-//     }
-// }
+/* Change the image on the wall of the pod */
+function sendWallImageURL(url, type) {
+    // var charsInFileType = 4;
+    // var fileType = url.substr(url.length - charsInFileType);
+    // if (!(fileType === ".png" || fileType === ".jpg")) {
+    //     // show error message about file type
+    //     return;
+    // }
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "workspace",
+        method: "wallImageSwap",
+        imageURL: url,
+        type: type
+    }));
+    if (url === "") {
+        document.getElementById("wallThumb").src= "";
+        document.getElementById("wallThumb").alt= "";
+    } else {
+        document.getElementById("wallThumb").src = url;
+        document.getElementById("wallThumb").alt= "User image";
+    }
+}
+
+/* Change the accent color of the pod */
+function setRoomAccentColor(jscolor) {
+    var newRoomColor = {
+        "red": jscolor.rgb[0],
+        "green": jscolor.rgb[1],
+        "blue": jscolor.rgb[2]
+    };
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "workspace",
+        method: "updateRoomAccentColor",
+        color: newRoomColor
+    }));
+}
+
+/* Change the color of th pod light */
+function setLightColor(jscolor) {
+    var newLightColor = {
+        "red": jscolor.rgb[0],
+        "green": jscolor.rgb[1],
+        "blue": jscolor.rgb[2]
+    };
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "workspace",
+        method: "updateLightColor",
+        color: newLightColor
+    }));
+}
+
+/* Update whether or not pod windows are tinted */
+function windowTintToggle(checkbox) {
+    EventBridge.emitWebEvent(JSON.stringify({
+        app: "workspace",
+        method: "setWindowTint",
+        windowTint: checkbox.checked
+    }));
+}
 
 // This delay is necessary to allow for the JS EventBridge to become active.
 // The delay is still necessary for HTML apps in RC78+.
@@ -128,7 +137,6 @@ function onLoad() {
             method: "eventBridgeReady"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
-    
 }
 
 onLoad();

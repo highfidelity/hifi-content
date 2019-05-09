@@ -13,6 +13,7 @@
 
     var NEUTRAL_1_COLOR = { red: 241, green: 243, blue: 238 };
     var NEUTRAL_4_COLOR = { red: 126, green: 140, blue: 129 };
+    var WAIT_FOR_ENTITIES_TO_LOAD_MS = 500;
 
     var panel;
     var presetLabel;
@@ -46,6 +47,12 @@
                     });
                 }
             });
+            Script.setTimeout(function() {
+                var personalPodSettings = Settings.getValue("workSpace");
+                if (personalPodSettings) {
+                    Entities.callEntityServerMethod(panel, 'updatePod', [JSON.stringify(personalPodSettings)]);
+                }
+            }, WAIT_FOR_ENTITIES_TO_LOAD_MS);
         },
 
         /* If this is a left mouse button release on the entity, the button has been pressed */
@@ -54,10 +61,6 @@
                 return;
             }
             _this.pressButton();
-        },
-
-        /*  */
-        unload: function() {
         }
     };
 

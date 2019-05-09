@@ -1,0 +1,1029 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+        "id": "{7ed3c5ee-733d-4997-971d-1396ef20d728}",
+        "type": "Box",
+        "lastEdited": 1556842001783151,
+        "visible": false,
+        "name": "Pod Mod SitCube 3",
+        "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+        "localPosition": {
+            "x": 0,
+            "y": 0.6944,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 0.20000000298023224,
+            "y": 0.20000000298023224,
+            "z": 0.20000000298023224
+        },
+        "localRotation": {
+            "x": 0,
+            "y": -0.7071067690849304,
+            "z": 0,
+            "w": 0.7071067690849304
+        },
+        "registrationPoint": {
+            "x": 0.5,
+            "y": 1,
+            "z": 0.5
+        },
+        "created": 1556841812906650,
+        "lastEditedBy": "{b8e042d4-865e-470a-acd3-7826e46bec13}",
+        "queryAACube": {
+            "x": -0.24494898319244385,
+            "y": -0.23315775394439697,
+            "z": 1.3726489543914795,
+            "scale": 0.4898979663848877
+        },
+        "grab": {
+            "grabbable": false,
+            "equippableLeftRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            },
+            "equippableRightRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            }
+        },
+        "collisionless": true,
+        "ignoreForCollisions": true,
+        "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitClient.js",
+        "scriptTimestamp": 1553708732946,
+        "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitServer.js",
+        "color": {
+            "red": 234,
+            "green": 0,
+            "blue": 255
+        },
+        "alpha": 0,
+        "shape": "Cube",
+        "clientOnly": false,
+        "avatarEntity": false,
+        "localEntity": false,
+        "faceCamera": false,
+        "isFacingAvatar": false
+    },
+        {
+        "id": "{753e1130-ad22-4b1a-a4c1-46fb8b9f0813}",
+        "type": "Box",
+        "lastEdited": 1556841818460703,
+        "visible": false,
+        "name": "Pod Mod SitCube 1",
+        "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+        "localPosition": {
+            "x": 0,
+            "y": 0.2025,
+            "z": 0.1693
+        },
+        "dimensions": {
+            "x": 0.20000000298023224,
+            "y": 0.20000000298023224,
+            "z": 0.20000000298023224
+        },
+        "localRotation": {
+            "x": 0,
+            "y": 1,
+            "z": 0,
+            "w": -4.371138828673793e-8
+        },
+        "registrationPoint": {
+            "x": 0.5,
+            "y": 1,
+            "z": 0.5
+        },
+        "created": 1556841675981487,
+        "lastEditedBy": "{b8e042d4-865e-470a-acd3-7826e46bec13}",
+        "queryAACube": {
+            "x": 1.4042762517929077,
+            "y": -0.21664679050445557,
+            "z": -0.24494898319244385,
+            "scale": 0.4898979663848877
+        },
+        "grab": {
+            "grabbable": false,
+            "equippableLeftRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            },
+            "equippableRightRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            }
+        },
+        "collisionless": true,
+        "ignoreForCollisions": true,
+        "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitClient.js",
+        "scriptTimestamp": 1553708732946,
+        "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitServer.js",
+        "color": {
+            "red": 234,
+            "green": 0,
+            "blue": 255
+        },
+        "alpha": 0,
+        "shape": "Cube",
+        "clientOnly": false,
+        "avatarEntity": false,
+        "localEntity": false,
+        "faceCamera": false,
+        "isFacingAvatar": false
+    },
+        {
+        "id": "{078d18bd-4bcf-4bdf-83d7-2849cd4ffbcd}",
+        "type": "Box",
+        "lastEdited": 1556842043266162,
+        "visible": false,
+        "name": "Pod Mod SitCube 2",
+        "userData": "{\"grabbableKey\":{\"grabbable\":false}}",
+        "localPosition": {
+            "x": 0,
+            "y": 0.2025,
+            "z": 0.1693
+        },
+        "dimensions": {
+            "x": 0.20000000298023224,
+            "y": 0.20000000298023224,
+            "z": 0.20000000298023224
+        },
+        "localRotation": {
+            "x": 0,
+            "y": 1,
+            "z": 0,
+            "w": -4.371138828673793e-8
+        },
+        "registrationPoint": {
+            "x": 0.5,
+            "y": 1,
+            "z": 0.5
+        },
+        "created": 1556841826824824,
+        "lastEditedBy": "{b8e042d4-865e-470a-acd3-7826e46bec13}",
+        "queryAACube": {
+            "x": 1.2280954122543335,
+            "y": -0.24494898319244385,
+            "z": 1.6467124223709106,
+            "scale": 0.4898979663848877
+        },
+        "grab": {
+            "grabbable": false,
+            "equippableLeftRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            },
+            "equippableRightRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            }
+        },
+        "collisionless": true,
+        "ignoreForCollisions": true,
+        "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitClient.js",
+        "scriptTimestamp": 1553708732946,
+        "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/marketPlaceItems/sitPoint/2019-01-17_10-05-51/appResources/appData/sitServer.js",
+        "color": {
+            "red": 234,
+            "green": 0,
+            "blue": 255
+        },
+        "alpha": 0,
+        "shape": "Cube",
+        "clientOnly": false,
+        "avatarEntity": false,
+        "localEntity": false,
+        "faceCamera": false,
+        "isFacingAvatar": false
+    },
+    {
+    "id": "{f1f2d003-de09-4a3a-bdcb-bc17dac24c63}",
+    "type": "Image",
+    "lastEdited": 1556832403676209,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Desk Image",
+    "localPosition": {
+        "x": 0.63,
+        "y": 0.6,
+        "z": -0.14
+    },
+    "dimensions": {
+        "x": 0.3,
+        "y": 0.4,
+        "z": 0.009999999776482582
+    },
+    "localRotation": {
+        "x":-0.14101535081863403,
+        "y":-0.38210925459861755,
+        "z":0.02047349512577057,
+        "w":0.9130651950836182
+    },
+    "created": 1556832398146895,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 8.351272583007812,
+        "y": -9.174212455749512,
+        "z": 14.213741302490234,
+        "scale": 0.33421701192855835
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "imageURL": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/appResources/resources/images/podAppThumbPortrait.png",
+    "keepAspectRatio": false,
+    "textures": {
+        "tex.picture": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/appResources/resources/images/podAppThumbPortrait.png"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{5eaba4ff-7146-40f8-866b-eecfcbc336d0}",
+    "type": "Web",
+    "lastEdited": 1556832403676345,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Desk-Web",
+    "localPosition": {
+        "x": -0.0018,
+        "y": 0.4664,
+        "z": 0.1451
+    },
+    "dimensions": {
+        "x": 0.7381293177604675,
+        "y": 0.46663516759872437,
+        "z": 0.009999999776482582
+    },
+    "localRotation": {
+        "x":-0.5575482845306396,
+        "y":-0.0074884588830173016,
+        "z":-0.0025847316719591618,
+        "w":0.8301066756248474
+    },
+    "created": 1556832398147031,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 8.322152137756348,
+        "y": -9.52764892578125,
+        "z": 14.644585609436035,
+        "scale": 0.8733174204826355
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "sourceUrl": "https://highfidelity.com/",
+    "dpi": 45,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{e2b5e1da-5eee-4a5f-a6d5-e139e0e85399}",
+    "type": "Model",
+    "lastEdited": 1556832403676706,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Chair 3",
+    "localPosition": {
+        "x": 1.1705386638641357,
+        "y": -1.034383773803711,
+        "z": 0.597930908203125
+    },
+    "dimensions": {
+        "x": 0.618560791015625,
+        "y": 1.1480008363723755,
+        "z": 0.6185650825500488
+    },
+    "localRotation": {
+        "x": -0.0003204345703125,
+        "y": 0.6830395460128784,
+        "z": 0.0001678466796875,
+        "w": -0.7303730845451355
+    },
+    "created": 1556832398147392,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 8.884177207946777,
+        "y": -10.703609466552734,
+        "z": 14.354486465454102,
+        "scale": 1.4433108568191528
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "modelURL": "https://cdn.highfidelity.com/DomainContent/production/Island-Office-Template-v1-baked/Stool-Gold-white/baked/Stool-Gold-white.baked.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{96e27e11-4964-47aa-80d8-b91c278f324c}",
+    "type": "Model",
+    "lastEdited": 1556832403676880,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Chair 1",
+    "localPosition": {
+        "x": -0.5974583029747009,
+        "y": -0.5361814498901367,
+        "z": -1.099761962890625
+    },
+    "dimensions": {
+        "x": 0.8894738554954529,
+        "y": 0.8753615021705627,
+        "z": 0.9862046837806702
+    },
+    "localRotation": {
+        "x": -0.0000457763671875,
+        "y": 0.5848325490951538,
+        "z": -0.0000457763671875,
+        "w": 0.8111238479614258
+    },
+    "created": 1556832398147566,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 10.508580207824707,
+        "y": -10.2792329788208,
+        "z": 12.51302433013916,
+        "scale": 1.5906040668487549
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "modelURL": "https://cdn.highfidelity.com/DomainContent/production/Island-Office-Template-v1-baked/Chair-Varieta-White-Leather/baked/Chair-Varieta-White-Leather.baked.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{a7ebd556-72e8-4aba-b6dc-450119a15a66}",
+    "type": "Text",
+    "lastEdited": 1556832403677063,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Timezone",
+    "localPosition": {
+        "x": -0.5310815572738647,
+        "y": 0.21189594268798828,
+        "z": 2.1990365982055664
+    },
+    "dimensions": {
+        "x": 0.8377726078033447,
+        "y": 0.25953996181488037,
+        "z": 0.009999999776482582
+    },
+    "localRotation": {
+        "x": -0.0000457763671875,
+        "y": 0.999969482421875,
+        "z": 0.0000762939453125,
+        "w": 0.007797360420227051
+    },
+    "created": 1556832398147749,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 7.566465377807617,
+        "y": -9.174163818359375,
+        "z": 12.935633659362793,
+        "scale": 0.8771111369132996
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "text": "San Francisco",
+    "lineHeight": 0.11999999731779099,
+    "textColor": {
+        "red": 66,
+        "green": 66,
+        "blue": 66
+    },
+    "backgroundAlpha": 0,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{74f790ec-4642-48fb-966d-fad0efbe1846}",
+    "type": "Image",
+    "lastEdited": 1556832403677411,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Wall Image",
+    "localPosition": {
+        "x": 0.4352,
+        "y": 0.5296,
+        "z": -1.9716
+    },
+    "dimensions": {
+        "x": 0.8,
+        "y": 0.6,
+        "z": 0.01
+    },
+    "localRotation": {
+        "x":-0.0007481817156076431,
+        "y":-0.01310747116804123,
+        "z":0.002823874121531844,
+        "w":0.9999098181724548
+    },
+    "created": 1556832398148097,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 11.653326034545898,
+        "y": -8.889361381530762,
+        "z": 13.623461723327637,
+        "scale": 1.0484946966171265
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "imageURL": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/appResources/resources/images/podAppThumbLandscape.png",
+    "keepAspectRatio": false,
+    "textures": {
+        "tex.picture": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/appResources/resources/images/podAppThumbLandscape.png"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{f772551b-52ab-4b12-932d-48c3f80f2579}",
+    "type": "Text",
+    "lastEdited": 1556832650510313,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Clock",
+    "userData": "{\n    \"grabbableKey\": {\n        \"grabbable\": false\n    }\n}\n",
+    "localPosition": {
+        "x": -0.5383,
+        "y": 0.4132,
+        "z": 2.1697
+    },
+    "dimensions": {
+        "x": 0.8880290389060974,
+        "y": 0.2879684567451477,
+        "z": 0.009999999776482582
+    },
+    "localRotation": {
+        "x": 0,
+        "y": 1,
+        "z": 0,
+        "w": 0
+    },
+    "created": 1556832398147949,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 7.526235580444336,
+        "y": -9.001116752624512,
+        "z": 12.899748802185059,
+        "scale": 0.9336066842079163
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/rebecca/LoadTest/clockPST.js",
+    "text": "02:30pm",
+    "lineHeight": 0.20000000298023224,
+    "textColor": {
+        "red": 92,
+        "green": 92,
+        "blue": 92
+    },
+    "backgroundColor": {
+        "red": 64,
+        "green": 64,
+        "blue": 64
+    },
+    "backgroundAlpha": 0,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{10ea596e-aa35-4117-b6f9-6e50898c35c3}",
+    "type": "Material",
+    "lastEdited": 1556832403678089,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Window Tint Material",
+    "localPosition": {
+        "x": 0.1781482696533203,
+        "y": 0.14586257934570312,
+        "z": 0.05228614807128906
+    },
+    "localRotation": {
+        "x": -0.0000457763671875,
+        "y": 0.7008621692657471,
+        "z": 0.0000152587890625,
+        "w": 0.7132524251937866
+    },
+    "created": 1556832398148775,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 6.222322463989258,
+        "y": -12.929362297058105,
+        "z": 9.923911094665527,
+        "scale": 7.9634246826171875
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "materialURL": "materialData",
+    "priority": 1,
+    "parentMaterialName": "",
+    "materialData": "{\n  \"materialVersion\": 1,\n  \"materials\": {\n    \"opacity\": 0.9,\n    \"albedo\": {\n      \"red\": 0,\n      \"green\": 0,\n      \"blue\": 0\n    }\n  }\n}",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{282dd74c-38e9-45df-9a98-51c360694316}",
+    "type": "Model",
+    "lastEdited": 1556832403677940,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Desk",
+    "localPosition": {
+        "x": 1.1817843914031982,
+        "y": -0.6133966445922852,
+        "z": 1.4938373565673828
+    },
+    "dimensions": {
+        "x": 1.7764029502868652,
+        "y": 0.7369513511657715,
+        "z": 0.8750088214874268
+    },
+    "localRotation": {
+        "x": -0.0000457763671875,
+        "y": 0.99993896484375,
+        "z": 0.0000457763671875,
+        "w": 0.00816357135772705
+    },
+    "created": 1556832398148626,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 7.653476715087891,
+        "y": -10.617350578308105,
+        "z": 14.030792236328125,
+        "scale": 2.1128997802734375
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "modelURL": "https://cdn.highfidelity.com/DomainContent/production/Island-Office-Template-v1-baked/desk_small/baked/desk_small.baked.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{76f1ac7b-c911-4487-ba15-2c7fc1ea4b67}",
+    "type": "Model",
+    "lastEdited": 1556832403677758,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Chair 2",
+    "localPosition": {
+        "x": 1.6033720970153809,
+        "y": -0.5363454818725586,
+        "z": -0.9155616760253906
+    },
+    "dimensions": {
+        "x": 0.8894738554954529,
+        "y": 0.8753615021705627,
+        "z": 0.9862046837806702
+    },
+    "localRotation": {
+        "x": -0.0001068115234375,
+        "y": -0.6131227612495422,
+        "z": -0.0000762939453125,
+        "w": 0.7899748086929321
+    },
+    "created": 1556832398148444,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 10.324045181274414,
+        "y": -10.279315948486328,
+        "z": 14.713898658752441,
+        "scale": 1.5906040668487549
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "modelURL": "https://cdn.highfidelity.com/DomainContent/production/Island-Office-Template-v1-baked/Chair-Varieta-White-Leather/baked/Chair-Varieta-White-Leather.baked.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{2d8b972c-44a0-411f-aad8-43363e9f17ad}",
+    "type": "Zone",
+    "lastEdited": 1556832579353518,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Zone",
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/workPod/entityResources/podZone/workPodZoneClient.js",
+    "localPosition": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 5.053942680358887,
+        "y": 3.4308719635009766,
+        "z": 5.109099864959717
+    },
+    "localRotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+    },
+    "created": 1556832468334811,
+    "lastEditedBy": "{b1dd929c-8880-44e2-9cce-60c8d698454d}",
+    "queryAACube": {
+        "x": 2.418743133544922,
+        "y": -16.157634735107422,
+        "z": 5.533145904541016,
+        "scale": 15.582462310791016
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "shapeType": "box",
+    "keyLight": {
+        "direction": {
+            "x": 0,
+            "y": -0.7071067690849304,
+            "z": 0.7071067690849304
+        },
+        "castShadows": true
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{8683bca6-c551-480a-a624-893b2d70f25c}",
+    "type": "Material",
+    "lastEdited": 1556832403677541,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Accent Material",
+    "localPosition": {
+        "x": 0.1781482696533203,
+        "y": 0.14586257934570312,
+        "z": 0.05228614807128906
+    },
+    "localRotation": {
+        "x": -0.0000457763671875,
+        "y": 0.7008621692657471,
+        "z": 0.0000152587890625,
+        "w": 0.7132524251937866
+    },
+    "created": 1556832398148227,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": 6.222322463989258,
+        "y": -12.929362297058105,
+        "z": 9.923911094665527,
+        "scale": 7.9634246826171875
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "materialURL": "materialData",
+    "priority": 1,
+    "parentMaterialName": "[mat::Accent-Color]",
+    "materialData": "{\n  \"materialVersion\": 1,\n  \"materials\": {\n    \"roughness\": 0.5,\n    \"albedo\": {\n      \"red\": 0.54,\n      \"green\": 0.78,\n      \"blue\": 0.45\n    }\n  }\n}",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "type": "Model",
+    "lastEdited": 1556832512932220,
+    "name": "Pod",
+    "dimensions": {
+        "x": 5.053942680358887,
+        "y": 3.4308719635009766,
+        "z": 5.109099864959717
+    },
+    "localPosition": {
+        "x": 1.9206,
+        "y": -0.0416,
+        "z": 1.5919
+    },
+    "localRotation": {
+        "x": -0.000036838097003055736,
+        "y": -0.7071596384048462,
+        "z": -0.00001525809148006374,
+        "w": 0.7070770859718323
+    },
+    "created": 1556832398146762,
+    "lastEditedBy": "{b1dd929c-8880-44e2-9cce-60c8d698454d}",
+    "queryAACube": {
+        "x": -3.9817121028900146,
+        "y": -3.9817121028900146,
+        "z": -3.9817121028900146,
+        "scale": 7.963424205780029
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "scriptTimestamp": 1556296538311,
+    "shapeType": "static-mesh",
+    "modelURL": "https://cdn.highfidelity.com/DomainContent/production/Island-Office-Template-v1-baked/Chatterbox-v2/baked/Chatterbox-v2.baked.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{5d95eae3-2e87-4563-9eac-c3b73dc75fee}",
+    "type": "Light",
+    "lastEdited": 1556832403678275,
+    "parentID": "{0bc3ecac-33ca-4208-8d34-81dab47d628e}",
+    "name": "Pod Mod Light",
+    "localPosition": {
+        "x": -0.33913692831993103,
+        "y": -0.24823379516601562,
+        "z": 0.3825397491455078
+    },
+    "dimensions": {
+        "x": 15.905147552490234,
+        "y": 15.905147552490234,
+        "z": 15.905147552490234
+    },
+    "localRotation": {
+        "x": 0.0000152587890625,
+        "y": 0.7022354602813721,
+        "z": 0.0000457763671875,
+        "w": 0.7119096517562866
+    },
+    "created": 1556832398148961,
+    "lastEditedBy": "{04ecae52-b974-40d4-b475-9ae5e5c27aa6}",
+    "queryAACube": {
+        "x": -3.9527463912963867,
+        "y": -22.97012710571289,
+        "z": -0.20783615112304688,
+        "scale": 27.54852294921875
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "color": {
+        "red": 212,
+        "green": 181,
+        "blue": 116
+    },
+    "intensity": 5,
+    "exponent": 1,
+    "cutoff": 75,
+    "falloffRadius": 1,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{b7082b42-ecfd-4620-9595-19f1915b375b}",
+  "Version": 120
+}

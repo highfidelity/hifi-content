@@ -12,28 +12,32 @@
 
     var _this;
 
-    var WAIT_FOR_USERNAME_REQUEST_MS = 300;
-    var NEGATIVE = -1;
-    var GREEN = {red:0,green:255,blue:0};
-    var YELLOW = {red:255,green:255,blue:0};
-    var RED = {red:255,green:0,blue:0};
     var OWNERSHIP_UPDATE_INTERVAL_MS = 5000;
-    var NUMBER_OF_PRESETS = 3;
+    // eslint-disable-next-line no-magic-numbers
     var LINE_HEIGHTS = [0.07, 0.06, 0.05];
+    // eslint-disable-next-line no-magic-numbers
     var MAX_CHAR_CUT_OFFS = [6, 9, 12];
     var NEUTRAL_1_COLOR = { red: 241, green: 243, blue: 238 };
     var NEUTRAL_4_COLOR = { red: 126, green: 140, blue: 129 };
+    var DEFAULT_POD_SETTINGS = {
+        deskImageURL: Script.resolvePath("resources/images/podAppThumbPortrait.png"),
+        wallImageURL: Script.resolvePath("resources/images/podAppThumbLandscape.png"),
+        roomAccentColor: { red: 138, green: 199, blue: 115 },
+        lightColor: { red: 240, green: 233, blue: 103 },
+        windowTint: false,
+        podPanelID: "null"
+    };
 
     var availabilityInfo;
     var availabilityButton;
     var username;
-    var displayName;
     var updateOwnershipDataInterval;
     var podOwnerUsername;
     var podOwnerDisplayName;
     var occupantInfo;
     var presetButtonTexts = [];
     var presetNames = [];
+    var numberOfPresets;
 
     var PodPanelClient = function() {
         _this = this;
@@ -41,6 +45,9 @@
 
     PodPanelClient.prototype = {
         remotelyCallable: ['ownerInfoReceived', 'changeEntity'],
+
+        /* Store this, connect signals, and request thisuser's username. Begin an interval to update the ownership 
+        info of this pod and get the names for the pods presets from the user data of this panel. */
         preload: function(entityID){
             _this.entityID = entityID;
             Users.usernameFromIDReply.connect(_this.usernameFromIDReply);
@@ -49,22 +56,21 @@
                 Entities.callEntityServerMethod(_this.entityID, 'getOwnerInfo', [MyAvatar.sessionUUID]);
             }, OWNERSHIP_UPDATE_INTERVAL_MS);
             var userData = JSON.parse(Entities.getEntityProperties(_this.entityID, 'userData').userData);
-            var numberPresets = userData.roomPresets.length;
-            for (var i = 0; i < numberPresets; i++) {
+            numberOfPresets = userData.roomPresets.length;
+            for (var i = 0; i < numberOfPresets; i++) {
                 presetNames.push(userData.roomPresets[i].name);
             }
-            // check if pod is furnished, rez default if needed
-            // check if app is loaded, load if necessary
-            // start listening for event bridge messages
         },
 
-        usernameFromIDReply: function(nodeID, userName, machineFingerprint, isAdmin) {
-            username = userName;
-            Entities.callEntityServerMethod(_this.entityID, 'getOwnerInfo', [MyAvatar.sessionUUID]);
+        /* Receive the user's username via signal and store it */
+        usernameFromIDReply: function(nodeID, name, machineFingerprint, isAdmin) {
+            username = name;
         },
 
+        /* If the buttons already exist , return. If some preset buttons exist, but not the correct amount, delete them all.
+            Rez a preset button for each name in the array of preset names. */
         showPresetButtons: function() {
-            if (presetButtonTexts.length === NUMBER_OF_PRESETS) { // the 3 buttons already exist
+            if (presetButtonTexts.length === numberOfPresets) { // the 3 buttons already exist
                 return;
             } else {
                 _this.clearPresetButtons();
@@ -101,6 +107,7 @@
             });
         },
 
+        /* Delete all preset buttons */
         clearPresetButtons: function() {
             if (presetButtonTexts.length > 0) { // something is wrong, start fresh
                 presetButtonTexts.forEach(function(presetButton) {
@@ -110,8 +117,9 @@
             }
         },
 
-        showOccupantInfo: function() {
-            var ownerName = podOwnerDisplayName;
+        /* Set the line height for occupant info depending on how long their username is. Edit the text entity 
+            with their name or rez it if necessary */
+        showOccupantInfo: function(ownerName) {
             var lineHeight;
             if (ownerName.length <= MAX_CHAR_CUT_OFFS[0]) {
                 lineHeight = LINE_HEIGHTS[0];
@@ -145,6 +153,7 @@
             }
         },
 
+        /* Update the availability info text to show pod ownership status. Rez it if it does not exist. */
         setAvailabilityInfo: function(availabilityText, textDimensions) {
             if (availabilityInfo) {
                 Entities.editEntity(availabilityInfo, {
@@ -167,6 +176,7 @@
             }
         },
 
+        /* Update the availability button to allow claiming or releasing the pod. Rez it if it does not exist. */
         setAvailabilityButton: function(claimOrReleaseText, buttonDimensions, buttonScript) {
             if (availabilityButton) {
                 Entities.editEntity(availabilityButton, {
@@ -191,6 +201,25 @@
             }
         },
 
+        /* CHECK IF A USER IS RUNNING THE CARD APP: Get a list of running scripts using the script discovery service API. 
+        Search that list for the card app script and return whether or not it was found */
+        isRunningPodApp: function() {
+            var isRunning = false;
+            if (JSON.stringify(ScriptDiscoveryService.getRunning()).indexOf("pod_app.js") !== -1) {
+                isRunning = true;
+            }
+            return isRunning;
+        },
+
+        /* This is called from the pod panel server script when this script's update interval has requested pod ownership 
+            data or the panel server has carried out a request to claim or release the pod for this user. If there is no 
+            username stored for this user, request it again and return. If ownership data has not changed, return. Set the 
+            new username and display name and get this user's pod prefereneces. If the pod has another owner and this owner 
+            is claiming it in their settings, delete their podPanelID setting. Set the pod panel to display the name of the 
+            owner and get rid of extra buttons. If the pod is owned by this user, load the app if it is not running. It this
+             user has another pod checked out, release it then show the preset options. If the pod has no owner and this 
+             user is claiming it in their settings, they have just released it. Clear the setting for podPanelID and reset 
+             the panel info. Save the user's settings including any changes. */
         ownerInfoReceived: function(id, ownerInfoParams) {
             if (!username) {
                 Users.requestUsernameFromID(MyAvatar.sessionUUID);
@@ -204,15 +233,39 @@
             var textDimensions = { x: 0.2207, y: 0.09, z: 0.01 };
             var buttonDimensions = { x: 0.375, y: 0.09, z: 0.01 };
             var availabilityText, claimOrReleaseText, buttonScript;
+            var personalPodSettings = Settings.getValue("workSpace");
+            if (!personalPodSettings) {
+                personalPodSettings = DEFAULT_POD_SETTINGS;
+            }
+            print("POD SETTINGS BEFORE: ", JSON.stringify(Settings.getValue("workSpace")));
+            print("------------------POD ID: ", personalPodSettings.podPanelID);
             if (podOwnerUsername && podOwnerUsername !== "undefined" && podOwnerUsername !== "null" 
                 && podOwnerUsername !== username) { // pod has other owner
+                print("POD IS OWNED BY SOMEONE ELSE: ", podOwnerDisplayName);
+                if (personalPodSettings.podPanelID === _this.entityID) {
+                    personalPodSettings.podPanelID = "null";
+                }
                 availabilityText = "IN USE";
                 claimOrReleaseText = "";
                 buttonScript = "";
-                _this.showOccupantInfo();
+                _this.showOccupantInfo(podOwnerDisplayName);
                 _this.clearPresetButtons();
             } else if (podOwnerUsername && podOwnerUsername !== "undefined" && podOwnerUsername !== "null" 
                 && podOwnerUsername === username) { // pod is owned by this user
+                print("POD SETTINGS AFTER: ", JSON.stringify(personalPodSettings));
+                print("------------------POD ID: ", personalPodSettings.podPanelID);
+                if (!_this.isRunningPodApp()) {
+                    print("STARTING POD APP");
+                    ScriptDiscoveryService.loadScript(Script.resolvePath('../../appResources/pod_app.js'));
+                }
+                if (personalPodSettings.podPanelID !== "null" && personalPodSettings.podPanelID !== _this.entityID) {
+                    // user has another pod checked out
+                    print("I AM CHECKING OUT A POD BUT MUST FIRST RELEASE THE OLD ONE");
+                    print("OLD POD: ", personalPodSettings.podPanelID, " AND NEW ONE: ", _this.entityID);
+                    Entities.callEntityServerMethod(personalPodSettings.podPanelID, 'setOwnerInfo', 
+                        [MyAvatar.sessionUUID, username, null, "true"]);
+                }
+                personalPodSettings.podPanelID = _this.entityID;
                 availabilityText = "IN USE";
                 claimOrReleaseText = "Release this pod";
                 buttonDimensions.x = 0.394;
@@ -223,6 +276,15 @@
                 }
                 _this.showPresetButtons();
             } else { // pod has no owner
+                print("POD HAS NO OWNER");
+                if (personalPodSettings.podPanelID === _this.entityID) {
+                    print("CLEARING POD ID IN SETTINGS");
+                    personalPodSettings.podPanelID = "null";
+                    if (_this.isRunningPodApp()) {
+                        print("STOPPING POD APP");
+                        ScriptDiscoveryService.stopScript(Script.resolvePath('../../appResources/pod_app.js'));
+                    }
+                }
                 availabilityText = "AVAILABLE";
                 claimOrReleaseText = "Claim this pod";
                 buttonScript = Script.resolvePath("availabilityButton/workPodClaimClient.js?1") ;
@@ -233,15 +295,12 @@
                 }
                 _this.clearPresetButtons();
             }
+            Settings.setValue("workSpace", personalPodSettings);
             _this.setAvailabilityInfo(availabilityText, textDimensions);
             _this.setAvailabilityButton(claimOrReleaseText, buttonDimensions, buttonScript);
         },
-       
-        // When this client script receives an Event Bridge message from the Personal Workspace App containing the user's Room preferences:
-        // It will send the associated Server Script those preferences AND the current user's UUID.
-        // When this client script receives a message from a Button client script containing the user's selected preset:
-        // It will send the associated Server Script the user's saved Preferences (from Settings) AND that selected preset.
 
+        /* Disconnect signals, delete buttons on panel, and clear intervals */
         unload: function() {
             Users.usernameFromIDReply.disconnect(_this.usernameFromIDReply);
             if (availabilityButton) {
