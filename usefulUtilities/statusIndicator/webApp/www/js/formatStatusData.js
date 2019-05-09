@@ -1,5 +1,6 @@
 var UNSET_DISPLAY_NAME_STRING = "unset display name";
 var UNKNOWN_TEAM_STRING = "Unknown Team";
+var UNKNOWN_LOCATION_STRING = "online";
 
 function formatStatusData(data) {
     var generatedContainerDiv = document.createElement("div");
@@ -61,6 +62,9 @@ function formatStatusData(data) {
             if (currentStatus === "offline") {
                 currentLocation = "offline";
                 td.classList.add("offlineStatusText");
+            }
+            if (currentStatus !== "offline" && currentLocation === "unknown") {
+                currentLocation = UNKNOWN_LOCATION_STRING;
             }
             if (currentLocation !== "hidden") {
                 td.appendChild(document.createTextNode(currentLocation));
