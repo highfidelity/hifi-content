@@ -13,11 +13,14 @@
 //
 // Allows avatars to sit in High Fidelity after clicking on a local entity or on the chair. Works with sitServer.js.
 //
+
+/* global DriveKeys, isInEditMode */
+
 (function () {
     
     var DEBUG = false;
 
-    //#region UTILITIES
+    // #region UTILITIES
 
     Script.include("/~/system/libraries/utils.js");
 
@@ -38,7 +41,7 @@
             visible: true,
             emissive: true,
             renderLayer: "front"
-        }
+        };
     }
 
 
@@ -60,6 +63,7 @@
 
     // Checks for Avatar Spine Error in VR to avoid uncomfortable looking avatar position
     var NEG_ONE = -1;
+    var HALF = 0.5;
     function setHeadToHipsDistance() {
         // get hips world pos while sitting
         if (MyAvatar.getJointIndex("Head") === NEG_ONE) {
@@ -85,10 +89,10 @@
         _this.seatCenterPosition.y = properties.position.y + yOffset;
     }
 
-    //#endregion UTILITIES
+    // #endregion UTILITIES
 
 
-    //#region SIT DOWN / STAND UP SEQUENCE
+    // #region SIT DOWN / STAND UP SEQUENCE
 
     // 1st of sit down sequence
     // Send request to server script to begin sit down
@@ -125,7 +129,7 @@
         // Set isSitting value in Settings
         var sitPreviousSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
         var sitNewSettings = [_this.entityID, MyAvatar.position, MyAvatar.orientation]; // ***
-        if (sitPreviousSettings && sitPreviousSettings.length === 3) {
+        if (sitPreviousSettings && sitPreviousSettings.length === sitNewSettings.length) {
             // changed chair, only change entityID, keep old values for previousAvatarPosition and previousAvatarOrientation
             sitNewSettings[1] = sitPreviousSettings[1];
             sitNewSettings[2] = sitPreviousSettings[2];
@@ -325,8 +329,7 @@
 
     // Standup functionality
     var STANDUP_DISTANCE_M = 0.5; // m 
-    var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair 
-    var STANDUP_DELAY_MS = 25; // ms for timeout in standup
+    var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair
     var ADD_OVERLAYS_DELAY_MS = 525;
     function standUp() {
         if (DEBUG) {
@@ -451,10 +454,10 @@
         deleteSittableUI();
     }
 
-    //#endregion SIT DOWN / STAND UP SEQUENCE
+    // #endregion SIT DOWN / STAND UP SEQUENCE
 
 
-    //#region PRESIT - LOCAL ENTITY shown in HMD before sitting and after clicking sittable overlay
+    // #region PRESIT - LOCAL ENTITY shown in HMD before sitting and after clicking sittable overlay
     // Has the sitting animation and "Please Face Forward"
 
     // Prefetch all presit overlay images into user's client
@@ -505,7 +508,8 @@
                 if (currentPresitAnimationFrame >= _this.preSitLoadedImages.length - 1) {
                     deletePresit();
                 }
-                Entities.editEntity(_this.presitAnimationImageID, { imageURL: _this.preSitLoadedImages[currentPresitAnimationFrame].url });
+                Entities.editEntity(_this.presitAnimationImageID, { imageURL: 
+                        _this.preSitLoadedImages[currentPresitAnimationFrame].url });
             }
         }, PRESIT_FRAME_DURATION);
     }
@@ -527,10 +531,10 @@
         }
     }
 
-    //#endregion PRESIT
+    // #endregion PRESIT
 
 
-    //#region HOLD TO STANDUP LOCAL ENTITY
+    // #region HOLD TO STANDUP LOCAL ENTITY
 
     // Create stand up local entity in user's screen
     var STAND_UP_URL = Script.resolvePath("./resources/images/holdToStandUp.png");
@@ -538,7 +542,7 @@
     var STAND_UP_DIMENSIONS = { x: 0.2, y: 0.2 };
     function createStandUp() {
         if (DEBUG) {
-            console.log("creating standup")
+            console.log("creating standup");
         }
 
         _this.standUpID = Entities.addEntity(
@@ -560,10 +564,10 @@
         }
     }
 
-    //#endregion HOLD TO STANDUP
+    // #endregion HOLD TO STANDUP
 
 
-    //#region SITTABLE LOCAL ENTITY
+    // #region SITTABLE LOCAL ENTITY
 
     // Create sittable UI on the chair
     var SITTABLE_START_ALPHA = 0.7;
@@ -590,7 +594,7 @@
         _this.sittableID = Entities.addEntity({
             type: "Image",
             grab: {
-                grabbable: false,
+                grabbable: false
             },
             dynamic: false,
             position: sittablePosition,
@@ -607,7 +611,7 @@
             visible: true,
             emissive: true
         },
-            "local"
+        "local"
         );
     }
 
@@ -624,10 +628,10 @@
         }
     }
 
-    //#endregion SITTABLE
+    // #endregion SITTABLE
 
 
-    //#region ENTITY LIFETIME FUNCTIONS
+    // #region ENTITY LIFETIME FUNCTIONS
 
     // Check userData for configurable settings
     // If userData is not configured with the right keys update with defaults
@@ -693,7 +697,7 @@
         }
     }
 
-    //#endregion ENTITY LIFETIME FUNCTIONS
+    // #endregion ENTITY LIFETIME FUNCTIONS
 
 
     // Constructor
@@ -758,7 +762,7 @@
         whileSittingUpdate: whileSittingUpdate,
         check: check,
         standUp: standUp
-    }
+    };
 
 
     return new SitClient();

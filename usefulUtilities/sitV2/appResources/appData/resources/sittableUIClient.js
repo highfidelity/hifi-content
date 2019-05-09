@@ -10,7 +10,7 @@
 //
 (function() {
 
-    var DEBUG = false;
+    var DEBUG = 0;
 
     // Fades the sittable local entity over time
     var SITTABLE_START_ALPHA = 0.7;
@@ -71,9 +71,10 @@
                         { imageURL: HMD.active ? SITTABLE_IMAGE_URL_HMD : SITTABLE_IMAGE_URL_DESKTOP }
                     );
                 }
-            }
+            };
             HMD.displayModeChanged.connect(this.displayModeChangedCallback);
         },
+
         clearLerpInterval: function () {
             if (DEBUG) {
                 console.log("sit ui clear lerp interval called");
@@ -86,19 +87,21 @@
                 _this.intervalLerpTransparencyID = false;
             }
         },
-        mouseReleaseOnEntity: function (entityID, event) {
+
+        mousePressOnEntity: function (entityID, event) {
             if (DEBUG) {
-                console.log("sit ui mouse release on entity");
+                console.log("MOUSE RELEASE");
             }
             if (event.isPrimaryButton) {
                 Entities.callEntityServerMethod(_this.sitEntityID, "onSitDown", [MyAvatar.sessionUUID]);
             }
         },
+
         unload: function () {
             _this.clearLerpInterval(); 
             HMD.displayModeChanged.disconnect(this.displayModeChangedCallback);
         }
-    }
+    };
 
     
     return new SittableClickableUI();

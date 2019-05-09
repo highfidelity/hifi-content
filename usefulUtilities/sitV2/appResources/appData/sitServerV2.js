@@ -96,7 +96,7 @@
     // Remotely callable
     // Remove sittable local entities from every client in range passed in by sitClient
     function removeAllOtherSittableOverlays(id, params) {
-        for(var i = 0; i < params.length; i++) {
+        for (var i = 0; i < params.length; i++) {
             Entities.callEntityClientMethod(
                 params[i],
                 _this.entityID,
@@ -113,7 +113,7 @@
             console.log("ADD ALL OTHER SITTABLE OVERLAYS");
         }
         if (_this.isOccupied === false) {
-            for(var i = 0; i < params.length; i++) {
+            for (var i = 0; i < params.length; i++) {
                 if (DEBUG) {
                     console.log("avatar1");
                 }
@@ -126,7 +126,7 @@
         }
     }
 
-    //#region CAN SIT ZONE
+    // #region CAN SIT ZONE
 
 
     // Create can sit zone
@@ -155,7 +155,7 @@
         }
     }
 
-    //#endregion CAN SIT ZONE
+    // #endregion CAN SIT ZONE
     
     // Preload entity lifetime method
     function preload(id) {
@@ -174,7 +174,7 @@
             Script.clearInterval(_this.heartbeatInterval);
             _this.heartbeatInterval = false;
         }
-        deleteCanSitZone()
+        deleteCanSitZone();
     }
 
 
