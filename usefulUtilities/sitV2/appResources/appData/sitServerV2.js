@@ -142,7 +142,8 @@
             script: Script.resolvePath("./resources/canSitZoneClient.js") + "?" + Math.random(),
             locked: false,
             dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
-            keyLightMode: "disabled"
+            keyLightMode: "inherit",
+            interactive: false
         });
     }
 
@@ -162,7 +163,6 @@
         _this.entityID = id;
         _this.isOccupied = false;
         _this.resolved = false;
-
         createCanSitZone();
     }
 

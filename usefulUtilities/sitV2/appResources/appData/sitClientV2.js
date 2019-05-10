@@ -18,7 +18,7 @@
 
 (function () {
     
-    var DEBUG = false;
+    var DEBUG = 0;
 
     // #region UTILITIES
 
@@ -109,7 +109,7 @@
     // 2nd of sit down sequence
     // Called from entity server script to begin sitting down sequence
     var SETTING_KEY_AVATAR_SITTING = "com.highfidelity.avatar.isSitting";
-    var SIT_SETTLE_TIME_MS = 350; // Do not pop avatar out of chair immediates if there's an issue
+    var SIT_SETTLE_TIME_MS = 350; // Do not pop avatar out of chair immediately if there's an issue
     var STANDUP_DELAY_MS = 25; // ms for timeout in standup
     var SIT_DELAY_MS = 50; // ms for timeouts in sit
     var CAN_SIT_M = 5; // zone radius
@@ -170,7 +170,7 @@
     var ANIMATION_FPS = 30;
     var ANIMATION_FIRST_FRAME = 1;
     var ANIMATION_LAST_FRAME = 350;
-    var UPDATE_INTERVAL_MS = 50;
+    var UPDATE_INTERVAL_MS = 400;
     var OVERRIDDEN_DRIVE_KEYS = [
         DriveKeys.TRANSLATE_X,
         DriveKeys.TRANSLATE_Y,
@@ -198,16 +198,13 @@
         }
 
         MyAvatar.centerBody();
-        var hipIndex = MyAvatar.getJointIndex("Hips");
-
-        var properties = Entities.getEntityProperties(_this.entityID);
 
         Script.setTimeout(function () {
-            _this.isSittingDown = true;
+            var hipIndex = MyAvatar.getJointIndex("Hips");
+            var properties = Entities.getEntityProperties(_this.entityID);
             _this.sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME_MS;
-
+            MyAvatar.goToLocation(_this.seatCenterPosition, true, Quat.fromVec3Degrees(properties.rotation), false, false);
             MyAvatar.pinJoint(hipIndex, _this.seatCenterPosition, properties.rotation);
-
             stopUpdateInterval();
 
             _this.whileSittingUpdateIntervalID = Script.setInterval(_this.whileSittingUpdate, UPDATE_INTERVAL_MS);
@@ -330,7 +327,6 @@
     // Standup functionality
     var STANDUP_DISTANCE_M = 0.5; // m 
     var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair
-    var ADD_OVERLAYS_DELAY_MS = 525;
     function standUp() {
         if (DEBUG) {
             console.log("standup");
@@ -400,7 +396,6 @@
 
         _this.driveKeyPressedStart = false;
         _this.sitDownSettlePeriod = false;
-        _this.isSittingDown = false;
         deleteStandUp();
 
         Entities.callEntityServerMethod(_this.entityID, "onStandUp");
@@ -418,14 +413,11 @@
         }
 
         // RESET OVERLAYS FOR ALL AVATARS IN RANGE OF THE CHAIR
-        Script.setTimeout(function () {
-            // wait till avatar is out of range of the chair
-            Entities.callEntityServerMethod(
-                _this.entityID,
-                "addAllOtherSittableOverlays",
-                AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
-            );
-        }, ADD_OVERLAYS_DELAY_MS);
+        Entities.callEntityServerMethod(
+            _this.entityID,
+            "addAllOtherSittableOverlays",
+            AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
+        );
     }
 
     // Remotely called from canSitZone
@@ -438,12 +430,16 @@
         if (!isInEditMode()) {
             calculateSeatCenterPositionForPinningAvatarHips();
             var isSittingInChair = AvatarList.isAvatarInRange(_this.seatCenterPosition, AVATAR_SITTING_IN_CHAIR_RANGE);
-            console.log("onEnterCanSitZone" + !_this.sittableUIID + !isSittingInChair);
+            if (DEBUG) {
+                console.log("onEnterCanSitZone" + !_this.sittableUIID + !isSittingInChair);
+            }
             if (!_this.sittableUIID && !isSittingInChair) {
                 createSittableUI();
             }
         } else {
-            console.log("entered zone and isInEditMode");
+            if (DEBUG) {
+                console.log("entered zone and isInEditMode");
+            }
             // is in edit mode do not create sittable
         }
     }
@@ -474,7 +470,6 @@
         }
         _this.preSitTextLoadedImage = TextureCache.prefetch(PRESIT_URL_TEXT);
     }
-
 
     // Create the VR presit animation local entity in front of user's screen
     var SIT_ANIMATION_POSITION_IN_FRONT = { x: 0, y: 0.1, z: -1 };
@@ -688,7 +683,7 @@
 
 
     // Can sit when clicking on chair when enabled via userData
-    function mouseReleaseOnEntity(id, event) {
+    function mousePressOnEntity(id, event) {
         if (event.isPrimaryButton && !isInEditMode()) {
             updateUserData();
             if (_this.userData && _this.userData.canClickOnModelToSit) {
@@ -720,7 +715,6 @@
 
         this.seatCenterPosition = null;
         this.headToHipsDistance = null;
-        this.isSittingDown = false;
         this.sitDownSettlePeriod = false;
 
         this.whileSittingUpdateIntervalID = false;
@@ -757,7 +751,7 @@
         unload: unload,
         // Sitting lifetime methods
         sendRequestToServerScriptToStartSitDown: sendRequestToServerScriptToStartSitDown,
-        mouseReleaseOnEntity: mouseReleaseOnEntity,
+        mousePressOnEntity: mousePressOnEntity,
         startSitDown: startSitDown,
         whileSittingUpdate: whileSittingUpdate,
         check: check,
