@@ -99,6 +99,13 @@
                     type: "ALREADY SET",
                     data: roomConfig
                 });
+            } else if (message.type === "ERROR") {
+                Window.alert("There was an error, here's what we know:\n" + 
+                message.entityName + "\nError: " + 
+                message.errorMessage + "\nHappened during: " + 
+                message.attemptedAction);
+            } else if (message.type === "REFRESH SUCCESS") {
+                Window.announcement("Token server successfully refreshed " + message.count + " times since preload.");
             }
         }
     };
