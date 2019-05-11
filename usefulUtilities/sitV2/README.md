@@ -1,0 +1,50 @@
+# Sit V2
+
+## Description
+
+Make any entity sittable whether it's a chair, bench, couch, log, or even a tree stump. One chair per entity.
+
+To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in userData. 
+
+
+## Setup
+
+1. Add sitClientV2.js as script to entity
+2. Add sitServerV2.js as server script to entity
+
+
+## Releases
+
+2019-01-17_14-57-17 :: [sitScriptUpdate ded8ecbc78a44c3c830e1f42fed6dd8e9277a4c1]
+- During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
+
+
+## Known issues
+
+### Solution to other entities taking the "Click to Sit" click events
+
+Collisions with other entity's invisible collision hulls sometimes make it difficult to sit. Ensure entities near sit cubes have the property `ignorePickIntersection: true`.
+
+### Sit animation does not apply to an avatar using a different default animation
+
+Animation that is applied before sitting is applied while in the chair and continues after standup. 
+
+
+## Known issues
+
+### Future features
+
+Configurable variables:
+- Custom animations specified via userData
+- All configurable variables specified via userData
+
+
+## Sit Configurations
+
+### Configurable adjustments in Create Mode
+- Adjust seat center - update the "Pivot" (to adjust the "registrationPoint" entity property) Ex: a stool for an avatar to sit in the middle on top, Pivot = { x: 0.5, y: 1.0, z: 0.5 }
+
+### Configurable variables in userData
+- Can click on chair to sit boolean in userData
+
+Happy sitting V2!
