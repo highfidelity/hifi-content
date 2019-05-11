@@ -8,9 +8,9 @@
 // Load the API's client and auth2 modules.
 // Call the initClient function after the modules load.
 
-var YOUR_SECRET = 'QowY-iVRTn-lJzKcCD9PwlIZ';
-var YOUR_CLIENT_ID = '813544734011-8eo219koe6a7r35uk3hjv8e44d2d0a6c.apps.googleusercontent.com';
-var YOUR_REDIRECT_URI = 'http://127.0.0.1:90/localHTTP/meetingRoom_ui.html';
+var YOUR_SECRET = 'k17SMuuBPFyULru2-6aC0Spk';
+var YOUR_CLIENT_ID = '108975106449-oqfk0mohv226fe84b8csje5rsb1ggctq.apps.googleusercontent.com';
+var YOUR_REDIRECT_URI = 'http://127.0.0.1:80/localHTTP/meetingRoom_ui.html';
 var SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 var fragmentString = location.search;
 // Parse query string to see if page request is coming from OAuth 2.0 server.
@@ -134,19 +134,26 @@ var calendarList;
 var resources = [];
 function getCalendars() {
     var params = JSON.parse(sessionStorage.getItem('response'));
+    console.log(JSON.stringify(params));
     sessionStorage.removeItem('resources');
     completedConnections = [];
     calendarList = [];
     resources = [];
     if (params && params['access_token']) {
+        console.log("has access")
         var xhr = new XMLHttpRequest();
         xhr.open('GET',
             'https://www.googleapis.com/calendar/v3/users/me/calendarList?' +
             'access_token=' + params['access_token']);
         xhr.onreadystatechange = function (e) {
+            console.log("STATE CHANGE");
+            console.log(xhr.response)
             if (xhr.readyState === 4 && xhr.status === 200) {
+                console.log("IN READY STATE 4")
                 try {
                     calendarList = JSON.parse(xhr.response);
+                    console.log("cal list");
+                    console.log(JSON.stringify(calendarList))
                     for (var i = 0; i < calendarList.items.length; i++) {
                         resources.push({
                             "address": calendarList.items[i].id,
@@ -159,12 +166,14 @@ function getCalendars() {
                     console.log(e, " FAILED PARSING");
                 }
             } else if (xhr.readyState === 4 && xhr.status === 401) {
+                console.log("TOKEN INVALID")
             // Token invalid, so prompt for user permission.
                 oauth2SignIn();
             }
         };
         xhr.send(null);
     } else {
+        console.log("unauthed");
         oauth2SignIn();
     }
     document.getElementById('linkedspaces').innerHTML = '';
@@ -184,6 +193,7 @@ var pages = [
     ERROR_PAGE
 ];
 function changePages(origin, destination) {
+    console.log("IN CHANGE PAGES")
     switch (origin) {
         case "LOGIN":
             loginButton.removeEventListener('click', getCalendars);
@@ -360,6 +370,7 @@ function connectorPage(lastPage, edit) {
     }
     changePages(lastPage, "SEE AVAILABLE");
 }
+
 
 
 var DELAY_MS = 1000;

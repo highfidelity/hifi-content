@@ -134,7 +134,8 @@
     var ui;
     function startup() {
         ui = new AppUi({
-            home: "http://127.0.0.1:90/localHTTP/meetingRoom_ui.html",
+            home: "http://127.0.0.1/localHTTP/meetingRoom_ui.html",
+            // home: "http://127.0.0.1:80/localHTTP/meetingRoom_ui.html",
             buttonName: "CALENDAR", // The name of your app
             graphicsDirectory: Script.resolvePath("../resources/images/"), // Where your button icons are located
             onMessage: onWebMessage,
