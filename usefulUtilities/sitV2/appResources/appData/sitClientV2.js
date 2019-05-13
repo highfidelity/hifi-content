@@ -203,7 +203,7 @@
             var hipIndex = MyAvatar.getJointIndex("Hips");
             var properties = Entities.getEntityProperties(_this.entityID);
             _this.sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME_MS;
-            MyAvatar.goToLocation(_this.seatCenterPosition, true, Quat.fromVec3Degrees(properties.rotation), false, false);
+            MyAvatar.goToLocation(_this.seatCenterPosition, true, properties.rotation, false, false);
             MyAvatar.pinJoint(hipIndex, _this.seatCenterPosition, properties.rotation);
             stopUpdateInterval();
 
