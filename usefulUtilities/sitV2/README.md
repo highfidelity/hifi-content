@@ -18,6 +18,10 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 2019-01-17_14-57-17 :: [sitScriptUpdate ded8ecbc78a44c3c830e1f42fed6dd8e9277a4c1]
 - During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
 
+2019-05-10_15-00-00 :: [7f7a616](https://github.com/highfidelity/hifi-content/pull/386/commits/7f7a616714233e85385ed837d0047d776650e340)
+- When standing up, the user returns to the world position where they were when they sat down
+- Fixed bug where user would sit without moving to the chair, then immediately stand up again
+
 
 ## Known issues
 
@@ -28,9 +32,6 @@ Collisions with other entity's invisible collision hulls sometimes make it diffi
 ### Sit animation does not apply to an avatar using a different default animation
 
 Animation that is applied before sitting is applied while in the chair and continues after standup. 
-
-
-## Known issues
 
 ### Future features
 
