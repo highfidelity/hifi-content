@@ -19,6 +19,8 @@
     // This is a list of apps that this script explicitly added.
     // We should never unload apps that the user had loaded before loading this script.
     var addedAppList = [];
+    // An array of usernames for whom the App Loader should not load the apps in `appList`
+    var usernameWhitelist = [];
 
     var AppLoader = function() {};
 
@@ -39,9 +41,23 @@
             }
 
             if (userData) {
+                if (userData.usernameWhitelist) {
+                    if (Array.isArray(userData.usernameWhitelist)) {
+                        (userData.usernameWhitelist).forEach(function (newUsername) {
+                            if (usernameWhitelist.indexOf(newUsername) === -1) {
+                                usernameWhitelist.push(newUsername);
+                            }
+                        });
+                    }
+                }
+
+                // Don't bother with what's next (i.e. loading any apps) if we're whitelisted.
+                if (usernameWhitelist.indexOf(AccountServices.username) > -1) {
+                    return;
+                }
+
                 if (userData.appURLs) {
                     if (Array.isArray(userData.appURLs)) {
-
                         (userData.appURLs).forEach(function (newAppUrl) {
                             if (appList.indexOf(newAppUrl) === -1) {
                                 appList.push(newAppUrl);
