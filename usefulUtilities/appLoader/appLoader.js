@@ -42,24 +42,31 @@
                 if (userData.appURLs) {
                     if (Array.isArray(userData.appURLs)) {
 
-                        (userData.appURLs).forEach(function (appURL) {
-                            if (appList.indexOf(appURL) === -1) {
-                                appList.push(appURL);
-                            }
-                        });
-                        
-                        var currentlyRunningScripts = ScriptDiscoveryService.getRunning();
-                        appList.forEach(function (url) {
-                            if (currentlyRunningScripts.indexOf(url) === -1) {
-                                ScriptDiscoveryService.loadScript(url);
-                                addedAppList.push(url);
+                        (userData.appURLs).forEach(function (newAppUrl) {
+                            if (appList.indexOf(newAppUrl) === -1) {
+                                appList.push(newAppUrl);
+
+                                var currentlyRunningScripts = ScriptDiscoveryService.getRunning();
+                                var loadNewAppUrl = true;
+                                for (var i = 0; i < currentlyRunningScripts.length; i++) {
+                                    if (currentlyRunningScripts[i].url === newAppUrl) {
+                                        loadNewAppUrl = false;
+                                        break;
+                                    }
+                                }
+
+                                if (loadNewAppUrl) {
+                                    ScriptDiscoveryService.loadScript(newAppUrl);
+                                    addedAppList.push(newAppUrl);
+                                }
                             }
                         });
                     }
                 } 
             }
-
         },
+
+        
         unload: function() {
             addedAppList.forEach(function(url) {
                 ScriptDiscoveryService.stopScript(url);
