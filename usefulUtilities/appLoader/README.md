@@ -24,5 +24,8 @@ Here's the object to add to the zone entity's `userData`:
 
 # Releases
 
+## v1.1 :: [2d46694](https://github.com/highfidelity/hifi-content/commit/2d46694)
+- Fixed a bug where a duplicate copy of an already-running script would erroneously be loaded.
+
 ## 2019-02-14_10-45-00 :: [3fee98493cf228259b231b88384f5aafd47309b0](https://github.com/highfidelity/hifi-content/commit/3fee98493cf228259b231b88384f5aafd47309b0)
 - Initial release
