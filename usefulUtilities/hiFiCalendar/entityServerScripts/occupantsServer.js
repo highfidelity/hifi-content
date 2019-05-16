@@ -1,4 +1,4 @@
-//  meetingRoomOccupantsServer.js
+//  occupantsServer.js(meetingRoomOccupantsServer.js)
 //
 //  Created by Mark Brosche on 4/18/2019
 //  Copyright 2019 High Fidelity, Inc.
@@ -33,13 +33,16 @@
             return;
         }
         that.meetingZoneID = userData.meetingZoneID;
+        console.log("that.meetingZoneID", that.meetingZoneID)
         that.roomOccupantListID = userData.roomOccupantListID; 
+        console.log("that.roomOccupantListID", that.roomOccupantListID)
         that.room = {
-            "occupants": []
+            "occupants": {}
         };
         Entities.editEntity(that.entityID, {
             text: 'loading'
         });
+        console.log("sending REFRESH OCCUPANTS MESSAGE:", that.meetingZoneID);
         Messages.sendMessage(CHANNEL, JSON.stringify({
             type: "REFRESH OCCUPANTS",
             id: that.meetingZoneID
@@ -48,10 +51,11 @@
 
 
     this.enteredMeetingZone = function(id, params) {
+        console.log("id:", id)
+        console.log("params:", JSON.stringify(params))
         if (that.entityID === id) {    
             var uuid = params[0];
             var displayName = params[1];
-
             that.room.occupants[uuid] = displayName;
             var text = Object.keys(that.room.occupants).map(function(key) {
                 return that.room.occupants[key];

@@ -1,4 +1,4 @@
-//  hiFiCalendarServer.js
+//  roomScheduleServer.js
 //
 //  Created by Mark Brosche on 4/3/2019
 //  Copyright 2019 High Fidelity, Inc.
@@ -13,7 +13,8 @@
     var HOURS_PER_DAY = 24;
     var NOON_HR = 12;
     var CHANNEL = "HiFi.Google.Calendar";
-    var TOKEN_SERVER_ID = '{18c54d17-95c4-4765-9a19-7a0803bceab8}';
+    // ### figure out the token server ID
+    var TOKEN_SERVER_ID = '{de23b09f-0e49-4250-8de9-394453bb8565}';
     var SIGN_TEXT_COLOR_AVAILABLE = [168, 255, 168];
     var SIGN_TEXT_COLOR_INUSE = [255, 168, 168];
     var SIGN_BACKGROUND_COLOR_AVAILABLE = [125, 255, 125];
@@ -51,7 +52,7 @@
             that.expireTime = userData.expireTime;
             that.timezoneOffset = userData.timezoneOffset;
             that.timezoneName = userData.timezoneName;
-            that.calendarID = userData.address;
+            that.address = userData.address;
             that.roomColorID = userData.roomColorID;
             that.roomColorOccupantsID = userData.roomColorOccupantsID; 
             that.roomClockID = userData.roomClockID;
@@ -83,6 +84,7 @@
 
 
     this.refreshToken = function(id, params) {
+        console.log("\n\n\n &&&&&& \n REFRESH TOKEN PARAMS: ", JSON.stringify(params));
         if (that.entityID === id) {
             if (that.interval) {
                 console.log("CLEARING INTERVAL: ", that.entityProperties.name);
@@ -90,7 +92,7 @@
                 that.interval = false;
             }
             if (params[5]) {
-                Entities.editEntity(that.entityID, {name: params[5]});
+                Entities.editEntity(that.entityID, {name: "Calendar_RoomSchedule" + params[5] + that.entityID});
             }
             that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData', 'name']);
             var userData;
@@ -104,16 +106,13 @@
                 userData.token = params[0];
                 userData.expireTime = params[1];
                 if (params[2]) {
-                    userData.timezoneOffset = params[2];
-                    that.timezoneOffset = params[2];
+                    that.timezoneOffset = userData.timezoneOffset = params[2];
                 }
                 if (params[3]) {
-                    userData.timezoneName = params[3];
-                    that.timezoneName = params[3];
+                    userData.timezoneName = that.timezoneName = params[3];
                 }
                 if (params[4]) {
-                    userData.address = params[4];
-                    that.calendarID = params[4];
+                    userData.address = that.address = params[4];
                 }
                 Entities.editEntity(that.entityID, {
                     userData: JSON.stringify(userData)
@@ -121,6 +120,7 @@
                 that.token = params[0];
                 that.expireTime = params[1];
                 that.sentAlready = false;
+                // # What does this do, I don't see any references to this
                 if (userData.secondScheduleID) {
                     Entities.callEntityMethod(userData.secondScheduleID, "refreshToken", params);
                 }
@@ -135,7 +135,7 @@
         var tomorrowMidnight = new Date();
         tomorrowMidnight.setHours(HOURS_PER_DAY, 0, 0, 0);
         that.scheduleURL = "https://www.googleapis.com/calendar/v3/calendars/" + 
-            that.calendarID + 
+            that.address + 
             "/events?&timeMin=" + (new Date()).toISOString() +
             "&timeMax=" + tomorrowMidnight.toISOString() +
             "&showDeleted=" + false + 
@@ -143,6 +143,7 @@
             "&maxResults=2" +
             "&orderBy=startTime" +
             "&access_token=" + token;
+            console.log(" that.scheduleURL",  that.scheduleURL)
         if (!that.interval) {
             that.requestScheduleData(that.scheduleURL);
         } else {
@@ -161,8 +162,11 @@
                     errorMessage: error,
                     actionAttempted: "Requesting schedule from Google - Initial"
                 }));
-                Script.clearInterval(that.interval);
-                that.interval = false;
+                if (that.interval) {
+                    Script.clearInterval(that.interval);
+                    that.interval = false;
+                } 
+
                 Entities.callEntityMethod(TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
                 return;
             } else {

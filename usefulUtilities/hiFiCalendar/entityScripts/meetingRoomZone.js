@@ -1,4 +1,4 @@
-// hiFiMeetingZone.js
+// meetingRoomZone.js (hiFiMeetingZone.js)
 //
 //  Created by Mark Brosche on 4-2-2019
 //  Copyright 2019 High Fidelity, Inc.
@@ -33,7 +33,7 @@
                     console.log(e, "Could not parse userData");
                     return;
                 }
-                _this.occupantsListID = userData.occupantsListID;
+                _this.occupantsListIDs = userData.occupantsListIDs;
             } else {
                 console.log("No userData found");
                 return;
@@ -48,6 +48,7 @@
             if (channel !== CHANNEL) {
                 return;
             } else {
+                console.log("\n\nmessage", _this.entityID, message)
                 try {
                     message = JSON.parse(message);
                 } catch (e) {
@@ -55,6 +56,7 @@
                     return;
                 }
                 if (message.type === "REFRESH OCCUPANTS" && message.id === _this.entityID) {
+                    console.log("\n\n\nRefreshing on zone")
                     _this.refreshOccupants();
                 }
             }
@@ -93,28 +95,36 @@
 
 
         enterEntity: function() {
-            if (_this.occupantsListID) {
-                Entities.callEntityServerMethod(_this.occupantsListID, "enteredMeetingZone", [MyAvatar.sessionUUID, MyAvatar.sessionDisplayName]);
+            if (_this.occupantsListIDs) {
+                _this.occupantsListIDs.forEach(function(occupantsListID){
+                    Entities.callEntityServerMethod(occupantsListID, "enteredMeetingZone", [MyAvatar.sessionUUID, MyAvatar.sessionDisplayName]);
+                })
             }
         },
 
 
         leaveEntity: function() {
-            if (_this.occupantsListID) {
-                Entities.callEntityServerMethod(_this.occupantsListID, "leftMeetingZone", [MyAvatar.sessionUUID]);
+            if (_this.occupantsListIDs) {
+                _this.occupantsListIDs.forEach(function(occupantsListID){
+                    Entities.callEntityServerMethod(occupantsListID, "leftMeetingZone", [MyAvatar.sessionUUID]);
+                })
+                
             }
         },
 
 
         leaveDomain: function(uuid) {
-            if (_this.occupantsListID) {
-                Entities.callEntityServerMethod(_this.occupantsListID, "leftMeetingZone", [uuid]);
+            if (_this.occupantsListIDs) {
+                _this.occupantsListIDs.forEach(function(occupantsListID){
+                    Entities.callEntityServerMethod(occupantsListID, "leftMeetingZone", [uuid]);
+                })
             }
         },
 
 
         unload: function() {
             AvatarManager.avatarRemovedEvent.disconnect(_this.leaveDomain);
+            Messages.messageReceived.disconnect(_this.messageListener);
         }
     };
     return new MeetingZone;

@@ -1,4 +1,4 @@
-//  hiFiCalendarTokenServer.js
+//  tokenServer(hiFiCalendarTokenServer.js)
 //
 //  Created by Mark Brosche on 4/18/2019
 //  Copyright 2019 High Fidelity, Inc.
@@ -8,23 +8,38 @@
 
 
 (function() {
+    console.log("\n\n\n in token server3");
     var MS_TO_SEC = 1000;
     var MIN_PER_HR = 60;
     var SEC_PER_MIN = 60;
     var CHANNEL = "HiFi.Google.Calendar";
-    var ATLANTIS_LABEL_ID = "{4b6f47fe-646f-4b2c-9a7b-c74f3c47a105}";
-    var JAKKU_LABEL_ID = "{2cfe3b74-e70c-44f6-bbfc-c74813acf0fd}";
-    var CAPITOL_LABEL_ID = "{784c8c54-b11e-471c-9ba7-96f2bb347e98}";
-    var FANTASIA_LABEL_ID = "{a79ac99b-62f6-4e58-b04c-5735c2337fcf}";
-    var OZ_LABEL_ID = "{5d662a66-a250-4f18-ad1f-9cd21cd8380d}";
-    var NARNIA_LABEL_ID = "{1a92909e-52f9-4099-932a-4d2d43144791}";
+    // # Do these need to be updated?  What is a label ID?  
+    var ROOMSCHEDULE_ATLANTIS_HQ = "{4b6f47fe-646f-4b2c-9a7b-c74f3c47a105}";
+    var ROOMSCHEDULE_ATLANTIS_MR = "{52a01b43-0200-45d1-bd58-aab0e658bdb3}";
+    var ROOMSCHEDULE_CAPITOL_HQ = "{784c8c54-b11e-471c-9ba7-96f2bb347e98}";
+    var ROOMSCHEDULE_CAPITOL_MR = "{4623f8d6-4283-4192-a25c-461c3e0f72cf}";
+    var ROOMSCHEDULE_JAKU_HQ = "{2cfe3b74-e70c-44f6-bbfc-c74813acf0fd}";
+    var ROOMSCHEDULE_JAKU_MR = "{3ff72a7e-20cd-4c24-8c13-0ca85f9432ba}";
+    var ROOMSCHEDULE_FANTASIA_HQ = "{a79ac99b-62f6-4e58-b04c-5735c2337fcf}";
+    var ROOMSCHEDULE_FANTASIA_MR = "{244aff65-f4c3-4609-92e5-211b9537cbe7}";
+    var ROOMSCHEDULE_NARNIA_HQ = "{1a92909e-52f9-4099-932a-4d2d43144791}";
+    var ROOMSCHEDULE_NARNIA_MR = "{9bf4542e-24c6-4356-9394-68c025b5a29e}";
+    var ROOMSCHEDULE_OZ_HQ = "{5d662a66-a250-4f18-ad1f-9cd21cd8380d}";
+    var ROOMSCHEDULE_OZ_MR = "{235eaa39-d3af-4b8c-8f9c-29b79bb832af}";
+    
     var calendarScheduleIDs = [
-        ATLANTIS_LABEL_ID,
-        JAKKU_LABEL_ID,
-        CAPITOL_LABEL_ID,
-        FANTASIA_LABEL_ID,
-        OZ_LABEL_ID,
-        NARNIA_LABEL_ID
+        ROOMSCHEDULE_ATLANTIS_HQ,
+        ROOMSCHEDULE_ATLANTIS_MR,
+        ROOMSCHEDULE_CAPITOL_HQ,
+        ROOMSCHEDULE_CAPITOL_MR,
+        ROOMSCHEDULE_JAKU_HQ,
+        ROOMSCHEDULE_JAKU_MR,
+        ROOMSCHEDULE_FANTASIA_HQ,
+        ROOMSCHEDULE_FANTASIA_MR,
+        ROOMSCHEDULE_OZ_HQ,
+        ROOMSCHEDULE_OZ_MR,
+        ROOMSCHEDULE_NARNIA_HQ,
+        ROOMSCHEDULE_NARNIA_MR
     ];
     var that;
 
@@ -34,16 +49,19 @@
         "tokenCheck"
     ];
 
-    
+
     this.preload = function(entityID) {
         that = this;
         that.entityID = entityID;
-        that.trustedUser = "markb";
+        // # need to change this to be dynamic trusted user
+        that.trustedUser = "miladn";
         that.tokenStatus = false;
         that.refreshCount = 0;
         that.roomConfigured = false;
 
         that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData', 'name']);
+        that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
+
         if (that.entityProperties.userData.length !== 0) {
             try {
                 that.userData = JSON.parse(that.entityProperties.userData);
@@ -61,13 +79,13 @@
             console.log("Please enter appropriate userData to enable functionality of this server script.");
             return;
         }        
-        that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
     };
 
 
     this.enteredDomain = function(id, params) {
-        if (that.entityID === id && params[0] === that.trustedUser) {
+        if (that.entityID === id) {
             if ((new Date().valueOf() + that.userData.timezoneOffset * MS_TO_SEC * MIN_PER_HR * MIN_PER_HR) < that.userData.expireTime) {
+                console.log("TOKEN SERVER SENDING STATUS UPDATE");
                 Messages.sendMessage(CHANNEL, JSON.stringify({
                     type: "STATUS UPDATE",
                     tokenStatus: true,
@@ -75,6 +93,7 @@
                     roomConfig: that.roomConfig
                 }));
             } else if (!that.roomConfigured) {
+                console.log("TOKEN SERVER SENDING STATUS UPDATE- ROOM NOT CONFIGURED");
                 Messages.sendMessage(CHANNEL, JSON.stringify({
                     type: "STATUS UPDATE",
                     tokenStatus: false,
@@ -82,60 +101,64 @@
                     roomConfig: that.roomConfig
                 }));
             } else if (!that.tokenStatus) {
+                console.log("TOKEN SERVER SENDING TOKEN EXPIRED");
                 Messages.sendMessage(CHANNEL, JSON.stringify({
                     type: "TOKEN EXPIRED",
                     roomConfig: that.roomConfig
                 }));
+            } else {
+                console.log("TOKEN SERVER SENDING ROOM CONFIG");
+                Messages.sendMessage(CHANNEL, JSON.stringify({
+                    type: "ROOM CONFIG",
+                    roomConfig: that.roomConfig
+                }));
             }
-            Messages.sendMessage(CHANNEL, JSON.stringify({
-                type: "ROOM DATA",
-                message: that.roomConfig
-            }));
+
         }
     };
 
-
     this.initializeRooms = function(id, params) {
+        console.log("IN INITIALIZE ROOM FROM TOKEN SERVER", id);
         if (that.entityID === id) {
-            that.token = params[0];
-            that.refreshToken = params[1];
-            that.expireTime = params[2]; 
-            that.timezone = params[3];
-            that.timezoneOffset = params[4]; 
-            that.clientID = params[5];
-            that.secret = params[6];
-            that.roomConfig = params[7];
+            console.log("params for room", JSON.stringify(params));
             var userData = {};
-            userData.token = params[0];
-            userData.refreshToken = params[1];
-            userData.expireTime = params[2]; 
-            userData.timezone = params[3];
-            userData.timezoneOffset = params[4]; 
-            userData.clientID = params[5];
-            userData.secret = params[6];
-            userData.roomConfig = params[7];
+            that.token = userData.token = params[0];
+            that.refreshToken = userData.refreshToken = params[1];
+            that.expireTime = userData.expireTime = params[2]; 
+            that.timezone = userData.timezone = params[3];
+            that.timezoneOffset = userData.timezoneOffset = params[4]; 
+            that.clientID = userData.clientID = params[5];
+            that.secret = userData.secret = params[6];
+            that.roomConfig = userData.roomConfig = JSON.parse(params[7]);
+
             that.userData = userData;
             Entities.editEntity(that.entityID, {
                 userData: JSON.stringify(userData)
             });
-            calendarScheduleIDs.foreach(function(entity) {
-                var calendarAddress;
+            calendarScheduleIDs.forEach(function(entity) {
+                var address;
                 var calendarName;
-                userData.roomConfig.foreach(function(room) {
+                userData.roomConfig.forEach(function(room) {
+                    console.log("room", JSON.stringify(room));
+                    console.log("IDZ:", room.uuid, entity);
                     if (room.uuid === entity) {
-                        calendarAddress = room.address;
+                        console.log("FOUND A MATCH")
+                        address = room.address;
                         calendarName = room.name;
+                        console.log("calendarName is ", calendarName);
+                        console.log("calendar address is ", address);
+
                     }
+                    Entities.callEntityMethod(entity, "refreshToken", [
+                        that.token, 
+                        that.expireTime, 
+                        that.timezoneOffset, 
+                        that.timezone,
+                        address,
+                        calendarName
+                    ]);
                 });
-                console.log("calendar address is ", calendarAddress);
-                Entities.callEntityMethod(entity, "refreshToken", [
-                    params[0], 
-                    params[2], 
-                    params[4], 
-                    params[3],
-                    calendarAddress,
-                    calendarName
-                ]);
+
             });
         }
     };
@@ -185,7 +208,7 @@
             });
         } else {
             Entities.callEntityMethod(params[1], "refreshToken", [
-                that.token, 
+                that.token,
                 that.expireTime
             ]);
         }

@@ -7,12 +7,15 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 // Load the API's client and auth2 modules.
 // Call the initClient function after the modules load.
-
-var YOUR_SECRET = 'k17SMuuBPFyULru2-6aC0Spk';
-var YOUR_CLIENT_ID = '108975106449-oqfk0mohv226fe84b8csje5rsb1ggctq.apps.googleusercontent.com';
+// console.log("Loaded" + new Date());
+var YOUR_SECRET = 'iWC8iCqB90TAeuyUdfvb-Pba';
+var YOUR_CLIENT_ID = '762373859543-2u72unuojjj2gcevi3o0urr9jj2s5v8s.apps.googleusercontent.com';
 var YOUR_REDIRECT_URI = 'http://127.0.0.1:80/localHTTP/meetingRoom_ui.html';
 var SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 var fragmentString = location.search;
+var roomInfo = [];
+
+console.log("FRAGMENTSTRING:" + fragmentString)
 // Parse query string to see if page request is coming from OAuth 2.0 server.
 var params = {};
 var regex = /([^&=]+)=([^&]*)/g, m;
@@ -20,6 +23,7 @@ while (m = regex.exec(fragmentString)) {
     params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
 }
 if (Object.keys(params).length > 0) {
+    // # There is no other mention of oauth2-params
     sessionStorage.setItem('oauth2-params', JSON.stringify(params));
     exchangeCode(params);
 }
@@ -42,7 +46,8 @@ function oauth2SignIn() {
         'state': 'try_sample_request',
         'include_granted_scopes': 'true',
         'response_type': 'code',
-        'access_type': 'offline'
+        'access_type': 'offline',
+        'approval_prompt': 'force'
     };
 
     // Add form parameters as hidden input values.
@@ -79,6 +84,8 @@ function exchangeCode(params) {
                     var response = JSON.parse(xhr.response);
                     response.valid_since = Date.now();
                     sessionStorage.setItem('response', JSON.stringify(response));
+                    // console.log("exchangeCode - setItem response:" + JSON.stringify(response))
+                    // console.log("IN EXCHANGE CODE ON READY STATE CHANGE 4 - CALLING GET CALENDARS")
                     getCalendars();
                 } catch (e) {
                     console.log(e, " FAILED PARSING");
@@ -133,8 +140,9 @@ function signOut() {
 var calendarList;
 var resources = [];
 function getCalendars() {
+    console.log("IN GET CALENDARS");
     var params = JSON.parse(sessionStorage.getItem('response'));
-    console.log(JSON.stringify(params));
+    // console.log(JSON.stringify(params));
     sessionStorage.removeItem('resources');
     completedConnections = [];
     calendarList = [];
@@ -147,19 +155,20 @@ function getCalendars() {
             'access_token=' + params['access_token']);
         xhr.onreadystatechange = function (e) {
             console.log("STATE CHANGE");
-            console.log(xhr.response)
+            // console.log(xhr.response)
             if (xhr.readyState === 4 && xhr.status === 200) {
                 console.log("IN READY STATE 4")
                 try {
                     calendarList = JSON.parse(xhr.response);
-                    console.log("cal list");
-                    console.log(JSON.stringify(calendarList))
+                    console.log("cal list - IN GET CALENDARS CALLBACK");
+                    // console.log(JSON.stringify(calendarList, null,4))
                     for (var i = 0; i < calendarList.items.length; i++) {
                         resources.push({
                             "address": calendarList.items[i].id,
                             "name": calendarList.items[i].summary
                         });                    
                     }
+                    // console.log("getCalendars - setItem resources:" + JSON.stringify(resources))
                     sessionStorage.setItem('resources', JSON.stringify(resources));
                     connectorPage("LOGIN");
                 } catch (e) {
@@ -192,6 +201,11 @@ var pages = [
     VIEW_ALL_PAGE,
     ERROR_PAGE
 ];
+var PAGE_LOGIN = 0;
+var PAGE_SEE_AVAILABLE = 1;
+var PAGE_FINALIZE_CHOICES = 2;
+var PAGE_EDIT = 3;
+var PAGE_ERROR = 4;
 function changePages(origin, destination) {
     console.log("IN CHANGE PAGES")
     switch (origin) {
@@ -223,11 +237,11 @@ function changePages(origin, destination) {
     }
     switch (destination) {
         case "LOGIN":
-            showHidePages(0);
+            showHidePages(PAGE_LOGIN);
             loginButton.addEventListener('click', getCalendars);
             break;
         case "SEE AVAILABLE":
-            showHidePages(1);
+            showHidePages(PAGE_SEE_AVAILABLE);
             helpButton.addEventListener('click', errorPage);
             revokeButton.addEventListener('click', revokeAccess);
             logoutButton.addEventListener('click', signOut);
@@ -235,16 +249,17 @@ function changePages(origin, destination) {
             finishButton.addEventListener('click', editSpaces);
             break;
         case "FINALIZE CHOICES":
-            showHidePages(2);
+            showHidePages(PAGE_FINALIZE_CHOICES);
             finalizeButton.addEventListener('click', editSpaces);
-            resetRoomsButton.onclick = (function (x) {
+            resetRoomsButton.onclick = (function (connections) {
                 return function(e) {
-                    for (var i = 0; i < x.length; i++) {
+                    for (var i = 0; i < connections.length; i++) {
                         roomInfo.push({
-                            name: x[i].hifiName,
-                            id: x[i].uuid
+                            name: connections[i].hifiName,
+                            id: connections[i].uuid
                         })
                     }
+                    console.log("FINALIZE CHOIES - RESET ROOMS BUTTON - ABOUT TO CALL GETCALENDARS");
                     getCalendars();
                 };
             })(completedConnections);
@@ -252,15 +267,16 @@ function changePages(origin, destination) {
             logoutButton2.addEventListener('click', signOut);
             break;
         case "EDIT":
-            showHidePages(3);
-            resetRoomsButton2.onclick = (function (x) {
+            showHidePages(PAGE_EDIT);
+            resetRoomsButton2.onclick = (function (connections) {
                 return function(e) {
-                    for (var i = 0; i < x.length; i++) {
+                    for (var i = 0; i < connections.length; i++) {
                         roomInfo.push({
-                            name: x[i].hifiName,
-                            id: x[i].uuid
+                            name: connections[i].hifiName,
+                            id: connections[i].uuid
                         })
                     }
+                    console.log("IN EDIT: RESETROOMSBUTTON2 onclick: CALLING GET CALENDARS")
                     getCalendars();
                 };
             })(completedConnections);
@@ -268,7 +284,7 @@ function changePages(origin, destination) {
             logoutButton3.addEventListener('click', signOut);
             break;
         case "ERROR":
-            showHidePages(4);
+            showHidePages(PAGE_ERROR);
             backButton.addEventListener('click', getCalendars);
             revokeButton4.addEventListener('click', revokeAccess);
             logoutButton4.addEventListener('click', signOut);
@@ -304,63 +320,29 @@ function compare(a, b) {
   }
 
 
-var roomInfo = [
-    {
-        name: "ATLANTIS",
-        id: "{11141-123412-1234123-314123}"
-    },
-    {
-        name: "FANTASIA",
-        id: "{55541-123412-1234123-314123}"
-    },
-    {
-        name: "CAPITOL",
-        id: "{88841-123412-1234123-314123}"
-    },
-    {
-        name: "JAKKU",
-        id: "{33341-123412-16789123-314123}"
-    },
-    {
-        name: "NARNIA",
-        id: "{323241-678982-1234123-314123}"
-    },
-    {
-        name: "OZ",
-        id: "{39941-123412-123678923-314123}"
-    },
-    {
-        name: "PANDORA",
-        id: "{38841-1789612-1234123-314123}"
-    },
-    {
-        name: "GOTHAM",
-        id: "{77741-123412-1234123-777123}"
-    }
-];
 function connectorPage(lastPage, edit) {
     var calendarInfo = JSON.parse(sessionStorage.getItem('resources'));
     if (calendarInfo.length < 1) {
         errorPage("SEE AVAILABLE");
         return;
     }
+    console.log("Array.isArray(roomInfo) : " + Array.isArray(roomInfo));
+    console.log("roomInfo : " + roomInfo.length);
     if (roomInfo.length < 1) {
         editSpaces("SEE AVAILABLE");
         return;
     }
-    for (var i = 0; i < calendarDropDown.length; i++) {
-        calendarDropDown.options[i] = null;    
-    }
+    console.log("CAL INFO:" + JSON.stringify(calendarInfo))
+    console.log("ROOM INFO:" + JSON.stringify(roomInfo))
     calendarInfo.sort(compare);
     roomInfo.sort(compare);
     for (i = 0; i < calendarInfo.length; i++) {
+        calendarDropDown.options[i] = null;    
         calendarDropDown.options[i] = new Option(calendarInfo[i].name, calendarInfo[i].address);
         calendarDropDown.options[i].classList.add("dropdown-content");
     }
-    for (i = 0; i < roomDropDown.length; i++) {
-        roomDropDown.options[i] = null;    
-    }
     for (i = 0; i < roomInfo.length; i++) {
+        roomDropDown.options[i] = null;    
         roomDropDown.options[i] = new Option(roomInfo[i].name, roomInfo[i].id);
         roomDropDown.options[i].classList.add("dropdown-content");
     }
@@ -378,12 +360,14 @@ var completedConnections = [];
 function connectionSuccess(lastPage) {
     var dl = document.getElementById('linkedspaces');
     dl.innerHTML = '';
-    completedConnections.push({
+    var calendarObject = {
         "address": calendarDropDown.value,
         "uuid": roomDropDown.value,
         "name": calendarDropDown.options[calendarDropDown.selectedIndex].textContent,
         "hifiName": roomDropDown.options[roomDropDown.selectedIndex].textContent
-    });
+    }
+    console.log("callObject: " + JSON.stringify(calendarObject, null, 4));
+    completedConnections.push(calendarObject);
     var resources = JSON.parse(sessionStorage.getItem('resources'));
     for (var i=0; i < resources.length; i++) {
         var str = JSON.stringify(resources[i]);
@@ -400,6 +384,7 @@ function connectionSuccess(lastPage) {
         }
     }
     sessionStorage.setItem('resources', JSON.stringify(resources));
+    console.log("connectionSuccess - setItem resources:" + JSON.stringify(resources))
     if (resources.length === 0 || roomInfo.length === 0) {
         for (i = 0; i < completedConnections.length; i++) {
             var dt = document.createElement('dt');
@@ -456,6 +441,7 @@ function deleteTableRow(row) {
         name: tempObj.name
     });
     sessionStorage.setItem('resources', JSON.stringify(resources));
+    console.log("deleteTableRow - setItem resources:" + JSON.stringify(resources))
     roomInfo.push({
         name: tempObj.hifiName,
         id: tempObj.uuid
@@ -473,6 +459,7 @@ function editTableRow(row) {
         name: tempObj.name
     });
     sessionStorage.setItem('resources', JSON.stringify(resources));
+    console.log("editTableRow - setItem resources:" + JSON.stringify(resources))
     roomInfo.push({
         name: tempObj.hifiName,
         id: tempObj.uuid
@@ -502,6 +489,7 @@ function errorPage(lastPage) {
 function confirmConnections() {
     var response = JSON.parse(sessionStorage.getItem('response'));
     var zone = new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2];
+    console.log("SENDING TO SETUP!:" + sessionStorage.getItem('response'));
     EventBridge.emitWebEvent(JSON.stringify({
         type: "SETUP COMPLETE",
         access_token: response.access_token,
@@ -515,18 +503,26 @@ function confirmConnections() {
     }));
 }
 
-
 function onScriptEventReceived(data) {
+    console.log("DATA in meeting room" + data);
     data = JSON.parse(data);
     switch (data.type) {
+        // # THIS IS NEVER USED : NO DATA
         case "NO DATA":
             errorPage("LOGIN");
+        // # THIS IS NEVER USED EITHER - AVAILABLE ROOMS
         case "AVAILABLE ROOMS":
-            roomInfo = data.roomInfo;
+            console.log("\n\n\n\n\n IN AVAILABLE ROOMS 000000000000000000 \n\n\n\n\n")
+            roomInfo = data.roomConfig;
+            console.log("roomInfo" + JSON.stringify(roomInfo));
+            console.log("GO AVAILABLE ROOMS - CALLING GET CALENDARS")
             getCalendars();
             break;
         case "ALREADY SET":
-            completedConnections = data.completedConnections;
+        // THIS IS ALL FUCKED OFF, NOT SURE WHAT THIS OR THE LAST ONE IS - AVAILABLE ROOMS / ALREADY SET
+            // completedConnections = data.completedConnections;
+            console.log("\n\n\n\n 3333333333333333333 IN ALREADY SET!!!!\n\n\n\n")
+            completedConnections = data.roomConfig; 
             editSpaces("LOGIN");
             break;
     }

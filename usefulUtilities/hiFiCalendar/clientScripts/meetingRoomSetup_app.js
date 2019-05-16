@@ -7,27 +7,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    // This function decides how to handle web events from the tablet UI.
-    // used by 'ui' in startup()
     var CHANNEL = "HiFi.Google.Calendar";
     var DOMAIN = "hq";
     var MS_TO_SEC = 1000;
     var MIN_PER_HR = 60;
-    var TOKEN_SERVER_ID = '{18c54d17-95c4-4765-9a19-7a0803bceab8}';
-    // var MEETING_ROOM_1 = ['{4b6f47fe-646f-4b2c-9a7b-c74f3c47a105}', '{52a01b43-0200-45d1-bd58-aab0e658bdb3}'];
-    // var MEETING_ROOM_2 = ['{2cfe3b74-e70c-44f6-bbfc-c74813acf0fd}', '{3ff72a7e-20cd-4c24-8c13-0ca85f9432ba}'];
-    // var MEETING_ROOM_3 = ['{784c8c54-b11e-471c-9ba7-96f2bb347e98}', '{4623f8d6-4283-4192-a25c-461c3e0f72cf}'];
-    // var MEETING_ROOM_4 = ['{a79ac99b-62f6-4e58-b04c-5735c2337fcf}', '{244aff65-f4c3-4609-92e5-211b9537cbe7}'];
-    // var MEETING_ROOM_5 = ['{5d662a66-a250-4f18-ad1f-9cd21cd8380d}', '{235eaa39-d3af-4b8c-8f9c-29b79bb832af}'];
-    // var MEETING_ROOM_6 = ['{1a92909e-52f9-4099-932a-4d2d43144791}', '{9bf4542e-24c6-4356-9394-68c025b5a29e}'];
-    // var roomScheduleIDs = [
-    //     MEETING_ROOM_1,
-    //     MEETING_ROOM_2,
-    //     MEETING_ROOM_3,
-    //     MEETING_ROOM_4,
-    //     MEETING_ROOM_5,
-    //     MEETING_ROOM_6
-    // ];
+    var TOKEN_SERVER_ID = '{de23b09f-0e49-4250-8de9-394453bb8565}';
     var roomConfig = false;
     var token;
     var tokenLifetime;
@@ -39,12 +23,43 @@
     var timezoneOffset = 7;
     var secret;
     var pageReady = false;
+    var roomConfigInfo = [
+        {
+            name: "ATLANTIS",
+            id: "{4b6f47fe-646f-4b2c-9a7b-c74f3c47a105}"
+        },
+        {
+            name: "FANTASIA",
+            id: "{a79ac99b-62f6-4e58-b04c-5735c2337fcf}"
+        },
+        {
+            name: "CAPITOL",
+            id: "{784c8c54-b11e-471c-9ba7-96f2bb347e98}"
+        },
+        {
+            name: "JAKKU",
+            id: "{2cfe3b74-e70c-44f6-bbfc-c74813acf0fd}"
+        },
+        {
+            name: "NARNIA",
+            id: "{1a92909e-52f9-4099-932a-4d2d43144791}"
+        },
+        {
+            name: "OZ",
+            id: "{5d662a66-a250-4f18-ad1f-9cd21cd8380d}"
+        }
+    ];
     function onWebMessage(data) {
         switch (data.type) {
             case "EVENT_BRIDGE_OPEN_MESSAGE":
                 pageReady = true;
+                ui.sendToHtml({
+                    type: "AVAILABLE ROOMS",
+                    roomConfig: roomConfigInfo
+                });
                 break;          
             case "SETUP COMPLETE":
+                console.log("\n\n\n\n\n\n\nINCOMING DATA:" + JSON.stringify(data, null, 4));
                 clientID = data.client_id;
                 secret = data.secret;
                 token = data.access_token;
@@ -56,7 +71,9 @@
                 timezoneOffset = new Date().getTimezoneOffset() / MIN_PER_HR;
                 roomConfig = data.connectionData;
                 Settings.setValue("roomConfigured", true);
-                Entities.callEntityServerMethod(TOKEN_SERVER_ID, "initializeToken", [
+                // ### This is probably initializeRooms
+                console.log("\n\n\n\n\n CALLING INITIALIZE ROOM");
+                Entities.callEntityServerMethod(TOKEN_SERVER_ID, "initializeRooms", [
                     token, 
                     refreshToken, 
                     expireTime, 
@@ -64,7 +81,7 @@
                     timezoneOffset, 
                     clientID,
                     secret,
-                    roomConfig
+                    JSON.stringify(roomConfig)
                 ]);
                 break;
         }
@@ -83,29 +100,43 @@
                 return;
             }
             if (message.type === "TOKEN EXPIRED") {
-                Window.alert("The authorization token for your Google Calendar could not be refreshed.\n" + 
-                "Please open your calendar app and reauthorize to continue displaying calendar schedules.");
+                console.log("The authorization token for your Google Calendar could not be refreshed.\n" + 
+                "Please open your calendar app and reauthorize to continue displaying calendar schedules.")
+                // Window.alert("The authorization token for your Google Calendar could not be refreshed.\n" + 
+                // "Please open your calendar app and reauthorize to continue displaying calendar schedules.");
                 roomConfig = message.roomConfig;
             } else if (message.type === "STATUS UPDATE") {
                 if (message.tokenStatus) {
-                    Window.announcement("Access tokens are valid. No action required");
+                    console.log("Access tokens are valid. No action required");
+                    // Window.announcement("Access tokens are valid. No action required");
                     roomConfig = message.roomConfig;
+                    // # so then what happens if there isn't a token status but there is a roomConfigured?
                 } else if (!message.tokenStatus && !message.roomConfigured) {
-                    Window.announcement("You have not set up any room schedules for this domain.");
+                    console.log("You have not set up any room schedules for this domain.");
+                    // Window.announcement("You have not set up any room schedules for this domain.");
                 }
-            } else if (message.type === "ROOM CONFIG" && pageReady) {
-                roomConfig = message.roomConfig;
-                ui.sendToHtml({
-                    type: "ALREADY SET",
-                    data: roomConfig
-                });
+                // THIS IS ALL FUCKED OFF, NOT SURE WHAT THIS OR THE LAST ONE IS - AVAILABLE ROOMS / ALREADY SET
+            // } else if (message.type === "ROOM CONFIG" && pageReady) {
+            } else if (message.type === "ROOM CONFIG") {
+
+                console.log("=-=WATCH OUT TO SEE IF THIS IS ROOM CONFIG:=-=")
+                // roomConfig = message.roomConfig;
+                // console.log("roomConfig", JSON.stringify(roomConfig));
+                // console.log("typeof roomConfig", typeof roomConfig);
+                // ui.sendToHtml({
+                //     type: "AVAILABLE ROOMS",
+                //     roomConfig: roomConfig
+                // });
             } else if (message.type === "ERROR") {
-                Window.alert("There was an error, here's what we know:\n" + 
+                return;
+                console.log("there was an error" +
+                // Window.alert("There was an error, here's what we know:\n" + 
                 message.entityName + "\nError: " + 
                 message.errorMessage + "\nHappened during: " + 
                 message.attemptedAction);
             } else if (message.type === "REFRESH SUCCESS") {
-                Window.announcement("Token server successfully refreshed " + message.count + " times since preload.");
+                console.log("Token server successfully refreshed " + message.count + " times since preload.");
+                // Window.announcement("Token server successfully refreshed " + message.count + " times since preload.");
             }
         }
     };
@@ -115,6 +146,7 @@
     var DOMAIN_DELAY = 100;
     function onDomainChange(domain){
         // Do not change app status on domain change
+        // # What is this doing exactly?  Is this in case the server reset for you? 
         if (location.hostname === DOMAIN) {
             Script.setTimeout(function(){
                 Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain", AccountServices.username);
@@ -134,7 +166,7 @@
     var ui;
     function startup() {
         ui = new AppUi({
-            home: "http://127.0.0.1/localHTTP/meetingRoom_ui.html",
+            home: "http://127.0.0.1:80/localHTTP/meetingRoom_ui.html",
             // home: "http://127.0.0.1:80/localHTTP/meetingRoom_ui.html",
             buttonName: "CALENDAR", // The name of your app
             graphicsDirectory: Script.resolvePath("../resources/images/"), // Where your button icons are located
