@@ -230,7 +230,7 @@ function getAllEmployees(organization, response) {
             "teams": []
         };
 
-        var currentTeamObject = {};
+        var currentTeamObject = false;
         var currentTeamName = false;
         for (var i = 0; i < results.length; i++) {
             if (currentTeamName !== results[i].teamName) {
@@ -248,8 +248,10 @@ function getAllEmployees(organization, response) {
 
             currentTeamObject.members.push(formatMemberData(results[i]));
         }
-        // Push the last one.
-        responseObject.teams.push(currentTeamObject);
+        if (currentTeamObject) {
+            // Push the last one.
+            responseObject.teams.push(currentTeamObject);
+        }
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
@@ -290,16 +292,20 @@ function getTeamEmployees(organization, teamName, response) {
             "status": "success",
             "teams": []
         };
-        var currentTeamObject = {
-            "name": teamName,
-            "members": []
-        };
+        var currentTeamObject = false;
         
-        for (var i = 0; i < results.length; i++) {
-            currentTeamObject.members.push(formatMemberData(results[i]));
+        if (results.length > 0) {
+            currentTeamObject = {
+                "name": teamName,
+                "members": []
+            };
+            
+            for (var i = 0; i < results.length; i++) {
+                currentTeamObject.members.push(formatMemberData(results[i]));
+            }
+            
+            responseObject.teams.push(currentTeamObject);
         }
-
-        responseObject.teams.push(currentTeamObject);
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
