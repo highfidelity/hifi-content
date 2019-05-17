@@ -132,6 +132,12 @@
     // Create can sit zone
     var CAN_SIT_M = 5;
     function createCanSitZone() {
+        Entities.getChildrenIDs(_this.entityID).forEach(function(childOfSitCube) {
+            var name = Entities.getEntityProperties(childOfSitCube, 'name').name;
+            if (name.indexOf("canSitZone") > -1) {
+                Entities.deleteEntity(childOfSitCube);
+            }
+        });
         var properties = Entities.getEntityProperties(_this.entityID);
         _this.canSitZoneID = Entities.addEntity({
             name: "canSitZone-" + _this.entityID,
