@@ -9,7 +9,7 @@
 
 (function() {
     var request = Script.require(Script.resolvePath('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js')).request,
-        REQUEST_URL = "http://localhost:3305/",
+        REQUEST_URL = Script.require("../secrets.json").REQUEST_URL,
         DEBUG = 0;
 
 
