@@ -331,7 +331,7 @@
             } else {
                 // successfully sent updateLocation
                 if (DEBUG) {
-                    console.log("Entered onDomainChanged called: " + uri);
+                    console.log("Successfully updated location after domain change");
                 }
             }
         });
