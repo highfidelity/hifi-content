@@ -10,14 +10,17 @@
     <script>
         function getEmployeeData() {
             var urlParams = getUrlVars();
-            if (urlParams.teamName) {
-                fetch('http://localhost:3305/?type=getTeamEmployees&teamName=' + urlParams.teamName)
+            if (urlParams.teamName && urlParams.organization) {
+                fetch(`http://localhost:3305/?type=getTeamEmployees&organization=${urlParams.organization}&teamName=${urlParams.teamName}`)
                     .then(function(response) { return response.json() })
                     .then(function(data) {
                         formatStatusData(data);
                         setTimeout(getEmployeeData, 10000);
                     })
                     .catch(function(error){ console.error(error) })
+            } else {
+                var content = document.getElementById('content');
+                content.innerHTML = `<p>Please specify a team name and organization in your URL!</p>`;
             }
         }
 

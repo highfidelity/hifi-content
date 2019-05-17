@@ -123,7 +123,13 @@
         }
         var queryParamString = "type=heartbeat";
         queryParamString += "&username=" + AccountServices.username;
-        queryParamString += "&displayName=" + MyAvatar.displayName;
+
+        var displayNameToSend = MyAvatar.sessionDisplayName;
+        if (displayNameToSend === "") {
+            displayNameToSend = MyAvatar.displayName;
+        }
+
+        queryParamString += "&displayName=" + displayNameToSend;
         queryParamString += "&status=" + currentStatus;
         queryParamString += "&organization=" + location.hostname;
 

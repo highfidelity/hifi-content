@@ -67,7 +67,6 @@ function getStatus(queryParamObject, response) {
 var users = {}; // { username: { timer: <timer object>} }
 function heartbeat(queryParamObject, response) {
     var username = queryParamObject.username;
-    organization = queryParamObject.organization;
     // handle heartbeat
     if (!users[username]) {
         // new heartbeat for username
@@ -199,6 +198,17 @@ function formatMemberData(singleResultObject) {
 // Get all employees
 // Return tables organized by Team names with all employee information
 function getAllEmployees(organization, response) {
+    if (!organization) {
+        var responseObject = {
+            status: "error",
+            text: "You must specify an organization!"
+        };
+
+        response.statusCode = 400;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
     var query = `SELECT * FROM statusIndicator 
         WHERE organization = '${organization}' 
         ORDER BY teamName, displayName`;
@@ -248,7 +258,18 @@ function getAllEmployees(organization, response) {
 }
 
 // Get employees from team
-function getTeamEmployees(teamName, response) {
+function getTeamEmployees(organization, teamName, response) {
+    if (!organization) {
+        var responseObject = {
+            status: "error",
+            text: "You must specify an organization!"
+        };
+
+        response.statusCode = 400;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
     var query = `SELECT * FROM statusIndicator
         WHERE organization = '${organization}' AND teamName='${teamName}' 
         ORDER BY displayName`;
@@ -312,15 +333,15 @@ function handleGetRequest(request, response) {
             updateEmployee(queryParamObject, response);
         break;
 
-        case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees
+        case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees&organization=org
             getAllEmployees(queryParamObject.organization, response);
             break;
 
-        case "getTeamEmployees": // http://localhost:3305/?type=getTeamEmployees&teamName=team1
+        case "getTeamEmployees": // http://localhost:3305/?type=getTeamEmployees&organization=org&teamName=team1
             // {
             //      teamName: "exampleTeamName"
             // }
-            getTeamEmployees(queryParamObject.teamName, response);
+            getTeamEmployees(queryParamObject.organization, queryParamObject.teamName, response);
             break;
 
         default:

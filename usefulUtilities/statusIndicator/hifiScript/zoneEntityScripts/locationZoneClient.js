@@ -17,9 +17,7 @@
     function setUserLocation(newLocation) {
         var queryParamString = "type=updateEmployee";
         queryParamString += "&username=" + AccountServices.username;
-        queryParamString += "&displayName=" + MyAvatar.displayName;
         queryParamString += "&location=" + newLocation;
-        queryParamString += "&organization=" + location.hostname;
 
         var uri = REQUEST_URL + "?" + queryParamString;
 
