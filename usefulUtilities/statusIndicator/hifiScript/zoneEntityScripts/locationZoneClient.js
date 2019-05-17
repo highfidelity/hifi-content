@@ -10,15 +10,16 @@
 (function() {
     var request = Script.require(Script.resolvePath('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js')).request,
         REQUEST_URL = "http://localhost:3305/",
-        DEBUG = false;
+        DEBUG = 0;
 
 
     // Called when user enters entity, will send request to server to update user location
     function setUserLocation(newLocation) {
-
         var queryParamString = "type=updateEmployee";
         queryParamString += "&username=" + AccountServices.username;
+        queryParamString += "&displayName=" + MyAvatar.displayName;
         queryParamString += "&location=" + newLocation;
+        queryParamString += "&organization=" + location.hostname;
 
         var uri = REQUEST_URL + "?" + queryParamString;
 
@@ -138,7 +139,7 @@
         },
         leaveEntity: function () {
             if (DEBUG) {
-                console.log("Left statusIndicatorZone called: " + newLocation);
+                console.log("Left statusIndicatorZone called: " + zoneName);
             }
             setUserLocation("unknown");
         },

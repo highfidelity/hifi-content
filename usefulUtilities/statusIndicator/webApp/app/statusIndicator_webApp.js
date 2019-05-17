@@ -11,7 +11,7 @@
 var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
-var DEBUG = false;
+var DEBUG = 0;
 
 // Returns the user's current status from the DB
 function getStatus(queryParamObject, response) {
@@ -67,6 +67,7 @@ function getStatus(queryParamObject, response) {
 var users = {}; // { username: { timer: <timer object>} }
 function heartbeat(queryParamObject, response) {
     var username = queryParamObject.username;
+    organization = queryParamObject.organization;
     // handle heartbeat
     if (!users[username]) {
         // new heartbeat for username
@@ -111,11 +112,14 @@ function startHeartbeatTimer(username, response) {
 
 // Update employee status in database
 function updateEmployee(updates, response) {
+    if (DEBUG) {
+        console.log("UPDATES: ", updates);
+    }
     // Create strings for query from the updates object
-    var columnString = ""; // (username, displayName, status)
-    var valueString = ""; // ('username1', 'Display Name', 'busy')
-    var updateString = ""; // username='username1', displayName='Display Name', status='busy'
-    var validUpdateParams = ["username", "displayName", "status", "teamName", "location"];
+    var columnString = ""; // (username, displayName, status, organization)
+    var valueString = ""; // ('username1', 'Display Name', 'busy', 'HiFi')
+    var updateString = ""; // username='username1', displayName='Display Name', status='busy', organization='HiFi'
+    var validUpdateParams = ["username", "displayName", "status", "teamName", "location", "organization"];
     for (var key in updates) {
         if (validUpdateParams.indexOf(key) === -1) {
             continue;
@@ -192,11 +196,11 @@ function formatMemberData(singleResultObject) {
     };
 }
 
-
 // Get all employees
 // Return tables organized by Team names with all employee information
-function getAllEmployees(response) {
-    var query = `SELECT * FROM statusIndicator
+function getAllEmployees(organization, response) {
+    var query = `SELECT * FROM statusIndicator 
+        WHERE organization = '${organization}' 
         ORDER BY teamName, displayName`;
 
     connection.query(query, function (error, results, fields) {
@@ -243,11 +247,11 @@ function getAllEmployees(response) {
     });
 }
 
-
 // Get employees from team
 function getTeamEmployees(teamName, response) {
     var query = `SELECT * FROM statusIndicator
-        WHERE teamName='${teamName}' ORDER BY displayName`;
+        WHERE organization = '${organization}' AND teamName='${teamName}' 
+        ORDER BY displayName`;
 
     connection.query(query, function (error, results, fields) {
         if (error) {
@@ -309,7 +313,7 @@ function handleGetRequest(request, response) {
         break;
 
         case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees
-            getAllEmployees(response);
+            getAllEmployees(queryParamObject.organization, response);
             break;
 
         case "getTeamEmployees": // http://localhost:3305/?type=getTeamEmployees&teamName=team1

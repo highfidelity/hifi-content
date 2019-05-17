@@ -4,113 +4,119 @@ var UNKNOWN_LOCATION_STRING = "online";
 
 function formatStatusData(data) {
     var generatedContainerDiv = document.createElement("div");
-
     var unknownTeamContainer;
-
-    for (var i = 0; i < data.teams.length; i++) {
-        var currentTeamName = data.teams[i].name;
-        if (currentTeamName === "TBD") {
-            currentTeamName = UNKNOWN_TEAM_STRING;
-        }
-
-        var teamContainer = document.createElement("div");
-
-        var teamTable = document.createElement("table");
-
-        var tbody = document.createElement('tbody');
-        var onlineCount = 0;
-        var totalCount = data.teams[i].members.length;
-        for (var j = 0; j < totalCount; j++) {
-            var tr = document.createElement('tr');
-
-            var currentDisplayName = data.teams[i].members[j].displayName;
-            currentDisplayName = currentDisplayName === "NULL" ? UNSET_DISPLAY_NAME_STRING : currentDisplayName;
-            var currentStatus = data.teams[i].members[j].status;
-            var currentLocation = data.teams[i].members[j].location;
-
-            var td = document.createElement('td');
-            var inner = document.createElement('div');
-            var outer = document.createElement('div');
-            if (currentStatus === "offline") {
-                outer.classList.add("offlineIndicatorOuter");
-            } else if (currentStatus === "busy") {
-                inner.classList.add("busyIndicator");
-                outer.classList.add("busyIndicatorOuter");
-            } else if (currentStatus === "available") {
-                inner.classList.add("availableIndicator");
-                outer.classList.add("availableIndicatorOuter");
-            } else {
-                inner.classList.add("customIndicator");
-                outer.classList.add("customIndicatorOuter");
+    if (JSON.stringify(data.teams) === "[{}]") {
+        var noOrganizationParagraph = document.createElement("h2");
+        var textNode = document.createTextNode("That organization does not exist");
+        noOrganizationParagraph.appendChild(textNode);
+        generatedContainerDiv.appendChild(noOrganizationParagraph);
+        document.getElementById("content").innerHTML = generatedContainerDiv.innerHTML;
+    } else {
+        for (var i = 0; i < data.teams.length; i++) {
+            var currentTeamName = data.teams[i].name;
+            if (currentTeamName === "TBD") {
+                currentTeamName = UNKNOWN_TEAM_STRING;
             }
-            outer.appendChild(inner);
-            td.appendChild(outer);
-            tr.appendChild(td);
 
-            var td = document.createElement('td');
-            td.appendChild(document.createTextNode(currentDisplayName));
-            if (currentStatus === "offline") {
-                td.classList.add("offlineDisplayNameText");
-            }
-            if (currentDisplayName === UNSET_DISPLAY_NAME_STRING) {
-                td.classList.add("unknownDisplayNameText");
-            }
-            td.classList.add("displayName");
-            tr.appendChild(td);
+            var teamContainer = document.createElement("div");
 
-            td = document.createElement('td');
-            if (currentStatus === "offline") {
-                currentLocation = "offline";
-                td.classList.add("offlineStatusText");
-            }
-            if (currentStatus !== "offline" && currentLocation === "unknown") {
-                currentLocation = UNKNOWN_LOCATION_STRING;
-            }
-            if (currentLocation !== "hidden") {
-                td.appendChild(document.createTextNode(currentLocation));
-            }
-            tr.appendChild(td);
+            var teamTable = document.createElement("table");
 
-            tbody.appendChild(tr);
+            var tbody = document.createElement('tbody');
+            var onlineCount = 0;
+            var totalCount = data.teams[i].members.length;
+            for (var j = 0; j < totalCount; j++) {
+                var tr = document.createElement('tr');
 
-            if (!(currentStatus === "offline" || currentStatus === "busy" || currentStatus === "available")) {
-                tr = document.createElement('tr');
-                tr.classList.add("statusRow");
+                var currentDisplayName = data.teams[i].members[j].displayName;
+                currentDisplayName = currentDisplayName === "NULL" ? UNSET_DISPLAY_NAME_STRING : currentDisplayName;
+                var currentStatus = data.teams[i].members[j].status;
+                var currentLocation = data.teams[i].members[j].location;
 
-                td = document.createElement('td');
-                td.appendChild(document.createTextNode(""));
+                var td = document.createElement('td');
+                var inner = document.createElement('div');
+                var outer = document.createElement('div');
+                if (currentStatus === "offline") {
+                    outer.classList.add("offlineIndicatorOuter");
+                } else if (currentStatus === "busy") {
+                    inner.classList.add("busyIndicator");
+                    outer.classList.add("busyIndicatorOuter");
+                } else if (currentStatus === "available") {
+                    inner.classList.add("availableIndicator");
+                    outer.classList.add("availableIndicatorOuter");
+                } else {
+                    inner.classList.add("customIndicator");
+                    outer.classList.add("customIndicatorOuter");
+                }
+                outer.appendChild(inner);
+                td.appendChild(outer);
+                tr.appendChild(td);
+
+                var td = document.createElement('td');
+                td.appendChild(document.createTextNode(currentDisplayName));
+                if (currentStatus === "offline") {
+                    td.classList.add("offlineDisplayNameText");
+                }
+                if (currentDisplayName === UNSET_DISPLAY_NAME_STRING) {
+                    td.classList.add("unknownDisplayNameText");
+                }
+                td.classList.add("displayName");
                 tr.appendChild(td);
 
                 td = document.createElement('td');
-                td.setAttribute("colspan", 2);
-                td.appendChild(document.createTextNode(currentStatus));
+                if (currentStatus === "offline") {
+                    currentLocation = "offline";
+                    td.classList.add("offlineStatusText");
+                }
+                if (currentStatus !== "offline" && currentLocation === "unknown") {
+                    currentLocation = UNKNOWN_LOCATION_STRING;
+                }
+                if (currentLocation !== "hidden") {
+                    td.appendChild(document.createTextNode(currentLocation));
+                }
                 tr.appendChild(td);
 
                 tbody.appendChild(tr);
+
+                if (!(currentStatus === "offline" || currentStatus === "busy" || currentStatus === "available")) {
+                    tr = document.createElement('tr');
+                    tr.classList.add("statusRow");
+
+                    td = document.createElement('td');
+                    td.appendChild(document.createTextNode(""));
+                    tr.appendChild(td);
+
+                    td = document.createElement('td');
+                    td.setAttribute("colspan", 2);
+                    td.appendChild(document.createTextNode(currentStatus));
+                    tr.appendChild(td);
+
+                    tbody.appendChild(tr);
+                }
+
+                if (currentStatus !== "offline") {
+                    onlineCount++;
+                }
             }
 
-            if (currentStatus !== "offline") {
-                onlineCount++;
+            var h2 = document.createElement("h2");
+            h2.innerHTML = `${currentTeamName} (${onlineCount}/${totalCount})`;
+            teamContainer.appendChild(h2);
+
+            teamTable.appendChild(tbody);
+            teamContainer.appendChild(teamTable);
+
+            if (currentTeamName === "Unknown Team") {
+                unknownTeamContainer = teamContainer;
+            } else {
+                generatedContainerDiv.appendChild(teamContainer);
             }
         }
 
-        var h2 = document.createElement("h2");
-        h2.innerHTML = `${currentTeamName} (${onlineCount}/${totalCount})`;
-        teamContainer.appendChild(h2);
-
-        teamTable.appendChild(tbody);
-        teamContainer.appendChild(teamTable);
-
-        if (currentTeamName === "Unknown Team") {
-            unknownTeamContainer = teamContainer;
-        } else {
-            generatedContainerDiv.appendChild(teamContainer);
+        if (unknownTeamContainer) {
+            generatedContainerDiv.appendChild(unknownTeamContainer);
         }
-    }
 
-    if (unknownTeamContainer) {
-        generatedContainerDiv.appendChild(unknownTeamContainer);
+        document.getElementById("content").innerHTML = generatedContainerDiv.innerHTML;
     }
-
-    document.getElementById("content").innerHTML = generatedContainerDiv.innerHTML;
 }
