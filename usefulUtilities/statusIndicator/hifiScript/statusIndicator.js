@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 //
 //  statusIndicatorClient.js
 //
@@ -8,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function () {
-    var DEBUG = false;
+    var DEBUG = 0;
 
     // #region STATUS OVERLAY
 
@@ -19,7 +20,6 @@
         rectangleOverlay,
         // desktop overlayOptions
         OVERLAY_WINDOW_RIGHT_PADDING = 10,
-        OVERLAY_WIDTH = 10,
         OVERLAY_FONT_SIZE = 20.0,
         OVERLAY_WIDTH = 200,
         // rectangleOverlay options
@@ -51,6 +51,9 @@
         };
         
     function drawStatusOverlays() {
+        if (DEBUG) {
+            print("DRAW STATUS OVERLAYS");
+        }
         var windowWidth = Window.innerWidth;
 
         var desktopOverlayProps = RECTANGLE_OVERLAY_PROPS;
@@ -72,6 +75,9 @@
 
     // Delete clickable status overlay on desktop
     function deleteStatusOverlays() {
+        if (DEBUG) {
+            print("DELETE STATUS OVERLAYS");
+        }
         if (rectangleOverlay) {
             Overlays.deleteOverlay(rectangleOverlay);
             rectangleOverlay = false;
@@ -92,6 +98,9 @@
     var HEARTBEAT_TIMEOUT_MS = 5000,
         heartbeat;
     function startHeartbeatTimer() {
+        if (DEBUG) {
+            print("START HEARTBEAT TIMER");
+        }
         if (heartbeat) {
             Script.clearTimeout(heartbeat);
             heartbeat = false;
@@ -109,11 +118,20 @@
     // #region SEND/GET STATUS REQUEST
 
     function sendStatusUpdate() {
+        if (DEBUG) {
+            print("SEND STATUS UPDATE");
+        }
         var queryParamString = "type=heartbeat";
         queryParamString += "&username=" + AccountServices.username;
-        queryParamString += "&displayName=" + MyAvatar.displayName;
-        queryParamString += "&status=";
-        queryParamString += currentStatus;
+
+        var displayNameToSend = MyAvatar.sessionDisplayName;
+        if (displayNameToSend === "") {
+            displayNameToSend = MyAvatar.displayName;
+        }
+
+        queryParamString += "&displayName=" + displayNameToSend;
+        queryParamString += "&status=" + currentStatus;
+        queryParamString += "&organization=" + location.hostname;
 
         var uri = REQUEST_URL + "?" + queryParamString;
 
@@ -135,6 +153,9 @@
 
     // Get status from database
     function getStatusUpdate(callback) {
+        if (DEBUG) {
+            print("GET STATUS UPDATE");
+        }
         var queryParamString = "type=getStatus";
         queryParamString += "&username=" + AccountServices.username;
 
@@ -163,6 +184,9 @@
     var request = Script.require('request').request,
         REQUEST_URL = Script.require(Script.resolvePath('./secrets.json?' + Date.now())).REQUEST_URL;
     function updateStatus(forceUpdateOnly) {
+        if (DEBUG) {
+            print("UPDATE STATUS");
+        }
         if (heartbeat) {
             Script.clearTimeout(heartbeat);
             heartbeat = false;
@@ -175,9 +199,7 @@
         }
     }
 
-
     // #endregion SEND/GET STATUS REQUEST
-
 
     // #region SIGNALS
 
@@ -205,9 +227,11 @@
         }
     }
 
-
     var MAX_STATUS_LENGTH_CHARS = 9;
     function editStatusOverlays() {
+        if (DEBUG) {
+            print("EDIT STATUS OVERLAYS");
+        }
         var edits = {};
 
         var rectangleColor;
@@ -218,7 +242,7 @@
         } else {
             rectangleColor = OTHER_COLOR;
         }
-        edits[rectangleOverlay] = { "color": rectangleColor }
+        edits[rectangleOverlay] = { "color": rectangleColor };
 
         // For long statuses cut and append "..."
         var statusText = currentStatus;
@@ -227,45 +251,56 @@
         }
 
         // Allow space for the rectangle color
-        edits[desktopOverlay] = { "text": ("     " + statusText) }
+        edits[desktopOverlay] = { "text": ("     " + statusText) };
 
         Overlays.editOverlays(edits);
     }
 
-
     function editStatusOverlaysAndSendUpdate() {
+        if (DEBUG) {
+            print("EDIT STATUS OVERLAYS AND SEND UPDATE");
+        }
         editStatusOverlays();
         updateStatus(true);
     }
 
-
     // When window resizes, redraw overlays
     function onWindowResize() {
+        if (DEBUG) {
+            print("ON WINDOW RESIZE");
+        }
         deleteStatusOverlays();
         drawStatusOverlays();
+        editStatusOverlays();
     }
 
-    
     // When avatar becomes active from being away
     // Set status back to previousStatus
     function onWentActive() {
+        if (DEBUG) {
+            print("ON WENT ACTIVE");
+        }
         currentStatus = previousStatus;
         editStatusOverlaysAndSendUpdate();
     }
 
-
     // When avatar goes away, set status to busy
     var previousStatus;
     function onWentAway() {
+        if (DEBUG) {
+            print("ON WENT AWAY");
+        }
         previousStatus = currentStatus;
         currentStatus = "busy";
         editStatusOverlaysAndSendUpdate();
     }
 
-
     // Delete overlays when display mode changes to HMD mode
     // Draw overlays when mode is in desktop
     function onDisplayModeChanged(isHMDMode) {
+        if (DEBUG) {
+            print("ON DISPLAY MODE CHANGED");
+        }
         if (isHMDMode) {
             deleteStatusOverlays();
         } else {
@@ -273,10 +308,12 @@
         }
     }
 
-
     // Domain changed update avatar location
     function onDomainChanged() {
-        var queryParamString = "type=setUserLocation";
+        if (DEBUG) {
+            print("ON DOMAIN CHANGED");
+        }
+        var queryParamString = "type=updateEmployee";
         queryParamString += "&username=" + AccountServices.username;
         queryParamString += "&location=unknown";
 
@@ -294,7 +331,7 @@
             } else {
                 // successfully sent updateLocation
                 if (DEBUG) {
-                    console.log("Entered onDomainChanged called: " + zoneName);
+                    console.log("Successfully updated location after domain change");
                 }
             }
         });
@@ -307,6 +344,9 @@
 
     // Creates the app button and sets up signals and hearbeat
     function startup() {
+        if (DEBUG) {
+            print("START UP");
+        }
         if (!HMD.active) {
             drawStatusOverlays();
         }
@@ -326,6 +366,9 @@
 
     // Cleans up timeouts, signals, and overlays
     function unload() {
+        if (DEBUG) {
+            print("UNLOAD");
+        }
         deleteStatusOverlays();
         Controller.mousePressEvent.disconnect(onMousePressEvent);
         Window.geometryChanged.disconnect(onWindowResize);
