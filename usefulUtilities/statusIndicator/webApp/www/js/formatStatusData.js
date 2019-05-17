@@ -4,7 +4,7 @@ var UNKNOWN_LOCATION_STRING = "online";
 
 function formatStatusData(data) {
     var generatedContainerDiv = document.createElement("div");
-    if (data.teams.length === 0) {
+    if (JSON.stringify(data.teams) === "[{}]") {
         document.getElementById("content").innerHTML = `<h2>No employee data.</h2>`;
         return;
     }

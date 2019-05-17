@@ -398,7 +398,8 @@ function maybeCreateNewTables(response) {
         displayName VARCHAR(100),
         status VARCHAR(150) DEFAULT 'busy',
         teamName VARCHAR(100) DEFAULT 'TBD',
-        location VARCHAR(100) DEFAULT 'unknown'
+        location VARCHAR(100) DEFAULT 'unknown',
+        organization VARCHAR(200) DEFAULT NULL
     )`;
     connection.query(query, function (error, results, fields) {
         if (error) {
