@@ -66,7 +66,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v2.3 | 2019-04-08_09-11-00 | [commit 07899c4](https://github.com/highfidelity/hifi-content/commits/07899c4)
+## v2.3 | 2019-04-08_09-11-00 | [commit 7aa50f3](https://github.com/highfidelity/hifi-content/commits/7aa50f3)
 - Added 'organization' column to database. Status board will now only show members of one organization (named after the domain)
 - Fixed [Bug 183](https://highfidelity.atlassian.net/browse/BUGZ-183) where status overlay would disappear when moving or resizing the window
 - Fixed [Bug 151](https://highfidelity.atlassian.net/browse/BUGZ-151) where changing domains would throw an error
