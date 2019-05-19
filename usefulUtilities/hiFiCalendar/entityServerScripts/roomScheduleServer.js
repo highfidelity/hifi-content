@@ -19,16 +19,16 @@
     var SIGN_TEXT_COLOR_INUSE = [255, 168, 168];
     var SIGN_BACKGROUND_COLOR_AVAILABLE = [125, 255, 125];
     var SIGN_BACKGROUND_COLOR_INUSE = [255, 125, 125];
-
-    var that;
+    console.log("\n\n\n\n\n roomScheduleServer V2 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n\n\n\n\n")
+    var that = this;
 
     this.remotelyCallable = [
-        "refreshToken"
+        "refreshToken",
+        "secondarySync"
     ];
 
 
     this.preload = function(entityID) {
-        that = this;
         that.entityID = entityID;
         that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData', 'name']);
         var userData;
@@ -47,12 +47,13 @@
         that.roomScheduleID = userData.roomScheduleID; 
         that.roomOccupantListID = userData.roomOccupantListID; 
         if (that.entityID === that.roomScheduleID) {
+            var secondaryUserData = {};
             that.sentAlready = false;
             that.token = userData.token;
-            that.expireTime = userData.expireTime;
-            that.timezoneOffset = userData.timezoneOffset;
-            that.timezoneName = userData.timezoneName;
-            that.address = userData.address;
+            that.expireTime = secondaryUserData.expireTime = userData.expireTime;
+            that.timezoneOffset = secondaryUserData.timezoneOffset = userData.timezoneOffset;
+            that.timezoneName = secondaryUserData.timezoneName = userData.timezoneName;
+            that.address = secondaryUserData.address = userData.address;
             that.roomColorID = userData.roomColorID;
             that.roomColorOccupantsID = userData.roomColorOccupantsID; 
             that.roomClockID = userData.roomClockID;
@@ -65,6 +66,17 @@
             that.room = {
                 "eventList": []
             };
+            if (userData.secondScheduleID) {
+                secondaryUserData.token = userData.token;
+                secondaryUserData.expireTime = userData.expireTime;
+                secondaryUserData.timezoneOffset = userData.timezoneOffset;
+                secondaryUserData.timezoneName = userData.timezoneName;
+                secondaryUserData.address = userData.address;
+                if (userData.secondScheduleID) {
+                    Entities.callEntityMethod(userData.secondScheduleID, "secondarySync", [JSON.stringify(secondaryUserData)]);
+                }
+
+            }
             that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
             that.clearEventList(that.entityID);
             that.updateSignColor(that.roomEntityIDs[1], [true]);
@@ -82,6 +94,21 @@
         }
     };
 
+    that.secondarySync = function(id, params) {
+        console.log("IN SECONDARY SYNC!!");
+        try {
+            var userData = JSON.parse(params[0]);
+            var currentUserData = JSON.parse(Entities.getEntityProperties(that.entityID, ['userData', 'name']).userData);
+            that.token = currentUserData.token = userData.token;
+            that.expireTime = currentUserData.expireTime = userData.expireTime;
+            that.timezoneOffset = currentUserData.timezoneOffset = userData.timezoneOffset;
+            that.address = currentUserData.address = userData.address;
+            Entities.editEntity(that.entityID, {userData: JSON.stringify(currentUserData)});
+            that.preload();
+        } catch (e) {
+            console.log("couldn't parse secondarySync data")
+        }
+    };
 
     this.refreshToken = function(id, params) {
         console.log("\n\n\n &&&&&& \n REFRESH TOKEN PARAMS: ", JSON.stringify(params));
@@ -335,6 +362,7 @@
                 ' ' + that.timezoneName + '\n\n';                
             });            
             Entities.editEntity(id, {text: printedSchedule});
+            console.log("ID/ SUMMARY", id, printedSchedule);
             that.setBusyLight();
         }
     };
