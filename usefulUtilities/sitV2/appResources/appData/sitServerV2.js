@@ -161,10 +161,8 @@
     function checkForExtraZones() {
         Entities.getChildrenIDs(_this.entityID).forEach(function(childOfSitCube) {
             var name = Entities.getEntityProperties(childOfSitCube, 'name').name;
-            if (name && name.indexOf("canSitZone") > -1) {
-                if (childOfSitCube !== _this.canSitZoneID) {
-                    Entities.deleteEntity(childOfSitCube);
-                }
+            if (name && name.indexOf("canSitZone") > -1 && childOfSitCube !== _this.canSitZoneID) {
+                Entities.deleteEntity(childOfSitCube);
             }
         });
     }
@@ -173,13 +171,13 @@
     var ONE_SECOND_MS = 1000;
     var ONE_TENTH_SECOND_MS = 100;
     var MULTIPLIER = 2;
-    var timeUntilNextSound = Math.floor((Math.random() * ONE_SECOND_MS) + ONE_TENTH_SECOND_MS);
+    var timeUntilNextZoneCheck = Math.floor((Math.random() * ONE_SECOND_MS) + ONE_TENTH_SECOND_MS);
     function setNextTimeout() {
-        timeUntilNextSound *= MULTIPLIER;
+        timeUntilNextZoneCheck *= MULTIPLIER;
         Script.setTimeout(function() {
             checkForExtraZones();
             setNextTimeout();
-        }, timeUntilNextSound);
+        }, timeUntilNextZoneCheck);
     }
     
     // Preload entity lifetime method
