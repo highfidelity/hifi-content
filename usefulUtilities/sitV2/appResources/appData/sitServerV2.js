@@ -159,28 +159,23 @@
 
     /* Check children of the sit cube to make sure there is only one zone. If more are found, delete them */
     function checkForExtraZones() {
-        var canSitZones = [];
         Entities.getChildrenIDs(_this.entityID).forEach(function(childOfSitCube) {
             var name = Entities.getEntityProperties(childOfSitCube, 'name').name;
             if (name && name.indexOf("canSitZone") > -1) {
-                canSitZones.push(childOfSitCube);
+                if (childOfSitCube !== _this.canSitZoneID) {
+                    Entities.deleteEntity(childOfSitCube);
+                }
             }
         });
-        if (canSitZones.length > 1) {
-            canSitZones.pop();
-            canSitZones.forEach(function(canSitZone) {
-                Entities.deleteEntity(canSitZone);
-            });
-        }
     }
 
     /* Set a random timeout with exponential growth to check for extra zones */
     var ONE_SECOND_MS = 1000;
     var ONE_TENTH_SECOND_MS = 100;
-    var EXPONENT = 2;
+    var MULTIPLIER = 2;
     var timeUntilNextSound = Math.floor((Math.random() * ONE_SECOND_MS) + ONE_TENTH_SECOND_MS);
     function setNextTimeout() {
-        timeUntilNextSound *= EXPONENT;
+        timeUntilNextSound *= MULTIPLIER;
         Script.setTimeout(function() {
             checkForExtraZones();
             setNextTimeout();
