@@ -18,9 +18,12 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 2019-01-17_14-57-17 :: [sitScriptUpdate ded8ecbc78a44c3c830e1f42fed6dd8e9277a4c1]
 - During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
 
-2019-05-13_12-40-00 :: [c9c58a1](https://github.com/highfidelity/hifi-content/pull/388/commits/c9c58a139773752a83f1779477d6e2ae87aafffd)
+2019-05-13_12-40-00 :: [c9c58a1](https://github.com/highfidelity/hifi-content/pull/388/commits/c9c58a1)
 - When standing up, the user returns to the world position where they were when they sat down
 - Fixed bug where user would sit without moving to the chair, then immediately stand up again
+
+2019-05-20_13-29-00 :: [c5de1cd](https://github.com/highfidelity/hifi-content/pull/392/commits/c5de1cd)
+- Emergency fix for multiplying sit zones
 
 
 ## Known issues

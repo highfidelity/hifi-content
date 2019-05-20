@@ -128,7 +128,6 @@
 
     // #region CAN SIT ZONE
 
-
     // Create can sit zone
     var CAN_SIT_M = 5;
     function createCanSitZone() {
@@ -140,13 +139,13 @@
             position: properties.position,
             parentID: _this.entityID,
             script: Script.resolvePath("./resources/canSitZoneClient.js") + "?" + Math.random(),
+            serverScripts: Script.resolvePath("./resources/empty.js"),
             locked: false,
             dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
             keyLightMode: "inherit",
             interactive: false
         });
     }
-
 
     // Delete zone
     function deleteCanSitZone() {
@@ -157,6 +156,29 @@
     }
 
     // #endregion CAN SIT ZONE
+
+    /* Check children of the sit cube to make sure there is only one zone. If more are found, delete them */
+    function checkForExtraZones() {
+        Entities.getChildrenIDs(_this.entityID).forEach(function(childOfSitCube) {
+            var name = Entities.getEntityProperties(childOfSitCube, 'name').name;
+            if (name && name.indexOf("canSitZone") > -1 && childOfSitCube !== _this.canSitZoneID) {
+                Entities.deleteEntity(childOfSitCube);
+            }
+        });
+    }
+
+    /* Set a random timeout with exponential growth to check for extra zones */
+    var ONE_SECOND_MS = 1000;
+    var ONE_TENTH_SECOND_MS = 100;
+    var MULTIPLIER = 2;
+    var timeUntilNextZoneCheck = Math.floor((Math.random() * ONE_SECOND_MS) + ONE_TENTH_SECOND_MS);
+    function setNextTimeout() {
+        timeUntilNextZoneCheck *= MULTIPLIER;
+        Script.setTimeout(function() {
+            checkForExtraZones();
+            setNextTimeout();
+        }, timeUntilNextZoneCheck);
+    }
     
     // Preload entity lifetime method
     function preload(id) {
@@ -164,6 +186,7 @@
         _this.isOccupied = false;
         _this.resolved = false;
         createCanSitZone();
+        setNextTimeout();
     }
 
 
