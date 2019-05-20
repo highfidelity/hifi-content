@@ -22,7 +22,7 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 - When standing up, the user returns to the world position where they were when they sat down
 - Fixed bug where user would sit without moving to the chair, then immediately stand up again
 
-2019-05-17_15-48-00 :: [212755d](https://github.com/highfidelity/hifi-content/pull/392/commits/212755d)
+2019-05-20_11-07-00 :: [d7cdc0c](https://github.com/highfidelity/hifi-content/pull/392/commits/d7cdc0c)
 - Emergency fix for multiplying sit zones
 
 

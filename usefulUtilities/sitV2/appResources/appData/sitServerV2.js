@@ -128,16 +128,9 @@
 
     // #region CAN SIT ZONE
 
-
     // Create can sit zone
     var CAN_SIT_M = 5;
     function createCanSitZone() {
-        Entities.getChildrenIDs(_this.entityID).forEach(function(childOfSitCube) {
-            var name = Entities.getEntityProperties(childOfSitCube, 'name').name;
-            if (name.indexOf("canSitZone") > -1) {
-                Entities.deleteEntity(childOfSitCube);
-            }
-        });
         var properties = Entities.getEntityProperties(_this.entityID);
         _this.canSitZoneID = Entities.addEntity({
             name: "canSitZone-" + _this.entityID,
@@ -146,13 +139,13 @@
             position: properties.position,
             parentID: _this.entityID,
             script: Script.resolvePath("./resources/canSitZoneClient.js") + "?" + Math.random(),
+            serverScripts: Script.resolvePath("./resources/empty.js"),
             locked: false,
             dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
             keyLightMode: "inherit",
             interactive: false
         });
     }
-
 
     // Delete zone
     function deleteCanSitZone() {
@@ -163,6 +156,36 @@
     }
 
     // #endregion CAN SIT ZONE
+
+    /* Check children of the sit cube to make sure there is only one zone. If more are found, delete them */
+    function checkForExtraZones() {
+        var canSitZones = [];
+        Entities.getChildrenIDs(_this.entityID).forEach(function(childOfSitCube) {
+            var name = Entities.getEntityProperties(childOfSitCube, 'name').name;
+            if (name && name.indexOf("canSitZone") > -1) {
+                canSitZones.push(childOfSitCube);
+            }
+        });
+        if (canSitZones.length > 1) {
+            canSitZones.pop();
+            canSitZones.forEach(function(canSitZone) {
+                Entities.deleteEntity(canSitZone);
+            });
+        }
+    }
+
+    /* Set a random timeout with exponential growth to check for extra zones */
+    var ONE_SECOND_MS = 1000;
+    var ONE_TENTH_SECOND_MS = 100;
+    var EXPONENT = 2;
+    var timeUntilNextSound = Math.floor((Math.random() * ONE_SECOND_MS) + ONE_TENTH_SECOND_MS);
+    function setNextTimeout() {
+        timeUntilNextSound *= EXPONENT;
+        Script.setTimeout(function() {
+            checkForExtraZones();
+            setNextTimeout();
+        }, timeUntilNextSound);
+    }
     
     // Preload entity lifetime method
     function preload(id) {
@@ -170,6 +193,7 @@
         _this.isOccupied = false;
         _this.resolved = false;
         createCanSitZone();
+        setNextTimeout();
     }
 
 
