@@ -36,6 +36,7 @@
 
     var HALF = 0.5;
 
+    var DEFAULT_STROKE_WIDTH = 0.015;
     var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
     var MAX_LINE_POINTS = 100;
     var DEFAULT_LINE_PROPERTIES = {
@@ -289,7 +290,7 @@
         /* Use the dimensions of the paint sphere in order to handle avatar resizing */
         getCurrentStrokeWidth: function() {
             var paintSphereDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
-            return paintSphereDimensions.x;
+            return paintSphereDimensions ? paintSphereDimensions.x : DEFAULT_STROKE_WIDTH;
         },
 
         /* Create a ray from the mouse position to the white board to get intersection data. If it intersects 
