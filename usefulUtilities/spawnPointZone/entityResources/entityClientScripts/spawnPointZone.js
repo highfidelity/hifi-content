@@ -11,7 +11,7 @@
 (function () {
     var _this;
 
-    var DEBUG = 1;
+    var DEBUG = 0;
     var HALF = 0.5;
 
     var SpawnPointZone = function() {
@@ -19,20 +19,20 @@
     };
 
     SpawnPointZone.prototype = {
-        /* When the user loads this zone, they will be moved to random position within a cube specified by its 
-            position and dimensions in the userData of this zone.*/
+        /* This utility handles users falling through the floor when first loading into a domain. When the user 
+        loads this zone script, they will be moved to random position within a cube whose position and dimensions 
+        are specified in the `userData` of the  attached zone. */
         preload: function(entityID) {
             _this.entityID = entityID;
-            var userData = Entities.getEntityProperties(_this.entityID, 'userData').userData;
-            if (!userData || !JSON.parse(userData).spawnArea.dimensions || !JSON.parse(userData).spawnArea.position) {
+            try {
+                var userData = JSON.parse(Entities.getEntityProperties(_this.entityID, 'userData').userData);
+                var spawnAreaProperties = userData.spawnArea;
                 if (DEBUG) {
-                    print("COULD NOT GET ZONE USER DATA");
+                    print("SPAWN AREA PROPERTIES: ", JSON.stringify(spawnAreaProperties));
                 }
+            } catch (err) {
+                print("ERROR: COULD NOT GET ZONE USER DATA");
                 return;
-            }
-            var spawnAreaProperties = JSON.parse(userData).spawnArea;
-            if (DEBUG) {
-                print("SPAWN AREA PROPERTIES: ", JSON.stringify(spawnAreaProperties));
             }
             var minX = spawnAreaProperties.position.x - spawnAreaProperties.dimensions.x * HALF;
             var maxX = spawnAreaProperties.position.x + spawnAreaProperties.dimensions.x * HALF;
