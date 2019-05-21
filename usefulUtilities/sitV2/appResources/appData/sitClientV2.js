@@ -18,7 +18,7 @@
 
 (function () {
     
-    var DEBUG = 1;
+    var DEBUG = 0;
 
     // #region UTILITIES
 
@@ -163,13 +163,6 @@
         sitDownAndPinAvatar();
     }
 
-    /* THIS A TEMP FIX BECAUSE WHILE CHANGING AVATARS, YOU WILL LOSE TRACK OF ANIMATION ROLES. 
-        Wait 1.5 seconds for avatar to load in after switching avatars, then stand up */
-    var WAIT_FOR_ROLES_TO_LOAD_MS = 1500;
-    function waitThenStandUp() {
-        Script.setTimeout(_this.standUp, WAIT_FOR_ROLES_TO_LOAD_MS);
-    }
-
     // 4th of sit down sequence
     // Sit the avatar down (in the sitting animation) and pin the hips to the spot
     var ANIMATION_URL = Script.resolvePath("./resources/animations/sittingIdle.fbx");
@@ -222,7 +215,6 @@
                 MyAvatar.onLoadComplete.connect(_this.standUp);
                 location.hostChanged.connect(_this.standUp);
                 Script.scriptEnding.connect(_this.standUp);
-                MyAvatar.skeletonModelURLChanged.connect(waitThenStandUp);
                 MyAvatar.wentAway.connect(_this.standUp);
                 _this.connectedSignals = true;
             }
@@ -413,7 +405,6 @@
             MyAvatar.onLoadComplete.disconnect(_this.standUp);
             location.hostChanged.disconnect(_this.standUp);
             Script.scriptEnding.disconnect(_this.standUp);
-            MyAvatar.skeletonModelURLChanged.disconnect(waitThenStandUp);
             MyAvatar.wentAway.disconnect(_this.standUp);
             _this.connectedSignals = false;
         }
@@ -675,7 +666,6 @@
             MyAvatar.onLoadComplete.disconnect(_this.standUp);
             location.hostChanged.disconnect(_this.standUp);
             Script.scriptEnding.disconnect(_this.standUp);
-            MyAvatar.skeletonModelURLChanged.disconnect(waitThenStandUp);
             MyAvatar.wentAway.disconnect(_this.standUp);
             _this.connectedSignals = false;
         }
