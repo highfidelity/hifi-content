@@ -14,7 +14,7 @@ This utility handles users falling through the floor when first loading into a d
 2. Add the below `userData` object to the attached entity's `userData`. You will be spceifying the area in which users should load in by outlining the properties of a zone.
     1. Set the `position` to a vec3 value where you want the center of your zone to be.
     2. Set the `dimensions` to a vec3 value to specify the x, y, and z dimensions of your zone.
-4. Add the `spawnPointZone.js` script to the zone entity.
+3. Add the `spawnPointZone.js` script to the zone entity.
 
 Here's a sample object to add to the entity's `userData`. You can adjust the position and dimensions.:
 ```
@@ -41,7 +41,7 @@ May 21, 2019
 - Initial Release
 
 ## Links
-[JIRA 235 ](https://highfidelity.atlassian.net/browse/BUGZ-235)
+[JIRA 235](https://highfidelity.atlassian.net/browse/BUGZ-235)
 
 
 
