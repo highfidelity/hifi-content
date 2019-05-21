@@ -438,6 +438,10 @@
                 previousStrokeWidth = currentStrokeWidth;
             }
             var sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
+            if (!sphereProperties.dimensions) {
+                _this.triggerReleased();
+                return;
+            }
             currentPoint = sphereProperties.position;
             currentStrokeWidth = sphereProperties.dimensions.x;
             var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint);
