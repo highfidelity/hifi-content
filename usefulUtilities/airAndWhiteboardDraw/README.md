@@ -12,9 +12,14 @@ This utility combines the best features of the whiteboard and the draw app. Any 
 
 ## Releases
 ### Version 1
-SHA [80bcc13](https://github.com/highfidelity/hifi-content/commits/80bcc1338d81903c0fa84af9adcaa857948bc674)
+SHA [80bcc13](https://github.com/highfidelity/hifi-content/commits/80bcc13)
 April 18, 2019
 - Initial Release
+
+SHA [90ebb0d](https://github.com/highfidelity/hifi-content/commits/90ebb0d)
+May 21, 2019
+- Fixed bug with paint sphere dimensions not found [JIRA 152](https://highfidelity.atlassian.net/browse/BUGZ-152)
+- Made material entity attached to paint sphere collisionless 
 
 
 ## Links
