@@ -25,6 +25,9 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 2019-05-20_13-29-00 :: [c5de1cd](https://github.com/highfidelity/hifi-content/pull/392/commits/c5de1cd)
 - Emergency fix for multiplying sit zones
 
+2019-05-21_10-00-00 :: [db0d1e5](https://github.com/highfidelity/hifi-content/pull/392/commits/db0d1e5)
+- Removed signal handler for skeletonModelURLChanged as it duplicated code handled by onLoadComplete
+
 
 ## Known issues
 
@@ -41,7 +44,6 @@ Animation that is applied before sitting is applied while in the chair and conti
 Configurable variables:
 - Custom animations specified via userData
 - All configurable variables specified via userData
-
 
 ## Sit Configurations
 

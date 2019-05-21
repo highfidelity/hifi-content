@@ -163,7 +163,6 @@
         sitDownAndPinAvatar();
     }
 
-
     // 4th of sit down sequence
     // Sit the avatar down (in the sitting animation) and pin the hips to the spot
     var ANIMATION_URL = Script.resolvePath("./resources/animations/sittingIdle.fbx");
@@ -216,7 +215,6 @@
                 MyAvatar.onLoadComplete.connect(_this.standUp);
                 location.hostChanged.connect(_this.standUp);
                 Script.scriptEnding.connect(_this.standUp);
-                MyAvatar.skeletonModelURLChanged.connect(_this.standUp);
                 MyAvatar.wentAway.connect(_this.standUp);
                 _this.connectedSignals = true;
             }
@@ -407,7 +405,6 @@
             MyAvatar.onLoadComplete.disconnect(_this.standUp);
             location.hostChanged.disconnect(_this.standUp);
             Script.scriptEnding.disconnect(_this.standUp);
-            MyAvatar.skeletonModelURLChanged.disconnect(_this.standUp);
             MyAvatar.wentAway.disconnect(_this.standUp);
             _this.connectedSignals = false;
         }
@@ -669,7 +666,6 @@
             MyAvatar.onLoadComplete.disconnect(_this.standUp);
             location.hostChanged.disconnect(_this.standUp);
             Script.scriptEnding.disconnect(_this.standUp);
-            MyAvatar.skeletonModelURLChanged.disconnect(_this.standUp);
             MyAvatar.wentAway.disconnect(_this.standUp);
             _this.connectedSignals = false;
         }
