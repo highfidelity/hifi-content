@@ -11,7 +11,7 @@
 var http = require('http');
 var url = require('url');
 var dbInfo = require('./dbInfo.json');
-var DEBUG = false;
+var DEBUG = 0;
 
 // Returns the user's current status from the DB
 function getStatus(queryParamObject, response) {
@@ -111,11 +111,14 @@ function startHeartbeatTimer(username, response) {
 
 // Update employee status in database
 function updateEmployee(updates, response) {
+    if (DEBUG) {
+        console.log("UPDATES: ", updates);
+    }
     // Create strings for query from the updates object
-    var columnString = ""; // (username, displayName, status)
-    var valueString = ""; // ('username1', 'Display Name', 'busy')
-    var updateString = ""; // username='username1', displayName='Display Name', status='busy'
-    var validUpdateParams = ["username", "displayName", "status", "teamName", "location"];
+    var columnString = ""; // (username, displayName, status, organization)
+    var valueString = ""; // ('username1', 'Display Name', 'busy', 'HiFi')
+    var updateString = ""; // username='username1', displayName='Display Name', status='busy', organization='HiFi'
+    var validUpdateParams = ["username", "displayName", "status", "teamName", "location", "organization"];
     for (var key in updates) {
         if (validUpdateParams.indexOf(key) === -1) {
             continue;
@@ -192,11 +195,22 @@ function formatMemberData(singleResultObject) {
     };
 }
 
-
 // Get all employees
 // Return tables organized by Team names with all employee information
-function getAllEmployees(response) {
-    var query = `SELECT * FROM statusIndicator
+function getAllEmployees(organization, response) {
+    if (!organization) {
+        var responseObject = {
+            status: "error",
+            text: "You must specify an organization!"
+        };
+
+        response.statusCode = 400;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
+    var query = `SELECT * FROM statusIndicator 
+        WHERE organization = '${organization}' 
         ORDER BY teamName, displayName`;
 
     connection.query(query, function (error, results, fields) {
@@ -216,7 +230,7 @@ function getAllEmployees(response) {
             "teams": []
         };
 
-        var currentTeamObject = {};
+        var currentTeamObject = false;
         var currentTeamName = false;
         for (var i = 0; i < results.length; i++) {
             if (currentTeamName !== results[i].teamName) {
@@ -234,8 +248,10 @@ function getAllEmployees(response) {
 
             currentTeamObject.members.push(formatMemberData(results[i]));
         }
-        // Push the last one.
-        responseObject.teams.push(currentTeamObject);
+        if (currentTeamObject) {
+            // Push the last one.
+            responseObject.teams.push(currentTeamObject);
+        }
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
@@ -243,11 +259,22 @@ function getAllEmployees(response) {
     });
 }
 
-
 // Get employees from team
-function getTeamEmployees(teamName, response) {
+function getTeamEmployees(organization, teamName, response) {
+    if (!organization) {
+        var responseObject = {
+            status: "error",
+            text: "You must specify an organization!"
+        };
+
+        response.statusCode = 400;
+        response.setHeader('Content-Type', 'application/json');
+        return response.end(JSON.stringify(responseObject));
+    }
+
     var query = `SELECT * FROM statusIndicator
-        WHERE teamName='${teamName}' ORDER BY displayName`;
+        WHERE organization = '${organization}' AND teamName='${teamName}' 
+        ORDER BY displayName`;
 
     connection.query(query, function (error, results, fields) {
         if (error) {
@@ -265,16 +292,20 @@ function getTeamEmployees(teamName, response) {
             "status": "success",
             "teams": []
         };
-        var currentTeamObject = {
-            "name": teamName,
-            "members": []
-        };
+        var currentTeamObject = false;
         
-        for (var i = 0; i < results.length; i++) {
-            currentTeamObject.members.push(formatMemberData(results[i]));
+        if (results.length > 0) {
+            currentTeamObject = {
+                "name": teamName,
+                "members": []
+            };
+            
+            for (var i = 0; i < results.length; i++) {
+                currentTeamObject.members.push(formatMemberData(results[i]));
+            }
+            
+            responseObject.teams.push(currentTeamObject);
         }
-
-        responseObject.teams.push(currentTeamObject);
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
@@ -308,15 +339,15 @@ function handleGetRequest(request, response) {
             updateEmployee(queryParamObject, response);
         break;
 
-        case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees
-            getAllEmployees(response);
+        case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees&organization=org
+            getAllEmployees(queryParamObject.organization, response);
             break;
 
-        case "getTeamEmployees": // http://localhost:3305/?type=getTeamEmployees&teamName=team1
+        case "getTeamEmployees": // http://localhost:3305/?type=getTeamEmployees&organization=org&teamName=team1
             // {
             //      teamName: "exampleTeamName"
             // }
-            getTeamEmployees(queryParamObject.teamName, response);
+            getTeamEmployees(queryParamObject.organization, queryParamObject.teamName, response);
             break;
 
         default:
@@ -373,7 +404,8 @@ function maybeCreateNewTables(response) {
         displayName VARCHAR(100),
         status VARCHAR(150) DEFAULT 'busy',
         teamName VARCHAR(100) DEFAULT 'TBD',
-        location VARCHAR(100) DEFAULT 'unknown'
+        location VARCHAR(100) DEFAULT 'unknown',
+        organization VARCHAR(200) DEFAULT NULL
     )`;
     connection.query(query, function (error, results, fields) {
         if (error) {

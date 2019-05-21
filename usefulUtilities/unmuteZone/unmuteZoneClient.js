@@ -17,6 +17,7 @@
 
     
     // Returns true if my avatar is inside the zone, false otherwise.
+    var HALF = 0.5;
     function positionIsInsideEntityBounds(entityID, targetPosition) {
         targetPosition = targetPosition || MyAvatar.position;
 

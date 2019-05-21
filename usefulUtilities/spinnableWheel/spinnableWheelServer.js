@@ -181,9 +181,13 @@
             if (!that.wheelIsSpinning) {
                 that.wheelIsSpinning = true;
 
+                var rotation = Entities.getEntityProperties(that.entityID, ["rotation"]).rotation;
+                var front = Quat.getUp(rotation);
+                var angularVelocityAmplitude = Math.random() * MAX_ANGULAR_VELOCITY_RAD_PER_SEC + MIN_ANGULAR_VELOCITY_RAD_PER_SEC;
+
+                // -1 so that the wheel spins the "right" way
                 Entities.editEntity(that.entityID, {
-                    "angularVelocity": [0, 0,
-                        -1 * (Math.random() * MAX_ANGULAR_VELOCITY_RAD_PER_SEC + MIN_ANGULAR_VELOCITY_RAD_PER_SEC)]
+                    "angularVelocity": Vec3.multiply(front, -1 * angularVelocityAmplitude)
                 });
 
                 that.checkSpinningTimeout = Script.setTimeout(checkSpinning, CHECK_SPINNING_TIMEOUT_MS);

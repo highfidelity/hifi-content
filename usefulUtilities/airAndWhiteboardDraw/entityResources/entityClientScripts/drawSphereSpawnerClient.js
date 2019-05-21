@@ -105,6 +105,7 @@
                 materialURL: "materialData",
                 priority: 1,
                 parentID: paintSphere,
+                collisionless: true,
                 materialData: JSON.stringify({
                     materials: {
                         albedo: colorRescaled,

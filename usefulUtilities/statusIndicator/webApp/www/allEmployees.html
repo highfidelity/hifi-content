@@ -9,18 +9,33 @@
     <script src="./js/formatStatusData.js"></script>
     <script>
         function getEmployeeData() {
-            fetch('http://localhost:3305/?type=getAllEmployees')
-                .then(function(response) { return response.json() })
-                .then(function(data) {
-                    formatStatusData(data);
-                    setTimeout(getEmployeeData, 10000);
-                })
-                .catch(function(error){ console.error(error) })
+            var urlParams = getUrlVars();
+            if (urlParams.organization) {
+                fetch(`http://localhost:3305/?type=getAllEmployees&organization=${urlParams.organization}`)
+                    .then(function(response) { return response.json() })
+                    .then(function(data) {
+                        formatStatusData(data);
+                        setTimeout(getEmployeeData, 10000);
+                    })
+                    .catch(function(error){ console.error(error) })
+            } else {
+                var content = document.getElementById('content');
+                content.innerHTML = `<p>Please specify an organization in your URL!</p>`;
+            }
         }
 
         window.addEventListener('DOMContentLoaded', (event) => {
             getEmployeeData();
         });
+
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+        
     </script>
 </head>
 

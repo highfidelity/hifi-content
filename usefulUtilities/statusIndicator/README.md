@@ -66,6 +66,16 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
+## v2.3 | 2019-04-08_09-11-00 | [commit ad7d554](https://github.com/highfidelity/hifi-content/commits/ad7d554)
+- Added 'organization' column to database. Status board will now only show members of one organization (named after the domain)
+- Fixed [Bug 183](https://highfidelity.atlassian.net/browse/BUGZ-183) where status overlay would disappear when moving or resizing the window
+- Fixed [Bug 151](https://highfidelity.atlassian.net/browse/BUGZ-151) where changing domains would throw an error
+
+## v2.2 | 2019-04-08_09-11-00 | [commit ac1fbb0](https://github.com/highfidelity/hifi-content/commits/ac1fbb0)
+NO VERSION BUMPS - Web App Frontend Change Only!
+- Added an "online" count to the Directory page per-team
+- Improved the look of custom statuses on the Directory
+
 ## v2.2 | 2019-04-08_09-11-00 | [commit d161426](https://github.com/highfidelity/hifi-content/commits/d161426)
 NO VERSION BUMPS - Web App Frontend Change Only!
 - Gave the Directory pages fresh new looks!
