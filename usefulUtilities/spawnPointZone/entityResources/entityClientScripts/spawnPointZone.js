@@ -11,7 +11,7 @@
 (function () {
     var _this;
 
-    var DEBUG = 0;
+    var DEBUG = 1;
     var HALF = 0.5;
 
     var SpawnPointZone = function() {
@@ -34,6 +34,24 @@
                 print("ERROR: COULD NOT GET ZONE USER DATA");
                 return;
             }
+            if (spawnAreaProperties.usernameWhitelist && Array.isArray(spawnAreaProperties.usernameWhitelist)) {
+                (spawnAreaProperties.usernameWhitelist).forEach(function (newUsername) {
+                    if (DEBUG) {
+                        print("USER NAME FROM WHITE LIST IS ", newUsername, " AND MY USERNAME IS ", AccountServices.username);
+                    }
+                    if (newUsername === AccountServices.username) { // this user is whitelisted
+                        if (DEBUG) {
+                            print("MATCHED USER NAME FROM WHITE LIST: ", AccountServices.username);
+                        } 
+                        return;
+                    } else {
+                        _this.moveUser(spawnAreaProperties);
+                    }
+                });
+            }
+        },
+
+        moveUser: function(spawnAreaProperties) {
             var minX = spawnAreaProperties.position.x - spawnAreaProperties.dimensions.x * HALF;
             var maxX = spawnAreaProperties.position.x + spawnAreaProperties.dimensions.x * HALF;
             if (minX > maxX) {
