@@ -325,6 +325,7 @@
     // Standup functionality
     var STANDUP_DISTANCE_M = 0.5; // m 
     var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair
+    var ADD_OVERLAYS_DELAY_MS = 525;
     function standUp() {
         if (DEBUG) {
             console.log("standup");
@@ -410,11 +411,13 @@
         }
 
         // RESET OVERLAYS FOR ALL AVATARS IN RANGE OF THE CHAIR
-        Entities.callEntityServerMethod(
-            _this.entityID,
-            "addAllOtherSittableOverlays",
-            AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
-        );
+        Script.setTimeout(function () { // wait till avatar is out of range of the chair
+            Entities.callEntityServerMethod(
+                _this.entityID,
+                "addAllOtherSittableOverlays",
+                AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
+            );
+        }, ADD_OVERLAYS_DELAY_MS);
     }
 
     // Remotely called from canSitZone
