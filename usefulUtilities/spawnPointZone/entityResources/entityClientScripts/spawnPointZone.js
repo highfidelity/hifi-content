@@ -13,6 +13,8 @@
 
     var DEBUG = 1;
     var HALF = 0.5;
+    var DEGREES_ON_AXIS = 360;
+    var NUMBER_OF_AXES = 3;
 
     var SpawnPointZone = function() {
         _this = this;
@@ -34,20 +36,33 @@
                 print("ERROR: COULD NOT GET ZONE USER DATA");
                 return;
             }
+            if (!spawnAreaProperties.position || spawnAreaProperties.position.length < NUMBER_OF_AXES 
+                || !spawnAreaProperties.dimensions || spawnAreaProperties.dimensions < NUMBER_OF_AXES) {
+                return;
+            }
             if (spawnAreaProperties.usernameWhitelist && Array.isArray(spawnAreaProperties.usernameWhitelist)) {
                 (spawnAreaProperties.usernameWhitelist).forEach(function (newUsername) {
                     if (DEBUG) {
                         print("USER NAME FROM WHITE LIST IS ", newUsername, " AND MY USERNAME IS ", AccountServices.username);
                     }
-                    if (newUsername === AccountServices.username) { // this user is whitelisted
-                        if (DEBUG) {
-                            print("MATCHED USER NAME FROM WHITE LIST: ", AccountServices.username);
-                        } 
+                    if (newUsername === AccountServices.username) {
                         return;
                     } else {
                         _this.moveUser(spawnAreaProperties);
                     }
                 });
+            }
+            if (spawnAreaProperties.avatarRotation || spawnAreaProperties.avatarRotation.length < NUMBER_OF_AXES) {
+                if (DEBUG) {
+                    print("NEW AVATAR ROTATION: ", JSON.stringify(spawnAreaProperties.avatarRotation));
+                }
+                MyAvatar.orientation = Quat.fromVec3Degrees(spawnAreaProperties.avatarRotation);
+            } else {
+                var randomYDegrees = Math.random() * DEGREES_ON_AXIS;
+                var newOrientation = MyAvatar.orientation = Quat.fromVec3Degrees({x: 0, y: randomYDegrees, z: 0 });
+                if (DEBUG) {
+                    print("RANDOM AVATAR ROTATION: ", JSON.stringify(newOrientation));
+                }
             }
         },
 
