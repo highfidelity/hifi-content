@@ -11,7 +11,7 @@
 (function () {
     var _this;
 
-    var DEBUG = 1;
+    var DEBUG = 0;
     var HALF = 0.5;
     var DEGREES_ON_AXIS = 360;
     var NUMBER_OF_AXES = 3;
@@ -45,7 +45,7 @@
                     if (DEBUG) {
                         print("USER NAME FROM WHITE LIST IS ", newUsername, " AND MY USERNAME IS ", AccountServices.username);
                     }
-                    if (newUsername === AccountServices.username) {
+                    if (newUsername.toLowerCase() === AccountServices.username.toLowerCase()) {
                         return;
                     } else {
                         _this.moveUser(spawnAreaProperties);
@@ -59,7 +59,8 @@
                 MyAvatar.orientation = Quat.fromVec3Degrees(spawnAreaProperties.avatarRotation);
             } else {
                 var randomYDegrees = Math.random() * DEGREES_ON_AXIS;
-                var newOrientation = MyAvatar.orientation = Quat.fromVec3Degrees({x: 0, y: randomYDegrees, z: 0 });
+                var newOrientation = Quat.fromVec3Degrees({x: 0, y: randomYDegrees, z: 0 });
+                MyAvatar.orientation = newOrientation;
                 if (DEBUG) {
                     print("RANDOM AVATAR ROTATION: ", JSON.stringify(newOrientation));
                 }
