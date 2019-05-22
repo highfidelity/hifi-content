@@ -52,6 +52,9 @@
                     }
                 });
             }
+        },
+
+        moveUser: function(spawnAreaProperties) {
             if (spawnAreaProperties.avatarRotation || spawnAreaProperties.avatarRotation.length < NUMBER_OF_AXES) {
                 if (DEBUG) {
                     print("NEW AVATAR ROTATION: ", JSON.stringify(spawnAreaProperties.avatarRotation));
@@ -65,9 +68,6 @@
                     print("RANDOM AVATAR ROTATION: ", JSON.stringify(newOrientation));
                 }
             }
-        },
-
-        moveUser: function(spawnAreaProperties) {
             var minX = spawnAreaProperties.position.x - spawnAreaProperties.dimensions.x * HALF;
             var maxX = spawnAreaProperties.position.x + spawnAreaProperties.dimensions.x * HALF;
             if (minX > maxX) {
