@@ -37,7 +37,7 @@
                 return;
             }
             if (!spawnAreaProperties.position || spawnAreaProperties.position.length < NUMBER_OF_AXES 
-                || !spawnAreaProperties.dimensions || spawnAreaProperties.dimensions < NUMBER_OF_AXES) {
+                || !spawnAreaProperties.dimensions || spawnAreaProperties.dimensions.length < NUMBER_OF_AXES) {
                 return;
             }
             if (spawnAreaProperties.usernameWhitelist && Array.isArray(spawnAreaProperties.usernameWhitelist)) {
