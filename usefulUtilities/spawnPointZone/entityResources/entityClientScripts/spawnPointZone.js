@@ -11,7 +11,7 @@
 (function () {
     var _this;
 
-    var DEBUG = 0;
+    var DEBUG = 1;
     var HALF = 0.5;
     var DEGREES_ON_AXIS = 360;
     var NUMBER_OF_AXES = 3;
@@ -36,28 +36,33 @@
                 print("ERROR: COULD NOT GET ZONE USER DATA");
                 return;
             }
-            if (!spawnAreaProperties.position || spawnAreaProperties.position.length < NUMBER_OF_AXES 
-                || !spawnAreaProperties.dimensions || spawnAreaProperties.dimensions.length < NUMBER_OF_AXES) {
+            if (!spawnAreaProperties.position || Object.keys(spawnAreaProperties.position).length !== NUMBER_OF_AXES 
+                || !spawnAreaProperties.dimensions || Object.keys(spawnAreaProperties.dimensions).length !== NUMBER_OF_AXES) {
+                if (DEBUG) {
+                    print("INCORRECT POSITION OR DIMENSIONS SPECIFIED");
+                }
                 return;
             }
+            var shouldMove = true;
             if (spawnAreaProperties.usernameWhitelist && Array.isArray(spawnAreaProperties.usernameWhitelist)) {
                 (spawnAreaProperties.usernameWhitelist).forEach(function (newUsername) {
-                    if (DEBUG) {
-                        print("USER NAME FROM WHITE LIST IS ", newUsername, " AND MY USERNAME IS ", AccountServices.username);
-                    }
                     if (newUsername.toLowerCase() === AccountServices.username.toLowerCase()) {
-                        return;
-                    } else {
-                        _this.moveUser(spawnAreaProperties);
+                        if (DEBUG) {
+                            print("USER NAME ", newUsername, " IS ON WHITELIST. RETURNING", newUsername);
+                        }
+                        shouldMove = false;
                     }
                 });
+            }
+            if (shouldMove) {
+                _this.moveUser(spawnAreaProperties);
             }
         },
 
         moveUser: function(spawnAreaProperties) {
-            if (spawnAreaProperties.avatarRotation || spawnAreaProperties.avatarRotation.length < NUMBER_OF_AXES) {
+            if (spawnAreaProperties.avatarRotation && Object.keys(spawnAreaProperties.avatarRotation).length === NUMBER_OF_AXES) {
                 if (DEBUG) {
-                    print("NEW AVATAR ROTATION: ", JSON.stringify(spawnAreaProperties.avatarRotation));
+                    print("SPECIFIED AVATAR ROTATION: ", JSON.stringify(spawnAreaProperties.avatarRotation));
                 }
                 MyAvatar.orientation = Quat.fromVec3Degrees(spawnAreaProperties.avatarRotation);
             } else {
