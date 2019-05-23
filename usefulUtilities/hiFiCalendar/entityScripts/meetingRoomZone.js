@@ -1,14 +1,17 @@
-// meetingRoomZone.js (hiFiMeetingZone.js)
+//  meetingRoomZone.js
 //
 //  Created by Mark Brosche on 4-2-2019
+//  Handed off to Milad Nazeri on 5-15-2019
 //  Copyright 2019 High Fidelity, Inc.
 // 
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
+    var CONFIG = Script.require("../calendarConfig.json?" + Date.now());
+    var CHANNEL = "HiFi.Calendar.Meeting.Occupants";
+    var ROOM_NAME = 1;
     var HALF = 0.5;
-    var CHANNEL = "HiFi.Meeting.Occupants";
 
     var _this;
 
@@ -21,22 +24,19 @@
 
         preload: function(entityID) {
             _this.entityID = entityID;
-            var entityProperties = Entities.getEntityProperties(_this.entityID, ['userData']);
+            _this.occupantsListIDs = [];
+            
             Messages.subscribe(_this.channel);
             Messages.messageReceived.connect(_this.messageListener);
-            var userData = entityProperties.userData;
             AvatarManager.avatarRemovedEvent.connect(_this.leaveDomain);
-            if (entityProperties.userData.length !== 0) {
-                try {
-                    userData = JSON.parse(userData);
-                } catch (e) {
-                    console.log(e, "Could not parse userData");
-                    return;
-                }
-                _this.occupantsListIDs = userData.occupantsListIDs;
-            } else {
-                console.log("No userData found");
-                return;
+
+            var entityName = Entities.getEntityProperties(entityID, ["name"]).name;
+            var entityRoomNameArray = entityName.split("_");
+            var roomName = entityRoomNameArray[ROOM_NAME].toUpperCase();
+            _this.occupantsListIDs.push(CONFIG.ROOMS[roomName].MAIN.roomOccupantsListID);
+
+            if (CONFIG.ROOMS[roomName].SECONDARY) {
+                _this.occupantsListIDs.push(CONFIG.ROOMS[roomName].SECONDARY.roomOccupantsListID);
             }
             if (_this.positionIsInsideEntityBounds(_this.entityID, MyAvatar.position)) {
                 _this.enterEntity();
@@ -44,11 +44,12 @@
         },
 
 
+        // Listen for messages from the occupants server to know when to refresh
+        // This doesn't seem to currently be getting a message
         messageListener: function(channel, message, senderUUID, localOnly) {
             if (channel !== CHANNEL) {
                 return;
             } else {
-                console.log("\n\nmessage", _this.entityID, message)
                 try {
                     message = JSON.parse(message);
                 } catch (e) {
@@ -56,13 +57,13 @@
                     return;
                 }
                 if (message.type === "REFRESH OCCUPANTS" && message.id === _this.entityID) {
-                    console.log("\n\n\nRefreshing on zone")
                     _this.refreshOccupants();
                 }
             }
         },
 
 
+        // Check to see if you are inside the bounds
         refreshOccupants: function() {
             if (_this.positionIsInsideEntityBounds(_this.entityID, MyAvatar.position)) {
                 _this.enterEntity();
@@ -70,6 +71,7 @@
         },
         
 
+        // Helper to see if the avatar is within a given bounds
         positionIsInsideEntityBounds: function(entityID, targetPosition) {
             targetPosition = targetPosition || MyAvatar.position;
     
@@ -94,20 +96,26 @@
         },
 
 
+        // if an avatar enters, make sure they have a display name and send it to the subscribed occupants
         enterEntity: function() {
+            var displayNameToUse = MyAvatar.sessionDisplayName;
+            if (displayNameToUse === "") {
+                displayNameToUse = MyAvatar.displayName;
+            }
             if (_this.occupantsListIDs) {
                 _this.occupantsListIDs.forEach(function(occupantsListID){
-                    Entities.callEntityServerMethod(occupantsListID, "enteredMeetingZone", [MyAvatar.sessionUUID, MyAvatar.sessionDisplayName]);
-                })
+                    Entities.callEntityServerMethod(occupantsListID, "enteredMeetingZone", [MyAvatar.sessionUUID, displayNameToUse]);
+                });
             }
         },
 
 
+        // Remove the avatar from the occupants list
         leaveEntity: function() {
             if (_this.occupantsListIDs) {
                 _this.occupantsListIDs.forEach(function(occupantsListID){
                     Entities.callEntityServerMethod(occupantsListID, "leftMeetingZone", [MyAvatar.sessionUUID]);
-                })
+                });
                 
             }
         },
@@ -117,7 +125,7 @@
             if (_this.occupantsListIDs) {
                 _this.occupantsListIDs.forEach(function(occupantsListID){
                     Entities.callEntityServerMethod(occupantsListID, "leftMeetingZone", [uuid]);
-                })
+                });
             }
         },
 

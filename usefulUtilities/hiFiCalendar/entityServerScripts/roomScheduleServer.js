@@ -1,6 +1,7 @@
 //  roomScheduleServer.js
 //
 //  Created by Mark Brosche on 4/3/2019
+//  Handed off to Milad Nazeri on 5-15-2019
 //  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -8,18 +9,22 @@
 
 
 (function() {
+    var CONFIG = Script.require("../calendarConfig.json?" + Date.now());
+    var CHANNEL = "HiFi.Google.Calendar";
+    var ROOM_NAME = 1;
+    var ROOM_TYPE = 2;
+    var TOKEN = 0;
+    var EXPIRE_TIME = 1;
     var INTERVAL_FREQUENCY_MS = 60000;
     var EXPIRY_BUFFER_MS = 300000;
     var HOURS_PER_DAY = 24;
     var NOON_HR = 12;
-    var CHANNEL = "HiFi.Google.Calendar";
-    // ### figure out the token server ID
-    var TOKEN_SERVER_ID = '{de23b09f-0e49-4250-8de9-394453bb8565}';
+    var TOKEN_SERVER_ID = CONFIG.TOKEN_SERVER_ID;
     var SIGN_TEXT_COLOR_AVAILABLE = [168, 255, 168];
     var SIGN_TEXT_COLOR_INUSE = [255, 168, 168];
     var SIGN_BACKGROUND_COLOR_AVAILABLE = [125, 255, 125];
     var SIGN_BACKGROUND_COLOR_INUSE = [255, 125, 125];
-    console.log("\n\n\n\n\n roomScheduleServer V2 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n\n\n\n\n")
+    var roomInfo = null;
     var that = this;
 
     this.remotelyCallable = [
@@ -30,134 +35,141 @@
 
     this.preload = function(entityID) {
         that.entityID = entityID;
-        that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData', 'name']);
+        that.entityProperties = Entities.getEntityProperties(that.entityID, ['privateUserData', 'userData', 'name']);
         var userData;
-        if (that.entityProperties.userData.length !== 0) {
-            try {
+        var privateUserData;
+
+        var entityRoomNameArray = that.entityProperties.name.split("_");
+        that.roomName = entityRoomNameArray[ROOM_NAME].toUpperCase();
+        that.roomType = entityRoomNameArray[ROOM_TYPE].toUpperCase();
+        roomInfo = CONFIG.ROOMS[that.roomName][that.roomType];
+
+        if (CONFIG.ROOMS[that.roomName]["SECONDARY"]){
+            that.secondaryRoomSchedule = CONFIG.ROOMS[that.roomName]["SECONDARY"].roomScheduleID;
+        }
+
+        that.room = {
+            "eventList": []
+        };
+
+        that.roomScheduleID = roomInfo.roomScheduleID; 
+        that.roomOccupantsListID = roomInfo.roomOccupantsListID;
+        that.roomColorID = roomInfo.roomColorID;
+        that.roomColorOccupantsID = roomInfo.roomColorOccupantsID; 
+        that.roomClockID = roomInfo.roomClockID;
+        that.roomEntityIDs = [
+            that.roomScheduleID,
+            that.roomColorID,
+            that.roomColorOccupantsID,
+            that.roomOccupantsListID
+        ];
+
+        that.clearEventList(that.entityID);
+        that.updateSignColor(that.roomEntityIDs[1], [true]);
+        that.updateSignColor(that.roomEntityIDs[2], [true]);
+
+        try {
+            if (that.entityProperties.userData.length > 0) {
                 userData = JSON.parse(that.entityProperties.userData);
-            } catch (e) {
-                console.log(e, "Could not parse userData");
-                return;
+            } else {
+                userData = {};
             }
-        } else {
-            console.log("Please enter appropriate userData to enable functionality of this server script.");
+            if (that.entityProperties.privateUserData.length > 0) {
+                privateUserData = JSON.parse(that.entityProperties.privateUserData);
+            } else {
+                privateUserData = {};
+            }
+        } catch (e) {
+            console.log(e, "Could not parse userData");
             return;
         }
-        
-        that.roomScheduleID = userData.roomScheduleID; 
-        that.roomOccupantListID = userData.roomOccupantListID; 
-        if (that.entityID === that.roomScheduleID) {
-            var secondaryUserData = {};
-            that.sentAlready = false;
-            that.token = userData.token;
-            that.expireTime = secondaryUserData.expireTime = userData.expireTime;
-            that.timezoneOffset = secondaryUserData.timezoneOffset = userData.timezoneOffset;
-            that.timezoneName = secondaryUserData.timezoneName = userData.timezoneName;
-            that.address = secondaryUserData.address = userData.address;
-            that.roomColorID = userData.roomColorID;
-            that.roomColorOccupantsID = userData.roomColorOccupantsID; 
-            that.roomClockID = userData.roomClockID;
-            that.roomEntityIDs = [
-                that.roomScheduleID,
-                that.roomColorID,
-                that.roomColorOccupantsID,
-                that.roomOccupantListID
-            ];                
-            that.room = {
-                "eventList": []
-            };
-            if (userData.secondScheduleID) {
-                secondaryUserData.token = userData.token;
-                secondaryUserData.expireTime = userData.expireTime;
-                secondaryUserData.timezoneOffset = userData.timezoneOffset;
-                secondaryUserData.timezoneName = userData.timezoneName;
-                secondaryUserData.address = userData.address;
-                if (userData.secondScheduleID) {
-                    Entities.callEntityMethod(userData.secondScheduleID, "secondarySync", [JSON.stringify(secondaryUserData)]);
-                }
 
-            }
-            that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
-            that.clearEventList(that.entityID);
-            that.updateSignColor(that.roomEntityIDs[1], [true]);
-            that.updateSignColor(that.roomEntityIDs[2], [true]);
-            Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
+        that.sentAlready = false;
+        that.token = privateUserData.token;
+        that.expireTime = userData.expireTime;
+        that.timezoneOffset = userData.timezoneOffset;
+        that.timezoneName = userData.timezoneName;
+        that.address = userData.address;
+
+        Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
+
+        that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
+
+        if (that.roomType !== "SECONDARY" && that.token) {
             that.googleRequest(that.token);
-        } else if (that.entityID === that.roomOccupantListID) {
-            that.room = {};
-            that.room = {
-                "occupants": []
-            };
-            Entities.editEntity(that.entityID, {
-                text: 'loading'
-            });
         }
+
     };
 
-    that.secondarySync = function(id, params) {
-        console.log("IN SECONDARY SYNC!!");
-        try {
-            var userData = JSON.parse(params[0]);
-            var currentUserData = JSON.parse(Entities.getEntityProperties(that.entityID, ['userData', 'name']).userData);
-            that.token = currentUserData.token = userData.token;
-            that.expireTime = currentUserData.expireTime = userData.expireTime;
-            that.timezoneOffset = currentUserData.timezoneOffset = userData.timezoneOffset;
-            that.address = currentUserData.address = userData.address;
-            Entities.editEntity(that.entityID, {userData: JSON.stringify(currentUserData)});
-            that.preload();
-        } catch (e) {
-            console.log("couldn't parse secondarySync data")
+
+    // If this is a secondary display, then this will update the UI without making a call
+    this.secondarySync = function(id, params) {
+        var events = JSON.parse(params[0]);
+
+        that.clearEventList(that.entityID);
+        if (events.length > 0) {
+            for (var i = 0; i < events.length; i++) {
+                var event = events[i];
+                var start = event.start.dateTime;
+                var end = event.end.dateTime;
+                var summary = event.summary;
+                if (!(start && end)) {
+                    console.log("Event received without a start and end dateTime!");
+                    continue;
+                }        
+                var startTimestamp = that.googleDateToUTCDate(start);
+                var endTimestamp = that.googleDateToUTCDate(end);
+  
+                that.postEvents(that.entityID, summary, startTimestamp, endTimestamp);
+            }
+        } else {
+            Entities.editEntity(that.entityID, {text: "Nothing on the schedule for this room today."});
         }
+
+        Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
     };
 
+
+    // Called when the token server has a new token to give the calendar schedules
     this.refreshToken = function(id, params) {
-        console.log("\n\n\n &&&&&& \n REFRESH TOKEN PARAMS: ", JSON.stringify(params));
         if (that.entityID === id) {
+            that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData', 'name']);
+
             if (that.interval) {
-                console.log("CLEARING INTERVAL: ", that.entityProperties.name);
                 Script.clearInterval(that.interval);
                 that.interval = false;
             }
-            if (params[5]) {
-                Entities.editEntity(that.entityID, {name: "Calendar_RoomSchedule" + params[5] + that.entityID});
-            }
-            that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData', 'name']);
+
             var userData;
+            var privateUserData = {};
             if (that.entityProperties.userData.length !== 0) {
                 try {
                     userData = JSON.parse(that.entityProperties.userData);
                 } catch (e) {
                     console.log(e, "no userData found");
-                    return;
                 }
-                userData.token = params[0];
-                userData.expireTime = params[1];
-                if (params[2]) {
-                    that.timezoneOffset = userData.timezoneOffset = params[2];
-                }
-                if (params[3]) {
-                    userData.timezoneName = that.timezoneName = params[3];
-                }
-                if (params[4]) {
-                    userData.address = that.address = params[4];
-                }
-                Entities.editEntity(that.entityID, {
-                    userData: JSON.stringify(userData)
-                });
-                that.token = params[0];
-                that.expireTime = params[1];
-                that.sentAlready = false;
-                // # What does this do, I don't see any references to this
-                if (userData.secondScheduleID) {
-                    Entities.callEntityMethod(userData.secondScheduleID, "refreshToken", params);
-                }
-                Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
-                that.googleRequest(that.token);
+            } else {
+                userData = {};
             }
+
+            that.token = privateUserData.token = params[TOKEN];
+            that.expireTime = userData.expireTime = params[EXPIRE_TIME];
+
+            Entities.editEntity(that.entityID, {
+                userData: JSON.stringify(userData),
+                privateUserData: JSON.stringify(privateUserData)
+            });
+
+            that.sentAlready = false;
+
+            Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
+
+            that.googleRequest(that.token);
         }
     };
 
-
+    
+    // Prepare the API request to google 
     this.googleRequest = function(token) {
         var tomorrowMidnight = new Date();
         tomorrowMidnight.setHours(HOURS_PER_DAY, 0, 0, 0);
@@ -170,7 +182,6 @@
             "&maxResults=2" +
             "&orderBy=startTime" +
             "&access_token=" + token;
-            console.log(" that.scheduleURL",  that.scheduleURL)
         if (!that.interval) {
             that.requestScheduleData(that.scheduleURL);
         } else {
@@ -180,6 +191,8 @@
     };
 
 
+    // Call the google API and get back the list of events to post
+    var RETRY_TIMEOUT = 5000;
     this.requestScheduleData = function(scheduleURL) {
         that.request(scheduleURL, function (error, response) {
             if (error) {
@@ -193,8 +206,10 @@
                     Script.clearInterval(that.interval);
                     that.interval = false;
                 } 
-
-                Entities.callEntityMethod(TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
+                
+                Script.setTimeout(function(){
+                    Entities.callEntityMethod(TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
+                }, RETRY_TIMEOUT);
                 return;
             } else {
                 that.clearEventList(that.entityID);
@@ -217,12 +232,18 @@
                 } else {
                     Entities.editEntity(that.entityID, {text: "Nothing on the schedule for this room today."});
                 }
+
+                if (that.secondaryRoomSchedule){
+                    Entities.callEntityMethod(that.secondaryRoomSchedule, "secondarySync", [JSON.stringify(events)]);
+                }
+
+                Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
             } 
         });
         that.interval = Script.setInterval(function() {
+
             if ((new Date()).valueOf() > (that.expireTime - EXPIRY_BUFFER_MS) && !that.sentAlready) {
                 that.sentAlready = true;
-                console.log("CALLING FOR NEW TOKEN", that.entityProperties.name);
                 Entities.callEntityMethod(TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
             } else if ((new Date()).valueOf() > (that.expireTime)) {
                 Messages.sendMessage(CHANNEL, JSON.stringify({
@@ -237,7 +258,6 @@
             }
             that.request(scheduleURL, function (error, response) {
                 if (error) {
-                    console.log("Error: ", error," could not complete request for ", that.entityProperties.name);
                     Script.clearInterval(that.interval);
                     that.interval = false;
                     Messages.sendMessage(CHANNEL, JSON.stringify({
@@ -268,12 +288,17 @@
                     } else {
                         Entities.editEntity(that.entityID, {text: "Nothing on the schedule for this room today."});
                     }
+
+                    if (that.secondaryRoomSchedule){
+                        Entities.callEntityMethod(that.secondaryRoomSchedule, "secondarySync", [JSON.stringify(events)]);
+                    }
                 } 
             });
         }, INTERVAL_FREQUENCY_MS);
     };
 
 
+    // Format the given google date from the response
     var googleDate = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}):(\d{2})$/;
     var MINS_PER_HOUR = 60;
     this.googleDateToUTCDate = function(d) {
@@ -293,8 +318,11 @@
     };
 
 
+    // Update the calendar UI when we have the latest calendar information
     this.postEvents = function(id, summary, start, end) {
         if (id === that.entityID) {
+            var printedSchedule = '';
+
             var startTimestamp = start;
             var endTimestamp = end;
 
@@ -306,7 +334,6 @@
 
             that.room.eventList.push(tempEvent);
 
-            var printedSchedule = '';
             that.room.eventList.forEach(function(event) {
                 var startHours;
                 var endHours;
@@ -361,19 +388,21 @@
                 endAmPm +
                 ' ' + that.timezoneName + '\n\n';                
             });            
+
             Entities.editEntity(id, {text: printedSchedule});
-            console.log("ID/ SUMMARY", id, printedSchedule);
             that.setBusyLight();
         }
     };
 
 
+    // Erase the current event list
     this.clearEventList = function(id) {
         that.room.eventList = [];
         Entities.editEntity(id, {text: ""});
     };
 
 
+    // Switch the color occupants the top color of the schedule to show if it is in use or available
     this.setBusyLight = function() {
         var now = new Date();
         var isAvailable = true;
@@ -393,6 +422,7 @@
     };
 
     
+    // Handles whenever the color occupants and the top availabilty/in use color bar need to be changed
     this.updateSignColor = function(id, params) {
         if (id === that.roomEntityIDs[1]) {    
             if (params[0] === true) {
@@ -424,6 +454,7 @@
             } 
         }
     };      
+
 
     this.unload = function() {
         if (that.interval) {

@@ -1,14 +1,14 @@
 /*** FONTS ***/
 @font-face {
   font-family: 'Graphik-Regular';
-  src: url(../../resources/fonts/Graphik-Regular.woff) format('woff');
+  src: url(../resources/fonts/Graphik-Regular.woff) format('woff');
   font-weight: lighter;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Graphik-Semibold';
-  src: url(../../resources/fonts/Graphik-Semibold.woff) format('woff');
+  src: url(../resources/fonts/Graphik-Semibold.woff) format('woff');
   font-weight: normal;
   font-style: normal;
 }
@@ -71,7 +71,7 @@ h3 {
   height: 65px;
   right: 0px;
   top: 0px;
-  background: url(../../resources/images/TopRightCorner_Shard.png) no-repeat;
+  background: url(../resources/images/TopRightCorner_Shard.png) no-repeat;
 }
 
 #h1BottomLeft {
@@ -80,7 +80,7 @@ h3 {
   height: 175px;
   left: 0px;
   top: 145px;
-  background: url(../../resources/images/BottomLeftCorner_Shard.png) no-repeat;
+  background: url(../resources/images/BottomLeftCorner_Shard.png) no-repeat;
 }
 
 #background1 {
@@ -244,7 +244,7 @@ footer {
   margin-right: 15%;
   height: 80px;
   top: 400px;  
-  background: url(../../resources/images/btn_google_signin_dark_normal_web@2x.png);
+  background: url(../resources/images/btn_google_signin_dark_normal_web@2x.png);
   background-repeat: no-repeat;
   background-size: contain;
 }
@@ -253,7 +253,7 @@ footer {
   border: none;
   position: relative;
   display: block;
-  background: url(../../resources/images/btn_google_signin_dark_normal_web@2x.png);
+  background: url(../resources/images/btn_google_signin_dark_normal_web@2x.png);
   background-repeat: no-repeat;
   background-size: contain;
 }
@@ -264,7 +264,7 @@ footer {
   position: relative;
   border-radius: 5px;
   display: block;
-  background: url(../../resources/images/btn_google_signin_dark_focus_web@2x.png);
+  background: url(../resources/images/btn_google_signin_dark_focus_web@2x.png);
   background-repeat: no-repeat;
   background-size: contain;
 }
@@ -275,7 +275,7 @@ footer {
   position: relative;
   border-radius: 5px;
   display: block;
-  background: url(../../resources/images/btn_google_signin_dark_pressed_web@2x.png);
+  background: url(../resources/images/btn_google_signin_dark_pressed_web@2x.png);
   background-repeat: no-repeat;
   background-size: contain;
 }
@@ -285,7 +285,7 @@ footer {
   outline: none;
   position: relative;
   display: block;
-  background: url(../../resources/images/btn_google_signin_dark_disabled_web@2x.png);
+  background: url(../resources/images/btn_google_signin_dark_disabled_web@2x.png);
   background-repeat: no-repeat;
   background-size: contain;
 }
@@ -416,7 +416,7 @@ footer {
 }
 
 .trash {
-  background: url('../../resources/images/trash.png?v2') no-repeat; 
+  background: url('../resources/images/trash.png?v2') no-repeat; 
   background-position: center;  
   cursor: pointer;
   background-size: contain;
@@ -427,7 +427,7 @@ footer {
 }
 
 .edit {
-  background: url('../../resources/images/edit.png?v2') no-repeat; 
+  background: url('../resources/images/edit.png?v2') no-repeat; 
   background-position: center;  
   cursor: pointer;
   background-size: contain;
@@ -548,7 +548,7 @@ a:active {
   color: #FFFFFF;
   background: #000000;
   -webkit-appearance: none; 
-  background: url('../../resources/images/arrow.png?v5') no-repeat; 
+  background: url('../resources/images/arrow.png?v5') no-repeat; 
   background-position: 95%;  
   cursor: pointer;
   background-size: contain;
