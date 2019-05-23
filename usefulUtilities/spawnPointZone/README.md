@@ -47,7 +47,7 @@ SHA [4192b55](https://github.com/highfidelity/hifi-content/commits/4192b55) May 
 - [JIRA 235](https://highfidelity.atlassian.net/browse/BUGZ-235)   Initial Release
 
 ### Version 1.1
-SHA [00c5450](https://github.com/highfidelity/hifi-content/commits/00c5450) May 23, 2019   
+SHA [52fe80e](https://github.com/highfidelity/hifi-content/commits/52fe80e) May 23, 2019   
 
 - [JIRA 314](https://highfidelity.atlassian.net/browse/BUGZ-314) Adding rotation data to the spawn area
 - [JIRA 315](https://highfidelity.atlassian.net/browse/BUGZ-315) Adding user whitelist for spawn area script
