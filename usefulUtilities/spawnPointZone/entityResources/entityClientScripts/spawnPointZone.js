@@ -13,6 +13,8 @@
 
     var DEBUG = 0;
     var HALF = 0.5;
+    var DEGREES_ON_AXIS = 360;
+    var NUMBER_OF_AXES = 3;
 
     var SpawnPointZone = function() {
         _this = this;
@@ -33,6 +35,43 @@
             } catch (err) {
                 print("ERROR: COULD NOT GET ZONE USER DATA");
                 return;
+            }
+            if (!spawnAreaProperties.position || Object.keys(spawnAreaProperties.position).length !== NUMBER_OF_AXES 
+                || !spawnAreaProperties.dimensions || Object.keys(spawnAreaProperties.dimensions).length !== NUMBER_OF_AXES) {
+                if (DEBUG) {
+                    print("INCORRECT POSITION OR DIMENSIONS SPECIFIED");
+                }
+                return;
+            }
+            var shouldMove = true;
+            if (spawnAreaProperties.usernameWhitelist && Array.isArray(spawnAreaProperties.usernameWhitelist)) {
+                (spawnAreaProperties.usernameWhitelist).forEach(function (newUsername) {
+                    if (newUsername.toLowerCase() === AccountServices.username.toLowerCase()) {
+                        if (DEBUG) {
+                            print("USER NAME ", newUsername, " IS ON WHITELIST. RETURNING", newUsername);
+                        }
+                        shouldMove = false;
+                    }
+                });
+            }
+            if (shouldMove) {
+                _this.moveUser(spawnAreaProperties);
+            }
+        },
+
+        moveUser: function(spawnAreaProperties) {
+            if (spawnAreaProperties.avatarRotation && Object.keys(spawnAreaProperties.avatarRotation).length === NUMBER_OF_AXES) {
+                if (DEBUG) {
+                    print("SPECIFIED AVATAR ROTATION: ", JSON.stringify(spawnAreaProperties.avatarRotation));
+                }
+                MyAvatar.orientation = Quat.fromVec3Degrees(spawnAreaProperties.avatarRotation);
+            } else {
+                var randomYDegrees = Math.random() * DEGREES_ON_AXIS;
+                var newOrientation = Quat.fromVec3Degrees({x: 0, y: randomYDegrees, z: 0 });
+                MyAvatar.orientation = newOrientation;
+                if (DEBUG) {
+                    print("RANDOM AVATAR ROTATION: ", JSON.stringify(newOrientation));
+                }
             }
             var minX = spawnAreaProperties.position.x - spawnAreaProperties.dimensions.x * HALF;
             var maxX = spawnAreaProperties.position.x + spawnAreaProperties.dimensions.x * HALF;
