@@ -43,14 +43,15 @@ Capitalize the keys like above.
 
 # Release Notes
 
-## HiFi App V3.0 |
+## 3.0 | 900b27f | 2019-05-23
   - Created a token server backend 
   - Moved configuration from userData to a JSON
   - Used the PrivateData to store the tokens
 
-## HiFi App v2.0 | [commit cb8991d](https://github.com/highfidelity/hifi-content/pull/361/commits/cb8991d98223a7ad14dca809b8ba507bef9336cb)
+## 2.0 | [commit cb8991d](https://github.com/highfidelity/hifi-content/pull/361/commits/cb8991d98223a7ad14dca809b8ba507bef9336cb)
 - Authorization fixes, client app no longer needs to stay open.
 - Clock script added
 - Time display logic implemented for easier reading.
-## HiFi App v1.0 | [commit ad83a9d](https://github.com/highfidelity/hifi-content/pull/345/commits/ad83a9dc621196e80b234ba205803b61f42c1b88)
+
+## 1.0 | [commit ad83a9d](https://github.com/highfidelity/hifi-content/pull/345/commits/ad83a9dc621196e80b234ba205803b61f42c1b88)
 - Initial Release
