@@ -139,7 +139,6 @@
             position: properties.position,
             parentID: _this.entityID,
             script: Script.resolvePath("./resources/canSitZoneClient.js") + "?" + Math.random(),
-            serverScripts: Script.resolvePath("./resources/empty.js"),
             locked: false,
             dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
             keyLightMode: "inherit",
