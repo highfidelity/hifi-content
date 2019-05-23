@@ -11,7 +11,7 @@
 (function () {
     var _this;
 
-    var DEBUG = 1;
+    var DEBUG = 0;
     var HALF = 0.5;
     var DEGREES_ON_AXIS = 360;
     var NUMBER_OF_AXES = 3;
