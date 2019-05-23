@@ -28,8 +28,8 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 2019-05-21_10-00-00 :: [db0d1e5](https://github.com/highfidelity/hifi-content/pull/392/commits/db0d1e5)
 - Removed signal handler for skeletonModelURLChanged as it duplicated code handled by onLoadComplete
 
-2019-05-22_17-00-00 :: [beccd6b](https://github.com/highfidelity/hifi-content/pull/392/commits/beccd6b)
-- [Jira 307](https://highfidelity.atlassian.net/browse/BUGZ-307) Added a timeout back after it was previously removed
+2019-05-22_17-00-00 :: [f5cb684](https://github.com/highfidelity/hifi-content/pull/392/commits/f5cb684)
+- [Jira 307](https://highfidelity.atlassian.net/browse/BUGZ-307) Added a timeout back after it was previously removed and removed empty script from sit zones
 
 
 ## Known issues
