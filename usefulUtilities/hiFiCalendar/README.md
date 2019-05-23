@@ -55,3 +55,6 @@ Capitalize the keys like above.
 
 ## 1.0 | [commit ad83a9d](https://github.com/highfidelity/hifi-content/pull/345/commits/ad83a9dc621196e80b234ba205803b61f42c1b88)
 - Initial Release
+
+# Known Issues
+- If the occupants list needs to refresh, it will not get the current members in the zone area.  It does this by sending a message to the zone client script to send over who is in there, however I can't seem to get that message.  Will need to test further if this a platform bug.  
