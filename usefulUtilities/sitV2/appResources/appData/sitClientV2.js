@@ -602,7 +602,7 @@
             imageURL: HMD.active ? SITTABLE_IMAGE_URL_HMD : SITTABLE_IMAGE_URL_DESKTOP,
             ignoreRayIntersection: false,
             alpha: SITTABLE_START_ALPHA,
-            script: Script.resolvePath("./resources/sittableUIClient.js") + "?" + Math.random(),
+            script: Script.resolvePath("./resources/sittableUIClient.js"),
             visible: true,
             emissive: true
         },
