@@ -3,9 +3,9 @@ When this script is attached to a zone, the zone serves as a portal, which can b
 
 ## Setup
 1. Rez a zone entity that you want to act as the portal.
-2. Add the below `userData` object to the zone entity's `userData`
-3. Add the `portal.js` entity script to the zone entity
-4. Update `userData` at any time to modify the portal's destination
+2. Add the below `userData` object to the zone entity's `userData`.
+3. Add the `portal.js` entity script to the zone entity.
+4. Update `userData` at any time to modify the portal's destination.
 
 Here's the object to add to the zone entity's `userData`:
 ```
