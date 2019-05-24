@@ -29,22 +29,26 @@
 
     this.remotelyCallable = [
         "refreshToken",
-        "secondarySync"
+        "secondarySync",
+        "updateTimeZoneInfo"
     ];
 
 
     this.preload = function(entityID) {
         that.entityID = entityID;
         that.entityProperties = Entities.getEntityProperties(that.entityID, ['privateUserData', 'userData', 'name']);
+        var name = that.entityProperties.name;
         var userData;
         var privateUserData;
+
+        that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
 
         var entityRoomNameArray = that.entityProperties.name.split("_");
         that.roomName = entityRoomNameArray[ROOM_NAME].toUpperCase();
         that.roomType = entityRoomNameArray[ROOM_TYPE].toUpperCase();
         roomInfo = CONFIG.ROOMS[that.roomName][that.roomType];
 
-        if (CONFIG.ROOMS[that.roomName]["SECONDARY"]){
+        if (CONFIG.ROOMS[that.roomName]["SECONDARY"] && that.roomType !== "SECONDARY") {
             that.secondaryRoomSchedule = CONFIG.ROOMS[that.roomName]["SECONDARY"].roomScheduleID;
         }
 
@@ -91,14 +95,34 @@
         that.timezoneName = userData.timezoneName;
         that.address = userData.address;
 
-        Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
-
-        that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
+        if (that.secondaryRoomSchedule){
+            Entities.callEntityMethod(that.secondaryRoomSchedule, "updateTimeZoneInfo", [that.timezoneName, that.timezoneOffset ]);
+        }
 
         if (that.roomType !== "SECONDARY" && that.token) {
             that.googleRequest(that.token);
         }
 
+        if (that.roomType !== "SECONDARY") {
+            Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
+        }
+    };
+
+
+    // Make sure the secondary calendar has the correct timezone for it's ui update
+    that.updateTimeZoneInfo = function(id, params) {
+        var userData = Entities.getEntityProperties(that.entity, ['userData']).userData || {};
+        try {
+            if (userData.length > 0) {
+                userData = JSON.parse(userData);
+            }
+        } catch (e) {
+            console.log("trouble parsing userData");
+        }
+        userData.timezoneName = params[0];
+        userData.timezoneOffset = params[1];
+
+        Entities.editEntity(that.entityID, { userData: JSON.stringify(userData) });
     };
 
 
