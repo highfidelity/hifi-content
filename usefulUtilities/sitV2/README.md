@@ -31,6 +31,9 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 2019-05-22_17-00-00 :: [f5cb684](https://github.com/highfidelity/hifi-content/pull/392/commits/f5cb684)
 - [Jira 307](https://highfidelity.atlassian.net/browse/BUGZ-307) Added a timeout back after it was previously removed and removed empty script from sit zones
 
+2019-05-23_17-00-00 :: [0eedf28](https://github.com/highfidelity/hifi-content/pull/392/commits/0eedf28)
+- [Jira 350](https://highfidelity.atlassian.net/browse/BUGZ-350) Removed script caching
+
 
 ## Known issues
 
