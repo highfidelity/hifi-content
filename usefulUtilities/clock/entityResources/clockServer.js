@@ -70,6 +70,9 @@
             var period = "am " + _this.timezoneName;
             var hours = Number(date.getHours()) + Number(_this.timezoneOffset);
             hours = (hours < 0) ? hours + HOURS_PER_DAY : hours;
+            if (hours === 0) {
+                hours += AM_HOURS;
+            }
             if (hours >= AM_HOURS) {
                 if (hours < HOURS_PER_DAY) {
                     period = "pm " + _this.timezoneName;
