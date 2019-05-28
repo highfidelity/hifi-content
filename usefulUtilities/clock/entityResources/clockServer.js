@@ -71,7 +71,9 @@
             var hours = Number(date.getHours()) + Number(_this.timezoneOffset);
             hours = (hours < 0) ? hours + HOURS_PER_DAY : hours;
             if (hours >= AM_HOURS) {
-                period = "pm " + _this.timezoneName;
+                if (hours < HOURS_PER_DAY) {
+                    period = "pm " + _this.timezoneName;
+                }
                 if (hours !== AM_HOURS) {
                     hours -= AM_HOURS;
                 }
