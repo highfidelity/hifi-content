@@ -65,21 +65,18 @@
         },
 
 
-        // This function updates the clock display with the current time.
+        // This function updates the clock display with the current time. Time zone offsets range from -11 to +14
         synchronize: function() {
             var date = new Date();
             var period = "am " + _this.timezoneName;
             var hours = Number(date.getHours()) + Number(_this.timezoneOffset);
-            hours = (hours < 0) ? hours + HOURS_PER_DAY : hours;
-            if (hours === 0) {
-                hours += AM_HOURS;
+            hours = (hours < 0) ? hours + HOURS_PER_DAY : hours; // example GMT 2 + (-5) offset becomes 9am
+            hours = (hours >= HOURS_PER_DAY) ? hours - HOURS_PER_DAY : hours; // example GMT = 23 + 14 offset becomes 13
+            if (hours === 0) { // example GMT = 7 + (-7) offset = 0
+                hours += AM_HOURS; // 0 becomes 12am
             } else if (hours >= AM_HOURS) {
-                if (hours < HOURS_PER_DAY) {
-                    period = "pm " + _this.timezoneName;
-                }
-                if (hours !== AM_HOURS) {
-                    hours -= AM_HOURS;
-                }
+                period = "pm " + _this.timezoneName;
+                hours = (hours > AM_HOURS) ? hours - AM_HOURS : hours; // 13 becomes 1pm, 12 remains 12pm
             }
             var minutes = date.getMinutes();
             minutes = minutes < TWO_DIGITS ? "0" + minutes : minutes;
