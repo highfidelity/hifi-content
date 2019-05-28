@@ -16,6 +16,7 @@
     var HOURS_PER_DAY = 24;
     var TWO_DIGITS = 10;
     var AM_HOURS = 12;
+    var PDT_OFFSET = -7;
 
     
     var Clock = function() {
@@ -40,11 +41,11 @@
                     _this.timezoneOffset = userData.timezoneOffset;
                 } catch (e) {
                     console.log(e, "Could not parse userData, defaulting to PDT");
-                    _this.refreshTimezone(_this.entityID, ["PDT", 7]);
+                    _this.refreshTimezone(_this.entityID, ["PDT", PDT_OFFSET]);
                 }
             } else {
                 console.log("No userData found, defaulting to PDT");
-                _this.refreshTimezone(_this.entityID, ["PDT", 7]);
+                _this.refreshTimezone(_this.entityID, ["PDT", PDT_OFFSET]);
             }
             _this.synchronize();
             _this.interval = Script.setInterval(function() {
@@ -72,8 +73,7 @@
             hours = (hours < 0) ? hours + HOURS_PER_DAY : hours;
             if (hours === 0) {
                 hours += AM_HOURS;
-            }
-            if (hours >= AM_HOURS) {
+            } else if (hours >= AM_HOURS) {
                 if (hours < HOURS_PER_DAY) {
                     period = "pm " + _this.timezoneName;
                 }
