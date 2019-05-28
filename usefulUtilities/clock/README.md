@@ -25,5 +25,5 @@ Here's a sample object to add to the entity's `userData`. You can adjust the pos
 
 ## Releases
 ### Version 1.0
-SHA [2d5fe57](https://github.com/highfidelity/hifi-content/commits/2d5fe57) May 28, 2019
+SHA [dfe5374](https://github.com/highfidelity/hifi-content/commits/dfe5374) May 28, 2019
 - [JIRA 300](https://highfidelity.atlassian.net/browse/BUGZ-300)   Initial Release
