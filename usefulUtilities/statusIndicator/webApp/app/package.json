@@ -5,6 +5,7 @@
     "main": "statusIndicator_webApp.js",
     "author": "Robin Wilson",
     "dependencies": {
-        "mysql": "^2.16.0"
+        "mysql": "^2.16.0",
+        "request": "^2.88.0"
     }
 }

@@ -44,16 +44,17 @@ In `allEmployees.html` and `teamPage.html`, you will need to replace `http://loc
 ## Web App Config
 
 The code for this content is open source. You must set up some configuration files for this content to work:
-1. A `dbInfo.json` file in `<statusIndicator root>/webApp/dbInfo.json` that contains the data below.
+1. A `config.json` file in `<statusIndicator root>/webApp/config.json` that contains the data below.
 
-### `dbInfo.json`
-Here's what your `dbInfo.json` file should look like:
+### `config.json`
+Here's what your `config.json` file should look like:
 ```
 {
     "mySQLHost": "<the host associated with your database>",
     "mySQLUsername": "<MySQL DB username>",
     "mySQLPassword": "<MySQL DB password>",
-    "databaseName": "<the name of the database associated with the Status Indicator app>"
+    "databaseName": "<the name of the database associated with the Status Indicator app>",
+    "wwwRoot": "<a URL to the remote host serving the files in `/webApp/www`. include the trailing slash. used for testing so that the `canary` API endpoint knows where to check. example: https://example.com/statusIndicator/>"
 }
 ```
 
