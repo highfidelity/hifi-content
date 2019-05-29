@@ -11,7 +11,49 @@ router.get("/", (req, res) => {
     res.send("test");
 })
 
+router.get("/canary", (req, res) => {
+    // Ensure that the REDIRECT_URI is up.
+    // Checks that NGINX is serving the right page.
+    var redirectUriOK;
+    var apiRouterOK = true; // Always true if we can get here!
+    request.get(
+        REDIRECT_URI,
+        {
+            timeout: 15000
+        },
+        (error, response) => {
+            redirectUriOK = !error;
 
+            // The `result` value should be a logical AND
+            // of all of the subsystems whose status we check.
+            var responseObject = {
+                result: redirectUriOK && apiRouterOK && lastOauthRequestTokenOK && lastOauthExchangeCodeOK,
+                systemStatus: {
+                    apiRouter: {
+                        status: apiRouterOK
+                    },
+                    oAuth: {
+                        lastRequest_token: {
+                            status: lastOauthRequestTokenOK
+                        },
+                        lastExchangeCode: {
+                            status: lastOauthExchangeCodeOK
+                        }
+                    },
+                    redirectURI: {
+                        status: redirectUriOK
+                    }
+                }
+            };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify(responseObject));
+        }
+    );
+});
+
+
+var lastOauthRequestTokenOK = true; // System is fine until proven otherwise
 router.post("/request_token", (req, res) => {
     const refresh_token = req.body.refresh_token; 
     const oAuthInfo = {
@@ -26,6 +68,8 @@ router.post("/request_token", (req, res) => {
         json: true,
         body: oAuthInfo
     }, (error, response) => {
+        lastOauthRequestTokenOK = !error;
+
         if (error) {
             const responseObject = {
                 status: "error",
@@ -44,6 +88,7 @@ router.post("/request_token", (req, res) => {
 })
 
 
+var lastOauthExchangeCodeOK = true; // System is fine until proven otherwise
 router.post("/exchangeCode", (req, res) => {
     const code = req.body.code;
     request({
@@ -58,6 +103,8 @@ router.post("/exchangeCode", (req, res) => {
             code: code
         }
     }, (error, response) => {
+        lastOauthExchangeCodeOK = !error;
+
         if (error) {
             const responseObject = {
                 status: "error",
