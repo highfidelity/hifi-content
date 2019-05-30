@@ -23,6 +23,8 @@
     var SIGN_TEXT_COLOR_INUSE = [255, 168, 168];
     var SIGN_BACKGROUND_COLOR_AVAILABLE = [125, 255, 125];
     var SIGN_BACKGROUND_COLOR_INUSE = [255, 125, 125];
+    var REFRESH_TIMEOUT = 1920000; // 32 minutes
+    var SCRIPT_NAME = "roomScheduleServer.js";
     var that = this;
 
     this.remotelyCallable = [
@@ -99,7 +101,12 @@
 
         if (!that.isSecondarySchedule) {
             Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
+
+            Script.setTimeout(function(){
+                Script.loadEntityScript(that.entityID, Script.resolvePath("./") + SCRIPT_NAME, false);
+            }, REFRESH_TIMEOUT);
         }
+
     };
 
 

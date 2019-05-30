@@ -83,7 +83,7 @@
             console.log("Please enter appropriate userData to enable functionality of this server script.");
             return;
         }
-
+        
         Script.setTimeout(function(){
             Script.loadEntityScript(that.entityID, Script.resolvePath("./") + SCRIPT_NAME, false);
         }, REFRESH_TIMEOUT);
