@@ -9,8 +9,6 @@
 
 (function() {
     var CONFIG = Script.require("../calendarConfig.json?" + Date.now());
-    var ROOM_NAME = 1;
-    var ROOM_TYPE = 2;
     var that;
     var CHANNEL = "HiFi.Calendar.Meeting.Occupants";
     
@@ -24,14 +22,15 @@
     this.preload = function(entityID) {
         that = this;
         that.entityID = entityID;
-        that.entityProperties = Entities.getEntityProperties(that.entityID, ['name']);
+        that.entityProperties = Entities.getEntityProperties(that.entityID, ['userData']);
 
-        var entityRoomNameArray = that.entityProperties.name.split("_");
-        var roomName = entityRoomNameArray[ROOM_NAME].toUpperCase();
-        var roomType = entityRoomNameArray[ROOM_TYPE].toUpperCase();
-
-        that.roomOccupantsListID = CONFIG.ROOMS[roomName][roomType].roomOccupantsListID;
-        that.meetingZoneID = CONFIG.ROOMS[roomName].ZONE;
+        try {
+            that.userData = JSON.parse(that.entityProperties.userData);
+            that.roomOccupantsListID = that.userData.roomOccupantsListID;
+            that.meetingZoneID = that.userData.meetingZoneID;
+        } catch (e) {
+            console.log("Error: ", e);
+        }
 
         that.room = {
             "occupants": {}

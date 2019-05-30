@@ -9,22 +9,20 @@
 
 
 (function() {
-    var CONFIG = Script.require("../calendarConfig.json?" + Date.now());
     var CHANNEL = "HiFi.Google.Calendar";
-    var ROOM_NAME = 1;
-    var ROOM_TYPE = 2;
     var TOKEN = 0;
     var EXPIRE_TIME = 1;
+    var TIMEZONE_OFFSET = 2;
+    var TIMEZONE_NAME = 3;
+    var ADDRESS = 4;
     var INTERVAL_FREQUENCY_MS = 60000;
     var EXPIRY_BUFFER_MS = 300000;
     var HOURS_PER_DAY = 24;
     var NOON_HR = 12;
-    var TOKEN_SERVER_ID = CONFIG.TOKEN_SERVER_ID;
     var SIGN_TEXT_COLOR_AVAILABLE = [168, 255, 168];
     var SIGN_TEXT_COLOR_INUSE = [255, 168, 168];
     var SIGN_BACKGROUND_COLOR_AVAILABLE = [125, 255, 125];
     var SIGN_BACKGROUND_COLOR_INUSE = [255, 125, 125];
-    var roomInfo = null;
     var that = this;
 
     this.remotelyCallable = [
@@ -37,40 +35,8 @@
     this.preload = function(entityID) {
         that.entityID = entityID;
         that.entityProperties = Entities.getEntityProperties(that.entityID, ['privateUserData', 'userData', 'name']);
-        var name = that.entityProperties.name;
         var userData;
         var privateUserData;
-
-        that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
-
-        var entityRoomNameArray = that.entityProperties.name.split("_");
-        that.roomName = entityRoomNameArray[ROOM_NAME].toUpperCase();
-        that.roomType = entityRoomNameArray[ROOM_TYPE].toUpperCase();
-        roomInfo = CONFIG.ROOMS[that.roomName][that.roomType];
-
-        if (CONFIG.ROOMS[that.roomName]["SECONDARY"] && that.roomType !== "SECONDARY") {
-            that.secondaryRoomSchedule = CONFIG.ROOMS[that.roomName]["SECONDARY"].roomScheduleID;
-        }
-
-        that.room = {
-            "eventList": []
-        };
-
-        that.roomScheduleID = roomInfo.roomScheduleID; 
-        that.roomOccupantsListID = roomInfo.roomOccupantsListID;
-        that.roomColorID = roomInfo.roomColorID;
-        that.roomColorOccupantsID = roomInfo.roomColorOccupantsID; 
-        that.roomClockID = roomInfo.roomClockID;
-        that.roomEntityIDs = [
-            that.roomScheduleID,
-            that.roomColorID,
-            that.roomColorOccupantsID,
-            that.roomOccupantsListID
-        ];
-
-        that.clearEventList(that.entityID);
-        that.updateSignColor(that.roomEntityIDs[1], [true]);
-        that.updateSignColor(that.roomEntityIDs[2], [true]);
 
         try {
             if (that.entityProperties.userData.length > 0) {
@@ -88,22 +54,50 @@
             return;
         }
 
-        that.sentAlready = false;
-        that.token = privateUserData.token;
-        that.expireTime = userData.expireTime;
-        that.timezoneOffset = userData.timezoneOffset;
+        that.request = Script.require('https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js').request;
+
+        that.room = {
+            "eventList": []
+        };
+
+        that.TOKEN_SERVER_ID = userData.tokenServerID;
+        that.secondaryRoomSchedule = userData.secondaryRoomSchedule;
+        that.roomScheduleID = userData.roomScheduleID; 
+        that.roomOccupantsListID = userData.roomOccupantsListID;
+        that.roomColorID = userData.roomColorID;
+        that.roomColorOccupantsID = userData.roomColorOccupantsID; 
+        that.roomClockID = userData.roomClockID;
+        that.roomEntityIDs = [
+            that.roomScheduleID,
+            that.roomColorID,
+            that.roomColorOccupantsID,
+            that.roomOccupantsListID
+        ];
         that.timezoneName = userData.timezoneName;
         that.address = userData.address;
+        that.expireTime = userData.expireTime;
+
+        that.isSecondarySchedule = userData.isSecondarySchedule;
+
+        that.token = privateUserData.token;
+        that.timezoneOffset = +userData.timezoneOffset;
+
+        that.clearEventList(that.entityID);
+        that.updateSignColor(that.roomEntityIDs[1], [true]);
+        that.updateSignColor(that.roomEntityIDs[2], [true]);
+
+        that.sentAlready = false;
+
 
         if (that.secondaryRoomSchedule){
             Entities.callEntityMethod(that.secondaryRoomSchedule, "updateTimeZoneInfo", [that.timezoneName, that.timezoneOffset ]);
         }
 
-        if (that.roomType !== "SECONDARY" && that.token) {
+        if (that.token && !that.isSecondarySchedule) {
             that.googleRequest(that.token);
         }
 
-        if (that.roomType !== "SECONDARY") {
+        if (!that.isSecondarySchedule) {
             Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
         }
     };
@@ -130,27 +124,7 @@
     this.secondarySync = function(id, params) {
         var events = JSON.parse(params[0]);
 
-        that.clearEventList(that.entityID);
-        if (events.length > 0) {
-            for (var i = 0; i < events.length; i++) {
-                var event = events[i];
-                var start = event.start.dateTime;
-                var end = event.end.dateTime;
-                var summary = event.summary;
-                if (!(start && end)) {
-                    console.log("Event received without a start and end dateTime!");
-                    continue;
-                }        
-                var startTimestamp = that.googleDateToUTCDate(start);
-                var endTimestamp = that.googleDateToUTCDate(end);
-  
-                that.postEvents(that.entityID, summary, startTimestamp, endTimestamp);
-            }
-        } else {
-            Entities.editEntity(that.entityID, {text: "Nothing on the schedule for this room today."});
-        }
-
-        Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
+        that.createEvents(events);
     };
 
 
@@ -178,6 +152,9 @@
 
             that.token = privateUserData.token = params[TOKEN];
             that.expireTime = userData.expireTime = params[EXPIRE_TIME];
+            that.timezoneOffset = userData.timezoneOffset = +params[TIMEZONE_OFFSET];
+            that.timezoneName = userData.timezoneName = params[TIMEZONE_NAME];
+            that.address = userData.address = params[ADDRESS];
 
             Entities.editEntity(that.entityID, {
                 userData: JSON.stringify(userData),
@@ -232,43 +209,19 @@
                 } 
                 
                 Script.setTimeout(function(){
-                    Entities.callEntityMethod(TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
+                    Entities.callEntityMethod(that.TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
                 }, RETRY_TIMEOUT);
                 return;
             } else {
-                that.clearEventList(that.entityID);
                 var events = response.items;
-                if (events.length > 0) {
-                    for (var i = 0; i < events.length; i++) {
-                        var event = events[i];
-                        var start = event.start.dateTime;
-                        var end = event.end.dateTime;
-                        var summary = event.summary;
-                        if (!(start && end)) {
-                            console.log("Event received without a start and end dateTime!");
-                            continue;
-                        }        
-                        var startTimestamp = that.googleDateToUTCDate(start);
-                        var endTimestamp = that.googleDateToUTCDate(end);
-          
-                        that.postEvents(that.entityID, summary, startTimestamp, endTimestamp);
-                    }
-                } else {
-                    Entities.editEntity(that.entityID, {text: "Nothing on the schedule for this room today."});
-                }
-
-                if (that.secondaryRoomSchedule){
-                    Entities.callEntityMethod(that.secondaryRoomSchedule, "secondarySync", [JSON.stringify(events)]);
-                }
-
-                Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
-            } 
+                that.createEvents(events);
+            }
         });
         that.interval = Script.setInterval(function() {
 
             if ((new Date()).valueOf() > (that.expireTime - EXPIRY_BUFFER_MS) && !that.sentAlready) {
                 that.sentAlready = true;
-                Entities.callEntityMethod(TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
+                Entities.callEntityMethod(that.TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
             } else if ((new Date()).valueOf() > (that.expireTime)) {
                 Messages.sendMessage(CHANNEL, JSON.stringify({
                     type: "ERROR",
@@ -276,14 +229,18 @@
                     errorMessage: "Token expired without refreshing",
                     actionAttempted: "Requesting refresh token from Token Server"
                 }));
-                Script.clearInterval(that.interval);
-                that.interval = false;
+                if (that.interval) {
+                    Script.clearInterval(that.interval);
+                    that.interval = false;
+                }
                 return;
             }
             that.request(scheduleURL, function (error, response) {
                 if (error) {
-                    Script.clearInterval(that.interval);
-                    that.interval = false;
+                    if (that.interval) {
+                        Script.clearInterval(that.interval);
+                        that.interval = false;
+                    } 
                     Messages.sendMessage(CHANNEL, JSON.stringify({
                         type: "ERROR",
                         entityName: that.entityProperties.name,
@@ -292,33 +249,42 @@
                     }));
                     return;
                 } else {
-                    that.clearEventList(that.entityID);
                     var events = response.items;
-                    if (events.length > 0) {
-                        for (var i = 0; i < events.length; i++) {
-                            var event = events[i];
-                            var start = event.start.dateTime;
-                            var end = event.end.dateTime;
-                            var summary = event.summary;
-                            if (!(start && end)) {
-                                console.log("Event received without a start and end dateTime!");
-                                continue;
-                            }        
-                            var startTimestamp = that.googleDateToUTCDate(start);
-                            var endTimestamp = that.googleDateToUTCDate(end);
-              
-                            that.postEvents(that.entityID, summary, startTimestamp, endTimestamp);
-                        }
-                    } else {
-                        Entities.editEntity(that.entityID, {text: "Nothing on the schedule for this room today."});
-                    }
-
-                    if (that.secondaryRoomSchedule){
-                        Entities.callEntityMethod(that.secondaryRoomSchedule, "secondarySync", [JSON.stringify(events)]);
-                    }
+                    that.createEvents(events);
                 } 
             });
         }, INTERVAL_FREQUENCY_MS);
+    };
+
+
+    // handle preparing the event post
+    this.createEvents = function(events) {
+        that.clearEventList(that.entityID);
+        if (events.length > 0) {
+            for (var i = 0; i < events.length; i++) {
+                var event = events[i];
+                var start = event.start.dateTime;
+                var end = event.end.dateTime;
+                var summary = event.summary;
+                if (!(start && end)) {
+                    console.log("Event received without a start and end dateTime!");
+                    continue;
+                }        
+                var startTimestamp = that.googleDateToUTCDate(start);
+                var endTimestamp = that.googleDateToUTCDate(end);
+  
+                that.postEvents(that.entityID, summary, startTimestamp, endTimestamp);
+            }
+        } else {
+            Entities.editEntity(that.entityID, {text: "Nothing on the schedule for this room today."});
+        }
+
+        if (that.secondaryRoomSchedule){
+            Entities.callEntityMethod(that.secondaryRoomSchedule, "updateTimeZoneInfo", [that.timezoneName, that.timezoneOffset ]);
+            Entities.callEntityMethod(that.secondaryRoomSchedule, "secondarySync", [JSON.stringify(events)]);
+        }
+
+        Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
     };
 
 
@@ -361,37 +327,44 @@
             that.room.eventList.forEach(function(event) {
                 var startHours;
                 var endHours;
-                if (event.startTimestamp.getHours() - that.timezoneOffset <= 0) {
-                    startHours = event.startTimestamp.getHours() - that.timezoneOffset + NOON_HR;
-                } else if (event.startTimestamp.getHours() - that.timezoneOffset <= (NOON_HR)) {
-                    startHours = event.startTimestamp.getHours() - that.timezoneOffset;
+
+                var eventStartHour = +event.startTimestamp.getHours();
+                var eventEndHour = +event.endTimestamp.getHours();
+                if (eventStartHour + that.timezoneOffset <= 0) {
+                    startHours = eventStartHour + that.timezoneOffset + NOON_HR;
+                } else if (eventStartHour + that.timezoneOffset <= (NOON_HR)) {
+                    startHours = eventStartHour + that.timezoneOffset;
                 } else {
-                    startHours = event.startTimestamp.getHours() - that.timezoneOffset - NOON_HR;
+                    startHours = eventStartHour + that.timezoneOffset - NOON_HR;
                 }
-                if (event.endTimestamp.getHours() - that.timezoneOffset <= 0) {
-                    endHours = event.endTimestamp.getHours() - that.timezoneOffset + NOON_HR;
-                } else if (event.endTimestamp.getHours() - that.timezoneOffset <= (NOON_HR)) {
-                    endHours = event.endTimestamp.getHours() - that.timezoneOffset;                    
+
+                if (eventEndHour + that.timezoneOffset <= 0) {
+                    endHours = eventEndHour + that.timezoneOffset + NOON_HR;
+                } else if (eventEndHour + that.timezoneOffset <= (NOON_HR)) {
+                    endHours = eventEndHour + that.timezoneOffset;
                 } else {
-                    endHours = event.endTimestamp.getHours() - that.timezoneOffset - NOON_HR;
+                    endHours = eventEndHour + that.timezoneOffset - NOON_HR;
                 }
-                
+
                 var startAmPm;
                 var endAmPm;
-                if (event.startTimestamp.getHours() - that.timezoneOffset < 0) {
+
+                if (event.startTimestamp.getHours() + that.timezoneOffset < 0) {
                     startAmPm = "pm";
-                } else if (event.startTimestamp.getHours() - that.timezoneOffset < (NOON_HR)) {
+                } else if (event.startTimestamp.getHours() + that.timezoneOffset < (NOON_HR)) {
                     startAmPm = "am";
                 } else {
                     startAmPm = "pm";
                 }
-                if (event.endTimestamp.getHours() - that.timezoneOffset < 0) {
+
+                if (event.endTimestamp.getHours() + that.timezoneOffset < 0) {
                     endAmPm = "pm";
-                } else if (event.endTimestamp.getHours() - that.timezoneOffset < (NOON_HR)) {
+                } else if (event.endTimestamp.getHours() + that.timezoneOffset < (NOON_HR)) {
                     endAmPm = "am";            
                 } else {
                     endAmPm = "pm";
                 }
+
                 printedSchedule = printedSchedule + 
                 event.summary +
                 "\n" +

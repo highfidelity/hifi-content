@@ -8,9 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    var CONFIG = Script.require("../calendarConfig.json?" + Date.now());
     var CHANNEL = "HiFi.Calendar.Meeting.Occupants";
-    var ROOM_NAME = 1;
     var HALF = 0.5;
 
     var _this;
@@ -21,23 +19,24 @@
 
 
     MeetingZone.prototype = {
-
         preload: function(entityID) {
             _this.entityID = entityID;
             _this.occupantsListIDs = [];
+            _this.entityProperties = Entities.getEntityProperties(_this.entityID, ['userData']);
+
+            try {
+                _this.userData = JSON.parse(_this.entityProperties.userData);
+
+                _this.occupantsListIDs = _this.userData.roomOccupantsListID;
+
+            } catch (e) {
+                console.log("Error: ", e);
+            }
             
             Messages.subscribe(_this.channel);
             Messages.messageReceived.connect(_this.messageListener);
             AvatarManager.avatarRemovedEvent.connect(_this.leaveDomain);
 
-            var entityName = Entities.getEntityProperties(entityID, ["name"]).name;
-            var entityRoomNameArray = entityName.split("_");
-            var roomName = entityRoomNameArray[ROOM_NAME].toUpperCase();
-            _this.occupantsListIDs.push(CONFIG.ROOMS[roomName].MAIN.roomOccupantsListID);
-
-            if (CONFIG.ROOMS[roomName].SECONDARY) {
-                _this.occupantsListIDs.push(CONFIG.ROOMS[roomName].SECONDARY.roomOccupantsListID);
-            }
             if (_this.positionIsInsideEntityBounds(_this.entityID, MyAvatar.position)) {
                 _this.enterEntity();
             }

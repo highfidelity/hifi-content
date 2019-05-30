@@ -24,12 +24,6 @@
     var timezoneOffset = 7;
     var roomConfigInfo = [];
 
-    for (var roomName in CONFIG.ROOMS) {
-        roomConfigInfo.push({
-            name: roomName,
-            id: CONFIG.ROOMS[roomName].MAIN.roomScheduleID
-        });
-    }
 
     // Handle messages from the tablet
     function onWebMessage(data) {
@@ -53,7 +47,8 @@
                 tokenStart = data.validSince;
                 expireTime = tokenStart + tokenLifetime * MS_TO_SEC;
                 timezone = data.timeZoneName;
-                timezoneOffset = new Date().getTimezoneOffset() / MIN_PER_HR;
+                // Gets the correct timezone offset for events current / in the future, which is why the -1 is needed.
+                timezoneOffset = (new Date().getTimezoneOffset() / MIN_PER_HR) * -1; 
                 roomConfig = data.connectionData;
                 Settings.setValue("roomConfigured", true);
                 Entities.callEntityServerMethod(TOKEN_SERVER_ID, "initializeRooms", [
@@ -84,11 +79,14 @@
                 Window.alert("The authorization token for your Google Calendar could not be refreshed.\n" + 
                 "Please open your calendar app and reauthorize to continue displaying calendar schedules.");
                 roomConfig = message.roomConfig;
+                roomConfigInfo = message.roomConfigInfo;
             } else if (message.type === "STATUS UPDATE") {
                 if (message.tokenStatus) {
                     Window.announcement("Access tokens are valid. No action required");
                     roomConfig = message.roomConfig;
+                    roomConfigInfo = message.roomConfigInfo;
                 } else if (!message.tokenStatus && !message.roomConfigured) {
+                    roomConfigInfo = message.roomConfigInfo;
                     Window.announcement("You have not set up any room schedules for this domain.");
                 }
             } else if (message.type === "ERROR") {
@@ -101,6 +99,7 @@
                 // message.attemptedAction);
                 return;
             } else if (message.type === "REFRESH SUCCESS") {
+                roomConfigInfo = message.roomConfigInfo;
                 Window.announcement("Token server successfully refreshed " + message.count + " times since preload.");
             }
         }

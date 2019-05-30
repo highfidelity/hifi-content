@@ -9,17 +9,13 @@
 
 
 (function() {
-    var CONFIG = Script.require("../calendarConfig.json?" + Date.now());
     var MS_TO_SEC = 1000;
     var MIN_PER_HR = 60;
     var SEC_PER_MIN = 60;
+    var REFRESH_TIMEOUT = 1920000; // 32 minutes
     var CHANNEL = "HiFi.Google.Calendar";
-
-    var calendarScheduleIDs = [];
-    for (var room in CONFIG.ROOMS) {
-        calendarScheduleIDs.push(CONFIG.ROOMS[room].MAIN.roomScheduleID);
-    }
-
+    var SCRIPT_NAME = "tokenServer.js";
+    
     var that;
 
     this.remotelyCallable = [
@@ -44,6 +40,7 @@
         if (that.entityProperties.userData.length !== 0) {
             try {
                 that.userData = JSON.parse(that.entityProperties.userData);
+                that.calendarScheduleIDs = that.userData.calendarScheduleIDs;
                 that.privateUserData = that.entityProperties.privateUserData;
                 if (that.privateUserData.length > 0) {
                     that.privateUserData = JSON.parse(that.entityProperties.privateUserData);
@@ -53,9 +50,13 @@
                 if (that.userData.roomConfigured) {
                     that.roomConfigured = that.userData.roomConfigured;
                 }
+                if (that.userData.roomConfig) {
+                    that.roomConfig = that.userData.roomConfig;
+                    that.makeCalendarToRoomAddressMap(that.roomConfig);
+                }
                 if ((new Date().valueOf() + that.userData.timezoneOffset * MS_TO_SEC * SEC_PER_MIN * MIN_PER_HR) > that.userData.expireTime) {
-                    calendarScheduleIDs.forEach(function(calendar){
-                        that.tokenCheck(that.entityID, [that.privateUserData.token, calendar]);
+                    that.calendarScheduleIDs.forEach(function(calendar){
+                        that.tokenCheck(that.entityID, [that.privateUserData.token, calendar.id]);
                     });
                 }
             } catch (e) {
@@ -65,7 +66,11 @@
         } else {
             console.log("Please enter appropriate userData to enable functionality of this server script.");
             return;
-        }        
+        }
+
+        Script.setTimeout(function(){
+            Script.loadEntityScript(that.entityID, Script.resolvePath("./") + SCRIPT_NAME, false);
+        }, REFRESH_TIMEOUT);
     };
 
 
@@ -76,65 +81,76 @@
                     type: "STATUS UPDATE",
                     tokenStatus: true,
                     roomConfigured: true,
-                    roomConfig: that.roomConfig
+                    roomConfig: that.roomConfig,
+                    roomConfigInfo: that.calendarScheduleIDs
                 }));
             } else if (!that.roomConfigured) {
                 Messages.sendMessage(CHANNEL, JSON.stringify({
                     type: "STATUS UPDATE",
                     tokenStatus: false,
                     roomConfigured: false,
-                    roomConfig: that.roomConfig
+                    roomConfig: that.roomConfig,
+                    roomConfigInfo: that.calendarScheduleIDs
                 }));
             } else if (!that.tokenStatus) {
                 Messages.sendMessage(CHANNEL, JSON.stringify({
                     type: "TOKEN EXPIRED",
-                    roomConfig: that.roomConfig
+                    roomConfig: that.roomConfig,
+                    roomConfigInfo: that.calendarScheduleIDs
                 }));
             }
         }
     };
 
 
+    // Utility function to make it easier to get the correct room address
+    this.makeCalendarToRoomAddressMap = function(roomConfig){
+        that.calendarToRoomAddressMap = {};
+        that.calendarScheduleIDs.forEach(function(entity) {
+            roomConfig.forEach(function(room) {
+                if (room.uuid === entity.id) {
+                    that.calendarToRoomAddressMap[entity.id] = room.address;
+                }
+            });
+        });
+    };
+
+
     // After the app is finished linking, it calls initialize rooms to refresh all of their tokens
     this.initializeRooms = function(id, params) {
         if (that.entityID === id) {
-            var userData = {};
-            var privateUserData = {};
 
-            that.token = privateUserData.token = params[0];
-            that.refreshToken = privateUserData.refreshToken = params[1];
-            that.expireTime = userData.expireTime = params[2]; 
-            that.timezone = userData.timezone = params[3];
-            that.timezoneOffset = userData.timezoneOffset = params[4]; 
             try {
-                that.roomConfig = userData.roomConfig = JSON.parse(params[5]);
+                that.makeCalendarToRoomAddressMap(that.roomConfig);
+                that.userData = JSON.parse(Entities.getEntityProperties(that.entityID, ['userData']).userData);
+                that.roomConfig = that.userData.roomConfig = JSON.parse(params[5]);
             } catch (e){
                 console.log("problems parsing room config", e);
             }
 
-            that.userData = userData;
+            var privateUserData = {};
+
+            that.token = privateUserData.token = params[0];
+            that.refreshToken = privateUserData.refreshToken = params[1];
+            that.expireTime = that.userData.expireTime = params[2]; 
+            that.timezone = that.userData.timezone = params[3];
+            that.timezoneOffset = that.userData.timezoneOffset = params[4]; 
+
             Entities.editEntity(that.entityID, {
-                userData: JSON.stringify(userData),
+                userData: JSON.stringify(that.userData),
                 privateUserData: JSON.stringify(privateUserData)
             });
 
-            calendarScheduleIDs.forEach(function(entity) {
-                var address;
-                userData.roomConfig.forEach(function(room) {
-                    if (room.uuid === entity) {
-                        address = room.address;
-                        Entities.callEntityMethod(entity, "refreshToken", [
-                            that.token, 
-                            that.expireTime, 
-                            that.timezoneOffset, 
-                            that.timezone,
-                            address
-                        ]);
-
-                    }
-
-                });
-
+            that.calendarScheduleIDs.forEach(function(entity) {
+                if (that.calendarToRoomAddressMap[entity.id]) {
+                    Entities.callEntityMethod(entity.id, "refreshToken", [
+                        that.token, 
+                        that.expireTime, 
+                        that.timezoneOffset, 
+                        that.timezone,
+                        that.calendarToRoomAddressMap[entity.id]
+                    ]);
+                }
             });
         }
     };
@@ -185,14 +201,20 @@
                     }));
                     Entities.callEntityMethod(params[1], "refreshToken", [
                         that.token,
-                        that.expireTime
+                        that.expireTime,
+                        that.timezoneOffset, 
+                        that.timezone,
+                        that.calendarToRoomAddressMap[params[1]]
                     ]);
                 }
             });
         } else {
             Entities.callEntityMethod(params[1], "refreshToken", [
                 that.token,
-                that.expireTime
+                that.expireTime,
+                that.timezoneOffset, 
+                that.timezone,
+                that.calendarToRoomAddressMap[params[1]]
             ]);
         }
     };
