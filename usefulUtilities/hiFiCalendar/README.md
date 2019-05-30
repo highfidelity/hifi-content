@@ -13,30 +13,60 @@ Define your permitted access locations to include http://localhost under Domain 
 ```
 {
     "TOKEN_SERVER_ID": "<The id of your token server entity>",
-    "ROOMS": {
-        "<The name of your room>": {
-            "MAIN": {
-                "roomColorID": "<The id of the top bar that says in use/available>",
-                "roomScheduleID": "<The id for the main schedule section of the board>",
-                "roomColorOccupantsID": "<The color 'occupants' signed aligning with the colorID>",
-                "roomClockID": "<The Id of the clock on the wall>",
-                "roomOccupantsListID": "<The bottom list of who is in the meeting room>"
-            },
-            "SECONDARY": { // this is if you have a second schedule board up.  The main one will just feed it whatever it needs for UI
-                    ...<same kind of ids as above>
-            },
-            "ZONE": "{741a2c33-a866-404f-b9fa-ab34d5edc495}"
-        },
-    },
     "REDIRECT_URI": "https://highfidelity.co/hifiCalendar/meetingRoom_ui.html",
     "API_BASE": "https://highfidelity.co/hifiCalendar/api/"
 }
 ```
-Capitalize the keys like above.  
 
 4. There is an entities JSON file containing the Calendar board entities, a meeting room zone, and a token server.
 
-5. Rename any entities in the following pattern: Calendar_RoomName_RoomType[Main|Secondary]_entity. (important)
+5. The user data for the different types will look like the following:
+- Room Schedule Entity:
+```
+{
+  "tokenServerID": "{...}",
+  "roomScheduleID": "{...}",
+  "roomColorID": "{...}",
+  "roomColorOccupantsID": "{...}",
+  "roomOccupantsListID": "{...}",
+  "roomClockID": "{...}"
+}
+```
+
+- Room Occupants List:
+```
+{
+  "roomOccupantsListID": "{...}",
+  "meetingZoneID": "{...}"
+}
+
+```
+
+- Meeting Room Zone:
+
+```
+{
+  "roomOccupantsListID": [
+    "{455f56c8-9a76-420f-a8ab-6dad5da7358a}"
+  ]
+}
+```
+
+- Token Server:
+```
+{
+  "calendarScheduleIDs": [
+    {
+      "name": "Meeting Room 1",
+      "id": "{...}"
+    },
+    {
+      "name": "Meeting Room 2",
+      "id": "{...}"
+    }
+  ]
+}
+```
 
 6. Drag and drop the `meetingRoomSetup_app.js` onto your interface window to run it. Open the app and authorize it with your Google Account information.
 
