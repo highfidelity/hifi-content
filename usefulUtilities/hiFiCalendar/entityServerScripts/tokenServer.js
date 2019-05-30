@@ -24,6 +24,22 @@
         "tokenCheck"
     ];
 
+    // This function is the listener for messages on the message mixer related to this app.
+    this.messageHandler = function(channel, message, senderUUID, localOnly) {
+        if (channel !== CHANNEL) {
+            return;
+        } else {
+            try {
+                message = JSON.parse(message);
+            } catch (e) {
+                console.log(e, "Could not parse message");
+                return;
+            }
+            if (message.type === "APP STARTED") {
+                that.enteredDomain(that.entityID);
+            }
+        }
+    };
 
     this.preload = function(entityID) {
         that = this;
@@ -71,10 +87,13 @@
         Script.setTimeout(function(){
             Script.loadEntityScript(that.entityID, Script.resolvePath("./") + SCRIPT_NAME, false);
         }, REFRESH_TIMEOUT);
+
+        Messages.subscribe(CHANNEL);
+        Messages.messageReceived.connect(that.messageHandler);
     };
 
 
-    this.enteredDomain = function(id, params) {
+    this.enteredDomain = function(id) {
         if (that.entityID === id) {
             if ((new Date().valueOf() + that.userData.timezoneOffset * MS_TO_SEC * MIN_PER_HR * MIN_PER_HR) < that.userData.expireTime) {
                 Messages.sendMessage(CHANNEL, JSON.stringify({
@@ -82,7 +101,8 @@
                     tokenStatus: true,
                     roomConfigured: true,
                     roomConfig: that.roomConfig,
-                    roomConfigInfo: that.calendarScheduleIDs
+                    roomConfigInfo: that.calendarScheduleIDs,
+                    TOKEN_SERVER_ID: that.entityID
                 }));
             } else if (!that.roomConfigured) {
                 Messages.sendMessage(CHANNEL, JSON.stringify({
@@ -90,13 +110,15 @@
                     tokenStatus: false,
                     roomConfigured: false,
                     roomConfig: that.roomConfig,
-                    roomConfigInfo: that.calendarScheduleIDs
+                    roomConfigInfo: that.calendarScheduleIDs,
+                    TOKEN_SERVER_ID: that.entityID
                 }));
             } else if (!that.tokenStatus) {
                 Messages.sendMessage(CHANNEL, JSON.stringify({
                     type: "TOKEN EXPIRED",
                     roomConfig: that.roomConfig,
-                    roomConfigInfo: that.calendarScheduleIDs
+                    roomConfigInfo: that.calendarScheduleIDs,
+                    TOKEN_SERVER_ID: that.entityID
                 }));
             }
         }
@@ -218,4 +240,12 @@
             ]);
         }
     };
+
+
+    // Unsubscribe from the messages channel
+    this.unload = function(){
+        Messages.unsubscribe(CHANNEL);
+        Messages.messageReceived.disconnect(that.messageHandler);
+    };
+
 });

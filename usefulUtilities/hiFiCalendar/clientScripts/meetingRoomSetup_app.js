@@ -24,7 +24,6 @@
     var timezoneOffset = 7;
     var roomConfigInfo = [];
 
-
     // Handle messages from the tablet
     function onWebMessage(data) {
         switch (data.type) {
@@ -75,6 +74,11 @@
                 console.log(e, "Could not parse message");
                 return;
             }
+
+            if (message.TOKEN_SERVER_ID) {
+                TOKEN_SERVER_ID = message.TOKEN_SERVER_ID;
+            }
+
             if (message.type === "TOKEN EXPIRED") {
                 Window.alert("The authorization token for your Google Calendar could not be refreshed.\n" + 
                 "Please open your calendar app and reauthorize to continue displaying calendar schedules.");
@@ -140,9 +144,7 @@
         Window.domainChanged.connect(onDomainChange);
         Messages.subscribe(CHANNEL);
         Messages.messageReceived.connect(messageHandler);
-        if (Settings.getValue("roomConfigured", false)) {
-            Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain", AccountServices.username);
-        }
+        Messages.sendMessage(CHANNEL, JSON.stringify({ type: "APP STARTED" }));
     }
     startup();
 
