@@ -6,7 +6,10 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-(function () {    
+(function () {
+    var HOME_BOOKMARK_NAME = "Home"; // This must match `LocationBookmarks::HOME_BOOKMARK`
+
+
     var Portal = function() {};
 
 
@@ -23,7 +26,20 @@
 
             if (userData) {
                 if (userData.destination) {
-                    Window.location = userData.destination;
+                    var destination = userData.destination;
+
+                    if (userData.destination.indexOf("bookmark:") > -1) {
+                        var bookmarkName = userData.destination.replace("bookmark:", "");
+                        
+                        if (bookmarkName !== HOME_BOOKMARK_NAME) {
+                            console.log('The only supported bookmark name right now is "Home".');
+                            return;
+                        } else {
+                            destination = LocationBookmarks.getHomeLocationAddress();
+                        }
+                    }
+                    
+                    Window.location = destination;
                 } else {
                     console.log("Please specify `destination` inside this entity's `userData`!");
                     return;
