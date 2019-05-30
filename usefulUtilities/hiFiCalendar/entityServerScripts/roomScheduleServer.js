@@ -105,10 +105,12 @@
 
     // Make sure the secondary calendar has the correct timezone for it's ui update
     that.updateTimeZoneInfo = function(id, params) {
-        var userData = Entities.getEntityProperties(that.entity, ['userData']).userData || {};
+        var userData = Entities.getEntityProperties(that.entityID, ['userData']).userData;
         try {
             if (userData.length > 0) {
                 userData = JSON.parse(userData);
+            } else {
+                userData = {};
             }
         } catch (e) {
             console.log("trouble parsing userData");
