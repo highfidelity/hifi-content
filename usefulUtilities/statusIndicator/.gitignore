@@ -1,6 +1,6 @@
 /.vs/
 
-webApp/app/dbInfo.json
+webApp/app/config.json
 hifiScript/secrets.json
 webApp/app/node_modules/
 deployed/

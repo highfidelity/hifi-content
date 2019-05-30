@@ -10,7 +10,8 @@
 
 var http = require('http');
 var url = require('url');
-var dbInfo = require('./dbInfo.json');
+var config = require('./config.json');
+var request = require('request');
 var DEBUG = 0;
 
 // Returns the user's current status from the DB
@@ -314,12 +315,71 @@ function getTeamEmployees(organization, teamName, response) {
 }
 
 
+function handleCanaryRequest(res) {
+    // Checks that NGINX is serving the right page.
+    var allEmployeesPageOK;
+    var teamPageOK;
+    var apiRouterOK = true; // Always true if we can get here!
+    var sqlConnectionOK;
+    request.get(
+        config.wwwRoot + "allEmployees.html",
+        {
+            timeout: 15000
+        },
+        (error, response) => {
+            allEmployeesPageOK = !error;
+            
+            request.get(
+                config.wwwRoot + "teamPage.html",
+                {
+                    timeout: 15000
+                },
+                (error, response) => {
+                    teamPageOK = !error;
+
+                    var query = "SELECT 1;"
+                    connection.query(query, function (error, results, fields) {
+                        sqlConnectionOK = !error;
+
+                        // The `result` value should be a logical AND
+                        // of all of the subsystems whose status we check.
+                        var responseObject = {
+                            result: apiRouterOK && allEmployeesPageOK && teamPageOK && sqlConnectionOK,
+                            systemStatus: {
+                                apiRouter: {
+                                    status: apiRouterOK
+                                },
+                                http: {
+                                    allEmployeesPage: {
+                                        status: allEmployeesPageOK
+                                    },
+                                    teamPage: {
+                                        status: teamPageOK
+                                    }
+                                },
+                                database: {
+                                    status: sqlConnectionOK
+                                }
+                            }
+                        };
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        return res.end(JSON.stringify(responseObject));
+                    });
+                }
+            );
+        }
+    );
+}
+
+
 // Handles any GET requests made to the server endpoint
 // The handled method types are:
 // "getStatus"
 // "heartbeat"
 // "getAllEmployees"
 // "getTeamEmployees"
+// "canary"
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
     var type = queryParamObject.type;
@@ -348,6 +408,10 @@ function handleGetRequest(request, response) {
             //      teamName: "exampleTeamName"
             // }
             getTeamEmployees(queryParamObject.organization, queryParamObject.teamName, response);
+            break;
+
+        case "canary":
+            handleCanaryRequest(response);
             break;
 
         default:
@@ -383,10 +447,10 @@ var mysql = require('mysql');
 var connection;
 function connectToStatusDB() {
     connection = mysql.createConnection({
-        host: dbInfo.mySQLHost,
-        user: dbInfo.mySQLUsername,
-        password: dbInfo.mySQLPassword,
-        database: dbInfo.databaseName
+        host: config.mySQLHost,
+        user: config.mySQLUsername,
+        password: config.mySQLPassword,
+        database: config.databaseName
     });
     connection.connect(function (error) {
         if (error) {
@@ -419,12 +483,12 @@ function maybeCreateNewTables(response) {
 // Creates the database and tables
 function maybeCreateStatusDB() {
     connection = mysql.createConnection({
-        host: dbInfo.mySQLHost,
-        user: dbInfo.mySQLUsername,
-        password: dbInfo.mySQLPassword
+        host: config.mySQLHost,
+        user: config.mySQLUsername,
+        password: config.mySQLPassword
     });
 
-    var query = `CREATE DATABASE IF NOT EXISTS ${dbInfo.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
+    var query = `CREATE DATABASE IF NOT EXISTS ${config.databaseName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
     connection.query(query, function (error, results, fields) {
         if (error) {
             console.log("error with connection");
@@ -434,10 +498,10 @@ function maybeCreateStatusDB() {
         connection.end();
 
         connection = mysql.createConnection({
-            host: dbInfo.mySQLHost,
-            user: dbInfo.mySQLUsername,
-            password: dbInfo.mySQLPassword,
-            database: dbInfo.databaseName
+            host: config.mySQLHost,
+            user: config.mySQLUsername,
+            password: config.mySQLPassword,
+            database: config.databaseName
         });
 
         maybeCreateNewTables();

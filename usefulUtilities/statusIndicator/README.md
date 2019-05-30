@@ -44,16 +44,17 @@ In `allEmployees.html` and `teamPage.html`, you will need to replace `http://loc
 ## Web App Config
 
 The code for this content is open source. You must set up some configuration files for this content to work:
-1. A `dbInfo.json` file in `<statusIndicator root>/webApp/dbInfo.json` that contains the data below.
+1. A `config.json` file in `<statusIndicator root>/webApp/config.json` that contains the data below.
 
-### `dbInfo.json`
-Here's what your `dbInfo.json` file should look like:
+### `config.json`
+Here's what your `config.json` file should look like:
 ```
 {
     "mySQLHost": "<the host associated with your database>",
     "mySQLUsername": "<MySQL DB username>",
     "mySQLPassword": "<MySQL DB password>",
-    "databaseName": "<the name of the database associated with the Status Indicator app>"
+    "databaseName": "<the name of the database associated with the Status Indicator app>",
+    "wwwRoot": "<a URL to the remote host serving the files in `/webApp/www`. include the trailing slash. used for testing so that the `canary` API endpoint knows where to check. example: https://example.com/statusIndicator/>"
 }
 ```
 
@@ -65,6 +66,10 @@ You can perform a local 1-person test of this new code by doing the following:
     - Run `node statusIndicator_webApp.js` from the `webApp/app` directory
 
 # Release Notes
+
+## v2.4 | 2019-04-08_09-11-00 | [commit a2477fb](https://github.com/highfidelity/hifi-content/commits/a2477fb)
+- Added a `canary` HTTP GET endpoint for monitoring
+- Renamed `dbInfo.json` to `config.json` to support the `canary` endpoint
 
 ## v2.3 | 2019-04-08_09-11-00 | [commit ad7d554](https://github.com/highfidelity/hifi-content/commits/ad7d554)
 - Added 'organization' column to database. Status board will now only show members of one organization (named after the domain)
