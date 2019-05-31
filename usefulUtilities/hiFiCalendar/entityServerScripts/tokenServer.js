@@ -40,6 +40,7 @@
             }
         }
     };
+    
 
     this.preload = function(entityID) {
         that = this;
@@ -143,9 +144,9 @@
         if (that.entityID === id) {
 
             try {
-                that.makeCalendarToRoomAddressMap(that.roomConfig);
                 that.userData = JSON.parse(Entities.getEntityProperties(that.entityID, ['userData']).userData);
                 that.roomConfig = that.userData.roomConfig = JSON.parse(params[5]);
+                that.makeCalendarToRoomAddressMap(that.roomConfig);
             } catch (e){
                 console.log("problems parsing room config", e);
             }

@@ -422,7 +422,7 @@ function connectionSuccess(lastPage) {
             i--;
         }
     }
-    for (i=0; i < roomInfo.length; i++) {
+    for (i = 0; i < roomInfo.length; i++) {
         str = JSON.stringify(roomInfo[i]);
         if (str.indexOf(roomDropDown.value) > -1) {
             roomInfo.splice(i,1);
@@ -509,14 +509,17 @@ function getCalendars() {
         .then(response => response.json())
         .then(response => {
             calendarList = response;
-            for (var i = 0; i < calendarList.items.length; i++) {
-                resources.push({
-                    "address": calendarList.items[i].id,
-                    "name": calendarList.items[i].summary
-                });                    
+            if (calendarList.items && calendarList.items.length && calendarList.items.length > 0) {
+                var listLength = calendarList.items.length;
+                for (var i = 0; i < listLength; i++) {
+                    resources.push({
+                        "address": calendarList.items[i].id,
+                        "name": calendarList.items[i].summary
+                    });                    
+                }
+                sessionStorage.setItem('resources', JSON.stringify(resources));
+                connectorPage("LOGIN");
             }
-            sessionStorage.setItem('resources', JSON.stringify(resources));
-            connectorPage("LOGIN");
         })
         .catch(error => {
             console.log('Error:' + error);

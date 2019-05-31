@@ -106,6 +106,10 @@
                 roomConfigInfo = message.roomConfigInfo;
                 Window.announcement("Token server successfully refreshed " + message.count + " times since preload.");
             }
+            ui.sendToHtml({
+                type: "AVAILABLE ROOMS",
+                roomConfig: roomConfigInfo
+            });
         }
     };
 
