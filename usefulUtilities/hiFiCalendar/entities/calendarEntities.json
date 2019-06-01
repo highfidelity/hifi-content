@@ -6,7 +6,7 @@
     "type": "Text",
     "lastEdited": 1559239932550773,
     "parentID": "{a81d9ae5-6df9-4d2d-9d40-4062752f1973}",
-    "name": "Calendar_Atlantis_Main_RoomColorOccupant",
+    "name": "Calendar_MR1_Main_RoomColorOccupant",
     "position": {
         "x": -0.1489872932434082,
         "y": 0.32965087890625,
@@ -72,7 +72,7 @@
     "type": "Text",
     "lastEdited": 1559239932550661,
     "parentID": "{e5818ba9-1e52-4617-bd87-a1bc9bd2fe77}",
-    "name": "Calendar_Atlantis_Main_RoomColor",
+    "name": "Calendar_MR1_Main_RoomColor",
     "position": {
         "x": 0.0008018016815185547,
         "y": 0.74127197265625,
@@ -117,7 +117,7 @@
     "collisionMask": 23,
     "collidesWith": "static,dynamic,kinematic,otherAvatar,",
     "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/noFunction.js",
-    "text": "IN USE",
+    "text": "",
     "lineHeight": 0.08299999684095383,
     "textColor": {
         "red": 0,
@@ -141,7 +141,7 @@
     "id": "{52fc9c11-634b-40a8-83f4-f94d524cbb84}",
     "type": "Text",
     "lastEdited": 1559239986288212,
-    "name": "Calendar_Atlantis_Main_RoomClock",
+    "name": "Calendar_MR1_Main_RoomClock",
     "userData": "{\"timezoneName\":\"PDT\",\"timezoneOffset\":\"-7\"}",
     "position": {
         "x": 3.858104705810547,
@@ -183,7 +183,7 @@
         }
     },
     "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/clock/v1.0/entityResources/clockServer.js",
-    "text": "11:13am PDT",
+    "text": "",
     "lineHeight": 0.12300000339746475,
     "backgroundColor": {
         "red": 64,
@@ -201,8 +201,8 @@
     "id": "{a81d9ae5-6df9-4d2d-9d40-4062752f1973}",
     "type": "Text",
     "lastEdited": 1559239905855894,
-    "name": "Calendar_Atlantis_Main_RoomOccupantsList",
-    "userData": "{\"roomOccupantsListID\":\"{a81d9ae5-6df9-4d2d-9d40-4062752f1973}\",\"meetingZoneID\":\"{426075f4-38f9-40b1-b842-a89177d5dd00}\"}",
+    "name": "Calendar_MR1_Main_RoomOccupantsList",
+    "userData": "",
     "position": {
         "x": 3.8403892517089844,
         "y": 1.3278312683105469,
@@ -247,7 +247,7 @@
     "collisionMask": 23,
     "collidesWith": "static,dynamic,kinematic,otherAvatar,",
     "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/occupantsServer.js",
-    "text": "Tony\nZach @ HiFi (he/him)\nGayathri is Flame\nJenna @ HiFi (she | her)\nBrad\nAlan\nhuffman_\nSam MBP13\nJazmin\nshanzam\njeff\njoshua\nJess",
+    "text": "",
     "lineHeight": 0.04800000041723251,
     "backgroundColor": {
         "red": 46,
@@ -268,9 +268,8 @@
     "id": "{e5818ba9-1e52-4617-bd87-a1bc9bd2fe77}",
     "type": "Text",
     "lastEdited": 1559239932550514,
-    "name": "Calendar_Atlantis_Main_RoomSchedule",
-    "userData": "{\"expireTime\":\"1559243519278\",\"timezoneOffset\":-7,\"timezoneName\":\"PDT\",\"address\":\"highfidelity.io_3438323439353030343438@resource.calendar.google.com\",\"tokenServerID\":\"{df47dfb4-fdd4-4191-a343-9f6f814efdc1}\",\"roomScheduleID\":\"{e5818ba9-1e52-4617-bd87-a1bc9bd2fe77}\",\"roomColorID\":\"{c2894bb0-eb00-4c2e-b5c7-8776b7eb2ffd}\",\"roomColorOccupantsID\":\"{30de79ea-a40b-499b-83c6-06dbfcf9febb}\",\"roomOccupantsListID\":\"{a81d9ae5-6df9-4d2d-9d40-4062752f1973}\",\"roomClockID\":\"{52fc9c11-634b-40a8-83f4-f94d524cbb84}\"}",
-    "privateUserData": "{\"token\":\"ya29.GlsZB5wnw3gnXBou8wuz-DadAlgHk49hv86U9WVJwEsqRlZxhppxveOM3uPb_jYuUmazDTHLGMQlmb3ZLXVAME_TUbEnjgYAb-wFBnLKNrkWu7ORIKzfpcpVfHuZ\"}",
+    "name": "Calendar_MR1_Main_RoomSchedule",
+    "userData": "{\"tokenServerID\":\"\",\"roomScheduleID\":\"\",\"roomColorID\":\"\",\"roomColorOccupantsID\":\"\",\"roomOccupantsListID\":\"\",\"roomClockID\":\"\"}",
     "position": {
         "x": 3.831684112548828,
         "y": 1.5634880065917969,
@@ -315,7 +314,7 @@
     "collisionMask": 23,
     "collidesWith": "static,dynamic,kinematic,otherAvatar,",
     "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/roomScheduleServer.js",
-    "text": "Daily LilyPad Bug Triage\n11:00 am - 12:00 pm PDT\n\nLilypad Documentation Needs\n3:00 pm - 3:30 pm PDT",
+    "text": "",
     "lineHeight": 0.061000000685453415,
     "leftMargin": 0.029999999329447746,
     "rightMargin": 0.029999999329447746,
@@ -331,8 +330,8 @@
     "id": "{426075f4-38f9-40b1-b842-a89177d5dd00}",
     "type": "Zone",
     "lastEdited": 1559239905273499,
-    "name": "Calendar_Atlantis_MR_Zone",
-    "userData": "{\"roomOccupantsListID\":[\"{a81d9ae5-6df9-4d2d-9d40-4062752f1973}\"]}",
+    "name": "Calendar_MR1_MR_Zone",
+    "userData": "{\"roomOccupantsListID\":[\"\"]}",
     "position": {
         "x": 0,
         "y": 0,
@@ -386,71 +385,6 @@
         },
         "castShadows": true
     },
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{df47dfb4-fdd4-4191-a343-9f6f814efdc1}",
-    "type": "Text",
-    "lastEdited": 1559239932334651,
-    "visible": false,
-    "name": "Calendar_Token-Server",
-    "userData": "{\"expireTime\":\"1559243519278\",\"timezone\":\"PDT\",\"timezoneOffset\":\"-7\",\"roomConfig\":[{\"address\":\"highfidelity.io_3438323439353030343438@resource.calendar.google.com\",\"uuid\":\"{e5818ba9-1e52-4617-bd87-a1bc9bd2fe77}\",\"name\":\"SF-1-Atlantis Conference Room (4)\",\"hifiName\":\"ATLANTIS\"},{\"address\":\"highfidelity.io_34343834323238333734@resource.calendar.google.com\",\"uuid\":\"{4b6f47fe-646f-4b2c-9a7b-c74f3c47a105}\",\"name\":\"SF-1-Capitol Conference Room (12)\",\"hifiName\":\"CAPITOL\"}],\"calendarScheduleIDs\":[\"{4b6f47fe-646f-4b2c-9a7b-c74f3c47a105}\",\"{e5818ba9-1e52-4617-bd87-a1bc9bd2fe77}\"]}",
-    "privateUserData": "{\"token\":\"ya29.GlsZB5wnw3gnXBou8wuz-DadAlgHk49hv86U9WVJwEsqRlZxhppxveOM3uPb_jYuUmazDTHLGMQlmb3ZLXVAME_TUbEnjgYAb-wFBnLKNrkWu7ORIKzfpcpVfHuZ\",\"refreshToken\":\"1/ChEfsgBOvx8EWHe5SpVrfe0M32sH1GyMdvYZeG0fFAdmHA45CWwhVwY5EXNkYegJ\"}",
-    "position": {
-        "x": 3.7997360229492188,
-        "y": 1.5169057846069336,
-        "z": 0
-    },
-    "dimensions": {
-        "x": 0.47311854362487793,
-        "y": 0.33525216579437256,
-        "z": 0.009999999776482582
-    },
-    "rotation": {
-        "x": -0.0001068115234375,
-        "y": 0.7132219076156616,
-        "z": 0.0002593994140625,
-        "w": 0.7008926868438721
-    },
-    "created": 1558367749274435,
-    "lastEditedBy": "{02039da8-df43-4d91-a5d4-48264664b886}",
-    "queryAACube": {
-        "x": 3.5097639560699463,
-        "y": 1.2269337177276611,
-        "z": -0.2899720370769501,
-        "scale": 0.5799440741539001
-    },
-    "canCastShadow": false,
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionless": true,
-    "ignoreForCollisions": true,
-    "collisionMask": 23,
-    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
-    "scriptTimestamp": 1559234027396,
-    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/tokenServer.js",
-    "text": "Token Server",
-    "lineHeight": 0.15000000596046448,
-    "backgroundAlpha": 0.25,
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,

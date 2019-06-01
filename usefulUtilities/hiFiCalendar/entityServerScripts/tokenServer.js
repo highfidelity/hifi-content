@@ -40,7 +40,7 @@
             }
         }
     };
-    
+
 
     this.preload = function(entityID) {
         that = this;
@@ -59,6 +59,8 @@
                 that.userData = JSON.parse(that.entityProperties.userData);
                 that.calendarScheduleIDs = that.userData.calendarScheduleIDs;
                 that.privateUserData = that.entityProperties.privateUserData;
+                that.timezoneOffset = that.userData.timezoneOffset;
+                that.timezone = that.userData.timezone;
                 if (that.privateUserData.length > 0) {
                     that.privateUserData = JSON.parse(that.entityProperties.privateUserData);
                     that.token = that.privateUserData.token;
