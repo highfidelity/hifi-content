@@ -13,7 +13,6 @@
     var DOMAIN = "hq";
     var MS_TO_SEC = 1000;
     var MIN_PER_HR = 60;
-    var TOKEN_SERVER_ID = CONFIG.TOKEN_SERVER_ID;
     var roomConfig = false;
     var token;
     var tokenLifetime;
