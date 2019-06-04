@@ -506,6 +506,7 @@
                 return;
             }
             _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
+            // TODO: Trigger Pressed interval change
             drawInterval = Script.setInterval(function() { // for trigger presses, check the position on an interval to draw
                 if (initialLineStartDataReady) {
                     isCurrentPointOnBoard = _this.getHMDLinePointData(false);
@@ -528,6 +529,7 @@
                 Entities.deleteEntity(laser);
                 laser = null;
             }
+        // TODO: there is a clear interval in trigger released
             if (drawInterval) {
                 Script.clearInterval(drawInterval);
                 drawInterval = null;
@@ -544,6 +546,7 @@
             if (tablet.tabletShown || activeTriggerPress) {
                 return;
             }
+            // TODO: Fix setInterval in gripPressed
             deletingInterval = Script.setInterval(function() {
                 var sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
                 currentPoint = sphereProperties.position;
@@ -562,6 +565,7 @@
         },
 
         /* On releasing grip, stop the interval that is searching for lines to delete */
+        // TODO: Fix clearing the interval grip released
         gripReleased: function() {
             if (!_this.isUserInZone(whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
@@ -651,6 +655,7 @@
 
         /* Listen for controller trigger movements and act when the trigger is pressed or 
         released */
+        // TODO: Where the new mapping will go
         registerControllerMapping: function() {
             controllerMapping = Controller.newMapping(controllerMappingName);
             controllerMapping.from(Controller.Standard.RT).to(function (value) {
@@ -765,6 +770,7 @@
             if (animationHandlerID) {
                 animationHandlerID = MyAvatar.removeAnimationStateHandler(animationHandlerID);
             }
+            // TODO: Fix clearing the interval in unload
             if (drawInterval) {
                 Script.clearInterval(drawInterval);
                 drawInterval = null;
@@ -782,3 +788,143 @@
 
     return new PaintSphere();
 });
+
+
+// Enables mouse press and trigger events  
+function enable(){
+    if (!_this.controllEnabled) {
+        Controller.mousePressEvent.connect(mousePressHandler);
+        if (_this.shouldDoublePress) {
+            Controller.mouseDoublePressEvent.connect(doublePressHandler);
+        }
+        Controller.enableMapping(_this.mappingName);
+        _this.controllEnabled = true;
+
+        return _this;
+    }
+
+    return -1;
+}
+
+
+// After setup is given, this gets the Controller ready to be enabled
+function create(){
+    _this.mapping = Controller.newMapping(_this.mappingName);
+
+    _this.mapping.from(Controller.Standard.LTClick).to(function (value) {
+        if (value === 0) {
+            return;
+        }
+
+        getUUIDFromLaser(Controller.Standard.LeftHand);
+    });
+
+
+    _this.mapping.from(Controller.Standard.RTClick).to(function (value) {
+        if (value === 0) {
+            return;
+        }
+
+        getUUIDFromLaser(Controller.Standard.RightHand);
+    });
+
+    return _this;
+}
+
+
+// Returns the right UUID based on hand triggered
+function getUUIDFromLaser(hand) {
+    hand = hand === Controller.Standard.LeftHand
+        ? Controller.Standard.LeftHand
+        : Controller.Standard.RightHand;
+
+    var pose = getControllerWorldLocation(hand);
+    var start = pose.position;
+    // Get the direction that the hand is facing in the world
+    var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
+
+    pickRayTypeHandler(start, direction);
+
+    if (_this.currentPick) {
+        _this.eventHandler(_this.currentPick, _this.intersection);
+    }
+}
+
+
+// Utility function for the ControllerWorldLocation offset 
+function getGrabPointSphereOffset(handController) {
+    // These values must match what's in scripts/system/libraries/controllers.js
+    // x = upward, y = forward, z = lateral
+    var GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 };
+    var offset = GRAB_POINT_SPHERE_OFFSET;
+    if (handController === Controller.Standard.LeftHand) {
+        offset = {
+            x: -GRAB_POINT_SPHERE_OFFSET.x,
+            y: GRAB_POINT_SPHERE_OFFSET.y,
+            z: GRAB_POINT_SPHERE_OFFSET.z
+        };
+    }
+
+    return Vec3.multiply(MyAvatar.sensorToWorldScale, offset);
+}
+
+
+// controllerWorldLocation is where the controller would be, in-world, with an added offset
+function getControllerWorldLocation(handController, doOffset) {
+    var orientation;
+    var position;
+    var valid = false;
+
+    if (handController >= 0) {
+        var pose = Controller.getPoseValue(handController);
+        valid = pose.valid;
+        var controllerJointIndex;
+        if (pose.valid) {
+            if (handController === Controller.Standard.RightHand) {
+                controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND");
+            } else {
+                controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_LEFTHAND");
+            }
+            orientation = Quat.multiply(MyAvatar.orientation, MyAvatar.getAbsoluteJointRotationInObjectFrame(controllerJointIndex));
+            position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, MyAvatar.getAbsoluteJointTranslationInObjectFrame(controllerJointIndex)));
+
+            // add to the real position so the grab-point is out in front of the hand, a bit
+            if (doOffset) {
+                var offset = getGrabPointSphereOffset(handController);
+                position = Vec3.sum(position, Vec3.multiplyQbyV(orientation, offset));
+            }
+
+        } else if (!HMD.isHandControllerAvailable()) {
+            // NOTE: keep _this offset in sync with scripts/system/controllers/handControllerPointer.js:493
+            var VERTICAL_HEAD_LASER_OFFSET = 0.1 * MyAvatar.sensorToWorldScale;
+            position = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, { x: 0, y: VERTICAL_HEAD_LASER_OFFSET, z: 0 }));
+            orientation = Quat.multiply(Camera.orientation, Quat.angleAxis(-90, { x: 1, y: 0, z: 0 }));
+            valid = true;
+        }
+    }
+
+    return {
+        position: position,
+        translation: position,
+        orientation: orientation,
+        rotation: orientation,
+        valid: valid
+    };
+}
+
+
+var entityIntersection = Entities.findRayIntersection(pickRay, [], []);
+_this.intersection = entityIntersection;
+handleUUID(entityIntersection.avatarID);  // should be entityID  ** OOPS!
+
+
+// Handle if the uuid picked on is new or different
+function handleUUID(uuid){
+    if (!_this.lastPick && !_this.currentPick) {
+        _this.currentPick = uuid;
+        _this.lastPick = uuid;
+    } else {
+        _this.lastPick = _this.currentPick;
+        _this.currentPick = uuid;
+    }
+}
