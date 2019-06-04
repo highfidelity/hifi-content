@@ -22,6 +22,7 @@
     var timezone;
     var timezoneOffset = 7;
     var roomConfigInfo = [];
+    var TOKEN_SERVER_ID;
 
     // Handle messages from the tablet
     function onWebMessage(data) {
@@ -73,23 +74,18 @@
                 console.log(e, "Could not parse message");
                 return;
             }
-
             if (message.TOKEN_SERVER_ID) {
                 TOKEN_SERVER_ID = message.TOKEN_SERVER_ID;
             }
-
             if (message.type === "TOKEN EXPIRED") {
                 Window.alert("The authorization token for your Google Calendar could not be refreshed.\n" + 
                 "Please open your calendar app and reauthorize to continue displaying calendar schedules.");
                 roomConfig = message.roomConfig;
-                roomConfigInfo = message.roomConfigInfo;
             } else if (message.type === "STATUS UPDATE") {
                 if (message.tokenStatus) {
                     Window.announcement("Access tokens are valid. No action required");
                     roomConfig = message.roomConfig;
-                    roomConfigInfo = message.roomConfigInfo;
                 } else if (!message.tokenStatus && !message.roomConfigured) {
-                    roomConfigInfo = message.roomConfigInfo;
                     Window.announcement("You have not set up any room schedules for this domain.");
                 }
             } else if (message.type === "ERROR") {
@@ -102,13 +98,15 @@
                 // message.attemptedAction);
                 return;
             } else if (message.type === "REFRESH SUCCESS") {
-                roomConfigInfo = message.roomConfigInfo;
                 Window.announcement("Token server successfully refreshed " + message.count + " times since preload.");
             }
-            ui.sendToHtml({
-                type: "AVAILABLE ROOMS",
-                roomConfig: roomConfigInfo
-            });
+            if (message.roomConfigInfo && message.roomConfigInfo.length > 0) {
+                roomConfigInfo = message.roomConfigInfo;
+                ui.sendToHtml({
+                    type: "AVAILABLE ROOMS",
+                    roomConfig: roomConfigInfo
+                });
+            }
         }
     };
 

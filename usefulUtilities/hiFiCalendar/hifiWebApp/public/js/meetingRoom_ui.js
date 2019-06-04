@@ -16,7 +16,7 @@ var SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 var HIFI_API_BASE = "Your API Base";
 
 var fragmentString = location.search;
-var roomInfo = [];
+var roomInfo;
 
 // *************************************
 // START utility
