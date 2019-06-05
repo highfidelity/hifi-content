@@ -8,7 +8,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    console.log("V4")
     var _this;
 
     var WHITEBOARD_ZONE_SEARCH_RADIUS_M = 100;
@@ -199,22 +198,15 @@
             if (!readyToDraw) {
                 return;
             }
-            console.log("previousLinePoint", JSON.stringify(previousLinePoint));
-            console.log("currentPoint", JSON.stringify(currentPoint));
-            console.log("Vec3.distance(previousLinePoint, currentPoint)", Vec3.distance(previousLinePoint, currentPoint));
-            console.log("Vec3.distance(previousLinePoint, currentPoint)", Vec3.distance(previousLinePoint, currentPoint));
             if (Vec3.distance(previousLinePoint, currentPoint) < MINIMUM_MOVEMENT_TO_DRAW_M ||
             Vec3.distance(previousLinePoint, currentPoint) > MAXIMUM_MOVEMENT_TO_DRAW_M) {
-                console.log("RETURNING!")
                 return;
             }
-            console.log("PAST DISTANCE")
             if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
                 _this.stopDrawing();
                 wasLastPointOnBoard = null;
                 return;
             }
-            console.log("PAST onBoard !== wasLastPointOnBoard")
             wasLastPointOnBoard = onBoard;
             var newLine = !polyLine;
             var lineProperties = DEFAULT_LINE_PROPERTIES;
@@ -462,16 +454,8 @@
             var pose = _this.getControllerWorldLocation(controllerHandNumber);
             currentPoint = pose.position;
             var jointPosition = MyAvatar.getJointPosition(parentJointIndex);
-            // var subtracedPFromJ = Vec3.subtract(jointPosition, currentPoint);
             var subtracedPFromJ = Vec3.subtract(currentPoint, jointPosition);
-            // var currentPlusSubtractedJoint = Vec3.sum(currentPoint, subtracedPFromJ);
-            // console.log("currentPoint :", JSON.stringify(currentPoint));
-            // console.log("jointPosition :", JSON.stringify(jointPosition));
-            // console.log("subtracedPFromJ :", JSON.stringify(subtracedPFromJ));
-            // console.log("currentPlusSubtractedJoint :", JSON.stringify(currentPlusSubtractedJoint));
-            // var offset = {"x":-0.08206838369369507,"y":0.08535003662109375,"z":0.21325111389160156};
             currentPoint = Vec3.sum(subtracedPFromJ, currentPoint);
-            // Get the direction that the hand is facing in the world
             var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
 
             var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint, direction);
