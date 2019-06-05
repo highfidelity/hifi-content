@@ -8,6 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
+    console.log("V4")
     var _this;
 
     var WHITEBOARD_ZONE_SEARCH_RADIUS_M = 100;
@@ -52,6 +53,7 @@
 
     var dominantHandJoint;
     var dominantHand;
+    var controllerHandNumber;
     var parentJointIndex;
 
     var whiteboard = null;
@@ -89,6 +91,9 @@
     var wasLastPointOnBoard;
     var displacementFromStart;
 
+    var isTheTriggerUpdateRunning = false;
+    var isTheGripUpdateRunning = false;
+
     var laser = null;
     
     var readyToDraw = false;
@@ -113,6 +118,7 @@
             }, WAIT_FOR_ENTITIES_TO_LOAD_MS);
             dominantHand = MyAvatar.getDominantHand();
             dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
+            controllerHandNumber = (dominantHand === "right") ? Controller.Standard.RightHand : Controller.Standard.LeftHand;
             MyAvatar.dominantHandChanged.connect(_this.handChanged);
 
             parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint + "Index4");
@@ -126,6 +132,7 @@
             tablet.tabletShownChanged.connect(_this.tabletShownChanged);
             HMD.displayModeChanged.connect(_this.displayModeChanged);
             Window.domainChanged.connect(_this.domainChanged);
+            MyAvatar.scaleChanged.connect(_this.onScaleChanged);
             _this.registerControllerMapping();
             if (HMD.active) {
                 _this.setUpHMDMode();
@@ -192,15 +199,22 @@
             if (!readyToDraw) {
                 return;
             }
+            console.log("previousLinePoint", JSON.stringify(previousLinePoint));
+            console.log("currentPoint", JSON.stringify(currentPoint));
+            console.log("Vec3.distance(previousLinePoint, currentPoint)", Vec3.distance(previousLinePoint, currentPoint));
+            console.log("Vec3.distance(previousLinePoint, currentPoint)", Vec3.distance(previousLinePoint, currentPoint));
             if (Vec3.distance(previousLinePoint, currentPoint) < MINIMUM_MOVEMENT_TO_DRAW_M ||
             Vec3.distance(previousLinePoint, currentPoint) > MAXIMUM_MOVEMENT_TO_DRAW_M) {
+                console.log("RETURNING!")
                 return;
             }
+            console.log("PAST DISTANCE")
             if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
                 _this.stopDrawing();
                 wasLastPointOnBoard = null;
                 return;
             }
+            console.log("PAST onBoard !== wasLastPointOnBoard")
             wasLastPointOnBoard = onBoard;
             var newLine = !polyLine;
             var lineProperties = DEFAULT_LINE_PROPERTIES;
@@ -437,14 +451,30 @@
                 previousNormal = currentNormal;
                 previousStrokeWidth = currentStrokeWidth;
             }
-            var sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
-            if (!sphereProperties.dimensions) {
-                _this.triggerReleased();
-                return;
-            }
-            currentPoint = sphereProperties.position;
-            currentStrokeWidth = sphereProperties.dimensions.x;
-            var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint);
+            // var sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
+            // if (!sphereProperties.dimensions) {
+            //     _this.triggerReleased();
+            //     return;
+            // }
+            // currentPoint = sphereProperties.position;
+            // currentStrokeWidth = sphereProperties.dimensions.x;
+
+            var pose = _this.getControllerWorldLocation(controllerHandNumber);
+            currentPoint = pose.position;
+            var jointPosition = MyAvatar.getJointPosition(parentJointIndex);
+            // var subtracedPFromJ = Vec3.subtract(jointPosition, currentPoint);
+            var subtracedPFromJ = Vec3.subtract(currentPoint, jointPosition);
+            // var currentPlusSubtractedJoint = Vec3.sum(currentPoint, subtracedPFromJ);
+            // console.log("currentPoint :", JSON.stringify(currentPoint));
+            // console.log("jointPosition :", JSON.stringify(jointPosition));
+            // console.log("subtracedPFromJ :", JSON.stringify(subtracedPFromJ));
+            // console.log("currentPlusSubtractedJoint :", JSON.stringify(currentPlusSubtractedJoint));
+            // var offset = {"x":-0.08206838369369507,"y":0.08535003662109375,"z":0.21325111389160156};
+            currentPoint = Vec3.sum(subtracedPFromJ, currentPoint);
+            // Get the direction that the hand is facing in the world
+            var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
+
+            var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint, direction);
             if (whiteBoardIntersectionData === -1) {
                 return;
             }
@@ -463,11 +493,15 @@
 
         /* Create ray from paint sphere away from hand along outstretched finger. If it intersects the whiteboard, 
         check if this is only a selection and return if so. Draw laser if none exists yet. */
-        getHMDIntersectionData: function(origin) {
+        getHMDIntersectionData: function(origin, direction) {
+            // var pickRay = {
+            //     origin: origin,
+            //     direction: Vec3.multiplyQbyV(Quat.multiply(MyAvatar.orientation, 
+            //         MyAvatar.getAbsoluteJointRotationInObjectFrame(parentJointIndex)), [0, 1, 0])
+            // };
             var pickRay = {
                 origin: origin,
-                direction: Vec3.multiplyQbyV(Quat.multiply(MyAvatar.orientation, 
-                    MyAvatar.getAbsoluteJointRotationInObjectFrame(parentJointIndex)), [0, 1, 0])
+                direction: direction
             };
             var whiteBoardIntersectionData = Entities.findRayIntersection(pickRay, true, whiteboardParts);
             if (whiteBoardIntersectionData.intersects) {
@@ -506,16 +540,21 @@
                 return;
             }
             _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
-            // TODO: Trigger Pressed interval change
-            drawInterval = Script.setInterval(function() { // for trigger presses, check the position on an interval to draw
-                if (initialLineStartDataReady) {
-                    isCurrentPointOnBoard = _this.getHMDLinePointData(false);
-                    if (isCurrentPointOnBoard === -1) {
-                        return;
-                    }
-                    _this.draw(isCurrentPointOnBoard);
+            // TODO: [T] Trigger Pressed interval change
+            // drawInterval = Script.setInterval(function() { // for trigger presses, check the 
+            // }, REPEAT_DISTANCE_CHECK_MS);
+            isTheTriggerUpdateRunning = true;
+            Script.update.connect(_this.onTriggerPressedScriptUpdate);
+        },
+        
+        onTriggerPressedScriptUpdate: function(){
+            if (initialLineStartDataReady) {
+                var isCurrentPointOnBoard = _this.getHMDLinePointData(false);
+                if (isCurrentPointOnBoard === -1) {
+                    return;
                 }
-            }, REPEAT_DISTANCE_CHECK_MS);
+                _this.draw(isCurrentPointOnBoard);
+            }
         },
 
         /* On releasing trigger, if the user is not in whiteboard zone, delete this sphere. If laser or drawing interval 
@@ -529,11 +568,15 @@
                 Entities.deleteEntity(laser);
                 laser = null;
             }
-        // TODO: there is a clear interval in trigger released
-            if (drawInterval) {
-                Script.clearInterval(drawInterval);
-                drawInterval = null;
+        // TODO: [T] there is a clear interval in trigger released
+            if (isTheTriggerUpdateRunning) {
+                Script.update.disconnect(_this.onTriggerPressedScriptUpdate);
+                isTheTriggerUpdateRunning = false;
             }
+            // if (drawInterval) {
+            //     Script.clearInterval(drawInterval);
+            //     drawInterval = null;
+            // }
         },
 
         /* On grip press, if the user is not in whiteboard zone, delete this sphere. If the user is using tablet or trigger 
@@ -546,38 +589,53 @@
             if (tablet.tabletShown || activeTriggerPress) {
                 return;
             }
-            // TODO: Fix setInterval in gripPressed
-            deletingInterval = Script.setInterval(function() {
-                var sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
-                currentPoint = sphereProperties.position;
-                var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint);
-                var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, false);
-                if (isCurrentPointOnBoard) {
-                    // delete on board
-                    if (!laser) {
-                        _this.beginLaser();
-                    } else {
-                        _this.updateLaser(whiteBoardIntersectionData);
-                    }
-                }
-                _this.deleteFromPoint(currentPoint);
-            }, DELETE_AGAIN_MS);
+            isTheGripUpdateRunning = true;
+            Script.update.connect(_this.onGripPressedScriptUpdate);
+            // TODO: [t] Fix setInterval in gripPressed
+            // deletingInterval = Script.setInterval(function() {
+
+            // }, DELETE_AGAIN_MS);
         },
 
         /* On releasing grip, stop the interval that is searching for lines to delete */
-        // TODO: Fix clearing the interval grip released
+        // TODO: [T] Fix clearing the interval grip released
         gripReleased: function() {
             if (!_this.isUserInZone(whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
             }
-            if (deletingInterval) {
-                Script.clearInterval(deletingInterval);
-                deletingInterval = null;
+            if (isTheGripUpdateRunning) {
+                Script.update.disconnect(_this.onGripPressedScriptUpdate);
+                isTheGripUpdateRunning = false;
             }
+            // if (deletingInterval) {
+            //     Script.clearInterval(deletingInterval);
+            //     deletingInterval = null;
+            // }
             if (laser) {
                 Entities.deleteEntity(laser);
                 laser = null;
             }
+        },
+
+        onGripPressedScriptUpdate: function() {
+            // var sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
+            // currentPoint = sphereProperties.position;
+            var pose = _this.getControllerWorldLocation(controllerHandNumber);
+            currentPoint = pose.position;
+            // Get the direction that the hand is facing in the world
+            var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
+
+            var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint, direction);
+            var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, false);
+            if (isCurrentPointOnBoard) {
+                // delete on board
+                if (!laser) {
+                    _this.beginLaser();
+                } else {
+                    _this.updateLaser(whiteBoardIntersectionData);
+                }
+            }
+            _this.deleteFromPoint(currentPoint);
         },
 
         /* Stop drawing sound, reset line data */
@@ -655,7 +713,6 @@
 
         /* Listen for controller trigger movements and act when the trigger is pressed or 
         released */
-        // TODO: Where the new mapping will go
         registerControllerMapping: function() {
             controllerMapping = Controller.newMapping(controllerMappingName);
             controllerMapping.from(Controller.Standard.RT).to(function (value) {
@@ -750,6 +807,73 @@
             }
         },
 
+
+        /* The following two functions are from scripts/system/libraries/controllers.js to help with getting the pose infromation from the controllers */
+        getGrabPointSphereOffset: function (handController) {
+            // These values must match what's in scripts/system/libraries/controllers.js
+            // x = upward, y = forward, z = lateral
+            var GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 };
+            var offset = GRAB_POINT_SPHERE_OFFSET;
+            if (handController === Controller.Standard.LeftHand) {
+                offset = {
+                    x: -GRAB_POINT_SPHERE_OFFSET.x,
+                    y: GRAB_POINT_SPHERE_OFFSET.y,
+                    z: GRAB_POINT_SPHERE_OFFSET.z
+                };
+            }
+        
+            return Vec3.multiply(MyAvatar.sensorToWorldScale, offset);
+        },
+
+        getControllerWorldLocation: function (handController, doOffset) {
+            var orientation;
+            var position;
+            var valid = false;
+        
+            if (handController >= 0) {
+                var pose = Controller.getPoseValue(handController);
+                valid = pose.valid;
+                var controllerJointIndex;
+                if (pose.valid) {
+                    if (handController === Controller.Standard.RightHand) {
+                        controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND");
+                    } else {
+                        controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_LEFTHAND");
+                    }
+                    orientation = Quat.multiply(MyAvatar.orientation, MyAvatar.getAbsoluteJointRotationInObjectFrame(controllerJointIndex));
+                    position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, MyAvatar.getAbsoluteJointTranslationInObjectFrame(controllerJointIndex)));
+        
+                    // add to the real position so the grab-point is out in front of the hand, a bit
+                    if (doOffset) {
+                        var offset = getGrabPointSphereOffset(handController);
+                        position = Vec3.sum(position, Vec3.multiplyQbyV(orientation, offset));
+                    }
+        
+                } else if (!HMD.isHandControllerAvailable()) {
+                    // NOTE: keep _this offset in sync with scripts/system/controllers/handControllerPointer.js:493
+                    var VERTICAL_HEAD_LASER_OFFSET = 0.1 * MyAvatar.sensorToWorldScale;
+                    position = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, { x: 0, y: VERTICAL_HEAD_LASER_OFFSET, z: 0 }));
+                    orientation = Quat.multiply(Camera.orientation, Quat.angleAxis(-90, { x: 1, y: 0, z: 0 }));
+                    valid = true;
+                }
+            }
+        
+            return {
+                position: position,
+                translation: position,
+                orientation: orientation,
+                rotation: orientation,
+                valid: valid
+            };
+        
+        },
+
+        onScaleChanged: function(){
+            var sphereProperties = Entities.getEntityProperties(_this.entityID, ['dimensions']);
+        
+            currentStrokeWidth = sphereProperties.dimensions.x;
+        },
+
         /* Close drawing view mode, stop injector, play closing sound, disable hand mapping and overrides. Remove 
         animation handlers, delete all intervals, and disconnect signals. */
         unload: function() {
@@ -770,161 +894,20 @@
             if (animationHandlerID) {
                 animationHandlerID = MyAvatar.removeAnimationStateHandler(animationHandlerID);
             }
-            // TODO: Fix clearing the interval in unload
-            if (drawInterval) {
-                Script.clearInterval(drawInterval);
-                drawInterval = null;
+            // TODO [T] Fix clearing the interval in unload
+            if (isTheTriggerUpdateRunning) {
+                Script.update.disconnect(_this.onTriggerPressedScriptUpdate);
             }
-            if (deletingInterval) {
-                Script.clearInterval(deletingInterval);
-                deletingInterval = null;
+            if (isTheGripUpdateRunning) {
+                Script.update.disconnect(_this.onGripPressedScriptUpdate);
             }
             tablet.tabletShownChanged.disconnect(_this.tabletShownChanged);
             MyAvatar.dominantHandChanged.disconnect(_this.handChanged);
             HMD.displayModeChanged.disconnect(_this.displayModeChanged);
             Window.domainChanged.disconnect(_this.domainChanged);
+            MyAvatar.scaleChanged.disconnect(_this.onScaleChanged); 
         }
     };
 
     return new PaintSphere();
 });
-
-
-// Enables mouse press and trigger events  
-function enable(){
-    if (!_this.controllEnabled) {
-        Controller.mousePressEvent.connect(mousePressHandler);
-        if (_this.shouldDoublePress) {
-            Controller.mouseDoublePressEvent.connect(doublePressHandler);
-        }
-        Controller.enableMapping(_this.mappingName);
-        _this.controllEnabled = true;
-
-        return _this;
-    }
-
-    return -1;
-}
-
-
-// After setup is given, this gets the Controller ready to be enabled
-function create(){
-    _this.mapping = Controller.newMapping(_this.mappingName);
-
-    _this.mapping.from(Controller.Standard.LTClick).to(function (value) {
-        if (value === 0) {
-            return;
-        }
-
-        getUUIDFromLaser(Controller.Standard.LeftHand);
-    });
-
-
-    _this.mapping.from(Controller.Standard.RTClick).to(function (value) {
-        if (value === 0) {
-            return;
-        }
-
-        getUUIDFromLaser(Controller.Standard.RightHand);
-    });
-
-    return _this;
-}
-
-
-// Returns the right UUID based on hand triggered
-function getUUIDFromLaser(hand) {
-    hand = hand === Controller.Standard.LeftHand
-        ? Controller.Standard.LeftHand
-        : Controller.Standard.RightHand;
-
-    var pose = getControllerWorldLocation(hand);
-    var start = pose.position;
-    // Get the direction that the hand is facing in the world
-    var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
-
-    pickRayTypeHandler(start, direction);
-
-    if (_this.currentPick) {
-        _this.eventHandler(_this.currentPick, _this.intersection);
-    }
-}
-
-
-// Utility function for the ControllerWorldLocation offset 
-function getGrabPointSphereOffset(handController) {
-    // These values must match what's in scripts/system/libraries/controllers.js
-    // x = upward, y = forward, z = lateral
-    var GRAB_POINT_SPHERE_OFFSET = { x: 0.04, y: 0.13, z: 0.039 };
-    var offset = GRAB_POINT_SPHERE_OFFSET;
-    if (handController === Controller.Standard.LeftHand) {
-        offset = {
-            x: -GRAB_POINT_SPHERE_OFFSET.x,
-            y: GRAB_POINT_SPHERE_OFFSET.y,
-            z: GRAB_POINT_SPHERE_OFFSET.z
-        };
-    }
-
-    return Vec3.multiply(MyAvatar.sensorToWorldScale, offset);
-}
-
-
-// controllerWorldLocation is where the controller would be, in-world, with an added offset
-function getControllerWorldLocation(handController, doOffset) {
-    var orientation;
-    var position;
-    var valid = false;
-
-    if (handController >= 0) {
-        var pose = Controller.getPoseValue(handController);
-        valid = pose.valid;
-        var controllerJointIndex;
-        if (pose.valid) {
-            if (handController === Controller.Standard.RightHand) {
-                controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND");
-            } else {
-                controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_LEFTHAND");
-            }
-            orientation = Quat.multiply(MyAvatar.orientation, MyAvatar.getAbsoluteJointRotationInObjectFrame(controllerJointIndex));
-            position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, MyAvatar.getAbsoluteJointTranslationInObjectFrame(controllerJointIndex)));
-
-            // add to the real position so the grab-point is out in front of the hand, a bit
-            if (doOffset) {
-                var offset = getGrabPointSphereOffset(handController);
-                position = Vec3.sum(position, Vec3.multiplyQbyV(orientation, offset));
-            }
-
-        } else if (!HMD.isHandControllerAvailable()) {
-            // NOTE: keep _this offset in sync with scripts/system/controllers/handControllerPointer.js:493
-            var VERTICAL_HEAD_LASER_OFFSET = 0.1 * MyAvatar.sensorToWorldScale;
-            position = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, { x: 0, y: VERTICAL_HEAD_LASER_OFFSET, z: 0 }));
-            orientation = Quat.multiply(Camera.orientation, Quat.angleAxis(-90, { x: 1, y: 0, z: 0 }));
-            valid = true;
-        }
-    }
-
-    return {
-        position: position,
-        translation: position,
-        orientation: orientation,
-        rotation: orientation,
-        valid: valid
-    };
-}
-
-
-var entityIntersection = Entities.findRayIntersection(pickRay, [], []);
-_this.intersection = entityIntersection;
-handleUUID(entityIntersection.avatarID);  // should be entityID  ** OOPS!
-
-
-// Handle if the uuid picked on is new or different
-function handleUUID(uuid){
-    if (!_this.lastPick && !_this.currentPick) {
-        _this.currentPick = uuid;
-        _this.lastPick = uuid;
-    } else {
-        _this.lastPick = _this.currentPick;
-        _this.currentPick = uuid;
-    }
-}
