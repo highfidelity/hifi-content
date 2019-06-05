@@ -1,7 +1,7 @@
 //
 //  bubbleDisabler.js
 //
-//  Created by Preston Bezos on 2019-06-5
+//  Created by Preston Bezos on 2019-06-05
 //  Copyright 2019 High Fidelity, Inc.
 //
 //  See accompanying README.md for usage instructions.
@@ -18,16 +18,16 @@
 
     BubbleDisabler.prototype = {
         preload: function (id) {
-           if(Users.getIgnoreRadiusEnabled()) {
+           if (Users.getIgnoreRadiusEnabled()) {
                Users.disableIgnoreRadius();
                enableOnUnload = true;
            }
         },
 
         unload: function() {
-            if(enableOnUnload){
+            if (enableOnUnload) {
                 Users.enableIgnoreRadius();
-                
+                enableOnUnload = false;
             }
         }
     };
