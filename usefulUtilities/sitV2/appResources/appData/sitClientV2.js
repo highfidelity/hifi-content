@@ -95,18 +95,6 @@
     // #region SIT DOWN / STAND UP SEQUENCE
 
     // 1st of sit down sequence
-    // Send request to server script to begin sit down
-    // Will lock chair from other avatars sitting in it
-    function sendRequestToServerScriptToStartSitDown() {
-        Entities.callEntityServerMethod(
-            _this.entityID,
-            "onSitDown",
-            [MyAvatar.sessionUUID]
-        );
-    }
-
-
-    // 2nd of sit down sequence
     // Called from entity server script to begin sitting down sequence
     var SETTING_KEY_AVATAR_SITTING = "com.highfidelity.avatar.isSitting";
     var SIT_SETTLE_TIME_MS = 350; // Do not pop avatar out of chair immediately if there's an issue
@@ -127,13 +115,7 @@
         deleteSittableUI();
 
         // Set isSitting value in Settings
-        var sitPreviousSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
-        var sitNewSettings = [_this.entityID, MyAvatar.position, MyAvatar.orientation]; // ***
-        if (sitPreviousSettings && sitPreviousSettings.length === sitNewSettings.length) {
-            // changed chair, only change entityID, keep old values for previousAvatarPosition and previousAvatarOrientation
-            sitNewSettings[1] = sitPreviousSettings[1];
-            sitNewSettings[2] = sitPreviousSettings[2];
-        }
+        var sitNewSettings = [_this.entityID];
         Settings.setValue(SETTING_KEY_AVATAR_SITTING, sitNewSettings);
 
         if (HMD.active) {
@@ -170,13 +152,15 @@
     var ANIMATION_FIRST_FRAME = 1;
     var ANIMATION_LAST_FRAME = 350;
     var UPDATE_INTERVAL_MS = 400;
-    var OVERRIDDEN_DRIVE_KEYS = [
+    var DISABLED_DRIVE_KEYS_DURING_SIT = [
         DriveKeys.TRANSLATE_X,
-        DriveKeys.TRANSLATE_Y,
         DriveKeys.TRANSLATE_Z,
         DriveKeys.STEP_TRANSLATE_X,
-        DriveKeys.STEP_TRANSLATE_Y,
         DriveKeys.STEP_TRANSLATE_Z
+    ];
+    var REMAPPED_DRIVE_KEYS_DURING_SIT = [
+        DriveKeys.TRANSLATE_Y,
+        DriveKeys.STEP_TRANSLATE_Y
     ];
     function sitDownAndPinAvatar() {
         MyAvatar.collisionsEnabled = false;
@@ -192,8 +176,11 @@
             MyAvatar.overrideRoleAnimation(roles[i], ANIMATION_URL, ANIMATION_FPS, true,
                 ANIMATION_FIRST_FRAME, ANIMATION_LAST_FRAME);
         }
-        for (var j in OVERRIDDEN_DRIVE_KEYS) {
-            MyAvatar.disableDriveKey(OVERRIDDEN_DRIVE_KEYS[j]);
+        for (var j in DISABLED_DRIVE_KEYS_DURING_SIT) {
+            MyAvatar.disableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[j]);
+        }
+        for (var k in REMAPPED_DRIVE_KEYS_DURING_SIT) {
+            MyAvatar.disableDriveKey(REMAPPED_DRIVE_KEYS_DURING_SIT[k]);
         }
 
         MyAvatar.centerBody();
@@ -236,8 +223,8 @@
         // ACTIVE DRIVE KEY
         // Check if a drive key is pressed
         var hasActiveDriveKey = false;
-        for (var i in OVERRIDDEN_DRIVE_KEYS) {
-            if (MyAvatar.getRawDriveKey(OVERRIDDEN_DRIVE_KEYS[i]) !== 0.0) {
+        for (var i in REMAPPED_DRIVE_KEYS_DURING_SIT) {
+            if (MyAvatar.getRawDriveKey(REMAPPED_DRIVE_KEYS_DURING_SIT[i]) !== 0.0) {
                 hasActiveDriveKey = true;
                 if (!_this.driveKeyPressedStart) {
                     _this.driveKeyPressedStart = now;
@@ -323,9 +310,7 @@
 
 
     // Standup functionality
-    var STANDUP_DISTANCE_M = 0.5; // m 
-    var CHAIR_DISMOUNT_OFFSET_M = -0.5; // m in front of chair
-    var ADD_OVERLAYS_DELAY_MS = 525;
+    var WAIT_FOR_USER_TO_STAND_MS = 525;
     function standUp() {
         if (DEBUG) {
             console.log("standup");
@@ -334,20 +319,18 @@
         // get the entityID, previous position and orientation 
         var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
         var settingsEntityID = sitCurrentSettings[0];
-        var settingsPreviousPosition = sitCurrentSettings[1];
-        var settingsPreviousOrientation = sitCurrentSettings[2];
 
         MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
 
         // STANDING FROM THIS CHAIR
-        // Make avatar stand up
+        // Make avatar stand up (if changed seat do not do this)
         if (settingsEntityID === _this.entityID) {
             // standing up from this chair
             // Need to enable roles and drive keys and reposition avatar 
 
-            // ENABLE DRIVE KEYS
-            for (var i in OVERRIDDEN_DRIVE_KEYS) {
-                MyAvatar.enableDriveKey(OVERRIDDEN_DRIVE_KEYS[i]);
+            // ENABLE DRIVE KEYS EXCEPT FOR JUMP
+            for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
+                MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
             }
 
             // RESTORE ANIMATION ROLES
@@ -356,35 +339,11 @@
                 MyAvatar.restoreRoleAnimation(roles[j]);
             }
 
-            // If changed seat do not do this
             MyAvatar.collisionsEnabled = true;
             MyAvatar.hmdLeanRecenterEnabled = true;
             Script.setTimeout(function () {
                 MyAvatar.centerBody();
             }, STANDUP_DELAY_MS);
-
-            // SET AVATAR POSITION AND ORIENTATION TO PREVIOUS VALUES
-            var avatarDistance = Vec3.distance(MyAvatar.position, _this.seatCenterPosition);
-            var properties = Entities.getEntityProperties(_this.entityID);
-            if (avatarDistance < STANDUP_DISTANCE_M) { // might need to 
-                // Avatar did not teleport far away from chair
-                // Therefore apply previous position OR the default dismount position and orientation
-                if (settingsPreviousPosition && settingsPreviousOrientation) {
-                    // Apply previous position and orientation because they exist
-                    MyAvatar.position = settingsPreviousPosition;
-                    MyAvatar.orientation = settingsPreviousOrientation;
-                } else {
-                    // Calculate chair default dismount position in front of chair
-                    var offset = {
-                        x: 0,
-                        y: 1.0,
-                        z: CHAIR_DISMOUNT_OFFSET_M - properties.dimensions.z * properties.registrationPoint.z
-                    };
-                    var position = Vec3.sum(properties.position, Vec3.multiplyQbyV(properties.rotation, offset));
-                    MyAvatar.position = position;
-                }
-            }
-            Settings.setValue(SETTING_KEY_AVATAR_SITTING, "");
         }
 
         // RESET SETTINGS FOR THIS CHAIR
@@ -417,7 +376,11 @@
                 "addAllOtherSittableOverlays",
                 AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
             );
-        }, ADD_OVERLAYS_DELAY_MS);
+            // ENABLE JUMP DRIVE KEYS
+            for (var i in REMAPPED_DRIVE_KEYS_DURING_SIT) {
+                MyAvatar.enableDriveKey(REMAPPED_DRIVE_KEYS_DURING_SIT[i]);
+            }
+        }, WAIT_FOR_USER_TO_STAND_MS);
     }
 
     // Remotely called from canSitZone
@@ -739,7 +702,6 @@
             "onEnterCanSitZone",
             "onLeaveCanSitZone",
             "startSitDown",
-            "sendRequestToServerScriptToStartSitDown",
             "check"
         ],
         // Zone methods
@@ -749,7 +711,6 @@
         preload: preload,
         unload: unload,
         // Sitting lifetime methods
-        sendRequestToServerScriptToStartSitDown: sendRequestToServerScriptToStartSitDown,
         mousePressOnEntity: mousePressOnEntity,
         startSitDown: startSitDown,
         whileSittingUpdate: whileSittingUpdate,
