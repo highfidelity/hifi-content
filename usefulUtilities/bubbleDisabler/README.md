@@ -12,5 +12,5 @@ When this script is attached to an entity as an entity script, the entity will d
 
 # Releases
 
-## v1.0 :: [xxxxxxx](https://github.com/highfidelity/hifi-content/commit/xxxxxxx)
+## v1.0 :: [d2802ca](https://github.com/highfidelity/hifi-content/commit/d2802ca)
 - Initial release
