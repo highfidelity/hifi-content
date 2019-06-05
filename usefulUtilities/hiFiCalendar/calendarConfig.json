@@ -1,0 +1,13 @@
+{
+    "TOKEN_SERVER_ID": "{df47dfb4-fdd4-4191-a343-9f6f814efdc1}",
+    "ROOMS": {
+        "CAPITOL": {
+            "roomScheduleID": "{4b6f47fe-646f-4b2c-9a7b-c74f3c47a105}"
+        },
+        "ATLANTIS": {
+            "roomScheduleID": "{e5818ba9-1e52-4617-bd87-a1bc9bd2fe77}"
+        }
+    },
+    "REDIRECT_URI": "https://highfidelity.co/hifiCalendar/meetingRoom_ui.html",
+    "API_BASE": "https://highfidelity.co/hifiCalendar/api/"
+}

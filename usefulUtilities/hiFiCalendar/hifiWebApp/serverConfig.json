@@ -1,0 +1,7 @@
+{
+    "PORT": 3008,
+    "CLIENT_ID": "762373859543-smcp9onq6m2mac7atvvi81fp6cmhtfjl.apps.googleusercontent.com",
+    "CLIENT_SECRET": "69bHcH44yn0UH-8n61Cl1Kpl",
+    "REDIRECT_URI": "https://highfidelity.co/hifiCalendar/meetingRoom_ui.html",
+    "SCOPES": "https://www.googleapis.com/auth/calendar.readonly"
+}

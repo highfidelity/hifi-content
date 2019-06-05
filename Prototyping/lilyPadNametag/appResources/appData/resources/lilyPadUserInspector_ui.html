@@ -1,0 +1,87 @@
+<!--
+
+   Lily Pad User Inspector
+   Created by Milad Nazeri on 2019-01-07
+   Copyright 2019 High Fidelity, Inc.
+
+   Distributed under the Apache License, Version 2.0.
+   See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+   Point to solo someone to hear them better in a crowd!
+
+   TABLET UI HTML
+
+-->
+
+<html>
+
+   <head>
+       <title>LilyPad User Inspector</title>
+       <meta charset="utf-8">
+       <link rel="stylesheet" type="text/css" href="./css/style.css">
+       <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+   </head>
+
+   <body>
+       <div id="loadingContainer">
+       </div>
+       <div id="mainContainer">
+           <div id="titleBarContainer">
+               <div id="titleText" style="font-weight:bold;">
+                   Lily Pad User Inspector V1
+               </div>
+           </div>
+           <div id="instructionsContainer">
+                <div id="desktopModeInstructions">
+                    <b>Desktop Mode</b><br/> 
+                    Mouse click on a user to activate
+                </div>
+                <br/>
+                <div id="vrModeInstructions">
+                    <b>VR Mode</b><br/> 
+                    Trigger on a user to activate
+                </div>
+           </div>
+           <div id="optionsContainer">
+               <div>
+                    <label id="size">
+                        <b>Adjust the size of the nametag.</b><br/>
+                        Change nametag size
+                        <input id="sizeSlider" type="range" name="size-slide" min="0.5" max="2" step="0.1" value="0.6" onchange="userSliderChanged(this)">
+                    </label>
+                    <span id="sliderValueDisplay"></span>
+               </div>
+               <div id="modeContainer">
+                   <b>Current Mode</b><br/>
+                   <label>
+                        On
+                        <input id="radio_on" type="radio" name="current_mode" value="on" onchange="handleMode(this)">
+                   </label>
+                   <label>
+                        Off
+                        <input id="radio_off" type="radio" name="current_mode" value="off" onchange="handleMode(this)">
+                   </label>
+                   <label>
+                        Always On
+                        <input id="radio_alwaysOn" type="radio" name="current_mode" value="alwaysOn" onchange="handleMode(this)">
+                   </label>
+               </div>
+           </div>
+           <div id="viewDetailsContainer">
+               <b>Details</b>
+               <br/>
+                <p>
+                    On mode will show a nametag for 3 seconds when you click on someone
+                </p>
+                <p>
+                    Off will remove the ability to show nametags all together
+                </p>
+                <p>
+                    Always On will show you everyone's nametags within a certain distance
+                </p>
+           </div>
+       </div>
+
+       <script type="text/javascript" src="js/lilyPadUserInspector_ui.js"></script>
+   </body>
+
+</html>
