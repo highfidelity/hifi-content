@@ -8,6 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
+    console.log("TESTV4");
     var _this;
 
     var WHITEBOARD_ZONE_SEARCH_RADIUS_M = 100;
@@ -35,6 +36,8 @@
     var MINIMUM_TRIGGER_PRESS_VALUE = 0.97;
 
     var HALF = 0.5;
+
+    var SCRIPT_UPDATE_RETURN_COUNT = 1;
 
     var DEFAULT_STROKE_WIDTH = 0.015;
     var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
@@ -128,6 +131,7 @@
                 parentJointIndex =MyAvatar.getJointIndex(dominantHandJoint);
                 print("ERROR: Falling back to dominant hand joint as index finger tip could not be found");
             }
+            currentStrokeWidth = _this.getCurrentStrokeWidth();
             tablet.tabletShownChanged.connect(_this.tabletShownChanged);
             HMD.displayModeChanged.connect(_this.displayModeChanged);
             Window.domainChanged.connect(_this.domainChanged);
@@ -202,9 +206,12 @@
             Vec3.distance(previousLinePoint, currentPoint) > MAXIMUM_MOVEMENT_TO_DRAW_M) {
                 return;
             }
+            console.log("onBoard", onBoard);
+            console.log("wasLastPointOnBoard", wasLastPointOnBoard, "\n\n");
             if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
                 _this.stopDrawing();
-                wasLastPointOnBoard = null;
+                // wasLastPointOnBoard = null;
+                wasLastPointOnBoard = onBoard;
                 return;
             }
             wasLastPointOnBoard = onBoard;
@@ -415,9 +422,12 @@
                 collisionless: true,
                 grab: { grabbable: false },
                 localPosition: {x: 0, y: 0, z: 0 },
+                localRotation: Quat.fromVec3Degrees({x:0,y:0,z:0}),
                 color: _this.color,
                 name: "Whiteboard HMD Beam",
                 parentID: _this.entityID
+                // parentID: MyAvatar.sessionUUID,
+                // parentJointIndex: parentJointIndex
             }, 'avatar');
         },
 
@@ -426,7 +436,9 @@
             var currentAge = Entities.getEntityProperties(laser, 'age').age;
             Entities.editEntity(laser, {
                 lifetime: currentAge + LASER_LIFETIME_S,
-                dimensions: {x: 0.005, y: whiteBoardIntersectionData.distance, z: 0.005 }
+                dimensions: {x: 0.005, y: whiteBoardIntersectionData.distance, z: 0.005 },
+                localPosition: {x: 0, y: 0, z: 0 },
+                localRotation: Quat.fromVec3Degrees({x:0,y:0,z:0})
             });
         },
 
@@ -453,9 +465,9 @@
 
             var pose = _this.getControllerWorldLocation(controllerHandNumber);
             currentPoint = pose.position;
-            var jointPosition = MyAvatar.getJointPosition(parentJointIndex);
-            var subtracedPFromJ = Vec3.subtract(currentPoint, jointPosition);
-            currentPoint = Vec3.sum(subtracedPFromJ, currentPoint);
+            // var jointPosition = MyAvatar.getJointPosition(parentJointIndex);
+            // var subtracedPFromJ = Vec3.subtract(currentPoint, jointPosition);
+            // currentPoint = Vec3.sum(subtracedPFromJ, currentPoint);
             var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
 
             var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint, direction);
@@ -471,7 +483,7 @@
                 lineStartPosition = currentPoint;
                 initialLineStartDataReady = true;
             } 
-            wasLastPointOnBoard = isCurrentPointOnBoard;
+            // wasLastPointOnBoard = isCurrentPointOnBoard;
             return isCurrentPointOnBoard;
         },
 
@@ -534,6 +546,14 @@
         onTriggerPressedScriptUpdate: function(){
             if (initialLineStartDataReady) {
                 var isCurrentPointOnBoard = _this.getHMDLinePointData(false);
+                // console.log("isCurrentPointOnBoard in onTrigger:", isCurrentPointOnBoard);
+                // console.log("wasLastPointOnBoard in onTrigger:", wasLastPointOnBoard);
+                // if (isCurrentPointOnBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
+                //     console.log("isCurrentPointOnBoard !== wasLastPointOnBoard");
+                //     _this.stopDrawing();
+                //     wasLastPointOnBoard = null;
+                //     return;
+                // }
                 if (isCurrentPointOnBoard === -1) {
                     return;
                 }
@@ -819,17 +839,18 @@
                 valid = pose.valid;
                 var controllerJointIndex;
                 if (pose.valid) {
-                    if (handController === Controller.Standard.RightHand) {
-                        controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND");
-                    } else {
-                        controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_LEFTHAND");
-                    }
+                    // if (handController === Controller.Standard.RightHand) {
+                    //     controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND");
+                    // } else {
+                    //     controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_LEFTHAND");
+                    // }
+                    controllerJointIndex = parentJointIndex;
                     orientation = Quat.multiply(MyAvatar.orientation, MyAvatar.getAbsoluteJointRotationInObjectFrame(controllerJointIndex));
                     position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, MyAvatar.getAbsoluteJointTranslationInObjectFrame(controllerJointIndex)));
         
                     // add to the real position so the grab-point is out in front of the hand, a bit
                     if (doOffset) {
-                        var offset = getGrabPointSphereOffset(handController);
+                        var offset = _this.getGrabPointSphereOffset(handController);
                         position = Vec3.sum(position, Vec3.multiplyQbyV(orientation, offset));
                     }
         
