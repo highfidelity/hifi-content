@@ -1,0 +1,85 @@
+body {
+    margin: 0;
+    width: 100%;
+    font-family: 'Raleway', sans-serif;
+    color: #cccbcb;
+    background: linear-gradient(#2b2b2b, #303030);
+}
+
+h1 {
+    margin: 4px 0;
+    font-size: 24px;
+}
+
+#loadingContainer {
+    background-color: rgba(0, 0, 0, 0.8);
+    background-image: url('../images/loadingSpinner.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 999;
+}
+
+#titleBarContainer {
+    display: flex;
+    align-items: center;
+    height: 54px;
+    padding: 0 12px;
+    font-size: 24px;
+    background-color: #121212;
+    color: #ffffff;
+    justify-content: space-between;
+}
+
+#instructionsContainer {
+    background-color: #222222;
+    padding: 24px 12px;
+    font-size: 16px;
+}
+
+#formContainer,
+#sentStatusContainer {
+    padding: 0 12px 12px 12px;
+    font-size: 22px;
+}
+
+#formContainer > form > div {
+    margin: 12px 0;
+}
+
+form {
+    margin: 0;
+}
+
+#sentStatusContainer {
+    margin-top: 24px;
+}
+
+input[type=submit] {
+    font-family: 'Raleway';
+    font-weight: bold;
+    font-size: 20px;
+    vertical-align: top;
+    min-height: 40px;
+    width: 100%;
+    padding: 0px 18px;
+    margin-right: 6px;
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+    background-color: #000;
+    background: linear-gradient(#2e3e8f 20%, #172983 100%);
+    cursor: pointer;
+}
+input[type=submit]:enabled:hover {
+    background: linear-gradient(#009ee0 20%, #006e9c 100%);
+    border: none;
+}
+input[type=submit]:active {
+    background: linear-gradient(#009ee0 20%, #009ee0 100%);
+}
+input[type=button][pressed=pressed] {
+    color: #009ee0;
+}

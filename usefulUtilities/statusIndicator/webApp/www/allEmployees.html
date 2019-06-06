@@ -1,0 +1,48 @@
+<html>
+
+<head>
+    <title>All Employees</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700|Cairo" rel="stylesheet">
+    <link href="./css/index.css" rel="stylesheet">
+    <script src="./js/formatStatusData.js"></script>
+    <script>
+        function getEmployeeData() {
+            var urlParams = getUrlVars();
+            if (urlParams.organization) {
+                fetch(`http://localhost:3305/?type=getAllEmployees&organization=${urlParams.organization}`)
+                    .then(function(response) { return response.json() })
+                    .then(function(data) {
+                        formatStatusData(data);
+                        setTimeout(getEmployeeData, 10000);
+                    })
+                    .catch(function(error){ console.error(error) })
+            } else {
+                var content = document.getElementById('content');
+                content.innerHTML = `<p>Please specify an organization in your URL!</p>`;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            getEmployeeData();
+        });
+
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+        
+    </script>
+</head>
+
+<body>
+    <div id="content">
+        <h1>Loading Data...</h1>
+    </div>
+</body>
+
+</html>

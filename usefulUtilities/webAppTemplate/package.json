@@ -1,0 +1,16 @@
+{
+  "name": "hifi-content-web-express-app",
+  "version": "1.0.0",
+  "description": "example hifi web server template",
+  "main": "webServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mysql": "^2.16.0"
+  }
+}

@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <title>Ping</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700" rel="stylesheet">
+        <link rel="stylesheet" href="css/ping_ui.css?0">
+        <script type="text/javascript" src="js/ping_ui.js?0"></script>
+    </head>
+    <body>
+        <div id="loadingContainer">
+        </div>
+
+        <div id="titleBarContainer">
+            <div id="titleText" style="font-weight:bold;">
+                High Fidelity Ping
+            </div>
+        </div>
+
+        <div id="instructionsContainer">
+            <p>Use this app to send someone a browser notification when you need them and they're not looking at Interface.</p>
+            <p>Your recipient must have registered their High Fidelity username at <span style="color:#009ee0;">highfidelity.co/hifiPing</span>.</p>
+            <p>Navigate to <span style="color:#009ee0;">highfidelity.co/hifiPing</span> on your Android phone or desktop browser to register that device for Ping notifications.</p>
+        </div>
+
+        <div id="formContainer">
+            <form id="form" action="javascript:void(0);" onsubmit="sendMessageToTarget()">
+                <div>
+                    <h1 id="targetDisplayNameLabel">Target Display Name:</h1>
+                    <div id="targetDisplayName">Click on an avatar!</div>
+                </div>
+
+                <div>
+                    <input id="submitButton" type="submit" value="SEND PING" disabled=true>
+                </div>
+            </form>
+        </div>
+
+        <div id="sentStatusContainer">
+            <h1 id="sentStatusLabel">
+                Last Ping Status:
+            </h1>
+            <div id="sentStatus">
+                Ping someone and that ping's status will appear here.
+            </div>
+        </div>
+    </body>
+</html>
