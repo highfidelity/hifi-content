@@ -148,17 +148,11 @@
         /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
         mode requested. */
         playSound: function(sound, volume, position, localOnly, loop){
-            console.log("in play sound");
             if (sound.downloaded) {
                 if (injector) {
-                    console.log("There is an injector")
                     injector.stop();
                     injector = null;
                 }
-                console.log("sound", JSON.stringify(sound));
-                console.log("position", JSON.stringify(position));
-                console.log("volume", JSON.stringify(volume));
-                console.log("localOnly", JSON.stringify(localOnly));
                 injector = Audio.playSound(sound, {
                     position: position,
                     volume: volume,
