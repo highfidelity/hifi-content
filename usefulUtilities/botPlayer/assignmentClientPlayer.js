@@ -1,5 +1,4 @@
 //
-//
 //  Botinator
 //  assignmentClientPlayer.js
 //  Created by Milad Nazeri on 2019-03-28
@@ -7,8 +6,6 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-//
-//  assignmentClientPlayer
 //
 //
 
@@ -80,7 +77,7 @@
 
     
     // Play the bot
-    function play(fileToPlay, position, volume) {
+    function play(fileToPlay) {
         console.log("play playing " + JSON.stringify(fileToPlay));
         this.recordingFilename = fileToPlay;
         var _this = this;
@@ -92,15 +89,13 @@
                 Users.disableIgnoreRadius();
 
                 Agent.isAvatar = true;
-                Avatar.position = position;
 
-                Recording.setPlayFromCurrentLocation(true);
+                Recording.setPlayFromCurrentLocation(false);
                 Recording.setPlayerUseDisplayName(true);
                 Recording.setPlayerUseHeadModel(false);
                 Recording.setPlayerUseAttachments(true);
                 Recording.setPlayerLoop(true);
                 Recording.setPlayerUseSkeletonModel(true);
-                Recording.setPlayerVolume(volume);
                 Recording.setPlayerTime(0.0);
                 
                 Recording.startPlaying();
@@ -180,7 +175,7 @@
         switch (message.action){
             case "PLAY":
                 if (!player.isPlaying()) {
-                    player.play(message.fileToPlay, message.position, +message.volume);
+                    player.play(message.fileToPlay);
                 } else {
                     console.log("Didn't start playing " + message.fileToPlay + " because already playing ");
                 }
