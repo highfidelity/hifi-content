@@ -1,54 +1,34 @@
+"use strict";
+
 //
-//
-//  Botinator
+//  Bot Player
 //  assignmentClientManager.js
-//  Created by Milad Nazeri on 2019-03-28
+//  Created by Milad Nazeri on 2019-06-06
 //  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-//  Manages the differnt ac scripts needed
-//
-//
 
 
 (function() {
-    console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\nTEST TEST TEST V4\n\n\n\n\n\n\n\n\n");
-    // Synchronous version of require
-    var request = Script.require("./requestSync.js").request;
-    console.log("\n\n\n request:", JSON.stringify(request));
-    var BASE_PATH = "https://hifi-content.s3.amazonaws.com/howell/bots/usertesting/";
+
     // *************************************
     // START UTILITY FUNCTIONS
     // *************************************
     // #region UTILITY FUNCTIONS   
     
 
-    // Stop all the bots currently playing
-    // function stopAllBots() {
-    //     availableAssignmentClientPlayers.forEach(function(ac) {
-    //         ac.stop();
-    //     });
-    //     botCount = 0;
-    //     isPlaying = false;
-    // }
-
-
-
     // Start playing sequence to fill players with bots
     var AC_AVAILABILITY_CHECK_MS = 1000;
     function startSequence() {
         // Check to see how many bots are needed
-        console.log("\n\n!botCount\n\n", botCount)
-        console.log("\n\n!botsFound\n\n",botsFound)
         if (botCount >= botsFound + 1) {
             return;
         }
 
         if (botCount < availableAssignmentClientPlayers.length) {
             var player = availableAssignmentClientPlayers[botCount];
-            console.log("\n\n\n\n\n playing bot! \n\n\n\n\n", botCount);
             player.play();
             botCount++;
 
@@ -64,21 +44,21 @@
 
 
     // Searching through the s3 bucket to grab which recordings are valid and stop as soon as we get an error
+    // Synchronous version of require
+    var BASE_PATH = "https://hifi-content.s3.amazonaws.com/howell/bots/usertesting/";
     var MAX_BOTS_TO_TRY = 100;
+    var request = Script.require("./requestSync.js").request;
     var botsFound = 0;
     function populateRecordingList(){
-        console.log("STARTING BOT SEARCH")
         for (var i = 1; i < MAX_BOTS_TO_TRY; i++) {
             var botRecordingFound = true;
             var currentBotUrl = BASE_PATH + "AVATAR_TEST" + i + ".hfr";
             request(currentBotUrl, function(error){
                 if (error) {
                     botRecordingFound = false;
-                    console.log("BOT ERROR:", botsFound);
                 } else {
                     botsFound++;
                     botList.push(currentBotUrl);
-                    console.log("BOT GOOD!:", botsFound);
                 }
             });
             if (!botRecordingFound) {
@@ -181,7 +161,6 @@
         } catch (error) {
             console.log("invalid object");
             console.log("MESSAGE:", message);
-
             return;
         }
 
@@ -223,18 +202,14 @@
     
     // Startup for the manager when it comes online
     function startUp() {
-        console.log("\n \n \nIN STARTUP \n \n \n")
         Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
         Messages.subscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
         Messages.messageReceived.connect(onMangerChannelMessageReceived);
         Script.scriptEnding.connect(onEnding);
-        console.log(" \n \n \n ABOUT TO RUN POPULATE RECORDING LIST \n \n \n ")
         populateRecordingList();
-        console.log("botList", JSON.stringify(botList, null, 4));
         startSequence();
     }    
     
-    console.log("\n \n \nABOUT TO RUN STARTUP \n \n \n")
     startUp();
     
 
