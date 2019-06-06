@@ -338,11 +338,11 @@
                 "addAllOtherSittableOverlays",
                 AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
             );
+            Controller.actionEvent.disconnect(onActionEvent);
             // Enable movement again
             for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
                 MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
             }
-            Controller.actionEvent.disconnect(onActionEvent);
         }, WAIT_FOR_USER_TO_STAND_MS);
     }
 
