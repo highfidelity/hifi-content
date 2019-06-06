@@ -156,6 +156,8 @@
     var IGNORE_PLAYER_MESSAGES = ["REGISTER_ME", "ARE_YOU_THERE_MANAGER"];
     var playInterval = null;
     var INTERVAL_TIME = 20000;
+    var MINIMUM_PLAY_TIME = 7500;
+    var randomScaler = 1.5
     function onMessageReceived(channel, message, sender) {
         if (channel !== ASSIGNMENT_MANAGER_CHANNEL || 
             sender === scriptUUID || 
@@ -179,12 +181,12 @@
         switch (message.action){
             case "PLAY":
                 if (!player.isPlaying()) {
-                    var randoInterval = Math.max(Math.floor(Math.random() * INTERVAL_TIME), 7500);
+                    var randomPlayInterval = Math.max(Math.floor(Math.random() * INTERVAL_TIME), MINIMUM_PLAY_TIME);
                     playInterval = Script.setInterval(function(){
                         Script.setTimeout(function(){
                             player.play(message.fileToPlay);
-                        }, randoInterval);
-                    }, randoInterval * 1.5);
+                        }, randomPlayInterval);
+                    }, randomPlayInterval * randomScaler);
                 } else {
                     console.log("Didn't start playing " + message.fileToPlay + " because already playing ");
                 }
