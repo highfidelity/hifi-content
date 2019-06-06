@@ -1,15 +1,10 @@
-# Botinator
-Botinator helps with load testing domains.  It will handle some of the hassles of setting positions and the number of bots playing at one time. 
+# Bot Player
+Bot Player helps with domain testing bots that need to be placed in a certain location, are a certain unique set, and that need to last through domain resets.
 
 ## Setup
-1. There are 2 scripts that are given in the app to place in the domain server. 
-2. Open the app and add the number of bots you would like to use for the domain.
-3. Set the volume you would like to play the bots at.  
-4. Update the positions by choosing the corners you would like the bots to appear in. 
-5. As soon as the assignment client manager comes online, you can send it the request. 
-6. As assignment client players are available for more bots, they will be noted in the top right corner
-7. If the player is stopped, the the manager is updated automatically with the app data. 
-8. If the player is playing and you update the data, you can click send data to stop current playback. (this is to help avoid any confusion of when changes made are sent to the server)
+1. Add the following two scripts to the Domain scripts [Place here when ready].
+2. Make the player have as many as needed.
+
 
 # Releases
 
