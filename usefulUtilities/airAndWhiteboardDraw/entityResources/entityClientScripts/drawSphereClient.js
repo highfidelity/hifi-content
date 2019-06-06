@@ -544,7 +544,9 @@
                 return;
             }
             console.log("lineStartPosition", JSON.stringify(lineStartPosition));
-            _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
+            Script.setTimeout(function(){
+                _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
+            }, 40);
             // TODO: [T] Trigger Pressed interval change
             // drawInterval = Script.setInterval(function() { // for trigger presses, check the 
             // }, REPEAT_DISTANCE_CHECK_MS);
