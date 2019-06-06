@@ -8,7 +8,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    console.log("TESTV4");
     var _this;
 
     var WHITEBOARD_ZONE_SEARCH_RADIUS_M = 100;
@@ -20,9 +19,7 @@
     var STROKE_FORWARD_OFFSET_M = 0.01;
 
     var WAIT_TO_CLEAN_UP_MS = 2000;
-    var DELETE_AGAIN_MS = 100;
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 300;
-    var REPEAT_DISTANCE_CHECK_MS = 60;
     var LASER_LIFETIME_S = 1;
     var DECAY_TIME_S = 60;
 
@@ -32,12 +29,11 @@
     var DRAW_SOUND_VOLUME = 0.08;
     var OPEN_SOUND_VOLUME = 0.02;
     var CLOSE_SOUND_VOLUME = 0.02;
+    var SOUND_DELAY_TIME = 40;
     
     var MINIMUM_TRIGGER_PRESS_VALUE = 0.97;
 
     var HALF = 0.5;
-
-    var SCRIPT_UPDATE_RETURN_COUNT = 1;
 
     var DEFAULT_STROKE_WIDTH = 0.015;
     var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
@@ -66,10 +62,6 @@
     var mouseEventsConnected = false;
     var controllerMappingName = 'Hifi-DrawApp';
     var controllerMapping;
-
-    var drawInterval = null;
-    var deletingInterval;
-
 
     var activeTriggerPress = false;
     var activeGripPress = false;
@@ -206,11 +198,8 @@
             Vec3.distance(previousLinePoint, currentPoint) > MAXIMUM_MOVEMENT_TO_DRAW_M) {
                 return;
             }
-            // console.log("onBoard", onBoard);
-            // console.log("wasLastPointOnBoard", wasLastPointOnBoard, "\n\n");
             if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
                 _this.stopDrawing();
-                // wasLastPointOnBoard = null;
                 wasLastPointOnBoard = onBoard;
                 return;
             }
@@ -426,8 +415,6 @@
                 color: _this.color,
                 name: "Whiteboard HMD Beam",
                 parentID: _this.entityID
-                // parentID: MyAvatar.sessionUUID,
-                // parentJointIndex: parentJointIndex
             }, 'avatar');
         },
 
@@ -455,19 +442,11 @@
                 previousNormal = currentNormal;
                 previousStrokeWidth = currentStrokeWidth;
             }
-            // var sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
-            // if (!sphereProperties.dimensions) {
-            //     _this.triggerReleased();
-            //     return;
-            // }
-            // currentPoint = sphereProperties.position;
-            // currentStrokeWidth = sphereProperties.dimensions.x;
+
 
             var pose = _this.getControllerWorldLocation(controllerHandNumber);
             currentPoint = pose.position;
-            // var jointPosition = MyAvatar.getJointPosition(parentJointIndex);
-            // var subtracedPFromJ = Vec3.subtract(currentPoint, jointPosition);
-            // currentPoint = Vec3.sum(subtracedPFromJ, currentPoint);
+
             var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
 
             var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint, direction);
@@ -483,18 +462,12 @@
                 lineStartPosition = currentPoint;
                 initialLineStartDataReady = true;
             } 
-            // wasLastPointOnBoard = isCurrentPointOnBoard;
             return isCurrentPointOnBoard;
         },
 
         /* Create ray from paint sphere away from hand along outstretched finger. If it intersects the whiteboard, 
         check if this is only a selection and return if so. Draw laser if none exists yet. */
         getHMDIntersectionData: function(origin, direction) {
-            // var pickRay = {
-            //     origin: origin,
-            //     direction: Vec3.multiplyQbyV(Quat.multiply(MyAvatar.orientation, 
-            //         MyAvatar.getAbsoluteJointRotationInObjectFrame(parentJointIndex)), [0, 1, 0])
-            // };
             var pickRay = {
                 origin: origin,
                 direction: direction
@@ -540,10 +513,8 @@
             console.log("lineStartPosition", JSON.stringify(lineStartPosition));
             Script.setTimeout(function(){
                 _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
-            }, 40);
-            // TODO: [T] Trigger Pressed interval change
-            // drawInterval = Script.setInterval(function() { // for trigger presses, check the 
-            // }, REPEAT_DISTANCE_CHECK_MS);
+            }, SOUND_DELAY_TIME);
+
             isTheTriggerUpdateRunning = true;
             Script.update.connect(_this.onTriggerPressedScriptUpdate);
         },
@@ -551,14 +522,6 @@
         onTriggerPressedScriptUpdate: function(){
             if (initialLineStartDataReady) {
                 var isCurrentPointOnBoard = _this.getHMDLinePointData(false);
-                // console.log("isCurrentPointOnBoard in onTrigger:", isCurrentPointOnBoard);
-                // console.log("wasLastPointOnBoard in onTrigger:", wasLastPointOnBoard);
-                // if (isCurrentPointOnBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
-                //     console.log("isCurrentPointOnBoard !== wasLastPointOnBoard");
-                //     _this.stopDrawing();
-                //     wasLastPointOnBoard = null;
-                //     return;
-                // }
                 if (isCurrentPointOnBoard === -1) {
                     return;
                 }
@@ -577,15 +540,10 @@
                 Entities.deleteEntity(laser);
                 laser = null;
             }
-        // TODO: [T] there is a clear interval in trigger released
             if (isTheTriggerUpdateRunning) {
                 Script.update.disconnect(_this.onTriggerPressedScriptUpdate);
                 isTheTriggerUpdateRunning = false;
             }
-            // if (drawInterval) {
-            //     Script.clearInterval(drawInterval);
-            //     drawInterval = null;
-            // }
         },
 
         /* On grip press, if the user is not in whiteboard zone, delete this sphere. If the user is using tablet or trigger 
@@ -607,7 +565,6 @@
         },
 
         /* On releasing grip, stop the interval that is searching for lines to delete */
-        // TODO: [T] Fix clearing the interval grip released
         gripReleased: function() {
             if (!_this.isUserInZone(whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
@@ -616,10 +573,6 @@
                 Script.update.disconnect(_this.onGripPressedScriptUpdate);
                 isTheGripUpdateRunning = false;
             }
-            // if (deletingInterval) {
-            //     Script.clearInterval(deletingInterval);
-            //     deletingInterval = null;
-            // }
             if (laser) {
                 Entities.deleteEntity(laser);
                 laser = null;
@@ -627,8 +580,6 @@
         },
 
         onGripPressedScriptUpdate: function() {
-            // var sphereProperties = Entities.getEntityProperties(_this.entityID, ['position', 'rotation', 'dimensions']);
-            // currentPoint = sphereProperties.position;
             var pose = _this.getControllerWorldLocation(controllerHandNumber);
             currentPoint = pose.position;
             // Get the direction that the hand is facing in the world
@@ -844,11 +795,6 @@
                 valid = pose.valid;
                 var controllerJointIndex;
                 if (pose.valid) {
-                    // if (handController === Controller.Standard.RightHand) {
-                    //     controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND");
-                    // } else {
-                    //     controllerJointIndex = MyAvatar.getJointIndex("_CAMERA_RELATIVE_CONTROLLER_LEFTHAND");
-                    // }
                     controllerJointIndex = parentJointIndex;
                     orientation = Quat.multiply(MyAvatar.orientation, MyAvatar.getAbsoluteJointRotationInObjectFrame(controllerJointIndex));
                     position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, MyAvatar.getAbsoluteJointTranslationInObjectFrame(controllerJointIndex)));
