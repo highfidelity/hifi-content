@@ -94,9 +94,10 @@
                 Recording.setPlayerUseDisplayName(true);
                 Recording.setPlayerUseHeadModel(false);
                 Recording.setPlayerUseAttachments(true);
-                Recording.setPlayerLoop(true);
+                Recording.setPlayerLoop(false);
                 Recording.setPlayerUseSkeletonModel(true);
                 Recording.setPlayerTime(0.0);
+                Recording.setPlayerVolume(1.0);
                 
                 Recording.startPlaying();
             } else {
@@ -152,6 +153,8 @@
 
     // Handle messages fromt he manager
     var IGNORE_PLAYER_MESSAGES = ["REGISTER_ME", "ARE_YOU_THERE_MANAGER"];
+    var playInterval = null;
+    var INTERVAL_TIME = 20000;
     function onMessageReceived(channel, message, sender) {
         if (channel !== ASSIGNMENT_MANAGER_CHANNEL || 
             sender === scriptUUID || 
@@ -175,7 +178,12 @@
         switch (message.action){
             case "PLAY":
                 if (!player.isPlaying()) {
-                    player.play(message.fileToPlay);
+                    var randoInterval = Math.max(Math.floor(Math.random() * INTERVAL_TIME), 7500);
+                    playInterval = Script.setInterval(function(){
+                        Script.setTimeout(function(){
+                            player.play(message.fileToPlay);
+                        }, randoInterval);
+                    }, randoInterval * 1.5);
                 } else {
                     console.log("Didn't start playing " + message.fileToPlay + " because already playing ");
                 }
@@ -239,6 +247,11 @@
 
         Messages.messageReceived.disconnect(onMessageReceived);
         Messages.unsubscribe(ASSIGNMENT_MANAGER_CHANNEL);
+
+        if (playInterval) {
+            Script.clearInterval(playInterval);
+            playInterval = null;
+        }
     }
     
     

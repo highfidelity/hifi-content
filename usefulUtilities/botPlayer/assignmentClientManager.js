@@ -14,31 +14,11 @@
 
 
 (function() {
-
-    var request = Script.require("https://hifi-content.s3.amazonaws.com/milad/ROLC/mnt/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/usefulUtilities/botPlayer/request.js").request;
-    var BASE_PATH = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/Projects/Testing/Flow/out/_hfr%20%285.8.2019%203.09.53%20PM%29/";
-
-    var TOTAL_BOTS = 5;
-    var capturedBots = 0;
-    console.log("Test2")
-    for (var i = 158; capturedBots < TOTAL_BOTS; i++) {
-        console.log("TEST:", i)
-        var thereIsNothing = false;
-        request(BASE_PATH + "Jene_5_" + i + ".hfr", function(error, response){
-            if (!error) { 
-                console.log("no error");
-                capturedBots++;
-            } else {
-                console.log("Nothing here");
-                thereIsNothing = true;
-            }
-        });
-        if (thereIsNothing) {
-            console.log("BREAKING")
-            break;
-        }
-    }
-
+    console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\nTEST TEST TEST V4\n\n\n\n\n\n\n\n\n");
+    // Synchronous version of require
+    var request = Script.require("./requestSync.js").request;
+    console.log("\n\n\n request:", JSON.stringify(request));
+    var BASE_PATH = "https://hifi-content.s3.amazonaws.com/howell/bots/usertesting/";
     // *************************************
     // START UTILITY FUNCTIONS
     // *************************************
@@ -60,16 +40,19 @@
     var AC_AVAILABILITY_CHECK_MS = 1000;
     function startSequence() {
         // Check to see how many bots are needed
-        if (botCount >= totalNumberOfBotsNeeded) {
+        console.log("\n\n!botCount\n\n", botCount)
+        console.log("\n\n!botsFound\n\n",botsFound)
+        if (botCount >= botsFound + 1) {
             return;
         }
 
         if (botCount < availableAssignmentClientPlayers.length) {
             var player = availableAssignmentClientPlayers[botCount];
+            console.log("\n\n\n\n\n playing bot! \n\n\n\n\n", botCount);
             player.play();
             botCount++;
 
-            if (botCount >= totalNumberOfBotsNeeded) {
+            if (botCount >= botsFound + 1) {
                 return;
             }
         }
@@ -79,6 +62,30 @@
         }, AC_AVAILABILITY_CHECK_MS);
     }
 
+
+    // Searching through the s3 bucket to grab which recordings are valid and stop as soon as we get an error
+    var MAX_BOTS_TO_TRY = 100;
+    var botsFound = 0;
+    function populateRecordingList(){
+        console.log("STARTING BOT SEARCH")
+        for (var i = 1; i < MAX_BOTS_TO_TRY; i++) {
+            var botRecordingFound = true;
+            var currentBotUrl = BASE_PATH + "AVATAR_TEST" + i + ".hfr";
+            request(currentBotUrl, function(error){
+                if (error) {
+                    botRecordingFound = false;
+                    console.log("BOT ERROR:", botsFound);
+                } else {
+                    botsFound++;
+                    botList.push(currentBotUrl);
+                    console.log("BOT GOOD!:", botsFound);
+                }
+            });
+            if (!botRecordingFound) {
+                break;
+            }
+        }
+    }
 
 
     // #endregion
@@ -92,9 +99,6 @@
     // #region CONSTS_AND_VARS
 
 
-    // List of possible bots to use    
-    var BOTS = Script.require("./botsToLoad.js");
-
     // The Assignment Client channel
     var ASSIGNMENT_MANAGER_CHANNEL = "ASSIGNMENT_MANAGER_CHANNEL";
     var ASSIGNMENT_CLIENT_MESSANGER_CHANNEL = "ASSIGNMENT_CLIENT_MESSANGER_CHANNEL";
@@ -102,17 +106,14 @@
     // Array of the assignment client players and their assignment client player object
     var availableAssignmentClientPlayers = [];
 
-    // Total number of bots needed
-    var totalNumberOfBotsNeeded = 0;
-
     // Current playing bot count we are at
     var botCount = 0;
 
     // Current registered bount count
     var botRegisterdCount = 0;
 
-    // Check for if currently running
-    var isPlaying = false;
+    // Array of the recordings found
+    var botList = [];
 
 
     // #endregion
@@ -186,7 +187,7 @@
 
         switch (message.action) {
             case "REGISTER_ME":
-                var fileName = findValue(botRegisterdCount, BOTS);
+                var fileName = botList[botRegisterdCount];
                 availableAssignmentClientPlayers.push( 
                     new AssignmentClientPlayerObject(message.uuid, fileName));
                 botRegisterdCount++;
@@ -222,12 +223,18 @@
     
     // Startup for the manager when it comes online
     function startUp() {
+        console.log("\n \n \nIN STARTUP \n \n \n")
         Messages.subscribe(ASSIGNMENT_MANAGER_CHANNEL);
         Messages.subscribe(ASSIGNMENT_CLIENT_MESSANGER_CHANNEL);
         Messages.messageReceived.connect(onMangerChannelMessageReceived);
         Script.scriptEnding.connect(onEnding);
+        console.log(" \n \n \n ABOUT TO RUN POPULATE RECORDING LIST \n \n \n ")
+        populateRecordingList();
+        console.log("botList", JSON.stringify(botList, null, 4));
+        startSequence();
     }    
     
+    console.log("\n \n \nABOUT TO RUN STARTUP \n \n \n")
     startUp();
     
 
