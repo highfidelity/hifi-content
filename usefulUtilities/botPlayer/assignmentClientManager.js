@@ -14,14 +14,30 @@
 
 
 (function() {
-    var request = Script.require("https://hifi-content.s3.amazonaws.com/Experiences/Releases/modules/request/v1.0/request.js").request;
-    var BASE_PATH = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/Projects/Testing/Flow/out/_hfr%20%285.8.2019%203.09.53%20PM%29/";
-    request(BASE_PATH + "Jene_5_160.hfr", function(error, response){
-        if (!error) console.log("no error")
-        // if (response) console.log("response", JSON.stringify(response, null, 4));
-    })
 
-    var TOTAL_BOTS = 100;
+    var request = Script.require("https://hifi-content.s3.amazonaws.com/milad/ROLC/mnt/d/ROLC_High-Fidelity/02_Organize/O_Projects/Repos/hifi-content/usefulUtilities/botPlayer/request.js").request;
+    var BASE_PATH = "https://hifi-content.s3.amazonaws.com/milad/ROLC/Organize/Projects/Testing/Flow/out/_hfr%20%285.8.2019%203.09.53%20PM%29/";
+
+    var TOTAL_BOTS = 5;
+    var capturedBots = 0;
+    console.log("Test2")
+    for (var i = 158; capturedBots < TOTAL_BOTS; i++) {
+        console.log("TEST:", i)
+        var thereIsNothing = false;
+        request(BASE_PATH + "Jene_5_" + i + ".hfr", function(error, response){
+            if (!error) { 
+                console.log("no error");
+                capturedBots++;
+            } else {
+                console.log("Nothing here");
+                thereIsNothing = true;
+            }
+        });
+        if (thereIsNothing) {
+            console.log("BREAKING")
+            break;
+        }
+    }
 
     // *************************************
     // START UTILITY FUNCTIONS
