@@ -149,6 +149,7 @@
     function onActionEvent(actionID, value) {
         if (actionID === JUMP_ACTION_ID) {
             standUp();
+            Controller.actionEvent.disconnect(onActionEvent);
         }
     }
 
@@ -338,7 +339,7 @@
                 "addAllOtherSittableOverlays",
                 AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
             );
-            Controller.actionEvent.disconnect(onActionEvent);
+            
             // Enable movement again
             for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
                 MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
