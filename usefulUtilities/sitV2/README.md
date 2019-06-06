@@ -37,6 +37,9 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 2019-06-05_12-36-00 :: [2f30d30](https://github.com/highfidelity/hifi-content/pull/392/commits/2f30d30)
 - [Jira 299](https://highfidelity.atlassian.net/browse/BUGZ-299) Removed repositioning/reorienting of avatar upon standing. User must use space bar to stand now.
 
+2019-06-05_12-36-00 :: [4db04cb](https://github.com/highfidelity/hifi-content/pull/392/commits/4db04cb)
+- [Jira 554](https://highfidelity.atlassian.net/browse/BUGZ-554) Changed standup to require one tap of jump movement key 
+
 
 ## Known issues
 
