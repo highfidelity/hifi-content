@@ -3,7 +3,7 @@ Bot Player helps with domain testing bots that need to be placed in a certain lo
 
 ## Setup
 1. use the botRecorder.js to record the bots that you need.  When you click on the tablet button, it will start recording and then stop after you click it again. 
-2. Keep the script update up to check on the status and to see where the file was saved.
+2. Keep the script HMD log up to check on the status of the recording and to see where the file was saved.
 3. Upload your bot files to a s3 directory(this is currently hardcoded in the manager file)
 4. Add the following two scripts to the Domain scripts [Place here when ready].
 5. Add one for the manager, and make the player have as many as needed.
