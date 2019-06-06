@@ -21,7 +21,7 @@ May 21, 2019
 - Fixed bug with paint sphere dimensions not found [JIRA 152](https://highfidelity.atlassian.net/browse/BUGZ-152)
 - Made material entity attached to paint sphere collisionless 
 
-SHA [](https://github.com/highfidelity/hifi-content/commits/90ebb0d)
+SHA [d176da9](https://github.com/highfidelity/hifi-content/commits/d176da9)
 July 6, 2019
 - Updated the current tablet method to use the controller as an origin to help avoid using intervals other than the update loop
 - Updated the model to have a full bezel around the board
