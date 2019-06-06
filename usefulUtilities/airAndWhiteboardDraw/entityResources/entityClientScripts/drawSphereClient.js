@@ -2,6 +2,7 @@
 //  drawSphereClient.js
 //
 //  Created by Rebecca Stankus 3/28/2019
+//  Additional code by Milad Nazeri 6/6/2019
 //  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -495,7 +496,6 @@
         button, ignore. Get line point data and begin draw sound then start an interval to continue collecting data 
         and drawing */
         triggerPressed: function() {
-            console.log("in trigger pressed");
             if (!readyToDraw) {
                 return;
             }
@@ -507,10 +507,9 @@
             }
             var isCurrentPointOnBoard = _this.getHMDLinePointData(true);
             if (isCurrentPointOnBoard === -1) {
-                console.log("returning from isCurrentPointOnBoard === -1")
                 return;
             }
-            console.log("lineStartPosition", JSON.stringify(lineStartPosition));
+            // Adding a small delay helps make sure the audio always plays using the new controller method
             Script.setTimeout(function(){
                 _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
             }, SOUND_DELAY_TIME);
@@ -558,10 +557,6 @@
             }
             isTheGripUpdateRunning = true;
             Script.update.connect(_this.onGripPressedScriptUpdate);
-            // TODO: [t] Fix setInterval in gripPressed
-            // deletingInterval = Script.setInterval(function() {
-
-            // }, DELETE_AGAIN_MS);
         },
 
         /* On releasing grip, stop the interval that is searching for lines to delete */
@@ -850,7 +845,6 @@
             if (animationHandlerID) {
                 animationHandlerID = MyAvatar.removeAnimationStateHandler(animationHandlerID);
             }
-            // TODO [T] Fix clearing the interval in unload
             if (isTheTriggerUpdateRunning) {
                 Script.update.disconnect(_this.onTriggerPressedScriptUpdate);
             }
