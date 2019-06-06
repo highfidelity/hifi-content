@@ -159,6 +159,14 @@
     var ANIMATION_FIRST_FRAME = 1;
     var ANIMATION_LAST_FRAME = 350;
     var UPDATE_INTERVAL_MS = 400;
+    var DISABLED_DRIVE_KEYS_DURING_SIT = [
+        DriveKeys.TRANSLATE_X,
+        DriveKeys.TRANSLATE_Y,
+        DriveKeys.TRANSLATE_Z,
+        DriveKeys.STEP_TRANSLATE_X,
+        DriveKeys.STEP_TRANSLATE_Y,
+        DriveKeys.STEP_TRANSLATE_Z
+    ];
     function sitDownAndPinAvatar() {
         MyAvatar.collisionsEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
@@ -175,7 +183,9 @@
         }
         
         // Disable movement
-        Controller.captureActionEvents();
+        for (var j in DISABLED_DRIVE_KEYS_DURING_SIT) {
+            MyAvatar.disableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[j]);
+        }
         Controller.actionEvent.connect(onActionEvent);
 
         MyAvatar.centerBody();
@@ -329,7 +339,9 @@
                 AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
             );
             // Enable movement again
-            Controller.releaseActionEvents();
+            for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
+                MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
+            }
             Controller.actionEvent.disconnect(onActionEvent);
         }, WAIT_FOR_USER_TO_STAND_MS);
     }
