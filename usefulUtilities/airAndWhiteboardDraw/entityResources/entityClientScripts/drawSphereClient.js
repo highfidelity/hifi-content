@@ -148,11 +148,17 @@
         /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
         mode requested. */
         playSound: function(sound, volume, position, localOnly, loop){
+            console.log("in play sound");
             if (sound.downloaded) {
                 if (injector) {
+                    console.log("There is an injector")
                     injector.stop();
                     injector = null;
                 }
+                console.log("sound", JSON.stringify(sound));
+                console.log("position", JSON.stringify(position));
+                console.log("volume", JSON.stringify(volume));
+                console.log("localOnly", JSON.stringify(localOnly));
                 injector = Audio.playSound(sound, {
                     position: position,
                     volume: volume,
@@ -206,8 +212,8 @@
             Vec3.distance(previousLinePoint, currentPoint) > MAXIMUM_MOVEMENT_TO_DRAW_M) {
                 return;
             }
-            console.log("onBoard", onBoard);
-            console.log("wasLastPointOnBoard", wasLastPointOnBoard, "\n\n");
+            // console.log("onBoard", onBoard);
+            // console.log("wasLastPointOnBoard", wasLastPointOnBoard, "\n\n");
             if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
                 _this.stopDrawing();
                 // wasLastPointOnBoard = null;
@@ -522,6 +528,7 @@
         button, ignore. Get line point data and begin draw sound then start an interval to continue collecting data 
         and drawing */
         triggerPressed: function() {
+            console.log("in trigger pressed");
             if (!readyToDraw) {
                 return;
             }
@@ -533,8 +540,10 @@
             }
             var isCurrentPointOnBoard = _this.getHMDLinePointData(true);
             if (isCurrentPointOnBoard === -1) {
+                console.log("returning from isCurrentPointOnBoard === -1")
                 return;
             }
+            console.log("lineStartPosition", JSON.stringify(lineStartPosition));
             _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
             // TODO: [T] Trigger Pressed interval change
             // drawInterval = Script.setInterval(function() { // for trigger presses, check the 
