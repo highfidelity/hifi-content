@@ -11,7 +11,7 @@
 
 
 function filterAdd(properties, originalProperties) {
-    if (originalProperties.name.indexOf("Whiteboard") > -1) {
+    if (properties.name.indexOf("Whiteboard") > -1) {
         return properties;
     }
 
@@ -20,7 +20,7 @@ function filterAdd(properties, originalProperties) {
 
 
 function filterEdit(properties, originalProperties) {
-    if (originalProperties.name.indexOf("Whiteboard") && properties.name === originalProperties.name) {
+    if (originalProperties.name.indexOf("Whiteboard") > -1) {
         return properties;
     } else if (properties.privateUserData) {
         var retProps = {
@@ -48,13 +48,13 @@ var FILTER_TYPE_PHYSICS = 2;
 var FILTER_TYPE_DELETE = 3;
 function filter(properties, filterType, originalProperties) {
     switch (filterType) {
-        case ADD:
+        case FILTER_TYPE_ADD:
             return filterAdd(properties, originalProperties);
-        case EDIT:
+        case FILTER_TYPE_EDIT:
             return filterEdit(properties, originalProperties);
-        case PHYSICS:
+        case FILTER_TYPE_PHYSICS:
             return false;
-        case DELETE:
+        case FILTER_TYPE_DELETE:
             return filterDelete(properties, originalProperties);
     }
 

@@ -3,10 +3,13 @@ This is the Entity Edit Filter that goes in the `hifi://www` domain.
 
 ## Parameters
 This Entity Edit Filter has the following parameters:
-1. All physics edits are disallowed.
-2. Upon entity add, only allow entities to be added if the original name of the entity contains "Whiteboard" AND the new name equals the old name.
-3. Upon entity edit, only allow entities to be edited if the original name of the entity contains "Whiteboard". Otherwise, allow all edits to `privateUserData` (the entity server will handle authenticating users to verify that they're actually allowed to edit that entity property).
-4. Upon entity deletion, only allow entities to be deleted if the original name of the entity contains "Whiteboard".
+1. All PHYSICS edits are disallowed.
+2. When the ES receives an entity ADD packet, the filter will only allow entities to be added if the name of the new entity contains "Whiteboard".
+    - This allows the on-board Whiteboard Polylines to get added to the ES' entity tree.
+3. When the ES receives an entity EDIT packet, the filter will only allow entities to be added if the original name of the entity contains "Whiteboard". Otherwise, the filter will allow all edits to `privateUserData`; the entity server will handle authenticating users to verify that they're actually allowed to edit `privateUserData`.
+    - This allows the on-board Whiteboard Polylines to be edited as the user draws.
+4. When the ES receives an entity DELETE packet, the filter will only allow entities to be deleted if the original name of the entity contains "Whiteboard".
+    - This allows the on-board Whiteboard Polylines to be deleted by users.
 
 # Releases
 
