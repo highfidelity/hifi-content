@@ -103,7 +103,7 @@
     var CAN_SIT_M = 5; // zone radius
     function startSitDown() {
         if (DEBUG) {
-            console.log("startSitDown");
+            console.log("startSitDown in ", _this.entityID);
         }
 
         Entities.callEntityServerMethod(
@@ -141,8 +141,16 @@
         Entities.editEntity(_this.entityID, { locked: true });
 
         calculateSeatCenterPositionForPinningAvatarHips();
-
         sitDownAndPinAvatar();
+    }
+
+    // Listen to action events. If jump is pressed, the user will stand up
+    var JUMP_ACTION_ID = 50;
+    function onActionEvent(actionID, value) {
+        if (actionID === JUMP_ACTION_ID) {
+            standUp();
+            Controller.actionEvent.disconnect(onActionEvent);
+        }
     }
 
     // 4th of sit down sequence
@@ -154,15 +162,14 @@
     var UPDATE_INTERVAL_MS = 400;
     var DISABLED_DRIVE_KEYS_DURING_SIT = [
         DriveKeys.TRANSLATE_X,
+        DriveKeys.TRANSLATE_Y,
         DriveKeys.TRANSLATE_Z,
         DriveKeys.STEP_TRANSLATE_X,
+        DriveKeys.STEP_TRANSLATE_Y,
         DriveKeys.STEP_TRANSLATE_Z
     ];
-    var REMAPPED_DRIVE_KEYS_DURING_SIT = [
-        DriveKeys.TRANSLATE_Y,
-        DriveKeys.STEP_TRANSLATE_Y
-    ];
     function sitDownAndPinAvatar() {
+
         MyAvatar.collisionsEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
 
@@ -172,16 +179,18 @@
 
         var roles = rolesToOverride();
         for (var i in roles) { // restore roles to prevent overlap
-            MyAvatar.restoreRoleAnimation(roles[i]);
+            // -----------------THIS IS PRINTING ERRORS WHEN IN HMD WHEN CHANGING SEATS---------------------
+            // Rig::restoreRoleAnimation could not find role ***ROLE NAME***
+            MyAvatar.restoreRoleAnimation(roles[i]); 
             MyAvatar.overrideRoleAnimation(roles[i], ANIMATION_URL, ANIMATION_FPS, true,
                 ANIMATION_FIRST_FRAME, ANIMATION_LAST_FRAME);
         }
+        
+        // Disable movement
         for (var j in DISABLED_DRIVE_KEYS_DURING_SIT) {
             MyAvatar.disableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[j]);
         }
-        for (var k in REMAPPED_DRIVE_KEYS_DURING_SIT) {
-            MyAvatar.disableDriveKey(REMAPPED_DRIVE_KEYS_DURING_SIT[k]);
-        }
+        Controller.actionEvent.connect(onActionEvent);
 
         MyAvatar.centerBody();
 
@@ -215,45 +224,9 @@
     var AVATAR_MOVED_TOO_FAR_DISTANCE_M = 0.5;
     var MAX_HEAD_DEVIATION_RATIO = 1.2;
     var MIN_HEAD_DEVIATION_RATIO = 0.8;
-    var DRIVE_KEY_RELEASE_TIME_MS = 800; // ms
     var HEAD_DEVIATION_MAX_TIME_TO_STAND_MS = 1000;
     function whileSittingUpdate() {
         var now = Date.now();
-
-        // ACTIVE DRIVE KEY
-        // Check if a drive key is pressed
-        var hasActiveDriveKey = false;
-        for (var i in REMAPPED_DRIVE_KEYS_DURING_SIT) {
-            if (MyAvatar.getRawDriveKey(REMAPPED_DRIVE_KEYS_DURING_SIT[i]) !== 0.0) {
-                hasActiveDriveKey = true;
-                if (!_this.driveKeyPressedStart) {
-                    _this.driveKeyPressedStart = now;
-                }
-                if (!_this.standUpID) {
-                    createStandUp();
-                    if (DEBUG) {
-                        console.log("active drive key pressed once");
-                    }
-                }
-                break;
-            }
-        }
-
-        // Only standup if user has been pushing a drive key for DRIVE_KEY_RELEASE_TIME_MS
-        if (hasActiveDriveKey) {
-            if (_this.driveKeyPressedStart && (now - _this.driveKeyPressedStart) > DRIVE_KEY_RELEASE_TIME_MS) {
-                _this.standUp();
-                if (DEBUG) {
-                    console.log("active drive key pressed caused standup");
-                }
-
-            }
-        } else {
-            if (_this.standUpID) {
-                _this.driveKeyPressedStart = false;
-                deleteStandUp();
-            }
-        }
 
         if (_this.sitDownSettlePeriod && now < _this.sitDownSettlePeriod) {
             // below considerations only apply if sit down settle period has passed
@@ -313,7 +286,7 @@
     var WAIT_FOR_USER_TO_STAND_MS = 525;
     function standUp() {
         if (DEBUG) {
-            console.log("standup");
+            console.log("standup from ", _this.entityID);
         }
 
         // get the entityID, previous position and orientation 
@@ -324,15 +297,9 @@
 
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
-        if (settingsEntityID === _this.entityID) {
+        if (settingsEntityID === _this.entityID) { // POSSIBLE RACE CONDITION WITH SETTINGS BEING CHANGED BY NEW SEAT
             // standing up from this chair
-            // Need to enable roles and drive keys and reposition avatar 
-
-            // ENABLE DRIVE KEYS EXCEPT FOR JUMP
-            for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
-                MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
-            }
-
+            
             // RESTORE ANIMATION ROLES
             var roles = rolesToOverride();
             for (var j in roles) {
@@ -354,7 +321,6 @@
 
         _this.driveKeyPressedStart = false;
         _this.sitDownSettlePeriod = false;
-        deleteStandUp();
 
         Entities.callEntityServerMethod(_this.entityID, "onStandUp");
 
@@ -370,15 +336,17 @@
         }
 
         // RESET OVERLAYS FOR ALL AVATARS IN RANGE OF THE CHAIR
-        Script.setTimeout(function () { // wait till avatar is out of range of the chair
+        Script.setTimeout(function () {
             Entities.callEntityServerMethod(
                 _this.entityID,
                 "addAllOtherSittableOverlays",
                 AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
             );
-            // ENABLE JUMP DRIVE KEYS
-            for (var i in REMAPPED_DRIVE_KEYS_DURING_SIT) {
-                MyAvatar.enableDriveKey(REMAPPED_DRIVE_KEYS_DURING_SIT[i]);
+            if (settingsEntityID === _this.entityID) {
+                // Enable movement again
+                for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
+                    MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
+                }
             }
         }, WAIT_FOR_USER_TO_STAND_MS);
     }
@@ -494,34 +462,6 @@
 
     // #region HOLD TO STANDUP LOCAL ENTITY
 
-    // Create stand up local entity in user's screen
-    var STAND_UP_URL = Script.resolvePath("./resources/images/holdToStandUp.png");
-    var STAND_UP_POSITION_IN_FRONT = { x: 0, y: 0, z: -1 };
-    var STAND_UP_DIMENSIONS = { x: 0.2, y: 0.2 };
-    function createStandUp() {
-        if (DEBUG) {
-            console.log("creating standup");
-        }
-
-        _this.standUpID = Entities.addEntity(
-            getEntityPropertiesForImageInFrontOfCamera(
-                STAND_UP_POSITION_IN_FRONT,
-                STAND_UP_DIMENSIONS,
-                STAND_UP_URL
-            ),
-            "local"
-        );
-    }
-
-
-    // Delete local entity in user's screen
-    function deleteStandUp() {
-        if (_this.standUpID) {
-            Entities.deleteEntity(_this.standUpID);
-            _this.standUpID = false;
-        }
-    }
-
     // #endregion HOLD TO STANDUP
 
 
@@ -624,7 +564,6 @@
     function unload() {
         deleteSittableUI();
         deletePresit();
-        deleteStandUp();
         standUp();
 
         if (_this.connectedSignals) {
