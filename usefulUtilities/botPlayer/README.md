@@ -12,5 +12,5 @@ Bot Player helps with domain testing bots that need to be placed in a certain lo
 
 # Releases
 
-## 2019-06-06_15-39-13 :: [8aef106](https://github.com/highfidelity/hifi-content/commit/8aef106)
+## 2019-06-06_15-39-13 :: [53a8bb0](https://github.com/highfidelity/hifi-content/commit/53a8bb0)
 - Initial release
