@@ -199,7 +199,7 @@
             Vec3.distance(previousLinePoint, currentPoint) > MAXIMUM_MOVEMENT_TO_DRAW_M) {
                 return;
             }
-            if (onBoard !== wasLastPointOnBoard) {
+            if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
                 _this.stopDrawing();
                 wasLastPointOnBoard = onBoard;
                 return;
