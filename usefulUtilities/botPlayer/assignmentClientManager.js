@@ -47,13 +47,13 @@
     // Synchronous version of require
     var BASE_PATH = "https://hifi-content.s3.amazonaws.com/howell/bots/usertesting/";
     var MAX_BOTS_TO_TRY = 100;
-    var request = Script.require("./requestSync.js").request;
+    var requestSync = Script.require("./requestSync.js").request;
     var botsFound = 0;
     function populateRecordingList(){
         for (var i = 1; i < MAX_BOTS_TO_TRY; i++) {
             var botRecordingFound = true;
             var currentBotUrl = BASE_PATH + "AVATAR_TEST" + i + ".hfr";
-            request(currentBotUrl, function(error){
+            requestSync(currentBotUrl, function(error){
                 if (error) {
                     botRecordingFound = false;
                 } else {
@@ -90,7 +90,7 @@
     var botCount = 0;
 
     // Current registered bount count
-    var botRegisterdCount = 0;
+    var botsRegisteredCount = 0;
 
     // Array of the recordings found
     var botList = [];
@@ -166,10 +166,10 @@
 
         switch (message.action) {
             case "REGISTER_ME":
-                var fileName = botList[botRegisterdCount];
+                var fileName = botList[botsRegisteredCount];
                 availableAssignmentClientPlayers.push( 
                     new AssignmentClientPlayerObject(message.uuid, fileName));
-                botRegisterdCount++;
+                botsRegisteredCount++;
                 var messageToSend = JSON.stringify({
                     action: "AC_AVAILABLE_UPDATE",
                     newAvailableACs: availableAssignmentClientPlayers.length
@@ -183,7 +183,7 @@
                 }));
                 break;
             default:
-                console.log("unrecongized action in assignmentClientManger.js");
+                console.log("unrecognized action in assignmentClientManger.js");
                 break;
         }
     }
