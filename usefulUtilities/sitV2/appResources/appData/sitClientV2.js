@@ -103,7 +103,7 @@
     var CAN_SIT_M = 5; // zone radius
     function startSitDown() {
         if (DEBUG) {
-            console.log("startSitDown");
+            console.log("startSitDown in ", _this.entityID);
         }
 
         Entities.callEntityServerMethod(
@@ -169,6 +169,7 @@
         DriveKeys.STEP_TRANSLATE_Z
     ];
     function sitDownAndPinAvatar() {
+
         MyAvatar.collisionsEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
 
@@ -178,7 +179,9 @@
 
         var roles = rolesToOverride();
         for (var i in roles) { // restore roles to prevent overlap
-            MyAvatar.restoreRoleAnimation(roles[i]);
+            // -----------------THIS IS PRINTING ERRORS WHEN IN HMD WHEN CHANGING SEATS---------------------
+            // Rig::restoreRoleAnimation could not find role ***ROLE NAME***
+            MyAvatar.restoreRoleAnimation(roles[i]); 
             MyAvatar.overrideRoleAnimation(roles[i], ANIMATION_URL, ANIMATION_FPS, true,
                 ANIMATION_FIRST_FRAME, ANIMATION_LAST_FRAME);
         }
@@ -283,7 +286,7 @@
     var WAIT_FOR_USER_TO_STAND_MS = 525;
     function standUp() {
         if (DEBUG) {
-            console.log("standup");
+            console.log("standup from ", _this.entityID);
         }
 
         // get the entityID, previous position and orientation 
@@ -294,9 +297,9 @@
 
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
-        if (settingsEntityID === _this.entityID) {
+        if (settingsEntityID === _this.entityID) { // POSSIBLE RACE CONDITION WITH SETTINGS BEING CHANGED BY NEW SEAT
             // standing up from this chair
-
+            
             // RESTORE ANIMATION ROLES
             var roles = rolesToOverride();
             for (var j in roles) {
@@ -339,10 +342,11 @@
                 "addAllOtherSittableOverlays",
                 AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
             );
-            
-            // Enable movement again
-            for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
-                MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
+            if (settingsEntityID === _this.entityID) {
+                // Enable movement again
+                for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
+                    MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
+                }
             }
         }, WAIT_FOR_USER_TO_STAND_MS);
     }
