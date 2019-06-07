@@ -199,7 +199,7 @@
             Vec3.distance(previousLinePoint, currentPoint) > MAXIMUM_MOVEMENT_TO_DRAW_M) {
                 return;
             }
-            if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
+            if (onBoard !== wasLastPointOnBoard) {
                 _this.stopDrawing();
                 wasLastPointOnBoard = onBoard;
                 return;
@@ -351,6 +351,9 @@
         /* While holding mouse button, continue getting new intersection data, and updating line data to draw 
         or delete with. */
         mouseContinueLine: function(event) {
+            if (!drawingInDesktop) {
+                return;
+            }
             var whiteBoardIntersectionData = _this.getDesktopIntersectionData(event);
             if (whiteBoardIntersectionData === -1) {
                 return;
@@ -606,6 +609,9 @@
             polyLine = null;
             currentPoint = null;
             previousLinePoint = null;
+            if (drawingInDesktop) {
+                drawingInDesktop = false;
+            }
         },
 
         /* Get correct animation overrides depending on dominant hand */  
