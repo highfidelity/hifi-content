@@ -14,5 +14,5 @@ This Entity Edit Filter has the following parameters:
 
 # Releases
 
-## v1.0 :: [4752c25](https://github.com/highfidelity/hifi-content/commit/4752c25)
+## v1.0 :: [ff063e7](https://github.com/highfidelity/hifi-content/commit/ff063e7)
 - Initial release
