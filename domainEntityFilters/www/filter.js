@@ -10,7 +10,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 
-function filterAdd(properties, originalProperties) {
+function filterAdd(properties) {
     if (properties.name.indexOf("Whiteboard") > -1) {
         return properties;
     }
@@ -49,7 +49,7 @@ var FILTER_TYPE_DELETE = 3;
 function filter(properties, filterType, originalProperties) {
     switch (filterType) {
         case FILTER_TYPE_ADD:
-            return filterAdd(properties, originalProperties);
+            return filterAdd(properties);
         case FILTER_TYPE_EDIT:
             return filterEdit(properties, originalProperties);
         case FILTER_TYPE_PHYSICS:
