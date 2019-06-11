@@ -354,17 +354,17 @@
                 var startAmPm;
                 var endAmPm;
 
-                if (event.startTimestamp.getHours() + that.timezoneOffset < 0) {
+                if (eventStartHour + that.timezoneOffset < 0) {
                     startAmPm = "pm";
-                } else if (event.startTimestamp.getHours() + that.timezoneOffset < (NOON_HR)) {
+                } else if (eventStartHour + that.timezoneOffset < (NOON_HR)) {
                     startAmPm = "am";
                 } else {
                     startAmPm = "pm";
                 }
 
-                if (event.endTimestamp.getHours() + that.timezoneOffset < 0) {
+                if (eventEndHour + that.timezoneOffset < 0) {
                     endAmPm = "pm";
-                } else if (event.endTimestamp.getHours() + that.timezoneOffset < (NOON_HR)) {
+                } else if (eventEndHour + that.timezoneOffset < (NOON_HR)) {
                     endAmPm = "am";            
                 } else {
                     endAmPm = "pm";
