@@ -201,7 +201,7 @@
             }
             if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
                 _this.stopDrawing();
-                wasLastPointOnBoard = onBoard;
+                wasLastPointOnBoard = null;
                 return;
             }
             wasLastPointOnBoard = onBoard;
