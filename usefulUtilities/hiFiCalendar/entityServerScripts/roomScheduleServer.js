@@ -179,7 +179,7 @@
     this.googleRequest = function(token) {
         var tomorrowMidnight = new Date();
         tomorrowMidnight.setHours(HOURS_PER_DAY, 0, 0, 0);
-        that.scheduleURL = "https://www.googleapis.com/calendar/v3/calendars/" + 
+        that.scheduleURL = encodeURIComponent("https://www.googleapis.com/calendar/v3/calendars/" + 
             that.address + 
             "/events?&timeMin=" + (new Date()).toISOString() +
             "&timeMax=" + tomorrowMidnight.toISOString() +
@@ -187,7 +187,7 @@
             "&singleEvents=" + true +
             "&maxResults=2" +
             "&orderBy=startTime" +
-            "&access_token=" + token;
+            "&access_token=" + token);
         if (!that.interval) {
             that.requestScheduleData(that.scheduleURL);
         } else {
