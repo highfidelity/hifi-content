@@ -21,14 +21,13 @@ May 21, 2019
 - Fixed bug with paint sphere dimensions not found [JIRA 152](https://highfidelity.atlassian.net/browse/BUGZ-152)
 - Made material entity attached to paint sphere collisionless 
 
+SHA [d176da9](https://github.com/highfidelity/hifi-content/commits/d176da9)
+July 6, 2019
+- Updated the current tablet method to use the controller as an origin to help avoid using intervals other than the update loop
+- Updated the model to have a full bezel around the board
 
-## Links
-[Trello Card](https://trello.com/c/g06jRE4O/9-as-an-employee-i-need-to-be-able-to-write-draw-on-a-shared-surface)
 
 ## Known issues
 ### Lines drawn on the board in HMD do not render flat and with an even stroke width
 ### Line textures do not match their respective png files
 ### Color selectors and reset buttons may LOD
-
-
-
