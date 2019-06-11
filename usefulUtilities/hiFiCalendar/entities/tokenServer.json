@@ -1,0 +1,69 @@
+{
+    "DataVersion": 0,
+    "Entities": [{
+        "id": "{df47dfb4-fdd4-4191-a343-9f6f814efdc1}",
+        "type": "Text",
+        "lastEdited": 1559239932334651,
+        "visible": false,
+        "name": "Calendar_Token-Server",
+        "userData": "{\"calendarScheduleIDs\":[\"\"]}",
+        "position": {
+            "x": 3.7997360229492188,
+            "y": 1.5169057846069336,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 0.47311854362487793,
+            "y": 0.33525216579437256,
+            "z": 0.009999999776482582
+        },
+        "rotation": {
+            "x": -0.0001068115234375,
+            "y": 0.7132219076156616,
+            "z": 0.0002593994140625,
+            "w": 0.7008926868438721
+        },
+        "created": 1558367749274435,
+        "lastEditedBy": "{02039da8-df43-4d91-a5d4-48264664b886}",
+        "queryAACube": {
+            "x": 3.5097639560699463,
+            "y": 1.2269337177276611,
+            "z": -0.2899720370769501,
+            "scale": 0.5799440741539001
+        },
+        "canCastShadow": false,
+        "grab": {
+            "grabbable": false,
+            "equippableLeftRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            },
+            "equippableRightRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            }
+        },
+        "damping": 0,
+        "angularDamping": 0,
+        "collisionless": true,
+        "ignoreForCollisions": true,
+        "collisionMask": 23,
+        "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+        "scriptTimestamp": 1559234027396,
+        "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/tokenServer.js",
+        "text": "Token Server",
+        "lineHeight": 0.15000000596046448,
+        "backgroundAlpha": 0.25,
+        "clientOnly": false,
+        "avatarEntity": false,
+        "localEntity": false,
+        "faceCamera": false,
+        "isFacingAvatar": false
+    }],
+    "Id": "{f8254ae4-138a-48c9-9023-3b7f48e45627}",
+    "Version": 121
+}

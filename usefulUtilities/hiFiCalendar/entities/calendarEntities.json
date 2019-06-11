@@ -1,0 +1,397 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{30de79ea-a40b-499b-83c6-06dbfcf9febb}",
+    "type": "Text",
+    "lastEdited": 1559239932550773,
+    "parentID": "{a81d9ae5-6df9-4d2d-9d40-4062752f1973}",
+    "name": "Calendar_MR1_Main_RoomColorOccupant",
+    "position": {
+        "x": -0.1489872932434082,
+        "y": 0.32965087890625,
+        "z": 0.0042266845703125
+    },
+    "dimensions": {
+        "x": 0.3237500786781311,
+        "y": 0.0722164660692215,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0001068115234375,
+        "y": 0.014175653457641602,
+        "z": 0.0000457763671875,
+        "w": 0.9998779296875
+    },
+    "created": 1555639814973498,
+    "lastEditedBy": "{02039da8-df43-4d91-a5d4-48264664b886}",
+    "queryAACube": {
+        "x": -36.069026947021484,
+        "y": -8.693937301635742,
+        "z": 4.344717025756836,
+        "scale": 0.3318574130535126
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/noFunction.js",
+    "text": "occupants",
+    "lineHeight": 0.07199999690055847,
+    "textColor": {
+        "red": 255,
+        "green": 168,
+        "blue": 168
+    },
+    "backgroundAlpha": 0,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{c2894bb0-eb00-4c2e-b5c7-8776b7eb2ffd}",
+    "type": "Text",
+    "lastEdited": 1559239932550661,
+    "parentID": "{e5818ba9-1e52-4617-bd87-a1bc9bd2fe77}",
+    "name": "Calendar_MR1_Main_RoomColor",
+    "position": {
+        "x": 0.0008018016815185547,
+        "y": 0.74127197265625,
+        "z": 0.000095367431640625
+    },
+    "dimensions": {
+        "x": 0.7610441446304321,
+        "y": 0.23973751068115234,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1555639814974846,
+    "lastEditedBy": "{02039da8-df43-4d91-a5d4-48264664b886}",
+    "queryAACube": {
+        "x": -36.31285858154297,
+        "y": -8.279756546020508,
+        "z": 3.967475414276123,
+        "scale": 0.7979738712310791
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/noFunction.js",
+    "text": "",
+    "lineHeight": 0.08299999684095383,
+    "textColor": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "backgroundColor": {
+        "red": 255,
+        "green": 125,
+        "blue": 125
+    },
+    "leftMargin": 0.029999999329447746,
+    "topMargin": 0.14000000059604645,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{52fc9c11-634b-40a8-83f4-f94d524cbb84}",
+    "type": "Text",
+    "lastEdited": 1559239986288212,
+    "name": "Calendar_MR1_Main_RoomClock",
+    "userData": "{\"timezoneName\":\"PDT\",\"timezoneOffset\":\"-7\"}",
+    "position": {
+        "x": 3.858104705810547,
+        "y": 2.313081741333008,
+        "z": 9.329559326171875
+    },
+    "dimensions": {
+        "x": 0.5278285145759583,
+        "y": 0.17838022112846375,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.683955192565918,
+        "z": 0.0000762939453125,
+        "w": 0.7294880151748657
+    },
+    "created": 1555639814974656,
+    "lastEditedBy": "{02039da8-df43-4d91-a5d4-48264664b886}",
+    "queryAACube": {
+        "x": 3.579482078552246,
+        "y": 2.034459114074707,
+        "z": 9.050936698913574,
+        "scale": 0.5572453737258911
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/usefulUtilities/clock/v1.0/entityResources/clockServer.js",
+    "text": "",
+    "lineHeight": 0.12300000339746475,
+    "backgroundColor": {
+        "red": 64,
+        "green": 64,
+        "blue": 64
+    },
+    "backgroundAlpha": 0,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{a81d9ae5-6df9-4d2d-9d40-4062752f1973}",
+    "type": "Text",
+    "lastEdited": 1559239905855894,
+    "name": "Calendar_MR1_Main_RoomOccupantsList",
+    "userData": "",
+    "position": {
+        "x": 3.8403892517089844,
+        "y": 1.3278312683105469,
+        "z": 9.391280174255371
+    },
+    "dimensions": {
+        "x": 0.6609032154083252,
+        "y": 0.5938867330551147,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0001983642578125,
+        "y": 0.7019302845001221,
+        "z": 0.0000152587890625,
+        "w": 0.7122148275375366
+    },
+    "created": 1555639814973680,
+    "lastEditedBy": "{02039da8-df43-4d91-a5d4-48264664b886}",
+    "queryAACube": {
+        "x": 3.3960936069488525,
+        "y": 0.883535623550415,
+        "z": 8.94698429107666,
+        "scale": 0.8885912895202637
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/occupantsServer.js",
+    "text": "",
+    "lineHeight": 0.04800000041723251,
+    "backgroundColor": {
+        "red": 46,
+        "green": 46,
+        "blue": 46
+    },
+    "leftMargin": 0.019999999552965164,
+    "rightMargin": 0.019999999552965164,
+    "topMargin": 0.019999999552965164,
+    "bottomMargin": 0.019999999552965164,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{e5818ba9-1e52-4617-bd87-a1bc9bd2fe77}",
+    "type": "Text",
+    "lastEdited": 1559239932550514,
+    "name": "Calendar_MR1_Main_RoomSchedule",
+    "userData": "{\"tokenServerID\":\"\",\"roomScheduleID\":\"\",\"roomColorID\":\"\",\"roomColorOccupantsID\":\"\",\"roomOccupantsListID\":\"\",\"roomClockID\":\"\"}",
+    "position": {
+        "x": 3.831684112548828,
+        "y": 1.5634880065917969,
+        "z": 9.3970308303833
+    },
+    "dimensions": {
+        "x": 0.7626781463623047,
+        "y": 1.25,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0001983642578125,
+        "y": 0.7019302845001221,
+        "z": 0.0000152587890625,
+        "w": 0.7122148275375366
+    },
+    "created": 1555639814975022,
+    "lastEditedBy": "{02039da8-df43-4d91-a5d4-48264664b886}",
+    "queryAACube": {
+        "x": 3.0995163917541504,
+        "y": 0.8313203454017639,
+        "z": 8.664863586425781,
+        "scale": 1.464335322380066
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/roomScheduleServer.js",
+    "text": "",
+    "lineHeight": 0.061000000685453415,
+    "leftMargin": 0.029999999329447746,
+    "rightMargin": 0.029999999329447746,
+    "topMargin": 0.029999999329447746,
+    "bottomMargin": 0.029999999329447746,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{426075f4-38f9-40b1-b842-a89177d5dd00}",
+    "type": "Zone",
+    "lastEdited": 1559239905273499,
+    "name": "Calendar_MR1_MR_Zone",
+    "userData": "{\"roomOccupantsListID\":[\"\"]}",
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 6.919921398162842
+    },
+    "dimensions": {
+        "x": 7.679488658905029,
+        "y": 8.287516593933105,
+        "z": 20.06148910522461
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1558372177120535,
+    "lastEditedBy": "{ad34408d-d7ae-407a-b336-b02d33b25872}",
+    "queryAACube": {
+        "x": -11.512176513671875,
+        "y": -11.512176513671875,
+        "z": -4.592255115509033,
+        "scale": 23.02435302734375
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityScripts/meetingRoomZone.js",
+    "scriptTimestamp": 1559239905272,
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-05-23_14-43-38/entityServerScripts/noFunction.js",
+    "shapeType": "box",
+    "keyLight": {
+        "direction": {
+            "x": 0,
+            "y": -0.7071067690849304,
+            "z": 0.7071067690849304
+        },
+        "castShadows": true
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{f8254ae4-138a-48c9-9023-3b7f48e45627}",
+  "Version": 121
+}
