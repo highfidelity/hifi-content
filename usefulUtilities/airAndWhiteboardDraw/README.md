@@ -26,7 +26,7 @@ June 6, 2019
 - Updated the current tablet method to use the controller as an origin to help avoid using intervals other than the update loop
 - Updated the model to have a full bezel around the board
 
-SHA [ac2b775](https://github.com/highfidelity/hifi-content/commits/ac2b775)
+SHA [a5368e9](https://github.com/highfidelity/hifi-content/commits/a5368e9)
 June 11, 2019 Fix for [JIRA 642](https://highfidelity.atlassian.net/browse/BUGZ-642)
 - Clear a var after changing draw mode
 
