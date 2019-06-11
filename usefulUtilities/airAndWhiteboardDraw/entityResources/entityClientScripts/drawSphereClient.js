@@ -447,7 +447,6 @@
                 previousStrokeWidth = currentStrokeWidth;
             }
 
-
             var pose = _this.getControllerWorldLocation(controllerHandNumber);
             currentPoint = pose.position;
 
@@ -463,6 +462,7 @@
                 currentNormal = DEFAULT_NORMAL;
             }
             if (!initialLineStartDataReady) {
+                wasLastPointOnBoard = isCurrentPointOnBoard;
                 lineStartPosition = currentPoint;
                 initialLineStartDataReady = true;
             } 
