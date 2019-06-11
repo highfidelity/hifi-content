@@ -10,7 +10,6 @@
 (function() {
     var CONFIG = Script.require("../calendarConfig.json?" + Date.now());
     var CHANNEL = "HiFi.Google.Calendar";
-    var DOMAIN = "hq";
     var MS_TO_SEC = 1000;
     var MIN_PER_HR = 60;
     var roomConfig = false;
@@ -78,17 +77,17 @@
                 TOKEN_SERVER_ID = message.TOKEN_SERVER_ID;
             }
             if (message.type === "TOKEN EXPIRED") {
-                Window.alert("The authorization token for your Google Calendar could not be refreshed.\n" + 
+                console.warning("The authorization token for your Google Calendar could not be refreshed.\n" + 
                 "Please open your calendar app and reauthorize to continue displaying calendar schedules.");
                 roomConfig = message.roomConfig;
             } else if (message.type === "ERROR") {
-                Window.announcement("There was an error, here's what we know:\n" + 
+                console.error("There was an error, here's what we know:\n" + 
                     message.entityName + "\nError: " + 
                     message.errorMessage + "\nHappened during: " + 
                     message.attemptedAction);
                 return;
             } else if (message.type === "REFRESH SUCCESS") {
-                Window.announcement("Token server successfully refreshed " + message.count + " times since preload.");
+                console.log("Token server successfully refreshed " + message.count + " times since preload.");
             }
             if (message.roomConfigInfo && message.roomConfigInfo.length > 0) {
                 roomConfigInfo = message.roomConfigInfo;
@@ -101,22 +100,9 @@
     };
 
 
-    // This function keeps the app running even if you change domains.
-    var DOMAIN_DELAY = 100;
-    function onDomainChange(domain){
-        if (location.hostname === DOMAIN) {
-            Script.setTimeout(function(){
-                Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain", AccountServices.username);
-            }, DOMAIN_DELAY);
-        } 
-    }
-
-
     //  Immediately check with the token server to see if there is a valid configuration.
     function onOpened() {
-        if (Settings.getValue("roomConfigured", false)) {
-            Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain", AccountServices.username);
-        }
+        Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain");
     }
 
 
@@ -132,7 +118,6 @@
             onOpened: onOpened
         });       
         Script.scriptEnding.connect(scriptEnding);
-        Window.domainChanged.connect(onDomainChange);
         Messages.subscribe(CHANNEL);
         Messages.messageReceived.connect(messageHandler);
         Messages.sendMessage(CHANNEL, JSON.stringify({ type: "APP STARTED" }));
@@ -143,6 +128,5 @@
     function scriptEnding() {
         Messages.unsubscribe(CHANNEL);
         Messages.messageReceived.disconnect(messageHandler);
-        Window.domainChanged.disconnect(onDomainChange);
     }
 })();
