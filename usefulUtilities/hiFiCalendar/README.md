@@ -88,3 +88,4 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Known Issues
 - If the occupants list needs to refresh, it will not get the current members in the zone area.  It does this by sending a message to the zone client script to send over who is in there, however I can't seem to get that message.  Will need to test further if this a platform bug.  
+- Some timezone offsets may cause the day to wrap around.  Will fix this to have normalized values for 0-24

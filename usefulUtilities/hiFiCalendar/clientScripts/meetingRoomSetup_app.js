@@ -81,21 +81,11 @@
                 Window.alert("The authorization token for your Google Calendar could not be refreshed.\n" + 
                 "Please open your calendar app and reauthorize to continue displaying calendar schedules.");
                 roomConfig = message.roomConfig;
-            } else if (message.type === "STATUS UPDATE") {
-                if (message.tokenStatus) {
-                    Window.announcement("Access tokens are valid. No action required");
-                    roomConfig = message.roomConfig;
-                } else if (!message.tokenStatus && !message.roomConfigured) {
-                    Window.announcement("You have not set up any room schedules for this domain.");
-                }
             } else if (message.type === "ERROR") {
-                // Commenting this out for right now because this was initially flooding the interface during testing
-                // Will bring back after battle testing for QA
-                
-                // Window.alert("There was an error, here's what we know:\n" + 
-                // message.entityName + "\nError: " + 
-                // message.errorMessage + "\nHappened during: " + 
-                // message.attemptedAction);
+                Window.announcement("There was an error, here's what we know:\n" + 
+                    message.entityName + "\nError: " + 
+                    message.errorMessage + "\nHappened during: " + 
+                    message.attemptedAction);
                 return;
             } else if (message.type === "REFRESH SUCCESS") {
                 Window.announcement("Token server successfully refreshed " + message.count + " times since preload.");

@@ -101,10 +101,6 @@
 
         if (!that.isSecondarySchedule) {
             Entities.callEntityMethod(that.roomClockID, "refreshTimezone", [that.timezoneName, that.timezoneOffset]);
-
-            Script.setTimeout(function(){
-                Script.loadEntityScript(that.entityID, Script.resolvePath("./") + SCRIPT_NAME, false);
-            }, REFRESH_TIMEOUT);
         }
 
     };
@@ -374,25 +370,26 @@
                     endAmPm = "pm";
                 }
 
-                printedSchedule = printedSchedule + 
-                event.summary +
-                "\n" +
-                startHours + 
-                ':' + 
-                (JSON.stringify(event.startTimestamp.getMinutes()).length > 1 ? 
-                    event.startTimestamp.getMinutes() :
-                    event.startTimestamp.getMinutes() + "0") + 
-                ' ' + 
-                startAmPm +
-                ' - ' + 
-                endHours + 
-                ':' + 
-                (JSON.stringify(event.endTimestamp.getMinutes()).length > 1 ? 
-                    event.endTimestamp.getMinutes() :
-                    event.endTimestamp.getMinutes() + "0") + 
-                ' ' + 
-                endAmPm +
-                ' ' + that.timezoneName + '\n\n';                
+                printedSchedule = 
+                    printedSchedule + 
+                    event.summary +
+                    "\n" +
+                    startHours + 
+                    ':' + 
+                    (event.startTimestamp.getMinutes() < 10 ?
+                        "0" + event.startTimestamp.getMinutes() :
+                        event.startTimestamp.getMinutes()) + 
+                    ' ' + 
+                    startAmPm +
+                    ' - ' + 
+                    endHours + 
+                    ':' + 
+                    (event.endTimestamp.getMinutes() < 10 ? 
+                        "0" + event.endTimestamp.getMinutes() :
+                        event.endTimestamp.getMinutes()) + 
+                    ' ' + 
+                    endAmPm +
+                    ' ' + that.timezoneName + '\n\n';                
             });            
 
             Entities.editEntity(id, {text: printedSchedule});
