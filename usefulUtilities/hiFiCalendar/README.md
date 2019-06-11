@@ -73,7 +73,7 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Release Notes
 
-## 3.0 | d188209] | 2019-05-23
+## 3.0 | [commit a12bea4](https://github.com/highfidelity/hifi-content/pull/400/commits/a12bea4) | 2019-05-23
   - Created a token server backend 
   - Moved configuration from userData to a JSON
   - Used the PrivateData to store the tokens
