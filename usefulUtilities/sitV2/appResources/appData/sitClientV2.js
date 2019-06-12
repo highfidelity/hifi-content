@@ -583,7 +583,7 @@
 
     // Can sit when clicking on chair when enabled via userData
     function mousePressOnEntity(id, event) {
-        if (event.isPrimaryButton && !Settings.getValue(EDIT_SETTING, false)()) {
+        if (event.isPrimaryButton && !Settings.getValue(EDIT_SETTING, false)) {
             updateUserData();
             if (_this.userData && _this.userData.canClickOnModelToSit) {
                 Entities.callEntityServerMethod(_this.entityID, "onSitDown", [MyAvatar.sessionUUID]);
