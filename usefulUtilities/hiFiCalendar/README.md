@@ -73,6 +73,9 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Release Notes
 
+## 3.1 | [commit 63609a2](https://github.com/highfidelity/hifi-content/pull/400/commits/63609a2]) | 2019-06-11
+  - Change to encodeURI from encodeURIComponent
+
 ## 3.0 | [commit a12bea4](https://github.com/highfidelity/hifi-content/pull/400/commits/a12bea4) | 2019-05-23
   - Created a token server backend 
   - Moved configuration from userData to a JSON
