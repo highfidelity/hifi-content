@@ -14,16 +14,13 @@
 // Allows avatars to sit in High Fidelity after clicking on a local entity or on the chair. Works with sitServer.js.
 //
 
-/* global DriveKeys, isInEditMode */
+/* global DriveKeys */
 
 (function () {
     
     var DEBUG = 0;
 
     // #region UTILITIES
-
-    Script.include("/~/system/libraries/utils.js");
-
 
     // Returns entity properties for an overlay in front of user's camera in desktop and VR
     function getEntityPropertiesForImageInFrontOfCamera(positionInFront, dimensions, url) {
@@ -353,12 +350,13 @@
 
     // Remotely called from canSitZone
     var AVATAR_SITTING_IN_CHAIR_RANGE = 0.01;
+    var EDIT_SETTING = "io.highfidelity.isEditing";
     function onEnterCanSitZone(id, params) {
         if (params && params.length > 0) {
             _this.zoneID = params[0];
         }
 
-        if (!isInEditMode()) {
+        if (!Settings.getValue(EDIT_SETTING, false)) {
             calculateSeatCenterPositionForPinningAvatarHips();
             var isSittingInChair = AvatarList.isAvatarInRange(_this.seatCenterPosition, AVATAR_SITTING_IN_CHAIR_RANGE);
             if (DEBUG) {
@@ -585,7 +583,7 @@
 
     // Can sit when clicking on chair when enabled via userData
     function mousePressOnEntity(id, event) {
-        if (event.isPrimaryButton && !isInEditMode()) {
+        if (event.isPrimaryButton && !Settings.getValue(EDIT_SETTING, false)()) {
             updateUserData();
             if (_this.userData && _this.userData.canClickOnModelToSit) {
                 Entities.callEntityServerMethod(_this.entityID, "onSitDown", [MyAvatar.sessionUUID]);
