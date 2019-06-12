@@ -40,7 +40,7 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 2019-06-06_07-13-50 :: [c6ed100](https://github.com/highfidelity/hifi-content/pull/392/commits/c6ed100)
 - [Jira 554](https://highfidelity.atlassian.net/browse/BUGZ-554) Changed standup to require one tap of jump movement key 
 
-2019-06-12_11-30-00 :: [cff959b](https://github.com/highfidelity/hifi-content/pull/392/commits/cff959b)
+2019-06-12_11-30-00 :: [65eb1ecb](https://github.com/highfidelity/hifi-content/pull/392/commits/65eb1ecb)
 - [Jira 655](https://highfidelity.atlassian.net/browse/BUGZ-655) Removed utils.js dependency
 
 
