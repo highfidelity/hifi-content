@@ -22,7 +22,7 @@ The avatar's location will be changed using the `window.location` scripting inte
 If you set the `destination` value using the syntax `bookmark:<bookmark name>`, then the portal will move the user to the location specified by that named bookmark (which is stored on the user's hard drive in `bookmarks.json`).
 
 # Release Notes
-## v1.2 :: [ea202c9](https://github.com/highfidelity/hifi-content/commit/ea202c9)
+## v1.2 :: [cf7e6d2](https://github.com/highfidelity/hifi-content/commit/cf7e6d2)
 - Added the ability for a portal to send users to a location specified by a bookmark (_any_ bookmark!). Bookmarks are stored in a `bookmarks.json` file on the user's hard drive.
 
 ## v1.1 :: [ea202c9](https://github.com/highfidelity/hifi-content/commit/ea202c9)
