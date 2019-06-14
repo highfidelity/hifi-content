@@ -10,6 +10,8 @@
 //  Call the initClient function after the modules load.
 
 
+document.getElementById("containerLoader").style.display = "block";
+var canClickLogin = false;
 var YOUR_CLIENT_ID = 'Your Client ID';
 var YOUR_REDIRECT_URI = 'Your redirect URI';
 var SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
@@ -28,7 +30,7 @@ var roomInfo;
 function showHidePages(arg) {
     for (var i = 0; i < pages.length; i++) {
         if (i === arg) {
-            pages[i].style.display = 'initial';
+            pages[i].style.display = 'block';
         } else {
             pages[i].style.display = 'none';
         }
@@ -52,6 +54,11 @@ function compare(a, b) {
 }
 
 
+// Toggle the drop drop down menu
+function toggleMenu(menu) {
+    document.getElementById(menu).classList.toggle("show");
+}    
+
 // #endregion
 // *************************************
 // END utility
@@ -70,9 +77,13 @@ while (m = regex.exec(fragmentString)) {
     params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
 }
 if (Object.keys(params).length > 0) {
-    // # There is no other mention of oauth2-params
+    canClickLogin = false;
+    document.getElementById("containerLoader").style.display = "block";
     sessionStorage.setItem('oauth2-params', JSON.stringify(params));
     exchangeCode(params);
+} else {
+    canClickLogin = true;
+    document.getElementById("containerLoader").style.display = "none";
 }
 
 
@@ -134,7 +145,7 @@ function exchangeCode(params) {
             }));
             setTimeout(function(){
                 getCalendars();
-            }, 100)
+            }, 1000)
         })
         .catch(error => console.log('Error:' + error));
     } else {
@@ -181,6 +192,125 @@ function signOut() {
 // END oAuth
 // *************************************
 
+// *************************************
+// START dropdowns
+// *************************************
+// #region dropdowns
+
+
+// Create the actual options list
+const ICON_HTML = `<span class="arrow"> </span>`;
+function renderOptions(containerElement, list, titleElement, selectType, titleText) {
+    if (list.length < 1) {
+        return;
+    }
+    containerElement.innerHTML = "";
+    let optionsHTML = "";
+    list.forEach( option => {
+        optionsHTML += `<div class="option" data-value="${option.value}" data-select-type="${selectType}">${option.name}</div>`
+    })
+    containerElement.innerHTML = optionsHTML;
+    titleElement.innerHTML = titleText + ICON_HTML;
+
+    let dropdownOptions = containerElement.querySelectorAll('.option');
+    dropdownOptions.forEach((option) => {
+        option.addEventListener('click', handleOptionSelected);
+    })
+}
+
+
+// Turn on and off the classname
+function toggleClass(elem, className) {
+    elem.classList.toggle(className);
+
+    return elem;
+}
+
+
+// Toggle a dosplay on and off given an elem
+function toggleDisplay(elem) {
+    const currentDisplayStyle = elem.styleDisplay;
+
+    if (currentDisplayStyle === 'none' || currentDisplayStyle === '') {
+        elem.style.display === 'block';
+    } else {
+        elem.style.display === 'none';
+    }
+}
+
+
+// Toggle the dropdown menu
+function toggleMenuDisplay(e) {
+    const dropdown = e.currentTarget.parentNode;
+    const menu = dropdown.querySelector('.menu');
+    const icon = dropdown.querySelector('.arrow');
+
+    toggleClass(menu, 'hide');
+    toggleClass(icon, 'rotate-90');
+}
+
+
+// Handle if an option is selected
+let selectedRoomValue;
+let selectedCalendarValue;
+let selectedRoomName;
+let selectedCalendarName;
+function handleOptionSelected(e) {
+    const elem = e.target;
+    const menu = elem.closest('.menu');
+    const newTitleName = elem.textContent;
+    const newValue = elem.getAttribute('data-value');
+    const selectType = elem.getAttribute('data-select-type');
+    const titleElement = elem.closest('.dropdown').querySelector('.title')
+    const icon = titleElement.querySelector('.arrow');
+
+    toggleClass(menu, 'hide');
+    toggleClass(icon, 'rotate-90');
+
+    titleElement.textContent = newTitleName;
+    titleElement.appendChild(icon);
+
+    switch (selectType) {
+        case 'calendar':
+            selectedCalendarValue = newValue
+            selectedCalendarName = newTitleName
+
+            break;
+        case 'room':
+            selectedRoomValue = newValue
+            selectedRoomName = newTitleName
+            break;
+        default:
+            console.log("drop downs not found");
+    }
+}
+
+
+// Handle the dropdown edit button
+function handleDropdownEdit(titleElement, newTitleName){
+    titleElement.textContent = newTitleName;
+    titleElement.appendChild(icon);
+}
+
+
+// Setuo the dropdown binding
+const dropdownTitles = document.querySelectorAll('.dropdown .title');
+const dropdownOptions = document.querySelectorAll('.option');
+
+dropdownTitles.forEach((title) => {
+    title.addEventListener('click', toggleMenuDisplay);
+})
+
+const menuCalendars = document.getElementById('menuCalendars');
+const menuRooms = document.getElementById('menuRooms');
+const dropdownCalendarTitle = document.getElementById('dropdownCalendarTitle');
+const dropdownRoomTitle = document.getElementById('dropdownRoomTitle');
+
+
+// #endregion
+// *************************************
+// END dropdowns
+// *************************************
 // *************************************
 // START UI
 // *************************************
@@ -236,7 +366,9 @@ function changePages(origin, destination) {
     switch (destination) {
         case "LOGIN":
             showHidePages(PAGE_LOGIN);
-            loginButton.addEventListener('click', getCalendars);
+            if (canClickLogin) {
+                loginButton.addEventListener('click', getCalendars);
+            }
             break;
         case "SEE AVAILABLE":
             showHidePages(PAGE_SEE_AVAILABLE);
@@ -371,6 +503,8 @@ function errorPage(lastPage) {
 
 
 // Render the page that shows your calendars and your hifi meeting rooms
+const CALENDAR_TITLE = "Select a calendar";
+const MENU_TITLE = "Select a menu";
 function connectorPage(lastPage, edit) {
     var calendarInfo = JSON.parse(sessionStorage.getItem('resources'));
     if (calendarInfo.length < 1) {
@@ -383,20 +517,29 @@ function connectorPage(lastPage, edit) {
     }
     calendarInfo.sort(compare);
     roomInfo.sort(compare);
+
+    var rooms = [];
+    var calendars = [];
+
     for (i = 0; i < calendarInfo.length; i++) {
-        calendarDropDown.options[i] = null;    
-        calendarDropDown.options[i] = new Option(calendarInfo[i].name, calendarInfo[i].address);
-        calendarDropDown.options[i].classList.add("dropdown-content");
+        calendars.push( {name: calendarInfo[i].name, value: calendarInfo[i].address} );
     }
     for (i = 0; i < roomInfo.length; i++) {
-        roomDropDown.options[i] = null;    
-        roomDropDown.options[i] = new Option(roomInfo[i].name, roomInfo[i].id);
-        roomDropDown.options[i].classList.add("dropdown-content");
+        rooms.push( {name: roomInfo[i].name, value: roomInfo[i].id});
     }
     if (edit) {
-        calendarDropDown.selectedIndex = edit.name;
-        roomDropDown.selectedIndex = edit.hifiName;
+        function handleDropdownEdit(titleElement, newTitleName){
+            titleElement.textContent = newTitleName;
+            titleElement.appendChild(icon);
+        }
+        handleDropdownEdit(dropdownCalendarTitle, edit.name);
+        handleDropdownEdit(dropdownRoomTitle, edit.hifiName);
     }
+
+    renderOptions(menuCalendars, calendars, dropdownCalendarTitle, 'calendar', CALENDAR_TITLE);
+    renderOptions(menuRooms, rooms, dropdownRoomTitle, 'room', MENU_TITLE);
+
+    document.getElementById("containerLoader").style.display = "block";
     changePages(lastPage, "SEE AVAILABLE");
 }
 
@@ -408,23 +551,23 @@ function connectionSuccess(lastPage) {
     var dl = document.getElementById('linkedspaces');
     dl.innerHTML = '';
     var calendarObject = {
-        "address": calendarDropDown.value,
-        "uuid": roomDropDown.value,
-        "name": calendarDropDown.options[calendarDropDown.selectedIndex].textContent,
-        "hifiName": roomDropDown.options[roomDropDown.selectedIndex].textContent
+        "address": selectedCalendarValue,
+        "uuid": selectedRoomValue,
+        "name": selectedCalendarName,
+        "hifiName": selectedRoomName
     }
     completedConnections.push(calendarObject);
     var resources = JSON.parse(sessionStorage.getItem('resources'));
     for (var i=0; i < resources.length; i++) {
         var str = JSON.stringify(resources[i]);
-        if (str.indexOf(calendarDropDown.value) > -1) {
+        if (str.indexOf(selectedCalendarValue) > -1) {
             resources.splice(i,1);
             i--;
         }
     }
     for (i = 0; i < roomInfo.length; i++) {
         str = JSON.stringify(roomInfo[i]);
-        if (str.indexOf(roomDropDown.value) > -1) {
+        if (str.indexOf(selectedRoomValue) > -1) {
             roomInfo.splice(i,1);
             i--;
         }
@@ -456,14 +599,15 @@ function connectionSuccess(lastPage) {
 // Buttons by Page
 // Login Page
 var loginButton = document.getElementById("login");
-loginButton.addEventListener('click', getCalendars);
+if (canClickLogin) {
+    loginButton.addEventListener('click', getCalendars);
+}
+
 // Connector Page
 var helpButton = document.getElementById('help');
 var revokeButton = document.getElementById('revoke1');
 var logoutButton = document.getElementById('logout1');
 var linkerButton = document.getElementById('linker');
-var calendarDropDown = document.getElementById('selectedCalendar');
-var roomDropDown = document.getElementById('selectedRoom');
 var finishButton = document.getElementById('finished1');
 // Connection Successful Page
 var finalizeButton = document.getElementById('viewAll');
@@ -499,6 +643,7 @@ var logoutButton4 = document.getElementById('logout4');
 var calendarList;
 var resources = [];
 function getCalendars() {
+    document.getElementById("containerLoader").style.display = "block";
     var params = JSON.parse(sessionStorage.getItem('response'));
     sessionStorage.removeItem('resources');
     completedConnections = [];
