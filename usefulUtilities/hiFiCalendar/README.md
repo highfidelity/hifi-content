@@ -73,10 +73,14 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Release Notes
 
+## 3.2 | [commit ](https://github.com/highfidelity/hifi-content/pull/400/commits/a12bea4) | 2019-06-14
+- Fixed double clicking the google button to create duplicate menus
+- Created a custom drop-down solution
+
 ## 3.0 | [commit a12bea4](https://github.com/highfidelity/hifi-content/pull/400/commits/a12bea4) | 2019-05-23
-  - Created a token server backend 
-  - Moved configuration from userData to a JSON
-  - Used the PrivateData to store the tokens
+- Created a token server backend 
+- Moved configuration from userData to a JSON
+- Used the PrivateData to store the tokens
 
 ## 2.0 | [commit cb8991d](https://github.com/highfidelity/hifi-content/pull/361/commits/cb8991d98223a7ad14dca809b8ba507bef9336cb)
 - Authorization fixes, client app no longer needs to stay open.

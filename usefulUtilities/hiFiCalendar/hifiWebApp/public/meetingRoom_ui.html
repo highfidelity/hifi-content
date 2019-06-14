@@ -6,130 +6,141 @@
         <link rel="stylesheet" type="text/css" href="./css/styles.css?v280">
     </head>
     <body>
-        <pre id="content" style="white-space: pre-wrap;"></pre>
-        <div id="loginPage">
-            <div id="background1">
-                <h1>Meeting Room Connector</h1>         
-                <p><h2>Connect your virtual meeting rooms to your Google Calendar for easy space management.</h2>
-            </div>
-            <div id="h1TopRight"></div>
-            <div id="h1BottomLeft"></div>
-            <button class="login" id="login"></button>
-            <div >
-                    <footer class="bttmleft"><a href="https://www.highfidelity.com/termsofservice">Terms of Service</a></footer>
-            </div>
-            <div>
-                    <footer class="bttmright"><a href="https://www.highfidelity.com/privacy">Privacy Policy</a></footer>
-            </div>
-        </div>
+        <div id="containerLoader" style="display: block;">
 
-        <div id='connectorPage'>
-            <div id="background2">
-                <h1>Let's Connect Your Spaces</h1> 
-                <br><br><br><br>          
-                <h3>Start by selecting a room resource from your Google Calendar. Then select a High Fidelity meeting room and click to link them.</h3>
-            </div>
-            <div id="h1TopRight"></div>
-            <div id="calendarInstr" class="dropDownInstruction">YOUR CALENDAR RESOURCES</div>
-            <br>
-            <select class="dropdown" id="selectedCalendar">
-                <div class="selectContainer">
-                    <option value="" class="dropdown-content">NO SELECTION</option>
+        </div>
+        <div id="main">
+            <pre id="content" style="white-space: pre-wrap;"></pre>
+            <div id="loginPage">
+                <div id="background1">
+                    <h1>Meeting Room Connector</h1>         
+                    <p><h2>Connect your virtual meeting rooms to your Google Calendar for easy space management.</h2>
                 </div>
-                </select>
-            <br>
-            <button class="blueLinkText" id="help">Don't see the calendar you need?</button>
-            <br>
-            <div id="roomInstr" class="dropDownInstruction">HIFI MEETING ROOMS</div>
-            <select class="dropdown" id="selectedRoom">
-            <div class="selectContainer">
-                    <option value="" class="dropdown-content">NO SELECTION</option>
+                <div id="h1TopRight"></div>
+                <div id="h1BottomLeft"></div>
+                <button class="login" id="login"></button>
+                <div >
+                        <footer class="bttmleft"><a href="https://www.highfidelity.com/termsofservice">Terms of Service</a></footer>
                 </div>
-                </select>
-            <button class="ui" id="linker">Link these spaces</button>
-            <button class="blueLinkText" id="finished1">I'm finished linking spaces.</button>
-            <div >
-                <footer class="bttmleft"><button class="bttmleft" id="revoke1">Revoke Access</button></footer>
-            </div>
-            <div>
-                <footer class="bttmright"><button class="bttmright" id="logout1">Log Out</button></footer>
-            </div>
-            <div id="success">
-                <div class="popup">
-                    <span class="popuptext" id="myPopup"><br><br><br>Spaces Linked!</span>
+                <div>
+                        <footer class="bttmright"><a href="https://www.highfidelity.com/privacy">Privacy Policy</a></footer>
                 </div>
             </div>
-        </div>
+    
+            <div id='connectorPage'>
+                    <div id="background2">
+                        <h1>Let's Connect Your Spaces</h1> 
+                        <br><br><br><br>          
+                        <h3>Start by selecting a room resource from your Google Calendar. Then select a High Fidelity meeting room and click to link them.</h3>
+                    </div>
+                    <div id="h1TopRight"></div>
+                    <div id="calendarInstr" class="dropdownInstruction">YOUR CALENDAR RESOURCES</div>
+                    <br>
+        
+                    <div class="dropdown" id="selectedCalendar">
+                        <div id="dropdownCalendarTitle" class="title pointerCursor">NO CALENDARS AVAILABLE</div>
+        
+                        <div class="menu pointerCursor hide" id="menuCalendars">    
+                        </div>
+                    </div>
+        
+                    <button class="blueLinkText" id="help">Don't see the calendar you need?</button>
+                    
+                    <div id="roomInstr" class="dropdownInstruction">HIFI MEETING ROOMS</div> 
+        
+                    <div class="dropdown" id="selectedRoom">
+                        <div id="dropdownRoomTitle" class="title pointerCursor">NO ROOMS AVAILABLE<span class="arrow"  style="display: none;"> </span></div>
+        
+                        <div class="menu pointerCursor hide" id="menuRooms">
+                        </div>
+                    </div>
+        
+                    <button class="ui" id="linker">Link these spaces</button>
+                    <button class="blueLinkText" id="finished1">I'm finished linking spaces.</button>
+                    <div>
+                        <footer class="bttmleft"><button class="bttmleft" id="revoke1">Revoke Access</button></footer>
+                    </div>
+                    <div>
+                        <footer class="bttmright"><button class="bttmright" id="logout1">Log Out</button></footer>
+                    </div>
+                    <div id="success">
+                        <div class="popup">
+                            <span class="popuptext" id="myPopup"><br><br><br>Spaces Linked!</span>
+                        </div>
+                    </div> 
+                </div>
 
-        <div id='linkSuccessPage'>
-            <div id="background2">
-                <h1>Connected Spaces</h1>      
-                <br><br><br>  
-                <br><br><br>
-                <dl id="linkedspaces">
-                </dl>
+    
+            <div id='linkSuccessPage'>
+                <div id="background2">
+                    <h1>Connected Spaces</h1>      
+                    <br><br><br>  
+                    <br><br><br>
+                    <dl id="linkedspaces">
+                    </dl>
+                </div>
+                <div id="h1TopRight"></div>
+                <button class="ui" id="reset1" >Reset Links</button>
+                <button class="ui" id="viewAll" >I'm finished</button>
+                <div >
+                    <footer class="bttmleft"><button class="bttmleft" id="revoke2">Revoke Access</button></footer>
+                </div>
+                <div>
+                    <footer class="bttmright"><button class="bttmright" id="logout2">Log Out</button></footer>
+                </div>
             </div>
-            <div id="h1TopRight"></div>
-            <button class="ui" id="reset1" >Reset Links</button>
-            <button class="ui" id="viewAll" >I'm finished</button>
-            <div >
-                <footer class="bttmleft"><button class="bttmleft" id="revoke2">Revoke Access</button></footer>
+    
+            <div id='allLinksPage'>
+                <div id="background2">
+                    <h1>Your linked spaces</h1>      
+                    <br><br><br>
+                    <br><br><br>
+                    <h3>
+                        Your spaces are setup! You can safely close this app.
+                        <br>If you need, you can add, edit, or delete your linked spaces from this list:
+                    </h3>
+                </div>
+                <div id="h1TopRight"></div>
+                <table id="completed">
+                    <tr>
+                        <td>Atlantis</td>
+                        <td><input type="button" class="trash"></td>
+                        <td><input type="button" class="edit"></td>
+                    </tr>
+                </table>
+                <button class="ui" id="reset2">Reset all links</button>
+                <div>
+                    <footer class="bttmleft"><input type="button" class="bttmleft" id="revoke3" value="Revoke Access"></footer>
+                </div>
+                <div>
+                    <footer class="bttmright"><input type="button" class="bttmright" id="logout3" value="Log Out"></footer>
+                </div>
             </div>
-            <div>
-                <footer class="bttmright"><button class="bttmright" id="logout2">Log Out</button></footer>
+    
+            <div id='errorPage'>
+                <div id="background2">
+                    <h1>Meeting Room Connector</h1>      
+                    <br><br><br>
+                    <br><br><br>
+                    <br><br><br>
+                    <p id="message">We couldn't find any calendars to connect. You'll need to create a new calendar resource for each bookable space.</p>      
+                </div>
+                <div id="h1TopRight"></div>
+                <button class="blueLinkText" id="learn">Learn How</button>
+                <button class="grayLinkText" id="tryAgain">Go Back</button>
+                <div >
+                    <footer class="bttmleft"><button class="bttmleft" id="revoke4" >Revoke Access</button></footer>
+                </div>
+                <div>
+                    <footer class="bttmright"><button class="bttmright" id="logout4" >Log Out</button></footer>
+                </div>
             </div>
         </div>
-
-        <div id='allLinksPage'>
-            <div id="background2">
-                <h1>Your linked spaces</h1>      
-                <br><br><br>
-                <br><br><br>
-                <h3>
-                    Your spaces are setup! You can safely close this app.
-                    <br>If you need, you can add, edit, or delete your linked spaces from this list:
-                </h3>
-            </div>
-            <div id="h1TopRight"></div>
-            <table id="completed">
-                <tr>
-                    <td>Atlantis</td>
-                    <td><input type="button" class="trash"></td>
-                    <td><input type="button" class="edit"></td>
-                </tr>
-            </table>
-            <button class="ui" id="reset2">Reset all links</button>
-            <div>
-                <footer class="bttmleft"><input type="button" class="bttmleft" id="revoke3" value="Revoke Access"></footer>
-            </div>
-            <div>
-                <footer class="bttmright"><input type="button" class="bttmright" id="logout3" value="Log Out"></footer>
-            </div>
-        </div>
-
-        <div id='errorPage'>
-            <div id="background2">
-                <h1>Meeting Room Connector</h1>      
-                <br><br><br>
-                <br><br><br>
-                <br><br><br>
-                <p id="message">We couldn't find any calendars to connect. You'll need to create a new calendar resource for each bookable space.</p>      
-            </div>
-            <div id="h1TopRight"></div>
-            <button class="blueLinkText" id="learn">Learn How</button>
-            <button class="grayLinkText" id="tryAgain">Go Back</button>
-            <div >
-                <footer class="bttmleft"><button class="bttmleft" id="revoke4" >Revoke Access</button></footer>
-            </div>
-            <div>
-                <footer class="bttmright"><button class="bttmright" id="logout4" >Log Out</button></footer>
-            </div>
-        </div>
+        
 
         <script src="./js/meetingRoom_ui.js"
             onload="this.onload=function(){};document.getElementById('login').disabled=false;" 
             onreadystatechange="if (this.readyState === 'complete') this.onload()">
         </script>
-                
     </body>
 </html>
