@@ -250,7 +250,7 @@ function toggleMenuDisplay(e) {
 }
 
 
-// Handle if and option is selected
+// Handle if an option is selected
 let selectedRoomValue;
 let selectedCalendarValue;
 let selectedRoomName;
@@ -280,6 +280,8 @@ function handleOptionSelected(e) {
             selectedRoomValue = newValue
             selectedRoomName = newTitleName
             break;
+        default:
+            console.log("drop downs not found");
     }
 }
 

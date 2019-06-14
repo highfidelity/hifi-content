@@ -577,7 +577,7 @@ a:active {
   height: 100%;
 }
 
-#dropdownRoomTitle:hover {
+.title:hover {
   color: white;
   background-color: rgb(29, 29, 29);
 }
