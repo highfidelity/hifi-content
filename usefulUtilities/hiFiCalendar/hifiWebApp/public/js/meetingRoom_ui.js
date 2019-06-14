@@ -556,7 +556,6 @@ function connectionSuccess(lastPage) {
         "name": selectedCalendarName,
         "hifiName": selectedRoomName
     }
-    console.log("calendarObject" + JSON.stringify(calendarObject))
     completedConnections.push(calendarObject);
     var resources = JSON.parse(sessionStorage.getItem('resources'));
     for (var i=0; i < resources.length; i++) {

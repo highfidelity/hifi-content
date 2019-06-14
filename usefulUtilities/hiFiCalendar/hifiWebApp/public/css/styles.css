@@ -529,7 +529,7 @@ a:active {
 }
 
 .arrow {
-  background: url('../resources/images/arrow.png?v5') no-repeat; 
+  background: url('../resources/images/arrow.png') no-repeat;
   cursor: pointer;
   background-size: contain;
   float: right;
