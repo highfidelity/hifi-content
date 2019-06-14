@@ -179,7 +179,7 @@
     this.googleRequest = function(token) {
         var tomorrowMidnight = new Date();
         tomorrowMidnight.setHours(HOURS_PER_DAY, 0, 0, 0);
-        that.scheduleURL = encodeURIComponent("https://www.googleapis.com/calendar/v3/calendars/" + 
+        that.scheduleURL = encodeURI("https://www.googleapis.com/calendar/v3/calendars/" + 
             that.address + 
             "/events?&timeMin=" + (new Date()).toISOString() +
             "&timeMax=" + tomorrowMidnight.toISOString() +
