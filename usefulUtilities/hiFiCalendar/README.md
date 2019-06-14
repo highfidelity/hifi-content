@@ -73,7 +73,7 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Release Notes
 
-## 3.2 | [commit ](https://github.com/highfidelity/hifi-content/pull/400/commits/a12bea4) | 2019-06-14
+## 3.2 | [commit a1dea14](https://github.com/highfidelity/hifi-content/pull/415/commits/a12bea4) | 2019-06-14
 - Fixed double clicking the google button to create duplicate menus
 - Created a custom drop-down solution
 
