@@ -30,6 +30,10 @@ SHA [a5368e9](https://github.com/highfidelity/hifi-content/commits/a5368e9)
 June 11, 2019 Fix for [JIRA 642](https://highfidelity.atlassian.net/browse/BUGZ-642)
 - Clear a var after changing draw mode
 
+SHA [f80f76a6](https://github.com/highfidelity/hifi-content/commits/f80f76a6)
+June 18, 2019 Fix for [JIRA 143](https://highfidelity.atlassian.net/browse/DEV-143)
+- Removed the ability to draw in the air while in desktop mode.
+
 
 ## Known issues
 ### Lines drawn on the board in HMD do not render flat and with an even stroke width
