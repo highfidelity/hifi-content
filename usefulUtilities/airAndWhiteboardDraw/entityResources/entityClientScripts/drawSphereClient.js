@@ -334,6 +334,9 @@
             wasLastPointOnBoard = isCurrentPointOnBoard;
             if (event.isLeftButton) {
                 drawingInDesktop = true;
+                if (!isCurrentPointOnBoard) {
+                    return;
+                }
                 currentStrokeWidth = _this.getCurrentStrokeWidth();
                 _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, currentPoint, true, true);
                 lineStartPosition = currentPoint;
@@ -358,6 +361,9 @@
             currentStrokeWidth = _this.getCurrentStrokeWidth();
             var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, true);
             if (event.isLeftButton) {
+                if (!isCurrentPointOnBoard) {
+                    return;
+                }
                 displacementFromStart = Vec3.subtract(currentPoint, lineStartPosition);
                 _this.draw(isCurrentPointOnBoard);
             } else if (event.isMiddleButton) {
