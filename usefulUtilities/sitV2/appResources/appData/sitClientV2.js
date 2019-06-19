@@ -190,6 +190,7 @@
         Controller.actionEvent.connect(onActionEvent);
 
         MyAvatar.centerBody();
+        MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
 
         Script.setTimeout(function () {
             var hipIndex = MyAvatar.getJointIndex("Hips");
@@ -290,11 +291,10 @@
         var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
         var settingsEntityID = sitCurrentSettings[0];
 
-        MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
-
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
         if (settingsEntityID === _this.entityID) { // POSSIBLE RACE CONDITION WITH SETTINGS BEING CHANGED BY NEW SEAT
+            MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
             // standing up from this chair
             
             // RESTORE ANIMATION ROLES
