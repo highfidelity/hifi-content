@@ -94,7 +94,6 @@
     // 1st of sit down sequence
     // Called from entity server script to begin sitting down sequence
     var SETTING_KEY_AVATAR_SITTING = "com.highfidelity.avatar.isSitting";
-    var SETTING_KEY_AVATAR_POSITION = "com.highfidelity.avatar.position";
     var SIT_SETTLE_TIME_MS = 350; // Do not pop avatar out of chair immediately if there's an issue
     var STANDUP_DELAY_MS = 25; // ms for timeout in standup
     var SIT_DELAY_MS = 50; // ms for timeouts in sit
@@ -127,22 +126,16 @@
     }
 
 
-    // Save the current avatar position
-    function saveCurrentAvatarPosition(){
-        Settings.setValue(SETTING_KEY_AVATAR_POSITION, MyAvatar.position);
-    }
-
-
     // Move the avatar back to the previous Y
     function returnAvatarToTheCorrectY(){
-        var oldPosition = Settings.getValue(SETTING_KEY_AVATAR_POSITION, MyAvatar.position);
-        var newPosition = [MyAvatar.position.x, oldPosition.y, MyAvatar.position.z];
+        var newPosition = [MyAvatar.position.x, previousAvatarY, MyAvatar.position.z];
         MyAvatar.position = newPosition;
     }
 
 
     // 3rd of sit down sequence (callback for inside 2nd)
     // Used before pinning hips, calculate the math required and lock the chair
+    var previousAvatarY = 0;
     function beforeSitDown() {
         // Set the value of head to hips distance
         // If avatar deviates outside of the minimum and maximum, the avatar will pop out of the chair
@@ -152,7 +145,7 @@
         _this.locked = Entities.getEntityProperties(_this.entityID, 'locked').locked;
         Entities.editEntity(_this.entityID, { locked: true });
         
-        saveCurrentAvatarPosition();
+        previousAvatarY = MyAvatar.position.y;
         calculateSeatCenterPositionForPinningAvatarHips();
         sitDownAndPinAvatar();
     }
