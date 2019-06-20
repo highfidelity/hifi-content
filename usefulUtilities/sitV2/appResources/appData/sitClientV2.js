@@ -300,7 +300,6 @@
         var settingsEntityID = sitCurrentSettings[0];
 
         MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
-        returnAvatarToTheCorrectY();
 
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
@@ -317,6 +316,7 @@
             MyAvatar.hmdLeanRecenterEnabled = true;
             Script.setTimeout(function () {
                 MyAvatar.centerBody();
+                returnAvatarToTheCorrectY();
             }, STANDUP_DELAY_MS);
         }
 
