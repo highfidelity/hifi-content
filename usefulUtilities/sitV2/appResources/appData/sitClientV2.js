@@ -101,9 +101,16 @@
     function startSitDown() {
         var sitEntity = Settings.getValue(SETTING_KEY_AVATAR_SITTING, false);
         if (sitEntity && sitEntity !== _this.entityID) {
-            standUp();
+            standUp(continueSittingDown);
             changedSeats = true;
+        } else {
+            continueSittingDown();
         }
+        
+    }
+
+    function continueSittingDown() {
+
         if (DEBUG) {
             console.log("startSitDown in ", _this.entityID);
         }
@@ -129,7 +136,6 @@
             beforeSitDown();
         }
     }
-
 
     // 3rd of sit down sequence (callback for inside 2nd)
     // Used before pinning hips, calculate the math required and lock the chair
@@ -290,7 +296,7 @@
 
     // Standup functionality
     var WAIT_FOR_USER_TO_STAND_MS = 525;
-    function standUp() {
+    function standUp(callback) {
         if (DEBUG) {
             console.log("standup from ", _this.entityID);
         }
@@ -361,6 +367,11 @@
                 }
             }
         }, WAIT_FOR_USER_TO_STAND_MS);
+
+        if (callback) {
+            var maxOfTwoTimeoutsMs = Math.max(WAIT_FOR_USER_TO_STAND_MS, STANDUP_DELAY_MS);
+            Script.setTimeout(callback, maxOfTwoTimeoutsMs);
+        }  
     }
 
     // Remotely called from canSitZone
