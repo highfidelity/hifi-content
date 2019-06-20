@@ -114,7 +114,11 @@
         // Set isSitting value in Settings
         var sitNewSettings = [_this.entityID];
         changedSeats = false;
+<<<<<<< Updated upstream
         if(Settings.getValue(SETTING_KEY_AVATAR_SITTING, false) !== false && Settings.getValue(SETTING_KEY_AVATAR_SITTING, false)[0] !== _this.entityID){
+=======
+        if (Settings.getValue(SETTING_KEY_AVATAR_SITTING, false) !== false && Settings.getValue(SETTING_KEY_AVATAR_SITTING, false)[0] !== _this.entityID){
+>>>>>>> Stashed changes
             changedSeats = true;
         }
         Settings.setValue(SETTING_KEY_AVATAR_SITTING, sitNewSettings);
@@ -180,7 +184,11 @@
         for (var i in roles) { // restore roles to prevent overlap
             // -----------------THIS IS PRINTING ERRORS WHEN IN HMD WHEN CHANGING SEATS---------------------
             // Rig::restoreRoleAnimation could not find role ***ROLE NAME***
+<<<<<<< Updated upstream
             if(changedSeats){
+=======
+            if (changedSeats){
+>>>>>>> Stashed changes
                 MyAvatar.restoreRoleAnimation(roles[i]);
             } 
             MyAvatar.overrideRoleAnimation(roles[i], ANIMATION_URL, ANIMATION_FPS, true,
@@ -295,7 +303,10 @@
 
         MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
         changedSeats = false;
+<<<<<<< Updated upstream
         Controller.actionEvent.disconnect(onActionEvent);
+=======
+>>>>>>> Stashed changes
 
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
@@ -304,6 +315,10 @@
 
             // RESTORE ANIMATION ROLES
             Settings.setValue(SETTING_KEY_AVATAR_SITTING, null);
+<<<<<<< Updated upstream
+=======
+            Controller.actionEvent.disconnect(onActionEvent);
+>>>>>>> Stashed changes
             var roles = rolesToOverride();
             for (var j in roles) {
                 MyAvatar.restoreRoleAnimation(roles[j]);
