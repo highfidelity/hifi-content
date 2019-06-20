@@ -114,11 +114,9 @@
         // Set isSitting value in Settings
         var sitNewSettings = [_this.entityID];
         changedSeats = false;
-        if(Settings.getValue(SETTING_KEY_AVATAR_SITTING, false) !== false && Settings.getValue(SETTING_KEY_AVATAR_SITTING, false) !== _this.entityID){
+        if(Settings.getValue(SETTING_KEY_AVATAR_SITTING, false) !== false && Settings.getValue(SETTING_KEY_AVATAR_SITTING, false)[0] !== _this.entityID){
             changedSeats = true;
         }
-        console.log(changedSeats);
-        console.log(Settings.getValue(SETTING_KEY_AVATAR_SITTING, false));
         Settings.setValue(SETTING_KEY_AVATAR_SITTING, sitNewSettings);
 
         if (HMD.active) {
@@ -152,7 +150,7 @@
     function onActionEvent(actionID, value) {
         if (actionID === JUMP_ACTION_ID) {
             standUp();
-            Controller.actionEvent.disconnect(onActionEvent);
+            //Controller.actionEvent.disconnect(onActionEvent);
         }
     }
 
@@ -298,10 +296,13 @@
 
         MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
         changedSeats = false;
+        Controller.actionEvent.disconnect(onActionEvent);
+
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
         if (settingsEntityID === _this.entityID) { // POSSIBLE RACE CONDITION WITH SETTINGS BEING CHANGED BY NEW SEAT
             // standing up from this chair
+
             // RESTORE ANIMATION ROLES
             Settings.setValue(SETTING_KEY_AVATAR_SITTING, null);
             var roles = rolesToOverride();
