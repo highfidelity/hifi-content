@@ -16,7 +16,6 @@
     var MAXIMUM_MOVEMENT_TO_DRAW_M = 0.1;
     var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
     var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
-    var DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M = 1.5;
     var STROKE_FORWARD_OFFSET_M = 0.01;
 
     var WAIT_TO_CLEAN_UP_MS = 2000;
@@ -336,9 +335,7 @@
             if (event.isLeftButton) {
                 drawingInDesktop = true;
                 if (!isCurrentPointOnBoard) {
-                    currentPoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, 
-                        DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M));
-                    currentNormal = DEFAULT_NORMAL;
+                    return;
                 }
                 currentStrokeWidth = _this.getCurrentStrokeWidth();
                 _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, currentPoint, true, true);
@@ -365,9 +362,7 @@
             var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, true);
             if (event.isLeftButton) {
                 if (!isCurrentPointOnBoard) {
-                    currentPoint = Vec3.sum(pickRay.origin, Vec3.multiply(pickRay.direction, 
-                        DISTANCE_TO_DRAW_IN_FRONT_OF_CAMERA_DESKTOP_M));
-                    currentNormal = DEFAULT_NORMAL;
+                    return;
                 }
                 displacementFromStart = Vec3.subtract(currentPoint, lineStartPosition);
                 _this.draw(isCurrentPointOnBoard);
