@@ -15,7 +15,7 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Releases
 
-2019-06-19_2-00-00 :: [sitFloorBugFix b63772d1]
+2019-06-19_2-00-00 :: [sitFloorBugFix d90a0d2a]
 - Added a save for the original y position
 
 2019-01-17_14-57-17 :: [sitScriptUpdate ded8ecbc78a44c3c830e1f42fed6dd8e9277a4c1]
