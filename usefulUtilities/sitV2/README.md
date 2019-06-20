@@ -43,6 +43,8 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 2019-06-12_11-30-00 :: [65eb1ecb](https://github.com/highfidelity/hifi-content/pull/392/commits/65eb1ecb)
 - [Jira 655](https://highfidelity.atlassian.net/browse/BUGZ-655) Removed utils.js dependency
 
+2019-06-20_15-00-00 :: [d113bf42](https://github.com/highfidelity/hifi-content/pull/392/commits/d113bf42)
+- [Jira 576](https://highfidelity.atlassian.net/browse/BUGZ-576) Removed animation restore logspam and race condition 
 
 ## Known issues
 
