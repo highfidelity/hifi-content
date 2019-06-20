@@ -113,6 +113,12 @@
 
         // Set isSitting value in Settings
         var sitNewSettings = [_this.entityID];
+        changedSeats = false;
+        if(Settings.getValue(SETTING_KEY_AVATAR_SITTING, false) !== false && Settings.getValue(SETTING_KEY_AVATAR_SITTING, false) !== _this.entityID){
+            changedSeats = true;
+        }
+        console.log(changedSeats);
+        console.log(Settings.getValue(SETTING_KEY_AVATAR_SITTING, false));
         Settings.setValue(SETTING_KEY_AVATAR_SITTING, sitNewSettings);
 
         if (HMD.active) {
@@ -166,7 +172,6 @@
         DriveKeys.STEP_TRANSLATE_Z
     ];
     function sitDownAndPinAvatar() {
-
         MyAvatar.collisionsEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
 
@@ -178,11 +183,12 @@
         for (var i in roles) { // restore roles to prevent overlap
             // -----------------THIS IS PRINTING ERRORS WHEN IN HMD WHEN CHANGING SEATS---------------------
             // Rig::restoreRoleAnimation could not find role ***ROLE NAME***
-            MyAvatar.restoreRoleAnimation(roles[i]); 
+            if(changedSeats){
+                MyAvatar.restoreRoleAnimation(roles[i]);
+            } 
             MyAvatar.overrideRoleAnimation(roles[i], ANIMATION_URL, ANIMATION_FPS, true,
                 ANIMATION_FIRST_FRAME, ANIMATION_LAST_FRAME);
         }
-        
         // Disable movement
         for (var j in DISABLED_DRIVE_KEYS_DURING_SIT) {
             MyAvatar.disableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[j]);
@@ -291,13 +297,13 @@
         var settingsEntityID = sitCurrentSettings[0];
 
         MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
-
+        changedSeats = false;
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
         if (settingsEntityID === _this.entityID) { // POSSIBLE RACE CONDITION WITH SETTINGS BEING CHANGED BY NEW SEAT
             // standing up from this chair
-            
             // RESTORE ANIMATION ROLES
+            Settings.setValue(SETTING_KEY_AVATAR_SITTING, null);
             var roles = rolesToOverride();
             for (var j in roles) {
                 MyAvatar.restoreRoleAnimation(roles[j]);
