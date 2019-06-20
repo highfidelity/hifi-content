@@ -150,7 +150,6 @@
     function onActionEvent(actionID, value) {
         if (actionID === JUMP_ACTION_ID) {
             standUp();
-            //Controller.actionEvent.disconnect(onActionEvent);
         }
     }
 
