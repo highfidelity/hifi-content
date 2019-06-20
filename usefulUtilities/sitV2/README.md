@@ -49,21 +49,6 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 2019-01-17_14-57-17 :: [sitScriptUpdate ded8ecbc78a44c3c830e1f42fed6dd8e9277a4c1]
 - During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
 
-
-
-
-
-
-
-
-
-
-
-
-
-2019-06-20_15-00-00 :: [d113bf42](https://github.com/highfidelity/hifi-content/pull/392/commits/d113bf42)
-- [Jira 576](https://highfidelity.atlassian.net/browse/BUGZ-576) Removed animation restore logspam and race condition 
-
 ## Known issues
 
 ### Solution to other entities taking the "Click to Sit" click events
