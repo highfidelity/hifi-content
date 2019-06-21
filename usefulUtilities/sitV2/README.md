@@ -15,6 +15,9 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Releases
 
+2019-06-21_10-56-00 :: [75b55a27](https://github.com/highfidelity/hifi-content/pull/392/commits/75b55a27)
+- [Jira 576](https://highfidelity.atlassian.net/browse/BUGZ-576) Removed animation restore logspam
+
 2019-06-19_15-56-00 :: [6ee18e8](https://github.com/highfidelity/hifi-content/pull/392/commits/6ee18e8)
 - [Jira 575](https://highfidelity.atlassian.net/browse/BUGZ-575) Ensure pin on joint is only cleared when standing or before setting new pin
 
@@ -45,19 +48,6 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 2019-01-17_14-57-17 :: [sitScriptUpdate ded8ecbc78a44c3c830e1f42fed6dd8e9277a4c1]
 - During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ## Known issues
 

@@ -19,7 +19,6 @@
 (function () {
     
     var DEBUG = 0;
-
     // #region UTILITIES
 
     // Returns entity properties for an overlay in front of user's camera in desktop and VR
@@ -98,7 +97,14 @@
     var STANDUP_DELAY_MS = 25; // ms for timeout in standup
     var SIT_DELAY_MS = 50; // ms for timeouts in sit
     var CAN_SIT_M = 5; // zone radius
+    var changedSeats = false;
     function startSitDown() {
+        var sitEntity = Settings.getValue(SETTING_KEY_AVATAR_SITTING, false);
+        if (sitEntity && sitEntity !== _this.entityID) {
+            standUp();
+            changedSeats = true;
+        }
+        
         if (DEBUG) {
             console.log("startSitDown in ", _this.entityID);
         }
@@ -112,7 +118,7 @@
         deleteSittableUI();
 
         // Set isSitting value in Settings
-        var sitNewSettings = [_this.entityID];
+        var sitNewSettings = _this.entityID;
         Settings.setValue(SETTING_KEY_AVATAR_SITTING, sitNewSettings);
 
         if (HMD.active) {
@@ -124,7 +130,6 @@
             beforeSitDown();
         }
     }
-
 
     // 3rd of sit down sequence (callback for inside 2nd)
     // Used before pinning hips, calculate the math required and lock the chair
@@ -146,7 +151,6 @@
     function onActionEvent(actionID, value) {
         if (actionID === JUMP_ACTION_ID) {
             standUp();
-            Controller.actionEvent.disconnect(onActionEvent);
         }
     }
 
@@ -165,8 +169,8 @@
         DriveKeys.STEP_TRANSLATE_Y,
         DriveKeys.STEP_TRANSLATE_Z
     ];
+    var isConnected = false;
     function sitDownAndPinAvatar() {
-
         MyAvatar.collisionsEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
 
@@ -178,16 +182,20 @@
         for (var i in roles) { // restore roles to prevent overlap
             // -----------------THIS IS PRINTING ERRORS WHEN IN HMD WHEN CHANGING SEATS---------------------
             // Rig::restoreRoleAnimation could not find role ***ROLE NAME***
-            MyAvatar.restoreRoleAnimation(roles[i]); 
+            if (changedSeats) {
+                MyAvatar.restoreRoleAnimation(roles[i]);
+            } 
             MyAvatar.overrideRoleAnimation(roles[i], ANIMATION_URL, ANIMATION_FPS, true,
                 ANIMATION_FIRST_FRAME, ANIMATION_LAST_FRAME);
         }
-        
         // Disable movement
         for (var j in DISABLED_DRIVE_KEYS_DURING_SIT) {
             MyAvatar.disableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[j]);
         }
-        Controller.actionEvent.connect(onActionEvent);
+        if (!isConnected) {
+            Controller.actionEvent.connect(onActionEvent);
+            isConnected = true;
+        }
 
         MyAvatar.centerBody();
         MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
@@ -289,8 +297,13 @@
 
         // get the entityID, previous position and orientation 
         var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
-        var settingsEntityID = sitCurrentSettings[0];
+        var settingsEntityID = sitCurrentSettings;
 
+        changedSeats = false;
+        if (isConnected) {
+            Controller.actionEvent.disconnect(onActionEvent);
+            isConnected = false;
+        }
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
         if (settingsEntityID === _this.entityID) { // POSSIBLE RACE CONDITION WITH SETTINGS BEING CHANGED BY NEW SEAT
@@ -298,6 +311,7 @@
             // standing up from this chair
             
             // RESTORE ANIMATION ROLES
+            Settings.setValue(SETTING_KEY_AVATAR_SITTING, null);
             var roles = rolesToOverride();
             for (var j in roles) {
                 MyAvatar.restoreRoleAnimation(roles[j]);
@@ -580,7 +594,7 @@
         Entities.callEntityServerMethod(_this.entityID, "checkResolved");
     }
 
-
+    
     // Can sit when clicking on chair when enabled via userData
     function mousePressOnEntity(id, event) {
         if (event.isPrimaryButton && !Settings.getValue(EDIT_SETTING, false)) {
