@@ -31,9 +31,9 @@
     // If seat is not occupied, server script calls the client method that begins the sit down process
     var HEARTBEAT_INTERVAL_TIME_MS = 10000; // ms
     var RESOLVED_TIMEOUT_TIME_MS = 1000; // ms
-    function onSitDown(id, param) {
+    function requestSitDown(id, param) {
         if (DEBUG) {
-            console.log("server onSitDown");
+            console.log("server requestSitDown");
         }
         if (_this.isOccupied === false) {
             if (DEBUG) {
@@ -216,7 +216,7 @@
     // Entity methods
     SitServer.prototype = {
         remotelyCallable: [
-            "onSitDown",
+            "requestSitDown",
             "onStandUp",
             "checkResolved",
             "removeAllOtherSittableOverlays",
@@ -224,7 +224,7 @@
         ],
         preload: preload,
         checkResolved: checkResolved,
-        onSitDown: onSitDown,
+        requestSitDown: requestSitDown,
         onStandUp: onStandUp,
         removeAllOtherSittableOverlays: removeAllOtherSittableOverlays,
         addAllOtherSittableOverlays: addAllOtherSittableOverlays,
