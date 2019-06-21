@@ -299,7 +299,6 @@
         var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
         var settingsEntityID = sitCurrentSettings;
 
-        MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
         changedSeats = false;
         if (isConnected) {
             Controller.actionEvent.disconnect(onActionEvent);
