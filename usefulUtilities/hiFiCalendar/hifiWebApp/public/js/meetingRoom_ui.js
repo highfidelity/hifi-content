@@ -12,6 +12,7 @@
 
 document.getElementById("containerLoader").style.display = "block";
 var canClickLogin = false;
+
 var YOUR_CLIENT_ID = 'Your Client ID';
 var YOUR_REDIRECT_URI = 'Your redirect URI';
 var SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
@@ -78,9 +79,12 @@ while (m = regex.exec(fragmentString)) {
 }
 if (Object.keys(params).length > 0) {
     canClickLogin = false;
-    document.getElementById("containerLoader").style.display = "block";
     sessionStorage.setItem('oauth2-params', JSON.stringify(params));
     exchangeCode(params);
+
+    document.getElementById("introPage").style.display = "none";
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("main").style.display = "block";
 } else {
     canClickLogin = true;
     document.getElementById("containerLoader").style.display = "none";
@@ -323,18 +327,21 @@ var CONNECTOR_PAGE = document.getElementById("connectorPage");
 var SUCCESS_PAGE = document.getElementById('linkSuccessPage');
 var VIEW_ALL_PAGE = document.getElementById('allLinksPage');
 var ERROR_PAGE = document.getElementById('errorPage');
+var INTRO_PAGE = document.getElementById('introPage');
 var pages = [
     LOGIN_PAGE,
     CONNECTOR_PAGE,
     SUCCESS_PAGE,
     VIEW_ALL_PAGE,
-    ERROR_PAGE
+    ERROR_PAGE,
+    INTRO_PAGE
 ];
 var PAGE_LOGIN = 0;
 var PAGE_SEE_AVAILABLE = 1;
 var PAGE_FINALIZE_CHOICES = 2;
 var PAGE_EDIT = 3;
 var PAGE_ERROR = 4;
+var PAGE_INTRO = 5;
 function changePages(origin, destination) {
     switch (origin) {
         case "LOGIN":
@@ -364,6 +371,8 @@ function changePages(origin, destination) {
             break;  
     }
     switch (destination) {
+        case "INTRO": 
+            showHidePages(PAGE_INTRO);
         case "LOGIN":
             showHidePages(PAGE_LOGIN);
             if (canClickLogin) {
@@ -596,11 +605,20 @@ function connectionSuccess(lastPage) {
 }
 
 
+// Takes you to the google sign in section
+function signIn(lastPage){
+    document.getElementById("main").style.display = "block";
+    document.getElementById("introPage").style.display = "none";
+}
+
+
 // Buttons by Page
 // Login Page
 var loginButton = document.getElementById("login");
+var signinButton = document.getElementById("signin");
 if (canClickLogin) {
     loginButton.addEventListener('click', getCalendars);
+    signinButton.addEventListener('click', signIn);
 }
 
 // Connector Page
@@ -637,6 +655,7 @@ var logoutButton4 = document.getElementById('logout4');
 // START Data-Transfer
 // *************************************
 // #region Data-Transfer
+
 
 // If there's an access token, try an API request.
 // Otherwise, start OAuth 2.0 flow.

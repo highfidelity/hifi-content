@@ -209,6 +209,24 @@ footer {
 }
 
 /*** PAGES ***/
+#introPage {
+  width: 100%;
+}
+
+#appInfo {
+  position: absolute;
+  width: 90%;
+  height: 400px;
+  font-family: 'Graphik-Regular';
+  font-size: 14.5px;
+  top: 320px;
+  z-index: -2;
+  overflow-x: auto;
+  left: calc(100vw - 95.25%);
+  right: calc(100vw - 98%);
+}
+
+
 #loginPage {
   display: initial;
   overflow: hidden;
@@ -247,6 +265,26 @@ footer {
   background: url(../resources/images/btn_google_signin_dark_normal_web@2x.png);
   background-repeat: no-repeat;
   background-size: contain;
+}
+
+.signin {
+  border: none;
+  position: absolute;
+  width: 150px;
+  margin: 0% auto;
+  height: 35px;
+  top: 630px;
+  left: calc(100vw - 75%);
+  right: calc(100vw - 75%);
+  font-size: 25px;
+  color: black;
+  background-color: rgb(220, 220, 220);
+}
+
+.signin:hover {
+  cursor: pointer;
+  background-color: black;
+  color:  rgb(220, 220, 220);
 }
 
 .login:enabled {
