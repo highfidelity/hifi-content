@@ -101,14 +101,10 @@
     function startSitDown() {
         var sitEntity = Settings.getValue(SETTING_KEY_AVATAR_SITTING, false);
         if (sitEntity && sitEntity !== _this.entityID) {
-            standUp(continueSittingDown);
+            standUp();
             changedSeats = true;
-        } else {
-            continueSittingDown();
-        }  
-    }
-
-    function continueSittingDown() {
+        }
+        
         if (DEBUG) {
             console.log("startSitDown in ", _this.entityID);
         }
@@ -294,7 +290,7 @@
 
     // Standup functionality
     var WAIT_FOR_USER_TO_STAND_MS = 525;
-    function standUp(callback) {
+    function standUp() {
         if (DEBUG) {
             console.log("standup from ", _this.entityID);
         }
@@ -314,7 +310,7 @@
         if (settingsEntityID === _this.entityID) { // POSSIBLE RACE CONDITION WITH SETTINGS BEING CHANGED BY NEW SEAT
             MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
             // standing up from this chair
-
+            
             // RESTORE ANIMATION ROLES
             Settings.setValue(SETTING_KEY_AVATAR_SITTING, null);
             var roles = rolesToOverride();
@@ -365,11 +361,6 @@
                 }
             }
         }, WAIT_FOR_USER_TO_STAND_MS);
-
-        if (callback) {
-            var maxOfTwoTimeoutsMs = Math.max(WAIT_FOR_USER_TO_STAND_MS, STANDUP_DELAY_MS);
-            Script.setTimeout(callback, maxOfTwoTimeoutsMs);
-        }  
     }
 
     // Remotely called from canSitZone
