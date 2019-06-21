@@ -105,12 +105,10 @@
             changedSeats = true;
         } else {
             continueSittingDown();
-        }
-        
+        }  
     }
 
     function continueSittingDown() {
-
         if (DEBUG) {
             console.log("startSitDown in ", _this.entityID);
         }
