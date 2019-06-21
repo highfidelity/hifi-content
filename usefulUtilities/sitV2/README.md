@@ -15,8 +15,8 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Releases
 
-2019-06-20_15-00-00 :: [a3f47044](https://github.com/highfidelity/hifi-content/pull/392/commits/a3f47044)
-- [Jira 576](https://highfidelity.atlassian.net/browse/BUGZ-576) Removed animation restore logspam and race condition
+2019-06-21_10-56-00 :: [9fa24fd9](https://github.com/highfidelity/hifi-content/pull/392/commits/9fa24fd9)
+- [Jira 576](https://highfidelity.atlassian.net/browse/BUGZ-576) Removed animation restore logspam
 
 2019-06-19_15-56-00 :: [6ee18e8](https://github.com/highfidelity/hifi-content/pull/392/commits/6ee18e8)
 - [Jira 575](https://highfidelity.atlassian.net/browse/BUGZ-575) Ensure pin on joint is only cleared when standing or before setting new pin
