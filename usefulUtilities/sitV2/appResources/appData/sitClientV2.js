@@ -17,7 +17,6 @@
 /* global DriveKeys */
 
 (function () {
-    console.log("v3");
     var DEBUG = 0;
     // #region UTILITIES
 
@@ -474,11 +473,6 @@
     }
 
     // #endregion PRESIT
-
-
-    // #region HOLD TO STANDUP LOCAL ENTITY
-
-    // #endregion HOLD TO STANDUP
 
 
     // #region SITTABLE LOCAL ENTITY
