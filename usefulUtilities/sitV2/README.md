@@ -15,6 +15,9 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Releases
 
+2019-06-24_10-56-00 :: [75b55a27](https://github.com/highfidelity/hifi-content/pull/392/commits/75b55a27)
+- [Jira 773](https://highfidelity.atlassian.net/browse/BUGZ-773) Added a bump when an avatar gets out of a chair to help with getting stuck in the floor
+
 2019-06-21_10-56-00 :: [75b55a27](https://github.com/highfidelity/hifi-content/pull/392/commits/75b55a27)
 - [Jira 576](https://highfidelity.atlassian.net/browse/BUGZ-576) Removed animation restore logspam
 
@@ -58,6 +61,14 @@ Collisions with other entity's invisible collision hulls sometimes make it diffi
 ### Sit animation does not apply to an avatar using a different default animation
 
 Animation that is applied before sitting is applied while in the chair and continues after standup. 
+
+### Race condition for making sure you stood up before you sat down when sitting
+
+When a user clicks to sit on another chair while they are already sitting down, the intention is to have them standup first before sitting down again.  We don't have a guarentee that this is done currently. 
+
+### Unreliable method for making sure we know where the floor is when we standup
+
+We explored saving the Y position before we sit down, but that introduces several issues of when that Y position might not be a useful reference.  In the current architecture, we are  teleporting to the next clicked on seat by using the position of the clicked on sit box, and then adding some calculations to figure out where your hips should go using a sit animation.  If we fix the race condition mentioned above and we save the current Y before we sit down, we still don't have a guarantee that we would be getting an agreeable Y position reference when standing back up depending on where the avatar just quickly teleported to before sitting down again. Adding a small bump to the position should generally take care of the problems we were seeing with users stuck in the floor, but there could be an edge case where the bump is enough to go through the ceiling. 
 
 ### Future features
 
