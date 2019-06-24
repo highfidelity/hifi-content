@@ -15,7 +15,7 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Releases
 
-2019-06-24_2-00-00 :: [sitFloorBugFix d90a0d2a]
+2019-06-24_2-00-00 :: [sitFloorBugFix e0b8990]
 - [Jira 733](https://highfidelity.atlassian.net/browse/BUGZ-733) Added a save for the original y position
 
 2019-06-21_10-56-00 :: [75b55a27](https://github.com/highfidelity/hifi-content/pull/392/commits/75b55a27)
