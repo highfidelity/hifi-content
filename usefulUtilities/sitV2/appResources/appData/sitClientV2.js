@@ -17,7 +17,6 @@
 /* global DriveKeys */
 
 (function () {
-    
     var DEBUG = 0;
     // #region UTILITIES
 
@@ -290,6 +289,7 @@
 
     // Standup functionality
     var WAIT_FOR_USER_TO_STAND_MS = 525;
+    var STANDUP_BUMP = 0.225; 
     function standUp() {
         if (DEBUG) {
             console.log("standup from ", _this.entityID);
@@ -321,6 +321,9 @@
             MyAvatar.hmdLeanRecenterEnabled = true;
             Script.setTimeout(function () {
                 MyAvatar.centerBody();
+                var currentPosition = MyAvatar.position;
+                currentPosition.y = currentPosition.y + STANDUP_BUMP;
+                MyAvatar.position = currentPosition;
             }, STANDUP_DELAY_MS);
         }
 
@@ -470,11 +473,6 @@
     }
 
     // #endregion PRESIT
-
-
-    // #region HOLD TO STANDUP LOCAL ENTITY
-
-    // #endregion HOLD TO STANDUP
 
 
     // #region SITTABLE LOCAL ENTITY
