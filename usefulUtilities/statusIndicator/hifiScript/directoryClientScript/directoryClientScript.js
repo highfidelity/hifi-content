@@ -16,6 +16,11 @@
     
     var DIRECTORY_URL_BASE = "https://www.highfidelity.co/statusIndicator/allEmployees.html?organization=";
     function preload(id) {
+        // Don't bother doing anything if the user can't rez
+        if (!Entities.canRez()) {
+            return;
+        }
+
         var currentURL = Entities.getEntityProperties(id, ["sourceUrl"]).sourceUrl;
         var newURL = DIRECTORY_URL_BASE + AddressManager.hostname;
         if (currentURL !== newURL) {
