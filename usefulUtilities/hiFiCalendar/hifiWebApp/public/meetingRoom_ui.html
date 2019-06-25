@@ -3,13 +3,47 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" type="text/css" href="./css/styles.css?v280">
+        <link rel="stylesheet" type="text/css" href="./css/styles.css">
     </head>
     <body>
         <div id="containerLoader" style="display: block;">
 
         </div>
-        <div id="main">
+        <div id="introPage" style="display: block;">
+            <pre id="content" style="white-space: pre-wrap;"></pre>
+            <div id="background1">
+                <h1>Meeting Room Connector</h1>         
+                <p><h2>Connect your virtual meeting rooms to your Google Calendar for easy space management.</h2>
+            </div>
+            <div id="h1TopRight"></div>
+            <div id="h1BottomLeft"></div>
+            <div id="appInfo">
+                <p>
+                    This app links the meeting room schedules on your Google Calendar to meeting rooms in your virtual HQ, allowing you to see current and future meetings without leaving your headquarters.
+                </p>
+                <p>
+                    We will have read-only access to your Google Calendars, and will parse the latest event information from the specific calendars that you choose to connect. 
+                </p>
+
+                <p>
+                    After you connect your Calendars, the only data that will be temporarily stored is information regarding the next 2 meetings currently scheduled on that calendar. That data is permanently deleted when the events have concluded.
+                </p>
+                <p>
+                    Only rerun this app if you need to connect your virtual meeting rooms to different Google Calendars.
+                </p>
+                <p>
+                    Click "Sign In" below to begin linking your calendar to your HQ!
+                </p>
+            </div>
+            <button class="signin" id="signin">Sign In</button>
+            <div >
+                <footer class="bttmleft"><a href="https://www.highfidelity.com/termsofservice">Terms of Service</a></footer>
+            </div>
+            <div>
+                <footer class="bttmright"><a href="https://www.highfidelity.com/privacy">Privacy Policy</a></footer>
+            </div>
+        </div>
+        <div id="main" style="display: none;">
             <pre id="content" style="white-space: pre-wrap;"></pre>
             <div id="loginPage">
                 <div id="background1">
@@ -136,8 +170,6 @@
                 </div>
             </div>
         </div>
-        
-
         <script src="./js/meetingRoom_ui.js"
             onload="this.onload=function(){};document.getElementById('login').disabled=false;" 
             onreadystatechange="if (this.readyState === 'complete') this.onload()">
