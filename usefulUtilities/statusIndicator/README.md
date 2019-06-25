@@ -73,7 +73,7 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
-## v2.4 | 2019-06-25_15-46-00 | [commit 571b680](https://github.com/highfidelity/hifi-content/commits/571b680)
+## v2.4 | 2019-06-25_15-46-00 | [commit ac44aee](https://github.com/highfidelity/hifi-content/commits/ac44aee)
 - Added `directoryClientScript.js` to help make directory setup process easier.
 
 ## v2.4 | 2019-04-08_09-11-00 | [commit a2477fb](https://github.com/highfidelity/hifi-content/commits/a2477fb)
