@@ -3,6 +3,8 @@ Let other avatars know your status!
 
 This script creates a clickable button in upper right hand corner of your screen to set status to available or busy. The button only appears in Desktop mode.
 
+## "Directory Board" Setup
+
 A web app and database tracks these statuses. Using a web entity, you can display everyone's status in a table by going to:
 
 To see everyone's status:
@@ -10,6 +12,10 @@ To see everyone's status:
 
 To see a team's list status:
 `https://<hostname>/statusIndicator/team?teamName=<team name>`
+
+For automated setup:
+1. Rez a Web entity
+2. Attach `directoryClientScript.js` as a script on that Web entity.
 
 
 ## Setup
@@ -66,6 +72,9 @@ You can perform a local 1-person test of this new code by doing the following:
     - Run `node statusIndicator_webApp.js` from the `webApp/app` directory
 
 # Release Notes
+
+## v2.4 | 2019-06-25_15-46-00 | [commit ac44aee](https://github.com/highfidelity/hifi-content/commits/ac44aee)
+- Added `directoryClientScript.js` to help make directory setup process easier.
 
 ## v2.4 | 2019-04-08_09-11-00 | [commit a2477fb](https://github.com/highfidelity/hifi-content/commits/a2477fb)
 - Added a `canary` HTTP GET endpoint for monitoring
