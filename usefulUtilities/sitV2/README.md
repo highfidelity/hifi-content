@@ -64,11 +64,13 @@ Animation that is applied before sitting is applied while in the chair and conti
 
 ### Race condition for making sure you stood up before you sat down when sitting
 
-When a user clicks to sit on another chair while they are already sitting down, the intention is to have them standup first before sitting down again.  We don't have a guarentee that this is done currently. 
+When a user clicks to sit on another chair while they are already sitting down, the intention is to have them stand up first and reset the sit state machine before sitting down again. We don't have a guarantee that this is done given the current code architecture, so we have implemented a number of workarounds to ensure that moving between seats works smoothly. Check out [BUGZ-809](https://highfidelity.atlassian.net/browse/BUGZ-809) for more details. 
 
 ### Unreliable method for making sure we know where the floor is when we standup
 
-We explored saving the Y position before we sit down, but that introduces several issues of when that Y position might not be a useful reference.  In the current architecture, we are  teleporting to the next clicked on seat by using the position of the clicked on sit box, and then adding some calculations to figure out where your hips should go using a sit animation.  If we fix the race condition mentioned above and we save the current Y before we sit down, we still don't have a guarantee that we would be getting an agreeable Y position reference when standing back up depending on where the avatar just quickly teleported to before sitting down again. Adding a small bump to the position should generally take care of the problems we were seeing with users stuck in the floor, but there could be an edge case where the bump is enough to go through the ceiling. 
+In the current Sit code architecture, we begin sitting in a seat by using the position of the clicked "sit cube", and then adding some constant to figure out where your hips should go during the sit animation. To figure out where to position the avatar upon stand-up, we explored saving the Y position of the avatar before sitting down, but there are several cases where that saved Y position might not be a useful reference - consider the user standing on a different vertical plane as the chair.
+In this version of the code, we add a small, arbitrary value to the Y position of the user when standing. This should generally take care of the problems we were seeing with users stuck in the floor. However, there still exists the possibility of an edge case where the small increase in Y position is enough to force the user through a room's ceiling. 
+[DEV-167](https://highfidelity.atlassian.net/browse/DEV-167) for further reference.  
 
 ### Future features
 
