@@ -73,6 +73,9 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Release Notes
 
+## 3.4 | [commit fdf2bae](https://github.com/highfidelity/hifi-content/pull/420/commits/fdf2bae) | 2019-06-26
+- Made text entity smaller for event list to prevent overlap [JIRA 487](https://highfidelity.atlassian.net/browse/BUGZ-487)
+
 ## 3.3 | [commit 428bea52](https://github.com/highfidelity/hifi-content/pull/420/commits/428bea52) | 2019-06-21
 - Added intro page for google verification
 
