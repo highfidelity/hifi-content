@@ -366,6 +366,7 @@ function changePages(origin, destination) {
             break;
         case "ERROR":
             backButton.removeEventListener('click', getCalendars);
+            learnButton.removeEventListener('click', openLearnLink);
             revokeButton4.removeEventListener('click', revokeAccess);
             logoutButton4.removeEventListener('click', signOut);
             break;  
@@ -423,6 +424,7 @@ function changePages(origin, destination) {
         case "ERROR":
             showHidePages(PAGE_ERROR);
             backButton.addEventListener('click', getCalendars);
+            learnButton.addEventListener('click', openLearnLink);
             revokeButton4.addEventListener('click', revokeAccess);
             logoutButton4.addEventListener('click', signOut);
             break; 
@@ -642,6 +644,7 @@ var logoutButton3 = document.getElementById('logout3');
 
 // Error Page
 var backButton = document.getElementById('tryAgain');
+var learnButton = document.getElementById('learn');
 var revokeButton4 = document.getElementById('revoke4');
 var logoutButton4 = document.getElementById('logout4');
 
@@ -694,6 +697,15 @@ function getCalendars() {
         oauth2SignIn();
     }
     document.getElementById('linkedspaces').innerHTML = '';
+}
+
+
+// Open up the learn link for the user
+function openLearnLink() {
+    EventBridge.emitWebEvent(JSON.stringify({
+        type: "OPEN RESOURCE LINK"
+    }));
+    getCalendars();
 }
 
 
