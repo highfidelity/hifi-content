@@ -217,6 +217,7 @@
                 location.hostChanged.connect(_this.standUp);
                 Script.scriptEnding.connect(_this.standUp);
                 MyAvatar.wentAway.connect(_this.standUp);
+                HMD.displayModeChanged.connect(_this.standUp);
                 _this.connectedSignals = true;
             }
         }, SIT_DELAY_MS);
@@ -582,6 +583,7 @@
             location.hostChanged.disconnect(_this.standUp);
             Script.scriptEnding.disconnect(_this.standUp);
             MyAvatar.wentAway.disconnect(_this.standUp);
+            HMD.displayModeChanged.disconnect(_this.standUp);
             _this.connectedSignals = false;
         }
     }
