@@ -1,0 +1,47 @@
+********************
+TITLE START
+********************
+
+RPO360 Cam v1.2
+
+********************
+TITLE END
+********************
+
+
+********************
+CATEGORIES START
+********************
+
+Apps, Scripts & Tools
+
+********************
+CATEGORIES END
+********************
+
+
+********************
+DESCRIPTION (Markup) START
+********************
+
+As-seen-in Ready Player One, **RPO360 Cam** provides you with a novel way to capture and share 360 photos! Rez the cam, grab it, then toss it high in the sky to capture an incredible view of your favorite domains.
+
+Use **RPO360 Cam** to capture parties, large gatherings, and beautiful areas, then share what you've captured as a "Globe" or a "Street View Orb". Try it for yourself!
+
+You can use RPO360 Cam in both Desktop Mode and VR Mode. Throwing the camera in the air is easier in VR mode with hand controllers.
+
+### Changelog
+
+**v1.2 (2019-06-27)**
+- We've moved the code for this project into a new remote folder, which necessitated a version bump. There are no changes to functionality.
+
+**v1.1 (2018-11-5)**
+- Code cleaned up; bugs squashed!
+- Uploaded to the official High Fidelity account
+
+**v1.0 (2018-10-29)**
+- Initial Release!
+
+********************
+DESCRIPTION (Markup) END
+********************
