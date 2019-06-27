@@ -1,0 +1,45 @@
+Are you a **livestreamer, YouTuber, or creative type** who enjoys making videos? Try out Spectator Camera!
+
+Using the Spectator Camera tablet app, you can spawn a virtual camera whose viewpoint shows up on your monitor. Use the Camera with OBS Studio to record and stream your High Fidelity adventures.
+
+You can also use your hand controller to take a snapshot with the Spectator Camera - it's like a virtual selfie stick without all of the silly limitations of physics!
+
+Last but not least - use Spectator Camera to take a 360 photo! 360 Photos taken with Spectator Camera can be shared on Facebook, [Kuula](https://kuula.co/), [Veer](https://veer.tv/), and other sites. They can also be used as skyboxes for your domain.
+
+**Changelog:**
+
+v2.5 (2019-06-27)
+
+- We've moved the code for this project into a new remote folder, which necessitated a version bump. There are no changes to functionality.
+
+v2.4 (2018-12-12)
+
+- Fixed the wiring of a couple signal handlers to prevent erroneous EventBridge messaging
+
+v2.3 (2018-07-11)
+
+- Fixed a bug that caused duplicate Spectator Camera models to appear after Interface crashed and the user re-enabled Spectator Camera
+
+v2.2 (2018-06-14)
+
+- Added a camera flash to light up those dark areas - improve your selfie game with the flash!
+- Added a fix for the UI sometimes not being completely initialized (i.e. blank text next to checkboxes)
+- Fixed a crash that might have occurred when taking a Still Snapshot
+- Added the app version number in the header
+- Fixed a logging bug
+
+v2.1 (2018-06-13)
+
+- Fixed a crash that occurred when taking a 360 Snapshot
+
+v2.0 (2018-06)
+
+- Spectator Camera is now an officially certified app! This means you can now buy it from the Marketplace and have it show up in "My Purchases".
+- You can now take a Snapshot from the point of view of your Spectator Camera using your right hand controller's thumbstick/thumbpad!
+- You can now take 360 photos from the point of view of your Spectator Camera
+- You can now change the Field of View (zoom) of the Spectator Camera
+- Completely new UI
+
+v1.0 (2017-07)
+
+- Initial Release!

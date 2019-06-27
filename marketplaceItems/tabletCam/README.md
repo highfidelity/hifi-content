@@ -20,6 +20,10 @@ The Tablet Cam app allows you to **easily take selfies and regular photos in Hig
 
 ## Changelog
 
+### v2.1 (2019-06-27)
+
+- We've moved the code for this project into a new remote folder, which necessitated a version bump. There are no changes to functionality.
+
 ### v2.0 (2019-04)
 
 **I've made some huge changes in v2.0!**
