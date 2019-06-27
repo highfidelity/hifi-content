@@ -569,7 +569,7 @@
         updateUserData();
 
         var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
-        var settingsEntityID = sitCurrentSettings[0];
+        var settingsEntityID = sitCurrentSettings;
         if (settingsEntityID === _this.entityID) {
             try {
             // Enable movement again
