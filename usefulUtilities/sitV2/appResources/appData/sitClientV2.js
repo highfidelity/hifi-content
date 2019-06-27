@@ -567,6 +567,19 @@
         // download sit animation
         AnimationCache.prefetch(ANIMATION_URL);
         updateUserData();
+
+        var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
+        var settingsEntityID = sitCurrentSettings[0];
+        if (settingsEntityID === _this.entityID) {
+            try {
+            // Enable movement again
+                for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
+                    MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
+                }
+            } catch (err) {
+                print("Cannot enable movement.");
+            }
+        }
     }
 
 
