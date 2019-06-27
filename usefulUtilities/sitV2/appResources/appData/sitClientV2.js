@@ -572,6 +572,18 @@
 
     // Unload entity method
     function unload() {
+        var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
+        if (sitCurrentSettings === _this.entityID) {
+            try {
+            // Enable movement again
+                for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
+                    MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
+                }
+            } catch (err) {
+                print("Cannot enable movement.");
+            }
+        }
+
         deleteSittableUI();
         deletePresit();
         standUp();
