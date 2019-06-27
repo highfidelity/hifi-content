@@ -15,6 +15,9 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Releases
 
+2019-06-26_17-33-21 :: [d2c920c]
+- [DEV 150](https://highfidelity.atlassian.net/browse/DEV-150) Connected signal for HMD
+
 2019-06-24_10-56-00 :: [d3de76d]
 - [Jira 773](https://highfidelity.atlassian.net/browse/BUGZ-773) Added a bump when an avatar gets out of a chair to help with getting stuck in the floor
 
