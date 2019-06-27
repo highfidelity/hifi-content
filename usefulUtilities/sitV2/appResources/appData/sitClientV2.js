@@ -567,10 +567,13 @@
         // download sit animation
         AnimationCache.prefetch(ANIMATION_URL);
         updateUserData();
+    }
 
+
+    // Unload entity method
+    function unload() {
         var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
-        var settingsEntityID = sitCurrentSettings;
-        if (settingsEntityID === _this.entityID) {
+        if (sitCurrentSettings === _this.entityID) {
             try {
             // Enable movement again
                 for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
@@ -580,11 +583,7 @@
                 print("Cannot enable movement.");
             }
         }
-    }
 
-
-    // Unload entity method
-    function unload() {
         deleteSittableUI();
         deletePresit();
         standUp();
