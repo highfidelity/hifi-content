@@ -73,6 +73,10 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Release Notes
 
+## 3.5 | [commit 43d222f] | 2019-06-26
+- Fixed the spam log [JIRA 708](https://highfidelity.atlassian.net/browse/BUGZ-708)
+- Fixed the learn more link [JIRA 822](https://highfidelity.atlassian.net/browse/BUGZ-822)
+
 ## 3.4 | [commit fdf2bae](https://github.com/highfidelity/hifi-content/pull/420/commits/fdf2bae) | 2019-06-26
 - Made text entity smaller for event list to prevent overlap [JIRA 487](https://highfidelity.atlassian.net/browse/BUGZ-487)
 
