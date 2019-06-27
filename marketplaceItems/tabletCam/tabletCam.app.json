@@ -1,4 +1,4 @@
 {
-    "scriptURL": "./appData/tabletCam.js",
-    "homeURL": "./appData/ui/TabletCam.qml"
+    "scriptURL": "https://content.highfidelity.com/Experiences/Releases/marketPlaceItems/tabletCam/v2.1/tabletCam_app.js",
+    "homeURL": "https://content.highfidelity.com/Experiences/Releases/marketPlaceItems/tabletCam/v2.1/ui/TabletCam.qml"
 }

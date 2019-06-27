@@ -23,6 +23,7 @@
     var roomConfigInfo = [];
     var TOKEN_SERVER_ID;
 
+
     // Handle messages from the tablet
     function onWebMessage(data) {
         switch (data.type) {
@@ -37,6 +38,11 @@
                     type: "AVAILABLE ROOMS",
                     roomConfig: roomConfigInfo
                 });
+                break;
+            case "OPEN RESOURCE LINK":
+                var LINK_URL = Script.resolvePath("./externalQMLInfo.qml");
+                var window = Desktop.createWindow(LINK_URL);
+                window.close();
                 break;
             case "SETUP COMPLETE":
                 token = data.access_token;
@@ -84,7 +90,7 @@
                 console.error("There was an error, here's what we know:\n" + 
                     message.entityName + "\nError: " + 
                     message.errorMessage + "\nHappened during: " + 
-                    message.attemptedAction);
+                    message.actionAttempted);
                 return;
             } else if (message.type === "REFRESH SUCCESS") {
                 console.log("Token server successfully refreshed " + message.count + " times since preload.");

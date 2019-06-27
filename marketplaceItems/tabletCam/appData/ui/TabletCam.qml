@@ -2,7 +2,7 @@
 //  TabletCam.qml
 //  qml/hifi
 //
-//  Tablet Cam v2.0
+//  Tablet Cam v2.1
 //
 //  Created by Zach Fox on 2019-04-14
 //
@@ -872,7 +872,7 @@ Rectangle {
             }
             
             HifiStylesUit.FiraSansRegular {
-			    text: "v2.0";
+			    text: "v2.1";
 			    // Anchors
 			    anchors.bottom: parent.bottom;
                 anchors.right: parent.right;

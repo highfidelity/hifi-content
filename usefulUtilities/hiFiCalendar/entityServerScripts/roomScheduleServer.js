@@ -213,9 +213,6 @@
                     that.interval = false;
                 } 
                 
-                Script.setTimeout(function(){
-                    Entities.callEntityMethod(that.TOKEN_SERVER_ID, "tokenCheck", [that.token, that.entityID]);
-                }, RETRY_TIMEOUT);
                 return;
             } else {
                 var events = response.items;
