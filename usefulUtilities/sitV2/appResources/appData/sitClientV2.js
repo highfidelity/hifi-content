@@ -216,8 +216,8 @@
                 MyAvatar.onLoadComplete.connect(_this.standUp);
                 location.hostChanged.connect(_this.standUp);
                 Script.scriptEnding.connect(_this.standUp);
-                MyAvatar.wentAway.connect(_this.standUp);
-                HMD.displayModeChanged.connect(_this.standUp);
+                MyAvatar.wentAway.connect(_this.standUpWrapper);
+                HMD.displayModeChanged.connect(_this.standUpWrapper);
                 _this.connectedSignals = true;
             }
         }, SIT_DELAY_MS);
@@ -288,13 +288,34 @@
     }
 
 
+    // To help with the clashing HMD and My Avatar away signals.
+    // A timeout here seems to be the only thing to prevent the default animation not being restored
+    var standUpWrapperCalled = false;
+    var STAND_UP_WRAPPER_WAIT_MS = 500;
+    function standUpWrapper(){
+        if (standUpWrapperCalled) {
+            return;
+        }
+        standUpWrapperCalled = true;
+        Script.setTimeout(function(){
+            standUp();
+        }, STAND_UP_WRAPPER_WAIT_MS); 
+    }
+
     // Standup functionality
     var WAIT_FOR_USER_TO_STAND_MS = 525;
-    var STANDUP_BUMP = 0.225; 
+    var STANDUP_BUMP = 0.225;
+    var isStandingUp = false;
     function standUp() {
         if (DEBUG) {
             console.log("standup from ", _this.entityID);
         }
+
+        if (isStandingUp) {
+            return;
+        }
+
+        isStandingUp = true;
 
         // get the entityID, previous position and orientation 
         var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
@@ -346,7 +367,8 @@
             MyAvatar.onLoadComplete.disconnect(_this.standUp);
             location.hostChanged.disconnect(_this.standUp);
             Script.scriptEnding.disconnect(_this.standUp);
-            MyAvatar.wentAway.disconnect(_this.standUp);
+            MyAvatar.wentAway.disconnect(_this.standUpWrapper);
+            HMD.displayModeChanged.disconnect(_this.standUpWrapper);
             _this.connectedSignals = false;
         }
 
@@ -364,6 +386,11 @@
                 }
             }
         }, WAIT_FOR_USER_TO_STAND_MS);
+
+        Script.setTimeout(function () {
+            isStandingUp = false;
+            standUpWrapperCalled = false; 
+        }, Math.max(WAIT_FOR_USER_TO_STAND_MS, STANDUP_DELAY_MS));
     }
 
     // Remotely called from canSitZone
@@ -594,8 +621,8 @@
             MyAvatar.onLoadComplete.disconnect(_this.standUp);
             location.hostChanged.disconnect(_this.standUp);
             Script.scriptEnding.disconnect(_this.standUp);
-            MyAvatar.wentAway.disconnect(_this.standUp);
-            HMD.displayModeChanged.disconnect(_this.standUp);
+            MyAvatar.wentAway.disconnect(_this.standUpWrapper);
+            HMD.displayModeChanged.disconnect(_this.standUpWrapper);
             _this.connectedSignals = false;
         }
     }
@@ -678,7 +705,8 @@
         startSitDown: startSitDown,
         whileSittingUpdate: whileSittingUpdate,
         check: check,
-        standUp: standUp
+        standUp: standUp,
+        standUpWrapper: standUpWrapper
     };
 
 
