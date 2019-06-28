@@ -15,7 +15,7 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Releases
 
-2019-06-27_20-24-55 :: [8591e3d]
+2019-06-27_20-24-55 :: [06afa3e]
 - [DEV 150](https://highfidelity.atlassian.net/browse/DEV-150) Added checks and a time out to help fix getting stuck in the animation when HMD is removed.
 
 2019-06-24_10-56-00 :: [d3de76d]
