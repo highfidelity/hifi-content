@@ -93,14 +93,14 @@
     // Called from entity server script to begin sitting down sequence
     var SETTING_KEY_AVATAR_SITTING = "com.highfidelity.avatar.isSitting";
     var SIT_SETTLE_TIME_MS = 350; // Do not pop avatar out of chair immediately if there's an issue
-    var STANDUP_DELAY_MS = 25; // ms for timeout in standup
     var SIT_DELAY_MS = 50; // ms for timeouts in sit
     var CAN_SIT_M = 5; // zone radius
     var changedSeats = false;
     function startSitDown() {
+        // isStandingUp = false;
         var sitEntity = Settings.getValue(SETTING_KEY_AVATAR_SITTING, false);
         if (sitEntity && sitEntity !== _this.entityID) {
-            standUp();
+            // standUp();
             changedSeats = true;
         }
         
@@ -147,8 +147,10 @@
 
     // Listen to action events. If jump is pressed, the user will stand up
     var JUMP_ACTION_ID = 50;
+    var jumpPressed = false;
     function onActionEvent(actionID, value) {
         if (actionID === JUMP_ACTION_ID) {
+            jumpPressed = true;
             standUp();
         }
     }
@@ -169,6 +171,7 @@
         DriveKeys.STEP_TRANSLATE_Z
     ];
     var isConnected = false;
+    var driveKeysDisabled = false;
     function sitDownAndPinAvatar() {
         MyAvatar.collisionsEnabled = false;
         MyAvatar.hmdLeanRecenterEnabled = false;
@@ -191,6 +194,7 @@
         for (var j in DISABLED_DRIVE_KEYS_DURING_SIT) {
             MyAvatar.disableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[j]);
         }
+        driveKeysDisabled = true;
         if (!isConnected) {
             Controller.actionEvent.connect(onActionEvent);
             isConnected = true;
@@ -299,33 +303,24 @@
         standUpWrapperCalled = true;
         Script.setTimeout(function(){
             standUp();
-        }, STAND_UP_WRAPPER_WAIT_MS); 
+        }, STAND_UP_WRAPPER_WAIT_MS);
     }
 
     // Standup functionality
-    var WAIT_FOR_USER_TO_STAND_MS = 525;
     var STANDUP_BUMP = 0.225;
-    var isStandingUp = false;
+    var roles = [];
     function standUp() {
+        
         if (DEBUG) {
             console.log("standup from ", _this.entityID);
         }
-
-        if (isStandingUp) {
-            return;
+        if (standUpWrapperCalled) {
+            standUpWrapperCalled = false;
         }
-
-        isStandingUp = true;
 
         // get the entityID, previous position and orientation 
-        var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
-        var settingsEntityID = sitCurrentSettings;
-
+        var settingsEntityID = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
         changedSeats = false;
-        if (isConnected) {
-            Controller.actionEvent.disconnect(onActionEvent);
-            isConnected = false;
-        }
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
         if (settingsEntityID === _this.entityID) { // POSSIBLE RACE CONDITION WITH SETTINGS BEING CHANGED BY NEW SEAT
@@ -334,19 +329,9 @@
             
             // RESTORE ANIMATION ROLES
             Settings.setValue(SETTING_KEY_AVATAR_SITTING, null);
-            var roles = rolesToOverride();
-            for (var j in roles) {
-                MyAvatar.restoreRoleAnimation(roles[j]);
-            }
-
-            MyAvatar.collisionsEnabled = true;
-            MyAvatar.hmdLeanRecenterEnabled = true;
-            Script.setTimeout(function () {
-                MyAvatar.centerBody();
-                var currentPosition = MyAvatar.position;
-                currentPosition.y = currentPosition.y + STANDUP_BUMP;
-                MyAvatar.position = currentPosition;
-            }, STANDUP_DELAY_MS);
+            roles = rolesToOverride();
+            overRideRoles();
+            standAvatarUp();
         }
 
         // RESET SETTINGS FOR THIS CHAIR
@@ -360,6 +345,12 @@
 
         Entities.callEntityServerMethod(_this.entityID, "onStandUp");
 
+        Entities.callEntityServerMethod(
+            _this.entityID,
+            "addAllOtherSittableOverlays",
+            AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
+        );
+
         stopUpdateInterval();
 
         if (_this.connectedSignals) {
@@ -371,26 +362,75 @@
             HMD.displayModeChanged.disconnect(_this.standUpWrapper);
             _this.connectedSignals = false;
         }
+    }
 
-        // RESET OVERLAYS FOR ALL AVATARS IN RANGE OF THE CHAIR
-        Script.setTimeout(function () {
-            Entities.callEntityServerMethod(
-                _this.entityID,
-                "addAllOtherSittableOverlays",
-                AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
-            );
-            if (settingsEntityID === _this.entityID) {
-                // Enable movement again
-                for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
-                    MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
-                }
+    var rolesOverRidden = false;
+    var MAX_ROLES_TO_RETRY = 3;
+    var ROLES_TIMEOUT_MS = 100;
+    var roleTryAmount = 0;
+    function overRideRoles(){
+        if (roles.length === 0) {
+            roleTryAmount++;
+            if (roleTryAmount === MAX_ROLES_TO_RETRY) {
+                return;
+            } else {
+                Script.setTimeout(overRideRoles, ROLES_TIMEOUT_MS)
             }
-        }, WAIT_FOR_USER_TO_STAND_MS);
+        }   
 
-        Script.setTimeout(function () {
-            isStandingUp = false;
-            standUpWrapperCalled = false; 
-        }, Math.max(WAIT_FOR_USER_TO_STAND_MS, STANDUP_DELAY_MS));
+        for (var j = 0; j < roles.length; j++){
+            MyAvatar.restoreRoleAnimation(roles[j]);
+            if (j === roles.length -1) {
+                rolesOverRidden = true;
+            }
+        }
+    }
+
+    var MAX_STANDUP_AVATAR_TO_RETRY = 3;
+    var STANDUP_AVATAR_TIMEOUT_MS = 150;
+    var standUpAvatarAmount = 0;
+    function standAvatarUp(){
+        if (rolesOverRidden === false) {
+            standUpAvatarAmount++;
+            if (standUpAvatarAmount === MAX_STANDUP_AVATAR_TO_RETRY) {
+                return;
+            } else {
+                Script.setTimeout(standAvatarUp, STANDUP_AVATAR_TIMEOUT_MS)
+            }
+        }
+
+        MyAvatar.collisionsEnabled = true;
+        MyAvatar.hmdLeanRecenterEnabled = true;
+        MyAvatar.centerBody();
+        var currentPosition = MyAvatar.position;
+        currentPosition.y = currentPosition.y + STANDUP_BUMP;
+        MyAvatar.position = currentPosition;
+        // Enable movement again
+        if (isConnected) {
+            Controller.actionEvent.disconnect(onActionEvent);
+            isConnected = false;
+        }
+
+        enableDriveKeys();
+
+    }
+
+    // enableDriveKeys
+    var ENABLE_DRIVE_KEYS_TIMEOUT_MS = 150;
+    function enableDriveKeys() {
+        if (jumpPressed && driveKeysDisabled) {
+            Script.setTimeout(function(){
+                jumpPressed = false;
+                enableDriveKeys();
+            }, ENABLE_DRIVE_KEYS_TIMEOUT_MS);
+        }
+
+        if (!jumpPressed && driveKeysDisabled) {
+            for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
+                MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
+            }
+            driveKeysDisabled = false;
+        }
     }
 
     // Remotely called from canSitZone
