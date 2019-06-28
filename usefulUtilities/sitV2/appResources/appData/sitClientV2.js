@@ -97,10 +97,8 @@
     var CAN_SIT_M = 5; // zone radius
     var changedSeats = false;
     function startSitDown() {
-        // isStandingUp = false;
         var sitEntity = Settings.getValue(SETTING_KEY_AVATAR_SITTING, false);
         if (sitEntity && sitEntity !== _this.entityID) {
-            // standUp();
             changedSeats = true;
         }
         
