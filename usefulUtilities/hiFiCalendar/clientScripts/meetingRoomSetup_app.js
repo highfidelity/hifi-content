@@ -109,6 +109,7 @@
     //  Immediately check with the token server to see if there is a valid configuration.
     function onOpened() {
         Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain");
+        ui.open();
     }
 
 
