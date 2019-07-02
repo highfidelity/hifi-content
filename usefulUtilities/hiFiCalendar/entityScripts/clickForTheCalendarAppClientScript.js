@@ -38,7 +38,7 @@
     // if it is, stop the script, then reload it again
     var RELOAD_SCRIPT = true;
     function maybeOpenTheCalendarApp() {
-        if (checkIfCalendarAppIsRunning()) { 
+        if (!checkIfCalendarAppIsRunning()) { 
             ScriptDiscoveryService.loadScript(_this.calendarAppURL);
         } else {
             ScriptDiscoveryService.stopScript(_this.calendarAppURL, RELOAD_SCRIPT) ;
@@ -50,7 +50,6 @@
     function maybeCloseTheCalendarApp() {
         if (checkIfCalendarAppIsRunning()) {
             ScriptDiscoveryService.stopScript(_this.calendarAppURL);
-            _this.isCalendarAppRunning = false;
         }
     }
 
