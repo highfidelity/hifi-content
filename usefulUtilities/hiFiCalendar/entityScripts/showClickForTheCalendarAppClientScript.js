@@ -13,7 +13,6 @@
     function ShouldShowClickForTheCalendarApp() {
         _this = this;
         
-        _this.canGetAndSetPrivateUserData = false;
         _this.calendarBackgroundID = null;
         _this.clickForTheCalendarAppEntityID = null;
     }
@@ -39,7 +38,6 @@
         _this.calendarBackgroundID = calendarBackgroundID;
         clickForTheCalendarApp.parentID = _this.calendarBackgroundID;
 
-        _this.canGetAndSetPrivateUserData = Entities.canGetAndSetPrivateUserData();
         _this.maybeCreateClickForTheCalendarAppEntity();
 
         Entities.canGetAndSetPrivateUserDataChanged.connect(_this.onCanGetAndSetPrivateUserDataChanged);
@@ -48,7 +46,7 @@
 
     // if you can get and set private user data, then create the local entity 
     function maybeCreateClickForTheCalendarAppEntity() {
-        if (_this.canGetAndSetPrivateUserData) {
+        if (Entities.canGetAndSetPrivateUserData()) {
             _this.clickForTheCalendarAppEntityID = Entities.addEntity(clickForTheCalendarApp, "local");
         }
     }
@@ -73,8 +71,7 @@
 
     // the private user data permissions have changed for this user, so handle the change by either creating or deleting
     function onCanGetAndSetPrivateUserDataChanged(canGetAndSetPrivateUserData) {
-        _this.canGetAndSetPrivateUserData = canGetAndSetPrivateUserData;
-        if (_this.canGetAndSetPrivateUserData) {
+        if (canGetAndSetPrivateUserData) {
             _this.maybeCreateClickForTheCalendarAppEntity();
         } else {
             _this.maybeDeleteClickForTheCalendarAppEntity();

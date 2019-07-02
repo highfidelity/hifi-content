@@ -73,7 +73,7 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Release Notes
 
-## 3.6 | [commit 2e054f4] | 2019-07-01
+## 3.6 | [commit 86e799a] | 2019-07-01
 - Added new way to open up the calendar app in domains
 
 ## 3.5 | [commit 43d222f] | 2019-06-26

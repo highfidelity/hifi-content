@@ -13,7 +13,6 @@
     function ClickForTheCalendarApp() {
         _this = this;
         
-        _this.isCalendarAppRunning = false;
         _this.calendarAppURL = Script.resolvePath("../clientScripts/meetingRoomSetup_app.js");
     }
 
@@ -39,8 +38,7 @@
     // if it is, stop the script, then reload it again
     var RELOAD_SCRIPT = true;
     function maybeOpenTheCalendarApp() {
-        _this.isCalendarAppRunning = checkIfCalendarAppIsRunning();
-        if (!_this.isCalendarAppRunning) { 
+        if (checkIfCalendarAppIsRunning()) { 
             ScriptDiscoveryService.loadScript(_this.calendarAppURL);
         } else {
             ScriptDiscoveryService.stopScript(_this.calendarAppURL, RELOAD_SCRIPT) ;
@@ -50,8 +48,7 @@
 
     // check to see if the calendar app is running before you close it
     function maybeCloseTheCalendarApp() {
-        _this.isCalendarAppRunning = checkIfCalendarAppIsRunning();
-        if (_this.isCalendarAppRunning) {
+        if (checkIfCalendarAppIsRunning()) {
             ScriptDiscoveryService.stopScript(_this.calendarAppURL);
             _this.isCalendarAppRunning = false;
         }
