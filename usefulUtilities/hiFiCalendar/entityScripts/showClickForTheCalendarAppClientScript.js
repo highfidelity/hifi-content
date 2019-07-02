@@ -23,13 +23,14 @@
     // check to see if you have private user permsissions -> 
     // if so create the local entity ->
     // connect onPrivateUserDataPermissionsChanged
-    var clickForTheCalendarAppDimensions = [0.75, 0.20, 0.1];
+    var clickForTheCalendarAppDimensions = [0.75, 0.150, 0.1];
     var clickForTheCalendarAppPosition = [0, -0.85, 0.04];
     var clickForTheCalendarAppScriptURL = Script.resolvePath("./clickForTheCalendarAppClientScript.js");
     var clickForTheCalendarApp = {
         "name": "Click this sign for the calendar App",
         "type": "Text",
-        "text": "Click me to open \nthe calendar linker",
+        "text": "Click here to setup\nGoogle Calendar integration",
+        "lineHeight": 0.065,
         "dimensions": clickForTheCalendarAppDimensions,
         "localPosition": clickForTheCalendarAppPosition,
         "script": clickForTheCalendarAppScriptURL
