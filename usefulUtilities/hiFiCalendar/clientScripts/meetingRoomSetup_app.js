@@ -121,7 +121,8 @@
             home: CONFIG.REDIRECT_URI,
             buttonName: "CALENDAR", // The name of your app
             graphicsDirectory: Script.resolvePath("../resources/images/"), // Where your button icons are located
-            onMessage: onWebMessage
+            onMessage: onWebMessage,
+            onOpened: onOpened
         });       
         Script.scriptEnding.connect(scriptEnding);
         Messages.subscribe(CHANNEL);
