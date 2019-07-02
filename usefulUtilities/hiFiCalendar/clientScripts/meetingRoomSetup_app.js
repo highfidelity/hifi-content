@@ -8,6 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
+
     var CONFIG = Script.require("../calendarConfig.json?" + Date.now());
     var CHANNEL = "HiFi.Google.Calendar";
     var MS_TO_SEC = 1000;
@@ -127,6 +128,7 @@
         Messages.subscribe(CHANNEL);
         Messages.messageReceived.connect(messageHandler);
         Messages.sendMessage(CHANNEL, JSON.stringify({ type: "APP STARTED" }));
+        ui.open();
     }
     startup();
 
