@@ -54,7 +54,7 @@
         "collisionMask": 23,
         "collidesWith": "static,dynamic,kinematic,otherAvatar,",
         "scriptTimestamp": 1559234027396,
-        "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-06-26_11-57-46/entityServerScripts/tokenServer.js",
+        "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-07-01_17-47-47/entityServerScripts/tokenServer.js",
         "text": "Token Server",
         "lineHeight": 0.15000000596046448,
         "backgroundAlpha": 0.25,

@@ -73,6 +73,9 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Release Notes
 
+## 3.6 | [commit ] | 2019-07-01
+- Added new way to open up the calendar app in domains
+
 ## 3.5 | [commit 43d222f] | 2019-06-26
 - Fixed the spam log [JIRA 708](https://highfidelity.atlassian.net/browse/BUGZ-708)
 - Fixed the learn more link [JIRA 822](https://highfidelity.atlassian.net/browse/BUGZ-822)

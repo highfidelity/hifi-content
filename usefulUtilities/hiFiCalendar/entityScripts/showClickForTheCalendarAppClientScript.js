@@ -23,25 +23,22 @@
     // check to see if you have private user permsissions -> 
     // if so create the local entity ->
     // connect onPrivateUserDataPermissionsChanged
-    var clickForTheCalendarAppDimensions = [0.8, 0.25, 0.1];
+    var clickForTheCalendarAppDimensions = [0.75, 0.20, 0.1];
     var clickForTheCalendarAppPosition = [0, -0.85, 0.04];
     var clickForTheCalendarAppScriptURL = Script.resolvePath("./clickForTheCalendarAppClientScript.js");
-    console.log("clickForTheCalendarAppScriptURL", clickForTheCalendarAppScriptURL);
     var clickForTheCalendarApp = {
         "name": "Click this sign for the calendar App",
         "type": "Text",
-        "text": "Click me to open \n the calendar linker",
+        "text": "Click me to open \nthe calendar linker",
         "dimensions": clickForTheCalendarAppDimensions,
         "localPosition": clickForTheCalendarAppPosition,
         "script": clickForTheCalendarAppScriptURL
     };
-
     function preload(calendarBackgroundID) {
         _this.calendarBackgroundID = calendarBackgroundID;
         clickForTheCalendarApp.parentID = _this.calendarBackgroundID;
 
         _this.canGetAndSetPrivateUserData = Entities.canGetAndSetPrivateUserData();
-        console.log("canGetAndSetPrivateUserData", _this.canGetAndSetPrivateUserData);
         _this.maybeCreateClickForTheCalendarAppEntity();
 
         Entities.canGetAndSetPrivateUserDataChanged.connect(_this.onCanGetAndSetPrivateUserDataChanged);
@@ -59,7 +56,6 @@
     // if the entity exists, then you can delete it
     function maybeDeleteClickForTheCalendarAppEntity() {
         if (_this.clickForTheCalendarAppEntityID) {
-            console.log("DELETING ENTITY");
             Entities.deleteEntity(_this.clickForTheCalendarAppEntityID);
             _this.clickForTheCalendarAppEntityID = null;        
         }        
@@ -69,7 +65,6 @@
     // check to see if you need to delete the app entity ->
     // disconnect from private user data change handler
     function unload() {
-        console.log("RUNNING UNLOAD")
         maybeDeleteClickForTheCalendarAppEntity();
         Entities.canGetAndSetPrivateUserDataChanged.disconnect(_this.onCanGetAndSetPrivateUserDataChanged);
     }
@@ -78,7 +73,6 @@
     // the private user data permissions have changed for this user, so handle the change by either creating or deleting
     function onCanGetAndSetPrivateUserDataChanged(canGetAndSetPrivateUserData) {
         _this.canGetAndSetPrivateUserData = canGetAndSetPrivateUserData;
-        console.log("on can get and set changed for canGetAndSetPrivateUserData", _this.canGetAndSetPrivateUserData);
         if (_this.canGetAndSetPrivateUserData) {
             _this.maybeCreateClickForTheCalendarAppEntity();
         } else {

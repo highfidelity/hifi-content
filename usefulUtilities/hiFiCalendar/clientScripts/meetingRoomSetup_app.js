@@ -8,6 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
+
     var CONFIG = Script.require("../calendarConfig.json?" + Date.now());
     var CHANNEL = "HiFi.Google.Calendar";
     var MS_TO_SEC = 1000;
@@ -109,7 +110,6 @@
     //  Immediately check with the token server to see if there is a valid configuration.
     function onOpened() {
         Entities.callEntityServerMethod(TOKEN_SERVER_ID, "enteredDomain");
-        ui.open();
     }
 
 
@@ -121,13 +121,13 @@
             home: CONFIG.REDIRECT_URI,
             buttonName: "CALENDAR", // The name of your app
             graphicsDirectory: Script.resolvePath("../resources/images/"), // Where your button icons are located
-            onMessage: onWebMessage,
-            onOpened: onOpened
+            onMessage: onWebMessage
         });       
         Script.scriptEnding.connect(scriptEnding);
         Messages.subscribe(CHANNEL);
         Messages.messageReceived.connect(messageHandler);
         Messages.sendMessage(CHANNEL, JSON.stringify({ type: "APP STARTED" }));
+        ui.open();
     }
     startup();
 

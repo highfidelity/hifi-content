@@ -8,7 +8,6 @@
 
 
 (function() {
-    console.log("THE CALENDAR APP LOCAL SCRIPT WAS JUST LOADED")
 
     var _this = null;
     function ClickForTheCalendarApp() {
@@ -41,7 +40,6 @@
     var RELOAD_SCRIPT = true;
     function maybeOpenTheCalendarApp() {
         _this.isCalendarAppRunning = checkIfCalendarAppIsRunning();
-
         if (!_this.isCalendarAppRunning) { 
             ScriptDiscoveryService.loadScript(_this.calendarAppURL);
         } else {
@@ -68,8 +66,7 @@
 
 
     // try and open the calendar app if someone clicks on the sign
-    function mousePressOnEnitty(event) {
-        console.log("mousePressOnEntity!")
+    function mousePressOnEntity(id, event) {
         if (event.isPrimaryButton) {
             maybeOpenTheCalendarApp();
         }
@@ -78,7 +75,7 @@
 
     ClickForTheCalendarApp.prototype = {
         unload: unload,
-        mousePressOnEnitty: mousePressOnEnitty,
+        mousePressOnEntity: mousePressOnEntity,
         maybeOpenTheCalendarApp: maybeOpenTheCalendarApp,
         maybeCloseTheCalendarApp: maybeCloseTheCalendarApp
     };
