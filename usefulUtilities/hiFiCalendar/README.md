@@ -73,8 +73,11 @@ Define your permitted access locations to include http://localhost under Domain 
 
 # Release Notes
 
+## 3.7 | [commit a023ca0] | 2019-07-03
+- Entity JSON update to make sure the backboard isn't grabbable [BUGZ-912](https://highfidelity.atlassian.net/browse/BUGZ-912)
+
 ## 3.6 | [commit 04db990] | 2019-07-01
-- Added new way to open up the calendar app in domains
+- Added new way to open up the calendar app in domains [DEV-96](https://highfidelity.atlassian.net/browse/DEV-96)
 
 ## 3.5 | [commit 43d222f] | 2019-06-26
 - Fixed the spam log [JIRA 708](https://highfidelity.atlassian.net/browse/BUGZ-708)
