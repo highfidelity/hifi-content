@@ -1,12 +1,15 @@
 # Sound Emitter
-When you attach `soundEmitterServer.js` to any entity, audio will start playing from that point for everybody in the domain. You can specify the audio that plays in the attached entity's `userData`.
+- When you attach `soundEmitterServer.js` to any entity, audio will start playing from that position for everybody in the domain.
+- You can specify the audio that plays for everyone by modifying the attached entity's `userData`.
+- The audio tracking offset will be synced across clients.
+- The audio will be affected by attenuation zones.
+- Users can manually set this audio's attenuation via Settings -> Audio -> Environment Volume.
+- If a user modifies the attached entity's `userData` options (including `soundURL`), the audio injector will automatically apply those new settings.
 
 # Setup Instructions
 1. Rez an entity (any entity).
 2. Modify the `userData` of the entity to set the sound emitter's options (see below).
 3. Attach `soundEmitterServer.js` as a Server Script to the entity.
-
-Sound emitter options are automatically checked and applied every 500ms.
 
 ## Entity `userData`
 The entity's `userData` should follow this JSON structure:
@@ -19,5 +22,5 @@ The entity's `userData` should follow this JSON structure:
 ```
 
 # Release Notes
-## v1.0 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+## v1.0 | [commit b6b26ac](https://github.com/highfidelity/hifi-content/commits/b6b26ac)
 - Initial Release
