@@ -118,7 +118,6 @@
                 spectatorCameraConfig.attachedEntityId = _this.entityID;
                 previousFarClipDistance = spectatorCameraConfig.farClipPlaneDistance;
                 spectatorCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
-                Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 0;
                 var mirrorEntityDimensions = Entities.getEntityProperties(_this.entityID, 'dimensions').dimensions;
                 var initialResolution = _this.calculateMirrorResolution(mirrorEntityDimensions);
                 spectatorCameraConfig.resetSizeSpectatorCamera(initialResolution.x, initialResolution.y);
@@ -138,7 +137,6 @@
             spectatorCameraConfig.mirrorProjection = false;
             spectatorCameraConfig.attachedEntityId = null;
             spectatorCameraConfig.farClipPlaneDistance = previousFarClipDistance;
-            Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
             Overlays.deleteOverlay(mirrorOverlayID);
             Script.update.disconnect(updateMirrorDimensions);
             mirrorOverlayRunning = false;
