@@ -15,12 +15,16 @@
 The entity's `userData` should follow this JSON structure:
 ```
 {
-    "soundURL": "<A URL to a _mono_ MP3 or WAV sound.>",
-    "volume": <The sound emitter's volume from 0.0 to 1.0.>,
-    "shouldLoop": <`true` if the sound should loop; `false` otherwise.>
+    "soundURL": "<A URL to an MP3 or WAV sound.>",
+    "volume": <The sound emitter's volume from 0.0 to 1.0. Defaults to 0.5.>,
+    "shouldLoop": <`true` if the sound should loop; `false` otherwise. Defaults to `false`.>,
+    "localOnly": <`true` if the sound injector should be a local injector; `false` otherwise. Defaults to `false`.>
 }
 ```
 
 # Release Notes
+## v1.1 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/b6b26ac)
+- Added the ability to set the `localOnly` option of the Audio Injector inside the Sound Emitter's `userData`
+
 ## v1.0 | [commit b6b26ac](https://github.com/highfidelity/hifi-content/commits/b6b26ac)
 - Initial Release

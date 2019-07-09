@@ -18,7 +18,7 @@
             "y": 0,
             "z": 0
         },
-        "volume": 0.0,
+        "volume": 0.5,
         "loop": false,
         "localOnly": false
     };
@@ -152,6 +152,11 @@
                     }
 
                     that.audioInjectorOptions.loop = userData.shouldLoop;
+                }
+
+                if (typeof(userData.localOnly) !== "undefined" && userData.localOnly !== that.audioInjectorOptions.localOnly) {
+                    optionsChanged = true;
+                    that.audioInjectorOptions.localOnly = userData.localOnly;
                 }
             } else {
                 console.log("Please specify this entity's `userData`! See README.md for instructions.");
