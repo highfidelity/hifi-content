@@ -458,7 +458,6 @@
     }
 
     function onStillSnapshotTaken() {
-        Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
         sendToQml({
             method: 'finishedProcessingStillSnapshot'
         });
@@ -469,7 +468,6 @@
                 method: 'startedProcessingStillSnapshot'
             });
 
-            Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 0;
             // Wait a moment before taking the snapshot for the tonemapping curve to update
             Script.setTimeout(function () {
                 Audio.playSound(SOUND_SNAPSHOT, {
