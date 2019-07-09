@@ -19,7 +19,6 @@
     var previousNearClipDistance = false;
     var previousFarClipDistance = false;
     var previousvFoV = false;
-    var prevToneMapping = 0;
     var NEAR_CLIP_DISTANCE = 0.001;
     var FAR_CLIP_DISTANCE = 16384;
     var vFoV = Settings.getValue("tabletCam/vFoV", 60);
@@ -82,12 +81,9 @@
             previousFarClipDistance = secondaryCameraConfig.farClipPlaneDistance;
             previousNearClipDistance = secondaryCameraConfig.nearClipPlaneDistance;
             previousvFoV = secondaryCameraConfig.vFoV;
-            prevToneMapping = Render.getConfig("SecondaryCameraJob.ToneMapping").curve;
             secondaryCameraConfig.nearClipPlaneDistance = NEAR_CLIP_DISTANCE;
             secondaryCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
             secondaryCameraConfig.vFoV = vFoV;
-    
-            Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
     
             secondaryCameraConfig.attachedEntityId = tabletCamAvatarEntity;
             tabletCamRunning = true;
@@ -140,8 +136,6 @@
         wireSignals(false);
 
         setTakePhotoControllerMappingStatus(false);
-
-        Render.getConfig("SecondaryCameraJob.ToneMapping").curve = prevToneMapping;
 
         if (tabletCamRunning) {
             secondaryCameraConfig.farClipPlaneDistance = previousFarClipDistance;
@@ -280,10 +274,8 @@
 
     function maybeTakePhoto() {
         if (tabletCamAvatarEntity) {
-            Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 0;
             secondaryCameraConfig.resetSizeSpectatorCamera(secondaryCameraResolutionWidth, secondaryCameraResolutionHeight);
-            // Wait a moment before taking the photo for the
-            // tonemapping curve and resolution to update
+            // Wait a moment before taking the photo for the resolution to update
             Script.setTimeout(function () {
                 takePhoto();
             }, 250);
@@ -462,8 +454,6 @@
             cameraRollPaths.paths.pop();
         }
         Settings.setValue("tabletCam/cameraRollPaths", JSON.stringify(cameraRollPaths));
-
-        Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
 
         secondaryCameraConfig.resetSizeSpectatorCamera(secondaryCameraResolutionPreviewWidth, secondaryCameraResolutionPreviewHeight);
         ui.sendMessage({
