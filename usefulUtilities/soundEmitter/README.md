@@ -23,7 +23,7 @@ The entity's `userData` should follow this JSON structure:
 ```
 
 # Release Notes
-## v1.1 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/b6b26ac)
+## v1.1 | [commit 3ea8117](https://github.com/highfidelity/hifi-content/commits/3ea8117)
 - Added the ability to set the `localOnly` option of the Audio Injector inside the Sound Emitter's `userData`
 
 ## v1.0 | [commit b6b26ac](https://github.com/highfidelity/hifi-content/commits/b6b26ac)
