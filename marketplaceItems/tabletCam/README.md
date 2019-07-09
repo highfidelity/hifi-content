@@ -20,7 +20,7 @@ The Tablet Cam app allows you to **easily take selfies and regular photos in Hig
 
 ## Changelog
 
-### v2.1 (2019-06-27)
+### v2.2 (2019-07-09)
 
 - Fixed a hack in which the secondary camera feed was darkened to compensate for it being rendered too light.
 - If your camera looks too light, it means you have an older version of Interface (pre PR #15862) and should go back to the previous version of this script.
