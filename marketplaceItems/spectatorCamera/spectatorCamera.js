@@ -59,7 +59,7 @@
     var cameraPosition;
     var glassPaneWidth = 0.16;
 
-    var viewFinderLocalEntityDim = { x: glassPaneWidth, y: -glassPaneWidth, z: 0 };
+    var viewFinderLocalEntityDim = { x: glassPaneWidth, y: glassPaneWidth, z: 0 };
     function spectatorCameraOn() {
         Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
 
@@ -297,7 +297,7 @@
             emissive: true,
             parentID: camera,
             alpha: 1,
-            localRotation: { w: 1, x: 0, y: 0, z: 0 },
+            localRotation: Quat.fromPitchYawRollDegrees(0, 0, 180),
             localPosition: { x: 0, y: 0.13, z: 0.126 },
             dimensions: viewFinderLocalEntityDim,
             isVisibleInSecondaryCamera: false
