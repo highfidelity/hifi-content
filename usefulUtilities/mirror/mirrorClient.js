@@ -4,6 +4,7 @@
 //  Created by Patrick Manalich
 //  Edited by Rebecca Stankus on 8/30/17.
 //  Edited by David Back on 11/17/17.
+//  Edited by Anna Brewer on 7/12/19.
 //  Copyright 2017 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
