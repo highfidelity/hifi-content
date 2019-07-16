@@ -164,7 +164,7 @@
     var LOCAL_ENTITY_STATIC_PROPERTIES = {
         type: "Image",
         imageURL: "resource://spectatorCameraFrame",
-        emissive: false,
+        emissive: true,
         grab: {
             "grabbable": false
         },
