@@ -288,7 +288,7 @@
         }
     }
     function createLocalEntity() {
-        // The only way I found to update the viewFinderLocalEntity without turning the spectator camera on and offfentit is to delete and recreate the
+        // The only way I found to update the viewFinderLocalEntity without turning the spectator camera on and off is to delete and recreate the
         //     entity, which is inefficient but resizing the window shouldn't be performed often
         if (viewFinderLocalEntity) {
             Entities.deleteEntity(viewFinderLocalEntity);
