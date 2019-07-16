@@ -84,6 +84,8 @@
             secondaryCameraConfig.nearClipPlaneDistance = NEAR_CLIP_DISTANCE;
             secondaryCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
             secondaryCameraConfig.vFoV = vFoV;
+
+            Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
     
             secondaryCameraConfig.attachedEntityId = tabletCamAvatarEntity;
             tabletCamRunning = true;
@@ -454,6 +456,8 @@
             cameraRollPaths.paths.pop();
         }
         Settings.setValue("tabletCam/cameraRollPaths", JSON.stringify(cameraRollPaths));
+
+        Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
 
         secondaryCameraConfig.resetSizeSpectatorCamera(secondaryCameraResolutionPreviewWidth, secondaryCameraResolutionPreviewHeight);
         ui.sendMessage({
