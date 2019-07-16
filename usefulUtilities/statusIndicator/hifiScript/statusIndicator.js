@@ -124,10 +124,7 @@
         var queryParamString = "type=heartbeat";
         queryParamString += "&username=" + AccountServices.username;
 
-        var displayNameToSend = MyAvatar.sessionDisplayName;
-        if (displayNameToSend === "") {
-            displayNameToSend = MyAvatar.displayName;
-        }
+        var displayNameToSend = MyAvatar.displayName;
 
         queryParamString += "&displayName=" + displayNameToSend;
         queryParamString += "&status=" + currentStatus;

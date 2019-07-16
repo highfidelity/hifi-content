@@ -73,6 +73,9 @@ You can perform a local 1-person test of this new code by doing the following:
 
 # Release Notes
 
+## v2.5 | 2019-07-16_11-06-29 | [commit ac44aee](https://github.com/highfidelity/hifi-content/commits/ac44aee)
+- Updated `statusIndictaor.js` to remove session display name.  
+
 ## v2.4 | 2019-06-25_15-46-00 | [commit ac44aee](https://github.com/highfidelity/hifi-content/commits/ac44aee)
 - Added `directoryClientScript.js` to help make directory setup process easier.
 
