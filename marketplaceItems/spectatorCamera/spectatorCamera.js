@@ -18,8 +18,6 @@
     var sendToQml, addOrRemoveButton, onTabletScreenChanged, fromQml,
         onTabletButtonClicked, wireEventBridge, startup, shutdown, registerButtonMappings;
 
-    var vFoV = Settings.getValue("spectatorCamera/vFoV", 45.0);
-
     // Function Name: inFrontOf()
     //
     // Description:
@@ -89,7 +87,6 @@
             "userData": "{\"grabbableKey\":{\"grabbable\":true}}",
             "isVisibleInSecondaryCamera": false
         }, true);
-        spectatorCameraConfig.vFoV = vFoV;
         spectatorCameraConfig.attachedEntityId = camera;
         createLocalEntity();
         if (!HMD.active) {

@@ -164,11 +164,11 @@
     var LOCAL_ENTITY_STATIC_PROPERTIES = {
         type: "Image",
         imageURL: "resource://spectatorCameraFrame",
-        emissive: true,
+        emissive: false,
         grab: {
             "grabbable": false
         },
-        alpha: 1,
+        alpha: 0,
         triggerable: false
     };
     function updateTabletCamLocalEntity() {
