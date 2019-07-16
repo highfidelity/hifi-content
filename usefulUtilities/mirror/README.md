@@ -11,10 +11,9 @@ commit 38a75210f31c46b4b23b285859d2f33159fce163
 
 ## Version 2019-07-03_10_20_00
 commit 12f28b5f47d3905d1dbaf93f5199a294d709e1f5
-
-Fixed a hack in which the mirrors were darkened to compensate for the secondary camera being too light.
-If your mirrors look too light, it means you have an older version of Interface (pre PR #15862) and should go back to the previous version of this script.
-If your mirrors look too dark, it means you have a newer version of Interface (post PR #15682) and should update to the current version of this script.
+- Fixed a hack in which the mirrors were darkened to compensate for the secondary camera being too light.- 
+- If your mirrors look too light, it means you have an older version of Interface (pre PR #15862) and should go back to the previous version of this script.
+- If your mirrors look too dark, it means you have a newer version of Interface (post PR #15682) and should update to the current version of this script.
 
 # Known Issues
 - mirrorClient.js uses an update loop instead of a timer.
