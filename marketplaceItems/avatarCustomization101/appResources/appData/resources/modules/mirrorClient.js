@@ -27,7 +27,7 @@
     var FAR_CLIP_DISTANCE = 5;     // The far clip distance for the spectator camera when the mirror is on
     var mirrorLocalEntityID = false;            // The entity ID of the local entity that displays the mirror reflection
     var mirrorLocalEntityRunning;       // True if mirror local entity is reflecting, false otherwise
-    var mirrorLocalEntityOffset = 0.005; // The distance between the center of the mirror and the mirror local entity
+    var mirrorLocalEntityOffset = 0.01; // The distance between the center of the mirror and the mirror local entity
     var spectatorCameraConfig = Render.getConfig("SecondaryCamera");    // Render configuration for the spectator camera
     var lastDimensions = { x: 0, y: 0 };        // The previous dimensions of the mirror
     var previousFarClipDistance;    // Store the specator camera's previous far clip distance that we override for the mirror
