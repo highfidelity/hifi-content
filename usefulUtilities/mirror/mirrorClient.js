@@ -121,7 +121,7 @@
     
     // Sets up spectator camera to render the mirror, calls 'createMirrorLocalEntity' once to set up
     // mirror local entity, then connects 'updateMirrorDimensions' to update dimension changes
-    _this.mirrorLocalEntityOn = function (onPreload) {
+    _this.mirrorLocalEntityOn = function(onPreload) {
         if (!mirrorLocalEntityRunning) {
             if (!spectatorCameraConfig.attachedEntityId) {
                 mirrorLocalEntityRunning = true;
