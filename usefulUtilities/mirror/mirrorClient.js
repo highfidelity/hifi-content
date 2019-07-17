@@ -143,7 +143,7 @@
     };
 
     // Resets spectator camera, deletes the mirror local entity, and disconnects 'updateMirrorDimensions' 
-    _this.mirrorLocalEntityOff = function () {
+    _this.mirrorLocalEntityOff = function() {
         if (mirrorLocalEntityRunning) {
             spectatorCameraConfig.enableSecondaryCameraRenderConfigs(false);
             spectatorCameraConfig.mirrorProjection = false;

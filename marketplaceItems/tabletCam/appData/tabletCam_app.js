@@ -168,7 +168,7 @@
         grab: {
             "grabbable": false
         },
-        alpha: 0,
+        alpha: 1,
         triggerable: false
     };
     function updateTabletCamLocalEntity() {
