@@ -1,0 +1,534 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{eed62413-5bab-4724-a9b4-45cdc6ce876f}",
+    "type": "Model",
+    "lastEdited": 1563315920043563,
+    "parentID": "{40bbcbc6-af2c-45cf-bc7c-691987e665bc}",
+    "name": "Courtyard Podium Button Stage",
+    "position": {
+        "x": -0.039923787117004395,
+        "y": 0.47713470458984375,
+        "z": 0.0032884576357901096
+    },
+    "dimensions": {
+        "x": 0.08463216572999954,
+        "y": 0.11160721629858017,
+        "z": 0.11160781234502792
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000152587890625,
+        "z": 0.7070878744125366,
+        "w": 0.7070878744125366
+    },
+    "created": 1563296591251047,
+    "lastEditedBy": "{117189ab-0601-49b1-a8af-8f085c701906}",
+    "queryAACube": {
+        "x": -1.6798505783081055,
+        "y": -8.978194236755371,
+        "z": 1.8049348592758179,
+        "scale": 0.17909516394138336
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/courtyard/entityResources/podium/buttons/courtyardPodiumButton_client.js",
+    "scriptTimestamp": 1563313988078,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/courtyard/entityResources/podium/buttons/courtyardPodiumButton_server.js",
+    "shapeType": "simple-compound",
+    "modelURL": "https://hifi-content.s3.amazonaws.com/jimi/environment/201802_Shop/buttons/buttonGreen.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{a3cc2998-c37a-4c5f-961e-4ee95ca13e83}",
+    "type": "Model",
+    "lastEdited": 1563315920042729,
+    "parentID": "{40bbcbc6-af2c-45cf-bc7c-691987e665bc}",
+    "name": "Courtyard Podium Button Open",
+    "position": {
+        "x": -0.03990209102630615,
+        "y": 0.4571346938610077,
+        "z": -0.1779211014509201
+    },
+    "dimensions": {
+        "x": 0.08463216572999954,
+        "y": 0.11160721629858017,
+        "z": 0.11160781234502792
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000152587890625,
+        "z": 0.7070878744125366,
+        "w": 0.7070878744125366
+    },
+    "created": 1563296501388751,
+    "lastEditedBy": "{117189ab-0601-49b1-a8af-8f085c701906}",
+    "queryAACube": {
+        "x": -1.679823875427246,
+        "y": -8.998199462890625,
+        "z": 1.6237258911132812,
+        "scale": 0.17909516394138336
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/courtyard/entityResources/podium/buttons/courtyardPodiumButton_client.js",
+    "scriptTimestamp": 1563313988078,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/courtyard/entityResources/podium/buttons/courtyardPodiumButton_server.js",
+    "shapeType": "simple-compound",
+    "modelURL": "https://hifi-content.s3.amazonaws.com/jimi/environment/201802_Shop/buttons/buttonRed.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{0d447619-2336-4ff7-abde-cd347a683a23}",
+    "type": "Text",
+    "lastEdited": 1563313988080227,
+    "parentID": "{40bbcbc6-af2c-45cf-bc7c-691987e665bc}",
+    "name": "Courtyard Podium Button Label",
+    "position": {
+        "x": 0.05847620964050293,
+        "y": 0.47970104217529297,
+        "z": -0.0005777250044047832
+    },
+    "dimensions": {
+        "x": 0.1254333108663559,
+        "y": 0.05709680914878845,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.49999237060546875,
+        "y": -0.5000228881835938,
+        "z": -0.5000228881835938,
+        "w": 0.49996185302734375
+    },
+    "created": 1563233652673334,
+    "lastEditedBy": "{33d61945-cf24-47fe-8307-eca7ef24e97d}",
+    "queryAACube": {
+        "x": -1.5609924793243408,
+        "y": -8.95517349243164,
+        "z": 1.821529507637024,
+        "scale": 0.1381794512271881
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "scriptTimestamp": 1563313988078,
+    "text": "Stage",
+    "lineHeight": 0.05000000074505806,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{824a52c6-04d6-4a3e-a25d-24f5ead8339e}",
+    "type": "Text",
+    "lastEdited": 1563315945564581,
+    "parentID": "{40bbcbc6-af2c-45cf-bc7c-691987e665bc}",
+    "name": "Courtyard Podium Button Label",
+    "position": {
+        "x": 0.058493852615356445,
+        "y": 0.47969532012939453,
+        "z": -0.19165126979351044
+    },
+    "dimensions": {
+        "x": 0.11407744884490967,
+        "y": 0.05709680914878845,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.49999237060546875,
+        "y": -0.5000228881835938,
+        "z": -0.5000228881835938,
+        "w": 0.49996185302734375
+    },
+    "created": 1563233468278571,
+    "lastEditedBy": "{33d61945-cf24-47fe-8307-eca7ef24e97d}",
+    "queryAACube": {
+        "x": -1.555859088897705,
+        "y": -8.950075149536133,
+        "z": 1.6355658769607544,
+        "scale": 0.12795980274677277
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "scriptTimestamp": 1563313988078,
+    "text": "Open",
+    "lineHeight": 0.05000000074505806,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{4ab98d9e-7481-4eb6-9684-f5972de81625}",
+    "type": "Model",
+    "lastEdited": 1563315920044186,
+    "parentID": "{40bbcbc6-af2c-45cf-bc7c-691987e665bc}",
+    "name": "Courtyard Podium Button Table",
+    "position": {
+        "x": -0.039947509765625,
+        "y": 0.47713470458984375,
+        "z": 0.20130008459091187
+    },
+    "dimensions": {
+        "x": 0.08463216572999954,
+        "y": 0.11160721629858017,
+        "z": 0.11160781234502792
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000152587890625,
+        "z": 0.7070878744125366,
+        "w": 0.7070878744125366
+    },
+    "created": 1563296609026752,
+    "lastEditedBy": "{117189ab-0601-49b1-a8af-8f085c701906}",
+    "queryAACube": {
+        "x": -1.6798802614212036,
+        "y": -8.978187561035156,
+        "z": 2.002946615219116,
+        "scale": 0.17909516394138336
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/courtyard/entityResources/podium/buttons/courtyardPodiumButton_client.js",
+    "scriptTimestamp": 1563313988078,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/courtyard/entityResources/podium/buttons/courtyardPodiumButton_server.js",
+    "shapeType": "simple-compound",
+    "modelURL": "https://hifi-content.s3.amazonaws.com/jimi/environment/201802_Shop/buttons/buttonGreen.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{2c12fd06-623b-4ae4-a12d-8457aaefac44}",
+    "type": "Text",
+    "lastEdited": 1563313988079976,
+    "parentID": "{40bbcbc6-af2c-45cf-bc7c-691987e665bc}",
+    "name": "Courtyard Podium Button Label",
+    "position": {
+        "x": 0.05845940113067627,
+        "y": 0.4797067642211914,
+        "z": 0.18203195929527283
+    },
+    "dimensions": {
+        "x": 0.12314184010028839,
+        "y": 0.05709680914878845,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.49999237060546875,
+        "y": -0.5000228881835938,
+        "z": -0.5000228881835938,
+        "w": 0.49996185302734375
+    },
+    "created": 1563233660768334,
+    "lastEditedBy": "{33d61945-cf24-47fe-8307-eca7ef24e97d}",
+    "queryAACube": {
+        "x": -1.5599764585494995,
+        "y": -8.954123497009277,
+        "z": 2.0051774978637695,
+        "scale": 0.13610275089740753
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "scriptTimestamp": 1563313988078,
+    "text": "Table",
+    "lineHeight": 0.05000000074505806,
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{0e956af0-2d15-4719-9376-9dfcb455b495}",
+    "type": "Shape",
+    "lastEdited": 1563315844028291,
+    "name": "Courtyard Floor",
+    "position": {
+        "x": 0.5140936374664307,
+        "y": 0.5627002716064453,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 6.541383266448975,
+        "y": 0.030969232320785522,
+        "z": 6.541383266448975
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000457763671875,
+        "z": -0.0000457763671875,
+        "w": 1
+    },
+    "created": 1563309290505919,
+    "lastEditedBy": "{117189ab-0601-49b1-a8af-8f085c701906}",
+    "queryAACube": {
+        "x": -4.11138916015625,
+        "y": -4.062782287597656,
+        "z": -4.625482559204102,
+        "scale": 9.250965118408203
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "scriptTimestamp": 1563313988078,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/courtyard/entityResources/podium/courtyardParts/movableCourtyardPart_server.js",
+    "color": {
+        "red": 24,
+        "green": 99,
+        "blue": 20
+    },
+    "shape": "Cylinder",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{7efa2a02-854f-4fca-a08a-40acca569a0d}",
+    "type": "Shape",
+    "lastEdited": 1563315929581314,
+    "name": "Courtyard Table",
+    "position": {
+        "x": 0.5140936374664307,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 3.014826536178589,
+        "y": 0.05147843807935715,
+        "z": 3.014826536178589
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000457763671875,
+        "z": -0.0000457763671875,
+        "w": 1
+    },
+    "created": 1563234691591416,
+    "lastEditedBy": "{117189ab-0601-49b1-a8af-8f085c701906}",
+    "queryAACube": {
+        "x": -1.617866039276123,
+        "y": -2.1319596767425537,
+        "z": -2.1319596767425537,
+        "scale": 4.263919353485107
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "scriptTimestamp": 1563313988078,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/courtyard/entityResources/podium/courtyardParts/movableCourtyardPart_server.js",
+    "shape": "Cylinder",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{40bbcbc6-af2c-45cf-bc7c-691987e665bc}",
+    "type": "Box",
+    "lastEdited": 1563315940673068,
+    "name": "Courtyard Podium",
+    "position": {
+        "x": 0,
+        "y": 1.089517593383789,
+        "z": 1.8097097873687744
+    },
+    "dimensions": {
+        "x": 0.20000000298023224,
+        "y": 0.9470627903938293,
+        "z": 0.5600668787956238
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1563233179039532,
+    "lastEditedBy": "{33d61945-cf24-47fe-8307-eca7ef24e97d}",
+    "queryAACube": {
+        "x": -0.5591517686843872,
+        "y": 0.5303658246994019,
+        "z": 1.2505580186843872,
+        "scale": 1.1183035373687744
+    },
+    "grab": {
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "scriptTimestamp": 1563313988078,
+    "color": {
+        "red": 0,
+        "green": 0,
+        "blue": 0
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{cac28b22-8f30-4428-860f-95a1571d49e1}",
+  "Version": 122
+}
