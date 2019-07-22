@@ -237,5 +237,10 @@ This app showcases material entities, blendshapes, and flow to customize your av
 
 # Releases
 
+## 2019-07-09_02-20-00 :: [68106c9](https://github.com/highfidelity/hifi-content/commit/68106c9)
+- Fixed a hack in which the mirrors were darkened to compensate for the secondary camera being too light.
+- If your mirrors look too light, it means you have an older version of Interface (pre PR #15862) and should go back to the previous version of this script.
+- If your mirrors look too dark, it means you have a newer version of Interface (post PR #15682) and should update to the current version of this script.
+
 ## 2019-03-05_09-11-00 :: [a9cb28d](https://github.com/highfidelity/hifi-content/commit/a9cb28d)
 - Initial release
