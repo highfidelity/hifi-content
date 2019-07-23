@@ -27,7 +27,7 @@ The entity's `userData` should follow this JSON structure:
     "soundURL": "<Required. A URL to an MP3 or WAV sound.>",
     "volume": <Optional. The sound emitter's volume from 0.0 to 1.0. Defaults to 0.5.>,
     "shouldLoop": <Optional. `true` if the sound should loop; `false` otherwise. Defaults to `false`.>,
-    "positionOverride": <Optional. A JSON object containing `x, y, z` coordinates from whcih the sound should emit. Defaults to the attached entity's position.>
+    "positionOverride": <Optional. A JSON object containing `x, y, z` coordinates from which the sound should emit. Defaults to the attached entity's position.>
 }
 ```
 
