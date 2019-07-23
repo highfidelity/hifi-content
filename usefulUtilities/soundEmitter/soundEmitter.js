@@ -1,6 +1,6 @@
 /* eslint-disable no-magic-numbers */
 //
-// soundEmitterServer.js
+// soundEmitter.js
 // 
 // Created by Zach Fox on 2019-07-05
 // Copyright High Fidelity 2019
@@ -24,7 +24,7 @@
     };
 
 
-    var SoundEmitterServer = function() {
+    var SoundEmitter = function() {
         that = this;
         that.entityID = false;
         that.soundObjectURL = false;
@@ -36,7 +36,7 @@
     };
 
 
-    SoundEmitterServer.prototype = {
+    SoundEmitter.prototype = {
         preload: function(entityID) {
             that.entityID = entityID;
 
@@ -111,8 +111,15 @@
         },
 
 
+        positionChanged: function(newPos) {
+            return (newPos.x !== that.audioInjectorOptions.position.x ||
+                newPos.y !== that.audioInjectorOptions.position.y ||
+                newPos.z !== that.audioInjectorOptions.position.z);
+        },
+
+
         updateSoundEmitter: function() {
-            var properties = Entities.getEntityProperties(that.entityID, ["userData", "position"]);
+            var properties = Entities.getEntityProperties(that.entityID, ["userData", "position", "script", "serverScripts"]);
 
             var userData;
 
@@ -124,13 +131,7 @@
 
             var optionsChanged = false;
             var shouldRestartPlayback = false;
-
-            if (properties.position.x !== that.audioInjectorOptions.position.x ||
-                properties.position.y !== that.audioInjectorOptions.position.y ||
-                properties.position.z !== that.audioInjectorOptions.position.z) {
-                optionsChanged = true;
-                that.audioInjectorOptions["position"] = properties.position;
-            }
+            var newPosition = properties.position;
 
             if (userData) {
                 if (userData.soundURL && userData.soundURL.length > 0 && userData.soundURL !== that.soundObjectURL) {
@@ -154,14 +155,34 @@
                     that.audioInjectorOptions.loop = userData.shouldLoop;
                 }
 
-                if (typeof(userData.localOnly) !== "undefined" && userData.localOnly !== that.audioInjectorOptions.localOnly) {
-                    optionsChanged = true;
-                    that.audioInjectorOptions.localOnly = userData.localOnly;
+                if (typeof(userData.positionOverride) !== "undefined" && !isNaN(userData.positionOverride.x) &&
+                    !isNaN(userData.positionOverride.y) && !isNaN(userData.positionOverride.z)) {
+                    newPosition = userData.positionOverride;
                 }
             } else {
                 console.log("Please specify this entity's `userData`! See README.md for instructions.");
                 that.clearCurrentSoundData();
                 return;
+            }            
+
+            var localOnly;
+            // If this script is attached as a client entity script...
+            if (properties.script.indexOf("soundEmitter.js") > -1) {
+                // ... Make sure that the audio injector IS local only.
+                localOnly = true;
+            // Else if this script is attached as a client server script...
+            } else if (properties.serverScripts.indexOf("soundEmitter.js") > -1) {
+                // ... Make sure that the audio injector IS NOT local only.
+                localOnly = false;
+            }
+            if (localOnly !== that.audioInjectorOptions.localOnly) {
+                optionsChanged = true;
+                that.audioInjectorOptions.localOnly = userData.localOnly;
+            }
+
+            if (that.positionChanged(newPosition)) {
+                optionsChanged = true;
+                that.audioInjectorOptions["position"] = newPosition;
             }
 
             if (!that.audioInjector || shouldRestartPlayback) {
@@ -177,5 +198,5 @@
     };
 
     
-    return new SoundEmitterServer();
+    return new SoundEmitter();
 });
