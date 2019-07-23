@@ -1,5 +1,5 @@
 # Sound Emitter
-- When you attach `soundEmitterServer.js` to any entity, audio will start playing from that position (or a specified position) for everybody in the domain.
+- When you attach `soundEmitter.js` to any entity, audio will start playing from that position (or a specified position) for everybody in the domain.
 - You can specify the audio that plays for everyone by modifying the attached entity's `userData`.
 - You can attach `soundEmitter.js` to an entity as an entity server script or an entity client script.
     - If you attach `soundEmitter.js` to an entity as an **entity server script**:
