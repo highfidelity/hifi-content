@@ -33,7 +33,7 @@ The entity's `userData` should follow this JSON structure:
 ```
 
 # Release Notes
-## v1.2 | [commit 3ea8117](https://github.com/highfidelity/hifi-content/commits/3ea8117)
+## v1.2 | [commit 45b2e3e](https://github.com/highfidelity/hifi-content/commits/45b2e3e)
 - Added the ability to set the `position` option of the Audio Injector inside the Sound Emitter's `userData` via the `positionOverride` key/value pair.
 - Documented why one would want to attach `soundEmitter.js` as either an entity client script or an entity server script.
 
