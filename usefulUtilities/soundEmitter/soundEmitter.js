@@ -119,7 +119,7 @@
 
 
         updateSoundEmitter: function() {
-            var properties = Entities.getEntityProperties(that.entityID, ["userData", "position"]);
+            var properties = Entities.getEntityProperties(that.entityID, ["userData", "position", "script", "serverScripts"]);
 
             var userData;
 
@@ -155,11 +155,6 @@
                     that.audioInjectorOptions.loop = userData.shouldLoop;
                 }
 
-                if (typeof(userData.localOnly) !== "undefined" && userData.localOnly !== that.audioInjectorOptions.localOnly) {
-                    optionsChanged = true;
-                    that.audioInjectorOptions.localOnly = userData.localOnly;
-                }
-
                 if (typeof(userData.positionOverride) !== "undefined" && !isNaN(userData.positionOverride.x) &&
                     !isNaN(userData.positionOverride.y) && !isNaN(userData.positionOverride.z)) {
                     newPosition = userData.positionOverride;
@@ -168,6 +163,21 @@
                 console.log("Please specify this entity's `userData`! See README.md for instructions.");
                 that.clearCurrentSoundData();
                 return;
+            }            
+
+            var localOnly;
+            // If this script is attached as a client entity script...
+            if (properties.script.indexOf("soundEmitter.js") > -1) {
+                // ... Make sure that the audio injector IS local only.
+                localOnly = true;
+            // Else if this script is attached as a client server script...
+            } else if (properties.serverScripts.indexOf("soundEmitter.js") > -1) {
+                // ... Make sure that the audio injector IS NOT local only.
+                localOnly = false;
+            }
+            if (localOnly !== that.audioInjectorOptions.localOnly) {
+                optionsChanged = true;
+                that.audioInjectorOptions.localOnly = userData.localOnly;
             }
 
             if (that.positionChanged(newPosition)) {
