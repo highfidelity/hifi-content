@@ -1,11 +1,12 @@
 var UNSET_DISPLAY_NAME_STRING = "unset display name";
 var UNKNOWN_TEAM_STRING = "Unknown Team";
+var ONE_UNKNOWN_TEAM_STRING = "People";
 var UNKNOWN_LOCATION_STRING = "online";
 
 function formatStatusData(data) {
     var generatedContainerDiv = document.createElement("div");
     if (data.teams.length === 0) {
-        document.getElementById("content").innerHTML = `<h2>No employee data.</h2>`;
+        document.getElementById("content").innerHTML = `<h2>There's no status data available for the specified organization.</h2>`;
         return;
     }
 
@@ -14,7 +15,11 @@ function formatStatusData(data) {
     for (var i = 0; i < data.teams.length; i++) {
         var currentTeamName = data.teams[i].name;
         if (currentTeamName === "TBD") {
-            currentTeamName = UNKNOWN_TEAM_STRING;
+            if (data.teams.length === 1) {
+                currentTeamName = ONE_UNKNOWN_TEAM_STRING;
+            } else {
+                currentTeamName = UNKNOWN_TEAM_STRING;
+            }
         }
 
         var teamContainer = document.createElement("div");
