@@ -6,7 +6,7 @@ The maximum pixel resolution of the mirror is 960px on the mirror's long side. T
 
 # Release Notes
 ## Version 2019-07-24_09-18-00
-commit
+commit 9cd250fe397a88f90108a49559934fbec7f639bd
 - Fixed a nasty bug that caused the mirror not to turn on or off.
 
 ## Version 2019-07-03_10_20_00
