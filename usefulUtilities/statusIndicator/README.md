@@ -1,33 +1,22 @@
 # Status Indicator
-Let other avatars know your status!
+Let other people know your status!
 
-This script creates a clickable button in upper right hand corner of your screen to set status to available or busy. The button only appears in Desktop mode.
+This feature consists of a High Fidelity Interfaceclient script and a backend Node.js Web application.
+
+The client script creates a clickable button in upper right hand corner of your screen to set your status to "available" or "busy". The button only appears in Desktop mode.
 
 ## "Directory Board" Setup
+A Web app and database tracks individuals' statuses. Using an in-world Web entity, you can display everyone's status in a table by setting the URL of the Web entity to:
+`https://<hostname>/getAllEmployees.html?organization=<the organization associated with the users whose status you want to see>`
 
-A web app and database tracks these statuses. Using a web entity, you can display everyone's status in a table by going to:
-
-To see everyone's status:
-`https://<hostname>/getAllEmployees`
-
-For automated setup:
+For automated setup of an in-world "Directory" Web entity:
 1. Rez a Web entity
 2. Attach `directoryClientScript.js` as a script on that Web entity.
 
 
-## Setup
+## High Fidelity Script Setup
 
-Run `<statusIndicator root>/hifiScript/statusIndicator.js` in High Fidelity's Running scripts.
-
-## locationZoneClient.js Config
-
-Update REQUEST_URL variable to `https://<hostname>/api/statusIndicator/`.
-
-Add `locationZoneClient.js` as a client script to a zone entity. When a user enters the zone entity, the zone will update the user's location to the zone's name.
-
-## Hifi App Script Config
-
-The code for this content is open source. You must set up some configuration files for this content to work:
+You must set up some configuration files for the client script to work:
 1. A `secrets.json` file in `<statusIndicator root>/hifiScript/secrets.json` that contains the data below.
 
 ```
@@ -36,17 +25,27 @@ The code for this content is open source. You must set up some configuration fil
 }
 ```
 
-* During development this REQUEST_URL was `http://localhost:3305/`
+* During development and local testing, this REQUEST_URL was `http://localhost:3305/`
 
-## HTML Readouts Config
+Once `secrets.json` is set up, run `<statusIndicator root>/hifiScript/statusIndicator.js` in High Fidelity's Running scripts.
 
-In `allEmployees.html`, you will need to replace `http://localhost:3305/` with `https://<hostname>/api/statusIndicator/` in the `fetch` function call.
+Note that this is not necessary if you are using Simplified UI; Simplified UI includes "Simplified Status Indicator" functionality.
+
+## locationZoneClient.js Setup
+
+Add `locationZoneClient.js` as a client script to a zone entity. When a user enters the zone entity, the zone will update the user's location to the zone's name.
+
+Make sure to update the `REQUEST_URL` variable to the location of the Status Indicator API, usually `https://<hostname>/api/statusIndicator/`.
+
+## HTML Frontend Setup
+
+In `webApp/www/allEmployees.html`, you will need to replace `http://localhost:3305/` in the `fetch` function call with the remote location of the Status Indicator API, usually `https://<hostname>/api/statusIndicator/`.
 
 `allEmployees.html` will display "Loading Data..." if the fetch fails.
 
 ## Web App Config
 
-The code for this content is open source. You must set up some configuration files for this content to work:
+You must set up a configuration file for the Status Indicator Web App to work:
 1. A `config.json` file in `<statusIndicator root>/webApp/config.json` that contains the data below.
 
 ### `config.json`
@@ -57,20 +56,28 @@ Here's what your `config.json` file should look like:
     "mySQLUsername": "<MySQL DB username>",
     "mySQLPassword": "<MySQL DB password>",
     "databaseName": "<the name of the database associated with the Status Indicator app>",
-    "wwwRoot": "<a URL to the remote host serving the files in `/webApp/www`. include the trailing slash. used for testing so that the `canary` API endpoint knows where to check. example: https://example.com/statusIndicator/>"
+    "wwwRoot": "<a URL to the remote host serving the files in `/webApp/www/`. include the trailing slash. used for testing so that the `canary` API endpoint knows where to check. example: https://example.com/statusIndicator/>"
 }
 ```
 
 ## Testing
-You can perform a local 1-person test of this new code by doing the following:
-1. Perform configuration steps as per the "Config" section above.
-2. Run the `statusIndicator_webApp.js` Web app from a local NodeJS v10.15.1 installation.
-    - Run `npm install` from the `webApp/app` directory
-    - Run `node statusIndicator_webApp.js` from the `webApp/app` directory
+You can perform a local test of the Status Indicator system by doing the following:
+1. Perform the configuration steps as per the "High Fidelity Script Setup" section.
+2. Perform the configuration steps as per the "HTML Frontend Setup" section.
+3. Ensure a MySQL Server is running somewhere over which you have control (a local installation of [MySQL Community Edition](https://www.mysql.com/downloads/) works perfectly).
+4. Perform the configuration steps as per the "Web App Config" section.
+5. Run the `statusIndicator_webApp.js` Web app from a local NodeJS v10.15.1 installation:
+    1. Run `npm install` from the `webApp/app` directory
+    2. Run `node statusIndicator_webApp.js` from the `webApp/app` directory
+6. Run a local HTTP server from the `webApp/www` directory:
+    1. Run `npm install -g http-server` from the `webApp/www` directory (you only have to do this once)
+    2. Run `http-server -p 80` from the `webApp/www` directory
+7. Seed the correct Status Indicator MySQL database with valid data.
+8. Go to `http://localhost/allEmployees.html` in your browser. 
 
 # Release Notes
 
-## Backend: v2.6 | Interface App: 2019-07-16_10-50-00 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+## Backend: v2.6 | Interface App: 2019-07-16_10-50-00 | [commit 134bb43](https://github.com/highfidelity/hifi-content/commits/134bb43)
 - Completely removed the notion of "team names" from Status Indicator. This means `teamPage.html` no longer exists, and interfaces that get data from the server via the status indicator backend APIs can no longer be formatted based off of team names.
 
 ## Backend: v2.5 | Interface App: 2019-07-16_11-06-29 | [commit 4ad6031](https://github.com/highfidelity/hifi-content/commits/4ad6031)
