@@ -1,9 +1,9 @@
 # Status Indicator
 Let other people know your status!
 
-This feature consists of a High Fidelity Interfaceclient script and a backend Node.js Web application.
+This feature consists of a High Fidelity Interface client script and a backend Node.js Web application.
 
-The client script creates a clickable button in upper right hand corner of your screen to set your status to "available" or "busy". The button only appears in Desktop mode.
+The client script creates a clickable button in the upper right-hand corner of your screen to set your status to "available" or "busy". The button only appears in Desktop mode.
 
 ## "Directory Board" Setup
 A Web app and database tracks individuals' statuses. Using an in-world Web entity, you can display everyone's status in a table by setting the URL of the Web entity to:
@@ -27,7 +27,7 @@ You must set up some configuration files for the client script to work:
 
 * During development and local testing, this REQUEST_URL was `http://localhost:3305/`
 
-Once `secrets.json` is set up, run `<statusIndicator root>/hifiScript/statusIndicator.js` in High Fidelity's Running scripts.
+Once `secrets.json` is set up, run `<statusIndicator root>/hifiScript/statusIndicator.js` in High Fidelity's Running Scripts.
 
 Note that this is not necessary if you are using Simplified UI; Simplified UI includes "Simplified Status Indicator" functionality.
 
