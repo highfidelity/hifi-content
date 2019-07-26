@@ -10,9 +10,6 @@ A web app and database tracks these statuses. Using a web entity, you can displa
 To see everyone's status:
 `https://<hostname>/getAllEmployees`
 
-To see a team's list status:
-`https://<hostname>/statusIndicator/team?teamName=<team name>`
-
 For automated setup:
 1. Rez a Web entity
 2. Attach `directoryClientScript.js` as a script on that Web entity.
@@ -43,9 +40,9 @@ The code for this content is open source. You must set up some configuration fil
 
 ## HTML Readouts Config
 
-In `allEmployees.html` and `teamPage.html`, you will need to replace `http://localhost:3305/` with `https://<hostname>/api/statusIndicator/` in the `fetch` function call.
+In `allEmployees.html`, you will need to replace `http://localhost:3305/` with `https://<hostname>/api/statusIndicator/` in the `fetch` function call.
 
-`allEmployees.html` and `teamPage.html` will display "Loading Data..." if the fetch fails or the teamName is incorrect.
+`allEmployees.html` will display "Loading Data..." if the fetch fails.
 
 ## Web App Config
 
@@ -72,6 +69,9 @@ You can perform a local 1-person test of this new code by doing the following:
     - Run `node statusIndicator_webApp.js` from the `webApp/app` directory
 
 # Release Notes
+
+## Backend: v2.6 | Interface App: 2019-07-16_10-50-00 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+- Completely removed the notion of "team names" from Status Indicator. This means `teamPage.html` no longer exists, and interfaces that get data from the server via the status indicator backend APIs can no longer be formatted based off of team names.
 
 ## Backend: v2.5 | Interface App: 2019-07-16_11-06-29 | [commit 4ad6031](https://github.com/highfidelity/hifi-content/commits/4ad6031)
 - On the status indicator website, don't show the 'UNKNOWN TEAM' header when that's the only org name returned in the results. Instead, show "PEOPLE".
