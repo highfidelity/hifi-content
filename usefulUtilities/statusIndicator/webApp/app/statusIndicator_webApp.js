@@ -119,7 +119,7 @@ function updateEmployee(updates, response) {
     var columnString = ""; // (username, displayName, status, organization)
     var valueString = ""; // ('username1', 'Display Name', 'busy', 'HiFi')
     var updateString = ""; // username='username1', displayName='Display Name', status='busy', organization='HiFi'
-    var validUpdateParams = ["username", "displayName", "status", "teamName", "location", "organization"];
+    var validUpdateParams = ["username", "displayName", "status", "location", "organization"];
     for (var key in updates) {
         if (validUpdateParams.indexOf(key) === -1) {
             continue;
@@ -197,7 +197,7 @@ function formatMemberData(singleResultObject) {
 }
 
 // Get all employees
-// Return tables organized by Team names with all employee information
+// Return tables with all employee information
 function getAllEmployees(organization, response) {
     if (!organization) {
         var responseObject = {
@@ -212,7 +212,7 @@ function getAllEmployees(organization, response) {
 
     var query = `SELECT * FROM statusIndicator 
         WHERE organization = '${organization}' 
-        ORDER BY teamName, displayName`;
+        ORDER BY displayName`;
 
     connection.query(query, function (error, results, fields) {
         if (error) {
@@ -228,84 +228,11 @@ function getAllEmployees(organization, response) {
 
         var responseObject = {
             "status": "success",
-            "teams": []
+            "people": []
         };
 
-        var currentTeamObject = false;
-        var currentTeamName = false;
         for (var i = 0; i < results.length; i++) {
-            if (currentTeamName !== results[i].teamName) {
-                currentTeamName = results[i].teamName;
-
-                if (i > 0) {
-                    responseObject.teams.push(currentTeamObject);
-                }
-
-                currentTeamObject = {
-                    "name": currentTeamName,
-                    "members": []
-                };
-            }
-
-            currentTeamObject.members.push(formatMemberData(results[i]));
-        }
-        if (currentTeamObject) {
-            // Push the last one.
-            responseObject.teams.push(currentTeamObject);
-        }
-
-        response.statusCode = 200;
-        response.setHeader('Content-Type', 'application/json');
-        return response.end(JSON.stringify(responseObject));
-    });
-}
-
-// Get employees from team
-function getTeamEmployees(organization, teamName, response) {
-    if (!organization) {
-        var responseObject = {
-            status: "error",
-            text: "You must specify an organization!"
-        };
-
-        response.statusCode = 400;
-        response.setHeader('Content-Type', 'application/json');
-        return response.end(JSON.stringify(responseObject));
-    }
-
-    var query = `SELECT * FROM statusIndicator
-        WHERE organization = '${organization}' AND teamName='${teamName}' 
-        ORDER BY displayName`;
-
-    connection.query(query, function (error, results, fields) {
-        if (error) {
-            var responseObject = {
-                status: "error",
-                text: "Error while retrieving employees with teamName! " + JSON.stringify(error)
-            };
-
-            response.statusCode = 500;
-            response.setHeader('Content-Type', 'application/json');
-            return response.end(JSON.stringify(responseObject));
-        }        
-
-        var responseObject = {
-            "status": "success",
-            "teams": []
-        };
-        var currentTeamObject = false;
-        
-        if (results.length > 0) {
-            currentTeamObject = {
-                "name": teamName,
-                "members": []
-            };
-            
-            for (var i = 0; i < results.length; i++) {
-                currentTeamObject.members.push(formatMemberData(results[i]));
-            }
-            
-            responseObject.teams.push(currentTeamObject);
+            responseObject.people.push(formatMemberData(results[i]));
         }
 
         response.statusCode = 200;
@@ -318,7 +245,6 @@ function getTeamEmployees(organization, teamName, response) {
 function handleCanaryRequest(res) {
     // Checks that NGINX is serving the right page.
     var allEmployeesPageOK;
-    var teamPageOK;
     var apiRouterOK = true; // Always true if we can get here!
     var sqlConnectionOK;
     request.get(
@@ -328,46 +254,33 @@ function handleCanaryRequest(res) {
         },
         (error, response) => {
             allEmployeesPageOK = !error;
-            
-            request.get(
-                config.wwwRoot + "teamPage.html",
-                {
-                    timeout: 15000
-                },
-                (error, response) => {
-                    teamPageOK = !error;
 
-                    var query = "SELECT 1;"
-                    connection.query(query, function (error, results, fields) {
-                        sqlConnectionOK = !error;
+            var query = "SELECT 1;"
+            connection.query(query, function (error, results, fields) {
+                sqlConnectionOK = !error;
 
-                        // The `result` value should be a logical AND
-                        // of all of the subsystems whose status we check.
-                        var responseObject = {
-                            result: apiRouterOK && allEmployeesPageOK && teamPageOK && sqlConnectionOK,
-                            systemStatus: {
-                                apiRouter: {
-                                    status: apiRouterOK
-                                },
-                                http: {
-                                    allEmployeesPage: {
-                                        status: allEmployeesPageOK
-                                    },
-                                    teamPage: {
-                                        status: teamPageOK
-                                    }
-                                },
-                                database: {
-                                    status: sqlConnectionOK
-                                }
+                // The `result` value should be a logical AND
+                // of all of the subsystems whose status we check.
+                var responseObject = {
+                    result: apiRouterOK && allEmployeesPageOK && sqlConnectionOK,
+                    systemStatus: {
+                        apiRouter: {
+                            status: apiRouterOK
+                        },
+                        http: {
+                            allEmployeesPage: {
+                                status: allEmployeesPageOK
                             }
-                        };
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
-                        return res.end(JSON.stringify(responseObject));
-                    });
-                }
-            );
+                        },
+                        database: {
+                            status: sqlConnectionOK
+                        }
+                    }
+                };
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                return res.end(JSON.stringify(responseObject));
+            });
         }
     );
 }
@@ -378,7 +291,6 @@ function handleCanaryRequest(res) {
 // "getStatus"
 // "heartbeat"
 // "getAllEmployees"
-// "getTeamEmployees"
 // "canary"
 function handleGetRequest(request, response) {
     var queryParamObject = url.parse(request.url, true).query;
@@ -401,13 +313,6 @@ function handleGetRequest(request, response) {
 
         case "getAllEmployees": // http://localhost:3305/?type=getAllEmployees&organization=org
             getAllEmployees(queryParamObject.organization, response);
-            break;
-
-        case "getTeamEmployees": // http://localhost:3305/?type=getTeamEmployees&organization=org&teamName=team1
-            // {
-            //      teamName: "exampleTeamName"
-            // }
-            getTeamEmployees(queryParamObject.organization, queryParamObject.teamName, response);
             break;
 
         case "canary":
@@ -467,7 +372,6 @@ function maybeCreateNewTables(response) {
         username VARCHAR(100) PRIMARY KEY,
         displayName VARCHAR(100),
         status VARCHAR(150) DEFAULT 'busy',
-        teamName VARCHAR(100) DEFAULT 'TBD',
         location VARCHAR(100) DEFAULT 'unknown',
         organization VARCHAR(200) DEFAULT NULL
     )`;
