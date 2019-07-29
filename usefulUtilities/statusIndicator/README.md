@@ -77,7 +77,7 @@ You can perform a local test of the Status Indicator system by doing the followi
 
 # Release Notes
 
-## Backend: v2.6 | Interface App: 2019-07-16_10-50-00 | [commit 134bb43](https://github.com/highfidelity/hifi-content/commits/134bb43)
+## Backend: v2.6 | Interface App: 2019-07-26_10-50-00 | [commit 134bb43](https://github.com/highfidelity/hifi-content/commits/134bb43)
 - Completely removed the notion of "team names" from Status Indicator. This means `teamPage.html` no longer exists, and interfaces that get data from the server via the status indicator backend APIs can no longer be formatted based off of team names.
 
 ## Backend: v2.5 | Interface App: 2019-07-16_11-06-29 | [commit 4ad6031](https://github.com/highfidelity/hifi-content/commits/4ad6031)
