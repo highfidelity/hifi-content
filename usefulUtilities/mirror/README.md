@@ -5,6 +5,10 @@
 The maximum pixel resolution of the mirror is 960px on the mirror's long side. The pixel resolution of the short side of the mirror is based on the aspect ratio of the mirror to ensure square pixels, and will always be smaller than 960px.
 
 # Release Notes
+## Version 2019-08-01_13-02-00
+commit 550bb2ba
+- Made the mirror local entity not grabbable
+
 ## Version 2019-07-24_09-18-00
 commit 9cd250fe397a88f90108a49559934fbec7f639bd
 - Fixed a nasty bug that caused the mirror not to turn on or off.
