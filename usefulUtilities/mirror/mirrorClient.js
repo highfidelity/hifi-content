@@ -91,6 +91,9 @@
                     x: 0,
                     y: 0,
                     z: mirrorLocalEntityOffset
+                },                
+                grab: {
+                    grabbable: false
                 },
                 localRotation: Quat.fromPitchYawRollDegrees(0, 0, 180),
                 isVisibleInSecondaryCamera: false
