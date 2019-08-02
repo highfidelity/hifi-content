@@ -32,7 +32,7 @@ The entity's `userData` should follow this JSON structure:
 ```
 
 # Release Notes
-## v1.2 HOTFIX | [commit 20591cb](https://github.com/highfidelity/hifi-content/commits/20591cb)
+## v1.2 HOTFIX | [commit 63bc395](https://github.com/highfidelity/hifi-content/commits/63bc395)
 - This is a hotfix, so the version number isn't changing; the code on S3 will be updated to this version of the code, so code from commit `f648882` will not be officially hosted on our S3.
 - Fixed [BUGZ-1147](https://highfidelity.atlassian.net/browse/BUGZ-1147): "Serverless domain - Audio log spam when in serverless domain"
 
