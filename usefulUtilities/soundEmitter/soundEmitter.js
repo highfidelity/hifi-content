@@ -177,7 +177,7 @@
             }
             if (localOnly !== that.audioInjectorOptions.localOnly) {
                 optionsChanged = true;
-                that.audioInjectorOptions.localOnly = userData.localOnly;
+                that.audioInjectorOptions.localOnly = localOnly;
             }
 
             if (that.positionChanged(newPosition)) {
