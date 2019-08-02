@@ -32,6 +32,10 @@ The entity's `userData` should follow this JSON structure:
 ```
 
 # Release Notes
+## v1.2 HOTFIX | [commit 20591cb](https://github.com/highfidelity/hifi-content/commits/20591cb)
+- This is a hotfix, so the version number isn't changing; the code on S3 will be updated to this version of the code, so code from commit `f648882` will not be officially hosted on our S3.
+- Fixed [BUGZ-1147](https://highfidelity.atlassian.net/browse/BUGZ-1147): "Serverless domain - Audio log spam when in serverless domain"
+
 ## v1.2 | [commit f648882](https://github.com/highfidelity/hifi-content/commits/f648882)
 - Added the ability to set the `position` option of the Audio Injector inside the Sound Emitter's `userData` via the `positionOverride` key/value pair.
 - Documented why one would want to attach `soundEmitter.js` as either an entity client script or an entity server script.
