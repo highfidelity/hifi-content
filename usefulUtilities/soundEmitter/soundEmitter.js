@@ -165,7 +165,7 @@
                 return;
             }            
 
-            var localOnly;
+            var localOnly = that.audioInjectorOptions.localOnly;
             // If this script is attached as a client entity script...
             if (properties.script.indexOf("soundEmitter.js") > -1) {
                 // ... Make sure that the audio injector IS local only.
@@ -177,7 +177,7 @@
             }
             if (localOnly !== that.audioInjectorOptions.localOnly) {
                 optionsChanged = true;
-                that.audioInjectorOptions.localOnly = userData.localOnly;
+                that.audioInjectorOptions.localOnly = localOnly;
             }
 
             if (that.positionChanged(newPosition)) {
