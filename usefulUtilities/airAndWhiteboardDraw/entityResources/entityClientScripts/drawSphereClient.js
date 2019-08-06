@@ -252,7 +252,7 @@
                 lineProperties.color = _this.color;
                 lineProperties.textures = _this.texture;
                 lineProperties.faceCamera = !onBoard;
-                if (polyLine) {
+                if (polyLine && whiteboard) {
                     Entities.editEntity(polyLine, { parentID: whiteboard });
                 }
                 if (onBoard) {
