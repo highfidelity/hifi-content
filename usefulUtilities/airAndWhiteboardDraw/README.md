@@ -12,28 +12,32 @@ This utility combines the best features of the whiteboard and the draw app. Any 
 
 ## Releases
 ### Version 1
-SHA [80bcc13](https://github.com/highfidelity/hifi-content/commits/80bcc13)
-April 18, 2019
-- Initial Release
 
-SHA [90ebb0d](https://github.com/highfidelity/hifi-content/commits/90ebb0d)
-May 21, 2019
-- Fixed bug with paint sphere dimensions not found [JIRA 152](https://highfidelity.atlassian.net/browse/BUGZ-152)
-- Made material entity attached to paint sphere collisionless 
+SHA [](https://github.com/highfidelity/hifi-content/commits/)
+August 06, 2019
+- Fixed bug where whiteboards in close proximity erase each other's lines [JIRA 1159](https://highfidelity.atlassian.net/browse/BUGZ-1159)
+
+SHA [f80f76a6](https://github.com/highfidelity/hifi-content/commits/f80f76a6)
+June 18, 2019 Fix for [JIRA 143](https://highfidelity.atlassian.net/browse/DEV-143)
+- Removed the ability to draw in the air while in desktop mode.
+
+SHA [a5368e9](https://github.com/highfidelity/hifi-content/commits/a5368e9)
+June 11, 2019 Fix for [JIRA 642](https://highfidelity.atlassian.net/browse/BUGZ-642)
+- Clear a var after changing draw mode
 
 SHA [d176da9](https://github.com/highfidelity/hifi-content/commits/d176da9)
 June 6, 2019
 - Updated the current tablet method to use the controller as an origin to help avoid using intervals other than the update loop
 - Updated the model to have a full bezel around the board
 
-SHA [a5368e9](https://github.com/highfidelity/hifi-content/commits/a5368e9)
-June 11, 2019 Fix for [JIRA 642](https://highfidelity.atlassian.net/browse/BUGZ-642)
-- Clear a var after changing draw mode
+SHA [90ebb0d](https://github.com/highfidelity/hifi-content/commits/90ebb0d)
+May 21, 2019
+- Fixed bug with paint sphere dimensions not found [JIRA 152](https://highfidelity.atlassian.net/browse/BUGZ-152)
+- Made material entity attached to paint sphere collisionless 
 
-SHA [f80f76a6](https://github.com/highfidelity/hifi-content/commits/f80f76a6)
-June 18, 2019 Fix for [JIRA 143](https://highfidelity.atlassian.net/browse/DEV-143)
-- Removed the ability to draw in the air while in desktop mode.
-
+SHA [80bcc13](https://github.com/highfidelity/hifi-content/commits/80bcc13)
+April 18, 2019
+- Initial Release
 
 ## Known issues
 ### Lines drawn on the board in HMD do not render flat and with an even stroke width

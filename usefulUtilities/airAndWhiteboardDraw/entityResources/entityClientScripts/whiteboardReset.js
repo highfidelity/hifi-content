@@ -14,11 +14,13 @@
 
     var RESET_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/resetWhiteboard.mp3'));
     var RESET_SOUND_VOLUME = 0.05;
-    var SEARCH_RADIUS_M = 6;
+    var POLYLINES_SEARCH_RADIUS_M = 6;
+    var WHITEBOARDS_SEARCH_RADIUS_M = 12;
     var HALF = 0.5;
 
     var injector;
     var whiteboardZone = null;
+    var thisWhiteboard;
 
     var WhiteboardReset = function() {
         _this = this;
@@ -35,8 +37,8 @@
 
         /* Search children of whiteboard to get zone. */
         getWhiteboardZone: function() {
-            var whiteboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
-            Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardChild) {
+            thisWhiteboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
+            Entities.getChildrenIDs(thisWhiteboard).forEach(function(whiteboardChild) {
                 var name = Entities.getEntityProperties(whiteboardChild, 'name').name;
                 if (name === "Whiteboard Zone") {
                     whiteboardZone = whiteboardChild;
@@ -87,13 +89,29 @@
             }
             var position = Entities.getEntityProperties(_this.entityID, 'position').position;
             _this.playSound(RESET_SOUND, RESET_SOUND_VOLUME, MyAvatar.position, true, false);
-            Entities.findEntitiesByName("Whiteboard Polyline", position, SEARCH_RADIUS_M).
-                forEach(function(whiteboardPiece) {
-                    var name = Entities.getEntityProperties(whiteboardPiece, 'name').name;
-                    if (name && name === "Whiteboard Polyline") {
-                        Entities.deleteEntity(whiteboardPiece);
+            var polylines = Entities.findEntitiesByName("Whiteboard Polyline", position, POLYLINES_SEARCH_RADIUS_M);
+            var whiteboards = Entities.findEntitiesByName("Whiteboard", position, WHITEBOARDS_SEARCH_RADIUS_M);
+            var counter = 0;
+            whiteboards.forEach(function(whiteboardID) {
+                var position = Entities.getEntityProperties(whiteboardID, 'position').position;
+                whiteboards[counter] = {id: whiteboardID, position: position};
+                counter++;
+            });
+            polylines.forEach(function(polyline) {
+                var polylinePosition = Entities.getEntityProperties(polyline, 'position').position;
+                var closestWhiteboardDistance = null;
+                var closestWhiteboard = null;
+                whiteboards.forEach(function(whiteboard) {
+                    var distancePolylineToWhiteboard = Vec3.distance(whiteboard.position, polylinePosition);
+                    if (!closestWhiteboardDistance || (distancePolylineToWhiteboard < closestWhiteboardDistance)) {
+                        closestWhiteboardDistance = distancePolylineToWhiteboard;
+                        closestWhiteboard = whiteboard.id;
                     }
                 });
+                if (closestWhiteboard === thisWhiteboard) {
+                    Entities.deleteEntity(polyline);
+                }
+            });
         },
 
         /* When clicked or triggered, reset board. */
