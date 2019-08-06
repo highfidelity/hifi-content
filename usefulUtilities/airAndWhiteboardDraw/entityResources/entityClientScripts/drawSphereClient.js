@@ -252,6 +252,9 @@
                 lineProperties.color = _this.color;
                 lineProperties.textures = _this.texture;
                 lineProperties.faceCamera = !onBoard;
+                if (polyLine) {
+                    Entities.editEntity(polyLine, { parentID: whiteboard });
+                }
                 if (onBoard) {
                     lineProperties.lifetime = -1;
                     polyLine = Entities.addEntity(lineProperties);
@@ -599,6 +602,9 @@
             }
             if (!polyLine) {
                 return;
+            }
+            if (whiteboard) {
+                Entities.editEntity(polyLine, { parentID: whiteboard });
             }
             initialLineStartDataReady = false;
             polyLine = null;

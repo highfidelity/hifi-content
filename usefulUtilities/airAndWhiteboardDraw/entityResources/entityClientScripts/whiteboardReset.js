@@ -14,8 +14,6 @@
 
     var RESET_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/resetWhiteboard.mp3'));
     var RESET_SOUND_VOLUME = 0.05;
-    var POLYLINES_SEARCH_RADIUS_M = 6;
-    var WHITEBOARDS_SEARCH_RADIUS_M = 12;
     var HALF = 0.5;
 
     var injector;
@@ -87,29 +85,11 @@
             if (!_this.isUserInZone(whiteboardZone)) {
                 return;
             }
-            var position = Entities.getEntityProperties(_this.entityID, 'position').position;
             _this.playSound(RESET_SOUND, RESET_SOUND_VOLUME, MyAvatar.position, true, false);
-            var polylines = Entities.findEntitiesByName("Whiteboard Polyline", position, POLYLINES_SEARCH_RADIUS_M);
-            var whiteboards = Entities.findEntitiesByName("Whiteboard", position, WHITEBOARDS_SEARCH_RADIUS_M);
-            var counter = 0;
-            whiteboards.forEach(function(whiteboardID) {
-                var position = Entities.getEntityProperties(whiteboardID, 'position').position;
-                whiteboards[counter] = {id: whiteboardID, position: position};
-                counter++;
-            });
-            polylines.forEach(function(polyline) {
-                var polylinePosition = Entities.getEntityProperties(polyline, 'position').position;
-                var closestWhiteboardDistance = null;
-                var closestWhiteboard = null;
-                whiteboards.forEach(function(whiteboard) {
-                    var distancePolylineToWhiteboard = Vec3.distance(whiteboard.position, polylinePosition);
-                    if (!closestWhiteboardDistance || (distancePolylineToWhiteboard < closestWhiteboardDistance)) {
-                        closestWhiteboardDistance = distancePolylineToWhiteboard;
-                        closestWhiteboard = whiteboard.id;
-                    }
-                });
-                if (closestWhiteboard === thisWhiteboard) {
-                    Entities.deleteEntity(polyline);
+            Entities.getChildrenIDs(thisWhiteboard).forEach(function(childOfWhiteboard) {
+                var name = Entities.getEntityProperties(childOfWhiteboard, 'name').name;
+                if (name === "Whiteboard Polyline") {
+                    Entities.deleteEntity(childOfWhiteboard);
                 }
             });
         },
