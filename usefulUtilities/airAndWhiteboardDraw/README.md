@@ -12,7 +12,7 @@ This utility combines the best features of the whiteboard and the draw app. Any 
 
 ## Releases
 
-SHA [](https://github.com/highfidelity/hifi-content/commits/)
+SHA [3089026](https://github.com/highfidelity/hifi-content/commits/3089026)
 2019-08-06_13-30-00 [JIRA 1159](https://highfidelity.atlassian.net/browse/BUGZ-1159)
 - Fixed bug where whiteboards in close proximity erase each other's lines 
 
