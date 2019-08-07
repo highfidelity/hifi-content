@@ -252,6 +252,9 @@
                 lineProperties.color = _this.color;
                 lineProperties.textures = _this.texture;
                 lineProperties.faceCamera = !onBoard;
+                if (polyLine && whiteboard) {
+                    Entities.editEntity(polyLine, { parentID: whiteboard });
+                }
                 if (onBoard) {
                     lineProperties.lifetime = -1;
                     polyLine = Entities.addEntity(lineProperties);
@@ -600,6 +603,9 @@
             if (!polyLine) {
                 return;
             }
+            if (whiteboard) {
+                Entities.editEntity(polyLine, { parentID: whiteboard });
+            }
             initialLineStartDataReady = false;
             polyLine = null;
             currentPoint = null;
@@ -804,7 +810,8 @@
                 } else if (!HMD.isHandControllerAvailable()) {
                     // NOTE: keep _this offset in sync with scripts/system/controllers/handControllerPointer.js:493
                     var VERTICAL_HEAD_LASER_OFFSET = 0.1 * MyAvatar.sensorToWorldScale;
-                    position = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, { x: 0, y: VERTICAL_HEAD_LASER_OFFSET, z: 0 }));
+                    position = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, 
+                        { x: 0, y: VERTICAL_HEAD_LASER_OFFSET, z: 0 }));
                     orientation = Quat.multiply(Camera.orientation, Quat.angleAxis(-90, { x: 1, y: 0, z: 0 }));
                     valid = true;
                 }
@@ -834,10 +841,7 @@
             } else {
                 _this.closeDesktopMode();
             }
-            if (injector) {
-                injector.stop();
-                injector = null;
-            }
+            _this.stopDrawing();
             _this.playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true, false);
             if (controllerMapping) {
                 controllerMapping.disable();
