@@ -94,7 +94,7 @@
                 console.log("MOUSE RELEASE");
             }
             if (event.isPrimaryButton && 
-                Vec3.distance(MyAvatar.position,Entities.getEntityProperties(_this.entityID,["position"]).position) <= MAX_SIT_DISTANCE_M) {
+                Vec3.distance(MyAvatar.position, Entities.getEntityProperties(_this.entityID,["position"]).position) <= MAX_SIT_DISTANCE_M) {
                 Entities.callEntityServerMethod(_this.sitEntityID, "onSitDown", [MyAvatar.sessionUUID]);
             }
         },
