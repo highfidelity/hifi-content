@@ -60,6 +60,11 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Known issues
 
+### HMD sit problems
+
+Sitting in HMD mode does not delete the sittable ui but clicking on it does not let you sit
+Changing from HMD to desktop while sitting makes the sittable overlay no longer reappear but is functionally present
+
 ### Solution to other entities taking the "Click to Sit" click events
 
 Collisions with other entity's invisible collision hulls sometimes make it difficult to sit. Ensure entities near sit cubes have the property `ignorePickIntersection: true`.
