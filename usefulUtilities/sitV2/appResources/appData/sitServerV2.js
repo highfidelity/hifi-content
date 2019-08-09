@@ -100,7 +100,7 @@
             Entities.callEntityClientMethod(
                 params[i],
                 _this.entityID,
-                "onLeaveCanSitZone"
+                "deleteSittableUI"
             );
         }
     }
@@ -120,72 +120,16 @@
                 Entities.callEntityClientMethod(
                     params[i],
                     _this.entityID,
-                    "onEnterCanSitZone"
+                    "createSittableUI"
                 );
             }
         }
-    }
-
-    // #region CAN SIT ZONE
-
-    // Create can sit zone
-    var CAN_SIT_M = 5;
-    function createCanSitZone() {
-        var properties = Entities.getEntityProperties(_this.entityID);
-        _this.canSitZoneID = Entities.addEntity({
-            name: "canSitZone-" + _this.entityID,
-            type: "Zone",
-            shapeType: "sphere",
-            position: properties.position,
-            parentID: _this.entityID,
-            script: Script.resolvePath("./resources/canSitZoneClient.js"),
-            locked: false,
-            dimensions: { x: CAN_SIT_M, y: CAN_SIT_M, z: CAN_SIT_M },
-            keyLightMode: "inherit",
-            interactive: false
-        });
-    }
-
-    // Delete zone
-    function deleteCanSitZone() {
-        if (_this.canSitZoneID) {
-            Entities.deleteEntity(_this.canSitZoneID);
-            _this.canSitZoneID = false;
-        }
-    }
-
-    // #endregion CAN SIT ZONE
-
-    /* Check children of the sit cube to make sure there is only one zone. If more are found, delete them */
-    function checkForExtraZones() {
-        Entities.getChildrenIDs(_this.entityID).forEach(function(childOfSitCube) {
-            var name = Entities.getEntityProperties(childOfSitCube, 'name').name;
-            if (name && name.indexOf("canSitZone") > -1 && childOfSitCube !== _this.canSitZoneID) {
-                Entities.deleteEntity(childOfSitCube);
-            }
-        });
-    }
-
-    /* Set a random timeout with exponential growth to check for extra zones */
-    var ONE_SECOND_MS = 1000;
-    var ONE_TENTH_SECOND_MS = 100;
-    var MULTIPLIER = 2;
-    var timeUntilNextZoneCheck = Math.floor((Math.random() * ONE_SECOND_MS) + ONE_TENTH_SECOND_MS);
-    function setNextTimeout() {
-        timeUntilNextZoneCheck *= MULTIPLIER;
-        Script.setTimeout(function() {
-            checkForExtraZones();
-            setNextTimeout();
-        }, timeUntilNextZoneCheck);
-    }
-    
+    }  
     // Preload entity lifetime method
     function preload(id) {
         _this.entityID = id;
         _this.isOccupied = false;
         _this.resolved = false;
-        createCanSitZone();
-        setNextTimeout();
     }
 
 
@@ -196,7 +140,6 @@
             Script.clearInterval(_this.heartbeatInterval);
             _this.heartbeatInterval = false;
         }
-        deleteCanSitZone();
     }
 
 

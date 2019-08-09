@@ -15,6 +15,9 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Releases
 
+2019-06-27_20-24-55 :: [5e5a913f]
+- [DEV 345](https://highfidelity.atlassian.net/browse/DEV-345) Updated sit to version 2.5 which utilizes the avatar api and no longer uses zone entities.
+
 2019-06-27_20-24-55 :: [06afa3e]
 - [DEV 150](https://highfidelity.atlassian.net/browse/DEV-150) Added checks and a time out to help fix getting stuck in the animation when HMD is removed.
 
@@ -56,6 +59,11 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 - During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
 
 ## Known issues
+
+### HMD sit problems
+
+Sitting in HMD mode does not delete the sittable ui but clicking on it does not let you sit
+Changing from HMD to desktop while sitting makes the sittable overlay no longer reappear but is functionally present
 
 ### Solution to other entities taking the "Click to Sit" click events
 
