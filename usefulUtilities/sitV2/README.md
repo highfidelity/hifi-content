@@ -15,7 +15,7 @@ To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in use
 
 ## Releases
 
-2019-06-27_20-24-55 :: [5e5a913f]
+2019-08-09_15-32-00 :: [5e5a913f]
 - [DEV 345](https://highfidelity.atlassian.net/browse/DEV-345) Updated sit to version 2.5 which utilizes the avatar api and no longer uses zone entities.
 
 2019-06-27_20-24-55 :: [06afa3e]
