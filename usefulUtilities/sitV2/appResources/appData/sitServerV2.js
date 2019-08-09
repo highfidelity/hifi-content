@@ -100,7 +100,7 @@
             Entities.callEntityClientMethod(
                 params[i],
                 _this.entityID,
-                "onLeaveCanSitZone"
+                "deleteSittableUI"
             );
         }
     }
@@ -120,7 +120,7 @@
                 Entities.callEntityClientMethod(
                     params[i],
                     _this.entityID,
-                    "onEnterCanSitZone"
+                    "createSittableUI"
                 );
             }
         }

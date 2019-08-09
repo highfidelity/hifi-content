@@ -281,7 +281,7 @@
             "addAllOtherSittableOverlays",
             AvatarList.getAvatarsInRange(_this.seatCenterPosition, CAN_SIT_M)
         );
-
+        createSittableUI();
         stopUpdateInterval();
 
         if (_this.connectedSignals) {
@@ -301,40 +301,7 @@
             isConnected = false;
         }
         MyAvatar.endSit(MyAvatar.position, MyAvatar.orientation);
-        createSittableUI();
     }
-    // Remotely called from canSitZone
-    var AVATAR_SITTING_IN_CHAIR_RANGE = 0.01;
-    var EDIT_SETTING = "io.highfidelity.isEditing";
-    function onEnterCanSitZone(id, params) {
-        if (params && params.length > 0) {
-            _this.zoneID = params[0];
-        }
-
-        if (!Settings.getValue(EDIT_SETTING, false)) {
-            calculateSeatCenterPositionForPinningAvatarHips();
-            var isSittingInChair = AvatarList.isAvatarInRange(_this.seatCenterPosition, AVATAR_SITTING_IN_CHAIR_RANGE);
-            if (DEBUG) {
-                console.log("onEnterCanSitZone" + !_this.sittableUIID + !isSittingInChair);
-            }
-            if (!_this.sittableUIID && !isSittingInChair) {
-                createSittableUI();
-            }
-        } else {
-            if (DEBUG) {
-                console.log("entered zone and isInEditMode");
-            }
-            // is in edit mode do not create sittable
-        }
-    }
-
-    // Remotely called by the canSitZone
-    function onLeaveCanSitZone() {
-        deleteSittableUI();
-    }
-
-    // #endregion SIT DOWN / STAND UP SEQUENCE
-
 
     // #region PRESIT - LOCAL ENTITY shown in HMD before sitting and after clicking sittable overlay
     // Has the sitting animation and "Please Face Forward"
@@ -576,14 +543,14 @@
     // Entity methods
     SitClient.prototype = {
         remotelyCallable: [
-            "onEnterCanSitZone",
-            "onLeaveCanSitZone",
+            "createSittableUI",
+            "deleteSittableUI",
             "startSitDown",
             "check"
         ],
         // Zone methods
-        onEnterCanSitZone: onEnterCanSitZone,
-        onLeaveCanSitZone: onLeaveCanSitZone,
+        createSittableUI: createSittableUI,
+        deleteSittableUI: deleteSittableUI,
         // Entity liftime methods
         preload: preload,
         unload: unload,
