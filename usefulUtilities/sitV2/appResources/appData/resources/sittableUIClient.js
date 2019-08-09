@@ -92,7 +92,7 @@
             if (DEBUG) {
                 console.log("MOUSE RELEASE");
             }
-            if (event.isPrimaryButton) {
+            if (event.isPrimaryButton && Vec3.distance(MyAvatar.position,Entities.getEntityProperties(_this.entityID,["position"]).position) <= 5) {
                 Entities.callEntityServerMethod(_this.sitEntityID, "onSitDown", [MyAvatar.sessionUUID]);
             }
         },

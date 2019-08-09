@@ -184,8 +184,8 @@
         _this.entityID = id;
         _this.isOccupied = false;
         _this.resolved = false;
-        createCanSitZone();
-        setNextTimeout();
+        //createCanSitZone();
+        //setNextTimeout();
     }
 
 
@@ -196,7 +196,7 @@
             Script.clearInterval(_this.heartbeatInterval);
             _this.heartbeatInterval = false;
         }
-        deleteCanSitZone();
+        //deleteCanSitZone();
     }
 
 

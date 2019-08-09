@@ -39,23 +39,6 @@
         };
     }
 
-
-    // String utility
-    function startsWith(str, searchString, position) {
-        position = position || 0;
-        return str.substr(position, searchString.length) === searchString;
-    }
-
-
-    // Return the animation roles to override
-    function rolesToOverride() {
-        // Get all animation roles that sit will override
-        return MyAvatar.getAnimationRoles().filter(function (role) {
-            return !(startsWith(role, "right") || startsWith(role, "left"));
-        });
-    }
-
-
     // Checks for Avatar Spine Error in VR to avoid uncomfortable looking avatar position
     var NEG_ONE = -1;
     var HALF = 0.5;
@@ -85,7 +68,6 @@
     }
 
     // #endregion UTILITIES
-
 
     // #region SIT DOWN / STAND UP SEQUENCE
 
@@ -145,68 +127,27 @@
 
     // Listen to action events. If jump is pressed, the user will stand up
     var JUMP_ACTION_ID = 50;
-    var jumpPressed = false;
     function onActionEvent(actionID, value) {
         if (actionID === JUMP_ACTION_ID) {
-            jumpPressed = true;
             standUp();
         }
     }
 
-    // 4th of sit down sequence
-    // Sit the avatar down (in the sitting animation) and pin the hips to the spot
-    var ANIMATION_URL = Script.resolvePath("./resources/animations/sittingIdle.fbx");
-    var ANIMATION_FPS = 30;
-    var ANIMATION_FIRST_FRAME = 1;
-    var ANIMATION_LAST_FRAME = 350;
     var UPDATE_INTERVAL_MS = 400;
-    var DISABLED_DRIVE_KEYS_DURING_SIT = [
-        DriveKeys.TRANSLATE_X,
-        DriveKeys.TRANSLATE_Y,
-        DriveKeys.TRANSLATE_Z,
-        DriveKeys.STEP_TRANSLATE_X,
-        DriveKeys.STEP_TRANSLATE_Y,
-        DriveKeys.STEP_TRANSLATE_Z
-    ];
     var isConnected = false;
-    var driveKeysDisabled = false;
     function sitDownAndPinAvatar() {
-        MyAvatar.collisionsEnabled = false;
-        MyAvatar.hmdLeanRecenterEnabled = false;
-
         if (HMD.active) {
             deletePresit();
         }
-
-        var roles = rolesToOverride();
-        for (var i in roles) { // restore roles to prevent overlap
-            // -----------------THIS IS PRINTING ERRORS WHEN IN HMD WHEN CHANGING SEATS---------------------
-            // Rig::restoreRoleAnimation could not find role ***ROLE NAME***
-            if (changedSeats) {
-                MyAvatar.restoreRoleAnimation(roles[i]);
-            } 
-            MyAvatar.overrideRoleAnimation(roles[i], ANIMATION_URL, ANIMATION_FPS, true,
-                ANIMATION_FIRST_FRAME, ANIMATION_LAST_FRAME);
-        }
-        // Disable movement
-        for (var j in DISABLED_DRIVE_KEYS_DURING_SIT) {
-            MyAvatar.disableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[j]);
-        }
-        driveKeysDisabled = true;
         if (!isConnected) {
             Controller.actionEvent.connect(onActionEvent);
             isConnected = true;
         }
-
-        MyAvatar.centerBody();
-        MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
-
-        Script.setTimeout(function () {
-            var hipIndex = MyAvatar.getJointIndex("Hips");
+        Script.setTimeout(function () {            
             var properties = Entities.getEntityProperties(_this.entityID);
+            MyAvatar.beginSit(_this.seatCenterPosition, properties.rotation);
+            
             _this.sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME_MS;
-            MyAvatar.goToLocation(_this.seatCenterPosition, true, properties.rotation, false, false);
-            MyAvatar.pinJoint(hipIndex, _this.seatCenterPosition, properties.rotation);
             stopUpdateInterval();
 
             _this.whileSittingUpdateIntervalID = Script.setInterval(_this.whileSittingUpdate, UPDATE_INTERVAL_MS);
@@ -222,6 +163,7 @@
                 HMD.displayModeChanged.connect(_this.standUpWrapper);
                 _this.connectedSignals = true;
             }
+            
         }, SIT_DELAY_MS);
     }
 
@@ -280,7 +222,6 @@
         }
     }
 
-
     // Clear whileSitting update interval
     function stopUpdateInterval() {
         if (_this.whileSittingUpdateIntervalID) {
@@ -288,7 +229,6 @@
             _this.whileSittingUpdateIntervalID = false;
         }
     }
-
 
     // To help with the clashing HMD and My Avatar away signals.
     // A timeout here seems to be the only thing to prevent the default animation not being restored
@@ -322,13 +262,7 @@
         // STANDING FROM THIS CHAIR
         // Make avatar stand up (if changed seat do not do this)
         if (settingsEntityID === _this.entityID) { // POSSIBLE RACE CONDITION WITH SETTINGS BEING CHANGED BY NEW SEAT
-            MyAvatar.clearPinOnJoint(MyAvatar.getJointIndex("Hips"));
-            // standing up from this chair
-            
-            // RESTORE ANIMATION ROLES
             Settings.setValue(SETTING_KEY_AVATAR_SITTING, null);
-            roles = rolesToOverride();
-            overRideRoles();
             standAvatarUp();
         }
 
@@ -362,75 +296,15 @@
         }
     }
 
-    var rolesOverRidden = false;
-    var MAX_ROLES_TO_RETRY = 3;
-    var ROLES_TIMEOUT_MS = 100;
-    var roleTryAmount = 0;
-    function overRideRoles(){
-        if (roles.length === 0) {
-            roleTryAmount++;
-            if (roleTryAmount === MAX_ROLES_TO_RETRY) {
-                return;
-            } else {
-                Script.setTimeout(overRideRoles, ROLES_TIMEOUT_MS)
-            }
-        }   
-
-        for (var j = 0; j < roles.length; j++){
-            MyAvatar.restoreRoleAnimation(roles[j]);
-            if (j === roles.length -1) {
-                rolesOverRidden = true;
-            }
-        }
-    }
-
-    var MAX_STANDUP_AVATAR_TO_RETRY = 3;
-    var STANDUP_AVATAR_TIMEOUT_MS = 150;
-    var standUpAvatarAmount = 0;
     function standAvatarUp(){
-        if (rolesOverRidden === false) {
-            standUpAvatarAmount++;
-            if (standUpAvatarAmount === MAX_STANDUP_AVATAR_TO_RETRY) {
-                return;
-            } else {
-                Script.setTimeout(standAvatarUp, STANDUP_AVATAR_TIMEOUT_MS)
-            }
-        }
-
-        MyAvatar.collisionsEnabled = true;
-        MyAvatar.hmdLeanRecenterEnabled = true;
-        MyAvatar.centerBody();
-        var currentPosition = MyAvatar.position;
-        currentPosition.y = currentPosition.y + STANDUP_BUMP;
-        MyAvatar.position = currentPosition;
-        // Enable movement again
         if (isConnected) {
             Controller.actionEvent.disconnect(onActionEvent);
             isConnected = false;
         }
-
-        enableDriveKeys();
-
+        MyAvatar.endSit(MyAvatar.position, MyAvatar.orientation);
+        createSittableUI();
     }
-
-    // enableDriveKeys
-    var ENABLE_DRIVE_KEYS_TIMEOUT_MS = 150;
-    function enableDriveKeys() {
-        if (jumpPressed && driveKeysDisabled) {
-            Script.setTimeout(function(){
-                jumpPressed = false;
-                enableDriveKeys();
-            }, ENABLE_DRIVE_KEYS_TIMEOUT_MS);
-        }
-
-        if (!jumpPressed && driveKeysDisabled) {
-            for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
-                MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
-            }
-            driveKeysDisabled = false;
-        }
-    }
-
+    
     // Remotely called from canSitZone
     var AVATAR_SITTING_IN_CHAIR_RANGE = 0.01;
     var EDIT_SETTING = "io.highfidelity.isEditing";
@@ -455,7 +329,6 @@
             // is in edit mode do not create sittable
         }
     }
-
 
     // Remotely called by the canSitZone
     function onLeaveCanSitZone() {
@@ -521,7 +394,6 @@
         }, PRESIT_FRAME_DURATION);
     }
 
-
     // Delete presit local entity in user's screen
     function deletePresit() {
         if (_this.presitAnimationImageID) {
@@ -539,7 +411,6 @@
     }
 
     // #endregion PRESIT
-
 
     // #region SITTABLE LOCAL ENTITY
 
@@ -589,7 +460,6 @@
         );
     }
 
-
     // Remove sittable local entity if it exists
     function deleteSittableUI() {
         if (DEBUG) {
@@ -601,9 +471,8 @@
             _this.sittableID = false;
         }
     }
-
+    
     // #endregion SITTABLE
-
 
     // #region ENTITY LIFETIME FUNCTIONS
 
@@ -625,31 +494,17 @@
         }
     }
 
-
     // Preload entity method
     function preload(id) {
         _this.entityID = id;
+        createSittableUI();
         prefetchPresitImages();
-        // download sit animation
-        AnimationCache.prefetch(ANIMATION_URL);
         updateUserData();
     }
-
 
     // Unload entity method
     function unload() {
         var sitCurrentSettings = Settings.getValue(SETTING_KEY_AVATAR_SITTING);
-        if (sitCurrentSettings === _this.entityID) {
-            try {
-            // Enable movement again
-                for (var i in DISABLED_DRIVE_KEYS_DURING_SIT) {
-                    MyAvatar.enableDriveKey(DISABLED_DRIVE_KEYS_DURING_SIT[i]);
-                }
-            } catch (err) {
-                print("Cannot enable movement.");
-            }
-        }
-
         deleteSittableUI();
         deletePresit();
         standUp();
@@ -681,9 +536,7 @@
             }
         }
     }
-
     // #endregion ENTITY LIFETIME FUNCTIONS
-
 
     // Constructor
     var _this = null;
@@ -723,7 +576,6 @@
         this.canClickOnModelToSit = false;
     }
 
-
     // Entity methods
     SitClient.prototype = {
         remotelyCallable: [
@@ -746,7 +598,6 @@
         standUp: standUp,
         standUpWrapper: standUpWrapper
     };
-
 
     return new SitClient();
 });
