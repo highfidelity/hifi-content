@@ -162,8 +162,7 @@
                 MyAvatar.wentAway.connect(_this.standUpWrapper);
                 HMD.displayModeChanged.connect(_this.standUpWrapper);
                 _this.connectedSignals = true;
-            }
-            
+            }  
         }, SIT_DELAY_MS);
     }
 
@@ -304,7 +303,6 @@
         MyAvatar.endSit(MyAvatar.position, MyAvatar.orientation);
         createSittableUI();
     }
-    
     // Remotely called from canSitZone
     var AVATAR_SITTING_IN_CHAIR_RANGE = 0.01;
     var EDIT_SETTING = "io.highfidelity.isEditing";
@@ -471,7 +469,6 @@
             _this.sittableID = false;
         }
     }
-    
     // #endregion SITTABLE
 
     // #region ENTITY LIFETIME FUNCTIONS

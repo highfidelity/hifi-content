@@ -18,6 +18,7 @@
     var SITTABLE_ALPHA_DELTA = 0.009;
     var SITTABLE_FADE_MS = 40; // "Click/Trigger to Sit" local entity image fade after 50 ms
     var TIMEOUT_BEFORE_FADE_MS = 1000;
+    MAX_SIT_DISTANCE_M = 5;
     function startSittableLerpTransparency(sittableID, clearLerpIntervalCallback) {
         if (DEBUG) {
             console.log("startSittableLerpTransparency");
@@ -92,7 +93,7 @@
             if (DEBUG) {
                 console.log("MOUSE RELEASE");
             }
-            if (event.isPrimaryButton && Vec3.distance(MyAvatar.position,Entities.getEntityProperties(_this.entityID,["position"]).position) <= 5) {
+            if (event.isPrimaryButton && Vec3.distance(MyAvatar.position,Entities.getEntityProperties(_this.entityID,["position"]).position) <= MAX_SIT_DISTANCE_M) {
                 Entities.callEntityServerMethod(_this.sitEntityID, "onSitDown", [MyAvatar.sessionUUID]);
             }
         },
