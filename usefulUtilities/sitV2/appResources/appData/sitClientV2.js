@@ -162,7 +162,7 @@
                 MyAvatar.wentAway.connect(_this.standUpWrapper);
                 HMD.displayModeChanged.connect(_this.standUpWrapper);
                 _this.connectedSignals = true;
-            }  
+            }
         }, SIT_DELAY_MS);
     }
 
