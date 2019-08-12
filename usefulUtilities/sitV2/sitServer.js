@@ -16,7 +16,7 @@
 
 (function () {
 
-    var DEBUG = false;
+    var DEBUG = true;
 
     // Remotely callable
     // Resolves heartbeat called from sitClient
@@ -130,12 +130,12 @@
 
     // Remotely callable
     // Remove sittable local entities from every client in range passed in by sitClient
-    function removeThisSittableOverlayForOthers(id, params) {
+    function removeThisSittableOverlayForEveryone(id, params) {
         for (var i = 0; i < params.length; i++) {
             Entities.callEntityClientMethod(
                 params[i],
                 _this.entityID,
-                "deleteSittableUI"
+                "deleteClickToSitOverlay"
             );
         }
     }
@@ -143,7 +143,7 @@
 
     // Remotely callable
     // Add sittable local entities for this chair to every client in range passed in by sitClient
-    function addThisSittableOverlayForOthers(id, params) {
+    function addThisSittableOverlayForEveryone(id, params) {
         if (DEBUG) {
             console.log("ADD ALL OTHER SITTABLE OVERLAYS");
         }
@@ -155,7 +155,7 @@
                 Entities.callEntityClientMethod(
                     params[i],
                     _this.entityID,
-                    "createSittableUI"
+                    "createClickToSitOverlay"
                 );
             }
         }
@@ -202,15 +202,15 @@
             "onMousePressOnEntity",
             "onStandUp",
             "heartbeatResponse",
-            "removeThisSittableOverlayForOthers",
-            "addThisSittableOverlayForOthers"
+            "removeThisSittableOverlayForEveryone",
+            "addThisSittableOverlayForEveryone"
         ],
         preload: preload,
         heartbeatResponse: heartbeatResponse,
         onMousePressOnEntity: onMousePressOnEntity,
         onStandUp: onStandUp,
-        removeThisSittableOverlayForOthers: removeThisSittableOverlayForOthers,
-        addThisSittableOverlayForOthers: addThisSittableOverlayForOthers,
+        removeThisSittableOverlayForEveryone: removeThisSittableOverlayForEveryone,
+        addThisSittableOverlayForEveryone: addThisSittableOverlayForEveryone,
         unload: unload
     };
 
