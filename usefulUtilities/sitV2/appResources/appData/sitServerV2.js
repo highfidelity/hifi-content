@@ -20,20 +20,20 @@
 
     // Remotely callable
     // Resolves heartbeat called from sitClient
-    function checkResolved() {
+    function heartbeatResponse() {
         // Called by remote client script
         // indicating avatar is still sitting in chair
-        _this.resolved = true;
+        _this.heartbeatValid = true;
     }
 
     // Remotely callable
     // Called from client to check if chair is occupied
     // If seat is not occupied, server script calls the client method that begins the sit down process
     var HEARTBEAT_INTERVAL_TIME_MS = 10000; // ms
-    var RESOLVED_TIMEOUT_TIME_MS = 1000; // ms
-    function onSitDown(id, param) {
+    var HEARTBEAT_TIMEOUT_MS = 2500; // ms
+    function onMousePressOnEntity(id, param) {
         if (DEBUG) {
-            console.log("server onSitDown");
+            console.log("server onMousePressOnEntity");
         }
         if (_this.isOccupied === false) {
             if (DEBUG) {
@@ -45,10 +45,20 @@
             Entities.callEntityClientMethod(
                 _this.currentClientSessionID,
                 _this.entityID,
-                "startSitDown"
+                "checkBeforeSitDown"
             );
 
-            // Every 10 seconds will check the client that was sitting in the chair
+            if (_this.heartbeatInterval) {
+                Script.clearInterval(_this.heartbeatInterval);
+                _this.heartbeatInterval = false;
+            }
+
+            if (_this.heartbeatTimeout) {
+                Script.clearTimeout(_this.heartbeatTimeout);
+                _this.heartbeatTimeout = false;
+            }
+
+            // Every 10 seconds will heartbeatRequest the client that was sitting in the chair
             _this.heartbeatInterval = Script.setInterval(function () {
                 if (DEBUG) {
                     console.log("server heartbeat");
@@ -57,24 +67,45 @@
                     if (DEBUG) {
                         console.log("server isOccupied");
                     }
+
+                    _this.heartbeatValid = false;
+
                     Entities.callEntityClientMethod(
                         _this.currentClientSessionID,
                         _this.entityID,
-                        "check"
+                        "heartbeatRequest"
                     );
+
+                    if (_this.heartbeatTimeout) {
+                        Script.clearTimeout(_this.heartbeatTimeout);
+                        _this.heartbeatTimeout = false;
+                    }
             
-                    // If the check call to the client script does not return checkResolved
+                    // If the heartbeatRequest call to the client script does not return heartbeatResponse
                     // Will open the chair to other avatars to sit
-                    Script.setTimeout(function () {
-                        if (_this.resolved === true) {
+                    _this.heartbeatTimeout = Script.setTimeout(function () {
+                        _this.heartbeatTimeout = false;
+
+                        if (_this.heartbeatValid) {
                             // Seat is occupied
-                            _this.resolved = false;
+                            _this.heartbeatValid = false;
                         } else {
                             // Seat is not occupied
                             _this.isOccupied = false;
                             _this.currentClientSessionID = false;
+
+                            // FIXME: This won't restore the sit overlay for other users.
                         }
-                    }, RESOLVED_TIMEOUT_TIME_MS);
+                    }, HEARTBEAT_TIMEOUT_MS);
+                } else {
+                    if (_this.heartbeatInterval) {
+                        Script.clearInterval(_this.heartbeatInterval);
+                        _this.heartbeatInterval = false;
+                    }
+                    if (_this.heartbeatTimeout) {
+                        Script.clearInterval(_this.heartbeatTimeout);
+                        _this.heartbeatTimeout = false;
+                    }
                 }
             }, HEARTBEAT_INTERVAL_TIME_MS);
         }
@@ -90,12 +121,16 @@
             Script.clearInterval(_this.heartbeatInterval);
             _this.heartbeatInterval = false;
         }
+        if (_this.heartbeatTimeout) {
+            Script.clearInterval(_this.heartbeatTimeout);
+            _this.heartbeatTimeout = false;
+        }
     }
 
 
     // Remotely callable
     // Remove sittable local entities from every client in range passed in by sitClient
-    function removeAllOtherSittableOverlays(id, params) {
+    function removeThisSittableOverlayForOthers(id, params) {
         for (var i = 0; i < params.length; i++) {
             Entities.callEntityClientMethod(
                 params[i],
@@ -108,7 +143,7 @@
 
     // Remotely callable
     // Add sittable local entities for this chair to every client in range passed in by sitClient
-    function addAllOtherSittableOverlays(id, params) {
+    function addThisSittableOverlayForOthers(id, params) {
         if (DEBUG) {
             console.log("ADD ALL OTHER SITTABLE OVERLAYS");
         }
@@ -129,7 +164,7 @@
     function preload(id) {
         _this.entityID = id;
         _this.isOccupied = false;
-        _this.resolved = false;
+        _this.heartbeatValid = false;
     }
 
 
@@ -139,6 +174,10 @@
         if (_this.heartbeatInterval) {
             Script.clearInterval(_this.heartbeatInterval);
             _this.heartbeatInterval = false;
+        }
+        if (_this.heartbeatTimeout) {
+            Script.clearInterval(_this.heartbeatTimeout);
+            _this.heartbeatTimeout = false;
         }
     }
 
@@ -150,8 +189,9 @@
         this.isOccupied = false;
         this.entityID = null;
         this.currentClientSessionID = null;
-        this.resolved = false;
+        this.heartbeatValid = false;
         this.heartbeatInterval = null;
+        this.heartbeatTimeout = null;
         this.canSitZoneID = false;
     }
 
@@ -159,18 +199,18 @@
     // Entity methods
     SitServer.prototype = {
         remotelyCallable: [
-            "onSitDown",
+            "onMousePressOnEntity",
             "onStandUp",
-            "checkResolved",
-            "removeAllOtherSittableOverlays",
-            "addAllOtherSittableOverlays"
+            "heartbeatResponse",
+            "removeThisSittableOverlayForOthers",
+            "addThisSittableOverlayForOthers"
         ],
         preload: preload,
-        checkResolved: checkResolved,
-        onSitDown: onSitDown,
+        heartbeatResponse: heartbeatResponse,
+        onMousePressOnEntity: onMousePressOnEntity,
         onStandUp: onStandUp,
-        removeAllOtherSittableOverlays: removeAllOtherSittableOverlays,
-        addAllOtherSittableOverlays: addAllOtherSittableOverlays,
+        removeThisSittableOverlayForOthers: removeThisSittableOverlayForOthers,
+        addThisSittableOverlayForOthers: addThisSittableOverlayForOthers,
         unload: unload
     };
 
