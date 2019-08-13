@@ -42,8 +42,8 @@
 
     // Constructor
     var _this = null;
-    var SITTABLE_IMAGE_URL_HMD = Script.resolvePath("./resources/images/triggerToSit.png");
-    var SITTABLE_IMAGE_URL_DESKTOP = Script.resolvePath("./resources/images/clickToSit.png");
+    var SITTABLE_IMAGE_URL_HMD = Script.resolvePath("./images/triggerToSit.png");
+    var SITTABLE_IMAGE_URL_DESKTOP = Script.resolvePath("./images/clickToSit.png");
     function SittableClickableUI() {
         _this = this;
         this.entityID = null;
