@@ -1,19 +1,20 @@
-# Sit V2
-
+# Sit
 ## Description
-
 Make any entity sittable whether it's a chair, bench, couch, log, or even a tree stump. One chair per entity.
 
-To enable sit when clicking on chair set `canClickOnModelToSit` to `true` in userData. 
+To allow the user to sit when clicking on the entity to which the scripts are attached, set `canClickOnModelToSit` to `true` in the attached entity's `userData`. 
 
 
 ## Setup
-
-1. Add sitClientV2.js as script to entity
-2. Add sitServerV2.js as server script to entity
+1. Add sitClient.js as script to entity
+2. Add sitServer.js as server script to entity
 
 
 ## Releases
+2019-08-13_10-52-00 :: [3da1afd]
+- [BUGZ-1229](https://highfidelity.atlassian.net/browse/BUGZ-1229) Fixed "double sit-cube overlays" issue.
+- [DEV-376](https://highfidelity.atlassian.net/browse/DEV-376) Fixed "Sitting in HMD does not remove sittable overlay"
+- [DEV-377](https://highfidelity.atlassian.net/browse/DEV-377) Fixed "Switching from HMD to Desktop while sitting makes overlay invisible"
 
 2019-08-09_15-32-00 :: [5e5a913f]
 - [DEV 345](https://highfidelity.atlassian.net/browse/DEV-345) Updated sit to version 2.5 which utilizes the avatar api and no longer uses zone entities.
