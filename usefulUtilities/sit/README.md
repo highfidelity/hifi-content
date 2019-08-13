@@ -9,7 +9,7 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 2. Add sitServer.js as server script to entity
 
 ## Releases
-### 2019-08-13_12-17-00 :: [f9c43e6]
+### 2019-08-13_12-17-00 :: [6404793]
 - [BUGZ-1229](https://highfidelity.atlassian.net/browse/BUGZ-1229) Fixed "double sit-cube overlays" issue.
 - [DEV-376](https://highfidelity.atlassian.net/browse/DEV-376) Fixed "Sitting in HMD does not remove sittable overlay"
 - [DEV-377](https://highfidelity.atlassian.net/browse/DEV-377) Fixed "Switching from HMD to Desktop while sitting makes overlay invisible"
@@ -58,6 +58,9 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 - During Create Mode when the entity has 0.5 alpha value or less, a local visible cube is added for easier adjustments. The visible cube disappears once Create mode is closed.
 
 ## Known issues
+### The heartbeat system doesn't work.
+If a server heartbeat fails (i.e. a user disconnects while they're sitting), the Sittable UI won't re-appear on that seat for any other users unless they restart their client. This has been broken since Sit V1.
+
 ### Solution to other entities taking the "Click to Sit" click events
 Collisions with other entity's invisible collision hulls sometimes make it difficult to sit. Ensure entities near sit cubes have the property `ignorePickIntersection: true`.
 
