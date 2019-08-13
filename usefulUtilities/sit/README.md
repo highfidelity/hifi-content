@@ -11,7 +11,7 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 
 
 ## Releases
-2019-08-13_10-52-00 :: [3da1afd]
+2019-08-13_10-52-00 :: [f9c43e6]
 - [BUGZ-1229](https://highfidelity.atlassian.net/browse/BUGZ-1229) Fixed "double sit-cube overlays" issue.
 - [DEV-376](https://highfidelity.atlassian.net/browse/DEV-376) Fixed "Sitting in HMD does not remove sittable overlay"
 - [DEV-377](https://highfidelity.atlassian.net/browse/DEV-377) Fixed "Switching from HMD to Desktop while sitting makes overlay invisible"
