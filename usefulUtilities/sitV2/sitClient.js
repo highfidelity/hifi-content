@@ -83,9 +83,9 @@
         var currentSeatEntityID = Settings.getValue(SETTING_KEY_AVATAR_SITTING, false);
         if (currentSeatEntityID && currentSeatEntityID !== _this.entityID) {
             if (DEBUG) {
-                console.log("sitClient.js: calling standUp with callback for seat ID: " + currentSeatEntityID);
+                console.log("sitClient.js: calling standUp with callback for seat ID: " + _this.entityID);
             }
-            Entities.callEntityMethod(currentSeatEntityID, "standUp", [currentSeatEntityID]);
+            Entities.callEntityMethod(currentSeatEntityID, "standUp", [_this.entityID]);
         } else {
             startSitDown();
         }
@@ -98,9 +98,10 @@
 
         Entities.callEntityServerMethod(
             _this.entityID,
-            "removeThisSittableOverlayForEveryone",
+            "removeThisSittableOverlayForEveryoneElse",
             AvatarList.getAvatarIdentifiers()
         );
+        deleteClickToSitOverlay();
 
         if (HMD.active) {
             showVRPresitInstructions();
@@ -234,9 +235,9 @@
 
     // Standup functionality
     var alreadyCalledStandUp = false;
-    function standUp(args) {
+    function standUp(id, args) {
         if (DEBUG) {
-            console.log("sitClient.js: standup from seat ID: " + _this.entityID + "\nCall has args: " + args);
+            console.log("sitClient.js: standup from seat ID: " + _this.entityID + "\nCall has args: " + (args && args[0]));
         }
 
         if (isSittingInThisChair) {
@@ -271,13 +272,8 @@
                 Entities.editEntity(_this.entityID, { locked: false });
             }
 
-            Entities.callEntityServerMethod(_this.entityID, "onStandUp");
-
-            Entities.callEntityServerMethod(
-                _this.entityID,
-                "addThisSittableOverlayForEveryone",
-                AvatarList.getAvatarIdentifiers()
-            );
+            Entities.callEntityServerMethod(_this.entityID, "onStandUp", AvatarList.getAvatarIdentifiers());
+            createClickToSitOverlay();
 
             if (_this.connectedStandUpSignals) {
                 MyAvatar.scaleChanged.disconnect(_this.standUp);
@@ -294,10 +290,10 @@
 
         if (args) {
             if (DEBUG) {
-                console.log("sitClient.js: standUp callback requested. starting sit down for: " + args);
+                console.log("sitClient.js: standUp callback requested. starting sit down for: " + args[0]);
             }
 
-            Entities.callEntityMethod(args, "startSitDown");
+            Entities.callEntityMethod(args[0], "startSitDown");
         }
     }
 
