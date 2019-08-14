@@ -16,3 +16,6 @@ This Entity Edit Filter has the following parameters:
 
 ## v1.0 :: [ff063e7](https://github.com/highfidelity/hifi-content/commit/ff063e7)
 - Initial release
+
+## v1.0 :: [ff063e7](https://github.com/highfidelity/hifi-content/commit/ff063e7)
+- Initial release

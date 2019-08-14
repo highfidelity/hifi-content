@@ -33,8 +33,8 @@ function filterEdit(properties, originalProperties) {
 }
 
 
-function filterDelete(properties, originalProperties) {
-    if (originalProperties.name.indexOf("Whiteboard") > -1) {
+function filterDelete(properties) {
+    if (properties.name.indexOf("Whiteboard") > -1) {
         return properties;
     }
 
@@ -55,7 +55,7 @@ function filter(properties, filterType, originalProperties) {
         case FILTER_TYPE_PHYSICS:
             return false;
         case FILTER_TYPE_DELETE:
-            return filterDelete(properties, originalProperties);
+            return filterDelete(properties);
     }
 
     return properties;
