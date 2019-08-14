@@ -13,7 +13,7 @@ This Entity Edit Filter has the following parameters:
     - This allows the on-board Whiteboard Polylines to be deleted by users.
 
 # Releases
-## v1.0 :: [870bd23](https://github.com/highfidelity/hifi-content/commit/870bd23)
+## v1.0 :: [04e2ff0](https://github.com/highfidelity/hifi-content/commit/04e2ff0)
 - Fix [BUGZ-1248](https://highfidelity.atlassian.net/browse/BUGZ-1248): `[CRITICAL] [default] [6160] [entity-server] [UncaughtException] TypeError: Result of expression 'originalProperties' [undefined] is not an object. in https://hifi-content.s3.amazonaws.com/Experiences/Releases/domainEntityFilters/www/v1.0/filter.js:37`
 - Code from this release will replace the code from the old "v1.0" release (commit ff063e7)
 
