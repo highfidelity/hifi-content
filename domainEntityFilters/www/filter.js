@@ -33,8 +33,14 @@ function filterEdit(properties, originalProperties) {
 }
 
 
-function filterDelete(properties) {
-    if (properties.name.indexOf("Whiteboard") > -1) {
+function filterDelete(properties, originalProperties) {
+    // Somehow, the entity server can get here in the filter logic and not have a defined
+    // `originalProperties` argument.
+    // To be safe, let's return the target properties IF EITHER:
+    //     1. The `originalProperties` argument is falsey AND the `properties` argument is valid.
+    //     OR
+    //     2. The `originalProperties.name` string contains "Whiteboard".
+    if ((!originalProperties && properties) || originalProperties.name.indexOf("Whiteboard") > -1) {
         return properties;
     }
 
@@ -55,7 +61,7 @@ function filter(properties, filterType, originalProperties) {
         case FILTER_TYPE_PHYSICS:
             return false;
         case FILTER_TYPE_DELETE:
-            return filterDelete(properties);
+            return filterDelete(properties, originalProperties);
     }
 
     return properties;
