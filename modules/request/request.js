@@ -41,6 +41,9 @@ module.exports = {
                 }
 
                 callback(error, response, optionalCallbackParameter);
+
+                // Break circular reference to httpRequest so the engine can garbage collect it.
+                httpRequest.onreadystatechange = null;
             }
         };
         if (typeof options === 'string') {
