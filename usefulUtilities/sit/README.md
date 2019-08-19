@@ -9,7 +9,7 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 2. Add sitServer.js as server script to entity
 
 ## Releases
-### 2019-08-19_09-44-00 :: [xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+### 2019-08-19_09-44-00 :: [1a36ed99](https://github.com/highfidelity/hifi-content/commits/1a36ed99)
 - Addressed CR comments from [PR451](https://github.com/highfidelity/hifi-content/pull/451)
 
 ### 2019-08-13_12-17-00 :: [6404793]
