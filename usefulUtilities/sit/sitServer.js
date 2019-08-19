@@ -3,13 +3,10 @@
 //
 // Created by Robin Wilson 1/17/2019
 //
-// Copyright 2017 High Fidelity, Inc.
+// Copyright 2019 High Fidelity, Inc.
 //
 // Distributed under the Apache License, Version 2.0.
 // See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-// 
-// sitServer.js is the gate to allow an avatar to sit. Multiple avatars can not sit in the same chair.
-// Spawns the canSitZone per chair
 //
 
 /* globals Entities Script */
@@ -154,7 +151,6 @@
 
 
     // Remotely callable
-    // Remove sittable local entities from every client in range passed in by sitClient
     function removeThisSittableOverlayForEveryoneElse(id, params) {
         if (DEBUG) {
             console.log("sitServer.js: Calling `deleteClickToSitOverlay()` on entity " + id + " for all avatars...");
@@ -200,7 +196,6 @@
         this.currentClientSessionID = null;
         this.nextHeartbeatTimeout = null;
         this.heartbeatRequestTimeout = null;
-        this.canSitZoneID = false;
     }
 
 

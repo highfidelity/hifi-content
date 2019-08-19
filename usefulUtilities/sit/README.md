@@ -9,6 +9,9 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 2. Add sitServer.js as server script to entity
 
 ## Releases
+### 2019-08-19_09-44-00 :: [xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+- Addressed CR comments from [PR451](https://github.com/highfidelity/hifi-content/pull/451)
+
 ### 2019-08-13_12-17-00 :: [6404793]
 - [BUGZ-1229](https://highfidelity.atlassian.net/browse/BUGZ-1229) Fixed "double sit-cube overlays" issue.
 - [DEV-376](https://highfidelity.atlassian.net/browse/DEV-376) Fixed "Sitting in HMD does not remove sittable overlay"
@@ -23,31 +26,31 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 ### 2019-06-24_10-56-00 :: [d3de76d]
 - [Jira 773](https://highfidelity.atlassian.net/browse/BUGZ-773) Added a bump when an avatar gets out of a chair to help with getting stuck in the floor
 
-### 2019-06-21_10-56-00 :: [75b55a27](https://github.com/highfidelity/hifi-content/pull/392/commits/75b55a27)
+### 2019-06-21_10-56-00 :: [75b55a27](https://github.com/highfidelity/hifi-content/commits/75b55a27)
 - [Jira 576](https://highfidelity.atlassian.net/browse/BUGZ-576) Removed animation restore logspam
 
-### 2019-06-19_15-56-00 :: [6ee18e8](https://github.com/highfidelity/hifi-content/pull/392/commits/6ee18e8)
+### 2019-06-19_15-56-00 :: [6ee18e8](https://github.com/highfidelity/hifi-content/commits/6ee18e8)
 - [Jira 575](https://highfidelity.atlassian.net/browse/BUGZ-575) Ensure pin on joint is only cleared when standing or before setting new pin
 
-### 2019-06-12_11-30-00 :: [65eb1ecb](https://github.com/highfidelity/hifi-content/pull/392/commits/65eb1ecb)
+### 2019-06-12_11-30-00 :: [65eb1ecb](https://github.com/highfidelity/hifi-content/commits/65eb1ecb)
 - [Jira 655](https://highfidelity.atlassian.net/browse/BUGZ-655) Removed utils.js dependency
 
-### 2019-06-06_07-13-50 :: [c6ed100](https://github.com/highfidelity/hifi-content/pull/392/commits/c6ed100)
+### 2019-06-06_07-13-50 :: [c6ed100](https://github.com/highfidelity/hifi-content/commits/c6ed100)
 - [Jira 554](https://highfidelity.atlassian.net/browse/BUGZ-554) Changed standup to require one tap of jump movement key 
 
-### 2019-06-05_12-36-00 :: [2f30d30](https://github.com/highfidelity/hifi-content/pull/392/commits/2f30d30)
+### 2019-06-05_12-36-00 :: [2f30d30](https://github.com/highfidelity/hifi-content/commits/2f30d30)
 - [Jira 299](https://highfidelity.atlassian.net/browse/BUGZ-299) Removed repositioning/reorienting of avatar upon standing. User must use space bar to stand now.
 
-### 2019-05-23_17-00-00 :: [0eedf28](https://github.com/highfidelity/hifi-content/pull/392/commits/0eedf28)
+### 2019-05-23_17-00-00 :: [0eedf28](https://github.com/highfidelity/hifi-content/commits/0eedf28)
 - [Jira 350](https://highfidelity.atlassian.net/browse/BUGZ-350) Removed script caching
 
-### 2019-05-22_17-00-00 :: [f5cb684](https://github.com/highfidelity/hifi-content/pull/392/commits/f5cb684)
+### 2019-05-22_17-00-00 :: [f5cb684](https://github.com/highfidelity/hifi-content/commits/f5cb684)
 - [Jira 307](https://highfidelity.atlassian.net/browse/BUGZ-307) Added a timeout back after it was previously removed and removed empty script from sit zones
 
-### 2019-05-21_10-00-00 :: [db0d1e5](https://github.com/highfidelity/hifi-content/pull/392/commits/db0d1e5)
+### 2019-05-21_10-00-00 :: [db0d1e5](https://github.com/highfidelity/hifi-content/commits/db0d1e5)
 - Removed signal handler for skeletonModelURLChanged as it duplicated code handled by onLoadComplete
 
-### 2019-05-20_13-29-00 :: [c5de1cd](https://github.com/highfidelity/hifi-content/pull/392/commits/c5de1cd)
+### 2019-05-20_13-29-00 :: [c5de1cd](https://github.com/highfidelity/hifi-content/commits/c5de1cd)
 - Emergency fix for multiplying sit zones
 
 ### 2019-05-13_12-40-00 :: [c9c58a1](https://github.com/highfidelity/hifi-content/pull/388/commits/c9c58a1)
@@ -60,6 +63,9 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 ## Known issues
 ### The heartbeat system doesn't work.
 If a server heartbeat fails (i.e. a user disconnects while they're sitting), the Sittable UI won't re-appear on that seat for any other users unless they restart their client. This has been broken since Sit V1.
+
+### A 1.1x height multiplier may not always sit the user at the right spot.
+During `calculateSeatCenterPositionForPinningAvatarHips()`, we use a y-offset of 1.1x the y-dimension of the seat to determine where to place the avatar's hips. This multiplier may not always be correct for all seats.
 
 ### Solution to other entities taking the "Click to Sit" click events
 Collisions with other entity's invisible collision hulls sometimes make it difficult to sit. Ensure entities near sit cubes have the property `ignorePickIntersection: true`.

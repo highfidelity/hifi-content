@@ -60,7 +60,7 @@
     // Avatar sit position y = CHAIR_OFFSET_RATIO * height of chair
     var CHAIR_OFFSET_RATIO = 0.1;
     function calculateSeatCenterPositionForPinningAvatarHips() {
-        var properties = Entities.getEntityProperties(_this.entityID);
+        var properties = Entities.getEntityProperties(_this.entityID, ["position", "dimensions"]);
 
         var yOffset = properties.dimensions.y * CHAIR_OFFSET_RATIO;
         _this.seatCenterPosition = properties.position;
@@ -148,7 +148,7 @@
             isActionEventConnected = true;
         }
 
-        var properties = Entities.getEntityProperties(_this.entityID);
+        var properties = Entities.getEntityProperties(_this.entityID, ["rotation"]);
         MyAvatar.beginSit(_this.seatCenterPosition, properties.rotation);
         
         _this.sitDownSettlePeriod = Date.now() + SIT_SETTLE_TIME_MS;
@@ -266,8 +266,7 @@
             Settings.setValue(SETTING_KEY_AVATAR_SITTING, null);
             isSittingInThisChair = false;
 
-            // RESET SETTINGS FOR THIS CHAIR
-            // Could have changed seats, keep avatar sitting if did not go through above procedure
+            // Reset locked state for this chair
             if (!_this.locked) {
                 Entities.editEntity(_this.entityID, { locked: false });
             }
@@ -439,18 +438,23 @@
         canClickOnModelToSit: false
     };
     function updateUserData() {
-        var userData = Entities.getEntityProperties(_this.entityID).userData;
+        var userData = Entities.getEntityProperties(_this.entityID, ["userData"]).userData;
+        try {
+            userData = JSON.parse(userData);
+        } catch (e) {
+            console.log("sitClient.js: No userData present on seat entity or other error parsing userData; assigning default values...");
+            userData = false;
+        }            
 
-        if (!userData || _this.userData.canClickOnModelToSit) {
-            Entities.editEntity(_this.entityID, { userData: JSON.stringify(DEFAULT_SIT_USER_DATA_WITH_CUSTOM_SETTINGS) });
+        if (!userData || userData.canClickOnModelToSit === undefined) {
+            Entities.editEntity(_this.entityID, { "userData": JSON.stringify(DEFAULT_SIT_USER_DATA_WITH_CUSTOM_SETTINGS) });
             _this.userData = DEFAULT_SIT_USER_DATA_WITH_CUSTOM_SETTINGS;
             return;
         }
-        
-        try {
-            _this.userData = JSON.parse(userData);
-        } catch (e) {
-            console.log("sitClient.js: Issue parsing userData: " + e);
+
+        if (userData.canClickOnModelToSit !== undefined && (_this.userData.canClickOnModelToSit !== userData.canClickOnModelToSit)) {
+            _this.userData = userData;
+            return;
         }
     }
 
@@ -492,7 +496,7 @@
     
     // Can sit when clicking on chair when enabled via userData
     var MAX_SIT_DISTANCE_M = 5;
-    EDIT_SETTING = "io.highfidelity.isEditing";
+    var EDIT_SETTING = "io.highfidelity.isEditing";
     function mousePressOnEntity(id, event) {
         if (event.isPrimaryButton && !Settings.getValue(EDIT_SETTING, false)) {
             updateUserData();
@@ -509,7 +513,6 @@
     function SitClient() {
         _this = this;
         this.sittableUIID = false;
-        this.canSitZoneID = false;
 
         // for presit local entity and animation
         this.presitIntervalID = false;
@@ -531,7 +534,6 @@
         this.standUpID = false;
 
         this.deviationTimeStart = false;
-        this.zoneID = false;
 
         this.connectedStandUpSignals = false;
 
@@ -549,7 +551,6 @@
             "heartbeatRequest",
             "startSitDown"
         ],
-        // Zone methods
         createClickToSitOverlay: createClickToSitOverlay,
         deleteClickToSitOverlay: deleteClickToSitOverlay,
         // Entity liftime methods
