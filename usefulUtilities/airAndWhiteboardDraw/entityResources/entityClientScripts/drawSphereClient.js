@@ -251,6 +251,7 @@
                 lineProperties.faceCamera = !onBoard;
                 if (polyLine && _this.whiteboard) {
                     Entities.editEntity(polyLine, { parentID: _this.whiteboard });
+
                 }
                 if (onBoard) {
                     lineProperties.lifetime = -1;
