@@ -13,8 +13,9 @@ This utility combines the best features of the whiteboard and the draw app. Any 
 ## Releases
 
 SHA [](https://github.com/highfidelity/hifi-content/commits/)
-2019-08-21_11-40-00 [JIRA 1298](https://highfidelity.atlassian.net/browse/BUGZ-1298)
+2019-08-21_11-40-00 [JIRA 1298](https://highfidelity.atlassian.net/browse/BUGZ-1298)[JIRA 1206](https://highfidelity.atlassian.net/browse/BUGZ-1206)
 - Fixed bug where changing avatars in HMD causes paint sphere to be on wrong finger
+- Removed draw in air in HMD feature
 - Added a way for paint sphere to rez a new sphere on error or changing dominant hand or changing avatar model
 - added safety checks for connecting/disconnecting signals
 - added try/catch for parsing userData of paint sphere

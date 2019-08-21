@@ -35,7 +35,6 @@
     var HALF = 0.5;
 
     var DEFAULT_STROKE_WIDTH = 0.015;
-    var DEFAULT_NORMAL = { x: 0, y: 0, z: 1 };
     var MAX_LINE_POINTS = 100;
     var DEFAULT_LINE_PROPERTIES = {
         type: "PolyLine",
@@ -43,7 +42,8 @@
         isUVModeStretch: true,
         lifetime: DECAY_TIME_S,
         collisionless: true,
-        grab: { grabbable: false }
+        grab: { grabbable: false },
+        faceCamera: false
     };
     
     var tablet = Tablet.getTablet('com.highfidelity.interface.tablet.system');
@@ -75,7 +75,6 @@
     var currentPoint;
     var currentNormal;
     var currentStrokeWidth;
-    var wasLastPointOnBoard;
     var displacementFromStart;
 
     var laser = null;
@@ -136,6 +135,9 @@
                 var parsedUserData = JSON.parse(properties.userData);
             } catch (err) {
                 print("ERROR: Could not parse userData of color sphere.");
+                Entities.callEntityMethod(_this.colorPaletteID, "createPaintSphere");
+                Entities.deleteEntity(_this.entityID);
+                return;
             }
             _this.color = properties.color;
             _this.texture = parsedUserData.textureURL;
@@ -187,7 +189,7 @@
         line, check that the current line has room to add more points and start a new line if necessary. Otherwise, 
         update the position of the draw sound and edit the current line to add the current point. If not editing the 
         current line, draw a new one. */
-        draw: function(onBoard) {
+        draw: function() {
             if (!readyToDraw) {
                 return;
             }
@@ -195,12 +197,6 @@
             Vec3.distance(previousLinePoint, currentPoint) > MAXIMUM_MOVEMENT_TO_DRAW_M) {
                 return;
             }
-            if (onBoard !== wasLastPointOnBoard) { // toggle between on board and air, stop drawing
-                _this.stopDrawing();
-                wasLastPointOnBoard = null;
-                return;
-            }
-            wasLastPointOnBoard = onBoard;
             var newLine = !polyLine;
             var lineProperties = DEFAULT_LINE_PROPERTIES;
             var linePointsCount;
@@ -227,15 +223,11 @@
                     lineProperties.linePoints.push(displacementFromStart);
                     lineProperties.normals.push(currentNormal);
                     lineProperties.strokeWidths.push(currentStrokeWidth);
-                    if (!onBoard) {
-                        lineProperties.lifetime = previousLineProperties.age + DECAY_TIME_S;
-                    }
                     Entities.editEntity(polyLine, {
                         linePoints: lineProperties.linePoints,
                         normals: lineProperties.normals,
                         strokeWidths: lineProperties.strokeWidths,
-                        lifetime: lineProperties.lifetime,
-                        faceCamera: !onBoard
+                        lifetime: lineProperties.lifetime
                     });
                 }
             }
@@ -248,16 +240,11 @@
                 lineProperties.strokeWidths = [previousStrokeWidth, currentStrokeWidth];
                 lineProperties.color = _this.color;
                 lineProperties.textures = _this.texture;
-                lineProperties.faceCamera = !onBoard;
                 if (polyLine && _this.whiteboard) {
                     Entities.editEntity(polyLine, { parentID: _this.whiteboard });
                 }
-                if (onBoard) {
-                    lineProperties.lifetime = -1;
-                    polyLine = Entities.addEntity(lineProperties);
-                } else {
-                    polyLine = Entities.addEntity(lineProperties, 'avatar');
-                }
+                lineProperties.lifetime = -1;
+                polyLine = Entities.addEntity(lineProperties);
             }
         },
 
@@ -327,16 +314,12 @@
                 return;
             }
             var whiteBoardIntersectionData = _this.getDesktopIntersectionData(event);
-            if (whiteBoardIntersectionData === -1) {
+            if (whiteBoardIntersectionData === -1 || !whiteBoardIntersectionData.intersects) {
                 return;
             }
-            var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, true);
-            wasLastPointOnBoard = isCurrentPointOnBoard;
+            _this.projectPointOntoBoard(whiteBoardIntersectionData, false);
             if (event.isLeftButton) {
                 drawingInDesktop = true;
-                if (!isCurrentPointOnBoard) {
-                    return;
-                }
                 currentStrokeWidth = _this.getCurrentStrokeWidth();
                 _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, currentPoint, true, true);
                 lineStartPosition = currentPoint;
@@ -352,20 +335,18 @@
                 return;
             }
             var whiteBoardIntersectionData = _this.getDesktopIntersectionData(event);
-            if (whiteBoardIntersectionData === -1) {
+            if (whiteBoardIntersectionData === -1 || !whiteBoardIntersectionData.intersects) {
+                _this.stopDrawing();
                 return;
             }
             previousLinePoint = currentPoint;
             previousNormal = currentNormal;
             previousStrokeWidth = currentStrokeWidth;
             currentStrokeWidth = _this.getCurrentStrokeWidth();
-            var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, true);
+            _this.projectPointOntoBoard(whiteBoardIntersectionData, false);
             if (event.isLeftButton) {
-                if (!isCurrentPointOnBoard) {
-                    return;
-                }
                 displacementFromStart = Vec3.subtract(currentPoint, lineStartPosition);
-                _this.draw(isCurrentPointOnBoard);
+                _this.draw();
             } else if (event.isMiddleButton) {
                 _this.deleteFromPoint(currentPoint);
             }
@@ -383,20 +364,14 @@
 
         /* If there is an intersection with the whiteboard, project the point onto the surface, set its normals to match, 
         and then move it slightly in front of the board. */
-        maybeProjectPointOntoBoard: function(whiteBoardIntersectionData, desktop) {
-            if (whiteBoardIntersectionData.intersects) {
-                currentPoint = whiteBoardIntersectionData.intersection;
-                var whiteboardProperties = Entities.getEntityProperties(_this.whiteboard, ['position', 'rotation']);
-                var isCurrentPointOnBoard = true;
-                currentNormal = Vec3.multiply(-1, Quat.getFront(whiteboardProperties.rotation));
-                var distanceWhiteboardPlane = Vec3.dot(currentNormal, whiteboardProperties.position);
-                var distanceLocal = Vec3.dot(currentNormal, currentPoint) - distanceWhiteboardPlane;
-                currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(distanceLocal, currentNormal));
-                currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(currentNormal, STROKE_FORWARD_OFFSET_M));
-            } else {
-                isCurrentPointOnBoard = false;
-            }
-            return isCurrentPointOnBoard;
+        projectPointOntoBoard: function(whiteBoardIntersectionData, desktop) {
+            currentPoint = whiteBoardIntersectionData.intersection;
+            var whiteboardProperties = Entities.getEntityProperties(_this.whiteboard, ['position', 'rotation']);
+            currentNormal = Vec3.multiply(-1, Quat.getFront(whiteboardProperties.rotation));
+            var distanceWhiteboardPlane = Vec3.dot(currentNormal, whiteboardProperties.position);
+            var distanceLocal = Vec3.dot(currentNormal, currentPoint) - distanceWhiteboardPlane;
+            currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(distanceLocal, currentNormal));
+            currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(currentNormal, STROKE_FORWARD_OFFSET_M));
         },
 
         /* Create a laser to show where the user is drawing or deleting */
@@ -431,11 +406,7 @@
         /* Save previous point data, get intersection data, and project point if necessary. Calculate displacement 
         of point from line start and if the point is in air, set the normal to default. If collecting initial line data, 
         set start position. Store and return onBoard data for comparison with next point. */
-        getHMDLinePointData: function(force) {
-            // forced on initial run through to collect line start data
-            if (!initialLineStartDataReady && !force) {
-                isCurrentPointOnBoard = -1;
-            }
+        getHMDLinePointData: function() {
             if (initialLineStartDataReady) {
                 previousLinePoint = currentPoint;
                 previousNormal = currentNormal;
@@ -449,19 +420,15 @@
 
             var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint, direction);
             if (whiteBoardIntersectionData === -1) {
-                return;
+                return false;
             }
-            var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, false);
+            _this.projectPointOntoBoard(whiteBoardIntersectionData, false);
             displacementFromStart = Vec3.subtract(currentPoint, lineStartPosition);
-            if (!isCurrentPointOnBoard) {
-                currentNormal = DEFAULT_NORMAL;
-            }
             if (!initialLineStartDataReady) {
-                wasLastPointOnBoard = isCurrentPointOnBoard;
                 lineStartPosition = currentPoint;
                 initialLineStartDataReady = true;
-            } 
-            return isCurrentPointOnBoard;
+            }
+            return true;
         },
 
         /* Create ray from paint sphere away from hand along outstretched finger. If it intersects the whiteboard, 
@@ -486,6 +453,8 @@
                 } else {
                     _this.updateLaser(whiteBoardIntersectionData);
                 }
+            } else {
+                return -1;
             }
             return whiteBoardIntersectionData;
         },
@@ -503,8 +472,7 @@
             if (tablet.tabletShown || activeGripPress) {
                 return;
             }
-            var isCurrentPointOnBoard = _this.getHMDLinePointData(true);
-            if (isCurrentPointOnBoard === -1) {
+            if (!_this.getHMDLinePointData()) {
                 return;
             }
             // Adding a small delay helps make sure the audio always plays using the new controller method
@@ -519,11 +487,11 @@
         
         onTriggerPressedScriptUpdate: function(){
             if (initialLineStartDataReady) {
-                var isCurrentPointOnBoard = _this.getHMDLinePointData(false);
-                if (isCurrentPointOnBoard === -1) {
+                if (!_this.getHMDLinePointData()) {
+                    _this.stopDrawing();
                     return;
                 }
-                _this.draw(isCurrentPointOnBoard);
+                _this.draw();
             }
         },
 
@@ -582,14 +550,15 @@
             var direction = Vec3.multiplyQbyV(pose.orientation, [0, 1, 0]);
 
             var whiteBoardIntersectionData = _this.getHMDIntersectionData(currentPoint, direction);
-            var isCurrentPointOnBoard = _this.maybeProjectPointOntoBoard(whiteBoardIntersectionData, false);
-            if (isCurrentPointOnBoard) {
-                // delete on board
-                if (!laser) {
-                    _this.beginLaser();
-                } else {
-                    _this.updateLaser(whiteBoardIntersectionData);
-                }
+            if (whiteBoardIntersectionData.intersects) {
+                _this.projectPointOntoBoard(whiteBoardIntersectionData, false);
+            } else {
+                return;
+            }
+            if (!laser) {
+                _this.beginLaser();
+            } else {
+                _this.updateLaser(whiteBoardIntersectionData);
             }
             _this.deleteFromPoint(currentPoint);
         },
