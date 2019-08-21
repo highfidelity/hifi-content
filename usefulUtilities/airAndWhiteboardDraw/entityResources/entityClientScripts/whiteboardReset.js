@@ -14,11 +14,11 @@
 
     var RESET_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/resetWhiteboard.mp3'));
     var RESET_SOUND_VOLUME = 0.05;
-    var SEARCH_RADIUS_M = 6;
     var HALF = 0.5;
 
     var injector;
     var whiteboardZone = null;
+    var thisWhiteboard;
 
     var WhiteboardReset = function() {
         _this = this;
@@ -35,8 +35,8 @@
 
         /* Search children of whiteboard to get zone. */
         getWhiteboardZone: function() {
-            var whiteboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
-            Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardChild) {
+            thisWhiteboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
+            Entities.getChildrenIDs(thisWhiteboard).forEach(function(whiteboardChild) {
                 var name = Entities.getEntityProperties(whiteboardChild, 'name').name;
                 if (name === "Whiteboard Zone") {
                     whiteboardZone = whiteboardChild;
@@ -85,15 +85,13 @@
             if (!_this.isUserInZone(whiteboardZone)) {
                 return;
             }
-            var position = Entities.getEntityProperties(_this.entityID, 'position').position;
             _this.playSound(RESET_SOUND, RESET_SOUND_VOLUME, MyAvatar.position, true, false);
-            Entities.findEntitiesByName("Whiteboard Polyline", position, SEARCH_RADIUS_M).
-                forEach(function(whiteboardPiece) {
-                    var name = Entities.getEntityProperties(whiteboardPiece, 'name').name;
-                    if (name && name === "Whiteboard Polyline") {
-                        Entities.deleteEntity(whiteboardPiece);
-                    }
-                });
+            Entities.getChildrenIDs(thisWhiteboard).forEach(function(childOfWhiteboard) {
+                var name = Entities.getEntityProperties(childOfWhiteboard, 'name').name;
+                if (name === "Whiteboard Polyline") {
+                    Entities.deleteEntity(childOfWhiteboard);
+                }
+            });
         },
 
         /* When clicked or triggered, reset board. */

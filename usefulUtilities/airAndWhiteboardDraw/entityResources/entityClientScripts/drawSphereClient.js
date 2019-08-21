@@ -11,7 +11,6 @@
 (function() {
     var _this;
 
-    var WHITEBOARD_ZONE_SEARCH_RADIUS_M = 100;
     var MINIMUM_MOVEMENT_TO_DRAW_M = 0.0005;
     var MAXIMUM_MOVEMENT_TO_DRAW_M = 0.1;
     var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
@@ -54,12 +53,6 @@
     var controllerHandNumber;
     var parentJointIndex;
 
-    var whiteboard = null;
-    var whiteboardZone = null;
-    var whiteboardParts = [];
-    var whiteboardProperties;
-
-    var mouseEventsConnected = false;
     var controllerMappingName = 'Hifi-DrawApp';
     var controllerMapping;
 
@@ -85,9 +78,6 @@
     var wasLastPointOnBoard;
     var displacementFromStart;
 
-    var isTheTriggerUpdateRunning = false;
-    var isTheGripUpdateRunning = false;
-
     var laser = null;
     
     var readyToDraw = false;
@@ -104,16 +94,11 @@
         preload: function(entityID) {
             _this.entityID = entityID;
             Script.setTimeout(function() {
-                var properties = Entities.getEntityProperties(_this.entityID, ['userData','color']);
-                _this.color = properties.color;
-                _this.texture = JSON.parse(properties.userData).textureURL;
-                _this.findWhiteboard();
-                readyToDraw = true;
+                _this.prepareDrawingData();
             }, WAIT_FOR_ENTITIES_TO_LOAD_MS);
             dominantHand = MyAvatar.getDominantHand();
             dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
             controllerHandNumber = (dominantHand === "right") ? Controller.Standard.RightHand : Controller.Standard.LeftHand;
-            MyAvatar.dominantHandChanged.connect(_this.handChanged);
 
             parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint + "Index4");
             if (parentJointIndex === -1) {
@@ -124,10 +109,17 @@
                 print("ERROR: Falling back to dominant hand joint as index finger tip could not be found");
             }
             currentStrokeWidth = _this.getCurrentStrokeWidth();
-            tablet.tabletShownChanged.connect(_this.tabletShownChanged);
-            HMD.displayModeChanged.connect(_this.displayModeChanged);
-            Window.domainChanged.connect(_this.domainChanged);
-            MyAvatar.scaleChanged.connect(_this.onScaleChanged);
+
+            if (!_this.preloadSignalsConnected) {
+                MyAvatar.dominantHandChanged.connect(_this.handChanged);
+                tablet.tabletShownChanged.connect(_this.tabletShownChanged);
+                HMD.displayModeChanged.connect(_this.displayModeChanged);
+                Window.domainChanged.connect(_this.domainChanged);
+                MyAvatar.scaleChanged.connect(_this.onScaleChanged);
+                MyAvatar.skeletonModelURLChanged.connect(_this.onSkeletonModelURLChanged);
+                _this.preloadSignalsConnected = true;
+            }
+
             _this.registerControllerMapping();
             if (HMD.active) {
                 _this.setUpHMDMode();
@@ -135,6 +127,29 @@
                 _this.setUpDesktopMode();
             }
             _this.playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true, false);
+        },
+
+        /* Collect IDs of integral parts used in drawing */
+        prepareDrawingData: function() {
+            try {
+                var properties = Entities.getEntityProperties(_this.entityID, ['userData','color']);
+                var parsedUserData = JSON.parse(properties.userData);
+            } catch (err) {
+                print("ERROR: Could not parse userData of color sphere.");
+            }
+            _this.color = properties.color;
+            _this.texture = parsedUserData.textureURL;
+            _this.colorPaletteID = parsedUserData.colorPaletteID;
+            _this.whiteboard = Entities.getEntityProperties(_this.colorPaletteID, 'parentID').parentID;
+            _this.whiteboardParts = Entities.getChildrenIDs(_this.whiteboard);
+            _this.whiteboardParts.forEach(function(whiteboardPart) {
+                var name = Entities.getEntityProperties(whiteboardPart, 'name').name;
+                if (name === "Whiteboard Zone") {
+                    _this.whiteboardZone = whiteboardPart;
+                }
+            });
+            _this.whiteboardParts.push(_this.whiteboard);
+            readyToDraw = true;
         },
 
         /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
@@ -166,24 +181,6 @@
                     halfDimensions.y >= localPosition.y &&
                    -halfDimensions.z <= localPosition.z &&
                     halfDimensions.z >= localPosition.z;
-        },
-
-        /* Scroll through whiteboard zones to find the one whose zone you are in. If not found, delete this sphere, 
-        ending this script */
-        findWhiteboard: function() {
-            Entities.findEntitiesByName("Whiteboard Zone", MyAvatar.position, WHITEBOARD_ZONE_SEARCH_RADIUS_M).
-                forEach(function(foundWhiteboardZone) {
-                    if (_this.isUserInZone(foundWhiteboardZone)) {
-                        whiteboardZone = foundWhiteboardZone;
-                        whiteboard = Entities.getEntityProperties(whiteboardZone, 'parentID').parentID;
-                    }
-                });
-            if (whiteboard) {
-                whiteboardParts = Entities.getChildrenIDs(whiteboard);
-                whiteboardParts.push(whiteboard);
-            } else {
-                Entities.deleteEntity(_this.entityID);
-            }
         },
 
         /* If current point is in range, and on same surface as last point, get ready to draw. If this is not a new 
@@ -252,6 +249,9 @@
                 lineProperties.color = _this.color;
                 lineProperties.textures = _this.texture;
                 lineProperties.faceCamera = !onBoard;
+                if (polyLine && _this.whiteboard) {
+                    Entities.editEntity(polyLine, { parentID: _this.whiteboard });
+                }
                 if (onBoard) {
                     lineProperties.lifetime = -1;
                     polyLine = Entities.addEntity(lineProperties);
@@ -299,7 +299,7 @@
         a selection button, we are not drawing */
         getDesktopIntersectionData: function(event) {
             pickRay = Camera.computePickRay(event.x, event.y);
-            var whiteBoardIntersectionData = Entities.findRayIntersection(pickRay, true, whiteboardParts);
+            var whiteBoardIntersectionData = Entities.findRayIntersection(pickRay, true, _this.whiteboardParts);
             if (whiteBoardIntersectionData.intersects) {
                 var intersectedWhiteboardPartName = Entities.getEntityProperties(whiteBoardIntersectionData.entityID, 
                     'name').name;
@@ -317,10 +317,10 @@
         an intersection, and project point onto board if necessary. If drawing in air, project point forward 1M in 
         front of camera. Begin drawing sound and store initial data. If deleting, begin at current point. */
         mousePressed: function(event) {
-            if (!whiteboardZone) {
+            if (!_this.whiteboardZone) {
                 return;
             }
-            if (!_this.isUserInZone(whiteboardZone)) {
+            if (!_this.isUserInZone(_this.whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
             }
             if (Settings.getValue("io.highfidelity.isEditing", false) || tablet.tabletShown) {
@@ -386,7 +386,7 @@
         maybeProjectPointOntoBoard: function(whiteBoardIntersectionData, desktop) {
             if (whiteBoardIntersectionData.intersects) {
                 currentPoint = whiteBoardIntersectionData.intersection;
-                whiteboardProperties = Entities.getEntityProperties(whiteboard, ['position', 'rotation']);
+                var whiteboardProperties = Entities.getEntityProperties(_this.whiteboard, ['position', 'rotation']);
                 var isCurrentPointOnBoard = true;
                 currentNormal = Vec3.multiply(-1, Quat.getFront(whiteboardProperties.rotation));
                 var distanceWhiteboardPlane = Vec3.dot(currentNormal, whiteboardProperties.position);
@@ -471,7 +471,7 @@
                 origin: origin,
                 direction: direction
             };
-            var whiteBoardIntersectionData = Entities.findRayIntersection(pickRay, true, whiteboardParts);
+            var whiteBoardIntersectionData = Entities.findRayIntersection(pickRay, true, _this.whiteboardParts);
             if (whiteBoardIntersectionData.intersects) {
                 var intersectedWhiteboardPartName = Entities.getEntityProperties(whiteBoardIntersectionData.entityID, 
                     'name').name;
@@ -497,7 +497,7 @@
             if (!readyToDraw) {
                 return;
             }
-            if (!_this.isUserInZone(whiteboardZone)) {
+            if (!_this.isUserInZone(_this.whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
             }
             if (tablet.tabletShown || activeGripPress) {
@@ -511,9 +511,10 @@
             Script.setTimeout(function(){
                 _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, lineStartPosition, true, true);
             }, SOUND_DELAY_TIME);
-
-            isTheTriggerUpdateRunning = true;
-            Script.update.connect(_this.onTriggerPressedScriptUpdate);
+            if (!_this.isTheTriggerUpdateRunning) {
+                Script.update.connect(_this.onTriggerPressedScriptUpdate);
+                _this.isTheTriggerUpdateRunning = true;
+            }
         },
         
         onTriggerPressedScriptUpdate: function(){
@@ -529,7 +530,7 @@
         /* On releasing trigger, if the user is not in whiteboard zone, delete this sphere. If laser or drawing interval 
         exists, delete it.*/
         triggerReleased: function() {
-            if (!_this.isUserInZone(whiteboardZone)) {
+            if (!_this.isUserInZone(_this.whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
             }
             _this.stopDrawing();
@@ -537,9 +538,9 @@
                 Entities.deleteEntity(laser);
                 laser = null;
             }
-            if (isTheTriggerUpdateRunning) {
+            if (_this.isTheTriggerUpdateRunning) {
                 Script.update.disconnect(_this.onTriggerPressedScriptUpdate);
-                isTheTriggerUpdateRunning = false;
+                _this.isTheTriggerUpdateRunning = false;
             }
         },
 
@@ -547,24 +548,26 @@
         button, ignore. Begin a deleting interval that gets intersection data, updates laser, and deletes from the 
         current point. */
         gripPressed: function() {
-            if (!_this.isUserInZone(whiteboardZone)) {
+            if (!_this.isUserInZone(_this.whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
             }
             if (tablet.tabletShown || activeTriggerPress) {
                 return;
             }
-            isTheGripUpdateRunning = true;
-            Script.update.connect(_this.onGripPressedScriptUpdate);
+            if (!_this.isTheGripUpdateRunning) {
+                Script.update.connect(_this.onGripPressedScriptUpdate);
+                _this.isTheGripUpdateRunning = true;
+            }
         },
 
         /* On releasing grip, stop the interval that is searching for lines to delete */
         gripReleased: function() {
-            if (!_this.isUserInZone(whiteboardZone)) {
+            if (!_this.isUserInZone(_this.whiteboardZone)) {
                 Entities.deleteEntity(_this.entityID);
             }
-            if (isTheGripUpdateRunning) {
+            if (_this.isTheGripUpdateRunning) {
                 Script.update.disconnect(_this.onGripPressedScriptUpdate);
-                isTheGripUpdateRunning = false;
+                _this.isTheGripUpdateRunning = false;
             }
             if (laser) {
                 Entities.deleteEntity(laser);
@@ -599,6 +602,9 @@
             }
             if (!polyLine) {
                 return;
+            }
+            if (_this.whiteboard) {
+                Entities.editEntity(polyLine, { parentID: _this.whiteboard });
             }
             initialLineStartDataReady = false;
             polyLine = null;
@@ -638,8 +644,8 @@
 
         /* Listen for mouse presses */
         setUpDesktopMode: function() {
-            if (!mouseEventsConnected) {
-                mouseEventsConnected = true;
+            if (!_this.mouseEventsConnected) {
+                _this.mouseEventsConnected = true;
                 Controller.mousePressEvent.connect(_this.mousePressed);
                 Controller.mouseMoveEvent.connect(_this.mouseContinueLine);
                 Controller.mouseReleaseEvent.connect(_this.mouseReleased);
@@ -659,8 +665,8 @@
 
         /* Stop listening for mouse presses */
         closeDesktopMode: function() {
-            if (mouseEventsConnected) {
-                mouseEventsConnected = false;
+            if (_this.mouseEventsConnected) {
+                _this.mouseEventsConnected = false;
                 Controller.mousePressEvent.disconnect(_this.mousePressed);
                 Controller.mouseMoveEvent.disconnect(_this.mouseContinueLine);
                 Controller.mouseReleaseEvent.disconnect(_this.mouseReleased);
@@ -726,6 +732,7 @@
 
         /* Delete paint sphere in hand when switching dominant hand */
         handChanged: function() {
+            Entities.callEntityMethod(_this.colorPaletteID, "createPaintSphere");
             Entities.deleteEntity(_this.entityID);
         },
 
@@ -763,8 +770,8 @@
             }
         },
 
-
-        /* The following two functions are from scripts/system/libraries/controllers.js to help with getting the pose infromation from the controllers */
+        /* The following two functions are from scripts/system/libraries/controllers.js to 
+            help with getting the pose infromation from the controllers */
         getGrabPointSphereOffset: function (handController) {
             // These values must match what's in scripts/system/libraries/controllers.js
             // x = upward, y = forward, z = lateral
@@ -792,8 +799,10 @@
                 var controllerJointIndex;
                 if (pose.valid) {
                     controllerJointIndex = parentJointIndex;
-                    orientation = Quat.multiply(MyAvatar.orientation, MyAvatar.getAbsoluteJointRotationInObjectFrame(controllerJointIndex));
-                    position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, MyAvatar.getAbsoluteJointTranslationInObjectFrame(controllerJointIndex)));
+                    orientation = Quat.multiply(MyAvatar.orientation, 
+                        MyAvatar.getAbsoluteJointRotationInObjectFrame(controllerJointIndex));
+                    position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, 
+                        MyAvatar.getAbsoluteJointTranslationInObjectFrame(controllerJointIndex)));
         
                     // add to the real position so the grab-point is out in front of the hand, a bit
                     if (doOffset) {
@@ -804,7 +813,8 @@
                 } else if (!HMD.isHandControllerAvailable()) {
                     // NOTE: keep _this offset in sync with scripts/system/controllers/handControllerPointer.js:493
                     var VERTICAL_HEAD_LASER_OFFSET = 0.1 * MyAvatar.sensorToWorldScale;
-                    position = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, { x: 0, y: VERTICAL_HEAD_LASER_OFFSET, z: 0 }));
+                    position = Vec3.sum(Camera.position, Vec3.multiplyQbyV(Camera.orientation, 
+                        { x: 0, y: VERTICAL_HEAD_LASER_OFFSET, z: 0 }));
                     orientation = Quat.multiply(Camera.orientation, Quat.angleAxis(-90, { x: 1, y: 0, z: 0 }));
                     valid = true;
                 }
@@ -822,8 +832,12 @@
 
         onScaleChanged: function(){
             var sphereProperties = Entities.getEntityProperties(_this.entityID, ['dimensions']);
-        
             currentStrokeWidth = sphereProperties.dimensions.x;
+        },
+
+        onSkeletonModelURLChanged: function(){
+            Entities.callEntityMethod(_this.colorPaletteID, "createPaintSphere");
+            Entities.deleteEntity(_this.entityID);
         },
 
         /* Close drawing view mode, stop injector, play closing sound, disable hand mapping and overrides. Remove 
@@ -834,10 +848,7 @@
             } else {
                 _this.closeDesktopMode();
             }
-            if (injector) {
-                injector.stop();
-                injector = null;
-            }
+            _this.stopDrawing();
             _this.playSound(CLOSE_SOUND, CLOSE_SOUND_VOLUME, MyAvatar.position, true, false);
             if (controllerMapping) {
                 controllerMapping.disable();
@@ -846,17 +857,23 @@
             if (animationHandlerID) {
                 animationHandlerID = MyAvatar.removeAnimationStateHandler(animationHandlerID);
             }
-            if (isTheTriggerUpdateRunning) {
+            if (_this.isTheTriggerUpdateRunning) {
                 Script.update.disconnect(_this.onTriggerPressedScriptUpdate);
+                _this.isTheTriggerUpdateRunning = false;
             }
-            if (isTheGripUpdateRunning) {
+            if (_this.isTheGripUpdateRunning) {
                 Script.update.disconnect(_this.onGripPressedScriptUpdate);
             }
-            tablet.tabletShownChanged.disconnect(_this.tabletShownChanged);
-            MyAvatar.dominantHandChanged.disconnect(_this.handChanged);
-            HMD.displayModeChanged.disconnect(_this.displayModeChanged);
-            Window.domainChanged.disconnect(_this.domainChanged);
-            MyAvatar.scaleChanged.disconnect(_this.onScaleChanged); 
+
+            if (_this.preloadSignalsConnected) {
+                tablet.tabletShownChanged.disconnect(_this.tabletShownChanged);
+                MyAvatar.dominantHandChanged.disconnect(_this.handChanged);
+                HMD.displayModeChanged.disconnect(_this.displayModeChanged);
+                Window.domainChanged.disconnect(_this.domainChanged);
+                MyAvatar.scaleChanged.disconnect(_this.onScaleChanged);
+                MyAvatar.skeletonModelURLChanged.disconnect(_this.onSkeletonModelURLChanged);
+                _this.preloadSignalsConnected = false;
+            }
         }
     };
 
