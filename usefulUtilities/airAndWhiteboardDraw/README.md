@@ -12,7 +12,7 @@ This utility combines the best features of the whiteboard and the draw app. Any 
 
 ## Releases
 
-SHA [](https://github.com/highfidelity/hifi-content/commits/)
+SHA [0844f93](https://github.com/highfidelity/hifi-content/commits/0844f93)
 2019-08-21_11-40-00 [DEV 433](https://highfidelity.atlassian.net/browse/DEV-433)
 - Changed all line texture files to be 1px x 1px
 
