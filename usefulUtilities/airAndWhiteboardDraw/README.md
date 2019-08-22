@@ -12,6 +12,10 @@ This utility combines the best features of the whiteboard and the draw app. Any 
 
 ## Releases
 
+SHA [](https://github.com/highfidelity/hifi-content/commits/)
+2019-08-21_11-40-00 [DEV 433](https://highfidelity.atlassian.net/browse/DEV-433)
+- Changed all line texture files to be 1px x 1px
+
 SHA [71386f1](https://github.com/highfidelity/hifi-content/commits/71386f1)
 2019-08-21_11-40-00 [JIRA 1298](https://highfidelity.atlassian.net/browse/BUGZ-1298)[JIRA 1206](https://highfidelity.atlassian.net/browse/BUGZ-1206)
 - Fixed bug where changing avatars in HMD causes paint sphere to be on wrong finger
