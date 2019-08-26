@@ -153,13 +153,13 @@
     // Remotely callable
     function removeThisSittableOverlayForEveryoneElse(id, params) {
         if (DEBUG) {
-            console.log("sitServer.js: Calling `deleteClickToSitOverlay()` on entity " + id + " for all avatars...");
+            console.log("sitServer.js: Calling `deleteAllClickToSitOverlays()` on entity " + id + " for all avatars...");
         }
         for (var i = 0; i < params.length; i++) {
             Entities.callEntityClientMethod(
                 params[i],
                 _this.entityID,
-                "deleteClickToSitOverlay"
+                "deleteAllClickToSitOverlays"
             );
         }
     }

@@ -101,7 +101,7 @@
             "removeThisSittableOverlayForEveryoneElse",
             AvatarList.getAvatarIdentifiers()
         );
-        deleteClickToSitOverlay();
+        deleteAllClickToSitOverlays();
 
         if (HMD.active) {
             showVRPresitInstructions();
@@ -417,16 +417,22 @@
         }, "local");
     }
 
-    // Remove sittable local entity if it exists
-    function deleteClickToSitOverlay() {
+    // Remove all sittable local entities
+    // In some cases that we do not yet understand, it is possible for multiple "Click to Sit Overlays" to appear
+    // above a sit point, with one overlay not respecting the orientation of the seat entity.
+    // Ensuring that _all_ "Click to Sit Overlays" are deleted is an attempt at alleviating that issue.
+    function deleteAllClickToSitOverlays() {
         if (DEBUG) {
-            print("deleteClickToSitOverlay");
+            print("deleteAllClickToSitOverlays()");
         }
 
-        if (_this.clickToSitOverlay) {
-            Entities.deleteEntity(_this.clickToSitOverlay);
-            _this.clickToSitOverlay = false;
+        var children = Entities.getChildrenIDs(_this.entityID);
+        for (var i = 0; i < children.length; i++) {
+            if ((Entities.getEntityProperties(children[i], ["name"]).name).indexOf("Click to Sit") > -1) {
+                Entities.deleteEntity(children[i]);
+            }
         }
+        _this.clickToSitOverlay = false;
     }
     // #endregion SITTABLE
 
@@ -461,6 +467,7 @@
     // Preload entity method
     function preload(id) {
         _this.entityID = id;
+        deleteAllClickToSitOverlays();
         createClickToSitOverlay();
         prefetchPresitImages();
         updateUserData();
@@ -472,7 +479,7 @@
             console.log("sitClient.js: Unloading Sit client script...");
         }
 
-        deleteClickToSitOverlay();
+        deleteAllClickToSitOverlays();
         deletePresit();
         standUp();
 
@@ -546,13 +553,13 @@
     SitClient.prototype = {
         remotelyCallable: [
             "createClickToSitOverlay",
-            "deleteClickToSitOverlay",
+            "deleteAllClickToSitOverlays",
             "checkBeforeSitDown",
             "heartbeatRequest",
             "startSitDown"
         ],
         createClickToSitOverlay: createClickToSitOverlay,
-        deleteClickToSitOverlay: deleteClickToSitOverlay,
+        deleteAllClickToSitOverlays: deleteAllClickToSitOverlays,
         // Entity liftime methods
         preload: preload,
         unload: unload,
