@@ -10,6 +10,7 @@
 (function() {
     var CHANNEL = "HiFi.Calendar.Meeting.Occupants";
     var HALF = 0.5;
+    var DEBUG = false;
 
     var _this;
 
@@ -26,20 +27,18 @@
 
             try {
                 _this.userData = JSON.parse(_this.entityProperties.userData);
-
                 _this.occupantsListIDs = _this.userData.roomOccupantsListID;
-
             } catch (e) {
                 console.log("Error: ", e);
             }
+
+            if (DEBUG) {
+                console.log("meetingRoomZone.js: `_this.occupantsListIDs[0]` is now: " + _this.occupantsListIDs[0]);
+            }
             
-            Messages.subscribe(_this.channel);
+            Messages.subscribe(CHANNEL);
             Messages.messageReceived.connect(_this.messageListener);
             AvatarManager.avatarRemovedEvent.connect(_this.leaveDomain);
-
-            if (_this.positionIsInsideEntityBounds(_this.entityID, MyAvatar.position)) {
-                _this.enterEntity();
-            }
         },
 
 
@@ -52,8 +51,12 @@
                 try {
                     message = JSON.parse(message);
                 } catch (e) {
-                    console.log(e, "Could not parse message");
+                    console.log("meetingRoomZone.js: Could not parse message: " + e);
                     return;
+                }
+                if (DEBUG) {
+                    console.log("meetingRoomZone.js: Received a message from `occupantsServer.js` to REFRESH OCCUPANTS for Entity ID: " + message.id + 
+                    "\nThis entity's ID is: " + _this.entityID);
                 }
                 if (message.type === "REFRESH OCCUPANTS" && message.id === _this.entityID) {
                     _this.refreshOccupants();
@@ -64,7 +67,13 @@
 
         // Check to see if you are inside the bounds
         refreshOccupants: function() {
+            if (DEBUG) {
+                console.log("meetingRoomZone.js: `refreshOccupants()` called.");
+            }
             if (_this.positionIsInsideEntityBounds(_this.entityID, MyAvatar.position)) {
+                if (DEBUG) {
+                    console.log("meetingRoomZone.js: `refreshOccupants()` called - we are inside the entity bounds! Calling `enterEntity()`...");
+                }
                 _this.enterEntity();
             }
         },
@@ -102,8 +111,11 @@
                 displayNameToUse = MyAvatar.displayName;
             }
             if (_this.occupantsListIDs) {
+                if (DEBUG) {
+                    console.log("meetingRoomZone.js: Calling `enteredMeetingZone()` on the occupant lists with my Session UUID, display name, and this zone's Entity ID.");
+                }
                 _this.occupantsListIDs.forEach(function(occupantsListID){
-                    Entities.callEntityServerMethod(occupantsListID, "enteredMeetingZone", [MyAvatar.sessionUUID, displayNameToUse]);
+                    Entities.callEntityServerMethod(occupantsListID, "enteredMeetingZone", [MyAvatar.sessionUUID, displayNameToUse, _this.entityID]);
                 });
             }
         },
@@ -112,6 +124,9 @@
         // Remove the avatar from the occupants list
         leaveEntity: function() {
             if (_this.occupantsListIDs) {
+                if (DEBUG) {
+                    console.log("meetingRoomZone.js: Calling `leftMeetingZone()` on the occupant lists with my Session UUID.");
+                }
                 _this.occupantsListIDs.forEach(function(occupantsListID){
                     Entities.callEntityServerMethod(occupantsListID, "leftMeetingZone", [MyAvatar.sessionUUID]);
                 });
@@ -122,6 +137,9 @@
 
         leaveDomain: function(uuid) {
             if (_this.occupantsListIDs) {
+                if (DEBUG) {
+                    console.log("meetingRoomZone.js: Calling `leftMeetingZone()` on the occupant lists with my Session UUID.");
+                }
                 _this.occupantsListIDs.forEach(function(occupantsListID){
                     Entities.callEntityServerMethod(occupantsListID, "leftMeetingZone", [uuid]);
                 });
@@ -130,9 +148,24 @@
 
 
         unload: function() {
+            if (DEBUG) {
+                console.log("meetingRoomZone.js: Unloading script...");
+            }
             AvatarManager.avatarRemovedEvent.disconnect(_this.leaveDomain);
             Messages.messageReceived.disconnect(_this.messageListener);
-        }
+        },
+
+
+        onHeartbeatRequestReceived: function(id, params) {
+            if (DEBUG) {
+                console.log("meetingRoomZone.js: Received a heartbeat request from the occupant list. Replying to the list with my Session UUID and this Entity ID...");
+            }
+            var heartbeatRequestFrom = params[0];
+            Entities.callEntityServerMethod(heartbeatRequestFrom, "onHeartbeatRequestReplyReceived", [MyAvatar.sessionUUID, _this.entityID]);
+        },
+
+
+        remotelyCallable: ["onHeartbeatRequestReceived"]
     };
     return new MeetingZone;
 });

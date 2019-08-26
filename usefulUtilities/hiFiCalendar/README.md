@@ -36,7 +36,6 @@ Define your permitted access locations to include http://localhost under Domain 
 - Room Occupants List:
 ```
 {
-  "roomOccupantsListID": "{...}",
   "meetingZoneID": "{...}"
 }
 
