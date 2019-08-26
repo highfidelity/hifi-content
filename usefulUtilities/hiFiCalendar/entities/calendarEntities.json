@@ -54,7 +54,7 @@
     "angularDamping": 0,
     "collisionMask": 23,
     "collidesWith": "static,dynamic,kinematic,otherAvatar,",
-    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-07-03_12-31-16/entityServerScripts/occupantsServer.js",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-08-26_10-00-00/entityServerScripts/occupantsServer.js",
     "lineHeight": 0.04800000041723251,
     "backgroundColor": {
         "red": 46,
@@ -123,7 +123,7 @@
     "ignoreForCollisions": true,
     "collisionMask": 23,
     "collidesWith": "static,dynamic,kinematic,otherAvatar,",
-    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-07-03_12-31-16/entityServerScripts/noFunction.js",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-08-26_10-00-00/entityServerScripts/noFunction.js",
     "text": "occupants",
     "lineHeight": 0.07199999690055847,
     "textColor": {
@@ -250,7 +250,7 @@
     "angularDamping": 0,
     "collisionMask": 23,
     "collidesWith": "static,dynamic,kinematic,otherAvatar,",
-    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-07-03_12-31-16/entityServerScripts/noFunction.js",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-08-26_10-00-00/entityServerScripts/noFunction.js",
     "text": "AVAILABLE",
     "lineHeight": 0.08299999684095383,
     "textColor": {
@@ -322,7 +322,7 @@
     "angularDamping": 0,
     "collisionMask": 23,
     "collidesWith": "static,dynamic,kinematic,otherAvatar,",
-    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-07-03_12-31-16/entityServerScripts/roomScheduleServer.js",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-08-26_10-00-00/entityServerScripts/roomScheduleServer.js",
     "text": "",
     "lineHeight": 0.061000000685453415,
     "leftMargin": 0.029999999329447746,
@@ -350,7 +350,7 @@
         "y": 1.25,
         "z": 0.0010000000474974513
     },
-    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-07-03_12-31-16/entityScripts/showClickForTheCalendarAppClientScript.js",
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-08-26_10-00-00/entityScripts/showClickForTheCalendarAppClientScript.js",
     "rotation": {
         "x": -0.0002288818359375,
         "y": 0.7019302845001221,
@@ -437,9 +437,9 @@
     },
     "damping": 0,
     "angularDamping": 0,
-    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-07-03_12-31-16/entityScripts/meetingRoomZone.js",
+    "script": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-08-26_10-00-00/entityScripts/meetingRoomZone.js",
     "scriptTimestamp": 1560552122954,
-    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-07-03_12-31-16/entityServerScripts/noFunction.js",
+    "serverScripts": "https://hifi-content.s3.amazonaws.com/Experiences/Releases/usefulUtilities/hiFiCalendar/2019-08-26_10-00-00/entityServerScripts/noFunction.js",
     "shapeType": "box",
     "keyLight": {
         "direction": {
