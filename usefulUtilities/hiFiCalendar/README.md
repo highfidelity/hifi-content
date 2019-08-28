@@ -36,7 +36,6 @@ Define your permitted access locations to include http://localhost under Domain 
 - Room Occupants List:
 ```
 {
-  "roomOccupantsListID": "{...}",
   "meetingZoneID": "{...}"
 }
 
@@ -72,6 +71,12 @@ Define your permitted access locations to include http://localhost under Domain 
 
 
 # Release Notes
+
+## 3.8 | [commit 3f77849] | 2019-08-26_10-00-00
+- No backend changes.
+- Implemented heartbeat system for meeting room occupants to ensure accuracy of meeting room occupants list.
+- Removed errant "Loading..." occupant in list upon startup.
+- Added debug logging for use during development.
 
 ## 3.7 | [commit a023ca0] | 2019-07-03
 - Entity JSON update to make sure the backboard isn't grabbable [BUGZ-912](https://highfidelity.atlassian.net/browse/BUGZ-912)
