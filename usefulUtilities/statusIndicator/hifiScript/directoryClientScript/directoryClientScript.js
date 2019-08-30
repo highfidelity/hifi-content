@@ -22,7 +22,9 @@
         }
 
         var currentURL = Entities.getEntityProperties(id, ["sourceUrl"]).sourceUrl;
-        var newURL = DIRECTORY_URL_BASE + AddressManager.hostname;
+        var domainID = location.domainID;
+        domainID = domainID.substring(1, domainID.length - 1);
+        var newURL = DIRECTORY_URL_BASE + domainID;
         if (currentURL !== newURL) {
             Entities.editEntity(id, {sourceUrl: newURL});
         }
