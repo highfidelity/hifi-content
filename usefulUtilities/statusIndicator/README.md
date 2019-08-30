@@ -77,7 +77,7 @@ You can perform a local test of the Status Indicator system by doing the followi
 
 # Release Notes
 
-## Backend: v2.6 | Interface Scripts: 2019-08-30_11-39-00 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+## Backend: v2.6 | Interface Scripts: 2019-08-30_11-39-00 | [commit 6504ca2](https://github.com/highfidelity/hifi-content/commits/6504ca2)
 - The Status Update's "organization" will now be `location.domainID` instead of `location.hostname`.
 - The Directory Client Script will now propertly set the organization of the Web Entity based on `location.domainID`.
 
