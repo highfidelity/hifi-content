@@ -77,6 +77,10 @@ You can perform a local test of the Status Indicator system by doing the followi
 
 # Release Notes
 
+## Backend: v2.6 | Interface Scripts: 2019-08-30_11-39-00 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+- The Status Update's "organization" will now be `location.domainID` instead of `location.hostname`.
+- The Directory Client Script will now propertly set the organization of the Web Entity based on `location.domainID`.
+
 ## Backend: v2.6 | Interface App: 2019-07-26_10-50-00 | [commit 134bb43](https://github.com/highfidelity/hifi-content/commits/134bb43)
 - Completely removed the notion of "team names" from Status Indicator. This means `teamPage.html` no longer exists, and interfaces that get data from the server via the status indicator backend APIs can no longer be formatted based off of team names.
 
