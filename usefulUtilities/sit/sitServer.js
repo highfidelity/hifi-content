@@ -13,7 +13,7 @@
 
 (function () {
 
-    var DEBUG = false;
+    var DEBUG = true;
 
     // Remotely callable
     // Resolves heartbeat called from sitClient
@@ -83,6 +83,27 @@
                 _this.heartbeatRequestTimeout = false;
             }
         }
+    }
+
+    function requestSitData(id, args) {
+        var requestingID = args[0];
+
+        if (DEBUG) {
+            console.log("sitServer.js: Request for sit data received from :" + requestingID);
+        }
+
+        var replyData = {
+            "isOccupied": _this.isOccupied
+        }
+
+        replyData = JSON.stringify(replyData);
+
+        Entities.callEntityClientMethod(
+            requestingID,
+            _this.entityID,
+            "requestSitDataReply",
+            [replyData]
+        );
     }
 
     // Remotely callable
@@ -202,12 +223,14 @@
     // Entity methods
     SitServer.prototype = {
         remotelyCallable: [
+            "requestSitData",
             "onMousePressOnEntity",
             "onStandUp",
             "heartbeatResponse",
             "removeThisSittableOverlayForEveryoneElse"
         ],
         preload: preload,
+        requestSitData: requestSitData,
         heartbeatResponse: heartbeatResponse,
         onMousePressOnEntity: onMousePressOnEntity,
         onStandUp: onStandUp,

@@ -9,6 +9,12 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 2. Add sitServer.js as server script to entity
 
 ## Releases
+### 2019-08-30_15-11-00 :: [xxxxxxx](https://github.com/highfidelity/hifi-content/commits/9c83ea3)
+- Hopefully fixed the "invisible sit cube" issue from [BUGZ-1384](https://highfidelity.atlassian.net/browse/BUGZ-1384).
+- Implemented a feature where the client script periodically checks for sit point occupied status from the server script.
+    - The check will only occur if the user's camera is close to the seat.
+    - The check will only attempt to retrieve occupied status from the server script N times until it gives up, after which the process will start back up normally if the user sits down on the sit point and then stands up.
+
 ### 2019-08-26_15-19-00 :: [9c83ea3](https://github.com/highfidelity/hifi-content/commits/9c83ea3)
 - Hopefully _actually_ fixed the "double sit cube" issue from [BUGZ-1229](https://highfidelity.atlassian.net/browse/BUGZ-1229)
 
