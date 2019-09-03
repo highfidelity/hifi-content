@@ -534,7 +534,8 @@
 
         var children = Entities.getChildrenIDs(_this.entityID);
         for (var i = 0; i < children.length; i++) {
-            if ((Entities.getEntityProperties(children[i], ["name"]).name).indexOf("Click to Sit") > -1 &&
+            var entityName = Entities.getEntityProperties(children[i], ["name"]).name;
+            if (entityName && entityName.indexOf("Click to Sit") > -1 &&
                 children[i] !== _this.clickToSitOverlay) {
                 Entities.deleteEntity(children[i]);
             }
@@ -552,7 +553,8 @@
 
         var children = Entities.getChildrenIDs(_this.entityID);
         for (var i = 0; i < children.length; i++) {
-            if ((Entities.getEntityProperties(children[i], ["name"]).name).indexOf("Click to Sit") > -1) {
+            var entityName = Entities.getEntityProperties(children[i], ["name"]).name;
+            if (entityName && entityName.indexOf("Click to Sit") > -1) {
                 Entities.deleteEntity(children[i]);
             }
         }
