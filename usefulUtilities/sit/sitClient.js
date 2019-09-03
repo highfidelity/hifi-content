@@ -284,8 +284,7 @@
     var MAX_REQUEST_ATTEMPTS = 3;
     function requestSitDataTimeoutTimerCallback() {
         requestSitDataTimeoutTimer = false;
-        currentRequestAttempts++;
-        if (currentRequestAttempts <= MAX_REQUEST_ATTEMPTS) {
+        if (currentRequestAttempts < MAX_REQUEST_ATTEMPTS) {
             console.log("sitClient.js: Request for sit data timed out for Entity ID: " + _this.entityID +
                 ". Trying again. This will be attempt " + currentRequestAttempts + "/" + MAX_REQUEST_ATTEMPTS);
             requestSitData(_this.entityID);
