@@ -96,13 +96,6 @@
             console.log("sitClient.js: startSitDown() for seat ID: ", _this.entityID);
         }
 
-        Entities.callEntityServerMethod(
-            _this.entityID,
-            "removeThisSittableOverlayForEveryoneElse",
-            AvatarList.getAvatarIdentifiers()
-        );
-        deleteClickToSitOverlay();
-
         if (HMD.active) {
             showVRPresitInstructions();
             Script.setTimeout(function () {
@@ -158,6 +151,16 @@
         // Set sit value in Settings `Interface.json`
         Settings.setValue(SETTING_KEY_AVATAR_SITTING, _this.entityID);
         isSittingInThisChair = true;
+
+        maybeClearRequestSitDataTimeoutTimer();
+        maybeClearRequestSitDataTimer();
+
+        Entities.callEntityServerMethod(
+            _this.entityID,
+            "removeThisSittableOverlayForEveryoneElse",
+            AvatarList.getAvatarIdentifiers()
+        );
+        deleteAllClickToSitOverlays();
 
         if (!_this.connectedStandUpSignals) {
             MyAvatar.scaleChanged.connect(_this.standUp);
@@ -233,6 +236,109 @@
         }
     }
 
+
+    function maybeClearRequestSitDataTimer() {
+        if (requestSitDataTimer) {
+            Script.clearTimeout(requestSitDataTimer);
+            requestSitDataTimer = false;
+        }
+    }
+
+
+    var requestSitDataTimer = false;
+    var REQUEST_SIT_DATA_TIMEOUT_MS = 12000;
+    var MAX_REQUEST_DISTANCE_M = 40;
+    function requestSitDataTimerCallback() {
+        if (DEBUG) {
+            console.log("sitClient.js: We're inside `requestSitDataTimerCallback()` for Entity ID: " + _this.entityID + "...");
+        }
+
+        requestSitDataTimer = false;
+
+        var entityPosition = Entities.getEntityProperties(_this.entityID, ["position"]).position;
+        var distance = Vec3.distance(entityPosition, Camera.position);
+        if (distance <= MAX_REQUEST_DISTANCE_M) {
+            if (DEBUG) {
+                console.log("sitClient.js: The camera is close enough to this seat! Requesting sit data from sitServer...");
+            }
+            requestSitData(_this.entityID);
+        } else {
+            if (DEBUG) {
+                console.log("sitClient.js: The camera is too far away from this seat! Waiting " + REQUEST_SIT_DATA_TIMEOUT_MS + "ms before trying again...");
+            }
+            requestSitDataTimer = Script.setTimeout(requestSitDataTimerCallback, REQUEST_SIT_DATA_TIMEOUT_MS);
+        }
+    }
+
+
+    function maybeClearRequestSitDataTimeoutTimer() {
+        currentRequestAttempts = 0;
+        if (requestSitDataTimeoutTimer) {
+            Script.clearTimeout(requestSitDataTimeoutTimer);
+            requestSitDataTimeoutTimer = false;
+        }
+    }
+
+
+    var currentRequestAttempts = 0;
+    var MAX_REQUEST_ATTEMPTS = 3;
+    function requestSitDataTimeoutTimerCallback() {
+        requestSitDataTimeoutTimer = false;
+        if (currentRequestAttempts < MAX_REQUEST_ATTEMPTS) {
+            console.log("sitClient.js: Request for sit data timed out for Entity ID: " + _this.entityID +
+                ". Trying again. This will be attempt " + currentRequestAttempts + "/" + MAX_REQUEST_ATTEMPTS);
+            requestSitData(_this.entityID);
+        } else {
+            currentRequestAttempts = 0;
+            console.log("sitClient.js: Request for sit data timed out for Entity ID: " + _this.entityID +
+                ". " + MAX_REQUEST_ATTEMPTS + " requests for data failed. Not trying again.");
+        }
+    }
+
+
+    var requestSitDataTimeoutTimer = false;
+    var REQUEST_SIT_DATA_TIMEOUT_MS = 6000;
+    function requestSitData(id) {
+        if (DEBUG) {
+            console.log("sitClient.js: Requesting sit data...");
+        }
+
+        currentRequestAttempts++;
+        requestSitDataTimeoutTimer = Script.setTimeout(requestSitDataTimeoutTimerCallback, REQUEST_SIT_DATA_TIMEOUT_MS);
+        Entities.callEntityServerMethod(id, "requestSitData", [MyAvatar.sessionUUID]);
+    }
+
+
+    function requestSitDataReply(id, args) {
+        maybeClearRequestSitDataTimeoutTimer();
+        maybeClearRequestSitDataTimer();
+
+        var data;
+        try {
+            data = JSON.parse(args[0]);
+        } catch (e) {
+            console.log("sitClient.js: Error when parsing sit data reply! "+ e);
+            return;
+        }
+        var isOccupied = data.isOccupied;
+
+        if (DEBUG) {
+            console.log("sitClient.js: Got sit data reply! `isOccupied`: " + isOccupied);
+        }
+
+        // If someone is sitting in the seat...
+        if (isOccupied) {
+            deleteAllClickToSitOverlays();
+        // Else if someone is NOT sitting in the seat (as reported by the server async) and we haven't started sitting
+        // in this seat (i.e. isSittingInThisChair hasn't turned `true` since the server sent us data)
+        } else if (!isSittingInThisChair) {
+            createClickToSitOverlay();
+        }
+
+        requestSitDataTimer = Script.setTimeout(requestSitDataTimerCallback, REQUEST_SIT_DATA_TIMEOUT_MS);
+    }
+
+
     // Standup functionality
     var alreadyCalledStandUp = false;
     function standUp(id, args) {
@@ -273,6 +379,7 @@
 
             Entities.callEntityServerMethod(_this.entityID, "onStandUp", AvatarList.getAvatarIdentifiers());
             createClickToSitOverlay();
+            requestSitDataTimeoutTimer = Script.setTimeout(requestSitDataTimeoutTimerCallback, REQUEST_SIT_DATA_TIMEOUT_MS);
 
             if (_this.connectedStandUpSignals) {
                 MyAvatar.scaleChanged.disconnect(_this.standUp);
@@ -380,7 +487,8 @@
     var SITTABLE_Y_OFFSET = 0.01;
     function createClickToSitOverlay() {
         if (_this.clickToSitOverlay) {
-            // already created
+            // already created; delete all other sit overlays
+            deleteAllOtherClickToSitOverlays();
             return;
         }
 
@@ -417,16 +525,40 @@
         }, "local");
     }
 
-    // Remove sittable local entity if it exists
-    function deleteClickToSitOverlay() {
+
+    // Remove all sittable local entities except the one defined as `_this.clickToSitOverlay`.
+    function deleteAllOtherClickToSitOverlays() {
         if (DEBUG) {
-            print("deleteClickToSitOverlay");
+            print("deleteAllOtherClickToSitOverlays()");
         }
 
-        if (_this.clickToSitOverlay) {
-            Entities.deleteEntity(_this.clickToSitOverlay);
-            _this.clickToSitOverlay = false;
+        var children = Entities.getChildrenIDs(_this.entityID);
+        for (var i = 0; i < children.length; i++) {
+            var entityName = Entities.getEntityProperties(children[i], ["name"]).name;
+            if (entityName && entityName.indexOf("Click to Sit") > -1 &&
+                children[i] !== _this.clickToSitOverlay) {
+                Entities.deleteEntity(children[i]);
+            }
         }
+    }
+
+    // Remove all sittable local entities
+    // In some cases that we do not yet understand, it is possible for multiple "Click to Sit Overlays" to appear
+    // above a sit point, with one overlay not respecting the orientation of the seat entity.
+    // Ensuring that _all_ "Click to Sit Overlays" are deleted is an attempt at alleviating that issue.
+    function deleteAllClickToSitOverlays() {
+        if (DEBUG) {
+            print("deleteAllClickToSitOverlays()");
+        }
+
+        var children = Entities.getChildrenIDs(_this.entityID);
+        for (var i = 0; i < children.length; i++) {
+            var entityName = Entities.getEntityProperties(children[i], ["name"]).name;
+            if (entityName && entityName.indexOf("Click to Sit") > -1) {
+                Entities.deleteEntity(children[i]);
+            }
+        }
+        _this.clickToSitOverlay = false;
     }
     // #endregion SITTABLE
 
@@ -461,9 +593,10 @@
     // Preload entity method
     function preload(id) {
         _this.entityID = id;
-        createClickToSitOverlay();
+        deleteAllClickToSitOverlays();
         prefetchPresitImages();
         updateUserData();
+        requestSitData(_this.entityID);
     }
 
     // Unload entity method
@@ -472,7 +605,10 @@
             console.log("sitClient.js: Unloading Sit client script...");
         }
 
-        deleteClickToSitOverlay();
+        maybeClearRequestSitDataTimeoutTimer();
+        maybeClearRequestSitDataTimer();
+
+        deleteAllClickToSitOverlays();
         deletePresit();
         standUp();
 
@@ -546,13 +682,16 @@
     SitClient.prototype = {
         remotelyCallable: [
             "createClickToSitOverlay",
-            "deleteClickToSitOverlay",
+            "requestSitDataReply",
+            "deleteAllClickToSitOverlays",
             "checkBeforeSitDown",
             "heartbeatRequest",
             "startSitDown"
         ],
         createClickToSitOverlay: createClickToSitOverlay,
-        deleteClickToSitOverlay: deleteClickToSitOverlay,
+        requestSitData: requestSitData,
+        requestSitDataReply: requestSitDataReply,
+        deleteAllClickToSitOverlays: deleteAllClickToSitOverlays,
         // Entity liftime methods
         preload: preload,
         unload: unload,

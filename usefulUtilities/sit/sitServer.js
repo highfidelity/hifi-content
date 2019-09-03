@@ -12,7 +12,6 @@
 /* globals Entities Script */
 
 (function () {
-
     var DEBUG = false;
 
     // Remotely callable
@@ -85,6 +84,27 @@
         }
     }
 
+    function requestSitData(id, args) {
+        var requestingID = args[0];
+
+        if (DEBUG) {
+            console.log("sitServer.js: Request for sit data received from :" + requestingID);
+        }
+
+        var replyData = {
+            "isOccupied": _this.isOccupied
+        }
+
+        replyData = JSON.stringify(replyData);
+
+        Entities.callEntityClientMethod(
+            requestingID,
+            _this.entityID,
+            "requestSitDataReply",
+            [replyData]
+        );
+    }
+
     // Remotely callable
     // Called from client to check if chair is occupied
     // If seat is not occupied, server script calls the client method that begins the sit down process
@@ -153,13 +173,13 @@
     // Remotely callable
     function removeThisSittableOverlayForEveryoneElse(id, params) {
         if (DEBUG) {
-            console.log("sitServer.js: Calling `deleteClickToSitOverlay()` on entity " + id + " for all avatars...");
+            console.log("sitServer.js: Calling `deleteAllClickToSitOverlays()` on entity " + id + " for all avatars...");
         }
         for (var i = 0; i < params.length; i++) {
             Entities.callEntityClientMethod(
                 params[i],
                 _this.entityID,
-                "deleteClickToSitOverlay"
+                "deleteAllClickToSitOverlays"
             );
         }
     }
@@ -202,12 +222,14 @@
     // Entity methods
     SitServer.prototype = {
         remotelyCallable: [
+            "requestSitData",
             "onMousePressOnEntity",
             "onStandUp",
             "heartbeatResponse",
             "removeThisSittableOverlayForEveryoneElse"
         ],
         preload: preload,
+        requestSitData: requestSitData,
         heartbeatResponse: heartbeatResponse,
         onMousePressOnEntity: onMousePressOnEntity,
         onStandUp: onStandUp,
