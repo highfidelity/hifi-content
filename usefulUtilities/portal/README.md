@@ -17,7 +17,7 @@ Here's the object to add to the zone entity's `userData`:
 ### The `destination` Key/Value Pair in `userData`
 The value associated with the `destination` key refers to the destination at which the portal user will appear.
 
-If a portal's destination is set to be in the same domain using relative paths (i.e. it matches the one of the regular expressions detailed below), the avatar's feet will be sent to the specified location rather than the avatar's hips.
+If a portal's `destination` is set to be in the same domain using relative paths (i.e. it matches one of the regular expressions detailed below), the avatar's feet will be sent to the specified location rather than the avatar's hips.
 
 If you specify the `destination` as a `hifi://` URL, the avatar's location will be changed using the `window.location` scripting interface.
 
