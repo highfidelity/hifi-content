@@ -25,9 +25,9 @@ If you specify the `destination` value using the syntax `bookmark:<bookmark name
 
 #### Intra-Domain Feet Positioning Regular Expressions
 ##### Local Coordinates with Orientation Regex
-`/^\/(-?[0-9]+(?:.[0-9]+)?),(-?[0-9]+(?:.[0-9]+)?),(-?[0-9]+(?:.[0-9]+)?)\/(-?[0-9]+(?:.[0-9]+)?),(-?[0-9]+(?:.[0-9]+)?),(-?[0-9]+(?:.[0-9]+)?),(-?[0-9]+(?:.[0-9]+)?)/`
+`^\/(-?[0-9]+(?:\.[0-9]+)?),(-?[0-9]+(?:\.[0-9]+)?),(-?[0-9]+(?:\.[0-9]+)?)\/(-?[0-9]+(?:\.[0-9]+)?),(-?[0-9]+(?:\.[0-9]+)?),(-?[0-9]+(?:\.[0-9]+)?),(-?[0-9]+(?:\.[0-9]+)?)`
 ##### Local Coordinates Without Orientation Regex
-`/^\/(-?[0-9]+(?:.[0-9]+)?),(-?[0-9]+(?:.[0-9]+)?),(-?[0-9]+(?:.[0-9]+)?)/`
+`^\/(-?[0-9]+(?:\.[0-9]+)?),(-?[0-9]+(?:\.[0-9]+)?),(-?[0-9]+(?:\.[0-9]+)?)`
 
 # Release Notes
 ## v1.3 :: [bae5191](https://github.com/highfidelity/hifi-content/commit/bae5191)
