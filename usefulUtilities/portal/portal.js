@@ -9,24 +9,27 @@
 (function () {
     var NUM_PATTERN = "-?" + // Negative sign optional, but should be at the front.
         "[0-9]+" +           // Before the decimal point, we want to require at least one digit.
-        "(" +                // Non-integers are optional.
+        "(?:" +              // Non-integers are contained within an optional capture group.
         "\." +               // Literal '.', the decimal point.
         "[0-9]+" +           // At least one digit must follow the decimal point (no "4.").
         ")?";                // The entire floating point non-integer is optional.
     var REGEX_LOCAL_COORDS_WITH_ORIENTATION = "^" + // Anchor to the beginning of the string
+        "/" +                      // Forward slash always comes at the beginning
         "(" + NUM_PATTERN + ")," + // Capture group containing the `x` coordinate of feet position, followed by the `,` delimiter
         "(" + NUM_PATTERN + ")," + // Capture group containing the `y` coordinate of feet position, followed by the `,` delimiter
-        "(" + NUM_PATTERN + ")," + // Capture group containing the `z` coordinate of feet position
+        "(" + NUM_PATTERN + ")" + // Capture group containing the `z` coordinate of feet position
         "/" +                      // Slash, after which orientation appears
         "(" + NUM_PATTERN + ")," + // Capture group containing the `x` component of avatar orientation quat, followed by the `,` delimiter
         "(" + NUM_PATTERN + ")," + // Capture group containing the `y` component of avatar orientation quat, followed by the `,` delimiter
         "(" + NUM_PATTERN + ")," + // Capture group containing the `z` component of avatar orientation quat, followed by the `,` delimiter
         "(" + NUM_PATTERN + ")";   // Capture group containing the `w` component of avatar orientation quat
+    REGEX_LOCAL_COORDS_WITH_ORIENTATION = new RegExp(REGEX_LOCAL_COORDS_WITH_ORIENTATION);
     var REGEX_LOCAL_COORDS_WITHOUT_ORIENTATION = "^" + // Anchor to the beginning of the string
+        "/" +                      // Forward slash always comes at the beginning
         "(" + NUM_PATTERN + ")," + // Capture group containing the `x` coordinate of feet position, followed by the `,` delimiter
         "(" + NUM_PATTERN + ")," + // Capture group containing the `y` coordinate of feet position, followed by the `,` delimiter
         "(" + NUM_PATTERN + ")";   // Capture group containing the `y` coordinate of feet position
-
+    REGEX_LOCAL_COORDS_WITHOUT_ORIENTATION = new RegExp(REGEX_LOCAL_COORDS_WITHOUT_ORIENTATION);
 
 
     var Portal = function() {};
