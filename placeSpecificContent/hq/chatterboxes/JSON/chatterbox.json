@@ -1,0 +1,309 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{08b021f7-da64-4dba-bbf9-be6aee0fc025}",
+    "type": "Box",
+    "lastEdited": 1568132190737205,
+    "parentID": "{f79f3a47-b62d-486b-842e-bc5687bc0316}",
+    "name": "Chatterbox Privacy Button",
+    "position": {
+        "x": 0.4354400634765625,
+        "y": 0.20713043212890625,
+        "z": 0.005375353619456291
+    },
+    "dimensions": {
+        "x": 0.13652370870113373,
+        "y": 0.031123969703912735,
+        "z": 0.4932730793952942
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.0000457763671875,
+        "z": -0.0000457763671875,
+        "w": 1
+    },
+    "created": 1568051467786410,
+    "lastEditedBy": "{5c65b2db-64db-4b46-a9ff-f556140deea7}",
+    "queryAACube": {
+        "x": 105.99180603027344,
+        "y": -94.234375,
+        "z": -420.7778015136719,
+        "scale": 0.5127628445625305
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/privacyButton_client.js",
+    "scriptTimestamp": 1568070644582,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/privacyButton_server.js",
+    "color": {
+        "red": 153,
+        "green": 153,
+        "blue": 153
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{f79f3a47-b62d-486b-842e-bc5687bc0316}",
+    "type": "Model",
+    "lastEdited": 1568072010455336,
+    "parentID": "{d118d7dc-272b-4cad-8f04-d22c9aebc194}",
+    "name": "Chatterbox Table",
+    "position": {
+        "x": -0.036589980125427246,
+        "y": -0.6286544799804688,
+        "z": 0.0595855712890625
+    },
+    "dimensions": {
+        "x": 1.2999999523162842,
+        "y": 0.4147758185863495,
+        "z": 0.7694544196128845
+    },
+    "rotation": {
+        "x": 0.0000152587890625,
+        "y": 0.7123063802719116,
+        "z": 0.0000762939453125,
+        "w": 0.7018082141876221
+    },
+    "created": 1568051467824133,
+    "lastEditedBy": "{c142bb2a-f7f2-4353-962d-db28251e8a19}",
+    "queryAACube": {
+        "x": 105.02945709228516,
+        "y": -94.96839141845703,
+        "z": -421.3101501464844,
+        "scale": 1.566556453704834
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/empty.js",
+    "modelURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Table-Chatterbox.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{78eef6f6-2849-4039-b4a8-c099c59b5531}",
+    "type": "Model",
+    "lastEdited": 1568133103025722,
+    "parentID": "{d118d7dc-272b-4cad-8f04-d22c9aebc194}",
+    "name": "Chatterbox Shade",
+    "position": {
+        "x": -0.00020945072174072266,
+        "y": 1.1985549926757812,
+        "z": 0.0344390869140625
+    },
+    "dimensions": {
+        "x": 6.701732158660889,
+        "y": 2.344899892807007,
+        "z": 6.876511096954346
+    },
+    "rotation": {
+        "x": 0.0000457763671875,
+        "y": 0.0001068115234375,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "registrationPoint": {
+        "x": 0.5,
+        "y": 1,
+        "z": 0.5
+    },
+    "created": 1568049182408763,
+    "lastEditedBy": "{b2540ecb-ebc6-4652-a30e-a27896c0fe7f}",
+    "queryAACube": {
+        "x": 100.49456787109375,
+        "y": -97.70098876953125,
+        "z": -425.8331298828125,
+        "scale": 10.686152458190918
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/empty.js",
+    "modelURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Chatterbox-v5-BLINDS.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{200417ba-e3bb-49df-a1f7-59900cd57488}",
+    "type": "Model",
+    "lastEdited": 1568133119162368,
+    "parentID": "{d118d7dc-272b-4cad-8f04-d22c9aebc194}",
+    "name": "Chatterbox Door",
+    "position": {
+        "x": 3.5230844020843506,
+        "y": 0.0749053955078125,
+        "z": 1.0895638465881348
+    },
+    "dimensions": {
+        "x": 0.17447280883789062,
+        "y": 2.39357590675354,
+        "z": 1.1903228759765625
+    },
+    "rotation": {
+        "x": 0.00007592112524434924,
+        "y": 0.00004577664003591053,
+        "z": 0.00001525880361441523,
+        "w": 1
+    },
+    "created": 1568051467786284,
+    "lastEditedBy": "{b2540ecb-ebc6-4652-a30e-a27896c0fe7f}",
+    "queryAACube": {
+        "x": 100.71121215820312,
+        "y": -97.49988555908203,
+        "z": -421.00152587890625,
+        "scale": 8.03670597076416
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "velocity": {
+        "x": 0.000004809349775314331,
+        "y": -3.0900082492735237e-10,
+        "z": 0.020000001415610313
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/empty.js",
+    "shapeType": "box",
+    "modelURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Chatterbox-v5-DOOR.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{d118d7dc-272b-4cad-8f04-d22c9aebc194}",
+    "type": "Model",
+    "lastEdited": 1568132992855075,
+    "name": "Chatterbox Building",
+    "dimensions": {
+        "x": 6.778502941131592,
+        "y": 2.9714393615722656,
+        "z": 6.926085472106934
+    },
+    "rotation": {
+        "x": -0.0000457763671875,
+        "y": -0.7123979330062866,
+        "z": -0.0000762939453125,
+        "w": 0.7017471790313721
+    },
+    "created": 1568051467746535,
+    "lastEditedBy": "{b2540ecb-ebc6-4652-a30e-a27896c0fe7f}",
+    "queryAACube": {
+        "x": -5.068239688873291,
+        "y": -5.068239688873291,
+        "z": -5.068239688873291,
+        "scale": 10.136479377746582
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "shapeType": "compound",
+    "compoundShapeURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Chatterbox-v5-COLL.obj",
+    "modelURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Chatterbox-v5-BLDG.fbx",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{13f725bf-89b4-453b-b4d6-061d0c07e3a5}",
+  "Version": 124
+}
