@@ -12,7 +12,7 @@
 
     var _this;
 
-    var PRELOAD_DATA_RETRIEVAL_INTERAL_MS = 500;
+    var DATA_RETRIEVAL_TIMEOUT_MS = 500;
     var PRELOAD_DATA_RETRIEVAL_MAX_ATTEMPTS = 10;
 
     var REPEAT_TRANSITION_CALL_TIMEOUT_MS = 500;
@@ -49,7 +49,7 @@
     var chatterbox;
 
     var updateInterval;
-    var preloadDataRetrievalInterval;
+    var dataRetrievalTimeout;
     var preloadIntervalCount = 0;
 
     var shadeHeightChange = 0;
@@ -67,9 +67,7 @@
         /* Begin trying to read entity properties to collect necessary data */
         preload: function(entityID) {
             _this.entityID = entityID;
-            preloadDataRetrievalInterval = Script.setInterval(function() {
-                _this.preloadSetupAttempt();
-            }, PRELOAD_DATA_RETRIEVAL_INTERAL_MS);
+            _this.setDataRequestTimeout();
         },
 
         /* Try to get entity data, if all data is able to be retrieved, set up entities in 'open' state.
@@ -94,21 +92,21 @@
                 Entities.editEntity(button, {
                     color: BUTTON_OPEN_COLOR
                 });
-                if (preloadDataRetrievalInterval) {
-                    Script.clearInterval(preloadDataRetrievalInterval);
-                    preloadDataRetrievalInterval = null;
-                }
-            } else if (preloadIntervalCount >= PRELOAD_DATA_RETRIEVAL_MAX_ATTEMPTS) {
-                if (preloadDataRetrievalInterval) {
-                    Script.clearInterval(preloadDataRetrievalInterval);
-                    preloadDataRetrievalInterval = null;
-                }
             }
+            if (preloadIntervalCount < PRELOAD_DATA_RETRIEVAL_MAX_ATTEMPTS) {
+                _this.setDataRequestTimeout();
+            }
+        },
+
+        setDataRequestTimeout: function() {
+            dataRetrievalTimeout = Script .setTimeout(function() {
+                _this.preloadSetupAttempt();
+            }, DATA_RETRIEVAL_TIMEOUT_MS);
         },
 
         /* Use parenting relationships to get IDs of required entities */
         getEntityData: function() {
-            if (!table) {
+            if (!button || !buttonPosition || !chatterbox) {
                 var table = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
                 Entities.getChildrenIDs(table).forEach(function(tableChildID) {
                     var properties = Entities.getEntityProperties(tableChildID, ['position', 'name']);
@@ -230,8 +228,9 @@
         /* Handle any odd scenarios where the door is not nearby or is already in place and then get data for how it will move*/
         setUpDoorMovements: function(doorMovements) {
             var doorCurrentLocalPosition = Entities.getEntityProperties(door, 'localPosition').localPosition;
+            var doorDistanceToTarget = Vec3.distance(doorCurrentLocalPosition, doorMovements.targetPosition);
             // If the door has somehow been moved far away, slam it into open position to avoid hitting anyone in the doorway
-            if (Vec3.distance(doorCurrentLocalPosition, doorMovements.targetPosition) > MAX_DISTANCE_TO_TRANSITION_ENTITIES_M) {
+            if (doorDistanceToTarget > MAX_DISTANCE_TO_TRANSITION_ENTITIES_M) {
                 Entities.editEntity(door, {
                     localPosition: DEFAULT_DOOR_OPEN_LOCAL_POSITION
                 });
@@ -246,13 +245,10 @@
                     localPosition: doorCurrentLocalPosition
                 });
             // If door is very close to correct position, slam into exact position
-            } else {
-                if (Vec3.distance(doorCurrentLocalPosition, doorMovements.targetPosition) <= 
-                    MIN_DISTANCE_TO_TRANSITION_ENTITIES_M) {
-                    Entities.editEntity(door, {
-                        localPosition: DEFAULT_DOOR_OPEN_LOCAL_POSITION
-                    });
-                }
+            } else if (doorDistanceToTarget <= MIN_DISTANCE_TO_TRANSITION_ENTITIES_M) {
+                Entities.editEntity(door, {
+                    localPosition: doorMovements.targetPosition
+                });
                 doorCurrentLocalPosition = doorMovements.targetPosition;
             }
             _this.getDoorMovementData(doorMovements, doorCurrentLocalPosition);
@@ -377,7 +373,7 @@
         unload: function() {
             Entities.editEntity(shade, {
                 dimensions: DEFAULT_SHADE_RAISED_DIMENSIONS,
-                visible: 0
+                visible: false
             });
             Entities.editEntity(door, {
                 localPosition: DEFAULT_DOOR_OPEN_LOCAL_POSITION,
@@ -386,10 +382,6 @@
             Entities.editEntity(button, {
                 color: BUTTON_OPEN_COLOR
             });
-            if (preloadDataRetrievalInterval) {
-                Script.clearInterval(preloadDataRetrievalInterval);
-                preloadDataRetrievalInterval = null;
-            }
             if (updateInterval) {
                 Script.clearInterval(updateInterval);
                 updateInterval = null;

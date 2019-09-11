@@ -4,7 +4,7 @@
     {
     "id": "{08b021f7-da64-4dba-bbf9-be6aee0fc025}",
     "type": "Box",
-    "lastEdited": 1568132190737205,
+    "lastEdited": 1568224448247221,
     "parentID": "{f79f3a47-b62d-486b-842e-bc5687bc0316}",
     "name": "Chatterbox Privacy Button",
     "position": {
@@ -24,7 +24,7 @@
         "w": 1
     },
     "created": 1568051467786410,
-    "lastEditedBy": "{5c65b2db-64db-4b46-a9ff-f556140deea7}",
+    "lastEditedBy": "{cc9c72a2-ef2d-4b2b-b1b0-c27b20f72e4f}",
     "queryAACube": {
         "x": 105.99180603027344,
         "y": -94.234375,
@@ -48,13 +48,13 @@
     },
     "damping": 0,
     "angularDamping": 0,
-    "script": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/privacyButton_client.js",
-    "scriptTimestamp": 1568070644582,
-    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/privacyButton_server.js",
+    "script": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/v1.0.0/chatterbox/buttons/privacyButton_client.js",
+    "scriptTimestamp": 1568221319422,
+    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/v1.0.0/chatterbox/buttons/privacyButton_server.js",
     "color": {
-        "red": 153,
-        "green": 153,
-        "blue": 153
+        "red": 17,
+        "green": 17,
+        "blue": 17
     },
     "shape": "Cube",
     "clientOnly": false,
@@ -66,7 +66,7 @@
     {
     "id": "{f79f3a47-b62d-486b-842e-bc5687bc0316}",
     "type": "Model",
-    "lastEdited": 1568072010455336,
+    "lastEdited": 1568224108789157,
     "parentID": "{d118d7dc-272b-4cad-8f04-d22c9aebc194}",
     "name": "Chatterbox Table",
     "position": {
@@ -86,7 +86,7 @@
         "w": 0.7018082141876221
     },
     "created": 1568051467824133,
-    "lastEditedBy": "{c142bb2a-f7f2-4353-962d-db28251e8a19}",
+    "lastEditedBy": "{64bdce8e-6e63-4341-ae27-282b6ddcf319}",
     "queryAACube": {
         "x": 105.02945709228516,
         "y": -94.96839141845703,
@@ -110,8 +110,69 @@
     },
     "damping": 0,
     "angularDamping": 0,
-    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/empty.js",
-    "modelURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Table-Chatterbox.fbx",
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/modules/empty/empty.js",
+    "modelURL": "https://content.highfidelity.com/DomainContent/production/HQ-v5-15-person-Baked_2019-09-09_04-45-00/Table-Chatterbox/baked/Table-Chatterbox.baked.fst",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{200417ba-e3bb-49df-a1f7-59900cd57488}",
+    "type": "Model",
+    "lastEdited": 1568224447826831,
+    "parentID": "{d118d7dc-272b-4cad-8f04-d22c9aebc194}",
+    "name": "Chatterbox Door",
+    "position": {
+        "x": 3.5232999324798584,
+        "y": 0.07490000128746033,
+        "z": -2.3468000888824463
+    },
+    "dimensions": {
+        "x": 0.17447280883789062,
+        "y": 2.39357590675354,
+        "z": 1.1903228759765625
+    },
+    "rotation": {
+        "x": 0.0000457763671875,
+        "y": 0.0000457763671875,
+        "z": 0.0000152587890625,
+        "w": 1
+    },
+    "created": 1568051467786284,
+    "lastEditedBy": "{cc9c72a2-ef2d-4b2b-b1b0-c27b20f72e4f}",
+    "queryAACube": {
+        "x": 106.82594299316406,
+        "y": -94.82157897949219,
+        "z": -418.27081298828125,
+        "scale": 2.6789019107818604
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/modules/empty/empty.js",
+    "shapeType": "box",
+    "modelURL": "https://content.highfidelity.com/DomainContent/production/HQ-v5-15-person-Baked_2019-09-09_04-45-00/Chatterbox-v5-DOOR/baked/Chatterbox-v5-DOOR.baked.fst",
     "animation": {
         "allowTranslation": false
     },
@@ -124,23 +185,24 @@
     {
     "id": "{78eef6f6-2849-4039-b4a8-c099c59b5531}",
     "type": "Model",
-    "lastEdited": 1568133103025722,
+    "lastEdited": 1568224448246924,
     "parentID": "{d118d7dc-272b-4cad-8f04-d22c9aebc194}",
+    "visible": false,
     "name": "Chatterbox Shade",
     "position": {
-        "x": -0.00020945072174072266,
+        "x": -0.00033080577850341797,
         "y": 1.1985549926757812,
-        "z": 0.0344390869140625
+        "z": 0.001983642578125
     },
     "dimensions": {
-        "x": 6.701732158660889,
-        "y": 2.344899892807007,
-        "z": 6.876511096954346
+        "x": 6.701700210571289,
+        "y": 0.010000058449804783,
+        "z": 6.876500129699707
     },
     "rotation": {
-        "x": 0.0000457763671875,
-        "y": 0.0001068115234375,
-        "z": 0.0000152587890625,
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
         "w": 1
     },
     "registrationPoint": {
@@ -149,12 +211,12 @@
         "z": 0.5
     },
     "created": 1568049182408763,
-    "lastEditedBy": "{b2540ecb-ebc6-4652-a30e-a27896c0fe7f}",
+    "lastEditedBy": "{cc9c72a2-ef2d-4b2b-b1b0-c27b20f72e4f}",
     "queryAACube": {
-        "x": 100.49456787109375,
-        "y": -97.70098876953125,
-        "z": -425.8331298828125,
-        "scale": 10.686152458190918
+        "x": 101.06907653808594,
+        "y": -97.15894317626953,
+        "z": -425.29071044921875,
+        "scale": 9.60205364227295
     },
     "grab": {
         "grabbable": false,
@@ -175,72 +237,8 @@
     "angularDamping": 0,
     "collisionMask": 23,
     "collidesWith": "static,dynamic,kinematic,otherAvatar,",
-    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/empty.js",
-    "modelURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Chatterbox-v5-BLINDS.fbx",
-    "animation": {
-        "allowTranslation": false
-    },
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{200417ba-e3bb-49df-a1f7-59900cd57488}",
-    "type": "Model",
-    "lastEdited": 1568133119162368,
-    "parentID": "{d118d7dc-272b-4cad-8f04-d22c9aebc194}",
-    "name": "Chatterbox Door",
-    "position": {
-        "x": 3.5230844020843506,
-        "y": 0.0749053955078125,
-        "z": 1.0895638465881348
-    },
-    "dimensions": {
-        "x": 0.17447280883789062,
-        "y": 2.39357590675354,
-        "z": 1.1903228759765625
-    },
-    "rotation": {
-        "x": 0.00007592112524434924,
-        "y": 0.00004577664003591053,
-        "z": 0.00001525880361441523,
-        "w": 1
-    },
-    "created": 1568051467786284,
-    "lastEditedBy": "{b2540ecb-ebc6-4652-a30e-a27896c0fe7f}",
-    "queryAACube": {
-        "x": 100.71121215820312,
-        "y": -97.49988555908203,
-        "z": -421.00152587890625,
-        "scale": 8.03670597076416
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "velocity": {
-        "x": 0.000004809349775314331,
-        "y": -3.0900082492735237e-10,
-        "z": 0.020000001415610313
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "serverScripts": "http://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/chatterbox/buttons/empty.js",
-    "shapeType": "box",
-    "modelURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Chatterbox-v5-DOOR.fbx",
+    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/modules/empty/empty.js",
+    "modelURL": "https://content.highfidelity.com/DomainContent/production/HQ-v5-15-person-Baked_2019-09-09_04-45-00/Chatterbox-v5-BLINDS/baked/Chatterbox-v5-BLINDS.baked.fst",
     "animation": {
         "allowTranslation": false
     },
@@ -253,7 +251,7 @@
     {
     "id": "{d118d7dc-272b-4cad-8f04-d22c9aebc194}",
     "type": "Model",
-    "lastEdited": 1568132992855075,
+    "lastEdited": 1568227006983516,
     "name": "Chatterbox Building",
     "dimensions": {
         "x": 6.778502941131592,
@@ -267,7 +265,7 @@
         "w": 0.7017471790313721
     },
     "created": 1568051467746535,
-    "lastEditedBy": "{b2540ecb-ebc6-4652-a30e-a27896c0fe7f}",
+    "lastEditedBy": "{239979df-ee1e-46d3-a92b-3b0dfff610b8}",
     "queryAACube": {
         "x": -5.068239688873291,
         "y": -5.068239688873291,
@@ -291,9 +289,10 @@
     },
     "damping": 0,
     "angularDamping": 0,
+    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/modules/empty/empty.js",
     "shapeType": "compound",
     "compoundShapeURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Chatterbox-v5-COLL.obj",
-    "modelURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Chatterbox-v5-BLDG.fbx",
+    "modelURL": "https://content.highfidelity.com/DomainContent/production/HQ-v5-15-person-Baked_2019-09-09_04-45-00/Chatterbox-v5-BLDG/baked/Chatterbox-v5-BLDG.baked.fst",
     "animation": {
         "allowTranslation": false
     },
@@ -304,6 +303,6 @@
     "isFacingAvatar": false
 }
     ],
-  "Id": "{13f725bf-89b4-453b-b4d6-061d0c07e3a5}",
-  "Version": 124
+  "Id": "{dedc20f4-5e5f-4d9b-a67c-f020c98a5c9e}",
+  "Version": 125
 }

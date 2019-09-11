@@ -12,6 +12,10 @@
 
     var _this;
 
+    var MAX_DISTANCE_TO_OPERATE_M = 3.11309;
+
+    var buttonPosition;
+
     var PrivacyButton = function() {
         _this = this;
     };
@@ -19,10 +23,11 @@
     PrivacyButton.prototype = {
         preload: function(entityID) {
             _this.entityID = entityID;
+            buttonPosition = Entities.getEntityProperties(_this.entityID, 'position').position;
         },
 
         mousePressOnEntity: function(entityID, event) {
-            if (event.isPrimaryButton) {
+            if (event.isPrimaryButton && Vec3.distance(MyAvatar.position, buttonPosition) < MAX_DISTANCE_TO_OPERATE_M) {
                 Entities.callEntityServerMethod(_this.entityID, "transition");
             }
         }
