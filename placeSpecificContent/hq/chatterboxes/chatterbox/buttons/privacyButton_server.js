@@ -99,7 +99,8 @@
         },
 
         setDataRequestTimeout: function() {
-            dataRetrievalTimeout = Script .setTimeout(function() {
+            dataRetrievalTimeout = Script.setTimeout(function() {
+                dataRetrievalTimeout = null;
                 _this.preloadSetupAttempt();
             }, DATA_RETRIEVAL_TIMEOUT_MS);
         },
@@ -235,6 +236,12 @@
                     localPosition: DEFAULT_DOOR_OPEN_LOCAL_POSITION
                 });
             // If door is not aligned vertically, slam into correct vertical position
+            } else if (doorDistanceToTarget <= MIN_DISTANCE_TO_TRANSITION_ENTITIES_M) {
+                Entities.editEntity(door, {
+                    localPosition: doorMovements.targetPosition
+                });
+                doorCurrentLocalPosition = doorMovements.targetPosition;
+                // If door is very close to correct position, slam into exact position
             } else if (doorCurrentLocalPosition.y !== DEFAULT_DOOR_CLOSED_LOCAL_POSITION.y) {
                 doorCurrentLocalPosition = {
                     x: doorCurrentLocalPosition.x,
@@ -244,12 +251,6 @@
                 Entities.editEntity(door, {
                     localPosition: doorCurrentLocalPosition
                 });
-            // If door is very close to correct position, slam into exact position
-            } else if (doorDistanceToTarget <= MIN_DISTANCE_TO_TRANSITION_ENTITIES_M) {
-                Entities.editEntity(door, {
-                    localPosition: doorMovements.targetPosition
-                });
-                doorCurrentLocalPosition = doorMovements.targetPosition;
             }
             _this.getDoorMovementData(doorMovements, doorCurrentLocalPosition);
         },
@@ -369,7 +370,7 @@
             }
         },
 
-        /* Clear all intervals, stop injector, and place enties in 'open' position */
+        /* Clear all intervals and timeouts, stop injector, and place enties in 'open' position */
         unload: function() {
             Entities.editEntity(shade, {
                 dimensions: DEFAULT_SHADE_RAISED_DIMENSIONS,
@@ -388,6 +389,9 @@
             }
             if (injector) {
                 injector.stop();
+            }
+            if (dataRetrievalTimeout) {
+                Script.clearTimeout(dataRetrievalTimeout);
             }
         }
     };
