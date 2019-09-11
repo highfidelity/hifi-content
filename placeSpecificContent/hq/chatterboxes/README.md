@@ -3,6 +3,13 @@
 ## Description
 This new and improved chatterbox now comes with privacy mode! That's right, folks: now you too can hide away in a private cubicle on your own island. Or, use it to hold very secret private conversations. We guarantee you will look super stealth with the shades down and door closed.
 
+## Entity Parenting and Script Relationships
+* Chatterbox
+    * Chatterbox Coffee Table
+        * Chatterbox Privacy Button - privacyButton_client.js, privacyButton_server.js
+    * Chatterbox Shade
+    * Chatterbox Door
+
 ## File List
 ### Server Side
 * **privacyButton_server.js** attached to the privacy button entity.

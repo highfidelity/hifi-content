@@ -93,7 +93,7 @@
                     color: BUTTON_OPEN_COLOR
                 });
             }
-            if (preloadIntervalCount < PRELOAD_DATA_RETRIEVAL_MAX_ATTEMPTS) {
+            if (preloadIntervalCount < PRELOAD_DATA_RETRIEVAL_MAX_ATTEMPTS && !ready) {
                 _this.setDataRequestTimeout();
             }
         },
