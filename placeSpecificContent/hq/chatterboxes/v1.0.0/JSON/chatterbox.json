@@ -48,9 +48,9 @@
     },
     "damping": 0,
     "angularDamping": 0,
-    "script": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/v1.0.0/chatterbox/buttons/privacyButton_client.js",
+    "script": "https://content.highfidelity.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/v1.0.0/chatterbox/buttons/privacyButton_client.js",
     "scriptTimestamp": 1568221319422,
-    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/v1.0.0/chatterbox/buttons/privacyButton_server.js",
+    "serverScripts": "https://content.highfidelity.com/Experiences/Releases/placeSpecificContent/hq/chatterboxes/v1.0.0/chatterbox/buttons/privacyButton_server.js",
     "color": {
         "red": 17,
         "green": 17,
@@ -112,7 +112,7 @@
     "angularDamping": 0,
     "collisionless": true,
     "ignoreForCollisions": true,
-    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/modules/empty/empty.js",
+    "serverScripts": "https://content.highfidelity.com/Experiences/Releases/modules/empty/empty.js",
     "modelURL": "https://content.highfidelity.com/DomainContent/production/HQ-v5-15-person-Baked_2019-09-09_04-45-00/Table-Chatterbox/baked/Table-Chatterbox.baked.fst",
     "animation": {
         "allowTranslation": false
@@ -170,7 +170,7 @@
     },
     "damping": 0,
     "angularDamping": 0,
-    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/modules/empty/empty.js",
+    "serverScripts": "https://content.highfidelity.com/Experiences/Releases/modules/empty/empty.js",
     "shapeType": "box",
     "modelURL": "https://content.highfidelity.com/DomainContent/production/HQ-v5-15-person-Baked_2019-09-09_04-45-00/Chatterbox-v5-DOOR/baked/Chatterbox-v5-DOOR.baked.fst",
     "animation": {
@@ -237,7 +237,7 @@
     "angularDamping": 0,
     "collisionMask": 23,
     "collidesWith": "static,dynamic,kinematic,otherAvatar,",
-    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/modules/empty/empty.js",
+    "serverScripts": "https://content.highfidelity.com/Experiences/Releases/modules/empty/empty.js",
     "modelURL": "https://content.highfidelity.com/DomainContent/production/HQ-v5-15-person-Baked_2019-09-09_04-45-00/Chatterbox-v5-BLINDS/baked/Chatterbox-v5-BLINDS.baked.fst",
     "animation": {
         "allowTranslation": false
@@ -289,7 +289,7 @@
     },
     "damping": 0,
     "angularDamping": 0,
-    "serverScripts": "https://hifi-content.s3-us-west-1.amazonaws.com/Experiences/Releases/modules/empty/empty.js",
+    "serverScripts": "https://content.highfidelity.com/Experiences/Releases/modules/empty/empty.js",
     "shapeType": "compound",
     "compoundShapeURL": "https://hifi-content.s3.us-west-1.amazonaws.com/alan/dev/Chatterbox-v5-COLL.obj",
     "modelURL": "https://content.highfidelity.com/DomainContent/production/HQ-v5-15-person-Baked_2019-09-09_04-45-00/Chatterbox-v5-BLDG/baked/Chatterbox-v5-BLDG.baked.fst",
