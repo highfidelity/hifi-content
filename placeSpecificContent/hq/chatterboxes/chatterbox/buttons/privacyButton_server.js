@@ -40,8 +40,6 @@
 
     var ready = false;
     var currentState = "open";
-    var repeatTransitionCall = false;
-    var repeatTransitionCallTimeout;
 
     var shade;
     var door;
@@ -83,7 +81,7 @@
                 ready = true;
                 Entities.editEntity(shade, {
                     dimensions: DEFAULT_SHADE_RAISED_DIMENSIONS,
-                    visible: 0
+                    visible: false
                 });
                 Entities.editEntity(door, {
                     localPosition: DEFAULT_DOOR_OPEN_LOCAL_POSITION,
@@ -149,16 +147,10 @@
 
         /* Toggle between between open and private chatterbox states.  */
         transition: function() {
-            if (!ready || repeatTransitionCall) {
+            print("TRANSITION");
+            if (!ready) {
                 return;
             }
-            /* When the client script calls ths function, it is being received multiple times despite only one event 
-            happening in the client. The repeattransitionCall variable handles that */
-            repeatTransitionCall = true;
-            repeatTransitionCallTimeout = Script.setTimeout(function() {
-                repeatTransitionCall = false;
-            }, REPEAT_TRANSITION_CALL_TIMEOUT_MS);
-
             if (updateInterval) {
                 Script.clearInterval(updateInterval);
                 updateInterval = null;
@@ -235,13 +227,13 @@
                 Entities.editEntity(door, {
                     localPosition: DEFAULT_DOOR_OPEN_LOCAL_POSITION
                 });
-            // If door is not aligned vertically, slam into correct vertical position
+            // If door is very close to correct position, slam into exact position
             } else if (doorDistanceToTarget <= MIN_DISTANCE_TO_TRANSITION_ENTITIES_M) {
                 Entities.editEntity(door, {
                     localPosition: doorMovements.targetPosition
                 });
                 doorCurrentLocalPosition = doorMovements.targetPosition;
-                // If door is very close to correct position, slam into exact position
+                // If door is not aligned vertically, slam into correct vertical position
             } else if (doorCurrentLocalPosition.y !== DEFAULT_DOOR_CLOSED_LOCAL_POSITION.y) {
                 doorCurrentLocalPosition = {
                     x: doorCurrentLocalPosition.x,
