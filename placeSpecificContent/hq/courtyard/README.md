@@ -1,0 +1,28 @@
+# Reconfigurable Courtyard
+
+This allows the courtyard setup to be changed via buttons. There are 3 preset types: open, stage, and roundtable.
+[More Info](https://highfidelity.atlassian.net/wiki/spaces/PM/pages/512787002/Reconfigurable+Courtyard+Functional+Requirements+Spec)
+
+## Entity Parenting and Script Relationships
+* Control Panel - controlPanel_server.js
+    * Control Panel Button Stage - controlPanelButton_client.js
+    * Control Panel Button Roundtable - controlPanelButton_client.js
+    * Control Panel Button Courtyard - controlPanelButton_client.js
+* Courtyard - (HiFi Utility) empty.js
+    * Safety Zone - (HiFi Utility) bouncer.js
+* Roundtable - (HiFi Utility) empty.js
+* Admin Only Zone - (HiFi Utility) bouncer.js
+
+## File List
+### Server Side
+* **controlPanelButton_client.js** attached to the privacy button entity.
+* **empty.js** attached to the chatterbox, table, shade, and door entities.
+
+### Client Side
+* **controlPanelButton_client.js** attached to the privacy button entity.
+* **bouncer.js** attached to the admin only zone around the control panel room and the safety check zone beneath the courtyard floor.
+
+## Releases
+### Version 1.0.0
+SHA [](https://github.com/highfidelity/hifi-content/commits/) September 11, 2019
+- [JIRA 296](https://highfidelity.atlassian.net/browse/DEV-296)   Initial Release
