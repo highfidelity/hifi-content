@@ -15,8 +15,6 @@
     var DATA_RETRIEVAL_TIMEOUT_MS = 500;
     var PRELOAD_DATA_RETRIEVAL_MAX_ATTEMPTS = 10;
 
-    var REPEAT_TRANSITION_CALL_TIMEOUT_MS = 500;
-
     var MOVEMENT_LOCAL_VELOCITY_M_PER_S = 0.5;
     var UPDATE_INTERVAL_MS = 70;
     var SHADE_HEIGHT_CHANGE_PER_INTERVAL_M = 0.05;
@@ -147,7 +145,6 @@
 
         /* Toggle between between open and private chatterbox states.  */
         transition: function() {
-            print("TRANSITION");
             if (!ready) {
                 return;
             }
@@ -227,6 +224,7 @@
                 Entities.editEntity(door, {
                     localPosition: DEFAULT_DOOR_OPEN_LOCAL_POSITION
                 });
+                doorCurrentLocalPosition = DEFAULT_DOOR_OPEN_LOCAL_POSITION;
             // If door is very close to correct position, slam into exact position
             } else if (doorDistanceToTarget <= MIN_DISTANCE_TO_TRANSITION_ENTITIES_M) {
                 Entities.editEntity(door, {
@@ -346,8 +344,10 @@
             // If shade must be edited
             if (shadeHeightChange !== 0) {
                 // If shade is in place
-                if ((shadeHeightChange > 0 && (shadeCurrentDimensions.y >= (shadeTargetHeight - SHADE_TARGET_DEVIATION_ALLOWANCE))) || 
-                    (shadeHeightChange < 0 && (shadeCurrentDimensions.y <= (shadeTargetHeight + SHADE_TARGET_DEVIATION_ALLOWANCE)))) {
+                if ((shadeHeightChange > 0 && 
+                    (shadeCurrentDimensions.y >= (shadeTargetHeight - SHADE_TARGET_DEVIATION_ALLOWANCE))) || 
+                    (shadeHeightChange < 0 && 
+                    (shadeCurrentDimensions.y <= (shadeTargetHeight + SHADE_TARGET_DEVIATION_ALLOWANCE)))) {
                     shadeHeightChange = 0;
                     // do not snap shade as it makes the animation jittery. The height does no t need to be exact
                     Entities.editEntity(shade, {

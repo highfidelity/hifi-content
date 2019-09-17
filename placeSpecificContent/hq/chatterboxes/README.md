@@ -20,7 +20,7 @@ This new and improved chatterbox now comes with privacy mode! That's right, folk
 
 ## Releases
 ### Version 1.0.0
-SHA [6217b61](https://github.com/highfidelity/hifi-content/commits/6217b61) September 11, 2019
+SHA [ae2aeaf](https://github.com/highfidelity/hifi-content/commits/ae2aeaf) September 11, 2019
 - [JIRA 478](https://highfidelity.atlassian.net/browse/DEV-478)   Initial Release
 
 
