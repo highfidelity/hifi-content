@@ -14,8 +14,8 @@
     var DATA_RETRIEVAL_TIMEOUT_MS = 500;
     var PRELOAD_DATA_RETRIEVAL_MAX_ATTEMPTS = 10;
 
-    var DONE_SOUND = SoundCache.getSound(Script.resolvePath("resources/sounds/DONE_SOUND.mp3?1"));
-    var TRANSITION_SOUND = SoundCache.getSound(Script.resolvePath("resources/sounds/TRANSITION_SOUND.mp3?1"));
+    var DONE_SOUND = SoundCache.getSound(Script.resolvePath("resources/sounds/DONE_SOUND.mp3"));
+    var TRANSITION_SOUND = SoundCache.getSound(Script.resolvePath("resources/sounds/TRANSITION_SOUND.mp3"));
     var DONE_VOLUME = 0.2;
     var TRANSITION_VOLUME = 0.05;
 
@@ -24,7 +24,6 @@
     var NUMBER_OF_BUTTONS = 3;
     var BUTTON_TO_ENTITY_POSITIONING_MAP = {};
 
-    var FIXED_DECIMAL_PLACES = 2;
     /* MAP WILL LOOK LIKE THIS BUT BUTTONS MAY NOT BE LISTED IN THIS ORDER: 
 
     {
@@ -46,9 +45,6 @@
     */
 
     var MAX_DISTANCE_TO_TRANSITION_ENTITIES_M = 10;
-    var MIN_DISTANCE_TO_TRANSITION_ENTITIES_M = 0.01;
-
-    var TARGET_DEVIATION_ALLOWANCE = 0.005;
 
     var TRANSITION_VELOCITY_M_PER_S = 0.3;
 
@@ -57,6 +53,8 @@
     var BUTTON_TRANSITION_COLOR = { red: 153, green: 153, blue: 153 };
     var BUTTON_ACTIVE_COLOR = { red: 77, green: 207, blue: 52 };
     var BUTTON_INACTIVE_COLOR = { red: 17, green: 17, blue: 17 };
+
+    var EPSILON_FOR_COORDINATE_VALUES = 0.005;
 
     var _this;
 
@@ -74,13 +72,15 @@
     var courtyardLoweredPosition;
     var roundtableLoweredPosition;
 
-    var roundtableVelocity;
-    var courtyardVelocity;
+    var roundtableYVelocity;
+    var courtyardYVelocity;
 
     var roundtableInPlace;
     var courtyardInPlace;
 
     var checkInterval;
+
+    var soundPosition;
     
 
     var Button = function() {
@@ -113,7 +113,7 @@
 
         /* Set a timeout for 500ms after which we will attempt to read entity data */
         setDataRequestTimeout: function() {
-            dataRetrievalTimeout = Script .setTimeout(function() {
+            dataRetrievalTimeout = Script.setTimeout(function() {
                 dataRetrievalTimeout = null;
                 _this.preloadSetupAttempt();
             }, DATA_RETRIEVAL_TIMEOUT_MS);
@@ -147,6 +147,9 @@
                             var roundtableRaisedPosition = controlPanelUserData.movableCourtyardParts.roundtable.raisedPosition;
                             roundtableLoweredPosition = 
                                 controlPanelUserData.movableCourtyardParts.roundtable.loweredPosition;
+
+                            // This will be a central position relative to all movement that occurs
+                            soundPosition = courtyardRaisedPosition; 
 
                             var targetCourtyardPosition = (stateName === "stage") ? courtyardLoweredPosition 
                                 : courtyardRaisedPosition;
@@ -194,18 +197,23 @@
                 return;
             }
 
+            if (checkInterval) {
+                Script.clearInterval(checkInterval);
+                checkInterval = null;
+            }
+
             courtyardInPlace = false;
             roundtableInPlace = false;
-            courtyardVelocity = 0;
-            roundtableVelocity = 0;
+            courtyardYVelocity = 0;
+            roundtableYVelocity = 0;
 
             var buttonID = params[0];
             
             var targetCourtyardPosition = BUTTON_TO_ENTITY_POSITIONING_MAP[buttonID].courtyardPosition;
             var targetRoundtablePosition = BUTTON_TO_ENTITY_POSITIONING_MAP[buttonID].roundtablePosition;
 
-            _this.setUpMovement(roundtable, targetRoundtablePosition);
-            _this.setUpMovement(courtyard, targetCourtyardPosition);
+            roundtableYVelocity = _this.setUpMovementReturnYVelocity(roundtable, targetRoundtablePosition);
+            courtyardYVelocity = _this.setUpMovementReturnYVelocity(courtyard, targetCourtyardPosition);
 
             Object.keys(BUTTON_TO_ENTITY_POSITIONING_MAP).forEach(function(button) {
                 if (button === buttonID) {
@@ -221,24 +229,18 @@
                 }
             });
 
-            var soundPosition = Entities.getEntityProperties(courtyard, 'position').position;
             _this.playSound(TRANSITION_SOUND, TRANSITION_VOLUME, soundPosition, false, true);
             
-            if (!roundtableInPlace && roundtableVelocity) {
+            if (!roundtableInPlace && roundtableYVelocity) {
                 Entities.editEntity(roundtable, {
-                    velocity: { x: 0, y: roundtableVelocity, z: 0 }
+                    velocity: { x: 0, y: roundtableYVelocity, z: 0 }
                 });
             }
 
-            if (!courtyardInPlace && courtyardVelocity) {
+            if (!courtyardInPlace && courtyardYVelocity) {
                 Entities.editEntity(courtyard, {
-                    velocity: { x: 0, y: courtyardVelocity, z: 0 }
+                    velocity: { x: 0, y: courtyardYVelocity, z: 0 }
                 });
-            }
-
-            if (checkInterval) {
-                Script.clearInterval(checkInterval);
-                checkInterval = null;
             }
 
             checkInterval = Script.setInterval(function() {
@@ -251,33 +253,44 @@
         position checking interval.
         */
         checkEntityPositions: function(buttonID, targetCourtyardPosition, targetRoundtablePosition) {
-            if (!courtyardInPlace) {
-                var courtyardCurrentPosition = Entities.getEntityProperties(courtyard, 'position').position;
-                var courtyardDistanceToTarget = courtyardCurrentPosition.y.toFixed(FIXED_DECIMAL_PLACES) - 
-                targetCourtyardPosition.y.toFixed(FIXED_DECIMAL_PLACES);
-                if ((courtyardVelocity < 0 && courtyardDistanceToTarget <= 0) || 
-                    (courtyardVelocity > 0 && courtyardDistanceToTarget >= 0)) {
+            var courtyardCurrentPosition = Entities.getEntityProperties(courtyard, 'position').position;
+            if (courtyardYVelocity && !courtyardInPlace) {
+                var courtyardYDisplacementFromTarget = courtyardCurrentPosition.y - targetCourtyardPosition.y;
+                // If an entity is moving down along the y axis(it has - velocity) and is below the target point 
+                // (displacement is less than 0) on the y axis, it is in place. If an entity is moving up along 
+                // the y axis(it has + velocity) and is above the target point(displacement is greater than 0), it is in place. 
+                if ((courtyardYVelocity < 0 && courtyardYDisplacementFromTarget <= 0) || 
+                    (courtyardYVelocity > 0 && courtyardYDisplacementFromTarget >= 0)) {
                     courtyardInPlace = true;
                 }
                 if (courtyardInPlace) {
-                    courtyardVelocity = { x: 0, y: 0, z: 0 };
+                    courtyardYVelocity = { x: 0, y: 0, z: 0 };
                     Entities.editEntity(courtyard, {
-                        velocity: { x: 0, y: 0, z: 0 },
+                        velocity: courtyardYVelocity,
                         position: targetCourtyardPosition
                     });
                 }
             }
-
-            if (!roundtableInPlace){
+            
+            if (roundtableYVelocity && !roundtableInPlace){
                 var roundtableCurrentPosition = Entities.getEntityProperties(roundtable, 'position').position;
-                var roundtableDistanceToTarget = roundtableCurrentPosition.y.toFixed(FIXED_DECIMAL_PLACES) - 
-                targetRoundtablePosition.y.toFixed(FIXED_DECIMAL_PLACES);
-                if ((roundtableVelocity < 0 && roundtableDistanceToTarget <= 0) || 
-                    (roundtableVelocity > 0 && roundtableDistanceToTarget >= 0)) {
+
+                var currentRoundtableTopPosition = roundtableCurrentPosition.y + tableHeight * HALF;
+                var roundtableYDisplacementFromTarget = roundtableCurrentPosition.y - targetRoundtablePosition.y;
+
+                // Same idea as explained in comment above (line 261) but with the extra check for the following:
+                // If roundtable is completely below the courtyard mid point on the y axis and moving down, 
+                // snap it to lowered position. This only happens if moving from roundtable state to courtyard 
+                // and will prevent the sound from continuing after the observer stops seeing movement. Using 
+                // the courtyard midpoint on the y axis gives us some leeway to ensure the table is out of sight
+                if ((roundtableYVelocity < 0 && 
+                    (currentRoundtableTopPosition < courtyardCurrentPosition.y || roundtableYDisplacementFromTarget <= 0)) || 
+                    (roundtableYVelocity > 0 && roundtableYDisplacementFromTarget >= 0)) {
                     roundtableInPlace = true;
                 }
+
                 if (roundtableInPlace) {
-                    roundtableVelocity = { x: 0, y: 0, z: 0 };
+                    roundtableYVelocity = { x: 0, y: 0, z: 0 };
                     Entities.editEntity(roundtable, {
                         velocity: { x: 0, y: 0, z: 0 },
                         position: targetRoundtablePosition
@@ -304,10 +317,11 @@
         beneath the stage. If it is already very close to its target position, slam it into exact position and 
         always ensure it is aligned correctly on the x and z axes. Use its distance to its target positon to determine 
         the velocity it needs to get there. */ 
-        setUpMovement: function(entityID, targetPosition) {
+        setUpMovementReturnYVelocity: function(entityID, targetPosition) {
             var currentPosition = Entities.getEntityProperties(entityID, 'position').position;
     
-            // This part will ensure that the observer sees movement immediately
+            // If the roundtable is moving up from beneath the courtyard, place it just veneath the surface of the 
+            // courtyard before moving so the observer sees movement immediately
             if (entityID === roundtable) {
                 var courtyardProperties = Entities.getEntityProperties(courtyard, ['dimensions', 'position']);
                 var courtyardHeight = courtyardProperties.dimensions.y;
@@ -324,31 +338,10 @@
                 }
             }
             
-            var distanceToTarget = currentPosition.y.toFixed(FIXED_DECIMAL_PLACES) - 
-                targetPosition.y.toFixed(FIXED_DECIMAL_PLACES);
-            if (distanceToTarget.toFixed(FIXED_DECIMAL_PLACES) === 0 || 
-                Math.abs(distanceToTarget.toFixed(FIXED_DECIMAL_PLACES)) < TARGET_DEVIATION_ALLOWANCE) {
-                Entities.editEntity(entityID, {
-                    position: targetPosition
-                });
-                if (entityID === roundtable) {
-                    roundtableInPlace = true;
-                } else {
-                    courtyardInPlace = true;
-                }
-                return;
-            }
-            
-            // If the entity has somehow been moved far away, slam it into lowered position to avoid hitting anyone
-            if (Math.abs(distanceToTarget) > MAX_DISTANCE_TO_TRANSITION_ENTITIES_M && 
-                Math.abs(distanceToTarget) < -MAX_DISTANCE_TO_TRANSITION_ENTITIES_M) {
-                currentPosition = entityID === roundtable ? roundtableLoweredPosition : courtyardLoweredPosition;
-                Entities.editEntity(entityID, {
-                    position: currentPosition
-                });
-            // If entity is very close to target position, slam into exact position
-            } else if (Math.abs(distanceToTarget) < MIN_DISTANCE_TO_TRANSITION_ENTITIES_M && 
-                Math.abs(distanceToTarget) > -MIN_DISTANCE_TO_TRANSITION_ENTITIES_M) {
+            var yDisplacementFromTarget = currentPosition.y - targetPosition.y;
+
+            // If entity is very close to target position, slam into exact position and return
+            if (Math.abs(yDisplacementFromTarget) < EPSILON_FOR_COORDINATE_VALUES) {
                 currentPosition = targetPosition;
                 Entities.editEntity(entityID, {
                     position: targetPosition
@@ -358,11 +351,18 @@
                 } else {
                     courtyardInPlace = true;
                 }
+                return 0;
+            // If the entity has somehow been moved far away, slam it into lowered position to avoid hitting anyone
+            } else if (Math.abs(yDisplacementFromTarget) > MAX_DISTANCE_TO_TRANSITION_ENTITIES_M) {
+                currentPosition = entityID === roundtable ? roundtableLoweredPosition : courtyardLoweredPosition;
+                yDisplacementFromTarget = currentPosition.y - targetPosition.y;
+                Entities.editEntity(entityID, {
+                    position: currentPosition
+                });
             }
             // If entity is not aligned along x and z axes, slam into correct position on those axes
-            if (currentPosition.x.toFixed(FIXED_DECIMAL_PLACES) !== targetPosition.x.toFixed(FIXED_DECIMAL_PLACES) || 
-                currentPosition.z.toFixed(FIXED_DECIMAL_PLACES) !== targetPosition.z.toFixed(FIXED_DECIMAL_PLACES)) {
-                    
+            if (Math.abs(currentPosition.x - targetPosition.x) > EPSILON_FOR_COORDINATE_VALUES || 
+                Math.abs(currentPosition.z - targetPosition.z) > EPSILON_FOR_COORDINATE_VALUES) {
                 currentPosition = {
                     x: targetPosition.x,
                     y: currentPosition.y,
@@ -373,12 +373,9 @@
                 });
             }
             
-            // get velocity, + or -, needed to move to target along y axis 
-            if (entityID === roundtable) {
-                roundtableVelocity = distanceToTarget > 0 ? -TRANSITION_VELOCITY_M_PER_S : TRANSITION_VELOCITY_M_PER_S;
-            } else {
-                courtyardVelocity = distanceToTarget > 0 ? -TRANSITION_VELOCITY_M_PER_S : TRANSITION_VELOCITY_M_PER_S;
-            }
+            // get velocity, + or -, needed to move to target along y axis. A positive displacement requires a negative 
+            // velocity to get to the target and vice versa
+            return yDisplacementFromTarget > 0 ? -TRANSITION_VELOCITY_M_PER_S : TRANSITION_VELOCITY_M_PER_S;
         },
 
         /* Set entity velocities to 0, clear intervals and timeouts and stop the injector. */

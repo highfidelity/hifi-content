@@ -5,9 +5,9 @@ This allows the courtyard setup to be changed via buttons. There are 3 preset ty
 
 ## Entity Parenting and Script Relationships
 * Control Panel - controlPanel_server.js
-    * Control Panel Button Stage - controlPanelButton_client.js
-    * Control Panel Button Roundtable - controlPanelButton_client.js
-    * Control Panel Button Courtyard - controlPanelButton_client.js
+    * Control Panel Button Stage - controlPanelButton_client.js, empty.js
+    * Control Panel Button Roundtable - controlPanelButton_client.js, empty.js
+    * Control Panel Button Courtyard - controlPanelButton_client.js, empty.js
 * Courtyard - (HiFi Utility) empty.js
     * Safety Zone - (HiFi Utility) bouncer.js
 * Roundtable - (HiFi Utility) empty.js
@@ -15,12 +15,12 @@ This allows the courtyard setup to be changed via buttons. There are 3 preset ty
 
 ## File List
 ### Server Side
-* **controlPanelButton_client.js** attached to the privacy button entity.
-* **empty.js** attached to the chatterbox, table, shade, and door entities.
+* **controlPanelButton_client.js** attached to the control panel button entities.
+* **empty.js** attached to the control panel buttons, courtyard, and roundtable entities.
 
 ### Client Side
-* **controlPanelButton_client.js** attached to the privacy button entity.
-* **bouncer.js** attached to the admin only zone around the control panel room and the safety check zone beneath the courtyard floor.
+* **controlPanelButton_client.js** attached to the control panel entity.
+* [**bouncer.js**](https://github.com/highfidelity/hifi-content/tree/master/usefulUtilities/bouncerZone) attached to the admin only zone around the control panel room and the safety check zone beneath the courtyard floor. 
 
 ## Releases
 ### Version 1.0.0
