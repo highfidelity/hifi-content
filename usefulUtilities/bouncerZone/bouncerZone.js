@@ -1,9 +1,8 @@
 //
 //  ZoneScript.js
 //
-//  This script serves as a virtual bouncer depending on username or whether or not a client can validate
-//  ownership of a particular specified avatar entity. Can one or all three methods: hardcoded list in APPROVED_USERNAMES,
-//  inside entity userData username list, and/or verifying an wearable marketplace entity through it's ID. 
+//  This script serves as a virtual bouncer depending on username, admin status, and whether or not a client can validate
+//  ownership of a particular specified avatar entity. 
 //
 //  Copyright 2019 High Fidelity, Inc.
 // 
@@ -13,21 +12,64 @@
 /* globals Entities, WalletScriptingInterface, Window, AccountServices */
 
 (function () {
-    // Hardcoded approved usernames
-    var APPROVED_USERNAMES = ["philip", "ryan"];
-    // Dynamically approved usernames
-    var userDataUsernameWhitelist;
 
-    // Used when verifying ownership of a "ticket" wearable.
-    // Set in zone entity's userData.
-    var ticketMarketplaceID = "";
-    
-    // Used when teleporting users outside the bouncer zone.
-    // Set in userData
-    var rejectionLocation;
-    
     // Enable this for debug prints in client logs.
     var DEBUG = false;
+
+    var DEFAULT_USER_DATA = {
+        "whitelist" : {
+            "rejectTeleportLocation" : "/0,0,0/0,0,0,0",
+            "allowAdmins": false,
+            "marketplaceID": "",
+            "usernames" : [""]
+        },
+        "bounceSound": {
+            "bounceSoundURL": "",
+            "bounceSoundVolume": 1
+        },
+        "grabbableKey": {
+            "grabbable": false
+        }
+    };
+
+    // #region USERDATA VARIABLES
+
+    // Dynamically approved usernames
+    var userDataUsernameWhitelist;
+    // Boolean to determine if all admins are allowed. Admins are defined as users with lock/unlock privileges.
+    var allowAdmins;
+    // Used when verifying ownership of a "ticket" wearable.
+    var ticketMarketplaceID = "";
+    // Used when teleporting users outside the bouncer zone.
+    var rejectionLocation;
+    // Downloaded sound object of sound to play if user gets bounced
+    var downloadedBounceSound;
+    // Volume, 0-1, to play bounce sound
+    var bounceSoundVolume;
+
+    // #endregion USERDATA VARIABLES
+    
+    // #region UTILITIES
+
+    /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
+        mode requested. */
+    var injector;
+    function playSound(sound, volume, position, localOnly, loop) {
+        if (sound.downloaded) {
+            if (injector) {
+                injector.stop();
+                injector = null;
+            }
+            injector = Audio.playSound(sound, {
+                position: position,
+                volume: volume,
+                localOnly: localOnly,
+                loop: loop
+            });
+        }
+    }
+
+    // #endregion UTILITIES
 
     // The handler for the `WalletScriptingInterface.ownershipVerificationSuccess` signal.
     function ticketVerificationSuccess(entityID) {
@@ -39,8 +81,10 @@
         if (DEBUG) {
             print("You MAY enter - verification passed for entity: " + entityID);
         }
-        WalletScriptingInterface.ownershipVerificationSuccess.disconnect(ticketVerificationSuccess);
-        WalletScriptingInterface.ownershipVerificationFailed.disconnect(ticketVerificationFailed);
+        if (signalsConnected) {
+            WalletScriptingInterface.ownershipVerificationSuccess.disconnect(ticketVerificationSuccess);
+            WalletScriptingInterface.ownershipVerificationFailed.disconnect(ticketVerificationFailed);
+        }
     }
 
     // The handler for the `WalletScriptingInterface.ownershipVerificationFailed` signal.
@@ -55,16 +99,18 @@
         if (DEBUG) {
             print("You MAY NOT enter - verification failed for entity: " + entityID);
         }
-        WalletScriptingInterface.ownershipVerificationSuccess.disconnect(ticketVerificationSuccess);
-        WalletScriptingInterface.ownershipVerificationFailed.disconnect(ticketVerificationFailed);
-
+        if (signalsConnected) {
+            WalletScriptingInterface.ownershipVerificationSuccess.disconnect(ticketVerificationSuccess);
+            WalletScriptingInterface.ownershipVerificationFailed.disconnect(ticketVerificationFailed);
+        }
         bounceAvatarFromZone();
     }
 
     // Searches around MyAvatar for a wearable whose marketplaceID matches ticketMarketplaceID.
     var WEARABLE_SEARCH_RADIUS = 10;
     var potentialTicketEntityID;
-    function searchForTicketWearable() {
+    var signalsConnected = false;
+    function userHasTicketWearable() {
         potentialTicketEntityID = "";
         var currentAvatarWearableIDs = Entities.findEntitiesByType('Model', MyAvatar.position, WEARABLE_SEARCH_RADIUS);
 
@@ -72,26 +118,23 @@
             var properties = Entities.getEntityProperties(currentAvatarWearableIDs[i],
                 ['marketplaceID', 'certificateID', 'parentID']);
             if (properties.marketplaceID === ticketMarketplaceID && properties.parentID === MyAvatar.sessionUUID) {
-                WalletScriptingInterface.ownershipVerificationSuccess.connect(ticketVerificationSuccess);
-                WalletScriptingInterface.ownershipVerificationFailed.connect(ticketVerificationFailed);
+                if (!signalsConnected) {
+                    WalletScriptingInterface.ownershipVerificationSuccess.connect(ticketVerificationSuccess);
+                    WalletScriptingInterface.ownershipVerificationFailed.connect(ticketVerificationFailed);
+                    signalsConnected = true;
+                }
                 potentialTicketEntityID = currentAvatarWearableIDs[i];
                 WalletScriptingInterface.proveAvatarEntityOwnershipVerification(currentAvatarWearableIDs[i]);
-                return;
+                return true;
             }
         }
-
-        bounceAvatarFromZone();
+        
+        return false;
     }
 
     // Updates some internal variables based on the current userData property of the attached zone entity.
     function updateParametersFromUserData() {
-        var userDataProperty = {
-            "whitelist" : {
-                "rejectTeleportLocation" : "/",
-                "marketplaceID" : "",
-                "usernames" : [""]
-            }
-        };
+        var userDataProperty = DEFAULT_USER_DATA;
 
         try {
             userDataProperty = JSON.parse(Entities.getEntityProperties(_entityID, 'userData').userData);
@@ -99,9 +142,14 @@
             console.error("Error parsing userData: ", err);
         }
 
-        ticketMarketplaceID = userDataProperty.whitelist.marketplaceID || "";
-        rejectionLocation = userDataProperty.whitelist.rejectTeleportLocation;
+        ticketMarketplaceID = userDataProperty.whitelist && userDataProperty.whitelist.marketplaceID || "";
+        rejectionLocation = userDataProperty.whitelist && userDataProperty.whitelist.rejectTeleportLocation || "/0,0,0/0,0,0,0";
         userDataUsernameWhitelist = userDataProperty.whitelist && userDataProperty.whitelist.usernames || [];
+        allowAdmins = userDataProperty.whitelist && userDataProperty.whitelist.allowAdmins || false;
+        var bounceSoundURL = userDataProperty.bounceSound && userDataProperty.bounceSound.bounceSoundURL || "";
+        bounceSoundVolume = userDataProperty.bounceSound && userDataProperty.bounceSound.bounceSoundVolume || 1;
+
+        downloadedBounceSound = bounceSoundURL ? SoundCache.getSound(bounceSoundURL) : null;
     }
 
     // Moves my avatar to `rejectionLocation`
@@ -109,86 +157,26 @@
         if (DEBUG) {
             print("Rejected from zone to: ", rejectionLocation);
         }
+        if (downloadedBounceSound) {
+            playSound(downloadedBounceSound, bounceSoundVolume, MyAvatar.position, true, false);
+        }
         Window.location.handleLookupString(rejectionLocation);
     }
-
-    // Returns true if my avatar is inside the bouncer zone, false otherwise.
-    var HALF = 0.5;
-    function avatarIsInsideBouncerZone() {
-        var properties = Entities.getEntityProperties(_entityID, ["position", "dimensions", "rotation"]);
-        var position = properties.position;
-        var dimensions = properties.dimensions;
-        
-        var avatarPosition = MyAvatar.position;
-        var worldOffset = Vec3.subtract(avatarPosition, position);
-
-        avatarPosition = Vec3.multiplyQbyV(Quat.inverse(properties.rotation), worldOffset);
-
-        var minX = 0 - dimensions.x * HALF;
-        var maxX = 0 + dimensions.x * HALF;
-        var minY = 0 - dimensions.y * HALF;
-        var maxY = 0 + dimensions.y * HALF;
-        var minZ = 0 - dimensions.z * HALF;
-        var maxZ = 0 + dimensions.z * HALF;
-
-        if (avatarPosition.x >= minX && avatarPosition.x <= maxX
-            && avatarPosition.y >= minY && avatarPosition.y <= maxY
-            && avatarPosition.z >= minZ && avatarPosition.z <= maxZ) {
-            
-            if (DEBUG) {
-                print("Avatar IS inside zone");
-            }
-            return true;
-
-        } else {
-            if (DEBUG) {
-                print("Avatar IS NOT in zone");
-            }
-            return false;
-        }
-    }
-
 
     var _entityID; // The Bouncer Zone entity ID.
     var LOAD_TIME_MS = 50; // A small delay to ensure that all internal variables are loaded from userData.
     var _this = this;
 
 
+    // save this zone ID
     _this.preload = function(entityID) {
         _entityID = entityID;
-
-        _this.initialBounceCheck();
-    },
-
-    // Ensures that every avatar experiences the enterEntity method, even if they were already in the entity
-    // when the script started.
-    _this.initialBounceCheck = function() {
-        function largestAxisVec(dimensions) {
-            var max = Math.max(dimensions.x, dimensions.y, dimensions.z);
-            return max;
-        }
-        var properties = Entities.getEntityProperties(_entityID, ["position", "dimensions"]);
-        var largestDimension = largestAxisVec(properties.dimensions);
-        var avatarsInRange = AvatarList.getAvatarsInRange(properties.position, largestDimension).filter(function(id) {
-            return id === MyAvatar.sessionUUID;
-        });
-
-        if (avatarsInRange.length > 0) {
-            if (DEBUG) {
-                print("Found avatar near zone");
-            }
-            // do isInZone check
-            if (avatarIsInsideBouncerZone()) {
-                _this.enterEntity();
-            }
-        }
     },
 
     // Performs the various bouncer checks to determine whether to do nothing
     // or bounce an avatar from the Bouncer Zone
     _this.performBouncerChecks = function() {
-        // Determines whether or not my username is on the whitelist populated
-        // by userData.
+        // Determines whether or not my username is on the whitelist populated by userData.
         function isOnUserDataUsernameWhitelist() {
             var currentUsername = AccountServices.username.toLowerCase();
     
@@ -202,34 +190,13 @@
             }
             return false;
         }
-
-        // Determines whether or not my username is on the whitelist
-        // populated at the top of this script. 
-        function isOnHardcodedWhitelist() {
-            if (APPROVED_USERNAMES.length === 0) {
-                return false;
-            }
-
-            var currentUsername = AccountServices.username.toLowerCase();
-            var lowerCaseHardcodedUsernames = APPROVED_USERNAMES.map(function(value) {
-                return value.toLowerCase();
-            });
-
-            if (lowerCaseHardcodedUsernames.indexOf(currentUsername) >= 0) {
-                if (DEBUG) {
-                    print("Username is on hardcoded whitelist");
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
             
-        if (isOnUserDataUsernameWhitelist() || isOnHardcodedWhitelist()) {
-            // Do nothing; allow the avatar to stay in the Bouncer Zone
-        } else if (ticketMarketplaceID !== "") {
-            // If ticketMarketplaceID is defined, start by searching my avatar for the ticket wearable
-            searchForTicketWearable();
+        if (isOnUserDataUsernameWhitelist()) {
+            // This user is on the whitelist of usernames. Do not bounce them.
+        } else if (allowAdmins && Entities.canAdjustLocks()) {
+            // This user has lock/unlock permissions and is therefore an admin. Do not bounce them if admins are allowed.
+        } else if (ticketMarketplaceID !== "" && userHasTicketWearable()) {
+            // If ticketMarketplaceID is defined, check to see if my avatar is wearing a wearable with the matching ID.
         } else {
             bounceAvatarFromZone();
         }
@@ -244,6 +211,17 @@
 
     // Fires when entering the Bouncer Zone entity
     _this.enterEntity = function() {
+        if (DEBUG) {
+            print("YOU'RE IN THE ZONE!");
+        }
         _this.updateParametersThenPerformChecks();
+    };
+
+    // disconnect signals if necessary
+    _this.unload = function() {
+        if (signalsConnected) {
+            WalletScriptingInterface.ownershipVerificationSuccess.disconnect(ticketVerificationSuccess);
+            WalletScriptingInterface.ownershipVerificationFailed.disconnect(ticketVerificationFailed);
+        }
     };
 });
