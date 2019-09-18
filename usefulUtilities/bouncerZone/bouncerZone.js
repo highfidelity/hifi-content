@@ -161,7 +161,7 @@
         if (downloadedBounceSound) {
             playSound(downloadedBounceSound, bounceSoundVolume, MyAvatar.position, true, false);
         }
-        Window.location(rejectionLocation);
+        Window.location = rejectionLocation;
     }
 
     var _entityID; // The Bouncer Zone entity ID.
