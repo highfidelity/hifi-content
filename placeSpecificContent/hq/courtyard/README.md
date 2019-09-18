@@ -24,5 +24,5 @@ This allows the courtyard setup to be changed via buttons. There are 3 preset ty
 
 ## Releases
 ### Version 1.0.0
-SHA [](https://github.com/highfidelity/hifi-content/commits/) September 11, 2019
+SHA [2fc97c2](https://github.com/highfidelity/hifi-content/commits/2fc97c2) September 17, 2019
 - [JIRA 296](https://highfidelity.atlassian.net/browse/DEV-296)   Initial Release
