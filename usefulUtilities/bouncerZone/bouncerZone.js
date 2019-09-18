@@ -17,18 +17,15 @@
     var DEBUG = false;
 
     var DEFAULT_USER_DATA = {
+        "rejectTeleportLocation" : "/0,0,0/0,0,0,0",
         "whitelist" : {
-            "rejectTeleportLocation" : "/0,0,0/0,0,0,0",
             "allowAdmins": false,
-            "marketplaceID": "",
+            "marketplaceID": null,
             "usernames" : [""]
         },
         "bounceSound": {
-            "bounceSoundURL": "",
+            "bounceSoundURL": null,
             "bounceSoundVolume": 1
-        },
-        "grabbableKey": {
-            "grabbable": false
         }
     };
 
@@ -39,7 +36,7 @@
     // Boolean to determine if all admins are allowed. Admins are defined as users with lock/unlock privileges.
     var allowAdmins;
     // Used when verifying ownership of a "ticket" wearable.
-    var ticketMarketplaceID = "";
+    var ticketMarketplaceID;
     // Used when teleporting users outside the bouncer zone.
     var rejectionLocation;
     // Downloaded sound object of sound to play if user gets bounced
@@ -111,7 +108,6 @@
     var potentialTicketEntityID;
     var signalsConnected = false;
     function userHasTicketWearable() {
-        potentialTicketEntityID = "";
         var currentAvatarWearableIDs = Entities.findEntitiesByType('Model', MyAvatar.position, WEARABLE_SEARCH_RADIUS);
 
         for (var i = 0; i < currentAvatarWearableIDs.length; i++) {
@@ -142,14 +138,19 @@
             console.error("Error parsing userData: ", err);
         }
 
-        ticketMarketplaceID = userDataProperty.whitelist && userDataProperty.whitelist.marketplaceID || "";
-        rejectionLocation = userDataProperty.whitelist && userDataProperty.whitelist.rejectTeleportLocation || "/0,0,0/0,0,0,0";
-        userDataUsernameWhitelist = userDataProperty.whitelist && userDataProperty.whitelist.usernames || [];
-        allowAdmins = userDataProperty.whitelist && userDataProperty.whitelist.allowAdmins || false;
-        var bounceSoundURL = userDataProperty.bounceSound && userDataProperty.bounceSound.bounceSoundURL || "";
-        bounceSoundVolume = userDataProperty.bounceSound && userDataProperty.bounceSound.bounceSoundVolume || 1;
+        rejectionLocation = userDataProperty.rejectTeleportLocation || "/0,0,0/0,0,0,0";
+        ticketMarketplaceID = userDataProperty.whitelist && userDataProperty.whitelist.marketplaceID || 
+            DEFAULT_USER_DATA.rejectTeleportLocation;
+        userDataUsernameWhitelist = userDataProperty.whitelist && userDataProperty.whitelist.usernames || 
+            DEFAULT_USER_DATA.whitelist.usernames;
+        allowAdmins = userDataProperty.whitelist && userDataProperty.whitelist.allowAdmins || 
+            DEFAULT_USER_DATA.whitelist.allowAdmins;
+        var bounceSoundURL = userDataProperty.bounceSound && userDataProperty.bounceSound.bounceSoundURL || 
+            DEFAULT_USER_DATA.bounceSound.bounceSoundURL;
+        bounceSoundVolume = userDataProperty.bounceSound && userDataProperty.bounceSound.bounceSoundVolume || 
+            DEFAULT_USER_DATA.bounceSound.bounceSoundVolume;
 
-        downloadedBounceSound = bounceSoundURL ? SoundCache.getSound(bounceSoundURL) : null;
+        downloadedBounceSound = bounceSoundURL && SoundCache.getSound(bounceSoundURL) || null;
     }
 
     // Moves my avatar to `rejectionLocation`
@@ -191,13 +192,8 @@
             return false;
         }
             
-        if (isOnUserDataUsernameWhitelist()) {
-            // This user is on the whitelist of usernames. Do not bounce them.
-        } else if (allowAdmins && Entities.canAdjustLocks()) {
-            // This user has lock/unlock permissions and is therefore an admin. Do not bounce them if admins are allowed.
-        } else if (ticketMarketplaceID !== "" && userHasTicketWearable()) {
-            // If ticketMarketplaceID is defined, check to see if my avatar is wearing a wearable with the matching ID.
-        } else {
+        if (!isOnUserDataUsernameWhitelist() && !(allowAdmins && Entities.canAdjustLocks()) && 
+            !(ticketMarketplaceID && userHasTicketWearable())) {
             bounceAvatarFromZone();
         }
     },

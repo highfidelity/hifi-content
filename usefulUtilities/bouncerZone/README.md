@@ -1,8 +1,8 @@
 # Bouncer Zone Script
-When this script is attached to a zone, it serves as a virtual bouncer. The script can "bounce" avatars from the zone if they do not meet criteria defined by the script. Data to determine which users are allowed inthe zone can be changed via userData of the zone without the need for a script restart. There are two criteria used to determine whether an avatar should be removed from the zone:
-1. If the avatar is listed in the zone userData under whitelist > usernames, they will not be bounced.
-2. If the avatar is an admin and the zone userData: whitelist > adminsAllowed is set to tru, the user will not be bounced. Admins are defined as users with lock/unlock privileges.
-3. If the user is wearing awearable with a Marketplace ID that matches an ID listed in the userData of the zone under whitelist > marketplaceID, the user will not be bounced.
+When this script is attached to a zone, it serves as a virtual bouncer. The script can "bounce" avatars from the zone if they do not meet criteria defined by the script. Variables that determine which users are allowed in the zone can be changed via the `userData` entity property of the zone without the need for a script restart. There are several criteria used to determine whether an avatar should be removed from the zone:
+1. If the entering user's username is listed in the zone `userData` under `whitelist > usernames`, they will not be bounced.
+2. If the entering user is an "admin" and the zone `userData` defines `whitelist > allowAdmins` as `true`, the user will not be bounced. **Admins are defined as users with lock/unlock permissions.**
+3. If the entering user is wearing a wearable with a Marketplace ID that matches an ID listed in the `userData` of the zone under `whitelist > marketplaceID`, the user will not be bounced.
 
 ## Setup
 1. Add the below `userData` object to the zone entity's `userData`
@@ -18,18 +18,15 @@ When this script is attached to a zone, it serves as a virtual bouncer. The scri
 Here's the object to add to the zone entity's `userData`:
 ```
 {
+    "rejectTeleportLocation": "<HIFI ADDRESS>",
     "whitelist": {
-        "rejectTeleportLocation": "<HIFI ADDRESS>",
-        "adminsAllowed": <Optional: boolean>,
+        "allowAdmins": <Optional: boolean>,
         "marketplaceID" : "<Optional: Marketplace Item ID>",
         "usernames" : [""]
     },
     "bounceSound": {
         "bounceSoundURL": "<URL of sound that plays when user is ejected from zone>",
         "bounceSoundVolume": <number 0-1>
-    },
-   "grabbableKey": {
-      "grabbable": false
     }
 }
 ```
