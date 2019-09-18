@@ -138,9 +138,9 @@
             console.error("Error parsing userData: ", err);
         }
 
-        rejectionLocation = userDataProperty.rejectTeleportLocation || "/0,0,0/0,0,0,0";
+        rejectionLocation = userDataProperty.rejectTeleportLocation || DEFAULT_USER_DATA.rejectTeleportLocation;
         ticketMarketplaceID = userDataProperty.whitelist && userDataProperty.whitelist.marketplaceID || 
-            DEFAULT_USER_DATA.rejectTeleportLocation;
+            DEFAULT_USER_DATA.whitelist.marketplaceID;
         userDataUsernameWhitelist = userDataProperty.whitelist && userDataProperty.whitelist.usernames || 
             DEFAULT_USER_DATA.whitelist.usernames;
         allowAdmins = userDataProperty.whitelist && userDataProperty.whitelist.allowAdmins || 
@@ -161,7 +161,7 @@
         if (downloadedBounceSound) {
             playSound(downloadedBounceSound, bounceSoundVolume, MyAvatar.position, true, false);
         }
-        Window.location.handleLookupString(rejectionLocation);
+        Window.location(rejectionLocation);
     }
 
     var _entityID; // The Bouncer Zone entity ID.

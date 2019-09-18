@@ -35,4 +35,6 @@ Here's the object to add to the zone entity's `userData`:
 ### Version 2019-01-16_16-30-00
 - Initial release
 
-### Version 
+### Version 2019-09-18_14-12-00
+SHA [c7a1fb8](https://github.com/highfidelity/hifi-content/commits/c7a1fb8)
+[DEV 593](https://highfidelity.atlassian.net/browse/DEV-593)
