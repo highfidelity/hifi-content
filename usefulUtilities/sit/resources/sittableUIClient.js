@@ -12,33 +12,7 @@
 
     var DEBUG = 0;
 
-    // Fades the sittable local entity over time
-    var SITTABLE_START_ALPHA = 0.7;
-    var SITTABLE_END_ALPHA = 0.25; // fades to this alpha value
-    var SITTABLE_ALPHA_DELTA = 0.009;
-    var SITTABLE_FADE_MS = 40; // "Click/Trigger to Sit" local entity image fade after TIMEOUT_BEFORE_FADE_MS MS
-    var TIMEOUT_BEFORE_FADE_MS = 1000;
     var MAX_SIT_DISTANCE_M = 5;
-    function startSittableLerpTransparency(sittableID, clearLerpIntervalCallback) {
-        if (DEBUG) {
-            console.log("startSittableLerpTransparency");
-        }
-
-        var currentAlpha = SITTABLE_START_ALPHA;
-        // Update the alpha value on the sittable overlay
-        var intervalLerpTransparencyID = Script.setInterval(function () {
-
-            currentAlpha = currentAlpha - SITTABLE_ALPHA_DELTA;
-            Entities.editEntity(sittableID, { alpha: currentAlpha });
-
-            if (currentAlpha <= SITTABLE_END_ALPHA) {
-                // Stop fading and keep overlay at the minimum alpha
-                clearLerpIntervalCallback();
-            }
-        }, SITTABLE_FADE_MS);
-
-        return intervalLerpTransparencyID;
-    }
 
     // Constructor
     var _this = null;
@@ -47,7 +21,6 @@
     function SittableClickableUI() {
         _this = this;
         this.entityID = null;
-        this.intervalLerpTransparencyID = null;
         this.sitEntityID = null;
     }
 
@@ -59,12 +32,6 @@
 
             var properties = Entities.getEntityProperties(id);
             this.sitEntityID = properties.parentID;
-
-            if (!_this.intervalLerpTransparencyID) {
-                Script.setTimeout(function() {
-                    _this.intervalLerpTransparencyID = startSittableLerpTransparency(id, _this.clearLerpInterval);
-                }, TIMEOUT_BEFORE_FADE_MS);
-            }
             HMD.displayModeChanged.connect(this.displayModeChangedCallback);
         },
 
@@ -74,19 +41,6 @@
                     _this.entityID,
                     { imageURL: HMD.active ? SITTABLE_IMAGE_URL_HMD : SITTABLE_IMAGE_URL_DESKTOP }
                 );
-            }
-        },
-
-        clearLerpInterval: function () {
-            if (DEBUG) {
-                console.log("sit ui clear lerp interval called");
-            }
-            if (_this.intervalLerpTransparencyID) {
-                if (DEBUG) {
-                    console.log("sit ui clearing lerp interval");
-                }
-                Script.clearInterval(_this.intervalLerpTransparencyID);
-                _this.intervalLerpTransparencyID = false;
             }
         },
 
@@ -101,7 +55,6 @@
         },
 
         unload: function () {
-            _this.clearLerpInterval(); 
             HMD.displayModeChanged.disconnect(this.displayModeChangedCallback);
         }
     };

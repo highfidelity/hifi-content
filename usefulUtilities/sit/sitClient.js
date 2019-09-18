@@ -480,7 +480,7 @@
     // #region SITTABLE LOCAL ENTITY
 
     // Create "Click to Sit" overlay on the chair
-    var SITTABLE_START_ALPHA = 0.7;
+    var SITTABLE_ALPHA = 0.5;
     var SITTABLE_DIMENSIONS = { x: 0.3, y: 0.3 };
     var SITTABLE_IMAGE_URL_HMD = Script.resolvePath("./resources/images/triggerToSit.png");
     var SITTABLE_IMAGE_URL_DESKTOP = Script.resolvePath("./resources/images/clickToSit.png");
@@ -518,7 +518,7 @@
             dimensions: SITTABLE_DIMENSIONS,
             imageURL: HMD.active ? SITTABLE_IMAGE_URL_HMD : SITTABLE_IMAGE_URL_DESKTOP,
             ignoreRayIntersection: false,
-            alpha: SITTABLE_START_ALPHA,
+            alpha: SITTABLE_ALPHA,
             script: Script.resolvePath("./resources/sittableUIClient.js"),
             visible: true,
             emissive: true
