@@ -148,7 +148,8 @@
         var bounceSoundURL = userDataProperty.bounceSound && userDataProperty.bounceSound.bounceSoundURL || 
             DEFAULT_USER_DATA.bounceSound.bounceSoundURL;
         if (userDataProperty.bounceSound && (typeof userDataProperty.bounceSound.bounceSoundVolume === "number")) {
-            bounceSoundVolume = userDataProperty.bounceSound.bounceSoundVolume;
+            bounceSoundVolume = userDataProperty.bounceSound.bounceSoundVolume <= 0 ? 0 :
+                userDataProperty.bounceSound.bounceSoundVolume;
         } else {
             bounceSoundVolume = DEFAULT_USER_DATA.bounceSound.bounceSoundVolume;
         }
