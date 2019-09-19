@@ -147,9 +147,11 @@
             DEFAULT_USER_DATA.whitelist.allowAdmins;
         var bounceSoundURL = userDataProperty.bounceSound && userDataProperty.bounceSound.bounceSoundURL || 
             DEFAULT_USER_DATA.bounceSound.bounceSoundURL;
-        bounceSoundVolume = userDataProperty.bounceSound && userDataProperty.bounceSound.bounceSoundVolume || 
-            DEFAULT_USER_DATA.bounceSound.bounceSoundVolume;
-
+        if (userDataProperty.bounceSound && (typeof userDataProperty.bounceSound.bounceSoundVolume === "number")) {
+            bounceSoundVolume = userDataProperty.bounceSound.bounceSoundVolume;
+        } else {
+            bounceSoundVolume = DEFAULT_USER_DATA.bounceSound.bounceSoundVolume;
+        }
         downloadedBounceSound = bounceSoundURL && SoundCache.getSound(bounceSoundURL) || null;
     }
 
