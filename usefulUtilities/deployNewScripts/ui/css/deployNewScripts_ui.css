@@ -20,9 +20,9 @@ body {
 #titleBarContainer {
     display: flex;
     align-items: center;
-    height: 54px;
+    height: 40px;
     padding: 0 12px;
-    font-size: 24px;
+    font-size: 18px;
     background-color: #121212;
     color: #ffffff;
     justify-content: space-between;
@@ -74,12 +74,12 @@ body {
 #formContainer,
 #statusContainer {
     padding: 0 12px 12px 12px;
-    font-size: 22px;
+    font-size: 18px;
 }
 
 #instructionsContainer {
     height: auto;
-    font-size: 16px;
+    font-size: 14px;
     padding-top: 12px;
     padding-bottom: 4px;
 }
@@ -97,8 +97,8 @@ form {
 }
 
 input[type=text] {
-    height: 40px;
-    line-height: 40px;
+    height: 26px;
+    line-height: 26px;
     width: 100%;
     font-size: 14px;
 }

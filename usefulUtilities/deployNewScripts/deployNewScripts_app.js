@@ -16,15 +16,21 @@
     }
 
 
-    function EntityObject(id, locked, script, serverScripts) {
+    function EntityObject(id, name, locked, script, serverScripts, userData) {
         this.id = id;
+        this.name = name;
         this.locked = locked;
         this.script = script;
         this.serverScripts = serverScripts;
+        this.userData = userData;
     }
 
 
     function matches(substringToMatch, fullText, isSubstringMatch) {
+        if (substringToMatch.length === 0) {
+            return false;
+        }
+
         if (isSubstringMatch) {
             return (fullText.indexOf(substringToMatch) > -1);
         } else {
@@ -47,7 +53,9 @@
     function editEntities(entitiesToChange, oldText, newText, isSubstringMatch, isDryRun) {
         var numModifiedClientScripts = 0;
         var numModifiedServerScripts = 0;
+        var numModifiedUserData = 0;
         var numLockedScripts = 0;
+        var modifiedEntityNames = [];
 
         for (var i = 0; i < entitiesToChange.length; i++) {
             var propertiesToChange = {};
@@ -81,6 +89,19 @@
                 propertiesToChange.serverScripts = newScript;
                 numModifiedServerScripts++;
             }
+        
+            if (oldText.userData !== "" && matches(oldText.userData, entitiesToChange[i].userData, isSubstringMatch)) {
+                newScript = "";
+                if (isSubstringMatch) {
+                    newScript = entitiesToChange[i].userData.replace(oldText.userData, newText.userData);
+                } else {
+                    newScript = newText.userData;
+                }
+                propertiesToChange.userData = newScript;
+                numModifiedUserData++;
+            }
+
+            modifiedEntityNames.push(entitiesToChange[i].name);
             
             if (!isDryRun) {
                 Entities.editEntity(entitiesToChange[i].id, propertiesToChange);
@@ -94,7 +115,9 @@
                 "isDryRun": isDryRun,
                 "numModifiedClientScripts": numModifiedClientScripts,
                 "numModifiedServerScripts": numModifiedServerScripts,
-                "numLockedScripts": numLockedScripts
+                "numModifiedUserData": numModifiedUserData,
+                "numLockedScripts": numLockedScripts,
+                "modifiedEntityNames": modifiedEntityNames
             }
         });
     }
@@ -116,11 +139,12 @@
 
         var entitiesToChange = [];
         for (var entityIndex in allEntities) {
-            var entity = Entities.getEntityProperties(allEntities[entityIndex], ["id", "locked", "script", "serverScripts"]);
+            var entity = Entities.getEntityProperties(allEntities[entityIndex], ["id", "name", "locked", "script", "serverScripts", "userData"]);
 
             if ((entity.script && matches(oldText.client, entity.script, isSubstringMatch)) ||
-                (entity.serverScripts && matches(oldText.server, entity.serverScripts, isSubstringMatch))) {
-                entitiesToChange.push(new EntityObject(entity.id, entity.locked, entity.script, entity.serverScripts));
+                (entity.serverScripts && matches(oldText.server, entity.serverScripts, isSubstringMatch)) ||
+                (entity.userData && matches(oldText.userData, entity.userData, isSubstringMatch))) {
+                entitiesToChange.push(new EntityObject(entity.id, entity.name, entity.locked, entity.script, entity.serverScripts, entity.userData));
             }
         }
 
