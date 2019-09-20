@@ -20,7 +20,7 @@ Press "SUBMIT", confirm your choice, and you're done!
 
 # Release Notes
 
-## v1.1 | [commit xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+## v1.1 | [commit 071445f](https://github.com/highfidelity/hifi-content/commits/071445f)
 - Added the ability to modify the `userData` property of entities using the Deploy Tool.
 - The Tool will now display the names of the entities that are going to be modified.
 
