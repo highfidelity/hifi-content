@@ -12,13 +12,13 @@
 /* globals Entities Script */
 
 (function () {
-    var DEBUG = false;
+    var DEBUG = true;
 
     // Remotely callable
     // Resolves heartbeat called from sitClient
     function heartbeatResponse() {
         if (DEBUG) {
-            console.log("sitServer.js: Heartbeat reply received!");
+            console.log("sitServer.js: " + _this.entityID + ": Heartbeat reply received!");
         }
         // Called by remote client script
         // indicating avatar is still sitting in chair
@@ -39,7 +39,7 @@
 
         if (_this.isOccupied) {
             if (DEBUG) {
-                console.log("sitServer.js: heartbeat: `isOccupied` is set to `true`. Sending heartbeatRequest to sitting client...");
+                console.log("sitServer.js: " + _this.entityID + ": heartbeat: `isOccupied` is set to `true`. Sending heartbeatRequest to sitting client...");
             }
 
             Entities.callEntityClientMethod(
@@ -57,7 +57,7 @@
             // Will open the chair to other avatars to sit
             _this.heartbeatRequestTimeout = Script.setTimeout(function () {
                 if (DEBUG) {
-                    console.log("sitServer.js: Heartbeat request timed out! Resetting seat occupied status...");
+                    console.log("sitServer.js: " + _this.entityID + ": Heartbeat request timed out! Resetting seat occupied status...");
                 }
                 _this.heartbeatRequestTimeout = false;
                 // Seat is not occupied
@@ -68,7 +68,7 @@
             }, HEARTBEAT_TIMEOUT_MS);
         } else {
             if (DEBUG) {
-                console.log("sitServer.js: We went to send a heartbeat, but the seat wasn't occupied. Aborting...");
+                console.log("sitServer.js: " + _this.entityID + ": We went to send a heartbeat, but the seat wasn't occupied. Aborting...");
             }
 
             _this.currentClientSessionID = false;
@@ -88,7 +88,7 @@
         var requestingID = args[0];
 
         if (DEBUG) {
-            console.log("sitServer.js: Request for sit data received from :" + requestingID);
+            console.log("sitServer.js: " + _this.entityID + ": Request for sit data received from:" + requestingID);
         }
 
         var replyData = {
@@ -112,11 +112,11 @@
     var HEARTBEAT_TIMEOUT_MS = 2500; // ms
     function onMousePressOnEntity(id, param) {
         if (DEBUG) {
-            console.log("sitServer.js: Entering onMousePressOnEntity()..");
+            console.log("sitServer.js: " + _this.entityID + ": Entering onMousePressOnEntity()..");
         }
         if (!_this.isOccupied) {
             if (DEBUG) {
-                console.log("sitServer.js: `isOccupied` is set to `false`");
+                console.log("sitServer.js: " + _this.entityID + ": `isOccupied` is set to `false`");
             }
             _this.currentClientSessionID = param[0];
             _this.isOccupied = true;
@@ -131,8 +131,6 @@
                 Script.clearTimeout(_this.nextHeartbeatTimeout);
                 _this.nextHeartbeatTimeout = false;
             }
-            
-            sendHeartbeatRequest();
         }
     }
 
@@ -141,7 +139,7 @@
     // Called from client to open the chair to other avatars
     function onStandUp(id, params) {
         if (DEBUG) {
-            console.log("sitServer.js: Entering `onStandUp()` for seat ID: " + id + "...");
+            console.log("sitServer.js: " + _this.entityID + ": Entering `onStandUp()` for seat ID: " + id + "...");
         }
 
         _this.isOccupied = false;
@@ -156,7 +154,7 @@
         }
 
         if (DEBUG) {
-            console.log("Calling 'createClickToSitOverlay' on entity " + id + " for all avatars...");
+            console.log("sitServer.js: " + _this.entityID + ": Calling `createClickToSitOverlay()` for all avatars...");
         }
         if (_this.isOccupied === false) {
             for (var i = 0; i < params.length; i++) {
@@ -171,9 +169,9 @@
 
 
     // Remotely callable
-    function removeThisSittableOverlayForEveryoneElse(id, params) {
+    function afterBeginSit(id, params) {
         if (DEBUG) {
-            console.log("sitServer.js: Calling `deleteAllClickToSitOverlays()` on entity " + id + " for all avatars...");
+            console.log("sitServer.js: " + _this.entityID + ": Calling `deleteAllClickToSitOverlays()` for all avatars, then sending heartbeat request...");
         }
         for (var i = 0; i < params.length; i++) {
             Entities.callEntityClientMethod(
@@ -182,6 +180,8 @@
                 "deleteAllClickToSitOverlays"
             );
         }
+            
+        sendHeartbeatRequest();
     }
 
 
@@ -226,14 +226,14 @@
             "onMousePressOnEntity",
             "onStandUp",
             "heartbeatResponse",
-            "removeThisSittableOverlayForEveryoneElse"
+            "afterBeginSit"
         ],
         preload: preload,
         requestSitData: requestSitData,
         heartbeatResponse: heartbeatResponse,
         onMousePressOnEntity: onMousePressOnEntity,
         onStandUp: onStandUp,
-        removeThisSittableOverlayForEveryoneElse: removeThisSittableOverlayForEveryoneElse,
+        afterBeginSit: afterBeginSit,
         unload: unload
     };
 

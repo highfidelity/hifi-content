@@ -9,6 +9,11 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 2. Add sitServer.js as server script to entity
 
 ## Releases
+### 2019-10-02_10-22-00-debug :: [xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+- Modified some debug logs and enabled all debug logs.
+- Added logic to fuzz the data request timeout value so that we space out the requests made between client and server across all sit scripts.
+- Moved initial heartbeat request to _after_ the user has started sitting down.
+
 ### 2019-09-18_10-30-00 :: [981038f](https://github.com/highfidelity/hifi-content/commits/981038f)
 - Modified the default opacity of the "Click to Sit" overlay to be `0.5` from `0.25`.
 - Removed the transparency lerp effect on script startup; the overlay will no longer fade from high opacity to low opacity upon script startup. 

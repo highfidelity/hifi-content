@@ -10,7 +10,7 @@
 //
 (function() {
 
-    var DEBUG = 0;
+    var DEBUG = true;
 
     var MAX_SIT_DISTANCE_M = 5;
 
@@ -46,7 +46,7 @@
 
         mousePressOnEntity: function (entityID, event) {
             if (DEBUG) {
-                console.log("MOUSE RELEASE");
+                console.log("sittableUIClient.js: " + _this.entityID + ": `mousePressOnEntity()`");
             }
             if (event.isPrimaryButton && 
                 Vec3.distance(MyAvatar.position, Entities.getEntityProperties(_this.entityID, ["position"]).position) <= MAX_SIT_DISTANCE_M) {

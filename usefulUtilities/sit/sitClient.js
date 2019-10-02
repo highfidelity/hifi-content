@@ -17,7 +17,7 @@
 /* global DriveKeys */
 
 (function () {
-    var DEBUG = false;
+    var DEBUG = true;
     // #region UTILITIES
 
     // Returns entity properties for an overlay in front of user's camera in desktop and VR
@@ -77,13 +77,13 @@
     var SIT_SETTLE_TIME_MS = 350; // Do not pop avatar out of chair immediately if there's an issue
     function checkBeforeSitDown() {
         if (DEBUG) {
-            console.log("sitClient.js: checkBeforeSitDown() for seat ID: ", _this.entityID);
+            console.log("sitClient.js: " + _this.entityID + ": checkBeforeSitDown()");
         }
 
         var currentSeatEntityID = Settings.getValue(SETTING_KEY_AVATAR_SITTING, false);
         if (currentSeatEntityID && currentSeatEntityID !== _this.entityID) {
             if (DEBUG) {
-                console.log("sitClient.js: calling standUp with callback for seat ID: " + _this.entityID);
+                console.log("sitClient.js: " + _this.entityID + ": calling standUp with callback");
             }
             Entities.callEntityMethod(currentSeatEntityID, "standUp", [_this.entityID]);
         } else {
@@ -93,7 +93,7 @@
 
     function startSitDown() {
         if (DEBUG) {
-            console.log("sitClient.js: startSitDown() for seat ID: ", _this.entityID);
+            console.log("sitClient.js: " + _this.entityID + ": startSitDown()");
         }
 
         if (HMD.active) {
@@ -107,16 +107,12 @@
     }
 
     // 3rd of sit down sequence (callback for inside 2nd)
-    // Used before pinning hips, calculate the math required and lock the chair
+    // Used before pinning hips, calculate the math required
     function prepareSitThenSit() {
         // Set the value of head to hips distance
         // If avatar deviates outside of the minimum and maximum, the avatar will pop out of the chair
         setHeadToHipsDistance();
         calculateSeatCenterPositionForPinningAvatarHips();
-
-        // Lock chair and save old lock property
-        _this.locked = Entities.getEntityProperties(_this.entityID, 'locked').locked;
-        Entities.editEntity(_this.entityID, { locked: true });
 
         sitDownAndPinAvatar();
     }
@@ -157,7 +153,7 @@
 
         Entities.callEntityServerMethod(
             _this.entityID,
-            "removeThisSittableOverlayForEveryoneElse",
+            "afterBeginSit",
             AvatarList.getAvatarIdentifiers()
         );
         deleteAllClickToSitOverlays();
@@ -195,7 +191,7 @@
         if (Vec3.distance(MyAvatar.position, _this.seatCenterPosition) > AVATAR_MOVED_TOO_FAR_DISTANCE_M) {
             _this.standUp();
             if (DEBUG) {
-                console.log("sitClient.js: avatar distance caused standup");
+                console.log("sitClient.js: " + _this.entityID + ": Avatar distance caused standup.");
             }
             return;
         }
@@ -219,7 +215,7 @@
                     _this.deviationTimeStart = false;
                     _this.standUp();
                     if (DEBUG) {
-                        console.log("sitClient.js: avatar spine error caused standup");
+                        console.log("sitClient.js: " + _this.entityID + ": Avatar spine error caused standup.");
                     }
                 }
             } else {
@@ -246,11 +242,12 @@
 
 
     var requestSitDataTimer = false;
-    var REQUEST_SIT_DATA_TIMEOUT_MS = 12000;
+    var REQUEST_SIT_DATA_TIMEOUT_MS_MIN = 12000;
+    var REQUEST_SIT_DATA_TIMEOUT_MS_MAX = 18000;
     var MAX_REQUEST_DISTANCE_M = 40;
     function requestSitDataTimerCallback() {
         if (DEBUG) {
-            console.log("sitClient.js: We're inside `requestSitDataTimerCallback()` for Entity ID: " + _this.entityID + "...");
+            console.log("sitClient.js: " + _this.entityID + ": We're inside `requestSitDataTimerCallback()`...");
         }
 
         requestSitDataTimer = false;
@@ -259,14 +256,16 @@
         var distance = Vec3.distance(entityPosition, Camera.position);
         if (distance <= MAX_REQUEST_DISTANCE_M) {
             if (DEBUG) {
-                console.log("sitClient.js: The camera is close enough to this seat! Requesting sit data from sitServer...");
+                console.log("sitClient.js: " + _this.entityID + ": The camera is close!");
             }
             requestSitData(_this.entityID);
         } else {
+            // Use a fuzzed timeout value so that we space out the requests made between client and server across all sit scripts.
+            var fuzzedTimeoutMS = Math.floor(Math.random() * (REQUEST_SIT_DATA_TIMEOUT_MS_MAX - REQUEST_SIT_DATA_TIMEOUT_MS_MIN + 1) + REQUEST_SIT_DATA_TIMEOUT_MS_MIN);
             if (DEBUG) {
-                console.log("sitClient.js: The camera is too far away from this seat! Waiting " + REQUEST_SIT_DATA_TIMEOUT_MS + "ms before trying again...");
+                console.log("sitClient.js: " + _this.entityID + ": The camera is too far! Waiting " + fuzzedTimeoutMS + "ms before retrying...");
             }
-            requestSitDataTimer = Script.setTimeout(requestSitDataTimerCallback, REQUEST_SIT_DATA_TIMEOUT_MS);
+            requestSitDataTimer = Script.setTimeout(requestSitDataTimerCallback, fuzzedTimeoutMS);
         }
     }
 
@@ -297,14 +296,14 @@
 
 
     var requestSitDataTimeoutTimer = false;
-    var REQUEST_SIT_DATA_TIMEOUT_MS = 6000;
+    var REQUEST_SIT_DATA_ASYNC_TIMEOUT_MS = 6000;
     function requestSitData(id) {
         if (DEBUG) {
-            console.log("sitClient.js: Requesting sit data...");
+            console.log("sitClient.js: " + _this.entityID + ": Requesting sit data...");
         }
 
         currentRequestAttempts++;
-        requestSitDataTimeoutTimer = Script.setTimeout(requestSitDataTimeoutTimerCallback, REQUEST_SIT_DATA_TIMEOUT_MS);
+        requestSitDataTimeoutTimer = Script.setTimeout(requestSitDataTimeoutTimerCallback, REQUEST_SIT_DATA_ASYNC_TIMEOUT_MS);
         Entities.callEntityServerMethod(id, "requestSitData", [MyAvatar.sessionUUID]);
     }
 
@@ -317,13 +316,15 @@
         try {
             data = JSON.parse(args[0]);
         } catch (e) {
-            console.log("sitClient.js: Error when parsing sit data reply! "+ e);
+            console.log("sitClient.js: " + _this.entityID + ": Error when parsing sit data reply! "+ e);
             return;
         }
         var isOccupied = data.isOccupied;
+        var fuzzedTimeoutMS = Math.floor(Math.random() * (REQUEST_SIT_DATA_TIMEOUT_MS_MAX - REQUEST_SIT_DATA_TIMEOUT_MS_MIN + 1) + REQUEST_SIT_DATA_TIMEOUT_MS_MIN);
 
         if (DEBUG) {
-            console.log("sitClient.js: Got sit data reply! `isOccupied`: " + isOccupied);
+            console.log("sitClient.js: " + _this.entityID + ": Got sit data reply! `isOccupied`: " + isOccupied +
+                "\nWe'll wait " + fuzzedTimeoutMS + "ms before next data request...");
         }
 
         // If someone is sitting in the seat...
@@ -334,8 +335,8 @@
         } else if (!isSittingInThisChair) {
             createClickToSitOverlay();
         }
-
-        requestSitDataTimer = Script.setTimeout(requestSitDataTimerCallback, REQUEST_SIT_DATA_TIMEOUT_MS);
+        
+        requestSitDataTimer = Script.setTimeout(requestSitDataTimerCallback, fuzzedTimeoutMS);
     }
 
 
@@ -343,17 +344,17 @@
     var alreadyCalledStandUp = false;
     function standUp(id, args) {
         if (DEBUG) {
-            console.log("sitClient.js: standup from seat ID: " + _this.entityID + "\nCall has args: " + (args && args[0]));
+            console.log("sitClient.js: " + _this.entityID + ": `standUp()` called.\nCall has args: " + (args && args[0]));
         }
 
         if (isSittingInThisChair) {
             if (DEBUG) {
-                console.log("sitClient.js: we are indeed sitting in this chair.");
+                console.log("sitClient.js: " + _this.entityID + ": we are indeed sitting in this chair.");
             }
 
             if (alreadyCalledStandUp) {
                 if (DEBUG) {
-                    console.log("sitClient.js: we already called standup for: " + _this.entityID + "; no action taken");
+                    console.log("sitClient.js: " + _this.entityID + ": We already called `standup()`; no action taken");
                 }
                 return;
             }
@@ -372,14 +373,9 @@
             Settings.setValue(SETTING_KEY_AVATAR_SITTING, null);
             isSittingInThisChair = false;
 
-            // Reset locked state for this chair
-            if (!_this.locked) {
-                Entities.editEntity(_this.entityID, { locked: false });
-            }
-
             Entities.callEntityServerMethod(_this.entityID, "onStandUp", AvatarList.getAvatarIdentifiers());
             createClickToSitOverlay();
-            requestSitDataTimeoutTimer = Script.setTimeout(requestSitDataTimeoutTimerCallback, REQUEST_SIT_DATA_TIMEOUT_MS);
+            requestSitDataTimeoutTimer = Script.setTimeout(requestSitDataTimeoutTimerCallback, REQUEST_SIT_DATA_ASYNC_TIMEOUT_MS);
 
             if (_this.connectedStandUpSignals) {
                 MyAvatar.scaleChanged.disconnect(_this.standUp);
@@ -396,7 +392,7 @@
 
         if (args) {
             if (DEBUG) {
-                console.log("sitClient.js: standUp callback requested. starting sit down for: " + args[0]);
+                console.log("sitClient.js: " + _this.entityID + ": `standUp()` callback requested. Starting sit down for: " + args[0]);
             }
 
             Entities.callEntityMethod(args[0], "startSitDown");
@@ -493,7 +489,7 @@
         }
 
         if (DEBUG) {
-            console.log("sitClient.js: createClickToSitOverlay()");
+            console.log("sitClient.js: " + _this.entityID + ": `createClickToSitOverlay()`");
         }
         var properties = Entities.getEntityProperties(_this.entityID);
 
@@ -529,7 +525,7 @@
     // Remove all sittable local entities except the one defined as `_this.clickToSitOverlay`.
     function deleteAllOtherClickToSitOverlays() {
         if (DEBUG) {
-            print("deleteAllOtherClickToSitOverlays()");
+            console.log("sitClient.js: " + _this.entityID + ": `deleteAllOtherClickToSitOverlays()`");
         }
 
         var children = Entities.getChildrenIDs(_this.entityID);
@@ -548,7 +544,7 @@
     // Ensuring that _all_ "Click to Sit Overlays" are deleted is an attempt at alleviating that issue.
     function deleteAllClickToSitOverlays() {
         if (DEBUG) {
-            print("deleteAllClickToSitOverlays()");
+            console.log("sitClient.js: " + _this.entityID + ": `deleteAllClickToSitOverlays()`");
         }
 
         var children = Entities.getChildrenIDs(_this.entityID);
@@ -602,7 +598,7 @@
     // Unload entity method
     function unload() {
         if (DEBUG) {
-            console.log("sitClient.js: Unloading Sit client script...");
+            console.log("sitClient.js: " + _this.entityID + ": Unloading Sit client script...");
         }
 
         maybeClearRequestSitDataTimeoutTimer();
@@ -626,6 +622,9 @@
 
     // Called by server script in heartbeat to ensure avatar is still sitting in chair
     function heartbeatRequest() {
+        if (DEBUG) {
+            console.log("sitClient.js: " + _this.entityID + ": Heartbeat request received from server. Sending heartbeat response...");
+        }
         Entities.callEntityServerMethod(_this.entityID, "heartbeatResponse");
     }
 
@@ -658,8 +657,6 @@
         // for prefetch on presit
         this.preSitLoadedImages = [];
         this.preSitTextLoadedImage = null;
-
-        this.locked = null;
 
         this.seatCenterPosition = null;
         this.headToHipsDistance = null;
