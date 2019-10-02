@@ -12,7 +12,7 @@
 /* globals Entities Script */
 
 (function () {
-    var DEBUG = true;
+    var DEBUG = false;
 
     // Remotely callable
     // Resolves heartbeat called from sitClient

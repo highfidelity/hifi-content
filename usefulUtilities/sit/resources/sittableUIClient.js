@@ -10,7 +10,7 @@
 //
 (function() {
 
-    var DEBUG = true;
+    var DEBUG = false;
 
     var MAX_SIT_DISTANCE_M = 5;
 

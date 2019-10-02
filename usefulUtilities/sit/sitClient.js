@@ -17,7 +17,7 @@
 /* global DriveKeys */
 
 (function () {
-    var DEBUG = true;
+    var DEBUG = false;
     // #region UTILITIES
 
     // Returns entity properties for an overlay in front of user's camera in desktop and VR
