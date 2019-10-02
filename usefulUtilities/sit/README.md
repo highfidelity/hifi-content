@@ -9,10 +9,10 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 2. Add sitServer.js as server script to entity
 
 ## Releases
-### 2019-10-02_10-22-00 :: [xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+### 2019-10-02_10-22-00 :: [1a3ee5c](https://github.com/highfidelity/hifi-content/commits/1a3ee5c)
 - Turned off debug logging.
 
-### 2019-10-02_10-22-00-debug :: [xxxxxxx](https://github.com/highfidelity/hifi-content/commits/xxxxxxx)
+### 2019-10-02_10-22-00-debug :: [2233568](https://github.com/highfidelity/hifi-content/commits/2233568)
 - Modified some debug logs and enabled all debug logs.
 - Added logic to fuzz the data request timeout value so that we space out the requests made between client and server across all sit scripts.
 - Moved initial heartbeat request to _after_ the user has started sitting down.
