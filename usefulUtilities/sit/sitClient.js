@@ -82,10 +82,25 @@
 
         var currentSeatEntityID = Settings.getValue(SETTING_KEY_AVATAR_SITTING, false);
         if (currentSeatEntityID && currentSeatEntityID !== _this.entityID) {
-            if (DEBUG) {
-                console.log("sitClient.js: " + _this.entityID + ": calling standUp with callback");
+            // We first need to make sure that the entity associated with the ID `currentSeatEntityID` is accessible
+            // to the client running this script.
+            var testProps = Entities.getEntityProperties(currentSeatEntityID);
+            // If the resulting entity properties object is empty...
+            if (Object.keys(testProps).length === 0 && testProps.constructor === Object) {
+                //...just start sitting down. The heartbeat timeout _should_ take care of releasing the old chair
+                // to other users.
+                if (DEBUG) {
+                    console.log("sitClient.js: " + _this.entityID + ": Old seat entity not accessible. Calling `startSitDown()`");
+                }
+                startSitDown();
+            // Else, this client _can_ access the entity associated with `currentSeatEntityID`...
+            } else {
+                // ...call `standUp` on that old seat with a specified callback.
+                if (DEBUG) {
+                    console.log("sitClient.js: " + _this.entityID + ": calling standUp with callback");
+                }
+                Entities.callEntityMethod(currentSeatEntityID, "standUp", [_this.entityID]);
             }
-            Entities.callEntityMethod(currentSeatEntityID, "standUp", [_this.entityID]);
         } else {
             startSitDown();
         }

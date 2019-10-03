@@ -9,6 +9,10 @@ To allow the user to sit when clicking on the entity to which the scripts are at
 2. Add sitServer.js as server script to entity
 
 ## Releases
+### 2019-10-03_11-59-00 :: [71c2f1c](https://github.com/highfidelity/hifi-content/commits/71c2f1c)
+- Fixed a bug that would prevent users from sitting down if they had a special, specific key/value pair defined in their `Settings` file.
+- Append `-debug` to this version's folder path on S3 to access a version of Sit with full debug logging enabled.
+
 ### 2019-10-02_10-22-00 :: [1a3ee5c](https://github.com/highfidelity/hifi-content/commits/1a3ee5c)
 - Turned off debug logging.
 
