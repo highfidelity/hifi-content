@@ -13,7 +13,7 @@
     var _this;
 
     var DATA_RETRIEVAL_TIMEOUT_MS = 500;
-    var PRELOAD_DATA_RETRIEVAL_MAX_ATTEMPTS = 10;
+    var PRELOAD_DATA_RETRIEVAL_MAX_ATTEMPTS = 20;
 
     var MOVEMENT_LOCAL_VELOCITY_M_PER_S = 0.5;
     var UPDATE_INTERVAL_MS = 70;
@@ -35,6 +35,8 @@
     var BUTTON_OPEN_COLOR = { red: 17, green: 17, blue: 17 };
     var BUTTON_CLOSED_COLOR = { red: 0, green: 86, blue: 214 };
     var BUTTON_TRANSITION_COLOR = { red: 153, green: 153, blue: 153 };
+
+    var DEFAULT_STRING_IF_ENTITY_POSITION_NOT_READ = JSON.stringify({x:0,y:0,z:0});
 
     var ready = false;
     var currentState = "open";
@@ -62,7 +64,7 @@
 
         /* Begin trying to read entity properties to collect necessary data */
         preload: function(entityID) {
-            _this.entityID = entityID;
+            button = entityID;
             _this.setDataRequestTimeout();
         },
 
@@ -75,7 +77,7 @@
             } catch (err) {
                 print("Attempt ", preloadIntervalCount, " to get entity data failed.");
             }
-            if (shade && door && button) {
+            if (shade && door && buttonPosition) {
                 ready = true;
                 Entities.editEntity(shade, {
                     dimensions: DEFAULT_SHADE_RAISED_DIMENSIONS,
@@ -103,23 +105,24 @@
 
         /* Use parenting relationships to get IDs of required entities */
         getEntityData: function() {
-            if (!button || !buttonPosition || !chatterbox) {
-                var table = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
-                Entities.getChildrenIDs(table).forEach(function(tableChildID) {
-                    var properties = Entities.getEntityProperties(tableChildID, ['position', 'name']);
-                    if (properties.name === "Chatterbox Privacy Button") {
-                        button = tableChildID;
-                        buttonPosition = properties.position;
-                        chatterbox = Entities.getEntityProperties(table, 'parentID').parentID;
-                    }
-                });
+            if (!chatterbox) {
+                var table = Entities.getEntityProperties(button, 'parentID').parentID;
+                if (table) {
+                    chatterbox = Entities.getEntityProperties(table, 'parentID').parentID;
+                }
+            }
+            if (!buttonPosition) {
+                var buttonPositionReceived = Entities.getEntityProperties(button, 'position').position;
+                if (JSON.stringify(buttonPositionReceived) !== DEFAULT_STRING_IF_ENTITY_POSITION_NOT_READ) {
+                    buttonPosition = buttonPositionReceived;
+                }
             }
             if (chatterbox && (!door || !shade)) {
                 Entities.getChildrenIDs(chatterbox).forEach(function(chatterboxChildID) {
                     var properties = Entities.getEntityProperties(chatterboxChildID, ['position', 'name']);
-                    if (properties.name === "Chatterbox Door") {
+                    if (!door && properties.name === "Chatterbox Door") {
                         door = chatterboxChildID;
-                    } else if (properties.name === "Chatterbox Shade") {
+                    } else if (!shade && properties.name === "Chatterbox Shade") {
                         shade = chatterboxChildID;
                     }
                 });
@@ -148,6 +151,7 @@
             if (!ready) {
                 return;
             }
+
             if (updateInterval) {
                 Script.clearInterval(updateInterval);
                 updateInterval = null;
