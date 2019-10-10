@@ -55,15 +55,19 @@ function deployNewScripts(isDryRun) {
     var newClientText = document.getElementById("newClientText");
     var oldServerText = document.getElementById("oldServerText");
     var newServerText = document.getElementById("newServerText");
+    var oldUserDataText = document.getElementById("oldUserDataText");
+    var newUserDataText = document.getElementById("newUserDataText");
 
     var data = {
         "oldText": {
             "client": oldClientText.value,
-            "server": oldServerText.value
+            "server": oldServerText.value,
+            "userData": oldUserDataText.value
         },
         "newText": {
             "client": newClientText.value,
-            "server": newServerText.value
+            "server": newServerText.value,
+            "userData": newUserDataText.value
         },
         "isSubstringMatch": isSubstringMatch.checked,
         "isDryRun": isDryRun
@@ -85,6 +89,10 @@ function isSubstringMatchClicked() {
     var newServerText = document.getElementById("newServerText");
     var oldServerTextLabel = document.getElementById("oldServerTextLabel");
     var newServerTextLabel = document.getElementById("newServerTextLabel");
+    var oldUserDataText = document.getElementById("oldUserDataText");
+    var newUserDataText = document.getElementById("newUserDataText");
+    var oldUserDataTextLabel = document.getElementById("oldUserDataTextLabel");
+    var newUserDataTextLabel = document.getElementById("newUserDataTextLabel");
 
     if (isSubstringMatch.checked) {
         oldClientText.placeholder = "Old Client Script Substring";
@@ -95,6 +103,10 @@ function isSubstringMatchClicked() {
         newServerText.placeholder = "New Server Script Substring";
         oldServerTextLabel.innerHTML = "Old Server Script Substring";
         newServerTextLabel.innerHTML = "New Server Script Substring";
+        oldUserDataText.placeholder = "Old User Data Substring";
+        newUserDataText.placeholder = "New User Data Substring";
+        oldUserDataTextLabel.innerHTML = "Old User Data Substring";
+        newUserDataTextLabel.innerHTML = "New User Data Substring";
     } else {
         oldClientText.placeholder = "Old Client Script (Exactly)";
         newClientText.placeholder = "New Client Script (Exactly)";
@@ -104,6 +116,10 @@ function isSubstringMatchClicked() {
         newServerText.placeholder = "New Server Script (Exactly)";
         oldServerTextLabel.innerHTML = "Old Server Script (Exactly)";
         newServerTextLabel.innerHTML = "New Server Script (Exactly)";
+        oldUserDataText.placeholder = "Old User Data (Exactly)";
+        newUserDataText.placeholder = "New User Data (Exactly)";
+        oldUserDataTextLabel.innerHTML = "Old User Data (Exactly)";
+        newUserDataTextLabel.innerHTML = "New User Data (Exactly)";
     }
     
     if (validateForm()) {
@@ -119,11 +135,14 @@ function validateForm() {
     var newClientText = document.getElementById("newClientText");
     var oldServerText = document.getElementById("oldServerText");
     var newServerText = document.getElementById("newServerText");
+    var oldUserDataText = document.getElementById("oldUserDataText");
+    var newUserDataText = document.getElementById("newUserDataText");
 
     var retval = true;
 
     if ((oldClientText.value).length === 0 && (newClientText.value).length === 0 &&
-        (oldServerText.value).length === 0 && (newServerText.value).length === 0) {
+        (oldServerText.value).length === 0 && (newServerText.value).length === 0 &&
+        (oldUserDataText.value).length === 0 && (newUserDataText.value).length === 0) {
         retval = false;
     }
 
@@ -135,6 +154,11 @@ function validateForm() {
     if (((oldServerText.value).length === 0 && (newServerText.value).length > 0)) {
         retval = false;
         oldServerText.setCustomValidity("This can't be empty.");
+    }
+
+    if (((oldUserDataText.value).length === 0 && (newUserDataText.value).length > 0)) {
+        retval = false;
+        oldUserDataText.setCustomValidity("This can't be empty.");
     }
 
     if (((oldClientText.value).length > 0 && (oldClientText.value).indexOf("http") === -1 && !isSubstringMatch.checked) ||
@@ -181,6 +205,14 @@ function validateForm() {
         newServerText.setCustomValidity("");
     }
 
+    if ((isSubstringMatch.checked && (oldUserDataText.value).length === 0) && (newUserDataText.value).length > 0) {
+        oldUserDataText.setCustomValidity("This can't be empty.");
+        retval = false;
+        return retval;
+    } else {
+        oldUserDataText.setCustomValidity("");
+    }
+
     return retval;
 }
 
@@ -196,6 +228,7 @@ function maybeOpenModal() {
             This operation will:<br>
             - Modify ${numModifiedClientScripts} entity client ${numModifiedClientScripts === 1 ? "script" : "scripts"}<br>
             - Modify ${numModifiedServerScripts} entity server ${numModifiedServerScripts === 1 ? "script" : "scripts"}<br>
+            - Modify ${numModifiedUserData} ${numModifiedUserData === 1 ? "entity's" : "entities'"} userData<br>
             - Unlock, modify, then relock a total of ${numLockedScripts} ${numLockedScripts === 1 ? "entity" : "entities"}
         `;
     } else {
@@ -222,12 +255,15 @@ function showOperationInProgressStatus() {
 
 var numModifiedClientScripts = 0;
 var numModifiedServerScripts = 0;
+var numModifiedUserData = 0;
 var numLockedScripts = 0;
 function onEditComplete(data) {
     var isDryRun = data.isDryRun;
     numModifiedClientScripts = data.numModifiedClientScripts;
     numModifiedServerScripts = data.numModifiedServerScripts;
+    numModifiedUserData = data.numModifiedUserData;
     numLockedScripts = data.numLockedScripts;
+    var modifiedEntityNames = data.modifiedEntityNames;
     
     document.getElementById("submitButton").disabled = false;
     
@@ -238,7 +274,9 @@ function onEditComplete(data) {
             This operation would:<br>
             - Modify ${numModifiedClientScripts} entity client ${numModifiedClientScripts === 1 ? "script" : "scripts"}<br>
             - Modify ${numModifiedServerScripts} entity server ${numModifiedServerScripts === 1 ? "script" : "scripts"}<br>
-            - Unlock, modify, then relock a total of ${numLockedScripts} ${numLockedScripts === 1 ? "entity" : "entities"}
+            - Modify ${numModifiedUserData} ${numModifiedUserData === 1 ? "entity's" : "entities'"} userData<br>
+            - Unlock, modify, then relock a total of ${numLockedScripts} ${numLockedScripts === 1 ? "entity" : "entities"}<br><br>
+            Here's a list of entities to be modified:<br>${modifiedEntityNames.join("<br>")}
         `;
     } else {
         document.getElementById("loadingContainer").style.display = "none";
@@ -246,7 +284,9 @@ function onEditComplete(data) {
             <strong>Operation complete.</strong><br>
             - You modified ${numModifiedClientScripts} entity client ${numModifiedClientScripts === 1 ? "script" : "scripts"}<br>
             - You modified ${numModifiedServerScripts} entity server ${numModifiedServerScripts === 1 ? "script" : "scripts"}<br>
-            - You unlocked, modified, then relocked a total of ${numLockedScripts} ${numLockedScripts === 1 ? "entity" : "entities"}
+            - You modified ${numModifiedUserData} ${numModifiedUserData === 1 ? "entity's" : "entities'"} userData<br>
+            - You unlocked, modified, then relocked a total of ${numLockedScripts} ${numLockedScripts === 1 ? "entity" : "entities"}<br><br>
+            Here's a list of entities that you modified:<br>${modifiedEntityNames.join("<br>")}
         `;
     }
 }
