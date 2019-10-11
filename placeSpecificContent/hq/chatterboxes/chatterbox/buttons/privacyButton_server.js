@@ -47,6 +47,7 @@
     var updateInterval;
     var dataRetrievalTimeout;
     var preloadIntervalCount = 0;
+    var collectingDataLock = false;
 
     var shadeHeightChange = 0;
 
@@ -147,9 +148,11 @@
 
         /* Toggle between between open and private chatterbox states.  */
         transition: function() {
-            if (!ready) {
+            if (!ready || collectingDataLock) {
                 return;
             }
+
+            collectingDataLock = true;
 
             if (updateInterval) {
                 Script.clearInterval(updateInterval);
@@ -194,6 +197,8 @@
             }
             
             _this.playSound(TRANSITION_SOUND, TRANSITION_VOLUME, buttonPosition, false, true);
+
+            collectingDataLock = false;
 
             // Start door movement in whichever axis it should move along first
             if (doorMovements.xVelocity && doorMovements.currentAxis === "x") {
