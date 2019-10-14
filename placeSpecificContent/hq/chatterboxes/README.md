@@ -23,6 +23,11 @@ This new and improved chatterbox now comes with privacy mode! That's right, folk
 SHA [2b7aefb](https://github.com/highfidelity/hifi-content/commits/2b7aefb) September 17, 2019
 - [JIRA 478](https://highfidelity.atlassian.net/browse/DEV-478)   Initial Release
 
+### Version 1.0.1
+SHA [d199503](https://github.com/highfidelity/hifi-content/commits/d199503) October 11, 2019
+- [JIRA 1936](https://highfidelity.atlassian.net/browse/DEV-1936)   Fix for doors flying away
+- [JIRA 1951](https://highfidelity.atlassian.net/browse/DEV-1951)   Fix for missing sound on server restart
+
 
 
 
