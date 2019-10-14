@@ -36,8 +36,6 @@
     var BUTTON_CLOSED_COLOR = { red: 0, green: 86, blue: 214 };
     var BUTTON_TRANSITION_COLOR = { red: 153, green: 153, blue: 153 };
 
-    var DEFAULT_STRING_IF_ENTITY_POSITION_NOT_READ = JSON.stringify({x:0,y:0,z:0});
-
     var ready = false;
     var currentState = "open";
 
@@ -113,7 +111,8 @@
             }
             if (!buttonPosition) {
                 var buttonPositionReceived = Entities.getEntityProperties(button, 'position').position;
-                if (JSON.stringify(buttonPositionReceived) !== DEFAULT_STRING_IF_ENTITY_POSITION_NOT_READ) {
+                if (!(buttonPositionReceived.x === 0 && buttonPositionReceived.y === 0 &&
+                        buttonPositionReceived.z === 0)) {
                     buttonPosition = buttonPositionReceived;
                 }
             }
