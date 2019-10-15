@@ -20,6 +20,12 @@ The Tablet Cam app allows you to **easily take selfies and regular photos in Hig
 
 ## Changelog
 
+### v2.3 (2019-10-15)
+
+- Removed unnecessary tone curve correction present in captured Tablet Cam output image.
+- Adjusted y-offset of Desktop-mode selfie cam to better serve Virtual You avatars.
+- Added `"Head"` as a backup joint to `"HeadTop_End"` for certain operations.
+
 ### v2.2 (2019-07-09)
 
 - Fixed a hack in which the secondary camera feed was darkened to compensate for it being rendered too light.

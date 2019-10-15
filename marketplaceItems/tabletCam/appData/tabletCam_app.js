@@ -84,8 +84,6 @@
             secondaryCameraConfig.nearClipPlaneDistance = NEAR_CLIP_DISTANCE;
             secondaryCameraConfig.farClipPlaneDistance = FAR_CLIP_DISTANCE;
             secondaryCameraConfig.vFoV = vFoV;
-
-            Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
     
             secondaryCameraConfig.attachedEntityId = tabletCamAvatarEntity;
             tabletCamRunning = true;
@@ -457,8 +455,6 @@
         }
         Settings.setValue("tabletCam/cameraRollPaths", JSON.stringify(cameraRollPaths));
 
-        Render.getConfig("SecondaryCameraJob.ToneMapping").curve = 1;
-
         secondaryCameraConfig.resetSizeSpectatorCamera(secondaryCameraResolutionPreviewWidth, secondaryCameraResolutionPreviewHeight);
         ui.sendMessage({
             method: 'stillSnapshotTaken',
@@ -552,13 +548,17 @@
                     dynamicProps.parentJointIndex = MyAvatar.getJointIndex("_CAMERA_MATRIX");
                 } else {
                     dynamicProps.parentID = MyAvatar.sessionUUID;
-                    dynamicProps.parentJointIndex = MyAvatar.getJointIndex("HeadTop_End");
+                    var jointIndex = MyAvatar.getJointIndex("HeadTop_End");
+                    if (jointIndex === -1) {
+                        jointIndex = MyAvatar.getJointIndex("Head");
+                    }
+                    dynamicProps.parentJointIndex = jointIndex;
                 }
             }
     
             dynamicProps.localPosition = {
                 "x": 0,
-                "y": !!HMD.tabletID ? 0.215 : (frontCamInUse ? -0.18 : (Camera.mode !== "first person" ? 0 : -0.02)),
+                "y": !!HMD.tabletID ? 0.215 : (frontCamInUse ? -0.03 : (Camera.mode !== "first person" ? 0 : -0.02)),
                 "z": !!HMD.tabletID ? (frontCamInUse ? -0.02 : 0.1) : (frontCamInUse ? 1 : (Camera.mode !== "first person" ? 0 : 0.05))
             },
             dynamicProps.localRotation = {
