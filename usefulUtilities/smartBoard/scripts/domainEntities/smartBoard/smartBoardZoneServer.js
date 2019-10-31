@@ -8,97 +8,107 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 
-(function(){
+(function() {
  
-// BOARD UI
+    // BOARD UI
     // send a message to all registered clients on the state of the board
-    function updateCurrentBoardState(id, args){
+    function updateCurrentBoardState(id, args) {
         _this.currentBoardState = args[0];
         _this.activePresenterUUID = args[1];
         var participants = Object.keys(_this.participants);
         for (var i = 0; i < participants.length; i++) {
-            Entities.callEntityClientMethod(participants[i], _this.entityID, "receiveBoardState", [_this.currentBoardState, _this.activePresenterUUID])
+            Entities.callEntityClientMethod(participants[i], _this.entityID,
+                "receiveBoardState", [_this.currentBoardState, _this.activePresenterUUID]);
         }
     }
 
 
-// PARTICIPANTS
+    // PARTICIPANTS
     // When a client first enters the zone, register them and send them the state of the board
-    function registerParticipant(id, args, UUID, userName, displayName){
+    function registerParticipant(id, args) {
         var UUID = args[0];
-        var userName = args[1];
-        var displayName = args[2];
 
-        _this.participants[UUID] = { userName: userName, displayName: displayName};
+        _this.participants[UUID] = {
+            displayName: AvatarList.getAvatar(UUID).displayName
+        };
+
+        // Eventually, we'll want to hook up the `Avatar.displayNameChanged()` signal to a handler that
+        // changes the Display Name of the broadcaster that is shown to viewers on the SmartBoard.
+        // That's too advanced for now, so we'll not worry about it yet.
 
         Entities.callEntityClientMethod(UUID, _this.entityID, "receiveBoardState", [_this.currentBoardState]);
-    }
-
-
-    // when the ess detects that an avatar has been removed from the participants group, then call removeParticipant
-    function onAvatarRemovedEvent(sessionUUID){
-        if (sessionUUID in participants) {
-            removeParticipant(_this.entityID, [sessionUUID]);
-        }
     }
     
     
     // Remove a particpant from the screenshare.  If they are the presenter, then end screenshare for everyone
-    function removeParticipant(id, args){
+    function removeParticipant(id, args) {
         var sessionUUID = args[0];
         if (_this.participants[sessionUUID]) {
             delete _this.participants[sessionUUID];
+
             if (_this.activePresenterUUID === sessionUUID) {
-                updateCurrentBoardState(_this.entityID,["whiteboard"]);
-                Object.keys(_this.participants).forEach(function(id){
-                    Entities.callEntityClientMethod(id, _this.entityID, "receiveBoardState", ["whiteboard"]);
-                })
                 _this.activePresenterUUID = "";
+                updateCurrentBoardState(_this.entityID, ["whiteboard", ""]);
             }
         }
     }
 
 
-// ENTITY SIGNALS
+    // When the ESS  detects that an avatar has been removed from the participants group, call removeParticipant().
+    function onAvatarRemovedEvent(sessionUUID) {
+        if (sessionUUID in _this.participants) {
+            removeParticipant(_this.entityID, [sessionUUID]);
+        }
+    }
+
+
+    // ENTITY SIGNALS
     // check to see if this is a whiteboardOnly zone
     // connect the avatar removed event
-    function preload(entityID){
+    var signalsConnected = false;
+    function preload(entityID) {
         _this.entityID = entityID;
         var userData = Entities.getEntityProperties(entityID, ["userData"]).userData;
         var parsedData = {};
         try {
             parsedData = JSON.parse(userData);
             _this.whiteboardOnlyZone = parsedData.whiteboardOnlyZone;
-            if (_this.whiteboardOnlyZone) {
-                updateCurrentBoardState(_this.entityID, ["whiteboard"]);
-            }
-
         } catch (e) {
-            console.log("error reading userData in smartBoardZoneServer.js", error);
+            console.log("Error reading userData in smartBoardZoneServer.js: " + e);
         }
 
+        if (_this.whiteboardOnlyZone) {
+            updateCurrentBoardState(_this.entityID, ["whiteboard"]);
+        }
         
-        AvatarList.avatarRemovedEvent.connect(onAvatarRemovedEvent);
-
+        if (!signalsConnected) {
+            AvatarList.avatarRemovedEvent.connect(onAvatarRemovedEvent);
+            signalsConnected = true;
+        }
     }
 
 
     // update the board back to whiteboard only
     // might be unnessary, but maybe help clear left over local entities
-    function unload(){
-        updateCurrentBoardState(_this.entityID,["whiteboard"]);
+    function unload() {
+        updateCurrentBoardState(_this.entityID, ["whiteboard"]);
+        
+        if (signalsConnected) {
+            AvatarList.avatarRemovedEvent.disconnect(onAvatarRemovedEvent);
+        }
+        signalsConnected = false;
     }
 
 
-// SMARTBOARD OBJECT
+    // SMARTBOARD OBJECT
     var _this;
-    function SmartBoardZoneServer(){
+    function SmartBoardZoneServer() {
         _this = this;
-        this.activePresenterUUID;
-        this.currentBoardState = 'whiteboard';
         this.entityID;
+        this.activePresenterUUID;
+        this.currentBoardState = "whiteboard";
         this.participants = {};
-        this.whiteboardOnlyZone;
+        this.whiteboardOnlyZone = false;
 
         this.remotelyCallable = [
             "updateCurrentBoardState",
@@ -114,9 +124,8 @@
         updateCurrentBoardState: updateCurrentBoardState,
         registerParticipant: registerParticipant,
         removeParticipant: removeParticipant
-    }
+    };
 
 
     return new SmartBoardZoneServer();
-})
-
+});
