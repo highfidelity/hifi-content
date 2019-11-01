@@ -30,23 +30,6 @@
             _this.entityID = entityID;
         },
 
-        /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
-        mode requested. */
-        playSound: function(sound, volume, position, localOnly, loop){
-            if (sound.downloaded) {
-                if (injector) {
-                    injector.stop();
-                    injector = null;
-                }
-                injector = Audio.playSound(sound, {
-                    position: position,
-                    volume: volume,
-                    localOnly: localOnly,
-                    loop: loop
-                });
-            }
-        },
-
         /* Convert RGB value to 0-1 scale */
         rgbConversion: function(rgbColorValue) {
             return (rgbColorValue/RGB_MAX_VALUE).toFixed(DECIMAL_PLACES);
@@ -71,10 +54,10 @@
             dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
             parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint + "Index4");
             if (parentJointIndex === -1) {
-                MyAvatar.getJointIndex(dominantHandJoint + "Index3");
+                parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint + "Index3");
             }
             if (parentJointIndex === -1) {
-                MyAvatar.getJointIndex(dominantHandJoint);
+                parentJointIndex = MyAvatar.getJointIndex(dominantHandJoint);
                 print("ERROR: Falling back to dominant hand joint as index finger tip could not be found");
             }
             var properties = Entities.getEntityProperties(_this.entityID, ['userData', 'color']);

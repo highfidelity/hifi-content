@@ -235,11 +235,13 @@
             // All lines have some previous data saved from the initial point, actual new lines have no line points yet
             if (newLine) {
                 lineProperties.position = lineStartPosition;
+                lineProperties.localPosition = {x: 0, y: 0, z: 1};
                 lineProperties.linePoints = [{x: 0, y: 0, z: 0 }, displacementFromStart];
                 lineProperties.normals = [previousNormal, currentNormal];
                 lineProperties.strokeWidths = [previousStrokeWidth, currentStrokeWidth];
                 lineProperties.color = _this.color;
                 lineProperties.textures = _this.texture;
+                lineProperties.parentID = _this.whiteboard;
                 if (polyLine && _this.whiteboard) {
                     Entities.editEntity(polyLine, { parentID: _this.whiteboard });
                 }

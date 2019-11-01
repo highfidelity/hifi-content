@@ -13,43 +13,6 @@
     var CONFIG = Script.require("./config.js");
 
     // WHITEBOARD FUNCTIONS
-    /* PLAY A SOUND: Plays a sound at the specified position, volume, local mode, and playback 
-    mode requested. */
-    var injector;
-    function playSound(sound, volume, position, localOnly, loop) {
-        if (sound.downloaded) {
-            if (injector) {
-                injector.stop();
-                injector = null;
-            }
-            injector = Audio.playSound(sound, {
-                position: position,
-                volume: volume,
-                localOnly: localOnly,
-                loop: loop
-            });
-        }
-    }
-
-
-    /* Convert RGB value to 0-1 scale */
-    var RGB_MAX_VALUE = 255;
-    var DECIMAL_PLACES = 2;
-    function rgbConversion(rgbColorValue) {
-        return (rgbColorValue/RGB_MAX_VALUE).toFixed(DECIMAL_PLACES);
-    }
-
-
-    /* Check for existing paint sphere and delete if found  */
-    function removePaintSpheres() {
-        MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
-            var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
-            if (name && (name === "Whiteboard Paint Sphere" || name === "Whiteboard Paint Sphere Material")) {
-                Entities.deleteEntity(avatarEntity.id);
-            }
-        });
-    }
-
 
     // BOARD UI
     // If a new avatar enters the SmartBoard Zone:
@@ -71,6 +34,9 @@
             }
             maybeCreateLocalWebEntity();
         } else {
+            setupTouchDisable();
+            createRandomPaintSphere();
+            
             maybeRemoveLocalWebEntity();
         }
 
@@ -225,34 +191,53 @@
     }
 
 
-    // 1. register the participant with the server to get the current board state
-    // 2. check to see if this is a whiteboard only zone
-    // 3. enable the whiteboard functions
-    function enterEntity() {
-        Entities.callEntityServerMethod(_this.entityID, "registerParticipant", [MyAvatar.sessionUUID]);
-        createLocalButtons();
+    function createRandomPaintSphere(){
+        var numberPaletteSquares = paletteSquares.length;
+        var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);
 
-        // FOR WHITEBOARD INTEGRATION
+        Entities.callEntityMethod(paletteSquares[randomPaletteSquareIndex],'createPaintSphere');
+    }
+
+    function setupTouchDisable(){
+        var whiteboardPieces = Entities.getChildrenIDs(_this.whiteboard);
+
         MyAvatar.disableHandTouchForID(_this.whiteboard);
-        Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
-            MyAvatar.disableHandTouchForID(whiteboardPiece);
-        });
-        var paletteSquares = [];
-        Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
+        whiteboardPieces.forEach(function(whiteboardPiece) {
             var name = Entities.getEntityProperties(whiteboardPiece, 'name').name;
+            console.log("whiteboard children name:", name);
+            MyAvatar.disableHandTouchForID(whiteboardPiece);
             if (name === "Whiteboard Palette Square") {
                 paletteSquares.push(whiteboardPiece);
             }
         });
-        var numberPaletteSquares = paletteSquares.length;
-        var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);
-        Entities.callEntityMethod(paletteSquares[randomPaletteSquareIndex],'createPaintSphere');
+
+
+    }
+
+    // 1. register the participant with the server to get the current board state
+    // 2. check to see if this is a whiteboard only zone
+    // 3. enable the whiteboard functions
+    var paletteSquares = [];
+    function enterEntity() {
+        Entities.callEntityServerMethod(_this.entityID, "registerParticipant", [MyAvatar.sessionUUID]);
+        createLocalButtons();
     }
 
     
+    // Check for existing paint sphere and delete if found
+    function removePaintSpheres() {
+        MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
+            var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
+            if (name && (name === "Whiteboard Paint Sphere" || name === "Whiteboard Paint Sphere Material")) {
+                Entities.deleteEntity(avatarEntity.id);
+            }
+        });
+    }
+
+
     // remove the participant and remove paint sphere
     function leaveEntity() {
-        // _this.removePaintSpheres();
+        _this.removePaintSpheres();
         Screenshare.stopScreenshare();
         maybeRemoveLocalButtons();
         maybeRemoveLocalWebEntity();
@@ -262,7 +247,7 @@
 
     // delete buttons and remove paintspheres
     function unload() {
-        // _this.removePaintSpheres();
+        _this.removePaintSpheres();
         Screenshare.stopScreenshare();
         maybeRemoveLocalButtons();
         maybeRemoveLocalWebEntity();
@@ -302,6 +287,7 @@
         maybeCreateLocalWebEntity: maybeCreateLocalWebEntity,
         maybeRemoveLocalWebEntity: maybeRemoveLocalWebEntity,
         receiveBoardState: receiveBoardState,
+        removePaintSpheres: removePaintSpheres,
         preload: preload,
         unload: unload,
         enterEntity: enterEntity,
