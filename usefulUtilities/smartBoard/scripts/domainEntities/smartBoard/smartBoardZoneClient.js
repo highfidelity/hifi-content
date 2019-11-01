@@ -81,19 +81,22 @@
     // Updates the state of the local entity buttons.
     // Send the `activePresenterUUID` (even if it's empty) - that helps the buttons know who can change the SmartBoard's state.
     function updateButtonState() {
-        if (_this.currentBoardState === "whiteboard") {
-            Entities.callEntityMethod(_this.whiteboardButtonID, "updateButtonState", [true, _this.activePresenterUUID]);
-            Entities.callEntityMethod(_this.screenshareButtonID, "updateButtonState", [false, _this.activePresenterUUID]);
-        } else {
-            Entities.callEntityMethod(_this.whiteboardButtonID, "updateButtonState", [false, _this.activePresenterUUID]);
-            Entities.callEntityMethod(_this.screenshareButtonID, "updateButtonState", [true, _this.activePresenterUUID]);
+        if (!buttonIsReady) {
+            return;
         }
+
+        Entities.callEntityMethod(_this.whiteboardButtonID, "updateButtonState",
+            [_this.currentBoardState === "whiteboard", _this.activePresenterUUID]);
+        Entities.callEntityMethod(_this.screenshareButtonID, "updateButtonState",
+            [_this.currentBoardState !== "whiteboard", _this.activePresenterUUID]);
     }
 
 
     // Signal to make sure the buttons are loaded when first entering the zone
     // for help avoiding race conditions on the initial state setup
+    var buttonIsReady = false;
     function buttonPreloadComplete() {
+        buttonIsReady = true;
         updateButtonState();
     }
 
@@ -111,6 +114,8 @@
         script: Script.resolvePath("./boardButtonClient.js?" + Date.now()),
         localPosition: {x: 0, y: 0, z: -1}
     };
+    var INITIAL_WHITEBOARD_BUTTON_COLOR = {r: 15, g: 50, b: 25};
+    var INITIAL_SCREENSHARE_BUTTON_COLOR = {r: 60, g: 44, b: 150};
     function createLocalButtons() {
         var whiteboardButtonX = -(boardDimensions.x / HALF) + (STATIC_BUTTON_PROPS.dimensions.x / HALF) + margin;
         var whiteboardButtonY = -(boardDimensions.y / HALF) + (STATIC_BUTTON_PROPS.dimensions.y / HALF) + margin;
@@ -119,14 +124,14 @@
         buttonProps.parentID = _this.whiteboard;
         buttonProps.localPosition = {x: whiteboardButtonX, y: whiteboardButtonY, z: offset};
         buttonProps.name = "SmartBoard - Whiteboard Button";
-        buttonProps.color = {r: 15, g: 50, b: 25}; 
+        buttonProps.color = INITIAL_WHITEBOARD_BUTTON_COLOR;
         _this.whiteboardButtonID = Entities.addEntity(buttonProps, 'local');
 
         if (!_this.whiteboardOnlyZone) {
             // Bottom margin empirically determined
             buttonProps.localPosition.y -= whiteboardButtonY / THIRD;
             buttonProps.name = "SmartBoard - Screenshare Button";
-            buttonProps.color = {r: 60, g: 44, b: 150};
+            buttonProps.color = INITIAL_SCREENSHARE_BUTTON_COLOR;
             _this.screenshareButtonID = Entities.addEntity(buttonProps, 'local');
         }
     }
@@ -228,20 +233,20 @@
         createLocalButtons();
 
         // FOR WHITEBOARD INTEGRATION
-        // MyAvatar.disableHandTouchForID(whiteboard);
-        // Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
-        //     MyAvatar.disableHandTouchForID(whiteboardPiece);
-        // });
-        // var paletteSquares = [];
-        // Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
-        //     var name = Entities.getEntityProperties(whiteboardPiece, 'name').name;
-        //     if (name === "Whiteboard Palette Square") {
-        //         paletteSquares.push(whiteboardPiece);
-        //     }
-        // });
-        // var numberPaletteSquares = paletteSquares.length;
-        // var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);
-        // Entities.callEntityMethod(paletteSquares[randomPaletteSquareIndex],'createPaintSphere');
+        MyAvatar.disableHandTouchForID(_this.whiteboard);
+        Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
+            MyAvatar.disableHandTouchForID(whiteboardPiece);
+        });
+        var paletteSquares = [];
+        Entities.getChildrenIDs(whiteboard).forEach(function(whiteboardPiece) {
+            var name = Entities.getEntityProperties(whiteboardPiece, 'name').name;
+            if (name === "Whiteboard Palette Square") {
+                paletteSquares.push(whiteboardPiece);
+            }
+        });
+        var numberPaletteSquares = paletteSquares.length;
+        var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);
+        Entities.callEntityMethod(paletteSquares[randomPaletteSquareIndex],'createPaintSphere');
     }
 
     
@@ -257,8 +262,8 @@
 
     // delete buttons and remove paintspheres
     function unload() {
-        Screenshare.stopScreenshare();
         // _this.removePaintSpheres();
+        Screenshare.stopScreenshare();
         maybeRemoveLocalButtons();
         maybeRemoveLocalWebEntity();
 
@@ -291,13 +296,11 @@
 
     SmartBoardZoneClient.prototype = {
         createLocalButtons: createLocalButtons,
+        buttonPreloadComplete: buttonPreloadComplete,
         maybeRemoveLocalButtons: maybeRemoveLocalButtons,
+        updateButtonState: updateButtonState,
         maybeCreateLocalWebEntity: maybeCreateLocalWebEntity,
         maybeRemoveLocalWebEntity: maybeRemoveLocalWebEntity,
-        buttonPreloadComplete: buttonPreloadComplete,
-
-        updateButtonState: updateButtonState,
-
         receiveBoardState: receiveBoardState,
         preload: preload,
         unload: unload,

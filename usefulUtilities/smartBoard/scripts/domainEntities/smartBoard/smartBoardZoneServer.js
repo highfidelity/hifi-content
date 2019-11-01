@@ -36,7 +36,8 @@
         // changes the Display Name of the broadcaster that is shown to viewers on the SmartBoard.
         // That's too advanced for now, so we'll not worry about it yet.
 
-        Entities.callEntityClientMethod(UUID, _this.entityID, "receiveBoardState", [_this.currentBoardState]);
+        Entities.callEntityClientMethod(UUID, _this.entityID, "receiveBoardState",
+            [_this.currentBoardState, _this.activePresenterUUID]);
     }
     
     
@@ -105,7 +106,7 @@
     function SmartBoardZoneServer() {
         _this = this;
         this.entityID;
-        this.activePresenterUUID;
+        this.activePresenterUUID = "";
         this.currentBoardState = "whiteboard";
         this.participants = {};
         this.whiteboardOnlyZone = false;

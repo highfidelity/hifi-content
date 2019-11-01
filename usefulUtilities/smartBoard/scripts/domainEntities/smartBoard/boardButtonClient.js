@@ -16,7 +16,7 @@
         _this.entityID = entityID;
         var props = Entities.getEntityProperties(entityID, ["name", "position", "color"]);
         _this.entityName = props.name;
-        _this.color = props.color;
+        _this.inactiveButtonColor = props.color;
         var entityPosition = props.position;
         if (_this.entityName === "SmartBoard - Whiteboard Button") {
             _this.buttonType = "whiteboard";
@@ -30,15 +30,15 @@
 
     // UI
     // update the button's look, called from the zone client
-    var buttonSelectedColor = {r: 255, g: 155, b:255};
+    var ACTIVE_BUTTON_COLOR = { r: 255, g: 155, b: 255 };
     function updateButtonState(id, args) {
         var buttonIsInOnState = args[0];
         _this.activePresenterUUID = args[1];
 
         if (buttonIsInOnState) {
-            Entities.editEntity(_this.entityID, {color: buttonSelectedColor});
+            Entities.editEntity(_this.entityID, {color: ACTIVE_BUTTON_COLOR});
         } else {
-            Entities.editEntity(_this.entityID, {color: _this.color});                
+            Entities.editEntity(_this.entityID, {color: _this.inactiveButtonColor});                
         }
     }
 
@@ -59,13 +59,13 @@
 
     // SMARTBOARD BUTTON OBJECT
     var _this;
-    function SmartBoardButtonClient(){
+    function SmartBoardButtonClient() {
         _this = this;
         this.activePresenterUUID = "";
         this.screenshareZone;
         this.entityID;
         this.buttonType;
-        this.color;
+        this.inactiveButtonColor;
         this.entityName;
         this.remotelyCallable = [
             "updateButtonState"
