@@ -14,16 +14,17 @@
     // Grab the current color, set the button type, get the zone ID, and send a buttonPreloadComplete signal to the zone
     function preload(entityID) {
         _this.entityID = entityID;
-        var props = Entities.getEntityProperties(entityID, ["name", "position", "color"]);
+        var props = Entities.getEntityProperties(entityID, ["name", "color", "parentID"]);
+        console.log("Props.parentID", props.parentID);
         _this.entityName = props.name;
         _this.inactiveButtonColor = props.color;
-        var entityPosition = props.position;
         if (_this.entityName === "SmartBoard - Whiteboard Button") {
             _this.buttonType = "whiteboard";
         } else {
             _this.buttonType = "screenshare";
         }
-        _this.screenshareZone = Entities.findEntitiesByName("Screenshare_Zone", entityPosition, 0.5)[0];
+
+        _this.screenshareZone = props.parentID;
         Entities.callEntityMethod(_this.screenshareZone, "buttonPreloadComplete");
     }
 
@@ -46,6 +47,7 @@
     // When the button is pressed, call the SmartBoard zone server script to update the
     // current board state and send in the requested presenter if there is one
     function mousePressOnEntity() {
+        console.log("Mouse press on enitty");
         if (_this.activePresenterUUID === "") {
             Entities.callEntityServerMethod(_this.screenshareZone,
                 "updateCurrentBoardState", [_this.buttonType, MyAvatar.sessionUUID]);

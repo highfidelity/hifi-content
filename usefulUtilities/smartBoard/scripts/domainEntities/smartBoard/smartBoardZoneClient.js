@@ -87,7 +87,7 @@
         var whiteboardButtonY = -(boardDimensions.y / HALF) + (STATIC_BUTTON_PROPS.dimensions.y / HALF) + margin;
 
         var buttonProps = STATIC_BUTTON_PROPS;
-        buttonProps.parentID = _this.whiteboard;
+        buttonProps.parentID = _this.entityID;
         buttonProps.localPosition = {x: whiteboardButtonX, y: whiteboardButtonY, z: offset};
         buttonProps.name = "SmartBoard - Whiteboard Button";
         buttonProps.color = INITIAL_WHITEBOARD_BUTTON_COLOR;
