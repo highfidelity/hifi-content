@@ -128,9 +128,9 @@
             console.log("_this.smartboard;", _this.smartboard);
         }
         if (!_this.whiteboardOnlyZone) {
-            // Bottom margin empirically determined
-            var selectionButtonY = (buttonProps.localPosition.y + (buttonProps.dimensions.y * 2));
-            var screenshareButtonY = buttonProps.localPosition.y - whiteboardButtonY / THIRD;
+            // Just for testing
+            var selectionButtonY = buttonProps.localPosition.y + (buttonProps.dimensions.y * 2) + (buttonProps.dimensions.y / THIRD * 2);
+            var screenshareButtonY = buttonProps.localPosition.y + buttonProps.dimensions.y + buttonProps.dimensions.y / THIRD;
             buttonProps.localPosition.y = screenshareButtonY;
             buttonProps.name = "Smartboard Screenshare Button";
             buttonProps.color = INITIAL_BUTTON_COLOR;
@@ -163,21 +163,21 @@
         type: "Text"
     };
 
-    function createLocalPresenterDisplayNameTextBox() {
-        (_this.localPresenterDisplayName) {
+    function createLocalPresenterDisplayName() {
+        if (_this.localPresenterDisplayName) {
             return;
         }
         var textProps = DEFAULT_TEXTBOX_PROPS;
         textProps.parentID = _this.smartboard;
         var lineHeight = 0.1;
         textProps.dimensions = {x: boardDimensions.x, y: lineHeight, z:boardDimensions.z};
-        textProps.localPosition = {x: 0,y: boardDimensions.y / HALF ,z: offset};
+        textProps.localPosition = {x: 0,y: boardDimensions.y / HALF ,z: offset + margin};
         var displayName = AvatarManager.getAvatar(_this.activePresenterUUID).displayName; 
         textProps.text = displayName;
-        _this.localPresenterDisplayName = Entities.addEntity(textProps);
+        _this.localPresenterDisplayName = Entities.addEntity(textProps, 'local');
     }
 
-    function maybeRemoveLocalPresenterDisplayNameTextBox(){
+    function maybeRemoveLocalPresenterDisplayName(){
         if (_this.localPresenterDisplayName) {
             Entities.deleteEntity(_this.localPresenterDisplayName);            
         }
@@ -258,13 +258,13 @@
         if (_this.currentBoardState === "screenshare") {
             // Add the background
             // Add the displayName
-            createLocalPresenterDisplayNameTextBox();
+            createLocalPresenterDisplayName();
             // Add the closeout button
             // Add the screenshare Icon            
         } else {
             // remove the background
             // remove the displayName
-            maybeRemoveLocalPresenterDisplayNameTextBox();
+            maybeRemoveLocalPresenterDisplayName();
             // remove the closeout button
             // add the screenshare Icon
         }
@@ -405,6 +405,8 @@
         }
 
         Entities.callEntityServerMethod(_this.entityID, "registerParticipant", [MyAvatar.sessionUUID]);
+        
+        // TODO: This should be handled by the state machine
         createLocalButtons();
     }
 
@@ -438,7 +440,7 @@
         Screenshare.stopScreenshare();
         maybeRemoveLocalButtons();
         maybeRemoveLocalWebEntity();
-        maybeRemoveLocalPresenterDisplayNameTextBox();
+        maybeRemoveLocalPresenterDisplayName();
         if (signalsConnected) {
             Screenshare.screenshareStopped.disconnect(onScreenshareStopped);
         }
