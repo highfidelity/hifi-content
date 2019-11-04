@@ -34,6 +34,7 @@
 
     var HALF = 0.5;
 
+    var DEBUG = true;
     var DEFAULT_STROKE_WIDTH = 0.015;
     var MAX_LINE_POINTS = 100;
     var DEFAULT_LINE_PROPERTIES = {
@@ -132,6 +133,9 @@
         prepareDrawingData: function() {
             try {
                 var properties = Entities.getEntityProperties(_this.entityID, ['userData','color']);
+                if (DEBUG) {
+                    console.log("drawSphereSpawnerClient.js: " + _this.entityID + ": `prepareDrawingData()`. userDataForSphere:", properties.userData);
+                }
                 var parsedUserData = JSON.parse(properties.userData);
             } catch (err) {
                 print("ERROR: Could not parse userData of color sphere.");
@@ -333,6 +337,7 @@
         /* While holding mouse button, continue getting new intersection data, and updating line data to draw 
         or delete with. */
         mouseContinueLine: function(event) {
+            console.log("in mouse continue");
             if (!drawingInDesktop) {
                 return;
             }

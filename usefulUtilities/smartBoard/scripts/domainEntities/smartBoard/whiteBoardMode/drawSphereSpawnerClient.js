@@ -10,11 +10,11 @@
 
 (function() {
     var _this;
+    var DEBUG = true;
 
     var RGB_MAX_VALUE = 255;
     var DECIMAL_PLACES = 2;
 
-    var injector;
     var parentJointIndex;
     var dominantHandJoint;
     var dominantHand;
@@ -49,6 +49,9 @@
         attach paint sphere to. Create a paint sphere using the color of this square that was clicked. Attach a material 
         to the sphere using a texture found inthe userData of this square. */
         createPaintSphere: function() {
+            if (DEBUG) {
+                console.log("drawSphereSpawnerClient.js: " + _this.entityID + ": `createPaintSphere()`.");
+            }
             _this.removePaintSpheres();
             dominantHand = MyAvatar.getDominantHand();
             dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
@@ -62,6 +65,13 @@
             }
             var properties = Entities.getEntityProperties(_this.entityID, ['userData', 'color']);
             var userData = JSON.parse(properties.userData);
+            var userDataForSphere = JSON.stringify({
+                textureURL: userData.textureURL,
+                colorPaletteID: _this.entityID
+            });
+            if (DEBUG) {
+                console.log("drawSphereSpawnerClient.js: " + _this.entityID + ": `createPaintSphere()`. userDataForSphere:", userDataForSphere);
+            }
             var paintSphere = Entities.addEntity({
                 name: "Whiteboard Paint Sphere",
                 type: "Model",
@@ -71,15 +81,12 @@
                 localPosition: { x: 0, y: 0, z: 0 },
                 localRotation: Quat.fromVec3Degrees({x:0,y:0,z:0}),
                 color: properties.color,
-                localDimensions: { x: 0.015, y: 0.015, z: 0.015 },
+                localDimensions: { x: 1.015, y: 0.015, z: 0.015 },
                 script: Script.resolvePath("drawSphereClient.js?" + Date.now()),
                 grab: { grabbable: false },
                 collisionless: true,
                 lifetime: 500,
-                userData: JSON.stringify({
-                    textureURL: userData.textureURL,
-                    colorPaletteID: _this.entityID
-                })
+                userData: userDataForSphere
             }, 'avatar');
             var colorRescaled = {};
             colorRescaled.red = _this.rgbConversion(properties.color.red);
