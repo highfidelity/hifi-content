@@ -30,21 +30,13 @@
                 "\n`_this.currentBoardState`: " + _this.currentBoardState + "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
 
-        if (_this.currentBoardState === "screenshare") {
-            updateState("screenshare");
-            return;
-        }
-        if (_this.currentBoardState === "whiteboard") {
-            updateState("whiteboard");
-            return;
-        }
-        if (_this.currentBoardState === "selection") {
-            updateState("selection");
-        }
+        setupWhiteboardState();
+        setupScreenshareState();
+        setupSelectionState();
     }
 
 
-    function toggleSmartboardPolylines(){
+    function toggleSmartboardPolylines() {
         var smartboardPieces = Entities.getChildrenIDs(_this.smartboard);
         var hideArray = ["screenshare", "reset", "palette"]
         smartboardPieces.forEach(function(smartboardPiece) {
@@ -226,7 +218,7 @@
     }
 
 
-    function toggleWhiteboardUI(){
+    function toggleWhiteboardUI() {
         if (_this.currentBoardState === "whiteboard") {
             // Show erase button
             // Show palettes
@@ -242,8 +234,8 @@
     }
 
 
-    function toggleWhiteboard(state) {
-        if (state === "on") {
+    function setupWhiteboardState() {
+        if (_this.currentBoardState === "whiteboard") {
             setupTouchDisable();
             createRandomPaintSphere();
         } else {
@@ -271,8 +263,8 @@
     }
 
 
-    function toggleScreenshare(state) {
-        if (state === "on") {
+    function setupScreenshareState() {
+        if (_this.currentBoardState === "screenshare") {
             maybeCreateLocalWebEntity();
             if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
                 Screenshare.startScreenshare(_this.roomName);
@@ -290,35 +282,13 @@
         //
     }
 
-    function toggleSelectionScreen(state) { 
-        if (state === "on") {
+    function setupSelectionState() { 
+        if (_this.currentBoardState === "selection") {
             //
         } else {
             //
         }
         toggleSelectionScreenUI();
-    }
-
-    function updateState(state) {
-        switch (state) {
-            case "selection":
-                toggleWhiteboard("off");
-                toggleScreenshare("off");
-                toggleSelectionScreen("on");
-                break;
-            case "screenshare":
-                toggleWhiteboard("off");
-                toggleScreenshare("on");
-                toggleSelectionScreen("off");
-                break;
-            case "whiteboard":
-                toggleWhiteboard("on");
-                toggleScreenshare("off");
-                toggleSelectionScreen("off");
-                break;
-            case "default":
-                console.log("unrecognized command in smartboardZoneClient updateState()");
-        }
     }
 
     function onScreenshareStopped() {
