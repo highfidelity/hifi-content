@@ -25,18 +25,21 @@
         console.log("Props.parentID", props.parentID);
         _this.entityName = props.name;
         _this.inactiveButtonColor = props.color;
-        if (_this.entityName === "SmartBoard - Whiteboard Button") {
+
+        if (_this.entityName === "Smartboard Whiteboard Button") {
             _this.buttonType = "whiteboard";
             _this.inactiveButtonColor = INITIAL_WHITEBOARD_BUTTON_COLOR;
-        } else {
+        } else if (_this.entityName === "Smartboard Screenshare Button") {
             _this.buttonType = "screenshare";
             _this.inactiveButtonColor = INITIAL_SCREENSHARE_BUTTON_COLOR;
+        } else {
+            _this.buttonType = "selection";
         }
 
-        Entities.getChildrenIDs(props.parentID).forEach(function(whiteBoardChild) {
-            var name = Entities.getEntityProperties(whiteBoardChild, 'name').name;
+        Entities.getChildrenIDs(props.parentID).forEach(function(smartboardChild) {
+            var name = Entities.getEntityProperties(smartboardChild, 'name').name;
             if (name === "Smartboard Zone") {
-                _this.screenshareZone = whiteBoardChild;
+                _this.screenshareZone = smartboardChild;
             }
 
         });
@@ -63,7 +66,7 @@
     }
 
 
-    // When the button is pressed, call the SmartBoard zone server script to update the
+    // When the button is pressed, call the Smartboard zone server script to update the
     // current board state and send in the requested presenter if there is one
     function mousePressOnEntity() {
         if (DEBUG) {
@@ -71,19 +74,14 @@
                 "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
 
-        if (_this.activePresenterUUID === "" && _this.buttonType === "screenshare") {
-            Entities.callEntityServerMethod(_this.screenshareZone,
-                "updateCurrentBoardState", [_this.buttonType, MyAvatar.sessionUUID]);
-        } else if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
-            Entities.callEntityServerMethod(_this.screenshareZone, "updateCurrentBoardState", ["whiteboard", ""]);
-            Screenshare.stopScreenshare();
-        }
+        var presenterUUID = _this.activePresenterUUID ? _this.activePresenterUUID : "";
+        Entities.callEntityServerMethod(_this.screenshareZone, "updateCurrentBoardState", [_this.buttonType, presenterUUID]);
     }
 
 
     // SMARTBOARD BUTTON OBJECT
     var _this;
-    function SmartBoardButtonClient() {
+    function SmartboardButtonClient() {
         _this = this;
         this.activePresenterUUID = "";
         this.screenshareZone;
@@ -96,11 +94,11 @@
         ];
     }
 
-    SmartBoardButtonClient.prototype = {
+    SmartboardButtonClient.prototype = {
         preload: preload,
         mousePressOnEntity: mousePressOnEntity,
         updateButtonState: updateButtonState
     };
 
-    return new SmartBoardButtonClient();
-})
+    return new SmartboardButtonClient();
+});

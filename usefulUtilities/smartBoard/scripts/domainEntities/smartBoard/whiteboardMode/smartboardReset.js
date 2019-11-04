@@ -1,5 +1,5 @@
 //
-//  whiteboardReset.js
+//  SmartboardReset.js
 //
 //  created by Rebecca Stankus on 03/28/19
 //  Copyright 2019 High Fidelity, Inc.
@@ -12,37 +12,37 @@
 
     var _this;
 
-    var RESET_SOUND = SoundCache.getSound(Script.resolvePath('../resources/sounds/resetWhiteboard.mp3'));
+    var RESET_SOUND = SoundCache.getSound(Script.resolvePath('./resources/sounds/resetSmartboard.mp3'));
     var RESET_SOUND_VOLUME = 0.05;
     var HALF = 0.5;
 
     var injector;
-    var whiteboardZone = null;
-    var thisWhiteboard;
+    var smartboardZone = null;
+    var thisSmartboard;
 
-    var WhiteboardReset = function() {
+    var SmartboardReset = function() {
         _this = this;
     };
 
-    WhiteboardReset.prototype = {
+    SmartboardReset.prototype = {
         remotelyCallable: ['mousePressOnEntity'],
 
         /* ON PRELOAD: Save a reference to this */
         preload: function(entityID) {
             _this.entityID = entityID;
-            _this.getWhiteboardZone();
+            _this.getSmartboardZone();
         },
 
-        /* Search children of whiteboard to get zone. */
-        getWhiteboardZone: function() {
-            thisWhiteboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
-            Entities.getChildrenIDs(thisWhiteboard).forEach(function(whiteboardChild) {
-                var name = Entities.getEntityProperties(whiteboardChild, 'name').name;
-                if (name === "Whiteboard Zone") {
-                    whiteboardZone = whiteboardChild;
+        /* Search children of smartboard to get zone. */
+        getSmartboardZone: function() {
+            thisSmartboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
+            Entities.getChildrenIDs(thisSmartboard).forEach(function(smartboardChild) {
+                var name = Entities.getEntityProperties(smartboardChild, 'name').name;
+                if (name === "Smartboard Zone") {
+                    smartboardZone = smartboardChild;
                 }
             });
-            return whiteboardZone;
+            return smartboardZone;
         },
 
         /* Check if user is inside zone */
@@ -77,19 +77,19 @@
             }
         },
 
-        /* Find all nearby whiteboard lines and delete them if you are in the whiteboard zone */
-        resetWhiteboard: function() {
-            if (!whiteboardZone && !_this.getWhiteboardZone()) {
+        /* Find all nearby smartboard lines and delete them if you are in the smartboard zone */
+        resetSmartboard: function() {
+            if (!smartboardZone && !_this.getSmartboardZone()) {
                 return;
             }
-            if (!_this.isUserInZone(whiteboardZone)) {
+            if (!_this.isUserInZone(smartboardZone)) {
                 return;
             }
             _this.playSound(RESET_SOUND, RESET_SOUND_VOLUME, MyAvatar.position, true, false);
-            Entities.getChildrenIDs(thisWhiteboard).forEach(function(childOfWhiteboard) {
-                var name = Entities.getEntityProperties(childOfWhiteboard, 'name').name;
-                if (name === "Whiteboard Polyline") {
-                    Entities.deleteEntity(childOfWhiteboard);
+            Entities.getChildrenIDs(thisSmartboard).forEach(function(childOfSmartboard) {
+                var name = Entities.getEntityProperties(childOfSmartboard, 'name').name;
+                if (name === "Smartboard Polyline") {
+                    Entities.deleteEntity(childOfSmartboard);
                 }
             });
         },
@@ -97,10 +97,10 @@
         /* When clicked or triggered, reset board. */
         mousePressOnEntity: function( entityID, event ) {
             if (event.isLeftButton) {
-                _this.resetWhiteboard();
+                _this.resetSmartboard();
             }
         }
     };
 
-    return new WhiteboardReset();
+    return new SmartboardReset();
 });
