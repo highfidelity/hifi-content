@@ -72,7 +72,12 @@
             entityNamesToShowOrHide.push("polyline");
         }
         smartboardChildrenIDs.forEach(function(smartboardPiece) {
-            var lowerCaseName = Entities.getEntityProperties(smartboardPiece, 'name').name.toLowerCase();
+            var entityName = Entities.getEntityProperties(smartboardPiece, 'name').name;
+            if (!entityName) {
+                return;
+            }
+
+            var lowerCaseName = entityName.toLowerCase();
             var foundWhiteBoardComponent = false;
             for (var i = 0; i < entityNamesToShowOrHide.length; i++) {
                 if (lowerCaseName.indexOf(entityNamesToShowOrHide[i] === -1)) {
@@ -99,7 +104,7 @@
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `setButtonActivePresenterUUID()`.");
         }
 
-        Entities.callEntityMethod(_this.ScreenshareStartStopButtonID, "setActivePresenterUUID",
+        Entities.callEntityMethod(_this.screenshareStartStopButtonID, "setActivePresenterUUID",
             [_this.activePresenterUUID]);
     }
 
@@ -127,10 +132,14 @@
         type: "Model",
         script: Script.resolvePath("./boardButtonClient.js?" + Date.now()),
         // TODO: these will change with Alan's redesign
-        // localPosition: {x: 1.1618, y: 1.0004, z: 0.0601},
-        // dimensions: {x: 0.8093, Y: 0.1012, z: 0.0189}
+        localPosition: {x: 1.1618, y: 1.0004, z: 0.4601},
+        dimensions: {x: 0.8093, Y: 0.1012, z: 0.0189}
     };
     function setupLocalButton() {
+        if (_this.screenshareStartStopButtonID) {
+            return;
+        }
+
         if (DEBUG) {
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `setupLocalButton()`.");
         }
@@ -139,7 +148,7 @@
             var buttonProps = STATIC_BUTTON_PROPS;
             buttonProps.parentID = _this.smartboard;
             buttonProps.name = "Smartboard ScreenshareStartStop Button";
-            _this.ScreenshareStartStopButtonID = Entities.addEntity(buttonProps, 'local');
+            _this.screenshareStartStopButtonID = Entities.addEntity(buttonProps, 'local');
         }
     }
 
@@ -150,9 +159,9 @@
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `maybeRemoveLocalScreenshareButton()`.");
         }
 
-        if (_this.ScreenshareStartStopButtonID) {
-            Entities.deleteEntity(_this.ScreenshareStartStopButtonID);
-            _this.ScreenshareStartStopButtonID = null;
+        if (_this.screenshareStartStopButtonID) {
+            Entities.deleteEntity(_this.screenshareStartStopButtonID);
+            _this.screenshareStartStopButtonID = null;
         }
     }
 
@@ -305,7 +314,7 @@
         this.activePresenterUUID = "";
         this.currentBoardState = "screenshare";
         this.entityID;
-        this.ScreenshareStartStopButtonID = null;
+        this.screenshareStartStopButtonID = null;
         this.localPresenterDisplayName = null;
         this.screenshareModeFirstActivated = false;
         this.whiteboardOnlyZone = false;
