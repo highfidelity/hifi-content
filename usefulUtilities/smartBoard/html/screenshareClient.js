@@ -43,24 +43,39 @@ function initializeTokboxSession() {
 
 
 // main
-function startup() {
-    // Make an Ajax request to get the OpenTok API key, session ID, and token from the server
-    fetch("https://hifi-test.herokuapp.com" + '/room/test')
-        .then(function (res) {
-            return res.json();
-        })
-        .then(function fetchJson(json) {
-            apiKey = json.apiKey;
-            sessionId = json.sessionId;
-            token = json.token;
-
-            initializeTokboxSession();
-        })
-        .catch(function catchErr(error) {
-            handleError(error);
-            alert('Failed to get opentok sessionId and token. Make sure you have updated the config.js file.');
-        });
+function onScriptEventReceived(message){
+    try {
+        message = JSON.parse(message);
+        var data = message.data;
+        switch (message.type) {
+            case "receiveConnectionInfo":
+                apiKey = data.apiKey;
+                sessionId = data.sessionId;
+                token = data.token;
+                initializeTokboxSession();
+                break;
+            default:
+                console.log("screenshareClient.js: Unrecognized command from on script event received")
+                break;
+        }
+    } catch (e) {
+        console.log("screenshareClient.js: error parsing incoming message");
+    }
 }
-startup();
 
-document.
+// This delay is necessary to allow for the JS EventBridge to become active.
+// The delay is still necessary for HTML apps in RC78+.
+var EVENTBRIDGE_SETUP_DELAY = 500;
+function onLoad() {
+    setTimeout(function() {
+        EventBridge.scriptEventReceived.connect(onScriptEventReceived);
+        EventBridge.emitWebEvent(JSON.stringify({
+            app: "appreciate",
+            method: "eventBridgeReady"
+        }));
+    }, EVENTBRIDGE_SETUP_DELAY);
+
+}
+
+onLoad();
+
