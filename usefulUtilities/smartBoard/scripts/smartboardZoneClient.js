@@ -33,20 +33,18 @@
 
         if (_this.currentBoardState === "whiteboard") {
             createRandomPaintSphere();
-            maybeRemoveLocalWebEntity();
             maybeRemoveLocalPresenterDisplayName();
 
-            if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
-                Screenshare.stopScreenshare();
-            }
+            // This will also delete the local web entity if there is one.
+            Screenshare.stopScreenshare();
         } else if (_this.currentBoardState === "screenshare") {
-            Screenshare.viewScreenshare();
             maybeCreateLocalPresenterDisplayName();
 
             if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
-                Screenshare.startScreenshare(_this.roomName);
+                Screenshare.startScreenshare(_this.entityID, _this.smartboard, true);
             } else {
                 maybeRemoveLocalScreenshareButton();
+                Screenshare.startScreenshare(_this.entityID, _this.smartboard, false);
             }
             maybeRemovePaintSpheres();
         } else {
@@ -122,7 +120,7 @@
     // Create the local screenshare and whiteboard buttons when someone enters
     // Probably will need to add an additional "zoom" button
     var boardDimensions;
-    var offset;
+    var entityOffsetFromBoard;
     var margin = 0.025;
     var HALF = 2;
     var STATIC_BUTTON_PROPS = {
@@ -171,7 +169,7 @@
         textProps.parentID = _this.smartboard;
         var lineHeight = 0.1;
         textProps.dimensions = {x: boardDimensions.x, y: lineHeight, z:boardDimensions.z};
-        textProps.localPosition = {x: 0,y: boardDimensions.y / HALF ,z: offset + margin};
+        textProps.localPosition = {x: 0, y: boardDimensions.y / HALF ,z: entityOffsetFromBoard + margin};
         var displayName = AvatarManager.getAvatar(_this.activePresenterUUID).displayName; 
         textProps.text = displayName;
         _this.localPresenterDisplayName = Entities.addEntity(textProps, 'local');
@@ -186,84 +184,6 @@
     }
 
 
-    // create the local web entity only when there is a screenshare initiated
-    // this may be moved to the participant script
-    var STATIC_LOCAL_WEB_ENTITY_PROPS = {
-        type: "Web",
-        maxFPS: 30
-    };
-    var boardPosition;
-    var localWebEntitySignalsConnected = false;
-    function maybeCreateLocalWebEntity() {
-        if (_this.localWebEntityID) {
-            return;
-        }
-
-        if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID +
-                ": `maybeCreateLocalWebEntity()`: Creating local web entity...");
-        }
-
-        var localWebEntityProps = STATIC_LOCAL_WEB_ENTITY_PROPS;
-        localWebEntityProps.localPosition = {x: 0, y: 0, z: offset};
-        localWebEntityProps.parentID = _this.smartboard;
-        localWebEntityProps.dimensions = boardDimensions;
-        // Will point to local HTML file
-        localWebEntityProps.sourceUrl = CONFIG.sourceURL;
-        localWebEntityProps.position = boardPosition;
-
-        _this.localWebEntityID = Entities.addEntity(localWebEntityProps, 'local');
-        _this.localWebEntityObject = Entities.getEntityObject(_this.localWebEntityObject);
-        if (!localWebEntitySignalsConnected) {
-            _this.localWebEntityObject.webEventReceived.connect(onLocalWebEntityEventReceived);
-            localWebEntitySignalsConnected = true;
-        }
-    }
-
-
-    // removed when a screenshare ends or a user leaves the zone
-    function maybeRemoveLocalWebEntity() {
-        if (_this.localWebEntityID) {
-            if (DEBUG) {
-                console.log("smartboardZoneClient.js: " + _this.entityID +
-                    ": `maybeRemoveLocalWebEntity()`: Deleting local web entity...");
-            }
-
-            Entities.deleteEntity(_this.localWebEntityID);
-        }
-        _this.localWebEntityID = false;
-
-        if (localWebEntitySignalsConnected) {
-            _this.localWebEntityObject.webEventReceived.disconnect(onLocalWebEntityEventReceived);
-        }
-        localWebEntitySignalsConnected = false;
-
-        _this.localWebEntityObject = null;
-    }
-
-
-    // Where should the call to the metaverse go now?
-    function onLocalWebEntityEventReceived(message){
-        try {
-            message = JSON.parse(message);
-        } catch (e) {
-            console.log("smartBoardZoneClient.js: Error parsing web entity event message: " + e);
-            return;
-        }
-
-        if (message.type === "eventbridge_ready") {
-            _this.localWebEntityObject.emitScriptEvent(JSON.stringify({
-                type: "receiveConnectionInfo",
-                data: {
-                    projectAPIKey: _this.projectAPIKey,
-                    token: _this.token,
-                    sessionID: _this.sessionID
-                }
-            }));
-        }
-    }
-
-
     function onScreenshareStopped() {
         if (DEBUG) {
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `onScreenshareStopped()`.");
@@ -273,18 +193,11 @@
     }
 
 
-    function onStartScreenshareViewer(projectAPIKey, token, sessionID) {
-        _this.projectAPIKey = projectAPIKey;
-        _this.token = token;
-        _this.sessionID = sessionID;
-        maybeCreateLocalWebEntity();
-    }
-
-
     // ENTITY SIGNALS
     // 1. get the smartboard parent, the dimensions/position of the board for button and web entity positioning
-    // 2. get the setup information such as roomName and whether this is a whiteboard only zone
+    // 2. get the setup information: whether this is a whiteboard only zone
     var signalsConnected = false;
+    var boardDimensions;
     function preload(entityID) {
         _this.entityID = entityID;
         _this.smartboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
@@ -293,10 +206,9 @@
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `preload()`.");
         }
 
-        var boardProps = Entities.getEntityProperties(_this.smartboard, ['dimensions', 'position']);
+        var boardProps = Entities.getEntityProperties(_this.smartboard, ['dimensions']);
         boardDimensions = boardProps.dimensions;
-        boardPosition = boardProps.position;
-        offset = boardDimensions.z / HALF + margin;
+        entityOffsetFromBoard = boardDimensions.z / HALF + margin;
 
         _this.smartboardChildrenIDs = Entities.getChildrenIDs(_this.smartboard);
 
@@ -321,16 +233,6 @@
         if (parsedData.whiteboardOnlyZone) {
             _this.whiteboardOnlyZone = parsedData.whiteboardOnlyZone;
         }
-
-        if (parsedData.roomName) {
-            _this.roomName = parsedData.roomName;
-        }
-
-        if (!signalsConnected) {
-            Screenshare.screenshareStopped.connect(onScreenshareStopped);
-            Screenshare.startScreenshareViewer.connect(onStartScreenshareViewer);
-            signalsConnected = true;
-        }
     }
 
 
@@ -349,6 +251,11 @@
         if (DEBUG) {
             console.log("smartboardZoneClient.js: " + _this.entityID +
                 ": `enterEntity()`. Registering participant and creating local buttons...");
+        }
+
+        if (!signalsConnected) {
+            Screenshare.screenshareStopped.connect(onScreenshareStopped);
+            signalsConnected = true;
         }
 
         Entities.callEntityServerMethod(_this.entityID, "registerParticipant", [MyAvatar.sessionUUID]);
@@ -381,13 +288,12 @@
     // delete buttons and remove paintspheres
     function unload() {
         maybeRemovePaintSpheres();
+        // This will also delete the local web entity if there is one.
         Screenshare.stopScreenshare();
         maybeRemoveLocalScreenshareButton();
-        maybeRemoveLocalWebEntity();
         maybeRemoveLocalPresenterDisplayName();
         if (signalsConnected) {
             Screenshare.screenshareStopped.disconnect(onScreenshareStopped);
-            Screenshare.startScreenshareViewer.disconnect(onStartScreenshareViewer);
         }
     }
     
@@ -400,12 +306,9 @@
         this.currentBoardState = "screenshare";
         this.entityID;
         this.ScreenshareStartStopButtonID = null;
-        this.localWebEntityID = null;
-        this.localWebEntityObject = null;
         this.localPresenterDisplayName = null;
         this.screenshareModeFirstActivated = false;
         this.whiteboardOnlyZone = false;
-        this.roomName = "";
         this.smartboard;
         this.smartboardChildrenIDs;
         this.paletteSquares = [];
